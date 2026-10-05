@@ -29,6 +29,7 @@ define( 'WP_DEBUG', true );
 require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
 
 require_once __DIR__ . '/CallableMock.php';
+require_once __DIR__ . '/class-users-connection-admin-double.php';
 
 // Initialize WordPress test environment
 \Automattic\Jetpack\Test_Environment::init();

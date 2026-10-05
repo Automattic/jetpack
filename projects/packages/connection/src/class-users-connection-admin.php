@@ -62,9 +62,13 @@ class Users_Connection_Admin {
 		add_filter( 'manage_users_columns', array( $this, 'add_connection_column' ) );
 		add_filter( 'manage_users_custom_column', array( $this, 'render_connection_column' ), 9, 3 ); // Priority 9 to run before SSO
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_filter( 'views_users', array( $this, 'add_connected_view' ) );
-		add_filter( 'users_list_table_query_args', array( $this, 'filter_query_to_connected_users' ) );
-		add_action( 'restrict_manage_users', array( $this, 'keep_connected_view_on_submit' ) );
+		// Registered as static callbacks, not `array( $this, … )`: a slugged Manager builds its
+		// own Plugin, and so its own instance of this class, so a request runs several. WP keys
+		// callbacks by object hash, so instance callbacks would stack up — repeating the count
+		// query and printing the hidden field once per instance.
+		add_filter( 'views_users', array( self::class, 'add_connected_view' ) );
+		add_filter( 'users_list_table_query_args', array( self::class, 'filter_query_to_connected_users' ) );
+		add_action( 'restrict_manage_users', array( self::class, 'keep_connected_view_on_submit' ) );
 	}
 
 	/**
@@ -78,7 +82,7 @@ class Users_Connection_Admin {
 	 *
 	 * @param string $which Which tablenav is being rendered, 'top' or 'bottom'.
 	 */
-	public function keep_connected_view_on_submit( $which ) {
+	public static function keep_connected_view_on_submit( $which ) {
 		// Both tablenavs sit in the same form, so only one copy of the field is needed.
 		if ( 'top' !== $which || ! self::is_connected_view() ) {
 			return;
@@ -149,7 +153,7 @@ class Users_Connection_Admin {
 	 * @param array $args Query arguments for the list table's WP_User_Query.
 	 * @return array
 	 */
-	public function filter_query_to_connected_users( $args ) {
+	public static function filter_query_to_connected_users( $args ) {
 		if ( ! self::is_connected_view() ) {
 			return $args;
 		}
@@ -160,6 +164,12 @@ class Users_Connection_Admin {
 		// constraints are kept rather than overwriting theirs.
 		if ( ! empty( $args['include'] ) ) {
 			$connected = array_intersect( wp_parse_id_list( $args['include'] ), $connected );
+		}
+
+		// WP_User_Query only honours `exclude` when `include` is empty, so setting `include`
+		// below would silently un-exclude whoever another filter had removed.
+		if ( ! empty( $args['exclude'] ) ) {
+			$connected = array_diff( $connected, wp_parse_id_list( $args['exclude'] ) );
 		}
 
 		// An empty `include` is ignored by WP_User_Query, which would list every user. No
@@ -177,8 +187,8 @@ class Users_Connection_Admin {
 	 * @param string[] $views View links keyed by view name.
 	 * @return string[]
 	 */
-	public function add_connected_view( $views ) {
-		$count = self::count_connected_users();
+	public static function add_connected_view( $views ) {
+		$count = static::count_connected_users();
 
 		if ( ! $count ) {
 			return $views;
@@ -207,16 +217,34 @@ class Users_Connection_Admin {
 	/**
 	 * Number of connected users the list will actually show.
 	 *
-	 * Counted through Manager::get_connected_users(), which resolves every token holder to
-	 * a user and drops the ones that no longer exist, so the count cannot overstate the
-	 * rows. The per-user lookups are object-cached and the set is small.
+	 * Queried rather than counted off the token option because the two can disagree:
+	 * `WP_User_Query` scopes to the current site, so a user removed from this site but
+	 * still on the network — `remove_user_from_blog()` does not fire `deleted_user`, so
+	 * the token survives — is counted out, as are IDs with no user left at all.
+	 *
+	 * Protected so tests can supply a count without a database.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return int
 	 */
-	private static function count_connected_users() {
-		return count( ( new Manager() )->get_connected_users() );
+	protected static function count_connected_users() {
+		$ids = self::get_connected_user_ids();
+
+		if ( ! $ids ) {
+			return 0;
+		}
+
+		$query = new \WP_User_Query(
+			array(
+				'include'     => $ids,
+				'fields'      => 'ID',
+				'number'      => -1,
+				'count_total' => false,
+			)
+		);
+
+		return count( $query->get_results() );
 	}
 
 	/**

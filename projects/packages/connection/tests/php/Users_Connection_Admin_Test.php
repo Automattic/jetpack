@@ -62,7 +62,9 @@ class Users_Connection_Admin_Test extends TestCase {
 		remove_all_filters( 'manage_users_custom_column' );
 		remove_all_filters( 'views_users' );
 		remove_all_filters( 'users_list_table_query_args' );
+		remove_all_actions( 'restrict_manage_users' );
 
+		Users_Connection_Admin_Double::$connected_count = 0;
 		unset( $_GET[ Users_Connection_Admin::VIEW_QUERY_ARG ] );
 
 		$GLOBALS['wp_styles']  = null;
@@ -235,6 +237,22 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
+	 * Render the view against a given connected-user count.
+	 *
+	 * The real count queries, and WorDBless does not run WP_User_Query, so the view would
+	 * always render as empty and the assertions below would pass for the wrong reason.
+	 *
+	 * @param int   $count Count to report.
+	 * @param array $views Views to filter.
+	 * @return array
+	 */
+	private function views_with_count( $count, $views = array() ) {
+		Users_Connection_Admin_Double::$connected_count = $count;
+
+		return Users_Connection_Admin_Double::add_connected_view( $views );
+	}
+
+	/**
 	 * The view's hooks are registered alongside the column's.
 	 */
 	public function test_init_registers_the_connected_view_hooks() {
@@ -242,9 +260,9 @@ class Users_Connection_Admin_Test extends TestCase {
 
 		$admin->init();
 
-		$this->assertIsInt( has_filter( 'views_users', array( $admin, 'add_connected_view' ) ) );
-		$this->assertIsInt( has_filter( 'users_list_table_query_args', array( $admin, 'filter_query_to_connected_users' ) ) );
-		$this->assertIsInt( has_action( 'restrict_manage_users', array( $admin, 'keep_connected_view_on_submit' ) ) );
+		$this->assertIsInt( has_filter( 'views_users', array( Users_Connection_Admin::class, 'add_connected_view' ) ) );
+		$this->assertIsInt( has_filter( 'users_list_table_query_args', array( Users_Connection_Admin::class, 'filter_query_to_connected_users' ) ) );
+		$this->assertIsInt( has_action( 'restrict_manage_users', array( Users_Connection_Admin::class, 'keep_connected_view_on_submit' ) ) );
 	}
 
 	/**
@@ -254,7 +272,7 @@ class Users_Connection_Admin_Test extends TestCase {
 		$this->activate_connected_view();
 
 		ob_start();
-		$this->create_admin()->keep_connected_view_on_submit( 'top' );
+		Users_Connection_Admin::keep_connected_view_on_submit( 'top' );
 		$field = ob_get_clean();
 
 		$this->assertStringContainsString( 'type="hidden"', $field );
@@ -269,7 +287,7 @@ class Users_Connection_Admin_Test extends TestCase {
 		$this->activate_connected_view();
 
 		ob_start();
-		$this->create_admin()->keep_connected_view_on_submit( 'bottom' );
+		Users_Connection_Admin::keep_connected_view_on_submit( 'bottom' );
 
 		$this->assertSame( '', ob_get_clean() );
 	}
@@ -279,7 +297,7 @@ class Users_Connection_Admin_Test extends TestCase {
 	 */
 	public function test_no_hidden_field_without_the_connected_view() {
 		ob_start();
-		$this->create_admin()->keep_connected_view_on_submit( 'top' );
+		Users_Connection_Admin::keep_connected_view_on_submit( 'top' );
 
 		$this->assertSame( '', ob_get_clean() );
 	}
@@ -308,10 +326,7 @@ class Users_Connection_Admin_Test extends TestCase {
 	 * The view is offered with a count once somebody is connected.
 	 */
 	public function test_connected_view_is_added_with_a_count() {
-		$this->connect_user( 'connected_one' );
-		$this->connect_user( 'connected_two' );
-
-		$views = $this->create_admin()->add_connected_view( array( 'all' => '<a href="users.php">All</a>' ) );
+		$views = $this->views_with_count( 2, array( 'all' => '<a href="users.php">All</a>' ) );
 
 		$this->assertArrayHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
 		$this->assertStringContainsString( 'Connected', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
@@ -320,41 +335,47 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
-	 * Nothing is connected, so the view would only ever be empty.
+	 * Nobody connected is a member of this site, so the view would only ever be empty.
 	 */
 	public function test_connected_view_is_absent_without_connected_users() {
-		$views = $this->create_admin()->add_connected_view( array( 'all' => '<a href="users.php">All</a>' ) );
+		$views = $this->views_with_count( 0, array( 'all' => '<a href="users.php">All</a>' ) );
 
 		$this->assertArrayNotHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
 	}
 
 	/**
-	 * A token can outlive the user it belonged to; the count follows the rows, not the tokens.
+	 * No tokens means no count, and no reason to ask the database.
 	 */
-	public function test_connected_view_count_ignores_tokens_whose_user_is_gone() {
-		$this->connect_user( 'connected_one' );
+	public function test_connected_view_is_absent_without_tokens() {
+		$views = Users_Connection_Admin::add_connected_view( array() );
+
+		$this->assertArrayNotHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
+	}
+
+	/**
+	 * A token can outlive the user it belonged to. The filter still passes the ID on — it
+	 * simply matches no row — and the count query is what leaves it out.
+	 */
+	public function test_an_orphaned_token_still_reaches_the_query() {
+		$connected = $this->connect_user( 'connected_one' );
 
 		$tokens         = (array) \Jetpack_Options::get_option( 'user_tokens' );
 		$tokens[999999] = 'key.secret.999999';
 		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+		$this->activate_connected_view();
 
-		$views = $this->create_admin()->add_connected_view( array() );
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array() );
 
-		// The orphaned token is still in the option, so the IDs the filter uses include it.
-		$this->assertContains( 999999, Users_Connection_Admin::get_connected_user_ids() );
-		$this->assertStringContainsString( '<span class="count">(1)</span>', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+		$this->assertSame( array( $connected, 999999 ), $args['include'] );
 	}
 
 	/**
 	 * While the view is active it is the current one, and core's "All" gives up the highlight.
 	 */
 	public function test_connected_view_takes_the_current_highlight_from_all() {
-		$this->connect_user( 'connected_one' );
 		$this->activate_connected_view();
 
-		$views = $this->create_admin()->add_connected_view(
-			array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' )
-		);
+		$views = $this->views_with_count( 1, array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' ) );
 
 		$this->assertStringContainsString( 'class="current"', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
 		$this->assertStringNotContainsString( 'class="current"', $views['all'] );
@@ -365,11 +386,7 @@ class Users_Connection_Admin_Test extends TestCase {
 	 * The view is just one of the links until it is selected.
 	 */
 	public function test_connected_view_is_not_current_by_default() {
-		$this->connect_user( 'connected_one' );
-
-		$views = $this->create_admin()->add_connected_view(
-			array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' )
-		);
+		$views = $this->views_with_count( 1, array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' ) );
 
 		$this->assertStringNotContainsString( 'class="current"', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
 		$this->assertStringContainsString( 'class="current"', $views['all'] );
@@ -383,7 +400,7 @@ class Users_Connection_Admin_Test extends TestCase {
 		$second = $this->connect_user( 'connected_two' );
 		$this->activate_connected_view();
 
-		$args = $this->create_admin()->filter_query_to_connected_users( array( 'number' => 20 ) );
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array( 'number' => 20 ) );
 
 		$this->assertSame( array( $first, $second ), $args['include'] );
 		$this->assertSame( 20, $args['number'] );
@@ -395,7 +412,7 @@ class Users_Connection_Admin_Test extends TestCase {
 	public function test_query_is_untouched_when_the_view_is_not_active() {
 		$this->connect_user( 'connected_one' );
 
-		$args = $this->create_admin()->filter_query_to_connected_users( array( 'number' => 20 ) );
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array( 'number' => 20 ) );
 
 		$this->assertArrayNotHasKey( 'include', $args );
 	}
@@ -408,7 +425,7 @@ class Users_Connection_Admin_Test extends TestCase {
 		$this->connect_user( 'connected_two' );
 		$this->activate_connected_view();
 
-		$args = $this->create_admin()->filter_query_to_connected_users(
+		$args = Users_Connection_Admin::filter_query_to_connected_users(
 			array( 'include' => array( $first, $this->admin_id ) )
 		);
 
@@ -421,7 +438,7 @@ class Users_Connection_Admin_Test extends TestCase {
 	public function test_query_matches_nobody_when_no_user_is_connected() {
 		$this->activate_connected_view();
 
-		$args = $this->create_admin()->filter_query_to_connected_users( array() );
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array() );
 
 		$this->assertSame( array( 0 ), $args['include'] );
 	}
@@ -433,7 +450,7 @@ class Users_Connection_Admin_Test extends TestCase {
 		$this->connect_user( 'connected_one' );
 		$this->activate_connected_view();
 
-		$args = $this->create_admin()->filter_query_to_connected_users(
+		$args = Users_Connection_Admin::filter_query_to_connected_users(
 			array( 'include' => array( $this->admin_id ) )
 		);
 
