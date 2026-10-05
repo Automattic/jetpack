@@ -1,50 +1,220 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+const mockApiFetch = jest.fn();
+const mockNavigate = jest.fn();
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( options: { path: string; method?: string } ) => mockApiFetch( options ),
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	useNavigate: () => mockNavigate,
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/' } ),
+	getSiteType: () => 'jetpack',
+} ) );
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import OnboardingChecklist from '../onboarding-checklist';
 
+const LIST_PATH = '/wpcom/v2/newsletter/task-lists/onboarding';
+
+/**
+ * Build a task list response.
+ *
+ * @param completed - Ids of the completed tasks besides `start`.
+ * @return The task list.
+ */
+function taskList( completed: string[] = [] ) {
+	return {
+		id: 'onboarding',
+		tasks: [ 'start', 'subscribe_form', 'subscribers', 'send_newsletter' ].map( id => ( {
+			id,
+			complete: id === 'start' || completed.includes( id ),
+		} ) ),
+	};
+}
+
+/**
+ * Render the checklist with an isolated query cache.
+ */
+function renderChecklist(): void {
+	const queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+	} );
+
+	render(
+		<QueryClientProvider client={ queryClient }>
+			<OnboardingChecklist />
+		</QueryClientProvider>
+	);
+}
+
 const getStep = ( name: RegExp ) => screen.getByRole( 'button', { name } );
+const findStep = ( name: RegExp ) => screen.findByRole( 'button', { name } );
+
+beforeEach( () => {
+	mockApiFetch.mockReset();
+	mockNavigate.mockReset();
+	mockRecordEvent.mockReset();
+	mockApiFetch.mockResolvedValue( taskList() );
+} );
 
 describe( 'OnboardingChecklist', () => {
-	it( 'renders every step with only the customization step open by default', () => {
-		render( <OnboardingChecklist /> );
+	it( 'loads the onboarding task list from WP.com', async () => {
+		renderChecklist();
 
-		expect( getStep( /start a newsletter/i ) ).toHaveAttribute( 'aria-expanded', 'false' );
-		expect( getStep( /make it your own/i ) ).toHaveAttribute( 'aria-expanded', 'true' );
-		expect( getStep( /write your first post/i ) ).toHaveAttribute( 'aria-expanded', 'false' );
-		expect( getStep( /share your newsletter/i ) ).toHaveAttribute( 'aria-expanded', 'false' );
+		await findStep( /start a newsletter/i );
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: LIST_PATH } );
 	} );
 
-	it( 'announces the completed step in its accessible name', () => {
-		render( <OnboardingChecklist /> );
+	it( 'renders every step with the first open step expanded', async () => {
+		renderChecklist();
 
-		expect( getStep( /start a newsletter/i ) ).toHaveAccessibleName( 'Start a newsletterComplete' );
+		expect( await findStep( /start a newsletter/i ) ).toHaveAttribute( 'aria-expanded', 'false' );
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
+			'aria-expanded',
+			'true'
+		);
+		expect( getStep( /get your first 3 subscribers/i ) ).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
+		expect( getStep( /send your first newsletter/i ) ).toHaveAttribute( 'aria-expanded', 'false' );
 	} );
 
-	it( 'shows the customization description and both actions by default', () => {
-		render( <OnboardingChecklist /> );
+	it( 'marks the steps WP.com reports complete and opens the next one', async () => {
+		mockApiFetch.mockResolvedValue( taskList( [ 'subscribe_form' ] ) );
+		renderChecklist();
+
+		expect( await findStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+			'Add a subscribe form to your siteComplete'
+		);
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
+		expect( getStep( /get your first 3 subscribers/i ) ).toHaveAttribute( 'aria-expanded', 'true' );
+	} );
+
+	it( 'announces the completed start step in its accessible name', async () => {
+		renderChecklist();
+
+		expect( await findStep( /start a newsletter/i ) ).toHaveAccessibleName(
+			'Start a newsletterComplete'
+		);
+	} );
+
+	it( 'opens no step when every step is complete', async () => {
+		mockApiFetch.mockResolvedValue(
+			taskList( [ 'subscribe_form', 'subscribers', 'send_newsletter' ] )
+		);
+		renderChecklist();
+
+		await findStep( /start a newsletter/i );
+		expect( screen.queryByRole( 'button', { expanded: true } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps every step but the first open when the task list fails to load', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'offline' ) );
+		renderChecklist();
+
+		expect( await findStep( /start a newsletter/i ) ).toHaveAccessibleName(
+			'Start a newsletterComplete'
+		);
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
+			'aria-expanded',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Skip' } ) ).toBeVisible();
+	} );
+
+	it( 'shows the subscribe form step copy and actions', async () => {
+		renderChecklist();
 
 		expect(
-			screen.getByText( 'Customize your newsletter with a name, tagline, and more.' )
+			await screen.findByText(
+				'Give visitors a way to subscribe: a form at the end of your posts, a pop-up, or a floating button.'
+			)
 		).toBeVisible();
-		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeVisible();
+		expect( screen.getByRole( 'button', { name: 'Add a subscribe form' } ) ).toBeVisible();
 		expect( screen.getByRole( 'button', { name: 'Skip' } ) ).toBeVisible();
 	} );
 
 	it.each( [
-		[
-			/Write your first post/i,
-			'Create a post to send your first newsletter email.',
-			'Write a post',
-		],
-		[ /Share your newsletter/i, 'Invite readers to subscribe to your newsletter.', 'Share' ],
-	] )( 'reveals the action when its step is expanded', ( stepName, description, action ) => {
-		render( <OnboardingChecklist /> );
+		[ 'Add a subscribe form', 'subscribe_form', 'settings' ],
+		[ 'Add subscribers', 'subscribers', 'subscribers' ],
+	] )( '"%s" opens the %s tab', async ( action, step, tab ) => {
+		mockApiFetch.mockResolvedValue(
+			taskList( step === 'subscribers' ? [ 'subscribe_form' ] : [] )
+		);
+		renderChecklist();
 
-		const step = getStep( stepName );
 		// eslint-disable-next-line testing-library/prefer-user-event -- Avoid adding a dependency for one click.
-		fireEvent.click( step );
+		fireEvent.click( await screen.findByRole( 'button', { name: action } ) );
 
-		expect( step ).toHaveAttribute( 'aria-expanded', 'true' );
-		expect( screen.getByText( description ) ).toBeVisible();
-		expect( screen.getByRole( 'button', { name: action } ) ).toBeVisible();
+		expect( mockNavigate ).toHaveBeenCalledWith( {
+			search: { tab, subscriber: undefined, u: undefined },
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
+			site_type: 'jetpack',
+			step,
+			action: 'primary',
+		} );
+	} );
+
+	it( '"Write a post" links to a new post in the editor', async () => {
+		mockApiFetch.mockResolvedValue( taskList( [ 'subscribe_form', 'subscribers' ] ) );
+		renderChecklist();
+
+		expect( await screen.findByRole( 'link', { name: 'Write a post' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/post-new.php'
+		);
+	} );
+
+	it( 'Skip completes the step on WP.com and shows it as complete', async () => {
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			Promise.resolve( method === 'POST' ? taskList( [ 'subscribe_form' ] ) : taskList() )
+		);
+		renderChecklist();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- Avoid adding a dependency for one click.
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Skip' } ) );
+
+		await waitFor( () =>
+			expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+				'Add a subscribe form to your siteComplete'
+			)
+		);
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: `${ LIST_PATH }/tasks/subscribe_form/complete`,
+			method: 'POST',
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
+			site_type: 'jetpack',
+			step: 'subscribe_form',
+			action: 'skip',
+		} );
+		expect(
+			screen.queryByRole( 'button', { name: 'Add a subscribe form' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'records a checklist action on click and not on render', async () => {
+		renderChecklist();
+
+		await findStep( /start a newsletter/i );
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 } );
