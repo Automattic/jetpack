@@ -28,6 +28,15 @@ class Users_Connection_Admin_Test extends TestCase {
 	private $admin_id;
 
 	/**
+	 * Query vars the count's WP_User_Query was built with.
+	 *
+	 * Public so the `users_pre_query` callback can reach it.
+	 *
+	 * @var array<string,mixed>
+	 */
+	public $captured_query_vars = array();
+
+	/**
 	 * Set up before each test.
 	 */
 	public function setUp(): void {
@@ -370,11 +379,11 @@ class Users_Connection_Admin_Test extends TestCase {
 		$first  = $this->connect_user( 'connected_one' );
 		$second = $this->connect_user( 'connected_two' );
 
-		$query_vars = null;
+		$test = $this;
 		add_filter(
 			'users_pre_query',
-			static function ( $results, $query ) use ( &$query_vars ) {
-				$query_vars = $query->query_vars;
+			static function ( $results, $query ) use ( $test ) {
+				$test->captured_query_vars = $query->query_vars;
 
 				return array();
 			},
@@ -384,8 +393,9 @@ class Users_Connection_Admin_Test extends TestCase {
 
 		Users_Connection_Admin::add_connected_view( array() );
 
-		$this->assertSame( array( $first, $second ), $query_vars['include'] );
-		$this->assertSame( 'ID', $query_vars['fields'] );
+		$this->assertArrayHasKey( 'include', $this->captured_query_vars, 'The count never ran a user query.' );
+		$this->assertSame( array( $first, $second ), $this->captured_query_vars['include'] );
+		$this->assertSame( 'ID', $this->captured_query_vars['fields'] );
 	}
 
 	/**
