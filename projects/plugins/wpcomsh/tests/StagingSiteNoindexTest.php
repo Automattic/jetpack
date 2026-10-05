@@ -42,7 +42,7 @@ class StagingSiteNoindexTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Staging sites get the noindex header and meta, even when blog_public allows indexing.
+	 * Staging sites are noindexed even when blog_public is 1.
 	 */
 	public function test_staging_site_is_noindexed_when_public() {
 		update_option( 'home', 'https://staging-c603-mysite.wpcomstaging.com' );
@@ -67,7 +67,7 @@ class StagingSiteNoindexTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Non-staging sites keep their headers and robots directives.
+	 * Production sites are left alone.
 	 */
 	public function test_production_site_is_untouched() {
 		update_option( 'home', 'https://mysite.wpcomstaging.com' );

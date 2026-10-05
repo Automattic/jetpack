@@ -4,7 +4,7 @@
  *
  * Controls for Blog Privacy are spread out over several different places.
  * * WordPress Core (all sites: `blog_privacy_selector`, `blog_public`)
- * * wpcomsh (WoA: Private Site feature, `noindex` on staging sites)
+ * * wpcomsh (WoA: Private Site feature)
  * * WP.com (simple: `blog_public`)
  * * This jetpack-mu-wpcom feature (WoA, simple: `wpcom_data_sharing_opt_out` robots.txt user agent blocks)
  *
