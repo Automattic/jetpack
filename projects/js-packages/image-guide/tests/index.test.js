@@ -38,7 +38,9 @@ beforeEach( () => {
 afterEach( () => {
 	act( () => roots.forEach( ( { root } ) => root.unmount() ) );
 	document.body.replaceChildren();
-	jest.restoreAllMocks();
+	MeasurableImage.prototype.getFileSize.mockRestore();
+	MeasurableImage.prototype.isImageTiny.mockRestore();
+	window.addEventListener.mockRestore();
 } );
 
 function fixture( position = 'relative', background = false ) {
@@ -115,7 +117,9 @@ it( 'attaches one shared-container root through an in-flight pause and repeated 
 		finishMeasurement = resolve;
 	} );
 	MeasurableImage.prototype.isImageTiny.mockReturnValue( measured );
-	setup();
+	await act( async () => {
+		setup();
+	} );
 	await act( async () => {
 		onLoad();
 		commands.setGuideState( 'paused' );

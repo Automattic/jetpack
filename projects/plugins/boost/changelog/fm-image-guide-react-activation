@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Image Guide: Switch the overlay renderer to React and add the React, ReactDOM and JSX runtime scripts.
+Image Guide: Render the overlay with React; administrators now load WordPress's data and React scripts on the front end.

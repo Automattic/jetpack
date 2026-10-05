@@ -136,8 +136,12 @@ it( 'keeps the same details panel and scroll anchor when switching shared-contai
 it( 'removes guides immediately on pause and restores them on resume', async () => {
 	const stores = [ image(), image() ];
 	await act( async () => root.render( <Main stores={ stores } /> ) );
+	await act( async () =>
+		stores.forEach( store => commands.updateImage( store.id, { loading: false } ) )
+	);
 	await act( async () => commands.setGuideState( 'paused' ) );
 	expect( target.querySelector( '.guide' ) ).not.toBeInTheDocument();
 	await act( async () => commands.setGuideState( 'active' ) );
 	expect( target.querySelector( '.guide' ) ).toBeInTheDocument();
+	expect( target.querySelector( '.label' ) ).not.toHaveClass( 'jb-ig-label-fade' );
 } );

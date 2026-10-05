@@ -113,6 +113,10 @@ export function Bubble( {
 } ) {
 	const { oversizedRatio: ratio, loading } = useImage( store );
 	const spinner = usePresence( loading, 300 );
+	const fadeLabel = useRef( loading );
+	useEffect( () => {
+		if ( loading ) fadeLabel.current = true;
+	}, [ loading ] );
 	const severity = ratio > 4 ? 'high' : ratio > 2.5 ? 'medium' : 'normal';
 	const hover = useCallback(
 		( event: React.MouseEvent< HTMLDivElement > ) => {
@@ -126,7 +130,7 @@ export function Bubble( {
 			<div className="jb-ig-bubble bubble">
 				{ ! loading && (
 					<div className="jb-ig-bubble bubble-inner">
-						<div className="label jb-ig-label-fade">
+						<div className={ `label${ fadeLabel.current ? ' jb-ig-label-fade' : '' }` }>
 							{ ratio > 9 ? (
 								`${ Math.floor( ratio ) }x`
 							) : ratio > 0.99 ? (
