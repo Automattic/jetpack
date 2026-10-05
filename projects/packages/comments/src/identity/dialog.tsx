@@ -38,6 +38,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
+	const opener = useRef< Element | null >( null );
 	const [ signInStatus, setSignInStatus ] = useState<
 		'idle' | 'pending' | 'failed' | 'rate_limited'
 	>( 'idle' );
@@ -70,6 +71,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		if ( isDialogOpen.value ) {
 			if ( ! element?.open ) {
+				opener.current = element!.ownerDocument.activeElement;
 				element!.showModal();
 			}
 			return;
@@ -78,12 +80,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		if ( element?.open ) {
 			element.close();
 
-			// The control that opened it can be gone, as when a switch leaves no one signed in.
-			// The page reports focus left in the shadow root as the host, which sits inside the form.
-			if (
-				( element.getRootNode() as ShadowRoot ).activeElement ||
-				! internals.form?.contains( element.ownerDocument.activeElement )
-			) {
+			// The control that opened it can be gone, as when a sign-in replaces "Add your name".
+			if ( ! opener.current?.isConnected ) {
 				internals.form?.querySelector< HTMLElement >( '.jetpack-comments__identity a' )?.focus();
 			}
 		}
