@@ -24,6 +24,28 @@ class Premium_Features {
 	const CLOUD_CSS_NOTICE_OPTION    = 'jetpack_boost_ds_cloud_css_upgrade_notice';
 
 	/**
+	 * Record a verified plan baseline when the site connects, without activating Cloud CSS.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function record_cloud_css_baseline() {
+		if ( false !== get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
+			return;
+		}
+		self::clear_cache();
+		$verified = null;
+		$features = self::get_features( $verified );
+		if ( $verified ) {
+			self::remember_cloud_css_baseline( $features );
+		}
+	}
+
+	private static function remember_cloud_css_baseline( $features ) {
+		// The first observation is a baseline, so existing premium sites keep their setting.
+		add_option( self::CLOUD_CSS_BASELINE_OPTION, in_array( self::CLOUD_CSS, $features, true ) ? 'premium' : 'free', '', false );
+	}
+
+	/**
 	 * Enable Cloud CSS once when an observed free site gains the feature.
 	 *
 	 * @since $$next-version$$
@@ -36,8 +58,7 @@ class Premium_Features {
 		}
 		$has_cloud_css = in_array( self::CLOUD_CSS, $features, true );
 
-		// The first observation is a baseline, so existing premium sites keep their setting.
-		add_option( self::CLOUD_CSS_BASELINE_OPTION, $has_cloud_css ? 'premium' : 'free', '', false );
+		self::remember_cloud_css_baseline( $features );
 		if ( ! $has_cloud_css || 'free' !== get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
 			return;
 		}
@@ -65,14 +86,14 @@ class Premium_Features {
 	}
 
 	/**
-	 * Get features and report whether the feature response was valid.
+	 * Get features and report whether a valid response was fetched in this call.
 	 *
-	 * @param bool|null $verified Receives whether the unfiltered response was valid.
+	 * @param bool|null $verified Receives whether a valid unfiltered response was fetched in this call.
 	 * @return string[]
 	 */
 	public static function get_features( &$verified = null ) {
 		$available_features = Transient::get( self::TRANSIENT_KEY, false );
-		$verified           = is_array( $available_features );
+		$verified           = false;
 		$all_features       = array(
 			self::CLOUD_CSS,
 			self::IMAGE_CDN_LIAR,
