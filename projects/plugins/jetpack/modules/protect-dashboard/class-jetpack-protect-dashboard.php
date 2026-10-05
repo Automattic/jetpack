@@ -21,11 +21,11 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-wp-build-
 class Jetpack_Protect_Dashboard {
 
 	/**
-	 * Sidebar menu slug.
+	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
 	 *
 	 * @var string
 	 */
-	const MENU_SLUG = 'jetpack-protect-dashboard';
+	const MENU_SLUG = 'jetpack-protect';
 
 	/**
 	 * The wp-build route's page id, which must not be the menu slug.
@@ -41,7 +41,8 @@ class Jetpack_Protect_Dashboard {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
-		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ) );
+		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
+		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 	}
 
 	/**
@@ -57,11 +58,18 @@ class Jetpack_Protect_Dashboard {
 	}
 
 	/**
-	 * Add the "Protect" item to the Jetpack sidebar.
+	 * Add the "Protect" item to the Jetpack sidebar, in place of the Jetpack Protect plugin's.
 	 *
 	 * @return void
 	 */
 	public static function add_menu() {
+		// Take the slug over from the Jetpack Protect plugin: drop its item and the scripts it loads for that page.
+		while ( Admin_Menu::remove_menu( self::MENU_SLUG ) ) {
+			continue;
+		}
+		remove_all_actions( 'load-jetpack_page_' . self::MENU_SLUG );
+		remove_all_actions( 'load-admin_page_' . self::MENU_SLUG );
+
 		Admin_Menu::add_menu(
 			// "Protect" is a product name and is not translated.
 			'Protect',
