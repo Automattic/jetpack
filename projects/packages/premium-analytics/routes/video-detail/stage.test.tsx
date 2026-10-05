@@ -1,12 +1,15 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockDateFilterOverrides: Record< string, unknown > = {};
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -33,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		interval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		...mockDateFilterOverrides,
 	} ),
 } ) );
 
@@ -219,6 +223,7 @@ describe( 'video detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
+		mockDateFilterOverrides = {};
 		mockSearch = {
 			from: '2026-06-01',
 			to: '2026-06-16',
@@ -235,12 +240,40 @@ describe( 'video detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByText( "We couldn't find this video." ) ).toBeInTheDocument();
+		expect( getNoticeText( "We couldn't find this video." ) ).toBeInTheDocument();
+		expect( getNoticeAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Videos' } ) ).toHaveAttribute(
 			'href',
 			'/reports/videos?from=2026-06-01&to=2026-06-16'
 		);
 		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers Retry in place of the widgets when the video fails to load', async () => {
+		mockSummary( { isError: true, error: { status: 500 } } );
+
+		render( stage() );
+
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this video. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the video is denied', () => {
+		mockSummary( { isError: true, error: { code: 'rest_forbidden', status: 403 } } );
+
+		render( stage() );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -410,6 +443,28 @@ describe( 'video detail stage', () => {
 		for ( const widget of layout ) {
 			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
 		}
+	} );
+
+	it( 'renders the widgets only once all time anchors on the upload day', () => {
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
+		};
+		mockSummary( { title: 'Launch recap', publishedDate: '2026-06-22 18:00:00' } );
+
+		const { rerender } = render( stage() );
+
+		expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
+
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC', {
+				startDate: new Date( '2026-06-22T18:00:00Z' ),
+			} ),
+		};
+		rerender( stage() );
+
+		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers Customize in a page options menu once the video resolves', async () => {

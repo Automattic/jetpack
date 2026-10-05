@@ -18,13 +18,17 @@ import { useSingleModuleState } from '../../app/assets/src/js/features/module/li
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import { observeLegacyModulesState } from './lib/modules-state-bridge';
 import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
-import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
 import type { ReactNode } from 'react';
+
+declare const require: {
+	resolve: ( id: string, options?: { paths: string[] } ) => string;
+};
 
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
@@ -39,6 +43,18 @@ const { queryClient: legacyQueryClient } = jest.requireActual(
 	'@automattic/jetpack-react-data-sync-client'
 );
 jest.mock( '@wordpress/api-fetch' );
+jest.mock(
+	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } ),
+	() => {
+		const actual = jest.requireActual(
+			require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } )
+		);
+		return { ...actual, speak: jest.fn( actual.speak ) };
+	}
+);
+const mockSpeak = jest.requireMock(
+	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } )
+).speak;
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useViewportMatch: jest.fn(),
@@ -132,12 +148,22 @@ function queryWrapper() {
 	);
 }
 
-function OverviewWithHeader( { isVisible }: { isVisible?: boolean } ) {
+function OverviewWithHeader( {
+	isVisible,
+	scoresEnabled,
+}: {
+	isVisible?: boolean;
+	scoresEnabled?: boolean;
+} ) {
 	const [ action, setAction ] = useState< ReactNode >( null );
 	return (
 		<>
 			<header>{ action }</header>
-			<Overview isVisible={ isVisible } onHeaderActionChange={ setAction } />
+			<Overview
+				isVisible={ isVisible }
+				scoresEnabled={ scoresEnabled }
+				onHeaderActionChange={ setAction }
+			/>
 		</>
 	);
 }
@@ -151,6 +177,353 @@ function renderOverview() {
 	);
 	return { ...view, client };
 }
+
+describe( 'score bar', () => {
+	let intersect: IntersectionObserverCallback;
+	const disconnect = jest.fn();
+	const observer = jest.fn( ( callback: IntersectionObserverCallback ) => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect };
+	} );
+	const original = window.IntersectionObserver;
+
+	beforeEach( () => {
+		window.IntersectionObserver = observer as unknown as typeof IntersectionObserver;
+	} );
+
+	afterEach( () => {
+		window.IntersectionObserver = original;
+	} );
+
+	async function renderDashboard() {
+		const client = createQueryClient();
+		const onHeaderActionChange = jest.fn();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div className="jp-admin-page__page">
+					<header data-testid="dashboard-header">Boost header</header>
+					<div style={ { overflowY: 'auto' } } data-testid="dashboard-scroller">
+						<Overview isVisible={ isVisible } onHeaderActionChange={ onHeaderActionChange } />
+					</div>
+				</div>
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( true ) );
+		await expect( screen.findByRole( 'region', { name: 'Desktop' } ) ).resolves.toBeVisible();
+		return { hide: () => view.rerender( dashboard( false ) ) };
+	}
+
+	const entry = ( isIntersecting: boolean, bottom: number ) =>
+		( {
+			isIntersecting,
+			boundingClientRect: { bottom },
+			rootBounds: { top: 100 },
+		} ) as IntersectionObserverEntry;
+
+	const report = ( ...entries: IntersectionObserverEntry[] ) =>
+		act( () => intersect( entries, {} as IntersectionObserver ) );
+
+	test( 'renders into a slot between the header and the scroller it observes', async () => {
+		await renderDashboard();
+		const scroller = screen.getByTestId( 'dashboard-scroller' );
+		// eslint-disable-next-line testing-library/no-node-access
+		const slot = screen.getByTestId( 'dashboard-header' ).nextElementSibling;
+		expect( slot ).toHaveClass( 'jetpack-boost-score-bar-slot' );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( slot?.nextElementSibling ).toBe( scroller );
+		expect( observer ).toHaveBeenCalledWith( expect.any( Function ), {
+			root: scroller,
+			threshold: 0,
+		} );
+		report( entry( false, 39 ) );
+		expect( slot ).toContainElement( screen.getByTestId( 'score-bar' ) );
+	} );
+
+	test( 'shows only while the latest entry has the card above the scroller', async () => {
+		await renderDashboard();
+		report( entry( false, 1200 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( true, 364 ), entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		report( entry( false, 39 ), entry( true, 364 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+	} );
+
+	test( 'removes the bar, its slot and the observer when the Overview is hidden', async () => {
+		const { hide } = await renderDashboard();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		hide();
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( screen.getByTestId( 'dashboard-header' ).nextElementSibling ).toBe(
+			screen.getByTestId( 'dashboard-scroller' )
+		);
+		expect( disconnect ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
+test( 'shows the stock button loading treatment while a user speed test runs', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let finish!: ( value: typeof scores ) => void;
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			finish = resolve;
+		} )
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	await act( async () => finish( scores ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
+			/__is-loading$/
+		)
+	);
+} );
+
+test( 'announces a user run through the card status without a second button announcement', async () => {
+	const { container } = renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	mockSpeak.mockClear();
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce( new Promise( () => {} ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	await waitFor( () => expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' ) );
+	expect( mockSpeak ).not.toHaveBeenCalled();
+} );
+
+test( 'shows a run already in progress when the Overview opens', async () => {
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( ( _force, _root, _url, _nonce, options ) => {
+			options?.onPending?.();
+			return new Promise( () => {} );
+		} );
+	const { container } = renderOverview();
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+} );
+
+test( 'clears the busy button after a rejected speed test request', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let rejectRequest!: ( error: Error ) => void;
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( ( _, reject ) => {
+			rejectRequest = reject;
+		} )
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	await act( async () => rejectRequest( new Error( 'Service unavailable' ) ) );
+	await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
+		/__is-loading$/
+	);
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'false'
+	);
+} );
+
+test( 'announces one user-run success without announcing the initial score load', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce failure and announces a successful user retry', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce an automatic module-change refresh', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const { client } = renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		await act( async () => {
+			await client.cancelQueries();
+		} );
+		act( () =>
+			client.setQueryData( [ 'modules_state' ], {
+				performance_history: { available: true, active: true },
+				defer_js: { available: true, active: true },
+			} )
+		);
+		await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ), {
+			timeout: 4000,
+		} );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test.each( [ 'failed', 'delayed', 'accepted' ] )(
+	'only announces an observed successful refresh across a subpage visit: %s',
+	async scenario => {
+		const completed = jest.fn();
+		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
+		const originalFetch = globalThis.fetch;
+		const response = {
+			ok: true,
+			text: async () => JSON.stringify( { status: 'success', scores } ),
+		};
+		let resolveRefresh!: ( value: typeof response ) => void;
+		let rejectRefresh!: ( error: Error ) => void;
+		const post = jest.fn().mockResolvedValue( response );
+		globalThis.fetch = post;
+		jest
+			.mocked( requestSpeedScores )
+			.mockImplementation(
+				jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
+			);
+		window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+		try {
+			const client = createQueryClient();
+			const dashboard = ( open: boolean ) => (
+				<QueryClientProvider client={ client }>
+					<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+				</QueryClientProvider>
+			);
+			const view = render( dashboard( false ) );
+			await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+			post.mockImplementationOnce(
+				() =>
+					new Promise( ( resolve, reject ) => {
+						resolveRefresh = resolve;
+						rejectRefresh = reject;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			expect( post ).toHaveBeenLastCalledWith(
+				expect.stringContaining( '/speed-scores/refresh' ),
+				expect.objectContaining( { method: 'post' } )
+			);
+			if ( scenario === 'accepted' ) {
+				await act( async () =>
+					resolveRefresh( {
+						ok: true,
+						text: async () => JSON.stringify( { status: 'pending' } ),
+					} )
+				);
+			}
+			expect( completed ).not.toHaveBeenCalled();
+			view.rerender( dashboard( true ) );
+			if ( scenario === 'failed' ) {
+				await act( async () => rejectRefresh( new Error( 'Network unavailable' ) ) );
+			}
+			view.rerender( dashboard( false ) );
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'false'
+				)
+			);
+			expect( post ).toHaveBeenLastCalledWith(
+				expect.stringMatching( /\/speed-scores$/ ),
+				expect.objectContaining( { method: 'post' } )
+			);
+			expect( completed ).toHaveBeenCalledTimes( scenario === 'accepted' ? 1 : 0 );
+			if ( scenario === 'delayed' ) {
+				await act( async () => resolveRefresh( response ) );
+			}
+			expect( completed ).toHaveBeenCalledTimes( scenario === 'accepted' ? 1 : 0 );
+		} finally {
+			window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+			if ( hadFetch ) {
+				globalThis.fetch = originalFetch;
+			} else {
+				Reflect.deleteProperty( globalThis, 'fetch' );
+			}
+		}
+	}
+);
+
+test( 'a later subpage visit after a completed user run does not announce again', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const client = createQueryClient();
+		const dashboard = ( open: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( false ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		const before = jest.mocked( requestSpeedScores ).mock.calls.length;
+		view.rerender( dashboard( true ) );
+		view.rerender( dashboard( false ) );
+		await waitFor( () =>
+			expect( jest.mocked( requestSpeedScores ).mock.calls ).toHaveLength( before + 1 )
+		);
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'false'
+			)
+		);
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
 
 test( 'contains a render failure with the Overview error fallback', () => {
 	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
@@ -328,7 +701,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	await waitFor( () =>
@@ -344,7 +717,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		)
 	);
 	expect(
@@ -542,9 +915,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 				...scores,
 				current: { desktop: 95, mobile: 85 },
 			} );
-			if ( scenario === 'delayed save' ) {
-				jest.useFakeTimers();
-			}
+			jest.useFakeTimers();
 			fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
 			await waitFor( () => expect( fetchSpy ).toHaveBeenCalledTimes( 1 ) );
 			if ( scenario === 'unrelated save' ) {
@@ -558,11 +929,10 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 			}
 			if ( scenario === 'delayed save' ) {
 				await act( async () => {
-					jest.advanceTimersByTime( 2500 );
+					await jest.advanceTimersByTimeAsync( 2500 );
 				} );
 			}
 			expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-			jest.useRealTimers();
 			await act( async () => finishSave() );
 			await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
 			await waitFor( () =>
@@ -574,7 +944,10 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 				} );
 			}
 			view.rerender( dashboard( true ) );
-			await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 2000 );
+			} );
+			await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible() );
 			expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules );
 			expect( fetchSpy ).toHaveBeenCalledTimes( 1 );
 			expect( fetchSpy ).toHaveBeenCalledWith(
@@ -592,7 +965,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 				wpApiSettings.root,
 				Jetpack_Boost.site.url,
 				wpApiSettings.nonce,
-				{ signal: expect.any( AbortSignal ) }
+				expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 			);
 		} finally {
 			jest.useRealTimers();
@@ -646,7 +1019,7 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	expect(
 		jest
@@ -707,7 +1080,7 @@ test( 'keeps scores visible and focused while re-enabling cached reads', async (
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	expect( screen.getByText( '91' ) ).toBeVisible();
 	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toBeVisible();
@@ -788,65 +1161,12 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Testing site speed' } ) ).not.toHaveAttribute(
+		'value'
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-} );
-
-test.each( [
-	[ 40, 'Poor' ],
-	[ 60, 'Could improve' ],
-	[ 90, 'Good' ],
-] as const )( 'renders score %i with its tier, bar, and delta', ( score, tier ) => {
-	render(
-		<ScoreCard
-			icon={ null }
-			label="Desktop"
-			value={ score }
-			score={ score }
-			noBoost={ score - 10 }
-		/>
-	);
-	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
-	expect( screen.getByText( '+10 points' ) ).toBeInTheDocument();
-	expect( screen.getByText( tier ) ).toBeInTheDocument();
-} );
-
-test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
-	render( <ScoreCards scores={ scores } /> );
-	const trigger = within( screen.getByRole( 'region', { name: 'Overall' } ) ).getByRole( 'button', {
-		name: 'How the overall grade is calculated',
-	} );
-	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-	fireEvent.click( trigger );
-	const tooltip = await screen.findByRole( 'dialog' );
-	expect( tooltip ).toHaveTextContent(
-		'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.'
-	);
-	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
-	fireEvent.keyDown( tooltip, { key: 'Escape' } );
-	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
-	expect( trigger ).toHaveFocus();
-} );
-
-test( 'reads a negative baseline delta as zero while preserving the current measured bar', () => {
-	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
-	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.getByText( '0 points' ) ).toBeInTheDocument();
-	expect( screen.queryByText( '-20 points' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'About points' } ) ).toBeInTheDocument();
-	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
-} );
-
-test( 'hides stale and absent baselines while preserving measured scores', () => {
-	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	expect( screen.getByText( /\+10 points/ ) ).toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
-	expect( screen.getByText( '91' ) ).toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 } );
 
 test( 'shows the free history upgrade without requesting history', async () => {
@@ -1303,40 +1623,6 @@ test( 'enables multi-day history paging with a date range without checking older
 	).toBe( false );
 } );
 
-test( 'debounces optimization changes and waits for generation to finish', async () => {
-	jest.useFakeTimers();
-	try {
-		const { result, rerender, unmount } = renderHook(
-			state => speedScores.useSpeedScores( state ),
-			{
-				initialProps: { config: 'modules-active:1,updated:10', isPending: false },
-				wrapper: queryWrapper(),
-			}
-		);
-		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
-		rerender( { config: 'modules-active:1,updated:20', isPending: true } );
-		act( () => jest.advanceTimersByTime( 2000 ) );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-		rerender( { config: 'modules-active:1,updated:20', isPending: false } );
-		act( () => jest.advanceTimersByTime( 1999 ) );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-		await act( async () => {
-			jest.advanceTimersByTime( 1 );
-		} );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
-		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-			true,
-			wpApiSettings.root,
-			Jetpack_Boost.site.url,
-			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
-		);
-		unmount();
-	} finally {
-		jest.useRealTimers();
-	}
-} );
-
 test( 'passes the history server error message to the notice', async () => {
 	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 	jest
@@ -1369,7 +1655,11 @@ const decreasedScores = {
 test( 'shows a score decrease with guidance and persists permanent dismissal', async () => {
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).toBeVisible()
+	);
 	expect( screen.getByRole( 'link', { name: /Read the guide/ } ) ).toHaveAttribute(
 		'href',
 		expect.stringContaining( 'boost-improve-site-speed-score' )
@@ -1384,15 +1674,25 @@ test( 'shows a score decrease with guidance and persists permanent dismissal', a
 			} )
 		)
 	);
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).not.toBeVisible()
+	);
 } );
 
 test( 'temporarily closes the score decrease without persisting dismissal', async () => {
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
-	fireEvent.click( screen.getByRole( 'link', { name: 'Dismiss' } ) );
-	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).toBeVisible()
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+	expect(
+		screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+	).not.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
@@ -1440,12 +1740,12 @@ test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => 
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
 	const { rerender } = render( <PopOut scoreChange={ -20 } /> );
 	expect( useLegacyAlertState ).toHaveBeenCalledWith( 'score_decrease' );
-	expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible();
+	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).toBeVisible();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
 	expect( dismiss ).toHaveBeenCalledTimes( 1 );
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
 	rerender( <PopOut scoreChange={ -20 } /> );
-	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
+	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).not.toBeVisible();
 } );
 
 test( 'reports module request errors independently and retries only modules', async () => {
@@ -1591,4 +1891,180 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 		unmount();
 		client.clear();
 	}
+} );
+
+test.each( [ 'Dismiss', 'Rate the Plugin', 'Do not show me again' ] )(
+	'returns focus to the Overview heading before %s hides the prompt',
+	async label => {
+		jest.mocked( requestSpeedScores ).mockResolvedValue( {
+			...scores,
+			current: { desktop: 90, mobile: 90 },
+		} );
+		renderOverview();
+		const prompt = await screen.findByRole( 'heading', { name: 'Your site got faster' } );
+		const action = screen.getByRole( label === 'Rate the Plugin' ? 'link' : 'button', {
+			name: new RegExp( label ),
+		} );
+		act( () => action.focus() );
+		expect( action ).toHaveFocus();
+		fireEvent.click( action );
+		expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
+		await waitFor( () => expect( prompt ).not.toBeVisible() );
+	}
+);
+
+test( 'legacy rating preserves the threshold boundary, destination and both tracking events', () => {
+	const dismiss = jest.fn();
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
+	const { rerender } = render( <PopOut scoreChange={ 5 } /> );
+	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
+	expect( recordBoostEvent ).not.toHaveBeenCalled();
+	rerender( <PopOut scoreChange={ 6 } /> );
+	expect( screen.getByRole( 'heading', { name: 'Your site got faster' } ) ).toBeVisible();
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_alert_shown', {
+		score_direction: 'up',
+	} );
+	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
+	expect( rating ).toHaveAttribute(
+		'href',
+		'https://jetpack.com/redirect/?source=boost-rate-plugin'
+	);
+	fireEvent.click( rating );
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
+	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'speed_score_alert_cta_clicked', {
+		score_direction: 'up',
+	} );
+	expect( dismiss ).toHaveBeenCalledTimes( 1 );
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
+	rerender( <PopOut scoreChange={ 6 } /> );
+	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
+} );
+
+test.each( [ 'animationend', 'animationcancel' ] )(
+	'consumes the ready signal on %s and keeps saved scores static across hidden toggles',
+	async eventType => {
+		const client = createQueryClient();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div hidden={ ! isVisible }>
+					<OverviewWithHeader isVisible={ isVisible } />
+				</div>
+			</QueryClientProvider>
+		);
+		const { rerender } = render( dashboard( true ) );
+		const desktop = await screen.findByRole( 'region', { name: 'Desktop' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The score row receives the shared entry signal.
+		const row = desktop.closest( '.jetpack-boost-overview__score-row' )!;
+		const completeRun = async () => {
+			let complete!: ( value: typeof scores ) => void;
+			jest.mocked( requestSpeedScores ).mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						complete = resolve;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			await act( async () => complete( scores ) );
+		};
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		await completeRun();
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		fireEvent(
+			row,
+			Object.assign( new Event( eventType, { bubbles: true } ), {
+				animationName: 'jetpack-boost-score-entry',
+			} )
+		);
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		rerender( dashboard( false ) );
+		rerender( dashboard( true ) );
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		await completeRun();
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		rerender( dashboard( false ) );
+		rerender( dashboard( true ) );
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	}
+);
+
+test( 'shares one ready signal with the condensed bar and does not replay it on scroll remount', async () => {
+	/* eslint-disable testing-library/no-node-access */
+	let intersect!: IntersectionObserverCallback;
+	const original = window.IntersectionObserver;
+	window.IntersectionObserver = jest.fn( callback => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect: jest.fn() };
+	} ) as unknown as typeof IntersectionObserver;
+	const client = createQueryClient();
+	const { unmount } = render(
+		<QueryClientProvider client={ client }>
+			<div className="jp-admin-page__page">
+				<header>Boost header</header>
+				<div style={ { overflowY: 'auto' } }>
+					<OverviewWithHeader />
+				</div>
+			</div>
+		</QueryClientProvider>
+	);
+	try {
+		const desktop = await screen.findByRole( 'region', { name: 'Desktop' } );
+		const row = desktop.closest( '.jetpack-boost-overview__score-row' )!;
+		const scroll = ( above: boolean ) =>
+			act( () =>
+				intersect(
+					[
+						{
+							isIntersecting: ! above,
+							boundingClientRect: { bottom: above ? 0 : 300 },
+							rootBounds: { top: 100 },
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				)
+			);
+		const completeRun = async () => {
+			let complete!: ( value: typeof scores ) => void;
+			jest.mocked( requestSpeedScores ).mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						complete = resolve;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			await act( async () => complete( scores ) );
+		};
+		scroll( true );
+		let bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		await completeRun();
+		const overall = bar.querySelector( '.jetpack-boost-score-bar__overall' )!;
+		expect( overall ).toHaveClass( 'jetpack-boost-score-ready' );
+		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		fireEvent(
+			overall,
+			Object.assign( new Event( 'animationend', { bubbles: true } ), {
+				animationName: 'jetpack-boost-score-entry',
+			} )
+		);
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		scroll( false );
+		scroll( true );
+		bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		await completeRun();
+		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
+		scroll( false );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		scroll( true );
+		bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	} finally {
+		unmount();
+		window.IntersectionObserver = original;
+	}
+	/* eslint-enable testing-library/no-node-access */
 } );

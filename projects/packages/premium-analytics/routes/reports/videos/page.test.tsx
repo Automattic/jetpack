@@ -2,16 +2,16 @@
  * External dependencies
  */
 import {
-	ReportCsvAction,
-	ReportErrorState,
+	ExporterCsvAction,
+	PageNotice,
 	ReportRecordsTable,
-	useReportCsvExport,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { getVideosFields, useVideosReportRecords } from './config';
 import VideosReportPage from './page';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
@@ -35,12 +35,10 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
-		<div data-testid="report-error-state">
-			<span>{ title }</span>
-			<button onClick={ onRetry }>Retry</button>
-		</div>
-	) ),
+	PageNotice: jest.fn(
+		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice
+	),
+	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
@@ -49,8 +47,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportRecordsTable: jest.fn( () => null ),
-	ReportCsvAction: jest.fn( () => <button>Download</button> ),
-	useReportCsvExport: jest.fn(),
+	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -69,10 +66,9 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( useVideosReportRecords );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
+const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const getVideosFieldsMock = jest.mocked( getVideosFields );
-const reportErrorStateMock = jest.mocked( ReportErrorState );
+const pageNoticeMock = jest.mocked( PageNotice );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 const videoRow = {
@@ -107,11 +103,6 @@ function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRec
 describe( 'VideosReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: false,
-			rows: [],
-			filename: 'videos',
-		} );
 	} );
 
 	it( 'renders the records table when the report succeeds', () => {
@@ -120,7 +111,7 @@ describe( 'VideosReportPage', () => {
 		render( <VideosReportPage /> );
 
 		expect( reportRecordsTableMock ).toHaveBeenCalled();
-		expect( reportErrorStateMock ).not.toHaveBeenCalled();
+		expect( pageNoticeMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'draws each video poster beside its title', () => {
@@ -138,7 +129,7 @@ describe( 'VideosReportPage', () => {
 		);
 	} );
 
-	it( 'wires loaded video rows into the page export action', () => {
+	it( 'passes the report status to the page export action', () => {
 		const rows = [
 			{
 				id: 441,
@@ -153,48 +144,12 @@ describe( 'VideosReportPage', () => {
 		];
 		const records = buildRecords( { rows } );
 		useRecordsMock.mockReturnValue( records );
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows,
-			filename: 'videos-2026-06-01_2026-06-30',
-		} );
 
 		render( <VideosReportPage /> );
 
 		expect( screen.getByTestId( 'page-actions' ) ).toHaveTextContent( 'Download' );
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				rows,
-				filenamePrefix: 'videos',
-				status: records,
-				sort: expect.any( Function ),
-			} )
-		);
-
-		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.label ) ).toEqual( [
-			'Video ID',
-			'Video',
-			'Plays',
-			'Impressions',
-			'Watch time (hours)',
-			'Retention rate (%)',
-			'URL',
-		] );
-		expect( columns.map( column => column.getValue( rows[ 0 ] ) ) ).toEqual( [
-			441,
-			'Demo',
-			13,
-			22,
-			0.04,
-			64.5,
-			'https://example.com/video/441',
-		] );
-		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				rows,
-				filename: 'videos-2026-06-01_2026-06-30',
-			} )
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { status: records } )
 		);
 	} );
 
@@ -288,9 +243,9 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
-			'Unable to load videos'
-		);
+		expect(
+			getNoticeText( "We couldn't load videos. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 

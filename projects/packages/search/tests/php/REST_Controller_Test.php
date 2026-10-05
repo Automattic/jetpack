@@ -1018,6 +1018,108 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate-free` endpoint with an anonymous caller.
+	 */
+	public function test_activate_free_plan_unauthorized() {
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate-free` endpoint with an editor user.
+	 */
+	public function test_activate_free_plan_editor() {
+		wp_set_current_user( $this->editor_id );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Answer the activate-free call without leaving the test process. The base fixture only
+	 * matches the read-only Search URLs, so without this the request reaches WordPress.com.
+	 *
+	 * @param array $body   Response body to return.
+	 * @param int   $status HTTP status to return.
+	 */
+	private function stub_activate_free_response( $body, $status = 200 ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $body, $status ) {
+				if ( strpos( $url, '/jetpack-search/activate-free' ) === false ) {
+					return $preempt;
+				}
+
+				return array(
+					'headers'  => array(),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+					'response' => array(
+						'code'    => $status,
+						'message' => 'ok',
+					),
+				);
+			},
+			9,
+			3
+		);
+	}
+
+	/**
+	 * An admin gets past the permission callback and the grant reaches the dashboard.
+	 */
+	public function test_activate_free_plan_admin_grants_the_product() {
+		wp_set_current_user( $this->admin_id );
+		$this->stub_activate_free_response(
+			array(
+				'success'                 => true,
+				'status'                  => 'granted',
+				'supports_search'         => true,
+				'supports_instant_search' => true,
+			)
+		);
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 'granted', $response->get_data()['status'] );
+	}
+
+	/**
+	 * A refusal always tells the dashboard whether the $0 checkout is still worth trying.
+	 */
+	public function test_activate_free_plan_refusal_carries_checkout_fallback() {
+		wp_set_current_user( $this->admin_id );
+		$this->stub_activate_free_response(
+			array(
+				'code'    => 'jetpack_search_free_disabled',
+				'message' => 'Jetpack Search Free has already been used for this site.',
+				'data'    => array(
+					'status'            => 403,
+					'checkout_fallback' => false,
+				),
+			),
+			403
+		);
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+
+		$error = $response->as_error();
+		$this->assertNotNull( $error );
+		$this->assertSame( 'jetpack_search_free_disabled', $error->get_error_code() );
+		$this->assertFalse( $error->get_error_data()['checkout_fallback'] );
+	}
+
+	/**
 	 * Testing the `POST /jetpack/v4/search/plan/activate` endpoint with editor user.
 	 */
 	public function test_activate_plan_editor() {

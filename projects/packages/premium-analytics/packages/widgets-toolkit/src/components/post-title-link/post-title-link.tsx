@@ -1,9 +1,12 @@
 /**
  * External dependencies
  */
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { Link } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import { ExternalLink } from '../external-link';
+import { InternalLink } from '../internal-link';
 import type { JSX } from 'react';
 
 /**
@@ -32,7 +35,7 @@ export type PostTitleLinkProps = {
 
 	/**
 	 * Search parameters for the detail route. Pass the shared report window from
-	 * `pickReportDateParams()` so the detail page opens on the same date range.
+	 * `pickReportDateParams()` so the detail page's breadcrumbs return to it.
 	 */
 	search?: Record< string, unknown >;
 
@@ -83,42 +86,24 @@ export function PostTitleLink( {
 	const href = safeHttpUrl( link );
 
 	if ( Number.isInteger( postId ) && postId > 0 ) {
-		// `UiLink` renders the router link so the anchor keeps the design
-		// system's unlayered guard, without which wp-admin repaints it blue.
 		return (
-			<UiLink
+			<InternalLink
 				className={ classNames?.internal }
-				variant="unstyled"
 				title={ title }
-				render={
-					<Link
-						to="/post/$postId"
-						params={ { postId: String( postId ) } as unknown as never }
-						search={
-							( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
-						}
-					/>
-				}
+				to="/post/$postId"
+				params={ { postId: String( postId ) } }
+				search={ href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search }
 			>
 				{ text }
-			</UiLink>
+			</InternalLink>
 		);
 	}
 
 	if ( href ) {
-		// `openInNewTab` appends the design system's outbound marker, so the row
-		// carries the same arrow as every other external link in the dashboard.
 		return (
-			<UiLink
-				className={ classNames?.external }
-				href={ href }
-				variant="unstyled"
-				openInNewTab
-				rel="noopener noreferrer"
-				title={ title }
-			>
+			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
 				{ text }
-			</UiLink>
+			</ExternalLink>
 		);
 	}
 

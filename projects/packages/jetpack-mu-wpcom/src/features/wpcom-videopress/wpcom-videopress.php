@@ -56,12 +56,10 @@ function wpcom_videopress_init_admin_ui() {
 		return;
 	}
 
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple).
 	\Automattic\Jetpack\VideoPress\Admin_UI::init();
 
 	// Emit the JPVIDEOPRESS_INITIAL_STATE boot payload the wp-build dashboard hydrates from.
 	if ( class_exists( '\Automattic\Jetpack\VideoPress\Initial_State' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple).
 		\Automattic\Jetpack\VideoPress\Initial_State::init();
 	}
 }

@@ -5,8 +5,8 @@ import { join } from 'node:path';
 // `src/styles/test/chart-scope.test.ts` reads the `.scss` *source*, so it cannot catch the documented failure mode: renaming the stylesheet to `.module.scss` makes `@tsdown/css` mark the generated JS proxy `moduleSideEffects: false` (tree-shakeable unless a class name is read from it), and the catalog's own selector never reads one — it is a `:where()`-wrapped selector, zero CSS-module class names. Rolldown then drops the stylesheet: a green build, a green test suite, and every chart loses its colours. See the import comment in `src/providers/chart-context/global-charts-provider.tsx`.
 const MARKERS: Array< { name: string; test: ( css: string ) => boolean } > = [
 	{
-		name: 'the ":where(.a8c-charts-scope)" selector',
-		test: css => css.includes( ':where(.a8c-charts-scope)' ),
+		name: 'the ":where(.a8c-charts-scope, .a8c-charts-tooltip-scope)" selector',
+		test: css => /:where\(\.a8c-charts-scope,\s*\.a8c-charts-tooltip-scope\)/.test( css ),
 	},
 	{
 		name: 'an unhashed "--a8c-charts-color-grid" declaration',

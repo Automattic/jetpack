@@ -10,6 +10,8 @@ export {
 	omitComparisonReportParams,
 	pickReportDateParams,
 	pickReportNavigationParams,
+	pickReportOriginWindowParams,
+	toReportOriginWindowParams,
 	hasPrimaryDateDraft,
 	buildDashboardLink,
 	buildReportLink,

@@ -15,6 +15,8 @@ declare global {
 			// '' | '1'; the boolean form is allowed for a future JSON channel.
 			// Optional so payloads from a build predating the gate still typecheck.
 			chaptersEditorEnabled?: boolean | '' | '1';
+			// Site setting that hides the share menu on every video; stringified like chaptersEditorEnabled.
+			shareMenuDisabled?: boolean | '' | '1';
 			jetpackVideoPressSettingUrl: string;
 			imagesURLBase: string;
 			playerBridgeUrl: string;

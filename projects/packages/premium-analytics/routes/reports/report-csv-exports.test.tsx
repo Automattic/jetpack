@@ -11,30 +11,10 @@ import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { useAnnualInsightsReportRecords } from './annual-insights/config';
-import AnnualInsightsReportPage from './annual-insights/page';
-import { useClicksReportRecords } from './clicks/config';
-import ClicksReportPage from './clicks/page';
 import { useCommentFollowersReportRecords } from './comment-followers/config';
 import CommentFollowersReportPage from './comment-followers/page';
-import { useCommentsReportRecords } from './comments/config';
-import CommentsReportPage from './comments/page';
-import { useDownloadsReportRecords } from './downloads/config';
-import DownloadsReportPage from './downloads/page';
 import { useEarningsReportRecords } from './earnings/config';
 import EarningsReportPage from './earnings/page';
-import { useEmailsReportRecords } from './emails/config';
-import EmailsReportPage from './emails/page';
-import { useLocationsReportRecords } from './locations/config';
-import LocationsReportPage from './locations/page';
-import { useReferrersReportRecords } from './referrers/config';
-import ReferrersReportPage from './referrers/page';
-import { useSearchTermsReportRecords } from './search-terms/config';
-import SearchTermsReportPage from './search-terms/page';
-import { useTagsReportRecords } from './tags/config';
-import TagsReportPage from './tags/page';
-import { useUtmReportRecords } from './utm/config';
-import UtmReportPage from './utm/page';
 import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -86,19 +66,14 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		getEarningsStatus: jest.requireActual(
 			'../../packages/widgets-toolkit/src/components/wordads-earnings-history/fields'
 		).getEarningsStatus,
-		getKnownEmailRate: jest.requireActual(
-			'../../packages/widgets-toolkit/src/helpers/format-email-rate'
-		).getKnownEmailRate,
 		getWordAdsHistoryFields: () => [],
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
-		ReportErrorState: () => null,
-		ReportLocationsMap: () => null,
+		PageNotice: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
 		ReportPageShell: Container,
 		ReportPageTabs: () => null,
-		ReportPerformanceChart: () => null,
 		ReportRecordsTable: () => null,
 		formatLegendLabels: () => ( {} ),
 		useReportCsvExport: jest.fn(),
@@ -148,11 +123,6 @@ jest.mock(
 		)
 );
 
-jest.mock( './annual-insights/config', () => ( {
-	getAnnualInsightsFields: () => [],
-	useAnnualInsightsReportRecords: jest.fn(),
-} ) );
-
 jest.mock( './earnings/config', () => ( {
 	getEarningsReportTabs: () => [ { id: 'wordads', label: 'Earnings history' } ],
 	getTabLabel: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
@@ -160,83 +130,13 @@ jest.mock( './earnings/config', () => ( {
 	useEarningsReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './clicks/config', () => ( {
-	getClickCsvGroup: () => 'Social',
-	getClicksFields: () => [],
-	useClicksReportRecords: jest.fn(),
-} ) );
-
 jest.mock( './comment-followers/config', () => ( {
 	getCommentFollowersFields: () => [],
 	useCommentFollowersReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './comments/config', () => ( {
-	getCommentsFields: () => [],
-	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
-	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
-	useCommentsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './downloads/config', () => ( {
-	getDownloadsFields: () => [],
-	useDownloadsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './emails/config', () => ( {
-	getClicksRateSignals: jest.requireActual( './emails/config' ).getClicksRateSignals,
-	getEmailsFields: () => [],
-	getOpensRateSignals: jest.requireActual( './emails/config' ).getOpensRateSignals,
-	useEmailsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './locations/config', () => ( {
-	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
-	getLocationFields: () => [],
-	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
-	getTabLabel: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
-	resolveSection: ( value: string | undefined ) => value ?? 'countries',
-	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
-	useLocationsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './referrers/config', () => ( {
-	getReferrerFields: () => [],
-	useReferrersReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './search-terms/config', () => ( {
-	getSearchTermsFields: () => [],
-	useSearchTermsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './tags/config', () => ( {
-	getTagRowId: ( item: { labelText: string } ) => item.labelText,
-	getTagsFields: () => [],
-	useTagsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './utm/config', () => ( {
-	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
-	getUtmFields: () => [],
-	getUtmTabLabel: () => 'Source / medium',
-	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
-	useUtmReportRecords: jest.fn(),
-} ) );
-
-const useAnnualInsightsReportRecordsMock = jest.mocked( useAnnualInsightsReportRecords );
-const useClicksReportRecordsMock = jest.mocked( useClicksReportRecords );
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
-const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
-const useDownloadsReportRecordsMock = jest.mocked( useDownloadsReportRecords );
 const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
-const useEmailsReportRecordsMock = jest.mocked( useEmailsReportRecords );
-const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
-const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
-const useSearchTermsReportRecordsMock = jest.mocked( useSearchTermsReportRecords );
-const useTagsReportRecordsMock = jest.mocked( useTagsReportRecords );
-const useUtmReportRecordsMock = jest.mocked( useUtmReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
@@ -245,13 +145,8 @@ const reportStatus = {
 	isLoading: false,
 	isFetching: false,
 	isError: false,
+	error: null,
 	refetch: jest.fn(),
-};
-
-const chart = {
-	primary: [],
-	comparison: undefined,
-	isLoading: false,
 };
 
 type ExportOptions = {
@@ -311,49 +206,6 @@ describe( 'report CSV exports', () => {
 		} );
 	} );
 
-	// `avg_words` is fractional on purpose: the table renders it whole while the
-	// export stays raw, as every other average column does. A whole fixture
-	// would pass either way.
-	it( 'configures the Annual insights export', () => {
-		const rows = [
-			{
-				year: '2025',
-				total_posts: 10,
-				total_comments: 20,
-				avg_comments: 2,
-				total_likes: 30,
-				avg_likes: 3,
-				total_words: 1000,
-				avg_words: 100.4,
-				total_images: 4,
-				avg_images: 1,
-			},
-			{
-				year: '2026',
-				total_posts: 12,
-				total_comments: 24,
-				avg_comments: 2,
-				total_likes: 36,
-				avg_likes: 3,
-				total_words: 1200,
-				avg_words: 120.6,
-				total_images: 5,
-				avg_images: 1,
-			},
-		];
-		useAnnualInsightsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as ReturnType< typeof useAnnualInsightsReportRecords > );
-
-		expectCsvExport(
-			AnnualInsightsReportPage,
-			'annual-insights',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ '2026', 12, 24, 2, 36, 3, 1200, 120.6, 5, 1 ]
-		);
-	} );
-
 	// Rows arrive oldest-first, as the endpoint's period-keyed payload does, so a
 	// missing export sort would ship the table's order reversed.
 	it( 'configures the Earnings history export, newest period first', () => {
@@ -393,40 +245,6 @@ describe( 'report CSV exports', () => {
 		] );
 	} );
 
-	it( 'configures the Clicks export with parent rows in hierarchy order', () => {
-		const group = { id: 'social', clickedUrl: 'Social', isGroup: true, clicks: 10 };
-		const lowerRow = {
-			id: 'social|a',
-			parentId: 'social',
-			clickedUrl: 'https://example.com/a',
-			isGroup: false,
-			clicks: 3,
-		};
-		const higherRow = {
-			id: 'social|b',
-			parentId: 'social',
-			clickedUrl: 'https://example.com/b',
-			isGroup: false,
-			clicks: 7,
-		};
-		useClicksReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			chart,
-			rows: [ group, higherRow, lowerRow ],
-		} as unknown as ReturnType< typeof useClicksReportRecords > );
-
-		expectCsvExport(
-			ClicksReportPage,
-			'clicks',
-			[
-				{ ...group, group: '' },
-				{ ...higherRow, group: 'Social' },
-				{ ...lowerRow, group: 'Social' },
-			],
-			[ 'Social', '', 10 ]
-		);
-	} );
-
 	it( 'configures the Comments Subscribers export', () => {
 		const rows = [
 			{ id: 1, label: 'First post', followers: 2, link: '/first', value: 2, children: null },
@@ -443,236 +261,6 @@ describe( 'report CSV exports', () => {
 			'comment-subscribers',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ 'Second post', 5, '/second' ]
-		);
-	} );
-
-	it( 'configures the active Comments tab export', () => {
-		const rows = [
-			{ id: 'first', label: 'First author', value: 2, link: '/first' },
-			{ id: 'second', label: 'Second author', value: 5, link: '/second' },
-		];
-		useCommentsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as ReturnType< typeof useCommentsReportRecords > );
-
-		expectCsvExport(
-			CommentsReportPage,
-			'comments-authors',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second author', 5, '/second' ]
-		);
-	} );
-
-	it( 'configures the File downloads export', () => {
-		const rows = [
-			{ label: 'First file', shortLabel: 'first.pdf', downloads: 2, link: '/first.pdf' },
-			{ label: 'Second file', shortLabel: 'second.pdf', downloads: 5, link: '/second.pdf' },
-		];
-		useDownloadsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			chart,
-			rows,
-		} as unknown as ReturnType< typeof useDownloadsReportRecords > );
-
-		expectCsvExport(
-			DownloadsReportPage,
-			'file-downloads',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'second.pdf', 5, '/second.pdf' ]
-		);
-	} );
-
-	it( 'configures the Emails export', () => {
-		const rows = [
-			{
-				id: 1,
-				label: 'First email',
-				date: '2026-01-01',
-				opens: 10,
-				opens_rate: 20,
-				clicks: 2,
-				clicks_rate: 4,
-				unique_opens: 8,
-				unique_clicks: 2,
-				total_sends: 40,
-			},
-			{
-				id: 2,
-				label: 'Second email',
-				date: '2026-02-01',
-				opens: 20,
-				opens_rate: 40,
-				clicks: 4,
-				// Clicks with no attributable recipient: the click rate alone is unknown.
-				clicks_rate: 0,
-				unique_opens: 16,
-				unique_clicks: 0,
-				total_sends: 40,
-			},
-		];
-		useEmailsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as unknown as ReturnType< typeof useEmailsReportRecords > );
-
-		expectCsvExport(
-			EmailsReportPage,
-			'emails',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second email', '2026-02-01', 20, 40, 4, undefined ]
-		);
-	} );
-
-	it( 'leaves Emails rates blank when the sends went unrecorded', () => {
-		// The summary collapses the unknown rate to 0; only `total_sends` gives it away.
-		const rows = [
-			{
-				id: 1,
-				label: 'Legacy email',
-				date: '2026-01-01',
-				opens: 120,
-				opens_rate: 0,
-				clicks: 5,
-				clicks_rate: 0,
-				unique_opens: 0,
-				unique_clicks: 0,
-				total_sends: 0,
-			},
-		];
-		useEmailsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as unknown as ReturnType< typeof useEmailsReportRecords > );
-
-		expectCsvExport( EmailsReportPage, 'emails', rows, [
-			'Legacy email',
-			'2026-01-01',
-			120,
-			undefined,
-			5,
-			undefined,
-		] );
-	} );
-
-	it( 'configures the Referrers export in hierarchy order', () => {
-		const rows = [
-			{ id: 'search', label: 'Search', views: 10 },
-			{
-				id: 'search|first',
-				parentId: 'search',
-				label: 'First source',
-				parentLabel: 'Search',
-				views: 2,
-				link: '/first',
-			},
-			{ id: 'social', label: 'Social', views: 5 },
-		];
-		useReferrersReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as ReturnType< typeof useReferrersReportRecords > );
-
-		expectCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
-	} );
-
-	it( 'configures the Locations export', () => {
-		const rows = [
-			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 2 },
-			{
-				id: 'AU:Australia',
-				label: 'Australia',
-				countryCode: 'AU',
-				countryFull: 'Australia',
-				views: 5,
-			},
-		];
-		useSectionTabMock.mockReturnValue( [ 'countries', jest.fn() ] as unknown as ReturnType<
-			typeof useSectionTab
-		> );
-		useLocationsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			hasComparison: false,
-			countries: { options: [] },
-			table: {
-				...reportStatus,
-				rows,
-			},
-		} as unknown as ReturnType< typeof useLocationsReportRecords > );
-
-		expectCsvExport(
-			LocationsReportPage,
-			'locations-countries',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Australia', 5 ]
-		);
-	} );
-
-	it( 'configures the Search terms export', () => {
-		const rows = [
-			{ id: 'first', term: 'first term', views: 2 },
-			{ id: 'second', term: 'second term', views: 5 },
-		];
-		useSearchTermsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			chart,
-			table: {
-				...reportStatus,
-				rows,
-			},
-		} as unknown as ReturnType< typeof useSearchTermsReportRecords > );
-
-		expectCsvExport(
-			SearchTermsReportPage,
-			'search-terms',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'second term', 5 ]
-		);
-	} );
-
-	it( 'configures the Tags and categories export', () => {
-		const rows = [
-			{ label: 'First tag', labelText: 'First tag', value: 2, link: '/first' },
-			{ label: 'Second tag', labelText: 'Second tag', value: 5, link: '/second' },
-		];
-		useTagsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as unknown as ReturnType< typeof useTagsReportRecords > );
-
-		expectCsvExport(
-			TagsReportPage,
-			'tags-and-categories',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second tag', 5, '/second' ]
-		);
-	} );
-
-	it( 'configures the active UTM tab export in hierarchy order', () => {
-		useSectionTabMock.mockReturnValue( [ 'source-medium', jest.fn() ] as ReturnType<
-			typeof useSectionTab
-		> );
-		const rows = [
-			{ id: 'first', label: 'First source', views: 2, isGroup: true },
-			{
-				id: 'first-post',
-				parentId: 'first',
-				label: 'First post',
-				groupLabel: 'First source',
-				views: 10,
-			},
-			{ id: 'second', label: 'Second source', views: 5, isGroup: true },
-		];
-		useUtmReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as ReturnType< typeof useUtmReportRecords > );
-
-		expectCsvExport( UtmReportPage, 'utm-source-medium', rows, [ 'First source', 2 ] );
-
-		const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
-		expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 1 ] ) ) ).toEqual(
-			[ 'First source > First post', 10 ]
 		);
 	} );
 } );

@@ -8,8 +8,8 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import PayPalIcon from '../icon';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
-import { wizardLogo } from './wizard-logo';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
@@ -194,10 +194,10 @@ export default function ConnectionWizard( {
 			{ visibleStep === 'welcome' && (
 				<div className="jetpack-paypal-wizard__welcome">
 					<h3>{ __( 'Connect your PayPal account', 'jetpack-paypal-payments' ) }</h3>
-					{ wizardLogo }
+					<div className="jetpack-paypal-wizard__logo">{ PayPalIcon }</div>
 					<p>
 						{ __(
-							'Create a link or button directly in the editor - no code required',
+							'Create a link or button directly in the editor - no code required.',
 							'jetpack-paypal-payments'
 						) }
 					</p>

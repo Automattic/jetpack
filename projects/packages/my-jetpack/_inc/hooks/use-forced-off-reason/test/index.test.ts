@@ -34,6 +34,7 @@ describe( 'useForcedOffReason', () => {
 			stats: { module: 'stats', override: 'inactive' },
 			publicize: { module: 'publicize', override: 'inactive' },
 			vaultpress: { module: 'vaultpress', override: 'inactive' },
+			backup: { module: 'backup', override: 'inactive' },
 			search: { module: 'search', override: 'active' },
 			videopress: { module: 'videopress', override: false },
 		} );
@@ -67,12 +68,12 @@ describe( 'useForcedOffReason', () => {
 		}
 	);
 
-	it( 'ignores vaultpress for Backup, whose status never depends on a module', () => {
+	it( 'reads the backup module for Backup, not vaultpress', () => {
 		const { result } = renderHook( () =>
-			useForcedOffReason( 'backup', PRODUCT_STATUSES.INACTIVE )
+			useForcedOffReason( 'backup', PRODUCT_STATUSES.MODULE_DISABLED )
 		);
 
-		expect( result.current ).toEqual( { reason: null, isPending: false } );
+		expect( result.current ).toEqual( { reason: REASON, isPending: false } );
 	} );
 
 	it.each( [

@@ -1,5 +1,5 @@
 /* No jest-dom or user-event in this project, and the hidden and tooltip assertions need the nodes themselves. */
-/* eslint-disable jest-dom/prefer-in-document, testing-library/prefer-user-event, testing-library/no-container, testing-library/no-node-access */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content, testing-library/prefer-user-event, testing-library/no-container, testing-library/no-node-access */
 import { fireEvent, render, screen } from '@testing-library/react';
 import ModernSettings from './modern-settings';
 
@@ -11,8 +11,9 @@ jest.mock( '../../pages/settings/settings', () => {
 	const PremiumTooltip = jest.requireActual( '$features/premium-tooltip/premium-tooltip' ).default;
 	return {
 		__esModule: true,
-		default: () => (
+		default: ( { active = true }: { active?: boolean } ) => (
 			<ModuleSurfaceProvider value="row">
+				<div data-testid="settings-active">{ String( active ) }</div>
 				<div>settings body</div>
 				<div data-testid="card">
 					<PremiumTooltip />
@@ -32,7 +33,9 @@ jest.mock( '$layout/settings-page/support/support', () => ( {
 } ) );
 jest.mock( '$features/notice/manager', () => ( {
 	__esModule: true,
-	default: () => <div>notices</div>,
+	default: ( { modern }: { modern?: boolean } ) => (
+		<div>{ modern ? 'modern notices' : 'legacy notices' }</div>
+	),
 } ) );
 
 let mockPremiumFeatures: string[] = [];
@@ -46,6 +49,7 @@ describe( 'ModernSettings', () => {
 		const { container } = render( <ModernSettings /> );
 
 		expect( screen.getByText( 'settings body' ) ).toBeTruthy();
+		expect( screen.getByText( 'modern notices' ) ).toBeTruthy();
 		expect( container.querySelector( '.jb-dashboard' ) ).toBeNull();
 	} );
 
@@ -67,6 +71,15 @@ describe( 'ModernSettings', () => {
 
 		expect( screen.getByText( 'settings body' ) ).toBeTruthy();
 		expect( container.querySelector( '[hidden]' ) ).not.toBeNull();
+	} );
+
+	it( 'enables exposure only for an active dashboard without a hidden redirect', () => {
+		const view = render( <ModernSettings hidden /> );
+		expect( screen.getByTestId( 'settings-active' ).textContent ).toBe( 'false' );
+		view.rerender( <ModernSettings active={ false } /> );
+		expect( screen.getByTestId( 'settings-active' ).textContent ).toBe( 'false' );
+		view.rerender( <ModernSettings /> );
+		expect( screen.getByTestId( 'settings-active' ).textContent ).toBe( 'true' );
 	} );
 
 	it( 'opens card tooltips outside the card, which clips its overflow', () => {

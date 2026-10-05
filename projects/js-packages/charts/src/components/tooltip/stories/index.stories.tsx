@@ -16,7 +16,7 @@ export default {
 		docs: {
 			description: {
 				component:
-					'A flexible tooltip component that can display data with custom styling and layout.',
+					'A standalone tooltip box, placed at `top` and `left` in its positioned container. It shows `label: value` by default, or your own `component` or children. Use it for a tooltip outside a visx `XYChart`; inside one, use `AccessibleTooltip`.',
 			},
 		},
 	},
