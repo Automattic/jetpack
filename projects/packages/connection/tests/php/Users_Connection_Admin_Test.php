@@ -60,6 +60,10 @@ class Users_Connection_Admin_Test extends TestCase {
 		remove_all_actions( 'admin_print_styles-users.php' );
 		remove_all_filters( 'manage_users_columns' );
 		remove_all_filters( 'manage_users_custom_column' );
+		remove_all_filters( 'views_users' );
+		remove_all_filters( 'users_list_table_query_args' );
+
+		unset( $_GET[ Users_Connection_Admin::VIEW_QUERY_ARG ] );
 
 		$GLOBALS['wp_styles']  = null;
 		$GLOBALS['wp_scripts'] = null;
@@ -196,5 +200,205 @@ class Users_Connection_Admin_Test extends TestCase {
 
 		$this->assertSame( 1, substr_count( $output, '<style' ) );
 		$this->assertSame( 1, substr_count( $output, '.jetpack-connection-status__logo' ) );
+	}
+
+	/* ── Connected view ────────────────────────────────────────── */
+
+	/**
+	 * Create a user and give them a WordPress.com token.
+	 *
+	 * @param string $login User login.
+	 * @return int The new user's ID.
+	 */
+	private function connect_user( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+				'user_email' => $login . '@example.org',
+				'role'       => 'administrator',
+			)
+		);
+
+		$tokens             = (array) \Jetpack_Options::get_option( 'user_tokens' );
+		$tokens[ $user_id ] = 'key.secret.' . $user_id;
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		return $user_id;
+	}
+
+	/**
+	 * Select the connected view for the current request.
+	 */
+	private function activate_connected_view() {
+		$_GET[ Users_Connection_Admin::VIEW_QUERY_ARG ] = Users_Connection_Admin::VIEW_CONNECTED;
+	}
+
+	/**
+	 * The view's hooks are registered alongside the column's.
+	 */
+	public function test_init_registers_the_connected_view_hooks() {
+		$admin = $this->create_admin();
+
+		$admin->init();
+
+		$this->assertIsInt( has_filter( 'views_users', array( $admin, 'add_connected_view' ) ) );
+		$this->assertIsInt( has_filter( 'users_list_table_query_args', array( $admin, 'filter_query_to_connected_users' ) ) );
+	}
+
+	/**
+	 * Connected users are read from the token option, not from user meta.
+	 */
+	public function test_get_connected_user_ids_reads_the_token_option() {
+		$first  = $this->connect_user( 'connected_one' );
+		$second = $this->connect_user( 'connected_two' );
+
+		$this->assertSame(
+			array( $first, $second ),
+			Users_Connection_Admin::get_connected_user_ids()
+		);
+	}
+
+	/**
+	 * A site that has never connected a user has no connected IDs.
+	 */
+	public function test_get_connected_user_ids_without_tokens() {
+		$this->assertSame( array(), Users_Connection_Admin::get_connected_user_ids() );
+	}
+
+	/**
+	 * The view is offered with a count once somebody is connected.
+	 */
+	public function test_connected_view_is_added_with_a_count() {
+		$this->connect_user( 'connected_one' );
+		$this->connect_user( 'connected_two' );
+
+		$views = $this->create_admin()->add_connected_view( array( 'all' => '<a href="users.php">All</a>' ) );
+
+		$this->assertArrayHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
+		$this->assertStringContainsString( 'Connected', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+		$this->assertStringContainsString( '<span class="count">(2)</span>', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+		$this->assertStringContainsString( Users_Connection_Admin::VIEW_QUERY_ARG, $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+	}
+
+	/**
+	 * Nothing is connected, so the view would only ever be empty.
+	 */
+	public function test_connected_view_is_absent_without_connected_users() {
+		$views = $this->create_admin()->add_connected_view( array( 'all' => '<a href="users.php">All</a>' ) );
+
+		$this->assertArrayNotHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
+	}
+
+	/**
+	 * A token can outlive the user it belonged to; the count follows the rows, not the tokens.
+	 */
+	public function test_connected_view_count_ignores_tokens_whose_user_is_gone() {
+		$this->connect_user( 'connected_one' );
+
+		$tokens         = (array) \Jetpack_Options::get_option( 'user_tokens' );
+		$tokens[999999] = 'key.secret.999999';
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		$views = $this->create_admin()->add_connected_view( array() );
+
+		// The orphaned token is still in the option, so the IDs the filter uses include it.
+		$this->assertContains( 999999, Users_Connection_Admin::get_connected_user_ids() );
+		$this->assertStringContainsString( '<span class="count">(1)</span>', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+	}
+
+	/**
+	 * While the view is active it is the current one, and core's "All" gives up the highlight.
+	 */
+	public function test_connected_view_takes_the_current_highlight_from_all() {
+		$this->connect_user( 'connected_one' );
+		$this->activate_connected_view();
+
+		$views = $this->create_admin()->add_connected_view(
+			array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' )
+		);
+
+		$this->assertStringContainsString( 'class="current"', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+		$this->assertStringNotContainsString( 'class="current"', $views['all'] );
+		$this->assertStringNotContainsString( 'aria-current', $views['all'] );
+	}
+
+	/**
+	 * The view is just one of the links until it is selected.
+	 */
+	public function test_connected_view_is_not_current_by_default() {
+		$this->connect_user( 'connected_one' );
+
+		$views = $this->create_admin()->add_connected_view(
+			array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' )
+		);
+
+		$this->assertStringNotContainsString( 'class="current"', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+		$this->assertStringContainsString( 'class="current"', $views['all'] );
+	}
+
+	/**
+	 * Selecting the view narrows the list table to the users holding a token.
+	 */
+	public function test_query_is_narrowed_to_connected_users() {
+		$first  = $this->connect_user( 'connected_one' );
+		$second = $this->connect_user( 'connected_two' );
+		$this->activate_connected_view();
+
+		$args = $this->create_admin()->filter_query_to_connected_users( array( 'number' => 20 ) );
+
+		$this->assertSame( array( $first, $second ), $args['include'] );
+		$this->assertSame( 20, $args['number'] );
+	}
+
+	/**
+	 * Every other users list is left alone.
+	 */
+	public function test_query_is_untouched_when_the_view_is_not_active() {
+		$this->connect_user( 'connected_one' );
+
+		$args = $this->create_admin()->filter_query_to_connected_users( array( 'number' => 20 ) );
+
+		$this->assertArrayNotHasKey( 'include', $args );
+	}
+
+	/**
+	 * Another plugin's `include` is narrowed, not replaced.
+	 */
+	public function test_query_intersects_an_existing_include() {
+		$first = $this->connect_user( 'connected_one' );
+		$this->connect_user( 'connected_two' );
+		$this->activate_connected_view();
+
+		$args = $this->create_admin()->filter_query_to_connected_users(
+			array( 'include' => array( $first, $this->admin_id ) )
+		);
+
+		$this->assertSame( array( $first ), $args['include'] );
+	}
+
+	/**
+	 * An empty `include` would list everybody, so an impossible ID is used instead.
+	 */
+	public function test_query_matches_nobody_when_no_user_is_connected() {
+		$this->activate_connected_view();
+
+		$args = $this->create_admin()->filter_query_to_connected_users( array() );
+
+		$this->assertSame( array( 0 ), $args['include'] );
+	}
+
+	/**
+	 * The same holds when the intersection with an existing `include` is empty.
+	 */
+	public function test_query_matches_nobody_when_the_intersection_is_empty() {
+		$this->connect_user( 'connected_one' );
+		$this->activate_connected_view();
+
+		$args = $this->create_admin()->filter_query_to_connected_users(
+			array( 'include' => array( $this->admin_id ) )
+		);
+
+		$this->assertSame( array( 0 ), $args['include'] );
 	}
 }
