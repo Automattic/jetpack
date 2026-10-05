@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Prepare the React Image Guide renderer without changing the active Svelte overlay.
