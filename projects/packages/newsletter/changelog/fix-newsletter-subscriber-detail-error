@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Show an error with a retry button when subscriber details fail to load, instead of a spinner that never ends.
