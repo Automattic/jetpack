@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import { getVideosFields } from './fields';
+import { getVideosFields, isVideoRowClickable, renderVideoRowLink } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 // The router is built dynamically, so a field-level test has no router to mount; render `Link`
@@ -84,28 +84,8 @@ describe( 'videos fields', () => {
 		);
 	} );
 
-	it( 'links the poster to the detail page, out of the tab order', () => {
+	it( 'leaves linking the poster to DataViews', () => {
 		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
-
-		const link = screen.getByRole( 'link', { hidden: true } );
-		const url = getMockRouteLinkUrl( link );
-		expect( url.pathname ).toBe( '/video/12' );
-		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
-			from: '2026-06-01',
-			to: '2026-06-16',
-			interval: 'day',
-			ref: 'videos',
-		} );
-		expect( link ).toHaveAttribute( 'tabindex', '-1' );
-		expect( link ).toHaveAttribute( 'aria-hidden', 'true' );
-	} );
-
-	it( 'leaves the poster unlinked for a row without an ID', () => {
-		renderVideosField( 'poster', {
-			...video,
-			id: undefined,
-			poster: 'https://i0.wp.com/v/launch.jpg',
-		} );
 
 		expect( screen.queryByRole( 'link', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
@@ -117,8 +97,22 @@ describe( 'videos fields', () => {
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
-	it( 'links a video title to its internal detail page, carrying the date window', () => {
+	it( 'renders the title as text on a row DataViews links', () => {
 		renderVideosField( 'label', video );
+
+		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links a row with an ID to its detail page, carrying the date window', () => {
+		render(
+			renderVideoRowLink( {
+				item: video,
+				className: 'dataviews-column-primary__media',
+				'aria-label': 'Launch video',
+				children: <span>poster</span>,
+			} )
+		);
 
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
 		// Only the shared report-window params travel; page-owned params
@@ -131,7 +125,16 @@ describe( 'videos fields', () => {
 			interval: 'day',
 			ref: 'videos',
 		} );
+		expect( link ).toHaveClass( 'dataviews-column-primary__media' );
 		expect( link ).not.toHaveAttribute( 'target' );
+	} );
+
+	it.each( [ undefined, 0, -3, 1.5, 'abc' ] )( 'does not make a row with ID %p clickable', id => {
+		expect( isVideoRowClickable( { ...video, id: id as never } ) ).toBe( false );
+	} );
+
+	it( 'makes a row with a positive integer ID clickable', () => {
+		expect( isVideoRowClickable( video ) ).toBe( true );
 	} );
 
 	it( 'keeps the external page link as the fallback for a row without an ID', () => {
