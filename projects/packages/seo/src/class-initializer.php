@@ -239,7 +239,7 @@ class Initializer {
 			return true;
 		}
 
-		// Only active features decide availability; skip the upgradeable-feature billing lookup.
+		// Only active features are needed for this check.
 		$features = ( new Host() )->is_wpcom_simple()
 			? Current_Plan::get_simple_site_specific_features( false )
 			: Current_Plan::get()['features'];
