@@ -64,8 +64,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 				const original: unknown = await resolveSelect( 'core' ).getEntityRecord(
 					'postType',
 					'jetpack_form',
-					item.id,
-					{ context: 'edit' }
+					item.id
 				);
 				if ( ! original ) {
 					createErrorNotice(

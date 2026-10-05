@@ -770,8 +770,7 @@ function StageInner() {
 			const form = select( coreStore ).getEntityRecord(
 				'postType',
 				'jetpack_form',
-				sourceIdNumber,
-				{ context: 'edit' }
+				sourceIdNumber
 			) as { is_collecting_responses?: boolean } | undefined;
 			return form ? form.is_collecting_responses === false : false;
 		},

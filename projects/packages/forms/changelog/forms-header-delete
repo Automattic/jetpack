@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix the "Could not delete form." error shown after permanently deleting a form.
