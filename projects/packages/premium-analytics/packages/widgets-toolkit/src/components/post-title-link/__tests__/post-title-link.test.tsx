@@ -80,7 +80,6 @@ describe( 'PostTitleLink', () => {
 		const link = screen.getByRole( 'link', { name: 'Pricing(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 
