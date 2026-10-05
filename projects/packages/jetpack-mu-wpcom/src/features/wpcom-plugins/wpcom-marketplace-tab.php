@@ -152,10 +152,31 @@ add_filter( 'install_plugins_table_api_args_' . WPCOM_MARKETPLACE_TAB, 'wpcom_ma
 /**
  * Whether this request is the Add Plugins screen, the details modal included.
  *
+ * Simple sites draw that screen from their own page, which calls itself core's screen.
+ *
  * @return bool
  */
 function wpcom_marketplace_on_plugin_install_screen() {
-	return isset( $GLOBALS['pagenow'] ) && 'plugin-install.php' === $GLOBALS['pagenow'];
+	if ( isset( $GLOBALS['pagenow'] ) && 'plugin-install.php' === $GLOBALS['pagenow'] ) {
+		return true;
+	}
+
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+	return null !== $screen && 'plugin-install' === $screen->id;
+}
+
+/**
+ * Whether a plugin is on this site already.
+ *
+ * Simple sites draw the Add Plugins screen without core's plugin install functions, and have
+ * nothing installed.
+ *
+ * @param array $plugin Plugin data.
+ * @return bool
+ */
+function wpcom_marketplace_is_installed( array $plugin ) {
+	return function_exists( 'install_plugin_install_status' ) && 'install' !== install_plugin_install_status( $plugin )['status'];
 }
 
 /**
@@ -267,10 +288,9 @@ function wpcom_marketplace_price_rows( array $card ) {
  * @return string Button markup.
  */
 function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
-	$name   = (string) ( $card['name'] ?? $card['slug'] ?? '' );
-	$status = install_plugin_install_status( $card );
+	$name = (string) ( $card['name'] ?? $card['slug'] ?? '' );
 
-	if ( 'install' !== $status['status'] ) {
+	if ( wpcom_marketplace_is_installed( $card ) ) {
 		return function_exists( 'wp_get_plugin_action_button' )
 			? wp_get_plugin_action_button( $name, $card, true, true )
 			: '';

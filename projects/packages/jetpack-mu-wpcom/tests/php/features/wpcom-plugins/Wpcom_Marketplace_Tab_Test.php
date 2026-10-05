@@ -370,6 +370,23 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Simple sites draw the screen from plugins.php, under core's screen id.
+	 */
+	public function test_details_are_served_on_the_simple_screen() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+
+		$GLOBALS['pagenow']        = 'plugins.php';
+		$GLOBALS['current_screen'] = WP_Screen::get( 'plugin-install' );
+		$result                    = wpcom_marketplace_serve_plugins_api( false, 'plugin_information', (object) array( 'slug' => 'gravityforms' ) );
+		unset( $GLOBALS['pagenow'], $GLOBALS['current_screen'] );
+
+		$this->assertIsObject( $result );
+		$this->assertSame( 'gravityforms', $result->slug );
+	}
+
+	/**
 	 * Other admin screens call plugins_api( 'plugin_information' ) too, and none of
 	 * them should pay for a catalog read.
 	 */
