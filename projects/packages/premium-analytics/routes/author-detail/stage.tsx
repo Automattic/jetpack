@@ -7,7 +7,6 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	buildReportLink,
 	pickReportNavigationParams,
@@ -18,12 +17,14 @@ import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
+	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeError,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
+	type DetailPageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -142,50 +143,42 @@ function AuthorDetail(): JSX.Element {
 		[ search ]
 	);
 
-	let notice: JSX.Element | null = null;
+	let notice: DetailPageNoticeProps | null = null;
 
 	if ( summary.isError ) {
 		// Same split as the widgets, plus a 404: sites that hide the users
 		// endpoint answer with one, and no Retry brings it back.
-		const { description, actions = [] } =
+		notice =
 			getApiErrorStatus( summary.error ) === 404
 				? {
+						intent: 'info',
 						description: __(
 							"This site doesn't share author profiles.",
 							'jetpack-premium-analytics-pkg'
 						),
 					}
-				: describeError( summary.error, {
+				: describeDetailPageError( summary.error, {
 						retryDescription: __(
 							"We couldn't load this author. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'
 						),
 						onRetry: summary.refetch,
 					} );
-
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ description }</Text>
-				{ actions.map( action => (
-					<Button key={ action.label } variant="outline" onClick={ action.onClick }>
-						{ action.label }
-					</Button>
-				) ) }
-			</Stack>
-		);
 	} else if ( summary.isNotFound ) {
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this author.", 'jetpack-premium-analytics-pkg' ) }</Text>
-				<Link
-					to="/reports/$report"
-					params={ { report: 'authors' } as unknown as never }
-					search={ reportSearch as unknown as never }
-				>
-					{ __( 'Back to Authors', 'jetpack-premium-analytics-pkg' ) }
-				</Link>
-			</Stack>
-		);
+		notice = {
+			intent: 'info',
+			description: __( "We couldn't find this author.", 'jetpack-premium-analytics-pkg' ),
+			link: {
+				label: __( 'Back to Authors', 'jetpack-premium-analytics-pkg' ),
+				render: (
+					<Link
+						to="/reports/$report"
+						params={ { report: 'authors' } as unknown as never }
+						search={ reportSearch as unknown as never }
+					/>
+				),
+			},
+		};
 	}
 
 	return (
@@ -235,7 +228,11 @@ function AuthorDetail(): JSX.Element {
 								<WidgetDashboard.Widgets />
 							</DetailPageSection>
 						) : null }
-						{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+						{ notice ? (
+							<DetailPageSection>
+								<DetailPageNotice { ...notice } />
+							</DetailPageSection>
+						) : null }
 					</DetailPageLayout>
 				</DetailPageShell>
 			</WidgetDashboard>
