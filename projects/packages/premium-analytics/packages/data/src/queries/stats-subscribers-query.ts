@@ -25,6 +25,8 @@ export type StatsSubscribersParams = {
 	quantity: number;
 	date: string;
 	stat_fields?: string;
+	/** The range's start, read only by the sanitizer to label a partial first bucket. */
+	start_date?: string;
 };
 
 /** Map a stats `period` onto the nearest granularity the subscribers endpoint accepts. */
@@ -49,6 +51,7 @@ export const statsSubscribersQuery = (
 			stat_fields: params.stat_fields ?? statsSubscribersDefaultStatFields,
 		},
 		sanitizer: 'subscribers',
+		...( params.start_date ? { sanitizerParams: { start_date: params.start_date } } : {} ),
 	} );
 
 /**
@@ -71,7 +74,7 @@ export const statsSubscribersReportQuery = (
 
 	// Reuse the endpoint config; only gate on a resolved range end.
 	return {
-		...statsSubscribersQuery( { unit, quantity, date: endDate ?? '' } ),
+		...statsSubscribersQuery( { unit, quantity, date: endDate ?? '', start_date: startDate } ),
 		enabled: !! endDate,
 	};
 };

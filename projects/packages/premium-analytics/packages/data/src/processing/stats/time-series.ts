@@ -264,9 +264,8 @@ function clipWeekToRange(
 
 	return {
 		...range,
-		date_start:
-			start && range.date_start < start && range.date_end >= start ? start : range.date_start,
-		date_end: end && range.date_end > end && range.date_start <= end ? end : range.date_end,
+		date_start: start && range.date_start < start ? start : range.date_start,
+		date_end: end && range.date_end > end ? end : range.date_end,
 	};
 }
 
