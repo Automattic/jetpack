@@ -32,6 +32,9 @@ jest.mock( '$features/module/lib/stores', () => ( {
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
+jest.mock( '../../../../../../_inc/overview/lib/upgrade-bridge', () => ( {
+	upgradeHref: '#shared-boost-upgrade',
+} ) );
 
 const mockMarkGettingStartedComplete = jest.fn();
 
@@ -44,6 +47,28 @@ beforeEach( () => {
 	} );
 } );
 
+function renderFreeSite(
+	rootId = MODERN_ROOT_ID,
+	siteOverrides: Partial< typeof Jetpack_Boost.site > = {},
+	features: string[] = []
+) {
+	Object.assign( globalThis, {
+		Jetpack_Boost: {
+			site: {
+				domain: 'example.com',
+				online: true,
+				myJetpack: true,
+				addLicense: true,
+				host: 'other',
+				...siteOverrides,
+			},
+		},
+	} );
+	jest.mocked( usePremiumFeatures ).mockReturnValue( features );
+	render( <div id={ rootId } data-testid="dashboard-root" /> );
+	return render( <GettingStarted />, { container: screen.getByTestId( 'dashboard-root' ) } );
+}
+
 test.each( [
 	{ rootId: MODERN_ROOT_ID, features: [], links: 0 },
 	{ rootId: MODERN_ROOT_ID, features: [ 'support' ], links: 0 },
@@ -51,20 +76,7 @@ test.each( [
 ] )(
 	'leaves license redemption on the modern upgrade page and preserves the legacy header (%o)',
 	( { rootId, features, links } ) => {
-		Object.assign( globalThis, {
-			Jetpack_Boost: {
-				site: {
-					domain: 'example.com',
-					online: true,
-					myJetpack: true,
-					addLicense: true,
-					host: 'unknown',
-				},
-			},
-		} );
-		jest.mocked( usePremiumFeatures ).mockReturnValue( features );
-		render( <div id={ rootId } data-testid="dashboard-root" /> );
-		render( <GettingStarted />, { container: screen.getByTestId( 'dashboard-root' ) } );
+		renderFreeSite( rootId, { host: 'unknown' }, features );
 
 		expect( screen.getByRole( 'button', { name: 'Get Boost' } ) ).toBeTruthy();
 		const found = screen.queryAllByRole( 'link', { name: 'Use license key' } );
@@ -82,47 +94,30 @@ test.each( [
 	{ rootId: LEGACY_ROOT_ID, myJetpack: true, addLicense: false },
 	{ rootId: MODERN_ROOT_ID, myJetpack: true, addLicense: false },
 ] )( 'hides unavailable license screens (%o)', ( { rootId, myJetpack, addLicense } ) => {
-	Object.assign( globalThis, {
-		Jetpack_Boost: {
-			site: { domain: 'example.com', online: true, myJetpack, addLicense, host: 'unknown' },
-		},
-	} );
-	jest.mocked( usePremiumFeatures ).mockReturnValue( [] );
-	render( <div id={ rootId } data-testid="dashboard-root" /> );
-	render( <GettingStarted />, { container: screen.getByTestId( 'dashboard-root' ) } );
+	renderFreeSite( rootId, { myJetpack, addLicense, host: 'unknown' } );
 	expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 } );
-
-function renderFreeSite( rootId = MODERN_ROOT_ID ) {
-	Object.assign( globalThis, {
-		Jetpack_Boost: {
-			site: {
-				domain: 'example.com',
-				online: true,
-				myJetpack: true,
-				addLicense: true,
-				host: 'other',
-			},
-		},
-	} );
-	jest.mocked( usePremiumFeatures ).mockReturnValue( [] );
-	render( <div id={ rootId } data-testid="dashboard-root" /> );
-	return render( <GettingStarted />, { container: screen.getByTestId( 'dashboard-root' ) } );
-}
 
 test.each( [
 	{
 		rootId: MODERN_ROOT_ID,
-		destination: 'http://localhost/wp-admin/admin.php?page=my-jetpack#/add-boost',
+		myJetpack: true,
+		destination: '#shared-boost-upgrade',
+	},
+	{
+		rootId: MODERN_ROOT_ID,
+		myJetpack: false,
+		destination: '#checkout',
 	},
 	{
 		rootId: LEGACY_ROOT_ID,
-		destination: 'http://localhost/wp-admin/admin.php?page=my-jetpack#checkout',
+		myJetpack: true,
+		destination: '#checkout',
 	},
 ] )(
 	'sends the premium selection to its dashboard destination (%o)',
-	async ( { rootId, destination } ) => {
-		const view = renderFreeSite( rootId );
+	async ( { rootId, myJetpack, destination } ) => {
+		const view = renderFreeSite( rootId, { myJetpack } );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Get Boost' } ) );
 		await waitFor( () => expect( mockMarkGettingStartedComplete ).toHaveBeenCalled() );
 		jest.mocked( useGettingStarted ).mockReturnValue( {
@@ -130,9 +125,9 @@ test.each( [
 			markGettingStartedComplete: mockMarkGettingStartedComplete,
 		} );
 		view.rerender( <GettingStarted /> );
-		expect( window.location.href ).toBe( destination );
+		expect( window.location.hash ).toBe( destination );
 		expect( jest.mocked( getUpgradeURL ).mock.calls ).toEqual(
-			rootId === LEGACY_ROOT_ID ? [ [ 'example.com', true, '123' ] ] : []
+			destination === '#checkout' ? [ [ 'example.com', true, '123' ] ] : []
 		);
 	}
 );

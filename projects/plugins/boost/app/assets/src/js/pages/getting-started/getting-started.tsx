@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { upgradeHref } from '../../../../../../_inc/overview/lib/upgrade-bridge';
+import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules-state';
 import type { FC } from 'react';
 
 const GettingStarted: FC = () => {
@@ -36,9 +37,10 @@ const GettingStarted: FC = () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href = isModern
-					? upgradeHref
-					: getUpgradeURL( domain, userConnected, wpcomBlogId ? wpcomBlogId.toString() : null );
+				window.location.href =
+					isModern && canOfferUpgrade()
+						? upgradeHref
+						: getUpgradeURL( domain, userConnected, wpcomBlogId ? wpcomBlogId.toString() : null );
 			} else {
 				if ( ! isPremium ) {
 					setCriticalCssState( true );
