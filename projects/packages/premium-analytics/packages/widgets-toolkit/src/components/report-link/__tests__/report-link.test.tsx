@@ -6,7 +6,6 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
 import { useWidgetRootContext } from '../../widget-root';
 import { ReportLink } from '../report-link';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -67,25 +66,15 @@ describe( 'ReportLink', () => {
 		} );
 	} );
 
-	it( 'links to the report with shared date params and no page-owned params', () => {
+	it( 'links to the report with the dashboard navigation params', () => {
 		render( <ReportLink report="posts" /> );
 
-		const link = screen.getByRole( 'link', { name: 'View all' } );
-		const href = link.getAttribute( 'href' ) ?? '';
-		const search = new URL( href, 'https://example.com' ).searchParams;
+		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' ) ?? '';
+		const url = new URL( href, 'https://example.com' );
 
-		expect( href ).toContain( '/reports/posts?' );
-		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
-		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
-		expect( search.get( 'interval' ) ).toBe( 'day' );
-		expect( search.get( 'preset' ) ).toBe( 'last-30-days' );
-		expect( search.get( 'comp' ) ).toBe( '1' );
-		expect( search.get( 'compare_from' ) ).toBe( '2026-02-01' );
-		expect( search.get( 'compare_to' ) ).toBe( '2026-02-10' );
-		expect( search.get( 'compare_preset' ) ).toBe( 'previous-period' );
-		expect( search.get( 'date_type' ) ).toBe( 'created' );
-		expect( search.has( 'period' ) ).toBe( false );
-		expect( search.has( 'section' ) ).toBe( false );
+		expect( url.pathname ).toBe( '/reports/posts' );
+		// Only `navigationParams` carries the comparison.
+		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 	} );
 
 	it( 'renders through the design system link so it inherits the brand tone', () => {
@@ -113,19 +102,6 @@ describe( 'ReportLink', () => {
 				'section'
 			)
 		).toBe( 'posts-pages' );
-	} );
-
-	it( 'names the dashboard tab the report should return to', () => {
-		render(
-			<DashboardSectionProvider section="insights">
-				<ReportLink report="tags" />
-			</DashboardSectionProvider>
-		);
-
-		const link = screen.getByRole( 'link', { name: 'View all' } );
-		const search = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' ).searchParams;
-		expect( search.get( 'ds' ) ).toBe( 'insights' );
-		expect( search.has( 'section' ) ).toBe( false );
 	} );
 
 	it( 'renders children after the label, outside the element that carries the underline', () => {

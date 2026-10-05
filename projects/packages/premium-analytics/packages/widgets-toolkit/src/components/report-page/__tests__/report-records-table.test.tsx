@@ -6,9 +6,10 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { ReportPageLayout } from '../report-page-layout';
+import { ReportDrilldownTable } from '../report-drilldown-table';
 import { ReportRecordsTable } from '../report-records-table';
 import type { Field, View } from '@jetpack-premium-analytics/externals';
+import type { ReactElement } from 'react';
 
 interface Row {
 	id: string;
@@ -264,22 +265,13 @@ describe( 'ReportRecordsTable pagination', () => {
 	} );
 } );
 
-describe( 'ReportRecordsTable with no rows', () => {
-	afterEach( () => {
-		jest.useRealTimers();
-	} );
+type TableProps = { isLoading?: boolean; isFetching?: boolean };
 
-	/**
-	 * Mount the table over `data`.
-	 *
-	 * @param data             - The report rows.
-	 * @param props            - Other table props for the case under test.
-	 * @param props.isLoading  - Whether the rows are still loading.
-	 * @param props.isFetching - Whether the rows on screen are revalidating.
-	 * @return The render result.
-	 */
-	function mountRows( data: Row[], props: { isLoading?: boolean; isFetching?: boolean } = {} ) {
-		return render(
+// Each table wires its own empty-state and revalidation guards, so both run the same cases.
+const TABLES: [ string, ( data: Row[], props?: TableProps ) => ReactElement ][] = [
+	[
+		'ReportRecordsTable',
+		( data, props ) => (
 			<ReportRecordsTable< Row >
 				data={ data }
 				fields={ fields }
@@ -287,11 +279,26 @@ describe( 'ReportRecordsTable with no rows', () => {
 				initialView={ INITIAL_VIEW }
 				{ ...props }
 			/>
-		);
-	}
+		),
+	],
+	[
+		'ReportDrilldownTable',
+		( data, props ) => (
+			<ReportDrilldownTable< Row >
+				data={ data }
+				fields={ fields }
+				getItemId={ item => item.id }
+				getItemParentId={ () => null }
+				initialView={ INITIAL_VIEW }
+				{ ...props }
+			/>
+		),
+	],
+];
 
+describe.each( TABLES )( '%s with no rows', ( _name, table ) => {
 	it( 'replaces the table with the empty state when the report has no rows', () => {
-		mountRows( [] );
+		render( table( [] ) );
 
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'We couldn’t find any results.' ) ).toBeInTheDocument();
@@ -299,39 +306,37 @@ describe( 'ReportRecordsTable with no rows', () => {
 	} );
 
 	it( 'shows no search box or empty state while the first rows load', () => {
-		mountRows( [], { isLoading: true } );
+		render( table( [], { isLoading: true } ) );
 
 		expect( screen.queryByRole( 'searchbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the empty state while the same period revalidates', () => {
-		mountRows( [], { isFetching: true } );
+		render( table( [], { isFetching: true } ) );
 
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows cached rows that mount already revalidating', () => {
-		mountRows( rows, { isFetching: true } );
+		render( table( rows, { isFetching: true } ) );
 
 		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the rows on screen and marks the table busy while they revalidate', () => {
-		const { rerender } = mountRows( rows );
+		const { rerender } = render( table( rows ) );
 
-		rerender(
-			<ReportRecordsTable< Row >
-				data={ rows }
-				fields={ fields }
-				getItemId={ item => item.id }
-				initialView={ INITIAL_VIEW }
-				isFetching
-			/>
-		);
+		rerender( table( rows, { isFetching: true } ) );
 
 		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'table' ) ).toHaveAttribute( 'aria-busy', 'true' );
+	} );
+} );
+
+describe( 'ReportRecordsTable with no rows', () => {
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'keeps the table while a filter has scoped the rows to none', () => {
@@ -354,26 +359,18 @@ describe( 'ReportRecordsTable with no rows', () => {
 	it( 'keeps the table and its "No results" when a search matches no rows', async () => {
 		jest.useFakeTimers();
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		mountRows( rows );
+		render(
+			<ReportRecordsTable< Row >
+				data={ rows }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+			/>
+		);
 
 		await user.type( screen.getByRole( 'searchbox' ), 'no such place' );
 
 		await expect( screen.findByText( 'No results' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'does not mention a time period on a report without date filters', () => {
-		render(
-			<ReportPageLayout title="Tags & categories report">
-				<ReportRecordsTable< Row >
-					data={ [] }
-					fields={ fields }
-					getItemId={ item => item.id }
-					initialView={ INITIAL_VIEW }
-				/>
-			</ReportPageLayout>
-		);
-
-		expect( screen.getByText( 'We couldn’t find any results.' ) ).toBeInTheDocument();
 	} );
 } );

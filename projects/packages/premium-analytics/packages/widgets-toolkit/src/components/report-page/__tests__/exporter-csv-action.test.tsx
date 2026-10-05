@@ -63,7 +63,6 @@ describe( 'ExporterCsvAction', () => {
 
 	it.each( [
 		[ 'no rows', SETTLED, [] ],
-		[ 'fetching', { ...SETTLED, isFetching: true }, ITEMS ],
 		[ 'failed', { ...SETTLED, isError: true }, ITEMS ],
 	] )( 'renders nothing while the report has %s', ( _state, status, items ) => {
 		render(

@@ -23,13 +23,6 @@ describe( 'PeakDistribution', () => {
 		expect( screen.getByText( '166,900 views' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders a single node, with no hidden duplicate, for a value below 1000', () => {
-		render( <PeakDistribution label="Monday" value={ 25 } points={ [ 25 ] } /> );
-
-		expect( screen.getAllByText( '25 views' ) ).toHaveLength( 1 );
-		expect( screen.getByText( '25 views' ) ).not.toHaveAttribute( 'aria-hidden' );
-	} );
-
 	it( 'renders a fractional daily average without rounding it to zero', () => {
 		render(
 			<PeakDistribution

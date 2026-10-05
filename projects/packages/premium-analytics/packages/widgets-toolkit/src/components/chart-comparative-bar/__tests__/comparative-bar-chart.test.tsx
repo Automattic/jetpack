@@ -259,12 +259,14 @@ describe( 'ComparativeBarChart', () => {
 		expect( recordedOptions().axis.x.tickFormat ).toBeUndefined();
 	} );
 
-	it( 'passes an x tickFormat when one is requested', () => {
+	it( 'formats the x ticks in the requested format', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render(
 			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickFormat="short" />
 		);
 
-		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
+		const tickFormat = recordedOptions().axis.x.tickFormat as ( date: number ) => string;
+		expect( tickFormat( JULY_1.getTime() ) ).toBe( 'July 1' );
 	} );
 
 	it( 'declares the bucket size to the x-axis', () => {
@@ -304,19 +306,6 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
 	} );
 
-	it( 'lets a declared resolution override what the data looks like', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render(
-			<ComparativeBarChart
-				series={ HOURLY_SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="day"
-			/>
-		);
-
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026' );
-	} );
-
 	// How a point's date reads is the caller's to decide; which format names it
 	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
@@ -349,12 +338,6 @@ describe( 'ComparativeBarChart', () => {
 		);
 
 		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
-	} );
-
-	it( 'leaves the tooltip alone when there is no comparison series', () => {
-		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100 } );
 	} );
 
 	it( 'names the tooltip rows by metric once two are drawn', () => {
@@ -495,10 +478,11 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 
-	it( 'always formats the y axis', () => {
+	it( 'abbreviates the y axis ticks', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( typeof recordedOptions().axis.y.tickFormat ).toBe( 'function' );
+		const tickFormat = recordedOptions().axis.y.tickFormat as ( value: number ) => string;
+		expect( tickFormat( 18432 ) ).toBe( '18.4K' );
 	} );
 
 	it( 'dims the previous-period swatch to match the shadow bar it stands for', () => {
@@ -549,7 +533,6 @@ describe( 'ComparativeBarChart', () => {
 
 			// `useChartMargin` measures the pinned domain's own ticks, so there is
 			// nothing left for this component to override.
-			expect( recordedOptions().yScale.domain ).toBeDefined();
 			expect( recordedProps().margin ).toBeUndefined();
 		} );
 

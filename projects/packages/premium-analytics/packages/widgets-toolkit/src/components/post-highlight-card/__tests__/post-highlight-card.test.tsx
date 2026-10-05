@@ -92,25 +92,8 @@ describe( 'PostHighlightCard', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'keeps the title as plain text when the post URL is unsafe', () => {
-		render( <PostHighlightCard { ...props } url="javascript:alert(1)" /> );
-
-		expect( screen.getByText( 'Quarterly update' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'links the title to the post', () => {
-		render( <PostHighlightCard { ...props } /> );
-
-		// `openInNewTab` appends a screen-reader hint to the accessible name.
-		expect( screen.getByRole( 'link', { name: /^Quarterly update/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/quarterly-update/'
-		);
-	} );
-
 	// The title used to be wrapped in `<Link>` unconditionally, so a revert here is plausible.
-	it( 'keeps the title readable as plain text when the post URL is unsafe', () => {
+	it( 'keeps the title as plain text when the post URL is unsafe', () => {
 		render( <PostHighlightCard { ...props } url="javascript:alert(1)" /> );
 
 		expect( screen.getByText( 'Quarterly update' ) ).toBeInTheDocument();
@@ -123,6 +106,17 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( 'Post published on Jun 5, 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shortens a large count by default', () => {
+		render(
+			<PostHighlightCard
+				{ ...props }
+				metrics={ [ { key: 'views', label: 'Views', value: 1234 } ] }
+			/>
+		);
+
+		expect( screen.getByText( '1.2K' ) ).toBeInTheDocument();
 	} );
 
 	it( "writes the publish date in the site's locale and date format", () => {

@@ -1,22 +1,36 @@
 import { act, renderHook } from '@testing-library/react';
-import { resetTracksIdentityForTesting, useTrackCustomize } from '../use-track-event';
+import {
+	resetTracksIdentityForTesting,
+	useTrackCustomize,
+	useTrackEvent,
+} from '../use-track-event';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
+const mockSetUser = jest.fn();
+const mockIdentifyUser = jest.fn();
+const mockAssignSuperProps = jest.fn();
 const mockRecordEvent = jest.fn();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: {
-		setUser: jest.fn(),
-		identifyUser: jest.fn(),
-		assignSuperProps: jest.fn(),
+		setUser: ( ...args: unknown[] ) => mockSetUser( ...args ),
+		identifyUser: () => mockIdentifyUser(),
+		assignSuperProps: ( ...args: unknown[] ) => mockAssignSuperProps( ...args ),
 		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
 	},
 } ) );
 
+const mockGetScriptData = jest.fn();
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( {} ),
+	getScriptData: () => mockGetScriptData(),
 } ) );
+
+const CONNECTED_READER = {
+	site: { wpcom: { blog_id: 42 } },
+	user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
+};
 
 const widget = ( uuid: string, type = `jpa/${ uuid }` ) => ( { uuid, type } ) as DashboardWidget;
 
@@ -32,6 +46,61 @@ function events() {
 beforeEach( () => {
 	jest.clearAllMocks();
 	resetTracksIdentityForTesting();
+	mockGetScriptData.mockReturnValue( {} );
+} );
+
+describe( 'useTrackEvent', () => {
+	/**
+	 * Records an event through a freshly mounted consumer, as each component does.
+	 *
+	 * @param name - The event name.
+	 */
+	function recordFromNewConsumer( name: string ) {
+		const { result } = renderHook( () => useTrackEvent() );
+		result.current( name );
+	}
+
+	it( 'identifies the reader and pins blog_id once, not per event or consumer', () => {
+		mockGetScriptData.mockReturnValue( CONNECTED_READER );
+
+		recordFromNewConsumer( 'jetpack_premium_analytics_first' );
+		recordFromNewConsumer( 'jetpack_premium_analytics_second' );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
+		expect( mockSetUser ).toHaveBeenCalledTimes( 1 );
+		expect( mockSetUser ).toHaveBeenCalledWith( 7, 'reader' );
+		expect( mockIdentifyUser ).toHaveBeenCalledTimes( 1 );
+		expect( mockAssignSuperProps ).toHaveBeenCalledTimes( 1 );
+		expect( mockAssignSuperProps ).toHaveBeenCalledWith( { blog_id: 42 } );
+	} );
+
+	it( 'identifies before the first event reaches Tracks', () => {
+		mockGetScriptData.mockReturnValue( CONNECTED_READER );
+
+		recordFromNewConsumer( 'jetpack_premium_analytics_first' );
+
+		expect( mockIdentifyUser.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockRecordEvent.mock.invocationCallOrder[ 0 ]
+		);
+	} );
+
+	it( 'still records when the site carries no WPCOM identity', () => {
+		recordFromNewConsumer( 'jetpack_premium_analytics_first' );
+
+		expect( mockSetUser ).not.toHaveBeenCalled();
+		expect( mockIdentifyUser ).not.toHaveBeenCalled();
+		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_first', undefined );
+	} );
+
+	it( 'skips the blog_id super prop when the site is not connected', () => {
+		mockGetScriptData.mockReturnValue( { user: CONNECTED_READER.user } );
+
+		recordFromNewConsumer( 'jetpack_premium_analytics_first' );
+
+		expect( mockSetUser ).toHaveBeenCalledWith( 7, 'reader' );
+		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
+	} );
 } );
 
 describe( 'useTrackCustomize', () => {
