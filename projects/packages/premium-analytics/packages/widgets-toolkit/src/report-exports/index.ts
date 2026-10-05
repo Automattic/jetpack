@@ -31,6 +31,7 @@ export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
 export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
+	getUtmDimensionOptions,
 	getUtmReportQueryParams,
 	getUtmReportSection,
 	utmCsvExporters,

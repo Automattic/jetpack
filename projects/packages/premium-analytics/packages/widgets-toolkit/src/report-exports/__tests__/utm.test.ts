@@ -10,7 +10,12 @@ import {
 /**
  * Internal dependencies
  */
-import { aggregateUtmRows, getUtmReportSection, utmCsvExporters } from '../utm';
+import {
+	aggregateUtmRows,
+	getUtmDimensionOptions,
+	getUtmReportSection,
+	utmCsvExporters,
+} from '../utm';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -119,22 +124,20 @@ describe( 'UTM report aggregate', () => {
 	} );
 } );
 
+const UTM_DIMENSIONS = [
+	[ 'source-medium', 'utm_source,utm_medium', 'Source / Medium' ],
+	[ 'campaign-source-medium', 'utm_campaign,utm_source,utm_medium', 'Campaign / Source / Medium' ],
+	[ 'source', 'utm_source', 'Source' ],
+	[ 'medium', 'utm_medium', 'Medium' ],
+	[ 'campaign', 'utm_campaign', 'Campaign' ],
+] as const;
+
 describe( 'utmCsvExporters', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it.each( [
-		[ 'source-medium', 'utm_source,utm_medium', 'Source / Medium' ],
-		[
-			'campaign-source-medium',
-			'utm_campaign,utm_source,utm_medium',
-			'Campaign / Source / Medium',
-		],
-		[ 'source', 'utm_source', 'Source' ],
-		[ 'medium', 'utm_medium', 'Medium' ],
-		[ 'campaign', 'utm_campaign', 'Campaign' ],
-	] as const )( 'exports the full %s report', async ( section, utmParam, label ) => {
+	it.each( UTM_DIMENSIONS )( 'exports the full %s report', async ( section, utmParam, label ) => {
 		jest.mocked( fetchStatsUtmRows ).mockResolvedValue( [ makeUtmItem() ] );
 		const exporter = utmCsvExporters[ section ];
 
@@ -155,5 +158,13 @@ describe( 'utmCsvExporters', () => {
 			[ 'newsletter / email', 18 ],
 			[ 'newsletter / email > Landing page', 12 ],
 		] );
+	} );
+} );
+
+describe( 'getUtmDimensionOptions', () => {
+	it( 'lists every dimension in report tab order', () => {
+		expect( getUtmDimensionOptions() ).toEqual(
+			UTM_DIMENSIONS.map( ( [ , value, label ] ) => ( { label, value } ) )
+		);
 	} );
 } );

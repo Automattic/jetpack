@@ -9,6 +9,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import { getUtmDimensionOptions } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Widget attributes shape.
@@ -35,28 +36,7 @@ export default {
 			id: 'utmDimension',
 			label: __( 'UTM parameter', 'jetpack-premium-analytics-pkg' ),
 			type: 'jpa/select',
-			elements: [
-				{
-					label: __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
-					value: 'utm_source,utm_medium',
-				},
-				{
-					label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
-					value: 'utm_campaign,utm_source,utm_medium',
-				},
-				{
-					label: __( 'Source', 'jetpack-premium-analytics-pkg' ),
-					value: 'utm_source',
-				},
-				{
-					label: __( 'Medium', 'jetpack-premium-analytics-pkg' ),
-					value: 'utm_medium',
-				},
-				{
-					label: __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
-					value: 'utm_campaign',
-				},
-			],
+			elements: getUtmDimensionOptions(),
 			relevance: 'high',
 		},
 	] as WidgetAttributeField< UtmInsightsAttributes >[],

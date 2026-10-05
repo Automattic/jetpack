@@ -57,6 +57,14 @@ export function getUtmReportSection( utmParam: StatsUtmParam ): UtmReportSection
 	);
 }
 
+/** The UTM dimensions as select options, in report tab order. */
+export function getUtmDimensionOptions(): { label: string; value: StatsUtmParam }[] {
+	return Object.values( UTM_DIMENSIONS ).map( ( { utmParam, getLabel } ) => ( {
+		label: getLabel(),
+		value: utmParam,
+	} ) );
+}
+
 /** The UTM report's query: every value with its top posts, as Calypso's full UTM report requests. */
 export function getUtmReportQueryParams(
 	reportParams: ReportParams,
