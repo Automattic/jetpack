@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: link the disconnected connection card to the connect screen, and stop it offering to disconnect a site that is not connected.

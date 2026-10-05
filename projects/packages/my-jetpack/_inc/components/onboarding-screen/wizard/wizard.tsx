@@ -458,7 +458,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											tone="neutral"
 											size="compact"
 											href={ dashboardUrl }
-											aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+											aria-label={ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 											className={ styles.exit }
 										>
 											<LinkButton.Icon icon={ wordpress } />
@@ -470,7 +470,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								 * below and a popup on that side lands on top of the words.
 								 */ }
 								<Tooltip.Popup positioner={ <Tooltip.Positioner side="right" sideOffset={ 4 } /> }>
-									{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+									{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 								</Tooltip.Popup>
 							</Tooltip.Root>
 

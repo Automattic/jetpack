@@ -19,6 +19,7 @@ import {
 	connectionStatusJetpackGray as jetpackGray,
 	connectionStatusJetpack as jetpack,
 } from '../../assets/inline-svgs';
+import { MyJetpackRoutes } from '../../constants';
 import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
@@ -161,7 +162,10 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
 	const shouldPreventDialog = isWoASite() && isConnectionOwner;
+	// Without a registration there is no connection to manage, so the heading must not
+	// offer to disconnect one.
 	const allowDisconnect =
+		isRegistered &&
 		( currentUserCan( 'manage_options' ) || isUserConnected ) &&
 		! shouldPreventDialog &&
 		! ( isWoASite() && ! isUserConnected );
@@ -199,32 +203,26 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 							size={ 24 }
 						/>
 					) }
-					{ /* While the label diagnoses a fault it is text only: a chevron there would
-					     promise a fix and open the disconnect dialog. Manage connection moves
-					     down into the named actions instead. */ }
-					{ state.isDiagnosis ? (
+					{ /* Text, not a button, unless the heading opens the disconnect dialog. A
+					     disabled control is the wrong affordance for a standing nobody can act
+					     on, and its chevron promises a fix the label cannot deliver. */ }
+					{ state.isDiagnosis || ! allowDisconnect ? (
 						state.label
 					) : (
-						<Button
-							variant="tertiary"
-							onClick={ openManageSiteConnectionFromHeading }
-							disabled={ ! allowDisconnect }
-						>
+						<Button variant="tertiary" onClick={ openManageSiteConnectionFromHeading }>
 							{ state.label }
-							{ allowDisconnect && (
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									role="presentation"
-								>
-									<path
-										d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
-										fill="currentColor"
-									/>
-								</svg>
-							) }
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								role="presentation"
+							>
+								<path
+									d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
+									fill="currentColor"
+								/>
+							</svg>
 						</Button>
 					) }
 				</h4>
@@ -281,6 +279,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 							{ state.action === 'CONNECT_USER' ? (
 								<Button variant="link" onClick={ handleConnectUser }>
 									{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
+								</Button>
+							) : null }
+							{ /* A link rather than a register-in-place button: every other route to
+							     registration shows the terms of service first. */ }
+							{ state.action === 'CONNECT_SITE' ? (
+								<Button variant="link" href={ `#${ MyJetpackRoutes.ConnectionSkipPricing }` }>
+									{ __( 'Connect your site', 'jetpack-my-jetpack' ) }
 								</Button>
 							) : null }
 						</Stack>
