@@ -458,19 +458,10 @@ class Current_Plan {
 	 *
 	 * See Jetpack_Gutenberg::get_site_specific_features()
 	 *
-	 * @param bool $include_available Whether to include the features the site could
-	 *                                upgrade to, alongside the ones it has. Building
-	 *                                that list walks the plan catalog in the current
-	 *                                user's currency, which is by far the expensive
-	 *                                half of this call — pass false when only the
-	 *                                site's active features matter.
+	 * @param bool $include_available Whether to include upgradeable features, which requires a billing catalog lookup.
 	 * @return array
 	 */
 	public static function get_simple_site_specific_features( $include_available = true ) {
-		// Through Constants rather than `defined()`/`constant()` directly, matching
-		// `Host::is_wpcom_simple()` and the rest of this class. Identical in production
-		// — Constants falls through to the real constant — and it makes the branch
-		// reachable from a test.
 		$is_simple_site = Constants::is_true( 'IS_WPCOM' );
 
 		if ( ! $is_simple_site ) {

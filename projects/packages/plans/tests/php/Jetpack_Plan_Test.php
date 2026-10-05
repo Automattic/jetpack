@@ -58,8 +58,7 @@ class Jetpack_Plan_Test extends TestCase {
 	}
 
 	/**
-	 * Empty the per-request memo of Simple-site features, so each assertion below
-	 * measures a fresh lookup rather than a cached one.
+	 * Reset the Simple-site feature cache and recorded billing calls.
 	 */
 	private function reset_simple_features_cache() {
 		$property = new \ReflectionProperty( Jetpack_Plan::class, 'simple_site_specific_features' );
@@ -68,34 +67,30 @@ class Jetpack_Plan_Test extends TestCase {
 			$property->setAccessible( true );
 		}
 		$property->setValue( null, array() );
-		\Store_Product_List::$calls = array();
+		$GLOBALS['jetpack_test_store_product_list_calls'] = array();
 	}
 
 	/**
-	 * Building the upgradeable-features list walks the plan catalog in the current
-	 * user's currency; the active list reads blog stickers and costs nothing like it.
-	 * A caller that only needs to know what the site *has* can skip the expensive half,
-	 * and this is what lets it.
+	 * Test that active-only requests skip the upgradeable list.
 	 */
 	public function test_simple_site_features_can_skip_the_upgradeable_list() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		$this->reset_simple_features_cache();
 		$full = Jetpack_Plan::get_simple_site_specific_features();
-		$this->assertSame( array( true ), \Store_Product_List::$calls, 'Precondition: the default asks for the upgradeable list.' );
+		$this->assertSame( array( true ), $GLOBALS['jetpack_test_store_product_list_calls'], 'Precondition: the default asks for the upgradeable list.' );
 		$this->assertArrayHasKey( 'available', $full );
 
 		$this->reset_simple_features_cache();
 		$active_only = Jetpack_Plan::get_simple_site_specific_features( false );
 
-		$this->assertSame( array( false ), \Store_Product_List::$calls, 'The upgradeable list must not be requested.' );
+		$this->assertSame( array( false ), $GLOBALS['jetpack_test_store_product_list_calls'], 'The upgradeable list must not be requested.' );
 		$this->assertArrayHasKey( 'active', $active_only );
 		$this->assertArrayNotHasKey( 'available', $active_only );
 	}
 
 	/**
-	 * A full result already contains the active features, so an active-only request
-	 * after one reuses it rather than paying for a second lookup.
+	 * Test that an active-only request reuses a cached full result.
 	 */
 	public function test_an_active_only_request_reuses_a_full_result() {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -104,12 +99,11 @@ class Jetpack_Plan_Test extends TestCase {
 		Jetpack_Plan::get_simple_site_specific_features();
 		Jetpack_Plan::get_simple_site_specific_features( false );
 
-		$this->assertSame( array( true ), \Store_Product_List::$calls, 'The second call should be served from the first.' );
+		$this->assertSame( array( true ), $GLOBALS['jetpack_test_store_product_list_calls'], 'The second call should be served from the first.' );
 	}
 
 	/**
-	 * ...but the reverse doesn't hold: an active-only result can't answer a request
-	 * for the upgradeable list, so that one still does its own lookup.
+	 * Test that a full request does not reuse a cached active-only result.
 	 */
 	public function test_a_full_request_is_not_answered_by_an_active_only_result() {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -118,7 +112,7 @@ class Jetpack_Plan_Test extends TestCase {
 		Jetpack_Plan::get_simple_site_specific_features( false );
 		$full = Jetpack_Plan::get_simple_site_specific_features();
 
-		$this->assertSame( array( false, true ), \Store_Product_List::$calls );
+		$this->assertSame( array( false, true ), $GLOBALS['jetpack_test_store_product_list_calls'] );
 		$this->assertArrayHasKey( 'available', $full );
 	}
 

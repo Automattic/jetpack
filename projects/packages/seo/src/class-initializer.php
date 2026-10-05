@@ -239,10 +239,7 @@ class Initializer {
 			return true;
 		}
 
-		// `false`: only the site's active features decide this. Asking for the
-		// upgradeable ones too would walk the plan catalog in the current user's
-		// currency on every request this runs on, including the front end, to answer
-		// a question about a menu item.
+		// Only active features decide availability; skip the upgradeable-feature billing lookup.
 		$features = ( new Host() )->is_wpcom_simple()
 			? Current_Plan::get_simple_site_specific_features( false )
 			: Current_Plan::get()['features'];
