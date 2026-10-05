@@ -8,20 +8,21 @@ import { Notice } from '@jetpack-premium-analytics/externals';
 import type { WidgetStateError } from '../widget-state';
 import type { ReactElement } from 'react';
 
-export interface DetailPageNoticeProps extends Pick< WidgetStateError, 'description' | 'actions' > {
-	/** `error` when something failed; `info` when the request answered and the answer is a fact, such as no access. */
-	intent: 'error' | 'info';
+export interface PageNoticeProps extends Pick< WidgetStateError, 'description' | 'actions' > {
+	/** `info` for a fact rather than a fault, such as a missing item; failures, access denied included, are an `error`. */
+	intent?: 'error' | 'info';
 	/** A way out of the page, such as back to its report; `render` is a childless router link, as its children would replace `label`. */
 	link?: { label: string; render: ReactElement };
 }
 
 /**
- * Stand in for a detail page's widgets when the page's subject failed to load or does not exist.
+ * Stand in for a report's sections or a detail page's widgets when their data failed to load or does not exist.
+ * Replace the sections rather than sit beside them: report tables pick their empty state from row count, not fetch status.
  *
- * @param {DetailPageNoticeProps} props - The component props.
- * @return The detail page notice.
+ * @param {PageNoticeProps} props - The component props.
+ * @return The page notice.
  */
-export function DetailPageNotice( { intent, description, actions, link }: DetailPageNoticeProps ) {
+export function PageNotice( { intent = 'error', description, actions, link }: PageNoticeProps ) {
 	return (
 		// The default announcement (children) would trail the action labels.
 		<Notice.Root intent={ intent } spokenMessage={ description }>

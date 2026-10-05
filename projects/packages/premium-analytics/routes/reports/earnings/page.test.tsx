@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useEarningsReportRecords } from './config';
 import EarningsReportPage from './page';
 import type { EarningsReportTabId } from './config';
@@ -152,7 +153,9 @@ describe( 'EarningsReportPage', () => {
 
 		render( <EarningsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load earnings' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load earnings. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'September 2026' ) ).not.toBeInTheDocument();
 	} );

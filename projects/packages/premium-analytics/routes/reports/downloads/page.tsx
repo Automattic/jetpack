@@ -5,7 +5,8 @@ import { type StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytic
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
@@ -67,9 +68,14 @@ function DownloadsReport(): JSX.Element {
 
 	if ( records.isError ) {
 		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load file downloads. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
 			/>
 		);
 	}

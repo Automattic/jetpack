@@ -138,7 +138,6 @@ export {
 export {
 	ReportChartSection,
 	ReportDrilldownTable,
-	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
@@ -156,7 +155,6 @@ export {
 	type ReportChartMetric,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
-	type ReportErrorStateProps,
 	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
@@ -174,20 +172,18 @@ export {
 	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageEmptyState,
 	DetailPageLayout,
-	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeDetailPageError,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,
 	type DetailPageCustomize,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
-	type DetailPageNoticeProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
+export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	FeedbackModal,
 	PageOptionsMenu,

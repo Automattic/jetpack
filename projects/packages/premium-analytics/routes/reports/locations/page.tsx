@@ -7,7 +7,8 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	LOCATIONS_GEO_MODES,
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageShell,
@@ -164,9 +165,14 @@ export default function LocationsReportPage(): JSX.Element {
 
 	if ( records.isError ) {
 		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load locations. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
 			/>
 		);
 	}

@@ -5,7 +5,6 @@ import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
-	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageTabs,
 	ReportRecordsTable,
@@ -17,6 +16,7 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { getLocationFields, useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
@@ -61,12 +61,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	supportsLocationsCountryFilter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.supportsLocationsCountryFilter,
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
-	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
-		<div data-testid="report-error-state">
-			<span>{ title }</span>
-			<button onClick={ onRetry }>Retry</button>
-		</div>
-	) ),
+	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
+	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
 			{ tabs }
@@ -103,7 +99,6 @@ jest.mock( '@wordpress/route', () => ( {
 
 const useRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
-const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const reportLocationsMapMock = jest.mocked( ReportLocationsMap );
@@ -282,11 +277,19 @@ describe( 'LocationsReportPage', () => {
 
 		render( <LocationsReportPage /> );
 
-		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
-			'Unable to load locations'
-		);
-		expect( reportErrorStateMock ).toHaveBeenCalled();
+		expect(
+			getNoticeText( "We couldn't load locations. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'drops Retry when the request is denied', () => {
+		mockRecords( { isError: true, error: { error: 'unauthorized', status: 403 } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'refetches the active tab when Retry is clicked', async () => {

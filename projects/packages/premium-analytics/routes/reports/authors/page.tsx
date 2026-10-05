@@ -6,7 +6,8 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ExporterCsvAction,
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	authorsCsvExporter,
@@ -78,9 +79,14 @@ function AuthorsReport(): JSX.Element {
 
 	if ( records.isError ) {
 		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load authors', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load authors. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
 			/>
 		);
 	}

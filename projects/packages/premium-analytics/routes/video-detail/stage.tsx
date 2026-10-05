@@ -15,14 +15,14 @@ import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
-	DetailPageNotice,
+	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeDetailPageError,
+	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
-	type DetailPageNoticeProps,
+	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -138,10 +138,10 @@ function VideoDetail(): JSX.Element {
 
 	// The reason a video is missing goes below the header, where the widgets
 	// would have been.
-	let notice: DetailPageNoticeProps | null = null;
+	let notice: PageNoticeProps | null = null;
 
 	if ( summary.isError ) {
-		notice = describeDetailPageError( summary.error, {
+		notice = describeError( summary.error, {
 			retryDescription: __(
 				"We couldn't load this video. Please try again in a moment.",
 				'jetpack-premium-analytics-pkg'
@@ -217,7 +217,7 @@ function VideoDetail(): JSX.Element {
 						) : null }
 						{ notice ? (
 							<DetailPageSection>
-								<DetailPageNotice { ...notice } />
+								<PageNotice { ...notice } />
 							</DetailPageSection>
 						) : null }
 					</DetailPageLayout>
