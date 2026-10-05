@@ -1,6 +1,9 @@
 // A table, so each metric's current and comparison readings share a row and
 // the two dates head their columns.
 .table {
+	// The shared box pads 4px by 8px, for a one-line tooltip; several rows need
+	// more room, so the table brings the total to 12px all round.
+	margin: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-xs);
 	border-collapse: collapse;
 	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-sm);
