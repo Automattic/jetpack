@@ -221,8 +221,6 @@ jobs:
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
           # Workers == number of CPUs.
           N=$( nproc )
-          # Limit split projects to one worker, as Jest will use everything it can.
-          [[ -n "$SPLIT_PROJECT" ]] && N=1
           echo "Enabling $N worker(s) for $N CPU(s)"
           for (( i=0; i<N; i++)); do
             echo "$i"
