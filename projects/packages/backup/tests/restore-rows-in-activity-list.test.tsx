@@ -76,7 +76,6 @@ function mockEndpoints( { restores = [] as unknown, activity = 'ok' as 'ok' | 'e
 			return Promise.resolve( {
 				hasBackupPlan: true,
 				hasScan: false,
-				local: { isStandalonePluginActive: false },
 			} );
 		}
 		if ( path.includes( '/site/rewindable-activity' ) ) {
