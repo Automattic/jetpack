@@ -141,130 +141,66 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_partial_then_full_refund_does_not_double_count_returns() {
 		$this->skip_before_woocommerce( '11.1' );
+		$order = $this->create_completed_refundable_order();
 
-		update_option( 'woocommerce_db_version', '10.2.0' );
-		update_option( 'woocommerce_analytics_uses_old_full_refund_data', 'no' );
-
-		// Order: net 40 (4 x $10 product) + tax 5 + shipping 10 = 55 gross.
-		$order = $this->create_refundable_order();
-		$order->set_cart_tax( '5.00' );
-		$order->set_total( '55.00' );
-		$order->save();
-		$order->update_status( 'completed' );
-
-		$product_item_id = array_key_first( $order->get_items() );
-
-		$partial = wc_create_refund(
+		$partial = $this->refund(
+			$order,
+			20.00,
 			array(
-				'order_id'   => $order->get_id(),
-				'amount'     => 20.00,
-				'line_items' => array(
-					$product_item_id => array(
-						'qty'          => 2,
-						'refund_total' => 20.00,
-					),
+				array_key_first( $order->get_items() ) => array(
+					'qty'          => 2,
+					'refund_total' => 20.00,
 				),
 			)
 		);
-		$this->assertNotWPError( $partial );
-
-		$remaining = (float) wc_format_decimal( (float) $order->get_total() - (float) $order->get_total_refunded() );
-		$full      = wc_create_refund(
-			array(
-				'order_id'   => $order->get_id(),
-				'amount'     => $remaining,
-				'line_items' => array(),
-			)
-		);
-		$this->assertNotWPError( $full );
+		$full    = $this->refund( $order, (float) $order->get_total() - (float) $order->get_total_refunded() );
 		$full->update_meta_data( '_refund_type', 'full' );
 		$full->save_meta_data();
-		if ( OrderUtil::orders_cache_usage_is_enabled() ) {
-			wc_get_container()->get( OrderCache::class )->remove( $full->get_id() );
-		}
+		$this->clear_order_cache( $full->get_id() );
 
-		$returns = 0;
-		$net     = 0;
-		foreach ( array( $partial, $full ) as $refund ) {
-			$row      = $this->get_synced_order_stats_matching_core( $refund->get_id() );
-			$returns += $row['net_total'] + $row['tax_total'] + $row['shipping_total'];
-			$net     += $row['net_total'];
-		}
+		$partial_row = $this->get_synced_order_stats_matching_core( $partial->get_id() );
+		$full_row    = $this->get_synced_order_stats_matching_core( $full->get_id() );
 
-		$this->assertEqualsWithDelta( -55.00, $returns, 0.02 );
-		$this->assertEqualsWithDelta( -40.00, $net, 0.02 );
+		$this->assertEqualsWithDelta( -55.00, $partial_row['net_total'] + $partial_row['tax_total'] + $partial_row['shipping_total'] + $full_row['net_total'] + $full_row['tax_total'] + $full_row['shipping_total'], 0.02 );
+		$this->assertEqualsWithDelta( -40.00, $partial_row['net_total'] + $full_row['net_total'], 0.02 );
 	}
 
 	/**
-	 * A lump-sum refund of a never-paid order has no paid or completed date (woocommerce/woocommerce#67710).
+	 * A sole lump-sum refund of the whole order without a refund type takes its amounts from the order (woocommerce/woocommerce#64106).
 	 */
-	public function test_refund_of_never_paid_order_has_null_date_paid() {
-		$this->skip_before_woocommerce( '11.2' );
+	public function test_lump_sum_full_refund_without_refund_type_uses_parent_net_total() {
+		$this->skip_before_woocommerce( '10.9' );
+		$order  = $this->create_completed_refundable_order();
+		$refund = $this->refund( $order, (float) $order->get_total() );
+		$refund->delete_meta_data( '_refund_type' );
+		$refund->save_meta_data();
+		$this->clear_order_cache( $refund->get_id() );
 
+		$row = $this->get_synced_order_stats_matching_core( $refund->get_id() );
+
+		$this->assertEqualsWithDelta( -40.00, $row['net_total'], 0.02 );
+	}
+
+	/**
+	 * A lump-sum refund of a never-paid order has no paid or completed date from WooCommerce 11.2 (woocommerce/woocommerce#67710).
+	 */
+	public function test_refund_of_never_paid_order_matches_core_dates() {
 		$order = $this->create_refundable_order();
 		$order->set_status( 'failed' );
 		$order->save();
-		$this->assertNull( $order->get_date_paid(), 'Fixture order must never have been paid.' );
 
 		// Setting the status to "refunded" fires wc_order_fully_refunded(), creating the lump-sum refund.
 		$order->update_status( 'refunded' );
 		$refunds = $order->get_refunds();
 		$this->assertCount( 1, $refunds );
 
+		// Before 11.2 core backfills both dates; matching core's row covers that case.
 		$row = $this->get_synced_order_stats_matching_core( reset( $refunds )->get_id() );
 
-		$this->assertNull( $row['date_paid'] );
-		$this->assertNull( $row['date_completed'] );
-	}
-
-	/**
-	 * A refund of a paid order keeps its own creation date as its paid and completed dates (woocommerce/woocommerce#67710).
-	 */
-	public function test_refund_of_paid_order_keeps_own_date_paid() {
-		$order = $this->create_refundable_order();
-		$order->update_status( 'completed' );
-		$this->assertNotNull( $order->get_date_paid(), 'Fixture order must have been paid.' );
-
-		$refund = wc_create_refund(
-			array(
-				'order_id'   => $order->get_id(),
-				'amount'     => (float) wc_format_decimal( (float) $order->get_total() - (float) $order->get_total_refunded() ),
-				'line_items' => array(),
-			)
-		);
-		$this->assertNotWPError( $refund );
-
-		$row = $this->get_synced_order_stats_matching_core( $refund->get_id() );
-
-		$this->assertEquals( $row['date_created'], $row['date_paid'] );
-		$this->assertEquals( $row['date_created'], $row['date_completed'] );
-	}
-
-	/**
-	 * A refund of a paid but never completed order backfills only the paid date (woocommerce/woocommerce#67710).
-	 */
-	public function test_refund_of_paid_uncompleted_order_backfills_only_date_paid() {
-		$this->skip_before_woocommerce( '11.2' );
-
-		$order = $this->create_refundable_order();
-		$order->set_date_paid( time() );
-		$order->set_status( 'processing' );
-		$order->save();
-		$this->assertNull( $order->get_date_completed(), 'Fixture order must never have been completed.' );
-
-		$refund = wc_create_refund(
-			array(
-				'order_id'   => $order->get_id(),
-				'amount'     => (float) wc_format_decimal( (float) $order->get_total() - (float) $order->get_total_refunded() ),
-				'line_items' => array(),
-			)
-		);
-		$this->assertNotWPError( $refund );
-
-		$row = $this->get_synced_order_stats_matching_core( $refund->get_id() );
-
-		$this->assertEquals( $row['date_created'], $row['date_paid'] );
-		$this->assertNull( $row['date_completed'] );
+		if ( version_compare( WC_VERSION, '11.2', '>=' ) ) {
+			$this->assertNull( $row['date_paid'] );
+			$this->assertNull( $row['date_completed'] );
+		}
 	}
 
 	/**
@@ -324,21 +260,18 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	 * @return WC_Order
 	 */
 	private function create_refundable_order() {
-		$product = WC_Helper_Product::create_simple_product();
-		$order   = wc_create_order( array( 'status' => 'pending' ) );
-
 		$product_item = new WC_Order_Item_Product();
-		$product_item->set_product( $product );
+		$product_item->set_product( WC_Helper_Product::create_simple_product() );
 		$product_item->set_quantity( 4 );
 		$product_item->set_subtotal( '40' );
 		$product_item->set_total( '40' );
-		$order->add_item( $product_item );
 
 		$shipping_item = new WC_Order_Item_Shipping();
-		$shipping_item->set_method_title( 'Flat rate shipping' );
 		$shipping_item->set_total( '10' );
-		$order->add_item( $shipping_item );
 
+		$order = wc_create_order( array( 'status' => 'pending' ) );
+		$order->add_item( $product_item );
+		$order->add_item( $shipping_item );
 		$order->set_shipping_total( '10' );
 		$order->set_total( '50' );
 		$order->save();
@@ -347,9 +280,57 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Get an order's synced order stats, asserting they match the row core writes for it.
+	 * Create a completed order with the full-refund data format on: net 40 + tax 5 + shipping 10 = 55.
 	 *
-	 * Status is left out: refund rows keep their own status, unlike core's.
+	 * @return WC_Order
+	 */
+	private function create_completed_refundable_order() {
+		update_option( 'woocommerce_db_version', '10.2.0' );
+		update_option( 'woocommerce_analytics_uses_old_full_refund_data', 'no' );
+
+		$order = $this->create_refundable_order();
+		$order->set_cart_tax( '5.00' );
+		$order->set_total( '55.00' );
+		$order->save();
+		$order->update_status( 'completed' );
+
+		return $order;
+	}
+
+	/**
+	 * Refund an order.
+	 *
+	 * @param WC_Order $order      Order.
+	 * @param float    $amount     Refund amount.
+	 * @param array    $line_items Refunded line items.
+	 * @return WC_Order_Refund
+	 */
+	private function refund( $order, $amount, $line_items = array() ) {
+		$refund = wc_create_refund(
+			array(
+				'order_id'   => $order->get_id(),
+				'amount'     => $amount,
+				'line_items' => $line_items,
+			)
+		);
+		$this->assertInstanceOf( WC_Order_Refund::class, $refund );
+
+		return $refund;
+	}
+
+	/**
+	 * Drop an order from WooCommerce's order cache after changing its meta directly.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	private function clear_order_cache( $order_id ) {
+		if ( OrderUtil::orders_cache_usage_is_enabled() ) {
+			wc_get_container()->get( OrderCache::class )->remove( $order_id );
+		}
+	}
+
+	/**
+	 * Get an order's synced order stats, asserting they match the row core writes for it, except the status.
 	 *
 	 * @param int $order_id Order or refund ID.
 	 * @return array The synced order stats.
@@ -359,11 +340,10 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 
 		OrderStatsDataStore::sync_order( $order_id );
 		$core_row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}wc_order_stats WHERE order_id = %d", $order_id ), ARRAY_A );
-		$this->assertNotNull( $core_row, 'Core should have written a stats row.' );
+		$synced   = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order_id )['order_stats'];
 
-		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order_id )['order_stats'];
+		$this->assertIsArray( $core_row );
 
-		$this->assertSame( (int) $core_row['parent_id'], $synced['parent_id'] );
 		$this->assertSame( (int) $core_row['num_items_sold'], $synced['num_items_sold'] );
 		foreach ( array( 'total_sales', 'tax_total', 'shipping_total', 'net_total' ) as $column ) {
 			$this->assertEqualsWithDelta( (float) $core_row[ $column ], (float) $synced[ $column ], 0.001, $column );

@@ -24,6 +24,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\WooCommerce\Admin\API\Reports\Coupons\DataStore as CouponsDataStore;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
+use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 use DateTimeZone;
@@ -678,16 +679,13 @@ class WooCommerce_Analytics extends Module {
 			return $order_stats_data_from_db;
 		}
 
-		// Before the row below: datetime_to_object() moves the order's own dates into the site's current offset.
-		$filtered_core_columns = self::get_filtered_core_columns( $order );
-
 		$order_fulfillment_status = null;
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
 			$order_stats_item         = $this->get_order_stats_item( $order->get_id() );
 			$order_fulfillment_status = $order_stats_item['fulfillment_status'] ?? null;
-		} elseif ( self::get_fulfillment_utils_class() && $order instanceof WC_Order ) {
-			$fulfillment_status       = self::get_fulfillment_utils_class()::get_order_fulfillment_status( $order );
+		} elseif ( is_callable( array( FulfillmentUtils::class, 'get_order_fulfillment_status' ) ) && $order instanceof WC_Order ) {
+			$fulfillment_status       = FulfillmentUtils::get_order_fulfillment_status( $order );
 			$order_fulfillment_status = 'no_fulfillments' !== $fulfillment_status ? $fulfillment_status : null;
 		}
 
@@ -713,16 +711,13 @@ class WooCommerce_Analytics extends Module {
 			'fulfillment_status' => $order_fulfillment_status,
 		);
 
-		$order_stats_data = array_merge( $order_stats_data, $filtered_core_columns );
-
 		// Mirrors the refund block of WooCommerce's Orders\Stats\DataStore::update().
 		if ( 'shop_order_refund' === $order->get_type() ) {
 			$parent_order = wc_get_order( $order->get_parent_id() );
 			// Refunds attach to the original order. Skip if the parent is another refund.
 			if ( $parent_order && ! $parent_order instanceof WC_Order_Refund ) {
 				$order_stats_data['parent_id'] = $parent_order->get_id();
-				// Core uses the parent's status here; keep the refund's own, which the WooCommerce Analytics plugin writes to core's row.
-				$order_stats_data['status'] = self::normalize_order_status( $order->get_status() );
+				// Unlike core, keep the refund's own status: the WooCommerce Analytics plugin writes it back to core's row.
 
 				$refund_type               = $order->get_meta( '_refund_type' );
 				$uses_new_full_refund_data = self::uses_new_full_refund_data();
@@ -756,79 +751,6 @@ class WooCommerce_Analytics extends Module {
 		}
 
 		return $order_stats_data;
-	}
-
-	/**
-	 * Apply core's woocommerce_analytics_update_order_stats_data filter to the columns core passes it.
-	 *
-	 * @param WC_Abstract_Order $order The order or refund.
-	 * @return array The core columns a callback changed, in this module's format.
-	 */
-	private static function get_filtered_core_columns( $order ) {
-		// Same keys and formats as core's update(), so callbacks see what they see there.
-		$data = array(
-			'order_id'           => $order->get_id(),
-			'parent_id'          => $order->get_parent_id(),
-			'date_created'       => $order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d H:i:s' ) : null,
-			'date_paid'          => $order->get_date_paid() ? $order->get_date_paid()->date( 'Y-m-d H:i:s' ) : null,
-			'date_completed'     => $order->get_date_completed() ? $order->get_date_completed()->date( 'Y-m-d H:i:s' ) : null,
-			'date_created_gmt'   => $order->get_date_created() ? gmdate( 'Y-m-d H:i:s', $order->get_date_created()->getTimestamp() ) : null,
-			'num_items_sold'     => self::get_num_items_sold( $order ),
-			'total_sales'        => $order->get_total(),
-			'tax_total'          => $order->get_total_tax(),
-			'shipping_total'     => $order->get_shipping_total(),
-			'net_total'          => self::get_net_total( $order ),
-			'status'             => self::normalize_order_status( $order->get_status() ),
-			'customer_id'        => $order->get_report_customer_id(),
-			'returning_customer' => $order->is_returning_customer(),
-		);
-
-		if (
-			is_callable( array( FeaturesUtil::class, 'feature_is_enabled' ) ) && FeaturesUtil::feature_is_enabled( 'fulfillments' )
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
-			&& is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && true === OrderStatsDataStore::has_fulfillment_status_column()
-			&& self::get_fulfillment_utils_class() && $order instanceof WC_Order
-		) {
-			$order_fulfillment_status   = self::get_fulfillment_utils_class()::get_order_fulfillment_status( $order );
-			$data['fulfillment_status'] = ( 'no_fulfillments' !== $order_fulfillment_status ) ? $order_fulfillment_status : null;
-		}
-
-		/** This filter is documented in WooCommerce's src/Admin/API/Reports/Orders/Stats/DataStore.php */
-		$filtered = apply_filters( 'woocommerce_analytics_update_order_stats_data', $data, $order );
-		if ( ! is_array( $filtered ) ) {
-			return array();
-		}
-
-		// Only changed columns are returned, so the row is untouched when no callback changes anything.
-		$changed = array();
-		foreach ( $data as $key => $value ) {
-			if ( 'date_created_gmt' === $key || ! array_key_exists( $key, $filtered ) || $filtered[ $key ] === $value ) {
-				continue;
-			}
-			$new_value = $filtered[ $key ];
-			if ( in_array( $key, array( 'date_created', 'date_paid', 'date_completed' ), true ) ) {
-				// Core's strings are in the site timezone; reading them in today's fixed offset would shift them across DST.
-				$new_value = self::datetime_to_object( is_string( $new_value ) ? wc_string_to_datetime( $new_value ) : $new_value );
-			}
-			$changed[ $key ] = $new_value;
-		}
-
-		return $changed;
-	}
-
-	/**
-	 * Get WooCommerce's FulfillmentUtils class, which moved from Internal to Admin\Features in WooCommerce 11.0.
-	 *
-	 * @return string|null The class name, or null when WooCommerce has neither.
-	 */
-	private static function get_fulfillment_utils_class() {
-		foreach ( array( 'Automattic\WooCommerce\Admin\Features\Fulfillments\FulfillmentUtils', 'Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils' ) as $class ) {
-			if ( is_callable( array( $class, 'get_order_fulfillment_status' ) ) ) {
-				return $class;
-			}
-		}
-
-		return null;
 	}
 
 	/**

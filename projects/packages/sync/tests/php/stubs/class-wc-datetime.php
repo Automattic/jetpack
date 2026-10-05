@@ -16,15 +16,5 @@ if ( ! class_exists( 'WC_DateTime', false ) ) {
 		 * @var int
 		 */
 		protected $utc_offset = 0;
-
-		/**
-		 * Format the date in its own timezone, as WooCommerce's date() does.
-		 *
-		 * @param string $format Date format.
-		 * @return string
-		 */
-		public function date( $format ) {
-			return $this->format( $format );
-		}
 	}
 }
