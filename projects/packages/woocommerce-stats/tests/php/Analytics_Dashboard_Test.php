@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
-use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
@@ -26,7 +25,7 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/d
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
 
 /**
- * The package registers the section, its layout and its widget type when the dashboard hydrates.
+ * The package registers the section and its layout when the dashboard hydrates.
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard
  */
@@ -38,15 +37,12 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
-		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
 
-		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
-			$instance = new \ReflectionProperty( $class, 'instance' );
-			if ( PHP_VERSION_ID < 80100 ) {
-				$instance->setAccessible( true );
-			}
-			$instance->setValue( null, null );
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
 		}
+		$instance->setValue( null, null );
 
 		wp_set_current_user( 0 );
 
@@ -54,17 +50,16 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Both registrants hook after the dashboard package's own, which run at priority 10.
+	 * The registrant hooks after the dashboard package's own, which runs at priority 10.
 	 */
-	public function test_init_hooks_both_registrants_after_the_dashboard_ones() {
+	public function test_init_hooks_the_registrant_after_the_dashboard_one() {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ) );
-		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ) ) );
 	}
 
 	/**
-	 * The section carries the WooCommerce label, the store slug, and orders over time in the layout.
+	 * The section carries the WooCommerce label, the store slug, and the dashboard package's widgets.
 	 */
 	public function test_registers_the_woocommerce_section_with_its_layout() {
 		$this->enable_store();
@@ -83,7 +78,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				'jpa/store-performance',
 				'jpa/total-sales-over-time',
 				'jpa/conversion-rate',
-				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
+				'jpa/orders-over-time',
 				'jpa/average-order-value',
 				'jpa/top-performing-products',
 				'jpa/new-vs-returning-customer',
@@ -157,21 +152,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
 		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'other/store' ) );
-	}
-
-	/**
-	 * The manifest type registers with the package's text domain and manifest URL.
-	 */
-	public function test_registers_the_widget_type_from_the_manifest() {
-		$registry = new Widget_Type_Registry();
-
-		Analytics_Dashboard::register_widget_types( $registry );
-
-		$orders = $registry->get_registered( Analytics_Dashboard::ORDERS_OVER_TIME_TYPE );
-		$this->assertNotNull( $orders );
-		$this->assertSame( 'jetpack-woocommerce-stats/widgets/orders-over-time/render', $orders->render_module );
-		$this->assertSame( Analytics_Dashboard::TEXTDOMAIN, $orders->textdomain );
-		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Analytics_Dashboard::PACKAGE_VERSION, $orders->i18n_manifest );
 	}
 
 	/**

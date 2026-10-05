@@ -1296,7 +1296,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "ebe22623f426d9b868567b684a3a06ba166553e7"
+                "reference": "14869c2123fa4ea218fd755b07df085950e3d456"
             },
             "require": {
                 "automattic/jetpack-premium-analytics": "@dev",
@@ -1332,16 +1332,6 @@
                 ]
             },
             "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
@@ -1355,7 +1345,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "WooCommerce: the WooCommerce section and widgets of the Premium Analytics dashboard.",
+            "description": "WooCommerce: the WooCommerce section of the Premium Analytics dashboard.",
             "transport-options": {
                 "relative": true
             }

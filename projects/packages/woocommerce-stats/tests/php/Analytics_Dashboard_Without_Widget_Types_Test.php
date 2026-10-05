@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
-use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -22,7 +21,7 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/d
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
 
 /**
- * Without the widget contract version, the section still registers and the widget type waits.
+ * Without the widget contract version, the section still registers.
  *
  * Each test runs in its own process: the other test files define the constant for the whole run.
  *
@@ -44,17 +43,5 @@ class Analytics_Dashboard_Without_Widget_Types_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
-	}
-
-	/**
-	 * Widget types wait until a request loads the contract they were built against.
-	 */
-	public function test_the_widget_types_wait_for_the_widget_contract_version() {
-		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) );
-		$registry = new Widget_Type_Registry();
-
-		Analytics_Dashboard::register_widget_types( $registry );
-
-		$this->assertSame( array(), $registry->get_all_registered() );
 	}
 }

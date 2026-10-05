@@ -99,7 +99,6 @@ export {
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
-export { resolveReportTimeZone } from './utils/report-timezone';
 export {
 	getDefaultPreset,
 	getDefaultQueryParams,
@@ -107,13 +106,7 @@ export {
 	getStoreInfo,
 	type StoreInfo,
 } from './defaults';
-export {
-	downloadReport,
-	exportReport,
-	fetchReport,
-	fetchStatsProxy,
-	getStatsProxyPath,
-} from './api';
+export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export { disableDashboard } from './api';
 export { submitStatsUserFeedback, type StatsFeedbackRating, type StatsUserFeedback } from './api';
 export type {
