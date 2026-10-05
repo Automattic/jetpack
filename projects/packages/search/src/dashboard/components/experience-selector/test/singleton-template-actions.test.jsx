@@ -160,6 +160,7 @@ describe( 'SingletonTemplateActions', () => {
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 
 		await waitFor( () => expect( errorNotice ).toHaveBeenCalledWith( 'Template is locked.' ) );
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		expect( successNotice ).not.toHaveBeenCalled();
 		// Failed DELETE leaves the link in place so the admin can retry.
 		expect( screen.getByText( 'Restore default' ) ).toBeInTheDocument();
@@ -179,6 +180,7 @@ describe( 'SingletonTemplateActions', () => {
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 
 		await waitFor( () => expect( errorNotice ).toHaveBeenCalledWith( labels.errorMessage ) );
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 	} );
 
 	test( 'does not fire fetch when wpcomOriginApiUrl is missing', async () => {

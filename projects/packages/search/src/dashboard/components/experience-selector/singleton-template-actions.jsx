@@ -7,9 +7,10 @@ import CardLink from './card-link';
 
 /**
  * Edit + Restore-default link pair for a `Singleton_Template_Cpt`-backed
- * editor flow on the PHP side. The two consumers — the experimental
- * blocks-powered Overlay (SEARCH-216) and the classic-theme Search
- * template route — share an identical shape: one config blob describing
+ * editor flow on the PHP side. The consumers — the experimental
+ * blocks-powered Overlay (SEARCH-216), the classic-theme Search template
+ * route, and the WooCommerce product search toggle — share an identical
+ * shape: one config blob describing
  * the editor URL / postType / isCustomized state, one "Edit …" link,
  * one "Restore default" link that opens a destructive confirm dialog,
  * and an AJAX DELETE that posts a notice on success / failure.
