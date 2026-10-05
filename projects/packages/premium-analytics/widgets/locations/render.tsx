@@ -81,8 +81,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const focusCountry = drillDownPath?.country;
 	let geoMode: GeoMode = geoGranularity;
+	let drillDepth = 0;
 	if ( drillDownPath ) {
 		geoMode = drillDownPath.region ? 'city' : 'region';
+		drillDepth = drillDownPath.region ? 2 : 1;
 	}
 
 	const views = useLocationViews( {
@@ -95,7 +97,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} );
 
 	const { isLoading, isFetching, isError, refetch } = views;
-	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDownPath, reportParams } );
+	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
 
 	// The held level's rows would land on the wrong map, so the map waits empty for the new ones.
 	const geoRows = useMemo(

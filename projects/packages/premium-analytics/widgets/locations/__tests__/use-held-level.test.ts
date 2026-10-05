@@ -11,13 +11,13 @@ type Args = Parameters< typeof useHeldLevel< string > >[ 0 ];
 
 const COUNTRIES = [ 'United States' ];
 const REGIONS = [ 'Minnesota' ];
-const US = { country: { code: 'US', name: 'United States' } };
+const CITIES = [ 'Minneapolis' ];
 
 const SETTLED_COUNTRIES: Args = {
 	data: COUNTRIES,
 	hasComparison: true,
 	isLoading: false,
-	drillDownPath: undefined,
+	drillDepth: 0,
 	reportParams: { preset: 'last-30-days' },
 };
 
@@ -36,12 +36,12 @@ describe( 'useHeldLevel', () => {
 			data: REGIONS,
 			hasComparison: false,
 			isLoading: true,
-			drillDownPath: US,
+			drillDepth: 1,
 		} );
 
 		expect( result.current ).toEqual( { data: COUNTRIES, hasComparison: true, isHeld: true } );
 
-		rerender( { ...SETTLED_COUNTRIES, data: REGIONS, hasComparison: false, drillDownPath: US } );
+		rerender( { ...SETTLED_COUNTRIES, data: REGIONS, hasComparison: false, drillDepth: 1 } );
 
 		expect( result.current ).toEqual( { data: REGIONS, hasComparison: false, isHeld: false } );
 	} );
@@ -51,19 +51,29 @@ describe( 'useHeldLevel', () => {
 		const { result, rerender } = renderSettled();
 		rerender( { ...SETTLED_COUNTRIES, data: refreshed } );
 
-		rerender( { ...SETTLED_COUNTRIES, data: refreshed, isLoading: true, drillDownPath: US } );
+		rerender( { ...SETTLED_COUNTRIES, data: refreshed, isLoading: true, drillDepth: 1 } );
 
 		expect( result.current.data ).toBe( refreshed );
 	} );
 
 	it.each( [
-		[ 'the same level reloads', SETTLED_COUNTRIES, { drillDownPath: undefined } ],
+		[ 'the same level reloads', SETTLED_COUNTRIES, { drillDepth: 0 } ],
+		[
+			'going back up to all locations',
+			{ ...SETTLED_COUNTRIES, data: REGIONS, drillDepth: 1 },
+			{ drillDepth: 0 },
+		],
+		[
+			'going back up to the regions',
+			{ ...SETTLED_COUNTRIES, data: CITIES, drillDepth: 2 },
+			{ drillDepth: 1 },
+		],
 		[ 'the date range changes', SETTLED_COUNTRIES, { reportParams: { preset: 'last-7-days' } } ],
 		[ 'leaving an empty level', { ...SETTLED_COUNTRIES, data: [] }, {} ],
 	] )( 'holds nothing when %s', ( _, settled, change ) => {
 		const { result, rerender } = renderSettled( settled );
 
-		rerender( { ...settled, isLoading: true, drillDownPath: US, ...change } );
+		rerender( { ...settled, isLoading: true, drillDepth: 1, ...change } );
 
 		expect( result.current.isHeld ).toBe( false );
 	} );
