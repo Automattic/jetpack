@@ -14,8 +14,9 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * @return bool
  */
 function wpcomsh_is_admin_menu_api_request() {
-	// phpcs:ignore WordPress.Security
-	return 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+	$route = wp_unslash( $_GET['rest_route'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	return str_starts_with( wp_unslash( $_SERVER['REQUEST_URI'] ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		&& is_string( $route ) && str_starts_with( $route, '/wpcom/v2/admin-menu' );
 }
 
 /**
@@ -39,6 +40,16 @@ function wpcomsh_mimic_admin_page_load() {
 			function () {
 				require_once ABSPATH . 'wp-admin/includes/admin.php';
 			}
+		);
+
+		// Valid requests will exit before here, but ensure custom code doesn't handle things poorly.
+		add_action(
+			'wp',
+			function () {
+				status_header( 400 );
+				exit;
+			},
+			PHP_INT_MIN
 		);
 	}
 }
