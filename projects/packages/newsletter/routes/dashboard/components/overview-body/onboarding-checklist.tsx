@@ -2,7 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Icon, Spinner } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
@@ -11,6 +11,7 @@ import clsx from 'clsx';
 import {
 	completeOnboardingTask,
 	fetchOnboardingTasks,
+	getStoredCompletedTasks,
 	ONBOARDING_TASKS_QUERY_KEY,
 	type OnboardingTaskId,
 	type OnboardingTaskList,
@@ -143,16 +144,23 @@ const STEPS: ChecklistStep[] = [
 /**
  * Render the Newsletter onboarding checklist.
  *
- * Completion comes from WP.com, which checks each step and stores it once done. If the task list
- * can't be loaded, every step but the first reads as open and can still be skipped.
+ * Completion comes from WP.com, which checks each step and stores it once done. Because that is
+ * final, the steps this browser has already seen complete are kept in localStorage: they render
+ * straight away, and WP.com is only asked while a step is still open. If the task list can't be
+ * loaded, the steps not known to be complete read as open and can still be skipped.
  *
  * @return The onboarding checklist.
  */
 export default function OnboardingChecklist(): JSX.Element {
 	const queryClient = useQueryClient();
+	const [ storedCompleted ] = useState( getStoredCompletedTasks );
+	const allStoredComplete = STEPS.every(
+		step => step.id === 'start' || storedCompleted.includes( step.id )
+	);
 	const tasksQuery = useQuery( {
 		queryKey: ONBOARDING_TASKS_QUERY_KEY,
 		queryFn: fetchOnboardingTasks,
+		enabled: ! allStoredComplete,
 	} );
 	const skipMutation = useMutation( {
 		mutationFn: completeOnboardingTask,
@@ -163,8 +171,8 @@ export default function OnboardingChecklist(): JSX.Element {
 	const { mutate: skip } = skipMutation;
 	const handleSkip = useCallback( ( stepId: OnboardingTaskId ) => skip( stepId ), [ skip ] );
 
-	// Wait for completion before rendering, so the first open step is the one opened by default.
-	if ( tasksQuery.isPending ) {
+	// Without a stored copy, wait for WP.com so the first open step is the one opened by default.
+	if ( tasksQuery.isPending && storedCompleted.length === 0 ) {
 		return (
 			<Stack direction="row" justify="center" className="jetpack-newsletter-overview__checklist">
 				<Spinner />
@@ -172,7 +180,7 @@ export default function OnboardingChecklist(): JSX.Element {
 		);
 	}
 
-	const completed = new Set< OnboardingTaskId >( [ 'start' ] );
+	const completed = new Set< OnboardingTaskId >( [ 'start', ...storedCompleted ] );
 	tasksQuery.data?.tasks.forEach( task => {
 		if ( task.complete ) {
 			completed.add( task.id );

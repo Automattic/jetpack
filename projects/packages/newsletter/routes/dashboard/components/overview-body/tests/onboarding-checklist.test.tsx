@@ -12,7 +12,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/' } ),
+	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/', wpcom: { blog_id: 42 } } ),
 	getSiteType: () => 'jetpack',
 } ) );
 
@@ -28,6 +28,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import OnboardingChecklist from '../onboarding-checklist';
 
 const LIST_PATH = '/wpcom/v2/newsletter/task-lists/onboarding';
+
+const STORAGE_KEY = 'jetpack-newsletter-onboarding-completed-42';
+
+const getStored = () => JSON.parse( window.localStorage.getItem( STORAGE_KEY ) ?? 'null' );
 
 /**
  * Build a task list response.
@@ -68,6 +72,7 @@ beforeEach( () => {
 	mockNavigate.mockReset();
 	mockRecordEvent.mockReset();
 	mockApiFetch.mockResolvedValue( taskList() );
+	window.localStorage.clear();
 } );
 
 describe( 'OnboardingChecklist', () => {
@@ -216,5 +221,72 @@ describe( 'OnboardingChecklist', () => {
 
 		await findStep( /start a newsletter/i );
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+	it( 'keeps a copy of the completed steps in localStorage', async () => {
+		mockApiFetch.mockResolvedValue( taskList( [ 'subscribers' ] ) );
+		renderChecklist();
+
+		await waitFor( () => expect( getStored() ).toEqual( [ 'start', 'subscribers' ] ) );
+	} );
+
+	it( 'shows the stored completed steps before WP.com answers', async () => {
+		window.localStorage.setItem( STORAGE_KEY, JSON.stringify( [ 'start', 'subscribe_form' ] ) );
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
+		renderChecklist();
+
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+			'Add a subscribe form to your siteComplete'
+		);
+		expect( getStep( /get your first 3 subscribers/i ) ).toHaveAttribute( 'aria-expanded', 'true' );
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: LIST_PATH } );
+	} );
+
+	it( 'does not ask WP.com when every step is stored as complete', async () => {
+		window.localStorage.setItem(
+			STORAGE_KEY,
+			JSON.stringify( [ 'start', 'subscribe_form', 'subscribers', 'send_newsletter' ] )
+		);
+		renderChecklist();
+
+		expect( getStep( /send your first newsletter/i ) ).toHaveAccessibleName(
+			'Send your first newsletterComplete'
+		);
+		expect( screen.queryByRole( 'button', { expanded: true } ) ).not.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'never drops a stored completion when WP.com answers', async () => {
+		window.localStorage.setItem( STORAGE_KEY, JSON.stringify( [ 'start', 'subscribe_form' ] ) );
+		mockApiFetch.mockResolvedValue( taskList( [ 'subscribers' ] ) );
+		renderChecklist();
+
+		await waitFor( () =>
+			expect( getStored() ).toEqual( [ 'start', 'subscribe_form', 'subscribers' ] )
+		);
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+			'Add a subscribe form to your siteComplete'
+		);
+	} );
+
+	it( 'stores a skipped step', async () => {
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			Promise.resolve( method === 'POST' ? taskList( [ 'subscribe_form' ] ) : taskList() )
+		);
+		renderChecklist();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- Avoid adding a dependency for one click.
+		fireEvent.click( await screen.findByRole( 'button', { name: 'Skip' } ) );
+
+		await waitFor( () => expect( getStored() ).toEqual( [ 'start', 'subscribe_form' ] ) );
+	} );
+
+	it( 'ignores an unreadable stored copy', async () => {
+		window.localStorage.setItem( STORAGE_KEY, '{not json' );
+		renderChecklist();
+
+		expect( await findStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
+			'aria-expanded',
+			'true'
+		);
 	} );
 } );
