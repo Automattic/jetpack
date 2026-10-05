@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 $content = Search_Blocks::pattern_content_from_template( 'jetpack-search-overlay.html' );
 if ( '' === $content ) {
 	return;

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { getLocationFields, type LocationRow } from './fields';
+import { getLocationFields } from './fields';
+import type { LocationRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const location: LocationRow = {
 	id: 'IN:Mumbai',

@@ -49,6 +49,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'jetpack_test_legacy_gating_blog_ids' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_enabled' );
+		delete_option( 'wpcom_ai_launchpad_dismissed' );
 		$this->tear_down_rest_parity();
 		parent::tear_down();
 		WPCOM_JSON_API::init()->query         = array();
@@ -234,6 +236,35 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 
 			$this->assertArrayHasKey( 'wpcom_ai_launchpad_no_guidance', $options, "Missing from the options ($transport)." );
 			$this->assertSame( $set, $options['wpcom_ai_launchpad_no_guidance'], "Wrong value ($transport)." );
+		}
+	}
+
+	/**
+	 * A skipped AI Launchpad is no-guidance and no longer enabled, matching the wp-admin surfaces.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_skipped_ai_launchpad_renders_as_no_guidance() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'wpcom_ai_launchpad_enabled,wpcom_ai_launchpad_no_guidance',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertTrue( $options['wpcom_ai_launchpad_no_guidance'], "Skipped must be no-guidance ($transport)." );
+			$this->assertFalse( $options['wpcom_ai_launchpad_enabled'], "Skipped must not be enabled ($transport)." );
 		}
 	}
 

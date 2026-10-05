@@ -85,34 +85,22 @@ describe( 'HeatmapChart', () => {
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	} );
 
-	test( 'draws the light tooltip box by default', async () => {
-		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
-		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
-		const box = screen.getByTestId( 'bounded-tooltip' );
-		expect( box ).not.toHaveClass( 'surface' );
-		expect( box ).toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
-		expect( box ).toHaveStyle( { zIndex: 3 } );
-	} );
+	test.each( [ undefined, 'light', 'dark' ] as const )(
+		'draws the tooltip on the package surface for tooltipVariant %s',
+		async tooltipVariant => {
+			renderChart( { withTooltips: true, tooltipVariant, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+			await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+			const box = screen.getByTestId( 'bounded-tooltip' );
+			expect( box ).toHaveClass( 'surface' );
+			expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'background' ) );
+			expect( box ).toHaveStyle( { zIndex: 3 } );
+		}
+	);
 
-	test( 'draws the dark variant on the package tooltip surface, not the visx box', async () => {
+	test( 'merges tooltipStyle over the box styles', async () => {
 		renderChart( {
 			withTooltips: true,
-			tooltipVariant: 'dark',
-			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
-		} );
-		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
-		const box = screen.getByTestId( 'bounded-tooltip' );
-		expect( box ).toHaveClass( 'surface' );
-		expect( box ).not.toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
-		expect( box ).not.toHaveStyle( { color: 'rgb(102, 102, 102)' } );
-	} );
-
-	test( 'merges tooltipStyle over the variant box styles', async () => {
-		renderChart( {
-			withTooltips: true,
-			tooltipVariant: 'dark',
 			tooltipStyle: { padding: '2px 4px' },
 			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
 		} );

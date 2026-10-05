@@ -1,4 +1,4 @@
-import { getReportUtmTabs, getUtmParam, resolveSection } from './tabs';
+import { getReportUtmTabs, resolveSection } from './tabs';
 
 describe( 'UTM report tabs', () => {
 	it( 'matches the widget dimension order and defaults to Source / Medium', () => {
@@ -13,14 +13,10 @@ describe( 'UTM report tabs', () => {
 		expect( resolveSection( 'missing' ) ).toBe( 'source-medium' );
 	} );
 
-	it.each( [
-		[ 'source-medium', 'utm_source,utm_medium' ],
-		[ 'campaign-source-medium', 'utm_campaign,utm_source,utm_medium' ],
-		[ 'source', 'utm_source' ],
-		[ 'medium', 'utm_medium' ],
-		[ 'campaign', 'utm_campaign' ],
-	] as const )( 'resolves %s to %s', ( tab, utmParam ) => {
-		expect( resolveSection( tab ) ).toBe( tab );
-		expect( getUtmParam( tab ) ).toBe( utmParam );
-	} );
+	it.each( [ 'source-medium', 'campaign-source-medium', 'source', 'medium', 'campaign' ] as const )(
+		'resolves %s',
+		tab => {
+			expect( resolveSection( tab ) ).toBe( tab );
+		}
+	);
 } );

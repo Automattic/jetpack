@@ -39,6 +39,11 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => null,
 } ) );
 
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useSearch: () => ( {} ),
+} ) );
+
 const useRecordsMock = jest.mocked( useCommentsReportRecords );
 
 /**

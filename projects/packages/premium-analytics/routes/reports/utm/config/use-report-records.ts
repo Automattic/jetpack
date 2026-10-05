@@ -2,12 +2,15 @@
  * External dependencies
  */
 import { useStatsUtm, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	aggregateUtmRows,
+	getUtmReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { aggregateUtmRows } from './aggregate';
-import { getUtmParam, type UtmReportTabId } from './tabs';
+import type { UtmReportTabId } from './tabs';
 
 /**
  * Fetch and derive the table records for the active UTM dimension.
@@ -17,42 +20,26 @@ import { getUtmParam, type UtmReportTabId } from './tabs';
  * @return The active dimension's table rows and loading state.
  */
 export function useUtmReportRecords( activeTab: UtmReportTabId, reportParams: ReportParams ) {
-	const baseParams = useMemo(
+	const queryParams = useMemo(
 		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 0,
-			// Match Calypso's full UTM report request and include the posts
-			// grouped under each UTM value.
-			query_top_posts: true,
+			'source-medium': getUtmReportQueryParams( reportParams, 'source-medium' ),
+			'campaign-source-medium': getUtmReportQueryParams( reportParams, 'campaign-source-medium' ),
+			source: getUtmReportQueryParams( reportParams, 'source' ),
+			medium: getUtmReportQueryParams( reportParams, 'medium' ),
+			campaign: getUtmReportQueryParams( reportParams, 'campaign' ),
 		} ),
 		[ reportParams ]
 	);
 
-	const sourceMedium = useStatsUtm(
-		{ ...baseParams, utmParam: getUtmParam( 'source-medium' ) } as Parameters<
-			typeof useStatsUtm
-		>[ 0 ],
-		{ enabled: activeTab === 'source-medium' }
-	);
-	const campaignSourceMedium = useStatsUtm(
-		{ ...baseParams, utmParam: getUtmParam( 'campaign-source-medium' ) } as Parameters<
-			typeof useStatsUtm
-		>[ 0 ],
-		{ enabled: activeTab === 'campaign-source-medium' }
-	);
-	const source = useStatsUtm(
-		{ ...baseParams, utmParam: getUtmParam( 'source' ) } as Parameters< typeof useStatsUtm >[ 0 ],
-		{ enabled: activeTab === 'source' }
-	);
-	const medium = useStatsUtm(
-		{ ...baseParams, utmParam: getUtmParam( 'medium' ) } as Parameters< typeof useStatsUtm >[ 0 ],
-		{ enabled: activeTab === 'medium' }
-	);
-	const campaign = useStatsUtm(
-		{ ...baseParams, utmParam: getUtmParam( 'campaign' ) } as Parameters< typeof useStatsUtm >[ 0 ],
-		{ enabled: activeTab === 'campaign' }
-	);
+	const sourceMedium = useStatsUtm( queryParams[ 'source-medium' ], {
+		enabled: activeTab === 'source-medium',
+	} );
+	const campaignSourceMedium = useStatsUtm( queryParams[ 'campaign-source-medium' ], {
+		enabled: activeTab === 'campaign-source-medium',
+	} );
+	const source = useStatsUtm( queryParams.source, { enabled: activeTab === 'source' } );
+	const medium = useStatsUtm( queryParams.medium, { enabled: activeTab === 'medium' } );
+	const campaign = useStatsUtm( queryParams.campaign, { enabled: activeTab === 'campaign' } );
 
 	const activeReport = {
 		'source-medium': sourceMedium,
