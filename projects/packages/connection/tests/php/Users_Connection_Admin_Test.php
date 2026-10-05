@@ -244,6 +244,44 @@ class Users_Connection_Admin_Test extends TestCase {
 
 		$this->assertIsInt( has_filter( 'views_users', array( $admin, 'add_connected_view' ) ) );
 		$this->assertIsInt( has_filter( 'users_list_table_query_args', array( $admin, 'filter_query_to_connected_users' ) ) );
+		$this->assertIsInt( has_action( 'restrict_manage_users', array( $admin, 'keep_connected_view_on_submit' ) ) );
+	}
+
+	/**
+	 * Searching from the connected view keeps the view, rather than silently searching everybody.
+	 */
+	public function test_connected_view_survives_a_form_submission() {
+		$this->activate_connected_view();
+
+		ob_start();
+		$this->create_admin()->keep_connected_view_on_submit( 'top' );
+		$field = ob_get_clean();
+
+		$this->assertStringContainsString( 'type="hidden"', $field );
+		$this->assertStringContainsString( 'name="' . Users_Connection_Admin::VIEW_QUERY_ARG . '"', $field );
+		$this->assertStringContainsString( 'value="' . Users_Connection_Admin::VIEW_CONNECTED . '"', $field );
+	}
+
+	/**
+	 * Both tablenavs share one form, so the field is rendered once.
+	 */
+	public function test_connected_view_field_is_not_repeated_in_the_second_tablenav() {
+		$this->activate_connected_view();
+
+		ob_start();
+		$this->create_admin()->keep_connected_view_on_submit( 'bottom' );
+
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * Nothing is carried when the view is not active.
+	 */
+	public function test_no_hidden_field_without_the_connected_view() {
+		ob_start();
+		$this->create_admin()->keep_connected_view_on_submit( 'top' );
+
+		$this->assertSame( '', ob_get_clean() );
 	}
 
 	/**

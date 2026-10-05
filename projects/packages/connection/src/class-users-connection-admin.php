@@ -64,6 +64,31 @@ class Users_Connection_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'views_users', array( $this, 'add_connected_view' ) );
 		add_filter( 'users_list_table_query_args', array( $this, 'filter_query_to_connected_users' ) );
+		add_action( 'restrict_manage_users', array( $this, 'keep_connected_view_on_submit' ) );
+	}
+
+	/**
+	 * Carry the connected view through the list table's form submissions.
+	 *
+	 * The search box and bulk actions submit a GET form that only replays the parameters
+	 * it carries, so without this, searching from the connected view silently searches
+	 * every user while the view still looks active. Core preserves `role` the same way.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $which Which tablenav is being rendered, 'top' or 'bottom'.
+	 */
+	public function keep_connected_view_on_submit( $which ) {
+		// Both tablenavs sit in the same form, so only one copy of the field is needed.
+		if ( 'top' !== $which || ! self::is_connected_view() ) {
+			return;
+		}
+
+		printf(
+			'<input type="hidden" name="%1$s" value="%2$s" />',
+			esc_attr( self::VIEW_QUERY_ARG ),
+			esc_attr( self::VIEW_CONNECTED )
+		);
 	}
 
 	/**
