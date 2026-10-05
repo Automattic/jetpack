@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Reduce repeated styles during local generation, print after the page title, and reject generated CSS above 512 KiB with an error message.

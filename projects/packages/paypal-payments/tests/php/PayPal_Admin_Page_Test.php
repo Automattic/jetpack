@@ -60,7 +60,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 		remove_all_filters( self::FLAG_FILTER );
 		Feature_Flags::reset();
 
-		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+		// Also clears the static credentials cache, so a later test does not inherit a connection.
+		PayPal_OAuth::delete_credentials();
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
@@ -408,6 +409,70 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Connected', $output );
 		$this->assertStringContainsString( 'Production', $output );
 		$this->assertStringContainsString( 'PayPal Payment Links', $output );
+	}
+
+	/**
+	 * Test the connected header links to the seller's transactions and to PayPal's refund help.
+	 */
+	public function test_render_page_links_to_transactions_and_refund_help() {
+		wp_set_current_user( $this->create_admin_user() );
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response(
+			array(
+				'items'       => array(),
+				'total_items' => 0,
+				'links'       => array(),
+			)
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			'<a href="https://www.paypal.com/unifiedtransactions/" class="button" target="_blank" rel="noopener noreferrer">View transactions</a>',
+			$output
+		);
+		$this->assertStringContainsString(
+			'<a href="https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101" class="button" target="_blank" rel="noopener noreferrer">How to issue a refund</a>',
+			$output
+		);
+	}
+
+	/**
+	 * Test the transactions link goes to the sandbox host for a sandbox connection.
+	 */
+	public function test_render_page_links_to_sandbox_transactions_when_sandboxed() {
+		wp_set_current_user( $this->create_admin_user() );
+		$this->set_up_connected_state( 'sandbox' );
+		$this->mock_get_resource_response(
+			array(
+				'items'       => array(),
+				'total_items' => 0,
+				'links'       => array(),
+			)
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="https://www.sandbox.paypal.com/unifiedtransactions/"', $output );
+		$this->assertStringNotContainsString( 'href="https://www.paypal.com/unifiedtransactions/"', $output );
+	}
+
+	/**
+	 * Test the disconnected page has no PayPal account links to offer.
+	 */
+	public function test_render_page_disconnected_state_has_no_account_links() {
+		wp_set_current_user( $this->create_admin_user() );
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'View transactions', $output );
+		$this->assertStringNotContainsString( 'How to issue a refund', $output );
 	}
 
 	// --- render_page: admin notice ---

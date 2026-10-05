@@ -1,9 +1,12 @@
-import { Tooltip, defaultStyles } from '@visx/tooltip';
+import { Tooltip } from '@visx/tooltip';
 import { DataContext, TooltipContext } from '@visx/xychart';
+import clsx from 'clsx';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { isValidHexColor } from '../../utils';
+import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import styles from './base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from './private/bounded-tooltip';
+import { TooltipTheme } from './private/tooltip-theme';
 import type {
 	CrosshairStyle,
 	RenderTooltipGlyphProps,
@@ -215,16 +218,29 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginLeft = margin?.left ?? 0;
 
 	const TooltipComponent = detectBounds || tooltipPlacement !== 'auto' ? BoundedTooltip : Tooltip;
-	const boxStyle: CSSProperties = {
-		...defaultStyles,
-		zIndex,
-		backgroundColor: theme?.backgroundColor ?? 'white',
-		boxShadow: `0 1px 2px ${
-			isValidHexColor( theme?.htmlLabel?.color ) ? `${ theme.htmlLabel.color }55` : '#22222255'
-		}`,
-		...theme?.htmlLabel,
-		...style,
-	};
+	const boxStyle: CSSProperties = { zIndex, ...style };
+	// BoundedTooltip themes its own box.
+	const themesOwnBox = TooltipComponent === Tooltip && ! tooltipProps.unstyled;
+	const box = (
+		<TooltipComponent
+			left={ tooltipLeft }
+			top={
+				tooltipPlacement === 'below-axis'
+					? marginTop + innerHeight + ( margin?.bottom ?? 0 )
+					: ( tooltipAnchorTop ?? tooltipTop )
+			}
+			style={ boxStyle }
+			applyPositionStyle
+			{ ...tooltipProps }
+			className={ clsx(
+				themesOwnBox && [ CHART_SCOPE_CLASS, styles.surface ],
+				tooltipProps.className
+			) }
+			{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
+		>
+			{ tooltipContent }
+		</TooltipComponent>
+	);
 
 	return (
 		<>
@@ -258,23 +274,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 				{ glyphs }
 			</g>
 			{ container &&
-				createPortal(
-					<TooltipComponent
-						left={ tooltipLeft }
-						top={
-							tooltipPlacement === 'below-axis'
-								? marginTop + innerHeight + ( margin?.bottom ?? 0 )
-								: ( tooltipAnchorTop ?? tooltipTop )
-						}
-						style={ boxStyle }
-						applyPositionStyle
-						{ ...tooltipProps }
-						{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
-					>
-						{ tooltipContent }
-					</TooltipComponent>,
-					container
-				) }
+				createPortal( themesOwnBox ? <TooltipTheme>{ box }</TooltipTheme> : box, container ) }
 		</>
 	);
 };

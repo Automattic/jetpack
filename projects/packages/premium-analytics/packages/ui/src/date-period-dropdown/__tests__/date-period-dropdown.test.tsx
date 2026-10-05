@@ -11,7 +11,7 @@ jest.mock( '@automattic/charts', () => ( {} ) );
 jest.mock( '@wordpress/dataviews', () => ( {} ) );
 
 import { TZDate } from '@date-fns/tz';
-import { configure, render, screen, within } from '@testing-library/react';
+import { configure, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
@@ -112,6 +112,54 @@ describe( 'DatePeriodDropdown', () => {
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
 		expect( screen.getByRole( 'menuitemradio', { name: 'Today' } ) ).not.toBeChecked();
+	} );
+
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'opens on the applied period rather than the first', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+			await openMenu( user, 'Last 30 days' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'opens on the first period when the applied one is not offered', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown( { appliedPresetId: 'last-90-days' } );
+			await openMenu( user, 'Last 90 days' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Today' } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'focuses the menu surface rather than an option on a touch open', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+
+			await user.pointer( {
+				keys: '[TouchA]',
+				target: screen.getByRole( 'button', { name: 'Last 30 days' } ),
+			} );
+
+			await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveFocus() );
+		} );
+
+		it( 'opens on Custom range when the applied period is custom', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown( { appliedPresetId: 'custom' } );
+
+			await openMenu( user, 'July 2026' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) ).toHaveFocus()
+			);
+		} );
 	} );
 
 	it( 'applies a period on click, with no Apply step', async () => {

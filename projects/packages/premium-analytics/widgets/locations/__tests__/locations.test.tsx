@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { LeaderboardChart, LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -43,10 +43,15 @@ jest.mock( '@wordpress/route', () => ( {
 
 // The map loads Google Charts asynchronously, and what it draws is covered by
 // its own tests; here only the props the widget hands it matter.
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
-} ) );
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+	return {
+		...actual,
+		LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
+		// Spied, because CSS modules resolve to nothing here and its `loading` dimming is a class.
+		LeaderboardChart: jest.fn( actual.LeaderboardChart ),
+	};
+} );
 
 // Typed off the hook so the mocked state and the rows passed to
 // `mockReturnValue` are type-checked rather than cast away.
@@ -68,6 +73,12 @@ const locationsGeoChartMock = jest.mocked( LocationsGeoChart );
 /** Read the props of the map's latest render. */
 function lastMapProps() {
 	return locationsGeoChartMock.mock.calls[ locationsGeoChartMock.mock.calls.length - 1 ][ 0 ];
+}
+
+/** Read the props of the leaderboard's latest render. */
+function lastLeaderboardProps() {
+	const { calls } = jest.mocked( LeaderboardChart ).mock;
+	return calls[ calls.length - 1 ][ 0 ];
 }
 
 jest.mock( '../use-location-views', () => ( {
@@ -336,6 +347,50 @@ describe( 'LocationsWidget', () => {
 			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 				expect.objectContaining( { geoMode: 'region', filter: undefined } )
 			);
+		} );
+
+		it( 'keeps the previous level dimmed and inert while the next loads, and moves the map on', async () => {
+			// `placeholderData` hands back the previous level's rows until the new ones arrive.
+			let isPending = false;
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
+				...LOADING_STATE,
+				data: ROWS_BY_MODE[ isPending ? 'country' : geoMode ],
+				isLoading: isPending,
+				isFetching: isPending,
+				hasData: true,
+			} ) ) as unknown as () => LocationViewsState );
+			const { rerender } = render(
+				<LocationsWidget attributes={ { geoGranularity: 'country' } } />
+			);
+
+			isPending = true;
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+
+			expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
+			const staleList = screen.getByTestId( 'leaderboard-chart-container' );
+			expect( staleList ).toHaveTextContent( 'United States' );
+			// eslint-disable-next-line testing-library/no-node-access -- jsdom does not honour `inert`, so the attribute itself is the assertion.
+			expect( staleList.closest( '[inert]' ) ).not.toBeNull();
+			expect( lastLeaderboardProps().loading ).toBe( true );
+			expect( within( staleList ).queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( lastMapProps() ).toMatchObject( {
+				mode: 'region',
+				focusCountry: { code: 'US', name: 'United States' },
+				rows: [],
+			} );
+
+			isPending = false;
+			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			const freshRow = screen.getByRole( 'button', { name: 'View cities in Minnesota' } );
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			expect( freshRow.closest( '[inert]' ) ).toBeNull();
+			expect( lastLeaderboardProps().loading ).toBe( false );
+			expect( lastMapProps().rows ).toEqual( [
+				expect.objectContaining( { label: 'Minnesota' } ),
+			] );
 		} );
 
 		it( 'offers no drill-down in Cities mode', () => {

@@ -18,7 +18,11 @@ export type SpeedScoreState = {
 
 const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string() ) } );
 
-export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true ) {
+export function useSpeedScores(
+	refreshState?: ScoreRefreshState,
+	enabled = true,
+	onUserRunComplete?: () => void
+) {
 	const { online } = Jetpack_Boost.site;
 	const initial = cornerstonePagesSchema.safeParse(
 		window.jetpack_boost_ds?.cornerstone_pages_properties?.value
@@ -38,6 +42,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
+	const acceptedUserRun = useRef< string >( undefined );
 	const requestController = useRef< AbortController >( undefined );
 	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
@@ -45,9 +50,12 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		requestController.current?.abort();
 	}, [] );
 	const refresh = useCallback(
-		async ( regenerate = false ) => {
+		async ( regenerate = false, { userStarted = false } = {} ) => {
 			if ( ! online || ! enabled ) {
 				return;
+			}
+			if ( regenerate || acceptedUserRun.current !== url ) {
+				acceptedUserRun.current = undefined;
 			}
 			cancelPending();
 			const id = requestId.current;
@@ -56,7 +64,10 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 			setState( previous => ( {
 				...previous,
 				status: 'loading',
-				isRunning: regenerate || ( previous.status === 'loading' && previous.isRunning ),
+				isRunning:
+					regenerate ||
+					acceptedUserRun.current === url ||
+					( previous.status === 'loading' && previous.isRunning ),
 				error: undefined,
 			} ) );
 			try {
@@ -70,18 +81,27 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 						// A run started elsewhere (another tab, before a subpage visit) is still a run.
 						onPending: () => {
 							if ( id === requestId.current ) {
+								if ( regenerate && userStarted ) {
+									acceptedUserRun.current = url;
+								}
 								setState( previous => ( { ...previous, isRunning: true } ) );
 							}
 						},
 					}
 				);
 				if ( id === requestId.current && scores ) {
+					const completedUserRun = ( regenerate && userStarted ) || acceptedUserRun.current === url;
+					acceptedUserRun.current = undefined;
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
+					if ( completedUserRun ) {
+						onUserRunComplete?.();
+					}
 				}
 			} catch ( cause ) {
 				if ( id !== requestId.current ) {
 					return;
 				}
+				acceptedUserRun.current = undefined;
 				const error = standardizeError(
 					cause ?? {},
 					__( 'Error requesting speed scores', 'jetpack-boost' )
@@ -92,7 +112,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 				setState( previous => ( { ...previous, status: 'error', isRunning: false, error } ) );
 			}
 		},
-		[ online, url, enabled, cancelPending ]
+		[ online, url, enabled, cancelPending, onUserRunComplete ]
 	);
 
 	useEffect( () => {

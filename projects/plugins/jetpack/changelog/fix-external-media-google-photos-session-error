@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Photos: Show an error with a retry option when the picker cannot be opened, instead of loading indefinitely.

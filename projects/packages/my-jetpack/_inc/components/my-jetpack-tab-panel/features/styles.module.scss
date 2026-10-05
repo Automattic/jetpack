@@ -446,9 +446,24 @@ $band-ground: #f8f8f8;
 	min-inline-size: 12rem;
 }
 
-// Round, like the filter pills beside them.
+// A segmented control: one soft track, the active layout a tile inside it. The
+// padding takes the compact (32px) buttons to the search box's 40px height.
+$view-group-padding: 4px;
+
+.view-group {
+	// The groove color, not the button's own hover fill: those are the same
+	// value, so hovering an unpressed button would show no change at all.
+	background: var(--wpds-color-background-track-neutral);
+	// The buttons' radius plus the track's padding, so the corners nest.
+	border-radius: calc(var(--wpds-border-radius-md) + #{$view-group-padding});
+	gap: 2px;
+	padding: $view-group-padding;
+}
+
+// Rounded like the feature icons beside them.
 .view-button {
-	border-radius: 999px;
+	border-color: transparent;
+	border-radius: var(--wpds-border-radius-md);
 }
 
 .feature-list {
@@ -536,6 +551,12 @@ $band-ground: #f8f8f8;
 	view-transition-name: jetpack-feature-modal-backdrop;
 }
 
+// Named too, or the backdrop's layer paints over it and stepping dims the
+// admin bar.
+:global(body):has(.modal-portal) :global(#wpadminbar) {
+	view-transition-name: jetpack-feature-modal-admin-bar;
+}
+
 // Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
 // translating rather than scaling, which would resample the text.
 @media (min-width: 600px) and (prefers-reduced-motion: no-preference) {
@@ -560,8 +581,7 @@ $band-ground: #f8f8f8;
 	}
 }
 
-// Fixed height, not an aspect ratio: the artwork is third-party marketing
-// imagery at a dozen ratios, and a ratio-driven band would resize the modal
+// Fixed height, not an aspect ratio: a ratio-driven band would resize the modal
 // on every step.
 .modal-band {
 	align-items: center;
@@ -661,18 +681,22 @@ $band-props: (
 	position: relative;
 }
 
-// `contain`, not `cover`: every one of these assets is square or portrait, so
-// cropping to the band's 4.75:1 would land on empty canvas.
+// `contain`, not `cover`: the artwork is 1.26:1, far narrower than the band's
+// 4.75:1, so cropping to fill would lose most of each image.
 .modal-band__image {
 	block-size: 100%;
 	inline-size: 100%;
 	object-fit: contain;
 	opacity: 0;
-	transition: opacity 200ms ease-out;
+	transform: translateY(-0.75rem);
+	transition:
+		opacity 250ms ease-out,
+		transform 350ms var(--wpds-motion-easing-expressive);
 }
 
 .modal-band__image--loaded {
 	opacity: 1;
+	transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -690,13 +714,6 @@ $band-props: (
 	svg {
 		fill: currentColor;
 	}
-}
-
-.modal-band__skeleton {
-	block-size: 100%;
-	inset: 0;
-	position: absolute;
-	inline-size: 100%;
 }
 
 // A lone control over artwork earns a 44px hit target; the visual stays 32px.
@@ -838,14 +855,6 @@ $band-props: (
 
 .paid-routes {
 	margin-block-start: var(--wpds-dimension-gap-sm);
-}
-
-.plan-link {
-	background: none;
-	border: 0;
-	cursor: pointer;
-	font: inherit;
-	padding: 0;
 }
 
 // The artwork took nearly a third of the dialog's height at its desktop size,

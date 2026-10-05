@@ -23,7 +23,6 @@ import PostsReportPage from '../../routes/reports/posts/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
 import TagsReportPage from '../../routes/reports/tags/page';
-import VideosReportPage from '../../routes/reports/videos/page';
 import AnnualHighlightsWidget from '../../widgets/annual-highlights/render';
 import AuthorsWidget from '../../widgets/authors/render';
 import ClicksWidget from '../../widgets/clicks/render';
@@ -36,7 +35,6 @@ import SearchTermsWidget from '../../widgets/search-terms/render';
 import TagsWidget from '../../widgets/tags/render';
 import { captureCsvDownloads } from '../../widgets/test-utils';
 import TopPostsWidget from '../../widgets/top-posts/render';
-import VideoPressWidget from '../../widgets/videopress/render';
 import { setMockRouteSearch } from './route-test-utils';
 import type { ComponentType, ReactElement, ReactNode } from 'react';
 
@@ -139,21 +137,7 @@ const RESPONSES: Record< string, unknown > = {
 			encrypted_search_terms: 6,
 		},
 	},
-	'stats/video-plays': {
-		date: '2026-03-10',
-		period: 'day',
-		summary: {
-			plays: Array.from( { length: 12 }, ( _, index ) => ( {
-				post_id: index + 1,
-				title: `Video ${ index + 1 }`,
-				url: `https://example.com/video/${ index + 1 }/`,
-				plays: ( ( index * 5 ) % 12 ) + 1,
-				impressions: 20,
-				watch_time: 1.5,
-				retention_rate: 40,
-			} ) ),
-		},
-	},
+
 	'stats/clicks': {
 		date: '2026-03-10',
 		days: {},
@@ -285,11 +269,7 @@ const CASES: {
 		Page: SearchTermsReportPage,
 		widget: reportParams => <SearchTermsWidget attributes={ { reportParams } } />,
 	},
-	{
-		name: 'Videos',
-		Page: VideosReportPage,
-		widget: reportParams => <VideoPressWidget attributes={ { reportParams } } />,
-	},
+
 	{
 		name: 'Clicks',
 		Page: ClicksReportPage,
