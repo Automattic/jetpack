@@ -20,7 +20,7 @@ export function useOpenSectionRange(): OpenSectionRange {
 	const commitExactRange = useCommitExactRange();
 
 	return useCallback(
-		( section, range ) => commitExactRange( section, range, section ),
+		( section, range ) => commitExactRange( section, range, { opensSection: true } ),
 		[ commitExactRange ]
 	);
 }

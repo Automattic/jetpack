@@ -44,12 +44,6 @@ export type ReportDateFilters = {
 	interval: IntervalType;
 
 	/**
-	 * The applied chart interval, for surfaces describing what the widgets are
-	 * currently drawing rather than what the picker is holding.
-	 */
-	appliedInterval: IntervalType;
-
-	/**
 	 * The intervals the range being edited allows, finest first — what the
 	 * control lists.
 	 */
@@ -204,19 +198,6 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ presetId, effective.from, effective.to, effective.interval ]
 	);
 
-	// What the widgets are drawing, for the surfaces that describe them rather
-	// than the picker.
-	const appliedInterval = useMemo(
-		() =>
-			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
-				committed.interval
-			),
-		[ appliedPresetId, committed.from, committed.to, committed.interval ]
-	);
-
 	/**
 	 * Comparison changes commit immediately, unless a primary edit is staged —
 	 * then it rides along and commits with it on Apply, so a comparison tweak
@@ -281,7 +262,6 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedComparisonPresetId,
 		appliedComparisonRange,
 		interval,
-		appliedInterval,
 		intervalOptions,
 		onChange,
 		onComparisonChange,

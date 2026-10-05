@@ -40,7 +40,6 @@ function buildDateFilters(): ReportDateFilters {
 		comparisonPresetId: 'previous-month',
 		appliedComparisonPresetId: 'previous-period',
 		interval: 'week',
-		appliedInterval: 'day',
 		intervalOptions: [ 'day', 'week' ],
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),

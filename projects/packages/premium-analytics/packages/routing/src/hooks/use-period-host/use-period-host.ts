@@ -20,7 +20,7 @@ type PeriodHost = {
 
 /**
  * Let the widgets on a surface set its period, and draw the date control's
- * attention when they do. One hook, so a host cannot offer one without the other.
+ * attention when they do. Both come from one call, so a host wires them together.
  *
  * @param surface      - The surface's key: a dashboard section slug, or a `postSurface`.
  * @param appliedRange - The range its date control shows.

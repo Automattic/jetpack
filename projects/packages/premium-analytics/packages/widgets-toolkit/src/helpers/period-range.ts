@@ -83,7 +83,7 @@ export function yearRange( year: number, bounds: PeriodBounds ): Required< DateR
  * @param date     - A date inside the bucket.
  * @param interval - The bucket size the chart drew.
  * @param window   - The range the chart draws.
- * @param bounds   - The clock.
+ * @param bounds   - The site zone the bucket is cut in, and the clock capping it.
  * @return The range to apply, or `null`.
  */
 export function bucketRange(

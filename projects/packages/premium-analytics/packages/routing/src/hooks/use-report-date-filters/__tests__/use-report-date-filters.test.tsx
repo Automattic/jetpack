@@ -83,7 +83,6 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.appliedRange.to?.getTime() ).toBe(
 			Date.parse( '2026-07-30T23:59:59.999Z' )
 		);
-		expect( result.current.appliedInterval ).toBe( 'week' );
 		expect( result.current.intervalOptions ).toEqual( [ 'day', 'week' ] );
 		expect( result.current.canApply ).toBe( false );
 	} );
@@ -305,7 +304,6 @@ describe( 'useReportDateFilters', () => {
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		expect( mockSearch ).toMatchObject( { interval: 'week' } );
-		expect( result.current.appliedInterval ).toBe( 'week' );
 	} );
 
 	/*
@@ -336,9 +334,6 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		expect( result.current.intervalOptions ).toEqual( [ 'day', 'hour' ] );
 		expect( result.current.interval ).toBe( 'day' );
-
-		// The applied window is still what the widgets drew, bucket included.
-		expect( result.current.appliedInterval ).toBe( 'day' );
 	} );
 
 	it( 'holds a comparison change while a primary edit is staged', () => {

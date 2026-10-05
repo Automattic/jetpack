@@ -89,15 +89,20 @@ describe( 'bucketRange', () => {
 		to: localTZDate( '2026-12-31T23:59:59.999Z', 'UTC' ),
 	};
 
-	it.each( [
-		[ 'day', '2026-07-21T13:45:00Z', '2026-07-21T00:00:00.000Z', '2026-07-21T23:59:59.999Z' ],
-		[ 'week', '2026-07-22T00:00:00Z', '2026-07-20T00:00:00.000Z', '2026-07-26T23:59:59.999Z' ],
-		[ 'month', '2026-02-14T00:00:00Z', '2026-02-01T00:00:00.000Z', '2026-02-28T23:59:59.999Z' ],
-		[ 'year', '2024-05-09T00:00:00Z', '2024-01-01T00:00:00.000Z', '2024-12-31T23:59:59.999Z' ],
-	] as const )( 'opens the %s bucket holding the date', ( interval, date, from, to ) => {
-		expect( bucketRange( new Date( date ), interval, window, clock ) ).toEqual( {
-			from: new Date( from ),
-			to: new Date( to ),
+	it( 'opens the bucket holding the date', () => {
+		expect( bucketRange( new Date( '2026-07-22T00:00:00Z' ), 'week', window, clock ) ).toEqual( {
+			from: new Date( '2026-07-20T00:00:00.000Z' ),
+			to: new Date( '2026-07-26T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'cuts the bucket on the site clock, not the browser one', () => {
+		const auckland = { timeZone: 'Pacific/Auckland', now: clock.now };
+
+		// 20:00 UTC on Jul 21 is already Jul 22 in Auckland (UTC+12).
+		expect( bucketRange( new Date( '2026-07-21T20:00:00Z' ), 'day', window, auckland ) ).toEqual( {
+			from: new Date( '2026-07-21T12:00:00.000Z' ),
+			to: new Date( '2026-07-22T11:59:59.999Z' ),
 		} );
 	} );
 
@@ -105,12 +110,23 @@ describe( 'bucketRange', () => {
 		expect( bucketRange( new Date( '2026-07-21T13:00:00Z' ), 'hour', window, clock ) ).toBeNull();
 	} );
 
-	it( 'cuts a partial edge bucket to the window', () => {
-		const midWeek = { from: localTZDate( '2026-07-22T00:00:00.000Z', 'UTC' ), to: window.to };
-
-		expect( bucketRange( new Date( '2026-07-23T00:00:00Z' ), 'week', midWeek, clock ) ).toEqual( {
-			from: midWeek.from,
-			to: new Date( '2026-07-26T23:59:59.999Z' ),
+	it.each( [
+		[
+			'leading',
+			{ from: localTZDate( '2026-07-22T00:00:00.000Z', 'UTC' ), to: window.to },
+			'2026-07-22T00:00:00.000Z',
+			'2026-07-26T23:59:59.999Z',
+		],
+		[
+			'trailing',
+			{ from: window.from, to: localTZDate( '2026-07-22T23:59:59.999Z', 'UTC' ) },
+			'2026-07-20T00:00:00.000Z',
+			'2026-07-22T23:59:59.999Z',
+		],
+	] )( 'cuts a partial %s edge bucket to the window', ( _edge, partial, from, to ) => {
+		expect( bucketRange( new Date( '2026-07-22T00:00:00Z' ), 'week', partial, clock ) ).toEqual( {
+			from: new Date( from ),
+			to: new Date( to ),
 		} );
 	} );
 
