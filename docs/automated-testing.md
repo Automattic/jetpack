@@ -24,9 +24,9 @@ Writing a test is cheap; keeping it is not. It runs in every CI job, every revie
 
 > **If this test were deleted, which realistic bug would ship?**
 
-No answer: delete it. Another test catches the same bug: keep one.
+No answer: delete it. Another test catches the same bug and protects the same contract: keep one.
 
-A test earns its place when it fails when behavior breaks, stays green through a correct refactor, covers something no other test covers, and tests our code rather than a dependency's. Test each behavior once, at the lowest layer where it is observable.
+A test earns its place when it fails when behavior breaks, stays green through a correct refactor, covers something no other test covers, and tests our code rather than a dependency's. Test each behavior once, at the lowest layer where it is observable. Tests at two layers that fail on the same bug are not duplicates when they protect different contracts, such as a library's API and our wiring of it.
 
 | Low-value shape | Instead |
 | --- | --- |
