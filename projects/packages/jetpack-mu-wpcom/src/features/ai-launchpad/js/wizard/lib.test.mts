@@ -6,7 +6,6 @@ import {
 	GOAL_SLUGS,
 	isLastStep,
 	pickPlaceholder,
-	toPrewarmInput,
 	TOTAL_STEPS,
 	type WizardState,
 } from './lib.ts';
@@ -57,21 +56,6 @@ describe( 'Finish payload', () => {
 			locale: 'fr',
 			ui_locale: 'it_IT',
 		} );
-	} );
-
-	it( 'shares the same field shape with the prewarm input', () => {
-		const state = stateWith( { goal: 'write', siteName: 'My Blog', intent: 'About food.' } );
-		assert.deepEqual( toPrewarmInput( state ), {
-			goal: 'write',
-			site_name: 'My Blog',
-			description: 'About food.',
-			locale: 'en',
-			ui_locale: 'en',
-		} );
-	} );
-
-	it( 'reports goal undefined to prewarm when none is selected', () => {
-		assert.equal( toPrewarmInput( stateWith() ).goal, undefined );
 	} );
 } );
 
