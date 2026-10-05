@@ -116,15 +116,13 @@ export function Bubble( {
 	index,
 	store,
 	onHover,
-	exiting = false,
 }: {
 	index: number;
 	store: MeasurableImageStore;
 	onHover: ( index: number, position: Position ) => void;
-	exiting?: boolean;
 } ) {
 	const { oversizedRatio: ratio, loading } = useImage( store );
-	const spinner = usePresence( loading && ! exiting, 300 );
+	const spinner = usePresence( loading, 300 );
 	const severity = ratio > 4 ? 'high' : ratio > 2.5 ? 'medium' : 'normal';
 	const hover = useCallback(
 		( event: React.MouseEvent< HTMLDivElement > ) => {
@@ -134,11 +132,7 @@ export function Bubble( {
 		[ index, onHover ]
 	);
 	return (
-		<div
-			className={ `jb-ig-bubble interaction-area ${ severity } jb-ig-fly${ exiting ? ' jb-ig-exit' : '' }` }
-			style={ { animationDelay: `${ 150 + 50 * index }ms` } }
-			onMouseEnter={ hover }
-		>
+		<div className={ `jb-ig-bubble interaction-area ${ severity }` } onMouseEnter={ hover }>
 			<div className="jb-ig-bubble bubble">
 				{ ! loading && (
 					<div className="jb-ig-bubble bubble-inner">
@@ -160,9 +154,7 @@ export function Bubble( {
 					</div>
 				) }
 				{ spinner && (
-					<div
-						className={ `jb-ig-bubble bubble-inner${ loading && ! exiting ? '' : ' jb-ig-spinner-fade' }` }
-					>
+					<div className={ `jb-ig-bubble bubble-inner${ loading ? '' : ' jb-ig-spinner-fade' }` }>
 						<div className="jb-ig-spinner spinner">
 							<JetpackLogo size={ 12 } bg="transparent" />
 						</div>
@@ -236,8 +228,6 @@ export function Popup( {
 							<>
 								The image loaded is <strong>{ ratio }x</strong> larger than it appears in the
 								browser.
-								{ ( fileSize as typeof fileSize & { weight?: number } ).weight > 450 &&
-									' Try using a smaller image or reduce the file size by compressing it.' }
 							</>
 						) : ratio === 1 ? (
 							'The image is exactly the correct size for this screen.'
@@ -356,8 +346,6 @@ export function Main( { stores }: { stores: MeasurableImageStore[] } ) {
 	const { width, height } = first.sizeOnPage;
 	const size: GuideSize =
 		width < 200 || height < 200 ? 'micro' : width < 400 || height < 400 ? 'small' : 'normal';
-	const visible = state === 'active' && hasFileSize;
-	const present = usePresence( visible, 400 + 50 * ( stores.length - 1 ) );
 	const closeDetails: MouseLeave = useCallback( event => {
 		if (
 			event.relatedTarget instanceof Element &&
@@ -370,7 +358,7 @@ export function Main( { stores }: { stores: MeasurableImageStore[] } ) {
 		setPosition( next );
 		setShow( selected );
 	}, [] );
-	if ( ! present ) return null;
+	if ( state !== 'active' || ! hasFileSize ) return null;
 	return (
 		<div
 			className={ `jb-ig-main guide ${ size }${ show !== false ? ' show keep-guide-open' : '' }` }
@@ -378,13 +366,7 @@ export function Main( { stores }: { stores: MeasurableImageStore[] } ) {
 		>
 			<div className="jb-ig-main previews">
 				{ stores.map( ( controller, index ) => (
-					<Bubble
-						key={ controller.id }
-						index={ index }
-						store={ controller }
-						exiting={ ! visible }
-						onHover={ hover }
-					/>
+					<Bubble key={ controller.id } index={ index } store={ controller } onHover={ hover } />
 				) ) }
 			</div>
 			{ show !== false && (

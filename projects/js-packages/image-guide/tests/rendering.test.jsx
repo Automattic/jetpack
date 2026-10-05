@@ -68,7 +68,7 @@ it.each( [
 	expect( target.querySelector( '.label' ) ).toHaveTextContent( text );
 } );
 
-it( 'shows loading, unknown measurements and savings without the compression hint', async () => {
+it( 'shows loading, unknown measurements and potential savings', async () => {
 	const controller = image();
 	controller.image.getWeight.mockImplementation( () => new Promise( () => {} ) );
 	await act( async () =>
@@ -95,7 +95,6 @@ it( 'shows loading, unknown measurements and savings without the compression hin
 		} )
 	);
 	expect( target ).toHaveTextContent( /450 KB/ );
-	expect( target ).not.toHaveTextContent( /Try using a smaller image/ );
 } );
 
 it( 'keeps the same details panel and scroll anchor when switching shared-container images', async () => {
@@ -132,23 +131,11 @@ it( 'keeps the same details panel and scroll anchor when switching shared-contai
 	expect( target.querySelector( '.jetpack-boost-guide-popup' ) ).toBe( popup );
 } );
 
-it( 'retains the exiting guide for its staggered fly duration and cancels removal on resume', async () => {
+it( 'removes guides immediately on pause and restores them on resume', async () => {
 	const stores = [ image(), image() ];
 	await act( async () => root.render( <Main stores={ stores } /> ) );
-	jest.useFakeTimers();
 	await act( async () => commands.setGuideState( 'paused' ) );
-	expect( target.querySelectorAll( '.jb-ig-exit' ) ).toHaveLength( 2 );
-	act( () => jest.advanceTimersByTime( 299 ) );
-	expect( target.querySelectorAll( '.spinner' ) ).toHaveLength( 2 );
-	act( () => jest.advanceTimersByTime( 1 ) );
-	expect( target.querySelector( '.spinner' ) ).not.toBeInTheDocument();
-	act( () => jest.advanceTimersByTime( 149 ) );
-	expect( target.querySelector( '.guide' ) ).toBeInTheDocument();
-	await act( async () => commands.setGuideState( 'active' ) );
-	act( () => jest.advanceTimersByTime( 1 ) );
-	expect( target.querySelector( '.guide' ) ).toBeInTheDocument();
-	expect( target.querySelector( '.jb-ig-exit' ) ).not.toBeInTheDocument();
-	await act( async () => commands.setGuideState( 'paused' ) );
-	act( () => jest.advanceTimersByTime( 450 ) );
 	expect( target.querySelector( '.guide' ) ).not.toBeInTheDocument();
+	await act( async () => commands.setGuideState( 'active' ) );
+	expect( target.querySelector( '.guide' ) ).toBeInTheDocument();
 } );
