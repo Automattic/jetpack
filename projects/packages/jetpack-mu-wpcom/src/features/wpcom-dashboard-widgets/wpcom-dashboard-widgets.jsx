@@ -1,10 +1,6 @@
 import '../../common/public-path';
 import { createRoot } from 'react-dom/client';
 import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
-import {
-	hasCelebrateLaunchParam,
-	withoutCelebrateLaunchParam,
-} from '../../common/celebrate-launch/celebrate-launch-url';
 import WpcomGeneralTasksWidget from './wpcom-general-tasks-widget';
 import WpcomLaunchpadWidget from './wpcom-launchpad-widget';
 import WpcomSiteManagementWidget from './wpcom-site-management-widget';
@@ -33,8 +29,10 @@ widgets.forEach( ( { id, Widget } ) => {
 	}
 } );
 
-if ( hasCelebrateLaunchParam( window.location.href ) ) {
-	window.history.replaceState( null, '', withoutCelebrateLaunchParam( window.location.href ) );
+const url = new URL( window.location.href );
+if ( url.searchParams.has( 'celebrate-launch' ) ) {
+	url.searchParams.delete( 'celebrate-launch' );
+	window.history.replaceState( null, '', url.toString() );
 	const rootElement = document.createElement( 'div' );
 	document.body.appendChild( rootElement );
 	const root = createRoot( rootElement );
