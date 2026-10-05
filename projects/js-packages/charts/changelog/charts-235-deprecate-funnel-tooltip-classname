@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Conversion funnel chart: Deprecate `className` in the custom `renderTooltip` props, which is no longer set.

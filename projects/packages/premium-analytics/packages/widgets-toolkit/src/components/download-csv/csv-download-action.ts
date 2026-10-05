@@ -43,7 +43,8 @@ function useCsvDownloadAction(
 }
 
 export type UseExporterCsvActionOptions< TItem, TRow > = {
-	exporter: ReportCsvExporter< TItem, TRow >;
+	/** Without one there is no download to offer. */
+	exporter?: ReportCsvExporter< TItem, TRow >;
 	/** The widget's request state for the active range; the error is the primary period's alone. */
 	status: ReportCsvExportStatus;
 	/** How many rows the widget shows; an empty widget offers no download. */
@@ -58,16 +59,21 @@ export function useExporterCsvAction< TItem, TRow >( {
 }: UseExporterCsvActionOptions< TItem, TRow > ): CsvDownloadAction | null {
 	const { reportParams } = useWidgetRootContext();
 	// The download can refetch the widget's own query; unmounting the button then drops focus.
-	const [ isDownloading, setIsDownloading ] = useState( false );
+	const [ phase, setPhase ] = useState< 'idle' | 'downloading' | 'settling' >( 'idle' );
+
+	// The widget's query result reports that refetch settled one render after the download does.
+	if ( phase === 'settling' && ! status.isFetching ) {
+		setPhase( 'idle' );
+	}
 
 	return useCsvDownloadAction(
-		isDownloading || isReportCsvReady( status, rowCount )
+		exporter && ( phase !== 'idle' || isReportCsvReady( status, rowCount ) )
 			? async () => {
-					setIsDownloading( true );
+					setPhase( 'downloading' );
 					try {
 						await downloadReportCsv( exporter, reportParams );
 					} finally {
-						setIsDownloading( false );
+						setPhase( 'settling' );
 					}
 				}
 			: null

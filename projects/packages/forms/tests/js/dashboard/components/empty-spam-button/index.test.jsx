@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Mock React Router
@@ -70,6 +70,8 @@ await jest.unstable_mockModule( 'lodash', () => ( {
 await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
+		createInfoNotice: jest.fn(),
+		removeNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
@@ -79,6 +81,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 
 	const mockSelect = {
 		getSelectedResponsesCount: jest.fn().mockReturnValue( 0 ),
+		getSelectedResponsesFromCurrentDataset: jest.fn().mockReturnValue( [] ),
 		getCurrentStatus: jest.fn().mockReturnValue( 'trash' ),
 		getCurrentQuery: jest.fn().mockReturnValue( {} ),
 		getFilters: jest.fn().mockReturnValue( {} ),
@@ -143,6 +146,7 @@ afterAll( () => {
 const EmptySpamButtonModule =
 	await import( '../../../../../src/dashboard/components/empty-spam-button' );
 const EmptySpamButton = EmptySpamButtonModule.default;
+const { labelForScope } = EmptySpamButtonModule;
 
 const DashboardSearchParamsModule =
 	await import( '../../../../../src/dashboard/router/dashboard-search-params-context' );
@@ -194,7 +198,7 @@ describe( 'EmptySpamButton', () => {
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
-		const dialog = await screen.findByRole( 'alertdialog', { name: 'Delete forever' } );
+		const dialog = await screen.findByRole( 'alertdialog', { name: 'Delete 1 spam response?' } );
 		expect( dialog ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
 	} );
@@ -223,19 +227,39 @@ describe( 'EmptySpamButton', () => {
 		await userEvent.click( button );
 
 		// Click confirm button
-		const confirmButton = await screen.findByRole( 'button', { name: 'Delete' } );
+		const confirmButton = await screen.findByRole( 'button', { name: 'Delete forever' } );
 		await userEvent.click( confirmButton );
 
-		// Verify API call
-		expect( apiFetch ).toHaveBeenCalledWith( {
-			method: 'DELETE',
-			path: '/wp/v2/feedback/trash?status=spam',
-		} );
+		// Verify API call — scope is `all` (no selection, no filter), so payload is just status.
+		await waitFor( () =>
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				method: 'DELETE',
+				path: '/wp/v2/feedback/trash',
+				data: { status: 'spam', limit: 500 },
+			} )
+		);
 
-		// Verify success notice
-		expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
-			'Response deleted permanently.',
-			{ type: 'snackbar', id: 'empty-spam' }
+		// Verify success notice (pluralized with formatNumber).
+		await waitFor( () =>
+			expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
+				expect.stringContaining( 'deleted permanently' ),
+				{ type: 'snackbar', id: 'empty-spam' }
+			)
+		);
+	} );
+} );
+
+describe( 'labelForScope', () => {
+	it( 'omits the count when deleting all spam', () => {
+		expect( labelForScope( { mode: 'all', count: 140, params: {} } ) ).toBe( 'Delete spam' );
+	} );
+
+	it( 'shows the count for a filter or a selection', () => {
+		expect( labelForScope( { mode: 'filtered', count: 26, params: {} } ) ).toBe(
+			'Delete spam (26)'
+		);
+		expect( labelForScope( { mode: 'selection', count: 3, params: {} } ) ).toBe(
+			'Delete spam (3)'
 		);
 	} );
 } );

@@ -202,6 +202,7 @@ describe( 'all-time report exporters', () => {
 		jest.mocked( fetchStatsEmailSummaryRows ).mockResolvedValue( items );
 
 		await expect( emailsCsvExporter.fetchItems( REPORT_PARAMS ) ).resolves.toBe( items );
+		expect( fetchStatsEmailSummaryRows ).toHaveBeenCalledWith( { quantity: 30 } );
 		expect( toCsvTable( emailsCsvExporter, items ) ).toEqual( [
 			[ 'Email', 'Sent', 'Opens', 'Open rate', 'Clicks', 'Click rate' ],
 			[ 'Second email', '2026-02-01', 20, 40, 4, undefined ],

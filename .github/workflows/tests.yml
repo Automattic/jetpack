@@ -181,6 +181,9 @@ jobs:
 
           # Put some known slow things at the start of the queue.
           echo projects/plugins/jetpack/composer.json >> "$QUEUEFILE"
+          echo projects/packages/premium-analytics/composer.json >> "$QUEUEFILE"
+          echo projects/packages/publicize/composer.json >> "$QUEUEFILE"
+          echo projects/packages/backup/composer.json >> "$QUEUEFILE"
 
           # Then everything else.
           for P in composer.json projects/*/*/composer.json; do
@@ -191,19 +194,12 @@ jobs:
 
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
-          if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
-            # Looks like `jest` already defaults to maxing out CPUs. The projects where there aren't enough tests to do that
-            # effectively are already very fast, so it's more efficient to use only one worker.
-            echo 'Enabling one worker for JS tests'
-            echo '0' > "$WORKERTOKENS"
-          else
-            # For other tests, workers == number of CPUs.
-            N=$( nproc )
-            echo "Enabling $N worker(s) for $N CPU(s)"
-            for (( i=0; i<N; i++)); do
-              echo "$i"
-            done > "$WORKERTOKENS"
-          fi
+          # Workers == number of CPUs.
+          N=$( nproc )
+          echo "Enabling $N worker(s) for $N CPU(s)"
+          for (( i=0; i<N; i++)); do
+            echo "$i"
+          done > "$WORKERTOKENS"
 
       - parallel:
         - &testworker
@@ -218,6 +214,12 @@ jobs:
             if [[ -z "$WORKERID" ]]; then
               echo "Failed to get a worker token. Exiting."
               exit 0
+            fi
+
+            # Force one CPU per worker with JS tests, as Jest uses everything it can.
+            if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
+              taskset -cp "$WORKERID" $$ > /dev/null
+              echo "Worker $WORKERID has availableParallelism() set to $( node -p 'require( "os" ).availableParallelism()' )"
             fi
 
             # Clone the WordPress installation, so stuff like maintenance mode getting enabled across tests doesn't interfere with other tests.

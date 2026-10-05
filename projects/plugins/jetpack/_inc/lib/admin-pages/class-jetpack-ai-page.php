@@ -132,10 +132,8 @@ class Jetpack_AI_Page {
 			'jetpack-ai',
 			array( $this, 'render' ),
 			null,
-			array(
-				'product' => 'jetpack-ai',
-				'key'     => 'jetpack-ai',
-			)
+			// No product gate: the Hub also holds the MCP and Connectors tab, which works with AI off.
+			array( 'key' => 'jetpack-ai' )
 		);
 	}
 

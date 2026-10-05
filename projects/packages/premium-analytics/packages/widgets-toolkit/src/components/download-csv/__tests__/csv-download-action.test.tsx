@@ -92,18 +92,35 @@ describe( 'useExporterCsvAction', () => {
 			finishDownload();
 			await download;
 		} );
+		rerender( { status: { ...SETTLED, isError: true } } );
 		expect( result.current ).toBeNull();
 	} );
 
-	it( 'stops holding the button once a failed download settles', async () => {
-		jest.mocked( downloadReportCsv ).mockRejectedValue( new Error( 'Upstream API unavailable.' ) );
+	it( 'holds the button until the widget refetch settles after a failed download', async () => {
+		let failDownload: ( error: Error ) => void = () => {};
+		jest.mocked( downloadReportCsv ).mockReturnValue(
+			new Promise< void >( ( _resolve, reject ) => {
+				failDownload = reject;
+			} )
+		);
 		const { result, rerender } = renderHook(
 			( { status } ) => useExporterCsvAction( { exporter, status, rowCount: 3 } ),
 			{ wrapper, initialProps: { status: SETTLED } }
 		);
 
-		await act( () => result.current.callback() );
+		let download: Promise< unknown >;
+		act( () => {
+			download = result.current.callback();
+		} );
 		rerender( { status: { ...SETTLED, isFetching: true } } );
+
+		await act( async () => {
+			failDownload( new Error( 'Upstream API unavailable.' ) );
+			await download;
+		} );
+		expect( result.current ).not.toBeNull();
+
+		rerender( { status: { ...SETTLED, isError: true } } );
 		expect( result.current ).toBeNull();
 	} );
 } );

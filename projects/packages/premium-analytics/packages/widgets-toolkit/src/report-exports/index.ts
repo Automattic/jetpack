@@ -44,6 +44,7 @@ export {
 export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
+	getUtmDimensionOptions,
 	getUtmReportQueryParams,
 	getUtmReportSection,
 	utmCsvExporters,

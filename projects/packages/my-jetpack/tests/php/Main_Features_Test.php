@@ -17,7 +17,7 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_required_fields() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			foreach ( array( 'name', 'description', 'long_description', 'icon', 'image', 'info_url', 'docs_url', 'delivery' ) as $key ) {
+			foreach ( array( 'name', 'description', 'long_description', 'icon', 'info_url', 'docs_url', 'delivery' ) as $key ) {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
@@ -105,13 +105,42 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * These are rendered as links and images straight into the page, so a typo'd or
+	 * Every feature's artwork ships with the package, under the name its URL points at.
+	 */
+	public function test_every_feature_has_a_bundled_image() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			$path = 'components/my-jetpack-tab-panel/features/images/' . $feature['slug'] . '.webp';
+
+			$this->assertFileExists( dirname( __DIR__, 2 ) . '/_inc/' . $path, "Feature {$feature['slug']} has no image." );
+			$this->assertStringEndsWith( $path, $feature['screenshot'] );
+		}
+	}
+
+	/**
+	 * The band palette lives in TypeScript and is keyed by slug, so only the catalog can
+	 * say whether a key still matches a feature; a stale one falls back to a wrong color.
+	 */
+	public function test_every_feature_has_a_band_palette() {
+		$source = file_get_contents( dirname( __DIR__, 2 ) . '/_inc/components/my-jetpack-tab-panel/features/band-palette.ts' );
+		$body   = substr( $source, (int) strpos( $source, 'PALETTES' ) );
+
+		preg_match_all( "/^\t'?([a-z0-9-]+)'?: \[/m", $body, $matches );
+
+		$keys  = $matches[1];
+		$slugs = array_keys( Main_Features::get_feature_definitions() );
+		sort( $keys );
+		sort( $slugs );
+
+		$this->assertSame( $slugs, $keys );
+	}
+
+	/**
+	 * These are rendered as links straight into the page, so a typo'd or
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
-				'image'      => $feature['image'],
 				'info_url'   => $feature['info_url'],
 				'docs_url'   => $feature['docs_url'],
 				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',
@@ -505,6 +534,48 @@ class Main_Features_Test extends TestCase {
 		$this->assertSame( '', $upgrades['podcast']['path'] );
 		$this->assertSame( '', $upgrades['newsletter']['path'] );
 		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * Included in plan marks exactly the features the owned bundle covers.
+	 */
+	public function test_included_marks_what_the_owned_bundle_covers() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$included = array_column( Main_Features::get_features(), 'included', 'slug' );
+
+		$this->assertTrue( $included['newsletter'] );
+		$this->assertFalse( $included['activity-log'] );
+		$this->assertFalse( $included['blaze'] );
+	}
+
+	/**
+	 * Marked per plan, not per feature: a site on one bundle still has the others to buy,
+	 * so only the plan it holds stops being a link to its own checkout.
+	 */
+	public function test_plan_badges_mark_only_the_plan_the_site_holds() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$plans = array_column( Main_Features::get_features(), 'plans', 'slug' );
+		$owned = array_column( $plans['newsletter'], 'owned', 'slug' );
+
+		$this->assertTrue( $owned['growth'] );
+		$this->assertFalse( $owned['complete'] );
+	}
+
+	/**
+	 * A site that already pays for a feature is not told to buy a plan before it can use it.
+	 */
+	public function test_setup_note_is_dropped_for_a_site_that_pays() {
+		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
+		$this->assertNotSame( '', $notes['backup'] );
+		$this->assertNotSame( '', $notes['search'] );
+
+		$this->own( array( 'jetpack_complete' ) );
+
+		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
+		$this->assertSame( '', $notes['backup'] );
+		$this->assertSame( '', $notes['search'] );
 	}
 
 	/**

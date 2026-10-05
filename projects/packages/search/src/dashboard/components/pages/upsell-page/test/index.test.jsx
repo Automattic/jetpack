@@ -1,6 +1,7 @@
 let mockSelectMethods;
 let mockFetchSearchPlanInfo;
 const mockCheckoutWorkflow = jest.fn();
+const mockActivateFree = jest.fn();
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	AdminPage: ( { children } ) => <div>{ children }</div>,
@@ -49,7 +50,7 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { fetchSearchPlanInfo: mockFetchSearchPlanInfo } ),
+	useDispatch: () => ( { fetchSearchPlanInfo: mockFetchSearchPlanInfo, removeNotice: jest.fn() } ),
 	useSelect: callback => callback( () => mockSelectMethods ),
 } ) );
 
@@ -58,6 +59,7 @@ jest.mock( '@wordpress/element', () => ( {
 } ) );
 
 jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin' } ) );
+jest.mock( 'components/global-notices', () => () => <div data-testid="global-notices" /> );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/price', () => () => <span data-testid="price" /> );
 jest.mock( 'components/search-promotion', () => () => <div data-testid="search-promotion" /> );
@@ -65,6 +67,10 @@ jest.mock( 'hooks/use-product-checkout-workflow', () => ( ...args ) => {
 	mockCheckoutWorkflow( ...args );
 	return { run: jest.fn(), hasCheckoutStarted: false };
 } );
+jest.mock( 'hooks/use-activate-search-free', () => () => ( {
+	run: mockActivateFree,
+	isActivating: false,
+} ) );
 
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
@@ -88,6 +94,7 @@ const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 	getAdditionalUnitPrice: jest.fn( () => 1 ),
 	getAdditionalUnitQuantity: jest.fn( () => 1000 ),
 	isSearchBlocksEnabled: jest.fn( () => isSearchBlocksEnabled ),
+	getNotices: jest.fn( () => [] ),
 } );
 
 beforeEach( () => {

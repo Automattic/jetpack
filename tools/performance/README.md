@@ -1,6 +1,6 @@
 # Jetpack Performance Testing
 
-Measures Jetpack admin-page performance (LCP, TTFB, FCP, runtime bundle size, and PHP/database metrics) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
+Measures Jetpack admin-page performance (LCP, TTFB, FCP, load TBT, runtime bundle size, and PHP/database metrics) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
 
 ## CI Usage
 
@@ -39,18 +39,40 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 | `wp-admin-dashboard-connection-sim-timeToFirstByte`        | `ttfb` | `ttfb` | Dashboard TTFB (navigation `responseStart`)     |
 | `wp-admin-dashboard-connection-sim-firstContentfulPaint`   | `fcp`  | `fcp`  | Dashboard FCP (first-contentful-paint)          |
 
+### `jetpackConnected-noJetpack` — matched wp-admin Dashboard control
+
+Jetpack's files are mounted from the same mirror checkout, but the plugin is deactivated and the connection simulator does not bootstrap. The control uses a separate database and WordPress volume, with the same WordPress/PHP image, default theme, installation content, site title, admin credentials and preferences as the connected instance. Both instances mount the whole `docker/mu-plugins/` directory, so top-level instrumentation loads in both. Setup defines `JETPACK_PERFORMANCE_NO_JETPACK_CONTROL` only in the control configuration; the simulator returns before declaring its class or registering hooks when that constant is defined. Connected Apache, setup and runner-time WP-CLI processes all load the simulator.
+
+The existing runner discovers both dynamic ports and uses the same iteration count, CPU calibration, viewport, login and warm-cache Dashboard reload flow. Use `SCENARIO=no-jetpack pnpm test -- --skip-codevitals` for a targeted local run, or omit the filter to measure all scenarios. `WP_NO_JETPACK_URL` supplies the URL for direct `pnpm measure` (default `http://localhost:8084`); the test runner replaces it with the discovered Docker URL. Setup checks the control through WP-CLI: plugin and simulator files exist, Jetpack is inactive, and neither class has bootstrapped.
+
+| CodeVitals key                                                | Field           | Type            | Unit  |
+| ------------------------------------------------------------- | --------------- | --------------- | ----- |
+| `wp-admin-dashboard-noJetpack-largestContentfulPaint-staging` | `lcp`           | `lcp`           | ms    |
+| `wp-admin-dashboard-noJetpack-timeToFirstByte-staging`        | `ttfb`          | `ttfb`          | ms    |
+| `wp-admin-dashboard-noJetpack-firstContentfulPaint-staging`   | `fcp`           | `fcp`           | ms    |
+| `wp-admin-dashboard-noJetpack-wp-total-staging`               | `wpTotal`       | `wpTotal`       | ms    |
+| `wp-admin-dashboard-noJetpack-wp-memory-usage-staging`        | `wpMemoryUsage` | `wpMemoryUsage` | bytes |
+| `wp-admin-dashboard-noJetpack-wp-db-queries-staging`          | `wpDbQueries`   | `wpDbQueries`   | count |
+
+The control is optional: setup or capture failure skips its keys while successful required measurements survive. An out-of-range control value still blocks the whole run under the atomic sanity gate. Failed control setup writes a non-empty configuration stub that exits with HTTP 503 to prevent measuring an invalid plugin state; readiness gates only required instances. These are staging keys, with no enrollment waiver; local verification must use `--skip-codevitals` and `pnpm report:dry`. Staging posts begin on the first build after merge; inspect 2–3 builds before promoting to production keys following Safeguards below. Digest discovery includes every registered metric, including staging keys; use `METRIC_IDS` to restrict a deployment to an explicit watch list when needed.
+
+The three backend keys use the shared Server-Timing capture described below.
+
+Future Dashboard controls should reuse the matched images, setup and instrumentation, disable connection simulation, and prove repeatability before staging.
+
 ### `formsResponses` — Forms responses wp-build dashboard (simulated connection)
 
 `admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox`, measured on the same simulated-connection instance as the Dashboard. The `p` route is pinned to the responses inbox: a bare page URL server-redirects to the default tab (`/forms`, the forms list, under Central Form Management), so the scenario asserts the final URL to avoid measuring the wrong page.
 
 Readiness (FORMS-729): this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
 
-| CodeVitals key                                          | Field            | Type             | Description                                               |
-| ------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
-| `forms-responses-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | Forms responses LCP                                       |
-| `forms-responses-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
-| `forms-responses-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | Forms responses FCP                                       |
-| `forms-responses-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| CodeVitals key                                            | Field            | Type             | Description                                               |
+| --------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `forms-responses-connection-sim-largestContentfulPaint`   | `lcp`            | `lcp`            | Forms responses LCP                                       |
+| `forms-responses-connection-sim-timeToFirstByte`          | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
+| `forms-responses-connection-sim-firstContentfulPaint`     | `fcp`            | `fcp`            | Forms responses FCP                                       |
+| `forms-responses-connection-sim-decodedBytesKB`           | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| `forms-responses-connection-sim-loadBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
 
 #### Bundle size (`decodedBytesKB`) — what it measures, and why not build output
 
@@ -67,14 +89,15 @@ Readiness (FORMS-729): this scenario is the one that does **not** use `networkid
 
 The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
 
-| CodeVitals key                                     | Field            | Type             | Description                                               |
-| -------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
-| `my-jetpack-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | My Jetpack LCP                                            |
-| `my-jetpack-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
-| `my-jetpack-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | My Jetpack FCP                                            |
-| `my-jetpack-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| CodeVitals key                                       | Field            | Type             | Description                                               |
+| ---------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint`   | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`          | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`     | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`           | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| `my-jetpack-connection-sim-loadBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
 
-These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
+The four existing metrics post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
 
 #### Requires offline mode OFF (and the `wp-theme` polyfill in the mirror build)
 
@@ -83,15 +106,27 @@ Two conditions must hold for My Jetpack to render in the fixture:
 1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
 2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [#50291](https://github.com/Automattic/jetpack/pull/50291) fixed this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). It merged on 2026-07-08 and is present in the `jetpack-production` mirror the fixture clones (verified against mirror commit `9ef44a8`, 2026-07-10: a clean checkout renders My Jetpack and passes every capture guard). Treat it as a baseline prerequisite: a mirror checkout that predates #50291 renders the page empty and fails the `waitForSelector`.
 
+### Load blocking time (`tbt`)
+
+A buffered Long Tasks observer is installed before page scripts on every navigation. On the measured warm reload, `metrics.tbt` sums `max(0, duration - 50)` in milliseconds for tasks completed by `metrics.loadFinalizedAt` (a navigation-relative `performance.now()` timestamp). This cutoff is recorded in the same browser evaluation that finalizes LCP, after the existing page readiness, network/resource settle and final 500 ms rendering wait. Pending observer records are drained before disconnecting; completed task start times and durations are saved in `metrics.longTasks`.
+
+**Pre-FCP tasks are included. This is not Lighthouse TBT:** conventional TBT measures a post-FCP interval; this harness measures the full initial load through its own cutoff. Later interaction tasks are excluded. CPU throttling and warm-cache policy are unchanged. Downloaded JavaScript that never executes contributes no blocking time.
+
+A working observer with no long tasks records zero; unsupported or failed capture records `null`, with the cause in `longTaskError`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Without a strict majority of finite TBT samples, Forms or My Jetpack is incomplete: its optional failure policy skips all eight keys for that build, including its four production keys. An out-of-range TBT median refuses the whole post, including Dashboard keys. Dashboard TBT remains diagnostic in the results and summary and has no posted key.
+
+Forms and My Jetpack use `-staging` TBT keys and remain optional. Register both TBT keys with unit `ms` before the first live post. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
+
+The digest auto-discovers these staging ids from their first post unless `METRIC_IDS` overrides discovery. Its current gate reports "Unusable level baseline" and exits non-zero when a flagged series has a complete pre-window with a non-positive median. Live posting of these keys depends on the digest accepting zero-baseline TBT. At production promotion, have the CodeVitals owner retire the staging id from discovery, or supply a complete `METRIC_IDS` allow-list excluding it; otherwise its stopped series produces stale-data warnings.
+
 ### Offline-mode flip — attribution note
 
-This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because one WordPress install serves every scenario, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
+This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because all connected scenarios share one WordPress install, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
 
 The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
 
 ### Admin backend metrics (`Server-Timing`)
 
-The fixture's `emit-server-timing.php` mu-plugin buffers non-AJAX admin responses and emits headers only for successful HTML responses. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters leave the three backend values absent and retain a `serverTimingError`, response status and valid browser samples. A backend field needs a strict majority of finite samples; an incomplete posted summary fails its scenario rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; Dashboard remains required, Forms and My Jetpack remain optional.
+The fixture's `emit-server-timing.php` mu-plugin buffers non-AJAX admin responses and emits headers only for successful HTML responses. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters leave the three backend values absent and retain a `serverTimingError`, response status and valid browser samples. A backend field needs a strict majority of finite samples; an incomplete posted summary fails its scenario rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; connected Dashboard remains required, Forms, My Jetpack and the control remain optional.
 
 | Header            | Summary field / type | Unit  | Meaning                                                                                                                                           |
 | ----------------- | -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -103,15 +138,16 @@ All three values are read when WordPress flushes output at `shutdown` priority 1
 
 Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-staging` or `<prefix>-wp-db-queries-staging`. The exact prefixes are:
 
-| Scenario                       | Prefix                              |
-| ------------------------------ | ----------------------------------- |
-| Dashboard (`jetpackConnected`) | `wp-admin-dashboard-connection-sim` |
-| Forms (`formsResponses`)       | `forms-responses-connection-sim`    |
-| My Jetpack (`myJetpack`)       | `my-jetpack-connection-sim`         |
+| Scenario                                         | Prefix                              |
+| ------------------------------------------------ | ----------------------------------- |
+| Dashboard (`jetpackConnected`)                   | `wp-admin-dashboard-connection-sim` |
+| Forms (`formsResponses`)                         | `forms-responses-connection-sim`    |
+| My Jetpack (`myJetpack`)                         | `my-jetpack-connection-sim`         |
+| Dashboard control (`jetpackConnected-noJetpack`) | `wp-admin-dashboard-noJetpack`      |
 
-These nine keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
+These twelve keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
 
-Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including the simulated connection and instrumentation. A matched no-Jetpack control and overhead deltas require a separate change.
+Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including instrumentation and, for connected scenarios, the simulated connection. Overhead deltas require a separate change.
 
 Buffering can move TTFB to the shutdown flush. Ten interleaved pre/post runs of five iterations on one pinned fixture (PHP 8.2, CPU 3.85x, mock latency 200 ms) gave these medians of run medians:
 
@@ -133,7 +169,7 @@ Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
 ## How It Works
 
 1. **Plugin Source**: Uses pre-built plugin from [jetpack-production](https://github.com/Automattic/jetpack-production) mirror (auto-cloned for local dev)
-2. **Docker Setup**: Spins up WordPress with Jetpack and a simulated WordPress.com connection (fake tokens + mocked API with 200ms latency)
+2. **Docker Setup**: Spins up matched WordPress instances with connected Jetpack (fake tokens + mocked API with 200ms latency) and deactivated Jetpack for the Dashboard control
 3. **CPU Calibration**: Normalizes CPU speed across different machines for consistent results
 4. **LCP Measurement**: Uses Playwright to log in to wp-admin and measure Largest Contentful Paint
 5. **Results**: Posts metrics to CodeVitals for tracking over time
@@ -216,7 +252,7 @@ The authoritative ranges are `SANITY_RANGES` in [scripts/scenarios.js](scripts/s
 
 Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
 
-**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the existing `formsResponses` and `myJetpack` browser metrics do. The [admin backend metrics](#admin-backend-metrics-server-timing) have no waiver. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
+**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the existing LCP, TTFB, FCP and decoded-payload metrics for `formsResponses` and `myJetpack` do; their TBT keys keep the staging window. The [admin backend metrics](#admin-backend-metrics-server-timing) have no waiver. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
 
 ### Capture guards for targeted-page scenarios
 

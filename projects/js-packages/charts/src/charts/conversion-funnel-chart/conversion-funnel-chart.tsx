@@ -36,6 +36,7 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.renderStepRate   - Custom render function for step rates
  * @param props.renderMainMetric - Custom render function for the entire main metric section
  * @param props.renderTooltip    - Custom render function for tooltip content
+ * @param props.tooltipStyle     - Inline styles merged over the tooltip box defaults
  * @return JSX element representing the conversion funnel chart
  */
 const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
@@ -52,6 +53,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	renderStepRate,
 	renderMainMetric,
 	renderTooltip,
+	tooltipStyle,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
@@ -412,7 +414,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
 								top: tooltipTop,
 								left: tooltipLeft,
-								className: styles[ 'tooltip-wrapper' ],
 							} )
 						: renderDefaultTooltip( tooltipData as FunnelStep );
 
@@ -423,7 +424,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						<BoundedTooltip
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ clsx( standaloneScopeClass, styles[ 'tooltip-wrapper' ] ) }
+							className={ standaloneScopeClass }
+							style={ tooltipStyle }
 						>
 							{ tooltipContent }
 						</BoundedTooltip>

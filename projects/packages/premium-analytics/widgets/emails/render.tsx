@@ -280,7 +280,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 				<ReportLink report="emails" />
 				<ExporterCsvDownloadButton
 					exporter={ emailsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					status={ { isLoading, isFetching, isError: rows.length === 0 && isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
