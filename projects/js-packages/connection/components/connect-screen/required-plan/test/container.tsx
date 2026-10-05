@@ -43,6 +43,7 @@ describe( 'ConnectScreenRequiredPlan container', () => {
 		checkoutState.checkoutError = null;
 		render( <ConnectScreenRequiredPlan { ...props } /> );
 
+		expect( screen.getByText( 'Jetpack Backup' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'An error occurred. Please try again.' ) ).not.toBeInTheDocument();
 	} );
 } );
