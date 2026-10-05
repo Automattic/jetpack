@@ -56,6 +56,18 @@ $default_matrix_vars = array(
 
 	// {string} For coverage jobs, which group is being run: 'php' or 'js'.
 	'coverage-group'      => '',
+
+	// {int|null} Which numbered split this job is, starting at 1, with each worker pinned to one CPU.
+	'split-num'           => null,
+
+	// {int|null} Total number of numbered splits, for `split-num`.
+	'split-total'         => null,
+
+	// {string|null} Project slug to run alone, with all CPUs.
+	'split-project'       => null,
+
+	// {string[]} Project slugs a `split-num` job skips, as they have their own job.
+	'split-exclude'       => array(),
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -103,24 +115,43 @@ $matrix[] = array(
 	'with-wpcomsh' => true,
 );
 
-// Add JS tests.
-$matrix[] = array(
-	'name'    => 'JS tests',
-	'script'  => 'test-js',
-	'timeout' => 30, // 2026-09-14: Now approaching 15 minutes. 🙁
-);
-
-// Add Coverage tests. Split into PHP and JS groups so they run in parallel.
-foreach ( array( 'php', 'js' ) as $cov_group ) {
-	$matrix[] = array(
-		'name'           => 'Code coverage (' . strtoupper( $cov_group ) . ')',
-		'script'         => "test-$cov_group-coverage",
-		// JS coverage doesn't need a WordPress environment, like the regular JS tests job.
-		'wp'             => 'php' === $cov_group ? 'latest' : 'none',
-		'timeout'        => 30, // 2026-09-14: Runs are at around 15 minutes each.
-		'coverage-group' => $cov_group,
-	);
+// Add JS tests and coverage, with the same splits.
+// We specify projects we want on their own job, and then create some generic jobs to round-robin the rest.
+$js_project_splits = array( 'packages/premium-analytics', 'plugins/jetpack' );
+$js_generic_splits = 2;
+foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
+	$is_cov = $script === 'test-js-coverage';
+	$name   = $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)';
+	foreach ( $js_project_splits as $slug ) {
+		$matrix[] = array(
+			'name'           => sprintf( $name, basename( $slug ) ),
+			'script'         => $script,
+			'timeout'        => $is_cov ? 20 : 15, // todo: update with accurate time.
+			'coverage-group' => $is_cov ? 'js' : '',
+			'split-project'  => $slug,
+		);
+	}
+	for ( $i = 1; $i <= $js_generic_splits; $i++ ) {
+		$matrix[] = array(
+			'name'           => sprintf( $name, "generic $i/$js_generic_splits" ),
+			'script'         => $script,
+			'timeout'        => $is_cov ? 20 : 15, // todo: update with accurate time.
+			'coverage-group' => $is_cov ? 'js' : '',
+			'split-num'      => $i,
+			'split-total'    => $js_generic_splits,
+			'split-exclude'  => $js_project_splits,
+		);
+	}
 }
+
+// Add PHP coverage.
+$matrix[] = array(
+	'name'           => 'Code coverage (PHP)',
+	'script'         => 'test-php-coverage',
+	'wp'             => 'latest',
+	'timeout'        => 30, // 2026-09-14: Runs are at around 15 minutes each.
+	'coverage-group' => 'php',
+);
 
 // END matrix definitions.
 // Now, validation.
@@ -190,6 +221,7 @@ foreach ( $matrix as &$m ) {
 			$m['name'],
 			array(
 				': ' => ' - ',
+				'/'  => ' of ',
 			)
 		);
 	}
@@ -265,6 +297,23 @@ foreach ( $matrix as &$m ) {
 		}
 	} elseif ( $m['coverage-group'] !== '' ) {
 		error( "Key `coverage-group` must be empty for a non-coverage run!\n%s", $orig );
+	}
+
+	if ( ( $m['split-num'] === null ) !== ( $m['split-total'] === null ) ) {
+		error( "Keys `split-num` and `split-total` must both be set or both be null!\n%s", $orig );
+	} elseif ( $m['split-num'] !== null ) {
+		if ( ! is_int( $m['split-num'] ) || ! is_int( $m['split-total'] ) ) {
+			error( "Keys `split-num` and `split-total` must be integers!\n%s", $orig );
+		} elseif ( $m['split-total'] < 1 ) {
+			error( "Key `split-total` must be positive!\n%s", $orig );
+		} elseif ( $m['split-num'] < 1 || $m['split-num'] > $m['split-total'] ) {
+			error( "Key `split-num` must be between 1 and `split-total`!\n%s", $orig );
+		}
+	}
+
+	// Either use number or project.
+	if ( $m['split-num'] !== null && $m['split-project'] !== null ) {
+		error( "Keys `split-num` and `split-project` cannot both be set!\n%s", $orig );
 	}
 }
 unset( $m );
