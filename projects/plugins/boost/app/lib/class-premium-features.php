@@ -4,6 +4,8 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 
 class Premium_Features {
 
@@ -15,7 +17,43 @@ class Premium_Features {
 	const PAGE_CACHE            = 'page-cache';
 	const CORNERSTONE_TEN_PAGES = 'cornerstone-10-pages';
 
-	const TRANSIENT_KEY = 'premium_features';
+	const TRANSIENT_KEY              = 'premium_features';
+	const CLOUD_CSS_BASELINE_OPTION  = 'jetpack_boost_cloud_css_plan_baseline';
+	const CLOUD_CSS_ACTIVATED_OPTION = 'jetpack_boost_cloud_css_plan_activated';
+	const CLOUD_CSS_NOTICE_OPTION    = 'jetpack_boost_ds_cloud_css_upgrade_notice';
+
+	/**
+	 * Enable Cloud CSS once when an observed free site gains the feature.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function enable_cloud_css_after_upgrade() {
+		if ( false === get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
+			// Cached empty features may represent an API failure rather than a free plan.
+			$available_features = Boost_API::get( 'features' );
+			if ( ! is_array( $available_features ) ) {
+				return;
+			}
+			Transient::set( self::TRANSIENT_KEY, $available_features, 3 * DAY_IN_SECONDS );
+		}
+
+		$has_cloud_css = self::has_feature( self::CLOUD_CSS );
+
+		// The first observation is a baseline, so existing premium sites keep their setting.
+		add_option( self::CLOUD_CSS_BASELINE_OPTION, $has_cloud_css ? 'premium' : 'free', '', false );
+		if ( ! $has_cloud_css || 'free' !== get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
+			return;
+		}
+
+		// Claim the upgrade before activation can re-enter feature checks or another request can run it.
+		if ( ! add_option( self::CLOUD_CSS_ACTIVATED_OPTION, true, '', false ) ) {
+			return;
+		}
+
+		$entry = new Modules_State_Entry( array( Cloud_CSS::class ) );
+		$entry->set( array( Cloud_CSS::get_slug() => array( 'active' => true ) ) );
+		update_option( self::CLOUD_CSS_NOTICE_OPTION, true, false );
+	}
 
 	public static function has_feature( $feature ) {
 		$features = self::get_features();

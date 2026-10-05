@@ -3,6 +3,7 @@ import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import { useCloudCssUpgradeNotice } from '$features/critical-css/cloud-css-upgrade-notice';
 import CardPage from '$layout/card-page/card-page';
 import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import styles from './purchase-success.module.scss';
@@ -12,6 +13,13 @@ import type { FC } from 'react';
 const PurchaseSuccess: FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const { returnToSettings } = useBoostNavigation();
+	const [ { data: pendingNotice }, { mutate: setPendingNotice } ] = useCloudCssUpgradeNotice();
+
+	useEffect( () => {
+		if ( pendingNotice ) {
+			setPendingNotice( false );
+		}
+	}, [ pendingNotice, setPendingNotice ] );
 
 	useEffect( () => {
 		setCloudCssState( true );

@@ -71,6 +71,7 @@ jest.mock( '$layout/boost-admin-page/boost-admin-page', () => ( {
 jest.mock( '$layout/settings-page/support/support', () => () => null );
 jest.mock( '$layout/settings-page/tips/tips', () => () => null );
 jest.mock( '$features/notice/manager', () => () => null );
+jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => null );
 jest.mock( './pages/index', () => ( {
 	__esModule: true,
 	default: function Settings() {

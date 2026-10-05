@@ -5,6 +5,8 @@ import { StrictMode } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import Settings from './settings';
 
+jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => null );
+
 /* Each module stub prints its name so the test can assert the order. */
 jest.mock( '$features/cornerstone-pages/cornerstone-pages', () => ( {
 	useCornerstoneSummary: () => 'Added: Homepage',

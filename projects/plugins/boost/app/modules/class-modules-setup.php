@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
@@ -220,6 +221,7 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		$this->setup_features_data_sync();
 		$this->register_always_available_endpoints();
 		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
+		add_action( 'init', array( Premium_Features::class, 'enable_cloud_css_after_upgrade' ), 20 );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 
 		// Add a hook to fire page output changed action when a module that Changes_Output_After_Activation indicates something has changed.
