@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Newsletter: Detect paid newsletter plans by their tier type, so tiers with the mailing list setting off are recognized.
+Newsletter: Detect paid newsletter plans by their tier type as well as the mailing list setting, and ignore deleted plans.

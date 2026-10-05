@@ -920,10 +920,26 @@ class Jetpack_Memberships {
 			'posts_per_page' => 1,
 		);
 
-		// We want to see if user has any newsletter tier set up.
+		// Newsletter tiers or legacy mailing list plans, excluding deleted ones.
 		if ( 'newsletter' === $type ) {
-			$query['meta_key']   = 'jetpack_memberships_type';
-			$query['meta_value'] = self::$type_tier;
+			$query['meta_query'] = array(
+				'relation' => 'AND',
+				array(
+					'relation' => 'OR',
+					array(
+						'key'   => 'jetpack_memberships_type',
+						'value' => self::$type_tier,
+					),
+					array(
+						'key'   => 'jetpack_memberships_site_subscriber',
+						'value' => '1',
+					),
+				),
+				array(
+					'key'     => 'jetpack_memberships_is_deleted',
+					'compare' => 'NOT EXISTS',
+				),
+			);
 		}
 
 		$plans = get_posts( $query );
