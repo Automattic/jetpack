@@ -10,7 +10,7 @@
  * 1. Add an entry to the SCENARIOS array below.
  * 2. To measure another PAGE on an existing WordPress instance, reuse that instance's
  * dockerService/wpPath/envVar/defaultUrl and set `path` + `waitForSelector` (see formsResponses),
- * plus the optional `expectUrlIncludes`, `minResourceCount` and `loadState` guards;
+ * plus the optional `expectUrlIncludes`, `expectUrlHash`, `minResourceCount` and `loadState` guards;
  * no new Docker service or setup is needed.
  * 3. Only when introducing a NEW WordPress instance, add the Docker service in
  * docker/docker-compose.yml and its setup in docker/setup-wordpress.sh.
@@ -338,6 +338,46 @@ export const SCENARIOS = [
 		postToCodeVitals: true,
 		optional: true,
 	},
+	{
+		key: 'jetpackSettings',
+		name: 'Jetpack Settings (connection sim)',
+		cliName: 'jetpack-settings',
+		dockerService: 'wordpress-jetpack-connected',
+		wpPath: '/var/www/html/jetpack-connected',
+		envVar: 'WP_JETPACK_CONNECTED_URL',
+		defaultUrl: 'http://localhost:8083',
+		header: 'Jetpack Settings (simulated WP.com connection)',
+		path: '/wp-admin/admin.php?page=jetpack-settings#/settings',
+		waitForSelector: '.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])',
+		expectUrlIncludes: 'page=jetpack-settings',
+		expectUrlHash: '#/settings',
+		// Observed 105–106 resources; 74 retains about 70% of the minimum rendered load.
+		minResourceCount: 74,
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'jetpack-settings-connection-sim-largestContentfulPaint-staging',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'jetpack-settings-connection-sim-timeToFirstByte-staging',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'jetpack-settings-connection-sim-firstContentfulPaint-staging',
+				type: 'fcp',
+			},
+			{
+				field: 'decodedBytesKB',
+				codevitalsKey: 'jetpack-settings-connection-sim-decodedBytesKB-staging',
+				type: 'decodedBytesKB',
+			},
+		],
+		postToCodeVitals: true,
+		optional: true,
+	},
 ];
 
 /**
@@ -359,12 +399,9 @@ export const SANITY_RANGES = {
 	wpDbQueries: { min: 1, max: 10000 },
 	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
 	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
-	// Summed per-resource decodedBodySize, in KB. This row now guards two scenarios: the Forms
-	// responses wp-build dashboard (~8200 KB) and My Jetpack (~5860 KB), so do not tighten it to
-	// either page's profile. These are guardrails against a broken measurement, NOT a trend clip:
-	// min 1000 catches a page that failed to load its wp-build shell (a real dashboard is always
-	// well over 1MB decoded); max 51200 (50MB) catches a bytes-vs-KB scale error while staying
-	// clear of any legitimate regression, which the trend should record rather than reject.
+	// Summed per-resource decodedBodySize, in KB, shared across rendered admin pages.
+	// Keep broad bounds: 1MB catches an unloaded app; 50MB catches a bytes-vs-KB scale error
+	// without clipping legitimate changes in any one page's bundle size.
 	decodedBytesKB: { min: 1000, max: 51200 },
 };
 
