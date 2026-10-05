@@ -3,14 +3,13 @@
  */
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ExporterCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	annualInsightsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -40,9 +40,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortAnnualInsightsCsvRows = ( a: StatsInsightsYear, b: StatsInsightsYear ) =>
-	Number( b.year ) - Number( a.year );
-
 /**
  * Get the DataViews row id for an Annual insights row.
  *
@@ -60,59 +57,8 @@ function getAnnualInsightRowId( item: StatsInsightsYear ): string {
  */
 function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< StatsInsightsYear >[] >(
-		() => [
-			{ label: __( 'Year', 'jetpack-premium-analytics-pkg' ), getValue: row => row.year },
-			{
-				label: __( 'Total posts', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_posts,
-			},
-			{
-				label: __( 'Total comments', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_comments,
-			},
-			{
-				label: __( 'Avg comments per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_comments,
-			},
-			{
-				label: __( 'Total likes', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_likes,
-			},
-			{
-				label: __( 'Avg likes per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_likes,
-			},
-			{
-				label: __( 'Total words', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_words,
-			},
-			{
-				label: __( 'Avg words per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_words,
-			},
-			{
-				label: __( 'Total images', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_images,
-			},
-			{
-				label: __( 'Avg images per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_images,
-			},
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'annual-insights',
-		status: records,
-		sort: sortAnnualInsightsCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS[ 'annual-insights' ];
@@ -122,9 +68,12 @@ function AnnualInsightsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ annualInsightsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

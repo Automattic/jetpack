@@ -6,7 +6,7 @@ import {
 	ReportScopeProvider,
 	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
-import { Button, LinkButton, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -21,8 +21,10 @@ import {
 	DetailPageBreadcrumbs,
 	DetailPageEmptyState,
 	DetailPageLayout,
+	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
@@ -180,17 +182,15 @@ function PostDetail(): JSX.Element {
 	const anchorErrorNotice =
 		! isEmailTab && isAnchoringAllTime && summary.isError ? (
 			<DetailPageSection>
-				<Stack direction="column" align="flex-start" gap="sm">
-					<Text>
-						{ __(
+				<DetailPageNotice
+					{ ...describeDetailPageError( summary.error, {
+						retryDescription: __(
 							"We couldn't load this post. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'
-						) }
-					</Text>
-					<Button variant="outline" onClick={ summary.refetch }>
-						{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
-					</Button>
-				</Stack>
+						),
+						onRetry: summary.refetch,
+					} ) }
+				/>
 			</DetailPageSection>
 		) : null;
 

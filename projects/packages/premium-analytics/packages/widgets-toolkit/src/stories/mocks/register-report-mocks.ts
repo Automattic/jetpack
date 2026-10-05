@@ -1027,7 +1027,16 @@ function buildVisitsResponse( query: URLSearchParams ) {
 			comments: Math.max( 0, Math.round( views * 0.03 + 3 * Math.cos( absDay / 6 ) ) ),
 		};
 
-		return [ period, ...fields.map( field => values[ field ] ?? 0 ) ];
+		// A post every third bucket, two on every ninth, so the tooltip's posts row shows.
+		const postTitles = [ 'Spring recipes', 'Weekend reading' ].slice(
+			i % 9 === 0 ? 0 : 1,
+			i % 3 === 0 ? 2 : 1
+		);
+
+		return [
+			period,
+			...fields.map( field => ( field === 'post_titles' ? postTitles : ( values[ field ] ?? 0 ) ) ),
+		];
 	} );
 
 	return {

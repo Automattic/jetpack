@@ -193,6 +193,29 @@ const helpAddressWithProfileTax = __(
 const labelShippingFirstItem = __( 'Shipping fee for first item', 'jetpack-paypal-payments' );
 const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
 
+// The PayPal addresses check_merchant_status() puts in the notices. Captured, so split() keeps them.
+const PAYPAL_URL_PATTERN = /(https:\/\/www\.(?:sandbox\.)?paypal\.com[\w/]*)/;
+
+/**
+ * Link the PayPal addresses in an account status notice, which the server sends
+ * translated with the addresses already in it.
+ *
+ * @param {string} text - The notice.
+ * @return {Array} The text, with each address as a link.
+ */
+function linkPayPalUrls( text ) {
+	// split() puts the captured addresses at the odd indexes.
+	return text.split( PAYPAL_URL_PATTERN ).map( ( part, index ) =>
+		index % 2 ? (
+			<Link key={ index } openInNewTab href={ part }>
+				{ part }
+			</Link>
+		) : (
+			part
+		)
+	);
+}
+
 /**
  * API-managed PayPal Payment Buttons edit component.
  *
@@ -270,6 +293,7 @@ export default function ApiManagedEdit( {
 		connectionLoading,
 		partnerAttributionId,
 		accountEmail,
+		merchantNotices,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,
@@ -984,6 +1008,14 @@ export default function ApiManagedEdit( {
 		</Notice>
 	) : null;
 
+	// PayPal requires the seller to see these, so every block shows them.
+	const merchantStatusNotice =
+		isConnected && merchantNotices.length ? (
+			<Notice status="warning" isDismissible={ false }>
+				{ linkPayPalUrls( merchantNotices.join( ' ' ) ) }
+			</Notice>
+		) : null;
+
 	// A payment link can be shared by blocks on any post, so warn whenever there is one.
 	const sharedResourceNotice = hasButton ? (
 		<p className="jetpack-paypal-payment-buttons__shared-link-note">
@@ -1658,9 +1690,10 @@ export default function ApiManagedEdit( {
 			{ accountHeader }
 			{ formatControls }
 
-			{ /* The inspector only mounts when the block is selected, so notices about a
-			     broken block go on the canvas. */ }
+			{ /* The inspector only mounts when the block is selected, so these notices go
+			     on the canvas. */ }
 			{ disconnectedNotice }
+			{ merchantStatusNotice }
 
 			{ linkDeleted && (
 				<Notice status="warning" isDismissible={ false }>

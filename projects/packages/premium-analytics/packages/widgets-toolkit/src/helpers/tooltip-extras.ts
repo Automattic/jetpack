@@ -18,15 +18,20 @@ export type TooltipExtrasResult< T extends TooltipData > = {
 	tooltipData: T | undefined;
 	/**
 	 * `ChartTooltip`'s supplementary rows: the extras this call appended, keyed
-	 * by label with each one's format. A label the chart already reported is not
+	 * by row key with each one's format. A label the chart already reported is not
 	 * here, so a drawn series keeps its swatch even when it is also listed.
 	 */
 	supplementaryRows: Record< string, DataFormat | undefined > | undefined;
 };
 
+/** Row key of an extra's comparison row; the unit lookup maps it back to the label. */
+export function previousRowKey( label: string ): string {
+	return `${ label }\u0000previous`;
+}
+
 /**
  * Append each extra series' point for the hovered date to the tooltip rows,
- * and report which extras were appended.
+ * its comparison point right after it, and report which rows were appended.
  *
  * @param tooltipData - The tooltip data from the chart.
  * @param extras      - The series to read out without drawing.
@@ -59,6 +64,14 @@ export function appendTooltipExtras< T extends TooltipData >(
 			// `index` only has to exist for the row shape; the tooltip orders rows itself.
 			augmented[ extra.label ] = { datum: point, index: offset, key: extra.label };
 			supplementaryRows[ extra.label ] = extra.dataFormat;
+		}
+
+		const previous = extra.previous?.find( candidate => candidate.date.getTime() === hoveredTime );
+
+		if ( previous ) {
+			const key = previousRowKey( extra.label );
+			augmented[ key ] = { datum: previous, index: offset, key };
+			supplementaryRows[ key ] = extra.dataFormat;
 		}
 	} );
 
@@ -97,7 +110,9 @@ export function resolveTooltipUnits(
 
 	extras?.forEach( extra => {
 		if ( ! units.has( extra.label ) ) {
-			units.set( extra.label, { name: extra.label, countLabel: extra.countLabel } );
+			const unit = { name: extra.label, countLabel: extra.countLabel };
+			units.set( extra.label, unit );
+			units.set( previousRowKey( extra.label ), unit );
 		}
 	} );
 

@@ -8,7 +8,7 @@ import { render } from '@testing-library/react';
  */
 import { useUtmReportRecords } from './config';
 import UtmReportPage from './page';
-import type { UtmReportRow } from './config';
+import type { UtmReportRow } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
@@ -33,14 +33,14 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportCsvAction: () => null,
+	ExporterCsvAction: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageTabs: () => null,
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'utm' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
+	utmCsvExporters: {},
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {

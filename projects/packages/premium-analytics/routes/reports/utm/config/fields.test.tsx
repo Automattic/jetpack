@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getUtmFields } from './fields';
-import type { UtmReportRow } from './aggregate';
+import type { UtmReportRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`

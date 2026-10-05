@@ -60,6 +60,20 @@ describe( 'UtmInsightsWidget', () => {
 		expect( screen.queryByRole( 'link', { name: 'View all' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'offers the full report download beside View all', () => {
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
+		render( <UtmInsightsWidget attributes={ {} } /> );
+
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers no download on post detail, where its rows cover one post', () => {
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
+		render( <UtmInsightsWidget attributes={ { showReportLink: false } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links a drilled-in post to its detail page and carries the report window', async () => {
 		const user = userEvent.setup();
 		mockRows = [

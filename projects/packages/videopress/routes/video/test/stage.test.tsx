@@ -222,6 +222,11 @@ jest.mock( '../../../src/dashboard/hooks/use-update-video-meta', () => ( {
 	useUpdateVideoMeta: () => ( { mutate: mockUpdateMeta, isPending: false } ),
 } ) );
 
+// Site settings only lock the Share toggle here; keep their fetch out of the apiFetch assertions.
+jest.mock( '../../../src/dashboard/hooks/use-settings', () => ( {
+	useSettings: () => ( { data: undefined, isLoading: false } ),
+} ) );
+
 const mockUseNavigate = useNavigate as jest.Mock;
 
 const GUID = 'abc123';

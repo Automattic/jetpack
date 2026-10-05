@@ -4,3 +4,8 @@
  * Deliberately unhashed: consumers are documented as being able to target it to override a token on the provider element.
  */
 export const CHART_SCOPE_CLASS = 'a8c-charts-scope';
+
+/**
+ * Carries the catalog on the tooltip box, re-declared under the tooltip's own theme. Separate from `CHART_SCOPE_CLASS` so a page-wide override on that class does not reach the dark box.
+ */
+export const TOOLTIP_SCOPE_CLASS = 'a8c-charts-tooltip-scope';
