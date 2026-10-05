@@ -949,6 +949,48 @@ export const PaintedYAxis: Story = {
 	},
 };
 
+const yearlySeries = timeAxisSeries( yearlyPoints );
+
+export const BarRadius: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div>
+				<h3 style={ { marginBottom: '4px' } }>Default</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>--wpds-border-radius-md</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ yearlySeries } gridVisibility="x" />
+			</div>
+			<div
+				style={
+					{
+						'--a8c-charts-border-radius-bar': 'var(--wpds-border-radius-sm)',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Overridden</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>--wpds-border-radius-sm</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ yearlySeries } gridVisibility="x" />
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bars take their corner radius from the `--a8c-charts-border-radius-bar` catalog role, which maps to the medium WPDS border radius. Set the role anywhere inside the provider tree to change it; `0` gives square bars.',
+			},
+		},
+	},
+};
+
 export const LabelOverflowEllipsis: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
