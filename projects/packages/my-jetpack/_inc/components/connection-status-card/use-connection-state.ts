@@ -49,7 +49,7 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 
 		return {
 			label: __( 'Site not connected', 'jetpack-my-jetpack' ),
-			description: __( 'Connect your site with one click.', 'jetpack-my-jetpack' ),
+			description: __( 'Connect your site to use Jetpack.', 'jetpack-my-jetpack' ),
 			action: 'CONNECT_SITE',
 			status: 'error',
 		};
