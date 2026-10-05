@@ -55,23 +55,28 @@ describe( 'DateComparisonDropdown', () => {
 		expect( onPresetChange ).toHaveBeenCalledWith( 'previous-month' );
 	} );
 
-	it( 'opens on No comparison while nothing is compared', async () => {
-		const user = userEvent.setup();
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		render(
-			<DateComparisonDropdown
-				presets={ presets }
-				enabled={ false }
-				onPresetChange={ jest.fn() }
-				onClear={ jest.fn() }
-			/>
-		);
+		it( 'opens on No comparison while nothing is compared', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+			render(
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled={ false }
+					onPresetChange={ jest.fn() }
+					onClear={ jest.fn() }
+				/>
+			);
 
-		await waitFor( () =>
-			expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toHaveFocus()
-		);
+			await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toHaveFocus()
+			);
+		} );
 	} );
 
 	it( 'collapses into a trigger naming the active preset', async () => {

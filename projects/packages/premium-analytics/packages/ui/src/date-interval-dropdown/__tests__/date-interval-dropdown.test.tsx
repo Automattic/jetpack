@@ -27,18 +27,23 @@ describe( 'DateIntervalDropdown', () => {
 		expect( onChange ).toHaveBeenCalledWith( 'week' );
 	} );
 
-	it( 'opens on the active bucket', async () => {
-		const user = userEvent.setup();
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		render(
-			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="week" onChange={ jest.fn() } />
-		);
+		it( 'opens on the active bucket', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By weeks' } ) );
+			render(
+				<DateIntervalDropdown options={ [ 'day', 'week' ] } value="week" onChange={ jest.fn() } />
+			);
 
-		await waitFor( () =>
-			expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveFocus()
-		);
+			await user.click( screen.getByRole( 'button', { name: 'Chart interval: By weeks' } ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveFocus()
+			);
+		} );
 	} );
 
 	it( 'still opens a menu when the range allows one bucket', async () => {
