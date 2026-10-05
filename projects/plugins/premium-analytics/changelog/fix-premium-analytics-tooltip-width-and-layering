@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix narrow comparison chart tooltips, and metric tab text showing through a tooltip.
