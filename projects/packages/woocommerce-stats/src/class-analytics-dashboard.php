@@ -26,9 +26,9 @@ class Analytics_Dashboard {
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
-	 * Namespaced section identifier. Its slug, `store`, keys the section's URL and stored layouts.
+	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
 	 */
-	const SECTION_ID = 'woocommerce-analytics/store';
+	const SECTION_ID = 'woocommerce-analytics/woocommerce';
 
 	/**
 	 * Registry action of the dashboard package.
@@ -48,7 +48,7 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * Register the WooCommerce section unless another owner already holds the `store` slug.
+	 * Register the WooCommerce section unless `woocommerce` or the older `store` slug is taken.
 	 *
 	 * Also skipped when the dashboard's widget contract moved past this build.
 	 *
@@ -56,7 +56,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_section( $registry ) {
-		if ( self::widget_contract_moved_on() || self::dashboard_has_section_slug( $registry, DASHBOARD_NAME, 'store' ) ) {
+		if ( self::widget_contract_moved_on() || self::section_slug_is_taken( $registry ) ) {
 			return;
 		}
 
@@ -97,6 +97,22 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', 'jpa/payment-status', 7, 1, 1 ),
 			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', 'jpa/orders-fulfillment', 8, 1, 1 ),
 		);
+	}
+
+	/**
+	 * Whether this tab's slug, or the `store` slug an older package still registers, is taken.
+	 *
+	 * @param object $registry The section registry being hydrated.
+	 * @return bool
+	 */
+	private static function section_slug_is_taken( $registry ) {
+		foreach ( array( 'woocommerce', 'store' ) as $slug ) {
+			if ( self::dashboard_has_section_slug( $registry, DASHBOARD_NAME, $slug ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
