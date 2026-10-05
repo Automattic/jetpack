@@ -10,10 +10,6 @@ export { ReportLocationsMap, type ReportLocationsMapProps } from './report-locat
 export { ExporterCsvAction } from './exporter-csv-action';
 export { ReportCsvAction, type ReportCsvActionProps } from './report-csv-action';
 export { ReportPageShell, type ReportPageShellProps } from './report-page-shell';
-export {
-	ReportPerformanceChart,
-	type ReportPerformanceChartProps,
-} from './report-performance-chart';
 export { ReportDrilldownTable, type ReportDrilldownTableProps } from './report-drilldown-table';
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
 export { ReportThumbnail } from './report-thumbnail';
@@ -26,5 +22,3 @@ export {
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
 } from './report-page-tabs';
-export { buildReportMetricSeries } from './utils/build-report-metric-series';
-export type { ReportChartMetric } from './types';

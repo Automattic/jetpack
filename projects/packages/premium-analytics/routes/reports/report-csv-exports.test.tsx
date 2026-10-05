@@ -74,7 +74,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		ReportPageSection: Container,
 		ReportPageShell: Container,
 		ReportPageTabs: () => null,
-		ReportPerformanceChart: () => null,
 		ReportRecordsTable: () => null,
 		formatLegendLabels: () => ( {} ),
 		useReportCsvExport: jest.fn(),
