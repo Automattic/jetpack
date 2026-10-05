@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Stack } from '@wordpress/ui';
 import { getResolvedPlans } from '../../lib/subscription-plans';
 import type { Subscriber } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	subscriber: Subscriber;

@@ -405,8 +405,8 @@ function JetpackContactFormEdit( {
 		[ clientId, steps ]
 	);
 
-	const wrapperRef = useRef();
-	const innerRef = useRef();
+	const wrapperRef = useRef( undefined );
+	const innerRef = useRef( undefined );
 	const blockProps = useBlockProps( {
 		ref: wrapperRef,
 		className: clsx( className, {
@@ -706,7 +706,7 @@ function JetpackContactFormEdit( {
 				? {
 						block: currentInnerBlocks[ buttonIndex ],
 						index: buttonIndex,
-				  }
+					}
 				: null;
 		};
 
@@ -769,10 +769,10 @@ function JetpackContactFormEdit( {
 							),
 							createBlock( ...( NEXT_BUTTON_TEMPLATE as [ string, Record< string, unknown > ] ) ),
 							button,
-					  ]
+						]
 					: NAVIGATION_TEMPLATE.map( template =>
 							createBlock( ...( template as [ string, Record< string, unknown > ] ) )
-					  )
+						)
 			);
 		};
 

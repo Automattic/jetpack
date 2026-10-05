@@ -6,7 +6,6 @@ import {
 	GOAL_SLUGS,
 	isLastStep,
 	pickPlaceholder,
-	toPrewarmInput,
 	TOTAL_STEPS,
 	type WizardState,
 } from './lib.ts';
@@ -18,7 +17,7 @@ import {
  * @return The wizard state.
  */
 function stateWith( partial: Partial< WizardState > = {} ): WizardState {
-	return { goal: null, siteName: '', intent: '', locale: 'en', ...partial };
+	return { goal: null, siteName: '', intent: '', locale: 'en', uiLocale: 'en', ...partial };
 }
 
 describe( 'wizard step gating', () => {
@@ -40,33 +39,23 @@ describe( 'wizard step gating', () => {
 } );
 
 describe( 'Finish payload', () => {
-	it( 'builds the REST body with goal, site_name, description, and locale', () => {
+	it( 'builds the REST body with goal, site_name, description, and both languages', () => {
+		// The two locales travel together and stay distinct: the site's drafts are written in one, the
+		// task subtitles the admin reads in the other.
 		const state = stateWith( {
 			goal: 'sell',
 			siteName: 'Ceramics Co',
 			intent: 'A shop selling handmade ceramics.',
 			locale: 'fr',
+			uiLocale: 'it_IT',
 		} );
 		assert.deepEqual( buildWizardPayload( 'sell', state ), {
 			goal: 'sell',
 			site_name: 'Ceramics Co',
 			description: 'A shop selling handmade ceramics.',
 			locale: 'fr',
+			ui_locale: 'it_IT',
 		} );
-	} );
-
-	it( 'shares the same field shape with the prewarm input', () => {
-		const state = stateWith( { goal: 'write', siteName: 'My Blog', intent: 'About food.' } );
-		assert.deepEqual( toPrewarmInput( state ), {
-			goal: 'write',
-			site_name: 'My Blog',
-			description: 'About food.',
-			locale: 'en',
-		} );
-	} );
-
-	it( 'reports goal undefined to prewarm when none is selected', () => {
-		assert.equal( toPrewarmInput( stateWith() ).goal, undefined );
 	} );
 } );
 

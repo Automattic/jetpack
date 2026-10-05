@@ -6,6 +6,7 @@ interface SitePlan {
 interface PreLaunchEligibility {
 	sitePlan?: SitePlan | null;
 	hasCustomDomain?: boolean;
+	isTrial?: boolean;
 }
 
 /**
@@ -16,11 +17,20 @@ interface PreLaunchEligibility {
  * other site redirects straight to the launch flow, preserving today's
  * behavior.
  *
+ * Trials are excluded: they carry the plan and custom-domain feature
+ * entitlements without having purchased a plan or registered a domain, so
+ * they still need Calypso's upsell steps.
+ *
  * @param site                 - The site's launch eligibility inputs.
  * @param site.sitePlan        - The site's paid plan, if any.
  * @param site.hasCustomDomain - Whether the site has a custom domain.
+ * @param site.isTrial         - Whether the site is on a trial plan.
  * @return Whether the pre-launch modal should be shown.
  */
-export function shouldShowPreLaunchModal( { sitePlan, hasCustomDomain }: PreLaunchEligibility ) {
-	return !! sitePlan && !! hasCustomDomain;
+export function shouldShowPreLaunchModal( {
+	sitePlan,
+	hasCustomDomain,
+	isTrial,
+}: PreLaunchEligibility ) {
+	return !! sitePlan && !! hasCustomDomain && ! isTrial;
 }

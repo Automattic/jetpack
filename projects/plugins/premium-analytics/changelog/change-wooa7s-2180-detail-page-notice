@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Author, post, and video details: Show load errors and missing items in a notice, and stop offering Retry when access is denied.

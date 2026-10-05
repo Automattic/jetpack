@@ -6,49 +6,57 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
-import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	pickReportNavigationParams,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
+	DetailPageLayout,
+	PageNotice,
+	DetailPageSection,
+	DetailPageShell,
+	describeError,
+	useDetailPageCustomize,
+	useStoredDetailLayout,
+	useTrackedDateRangeApply,
+	type PageNoticeProps,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
 /**
  * Internal dependencies
  */
+import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { VideoSummaryCard } from './components';
+import { useWidgetModules } from '../use-widget-modules';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
-// The composition is fixed (WOOA7S-1625), so keep its grid independent from the
-// customizable main-dashboard preference — a future settings control must not
-// stretch these tiles out of proportion.
-const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
+// Its own preferences scope: the routes are separate packages, and the detail
+// surfaces' stored arrangements have no reason to share a namespace.
+const PREFERENCES_SCOPE = 'jetpack-premium-analytics/video-detail';
 
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
-
-// The share of the header row the presets can never use: the summary's
-// `min-inline-size` floor plus the row gap (see `.summary` and `.header` in
-// stage.module.scss — keep them in sync), plus a buffer so the panel steps down
-// before the wrap threshold — wrapping is synchronous while the measured flip
-// lags a frame, so equal thresholds would flash a wrapped row at every boundary.
-const HEADER_RESERVED_INLINE_SIZE = 440;
+// The page shows one layout, so one stored arrangement.
+const LAYOUT_ID = 'video';
 
 /**
  * Premium Analytics video detail page shell.
+ *
+ * The composition is fixed (WOOA7S-1625), but the reader can rearrange its
+ * cards from the page options menu (STATS-428); the arrangement is committed
+ * by the dashboard's own Done action and stored in preferences.
  *
  * @return The video detail page.
  */
@@ -56,127 +64,166 @@ function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type; core-data's default query
-				// (`per_page: 10`) could silently drop ones this fixed layout requires.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
-	);
+	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
-
-	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
-	// the row itself to pick its responsive layout; see the `containerElement` prop.
-	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
+	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
+		summary.publishedDate,
+		dateFilters,
+		summary.isLoading || summary.isError
+	);
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'video_detail', offersComparison: false }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const reportSearch = pickReportDateParams( search );
+	const reportSearch = pickReportNavigationParams( search );
 
-	const layout = VIDEO_DETAIL_LAYOUT;
+	// The stored arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		PREFERENCES_SCOPE,
+		LAYOUT_ID,
+		VIDEO_DETAIL_LAYOUT
+	);
 
-	// Error and not-found responses have no trustworthy title, so only resolved
-	// videos add the title crumb or render the heading.
-	const title =
-		summary.isLoading || summary.isError || summary.isNotFound
-			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
-	const resolvedSummary = { ...summary, title };
-	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	let summaryContent: JSX.Element | null;
 
-	if ( summary.isLoading ) {
-		summaryContent = null;
-	} else if ( summary.isError ) {
-		summaryContent = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>
-					{ __(
-						"We couldn't load this video. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					) }
-				</Text>
-				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</Stack>
-		);
+	// Without cards there is nothing to arrange, and a refetch that fails
+	// mid-customize would otherwise hide Cancel and Done along with the grid.
+	const {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'video_detail',
+	} );
+
+	// Error and not-found responses have no trustworthy title, so only a
+	// resolved video adds the title crumb.
+	const breadcrumbs = useDetailBreadcrumbs(
+		canRenderWidgets
+			? summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' )
+			: undefined
+	);
+
+	// The reason a video is missing goes below the header, where the widgets
+	// would have been.
+	let notice: PageNoticeProps | null = null;
+
+	if ( summary.isError ) {
+		notice = describeError( summary.error, {
+			retryDescription: __(
+				"We couldn't load this video. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: summary.refetch,
+		} );
 	} else if ( summary.isNotFound ) {
-		summaryContent = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
-				<Link
-					to="/reports/$report"
-					params={ { report: 'videos' } as unknown as never }
-					search={ reportSearch as unknown as never }
-				>
-					{ __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ) }
-				</Link>
-			</Stack>
-		);
-	} else {
-		summaryContent = (
-			<VideoSummaryCard summary={ resolvedSummary } performanceRange={ dateFilters.appliedRange } />
-		);
+		notice = {
+			intent: 'info',
+			description: __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ),
+			link: {
+				label: __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ),
+				render: (
+					<Link
+						to="/reports/$report"
+						params={ { report: 'videos' } as unknown as never }
+						search={ reportSearch as unknown as never }
+					/>
+				),
+			},
+		};
 	}
 
 	return (
-		<WidgetDashboard
-			widgetTypes={ widgetTypes }
-			isResolvingWidgetTypes={ isResolvingWidgetTypes }
-			resolveWidgetModule={ resolveWidgetModuleWithI18n }
-			layout={ layout }
-			onLayoutChange={ noopLayoutChange }
-			gridSettings={ VIDEO_DETAIL_GRID }
-		>
-			<Page
-				visual={ <StatsPageIcon /> }
-				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-				className={ styles.page }
+		<WidgetDashboard.Policy canPerform={ canPerform }>
+			<WidgetDashboard
+				widgetTypes={ widgetTypes }
+				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModule }
+				layout={ layout }
+				onLayoutChange={ onLayoutChange }
+				onLayoutReset={ resetLayout }
+				gridSettings={ DETAIL_GRID }
+				editMode={ isCustomizing }
+				onEditChange={ onEditChange }
 			>
-				<div className={ styles.scrollArea }>
-					{ /*
-					 * The presets render in every summary state, so the range stays
-					 * adjustable while the video loads or errors.
-					 */ }
-					<div ref={ setHeaderElement } className={ styles.header }>
-						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
-						<div className={ styles.dateFilters }>
-							{ /*
-							 * The design has no comparison on this page. The panel reads that
-							 * from the scope the stage declares, which is the same declaration
-							 * that keeps the params away from the widgets.
-							 */ }
+				<DetailPageShell
+					visual={ <StatsPageIcon /> }
+					breadcrumbs={
+						<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+							<StatsBreadcrumbs items={ breadcrumbs } />
+						</DetailPageBreadcrumbs>
+					}
+					actions={
+						<DetailPageActions
+							isCustomizing={ isCustomizing }
+							onCustomize={ canCustomize ? startCustomizing : undefined }
+							onReset={ resetToDefault }
+							editingActions={ <WidgetDashboard.Actions /> }
+						/>
+					}
+				>
+					<DetailPageLayout
+						header={ videoHeaderSlots( {
+							summary,
+							performanceRange: dateFilters.appliedRange,
+						} ) }
+						// The presets render in every summary state, so the range stays
+						// adjustable while the video loads or errors.
+						controls={
 							<DateFiltersPanel
 								{ ...dateFilters }
 								{ ...dateControls }
-								containerElement={ headerElement }
-								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
+								onChange={ onDateChange }
+								onApply={ onDateApply }
 							/>
-						</div>
-					</div>
-					{ canRenderWidgets ? (
-						<div className={ styles.content }>
-							<WidgetDashboard.Widgets className={ styles.widgets } />
-						</div>
-					) : null }
-				</div>
-			</Page>
-		</WidgetDashboard>
+						}
+					>
+						{ canRenderWidgets && ! isAnchoringAllTime ? (
+							<DetailPageSection>
+								<WidgetDashboard.Widgets />
+							</DetailPageSection>
+						) : null }
+						{ notice ? (
+							<DetailPageSection>
+								<PageNotice { ...notice } />
+							</DetailPageSection>
+						) : null }
+					</DetailPageLayout>
+				</DetailPageShell>
+			</WidgetDashboard>
+		</WidgetDashboard.Policy>
 	);
 }
 
@@ -191,7 +238,7 @@ export function stage(): JSX.Element {
 			<GlobalErrorProvider>
 				{ /*
 				 * The page names no compared period, so nothing below may fetch or draw
-				 * one. The params stay on the URL for the breadcrumb to carry back out.
+				 * one, even when a hand-edited URL carries comparison params.
 				 */ }
 				<ReportScopeProvider offersComparison={ false }>
 					<VideoDetail />

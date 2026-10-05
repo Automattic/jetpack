@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useCommentFollowersReportRecords } from './config';
 import CommentFollowersReportPage from './page';
 import type { ReactNode } from 'react';
@@ -65,7 +66,9 @@ describe( 'CommentFollowersReportPage', () => {
 
 		render( <CommentFollowersReportPage /> );
 
-		expect( screen.getByText( 'Unable to load subscribers' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load subscribers. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		// The stale row must not stay on screen behind the error.
 		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
@@ -82,6 +85,25 @@ describe( 'CommentFollowersReportPage', () => {
 		render( <CommentFollowersReportPage /> );
 
 		expect( screen.getByText( 'All Posts' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Unable to load subscribers' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the All Posts summary when there are no subscribers', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { allPostsFollowers: 0 } ) );
+
+		render( <CommentFollowersReportPage /> );
+
+		expect( screen.queryByText( 'All Posts' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the All Posts count on its own when no single post has subscribers', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { allPostsFollowers: 20 } ) );
+
+		render( <CommentFollowersReportPage /> );
+
+		expect( screen.getByText( 'All Posts' ) ).toBeInTheDocument();
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
 	} );
 } );

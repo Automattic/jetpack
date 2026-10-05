@@ -61,12 +61,13 @@ describe( 'MostCommentedAuthorsWidget', () => {
 		expect( within( link ).getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
 	} );
 
-	it( 'keeps WordPress.com users unlinked and preserves their avatar alt text', async () => {
+	it( 'links WordPress.com users to the comments filtered by user id', async () => {
 		renderWidget();
 
-		await expect( screen.findByText( 'Member Author' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: /Member Author/ } ) ).not.toBeInTheDocument();
-		expect( screen.getByAltText( 'Avatar of Member Author' ) ).toBeInTheDocument();
+		const link = await screen.findByRole( 'link', { name: /Member Author/ } );
+		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?user_id=1662656' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( within( link ).getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
 	} );
 
 	// Both comment widgets read the same response; this one must show only the

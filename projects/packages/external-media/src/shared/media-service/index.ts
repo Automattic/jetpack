@@ -92,6 +92,7 @@ declare global {
 		wpCookies: {
 			set: ( name: string, value: string, expires: number, path: string, domain?: string ) => void;
 			get: ( name: string ) => string | null;
+			remove: ( name: string, path: string, domain?: string ) => void;
 		};
 	}
 }
@@ -162,7 +163,7 @@ const buildMediaCategory = (
 					.filter( wpcomMediaItem => wpcomMediaItem.type === WpcomMediaItemType.Image )
 					.map( mapWpcomMediaToMedia );
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_editor_media_inserter_external_source', {
-					mediaSource: source.toString(),
+					media_source: source.toString(),
 					results: mediaItems.length,
 					search:
 						mediaCategorySearch?.search === '' ? defaultSearch.search : mediaCategorySearch.search,
@@ -291,24 +292,23 @@ export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
 };
 
 /**
- * Get Google Photos Picker session
- * @return {PickerSession} Media URL.
- */
-export const getGooglePhotosPickerSession = () => {
-	return select( mediaStore ).mediaPhotosPickerSession();
-};
-
-/**
  * Set Google Photos Picker session id to cookies
  * @param {string|null} sessionId - Session id
  */
 export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
+	const domain = `.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`;
+
+	if ( ! sessionId ) {
+		wpCookies.remove( GOOGLE_PHOTOS_PICKER_SESSION, '/', domain );
+		return;
+	}
+
 	wpCookies.set(
 		GOOGLE_PHOTOS_PICKER_SESSION,
 		sessionId,
 		604800, // 7 days
 		'/',
-		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`
+		domain
 	);
 };
 

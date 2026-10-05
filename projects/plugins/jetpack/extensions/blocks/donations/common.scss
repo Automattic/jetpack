@@ -110,6 +110,12 @@
 		margin: 0;
 	}
 
+	// Ensure the donate button renders as inline-block regardless of whether
+	// the core Button block stylesheet is loaded on the page.
+	.donations__donate-button {
+		display: inline-block;
+	}
+
 	// Pop-up display mode: suppress the default border — the block wrapper is
 	// larger than just the trigger button, so a border here looks wrong.
 	// User-set borders in In-page mode are handled via the per-instance <style>.

@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -73,11 +74,13 @@ export const route = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};
-			// Reports are site-wide: drop the `post_id` `normalizeReportParams` keeps
-			// for post-detail, so a link carrying one can't scope a report to a post.
+			// Reports are site-wide: drop the detail-page scopes `normalizeReportParams`
+			// keeps, so a link carrying one can't scope a report to a post or author.
 			delete seeded.post_id;
+			delete seeded.author_id;
 
 			throw redirect( {
 				to: '/reports/$report',

@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.34
+ * Stubs automatically generated from PHPUnit 12.5.37
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10657,14 +10657,14 @@ final readonly class RequiresFunction
 final readonly class RequiresMethod
 {
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public function __construct(string $className, string $methodName)
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -15007,6 +15007,16 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subs
  * @no-named-arguments
  * @internal
  */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\DeprecationTriggered $event): void
@@ -15239,6 +15249,9 @@ final class TestResultCollector
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function testFinished(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+    public function testSuiteSkipped(\PHPUnit\Event\TestSuite\Skipped $event): void
     {
     }
 }
@@ -15888,14 +15901,14 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public static function requiresMethodOnClass(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public static function requiresMethodOnMethod(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
@@ -16749,7 +16762,7 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -25618,7 +25631,7 @@ final readonly class Sanitizer
     /**
      * @see https://github.com/sebastianbergmann/phpunit/issues/6605
      */
-    public static function sanitizeBidirectionalControlCharacters(string $value): string
+    public static function sanitizeControlCharacters(string $value): string
     {
     }
 }
@@ -26896,7 +26909,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     {
     }
     /**
-     * @return \RecursiveIteratorIterator<Iterator<AbstractNode>>
+     * @return \RecursiveIteratorIterator<Iterator>&\Traversable<int, AbstractNode>
      */
     public function getIterator(): \RecursiveIteratorIterator
     {

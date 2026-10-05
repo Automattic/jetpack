@@ -337,7 +337,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 							/* translators: %s: taxonomy display name. The "(mapped)" suffix flags a taxonomy that routes through a reserved jetpack-search-tagN slot rather than being natively indexed. */
 							__( '%s (mapped)', 'jetpack-search-pkg' ),
 							baseLabel
-					  )
+						)
 					: baseLabel;
 				return { value: t.slug, label };
 			} );
@@ -441,7 +441,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 				"Leave empty to use the variation's default label (e.g. Category, Tag).",
 				'jetpack-search-pkg',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	return (
 		<>
@@ -475,7 +475,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 												'Select a taxonomy',
 												'jetpack-search-pkg',
 												/* dummy arg to avoid bad minification */ 0
-										  ),
+											),
 									disabled: true,
 								},
 								...( taxonomyOptions || [] ),
@@ -486,12 +486,12 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 									? __(
 											"Jetpack Search doesn't index any custom taxonomies on this site. Map one to a reserved jetpack-search-tagN slot via the jetpack_search_custom_taxonomy_map filter, or add it to Jetpack Search's allowlist, and it will appear here.",
 											'jetpack-search-pkg'
-									  )
+										)
 									: __(
 											'Pick which registered taxonomy this filter targets. Only taxonomies that Jetpack Search indexes (natively or via a jetpack-search-tagN slot mapping) appear here; "(mapped)" flags a slot-routed entry.',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
-									  )
+										)
 							}
 						/>
 					) }
@@ -561,7 +561,7 @@ export default function FilterCheckboxEdit( { attributes, setAttributes } ) {
 											'Show posts that match any of the selected options.',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
-									  )
+										)
 							}
 						>
 							<ToggleGroupControlOption value="or" label={ __( 'Any', 'jetpack-search-pkg' ) } />

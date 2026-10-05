@@ -46,12 +46,12 @@ export function StaleDataNotice( {
 			? __(
 					"Couldn't refresh. Showing data from less than a minute ago.",
 					'jetpack-premium-analytics-pkg'
-			  )
+				)
 			: sprintf(
 					/* translators: %s: how long ago the data on screen was fetched, e.g. "5 minutes ago". */
 					__( "Couldn't refresh. Showing data from %s.", 'jetpack-premium-analytics-pkg' ),
 					formatRelativeSince( new Date( updatedAt ).toISOString(), new Date( updatedAt + age ) )
-			  );
+				);
 
 	return (
 		// A fixed announcement, not `message`: the ageing label would interrupt a

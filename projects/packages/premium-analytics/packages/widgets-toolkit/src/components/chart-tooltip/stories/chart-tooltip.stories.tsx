@@ -1,5 +1,7 @@
 import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { formatTooltipPointLabel } from '../../../helpers';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
+import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof ChartTooltip > = {
@@ -13,21 +15,6 @@ const meta: Meta< typeof ChartTooltip > = {
 
 export default meta;
 type Story = StoryObj< typeof ChartTooltip >;
-
-/**
- * Helper wrapper for tooltip stories with consistent background.
- */
-const TooltipWrapper = ( { children }: { children: React.ReactNode } ) => (
-	<div
-		style={ {
-			background: 'var(--wpds-color-background-surface-neutral)',
-			padding: '20px',
-			borderRadius: '8px',
-		} }
-	>
-		{ children }
-	</div>
-);
 
 /**
  * Line chart styles - solid and dashed lines
@@ -60,10 +47,10 @@ const BAR_SERIES_STYLES: TooltipStyle[] = [
  * @param index - Index of this entry in the tooltip
  * @param _key  - Series key (unused, date is extracted from datum)
  */
-type LineDatum = { date: Date; realDate?: Date; value: number };
+type LineDatum = { date: Date; realDate?: Date; value: number | null };
 const getDateLabel = ( datum: LineDatum, index: number ): string => {
 	const isComparison = index > 0;
-	const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
+	const displayDate = isComparison ? ( datum.realDate ?? datum.date ) : datum.date;
 	return formatDate( displayDate );
 };
 
@@ -72,7 +59,7 @@ const getDateLabel = ( datum: LineDatum, index: number ): string => {
  */
 export const LineIndicatorTwoSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -100,7 +87,7 @@ export const LineIndicatorTwoSeries: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -117,7 +104,7 @@ export const LineIndicatorTwoSeries: Story = {
  */
 export const LineIndicatorThreeSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -154,7 +141,7 @@ export const LineIndicatorThreeSeries: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -171,7 +158,7 @@ export const LineIndicatorThreeSeries: Story = {
  */
 export const RectIndicatorTwoSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -197,7 +184,7 @@ export const RectIndicatorTwoSeries: Story = {
 				seriesStyles={ BAR_SERIES_STYLES }
 				indicatorType="rect"
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -214,7 +201,7 @@ export const RectIndicatorTwoSeries: Story = {
  */
 export const RectIndicatorSingleSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -232,7 +219,7 @@ export const RectIndicatorSingleSeries: Story = {
 				seriesStyles={ BAR_SERIES_STYLES }
 				indicatorType="rect"
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -248,7 +235,7 @@ export const RectIndicatorSingleSeries: Story = {
  */
 export const NumberFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -276,7 +263,7 @@ export const NumberFormat: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -292,7 +279,7 @@ export const NumberFormat: Story = {
  */
 export const PercentageFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -320,7 +307,7 @@ export const PercentageFormat: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -336,7 +323,7 @@ export const PercentageFormat: Story = {
  */
 export const CurrencyFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -355,7 +342,7 @@ export const CurrencyFormat: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -371,7 +358,7 @@ export const CurrencyFormat: Story = {
  */
 export const CustomStyles: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -407,12 +394,57 @@ export const CustomStyles: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
 			description: {
 				story: 'Tooltip with custom green and orange colors instead of the default blue.',
+			},
+		},
+	},
+};
+
+/**
+ * MissingReading: an inline row for a bucket with no reading, beside a real zero.
+ */
+export const MissingReading: Story = {
+	render: () => (
+		<TooltipBox>
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Subscribers: {
+							datum: { date: new Date( '2026-03-01' ), value: null },
+							index: 0,
+							key: 'Subscribers',
+						},
+						'Subscribers · previous period': {
+							datum: {
+								date: new Date( '2026-03-01' ),
+								realDate: new Date( '2025-03-01' ),
+								value: 0,
+							},
+							index: 1,
+							key: 'Subscribers · previous period',
+						},
+					},
+				} }
+				dataFormat={ { type: 'number' } }
+				seriesStyles={ LINE_SERIES_STYLES }
+				indicatorType="line"
+				layout="inline"
+				getLabel={ ( datum: LineDatum, _index: number, key: string, value: string | null ) =>
+					formatTooltipPointLabel( value, key, formatDate( datum.realDate ?? datum.date ) )
+				}
+			/>
+		</TooltipBox>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The inline layout the comparative charts use. A bucket with no reading reads "No data" rather than a zero, and a real zero still reads 0.',
 			},
 		},
 	},

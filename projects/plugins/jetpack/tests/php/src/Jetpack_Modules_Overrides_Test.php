@@ -38,6 +38,8 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		remove_all_filters( 'option_jetpack_active_modules' );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_feature_policy' );
+		\Automattic\Jetpack\Feature_Policy::reset();
 		$this->instance->clear_cache();
 		parent::tear_down();
 	}
@@ -146,6 +148,34 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 		$this->assertSame( 'active', $this->instance->get_module_override( 'photon' ) );
 		$this->assertSame( 'active', $this->instance->get_module_override( 'photon-cdn' ) );
 		$this->assertSame( 'inactive', $this->instance->get_module_override( 'sitemaps' ) );
+	}
+
+	/**
+	 * Tests that modules forced through jetpack_feature_policy read as overrides.
+	 */
+	public function test_get_overrides_reads_feature_policy() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is unnecessary in Atomic environment.' );
+		}
+
+		add_filter(
+			'jetpack_feature_policy',
+			function ( $policy ) {
+				$policy['photon']   = array( 'activation' => 'forced-on' );
+				$policy['sitemaps'] = array( 'activation' => 'forced-off' );
+				$policy['carousel'] = array( 'activation' => 'default-on' );
+				return $policy;
+			}
+		);
+
+		$this->assertTrue( $this->instance->do_overrides_exist() );
+		$this->assertSame(
+			array(
+				'photon'   => 'active',
+				'sitemaps' => 'inactive',
+			),
+			$this->instance->get_overrides( false )
+		);
 	}
 
 	/**

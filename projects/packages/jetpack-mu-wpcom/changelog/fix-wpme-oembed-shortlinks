@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Embeds: Fix wp.me shortlinks to Atomic sites not rendering a rich preview.

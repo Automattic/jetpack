@@ -100,6 +100,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  → only `<id>/likes` and `<id>/replies`, never post content). Anchored on both ends and
 	 *                  enforced in the route regex AND in `validate_data_endpoint()` (the route
 	 *                  capture can be shadowed with `?endpoint=`). Omit to allow the whole group.
+	 *  - `inject_user_email` (bool, optional) Add the local user's email to the forwarded write body
+	 *                  as `user_email`. The blog token carries no user, so a WPCOM endpoint that
+	 *                  attributes a submission to a person cannot resolve one on its own (it falls
+	 *                  back to the site's first administrator). The only body rewrite this proxy
+	 *                  does; see `inject_user_email()`.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
 	 *                  that reject blog-token auth but serve public data without credentials.
@@ -113,8 +118,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *  - REMOVE a group: delete its key — the route stops matching it and it 404s.
 	 *  - Cover it with a row in `data_endpoint_matrix()` (capability / writable / WPCOM path).
 	 *  - NOTE: this is for transparent WPCOM forwards only. Endpoints needing local processing
-	 *    (DB reads, body rewrites, the Notices class, …) are NOT proxied — they get their own
-	 *    routes outside `proxy/`; do not add them here.
+	 *    (DB reads, the Notices class, …) are NOT proxied — they get their own routes outside
+	 *    `proxy/`; do not add them here. `inject_user_email` is the one exception, and stays one:
+	 *    a rewrite that cannot be expressed as a flag on this table belongs in its own route.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
@@ -129,7 +135,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'wordads'                       => array( 'capability' => 'activate_wordads' ),
 		'subscribers'                   => array( 'capability' => 'view_stats' ),
 		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
-		'jetpack-stats'                 => array( 'capability' => 'view_stats' ),
+		'jetpack-stats'                 => array(
+			'capability'        => 'view_stats',
+			'writes'            => array( 'jetpack-stats/user-feedback' ),
+			'inject_user_email' => true,
+		),
 		'jetpack-stats-dashboard'       => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'jetpack-stats-dashboard/' ),
@@ -374,10 +384,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'         => $version,
-				'base'            => $this->base_for_version( $version ),
-				'bust_on_write'   => $this->busts_cache( $endpoint ),
-				'unauthenticated' => ! empty( $config['unauthenticated'] ),
+				'version'           => $version,
+				'base'              => $this->base_for_version( $version ),
+				'bust_on_write'     => $this->busts_cache( $endpoint ),
+				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
+				'inject_user_email' => ! empty( $config['inject_user_email'] ),
 			)
 		);
 	}
@@ -436,6 +447,45 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Add the local user's email to a forwarded write body, for a group declaring
+	 * `inject_user_email`.
+	 *
+	 * Mirrors what stats-admin's own `post_user_feedback()` does: the request is signed with the
+	 * blog token, so WPCOM sees no user and would attribute the submission to whichever
+	 * administrator it finds first. A body that is neither empty nor a JSON object is returned
+	 * untouched rather than replaced, so a malformed request still fails at WPCOM's own validation.
+	 *
+	 * @param string               $body The request body to forward.
+	 * @param array<string, mixed> $opts The matched prefix config.
+	 *
+	 * @return string
+	 */
+	private function inject_user_email( string $body, array $opts ): string {
+		if ( empty( $opts['inject_user_email'] ) ) {
+			return $body;
+		}
+
+		$email = wp_get_current_user()->user_email;
+		if ( ! $email ) {
+			return $body;
+		}
+
+		$decoded = '' === $body ? array() : json_decode( $body, true );
+		if ( ! is_array( $decoded ) ) {
+			return $body;
+		}
+
+		// A JSON list is not a param bag, and adding a string key would reshape it into an object.
+		if ( array() !== $decoded && array_keys( $decoded ) === range( 0, count( $decoded ) - 1 ) ) {
+			return $body;
+		}
+
+		$decoded['user_email'] = $email;
+
+		return (string) wp_json_encode( $decoded, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -502,7 +552,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		);
 		$body = null;
 		if ( ! $is_read ) {
-			$body            = $request->get_body();
+			$body            = $this->inject_user_email( $request->get_body(), $opts );
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
 		}
 

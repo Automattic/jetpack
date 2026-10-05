@@ -249,15 +249,16 @@ The resolver uses an `isFulfilled` function to prevent duplicate requests:
 
 ```typescript
 isFulfilled: (state: ConfigState) => {
-  // Consider fulfilled if config exists or is currently loading
   return state.config !== null || state.isLoading;
 }
 ```
 
 This ensures that:
 - If config is already loaded, no fetch occurs
-- If a fetch is in progress (`isLoading: true`), subsequent calls wait for the same fetch
 - Only the first call actually triggers the API request
+- A fetch in progress also counts as fulfilled, so `resolveSelect( CONFIG_STORE ).getConfig()`
+  resolves with `null` instead of waiting. Async callers must treat a missing config as
+  unknown rather than as a negative answer — see the note on `isFulfilled` in `resolvers.ts`.
 
 ### Store Structure
 

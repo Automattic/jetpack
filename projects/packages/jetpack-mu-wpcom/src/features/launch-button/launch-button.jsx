@@ -37,6 +37,7 @@ export function LaunchButton() {
 	const qualifiesForPreLaunch = shouldShowPreLaunchModal( {
 		sitePlan: launchButtonData.sitePlan,
 		hasCustomDomain: launchButtonData.hasCustomDomain,
+		isTrial: launchButtonData.isTrial,
 	} );
 
 	// Site launch gating: 'semi_gated_site_launch' is the shipped default. The other
@@ -49,6 +50,7 @@ export function LaunchButton() {
 			const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
 				siteSlug: launchButtonData.siteDomain,
 				ref: 'wp-admin',
+				back_to: window.location.href,
 			} );
 
 			return (

@@ -183,6 +183,22 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
+			'/search/plan/activate-free',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'activate_free_plan' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'args'                => array(
+					'source' => array(
+						'type'              => 'string',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
 			'/search/plan/deactivate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -288,7 +304,9 @@ class REST_Controller {
 			? sanitize_text_field( $request_body['experience'] )
 			: null;
 		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
-		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
+		// rest_sanitize_boolean(), not (bool): this value now drives the paid-plan
+		// gate below, and a plain (bool) cast reads a JSON `"false"` string as true.
+		$ai_answers_enabled = isset( $request_body['ai_answers_enabled'] ) ? rest_sanitize_boolean( $request_body['ai_answers_enabled'] ) : null;
 
 		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
 
@@ -422,6 +440,24 @@ class REST_Controller {
 			}
 			return true;
 		}
+
+		if ( true === $reader_chat && ( ! $this->plan->supports_search() || $this->plan->is_free_plan() ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'Site Chat requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// AI Answers requires a paid Search plan; reject the write outright.
+		if ( true === $ai_answers_enabled && ! Search_Blocks::supports_paid_search() ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'AI Answers requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		if (
 			$module_active === null &&
 			$instant_search_enabled === null &&
@@ -593,6 +629,42 @@ class REST_Controller {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Grant the free Search product to this site instead of sending the user to a $0 checkout.
+	 *
+	 * POST `jetpack/v4/search/plan/activate-free`
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param WP_REST_Request $request - REST request.
+	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`, which the dashboard
+	 *                                   branches on to decide whether to fall back to checkout.
+	 */
+	public function activate_free_plan( $request ) {
+		/*
+		 * Another plugin can load an older My Jetpack before this package's copy registers, and
+		 * that copy has no such method. Degrade to the checkout the dashboard still has.
+		 */
+		if ( ! method_exists( Search_Product::class, 'activate_free_product' ) ) {
+			return new WP_Error(
+				'jetpack_search_free_activation_unavailable',
+				__( 'Jetpack Search Free could not be activated for this site.', 'jetpack-search-pkg' ),
+				array(
+					'status'            => 501,
+					'checkout_fallback' => true,
+				)
+			);
+		}
+
+		$source = $request->get_param( 'source' );
+		$result = Search_Product::activate_free_product( $source ? $source : 'search-dashboard' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**

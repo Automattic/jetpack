@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugins: Remove the WordPress.com marketplace banner from Add Plugins when the Marketplace tab is enabled.

@@ -103,7 +103,7 @@ export function getItemShapeStyles(
 	const hasExplicitStyles = Object.values( explicitStyles ).some(
 		value => value !== undefined && value !== null && value !== ''
 	);
-	const baseShapeStyles = hasExplicitStyles ? explicitStyles : themeShapeStyles ?? {};
+	const baseShapeStyles = hasExplicitStyles ? explicitStyles : ( themeShapeStyles ?? {} );
 
 	// Layer the comparison bar opacity on top so the swatch matches the translucent bar
 	// without discarding the base (custom or theme) shape styles.

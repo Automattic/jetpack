@@ -1,0 +1,141 @@
+// Illustration constants from the Figma modal: colors no WPDS token covers and
+// geometry the design fixes in px.
+$widget-grid-stage-color: #003010;
+$widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
+$widget-grid-tile-radius: 16px;
+$widget-grid-donut-size: 75px;
+$widget-grid-donut-top: 67px;
+
+// The glow behind the tiles: a rounded panel inset from the stage's sides that
+// runs off its top, fading from a dark tint through blue to green.
+$widget-grid-glow-radius: 64px;
+$widget-grid-glow-gradient: linear-gradient(180deg, rgba(1, 1, 2, 0.24) 0%, rgba(5, 42, 152, 0.24) 53.646%, rgba(72, 255, 80, 0.24) 100%);
+
+// Design offsets are measured from the tile's outer edge; absolute children
+// position from inside the border, hence the 1px.
+$widget-grid-chart-inset: 17px 7px 15px;
+
+// The placeholders are the brand stroke at the design's opacity, composited
+// over the tile like the design does.
+$widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surface-brand-strong) 16%, transparent);
+
+.canvas {
+	position: relative;
+	overflow: hidden;
+	inline-size: 100%;
+	aspect-ratio: 400 / 302;
+	background: $widget-grid-stage-color;
+}
+
+.glow {
+	position: absolute;
+	inset-inline-start: 3.75%;
+	inset-block-start: -13.576%;
+	inline-size: 92.5%;
+	block-size: 113.576%;
+	border-radius: $widget-grid-glow-radius;
+	background: $widget-grid-glow-gradient;
+}
+
+.tile {
+	position: absolute;
+	inset-inline-start: var(--wga-x);
+	inset-block-start: var(--wga-y);
+	box-sizing: border-box;
+	inline-size: var(--wga-width);
+	block-size: var(--wga-height);
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-lg);
+	// A neutral stroke where the design draws white: it keeps tiles apart where
+	// they cross mid-tween, which white on white cannot.
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: $widget-grid-tile-radius;
+	background: $widget-grid-tile-gradient;
+	color: $widget-grid-stage-color;
+	transition-property: inset-inline-start, inset-block-start, inline-size, block-size;
+	transition-duration: var(--wga-duration);
+	transition-timing-function: var(--wga-easing);
+}
+
+.icon {
+	position: relative;
+	// Above the placeholders, which paint under the icon row. WPDS has no
+	// z-index token.
+	z-index: 1;
+	display: block;
+	fill: currentColor;
+}
+
+// Clipped from the right edge inward, so it reveals left to right as the tile
+// grows and hides the same way back when it shrinks.
+.chart {
+	position: absolute;
+	inset: $widget-grid-chart-inset;
+	clip-path: inset(0 100% 0 0);
+	transition: clip-path var(--wga-duration) var(--wga-easing);
+
+	> svg {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+	}
+}
+
+.chartVisible {
+	clip-path: inset(0 0 0 0);
+}
+
+// The Stack pins the rows to the tile's bottom; the gap between them is its
+// own.
+.rows {
+	position: absolute;
+	inset-inline: var(--wpds-dimension-padding-lg);
+	inset-block-end: calc(var(--wpds-dimension-padding-xl) - var(--wpds-border-width-xs));
+	opacity: 0;
+	transition: opacity var(--wga-duration) var(--wga-easing);
+}
+
+.rowsVisible {
+	opacity: 1;
+}
+
+// A Skeleton with the placeholder tint, held still: the tiles already move.
+.row {
+	block-size: var(--wpds-dimension-size-3xs);
+	border-radius: var(--wpds-dimension-size-3xs);
+	background-color: $widget-grid-placeholder-color;
+	animation: none;
+
+	// A full line, then a short one, as a list placeholder reads.
+	&:last-child {
+		inline-size: 54%;
+	}
+}
+
+.donut {
+	position: absolute;
+	inset-inline-start: 50%;
+	inset-block-start: $widget-grid-donut-top;
+	box-sizing: border-box;
+	inline-size: $widget-grid-donut-size;
+	block-size: $widget-grid-donut-size;
+	border: var(--wpds-dimension-size-2xs) solid $widget-grid-placeholder-color;
+	border-radius: 50%;
+	translate: -50% 0;
+	opacity: 0;
+	transition: opacity var(--wga-duration) var(--wga-easing);
+}
+
+.donutVisible {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.tile,
+	.chart,
+	.rows,
+	.donut {
+		transition: none;
+	}
+}

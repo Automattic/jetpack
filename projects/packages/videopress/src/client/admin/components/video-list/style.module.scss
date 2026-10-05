@@ -21,11 +21,11 @@
 }
 
 .title-adornment {
-	fill: var(--jp-gray-10);
+	color: var(--jp-gray-10);
 	margin-left: var(--spacing-base);
 	display: inline-flex;
 
 	&.error {
-		fill: var(--jp-yellow-20);
+		color: var(--jp-yellow-20);
 	}
 }

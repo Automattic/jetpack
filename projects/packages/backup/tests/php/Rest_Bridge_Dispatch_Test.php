@@ -114,6 +114,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 				array(
 					'hasBackupPlan' => true,
 					'hasScan'       => true,
+					// Decided on the site, not upstream — hence its own branch —
+					// and false without the standalone plugin's constant, which
+					// nothing in a package test run defines.
+					'local'         => array(
+						'isStandalonePluginActive' => false,
+					),
 				),
 			),
 			'/jetpack/v4/site/rewindable-activity'   => array(
@@ -173,7 +179,11 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					array( 'body' => self::SIGNED_URL_BODY ),
 					array( 'body' => "<?php\ndefine( 'DB_NAME', 'wordpress' );\n" ),
 				),
-				array( 'content' => "<?php\ndefine( 'DB_NAME', 'wordpress' );\n" ),
+				array(
+					'content'   => "<?php\ndefine( 'DB_NAME', 'wordpress' );\n",
+					'is_text'   => true,
+					'truncated' => false,
+				),
 			),
 			'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
 				'POST',

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { siteTimeZone } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -111,7 +111,7 @@ function buildRangeFormatter( name: RangeFormatName ): Intl.DateTimeFormat | und
 	try {
 		formatter = new Intl.DateTimeFormat( locale, {
 			...RANGE_PARTS[ name ],
-			timeZone: siteTimeZone(),
+			timeZone: reportingTimeZone(),
 		} );
 	} catch {
 		// An unusable locale, or an offset identifier this runtime will not take
@@ -163,7 +163,7 @@ export function elideRange(
 	}
 
 	const settings = getSettings();
-	const key = `${ settings.l10n.locale }|${ settings.formats.date }|${ siteTimeZone() }`;
+	const key = `${ settings.l10n.locale }|${ settings.formats.date }|${ reportingTimeZone() }`;
 	const cached = cache.get( name );
 
 	if ( cached?.key !== key ) {

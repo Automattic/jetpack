@@ -13,32 +13,18 @@ import { createTestQueryClient, createTestWrapper } from '../../test-utils/query
 import { useFreeTier } from '../use-free-tier';
 import { useUpload } from '../use-upload';
 
-/**
- * Reset the upload store between tests by clearing the window-attached
- * queue directly, rather than going through use-upload.ts's exported
- * helper. This keeps the test loadable against the pre-fix version of
- * use-upload.ts so the failure mode (videoCount stuck at 0) is provably
- * the original bug rather than a missing test helper.
- */
-function resetUploadStore() {
-	const STORE_KEY = '__jetpackVideopressUploadStore';
-	if ( ( window as unknown as Record< string, unknown > )[ STORE_KEY ] ) {
-		( window as unknown as Record< string, { queue: unknown[] } > )[ STORE_KEY ].queue = [];
-	}
-}
-
 const mockUploadHandler = jest.fn();
+const resetUploadStore = () => {
+	delete window.__jetpackVideopressUploadStore;
+};
 
-jest.mock( '../../../client/hooks/use-resumable-uploader', () => ( {
+jest.mock( '../../../client/lib/get-media-token', () => ( {
 	__esModule: true,
-	default: jest.fn( () => ( {
-		onUploadHandler: jest.fn(),
-		uploadHandler: mockUploadHandler,
-		resumeHandler: undefined,
-		uploadingData: { bytesSent: 0, bytesTotal: 0, percent: 0, status: 'idle' },
-		media: undefined,
-		error: null,
-	} ) ),
+	default: jest.fn( async () => ( { token: 'token' } ) ),
+} ) );
+jest.mock( '../../../client/lib/resumable-file-uploader', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockUploadHandler( ...args ),
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {

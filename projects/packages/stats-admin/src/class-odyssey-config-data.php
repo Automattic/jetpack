@@ -64,7 +64,13 @@ class Odyssey_Config_Data {
 	protected function get_connected_blog_id() {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 
-		return Main::is_site_connected() ? $blog_id : 0;
+		if ( ! Main::is_site_connected() ) {
+			return 0;
+		}
+
+		// Keep registered sites in the dashboard even when their token is malformed.
+		// The traffic request reports the connection error; an ID of 0 routes to plan selection.
+		return $blog_id;
 	}
 
 	/**
@@ -154,6 +160,7 @@ class Odyssey_Config_Data {
 							'stats_admin_version'   => Main::VERSION,
 							'software_version'      => $wp_version,
 							'can_blaze'             => $can_blaze,
+							'has_stats_settings'    => ! $host->is_wpcom_simple(),
 						),
 					),
 				),
@@ -228,8 +235,19 @@ class Odyssey_Config_Data {
 
 	/**
 	 * Get the features of the current plan.
+	 *
+	 * The app cannot refresh what it paywalls on, so a WordPress.com-hosted site is asked
+	 * directly; a plan cached before an upgrade gates a feature the site has already paid for.
 	 */
 	protected function get_plan_features() {
+		// method_exists guard: an older plans package may win the autoloader on another plugin.
+		if ( method_exists( Jetpack_Plan::class, 'get_wpcom_site_specific_features' ) ) {
+			$features = Jetpack_Plan::get_wpcom_site_specific_features();
+			if ( null !== $features ) {
+				return $features;
+			}
+		}
+
 		$plan = Jetpack_Plan::get();
 		if ( empty( $plan['features'] ) ) {
 			return array();

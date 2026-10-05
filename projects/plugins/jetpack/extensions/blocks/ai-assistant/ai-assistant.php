@@ -32,17 +32,24 @@ require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
  * registration if we need to.
  */
 function register_block() {
-	if (
-	( ( new Host() )->is_wpcom_simple()
-		|| ! ( new Status() )->is_offline_mode()
-	) && \Jetpack_AI_Settings::is_ai_enabled()
-		&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
-	) {
-		Blocks::jetpack_register_block(
-			__DIR__,
-			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-		);
+	if ( ! ( new Host() )->is_wpcom_simple() && ( new Status() )->is_offline_mode() ) {
+		return;
 	}
+
+	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
+		Jetpack_Gutenberg::set_extension_unavailable( 'ai-assistant', 'ai_disabled' );
+		return;
+	}
+
+	if ( ! \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) ) {
+		Jetpack_Gutenberg::set_extension_unavailable( 'ai-assistant', 'ai_disabled', array( 'feature' => 'writing_assistant' ) );
+		return;
+	}
+
+	Blocks::jetpack_register_block(
+		__DIR__,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -74,12 +81,15 @@ add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
 		if ( \Jetpack_AI_Settings::is_ai_enabled() ) {
+			// The usage meter reports on every AI feature, so it follows the
+			// master switch alone.
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
+
 			if ( \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
 

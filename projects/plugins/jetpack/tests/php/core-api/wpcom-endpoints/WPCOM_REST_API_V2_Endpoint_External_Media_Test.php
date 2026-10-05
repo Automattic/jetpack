@@ -252,6 +252,88 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
+	 * A user who can upload files but cannot edit the requested parent post must
+	 * be refused before any media is copied. Regression test for JETPACK-2409:
+	 * the copy endpoint attached media to arbitrary posts because it never checked
+	 * edit_post on the request-supplied post_id.
+	 */
+	public function test_copy_image_denied_when_user_cannot_edit_parent_post() {
+		$author_id = self::factory()->user->create( array( 'role' => 'author' ) );
+		// Post owned by the administrator; the author has no rights to edit it.
+		$victim_post_id = self::factory()->post->create( array( 'post_author' => static::$user_id ) );
+
+		wp_set_current_user( $author_id );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_body_params(
+			array(
+				'post_id' => $victim_post_id,
+				'media'   => array(
+					array(
+						'guid' => wp_json_encode(
+							array(
+								'url'  => static::$image_path,
+								'name' => $this->image_name,
+							),
+							JSON_UNESCAPED_SLASHES
+						),
+					),
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_cannot_edit', $data['code'] );
+	}
+
+	/**
+	 * A user who can edit the requested parent post is allowed to copy media to
+	 * it, and the resulting attachment is parented to that post. Complements
+	 * test_copy_image_denied_when_user_cannot_edit_parent_post so the added
+	 * authorization check does not over-block legitimate requests.
+	 */
+	public function test_copy_image_allowed_when_user_can_edit_parent_post() {
+		$author_id   = self::factory()->user->create( array( 'role' => 'author' ) );
+		$own_post_id = self::factory()->post->create( array( 'post_author' => $author_id ) );
+
+		wp_set_current_user( $author_id );
+
+		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
+		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_body_params(
+			array(
+				'post_id' => $own_post_id,
+				'media'   => array(
+					array(
+						'guid' => wp_json_encode(
+							array(
+								'url'  => static::$image_path,
+								'name' => $this->image_name,
+							),
+							JSON_UNESCAPED_SLASHES
+						),
+					),
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data()[0];
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$this->assertArrayHasKey( 'id', $data );
+		$this->assertIsInt( $data['id'] );
+		$this->assertSame( $own_post_id, get_post( $data['id'] )->post_parent );
+	}
+
+	/**
 	 * The attacker-controlled guid.name must never influence the physical
 	 * temporary file the download is streamed into. Whatever name is supplied,
 	 * the temporary file is a random .tmp created by wp_tempnam() inside the

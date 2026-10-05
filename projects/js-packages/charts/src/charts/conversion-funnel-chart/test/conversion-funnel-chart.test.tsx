@@ -427,8 +427,18 @@ describe( 'ConversionFunnelChart', () => {
 				index: 1,
 				top: expect.any( Number ),
 				left: expect.any( Number ),
-				className: 'tooltip-wrapper',
 			} );
+		} );
+
+		it( 'merges tooltipStyle onto the tooltip box', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } tooltipStyle={ { background: 'purple' } } />
+			);
+
+			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+
+			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'purple' } );
 		} );
 
 		it( 'disables tooltip when renderTooltip returns null', async () => {
@@ -470,6 +480,52 @@ describe( 'ConversionFunnelChart', () => {
 			// so the palette is resolved and the animated class is applied to funnel steps
 			const funnelStep = screen.getAllByTestId( 'funnel-step' )[ 0 ];
 			expect( funnelStep ).toHaveClass( 'funnel-step--animated' );
+		} );
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'ConversionFunnelChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	it( 'places the box relative to the chart root, at the click plus the offsets', async () => {
+		mockRects();
+		const user = userEvent.setup();
+		renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+		const bar = screen.getAllByRole( 'button' )[ 0 ];
+		await user.pointer( [
+			{ target: bar, coords: { clientX: 180, clientY: 140 } },
+			{ keys: '[MouseLeft]', target: bar, coords: { clientX: 180, clientY: 140 } },
+		] );
+
+		// (180, 140) is (80, 90) inside the root; the chart lifts the anchor 10px
+		// above the click, and the box adds 10px each way.
+		const box = screen.getByTestId( 'bounded-tooltip' );
+		expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toContainElement( box );
+		expect( box ).toHaveStyle( {
+			transform: 'translate(90px, 90px)',
 		} );
 	} );
 } );

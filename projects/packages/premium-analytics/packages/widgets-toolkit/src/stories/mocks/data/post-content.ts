@@ -7,7 +7,7 @@
  * the Latest post stories mock the unfiltered "newest post" form themselves.
  *
  * The IDs match the `stats/top-posts` fixture in `register-stats-mocks.ts`, so
- * the Most popular post widget resolves the winning row to real content.
+ * the Popular post widget resolves the winning row to real content.
  */
 
 // A neutral gradient stands in for a featured image, inline so Storybook needs

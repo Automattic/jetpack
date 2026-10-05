@@ -19,7 +19,7 @@ type MockRouteLinkProps = {
 
 // `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import('react');
+	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
 
 	return {
 		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
@@ -149,10 +149,8 @@ describe( 'buildLeaderboardRow', () => {
 
 		render( row.label );
 
-		expect( screen.getByRole( 'link', { name: /Alice/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/alice'
-		);
+		const link = screen.getByRole( 'link', { name: /Alice/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/alice' );
 		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );

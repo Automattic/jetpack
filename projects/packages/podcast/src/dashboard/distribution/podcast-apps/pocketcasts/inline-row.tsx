@@ -78,7 +78,7 @@ const PocketCastsRow = ( { app, state, blockedReason, onFirstSave }: PodcastAppR
 							__( 'Submit to %1$s. %2$s', 'jetpack-podcast' ),
 							app.name,
 							reason
-					  )
+						)
 					: ''
 			}
 			isBusy={ isSubmitting }

@@ -1,13 +1,12 @@
-import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
+import {
+	protectCardShieldInactive as ShieldInactive,
+	protectCardShieldOff as ShieldOff,
+	protectCardShieldSuccess as ShieldSuccess,
+} from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { InfoTooltip } from '../../info-tooltip';
-import baseStyles from '../style.module.scss';
-import ShieldInactive from './assets/shield-inactive.svg';
-import ShieldOff from './assets/shield-off.svg';
-import ShieldSuccess from './assets/shield-success.svg';
+import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -42,7 +41,6 @@ interface WafStatusProps {
 
 const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	const slug = 'protect';
-	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy( data );
@@ -51,7 +49,7 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	if ( status === 'active' ) {
 		return (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
+				<div className="value-section__heading">
 					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
@@ -70,21 +68,18 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	if ( status === 'inactive' ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
+					<ProtectInfoPopover
+						label={ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
+						title={ autoFirewallTooltip.title }
+						text={ autoFirewallTooltip.text }
 						tracksEventProps={ {
 							location: 'auto-firewall',
 							status: status,
-							feature: 'jetpack-protect',
 							has_paid_plan: hasPaidPlanForProduct,
 						} }
-						placement={ isMobileViewport ? 'top' : 'right' }
-					>
-						<h3>{ autoFirewallTooltip.title }</h3>
-						<p>{ autoFirewallTooltip.text }</p>
-					</InfoTooltip>
+					/>
 				</div>
 				<div className="value-section__data">
 					<div>
@@ -103,9 +98,7 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	}
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>
-				{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
-			</div>
+			<div className="value-section__heading">{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
 				<div>
 					<img

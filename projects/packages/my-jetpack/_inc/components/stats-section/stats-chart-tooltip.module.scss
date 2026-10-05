@@ -1,12 +1,7 @@
-:global(.visx-tooltip) {
-	background-color: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
+:global(.visx-tooltip):has(.stats-line-chart-tooltip) {
+	padding: 0 !important;
 
 	.stats-line-chart-tooltip {
-		color: var(--wpds-color-foreground-interactive-brand-strong);
-		background: var(--wpds-color-background-interactive-neutral-strong-active);
-		border-radius: 4px;
 		font-size: var(--font-body-small, 14px);
 		padding: 28px 24px 16px;
 
@@ -57,7 +52,7 @@
 					// vertical-align: middle;
 					width: 24px;
 					height: 24px;
-					fill: var(--wpds-color-foreground-interactive-brand-strong);
+					fill: currentColor;
 				}
 
 				// &:last-child {

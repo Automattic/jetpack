@@ -67,22 +67,22 @@ class Initial_State_Chapters_Editor_Test extends BaseTestCase {
 		return json_decode( $json, true );
 	}
 
-	/** Tests that the gate is mirrored at the exact key path the client reads, and is off by default. */
-	public function test_features_chapters_editor_is_false_by_default() {
+	/** Tests that the gate is mirrored at the exact key path the client reads, and is on by default. */
+	public function test_features_chapters_editor_is_true_by_default() {
 		$state = $this->get_rendered_state();
 
 		$this->assertIsArray( $state, 'Initial_State::render() did not produce decodable JSON.' );
 		$this->assertArrayHasKey( 'features', $state );
 		$this->assertArrayHasKey( 'chaptersEditor', $state['features'] );
-		$this->assertFalse( $state['features']['chaptersEditor'] );
+		$this->assertTrue( $state['features']['chaptersEditor'] );
 	}
 
-	/** Tests that the mirrored value follows the filter, as a real JSON boolean. */
-	public function test_features_chapters_editor_is_true_when_filter_enabled() {
-		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_true' );
+	/** Tests that the mirrored value follows the kill switch, as a real JSON boolean. */
+	public function test_features_chapters_editor_is_false_when_filter_disabled() {
+		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
 
 		$state = $this->get_rendered_state();
 
-		$this->assertTrue( $state['features']['chaptersEditor'] );
+		$this->assertFalse( $state['features']['chaptersEditor'] );
 	}
 }

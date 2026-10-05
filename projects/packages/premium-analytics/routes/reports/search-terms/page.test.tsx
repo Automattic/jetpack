@@ -8,11 +8,11 @@ import { render } from '@testing-library/react';
  */
 import { useSearchTermsReportRecords } from './config';
 import SearchTermsReportPage from './page';
-import type { SearchTermRow } from './config';
+import type { SearchTermRow } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
-	getSearchTermsFields: () => [],
+	getSearchTermsFields: jest.fn( () => [] ),
 	useSearchTermsReportRecords: jest.fn(),
 } ) );
 
@@ -23,18 +23,18 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportCsvAction: () => null,
-	ReportErrorState: () => null,
+	ExporterCsvAction: () => null,
+	PageNotice: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'search-terms' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
@@ -101,7 +101,7 @@ describe( 'SearchTermsReportPage', () => {
 		render( <SearchTermsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: true } )
+			expect.objectContaining( { data: [ row ], isLoading: false, isFetching: true } )
 		);
 	} );
 

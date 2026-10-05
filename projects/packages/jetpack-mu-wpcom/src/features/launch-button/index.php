@@ -59,6 +59,25 @@ function wpcom_should_show_launch_button(): bool {
 }
 
 /**
+ * The URL of the screen the launch button was rendered on.
+ *
+ * Sent as `back_to`, so the launch flow's Back button returns to that screen. Calypso only honours it
+ * when its host is the launched site's own.
+ *
+ * @return string
+ */
+function wpcom_get_launch_button_back_to(): string {
+	$host        = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/';
+
+	if ( '' === $host ) {
+		return admin_url();
+	}
+
+	return set_url_scheme( 'http://' . $host . $request_uri, 'https' );
+}
+
+/**
  * Adds a "launch site" button to the admin bar.
  *
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
@@ -88,6 +107,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 				array(
 					'siteSlug' => $blog_domain,
 					'ref'      => 'wp-admin',
+					'back_to'  => rawurlencode( wpcom_get_launch_button_back_to() ),
 				),
 				'https://wordpress.com/start/launch-site'
 			),
@@ -102,7 +122,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 /**
  * Enqueue wp-components styles and the celebration modal bundle CSS.
  *
- * The celebration modal uses @wordpress/components (Modal, Button, Tooltip).
+ * The celebration modal uses @wordpress/components (Modal, Button, etc.).
  * On the frontend, wp-components CSS is not loaded automatically, so we enqueue
  * it here together with the compiled bundle CSS that contains the modal's own styles.
  */
@@ -115,7 +135,7 @@ function wpcom_enqueue_components_styles() {
 	// In admin contexts it may already be queued; wp_enqueue_style() is idempotent.
 	wp_enqueue_style( 'wp-components' );
 
-	// Enqueue the compiled bundle CSS (contains celebrate-launch-modal SCSS).
+	// Enqueue the compiled bundle CSS (contains the celebration modal styles).
 	$css_file = is_rtl() ? 'adminbar-launch-button.rtl.css' : 'adminbar-launch-button.css';
 	$css_path = Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/' . $css_file;
 
@@ -172,6 +192,7 @@ function wpcom_enqueue_launch_button_assets() {
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+			'isTrial'         => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

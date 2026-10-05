@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useCommentsReportRecords } from './config';
 import CommentsReportPage from './page';
 
@@ -22,8 +23,7 @@ jest.mock( './config', () => ( {
 		},
 	],
 	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	// No tab declares a heading yet, so the real helper reads the label back.
-	getTabTitle: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
+	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
 } ) );
@@ -38,6 +38,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@wordpress/admin-ui', () => ( {
 	...jest.requireActual( '@wordpress/admin-ui' ),
 	Breadcrumbs: () => null,
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useSearch: () => ( {} ),
 } ) );
 
 const useRecordsMock = jest.mocked( useCommentsReportRecords );
@@ -69,7 +74,9 @@ describe( 'CommentsReportPage', () => {
 
 		render( <CommentsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load comments' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load comments. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
 	} );

@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useStatsReferrers, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	flattenReferrerRows,
+	getSummarizedReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { flattenReferrerRows } from './aggregate';
 
 /**
  * Fetch and derive the Referrers report table records.
@@ -15,15 +15,8 @@ import { flattenReferrerRows } from './aggregate';
  * @return Hierarchical table records.
  */
 export function useReferrersReportRecords( reportParams: ReportParams ) {
-	// Match Calypso's detailed Referrers request: summarize the selected day
-	// range and request every row for client-side search, sorting, and pagination.
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 1,
-			period: 'day',
-		} ),
+		() => getSummarizedReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const report = useStatsReferrers( recordsParams );
@@ -32,6 +25,7 @@ export function useReferrersReportRecords( reportParams: ReportParams ) {
 
 	return {
 		isError: report.isError,
+		error: report.error,
 		refetch: report.refetch,
 		rows,
 		isLoading: report.isLoading,

@@ -6,9 +6,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback, useState } from 'react';
 
-const { default: JetpackEmailConnectionSettings } = await import(
-	'../../../../../src/blocks/contact-form/components/jetpack-email-connection-settings.jsx'
-);
+const { default: JetpackEmailConnectionSettings } =
+	await import( '../../../../../src/blocks/contact-form/components/jetpack-email-connection-settings.jsx' );
 
 /**
  * Stateful wrapper mirroring how the block editor feeds attributes back into the component.

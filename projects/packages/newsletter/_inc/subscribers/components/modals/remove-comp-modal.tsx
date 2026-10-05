@@ -5,6 +5,7 @@ import { useRemoveCompMutation } from '../../data/use-comp-mutation';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
 import { recordTracksEvent } from '../../lib/tracks';
 import type { Subscriber } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	pending: { subscriber: Subscriber; compId: number; planTitle?: string } | null;
@@ -58,12 +59,12 @@ export default function RemoveCompModal( { pending, onClose }: Props ): JSX.Elem
 				__( 'Remove %1$s from %2$s?', 'jetpack-newsletter' ),
 				subscriberName,
 				pending.planTitle
-		  )
+			)
 		: sprintf(
 				// translators: %s: subscriber name.
 				__( 'Remove the complimentary subscription for %s?', 'jetpack-newsletter' ),
 				subscriberName
-		  );
+			);
 
 	const description = __(
 		'They’ll lose access to the paid content this comp grants. They’ll keep their free subscription.',

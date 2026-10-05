@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Decode HTML entities in post titles, author names, and other Stats labels.

@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Podcast;
 
+use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Podcast\Feed\Episode_Block_Tags;
@@ -147,6 +148,7 @@ class Tracks {
 				),
 				self::identity_for_post( $post )
 			);
+			self::bump_stat( 'wpcom-podcast-episodes', 'published' );
 
 			// Atomic INSERT — only one concurrent caller per site wins, so
 			// `show_launched` fires exactly once per site.
@@ -156,6 +158,7 @@ class Tracks {
 					array( 'post_id' => (int) $post->ID ),
 					self::identity_for_post( $post )
 				);
+				self::bump_stat( 'wpcom-podcast-episodes', 'show-launched' );
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Tracks is best-effort — never break a publish.
@@ -295,6 +298,7 @@ class Tracks {
 						'surface' => self::$surface,
 					)
 				);
+				self::bump_stat( 'wpcom-podcast-distribution', (string) $app );
 				return;
 			}
 		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -492,8 +496,30 @@ class Tracks {
 			)
 		);
 
-		/** This action is documented in projects/packages/forms/src/contact-form/class-util.php */
-		do_action( 'jetpack_bump_stats_extras', 'wpcom-podcasting-status', $status );
+		self::bump_stat( 'wpcom-podcasting-status', $status );
+	}
+
+	/**
+	 * Bump a Mission Control stat. Calls `bump_stats_extras` directly on
+	 * Simple; elsewhere pings the pixel so Atomic and self-hosted count too.
+	 * The URL is built with the bare group rather than `A8c_Mc_Stats::add()`,
+	 * whose `x_jetpack-` prefix would file the pixel bumps under a second name.
+	 *
+	 * @param string $group Stat group.
+	 * @param string $bin   Stat name within the group.
+	 */
+	private static function bump_stat( string $group, string $bin ): void {
+		try {
+			if ( function_exists( 'bump_stats_extras' ) ) {
+				bump_stats_extras( $group, $bin );
+				return;
+			}
+
+			$stats = new A8c_Mc_Stats();
+			$stats->do_server_side_stat( $stats->build_stats_url( array( "x_{$group}" => $bin ) ) );
+		} catch ( Throwable $e ) {
+			unset( $e );
+		}
 	}
 
 	/**

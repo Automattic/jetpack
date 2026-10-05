@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { Link } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import { ExternalLink } from '../external-link';
+import { InternalLink } from '../internal-link';
+import type { JSX } from 'react';
 
 export type VideoTitleLinkProps = {
 	id?: number | string;
@@ -37,23 +41,16 @@ export function VideoTitleLink( {
 	const text = <span className={ classNames?.text }>{ label }</span>;
 
 	if ( Number.isInteger( videoId ) && videoId > 0 ) {
-		// `UiLink` renders the router link so the anchor keeps the design
-		// system's unlayered guard, without which wp-admin repaints it blue.
 		return (
-			<UiLink
+			<InternalLink
 				className={ classNames?.internal }
-				variant="unstyled"
 				title={ title }
-				render={
-					<Link
-						to="/video/$videoId"
-						params={ { videoId: String( videoId ) } as unknown as never }
-						search={ search as unknown as never }
-					/>
-				}
+				to="/video/$videoId"
+				params={ { videoId: String( videoId ) } }
+				search={ search }
 			>
 				{ text }
-			</UiLink>
+			</InternalLink>
 		);
 	}
 
@@ -62,19 +59,10 @@ export function VideoTitleLink( {
 	const href = safeHttpUrl( link );
 
 	if ( href ) {
-		// `openInNewTab` appends the design system's outbound marker, so the row
-		// carries the same arrow as every other external link in the dashboard.
 		return (
-			<UiLink
-				className={ classNames?.external }
-				href={ href }
-				variant="unstyled"
-				openInNewTab
-				rel="noopener noreferrer"
-				title={ title }
-			>
+			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
 				{ text }
-			</UiLink>
+			</ExternalLink>
 		);
 	}
 

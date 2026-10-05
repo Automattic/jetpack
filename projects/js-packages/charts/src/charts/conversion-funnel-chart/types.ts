@@ -50,14 +50,17 @@ export interface TooltipRenderProps {
 	index: number;
 	top: number;
 	left: number;
+	/** @deprecated The tooltip box draws the package surface; this is no longer set. */
 	className?: string;
 }
 
 /**
  * Props for the ConversionFunnelChart component
  */
-export interface ConversionFunnelChartProps
-	extends Pick< BaseChartProps, 'className' | 'chartId' | 'animation' > {
+export interface ConversionFunnelChartProps extends Pick<
+	BaseChartProps,
+	'className' | 'chartId' | 'animation'
+> {
 	/** Main conversion rate to highlight */
 	mainRate: number;
 	/** Change indicator (e.g., +2%, -1.5%) */
@@ -78,4 +81,6 @@ export interface ConversionFunnelChartProps
 	renderMainMetric?: ( props: MainMetricRenderProps ) => React.ReactNode;
 	/** Custom render function for tooltip content */
 	renderTooltip?: ( props: TooltipRenderProps ) => React.ReactNode;
+	/** Inline styles merged over the tooltip box defaults. */
+	tooltipStyle?: React.CSSProperties;
 }

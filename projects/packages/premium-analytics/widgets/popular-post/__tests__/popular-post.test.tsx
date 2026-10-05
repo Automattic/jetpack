@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	queryClient,
 } from '@jetpack-premium-analytics/data';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -133,7 +134,7 @@ describe( 'PopularPostWidget', () => {
 		// The window's own bounds are asserted in the hook's suite; what only shows
 		// here is that the injected year never displaces them.
 		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
-		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
+		expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
 		expect( ranking ).not.toContain( '2022' );
 
 		// A different section year is the change this card must ignore: it reads
@@ -152,6 +153,54 @@ describe( 'PopularPostWidget', () => {
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
+	it( 'names its own window, not the selected period, when the site has no views', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...topPostsResponse,
+			summary: { postviews: [], total_views: 0 },
+		} );
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
+		const reportParams = { ...yearReportParams( 2022 ), author_id: 7 };
+		const { unmount } = render( <PopularPostWidget attributes={ { reportParams } } /> );
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+		expect( topPostsRequests() ).toHaveLength( 1 );
+		unmount();
+
+		mockApiFetch.mockClear();
+		render( <PopularPostWidget attributes={ { reportParams, authorScoped: true } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+		expect( topPostsRequests() ).toHaveLength( 0 );
+		expect(
+			mockApiFetch.mock.calls.some( ( [ options ] ) =>
+				requestPath( options ).includes( 'stats/top-authors' )
+			)
+		).toBe( true );
+	} );
+
+	it( 'shows the scopeless empty state, and makes no request, when author-scoped without an author', async () => {
+		render(
+			<PopularPostWidget
+				attributes={ { reportParams: yearReportParams( 2022 ), authorScoped: true } }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'Open an author to see their most viewed post here.' )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
 	it( 'links the post to its detail page on the window it ranked over', async () => {
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 
@@ -159,8 +208,10 @@ describe( 'PopularPostWidget', () => {
 		const { searchParams: search } = getMockRouteLinkUrl( link );
 
 		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
-		expect( search.get( 'from' ) ).toContain( '2025-08-27T00:00:00' );
-		expect( search.get( 'to' ) ).toContain( '2026-08-26T23:59:59' );
+		expect( search.get( 'from' ) ).toContain( '2025-09-01T00:00:00' );
+		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its
@@ -176,6 +227,18 @@ describe( 'PopularPostWidget', () => {
 		).toBe( false );
 	} );
 
+	it( 'names the dashboard tab the detail page should return to', async () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+			</DashboardSectionProvider>
+		);
+
+		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
+
+		expect( getMockRouteLinkUrl( link ).searchParams.get( 'ds' ) ).toBe( 'insights' );
+	} );
+
 	it( 'renders on a saved instance that carries no report params', async () => {
 		// The widget rules allow `attributes` to arrive empty, and nothing here
 		// reads the host's range, so an instance saved before this card pinned its
@@ -185,6 +248,6 @@ describe( 'PopularPostWidget', () => {
 		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
 
 		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
-		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
+		expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
 	} );
 } );

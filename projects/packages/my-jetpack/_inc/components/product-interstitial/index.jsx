@@ -1,12 +1,14 @@
 /**
  * Internal dependencies
  */
-import completeImage from './assets/complete.webp';
-import extrasImage from './assets/extras.png';
-import securityImage from './assets/security.webp';
-import statsImage from './assets/stats.png';
+import { assetUrl } from '../../assets/url';
 import PricingInterstitial from './pricing-interstitial';
 import ProductInterstitial from './product-interstitial';
+
+const completeImage = assetUrl( 'components/product-interstitial/assets/complete.webp' );
+const extrasImage = assetUrl( 'components/product-interstitial/assets/extras.png' );
+const securityImage = assetUrl( 'components/product-interstitial/assets/security.webp' );
+const statsImage = assetUrl( 'components/product-interstitial/assets/stats.png' );
 
 // Export the main components
 export default ProductInterstitial;

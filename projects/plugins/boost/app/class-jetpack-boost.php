@@ -139,8 +139,7 @@ class Jetpack_Boost {
 
 		My_Jetpack_Initializer::init();
 
-		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
-		// initialized the package on this request.
+		// Activity Log. No-ops while the `activity-log` module is off.
 		Jetpack_Activity_Log::initialize();
 
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );

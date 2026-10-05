@@ -211,7 +211,7 @@ function gatherValidationIssues( blocks ) {
 						__( issue.args[ 0 ], 'jetpack-paypal-payments' ),
 						...issue.args.slice( 1 )
 					)
-			  )
+				)
 			: [];
 		return {
 			name: block.name || 'unknown',

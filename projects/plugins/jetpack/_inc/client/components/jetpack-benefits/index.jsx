@@ -28,12 +28,12 @@ const JetpackBenefits = props => {
 								? __(
 										'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
 										'jetpack'
-								  )
+									)
 								: __(
 										'Jetpack is currently powering features on your site. Once you deactivate Jetpack, these features will no longer be available.',
 										'jetpack',
 										/* dummy arg to avoid bad minification */ 0
-								  ) }
+									) }
 						</p>
 					</div>
 					<div className="jp-connection__disconnect-card__group">

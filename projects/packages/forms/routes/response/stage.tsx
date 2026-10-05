@@ -5,11 +5,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
-import {
-	Modal,
-	Spinner,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Modal, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -27,6 +23,7 @@ import ResponseFieldsIterator from '../../src/dashboard/components/inspector/res
 import ResponseMeta from '../../src/dashboard/components/inspector/response-meta';
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
+import MarkAsSpamConfirmationModal from '../../src/dashboard/components/mark-as-spam-confirmation-modal';
 import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
@@ -114,13 +111,11 @@ function Stage(): React.JSX.Element {
 			// without `fields_format=collection`, overwriting the shared record and
 			// stripping the rich field rendering.
 			const records = core.getEntityRecords( 'postType', 'feedback', responseQuery ) as
-				| FormResponse[]
-				| null;
+				FormResponse[] | null;
 
 			// See `pick-record.ts` for why the list's copy is used as a stand-in.
 			const listRecords = core.getEntityRecords( 'postType', 'feedback', pinned ) as
-				| FormResponse[]
-				| null;
+				FormResponse[] | null;
 			const rawRecord = pickResponseRecord( records, listRecords, id );
 
 			const edits = (
@@ -153,8 +148,7 @@ function Stage(): React.JSX.Element {
 				return '';
 			}
 			const record = select( coreStore ).getEntityRecord( 'postType', 'jetpack_form', formId ) as
-				| { title?: { rendered?: string } }
-				| undefined;
+				{ title?: { rendered?: string } } | undefined;
 			return record ? decodeEntities( record.title?.rendered || '' ) : '';
 		},
 		[ response?.form_id ]
@@ -375,14 +369,12 @@ function Stage(): React.JSX.Element {
 				</Modal>
 			) }
 
-			<ConfirmDialog
+			<MarkAsSpamConfirmationModal
 				isOpen={ isConfirmDialogOpen }
 				onConfirm={ onConfirmMarkAsSpam }
 				onCancel={ onCancelMarkAsSpam }
-				isBusy={ isSaving }
-			>
-				{ markAsSpamConfirmationMessage }
-			</ConfirmDialog>
+				message={ markAsSpamConfirmationMessage }
+			/>
 		</FormsPage>
 	);
 }

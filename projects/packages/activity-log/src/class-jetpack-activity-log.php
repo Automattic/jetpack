@@ -15,12 +15,17 @@ use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
+use Jetpack_Options;
 use function add_action;
 use function add_filter;
+use function class_exists;
 use function current_user_can;
 use function did_action;
 use function do_action;
+use function get_current_screen;
 use function is_admin;
 use function is_multisite;
 use function sanitize_text_field;
@@ -44,6 +49,21 @@ class Jetpack_Activity_Log {
 	 * @var string
 	 */
 	const PAGE_SLUG = 'jetpack-activity-log';
+
+	/**
+	 * Slug of the Jetpack module that turns the Activity Log on and off.
+	 *
+	 * @var string
+	 */
+	const MODULE_SLUG = 'activity-log';
+
+	/**
+	 * Jetpack_Options key recording that the module was switched on for a site
+	 * with no Jetpack plugin. See `activate_standalone_default()`.
+	 *
+	 * @var string
+	 */
+	const DEFAULT_ACTIVATED_OPTION = 'activity_log_default_activated';
 
 	/**
 	 * Page slug for the wp-build dashboard. Distinct from the wp-admin menu
@@ -78,10 +98,30 @@ class Jetpack_Activity_Log {
 	const REFRESH_ACCESS_NONCE_ACTION = 'jetpack_activity_log_refresh_access';
 
 	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
+
+	/**
 	 * Entry point. Idempotent: safe to call from multiple bootstraps.
+	 *
+	 * Bootstraps only while the `activity-log` module is on, so the toggle
+	 * means the same thing to the Jetpack plugin and to every standalone
+	 * plugin that carries this package.
 	 */
 	public static function initialize() {
-		if ( did_action( 'jetpack_activity_log_initialized' ) ) {
+		self::register_module();
+
+		if ( did_action( 'jetpack_activity_log_initialized' ) || ! self::is_module_active() ) {
 			return;
 		}
 
@@ -95,6 +135,75 @@ class Jetpack_Activity_Log {
 		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_activity_log_initialized' );
+	}
+
+	/**
+	 * Whether the Activity Log module is switched on.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return ( new Modules() )->is_active( self::MODULE_SLUG );
+	}
+
+	/**
+	 * Make the module controllable, and give a site with no Jetpack plugin the
+	 * same default-on state the Jetpack plugin gets from `Auto Activate: Yes`.
+	 *
+	 * @return void
+	 */
+	private static function register_module() {
+		add_filter( 'jetpack_get_available_standalone_modules', array( __CLASS__, 'add_standalone_module' ) );
+
+		// `class_exists( 'Jetpack' )` is only reliable once every plugin file has
+		// loaded: `jetpack-backup/` sorts before `jetpack/` in active_plugins, so
+		// Backup reaches initialize() while the Jetpack class is still undefined.
+		if ( did_action( 'plugins_loaded' ) ) {
+			self::activate_standalone_default();
+		} else {
+			add_action( 'plugins_loaded', array( __CLASS__, 'activate_standalone_default' ) );
+		}
+	}
+
+	/**
+	 * Make the module available to the module controller when the Jetpack
+	 * plugin is not installed, so `jetpack_active_modules` is not inert there.
+	 *
+	 * @param array $modules Available standalone module slugs.
+	 * @return array
+	 */
+	public static function add_standalone_module( $modules ) {
+		$modules[] = self::MODULE_SLUG;
+
+		return array_values( array_unique( $modules ) );
+	}
+
+	/**
+	 * Switch the module on once on a site with no Jetpack plugin.
+	 *
+	 * The Jetpack plugin activates the module for you via `Auto Activate: Yes`;
+	 * a standalone install has no equivalent, so without this the page would
+	 * disappear from every Backup/Boost/Protect/Search/VideoPress site on
+	 * upgrade. Recorded in an option rather than repeated, so a later opt-out
+	 * is not undone on the next request.
+	 *
+	 * @return void
+	 */
+	public static function activate_standalone_default() {
+		if ( class_exists( 'Jetpack' ) || Jetpack_Options::get_option( self::DEFAULT_ACTIVATED_OPTION ) ) {
+			return;
+		}
+
+		if ( ! ( new Modules() )->activate( self::MODULE_SLUG, false, false ) ) {
+			return;
+		}
+
+		// Record before re-entering initialize(), which calls back into here.
+		Jetpack_Options::update_option( self::DEFAULT_ACTIVATED_OPTION, true );
+
+		// initialize() ran before this and found the module off, so wire up now
+		// rather than leaving the page missing for the rest of the request.
+		self::initialize();
 	}
 
 	/**
@@ -112,14 +221,9 @@ class Jetpack_Activity_Log {
 
 		// Load wp-build only on the Activity Log request so its generated
 		// render function exists before the menu callback runs, and its
-		// enqueue pipeline/polyfills stay off every other admin page. Alias
-		// the screen id here too — `current_screen` fires before the
-		// `load-{$page_suffix}` hook that runs admin_init(), so registering
-		// the alias from admin_init() would be too late for wp-build's
-		// screen-matched enqueue callback.
+		// enqueue pipeline/polyfills stay off every other admin page.
 		if ( self::is_activity_log_admin_request() ) {
-			self::load_wp_build();
-			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+			self::load_wp_build_with_screen_alias();
 		}
 
 		// The menu item must appear on every admin page, but the generated
@@ -136,12 +240,12 @@ class Jetpack_Activity_Log {
 			'Activity Log',
 			'manage_options',
 			self::PAGE_SLUG,
-			$render_callback,
-			12
+			$render_callback
 		);
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+			self::opt_out_of_jitms( $page_suffix );
 		}
 
 		return $page_suffix;
@@ -230,21 +334,97 @@ class Jetpack_Activity_Log {
 	}
 
 	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
 	 * Alias the current screen id to the wp-build page slug.
 	 *
 	 * The wp-build-generated enqueue callback only fires when the screen id
 	 * equals the wp-build page slug. Our menu slug stays `jetpack-activity-log`,
 	 * so alias the screen id in place to make the check pass without changing
-	 * the user-facing URL. Hooked on `current_screen` only for the Activity Log
-	 * request, so this never affects any other screen.
+	 * the user-facing URL. Hooked only for the Activity Log request, so this
+	 * never affects any other screen.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since 0.4.1 Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( is_object( $screen ) ) {
-			$screen->id = self::WP_BUILD_PAGE_SLUG;
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
 		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_PAGE_SLUG;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since 0.4.1
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 * @return void
+	 */
+	private static function opt_out_of_jitms( $screen_id ) {
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since 0.4.1
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**

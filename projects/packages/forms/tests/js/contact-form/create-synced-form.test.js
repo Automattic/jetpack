@@ -25,9 +25,8 @@ await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: str => str,
 } ) );
 
-const { createSyncedForm } = await import(
-	'../../../src/blocks/contact-form/util/create-synced-form'
-);
+const { createSyncedForm } =
+	await import( '../../../src/blocks/contact-form/util/create-synced-form' );
 
 describe( 'createSyncedForm', () => {
 	beforeEach( () => {

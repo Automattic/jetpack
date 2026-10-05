@@ -669,59 +669,7 @@ class Create_AI_Podcast_Page {
 			);
 		}
 
-		$per_page = self::EPISODES_PER_PAGE;
-		$query    = new \WP_Query(
-			array(
-				'post_type'              => 'post',
-				'post_status'            => array( 'draft', 'publish' ),
-				'posts_per_page'         => $per_page,
-				'paged'                  => 1,
-				'orderby'                => 'date',
-				'order'                  => 'DESC',
-				'update_post_term_cache' => false,
-				'meta_query'             => array(
-					array(
-						'key'     => 'posts_to_podcast_metadata',
-						'compare' => 'EXISTS',
-					),
-				),
-			)
-		);
-
-		$items = array();
-		foreach ( $query->posts as $post ) {
-			$raw_meta = get_post_meta( $post->ID, 'posts_to_podcast_metadata', true );
-			$meta     = is_string( $raw_meta ) ? json_decode( $raw_meta, true ) : null;
-			$audio    = ( is_array( $meta ) && isset( $meta['audio'] ) && is_array( $meta['audio'] ) ) ? $meta['audio'] : array();
-			$title    = wp_strip_all_tags(
-				html_entity_decode( (string) get_the_title( $post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' )
-			);
-			if ( '' === trim( $title ) ) {
-				// translators: Fallback shown in the Generated podcasts list when a draft has an empty title.
-				$title = __( '(no title)', 'jetpack-podcast' );
-			}
-
-			$items[] = array(
-				'id'        => $post->ID,
-				'title'     => $title,
-				'status'    => $post->post_status,
-				'date'      => mysql2date( 'c', $post->post_date_gmt, false ),
-				'editUrl'   => get_edit_post_link( $post->ID, 'raw' ),
-				'mediaUrl'  => isset( $audio['url'] ) ? esc_url_raw( (string) $audio['url'] ) : '',
-				'mediaType' => 'audio',
-				'mediaMime' => isset( $audio['mimeType'] ) ? (string) $audio['mimeType'] : '',
-				'duration'  => isset( $audio['durationSeconds'] ) ? (int) round( (float) $audio['durationSeconds'] ) : 0,
-			);
-		}
-
-		$total                 = (int) $query->found_posts;
-		$bootstrap['episodes'] = array(
-			'items'      => $items,
-			'total'      => $total,
-			'page'       => 1,
-			'perPage'    => $per_page,
-			'totalPages' => (int) ceil( $total / $per_page ),
-		);
+		$bootstrap['episodes'] = Posts_To_Podcast_Helper::get_episodes( 1, self::EPISODES_PER_PAGE );
 
 		return $bootstrap;
 	}

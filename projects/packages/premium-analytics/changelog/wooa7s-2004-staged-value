@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Date filters: share one staged-value controller between the URL-backed and widget-backed surfaces, and resolve the chart interval against the same range on both.

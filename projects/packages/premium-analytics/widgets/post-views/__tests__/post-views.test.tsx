@@ -5,6 +5,7 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -19,26 +20,27 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
+		empty,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
@@ -46,7 +48,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -59,6 +63,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 type ChartedMetric = {
 	key: string;
 	label: string;
+	countLabels: ( string | null )[];
 	value: number;
 	format?: string;
 	values: number[];
@@ -119,13 +124,14 @@ describe( 'PostViewsWidget', () => {
 		const metrics = chartedMetrics( chart );
 		expect( metrics ).toHaveLength( 1 );
 		expect( metrics[ 0 ].label ).toBe( 'Views' );
+		expect( metrics[ 0 ].countLabels ).toEqual( [ '%s View', '%s Views' ] );
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two in-window days; the 6/25 day falls outside the window.
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// The metric headline is the window total, and the chart type
-		// defaults to line.
+		// defaults to bars.
 		expect( metrics[ 0 ].value ).toBe( 12 );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/post/779' );
@@ -164,13 +170,13 @@ describe( 'PostViewsWidget', () => {
 		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
-		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } } /> );
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {
@@ -197,6 +203,16 @@ describe( 'PostViewsWidget', () => {
 		expect( metrics[ 0 ].label ).toBe( 'Views' );
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'shows the no-results message in the chart for a window without views', async () => {
+		mockApiFetch.mockResolvedValue( { data: [] } );
+
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a post scope', async () => {

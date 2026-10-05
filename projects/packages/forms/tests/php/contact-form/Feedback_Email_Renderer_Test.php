@@ -695,8 +695,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	 * confirmation, so pin it here.
 	 */
 	public function test_build_email_content_action_urls_target_single_response_page() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'Name'  => 'Test User',
@@ -720,8 +718,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		);
 
 		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		// "View in dashboard" points at the standalone single response page — and
 		// must NOT carry the trigger. Matched to the closing quote, because the view
@@ -759,8 +755,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	 * already-spam response, leaving the trigger armed in the URL.
 	 */
 	public function test_build_email_content_omits_mark_as_spam_for_spam_submission() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'Name'  => 'Test User',
@@ -784,8 +778,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		);
 
 		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		$this->assertStringNotContainsString(
 			'mark_as_spam',
@@ -821,8 +813,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	 * would leave the button pointing at a page with nothing to confirm.
 	 */
 	public function test_build_email_content_omits_mark_as_spam_for_trashed_submission() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'Name'  => 'Test User',
@@ -846,8 +836,6 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		);
 
 		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		$this->assertStringNotContainsString( 'mark_as_spam', $result['message'] );
 		$this->assertStringNotContainsString( 'href=""', $result['message'] );

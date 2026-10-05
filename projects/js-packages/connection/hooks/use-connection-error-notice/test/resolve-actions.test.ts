@@ -90,7 +90,26 @@ describe( 'resolveConnectionErrorActions', () => {
 		);
 
 		actions[ 0 ].onClick();
-		expect( trackingCallback ).toHaveBeenCalledWith( DEFAULT_RECONNECT_TRACKING_EVENT, {} );
+		expect( trackingCallback ).toHaveBeenCalledWith( DEFAULT_RECONNECT_TRACKING_EVENT, {
+			context: null,
+			error_code: null,
+			audience: 'site',
+		} );
+	} );
+
+	it( 'reports the standard payload with the tracking context and the error scope', () => {
+		const trackingCallback = jest.fn();
+		const actions = resolveConnectionErrorActions(
+			{ error_message: 'Broken', error_code: 'invalid_token', audience: 'owner' },
+			{ ...baseOptions, trackingCallback, trackingContext: 'my-jetpack' }
+		);
+
+		actions[ 0 ].onClick();
+		expect( trackingCallback ).toHaveBeenCalledWith( DEFAULT_RECONNECT_TRACKING_EVENT, {
+			context: 'my-jetpack',
+			error_code: 'invalid_token',
+			audience: 'owner',
+		} );
 	} );
 
 	it( 'uses a consumer-supplied reconnect tracking event when provided', () => {
@@ -101,7 +120,11 @@ describe( 'resolveConnectionErrorActions', () => {
 		);
 
 		actions[ 0 ].onClick();
-		expect( trackingCallback ).toHaveBeenCalledWith( 'jetpack_my_jetpack_x', {} );
+		expect( trackingCallback ).toHaveBeenCalledWith( 'jetpack_my_jetpack_x', {
+			context: null,
+			error_code: null,
+			audience: 'site',
+		} );
 	} );
 
 	it( 'resolves a named action handler', () => {
@@ -128,7 +151,11 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( actions[ 0 ].variant ).toBe( 'primary' );
 
 		actions[ 0 ].onClick();
-		expect( trackingCallback ).toHaveBeenCalledWith( 'jetpack_fix_it', {} );
+		expect( trackingCallback ).toHaveBeenCalledWith( 'jetpack_fix_it', {
+			context: null,
+			error_code: null,
+			audience: 'site',
+		} );
 		expect( handler ).toHaveBeenCalledWith( error );
 	} );
 

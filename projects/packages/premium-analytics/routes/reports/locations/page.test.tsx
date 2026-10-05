@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
-	ReportCsvAction,
-	ReportErrorState,
+	ExporterCsvAction,
+	ReportLocationsMap,
 	ReportPageTabs,
 	ReportRecordsTable,
-	useReportCsvExport,
+	locationsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -15,6 +16,7 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { getLocationFields, useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
@@ -31,6 +33,11 @@ jest.mock( './config', () => {
 	};
 } );
 
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePrefetchViewerCountry: jest.fn(),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
@@ -45,20 +52,23 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	ExporterCsvAction: jest.fn( () => null ),
+	LOCATIONS_GEO_MODES: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.LOCATIONS_GEO_MODES,
+	locationsCsvExporter: jest.fn(
+		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).locationsCsvExporter
+	),
+	supportsLocationsCountryFilter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.supportsLocationsCountryFilter,
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
-	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
-		<div data-testid="report-error-state">
-			<span>{ title }</span>
-			<button onClick={ onRetry }>Retry</button>
-		</div>
-	) ),
+	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
+	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
 			{ tabs }
 			{ children }
 		</>
 	),
-	ReportCsvAction: jest.fn( () => <button>Download</button> ),
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
 			{ actions }
@@ -66,10 +76,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportPageTabs: jest.fn( () => null ),
-	// The table's own tests cover how it renders the field config and reports
-	// view changes; here only the props the page hands it matter.
+	// The map and the table have their own tests for what they render; here only
+	// the props the page hands them matter.
+	ReportLocationsMap: jest.fn( () => <div data-testid="locations-map" /> ),
 	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
-	useReportCsvExport: jest.fn(),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -89,11 +99,14 @@ jest.mock( '@wordpress/route', () => ( {
 
 const useRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
-const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
+const reportLocationsMapMock = jest.mocked( ReportLocationsMap );
+const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
+const locationsCsvExporterMock = jest.mocked( locationsCsvExporter );
+
+// Set by `mockTabState`, so a test can move the tab the way the URL does.
+let setTabFromUrl: ( tab: ReportLocationsTabId ) => void;
 
 const row: LocationRow = {
 	id: 'AU',
@@ -134,9 +147,12 @@ function mockRecords( overrides: Record< string, unknown > = {} ) {
  * @param initial - The tab the page starts on.
  */
 function mockTabState( initial: ReportLocationsTabId ) {
-	useSectionTabMock.mockImplementation(
-		() => useState< ReportLocationsTabId >( initial ) as ReturnType< typeof useSectionTab >
-	);
+	useSectionTabMock.mockImplementation( () => {
+		const state = useState< ReportLocationsTabId >( initial );
+		[ , setTabFromUrl ] = state;
+
+		return state as ReturnType< typeof useSectionTab >;
+	} );
 }
 
 /**
@@ -167,6 +183,15 @@ function pickCountry( countryCode: string ) {
 }
 
 /**
+ * Read the props of the map's latest render.
+ *
+ * @return The map props.
+ */
+function lastMapProps() {
+	return reportLocationsMapMock.mock.calls[ reportLocationsMapMock.mock.calls.length - 1 ][ 0 ];
+}
+
+/**
  * Switch tabs through the tab strip's own change handler.
  *
  * @param tab - The tab to switch to.
@@ -184,60 +209,33 @@ describe( 'LocationsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockTabState( 'countries' );
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: false,
-			rows: [],
-			filename: 'locations-countries',
-		} );
 	} );
 
-	it( 'offers a CSV export of the active tab', () => {
+	it( 'exports the active tab through its shared exporter', () => {
 		mockTabState( 'regions' );
 		const records = mockRecords();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows: [ row ],
-			filename: 'locations-regions-2026-06-01_2026-06-30',
-		} );
 
 		render( <LocationsReportPage /> );
 
-		expect( screen.getByRole( 'button', { name: 'Download' } ) ).toBeInTheDocument();
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+		expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'regions', undefined );
+		expect( exporterCsvActionMock ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
-				rows: records.table.rows,
-				filenamePrefix: 'locations-regions',
+				exporter: expect.objectContaining( { filenamePrefix: 'locations-regions' } ),
+				items: records.table.rows,
 				status: records.table,
-			} )
+			} ),
+			expect.anything()
 		);
-
-		const { columns, rows: exportRows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.label ) ).toEqual( [ 'Location', 'Country', 'Views' ] );
-		expect( exportRows.map( item => columns.map( column => column.getValue( item ) ) ) ).toEqual( [
-			[ 'Australia', 'Australia', 15 ],
-		] );
 	} );
 
-	it( 'omits the country column from the Countries export', () => {
-		mockRecords();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows: [ row ],
-			filename: 'locations-countries-2026-06-01_2026-06-30',
-		} );
-
-		render( <LocationsReportPage /> );
-
-		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.label ) ).toEqual( [ 'Location', 'Views' ] );
-	} );
-
-	it( 'hides the CSV export until the rows are settled', () => {
+	it( 'scopes the export to the country picked in the table', () => {
+		mockTabState( 'cities' );
 		mockRecords();
 
 		render( <LocationsReportPage /> );
+		pickCountry( 'US' );
 
-		expect( screen.queryByRole( 'button', { name: 'Download' } ) ).not.toBeInTheDocument();
+		expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'cities', { country: 'US' } );
 	} );
 
 	it( 'hands the active tab rows to the records table', () => {
@@ -270,7 +268,7 @@ describe( 'LocationsReportPage', () => {
 		render( <LocationsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { isLoading: true } )
+			expect.objectContaining( { isLoading: false, isFetching: true } )
 		);
 	} );
 
@@ -279,11 +277,19 @@ describe( 'LocationsReportPage', () => {
 
 		render( <LocationsReportPage /> );
 
-		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
-			'Unable to load locations'
-		);
-		expect( reportErrorStateMock ).toHaveBeenCalled();
+		expect(
+			getNoticeText( "We couldn't load locations. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'drops Retry when the request is denied', () => {
+		mockRecords( { isError: true, error: { error: 'unauthorized', status: 403 } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'refetches the active tab when Retry is clicked', async () => {
@@ -293,6 +299,34 @@ describe( 'LocationsReportPage', () => {
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'hides the map when the period has no rows', () => {
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the map mounted while the first rows load', () => {
+		mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the map when a picked country has no rows', () => {
+		mockTabState( 'regions' );
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
+		pickCountry( 'DE' );
+
+		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
+		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
 	} );
 
 	// The Countries tab is already the whole country list, so scoping it to one
@@ -376,5 +410,110 @@ describe( 'LocationsReportPage', () => {
 		selectTab( 'cities' );
 
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'cities', expect.anything(), undefined );
+	} );
+	describe( 'map', () => {
+		// The map waits for the country, so the lookup has to start with the page,
+		// not with the map.
+		it( "starts the viewer's country lookup while the rows are still loading", () => {
+			mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+			render( <LocationsReportPage /> );
+
+			expect( usePrefetchViewerCountry ).toHaveBeenCalled();
+		} );
+
+		it( 'plots the tab own rows at the tab granularity', () => {
+			mockTabState( 'cities' );
+			mockRecords();
+
+			render( <LocationsReportPage /> );
+
+			expect( lastMapProps() ).toMatchObject( {
+				mode: 'city',
+				focusCountry: undefined,
+				rows: [ { label: 'Australia', value: 15, countryCode: 'AU', countryFull: 'Australia' } ],
+			} );
+		} );
+
+		// A row the API left without a country has nowhere to sit on the map,
+		// though the table below still lists it.
+		it( 'leaves out a row with no country', () => {
+			mockTabState( 'cities' );
+			mockRecords( {
+				table: {
+					rows: [ row, { ...row, id: 'unknown', label: 'Unknown', countryCode: undefined } ],
+					isLoading: false,
+					isFetching: false,
+				},
+			} );
+
+			render( <LocationsReportPage /> );
+
+			expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'AU' } ) ] );
+		} );
+
+		it( 'scopes the map to the picked country', () => {
+			mockTabState( 'regions' );
+			mockRecords();
+
+			render( <LocationsReportPage /> );
+			pickCountry( 'DE' );
+
+			expect( lastMapProps().focusCountry ).toEqual( { code: 'DE', name: 'Germany' } );
+		} );
+
+		// Back and Forward move the tab from the URL, never through the tab strip's
+		// change event, and the table remounts without the chip either way — so a
+		// filter that outlived its tab would scope the report invisibly.
+		it( 'drops the picked country when the tab moves from the URL', () => {
+			mockTabState( 'regions' );
+			mockRecords();
+
+			render( <LocationsReportPage /> );
+			pickCountry( 'DE' );
+			expect( lastMapProps().focusCountry ).toEqual( { code: 'DE', name: 'Germany' } );
+
+			// Back, onto a tab that has no country filter at all.
+			act( () => {
+				setTabFromUrl( 'countries' );
+			} );
+
+			expect( useRecordsMock ).toHaveBeenLastCalledWith(
+				'countries',
+				expect.anything(),
+				undefined
+			);
+			expect( lastMapProps().focusCountry ).toBeUndefined();
+
+			// Forward, back onto the tab the country was picked on.
+			act( () => {
+				setTabFromUrl( 'regions' );
+			} );
+
+			expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), undefined );
+			expect( lastMapProps().focusCountry ).toBeUndefined();
+		} );
+
+		// Not keyed by tab, so whatever the user did to it — collapsing it, most of
+		// all — survives the switch.
+		it( 'keeps the same map mounted across a tab change', () => {
+			mockTabState( 'regions' );
+			mockRecords();
+
+			render( <LocationsReportPage /> );
+			const map = screen.getByTestId( 'locations-map' );
+
+			selectTab( 'cities' );
+
+			expect( screen.getByTestId( 'locations-map' ) ).toBe( map );
+		} );
+
+		it( 'drops the map with the table when the report fails', () => {
+			mockRecords( { isError: true } );
+
+			render( <LocationsReportPage /> );
+
+			expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

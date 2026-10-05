@@ -314,7 +314,9 @@ class Waf_Runtime {
 	 * @param int    $status_code Http status code.
 	 */
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
-		if ( 'ip block list' === $reason ) {
+		// The recovery flow needs transients, `wp_salt()` and `$pagenow`, so it cannot run in
+		// standalone mode, where the WAF executes from `auto_prepend_file` before WordPress.
+		if ( 'ip block list' === $reason && defined( 'ABSPATH' ) ) {
 			$real_ip = $this->request->get_real_user_ip_address();
 
 			if ( $this->is_ip_allowed_for_recovery( $real_ip ) ) {

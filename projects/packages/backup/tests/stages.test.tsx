@@ -146,7 +146,7 @@ describe( 'Gates', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( 'Link your account to view backups' )
+			screen.findByText( 'Link your WordPress.com account' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );

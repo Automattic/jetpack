@@ -98,6 +98,15 @@ describe( 'SectionGenerateButton', () => {
 		expect( screen.getByRole( 'button', { name: 'Improve guidelines' } ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ false, 'Generate' ],
+		[ true, 'Improve' ],
+	] )( 'uses the short label when asked (hasDraft: %s)', ( hasDraft, name ) => {
+		setup( { hasDraft } );
+		render( <SectionGenerateButton slug="copy" isShortLabel /> );
+		expect( screen.getByRole( 'button', { name } ) ).toBeInTheDocument();
+	} );
+
 	it( 'opens the upgrade notice instead of generating without an AI plan', async () => {
 		setup( { hasFeature: false } );
 		render( <SectionGenerateButton slug="copy" /> );

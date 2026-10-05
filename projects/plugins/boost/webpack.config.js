@@ -22,7 +22,7 @@ module.exports = [
 	 */
 	{
 		entry: {
-			index: './app/assets/src/js/index.tsx',
+			index: [ './app/assets/src/js/index.tsx', './app/assets/src/js/modern-overview-upgrade.tsx' ],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -83,13 +83,7 @@ module.exports = [
 					filename: 'jetpack-boost.css',
 				},
 				DependencyExtractionPlugin: {
-					requestMap: {
-						// Bundle @wordpress/theme and @wordpress/private-apis inline —
-						// they're transitive deps of @wordpress/ui but aren't registered
-						// as script handles in WP core, so externalizing them breaks enqueue.
-						'@wordpress/theme': { external: false },
-						'@wordpress/private-apis': { external: false },
-					},
+					bundleWpUiDeps: true,
 				},
 			} ),
 			new webpack.ProvidePlugin( {

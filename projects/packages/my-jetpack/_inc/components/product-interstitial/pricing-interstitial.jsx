@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
  */
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -29,6 +30,7 @@ import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { getFeatureCheckoutReturnUrl, getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -46,9 +48,9 @@ export default function PricingInterstitial( { slug } ) {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const myJetpackCheckoutUri = getMyJetpackUrl();
+	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
@@ -57,9 +59,6 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Track which button is currently loading ('free', 'paid', 'bundle', or null)
 	const [ loadingButton, setLoadingButton ] = useState( null );
-
-	// Disable all buttons when any action is in progress or data is loading
-	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading;
 
 	// Setup checkout workflows like ProductDetailCard does
 	const { admin_url: adminUrl, suffix: siteSuffix } = getScriptData().site;
@@ -98,6 +97,26 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
+	const { run: runSearchFreeActivation, isPending: isActivatingSearchFree } =
+		useActivateSearchFreeProduct( { sendToCheckout: freeCheckoutRun } );
+
+	// Shaped like the checkout runs `clickHandler` invokes, so it can stand in for one.
+	const searchFreeActivationRun = useCallback(
+		( _event, postCheckoutUrl ) => {
+			const redirect = postCheckoutUrl || paidCheckoutRedirectUrl;
+			runSearchFreeActivation( {
+				checkoutRedirect: redirect,
+				onSuccess: () => {
+					window.location.href = redirect;
+				},
+			} );
+		},
+		[ paidCheckoutRedirectUrl, runSearchFreeActivation ]
+	);
+
+	// Disable all buttons when any action is in progress or data is loading.
+	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading || isActivatingSearchFree;
+
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {
 		return detail?.pricingForUi?.tiers?.upgraded
@@ -106,7 +125,7 @@ export default function PricingInterstitial( { slug } ) {
 					// Calculate monthly prices from annual if needed
 					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
 					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
-			  }
+				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
 
@@ -120,10 +139,10 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Reset loading button when activation completes or site registration completes
 	useEffect( () => {
-		if ( ! isActivating && ! siteIsRegistering ) {
+		if ( ! isActivating && ! siteIsRegistering && ! isActivatingSearchFree ) {
 			setLoadingButton( null );
 		}
-	}, [ isActivating, siteIsRegistering ] );
+	}, [ isActivating, siteIsRegistering, isActivatingSearchFree ] );
 
 	const getProductSlugForTrackEvent = useCallback(
 		( isFree = false ) => {
@@ -150,7 +169,7 @@ export default function PricingInterstitial( { slug } ) {
 				tier = null,
 				hasDiscount = false,
 			} = options || {};
-			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( config?.bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
@@ -335,7 +354,11 @@ export default function PricingInterstitial( { slug } ) {
 
 		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
-		const checkout = hasPurchasableFree ? freeCheckoutRun : null;
+		let checkout = hasPurchasableFree ? freeCheckoutRun : null;
+		// Search grants its free product in place, and only falls back to that checkout.
+		if ( hasPurchasableFree && slug === 'search' ) {
+			checkout = searchFreeActivationRun;
+		}
 
 		updateInterstitialsState(
 			{ [ slug ]: true },
@@ -351,6 +374,7 @@ export default function PricingInterstitial( { slug } ) {
 		detail,
 		config?.tiers?.free,
 		freeCheckoutRun,
+		searchFreeActivationRun,
 		updateInterstitialsState,
 		slug,
 	] );
@@ -384,7 +408,7 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to="/products"
+					to={ getProductsSectionPath() }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

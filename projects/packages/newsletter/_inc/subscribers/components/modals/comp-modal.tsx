@@ -9,6 +9,7 @@ import { getSubscriberLabel } from '../../lib/subscriber-helpers';
 import { recordTracksEvent } from '../../lib/tracks';
 import type { MembershipsProduct } from '../../data/api';
 import type { Subscriber, SubscriptionPlan } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	subscriber: Subscriber | null;

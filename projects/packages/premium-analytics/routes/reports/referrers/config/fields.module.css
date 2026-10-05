@@ -22,3 +22,9 @@
 	border-radius: var(--wpds-border-radius-sm);
 	object-fit: cover;
 }
+
+.label {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
