@@ -1,6 +1,5 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import styles from '../bar-chart.module.scss';
 import { createGroupScale } from './band-scale';
 import { computeComparisonRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import {
@@ -129,7 +128,6 @@ export const ComparisonBars: FC< {
 				<rect
 					key={ `${ index }-${ i }` }
 					data-testid={ `bar-chart-comparison-${ index }-${ i }` }
-					className={ styles[ 'bar-chart__comparison-bar' ] }
 					x={ rect.x }
 					y={ rect.y }
 					width={ rect.width }
