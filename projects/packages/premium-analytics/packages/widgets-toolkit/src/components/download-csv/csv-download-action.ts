@@ -58,16 +58,21 @@ export function useExporterCsvAction< TItem, TRow >( {
 }: UseExporterCsvActionOptions< TItem, TRow > ): CsvDownloadAction | null {
 	const { reportParams } = useWidgetRootContext();
 	// The download can refetch the widget's own query; unmounting the button then drops focus.
-	const [ isDownloading, setIsDownloading ] = useState( false );
+	const [ phase, setPhase ] = useState< 'idle' | 'downloading' | 'settling' >( 'idle' );
+
+	// The widget's query result reports that refetch settled one render after the download does.
+	if ( phase === 'settling' && ! status.isFetching ) {
+		setPhase( 'idle' );
+	}
 
 	return useCsvDownloadAction(
-		isDownloading || isReportCsvReady( status, rowCount )
+		phase !== 'idle' || isReportCsvReady( status, rowCount )
 			? async () => {
-					setIsDownloading( true );
+					setPhase( 'downloading' );
 					try {
 						await downloadReportCsv( exporter, reportParams );
 					} finally {
-						setIsDownloading( false );
+						setPhase( 'settling' );
 					}
 				}
 			: null
