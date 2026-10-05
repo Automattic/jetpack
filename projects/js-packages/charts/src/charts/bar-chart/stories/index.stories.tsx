@@ -1,3 +1,4 @@
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -949,7 +950,25 @@ export const PaintedYAxis: Story = {
 	},
 };
 
-const yearlySeries = timeAxisSeries( yearlyPoints );
+const radiusSeries: SeriesData[] = [
+	{ ...timeAxisSeries( yearlyPoints )[ 0 ], group: 'views' },
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: yearlyPoints.map( ( [ date, value ] ) => ( { date, value: value - 12 } ) ),
+	},
+];
+
+const findRoundedBars = ( panel: HTMLElement ) =>
+	waitFor( () => {
+		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
+		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
+		if ( ! primary ) {
+			throw new Error( 'No bar rendered yet.' );
+		}
+		return { primary, comparison };
+	} );
 
 export const BarRadius: Story = {
 	args: {
@@ -959,14 +978,15 @@ export const BarRadius: Story = {
 	},
 	render: () => (
 		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
-			<div>
+			<div data-testid="bar-radius-default">
 				<h3 style={ { marginBottom: '4px' } }>Default</h3>
 				<p style={ { marginBottom: '12px', color: '#666' } }>
 					<code>--wpds-border-radius-md</code>
 				</p>
-				<BarChart width={ 380 } height={ 220 } data={ yearlySeries } gridVisibility="x" />
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
 			</div>
 			<div
+				data-testid="bar-radius-overridden"
 				style={
 					{
 						'--a8c-charts-border-radius-bar': 'var(--wpds-border-radius-sm)',
@@ -977,10 +997,28 @@ export const BarRadius: Story = {
 				<p style={ { marginBottom: '12px', color: '#666' } }>
 					<code>--wpds-border-radius-sm</code>
 				</p>
-				<BarChart width={ 380 } height={ 220 } data={ yearlySeries } gridVisibility="x" />
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
 			</div>
 		</div>
 	),
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const radii: string[] = [];
+
+		for ( const testId of [ 'bar-radius-default', 'bar-radius-overridden' ] ) {
+			const { primary, comparison } = await findRoundedBars( canvas.getByTestId( testId ) );
+			const role = getComputedStyle( primary )
+				.getPropertyValue( '--a8c-charts-border-radius-bar' )
+				.trim();
+
+			await expect( getComputedStyle( primary ).rx ).toBe( role );
+			await expect( getComputedStyle( comparison ).rx ).toBe( role );
+			await expect( role ).not.toBe( '0px' );
+			radii.push( role );
+		}
+
+		await expect( radii[ 1 ] ).not.toBe( radii[ 0 ] );
+	},
 	parameters: {
 		docs: {
 			description: {
