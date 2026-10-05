@@ -727,8 +727,6 @@ class Initializer {
 			$data['myJetpack']['offlineFeatures'] = array(
 				'mainFeatures' => Main_Features::get_state( true ),
 				'plugins'      => Plugins_Installer::get_plugins(),
-				'apiRoot'      => esc_url_raw( rest_url() ),
-				'apiNonce'     => wp_create_nonce( 'wp_rest' ),
 			);
 		}
 

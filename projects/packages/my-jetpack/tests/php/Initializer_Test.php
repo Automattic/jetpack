@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as StatusCache;
@@ -36,10 +38,11 @@ class Initializer_Test extends BaseTestCase {
 			)
 		);
 		wp_set_current_user( $user );
+		Utils::init_default_constants();
 		Jetpack_Options::update_options(
 			array(
 				'id'          => 123,
-				'blog_token'  => 'copied.secret.1',
+				'blog_token'  => 'copiedkey.copiedsecret',
 				'master_user' => $user,
 				'user_tokens' => array( $user => 'copied.secret.1' ),
 			)
@@ -55,6 +58,9 @@ class Initializer_Test extends BaseTestCase {
 		$key = Historically_Active_Modules::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY;
 		set_transient( $key, true );
 		try {
+			Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
+			$this->assertCount( 1, $attempts, 'The signed control request must reach the HTTP tripwire.' );
+			$attempts = array();
 			Initializer::init();
 			$data = Initializer::add_admin_script_data( array() );
 			$this->assertNotEmpty( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] );
