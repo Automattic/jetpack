@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: Fix the "Could not delete form." error shown after permanently deleting a form.
+Forms: Fix error notices shown after deleting or trashing a form, even though it succeeded.
