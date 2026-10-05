@@ -55,6 +55,10 @@ jobs:
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
       WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
       COVERAGE_GROUP: ${{ matrix.coverage-group }}
+      SPLIT_NUM: ${{ matrix.split-num }}
+      SPLIT_TOTAL: ${{ matrix.split-total }}
+      SPLIT_PROJECT: ${{ matrix.split-project }}
+      SPLIT_EXCLUDE: ${{ join( matrix.split-exclude, ' ' ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -171,6 +175,7 @@ jobs:
 
       - name: Prepare test queue
         env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
           QUEUEFILE: ${{ runner.temp }}/testqueue
           WORKERTOKENS: ${{ runner.temp }}/workertokens
         run: |
@@ -192,10 +197,32 @@ jobs:
             fi
           done >> "$QUEUEFILE"
 
+          # Narrow the queue to this job's split, if any.
+          if [[ -n "$SPLIT_PROJECT" ]]; then
+            echo "projects/$SPLIT_PROJECT/composer.json" > "$QUEUEFILE"
+          elif (( SPLIT_NUM )); then
+            readarray -t QUEUE < "$QUEUEFILE"
+            jq -nr --arg script "$TEST_SCRIPT" --argjson changed "$CHANGED" --arg exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" '
+              # Find the projects that will run: changed, defining the script, and not excluded from generic runs.
+              [ inputs | select( .scripts[ $script ] ) | input_filename
+                # Generate slug from filename.
+                | ( if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end ) as $slug
+                # We only care about changed projects.
+                | select( $changed[ $slug ] )
+                # Ignore them if they're excluded from generic runs.
+                | select( $slug | IN( $exclude | split( " " )[] ) | not )
+              ]
+              # Deal out every nth one, balanced by count.
+              | .[ range( $num - 1; length; $total ) ]
+            ' "${QUEUE[@]}" > "$QUEUEFILE"
+          fi
+
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
           # Workers == number of CPUs.
           N=$( nproc )
+          # Limit split projects to one worker, as Jest will use everything it can.
+          [[ -n "$SPLIT_PROJECT" ]] && N=1
           echo "Enabling $N worker(s) for $N CPU(s)"
           for (( i=0; i<N; i++)); do
             echo "$i"
@@ -216,8 +243,8 @@ jobs:
               exit 0
             fi
 
-            # Force one CPU per worker with JS tests, as Jest uses everything it can.
-            if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
+            # Force one CPU per worker with `split-num` jobs, allowing multiple projects to run in parallel workers, as otherwise Jest uses everything it can.
+            if (( SPLIT_NUM )); then
               taskset -cp "$WORKERID" $$ > /dev/null
               echo "Worker $WORKERID has availableParallelism() set to $( node -p 'require( "os" ).availableParallelism()' )"
             fi
