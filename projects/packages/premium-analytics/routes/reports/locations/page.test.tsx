@@ -5,7 +5,6 @@ import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
-	PageNotice,
 	ReportLocationsMap,
 	ReportPageTabs,
 	ReportRecordsTable,
@@ -62,9 +61,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	supportsLocationsCountryFilter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.supportsLocationsCountryFilter,
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
-	PageNotice: jest.fn(
-		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice
-	),
+	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
 	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
@@ -102,7 +99,6 @@ jest.mock( '@wordpress/route', () => ( {
 
 const useRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
-const pageNoticeMock = jest.mocked( PageNotice );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const reportLocationsMapMock = jest.mocked( ReportLocationsMap );
@@ -284,7 +280,6 @@ describe( 'LocationsReportPage', () => {
 		expect(
 			getNoticeText( "We couldn't load locations. Please try again in a moment." )
 		).toBeInTheDocument();
-		expect( pageNoticeMock ).toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 

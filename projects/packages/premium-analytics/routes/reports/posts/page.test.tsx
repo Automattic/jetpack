@@ -6,7 +6,6 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
 	ReportDrilldownTable,
-	PageNotice,
 	ReportRecordsTable,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
@@ -53,9 +52,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		};
 	} )(),
 	formatLegendLabels: () => [],
-	PageNotice: jest.fn(
-		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice
-	),
+	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
 	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
@@ -92,7 +89,6 @@ const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
-const pageNoticeMock = jest.mocked( PageNotice );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 /**
@@ -272,7 +268,6 @@ describe( 'PostsReportPage', () => {
 		expect(
 			getNoticeText( "We couldn't load posts. Please try again in a moment." )
 		).toBeInTheDocument();
-		expect( pageNoticeMock ).toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );
