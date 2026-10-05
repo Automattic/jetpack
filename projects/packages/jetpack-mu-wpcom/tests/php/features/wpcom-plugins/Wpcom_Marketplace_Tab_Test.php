@@ -748,6 +748,33 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Simple sites supply the store catalog, since their API client cannot request it.
+	 */
+	public function test_the_store_catalog_can_be_supplied() {
+		$supplied = static function () {
+			return array(
+				'gravityforms_yearly' => array(
+					'product_id'   => 2509,
+					'cost_display' => '$132.00',
+					'cost'         => 132,
+				),
+			);
+		};
+		$fetch    = new ReflectionMethod( Marketplace_Catalog::class, 'fetch_store_products' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$fetch->setAccessible( true );
+		}
+
+		add_filter( 'wpcom_marketplace_store_products', $supplied );
+		$store = $fetch->invoke( null );
+		remove_filter( 'wpcom_marketplace_store_products', $supplied );
+
+		$this->assertSame( 'gravityforms_yearly', $store[2509]['slug'] );
+		$this->assertSame( '$132.00', $store[2509]['price'] );
+	}
+
+	/**
 	 * The button goes straight to checkout, which is what the Calypso product page's
 	 * own button does. Landing there is the whole point of skipping that page.
 	 */
@@ -799,6 +826,23 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'checkoutBackUrl', $button );
 		$this->assertStringContainsString( rawurlencode( 'plugin-install.php' ), $button );
+	}
+
+	/**
+	 * Simple sends a purchase that checkout alone cannot complete through Calypso.
+	 */
+	public function test_purchase_can_be_sent_elsewhere() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		$calypso = static function () {
+			return 'https://wordpress.com/plugins/gravityforms/example.org';
+		};
+
+		add_filter( 'wpcom_marketplace_checkout_url', $calypso );
+		$button = wpcom_marketplace_card_button( $this->priced_card() );
+		remove_filter( 'wpcom_marketplace_checkout_url', $calypso );
+
+		$this->assertStringContainsString( 'href="https://wordpress.com/plugins/gravityforms/example.org"', $button );
 	}
 
 	/**

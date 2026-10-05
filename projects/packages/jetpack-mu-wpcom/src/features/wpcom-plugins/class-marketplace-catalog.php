@@ -422,10 +422,24 @@ class Marketplace_Catalog {
 	 * @return array<int, array> Keyed by product id.
 	 */
 	private static function fetch_store_products() {
+		/**
+		 * Filters the store catalog before it is requested from WordPress.com.
+		 *
+		 * Simple sites answer it from the store itself: their in-process API client cannot
+		 * reach the v1.1 products endpoint.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array|null $response Products keyed by store slug, as /rest/v1.1/products returns them, or null to request them.
+		 */
+		$response = apply_filters( 'wpcom_marketplace_store_products', null );
+
 		// Site-scoped first, so prices come back in the site's own currency. Calypso
 		// reads the same two paths in the same order, for the same reason.
-		$blog_id  = self::blog_id();
-		$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+		if ( ! is_array( $response ) ) {
+			$blog_id  = self::blog_id();
+			$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+		}
 
 		if ( ! is_array( $response ) ) {
 			$response = self::request( '/products', '1.1', 'rest' );

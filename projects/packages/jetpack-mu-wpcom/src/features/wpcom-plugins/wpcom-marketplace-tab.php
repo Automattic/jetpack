@@ -327,6 +327,18 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 
 	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, '' === $back_url ? wpcom_marketplace_tab_url() : $back_url );
 
+	/**
+	 * Filters where a Marketplace card's Purchase button leads.
+	 *
+	 * Simple sites send it through Calypso when checkout alone cannot complete the purchase.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $checkout Checkout URL, or empty when there is no store product.
+	 * @param array  $card     The product's card.
+	 */
+	$checkout = (string) apply_filters( 'wpcom_marketplace_checkout_url', $checkout, $card );
+
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
 		return sprintf(
