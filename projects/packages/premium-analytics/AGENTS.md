@@ -178,8 +178,8 @@ opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
-opt-in, the Store tab also needs the `premium-analytics-store-section` feature flag, off by default; see
-`docs/dashboard-sections.md`.
+opt-in, the WooCommerce tab also needs the `premium-analytics-store-section` feature flag, off by default; see
+`docs/dashboard-sections.md`. The tab itself registers from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
