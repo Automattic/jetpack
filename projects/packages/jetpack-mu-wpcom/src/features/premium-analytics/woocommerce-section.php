@@ -5,7 +5,7 @@
  * Simple runs no Jetpack plugin, so the plugin registrant skips the platform and this file
  * registers for both. Availability stays on the section. The section comes from the
  * jetpack-woocommerce-stats package, which the Jetpack plugin bundles: WordPress.com loads that
- * copy, so this package does not. The widgets in the layout still register from the dashboard package.
+ * copy, so this package does not.
  *
  * @package automattic/jetpack-mu-wpcom
  */

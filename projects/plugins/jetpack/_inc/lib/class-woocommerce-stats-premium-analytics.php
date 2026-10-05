@@ -11,7 +11,7 @@ use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 /**
  * Hands the WooCommerce section to the Premium Analytics dashboard.
  *
- * The section and its layout live in the jetpack-woocommerce-stats package. On the WordPress.com
+ * The section lives in the jetpack-woocommerce-stats package. On the WordPress.com
  * platform jetpack-mu-wpcom registers it, and this registrant stays out.
  *
  * @since $$next-version$$
