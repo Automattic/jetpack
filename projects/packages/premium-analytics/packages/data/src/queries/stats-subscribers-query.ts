@@ -9,7 +9,7 @@ import { format, subDays } from 'date-fns';
 import { getPeriodsBetweenInclusive, reportParamsToStatsQueryParams } from '../utils/stats-params';
 import { statsProxyQuery } from './stats-query';
 import type { StatsReportParams, StatsReportQueryOptions } from './stats-query';
-import type { StatsPeriod } from '../utils/stats-params';
+import type { StatsPeriod, StatsQueryParams } from '../utils/stats-params';
 
 export const statsSubscribersDefaultStatFields = 'subscribers,subscribers_paid';
 
@@ -25,8 +25,6 @@ export type StatsSubscribersParams = {
 	quantity: number;
 	date: string;
 	stat_fields?: string;
-	/** The range's start, read only by the sanitizer to label a partial first bucket. */
-	start_date?: string;
 };
 
 /** Map a stats `period` onto the nearest granularity the subscribers endpoint accepts. */
@@ -37,7 +35,8 @@ function toSubscribersUnit( period?: string ): StatsSubscribersUnit {
 export type StatsSubscribersCountsParams = Record< string, never >;
 
 export const statsSubscribersQuery = (
-	params: StatsSubscribersParams
+	params: StatsSubscribersParams,
+	sanitizerParams?: StatsQueryParams
 ): StatsReportQueryOptions< 'subscribers' > =>
 	statsProxyQuery( {
 		name: 'subscribers',
@@ -51,7 +50,7 @@ export const statsSubscribersQuery = (
 			stat_fields: params.stat_fields ?? statsSubscribersDefaultStatFields,
 		},
 		sanitizer: 'subscribers',
-		...( params.start_date ? { sanitizerParams: { start_date: params.start_date } } : {} ),
+		sanitizerParams,
 	} );
 
 /**
@@ -72,9 +71,13 @@ export const statsSubscribersReportQuery = (
 	const quantity =
 		startDate && endDate ? getPeriodsBetweenInclusive( unit, startDate, endDate ) : 1;
 
-	// Reuse the endpoint config; only gate on a resolved range end.
+	// Reuse the endpoint config; only gate on a resolved range end. The sanitizer
+	// reads the range start to label a partial first bucket.
 	return {
-		...statsSubscribersQuery( { unit, quantity, date: endDate ?? '', start_date: startDate } ),
+		...statsSubscribersQuery(
+			{ unit, quantity, date: endDate ?? '' },
+			startDate ? { start_date: startDate } : undefined
+		),
 		enabled: !! endDate,
 	};
 };
