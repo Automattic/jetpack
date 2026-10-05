@@ -40,7 +40,8 @@
 		"automattic/phpunit-select-config": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-ads": "@dev",
-		"automattic/jetpack-videopress": "@dev"
+		"automattic/jetpack-videopress": "@dev",
+		"automattic/jetpack-woocommerce-stats": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."

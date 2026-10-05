@@ -140,6 +140,9 @@ class Jetpack_Mu_Wpcom {
 		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
+		// Premium Analytics offers the WooCommerce tab on Simple and Atomic. Availability stays on the section.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_woocommerce_section' ) );
+
 		// Premium Analytics seeds the Top videos widget wherever the plan includes VideoPress, on Simple and Atomic.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_videopress_widgets' ) );
 
@@ -926,6 +929,18 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_premium_analytics_wordads_section() {
 		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
+	}
+
+	/**
+	 * Register the WooCommerce section of the Premium Analytics dashboard.
+	 *
+	 * Availability stays on the section. The file is inert until the package that owns the section
+	 * is loaded.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_woocommerce_section() {
+		require_once __DIR__ . '/features/premium-analytics/woocommerce-section.php';
 	}
 
 	/**
