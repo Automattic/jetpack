@@ -13,7 +13,11 @@ import {
 	startOfYear,
 } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
-import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-window';
+import {
+	createStatsBucketWindowFilter,
+	isWallClockStamp,
+	type StatsBucketFilter,
+} from './bucket-window';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -23,6 +27,7 @@ import {
 	normalizeStatsSummary,
 } from './utils';
 import type {
+	StatsIntervalFields,
 	StatsNormalizedDataPoint,
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
@@ -244,6 +249,27 @@ function toSummaryBound( value: string | undefined, time: string ) {
 	return datePart ? formatDatePartWithTime( datePart, time ) : '';
 }
 
+// A week the requested range cuts through is stamped with the range's edge, so
+// no bucket claims a day outside it (UNI-842).
+function clipWeekToRange(
+	range: StatsIntervalFields,
+	query: StatsQueryParams | undefined
+): StatsIntervalFields {
+	if ( ! isWallClockStamp( range.date_start ) || ! isWallClockStamp( range.date_end ) ) {
+		return range;
+	}
+
+	const start = toSummaryBound( query?.start_date, DAY_START_TIME );
+	const end = toSummaryBound( query?.end_date ?? query?.date, DAY_END_TIME );
+
+	return {
+		...range,
+		date_start:
+			start && range.date_start < start && range.date_end >= start ? start : range.date_start,
+		date_end: end && range.date_end > end && range.date_start <= end ? end : range.date_end,
+	};
+}
+
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	return {
 		...normalizeStatsSummary( coerceStatsRecord( response.summary ) ),
@@ -279,8 +305,9 @@ export function sanitizeStatsTimeSeriesResponse(
 	const unit = String( response.unit ?? query?.period ?? 'day' );
 	const buckets = parseTimeSeriesRows( payload ).map( row => {
 		const rawPeriod = row.period ?? row.time_interval ?? row.date_start ?? row.date;
+		const range = getRowIntervalFields( row, rawPeriod, unit );
 
-		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
+		return { row, range: unit === 'week' ? clipWeekToRange( range, query ) : range };
 	} );
 	// Filter before the summary, so dropped buckets inflate neither the totals nor
 	// the chart. Only an endpoint-specific sanitizer supplies a filter.
