@@ -5,28 +5,28 @@
 //   node mutate.mjs <mutants.json> [--tz=UTC,Asia/Tokyo] [--drop=ids.txt] [--out=result.json] -- <jest command…>
 // mutants.json: [ { "id": "M1", "file": "src/a.ts", "search": "x + 1", "replace": "x" } ]
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+
+const fail = ( message, code = 2 ) => {
+	console.error( message );
+	process.exit( code );
+};
 
 const argv = process.argv.slice( 2 );
 const sep = argv.indexOf( '--' );
 if ( sep < 1 || sep === argv.length - 1 ) {
-	console.error(
+	fail(
 		'Usage: node mutate.mjs <mutants.json> [--tz=A,B] [--drop=ids.txt] [--out=file] -- <jest command…>'
 	);
-	process.exit( 2 );
 }
 const opts = argv.slice( 0, sep );
 const command = argv.slice( sep + 1 );
-const flag = name => opts.find( o => o.startsWith( `--${ name }=` ) )?.split( '=' )[ 1 ];
-const mutants = JSON.parse(
-	readFileSync(
-		opts.find( o => ! o.startsWith( '--' ) ),
-		'utf8'
-	)
-);
-const zones = ( flag( 'tz' ) ?? process.env.TZ ?? 'UTC' ).split( ',' );
+const flag = name => {
+	const prefix = `--${ name }=`;
+	return opts.find( o => o.startsWith( prefix ) )?.slice( prefix.length );
+};
 const git = ( ...args ) => execFileSync( 'git', args, { encoding: 'utf8' } ).trim();
 
 // Mutating the shared checkout corrupts every other session running tests there.
@@ -34,23 +34,29 @@ if (
 	path.resolve( git( 'rev-parse', '--git-dir' ) ) ===
 	path.resolve( git( 'rev-parse', '--git-common-dir' ) )
 ) {
-	console.error( 'Refusing to mutate the main checkout. Run this from a dedicated git worktree.' );
-	process.exit( 2 );
+	fail( 'Refusing to mutate the main checkout. Run this from a dedicated git worktree.' );
 }
+
+const mutants = JSON.parse(
+	readFileSync(
+		opts.find( o => ! o.startsWith( '--' ) ),
+		'utf8'
+	)
+);
+const zones = ( flag( 'tz' ) ?? process.env.TZ ?? 'UTC' ).split( ',' );
 for ( const file of new Set( mutants.map( m => m.file ) ) ) {
 	if ( git( 'status', '--porcelain', '--', file ) ) {
-		console.error( `${ file } has uncommitted changes; commit or revert them first.` );
-		process.exit( 2 );
+		fail( `${ file } has uncommitted changes; commit or revert them first.` );
 	}
 }
 
 const scratch = mkdtempSync( path.join( tmpdir(), 'mutate-' ) );
 const originals = new Map();
-const restoreAll = () => originals.forEach( ( text, file ) => writeFileSync( file, text ) );
-process.on( 'SIGINT', () => {
-	restoreAll();
-	process.exit( 130 );
+process.on( 'exit', () => {
+	originals.forEach( ( text, file ) => writeFileSync( file, text ) );
+	rmSync( scratch, { recursive: true, force: true } );
 } );
+process.on( 'SIGINT', () => process.exit( 130 ) );
 
 /**
  * Runs the Jest command once under a timezone.
@@ -62,10 +68,18 @@ function run( tz ) {
 	const out = path.join( scratch, 'out.json' );
 	rmSync( out, { force: true } );
 	const [ bin, ...rest ] = command;
-	spawnSync( bin, [ ...rest, '--json', `--outputFile=${ out }` ], {
+	const result = spawnSync( bin, [ ...rest, '--json', `--outputFile=${ out }` ], {
 		env: { ...process.env, TZ: tz },
 		stdio: 'ignore',
 	} );
+	if ( ! existsSync( out ) ) {
+		const reason =
+			result.error?.message ?? ( result.signal ? result.signal : `exit code ${ result.status }` );
+		fail(
+			`The command wrote no Jest results under TZ=${ tz } (${ reason }). Run it on its own to see why.`,
+			1
+		);
+	}
 	const json = JSON.parse( readFileSync( out, 'utf8' ) );
 	const all = [];
 	const failed = [];
@@ -90,39 +104,50 @@ for ( const tz of zones ) {
 	const { all, failed } = run( tz );
 	all.forEach( t => allTests.add( t ) );
 	if ( failed.length ) {
-		console.error(
-			`Baseline fails under TZ=${ tz }; fix that first:\n  ${ failed.join( '\n  ' ) }`
-		);
-		process.exit( 1 );
+		fail( `Baseline fails under TZ=${ tz }; fix that first:\n  ${ failed.join( '\n  ' ) }`, 1 );
+	}
+}
+
+// --drop lists the test ids proposed for removal, one per line, exactly as the report prints them.
+let drop;
+if ( flag( 'drop' ) ) {
+	drop = new Set(
+		readFileSync( flag( 'drop' ), 'utf8' )
+			.split( '\n' )
+			.map( l => l.replace( /\r$/, '' ) )
+			.filter( Boolean )
+	);
+	const unknown = [ ...drop ].filter( t => ! allTests.has( t ) );
+	if ( drop.size === 0 ) {
+		fail( `${ flag( 'drop' ) } lists no tests.` );
+	} else if ( unknown.length ) {
+		fail( `--drop names tests the baseline did not run:\n  ${ unknown.join( '\n  ' ) }` );
 	}
 }
 
 const kills = {}; // mutant key -> failing tests
-try {
-	for ( const m of mutants ) {
-		const text = readFileSync( m.file, 'utf8' );
-		const count = text.split( m.search ).length - 1;
-		if ( count !== 1 ) {
-			console.error(
-				`${ m.id }: "search" occurs ${ count } times in ${ m.file }; it must occur once. Skipped.`
-			);
-			continue;
-		}
-		originals.set( m.file, text );
-		writeFileSync(
-			m.file,
-			text.replace( m.search, () => m.replace )
+for ( const m of mutants ) {
+	const text = readFileSync( m.file, 'utf8' );
+	const count = text.split( m.search ).length - 1;
+	if ( count !== 1 ) {
+		console.error(
+			`${ m.id }: "search" occurs ${ count } times in ${ m.file }; it must occur once. Skipped.`
 		);
-		try {
-			for ( const tz of zones ) {
-				kills[ zones.length > 1 ? `${ m.id }@${ tz }` : m.id ] = run( tz ).failed;
-			}
-		} finally {
-			writeFileSync( m.file, text );
-		}
+		continue;
 	}
-} finally {
-	restoreAll();
+	originals.set( m.file, text );
+	writeFileSync(
+		m.file,
+		text.replace( m.search, () => m.replace )
+	);
+	try {
+		for ( const tz of zones ) {
+			kills[ zones.length > 1 ? `${ m.id }@${ tz }` : m.id ] = run( tz ).failed;
+		}
+	} finally {
+		writeFileSync( m.file, text );
+		originals.delete( m.file );
+	}
 }
 
 const killedBy = test => Object.keys( kills ).filter( k => kills[ k ].includes( test ) );
@@ -132,7 +157,8 @@ for ( const [ key, failed ] of Object.entries( kills ) ) {
 		report.survived.push( key );
 	}
 }
-for ( const test of allTests ) {
+// A mutant that stops a suite from loading fails an id the baseline never saw.
+for ( const test of new Set( [ ...allTests, ...Object.values( kills ).flat() ] ) ) {
 	const killed = killedBy( test );
 	const unique = killed.filter( k => kills[ k ].length === 1 );
 	report.tests[ test ] = { killed, unique };
@@ -148,14 +174,7 @@ for ( const [ test, { killed, unique } ] of Object.entries( report.tests ) ) {
 	}
 	console.log( `${ tag.padEnd( 24 ) } ${ test }` );
 }
-// --drop lists the test ids proposed for removal, one per line, exactly as printed above.
-if ( flag( 'drop' ) ) {
-	const drop = new Set(
-		readFileSync( flag( 'drop' ), 'utf8' )
-			.split( '\n' )
-			.map( l => l.replace( /\r$/, '' ) )
-			.filter( Boolean )
-	);
+if ( drop ) {
 	report.lostByDrop = Object.keys( kills ).filter(
 		k => kills[ k ].length > 0 && kills[ k ].every( t => drop.has( t ) )
 	);
@@ -164,4 +183,3 @@ if ( flag( 'drop' ) ) {
 if ( flag( 'out' ) ) {
 	writeFileSync( flag( 'out' ), JSON.stringify( { kills, ...report }, null, '\t' ) );
 }
-rmSync( scratch, { recursive: true, force: true } );

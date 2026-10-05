@@ -37,7 +37,7 @@ Read the source, its tests, and its consumers (`git grep` each export), and look
 A removal is doubtful when the overlap is not literal: different inputs, a different layer, or a title claiming a behavior that no other test visibly covers. Run mutants for those only, from any worktree other than the main checkout (`git worktree add`, then `pnpm install`):
 
 ```bash
-node <repo>/.agents/skills/test-value-audit/mutate.mjs mutants.json \
+node <repo>/.agents/skills/test-value-audit/scripts/mutate.mjs mutants.json \
   [--tz=UTC,America/Los_Angeles] --drop=drop.txt -- npx jest --config=<config> <test paths>
 ```
 
