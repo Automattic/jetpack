@@ -209,7 +209,7 @@ jobs:
                 | ( if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end ) as $slug
                 # We only care about changed projects.
                 | select( $changed[ $slug ] )
-                # Ignore them if they're excluded from generic runs.
+                # Ignore them if they are excluded from generic runs.
                 | select( $slug | IN( $exclude | split( " " )[] ) | not )
               ]
               # Deal out every nth one, balanced by count.
