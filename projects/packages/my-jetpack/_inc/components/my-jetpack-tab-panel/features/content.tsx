@@ -1,6 +1,7 @@
 import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
@@ -61,6 +62,10 @@ function useFeaturesParams(): {
  */
 export function FeaturesContent() {
 	const { filter, search, view } = useFeaturesParams();
+
+	if ( isOfflineFeatures() ) {
+		return <FeaturesTabContent />;
+	}
 
 	return (
 		<FeaturesTrackingProvider filter={ filter } search={ search } view={ view }>
@@ -329,7 +334,7 @@ function FeaturesTabContent() {
 
 	return (
 		<section className={ styles.content }>
-			<FeaturesBanner />
+			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar
 				view={ view }

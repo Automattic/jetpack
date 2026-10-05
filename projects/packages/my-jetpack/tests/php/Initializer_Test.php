@@ -60,15 +60,50 @@ class Initializer_Test extends BaseTestCase {
 		try {
 			Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
 			$this->assertCount( 1, $attempts, 'The signed control request must reach the HTTP tripwire.' );
-			$attempts = array();
+			$attempts     = array();
+			$_GET['page'] = 'my-jetpack';
+			$_GET['step'] = 'onboarding';
 			Initializer::init();
+			Initializer::admin_init();
+			Initializer::enqueue_scripts();
+			do_action( 'rest_api_init' );
 			$data = Initializer::add_admin_script_data( array() );
 			$this->assertNotEmpty( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] );
-			$this->assertFalse( Initializer::should_initialize() );
-			$this->assertSame( 0, did_action( 'my_jetpack_init' ) );
+			$this->assertTrue( Initializer::should_initialize() );
+			$this->assertSame( 1, did_action( 'my_jetpack_init' ) );
 			$this->assertTrue( get_transient( $key ) );
 			$this->assertFalse( has_action( 'admin_init', array( Initializer::class, 'setup_historically_active_jetpack_modules_sync' ) ) );
 			$this->assertFalse( has_action( 'admin_menu', array( Initializer::class, 'maybe_show_red_bubble' ) ) );
+			$this->assertFalse( Initializer::is_onboarding_takeover() );
+			$this->assertNull( Initializer::get_partner_coupon_screen() );
+			$server = rest_get_server();
+			$route  = '/wpcom/v2/my-jetpack/site/features';
+			$this->assertSame( Main_Features::get_state( true ), $server->dispatch( new \WP_REST_Request( 'GET', $route ) )->get_data() );
+			$request = new \WP_REST_Request( 'POST', $route . '/bulk' );
+			$request->set_param( 'active', false );
+			$this->assertSame( Main_Features::get_state( true ), $server->dispatch( $request )->get_data()['state'] );
+			foreach ( array( '/my-jetpack/v1/site', '/my-jetpack/v1/site/products', '/my-jetpack/v1/site/purchases', '/my-jetpack/v1/site/jetpack-modules', '/my-jetpack/v1/site/notifications', $route . '/banner/dismiss' ) as $absent ) {
+				$this->assertArrayNotHasKey( $absent, $server->get_routes() );
+			}
+			$register_modules = function () {
+				register_rest_route(
+					'jetpack/v4',
+					'module/all',
+					array(
+						'methods'             => 'GET',
+						'permission_callback' => '__return_true',
+						'callback'            => function () {
+							return rest_ensure_response( array( get_option( 'monitor_receive_notifications', 'does_not_exist' ), get_option( 'post_by_email_address' . get_current_user_id(), 'does_not_exist' ) ) );
+						},
+					)
+				);
+			};
+			add_action( 'rest_api_init', $register_modules );
+			do_action( 'rest_api_init' );
+			remove_action( 'rest_api_init', $register_modules );
+			$this->assertSame( array( false, false ), $server->dispatch( new \WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) )->get_data() );
+			$this->assertSame( 'does_not_exist', get_option( 'monitor_receive_notifications', 'does_not_exist' ) );
+			$this->assertSame( 'does_not_exist', get_option( 'post_by_email_address' . get_current_user_id(), 'does_not_exist' ) );
 			$this->assertSame( array(), $attempts );
 		} finally {
 			delete_transient( $key );
@@ -98,9 +133,11 @@ class Initializer_Test extends BaseTestCase {
 		wp_get_current_user()->add_cap( 'manage_network', $network_admin );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$_GET['page'] = 'my-jetpack';
 		$this->assertSame( $network_admin, REST_Main_Features::permissions_callback() );
 		$this->assertSame( $network_admin, isset( Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures'] ) );
-		$this->assertFalse( Initializer::should_initialize() );
+		$this->assertTrue( Initializer::should_initialize() );
+		$this->assert_offline_page_permission( $network_admin );
 	}
 
 	/**
@@ -111,6 +148,47 @@ class Initializer_Test extends BaseTestCase {
 			'site administrator'    => array( false ),
 			'network administrator' => array( true ),
 		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_editor_gets_access_denied_before_enqueuing_features() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'entry-editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$this->assert_offline_page_permission( false );
+	}
+
+	private function assert_offline_page_permission( $allowed ) {
+		$handler = function () {
+			/** @return never */
+			return function ( $message ) {
+				throw new \RuntimeException( $message );
+			};
+		};
+		add_filter( 'wp_die_handler', $handler );
+		try {
+			Initializer::admin_init();
+			$this->assertTrue( $allowed, 'A denied viewer must not receive an empty Features page.' );
+		} catch ( \RuntimeException $error ) {
+			$this->assertFalse( $allowed );
+			$this->assertSame( 'Sorry, you are not allowed to access this page.', $error->getMessage() );
+		} finally {
+			remove_filter( 'wp_die_handler', $handler );
+		}
+		$this->assertSame( $allowed, false !== has_action( 'admin_enqueue_scripts', array( Initializer::class, 'enqueue_scripts' ) ) );
 	}
 
 	/**
@@ -140,7 +218,7 @@ class Initializer_Test extends BaseTestCase {
 	private function reset_state() {
 		Constants::clear_constants();
 		StatusCache::clear();
-		unset( $_GET['step'], $_GET['showCouponRedemption'] );
+		unset( $_GET['page'], $_GET['step'], $_GET['showCouponRedemption'] );
 		wp_set_current_user( 0 );
 		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'master_user', 'user_tokens', Partner_Coupon::$coupon_option ) );
 		remove_all_filters( 'jetpack_partner_coupon_supported_partners' );

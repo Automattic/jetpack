@@ -2,9 +2,9 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
+import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 import { getProductModules } from './mappings';
-import type { ProductCamelCase } from '../../../data/types';
 
 /**
  * Drop the forced-on override that a product's own standalone plugin causes.
@@ -18,7 +18,7 @@ import type { ProductCamelCase } from '../../../data/types';
  */
 export function withoutPluginForcedOverrides(
 	modules: Record< string, MyJetpackModule >,
-	products: Record< string, ProductCamelCase > | undefined
+	products: Record< string, { standalonePluginInfo?: { isStandaloneActive: boolean } } > | undefined
 ): Record< string, MyJetpackModule > {
 	if ( ! modules || ! products ) {
 		return modules;
@@ -50,6 +50,9 @@ export function useAllJetpackModules(): {
 	isLoading: boolean;
 } {
 	const { modules, isLoading } = useSelect( select => {
+		if ( isOfflineFeatures() && getOfflineFeaturesSeed()?.mainFeatures.jetpack !== 'active' ) {
+			return { modules: {}, isLoading: false };
+		}
 		// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
 		return {
 			modules: select( modulesStore ).getJetpackModules(),
@@ -57,15 +60,31 @@ export function useAllJetpackModules(): {
 		};
 	}, [] );
 	const { data: products } = useAllProducts();
+	const localFeatures = isOfflineFeatures()
+		? getOfflineFeaturesSeed()?.mainFeatures.features
+		: null;
 
 	return useMemo(
 		() => ( {
-			modules: withoutPluginForcedOverrides( modules, products ) as Record<
-				JetpackModuleSlug,
-				MyJetpackModule
-			>,
+			modules: withoutPluginForcedOverrides(
+				modules,
+				localFeatures
+					? Object.fromEntries(
+							localFeatures
+								.filter( feature => feature.product )
+								.map( feature => [
+									feature.product,
+									{
+										standalonePluginInfo: {
+											isStandaloneActive: feature.plugin_status === 'active',
+										},
+									},
+								] )
+						)
+					: products
+			) as Record< JetpackModuleSlug, MyJetpackModule >,
 			isLoading,
 		} ),
-		[ modules, products, isLoading ]
+		[ modules, products, localFeatures, isLoading ]
 	);
 }

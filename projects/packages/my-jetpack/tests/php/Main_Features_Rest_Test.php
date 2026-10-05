@@ -154,6 +154,35 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( $deactivated ) );
 	}
 
+	public function test_offline_plugin_switch_returns_local_state_with_copied_credentials() {
+		\Automattic\Jetpack\Connection\Utils::init_default_constants();
+		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$attempts = array();
+		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
+			$attempts[] = $url;
+			return new \WP_Error( 'unexpected_http', 'Offline switch attempted HTTP.' );
+		};
+		add_filter( 'pre_http_request', $tripwire, 10, 3 );
+		try {
+			\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
+			$this->assertCount( 1, $attempts, 'The signed control must reach the tripwire.' );
+			$attempts  = array();
+			$activated = $this->send( 'jetpack-boost', 'activate' );
+			$this->assertSame( 200, $activated->get_status() );
+			$this->assertSame( Main_Features::get_state( true ), $activated->get_data() );
+			$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( $activated ) );
+			$this->assertSame( array(), $attempts );
+		} finally {
+			remove_filter( 'pre_http_request', $tripwire, 10 );
+			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+			remove_all_filters( 'jetpack_offline_mode' );
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
 	/**
 	 * Switching a plugin on has to run the product's own activation step too, or a
 	 * product that needs more than its plugin comes up half on.

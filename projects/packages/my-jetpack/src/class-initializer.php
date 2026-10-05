@@ -112,6 +112,17 @@ class Initializer {
 			return;
 		}
 
+		if ( self::is_offline_features_enabled() ) {
+			Connection_Rest_Authentication::init();
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'use_local_module_options' ), 10, 3 );
+			add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'restore_module_options' ), 10, 3 );
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+			add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
+			do_action( 'my_jetpack_init' );
+			return;
+		}
+
 		// Answer "is this product on?" for admin menu registration.
 		Menu_Visibility::init();
 
@@ -158,6 +169,40 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
+	}
+
+	/**
+	 * Keep uncached module-list options local on the offline route.
+	 *
+	 * @since $$next-version$$
+	 * @param mixed            $response Response before the callback.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			add_filter( 'default_option_monitor_receive_notifications', '__return_false' );
+			add_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
+		}
+		return $response;
+	}
+
+	/**
+	 * Restore normal option reads after the offline module-list callback.
+	 *
+	 * @since $$next-version$$
+	 * @param mixed            $response Response after the callback.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function restore_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			remove_filter( 'default_option_monitor_receive_notifications', '__return_false' );
+			remove_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
+		}
+		return $response;
 	}
 
 	/**
@@ -220,6 +265,14 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		if ( self::is_offline_features_enabled() ) {
+			if ( ! REST_Main_Features::permissions_callback() ) {
+				wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-my-jetpack' ), 403 );
+			}
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+			return;
+		}
+
 		$connection = new Connection_Manager();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
@@ -266,6 +319,9 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_onboarding_available() {
+		if ( self::is_offline_features_enabled() ) {
+			return false;
+		}
 		return ! ( new Status_Host() )->is_wpcom_simple() && null === self::get_partner_coupon_screen();
 	}
 
@@ -280,7 +336,8 @@ class Initializer {
 	 */
 	public static function get_partner_coupon_screen() {
 		if (
-			! self::should_initialize()
+			self::is_offline_features_enabled()
+			|| ! self::should_initialize()
 			|| ! current_user_can( 'manage_options' )
 			|| ! Jetpack_Constants::is_defined( 'JETPACK__PLUGIN_FILE' )
 		) {
@@ -537,6 +594,38 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		if ( self::is_offline_features_enabled() ) {
+			$data_handle = self::DATA_SCRIPT_HANDLE;
+			wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
+			wp_enqueue_script( $data_handle );
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+			wp_localize_script(
+				$data_handle,
+				'myJetpackInitialState',
+				array(
+					'isOfflineFeatures'     => true,
+					'products'              => array( 'items' => array() ),
+					'adminUrl'              => esc_url( admin_url() ),
+					'assetsUrl'             => self::get_assets_url(),
+					'isJetpackPluginActive' => class_exists( 'Jetpack' ),
+					'hiddenFeatures'        => Feature_Visibility::get_hidden(),
+					'myJetpackFlags'        => self::get_my_jetpack_flags(),
+				)
+			);
+			wp_localize_script(
+				$data_handle,
+				'myJetpackRest',
+				array(
+					'apiRoot'  => esc_url_raw( rest_url() ),
+					'apiNonce' => wp_create_nonce( 'wp_rest' ),
+				)
+			);
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+			return;
+		}
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
@@ -711,17 +800,9 @@ class Initializer {
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 
 		if (
-			( new Status() )->is_offline_mode()
-			/**
-			 * Temporarily expose the local Features seed without enabling offline entry.
-			 *
-			 * @since $$next-version$$
-			 * @param bool $enabled Whether to expose the seed. Default false.
-			 */
-			&& apply_filters( 'jetpack_my_jetpack_offline_features', false )
-			// The offline initialization default stays false; a host may still veto the seed.
-			/** This filter is documented in self::should_initialize(). */
-			&& apply_filters( 'jetpack_my_jetpack_should_initialize', true )
+			self::is_my_jetpack_admin_request()
+			&& self::is_offline_features_enabled()
+			&& self::should_initialize()
 			&& REST_Main_Features::permissions_callback()
 		) {
 			$data['myJetpack']['offlineFeatures'] = array(
@@ -926,6 +1007,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		if ( self::is_offline_features_enabled() ) {
+			( new REST_Main_Features() )->register_rest_routes();
+			return;
+		}
+
 		new REST_Products();
 		new REST_Purchases();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
@@ -977,9 +1063,8 @@ class Initializer {
 	public static function should_initialize() {
 		$should = true;
 
-		// All options presented in My Jetpack require a connection to WordPress.com.
 		if ( ( new Status() )->is_offline_mode() ) {
-			$should = false;
+			$should = self::is_offline_features_enabled();
 		}
 
 		/**
@@ -990,6 +1075,26 @@ class Initializer {
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
 		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+	}
+
+	/**
+	 * Whether the site uses the local Features entry instead of the connected dashboard.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_offline_features_enabled() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		/**
+		 * Enable local Features data and entry in offline mode.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $enabled Whether to enable offline Features. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );
 	}
 
 	/**

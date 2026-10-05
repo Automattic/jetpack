@@ -47,16 +47,18 @@ class REST_Main_Features {
 			)
 		);
 
-		register_rest_route(
-			self::ROUTE_NAMESPACE,
-			'my-jetpack/site/features/banner/dismiss',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => __CLASS__ . '::dismiss_banner',
-				// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
-				'permission_callback' => array( Initializer::class, 'permissions_callback' ),
-			)
-		);
+		if ( ! Initializer::is_offline_features_enabled() ) {
+			register_rest_route(
+				self::ROUTE_NAMESPACE,
+				'my-jetpack/site/features/banner/dismiss',
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => __CLASS__ . '::dismiss_banner',
+					// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
+					'permission_callback' => array( Initializer::class, 'permissions_callback' ),
+				)
+			);
+		}
 
 		register_rest_route(
 			self::ROUTE_NAMESPACE,
@@ -152,7 +154,7 @@ class REST_Main_Features {
 	 * @return \WP_REST_Response
 	 */
 	public static function get_state() {
-		return rest_ensure_response( Main_Features::get_state() );
+		return rest_ensure_response( Main_Features::get_state( Initializer::is_offline_features_enabled() ) );
 	}
 
 	/**
@@ -191,7 +193,7 @@ class REST_Main_Features {
 			return $result;
 		}
 
-		return rest_ensure_response( Main_Features::get_state() );
+		return rest_ensure_response( Main_Features::get_state( Initializer::is_offline_features_enabled() ) );
 	}
 
 	/**
@@ -246,7 +248,7 @@ class REST_Main_Features {
 
 		return rest_ensure_response(
 			array(
-				'state'  => Main_Features::get_state(),
+				'state'  => Main_Features::get_state( Initializer::is_offline_features_enabled() ),
 				'failed' => $failed,
 			)
 		);

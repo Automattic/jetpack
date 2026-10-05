@@ -526,6 +526,7 @@ type MainFeature = {
 
 interface Window {
 	myJetpackInitialState?: {
+		isOfflineFeatures?: boolean | '1';
 		mainFeatures: MainFeaturesState | null;
 		featuresBanner: { isDismissed: boolean } | null;
 		siteSuffix: string;
