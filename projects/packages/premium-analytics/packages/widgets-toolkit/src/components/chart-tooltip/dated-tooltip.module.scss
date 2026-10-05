@@ -2,8 +2,9 @@
 // the two dates head their columns.
 .table {
 	border-collapse: collapse;
-	white-space: nowrap;
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: var(--wpds-typography-line-height-sm);
+	white-space: nowrap;
 }
 
 .table th,
