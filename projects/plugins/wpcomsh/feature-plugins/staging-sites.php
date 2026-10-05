@@ -148,3 +148,58 @@ function wpcomsh_disable_pingback_ui_on_staging() {
 	<?php
 }
 add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_staging' );
+
+/**
+ * Whether the site URL is a WordPress.com staging address, e.g. `staging-c603-mysite.wpcomstaging.com`.
+ *
+ * Checks the URL, not `wpcom_is_staging_site`: pulling staging into production copies the
+ * option, but not the URL.
+ *
+ * @return bool
+ */
+function wpcomsh_is_staging_site_url() {
+	$host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+
+	// The suffix keeps custom domains like `staging-tools.com` out.
+	return str_starts_with( $host, 'staging-' ) && str_ends_with( $host, '.wpcomstaging.com' );
+}
+
+/**
+ * Sends `X-Robots-Tag: noindex, nofollow` on staging sites.
+ *
+ * Ignores `blog_public` on purpose: staging copies it from production, so it is often public.
+ *
+ * @param array $headers Headers.
+ * @return array Filtered headers.
+ */
+function wpcomsh_add_staging_site_robots_header( $headers ) {
+	if ( wpcomsh_is_staging_site_url() ) {
+		$headers['X-Robots-Tag'] = 'noindex, nofollow';
+	}
+
+	return $headers;
+}
+add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header' );
+
+/**
+ * Adds `noindex, nofollow` to the robots meta tag on staging sites.
+ *
+ * Backup for the header above, in case an SEO plugin rewrites the page head.
+ *
+ * @param array $robots Associative array of robots directives.
+ * @return array Filtered directives.
+ */
+function wpcomsh_add_staging_site_robots_directives( $robots ) {
+	if ( ! wpcomsh_is_staging_site_url() ) {
+		return $robots;
+	}
+
+	// Remove these, or the tag would say "index, noindex".
+	unset( $robots['index'], $robots['follow'] );
+
+	$robots['noindex']  = true;
+	$robots['nofollow'] = true;
+
+	return $robots;
+}
+add_filter( 'wp_robots', 'wpcomsh_add_staging_site_robots_directives', 100 );

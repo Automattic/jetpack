@@ -1,4 +1,5 @@
 Significance: patch
-Type: fixed
+Type: changed
+Comment: Update the Blog Privacy docblock to point at wpcomsh for staging noindex.
 
-Blog Privacy: Prevent search engines from indexing WordPress.com staging sites.
+
