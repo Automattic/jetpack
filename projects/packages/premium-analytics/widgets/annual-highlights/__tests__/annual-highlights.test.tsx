@@ -164,7 +164,7 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
 	} );
 
-	it( 'keeps the download available after a failed download of stale highlights', async () => {
+	it( 'keeps focus on the download after a failed download of stale highlights', async () => {
 		jest.useFakeTimers();
 		try {
 			renderWidget();
@@ -174,16 +174,14 @@ describe( 'AnnualHighlightsWidget', () => {
 				jest.advanceTimersByTime( 6 * 60 * 1000 );
 			} );
 			mockApiFetch.mockRejectedValue( { code: 'server_error', data: { status: 500 } } );
+			const button = screen.getByRole( 'button', { name: /Download CSV/ } );
+			act( () => button.focus() );
 			// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-			fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+			fireEvent.click( button );
 			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 
-			await waitFor( () =>
-				expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).not.toHaveAttribute(
-					'aria-disabled',
-					'true'
-				)
-			);
+			await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
+			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toHaveFocus();
 			expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		} finally {
 			jest.useRealTimers();

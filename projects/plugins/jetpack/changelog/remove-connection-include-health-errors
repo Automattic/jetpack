@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Activity Log: Show the connection error notice only when a connection error has been recorded.

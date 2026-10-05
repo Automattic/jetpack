@@ -116,7 +116,8 @@ export function groupMoreFeatures(
  * Narrow the groups to what the filter or search shows, dropping any left empty.
  *
  * A search replaces the filter, as it does for the main features, and ranks modules the way
- * the Products tab ranks them.
+ * the Products tab ranks them. Results come back as one unlabelled group, since the section
+ * hides its headings for a search and ranking each group apart would read as mis-sorted.
  *
  * @param groups - The grouped modules.
  * @param filter - The active filter.
@@ -130,17 +131,25 @@ export function filterMoreFeatures(
 ): MoreFeaturesGroup[] {
 	const terms = hasSearch( search ) ? searchTerms( search ) : null;
 
+	if ( terms ) {
+		const states = rankBy(
+			groups.flatMap( group => group.states ),
+			terms,
+			state => {
+				const $module = getStateModule( state );
+
+				return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+			}
+		).map( ( { item } ) => item );
+
+		return states.length ? [ { label: '', states } ] : [];
+	}
+
 	return groups
 		.map( group => ( {
 			...group,
-			states: terms
-				? rankBy( group.states, terms, state => {
-						const $module = getStateModule( state );
-
-						return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
-					} ).map( ( { item } ) => item )
-				: // A module being switched stays put, for the reason the main list keeps its card.
-					group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
+			// A module being switched stays put, for the reason the main list keeps its card.
+			states: group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
 		} ) )
 		.filter( group => group.states.length > 0 );
 }

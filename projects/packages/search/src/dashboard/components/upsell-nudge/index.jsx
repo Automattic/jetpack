@@ -10,7 +10,16 @@ import './style.scss';
  */
 export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 	return (
-		<a className="jp-instant-search-upsell-nudge jp-search-dashboard-cut" href={ props.href }>
+		/*
+		 * A plain click activates in place; `href` is what modifier clicks and the
+		 * checkout fallback both use.
+		 */
+		<a
+			aria-busy={ props.isBusy || undefined }
+			className="jp-instant-search-upsell-nudge jp-search-dashboard-cut"
+			href={ props.href }
+			onClick={ props.onClick }
+		>
 			<span>
 				{ __(
 					'Offer instant search results to your visitors as soon as they start typing.',

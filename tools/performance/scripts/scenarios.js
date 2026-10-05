@@ -144,8 +144,8 @@ export const SCENARIOS = [
 		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
-		// The four browser metrics use production keys under the existing staging waiver.
-		// The three backend metrics remain staging candidates.
+		// The first four metrics retain their waiver of the staging window (owner decision).
+		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
 				field: 'lcp',
@@ -190,6 +190,12 @@ export const SCENARIOS = [
 				type: 'wpDbQueries',
 				unit: 'count',
 			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'forms-responses-connection-sim-loadBlockingTime-staging',
+				type: 'tbt',
+				unit: 'ms',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
@@ -217,10 +223,9 @@ export const SCENARIOS = [
 		// (the async product cards can settle after a quiet gap). The minResourceCount floor below
 		// is the backstop against gross truncation.
 		//
-		// Requires offline mode OFF (Status::is_offline_mode() gates
-		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
-		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
-		// offline-mode attribution note.
+		// Localhost defaults to offline mode, which blocks My Jetpack initialization.
+		// connection-simulation/class-jetpack-wpcom-connection-simulator.php disables it;
+		// see the README offline-mode attribution note.
 		path: '/wp-admin/admin.php?page=my-jetpack',
 		waitForSelector:
 			'#my-jetpack-container .jp-admin-page, #my-jetpack-dashboard-wp-admin-app .jp-admin-page',
@@ -230,8 +235,8 @@ export const SCENARIOS = [
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
 		// count (count-based, not asset-based) so it only catches gross capture truncation.
 		minResourceCount: 64,
-		// The four browser metrics use production keys under the existing staging waiver.
-		// The three backend metrics remain staging candidates.
+		// The first four metrics retain their waiver of the staging window (owner decision).
+		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
 				field: 'lcp',
@@ -274,10 +279,63 @@ export const SCENARIOS = [
 				type: 'wpDbQueries',
 				unit: 'count',
 			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'my-jetpack-connection-sim-loadBlockingTime-staging',
+				type: 'tbt',
+				unit: 'ms',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
 		// blocks the required Dashboard scenario from posting (see the flag's docs above).
+		optional: true,
+	},
+	{
+		key: 'jetpackConnected-noJetpack',
+		name: 'Dashboard (Jetpack deactivated)',
+		cliName: 'no-jetpack',
+		dockerService: 'wordpress-no-jetpack',
+		wpPath: '/var/www/html/no-jetpack',
+		envVar: 'WP_NO_JETPACK_URL',
+		defaultUrl: 'http://localhost:8084',
+		header: 'Dashboard Control (Jetpack Present but Deactivated)',
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-largestContentfulPaint-staging',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-timeToFirstByte-staging',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-firstContentfulPaint-staging',
+				type: 'fcp',
+			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
+		],
+		postToCodeVitals: true,
 		optional: true,
 	},
 ];

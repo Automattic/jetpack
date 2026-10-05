@@ -58,8 +58,8 @@ const settings = {
 
 type EditorProps = {
 	initialContent: string;
-	/** The toolbar's accessible name, translated in PHP. */
-	labels: { blockTools: string };
+	/** Accessible names, translated in PHP. */
+	labels: { blockTools: string; addBlock: string };
 	focus: boolean;
 	placeholder: string;
 	onChange: ( content: string ) => void;
@@ -184,7 +184,7 @@ const Editor = ( {
 				{ focus && <FocusOnMount /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
-						<BlockToolbar label={ labels.blockTools } />
+						<BlockToolbar labels={ labels } />
 					</div>
 					{ /* In the page, not an iframe, so the blocks wear the theme's type. */ }
 					<BlockTools>

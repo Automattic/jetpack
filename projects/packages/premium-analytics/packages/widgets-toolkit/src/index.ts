@@ -288,8 +288,6 @@ export {
 	type CsvDateRange,
 	getCombinedPeriodMax,
 	sharePercentage,
-	getVideoKey,
-	getVideoLabel,
 	describeError,
 	summaryCount,
 	toDay,

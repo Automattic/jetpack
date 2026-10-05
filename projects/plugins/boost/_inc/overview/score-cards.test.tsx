@@ -218,7 +218,7 @@ test.each( [
 );
 
 test( 'shows one calculating status instead of the score sections before scores load', () => {
-	const { container } = render(
+	render(
 		<ScoreCards
 			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
 			isLoading
@@ -227,10 +227,13 @@ test( 'shows one calculating status instead of the score sections before scores 
 	);
 	expect( screen.getByRole( 'heading', { level: 2, name: 'Your site speed' } ) ).toBeVisible();
 	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
-	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-	expect( container.querySelectorAll( '.components-spinner' ) ).toHaveLength( 1 );
+	const progress = screen.getByRole( 'progressbar', { name: 'Testing site speed' } );
+	expect( progress ).not.toHaveAttribute( 'value' );
+	expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
+	expect(
+		within( screen.getByRole( 'status' ) ).queryByRole( 'progressbar' )
+	).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
 
@@ -255,10 +258,13 @@ test( 'overlays calculating while retaining hidden scores and restores the row o
 	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
 	expect( desktop ).toBeInTheDocument();
 	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
-	expect( desktop.closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
-		'jetpack-boost-overview__score-row--hidden'
+	const row = desktop.closest( '.jetpack-boost-overview__score-row' );
+	expect( row ).toHaveClass( 'jetpack-boost-overview__score-row--hidden' );
+	expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	rerender(
+		<ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } isScoreReady />
 	);
-	rerender( <ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } /> );
+	expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toBe( desktop );
 	expect( desktop ).toBeVisible();
 	expect( desktop ).toHaveValue( 90 );

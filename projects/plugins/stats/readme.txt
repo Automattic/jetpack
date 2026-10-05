@@ -1,6 +1,6 @@
 === Jetpack Stats ===
 Contributors: automattic
-Tags: stats, analytics, site stats, traffic, visitors
+Tags: stats, jetpack stats, analytics, site stats, traffic, visitors
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1

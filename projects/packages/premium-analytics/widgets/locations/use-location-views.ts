@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
+import { useMemo } from '@wordpress/element';
 import type {
 	ReportParams,
 	StatsLocationCoordinates,
@@ -105,7 +106,11 @@ export default function useLocationViews( {
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] ).map( toLocationView );
+	// Stable across renders, so the widget can hold a finished level by reference.
+	const items = useMemo(
+		() => ( comparisonRows?.rows ?? [] ).map( toLocationView ),
+		[ comparisonRows ]
+	);
 
 	return {
 		data: items,

@@ -1399,10 +1399,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "e429a1035b390485595aad18457de4de45ddd3f4"
+                "reference": "495096b1cc58b7091a2242c8acf276d69549d73e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -1896,7 +1897,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "b41b2aa518bd9ebee255bdbda9653810dee4e89a"
+                "reference": "038eab668c04c4527c2342a335ec059f00411465"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1909,6 +1910,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
@@ -1930,7 +1932,12 @@
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
                 },
-                "textdomain": "jetpack-videopress-pkg"
+                "textdomain": "jetpack-videopress-pkg",
+                "dependencies": {
+                    "test-only": [
+                        "packages/premium-analytics"
+                    ]
+                }
             },
             "autoload": {
                 "classmap": [

@@ -17,6 +17,10 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack Backup abilities with the WordPress Abilities API.
  *

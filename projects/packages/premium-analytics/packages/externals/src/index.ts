@@ -15,6 +15,7 @@ import '@automattic/charts/style.css';
  */
 export {
 	BarChart,
+	BaseTooltip,
 	ConversionFunnelChart,
 	GeoChart,
 	GlobalChartsProvider,
@@ -42,6 +43,7 @@ export {
 	type DataPointPercentage,
 	type GeoChartError,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapColumn,

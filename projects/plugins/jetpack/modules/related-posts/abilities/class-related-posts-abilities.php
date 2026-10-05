@@ -13,6 +13,10 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack_RelatedPosts;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack Related Posts abilities with the WordPress Abilities API.
  *

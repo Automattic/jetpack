@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 // the REST test's Brain Monkey mock).
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-dev-enable.php';
+require_once __DIR__ . '/../../../../src/common/launchpad-no-guidance.php';
 
 /**
  * Test class for AI_Launchpad_Dev_Enable.
@@ -110,5 +111,32 @@ class AI_Launchpad_Dev_Enable_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 		// Reset leaves enablement alone.
 		$this->assertSame( 1, get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
+	 * Enabling clears the no-guidance option so it doesn't override the enabled flag.
+	 */
+	public function test_enable_clears_no_guidance() {
+		$this->login_as( 'administrator' );
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		$_GET['enable-ai-launchpad'] = '1';
+
+		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_PAGE, AI_Launchpad_Dev_Enable::handle() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_no_guidance' ) );
+		$this->assertSame( 1, (int) get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
+	 * Enabling a site that skipped the wizard clears dismissed, the other no-guidance source.
+	 */
+	public function test_enable_clears_dismissed() {
+		$this->login_as( 'administrator' );
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+		$_GET['enable-ai-launchpad'] = '1';
+
+		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_PAGE, AI_Launchpad_Dev_Enable::handle() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_dismissed' ) );
+		$this->assertFalse( wpcom_launchpad_is_no_guidance() );
 	}
 }

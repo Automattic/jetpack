@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Catch various PHP warnings when handling malformed data.

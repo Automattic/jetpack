@@ -85,6 +85,36 @@ class PayPal_Partner_Onboarding {
 	const ONBOARDING_METHOD = 'partner_referrals';
 
 	/**
+	 * Known PayPal scopes for each feature the WordPress.com referral requests.
+	 *
+	 * The keys must match WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::ONBOARDING_FEATURES.
+	 * PayPal publishes no feature-to-scope map, so these come from a seller who
+	 * approved every permission.
+	 *
+	 * @var array<string, string[]>
+	 */
+	private const FEATURE_SCOPES = array(
+		'PAYMENT'                     => array(
+			'https://uri.paypal.com/services/payments/realtimepayment',
+			'https://uri.paypal.com/services/payments/partnerfee',
+			'https://uri.paypal.com/services/payments/payment/authcapture',
+		),
+		'REFUND'                      => array( 'https://uri.paypal.com/services/payments/refund' ),
+		'ACCESS_MERCHANT_INFORMATION' => array( 'https://uri.paypal.com/services/customer/merchant-integrations/read' ),
+		'PAYMENT_LINKS_AND_BUTTONS'   => array( 'https://uri.paypal.com/services/checkout/payment-resources/readwrite' ),
+	);
+
+	/**
+	 * PayPal's website for each environment, linked from the account status notices.
+	 *
+	 * @var array<string, string>
+	 */
+	private const PAYPAL_URLS = array(
+		'sandbox'    => 'https://www.sandbox.paypal.com',
+		'production' => 'https://www.paypal.com',
+	);
+
+	/**
 	 * Get the onboarded merchant's PayPal merchant ID.
 	 *
 	 * @return string The merchant ID, or empty string if not onboarded.
@@ -343,6 +373,15 @@ class PayPal_Partner_Onboarding {
 			return $integration;
 		}
 
+		// Checked before anything is written, so a declined permission leaves the site as it was.
+		if ( ! self::has_required_scopes( $integration ) ) {
+			return new \WP_Error(
+				'paypal_onboarding_missing_scopes',
+				self::get_missing_scopes_message(),
+				array( 'status' => 403 )
+			);
+		}
+
 		$merchant_id = sanitize_text_field( (string) ( $integration['merchant_id'] ?? $merchant_id ) );
 		if ( '' === $merchant_id ) {
 			return new \WP_Error(
@@ -394,7 +433,8 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Check the merchant's integration status with PayPal.
 	 *
-	 * Verifies that the merchant can receive payments and has confirmed email.
+	 * Verifies that the merchant can receive payments and has confirmed email,
+	 * and lists the notices to show the seller.
 	 *
 	 * @return array|\WP_Error Integration status array, or WP_Error.
 	 */
@@ -416,12 +456,72 @@ class PayPal_Partner_Onboarding {
 
 		self::cache_merchant_email( $data );
 
-		return array(
+		$status = array(
 			'merchant_id'             => $merchant_id,
 			'payments_receivable'     => ! empty( $data['payments_receivable'] ),
 			'primary_email_confirmed' => ! empty( $data['primary_email_confirmed'] ),
 			'products'                => $data['products'] ?? array(),
+			'notices'                 => array(),
 		);
+
+		// Missing permissions take priority over the account flags, so show only that message.
+		if ( ! self::has_required_scopes( $data ) ) {
+			$status['notices'][] = self::get_missing_scopes_message();
+			return $status;
+		}
+
+		$paypal_url = self::PAYPAL_URLS[ PayPal_OAuth::get_environment() ] ?? self::PAYPAL_URLS['production'];
+
+		// PayPal requires this wording and order.
+		if ( ! $status['primary_email_confirmed'] ) {
+			$status['notices'][] = sprintf(
+				/* translators: %s: URL of the PayPal business profile settings page. */
+				__( 'Attention: Please confirm your email address on %s in order to receive payments! You currently cannot receive payments.', 'jetpack-paypal-payments' ),
+				$paypal_url . '/businessprofile/settings'
+			);
+		}
+
+		if ( ! $status['payments_receivable'] ) {
+			$status['notices'][] = sprintf(
+				/* translators: %s: URL of the PayPal website. */
+				__( 'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to %s for more information.', 'jetpack-paypal-payments' ),
+				$paypal_url
+			);
+		}
+
+		return $status;
+	}
+
+	/**
+	 * The message asking the seller to connect again and approve all permissions.
+	 *
+	 * @return string Translated message.
+	 */
+	private static function get_missing_scopes_message() {
+		return __( "PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.", 'jetpack-paypal-payments' );
+	}
+
+	/**
+	 * Whether the seller granted at least one known scope for every requested feature.
+	 *
+	 * @param array $integration PayPal's merchant integration record.
+	 * @return bool
+	 */
+	private static function has_required_scopes( array $integration ) {
+		$scopes = array();
+		foreach ( (array) ( $integration['oauth_integrations'] ?? array() ) as $oauth_integration ) {
+			foreach ( (array) ( $oauth_integration['oauth_third_party'] ?? array() ) as $third_party ) {
+				$scopes = array_merge( $scopes, (array) ( $third_party['scopes'] ?? array() ) );
+			}
+		}
+
+		foreach ( self::FEATURE_SCOPES as $feature_scopes ) {
+			if ( ! array_intersect( $feature_scopes, $scopes ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Tell the merchant when a payment link could not be loaded from PayPal, instead of silently showing stale details.

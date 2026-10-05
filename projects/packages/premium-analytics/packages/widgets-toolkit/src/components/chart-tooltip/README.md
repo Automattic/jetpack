@@ -7,7 +7,7 @@ A **shared** tooltip component for chart visualizations. Supports both line char
 - **Dual indicator types**: `line` for line charts, `rect` for bar charts
 - **Configurable extractors**: Custom `getLabel` and `getValue` functions
 - **Sensible defaults**: Works with `datum.label` and `datum.value` out of the box
-- **WPDS styling**: Uses design tokens for consistent appearance
+- **Shared box**: Content only; the chart's tooltip box draws the surface
 - **MetricValue integration**: Formatted values with currency, number, or percentage
 
 ## Basic Usage
@@ -139,12 +139,7 @@ Uses `RectShape` from the chart library. Supports:
 
 ## Styling
 
-The tooltip uses WPDS design tokens:
-
-- `--wpds-color-foreground-content-neutral` - Text color
-- `--wpds-dimension-padding-sm` - Padding
-
-Global visx-tooltip overrides are applied to ensure consistent layout.
+The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart. The box re-themes the design system tokens inside it for its dark surface, so row text that reads the neutral foreground token stays readable.
 
 ## Used By
 
@@ -158,7 +153,7 @@ Global visx-tooltip overrides are applied to ensure consistent layout.
 
 A tooltip component for **pie** and **semi-circle** charts. Renders a single row with a color indicator, label, and formatted value.
 
-Reuses the same SCSS module as `ChartTooltip` so styling (box-shadow, padding, visx-tooltip override) is shared.
+Like `ChartTooltip`, it is content only and sits in the chart's shared tooltip box.
 
 ## Basic Usage
 

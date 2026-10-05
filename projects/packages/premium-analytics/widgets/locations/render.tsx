@@ -22,6 +22,7 @@ import {
 	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Disabled } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -29,6 +30,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import styles from './style.module.css';
+import useHeldLevel from './use-held-level';
 import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
 import { type LocationsAttributes } from './widget';
 /**
@@ -80,11 +82,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const focusCountry = drillDownPath?.country;
 	let geoMode: GeoMode = geoGranularity;
+	let drillDepth = 0;
 	if ( drillDownPath ) {
 		geoMode = drillDownPath.region ? 'city' : 'region';
+		drillDepth = drillDownPath.region ? 2 : 1;
 	}
 
-	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useLocationViews( {
+	const views = useLocationViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		geoMode,
@@ -93,9 +97,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			: undefined,
 	} );
 
+	const { isLoading, isFetching, isError, refetch } = views;
+	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+
+	// The held level's rows would land on the wrong map, so the map waits empty for the new ones.
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
-			data
+			( isHeld ? [] : data )
 				.filter( location => location.countryCode )
 				.map( location => ( {
 					label: location.label,
@@ -104,12 +112,14 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					countryFull: location.countryFull,
 					coordinates: location.coordinates,
 				} ) ),
-		[ data ]
+		[ data, isHeld ]
 	);
 
 	const leaderboardData = useMemo( () => {
 		const getDrillDownAction = ( location: LocationView ) => {
-			if ( ! location.countryCode ) {
+			// The previous level's rows would drill with the new level's mode. Dropping the
+			// buttons also unmounts a focused one, which `WidgetState` catches.
+			if ( isHeld || ! location.countryCode ) {
 				return { kind: 'static' as const };
 			}
 
@@ -175,7 +185,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, setDrillDownPath ] );
+	}, [ data, geoMode, hasComparison, isHeld, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -221,7 +231,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			{ bodyHeader }
 			<div className={ styles.stateArea }>
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading && ! isHeld }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
@@ -236,9 +246,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					} }
 				>
 					<div className={ styles.chartArea }>
-						<div className={ styles.leaderboardPanel }>
+						<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
 							<LeaderboardChart
 								data={ leaderboardData }
+								loading={ isHeld }
 								withOverlayLabel
 								withComparison={ hasComparison }
 								showLegend={ false }
@@ -248,7 +259,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 								} }
 								className={ styles.leaderboard }
 							/>
-						</div>
+						</Disabled>
 						<div className={ styles.geoChart }>
 							<LocationsGeoChart
 								rows={ geoRows }
