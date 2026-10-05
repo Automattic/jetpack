@@ -55,8 +55,9 @@ export const Identity = () => {
 	// Empty where the site offers no subscriptions, and on a page cached before this key existed.
 	let manageUrl = JetpackComments.manageSubscriptionsUrl ?? '';
 
-	// Logged out, the portal asks for an email address; hand it the one the comment will post under.
-	if ( manageUrl && details.value.email ) {
+	// Logged out, the portal asks for an email address; hand it a guest's. Anyone else's
+	// details are leftover cookies, which on Simple can come from another site.
+	if ( manageUrl && current.kind === 'guest' && details.value.email ) {
 		manageUrl += `&email=${ encodeURIComponent( details.value.email ) }`;
 	}
 
