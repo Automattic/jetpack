@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { TOOLTIP_SCOPE_CLASS } from '../../styles/chart-scope-class';
-import styles from './base-tooltip.module.scss';
 import { TooltipTheme } from './private/tooltip-theme';
+import styles from './tooltip-box.module.scss';
 import type { HTMLAttributes } from 'react';
 
 type TooltipBoxProps = HTMLAttributes< HTMLDivElement > & {
