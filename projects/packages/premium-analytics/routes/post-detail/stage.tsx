@@ -24,7 +24,7 @@ import {
 	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeError,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
@@ -183,7 +183,7 @@ function PostDetail(): JSX.Element {
 		! isEmailTab && isAnchoringAllTime && summary.isError ? (
 			<DetailPageSection>
 				<DetailPageNotice
-					{ ...describeError( summary.error, {
+					{ ...describeDetailPageError( summary.error, {
 						retryDescription: __(
 							"We couldn't load this post. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'

@@ -127,6 +127,7 @@ export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageShell,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,

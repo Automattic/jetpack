@@ -5,13 +5,12 @@ import { Notice } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
-import type { DescribedError } from '../../helpers/describe-error';
+import type { WidgetStateError } from '../widget-state';
 import type { ReactElement } from 'react';
 
-export interface DetailPageNoticeProps extends Pick<
-	DescribedError,
-	'intent' | 'description' | 'actions'
-> {
+export interface DetailPageNoticeProps extends Pick< WidgetStateError, 'description' | 'actions' > {
+	/** `error` when something failed; `info` when the request answered and the answer is a fact, such as no access. */
+	intent: 'error' | 'info';
 	/** A way out of the page, such as back to its report; `render` is a childless router link, as its children would replace `label`. */
 	link?: { label: string; render: ReactElement };
 }

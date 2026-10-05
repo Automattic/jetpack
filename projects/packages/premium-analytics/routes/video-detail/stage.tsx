@@ -18,7 +18,7 @@ import {
 	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeError,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
@@ -141,7 +141,7 @@ function VideoDetail(): JSX.Element {
 	let notice: DetailPageNoticeProps | null = null;
 
 	if ( summary.isError ) {
-		notice = describeError( summary.error, {
+		notice = describeDetailPageError( summary.error, {
 			retryDescription: __(
 				"We couldn't load this video. Please try again in a moment.",
 				'jetpack-premium-analytics-pkg'

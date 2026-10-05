@@ -20,7 +20,7 @@ import {
 	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeError,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
@@ -157,7 +157,7 @@ function AuthorDetail(): JSX.Element {
 							'jetpack-premium-analytics-pkg'
 						),
 					}
-				: describeError( summary.error, {
+				: describeDetailPageError( summary.error, {
 						retryDescription: __(
 							"We couldn't load this author. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'

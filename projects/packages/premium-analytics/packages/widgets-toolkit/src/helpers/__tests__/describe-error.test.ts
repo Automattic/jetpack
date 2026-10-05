@@ -17,7 +17,6 @@ describe( 'describeError', () => {
 		} );
 
 		expect( descriptor ).toEqual( {
-			intent: 'error',
 			description: 'This data is unavailable right now.',
 		} );
 		expect( descriptor ).not.toHaveProperty( 'actions' );
@@ -30,7 +29,6 @@ describe( 'describeError', () => {
 		);
 
 		expect( descriptor ).toEqual( {
-			intent: 'info',
 			description: "You don't have access to this data.",
 		} );
 		expect( descriptor ).not.toHaveProperty( 'actions' );
@@ -43,7 +41,6 @@ describe( 'describeError', () => {
 			{ retryDescription: RETRY_DESCRIPTION, onRetry }
 		);
 
-		expect( descriptor.intent ).toBe( 'error' );
 		expect( descriptor.description ).toBe( RETRY_DESCRIPTION );
 		expect( descriptor.actions ).toEqual( [ { label: 'Retry', onClick: onRetry } ] );
 	} );
@@ -55,7 +52,6 @@ describe( 'describeError', () => {
 			{ retryDescription: RETRY_DESCRIPTION, onRetry }
 		);
 
-		expect( descriptor.intent ).toBe( 'error' );
 		expect( descriptor.description ).toBe( RETRY_DESCRIPTION );
 		expect( descriptor.actions ).toEqual( [ { label: 'Retry', onClick: onRetry } ] );
 	} );

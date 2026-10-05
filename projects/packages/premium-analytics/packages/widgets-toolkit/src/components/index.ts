@@ -177,6 +177,7 @@ export {
 	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	describeDetailPageError,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,
