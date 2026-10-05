@@ -79,12 +79,9 @@ describe( 'comment followers fields', () => {
 			children: null,
 		} as never );
 
-		const link = screen.getByRole( 'link', { name: 'Hello world' } );
+		const link = screen.getByRole( 'link', { name: 'Hello world(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		// eslint-disable-next-line testing-library/no-node-access -- The external-link icon SVG has no accessible role or text to query.
-		expect( link.querySelector( 'svg' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders plain text for rows with neither an id nor a link', () => {

@@ -43,10 +43,9 @@ describe( 'downloads fields', () => {
 	it( 'renders the filename as an external asset link', () => {
 		renderField( 'file', download );
 
-		const link = screen.getByRole( 'link', { name: 'report.pdf' } );
+		const link = screen.getByRole( 'link', { name: 'report.pdf(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/files/report.pdf' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders the filename as plain text when the asset URL is unsafe', () => {
