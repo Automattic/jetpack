@@ -29,12 +29,28 @@ class Script_Data_Test extends BaseTestCase {
 		try {
 			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
-			$data = Initializer::add_admin_script_data( array( 'existing' => 'value' ) );
+			$site = array(
+				'rest_root'  => rest_url(),
+				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+			);
+			$data = Initializer::add_admin_script_data(
+				array(
+					'existing' => 'value',
+					'site'     => $site,
+				)
+			);
 			$this->assertSame( 'value', $data['existing'] );
+			$this->assertSame( $site, $data['site'] );
 			$this->assertFalse( Initializer::should_initialize() );
 			$this->assertNotEmpty( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] );
+			$this->assertSame( Main_Features::get_state( true ), $data['myJetpack']['offlineFeatures']['mainFeatures'] );
+			foreach ( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] as $feature ) {
+				$this->assertNull( $feature['upgrade'] );
+			}
 			$this->assertSame( \Automattic\Jetpack\Plugins_Installer::get_plugins(), $data['myJetpack']['offlineFeatures']['plugins'] );
-			$this->assertSame( 1, wp_verify_nonce( $data['myJetpack']['offlineFeatures']['apiNonce'], 'wp_rest' ) );
+			$this->assertArrayNotHasKey( 'apiRoot', $data['myJetpack']['offlineFeatures'] );
+			$this->assertArrayNotHasKey( 'apiNonce', $data['myJetpack']['offlineFeatures'] );
+			$this->assertSame( 1, wp_verify_nonce( $data['site']['rest_nonce'], 'wp_rest' ) );
 		} finally {
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -81,6 +97,15 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	public function test_offline_switch_does_not_change_online_disconnected_data() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'online-admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		try {
@@ -92,6 +117,7 @@ class Script_Data_Test extends BaseTestCase {
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+			wp_set_current_user( 0 );
 		}
 	}
 

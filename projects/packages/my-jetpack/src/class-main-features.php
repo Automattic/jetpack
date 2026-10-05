@@ -505,21 +505,24 @@ class Main_Features {
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.
-	 * @return array List of slug/name/owned triples.
+	 * @param bool  $local      Skip ownership lookups.
+	 * @return array List of slug/name/owned triples, without ownership in local mode.
 	 */
-	private static function get_plan_badges( $definition ) {
+	private static function get_plan_badges( $definition, $local = false ) {
 		$badges = array();
 
 		foreach ( $definition['plans'] ?? array() as $slug ) {
 			$bundle_class = Products::get_product_class( $slug );
 
 			if ( $bundle_class ) {
-				$badges[] = array(
-					'slug'  => $slug,
-					'name'  => $bundle_class::get_title(),
-					// Per plan, not per feature: a site on Growth still has Complete to buy.
-					'owned' => $bundle_class::has_paid_plan_for_product(),
+				$badge = array(
+					'slug' => $slug,
+					'name' => $bundle_class::get_title(),
 				);
+				if ( ! $local ) {
+					$badge['owned'] = $bundle_class::has_paid_plan_for_product();
+				}
+				$badges[] = $badge;
 			}
 		}
 
@@ -954,9 +957,9 @@ class Main_Features {
 			$delivery      = $definition['delivery'] ?? array();
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
-			$included      = self::is_included_in_plan( $definition, $product_class );
+			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 
-			$features[] = array(
+			$feature = array(
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
@@ -973,12 +976,12 @@ class Main_Features {
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
-				'upgrade'          => self::get_upgrade( $definition, $product_class, $included ),
+				'upgrade'          => $local ? null : self::get_upgrade( $definition, $product_class, $included ),
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
 				'screenshot'       => self::get_screenshot_url( $slug ),
-				'plans'            => self::get_plan_badges( $definition ),
+				'plans'            => self::get_plan_badges( $definition, $local ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,
@@ -986,6 +989,10 @@ class Main_Features {
 				'product'          => $definition['product'] ?? '',
 				'module'           => $definition['module'] ?? '',
 			);
+			if ( $local ) {
+				unset( $feature['included'], $feature['setup_note'] );
+			}
+			$features[] = $feature;
 		}
 
 		usort(
@@ -1028,7 +1035,12 @@ class Main_Features {
 			}
 
 			$url = (string) $product_class::get_manage_url();
-			return ! $local || 0 === strpos( $url, admin_url() ) ? $url : '';
+			if ( ! $local ) {
+				return $url;
+			}
+
+			wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+			return 0 === strpos( $url, admin_url() ) && 'my-jetpack' !== ( $query['page'] ?? '' ) ? $url : '';
 		}
 
 		return '';

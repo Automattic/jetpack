@@ -27,8 +27,10 @@ class Main_Features_Test extends TestCase {
 			$this->assertSame( 'jetpack-boost-dev/jetpack-boost.php', Main_Features::get_plugin_file( 'jetpack-boost', Products\Boost::class ) );
 			$this->assertSame( admin_url( 'admin.php?page=jetpack-boost' ), $features['boost']['manage_url'] );
 			$this->assertSame( '', $features['protect-dashboard']['manage_url'] );
+			$this->assertSame( '', $features['jetpack-ai']['manage_url'] );
 			$this->assertSame( Main_Features::get_module_groups(), $state['module_groups'] );
 			foreach ( $features as $feature ) {
+				$this->assertNull( $feature['upgrade'] );
 				$this->assertArrayNotHasKey( 'included', $feature );
 				foreach ( $feature['plans'] as $plan ) {
 					$this->assertArrayNotHasKey( 'owned', $plan );

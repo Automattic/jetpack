@@ -473,10 +473,10 @@ type MainFeaturesState = {
 };
 
 type OfflineFeaturesSeed = {
-	mainFeatures: MainFeaturesState;
+	mainFeatures: Omit< MainFeaturesState, 'features' > & {
+		features: Array< Omit< MainFeature, 'upgrade' > & { upgrade: null } >;
+	};
 	plugins: Record< string, { active: boolean; [ key: string ]: unknown } >;
-	apiRoot: string;
-	apiNonce: string;
 };
 
 type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJetpackScriptData & {
