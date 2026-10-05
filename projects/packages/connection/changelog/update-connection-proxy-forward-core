@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add WPCOM_REST_API_Proxy_Request::forward_request_to_wpcom(), the raw forward to WordPress.com that the trait's proxy methods now build on.

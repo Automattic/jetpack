@@ -53,7 +53,6 @@ trait WPCOM_REST_API_Proxy_Request {
 		$blog_id      = \Jetpack_Options::get_option( 'id' );
 		$path         = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( ltrim( $this->rest_base, '/' ) ) . ( $path ? '/' . rawurldecode( ltrim( $path, '/' ) ) : '' );
 		$query_params = $request->get_query_params();
-		$manager      = new Manager();
 
 		/*
 		 * A rest_route parameter can be added when using plain permalinks.
@@ -66,45 +65,15 @@ trait WPCOM_REST_API_Proxy_Request {
 		}
 		$api_url = add_query_arg( $query_params, $path );
 
-		$request_options = array_replace_recursive(
+		$response = $this->forward_request_to_wpcom(
+			$request,
+			$api_url,
 			array(
-				'headers' => array(
-					'Content-Type'    => 'application/json',
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-				'method'  => $request->get_method(),
-			),
-			$request_options
+				'context'                => $context,
+				'allow_fallback_to_blog' => $allow_fallback_to_blog,
+				'request_options'        => $request_options,
+			)
 		);
-
-		// If no body is present, passing it as $request->get_body() will cause an error.
-		$body = $request->get_body() ? $request->get_body() : null;
-
-		$response = new WP_Error(
-			'rest_unauthorized',
-			__( 'Please connect your user account to WordPress.com', 'jetpack-connection' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
-
-		if ( 'user' === $context ) {
-			if ( ! $manager->is_user_connected() ) {
-				if ( false === $allow_fallback_to_blog ) {
-					return $response;
-				}
-
-				$context = 'blog';
-			} else {
-				$response = Client::wpcom_json_api_request_as_user( $api_url, $this->version, $request_options, $body, $this->base_api_path );
-			}
-		}
-
-		if ( 'blog' === $context ) {
-			if ( ! $manager->is_connected() ) {
-				return $response;
-			}
-
-			$response = Client::wpcom_json_api_request_as_blog( $api_url, $this->version, $request_options, $body, $this->base_api_path );
-		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -121,6 +90,80 @@ trait WPCOM_REST_API_Proxy_Request {
 		}
 
 		return $response_body;
+	}
+
+	/**
+	 * Forward a request to WordPress.com and return the raw HTTP response.
+	 *
+	 * The one place that resolves the token context, checks the connection and signs the request.
+	 * {@see proxy_request_to_wpcom()} builds on it and decodes the body; call this directly when
+	 * the status, the headers or the body as WordPress.com sent it are needed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request Request being proxied. Supplies the method and the body unless `$args` overrides them.
+	 * @param string          $api_url WordPress.com path to request, with its query string.
+	 * @param array           $args {
+	 *     Optional. How to forward.
+	 *
+	 *     @type string      $context                Sign as the current user ('user') or as the site ('blog'). Default 'user'.
+	 *     @type bool        $allow_fallback_to_blog Sign as the site when the current user is not connected. Default false.
+	 *     @type array       $request_options        Arguments for wp_remote_request(), merged over the defaults: the request's method, a JSON content type and `X-Forwarded-For`.
+	 *     @type string|null $body                   Body to send. Defaults to the request body, or null when it is empty.
+	 *     @type string      $version                WordPress.com API version. Defaults to `$this->version`.
+	 *     @type string      $base_api_path          WordPress.com API base, 'rest' or 'wpcom'. Defaults to `$this->base_api_path`.
+	 * }
+	 * @return array|WP_Error The response as `Client` returned it, or a WP_Error: `rest_unauthorized` when the
+	 *                        token the context needs is missing, otherwise `Client`'s own error.
+	 */
+	public function forward_request_to_wpcom( $request, $api_url, $args = array() ) {
+		$context                = $args['context'] ?? 'user';
+		$allow_fallback_to_blog = $args['allow_fallback_to_blog'] ?? false;
+		$version                = $args['version'] ?? $this->version;
+		$base_api_path          = $args['base_api_path'] ?? $this->base_api_path;
+		$manager                = new Manager();
+
+		$request_options = array_replace_recursive(
+			array(
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+				'method'  => $request->get_method(),
+			),
+			$args['request_options'] ?? array()
+		);
+
+		// If no body is present, passing it as $request->get_body() will cause an error.
+		$body = array_key_exists( 'body', $args ) ? $args['body'] : ( $request->get_body() ? $request->get_body() : null );
+
+		$response = new WP_Error(
+			'rest_unauthorized',
+			__( 'Please connect your user account to WordPress.com', 'jetpack-connection' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+
+		if ( 'user' === $context ) {
+			if ( ! $manager->is_user_connected() ) {
+				if ( false === $allow_fallback_to_blog ) {
+					return $response;
+				}
+
+				$context = 'blog';
+			} else {
+				$response = Client::wpcom_json_api_request_as_user( $api_url, $version, $request_options, $body, $base_api_path );
+			}
+		}
+
+		if ( 'blog' === $context ) {
+			if ( ! $manager->is_connected() ) {
+				return $response;
+			}
+
+			$response = Client::wpcom_json_api_request_as_blog( $api_url, $version, $request_options, $body, $base_api_path );
+		}
+
+		return $response;
 	}
 
 	/**
