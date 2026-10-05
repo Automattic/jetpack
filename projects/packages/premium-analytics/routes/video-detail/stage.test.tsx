@@ -271,7 +271,7 @@ describe( 'video detail stage', () => {
 
 		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect(
-			getNoticeAnnouncement( "You don't have access to this data.", 'polite' )
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );

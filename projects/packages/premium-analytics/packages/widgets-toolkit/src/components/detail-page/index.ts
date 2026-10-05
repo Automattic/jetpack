@@ -7,8 +7,6 @@ export {
 	type DetailPageSectionProps,
 } from './detail-page-layout';
 export { DetailPageEmptyState, type DetailPageEmptyStateProps } from './detail-page-empty-state';
-export { DetailPageNotice, type DetailPageNoticeProps } from './detail-page-notice';
-export { describeDetailPageError } from './describe-detail-page-error';
 export { DetailPageShell, type DetailPageShellProps } from './detail-page-shell';
 export {
 	DetailPageActions,

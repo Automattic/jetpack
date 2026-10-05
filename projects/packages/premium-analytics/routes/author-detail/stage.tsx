@@ -17,14 +17,14 @@ import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
-	DetailPageNotice,
+	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
-	describeDetailPageError,
+	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
-	type DetailPageNoticeProps,
+	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -143,7 +143,7 @@ function AuthorDetail(): JSX.Element {
 		[ search ]
 	);
 
-	let notice: DetailPageNoticeProps | null = null;
+	let notice: PageNoticeProps | null = null;
 
 	if ( summary.isError ) {
 		// Same split as the widgets, plus a 404: sites that hide the users
@@ -157,7 +157,7 @@ function AuthorDetail(): JSX.Element {
 							'jetpack-premium-analytics-pkg'
 						),
 					}
-				: describeDetailPageError( summary.error, {
+				: describeError( summary.error, {
 						retryDescription: __(
 							"We couldn't load this author. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'
@@ -230,7 +230,7 @@ function AuthorDetail(): JSX.Element {
 						) : null }
 						{ notice ? (
 							<DetailPageSection>
-								<DetailPageNotice { ...notice } />
+								<PageNotice { ...notice } />
 							</DetailPageSection>
 						) : null }
 					</DetailPageLayout>

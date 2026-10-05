@@ -33,7 +33,6 @@ The first argument is the text to be displayed on the notice. The second argumen
 * `href: 'https://wordpress.com'`: (optional, requires `button` to be set as well) Url to be used for the button action.
 * `onClick: function() {}`: (optional, requires `button` to be set as well) Function to be invoked for the button action.
 * `duration: 5000`: (optional) Duration in milliseconds to display the notice before dismissing.
-* `isCompact: true`: (optional) Applies the `is-compact` class (and related styles) to the notice. Makes the notice smaller and more compact.
 * `displayOnNextPage: true`: (optional) Displays the notice on the next page load rather than this one. Useful for showing a notice after a redirect.
 * `showDismiss: false`: (optional) To indicate if dismiss button should be rendered within the overlay.
 * `persistent: true`: (optional) When set to true it won't be removed from the page when navigating to the next page.

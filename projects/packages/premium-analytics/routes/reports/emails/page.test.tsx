@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useEmailsReportRecords } from './config';
 import EmailsReportPage from './page';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
@@ -113,7 +114,9 @@ describe( 'EmailsReportPage', () => {
 
 		render( <EmailsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load emails' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load emails. Please try again in a moment." )
+		).toBeInTheDocument();
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalled();
 	} );

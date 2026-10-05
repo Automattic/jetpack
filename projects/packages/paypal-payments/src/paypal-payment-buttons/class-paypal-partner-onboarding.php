@@ -78,6 +78,16 @@ class PayPal_Partner_Onboarding {
 	const PARTNER_CLIENT_ID_OPTION_KEY = 'jetpack_paypal_payment_buttons_partner_client_id';
 
 	/**
+	 * Option: the tracking ID this site onboarded the seller with.
+	 *
+	 * Sent with every proxied call as proof the site referred the seller. PayPal keeps
+	 * it after the seller connects another site, which only moves the record's latest ID.
+	 *
+	 * @var string
+	 */
+	const REFERRAL_TRACKING_ID_OPTION_KEY = 'jetpack_paypal_payment_buttons_referral_tracking_id';
+
+	/**
 	 * The onboarding method recorded for a referred seller.
 	 *
 	 * @var string
@@ -130,6 +140,15 @@ class PayPal_Partner_Onboarding {
 	 */
 	public static function get_merchant_email() {
 		return get_option( self::MERCHANT_EMAIL_OPTION_KEY, '' );
+	}
+
+	/**
+	 * Get the tracking ID this site onboarded the seller with.
+	 *
+	 * @return string The tracking ID, or empty string for a site onboarded before it was kept.
+	 */
+	public static function get_referral_tracking_id() {
+		return (string) get_option( self::REFERRAL_TRACKING_ID_OPTION_KEY, '' );
 	}
 
 	/**
@@ -399,6 +418,17 @@ class PayPal_Partner_Onboarding {
 		update_option( self::ONBOARDING_METHOD_OPTION_KEY, self::ONBOARDING_METHOD, false );
 		self::cache_merchant_email( $integration );
 
+		// A caller naming the seller instead of a session falls back to the record's
+		// latest ID, which WordPress.com has just checked is this site's.
+		$referral_tracking_id = '' !== $tracking_id
+			? $tracking_id
+			: sanitize_text_field( (string) ( $integration['tracking_id'] ?? '' ) );
+		if ( '' !== $referral_tracking_id ) {
+			update_option( self::REFERRAL_TRACKING_ID_OPTION_KEY, $referral_tracking_id, false );
+		} else {
+			delete_option( self::REFERRAL_TRACKING_ID_OPTION_KEY );
+		}
+
 		// The tracking ID is single-use.
 		delete_transient( self::TRACKING_ID_TRANSIENT_KEY );
 
@@ -426,6 +456,7 @@ class PayPal_Partner_Onboarding {
 		delete_option( self::MERCHANT_ID_OPTION_KEY );
 		delete_option( self::MERCHANT_EMAIL_OPTION_KEY );
 		delete_option( self::ONBOARDING_METHOD_OPTION_KEY );
+		delete_option( self::REFERRAL_TRACKING_ID_OPTION_KEY );
 
 		return $error;
 	}
@@ -449,7 +480,7 @@ class PayPal_Partner_Onboarding {
 			);
 		}
 
-		$data = PayPal_Platform_Client::get_merchant_integration( $merchant_id );
+		$data = PayPal_Platform_Client::get_merchant_integration( $merchant_id, self::get_referral_tracking_id() );
 		if ( is_wp_error( $data ) ) {
 			return $data;
 		}
@@ -548,6 +579,7 @@ class PayPal_Partner_Onboarding {
 		delete_option( self::MERCHANT_ID_OPTION_KEY );
 		delete_option( self::MERCHANT_EMAIL_OPTION_KEY );
 		delete_option( self::ONBOARDING_METHOD_OPTION_KEY );
+		delete_option( self::REFERRAL_TRACKING_ID_OPTION_KEY );
 		// Note: the partner client ID is not deleted — it's a site-level config, not per-merchant.
 	}
 }

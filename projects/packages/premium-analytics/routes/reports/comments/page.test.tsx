@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useCommentsReportRecords } from './config';
 import CommentsReportPage from './page';
 
@@ -73,7 +74,9 @@ describe( 'CommentsReportPage', () => {
 
 		render( <CommentsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load comments' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load comments. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
 	} );

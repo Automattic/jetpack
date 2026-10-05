@@ -29,7 +29,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ExporterCsvAction: () => null,
-	ReportErrorState: () => null,
+	PageNotice: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
@@ -69,6 +69,7 @@ describe( 'DownloadsReportPage', () => {
 	it( 'reports the loading state on first load, when there is nothing to show yet', () => {
 		useRecordsMock.mockReturnValue( {
 			isError: false,
+			error: null,
 			refetch: jest.fn(),
 			rows: [],
 			hasComparison: false,
@@ -91,6 +92,7 @@ describe( 'DownloadsReportPage', () => {
 		// page position survive a date or comparison change instead of resetting.
 		useRecordsMock.mockReturnValue( {
 			isError: false,
+			error: null,
 			refetch: jest.fn(),
 			rows: [ row ],
 			hasComparison: true,
@@ -112,6 +114,7 @@ describe( 'DownloadsReportPage', () => {
 	it( 'shows current rows once both requests are settled', () => {
 		useRecordsMock.mockReturnValue( {
 			isError: false,
+			error: null,
 			refetch: jest.fn(),
 			rows: [ row ],
 			hasComparison: true,

@@ -32,6 +32,7 @@ export function useTagsReportRecords() {
 		isLoading: tags.isLoading,
 		isFetching: tags.isFetching,
 		isError: tags.isError,
+		error: tags.error,
 		refetch: tags.refetch,
 	};
 }

@@ -3,7 +3,7 @@
  */
 import {
 	ExporterCsvAction,
-	ReportErrorState,
+	PageNotice,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
@@ -11,6 +11,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { getVideosFields, useVideosReportRecords } from './config';
 import VideosReportPage from './page';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
@@ -34,12 +35,10 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
-		<div data-testid="report-error-state">
-			<span>{ title }</span>
-			<button onClick={ onRetry }>Retry</button>
-		</div>
-	) ),
+	PageNotice: jest.fn(
+		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice
+	),
+	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
@@ -69,7 +68,7 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( useVideosReportRecords );
 const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const getVideosFieldsMock = jest.mocked( getVideosFields );
-const reportErrorStateMock = jest.mocked( ReportErrorState );
+const pageNoticeMock = jest.mocked( PageNotice );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 const videoRow = {
@@ -112,7 +111,7 @@ describe( 'VideosReportPage', () => {
 		render( <VideosReportPage /> );
 
 		expect( reportRecordsTableMock ).toHaveBeenCalled();
-		expect( reportErrorStateMock ).not.toHaveBeenCalled();
+		expect( pageNoticeMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'draws each video poster beside its title', () => {
@@ -244,9 +243,9 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
-			'Unable to load videos'
-		);
+		expect(
+			getNoticeText( "We couldn't load videos. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 

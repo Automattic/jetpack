@@ -69,12 +69,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		getWordAdsHistoryFields: () => [],
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
-		ReportErrorState: () => null,
+		PageNotice: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
 		ReportPageShell: Container,
 		ReportPageTabs: () => null,
-		ReportPerformanceChart: () => null,
 		ReportRecordsTable: () => null,
 		formatLegendLabels: () => ( {} ),
 		useReportCsvExport: jest.fn(),
@@ -146,6 +145,7 @@ const reportStatus = {
 	isLoading: false,
 	isFetching: false,
 	isError: false,
+	error: null,
 	refetch: jest.fn(),
 };
 

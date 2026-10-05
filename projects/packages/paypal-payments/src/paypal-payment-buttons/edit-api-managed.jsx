@@ -881,6 +881,7 @@ export default function ApiManagedEdit( {
 				<OnboardingFrame
 					signupUrl={ signupUrl }
 					isOverlayOpen={ isOverlayOpen }
+					isCompletingOnboarding={ isCompletingOnboarding }
 					setFrameNode={ setFrameNode }
 					cancelOnboarding={ cancelOnboarding }
 				/>

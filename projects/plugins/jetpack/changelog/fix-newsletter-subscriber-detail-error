@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Show an error with a retry button when subscriber details fail to load.

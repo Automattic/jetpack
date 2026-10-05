@@ -32,6 +32,7 @@ import {
 	getOnboardingReturnUrl,
 	loadPartnerScript,
 	waitForAnchorBinding,
+	watchForBlockedPopup,
 } from '../utils/paypal-partner-sdk';
 import { getUserFriendlyError } from '../utils/validation';
 
@@ -562,6 +563,23 @@ export function usePayPalConnection() {
 		// The SDK resolves the callback by name against whichever realm it runs in.
 		frameWindow[ ONBOARD_CALLBACK_NAME ] = () => completeOnboarding();
 
+		// The referral is kept: PayPal never opened, so the link is unspent and
+		// the next click, with its own user activation, opens it at once.
+		const unwatchPopups = watchForBlockedPopup( frameWindow, () => {
+			if ( cancelled ) {
+				return;
+			}
+
+			setOnboardingRequested( false );
+			setConnectError(
+				__(
+					'Your browser blocked PayPal’s window. Allow pop-ups for this site, then click Connect PayPal again.',
+					'jetpack-paypal-payments'
+				)
+			);
+			setConnectErrorDismissed( false );
+		} );
+
 		/*
 		 * Left visible on purpose: render() skips hidden elements, so a hidden
 		 * anchor is never bound as a PayPal button and the click below does
@@ -630,6 +648,7 @@ export function usePayPalConnection() {
 			setIsSdkReady( false );
 			onboardingLinkRef.current = null;
 			releaseFrame( () => delete frameWindow[ ONBOARD_CALLBACK_NAME ] );
+			releaseFrame( unwatchPopups );
 		};
 	}, [ frameNode, signupUrl, environment, completeOnboarding ] );
 
