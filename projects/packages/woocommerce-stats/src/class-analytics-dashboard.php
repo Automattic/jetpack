@@ -7,17 +7,15 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
-use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
 /**
- * Registers the WooCommerce section and its default layout.
+ * Registers the WooCommerce section.
  *
  * The package decides nothing about who gets the section: the Jetpack plugin calls `init()`
  * outside the WordPress.com platform, jetpack-mu-wpcom calls the registrant on Simple and Atomic.
- * The section registers when the dashboard's registry hydrates. Its widgets still belong to the
- * dashboard package.
+ * The section registers when the dashboard's registry hydrates.
  *
  * @since 0.1.0-alpha
  */
@@ -50,13 +48,11 @@ class Analytics_Dashboard {
 	/**
 	 * Register the WooCommerce section unless `woocommerce` or the older `store` slug is taken.
 	 *
-	 * Also skipped when the dashboard's widget contract moved past this build.
-	 *
 	 * @param object $registry The section registry being hydrated.
 	 * @return void
 	 */
 	public static function register_section( $registry ) {
-		if ( self::widget_contract_moved_on() || self::section_slug_is_taken( $registry ) ) {
+		if ( self::section_slug_is_taken( $registry ) ) {
 			return;
 		}
 
@@ -68,34 +64,12 @@ class Analytics_Dashboard {
 			DASHBOARD_NAME,
 			self::SECTION_ID,
 			array(
-				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'          => 40,
-				'is_available'   => $is_available,
+				'label'         => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
+				'order'         => 40,
+				'is_available'  => $is_available,
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
-				'requires_sync'  => true,
-				'default_layout' => array( __CLASS__, 'get_default_layout' ),
+				'requires_sync' => true,
 			)
-		);
-	}
-
-	/**
-	 * The default layout of the WooCommerce section.
-	 *
-	 * Every instance still names a type the dashboard package builds.
-	 *
-	 * @return array[] Widget instances, as `get_dashboard_default_widget_instance()` builds them.
-	 */
-	public static function get_default_layout() {
-		return array(
-			get_dashboard_default_widget_instance( 'default-store-performance-widget-instance', 'jpa/store-performance', 0, 2, 1 ),
-			get_dashboard_default_widget_instance( 'default-total-sales-over-time-widget-instance', 'jpa/total-sales-over-time', 1, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-conversion-rate-widget-instance', 'jpa/conversion-rate', 2, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-orders-over-time-widget-instance', 'jpa/orders-over-time', 3, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', 'jpa/average-order-value', 4, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', 'jpa/top-performing-products', 5, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', 'jpa/new-vs-returning-customer', 6, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', 'jpa/payment-status', 7, 1, 1 ),
-			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', 'jpa/orders-fulfillment', 8, 1, 1 ),
 		);
 	}
 
@@ -113,19 +87,6 @@ class Analytics_Dashboard {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Whether the dashboard's widget contract moved to a major this package was not built against.
-	 *
-	 * Undefined is not a mismatch: the sections REST route hydrates the section registry before
-	 * the dashboard loads the file that defines the version.
-	 *
-	 * @return bool
-	 */
-	private static function widget_contract_moved_on() {
-		return defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
-			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '>=' );
 	}
 
 	/**

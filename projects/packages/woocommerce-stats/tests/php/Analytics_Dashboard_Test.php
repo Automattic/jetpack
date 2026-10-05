@@ -22,10 +22,9 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/c
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-policy.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
-require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
 
 /**
- * The package registers the section and its layout when the dashboard hydrates.
+ * The package registers the section when the dashboard hydrates.
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard
  */
@@ -59,9 +58,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The section carries the WooCommerce label, the woocommerce slug, and the dashboard package's widgets.
+	 * The section carries the WooCommerce label and the woocommerce slug, and places no widgets.
 	 */
-	public function test_registers_the_woocommerce_section_with_its_layout() {
+	public function test_registers_the_woocommerce_section() {
 		$this->enable_store();
 		Analytics_Dashboard::init();
 
@@ -73,20 +72,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 40, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
-		$this->assertSame(
-			array(
-				'jpa/store-performance',
-				'jpa/total-sales-over-time',
-				'jpa/conversion-rate',
-				'jpa/orders-over-time',
-				'jpa/average-order-value',
-				'jpa/top-performing-products',
-				'jpa/new-vs-returning-customer',
-				'jpa/payment-status',
-				'jpa/orders-fulfillment',
-			),
-			array_column( $section->get_default_layout(), 'type' )
-		);
+		$this->assertSame( array(), $section->get_default_layout() );
 	}
 
 	/**
