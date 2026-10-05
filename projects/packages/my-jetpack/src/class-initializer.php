@@ -164,10 +164,6 @@ class Initializer {
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 
-		/*
-		 * On every Jetpack screen rather than only on My Jetpack, so someone who has
-		 * just activated the plugin meets setup wherever they go first.
-		 */
 		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_onboarding' ) );
 
 		// Nothing else gets to talk over the takeover. See both methods for why it
@@ -258,8 +254,7 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// The redirect itself runs on `admin_init` for every Jetpack screen, which is
-		// earlier than this and covers this page too.
+		// The redirect into setup has already run, on `admin_init`.
 
 		// If the user reaches the onboarding page, add a class to the body
 		if ( $step === 'onboarding' ) {
@@ -274,10 +269,8 @@ class Initializer {
 	/**
 	 * The admin screens the onboarding takeover may interrupt.
 	 *
-	 * The Jetpack plugin's own pages, not every plugin whose page happens to start
-	 * with `jetpack-`. Boost, Protect, Social and the rest each ship a connection
-	 * screen of their own, and taking those over is their teams' call, not ours.
-	 * The filter is how they would opt in.
+	 * My Jetpack only: `admin_init` runs before `page=jetpack` answers `action=register`
+	 * and `connect_url_redirect`, so redirecting from there drops their arguments.
 	 *
 	 * @internal Not part of the package's public API.
 	 *
@@ -291,10 +284,7 @@ class Initializer {
 		 *
 		 * @param string[] $screens Values of the `page` query arg.
 		 */
-		return (array) apply_filters(
-			'jetpack_my_jetpack_onboarding_screens',
-			array( 'my-jetpack', 'jetpack', 'jetpack_modules', 'stats' )
-		);
+		return (array) apply_filters( 'jetpack_my_jetpack_onboarding_screens', array( 'my-jetpack' ) );
 	}
 
 	/**
@@ -330,16 +320,19 @@ class Initializer {
 	}
 
 	/**
-	 * Send the user into setup when they land on a Jetpack screen without one.
+	 * Send the user into setup when they land on My Jetpack without one.
 	 *
-	 * Hooked on `admin_init` rather than on the My Jetpack page load, so someone who
-	 * has just activated the plugin meets setup on whichever Jetpack screen they open
-	 * first. It runs on ordinary page views only: a form post or an async request that
-	 * happened to carry the page argument must not be answered with a redirect.
+	 * Hooked on `admin_init` rather than the page load, so a fresh activation meets setup
+	 * on the way in, and only for an ordinary GET: a form post must not be redirected.
 	 *
 	 * @return void
 	 */
 	public static function maybe_redirect_to_onboarding() {
+		// Network admin links to the network's own Jetpack pages, and setup is per site.
+		if ( is_network_admin() ) {
+			return;
+		}
+
 		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
 		}
@@ -355,13 +348,21 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
+		$wizard_enabled = self::is_onboarding_wizard_enabled();
+		$connection     = new Connection_Manager();
+
+		// Only the wizard connects a user, so only it may count a site-only connection as
+		// unfinished setup. The single screen can only register the site, so asking it for
+		// an owner leaves that site on a screen with no way back out.
+		$connection_done = $wizard_enabled ? $connection->has_connected_owner() : $connection->is_connected();
+
 		// Onboarding's only action is the connect request, which answers a user
 		// without `jetpack_connect` with a 403.
 		$redirect_args = self::get_onboarding_redirect_args(
 			$step,
-			( new Connection_Manager() )->is_connected(),
+			$connection_done,
 			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
-			self::is_onboarding_wizard_enabled(),
+			$wizard_enabled,
 			self::is_onboarding_settled()
 		);
 
@@ -433,20 +434,21 @@ class Initializer {
 	 * @internal Not part of the package's public API.
 	 *
 	 * @param string $step                 The current `step` query param.
-	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
+	 * @param bool   $connection_done      Whether the connection the takeover asks for is in place:
+	 *                                     a connected owner with the wizard, a connected site without it.
 	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
 	 * @param bool   $wizard_enabled       Whether the takeover renders the setup wizard.
 	 * @param bool   $is_settled           Whether this user has already finished or skipped setup.
 	 * @return array|null Query args for the redirect, or null to stay on the current page.
 	 */
-	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled = false, $is_settled = false ) {
+	public static function get_onboarding_redirect_args( $step, $connection_done, $onboarding_available, $wizard_enabled = false, $is_settled = false ) {
 		/*
 		 * Only the automatic redirect is suppressed once setup is settled. Asking for
 		 * the onboarding page by its own URL still works, so someone who skipped can
 		 * go back to it, and so can a second admin the site-wide flag does not cover.
 		 */
-		if ( $onboarding_available && ! $is_connected && ! $is_settled && $step !== 'onboarding' ) {
-			// Redirect to onboarding if not connected
+		if ( $onboarding_available && ! $connection_done && ! $is_settled && $step !== 'onboarding' ) {
+			// The connection setup asks for is not in place, so setup is unfinished.
 			return array(
 				'page' => 'my-jetpack',
 				'step' => 'onboarding',
@@ -454,13 +456,13 @@ class Initializer {
 		}
 
 		// The wizard connects mid-flow: the user authorizes on WordPress.com and is sent
-		// back here to finish setup, so a connected user on it has not finished.
-		if ( $step === 'onboarding' && $is_connected && $onboarding_available && $wizard_enabled ) {
+		// back here to finish setup, so arriving connected is not the same as finishing.
+		if ( $step === 'onboarding' && $connection_done && $onboarding_available && $wizard_enabled ) {
 			return null;
 		}
 
-		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
-			// Redirect away from onboarding if already connected or onboarding is not available on this site
+		if ( $step === 'onboarding' && ( ! $onboarding_available || $connection_done ) ) {
+			// Nothing left to set up here, or onboarding does not apply on this site.
 			return array( 'page' => 'my-jetpack' );
 		}
 
@@ -517,7 +519,7 @@ class Initializer {
 	 * @return string The modified body classes.
 	 */
 	public static function add_onboarding_admin_body_class( $classes ) {
-		$classes .= 'jetpack-admin-full-screen';
+		$classes .= ' jetpack-admin-full-screen';
 		return $classes;
 	}
 
@@ -592,7 +594,34 @@ class Initializer {
 			return false;
 		}
 
-		return Feature_Flags::is_enabled( self::ONBOARDING_WIZARD_FEATURE_FLAG );
+		if ( ! Feature_Flags::is_enabled( self::ONBOARDING_WIZARD_FEATURE_FLAG ) ) {
+			return false;
+		}
+
+		// The wizard registers the site at its own first step, which writes the marker
+		// below, so asking again on the way back from WordPress.com would drop someone
+		// out of a run already under way.
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			return true;
+		}
+
+		return self::has_never_registered_jetpack();
+	}
+
+	/**
+	 * Whether the Jetpack plugin has never registered this site.
+	 *
+	 * `unique_registrations` is written on `jetpack_site_registered` by the Jetpack plugin
+	 * alone, so a site that has only ever run a standalone plugin still reads as new here.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_never_registered_jetpack() {
+		return ! \Jetpack_Options::get_option( 'unique_registrations' );
 	}
 
 	/**
@@ -1178,7 +1207,11 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
-		( new REST_Onboarding() )->register_rest_routes();
+
+		// There is nothing to settle where the wizard never renders.
+		if ( self::is_onboarding_wizard_enabled() ) {
+			( new REST_Onboarding() )->register_rest_routes();
+		}
 
 		if ( self::is_features_tab_enabled() ) {
 			( new REST_Main_Features() )->register_rest_routes();

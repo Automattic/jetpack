@@ -169,7 +169,25 @@ describe( 'ConnectionStatusCard', () => {
 			asAdmin();
 			setup();
 			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site to use Jetpack.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'offers the promised click, as a route to the connect screen', () => {
+			asAdmin();
+			setup();
+			expect( screen.getByRole( 'link', { name: 'Connect your site' } ) ).toHaveAttribute(
+				'href',
+				'#/connection?skip_pricing=true'
+			);
+		} );
+
+		it( 'states the standing as text, with no disconnect to offer', () => {
+			asAdmin();
+			setup();
+			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: /Site not connected/ } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'points a user who cannot connect at an admin instead', () => {
@@ -178,7 +196,8 @@ describe( 'ConnectionStatusCard', () => {
 			expect(
 				screen.getByText( 'A site admin will need to connect this site to Jetpack.' )
 			).toBeInTheDocument();
-			expect( screen.queryByText( 'Connect your site with one click.' ) ).not.toBeInTheDocument();
+			// And offers them no route to a screen that would turn them away.
+			expect( screen.queryByRole( 'link', { name: 'Connect your site' } ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -197,7 +216,7 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the correct copy for the site connection line item', () => {
 			asAdmin();
 			setup();
-			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site to use Jetpack.' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -551,10 +570,12 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.site.host = 'standard';
 		} );
 
-		it( 'disables the manage connection button for WoA connection owners', () => {
+		it( 'states the standing as text, since WoA owners cannot manage the connection', () => {
 			setup();
-			const button = screen.getByRole( 'button', { name: /Site and account connected/ } );
-			expect( button ).toBeDisabled();
+			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: /Site and account connected/ } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -726,10 +747,10 @@ describe( 'ConnectionStatusCard', () => {
 			);
 		};
 
-		it( 'disables the manage connection button for non-admins', () => {
+		it( 'states the standing as text, since non-admins cannot manage the connection', () => {
 			setup();
-			const button = screen.getByRole( 'button', { name: /Site connected/ } );
-			expect( button ).toBeDisabled();
+			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Site connected/ } ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -757,10 +778,10 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.user.current_user.capabilities = {};
 		} );
 
-		it( 'disables the manage connection button since WoA sites cannot be disconnected', () => {
+		it( 'states the standing as text, since WoA sites cannot be disconnected', () => {
 			setup();
-			const button = screen.getByRole( 'button', { name: /Site connected/ } );
-			expect( button ).toBeDisabled();
+			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Site connected/ } ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

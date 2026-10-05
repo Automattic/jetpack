@@ -48,14 +48,33 @@ class Initializer_Test extends BaseTestCase {
 	private function reset_state() {
 		Constants::clear_constants();
 		StatusCache::clear();
-		unset( $_GET['step'], $_GET['showCouponRedemption'] );
+		unset(
+			$_GET['page'],
+			$_GET['step'],
+			$_GET['showCouponRedemption'],
+			$_GET['action'],
+			$_GET['connect_url_redirect'],
+			$_GET['from'],
+			$_GET['skip_pricing'],
+			$_GET['redirect_after_auth']
+		);
 		wp_set_current_user( 0 );
-		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'master_user', 'user_tokens', Partner_Coupon::$coupon_option ) );
+		Jetpack_Options::delete_option(
+			array(
+				'id',
+				'blog_token',
+				'master_user',
+				'user_tokens',
+				'unique_registrations',
+				Partner_Coupon::$coupon_option,
+			)
+		);
 		remove_all_filters( 'jetpack_partner_coupon_supported_partners' );
 		remove_all_filters( 'jetpack_partner_coupon_supported_presets' );
 		remove_all_filters( 'jetpack_partner_coupon_products' );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard' );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
 		// WorDBless teardown does not reset. The admin_init tests that depend on that
@@ -250,15 +269,15 @@ class Initializer_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_settled_onboarding_cases
 	 *
-	 * @param string     $step         The `step` query param.
-	 * @param bool       $is_connected Whether the site is connected.
-	 * @param array|null $expected     Expected redirect query args, or null to stay.
+	 * @param string     $step            The `step` query param.
+	 * @param bool       $connection_done Whether the connection setup asks for is in place.
+	 * @param array|null $expected        Expected redirect query args, or null to stay.
 	 */
 	#[DataProvider( 'provide_settled_onboarding_cases' )]
-	public function test_settled_onboarding_is_not_offered_again( $step, $is_connected, $expected ) {
+	public function test_settled_onboarding_is_not_offered_again( $step, $connection_done, $expected ) {
 		$this->assertSame(
 			$expected,
-			Initializer::get_onboarding_redirect_args( $step, $is_connected, true, false, true )
+			Initializer::get_onboarding_redirect_args( $step, $connection_done, true, false, true )
 		);
 	}
 
@@ -355,18 +374,23 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The takeover reaches the Jetpack screens, and only those.
+	 * The full-screen class is appended, not glued onto whatever came before it.
 	 */
-	public function test_onboarding_screens_cover_jetpacks_own_pages() {
-		$screens = Initializer::get_onboarding_screens();
+	public function test_the_full_screen_body_class_survives_an_earlier_filter() {
+		$this->assertSame(
+			'wp-admin jetpack-admin-full-screen',
+			Initializer::add_onboarding_admin_body_class( 'wp-admin' )
+		);
+	}
 
-		$this->assertContains( 'my-jetpack', $screens );
-		$this->assertContains( 'jetpack', $screens );
+	/**
+	 * The takeover reaches My Jetpack and nothing else, with the flag on or off.
+	 */
+	public function test_the_takeover_reaches_my_jetpack_only() {
+		$this->assertSame( array( 'my-jetpack' ), Initializer::get_onboarding_screens() );
 
-		// The standalone products ship their own connection screens, so taking those
-		// over is their teams' call. The filter is how they would opt in.
-		$this->assertNotContains( 'jetpack-boost', $screens );
-		$this->assertNotContains( 'jetpack-protect', $screens );
+		$this->enable_wizard_flag();
+		$this->assertSame( array( 'my-jetpack' ), Initializer::get_onboarding_screens() );
 
 		add_filter( 'jetpack_my_jetpack_onboarding_screens', fn () => array( 'jetpack-boost' ) );
 		$this->assertSame( array( 'jetpack-boost' ), Initializer::get_onboarding_screens() );
@@ -380,19 +404,19 @@ class Initializer_Test extends BaseTestCase {
 	 * @dataProvider provide_onboarding_redirect_cases
 	 *
 	 * @param string     $step                 The `step` query param.
-	 * @param bool       $is_connected         Whether the site is connected.
+	 * @param bool       $connection_done      Whether the connection setup asks for is in place.
 	 * @param bool       $onboarding_available Whether onboarding is available on this site.
 	 * @param bool       $wizard_enabled       Whether the takeover renders the wizard.
 	 * @param array|null $expected             Expected redirect query args, or null to stay.
 	 */
 	#[DataProvider( 'provide_onboarding_redirect_cases' )]
-	public function test_get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled, $expected ) {
-		$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled ) );
+	public function test_get_onboarding_redirect_args( $step, $connection_done, $onboarding_available, $wizard_enabled, $expected ) {
+		$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $connection_done, $onboarding_available, $wizard_enabled ) );
 
 		if ( ! $wizard_enabled ) {
 			// Omitting the argument has to decide exactly as passing it false does,
 			// so every existing caller keeps its behaviour.
-			$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) );
+			$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $connection_done, $onboarding_available ) );
 		}
 	}
 
@@ -561,6 +585,307 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The route that settles setup only exists where the wizard does.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_settle_route_is_registered_only_with_the_wizard() {
+		$this->assertArrayNotHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
+
+		$this->enable_wizard_flag();
+
+		$this->assertArrayHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
+	}
+
+	/**
+	 * Register My Jetpack's REST routes against a fresh server and return them.
+	 *
+	 * @return array The registered routes, keyed by path.
+	 */
+	private function capture_rest_routes() {
+		$register = array( Initializer::class, 'register_rest_endpoints' );
+		// A fresh server, and through the action: core warns about routes registered
+		// anywhere else, and the warning fails the run.
+		$GLOBALS['wp_rest_server'] = null;
+		add_action( 'rest_api_init', $register );
+		$routes = rest_get_server()->get_routes();
+		remove_action( 'rest_api_init', $register );
+
+		return $routes;
+	}
+
+	/**
+	 * A plain visit to the Jetpack dashboard is not ours to take over, flag on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_a_plain_jetpack_page_visit_alone() {
+		$this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		$_GET['page'] = 'jetpack';
+
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * With the flag off, page=jetpack is not ours to take over either.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_the_jetpack_page_alone_without_the_wizard() {
+		$this->log_in_as_admin();
+		$_GET['page'] = 'jetpack';
+
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * Network admin is left alone: its Jetpack links are plain and belong to the network.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_network_admin_alone() {
+		$this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		unset( $GLOBALS['current_screen'] );
+		define( 'WP_NETWORK_ADMIN', true );
+
+		$this->assertTrue( is_network_admin() );
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * `action=register` belongs to Jetpack::admin_page_load(), which runs on a later hook.
+	 *
+	 * Answering it here sends an unregistered site to onboarding instead of to
+	 * WordPress.com, and rebuilds the URL without the `redirect` and `from` it carried.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_a_register_request_to_the_jetpack_plugin() {
+		$this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		$_GET['page']   = 'jetpack';
+		$_GET['action'] = 'register';
+		$_GET['from']   = 'jetpack-settings';
+
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * `connect_url_redirect` belongs to the connection package's Webhooks, likewise.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_a_connect_url_redirect_to_the_webhooks() {
+		$this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		$_GET['page']                 = 'jetpack';
+		$_GET['connect_url_redirect'] = '1';
+		$_GET['from']                 = 'checkout';
+		$_GET['skip_pricing']         = '1';
+		$_GET['redirect_after_auth']  = 'https://example.org/wp-admin/admin.php?page=jetpack';
+
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * My Jetpack's own arguments must not call off the redirect.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_still_redirects_my_jetpack_carrying_other_args() {
+		$this->log_in_as_admin();
+		$_GET['page']                 = 'my-jetpack';
+		$_GET['showCouponRedemption'] = '1';
+
+		$location = $this->capture_onboarding_redirect();
+
+		$this->assertNotNull( $location, 'Expected My Jetpack to stay exempt.' );
+		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * A site only a standalone plugin has registered still gets the wizard.
+	 *
+	 * The gate reads `unique_registrations`, which the Jetpack plugin alone writes, so the
+	 * blog ID Boost, Protect or Social left behind is not Jetpack history.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_wizard_runs_for_a_standalone_plugin_user() {
+		$this->enable_wizard_flag();
+		// A blog ID with no token: registered by a standalone plugin, not connected now.
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$this->assertTrue( Initializer::has_never_registered_jetpack() );
+		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * A site the Jetpack plugin has registered before does not get the wizard.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_previous_jetpack_registration_closes_the_wizard() {
+		$this->enable_wizard_flag();
+		Jetpack_Options::update_option( 'unique_registrations', 2 );
+
+		$this->assertFalse( Initializer::has_never_registered_jetpack() );
+		$this->assertFalse( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * Connecting mid-run does not close the wizard on the user doing it.
+	 *
+	 * The wizard registers the site at its first step, and registration is where the
+	 * Jetpack plugin counts it. Without the connected site exempting itself, the trip back
+	 * from WordPress.com would land on the plain connection screen instead of step two.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_connecting_mid_run_does_not_close_the_wizard() {
+		$user_id = $this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		$this->connect_owner( $user_id );
+		Jetpack_Options::update_option( 'unique_registrations', 1 );
+
+		$this->assertFalse( Initializer::has_never_registered_jetpack() );
+		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * A site-only connection is not a finished setup, so the user is sent back into it.
+	 *
+	 * Leaving at the WordPress.com stage registers the site and connects nobody, which
+	 * `is_connected()` reports as connected for good.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_sends_a_site_only_connection_back_into_setup() {
+		$this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		$this->connect_site_only();
+
+		$this->assertTrue( ( new Connection_Manager() )->is_connected() );
+		$this->assertFalse( ( new Connection_Manager() )->has_connected_owner() );
+
+		$location = $this->capture_onboarding_redirect();
+
+		$this->assertNotNull( $location, 'Expected a redirect back into setup.' );
+		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * With the wizard off, the same site-only connection is left where it is.
+	 *
+	 * The single screen's one control registers a site that is already registered, and it
+	 * hides the admin menu, the toolbar and the footer, so arriving there is a dead end.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_a_site_only_connection_alone_without_the_wizard() {
+		$this->log_in_as_admin();
+		$this->connect_site_only();
+
+		$this->assertFalse( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertTrue( ( new Connection_Manager() )->is_connected() );
+		$this->assertFalse( ( new Connection_Manager() )->has_connected_owner() );
+
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * An onboarding request on that site is sent home, so nobody stays stranded on it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_bounces_a_site_only_connection_out_of_setup_without_the_wizard() {
+		$this->log_in_as_admin();
+		$this->connect_site_only();
+		$_GET['step'] = 'onboarding';
+
+		$location = $this->capture_onboarding_redirect();
+
+		$this->assertNotNull( $location, 'Expected a redirect out of setup.' );
+		$this->assertStringContainsString( 'page=my-jetpack', $location );
+		$this->assertStringNotContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * A connection whose owner was removed is left alone too, with the wizard off.
+	 *
+	 * The owner resolves through `get_userdata()`, so deleting that user makes a fully
+	 * connected site answer no, on any host and not just the Atomic one the wizard's
+	 * gate describes.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_leaves_a_connection_without_an_owner_alone_without_the_wizard() {
+		$this->log_in_as_admin();
+		// Reporting the missing owner is a request to WordPress.com.
+		$this->block_http();
+		$removed_id = 4242;
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'master_user', $removed_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $removed_id => "honey.badger.$removed_id" ) );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$this->assertFalse( get_userdata( $removed_id ) );
+		$this->assertTrue( ( new Connection_Manager() )->is_connected() );
+		$this->assertFalse( ( new Connection_Manager() )->has_connected_owner() );
+
+		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
 	 * Run Initializer::admin_init() and capture the redirect it attempts.
 	 *
 	 * The wp_redirect filter throws so the exit() that follows the redirect
@@ -580,8 +905,7 @@ class Initializer_Test extends BaseTestCase {
 			};
 		$trigger  = $trigger === null ? array( Initializer::class, 'maybe_redirect_to_onboarding' ) : $trigger;
 
-		// The redirect now runs for every Jetpack screen rather than only on the
-		// My Jetpack page load, so it checks both before deciding anything.
+		// The redirect reads `page` and answers nothing but a GET.
 		$_GET['page']            ??= 'my-jetpack';
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
@@ -857,6 +1181,15 @@ class Initializer_Test extends BaseTestCase {
 			}
 		);
 		Jetpack_Options::update_option( Partner_Coupon::$coupon_option, 'JPTST_JPTA_abc123' );
+	}
+
+	/**
+	 * Register the site and connect nobody: the state leaving setup early produces.
+	 */
+	private function connect_site_only() {
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**

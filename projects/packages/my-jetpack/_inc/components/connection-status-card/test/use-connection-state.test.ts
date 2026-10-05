@@ -21,12 +21,14 @@ interface StoreSelect {
 }
 
 interface StoreOverrides {
+	isRegistered?: boolean;
 	isUserConnected?: boolean;
 	connectionErrors?: ConnectionErrorMap;
 	connectionOwner?: ConnectionOwner | null;
 }
 
 const setConnectionStore = ( {
+	isRegistered = true,
 	isUserConnected = false,
 	connectionErrors = {},
 	connectionOwner = null,
@@ -39,7 +41,7 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered: true, isUserConnected, hasConnectedOwner: true } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner: true } );
 	jest
 		.spyOn( storeSelect, 'getUserConnectionData' )
 		.mockReset()
@@ -98,6 +100,38 @@ const renderConnectionState = () =>
 		},
 		{ wrapper: Providers }
 	);
+
+describe( 'useConnectionState — before the site is registered', () => {
+	afterEach( () => {
+		global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+	} );
+
+	it( 'names the connect-site action, and promises no more clicks than it takes', () => {
+		setConnectionStore( { isRegistered: false } );
+
+		const { result } = renderConnectionState();
+
+		expect( result.current ).toEqual( {
+			label: 'Site not connected',
+			description: 'Connect your site to use Jetpack.',
+			action: 'CONNECT_SITE',
+			status: 'error',
+		} );
+	} );
+
+	it( 'names no action for a user who cannot connect the site', () => {
+		global.JetpackScriptData.user.current_user.capabilities = {};
+		setConnectionStore( { isRegistered: false } );
+
+		const { result } = renderConnectionState();
+
+		expect( result.current ).toEqual( {
+			label: 'Site not connected',
+			description: 'A site admin will need to connect this site to Jetpack.',
+			status: 'error',
+		} );
+	} );
+} );
 
 // The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
 describe( 'useConnectionState — status while the account is still to be connected', () => {
