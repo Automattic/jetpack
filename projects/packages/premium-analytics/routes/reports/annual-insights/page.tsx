@@ -4,7 +4,8 @@
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
@@ -78,9 +79,14 @@ function AnnualInsightsReport(): JSX.Element {
 		>
 			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load annual insights. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<ReportRecordsTable< StatsInsightsYear >

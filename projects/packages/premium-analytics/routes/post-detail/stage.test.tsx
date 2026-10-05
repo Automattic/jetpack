@@ -740,7 +740,7 @@ describe( 'post detail stage on the provisional all-time window', () => {
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'offers no Retry when the publish day is denied, as an info notice', () => {
+	it( 'offers no Retry when the publish day is denied', () => {
 		mockSummary( {
 			isError: true,
 			error: { code: 'rest_forbidden', status: 403 },
@@ -751,7 +751,7 @@ describe( 'post detail stage on the provisional all-time window', () => {
 
 		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect(
-			getNoticeAnnouncement( "You don't have access to this data.", 'polite' )
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );

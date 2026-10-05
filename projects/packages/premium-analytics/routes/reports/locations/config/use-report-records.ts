@@ -77,6 +77,7 @@ export function useLocationsReportRecords(
 			options: countryOptions,
 		},
 		isError: activeReport.primary.isError,
+		error: activeReport.primary.error,
 		refetch: activeReport.refetch,
 	};
 }

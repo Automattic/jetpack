@@ -6,7 +6,7 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
 	ReportDrilldownTable,
-	ReportErrorState,
+	PageNotice,
 	ReportRecordsTable,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
@@ -16,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { usePostsReportRecords } from './config';
 import PostsReportPage from './page';
 import type { ReactNode } from 'react';
@@ -52,12 +53,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		};
 	} )(),
 	formatLegendLabels: () => [],
-	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
-		<div data-testid="report-error-state">
-			<span>{ title }</span>
-			<button onClick={ onRetry }>Retry</button>
-		</div>
-	) ),
+	PageNotice: jest.fn(
+		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice
+	),
+	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
@@ -93,7 +92,7 @@ const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
-const reportErrorStateMock = jest.mocked( ReportErrorState );
+const pageNoticeMock = jest.mocked( PageNotice );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 /**
@@ -116,6 +115,7 @@ function buildRecords( {
 } = {} ) {
 	return {
 		isError,
+		error: null,
 		refetch: jest.fn(),
 		posts: {
 			rows: [
@@ -269,10 +269,10 @@ describe( 'PostsReportPage', () => {
 
 		render( <PostsReportPage /> );
 
-		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
-			'Unable to load posts'
-		);
-		expect( reportErrorStateMock ).toHaveBeenCalled();
+		expect(
+			getNoticeText( "We couldn't load posts. Please try again in a moment." )
+		).toBeInTheDocument();
+		expect( pageNoticeMock ).toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );

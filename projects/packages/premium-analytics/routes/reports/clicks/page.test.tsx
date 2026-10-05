@@ -31,7 +31,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ExporterCsvAction: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
-	ReportErrorState: () => null,
+	PageNotice: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	useReportRetry: ( refetch: () => unknown ) => refetch,
