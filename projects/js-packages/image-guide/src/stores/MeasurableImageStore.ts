@@ -3,7 +3,7 @@ import { commands, selectors, type ImageFacts } from './store.ts';
 import { MeasurableImage } from '../MeasurableImage.ts';
 import type { Dimensions, Weight } from '../MeasurableImage.ts';
 
-/** Own per-image measurements, source tracking and the weight cache outside reducer state. */
+/** Keep image nodes, source tracking and the weight cache outside reducer state. */
 export class MeasurableImageStore {
 	readonly fileSize: Writable< Dimensions >;
 	readonly fileWeight: Writable< Weight >;
