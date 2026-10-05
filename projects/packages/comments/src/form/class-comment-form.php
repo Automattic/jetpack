@@ -285,7 +285,6 @@ class Comment_Form {
 			'postId'        => $post_id,
 			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			// On WordPress.com this logs the reader out of WordPress.com entirely, as Verbum did.
 			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
 				'id'        => $args['id_submit'] ?? 'submit',

@@ -54,7 +54,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const posting = ! isEmptyComment.value;
 
 	const showFields = step === 'guest';
-	// Offered once, with the comment that brings a reader in; later comments skip the dialog.
 	const showToggles =
 		formSettings.subscriptions.length > 0 &&
 		isDialogOpen.value &&
@@ -67,7 +66,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
 	const enteredEmail = details.value.email;
 
-	// Reset on close, so the next reader starts from the host's defaults.
 	useEffect( () => {
 		const element = dialog.current;
 
@@ -192,7 +190,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
-		// Nothing written yet: save, do not post.
 		if ( ! posting ) {
 			// Saved with consent, or cleared without it, as core does after a comment.
 			saveGuest( rememberDetails.peek() ? details.value : null );

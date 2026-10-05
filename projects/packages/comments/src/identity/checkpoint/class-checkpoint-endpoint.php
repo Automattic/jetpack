@@ -211,7 +211,6 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 
 		Passport::revoke();
 
-		// Saved guest details too. Legacy Jetpack Comments set these HttpOnly, out of the page's reach.
 		foreach ( array( 'comment_author_', 'comment_author_email_', 'comment_author_url_' ) as $cookie ) {
 			setcookie(
 				$cookie . COOKIEHASH,

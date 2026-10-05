@@ -42,7 +42,6 @@ export function createSignals( formSettings: FormSettings ) {
 	const isOptionsOpen = signal( false );
 	const isDialogOpen = signal( false );
 
-	// Drop everything known about the commenter, saved guest details included.
 	const forget = () => {
 		saveGuest( null );
 		details.value = { author: '', email: '', url: '' };
