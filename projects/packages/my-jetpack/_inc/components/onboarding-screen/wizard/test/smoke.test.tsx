@@ -1,7 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { bell, chartBar, border, drafts, published } from '@wordpress/icons';
+import {
+	bell,
+	chartBar,
+	border,
+	drafts,
+	envelope,
+	postCommentsForm,
+	published,
+} from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
 import { startBenefits } from '../lib';
 import { Wizard } from '../wizard';
@@ -51,9 +59,9 @@ jest.mock( '../../../../hooks/use-analytics', () => ( {
 } ) );
 
 /*
- * The six modules the feature step offers. Mocked here rather than driven through
- * the modules store: these tests are about the shell and the way through it, and
- * the hook has its own tests for what it does with the store.
+ * What the feature step offers, mocked rather than driven through the modules store.
+ * These tests are about the shell and the way through it, and two modules start on
+ * and two off so a run can switch more than one in either direction.
  */
 const mockModules = [
 	{
@@ -64,10 +72,24 @@ const mockModules = [
 		activated: true,
 	},
 	{
+		slug: 'subscriptions',
+		name: 'Subscriptions',
+		description: 'Sends new posts out by email.',
+		icon: envelope,
+		activated: true,
+	},
+	{
 		slug: 'monitor',
 		name: 'Downtime Monitor',
 		description: 'Alerts if it goes down.',
 		icon: bell,
+		activated: false,
+	},
+	{
+		slug: 'contact-form',
+		name: 'Contact Form',
+		description: 'A form people can write in.',
+		icon: postCommentsForm,
 		activated: false,
 	},
 ];
@@ -116,6 +138,9 @@ jest.mock( '../assign-location', () => ( {
 
 const assignedHref = () => mockAssignLocation.mock.calls.at( -1 )?.[ 0 ] ?? null;
 
+// The run as session storage holds it, so a test can see it survive or go.
+const savedRun = () => window.sessionStorage.getItem( 'jetpack-onboarding-run' );
+
 beforeEach( () => {
 	mockAssignLocation.mockClear();
 	mockApiFetch.mockClear();
@@ -133,6 +158,7 @@ beforeEach( () => {
 	// The run is kept in session storage now, so one test's answers would
 	// otherwise be the next one's starting point.
 	window.sessionStorage.clear();
+	window.location.hash = '';
 } );
 
 /**
@@ -434,7 +460,7 @@ describe( 'Wizard resume after connecting', () => {
 
 		setupWizard( { isUserConnected: true } );
 
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Connected to WordPress.com' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Your site is connected' );
 	} );
 
 	/*
@@ -574,7 +600,7 @@ describe( 'Wizard shell', () => {
 	it( 'sends the rail out to WordPress and the footer back to My Jetpack', () => {
 		setupWizard();
 
-		const railExit = screen.getByRole( 'link', { name: 'Back to WordPress' } );
+		const railExit = screen.getByRole( 'link', { name: 'Back to your WordPress site' } );
 		const skip = screen.getByRole( 'link', { name: 'Skip setup' } );
 
 		expect( railExit ).toHaveAttribute( 'href', dashboardUrl );
@@ -715,21 +741,28 @@ describe( 'Wizard shell', () => {
 		expect( heading() ).toHaveTextContent( "What's this site for?" );
 	} );
 
-	it( 'replaces Continue with Finish on the last step', async () => {
+	it( 'hands the last step its own two ways out instead of the footer’s', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
 		await advance( user, 2 );
 
-		// The finish step carries its own two ways out instead of the footer's.
 		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Back to WordPress' } ) ).toHaveAttribute(
-			'href',
-			dashboardUrl
-		);
+
 		expect( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) ).toHaveAttribute(
 			'href',
 			exitUrl
 		);
+		expect( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) ).toHaveAttribute(
+			'href',
+			dashboardUrl
+		);
+
+		// My Jetpack is the primary, so it leads. The class that styles it as one is
+		// stubbed out under Jest, which leaves the order as what can be asserted.
+		expect( screen.getAllByRole( 'link' ).map( link => link.textContent ) ).toEqual( [
+			'Go to My Jetpack',
+			'Back to your WordPress site',
+		] );
 	} );
 } );
 
@@ -820,28 +853,118 @@ describe( 'Leaving setup', () => {
 	it( 'records a finish rather than a skip', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
-		// Walk to the last step, which is the only one that offers Finish.
+		// Walk to the last step, which carries the only exits that record a finish.
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( await screen.findByRole( 'link', { name: 'Back to WordPress' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Back to your WordPress site' } ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/my-jetpack/v1/site/onboarding/settled',
 			method: 'POST',
 			data: { outcome: 'completed' },
 		} );
+
+		// And it goes where the link says.
+		await waitFor( () => expect( mockAssignLocation ).toHaveBeenCalledWith( dashboardUrl ) );
 	} );
 
-	// A failed write costs the user being offered setup once more. Being held on a
-	// screen they asked to leave would cost a great deal more.
-	it( 'leaves even when the record fails', async () => {
+	// wp-admin is the one door the takeover does not watch.
+	it( 'sends a disconnected user out by a door that does not redirect back', async () => {
 		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
 		const { user } = setupWizard();
 
 		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
 
+		await waitFor( () => expect( assignedHref() ).toBe( dashboardUrl ) );
+	} );
+
+	// Only the disconnected get diverted: everyone else asked for a particular door.
+	it( 'still follows the link a connected user clicked when the record fails', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		// Rejected only now, so nothing on the way here is answered with it.
+		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Go to My Jetpack' } ) );
+
 		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
+	} );
+
+	it( 'is not an exit when a middle click opens the link somewhere else', async () => {
+		const { user } = setupWizard();
+		const held = savedRun();
+		expect( held ).not.toBeNull();
+
+		await user.pointer( {
+			keys: '[MouseMiddle]',
+			target: screen.getByRole( 'link', { name: 'Skip setup' } ),
+		} );
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockAssignLocation ).not.toHaveBeenCalled();
+		expect( savedRun() ).toBe( held );
+	} );
+
+	it( 'is not an exit when all that opened is the context menu', async () => {
+		const { user } = setupWizard();
+
+		await user.pointer( {
+			keys: '[MouseRight]',
+			target: screen.getByRole( 'link', { name: 'Skip setup' } ),
+		} );
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockAssignLocation ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves a modified click to the browser and changes nothing', async () => {
+		const user = userEvent.setup();
+		// A hash is the only href jsdom will follow, so arriving at it is the only way
+		// to see that the default action was left alone.
+		render( <Wizard exitUrl="#skipped" dashboardUrl={ dashboardUrl } /> );
+
+		const held = savedRun();
+		expect( held ).not.toBeNull();
+
+		await user.keyboard( '{Meta>}' );
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+		await user.keyboard( '{/Meta}' );
+
+		expect( window.location.hash ).toBe( '#skipped' );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockAssignLocation ).not.toHaveBeenCalled();
+		expect( savedRun() ).toBe( held );
+	} );
+
+	// It sits beside Skip setup and leads out of Jetpack, so the two have to record
+	// the same thing.
+	it( 'records the exit by the rail, as the footer does', async () => {
+		const { user } = setupWizard();
+
+		await user.click( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/my-jetpack/v1/site/onboarding/settled',
+			method: 'POST',
+			data: { outcome: 'skipped' },
+		} );
+		await waitFor( () => expect( assignedHref() ).toBe( dashboardUrl ) );
+		expect( savedRun() ).toBeNull();
+	} );
+
+	it( 'is not an exit when the finish step’s own links are middle-clicked', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await advance( user, 2 );
+
+		for ( const name of [ 'Go to My Jetpack', 'Back to your WordPress site' ] ) {
+			await user.pointer( { keys: '[MouseMiddle]', target: screen.getByRole( 'link', { name } ) } );
+		}
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockAssignLocation ).not.toHaveBeenCalled();
 	} );
 } );
 
@@ -929,19 +1052,31 @@ describe( 'Coming back to a run in progress', () => {
 } );
 
 describe( 'What the finish screen claims', () => {
-	/*
-	 * Five of the six ship on, so most runs change nothing at all. The line used
-	 * to read "6 of 6 switched on in this session" for a run that sent no request,
-	 * and "4 of 6 switched on" for one whose only two requests switched things off.
-	 */
 	it( 'counts only what this run actually changed', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		// Stats was already on and is left on; Downtime Monitor was off and goes on.
-		await expect( screen.findByText( '1 switched on.' ) ).resolves.toBeInTheDocument();
+		// The two already on are left alone; the two that were off come on.
+		const note = await screen.findByText( 'Setup switched on 2 features.' );
+
+		// Below the rows it would read as their total. `getAllByText` is in document order.
+		expect( screen.getAllByText( /^Setup switched|^On$/ )[ 0 ] ).toBe( note );
+	} );
+
+	it( 'counts one in the singular', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		// Leaves Downtime Monitor as the only one with anywhere to go.
+		await user.click( screen.getByRole( 'checkbox', { name: 'Contact Form' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect(
+			screen.findByText( 'Setup switched on 1 feature.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'says nothing was needed when nothing was', async () => {
@@ -949,12 +1084,27 @@ describe( 'What the finish screen claims', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		// Leave Stats on as it already is, and Downtime Monitor off as it already is.
+		// Every switch left where the site already has it.
 		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'checkbox', { name: 'Contact Form' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await expect(
 			screen.findByText( 'Nothing needed changing on this site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	// Two one way and one the other, so each number has to decline its own noun.
+	it( 'names both directions when the run went both ways', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect(
+			screen.findByText( 'Setup switched on 2 features and switched off 1 feature.' )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -964,11 +1114,14 @@ describe( 'What the finish screen claims', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		for ( const name of [ 'Jetpack Stats', 'Subscriptions', 'Downtime Monitor', 'Contact Form' ] ) {
+			await user.click( screen.getByRole( 'checkbox', { name } ) );
+		}
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		await expect( screen.findByText( '1 switched off.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'Setup switched off 2 features.' )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /switched on/ ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -1153,7 +1306,9 @@ describe( 'Guards on the way through', () => {
 		await advance( user, 2 );
 
 		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Back to WordPress' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: 'Back to your WordPress site' } )
+		).toBeInTheDocument();
 	} );
 
 	// Every switch reports its own outcome, so a rejection is the request layer

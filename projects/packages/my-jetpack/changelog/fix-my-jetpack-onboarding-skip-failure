@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: when leaving setup cannot be recorded, take a user who has not connected to wp-admin, because My Jetpack would send them straight back in. A connected user still goes where they clicked, and the finish screen's tally now says it is counting what setup switched on or off.

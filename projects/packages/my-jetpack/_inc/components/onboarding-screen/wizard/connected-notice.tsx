@@ -39,7 +39,7 @@ export function ConnectedNotice() {
 			</span>
 
 			<Text variant="body-md" render={ <p /> } className={ styles.connected__text }>
-				{ __( 'Connected to WordPress.com', 'jetpack-my-jetpack' ) }
+				{ __( 'Your site is connected', 'jetpack-my-jetpack' ) }
 			</Text>
 		</div>
 	);

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: leaving the setup wizard now works even when the site cannot record that it happened: a user who has not connected lands in wp-admin rather than back in setup, and a connected user goes where they clicked. The wizard's finish screen also says what its count is counting.

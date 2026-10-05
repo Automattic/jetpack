@@ -425,13 +425,3 @@ export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	 */
 	return chosen.freeText ? Boolean( state.freeText?.trim() ) : true;
 }
-
-/**
- * Whether the given step is the final one.
- *
- * @param step - The current step index.
- * @return True on the last step.
- */
-export function isLastStep( step: WizardStep ): boolean {
-	return step === TOTAL_STEPS - 1;
-}

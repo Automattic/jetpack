@@ -20,7 +20,6 @@ import { DataInArt } from './data-in';
 import { EverywhereArt } from './everywhere';
 import {
 	canContinue,
-	isLastStep,
 	featuresDescription,
 	openingStep,
 	siteTypeAnswer,
@@ -220,20 +219,39 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	/*
 	 * Leaving is recorded before it happens, so the takeover does not interrupt this
-	 * person again. The navigation is in `finally`: a failed write only costs them
-	 * being offered setup once more, and holding them on a screen they asked to
-	 * leave would cost a great deal more.
+	 * person again. A failed write records nothing and My Jetpack sends a
+	 * disconnected user straight back in, so only that case leaves by wp-admin.
 	 */
 	const handleExit = useCallback(
 		( outcome: SettleOutcome ) => ( event: MouseEvent< HTMLElement > ) => {
+			/*
+			 * A modified click opens the link somewhere else and leaves this tab on
+			 * the wizard, so nothing is recorded and the run is kept. A middle click
+			 * and the context menu fire no `click` at all, so they arrive here never.
+			 */
+			if (
+				event.button !== 0 ||
+				event.metaKey ||
+				event.ctrlKey ||
+				event.shiftKey ||
+				event.altKey
+			) {
+				return;
+			}
+
 			event.preventDefault();
-			// The run is over either way, so it must not be waiting on the next visit.
+
+			const destination = event.currentTarget.getAttribute( 'href' ) || exitUrl;
+
+			// The run is over, so it must not be waiting on the next visit.
 			forgetRun();
-			settleOnboarding( outcome )
-				.catch( () => {} )
-				.finally( () => assignLocation( exitUrl ) );
+
+			settleOnboarding( outcome ).then(
+				() => assignLocation( destination ),
+				() => assignLocation( isUserConnected ? destination : dashboardUrl )
+			);
 		},
-		[ exitUrl, forgetRun ]
+		[ exitUrl, dashboardUrl, forgetRun, isUserConnected ]
 	);
 
 	const handleBack = useCallback(
@@ -406,10 +424,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								tone="neutral"
 								size="compact"
 								href={ dashboardUrl }
+								onClick={ handleExit( 'skipped' ) }
 								className={ styles.exit }
 							>
 								<LinkButton.Icon icon={ wordpress } />
-								{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+								{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 							</LinkButton>
 
 							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
@@ -477,24 +496,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 									gap="md"
 									wrap="wrap"
 								>
-									{ /*
-									 * Gone on the last step, where the work is already done and Finish
-									 * is the way out. Skipping there would record this person as having
-									 * declined setup and never write the site-wide completion, so the
-									 * next admin would be offered it again on a configured site.
-									 */ }
-									{ isLastStep( step ) ? (
-										<span />
-									) : (
-										<LinkButton
-											variant="minimal"
-											tone="neutral"
-											href={ exitUrl }
-											onClick={ handleExit( 'skipped' ) }
-										>
-											{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-										</LinkButton>
-									) }
+									<LinkButton
+										variant="minimal"
+										tone="neutral"
+										href={ exitUrl }
+										onClick={ handleExit( 'skipped' ) }
+									>
+										{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+									</LinkButton>
 
 									{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
 									{ ! isStart && (
@@ -510,33 +519,17 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 													{ __( 'Back', 'jetpack-my-jetpack' ) }
 												</Button>
 											) }
-											{ isLastStep( step ) ? (
-												// Nothing else is saved yet, so finishing records that it
-												// happened and leaves.
-												<LinkButton
-													variant="solid"
-													className={ styles[ 'primary-green' ] }
-													href={ exitUrl }
-													onClick={ handleExit( 'completed' ) }
-												>
-													{ __( 'Finish', 'jetpack-my-jetpack' ) }
-												</LinkButton>
-											) : (
-												<Button
-													variant="solid"
-													className={ styles[ 'primary-green' ] }
-													onClick={ handleContinue }
-													disabled={ ! canContinue( step, state ) || isApplying }
-													loading={ isApplying }
-													loadingAnnouncement={ __(
-														'Setting up your site…',
-														'jetpack-my-jetpack'
-													) }
-												>
-													{ __( 'Continue', 'jetpack-my-jetpack' ) }
-													<Button.Icon icon={ chevronRight } />
-												</Button>
-											) }
+											<Button
+												variant="solid"
+												className={ styles[ 'primary-green' ] }
+												onClick={ handleContinue }
+												disabled={ ! canContinue( step, state ) || isApplying }
+												loading={ isApplying }
+												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
+											>
+												{ __( 'Continue', 'jetpack-my-jetpack' ) }
+												<Button.Icon icon={ chevronRight } />
+											</Button>
 										</Stack>
 									) }
 								</Stack>
