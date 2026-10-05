@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets: Let a widget type declare how it uses the chart interval.

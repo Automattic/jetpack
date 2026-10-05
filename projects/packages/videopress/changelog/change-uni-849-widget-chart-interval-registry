@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Top videos: Declare that the widget does not use the chart interval, so the Traffic summary can carry that control.

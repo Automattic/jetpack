@@ -35,6 +35,11 @@ class Widget_Type {
 	const PRESENTATION_VALUES = array( 'framed', 'content-bleed', 'full-bleed' );
 
 	/**
+	 * Allowed values for the `chart_interval` field.
+	 */
+	const CHART_INTERVAL_VALUES = array( 'control', 'none' );
+
+	/**
 	 * Widget type key. Namespaced identifier, e.g. `jpa/hello-world`.
 	 *
 	 * @var string
@@ -174,6 +179,16 @@ class Widget_Type {
 	 * @var string[]|null
 	 */
 	public $former_names = null;
+
+	/**
+	 * How the widget relates to the page's chart interval: `control` draws it and carries the
+	 * control, `none` never reads it. Null when undeclared, which the dashboard treats as a reader.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	public $chart_interval = null;
 
 	/**
 	 * Constructor.

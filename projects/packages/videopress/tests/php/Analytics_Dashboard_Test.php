@@ -113,6 +113,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( Analytics_Dashboard::TEXTDOMAIN, $top_videos->textdomain );
 		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Package_Version::PACKAGE_VERSION, $top_videos->i18n_manifest );
 		$this->assertSame( array( 'jpa/videopress' ), $top_videos->former_names );
+		$this->assertSame( 'none', $top_videos->chart_interval );
 		$this->assertSame( Analytics_Dashboard::TOP_VIDEOS_TYPE, $registry->resolve_name( 'jpa/videopress' ) );
 	}
 

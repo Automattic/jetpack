@@ -124,7 +124,7 @@ The name must be a lowercase `<namespace>/<name>` string, and must not be regist
 
 ### Arguments
 
-Any public property of `Widget_Type`: `render_module`, `widget_module`, `presentation` (`framed`, `content-bleed` or `full-bleed`), `category`, `title`, `description`, `help` (`content` plus optional `links`), `icon` (`collection/name`), `actions`, `keywords`, `textdomain`, `i18n_manifest`, `former_names`. `set_props()` copies every key onto the instance.
+Any public property of `Widget_Type`: `render_module`, `widget_module`, `presentation` (`framed`, `content-bleed` or `full-bleed`), `category`, `title`, `description`, `help` (`content` plus optional `links`), `icon` (`collection/name`), `actions`, `keywords`, `textdomain`, `i18n_manifest`, `former_names`, `chart_interval` (`control` or `none`). `set_props()` copies every key onto the instance.
 
 Through `register_widget_type()` the strings arrive translated and `help`, `icon` and `actions` in shape. The manifest helper translates and sanitizes them itself.
 
@@ -194,6 +194,10 @@ A type whose module id no script module claims imports nothing, and an instance 
 
 The widget dashboard offers the types in the picker and imports an instance's render module through the resolver `useWidgetModuleResolver()` builds from the records.
 
+### The chart interval control
+
+`chart_interval` says how a widget uses the page's chart interval: `control` draws it and carries the control through `chartIntervalAttributeField()`, `none` never reads it. wp-build does not carry the key from `widget.json`, so a build declares it in the `$args['chart_interval']` map of `register_widget_types_from_manifest()`, as `WIDGET_CHART_INTERVALS` does for the package's own widgets. Declaring it needs `WIDGET_API_VERSION` 1.4.0. An undeclared widget is treated as one that may read the interval.
+
 ## Availability
 
 Two filters, both problem-agnostic, plus a policy on default layouts.
@@ -220,7 +224,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id, and 1.4.0 `chart_interval`.
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 

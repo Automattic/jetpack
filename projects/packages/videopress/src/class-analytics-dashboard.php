@@ -93,9 +93,11 @@ class Analytics_Dashboard {
 		register_widget_types_from_manifest(
 			self::get_widget_manifest(),
 			array(
-				'textdomain'    => self::TEXTDOMAIN,
-				'i18n_manifest' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
-				'former_names'  => array( self::TOP_VIDEOS_TYPE => self::TOP_VIDEOS_FORMER_NAMES ),
+				'textdomain'     => self::TEXTDOMAIN,
+				'i18n_manifest'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
+				'former_names'   => array( self::TOP_VIDEOS_TYPE => self::TOP_VIDEOS_FORMER_NAMES ),
+				// A top list, so the Traffic summary beside it can carry the chart interval control.
+				'chart_interval' => array( self::TOP_VIDEOS_TYPE => 'none' ),
 			),
 			$registry
 		);

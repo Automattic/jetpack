@@ -68,20 +68,21 @@ function get_widget_modules_response() {
 
 	foreach ( get_available_widget_types() as $widget_type ) {
 		$records[] = array(
-			'name'          => $widget_type->name,
-			'render_module' => $widget_type->render_module,
-			'widget_module' => $widget_type->widget_module,
-			'presentation'  => $widget_type->presentation,
-			'category'      => $widget_type->category,
-			'title'         => $widget_type->title,
-			'description'   => $widget_type->description,
-			'help'          => $widget_type->help,
-			'icon'          => $widget_type->icon,
-			'actions'       => $widget_type->actions,
-			'keywords'      => $widget_type->keywords,
-			'textdomain'    => $widget_type->textdomain,
-			'i18n_manifest' => $widget_type->i18n_manifest,
-			'former_names'  => $widget_type->former_names,
+			'name'           => $widget_type->name,
+			'render_module'  => $widget_type->render_module,
+			'widget_module'  => $widget_type->widget_module,
+			'presentation'   => $widget_type->presentation,
+			'category'       => $widget_type->category,
+			'title'          => $widget_type->title,
+			'description'    => $widget_type->description,
+			'help'           => $widget_type->help,
+			'icon'           => $widget_type->icon,
+			'actions'        => $widget_type->actions,
+			'keywords'       => $widget_type->keywords,
+			'textdomain'     => $widget_type->textdomain,
+			'i18n_manifest'  => $widget_type->i18n_manifest,
+			'former_names'   => $widget_type->former_names,
+			'chart_interval' => $widget_type->chart_interval,
 		);
 	}
 

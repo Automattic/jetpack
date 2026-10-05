@@ -45,7 +45,25 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  *
  * @since 0.9.0
  */
-const WIDGET_API_VERSION = '1.3.0';
+const WIDGET_API_VERSION = '1.4.0';
+
+/**
+ * The `chart_interval` of the package's own widgets, which wp-build does not carry from `widget.json`.
+ * The Traffic section hands its interval control to the Traffic summary only while every other widget is listed.
+ */
+const WIDGET_CHART_INTERVALS = array(
+	'jpa/traffic-chart'   => 'control',
+	'jpa/authors'         => 'none',
+	'jpa/clicks'          => 'none',
+	'jpa/devices'         => 'none',
+	'jpa/file-downloads'  => 'none',
+	'jpa/locations'       => 'none',
+	'jpa/referrers'       => 'none',
+	'jpa/search-terms'    => 'none',
+	'jpa/stats-top-posts' => 'none',
+	'jpa/top-platforms'   => 'none',
+	'jpa/utm-insights'    => 'none',
+);
 
 /**
  * Returns the i18n schema describing which widget metadata fields are
@@ -282,6 +300,18 @@ function sanitize_widget_icon( $icon ) {
 }
 
 /**
+ * Constrains a widget's chart interval declaration to Widget_Type::CHART_INTERVAL_VALUES.
+ *
+ * @since $$next-version$$
+ *
+ * @param mixed $chart_interval Declaration from the manifest or the registration options.
+ * @return string|null The declaration, or null when absent or unknown.
+ */
+function sanitize_widget_chart_interval( $chart_interval ) {
+	return in_array( $chart_interval, Widget_Type::CHART_INTERVAL_VALUES, true ) ? $chart_interval : null;
+}
+
+/**
  * Registers the widget types a build manifest describes.
  *
  * What a plugin with a `widgets/` folder calls from the registration action, with the manifest
@@ -296,7 +326,8 @@ function sanitize_widget_icon( $icon ) {
  *
  *     @type string $textdomain    Text domain for the metadata strings of a candidate that declares none.
  *     @type string $i18n_manifest URL of the build's i18n manifest, for a candidate that declares none.
- *     @type array  $former_names  Map of widget type name to the names it registered under before, for a candidate that declares none.
+ *     @type array  $former_names   Map of widget type name to the names it registered under before, for a candidate that declares none.
+ *     @type array  $chart_interval Map of widget type name to its `chart_interval`, for a candidate that declares none.
  * }
  * @param Widget_Type_Registry|null $registry Optional. The registry to write into. Defaults to the main instance.
  * @return void
@@ -332,25 +363,29 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 		if ( empty( $widget['former_names'] ) && ! empty( $args['former_names'][ $widget['name'] ] ) ) {
 			$widget['former_names'] = $args['former_names'][ $widget['name'] ];
 		}
+		if ( empty( $widget['chart_interval'] ) && ! empty( $args['chart_interval'][ $widget['name'] ] ) ) {
+			$widget['chart_interval'] = $args['chart_interval'][ $widget['name'] ];
+		}
 
 		$widget = translate_widget_metadata( $widget );
 
 		$registry->register(
 			$widget['name'],
 			array(
-				'render_module' => $widget['render_module'] ?? null,
-				'widget_module' => $widget['widget_module'] ?? null,
-				'presentation'  => $widget['presentation'] ?? null,
-				'category'      => $widget['category'] ?? null,
-				'title'         => $widget['title'] ?? null,
-				'description'   => $widget['description'] ?? null,
-				'help'          => sanitize_widget_help( $widget['help'] ?? null ),
-				'icon'          => sanitize_widget_icon( $widget['icon'] ?? null ),
-				'actions'       => sanitize_widget_actions( $widget['actions'] ?? null ),
-				'keywords'      => $widget['keywords'] ?? null,
-				'textdomain'    => $widget['textdomain'] ?? null,
-				'i18n_manifest' => $widget['i18n_manifest'] ?? null,
-				'former_names'  => $widget['former_names'] ?? null,
+				'render_module'  => $widget['render_module'] ?? null,
+				'widget_module'  => $widget['widget_module'] ?? null,
+				'presentation'   => $widget['presentation'] ?? null,
+				'category'       => $widget['category'] ?? null,
+				'title'          => $widget['title'] ?? null,
+				'description'    => $widget['description'] ?? null,
+				'help'           => sanitize_widget_help( $widget['help'] ?? null ),
+				'icon'           => sanitize_widget_icon( $widget['icon'] ?? null ),
+				'actions'        => sanitize_widget_actions( $widget['actions'] ?? null ),
+				'keywords'       => $widget['keywords'] ?? null,
+				'textdomain'     => $widget['textdomain'] ?? null,
+				'i18n_manifest'  => $widget['i18n_manifest'] ?? null,
+				'former_names'   => $widget['former_names'] ?? null,
+				'chart_interval' => sanitize_widget_chart_interval( $widget['chart_interval'] ?? null ),
 			)
 		);
 	}
@@ -375,7 +410,10 @@ function register_widget_types( $registry = null ) {
 	// No manifest URL: the page's boot init module loads the package's own catalogs.
 	register_widget_types_from_manifest(
 		jpa_get_registered_widget_modules(),
-		array( 'textdomain' => 'jetpack-premium-analytics-pkg' ),
+		array(
+			'textdomain'     => 'jetpack-premium-analytics-pkg',
+			'chart_interval' => WIDGET_CHART_INTERVALS,
+		),
 		$registry
 	);
 }

@@ -655,4 +655,47 @@ class Widget_Metadata_Test extends BaseTestCase {
 		);
 		$this->assertSame( array( 'sentinel' ), $record['keywords'], 'The keywords reach the record.' );
 	}
+
+	/**
+	 * A manifest candidate takes its `chart_interval` from the registration options, and the
+	 * REST record carries only a known value.
+	 */
+	public function test_widget_modules_record_carries_the_chart_interval() {
+		$registry = Widget_Type_Registry::get_instance();
+		register_widget_types_from_manifest(
+			array(
+				array(
+					'name'          => 'test/interval-control',
+					'render_module' => 'test/render',
+					'widget_module' => 'test/widget',
+				),
+				array(
+					'name'          => 'test/interval-unknown',
+					'render_module' => 'test/render',
+					'widget_module' => 'test/widget',
+				),
+			),
+			array(
+				'chart_interval' => array(
+					'test/interval-control' => 'control',
+					'test/interval-unknown' => 'sometimes',
+				),
+			),
+			$registry
+		);
+
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+
+		$records = array();
+		try {
+			$records = array_column( get_widget_modules_response()->get_data(), 'chart_interval', 'name' );
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+			$registry->unregister( 'test/interval-control' );
+			$registry->unregister( 'test/interval-unknown' );
+		}
+
+		$this->assertSame( 'control', $records['test/interval-control'] );
+		$this->assertNull( $records['test/interval-unknown'] );
+	}
 }
