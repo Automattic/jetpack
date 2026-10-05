@@ -12,6 +12,31 @@ use PHPUnit\Framework\TestCase;
  */
 class Main_Features_Test extends TestCase {
 
+	public function test_local_catalog_keeps_cloud_cards_and_local_plugin_metadata_without_ownership() {
+		$plugins = function () {
+			return array( 'jetpack-boost-dev/jetpack-boost.php' => array( 'Name' => 'Boost' ) );
+		};
+		add_filter( 'all_plugins', $plugins );
+		try {
+			$state    = Main_Features::get_state( true );
+			$features = array_column( $state['features'], null, 'slug' );
+			$this->assertSame( array_keys( Main_Features::get_feature_definitions() ), array_keys( array_intersect_key( Main_Features::get_feature_definitions(), $features ) ) );
+			$this->assertSame( Main_Features::PLUGIN_INACTIVE, $features['boost']['plugin_status'] );
+			$this->assertSame( 'jetpack-boost-dev/jetpack-boost.php', Main_Features::get_plugin_file( 'jetpack-boost', Products\Boost::class ) );
+			$this->assertSame( admin_url( 'admin.php?page=jetpack-boost' ), $features['boost']['manage_url'] );
+			$this->assertSame( '', $features['protect-dashboard']['manage_url'] );
+			$this->assertSame( Main_Features::get_module_groups(), $state['module_groups'] );
+			foreach ( $features as $feature ) {
+				$this->assertArrayNotHasKey( 'included', $feature );
+				foreach ( $feature['plans'] as $plan ) {
+					$this->assertArrayNotHasKey( 'owned', $plan );
+				}
+			}
+		} finally {
+			remove_filter( 'all_plugins', $plugins );
+		}
+	}
+
 	/**
 	 * Every entry carries the fields a feature card needs.
 	 */

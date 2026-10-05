@@ -897,12 +897,13 @@ class Main_Features {
 	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
+	 * @param bool $local Skip ownership-dependent destinations.
 	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string} The state.
 	 */
-	public static function get_state() {
+	public static function get_state( $local = false ) {
 		return array(
 			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
-			'features'        => self::get_features(),
+			'features'        => self::get_features( $local ),
 			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
 		);
@@ -931,10 +932,11 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
+	 * @param bool $local Skip ownership-dependent destinations.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
-	public static function get_features() {
+	public static function get_features( $local = false ) {
 		$features = array();
 		$hidden   = Feature_Visibility::get_hidden();
 
@@ -956,7 +958,7 @@ class Main_Features {
 				'description'      => $definition['description'],
 				'long_description' => $definition['long_description'] ?? '',
 				'icon'             => $definition['icon'],
-				'manage_url'       => self::get_feature_manage_url( $definition, $product_class ),
+				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
 				'in_jetpack'       => $delivery['jetpack'] ?? false,
 				'plugin'           => $plugin,
@@ -1007,15 +1009,22 @@ class Main_Features {
 	 *
 	 * @param array       $definition    A single entry from the feature catalog.
 	 * @param string|null $product_class The product behind the feature, when it has one.
+	 * @param bool        $local         Keep local destinations without resolving ownership.
 	 * @return string Admin URL, or an empty string when the feature has nowhere to go.
 	 */
-	private static function get_feature_manage_url( array $definition, $product_class = null ) {
+	private static function get_feature_manage_url( array $definition, $product_class = null, $local = false ) {
 		if ( isset( $definition['admin_page'] ) ) {
 			return admin_url( 'admin.php?page=' . $definition['admin_page'] );
 		}
 
 		if ( $product_class ) {
-			return (string) $product_class::get_manage_url();
+			// Protect's normal destination depends on ownership, which is unknown offline.
+			if ( $local && 'protect' === ( $definition['product'] ?? '' ) ) {
+				return $product_class::is_standalone_plugin_active() ? admin_url( 'admin.php?page=jetpack-protect' ) : '';
+			}
+
+			$url = (string) $product_class::get_manage_url();
+			return ! $local || 0 === strpos( $url, admin_url() ) ? $url : '';
 		}
 
 		return '';

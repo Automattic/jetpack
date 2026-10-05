@@ -22,6 +22,92 @@ use WorDBless\BaseTestCase;
  */
 class Initializer_Test extends BaseTestCase {
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_seed_with_copied_credentials_does_not_start_cloud_work() {
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'copied-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		Jetpack_Options::update_options(
+			array(
+				'id'          => 123,
+				'blog_token'  => 'copied.secret.1',
+				'master_user' => $user,
+				'user_tokens' => array( $user => 'copied.secret.1' ),
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$attempts = array();
+		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
+			$attempts[] = $url;
+			return new \WP_Error( 'unexpected_http', 'Offline initialization attempted HTTP.' );
+		};
+		add_filter( 'pre_http_request', $tripwire, 10, 3 );
+		$key = Historically_Active_Modules::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY;
+		set_transient( $key, true );
+		try {
+			Initializer::init();
+			$data = Initializer::add_admin_script_data( array() );
+			$this->assertNotEmpty( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] );
+			$this->assertFalse( Initializer::should_initialize() );
+			$this->assertSame( 0, did_action( 'my_jetpack_init' ) );
+			$this->assertTrue( get_transient( $key ) );
+			$this->assertFalse( has_action( 'admin_init', array( Initializer::class, 'setup_historically_active_jetpack_modules_sync' ) ) );
+			$this->assertFalse( has_action( 'admin_menu', array( Initializer::class, 'maybe_show_red_bubble' ) ) );
+			$this->assertSame( array(), $attempts );
+		} finally {
+			delete_transient( $key );
+			remove_filter( 'pre_http_request', $tripwire, 10 );
+		}
+	}
+
+	/**
+	 * @dataProvider offline_multisite_permissions
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool $network_admin Whether the user manages the network.
+	 */
+	#[DataProvider( 'offline_multisite_permissions' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_seed_requires_network_management_on_multisite( $network_admin ) {
+		require __DIR__ . '/fixtures/offline-multisite.php';
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'offline-network',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		wp_get_current_user()->add_cap( 'manage_network', $network_admin );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$this->assertSame( $network_admin, REST_Main_Features::permissions_callback() );
+		$this->assertSame( $network_admin, isset( Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures'] ) );
+		$this->assertFalse( Initializer::should_initialize() );
+	}
+
+	/**
+	 * @return array Permission cases.
+	 */
+	public static function offline_multisite_permissions() {
+		return array(
+			'site administrator'    => array( false ),
+			'network administrator' => array( true ),
+		);
+	}
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -56,6 +142,7 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_partner_coupon_products' );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
 		// WorDBless teardown does not reset. The admin_init tests that depend on that
