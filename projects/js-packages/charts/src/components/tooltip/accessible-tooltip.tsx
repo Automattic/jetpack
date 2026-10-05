@@ -19,7 +19,7 @@ export type FlattenedTooltipData = {
 	dataPointIndex: number;
 };
 
-/** The XY chart tooltip that LineChart, AreaChart and BarChart render; place it inside a visx `XYChart` with `useKeyboardNavigation`. */
+/** The XY chart tooltip that LineChart, AreaChart and BarChart render; place it inside a visx `XYChart`. */
 interface XYChartTooltipProps extends Omit<
 	XyChartTooltipProps< DataPointDate >,
 	'renderTooltip'

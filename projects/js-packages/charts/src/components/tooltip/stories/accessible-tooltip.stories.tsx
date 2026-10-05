@@ -53,7 +53,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The XY chart tooltip: the one LineChart, AreaChart and BarChart render, exported for a custom visx `XYChart`. Place it inside the `XYChart`; it reads the hovered datum from visx. It adds the accessible behavior those charts share: `role="tooltip"`, a live region for pointer updates, and focus on the tooltip during keyboard navigation with `useKeyboardNavigation`. It draws the shared chart tooltip box; set `unstyled` to drop the box and draw your own. For a tooltip outside an `XYChart`, use `TooltipBox`.',
+					'The XY chart tooltip: the one LineChart, AreaChart and BarChart render, exported for a custom visx `XYChart`. Place it inside the `XYChart`; it reads the hovered datum from visx. It adds the accessible behavior those charts share: `role="tooltip"`, a live region for pointer updates, and, in those charts, focus on the tooltip during keyboard navigation. It draws the shared chart tooltip box; set `unstyled` to drop the box and draw your own. For a tooltip outside an `XYChart`, use `TooltipBox`.',
 			},
 		},
 	},
