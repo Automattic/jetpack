@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Allow callers that only need a Simple site's active features to skip building the upgradeable list.
+Comment: Internal API update; no user-facing change.
