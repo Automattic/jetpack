@@ -22,16 +22,14 @@ import { useCallback, useId, useMemo, useState } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
-	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
-	resolveTooltipUnits,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
-import { ChartTooltip } from '../chart-tooltip';
+import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
@@ -213,27 +211,9 @@ export function ComparativeBarChart( {
 	);
 	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
 
-	const tooltipUnits = useMemo(
-		() => resolveTooltipUnits( series, tooltipExtras ),
-		[ series, tooltipExtras ]
-	);
-
-	// Comparison points carry the primary's date for axis alignment, so read
-	// `realDate`.
-	const getTooltipLabel = useCallback(
-		(
-			datum: { date: Date; realDate?: Date },
-			_index: number,
-			key: string,
-			value: string | null,
-			rawValue: number | null
-		): string => {
-			const displayDate = datum.realDate ?? datum.date;
-			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			const unit = tooltipUnits.get( key );
-			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
-		},
-		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
+	const formatTooltipBucket = useCallback(
+		( date: Date ) => formatTooltipDate( date, tooltipDateFormat ),
+		[ formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**
@@ -285,31 +265,32 @@ export function ComparativeBarChart( {
 		[ alignedSeries, primarySeriesByGroup ]
 	);
 
-	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
-	// them by key (see `ChartTooltip`'s `seriesKeys`).
-	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
-
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			const { tooltipData, supplementaryRows } = appendTooltipExtras(
+			const tooltipData = appendTooltipExtras(
 				withComparisonDatum( params.tooltipData ),
 				tooltipExtras
 			);
+			// `seriesStyles` follows `alignedSeries`, so the model pairs rows by that order.
+			const model = buildDatedTooltipModel( {
+				tooltipData,
+				series: alignedSeries,
+				seriesStyles,
+				extras: tooltipExtras,
+				dataFormat,
+				formatDate: formatTooltipBucket,
+			} );
 
-			return (
-				<ChartTooltip
-					tooltipData={ tooltipData }
-					dataFormat={ dataFormat }
-					seriesStyles={ seriesStyles }
-					seriesKeys={ seriesKeys }
-					indicatorType="rect"
-					layout="inline"
-					supplementaryRows={ supplementaryRows }
-					getLabel={ getTooltipLabel }
-				/>
-			);
+			return model && <DatedTooltip model={ model } indicatorType="rect" />;
 		},
-		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum, tooltipExtras ]
+		[
+			dataFormat,
+			seriesStyles,
+			alignedSeries,
+			withComparisonDatum,
+			tooltipExtras,
+			formatTooltipBucket,
+		]
 	);
 
 	/**

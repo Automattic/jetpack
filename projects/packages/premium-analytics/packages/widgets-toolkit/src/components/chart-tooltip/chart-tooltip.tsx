@@ -6,12 +6,11 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
-import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
 import { exactFormatOf, isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/** Swatch box per indicator type; a supplementary row's spacer takes the width. */
+/** Swatch box per indicator type. */
 const INDICATOR_SIZE = {
 	line: { width: 16, height: 15 },
 	rect: { width: 8, height: 8 },
@@ -55,31 +54,11 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	/** One style per series, indexed by series position. */
 	seriesStyles: TooltipStyle[];
 
-	/**
-	 * Series keys in the same order as `seriesStyles`, pairing a row with its style by
-	 * key rather than position — charts emit rows in their own order, so a positional
-	 * lookup hands rows the wrong swatch. Omit when rows arrive in series order.
-	 */
-	seriesKeys?: string[];
-
 	indicatorType: 'line' | 'rect';
 
 	/**
-	 * Rows read out for context rather than drawn, keyed by row key: no series
-	 * swatch, and a format of their own where the chart's does not fit them (a
-	 * count listed beside currencies). `undefined` keeps the chart's format.
-	 */
-	supplementaryRows?: Record< string, DataFormat | undefined >;
-
-	/**
-	 * `split` sets the label left and the value right; `inline` renders the label
-	 * alone, for a `getLabel` that already spells the value into it.
-	 */
-	layout?: 'split' | 'inline';
-
-	/**
-	 * `value` is the row's value spelled out in full, in the row's own format;
-	 * `rawValue` picks a plural form. Both are null for a bucket with no reading.
+	 * `value` is the row's value spelled out in full; `rawValue` picks a plural
+	 * form. Both are null for a bucket with no reading.
 	 */
 	getLabel?: (
 		datum: TDatum,
@@ -92,19 +71,7 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	getValue?: ( datum: TDatum ) => number | null;
 };
 
-// No positional fallback once `seriesKeys` is given: that lookup is the bug
-// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
-function seriesStyleFor(
-	key: string,
-	index: number,
-	seriesStyles: TooltipStyle[],
-	seriesKeys: string[] | undefined
-): TooltipStyle {
-	const style = seriesKeys ? seriesStyles[ seriesKeys.indexOf( key ) ] : seriesStyles[ index ];
-	return style || seriesStyles[ 0 ];
-}
-
-function SeriesIndicator( {
+export function SeriesIndicator( {
 	indicatorType,
 	style,
 }: {
@@ -131,17 +98,15 @@ function SeriesIndicator( {
 }
 
 /**
- * Self-contained chart tooltip. Indicators use the chart library's own
- * `LineShape` / `RectShape` so they match the series they describe.
+ * Chart tooltip for label/value rows, one per series. Indicators use the chart
+ * library's own `LineShape` / `RectShape` so they match the series they
+ * describe. Date-bucketed charts use `DatedTooltip` instead.
  */
 export function ChartTooltip< TDatum >( {
 	tooltipData,
 	dataFormat,
 	seriesStyles,
-	seriesKeys,
 	indicatorType,
-	supplementaryRows,
-	layout = 'split',
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
 }: ChartTooltipProps< TDatum > ) {
@@ -163,9 +128,7 @@ export function ChartTooltip< TDatum >( {
 				}
 
 				const value = getValue( entry.datum );
-				const isSupplementary = supplementaryRows !== undefined && entry.key in supplementaryRows;
-				const rowFormat = ( isSupplementary && supplementaryRows[ entry.key ] ) || dataFormat;
-				const exactFormat = exactFormatOf( rowFormat );
+				const exactFormat = exactFormatOf( dataFormat );
 				const label = getLabel(
 					entry.datum,
 					index,
@@ -173,29 +136,19 @@ export function ChartTooltip< TDatum >( {
 					value === null ? null : formatMetricValue( value, exactFormat.type, exactFormat.options ),
 					value
 				);
-				const rowValue = layout === 'inline' ? undefined : value;
 
 				return (
 					<TooltipRow
 						key={ entry.key }
 						indicator={
-							isSupplementary ? (
-								// Holds the swatch's width, so the labels stay aligned.
-								<span
-									className={ styles.indicatorSpacer }
-									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
-									aria-hidden="true"
-								/>
-							) : (
-								<SeriesIndicator
-									indicatorType={ indicatorType }
-									style={ seriesStyleFor( entry.key, index, seriesStyles, seriesKeys ) }
-								/>
-							)
+							<SeriesIndicator
+								indicatorType={ indicatorType }
+								style={ seriesStyles[ index ] || seriesStyles[ 0 ] }
+							/>
 						}
 						label={ label }
-						value={ rowValue }
-						dataFormat={ rowFormat }
+						value={ value }
+						dataFormat={ dataFormat }
 					/>
 				);
 			} ) }

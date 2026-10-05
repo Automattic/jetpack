@@ -50,7 +50,7 @@ original date survives in `realDate` and is what the tooltip shows.
 
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
 their values never reach a custom `renderTooltip`. This component re-pairs them by date before
-handing the data to `ChartTooltip` — without that, the shadow bar would be visible but its value
+handing the data to `DatedTooltip` — without that, the shadow bar would be visible but its value
 unreadable.
 
 ## Y-axis domain

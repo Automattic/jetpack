@@ -7,6 +7,7 @@ import {
 	type LineStyles,
 } from '@jetpack-premium-analytics/externals';
 import type { CountLabel, DataFormat } from '../../types';
+import type { ReactElement } from 'react';
 
 /**
  * Types
@@ -29,6 +30,8 @@ export type ComparativeLineChartSeries = SeriesData & {
  */
 export type TooltipExtraSeries = {
 	label: string;
+	/** A `@wordpress/icons` icon, drawn in place of a series swatch since the chart draws no mark for the row. */
+	icon?: ReactElement;
 	/**
 	 * The comparison period's points, each placed on the current period's date with
 	 * its own in `realDate`. Read right after the current row, under the same label.

@@ -3,6 +3,7 @@
  */
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { __, _n } from '@wordpress/i18n';
+import { postContent, seen } from '@wordpress/icons';
 import type { StatsVisitsResponse } from '@jetpack-premium-analytics/data';
 import type { TooltipExtraSeries } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -96,6 +97,7 @@ export function buildTrafficTooltipExtras(
 	const rows = [
 		{
 			label: __( 'Views per visitor', 'jetpack-premium-analytics-pkg' ),
+			icon: seen,
 			dataFormat: VIEWS_PER_VISITOR_FORMAT,
 			current: readRow( current.views, zone, viewsPerVisitorOf ),
 			comparisonReport: comparison?.views,
@@ -103,6 +105,7 @@ export function buildTrafficTooltipExtras(
 		},
 		{
 			label: __( 'Posts published', 'jetpack-premium-analytics-pkg' ),
+			icon: postContent,
 			countLabel: postsPublishedLabel,
 			current: readRow( current.posts, zone, postsPublishedOf ),
 			comparisonReport: comparison?.posts,
@@ -112,13 +115,14 @@ export function buildTrafficTooltipExtras(
 
 	return rows
 		.filter( row => row.current.points.length )
-		.map( ( { label, dataFormat, countLabel, current: own, comparisonReport, valueOf } ) => {
+		.map( ( { label, icon, dataFormat, countLabel, current: own, comparisonReport, valueOf } ) => {
 			const previous = comparisonReport
 				? readRow( comparisonReport, zone, valueOf, own.dates ).points
 				: [];
 
 			return {
 				label,
+				icon,
 				dataFormat,
 				countLabel,
 				data: own.points,

@@ -1,0 +1,65 @@
+// A table, so each metric's current and comparison readings share a row and
+// the two dates head their columns.
+.table {
+	border-collapse: collapse;
+	white-space: nowrap;
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+.table th,
+.table td {
+	padding: 0;
+	font-weight: inherit;
+	text-align: start;
+	vertical-align: middle;
+}
+
+.table th {
+	padding-block-end: var(--wpds-dimension-gap-xs);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.table tr + tr td {
+	padding-block-start: var(--wpds-dimension-gap-xs);
+}
+
+// The comparison column, set apart by a rule.
+.table th + th,
+.table td + td {
+	border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	padding-inline-start: var(--wpds-dimension-gap-md);
+}
+
+.table th:first-child,
+.table td:first-child {
+	padding-inline-end: var(--wpds-dimension-gap-md);
+}
+
+.table th:last-child,
+.table td:last-child {
+	padding-inline-end: 0;
+}
+
+.reading {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+// One width for swatch, icon and blank, so every reading starts flush.
+.indicator {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	inline-size: 16px;
+}
+
+.icon {
+	fill: currentColor;
+}
+
+.value {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	font-variant-numeric: tabular-nums;
+}
