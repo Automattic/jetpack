@@ -15,7 +15,10 @@
 	min-height: 0;
 }
 
+/* Keeps the tabs' `z-index` inside the header, so the chart's tooltip, which
+   comes later in the source, paints above them. */
 .header {
+	isolation: isolate;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -155,11 +158,8 @@
 	text-align: center;
 }
 
-/* The tooltip can rise over the tabs, whose `@wordpress/ui` buttons sit at
-   `z-index: 1`. Matching it later in the source paints the chart above them. */
 .chart {
 	position: relative;
-	z-index: 1;
 	flex: 1 1 0;
 	min-width: 0;
 	min-height: 0;
