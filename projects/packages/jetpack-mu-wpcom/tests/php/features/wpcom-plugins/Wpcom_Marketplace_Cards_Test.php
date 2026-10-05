@@ -331,18 +331,19 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_the_details_modal_is_never_answered_from_the_cache() {
 		$in_modal = null;
+		set_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . 'woocommerce', array( 'name' => 'WooCommerce' ) );
 
 		remove_all_actions( 'install_plugins_pre_plugin-information' );
 		add_action(
 			'install_plugins_pre_plugin-information',
 			function () use ( &$in_modal ) {
-				$in_modal = wpcom_marketplace_dependency_lookup( 'plugin_information', (object) array( 'slug' => 'woocommerce' ) );
+				$in_modal = wpcom_marketplace_cached_dependency( false, 'plugin_information', (object) array( 'slug' => 'woocommerce' ) );
 			}
 		);
 		do_action( 'install_plugins_pre_plugin-information' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Core's hook.
 		remove_all_actions( 'install_plugins_pre_plugin-information' );
 
-		$this->assertSame( '', $in_modal );
+		$this->assertFalse( $in_modal );
 	}
 
 	/**
