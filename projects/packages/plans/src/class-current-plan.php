@@ -263,7 +263,7 @@ class Current_Plan {
 	 * @access public
 	 * @static
 	 *
-	 * @since $$next-version$$ Accepts request arguments.
+	 * @since 0.14.0 Accepts request arguments.
 	 *
 	 * @param array $args Request arguments, as accepted by `Client::wpcom_json_api_request_as_blog()`.
 	 *                    A caller refreshing in front of a page render can cap `timeout` here; the
@@ -494,7 +494,7 @@ class Current_Plan {
 	 * Simple sites read the store; Atomic sites read the purchases wpcomsh keeps in sync. Both
 	 * answer as of this request, where `self::PLAN_OPTION` is only as current as its last fetch.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.14.0
 	 *
 	 * @return array|null Active and available features, or null where the site carries no registry.
 	 */

@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Remove use of `gutenberg_print_font_faces()` in tests. Nothing else uses it anymore, and Gutenberg is dropping it in v24.1.0.
-
-

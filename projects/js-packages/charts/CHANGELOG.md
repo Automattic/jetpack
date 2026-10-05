@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.0] - 2026-10-05
+### Added
+- Conversion funnel chart: Add `tooltipStyle` to restyle the tooltip box. [#52850]
+
+### Changed
+- Tooltips: Draw every chart tooltip on one dark surface that matches the WordPress design system; set `--a8c-charts-color-tooltip-surface` for a light tooltip. [#52850]
+
+### Deprecated
+- Conversion funnel chart: Deprecate `className` in the custom `renderTooltip` props, which is no longer set. [#52850]
+- Deprecate the `prefersLightText` color utility. [#52968]
+- Heatmap chart: Deprecate `tooltipVariant`, which no longer has an effect. [#52850]
+
+### Fixed
+- Keep values drawn on heatmap and pie chart fills at WCAG AA contrast. [#52968]
+
 ## [4.6.0] - 2026-09-29
 ### Added
 - Geo Chart: Add a displayMode prop to draw rows as markers. [#52859]
@@ -1131,6 +1146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.7.0]: https://github.com/Automattic/charts/compare/v4.6.0...v4.7.0
 [4.6.0]: https://github.com/Automattic/charts/compare/v4.5.0...v4.6.0
 [4.5.0]: https://github.com/Automattic/charts/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/Automattic/charts/compare/v4.3.0...v4.4.0
