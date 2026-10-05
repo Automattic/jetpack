@@ -61,6 +61,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 
 			setIsDuplicating( true );
 			try {
+				// No query argument, for the reason in use-form-record.ts.
 				const original: unknown = await resolveSelect( 'core' ).getEntityRecord(
 					'postType',
 					'jetpack_form',
