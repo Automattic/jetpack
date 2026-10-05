@@ -24,9 +24,13 @@ export { statsInsightsQuery } from './queries/stats-insights-query';
 export {
 	fetchStatsArchivesRows,
 	fetchStatsClicksRows,
+	fetchStatsComments,
+	fetchStatsEmailSummaryRows,
 	fetchStatsFileDownloadsRows,
+	fetchStatsInsightsYears,
 	fetchStatsReferrersRows,
 	fetchStatsSearchTermsReport,
+	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
 	fetchStatsVideoPlaysRows,

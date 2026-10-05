@@ -3,15 +3,13 @@
  */
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ExporterCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	getKnownEmailRate,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	emailsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -19,12 +17,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
-import {
-	getClicksRateSignals,
-	getEmailsFields,
-	getOpensRateSignals,
-	useEmailsReportRecords,
-} from './config';
+import { useReportParams } from '../use-report-params';
+import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
 
@@ -46,9 +40,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortEmailCsvRows = ( a: StatsEmailSummaryItem, b: StatsEmailSummaryItem ) =>
-	String( b.date ?? '' ).localeCompare( String( a.date ?? '' ) );
-
 /**
  * Stable row id for the records table.
  *
@@ -68,40 +59,8 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
  */
 function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< StatsEmailSummaryItem >[] >(
-		() => [
-			{
-				label: __( 'Email', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.label ?? '' ),
-			},
-			{
-				label: __( 'Sent', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.date ?? '' ),
-			},
-			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
-			{
-				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => getKnownEmailRate( row.opens_rate, getOpensRateSignals( row ) ),
-			},
-			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
-			{
-				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => getKnownEmailRate( row.clicks_rate, getClicksRateSignals( row ) ),
-			},
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'emails',
-		status: records,
-		sort: sortEmailCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.emails;
@@ -111,9 +70,12 @@ function EmailsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ emailsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

@@ -18,9 +18,11 @@ import { queryClient } from '../../providers/query-client-provider';
 import {
 	fetchStatsArchivesRows,
 	fetchStatsClicksRows,
+	fetchStatsEmailSummaryRows,
 	fetchStatsFileDownloadsRows,
 	fetchStatsReferrersRows,
 	fetchStatsSearchTermsReport,
+	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
 	fetchStatsVideoPlaysRows,
@@ -242,6 +244,53 @@ describe( 'report row fetchers', () => {
 		expect( clicks.map( row => row.views ) ).toEqual( [ 3 ] );
 		expect( referrers.map( row => row.label ) ).toEqual( [ 'Search' ] );
 		expect( authors.map( row => row.label ) ).toEqual( [ 'Ana' ] );
+	} );
+} );
+
+describe( 'all-time report fetchers', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	function requestedPaths(): string[] {
+		return mockApiFetch.mock.calls.map( ( [ { path } ] ) => path );
+	}
+
+	it( 'fetches the tags and categories', async () => {
+		mockApiFetch.mockResolvedValue( {
+			tags: [
+				{
+					tags: [ { type: 'tag', name: 'news', link: 'https://example.com/tag/news/' } ],
+					views: 5,
+				},
+			],
+		} );
+
+		const rows = await fetchStatsTagsRows( { max: 1000 } );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/tags' );
+		expect( rows.map( row => row.labelText ) ).toEqual( [ 'news' ] );
+	} );
+
+	it( 'fetches the email summary', async () => {
+		mockApiFetch.mockResolvedValue( {
+			posts: [
+				{ id: 1, title: 'Issue 1', href: 'https://example.com/1/', date: '2026-01-01', opens: 3 },
+			],
+		} );
+
+		const rows = await fetchStatsEmailSummaryRows( { quantity: 30 } );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/emails/summary' );
+		expect( rows.map( row => row.label ) ).toEqual( [ 'Issue 1' ] );
 	} );
 } );
 
