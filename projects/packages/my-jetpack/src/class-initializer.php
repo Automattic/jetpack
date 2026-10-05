@@ -710,6 +710,28 @@ class Initializer {
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 
+		if (
+			( new Status() )->is_offline_mode()
+			/**
+			 * Temporarily expose the local Features seed without enabling offline entry.
+			 *
+			 * @since $$next-version$$
+			 * @param bool $enabled Whether to expose the seed. Default false.
+			 */
+			&& apply_filters( 'jetpack_my_jetpack_offline_features', false )
+			// The offline initialization default stays false; a host may still veto the seed.
+			/** This filter is documented in self::should_initialize(). */
+			&& apply_filters( 'jetpack_my_jetpack_should_initialize', true )
+			&& REST_Main_Features::permissions_callback()
+		) {
+			$data['myJetpack']['offlineFeatures'] = array(
+				'mainFeatures' => Main_Features::get_state( true ),
+				'plugins'      => Plugins_Installer::get_plugins(),
+				'apiRoot'      => esc_url_raw( rest_url() ),
+				'apiNonce'     => wp_create_nonce( 'wp_rest' ),
+			);
+		}
+
 		return $data;
 	}
 

@@ -472,6 +472,17 @@ type MainFeaturesState = {
 	plugin_installs?: MainFeatureInstallAccess;
 };
 
+type OfflineFeaturesSeed = {
+	mainFeatures: MainFeaturesState;
+	plugins: Record< string, { active: boolean; [ key: string ]: unknown } >;
+	apiRoot: string;
+	apiNonce: string;
+};
+
+type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJetpackScriptData & {
+	offlineFeatures?: OfflineFeaturesSeed;
+};
+
 type MainFeatureModuleGroup = {
 	label: string;
 	modules: string[];
