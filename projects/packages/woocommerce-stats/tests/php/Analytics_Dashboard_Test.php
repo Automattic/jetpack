@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
+use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
@@ -22,9 +23,10 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/c
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-policy.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
+require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
 
 /**
- * The package registers the section when the dashboard hydrates.
+ * The package registers the section and its widget types when the dashboard hydrates.
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard
  */
@@ -36,14 +38,17 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
+		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 
-		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$instance->setAccessible( true );
+		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
+			$instance = new \ReflectionProperty( $class, 'instance' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$instance->setAccessible( true );
+			}
+			$instance->setValue( null, null );
 		}
-		$instance->setValue( null, null );
 
 		wp_set_current_user( 0 );
 
@@ -51,12 +56,13 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The registrant hooks after the dashboard package's own, which runs at priority 10.
+	 * Both registrants hook after the dashboard package's own, which run at priority 10.
 	 */
-	public function test_init_hooks_the_registrant_after_the_dashboard_one() {
+	public function test_init_hooks_both_registrants_after_the_dashboard_ones() {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ) );
+		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ) ) );
 	}
 
 	/**
@@ -158,6 +164,21 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
 		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' ) );
+	}
+
+	/**
+	 * The manifest types register with the package's text domain and catalog location.
+	 */
+	public function test_registers_the_widget_types_from_the_manifest_with_the_catalog_location() {
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$net_sales = $registry->get_registered( 'woocommerce-analytics/net-sales-over-time' );
+		$this->assertNotNull( $net_sales );
+		$this->assertSame( 'jetpack-woocommerce-stats/widgets/net-sales-over-time/render', $net_sales->render_module );
+		$this->assertSame( Analytics_Dashboard::TEXTDOMAIN, $net_sales->textdomain );
+		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Analytics_Dashboard::PACKAGE_VERSION, $net_sales->i18n_manifest );
 	}
 
 	/**
