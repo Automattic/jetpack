@@ -40,10 +40,9 @@ function LearnMore( { supportUrl }: { supportUrl: string } ): ReactNode {
  * @return The rendered errors.
  */
 export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
-	const { modal, eligibility } = useFeature();
-	const blocking =
-		! isAtomicSiteWithoutBusinessPlan( errors ) && findFirstBlockingError( errors, eligibility );
-	const holds = findHoldingErrors( errors, eligibility );
+	const { modal } = useFeature();
+	const blocking = ! isAtomicSiteWithoutBusinessPlan( errors ) && findFirstBlockingError( errors );
+	const holds = findHoldingErrors( errors );
 
 	return (
 		<Stack direction="column" gap="sm">

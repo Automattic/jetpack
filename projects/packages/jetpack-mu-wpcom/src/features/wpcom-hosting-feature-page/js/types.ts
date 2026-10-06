@@ -54,14 +54,6 @@ export type InitialState = {
 	activateUrl: string;
 };
 
-/** Eligibility copy that names the feature being activated. */
-export type EligibilityCopy = {
-	/** Last-resort notice for a blocking error the API sent with no message. */
-	genericBlocking: string;
-	/** The step to take when the site is a staging site. */
-	stagingSite: string;
-};
-
 /**
  * Everything that differs between one hosting feature's page and another's.
  *
@@ -101,7 +93,6 @@ export type FeatureConfig = {
 		/** Heading above the steps the reader can take themselves. */
 		holdsHeading: string;
 	};
-	eligibility: EligibilityCopy;
 };
 
 declare global {

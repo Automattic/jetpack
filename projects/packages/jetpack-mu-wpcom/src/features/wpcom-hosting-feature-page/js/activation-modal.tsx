@@ -130,9 +130,9 @@ export function TransferActivationModal( {
 	activateUrl: string;
 	onClose: () => void;
 } ) {
-	const { activate, modal, eligibility } = useFeature();
+	const { activate, modal } = useFeature();
 	const { recordActivationConfirm } = useTracks();
-	const isBlocked = hasAnyBlockingError( errors, eligibility );
+	const isBlocked = hasAnyBlockingError( errors );
 	const needsUpgrade = needsPlanUpgrade( errors );
 
 	const actionLabel = needsUpgrade

@@ -10,12 +10,7 @@ import {
 	needsConfirmation,
 	needsPlanUpgrade,
 } from './eligibility.ts';
-import type { EligibilityCopy, TransferError } from './types.ts';
-
-const COPY: EligibilityCopy = {
-	genericBlocking: 'This site is not currently eligible to activate this feature.',
-	stagingSite: 'This feature cannot be activated for a staging site.',
-};
+import type { TransferError } from './types.ts';
 
 /**
  * Build the error shape PHP localizes onto the page.
@@ -30,10 +25,9 @@ function error( code: string, message = '' ): TransferError {
 
 describe( 'blocking errors', () => {
 	it( 'matches a code it has copy for, ignoring the API message', () => {
-		const blocking = findFirstBlockingError(
-			[ error( EligibilityErrors.SITE_GRAYLISTED, 'This site is not in good standing.' ) ],
-			COPY
-		);
+		const blocking = findFirstBlockingError( [
+			error( EligibilityErrors.SITE_GRAYLISTED, 'This site is not in good standing.' ),
+		] );
 
 		assert.equal( blocking?.code, EligibilityErrors.SITE_GRAYLISTED );
 		assert.match( blocking?.message ?? '', /ongoing site dispute/ );
@@ -42,38 +36,30 @@ describe( 'blocking errors', () => {
 
 	it( 'carries the intent, so an in-progress setup is not styled as a failure', () => {
 		assert.equal(
-			findFirstBlockingError( [ error( EligibilityErrors.TRANSFER_ALREADY_EXISTS ) ], COPY )
-				?.intent,
+			findFirstBlockingError( [ error( EligibilityErrors.TRANSFER_ALREADY_EXISTS ) ] )?.intent,
 			'info'
 		);
 		assert.equal(
-			findFirstBlockingError( [ error( EligibilityErrors.NO_VIP_SITES ) ], COPY )?.intent,
+			findFirstBlockingError( [ error( EligibilityErrors.NO_VIP_SITES ) ] )?.intent,
 			'error'
 		);
 	} );
 
 	it( 'reports nothing to block on for a clean site', () => {
-		assert.equal( findFirstBlockingError( [], COPY ), null );
-		assert.equal( hasAnyBlockingError( [], COPY ), false );
+		assert.equal( findFirstBlockingError( [] ), null );
+		assert.equal( hasAnyBlockingError( [] ), false );
 	} );
 
 	it( 'leaves holds to the steps list rather than blocking on them', () => {
-		assert.equal(
-			findFirstBlockingError( [ error( EligibilityErrors.NO_BUSINESS_PLAN ) ], COPY ),
-			null
-		);
-		assert.equal(
-			findFirstBlockingError( [ error( EligibilityErrors.EMAIL_UNVERIFIED ) ], COPY ),
-			null
-		);
+		assert.equal( findFirstBlockingError( [ error( EligibilityErrors.NO_BUSINESS_PLAN ) ] ), null );
+		assert.equal( findFirstBlockingError( [ error( EligibilityErrors.EMAIL_UNVERIFIED ) ] ), null );
 	} );
 
 	// The case the modal used to render as an empty body with a disabled button.
 	it( 'falls back to the API message for a code it has no copy for', () => {
-		const blocking = findFirstBlockingError(
-			[ error( 'site_private', 'Private sites cannot be transferred.' ) ],
-			COPY
-		);
+		const blocking = findFirstBlockingError( [
+			error( 'site_private', 'Private sites cannot be transferred.' ),
+		] );
 
 		assert.equal( blocking?.code, 'site_private' );
 		assert.equal( blocking?.message, 'Private sites cannot be transferred.' );
@@ -81,9 +67,9 @@ describe( 'blocking errors', () => {
 	} );
 
 	it( 'falls back to generic copy when the API sent no message either', () => {
-		const blocking = findFirstBlockingError( [ error( 'something_new_entirely' ) ], COPY );
+		const blocking = findFirstBlockingError( [ error( 'something_new_entirely' ) ] );
 
-		assert.equal( blocking?.message, COPY.genericBlocking );
+		assert.match( blocking?.message ?? '', /not currently eligible/ );
 	} );
 
 	it( 'always has something to say when the API reports an error', () => {
@@ -91,15 +77,14 @@ describe( 'blocking errors', () => {
 			const errors = [ error( code ) ];
 
 			assert.ok(
-				findFirstBlockingError( errors, COPY ) !== null ||
-					findHoldingErrors( errors, COPY ).length > 0,
+				findFirstBlockingError( errors ) !== null || findHoldingErrors( errors ).length > 0,
 				code
 			);
 		}
 	} );
 
 	it( 'does not treat an inherited Object key as a known code', () => {
-		const blocking = findFirstBlockingError( [ error( 'toString', 'Nope.' ) ], COPY );
+		const blocking = findFirstBlockingError( [ error( 'toString', 'Nope.' ) ] );
 
 		assert.equal( blocking?.message, 'Nope.' );
 	} );
@@ -107,10 +92,10 @@ describe( 'blocking errors', () => {
 
 describe( 'holding errors', () => {
 	it( 'keeps the order the API returned them in', () => {
-		const holds = findHoldingErrors(
-			[ error( EligibilityErrors.EMAIL_UNVERIFIED ), error( EligibilityErrors.NO_BUSINESS_PLAN ) ],
-			COPY
-		);
+		const holds = findHoldingErrors( [
+			error( EligibilityErrors.EMAIL_UNVERIFIED ),
+			error( EligibilityErrors.NO_BUSINESS_PLAN ),
+		] );
 
 		assert.deepEqual(
 			holds.map( hold => hold.code ),
@@ -119,14 +104,11 @@ describe( 'holding errors', () => {
 	} );
 
 	it( 'skips codes that are not holds', () => {
-		const holds = findHoldingErrors(
-			[
-				error( EligibilityErrors.SITE_GRAYLISTED ),
-				error( 'site_private' ),
-				error( EligibilityErrors.NON_ADMIN_USER ),
-			],
-			COPY
-		);
+		const holds = findHoldingErrors( [
+			error( EligibilityErrors.SITE_GRAYLISTED ),
+			error( 'site_private' ),
+			error( EligibilityErrors.NON_ADMIN_USER ),
+		] );
 
 		assert.deepEqual(
 			holds.map( hold => hold.code ),
@@ -135,19 +117,19 @@ describe( 'holding errors', () => {
 	} );
 
 	it( 'does not pick up an inherited Object key', () => {
-		assert.deepEqual( findHoldingErrors( [ error( 'constructor' ) ], COPY ), [] );
+		assert.deepEqual( findHoldingErrors( [ error( 'constructor' ) ] ), [] );
 	} );
 
 	// wpcom sends `is_staging_blog`; keying this on `is_staging_site` silently loses the copy.
 	it( 'matches the staging code wpcom really sends', () => {
-		const [ hold ] = findHoldingErrors( [ error( 'is_staging_blog' ) ], COPY );
+		const [ hold ] = findHoldingErrors( [ error( 'is_staging_blog' ) ] );
 
 		assert.equal( EligibilityErrors.IS_STAGING_SITE, 'is_staging_blog' );
 		assert.match( hold.title, /staging site/ );
 	} );
 
 	it( 'names the plan in the upgrade hold', () => {
-		const [ hold ] = findHoldingErrors( [ error( EligibilityErrors.NO_BUSINESS_PLAN ) ], COPY );
+		const [ hold ] = findHoldingErrors( [ error( EligibilityErrors.NO_BUSINESS_PLAN ) ] );
 
 		assert.match( hold.title, /Business/ );
 	} );

@@ -51,16 +51,6 @@ function getScanConfig(): FeatureConfig {
 			),
 			holdsHeading: __( 'To activate Protect you’ll need to:', 'jetpack-mu-wpcom' ),
 		},
-		eligibility: {
-			genericBlocking: __(
-				'This site is not currently eligible to activate Protect. Please contact our support team for help.',
-				'jetpack-mu-wpcom'
-			),
-			stagingSite: __(
-				'Protect cannot be activated for a staging site. Create a new staging site to continue.',
-				'jetpack-mu-wpcom'
-			),
-		},
 	};
 }
 
