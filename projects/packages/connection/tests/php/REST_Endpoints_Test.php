@@ -8,6 +8,7 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -80,6 +81,12 @@ class REST_Endpoints_Test extends TestCase {
 		do_action( 'rest_api_init' );
 		new REST_Connector( new Manager() );
 		Heartbeat::init()->initialize_rest_api();
+		// `Manager::configure()` hooks Partner into the register and authorize flows in production.
+		// Hook it here rather than relying on hooks leaked by earlier test classes.
+		if ( ! has_filter( 'jetpack_register_request_body' ) ) {
+			Partner::reset();
+			Partner::init();
+		}
 
 		add_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
