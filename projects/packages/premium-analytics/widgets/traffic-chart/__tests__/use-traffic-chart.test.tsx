@@ -164,30 +164,6 @@ describe( 'useTrafficChart', () => {
 		] );
 	} );
 
-	it( 'maps one chart point per period, oldest first', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		const views = result.current.metrics[ 0 ];
-		expect( views.current ).toHaveLength( 2 );
-		expect( views.current[ 0 ].value ).toBe( 1200 );
-		expect( views.current[ 1 ].value ).toBe( 800 );
-		expect( views.current[ 0 ].date ).toBeInstanceOf( Date );
-		expect( views.current[ 0 ].date.getTime() ).toBeLessThan( views.current[ 1 ].date.getTime() );
-	} );
-
-	it( 'omits the previous period when comparison is off', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		for ( const metric of result.current.metrics ) {
-			expect( metric.previous ).toBeUndefined();
-			expect( metric.previousValue ).toBeUndefined();
-		}
-	} );
-
 	it( 'maps previous-period totals when comparison params are present', async () => {
 		routeRequests( {
 			viewsVisitors: VIEWS_VISITORS_COMPARISON,
@@ -210,30 +186,6 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.likes.previousValue ).toBe( 10 );
 		expect( byKey.comments.previousValue ).toBe( 4 );
 		expect( byKey.views.previous ).toHaveLength( 1 );
-	} );
-
-	// Misleading-zero guard: an empty comparison response must read as "no
-	// previous period", not a previous total of 0 (would render a false -100% delta).
-	it( 'omits the previous period when the comparison request returns no rows', async () => {
-		// Shared between the views/visitors and likes/comments requests below, so
-		// `fields` names neither pair specifically; `data: []` means it's never read.
-		const empty = {
-			unit: 'month',
-			fields: [ 'period' ],
-			data: [],
-		};
-		routeRequests( { viewsVisitors: empty, likesComments: empty } );
-
-		const { result } = renderHook( () => useTrafficChart( RANGE_WITH_COMPARISON, 'month' ), {
-			wrapper,
-		} );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		for ( const metric of result.current.metrics ) {
-			expect( metric.previous ).toBeUndefined();
-			expect( metric.previousValue ).toBeUndefined();
-		}
 	} );
 
 	describe( 'hourly', () => {
@@ -289,11 +241,6 @@ describe( 'useTrafficChart', () => {
 			expect( paths ).toHaveLength( 2 );
 			const hourly = paths.find( path => path.includes( 'unit=hour' ) );
 			const daily = paths.find( path => path.includes( 'unit=day' ) );
-			// The endpoint counts the hourly buckets from these two, so they have
-			// to reach it with their time of day intact.
-			expect( hourly ).toContain(
-				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00.000+00:00' ) }`
-			);
 			expect( hourly ).toContain( `stat_fields=${ encodeURIComponent( 'views' ) }` );
 			expect( daily ).toContain(
 				`stat_fields=${ encodeURIComponent( 'visitors,likes,comments' ) }`

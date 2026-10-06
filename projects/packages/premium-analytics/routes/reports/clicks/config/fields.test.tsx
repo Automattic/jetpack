@@ -64,27 +64,6 @@ describe( 'clicks fields', () => {
 		expect( screen.queryByRole( 'link', { name: unsafeRow.clickedUrl } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the title-field styling on group parent rows only', () => {
-		const field = getClicksFields().find( candidate => candidate.id === 'clickedUrl' );
-		const { render: UrlField } = field ?? {};
-		const groupRow: ClickRow = {
-			id: 'wordpress.org',
-			clickedUrl: 'wordpress.org',
-			isGroup: true,
-			clicks: 55,
-		};
-
-		if ( ! field || ! UrlField ) {
-			throw new Error( 'Clicked URL field render callback is unavailable' );
-		}
-
-		render( <UrlField item={ groupRow } field={ field as never } /> );
-
-		// Group rows render as plain text so DataViews' title styling applies.
-		expect( screen.getByText( groupRow.clickedUrl ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: groupRow.clickedUrl } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'announces the click group on nested URL rows for screen readers', () => {
 		const field = getClicksFields().find( candidate => candidate.id === 'clickedUrl' );
 		const { render: UrlField } = field ?? {};

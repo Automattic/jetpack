@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\CookieConsent\Cookie_Consent;
 use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 
 /**
  * Class Jetpack_Premium_Analytics
@@ -28,6 +29,9 @@ class Jetpack_Premium_Analytics {
 		// No menu_title: the package supplies its own translated label. Passing one here would
 		// mean translating it on plugins_loaded, too early for the textdomain to be loaded.
 		Analytics::init();
+		if ( class_exists( Analytics_Dashboard::class ) ) {
+			Analytics_Dashboard::init();
+		}
 
 		// Priority 0 leaves time for Cookie Consent to register its own default-priority
 		// init callbacks when the development config filter enables the package.

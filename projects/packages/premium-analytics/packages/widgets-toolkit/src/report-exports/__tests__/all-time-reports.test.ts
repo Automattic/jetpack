@@ -22,12 +22,22 @@ import { emailsCsvExporter } from '../emails';
 import { tagsCsvExporter } from '../tags';
 import type { ReportCsvExporter } from '../types';
 
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	fetchStatsClicksRows: jest.fn(),
 	fetchStatsComments: jest.fn(),
 	fetchStatsEmailSummaryRows: jest.fn(),
+	fetchStatsFileDownloadsRows: jest.fn(),
 	fetchStatsInsightsYears: jest.fn(),
+	fetchStatsLocationsRows: jest.fn(),
+	fetchStatsReferrersRows: jest.fn(),
+	fetchStatsSearchTermsReport: jest.fn(),
 	fetchStatsTagsRows: jest.fn(),
+	fetchStatsTopAuthorsRows: jest.fn(),
+	fetchStatsUtmRows: jest.fn(),
+	fetchStatsVideoPlaysRows: jest.fn(),
 } ) );
 
 // All-time exporters ignore the date range they are handed.
@@ -129,19 +139,33 @@ describe( 'all-time report exporters', () => {
 	} );
 
 	it.each( [
-		[ 'authors', commentsAuthorsCsvExporter, [ 'Bo', 5, 'edit-comments.php?user_id=8' ] ],
-		[ 'posts', commentsPostsCsvExporter, [ 'Hello', 3, 'https://example.com/hello/' ] ],
-	] as const )( 'exports the Comments %s tab by comments', async ( _group, exporter, firstRow ) => {
-		jest.mocked( fetchStatsComments ).mockResolvedValue( COMMENTS_REPORT );
+		[
+			'authors',
+			commentsAuthorsCsvExporter,
+			[
+				[ 'Name', 'Comments' ],
+				[ 'Bo', 5 ],
+			],
+		],
+		[
+			'posts',
+			commentsPostsCsvExporter,
+			[
+				[ 'Name', 'Comments', 'URL' ],
+				[ 'Hello', 3, 'https://example.com/hello/' ],
+			],
+		],
+	] as const )(
+		'exports the Comments %s tab by comments',
+		async ( _group, exporter, firstRows ) => {
+			jest.mocked( fetchStatsComments ).mockResolvedValue( COMMENTS_REPORT );
 
-		const items: StatsCommentsRow[] = await exporter.fetchItems( REPORT_PARAMS );
+			const items: StatsCommentsRow[] = await exporter.fetchItems( REPORT_PARAMS );
 
-		expect( fetchStatsComments ).toHaveBeenCalledWith();
-		expect( toCsvTable( exporter, items ).slice( 0, 2 ) ).toEqual( [
-			[ 'Name', 'Comments', 'URL' ],
-			firstRow,
-		] );
-	} );
+			expect( fetchStatsComments ).toHaveBeenCalledWith();
+			expect( toCsvTable( exporter, items ).slice( 0, 2 ) ).toEqual( firstRows );
+		}
+	);
 
 	it( 'exports Tags and categories by views', async () => {
 		const items = [

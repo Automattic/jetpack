@@ -298,15 +298,15 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Only bundles Jetpack sells today can be listed.
+	 * Only plans Jetpack sells today can be listed.
 	 */
-	public function test_plans_are_known_bundles() {
+	public function test_plans_are_known_plans() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			foreach ( $feature['plans'] ?? array() as $plan ) {
 				$this->assertContains(
 					$plan,
-					array( 'security', 'complete', 'growth' ),
-					"Feature {$slug} lists an unknown bundle: {$plan}"
+					array( 'backup', 'security', 'complete', 'growth' ),
+					"Feature {$slug} lists an unknown plan: {$plan}"
 				);
 			}
 		}
@@ -533,7 +533,7 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame( '', $upgrades['podcast']['path'] );
 		$this->assertSame( '', $upgrades['newsletter']['path'] );
-		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
+		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
 	}
 
 	/**
@@ -630,8 +630,8 @@ class Main_Features_Test extends TestCase {
 	public function test_upgrade_falls_back_to_the_cheapest_bundle() {
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
-		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
-		$this->assertSame( 'Jetpack Security', $upgrades['activity-log']['name'] );
+		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
+		$this->assertSame( 'Jetpack VaultPress Backup', $upgrades['activity-log']['name'] );
 		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
 		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
 		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );

@@ -67,6 +67,7 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
+		"automattic/jetpack-woocommerce-stats": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/jetpack-ads": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",

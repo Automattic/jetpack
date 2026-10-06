@@ -1,6 +1,12 @@
 import { mergeStatsTopAuthorsComparisonRows, sanitizeStatsTopAuthorsResponse } from '..';
 import { topAuthorsFixture, topAuthorsSummaryFixture } from '../__fixtures__/top-authors';
 
+const makeSummaryReport = ( authors: Array< Record< string, unknown > > ) =>
+	sanitizeStatsTopAuthorsResponse(
+		{ summary: { authors } },
+		{ period: 'day', start_date: '2026-06-16', end_date: '2026-06-22', summarize: true }
+	);
+
 describe( 'Stats top authors normalizer', () => {
 	it( 'normalizes summarized top authors into range data', () => {
 		const result = sanitizeStatsTopAuthorsResponse( topAuthorsSummaryFixture, {
@@ -102,10 +108,7 @@ describe( 'Stats top authors normalizer', () => {
 
 	it( 'drops an author post known only from the comparison period', () => {
 		const makeReport = ( views: number, posts: Array< { id: number; views: number } > ) =>
-			sanitizeStatsTopAuthorsResponse(
-				{ summary: { authors: [ { name: 'Priya', author_id: 7, views, posts } ] } },
-				{ period: 'day', start_date: '2026-06-16', end_date: '2026-06-22', summarize: true }
-			);
+			makeSummaryReport( [ { name: 'Priya', author_id: 7, views, posts } ] );
 
 		const { rows } = mergeStatsTopAuthorsComparisonRows(
 			makeReport( 30, [
@@ -123,5 +126,21 @@ describe( 'Stats top authors normalizer', () => {
 			expect.objectContaining( { id: 1, views: 20, previousViews: 30 } ),
 			expect.objectContaining( { id: 2, views: 10, previousViews: undefined } ),
 		] );
+	} );
+
+	it( 'only counts overlap on rows visible under maxRows', () => {
+		const { rows, hasComparison } = mergeStatsTopAuthorsComparisonRows(
+			makeSummaryReport( [
+				{ name: 'Alice', author_id: 1, views: 10 },
+				{ name: 'Bob', author_id: 2, views: 8 },
+			] ),
+			// Only Bob overlaps, but Bob is cut off by maxRows.
+			makeSummaryReport( [ { name: 'Bob', author_id: 2, views: 5 } ] ),
+			1
+		);
+
+		expect( rows ).toHaveLength( 1 );
+		expect( rows[ 0 ] ).toMatchObject( { key: '1' } );
+		expect( hasComparison ).toBe( false );
 	} );
 } );

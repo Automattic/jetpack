@@ -198,6 +198,30 @@ export function validateAgainstSchema( value: unknown, schema: JsonSchema, path 
 }
 
 /**
+ * Remove optional `inferred` fields that fail their schema, so a field nothing requires can't
+ * discard an otherwise valid output.
+ *
+ * @param parsed - The parsed model output, mutated in place.
+ */
+function dropInvalidOptionalInferred( parsed: unknown ): void {
+	const inferred = ( parsed as { inferred?: unknown } | null )?.inferred;
+	if ( ! inferred || typeof inferred !== 'object' ) {
+		return;
+	}
+	const record = inferred as Record< string, unknown >;
+	const inferredSchema = AGENT_OUTPUT_SCHEMA.properties?.inferred;
+	for ( const [ field, fieldSchema ] of Object.entries( inferredSchema?.properties ?? {} ) ) {
+		if (
+			field in record &&
+			! inferredSchema?.required?.includes( field ) &&
+			validateAgainstSchema( record[ field ], fieldSchema ).length > 0
+		) {
+			delete record[ field ];
+		}
+	}
+}
+
+/**
  * Parse the raw `content` string returned by jetpack-ai-query and validate it
  * against the agent output schema. Returns the typed output, or null if the JSON
  * is malformed or fails validation.
@@ -212,6 +236,8 @@ export function parseAgentResponse( content: string ): TailoredOutput | null {
 	} catch {
 		return null;
 	}
+
+	dropInvalidOptionalInferred( parsed );
 
 	if ( validateAgainstSchema( parsed, AGENT_OUTPUT_SCHEMA ).length > 0 ) {
 		return null;

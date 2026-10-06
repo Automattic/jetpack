@@ -201,8 +201,12 @@ describe( 'PopularPostWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'links the post to its detail page on the window it ranked over', async () => {
-		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+	it( 'links the post to its detail page on the window it ranked over, naming the tab to return to', async () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+			</DashboardSectionProvider>
+		);
 
 		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
 		const { searchParams: search } = getMockRouteLinkUrl( link );
@@ -212,6 +216,7 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its
@@ -225,18 +230,6 @@ describe( 'PopularPostWidget', () => {
 				preset: search.get( 'preset' ) as 'last-12-months',
 			} )
 		).toBe( false );
-	} );
-
-	it( 'names the dashboard tab the detail page should return to', async () => {
-		render(
-			<DashboardSectionProvider section="insights">
-				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
-			</DashboardSectionProvider>
-		);
-
-		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
-
-		expect( getMockRouteLinkUrl( link ).searchParams.get( 'ds' ) ).toBe( 'insights' );
 	} );
 
 	it( 'renders on a saved instance that carries no report params', async () => {

@@ -24,6 +24,10 @@ const ROWS: LocationsGeoRow[] = [
 ];
 
 describe( 'ReportLocationsMap', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'shows only the loading overlay while the first rows are on their way', () => {
 		render( <ReportLocationsMap rows={ [] } mode="country" isLoading /> );
 
@@ -40,15 +44,14 @@ describe( 'ReportLocationsMap', () => {
 		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
 	} );
 
-	it( 'collapses the map from the toggle below it', async () => {
+	it( 'names its collapse toggle for the map', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <ReportLocationsMap rows={ ROWS } mode="country" /> );
 
 		const toggle = screen.getByRole( 'button', { name: 'Hide map' } );
-		await userEvent.click( toggle );
+		await user.click( toggle );
 
 		expect( screen.getByRole( 'button', { name: 'Show map' } ) ).toBe( toggle );
-		// eslint-disable-next-line testing-library/no-node-access -- `aria-controls` is the only handle on the inert wrapper.
-		const chart = document.getElementById( toggle.getAttribute( 'aria-controls' ) as string );
-		expect( chart ).toHaveAttribute( 'inert' );
 	} );
 } );

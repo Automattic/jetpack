@@ -138,6 +138,9 @@
 		<testsuite name="canonical-urls">
 			<directory suffix="Test.php">tests/php/modules/canonical-urls</directory>
 		</testsuite>
+		<testsuite name="protect-dashboard">
+			<directory suffix="Test.php">tests/php/modules/protect-dashboard</directory>
+		</testsuite>
 		<testsuite name="compatfunctions">
 			<file>tests/php/Jetpack_Compat_Functions_Test.php</file>
 		</testsuite>

@@ -109,7 +109,8 @@ export default function LocationsReportPage(): JSX.Element {
 		() =>
 			getLocationFields(
 				supportsLocationsCountryFilter( activeTab ) ? records.countries.options : undefined,
-				records.hasComparison
+				records.hasComparison,
+				activeTab
 			),
 		[ activeTab, records.countries.options, records.hasComparison ]
 	);

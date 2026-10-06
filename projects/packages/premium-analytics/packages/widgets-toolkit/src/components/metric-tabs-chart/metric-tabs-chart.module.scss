@@ -15,7 +15,10 @@
 	min-height: 0;
 }
 
+/* Keeps the tabs' `z-index` inside the header, so the chart's tooltip, which
+   comes later in the source, paints above them. */
 .header {
+	isolation: isolate;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
