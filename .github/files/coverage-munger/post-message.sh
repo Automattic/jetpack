@@ -127,7 +127,7 @@ echo "::endgroup::"
 echo "::group::Looking for existing comment"
 PAGE=1
 while true; do
-	J=$( curl -v -L fail \
+	J=$( curl -v -L --fail \
 		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments?per_page=100&page=$PAGE" \
 		--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 	)
