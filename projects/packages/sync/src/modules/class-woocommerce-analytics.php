@@ -24,6 +24,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\WooCommerce\Admin\API\Reports\Coupons\DataStore as CouponsDataStore;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
+use Automattic\WooCommerce\Internal\Admin\Schedulers\OrdersScheduler;
 use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
@@ -74,6 +75,27 @@ class WooCommerce_Analytics extends Module {
 		'WC_Order'        => 'Automattic\WooCommerce\Admin\Overrides\Order',
 		'WC_Order_Refund' => 'Automattic\WooCommerce\Admin\Overrides\OrderRefund',
 	);
+
+	/**
+	 * Pending orders for immediate sync, mapped from order ID to `upsert` or `delete`.
+	 *
+	 * @var string[]
+	 */
+	private $immediate_orders = array();
+
+	/**
+	 * Whether the immediate sync queue is being flushed.
+	 *
+	 * @var bool
+	 */
+	private $is_flushing_immediate_orders = false;
+
+	/**
+	 * Number of pending orders that triggers a flush before shutdown.
+	 *
+	 * @var int
+	 */
+	private const IMMEDIATE_SYNC_FLUSH_THRESHOLD = 100;
 
 	/**
 	 * Constructor.
@@ -148,6 +170,20 @@ class WooCommerce_Analytics extends Module {
 		} else {
 			add_action( 'woocommerce_analytics_update_order_stats', array( $this, 'sync_analytics_reports_data' ) );
 		}
+
+		// Immediate sync: collect changed orders and flush them before the sender runs at shutdown (priority 9998).
+		add_action( 'woocommerce_after_order_object_save', array( $this, 'collect_saved_order' ), 20 );
+		add_action( 'woocommerce_after_order_refund_object_save', array( $this, 'collect_saved_order' ), 20 );
+		add_action( 'woocommerce_order_refunded', array( $this, 'collect_refunded_order' ), 20, 2 );
+		add_action( 'woocommerce_trash_order', array( $this, 'collect_changed_order' ), 20 );
+		add_action( 'woocommerce_untrash_order', array( $this, 'collect_untrashed_order' ), 20 );
+		add_action( 'trashed_post', array( $this, 'collect_changed_order_post' ), 20 );
+		add_action( 'untrashed_post', array( $this, 'collect_changed_order_post' ), 20 );
+		add_action( 'woocommerce_delete_order', array( $this, 'collect_deleted_order' ), 20 );
+		add_action( 'woocommerce_delete_order_refund', array( $this, 'collect_deleted_order' ), 20 );
+		add_action( 'deleted_post', array( $this, 'collect_deleted_order_post' ), 20, 2 );
+		add_filter( 'woocommerce_pre_delete_order_refund', array( $this, 'collect_deleted_refund_parent' ), PHP_INT_MAX, 2 );
+		add_action( 'shutdown', array( $this, 'flush_immediate_orders' ), 9990 );
 
 		// Sync actions.
 		add_action( 'woocommerce_analytics_sync_reports_data', $handler );
@@ -471,8 +507,326 @@ class WooCommerce_Analytics extends Module {
 	 * @return void
 	 */
 	public function sync_analytics_reports_data( $order_id ) {
+		if ( self::is_immediate_sync_enabled() ) {
+			return;
+		}
 
-		$data = $this->get_object_by_id( 'order', $order_id );
+		$this->emit_analytics_reports_data( $order_id );
+	}
+
+	/**
+	 * Handle syncing of analytics deletion data.
+	 *
+	 * @param int $order_id The order ID.
+	 * @return void
+	 */
+	public function sync_deleted_analytics_data( $order_id ) {
+		// Immediate mode tracks real order deletions instead: an analytics reset also fires this hook.
+		if ( self::is_immediate_sync_enabled() ) {
+			return;
+		}
+
+		$this->emit_deleted_analytics_data( $order_id );
+	}
+
+	/**
+	 * Whether orders sync as soon as they change, instead of after WooCommerce's analytics import.
+	 *
+	 * @return bool
+	 */
+	private static function is_immediate_sync_enabled() {
+		/**
+		 * Filters whether WooCommerce Analytics data syncs as soon as an order changes.
+		 *
+		 * By default the module waits for WooCommerce's analytics import, which runs through
+		 * Action Scheduler and, when imports are scheduled, can lag for hours.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether immediate sync is enabled. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_sync_woocommerce_analytics_immediate_sync', false );
+	}
+
+	/**
+	 * Collect an order or refund after it is saved.
+	 *
+	 * @param WC_Abstract_Order|mixed $order The saved order.
+	 * @return void
+	 */
+	public function collect_saved_order( $order ) {
+		if ( ! self::is_immediate_sync_enabled() || ! $order instanceof WC_Abstract_Order ) {
+			return;
+		}
+
+		$this->record_immediate_order( $order->get_id(), 'upsert' );
+		$this->maybe_flush_immediate_orders();
+	}
+
+	/**
+	 * Collect an order and its new refund once the refund is complete.
+	 *
+	 * @param int $order_id  The order ID.
+	 * @param int $refund_id The refund ID.
+	 * @return void
+	 */
+	public function collect_refunded_order( $order_id, $refund_id ) {
+		if ( ! self::is_immediate_sync_enabled() ) {
+			return;
+		}
+
+		$this->record_immediate_order( $order_id, 'upsert' );
+		$this->record_immediate_order( $refund_id, 'upsert' );
+		$this->maybe_flush_immediate_orders();
+	}
+
+	/**
+	 * Collect an order whose status changed without a save, such as when it is trashed.
+	 *
+	 * @param int $order_id The order ID.
+	 * @return void
+	 */
+	public function collect_changed_order( $order_id ) {
+		if ( ! self::is_immediate_sync_enabled() ) {
+			return;
+		}
+
+		$this->record_immediate_order( $order_id, 'upsert' );
+		$this->maybe_flush_immediate_orders();
+	}
+
+	/**
+	 * Collect an order being restored from the trash.
+	 *
+	 * @param int $order_id The order ID.
+	 * @return void
+	 */
+	public function collect_untrashed_order( $order_id ) {
+		if ( ! self::is_immediate_sync_enabled() ) {
+			return;
+		}
+
+		// No early flush: HPOS fires this before it restores the order's status.
+		$this->record_immediate_order( $order_id, 'upsert' );
+	}
+
+	/**
+	 * Collect an order post trashed or restored directly through WordPress.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return void
+	 */
+	public function collect_changed_order_post( $post_id ) {
+		if ( ! self::is_immediate_sync_enabled() || ! self::is_order_post_type( get_post_type( $post_id ) ) ) {
+			return;
+		}
+
+		$this->record_immediate_order( $post_id, 'upsert' );
+	}
+
+	/**
+	 * Collect a permanently deleted order or refund.
+	 *
+	 * @param int $order_id The order ID.
+	 * @return void
+	 */
+	public function collect_deleted_order( $order_id ) {
+		if ( ! self::is_immediate_sync_enabled() ) {
+			return;
+		}
+
+		$this->record_immediate_order( $order_id, 'delete' );
+		$this->maybe_flush_immediate_orders();
+	}
+
+	/**
+	 * Collect an order post deleted directly through WordPress.
+	 *
+	 * @param int            $post_id The post ID.
+	 * @param \WP_Post|mixed $post    The deleted post.
+	 * @return void
+	 */
+	public function collect_deleted_order_post( $post_id, $post = null ) {
+		if ( ! self::is_immediate_sync_enabled() || ! $post instanceof \WP_Post || ! self::is_order_post_type( $post->post_type ) ) {
+			return;
+		}
+
+		if ( 'shop_order_refund' === $post->post_type ) {
+			$this->record_immediate_order( $post->post_parent, 'upsert' );
+		}
+
+		// No early flush: WordPress has not cleared the post cache yet.
+		$this->record_immediate_order( $post_id, 'delete' );
+	}
+
+	/**
+	 * Collect the parent of a refund about to be deleted, which the delete hooks no longer expose.
+	 *
+	 * @param mixed                   $check  Whether to short-circuit the deletion.
+	 * @param WC_Abstract_Order|mixed $refund The refund being deleted.
+	 * @return mixed The unchanged $check.
+	 */
+	public function collect_deleted_refund_parent( $check, $refund = null ) {
+		if ( null === $check && $refund instanceof WC_Abstract_Order && self::is_immediate_sync_enabled() ) {
+			$this->record_immediate_order( $refund->get_parent_id(), 'upsert' );
+		}
+
+		return $check;
+	}
+
+	/**
+	 * Sync every collected order and its refunds, or send deletions for orders that no longer exist.
+	 *
+	 * @return void
+	 */
+	public function flush_immediate_orders() {
+		if ( empty( $this->immediate_orders ) || $this->is_flushing_immediate_orders ) {
+			return;
+		}
+
+		if ( ! self::is_immediate_sync_enabled() ) {
+			$this->immediate_orders = array();
+			return;
+		}
+
+		$this->is_flushing_immediate_orders = true;
+
+		try {
+			while ( ! empty( $this->immediate_orders ) ) {
+				$pending                = $this->immediate_orders;
+				$this->immediate_orders = array();
+
+				foreach ( $this->expand_immediate_orders( $pending ) as $order_id => $order ) {
+					if ( ! $order ) {
+						if ( isset( $pending[ $order_id ] ) && 'delete' === $pending[ $order_id ] ) {
+							$this->emit_deleted_analytics_data( $order_id );
+						}
+						continue;
+					}
+
+					if ( self::is_immediate_order_eligible( $order ) ) {
+						$this->emit_analytics_reports_data( $order );
+					}
+				}
+			}
+		} finally {
+			$this->is_flushing_immediate_orders = false;
+		}
+	}
+
+	/**
+	 * Record a changed order for the next immediate flush. A deletion is never downgraded to an upsert.
+	 *
+	 * @param int|string $order_id  The order ID.
+	 * @param string     $operation `upsert` or `delete`.
+	 * @return void
+	 */
+	private function record_immediate_order( $order_id, $operation ) {
+		$order_id = (int) $order_id;
+		if ( $order_id <= 0 ) {
+			return;
+		}
+
+		if ( isset( $this->immediate_orders[ $order_id ] ) && 'delete' === $this->immediate_orders[ $order_id ] ) {
+			return;
+		}
+
+		$this->immediate_orders[ $order_id ] = $operation;
+	}
+
+	/**
+	 * Flush early so a bulk operation does not hold every changed order in memory until shutdown.
+	 *
+	 * @return void
+	 */
+	private function maybe_flush_immediate_orders() {
+		if ( count( $this->immediate_orders ) >= self::IMMEDIATE_SYNC_FLUSH_THRESHOLD ) {
+			$this->flush_immediate_orders();
+		}
+	}
+
+	/**
+	 * Load the pending orders together with their parent orders and refunds.
+	 *
+	 * Refund rows depend on their parent's totals and status, so the whole family is resent.
+	 *
+	 * @param string[] $pending Order IDs mapped to their operation.
+	 * @return array Order IDs mapped to the loaded order, or false when it no longer exists.
+	 */
+	private function expand_immediate_orders( $pending ) {
+		$orders = array();
+		$queue  = array_keys( $pending );
+
+		while ( ! empty( $queue ) ) {
+			$order_id = (int) array_shift( $queue );
+			if ( $order_id <= 0 || array_key_exists( $order_id, $orders ) ) {
+				continue;
+			}
+
+			$order               = wc_get_order( $order_id );
+			$orders[ $order_id ] = $order instanceof WC_Abstract_Order ? $order : false;
+			if ( ! $orders[ $order_id ] ) {
+				continue;
+			}
+
+			if ( 'shop_order_refund' === $order->get_type() ) {
+				$queue[] = $order->get_parent_id();
+			} elseif ( is_callable( array( $order, 'get_refunds' ) ) ) {
+				foreach ( $order->get_refunds() as $refund ) {
+					$queue[] = $refund->get_id();
+				}
+			}
+		}
+
+		return $orders;
+	}
+
+	/**
+	 * Whether an order belongs in the analytics data, mirroring WooCommerce's own import checks.
+	 *
+	 * @param WC_Abstract_Order $order The order.
+	 * @return bool
+	 */
+	private static function is_immediate_order_eligible( $order ) {
+		if ( ! $order->get_id() || ! $order->get_date_created() || ! self::is_order_post_type( $order->get_type() ) ) {
+			return false;
+		}
+
+		// Block checkout saves its draft on every cart change; the order syncs once it is placed.
+		if ( in_array( $order->get_status(), array( 'auto-draft', 'checkout-draft' ), true ) ) {
+			return false;
+		}
+
+		if ( is_callable( array( OrdersScheduler::class, 'is_test_order' ) ) ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
+			return ! OrdersScheduler::is_test_order( $order );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether a post type holds orders or refunds that WooCommerce Analytics reports on.
+	 *
+	 * @param string|false $post_type The post type.
+	 * @return bool
+	 */
+	private static function is_order_post_type( $post_type ) {
+		return in_array( $post_type, array( 'shop_order', 'shop_order_refund' ), true );
+	}
+
+	/**
+	 * Build an order's reports data and trigger the sync action.
+	 *
+	 * @param WC_Abstract_Order|int $order The order object or ID.
+	 * @return void
+	 */
+	private function emit_analytics_reports_data( $order ) {
+		if ( $order instanceof WC_Abstract_Order ) {
+			$data = $this->build_woocommerce_analytics_reports_data( $order );
+		} else {
+			$data = $this->get_object_by_id( 'order', $order );
+		}
 
 		if ( ! $data ) {
 			return;
@@ -487,12 +841,12 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
-	 * Handle syncing of analytics deletion data.
+	 * Trigger the action that deletes an order's analytics data.
 	 *
 	 * @param int $order_id The order ID.
 	 * @return void
 	 */
-	public function sync_deleted_analytics_data( $order_id ) {
+	private function emit_deleted_analytics_data( $order_id ) {
 		if ( empty( $order_id ) ) {
 			return;
 		}
@@ -679,8 +1033,14 @@ class WooCommerce_Analytics extends Module {
 		}
 
 		$order_fulfillment_status = null;
-		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
-		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
+		if ( self::is_immediate_sync_enabled() ) {
+			// wc_order_stats may not hold this order yet, so read the status from the order itself.
+			$order_fulfillment_status = self::get_order_fulfillment_status( $order );
+		} elseif (
+			is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) )
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
+			&& OrderStatsDataStore::has_fulfillment_status_column()
+		) {
 			$order_stats_item         = $this->get_order_stats_item( $order->get_id() );
 			$order_fulfillment_status = $order_stats_item['fulfillment_status'] ?? null;
 		} elseif ( is_callable( array( FulfillmentUtils::class, 'get_order_fulfillment_status' ) ) && $order instanceof WC_Order ) {
@@ -733,6 +1093,28 @@ class WooCommerce_Analytics extends Module {
 		}
 
 		return $order_stats_data;
+	}
+
+	/**
+	 * Get an order's fulfillment status from the order itself.
+	 *
+	 * @param WC_Abstract_Order $order The order.
+	 * @return string|null The status, or null when the order has no fulfillments.
+	 */
+	private static function get_order_fulfillment_status( $order ) {
+		if ( ! $order instanceof WC_Order ) {
+			return null;
+		}
+
+		// WooCommerce has shipped this class under both namespaces.
+		foreach ( array( FulfillmentUtils::class, 'Automattic\\WooCommerce\\Admin\\Features\\Fulfillments\\FulfillmentUtils' ) as $class ) {
+			if ( is_callable( array( $class, 'get_order_fulfillment_status' ) ) ) {
+				$status = $class::get_order_fulfillment_status( $order );
+				return 'no_fulfillments' !== $status ? $status : null;
+			}
+		}
+
+		return null;
 	}
 
 	/**

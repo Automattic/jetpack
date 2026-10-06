@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+WooCommerce Analytics: Add an opt-in mode that syncs order changes right away instead of waiting for the WooCommerce analytics import.
