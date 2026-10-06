@@ -22,3 +22,12 @@
 		margin-left: 20px;
 	}
 }
+
+.is-modern {
+
+	// The element selector beats Button's (0,3,0) size rule without !important.
+	button:global(.components-button.is-link) {
+		font-size: inherit;
+		line-height: inherit;
+	}
+}
