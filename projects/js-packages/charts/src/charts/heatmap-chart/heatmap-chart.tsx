@@ -1,10 +1,9 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
-import { defaultStyles as visxTooltipStyles, useTooltip } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import tooltipStyles from '../../components/tooltip/base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
 import { useIsomorphicLayoutEffect } from '../../hooks';
 import {
@@ -65,11 +64,7 @@ const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
 const NO_ROW_LABELS: string[] = [];
 
-// The dark variant is painted by the `.surface` class, so its style carries no box.
-const TOOLTIP_BOX_STYLES: Record< 'light' | 'dark', CSSProperties > = {
-	light: { ...visxTooltipStyles, zIndex: TOOLTIP_Z_INDEX },
-	dark: { zIndex: TOOLTIP_Z_INDEX },
-};
+const TOOLTIP_BOX_STYLE: CSSProperties = { zIndex: TOOLTIP_Z_INDEX };
 
 // The cell's own label wins; otherwise the group, column and row labels name it.
 const cellName = ( info: HeatmapTooltipData ) =>
@@ -96,14 +91,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	gap = 'md',
 	withTooltips = false,
 	renderTooltip,
-	tooltipVariant = 'light',
 	tooltipStyle,
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const tooltipBoxStyle = tooltipStyle
-		? { ...TOOLTIP_BOX_STYLES[ tooltipVariant ], ...tooltipStyle }
-		: TOOLTIP_BOX_STYLES[ tooltipVariant ];
+		? { ...TOOLTIP_BOX_STYLE, ...tooltipStyle }
+		: TOOLTIP_BOX_STYLE;
 	const { getElementStyles, theme } = useGlobalChartsContext();
 	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
@@ -624,12 +618,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
-						<BoundedTooltip
-							top={ tooltipTop }
-							left={ tooltipLeft }
-							className={ tooltipVariant === 'dark' ? tooltipStyles.surface : undefined }
-							style={ tooltipBoxStyle }
-						>
+						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft } style={ tooltipBoxStyle }>
 							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>

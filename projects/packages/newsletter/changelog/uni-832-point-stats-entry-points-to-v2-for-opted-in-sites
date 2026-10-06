@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Action bar: Pass the post stats link through the jetpack_stats_url filter.

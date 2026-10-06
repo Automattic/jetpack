@@ -15,7 +15,7 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -66,7 +66,7 @@ import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { CSSProperties, FC, Ref } from 'react';
+import type { FC, Ref } from 'react';
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -116,13 +116,11 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params       - visx tooltip data and the chart's optional `bucketInfo`.
- * @param contentStyle - Explicit tooltip content color overrides.
+ * @param params - visx tooltip data and the chart's optional `bucketInfo`.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (
-	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
-	contentStyle?: Pick< CSSProperties, 'color' | 'background' | 'backgroundColor' >
+	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
 ) => {
 	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -141,11 +139,7 @@ export const renderDefaultTooltip = (
 		} );
 
 	return (
-		<div
-			className={ styles[ 'line-chart__tooltip' ] }
-			data-testid="line-chart-tooltip-content"
-			style={ contentStyle }
-		>
+		<div data-testid="line-chart-tooltip-content">
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
 				<TooltipDate
 					date={ nearestDatum.date }
@@ -153,13 +147,7 @@ export const renderDefaultTooltip = (
 				/>
 			</div>
 			{ tooltipPoints.map( point => (
-				<Stack
-					key={ point.key }
-					direction="row"
-					align="center"
-					justify="space-between"
-					className={ styles[ 'line-chart__tooltip-row' ] }
-				>
+				<Stack key={ point.key } direction="row" align="center" justify="space-between">
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
 						{ formatReading( point.value ) }
@@ -577,32 +565,12 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
-		const resolvedTooltipStyle = useMemo( () => {
-			if ( renderTooltip !== renderDefaultTooltip || ! tooltipStyle ) return tooltipStyle;
-			if ( ! tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) {
-				return tooltipStyle;
-			}
-			return {
-				backgroundColor: 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
-				...tooltipStyle,
-			};
-		}, [ renderTooltip, tooltipStyle ] );
-
 		// Augments every renderTooltip call with the chart's bucket classification,
 		// default or custom, so a heading keyed on it can't disagree with the axis.
 		const tooltipRenderer = useMemo(
 			() => ( params: RenderTooltipParams< DataPointDate > ) =>
-				renderTooltip === renderDefaultTooltip
-					? renderDefaultTooltip(
-							{ ...params, bucketInfo },
-							{
-								color: tooltipStyle?.color,
-								background: tooltipStyle?.background,
-								backgroundColor: tooltipStyle?.backgroundColor,
-							}
-						)
-					: renderTooltip( { ...params, bucketInfo } ),
-			[ renderTooltip, bucketInfo, tooltipStyle ]
+				renderTooltip( { ...params, bucketInfo } ),
+			[ renderTooltip, bucketInfo ]
 		);
 
 		if ( error ) {
@@ -816,11 +784,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											</ZoomClip>
 
 											{ withTooltips && (
-												<AccessibleTooltip
+												<XYChartTooltip
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }
-													style={ resolvedTooltipStyle }
+													style={ tooltipStyle }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }

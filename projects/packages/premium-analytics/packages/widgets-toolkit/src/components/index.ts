@@ -21,6 +21,7 @@ export {
 	type ComparativeBarChartSeries,
 } from './chart-comparative-bar';
 export { Legend, type LegendItem } from './legend';
+export { ChartsProvider } from './charts-provider';
 export {
 	WidgetRoot,
 	WidgetRootContext,
@@ -80,11 +81,8 @@ export {
 	type LocationsGeoRow,
 } from './locations-geo-chart';
 export {
-	AdaptiveCalendarHeatmap,
 	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
-	type AdaptiveCalendarHeatmapChartProps,
-	type AdaptiveCalendarHeatmapProps,
 	type CalendarHeatmapPager,
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
@@ -138,25 +136,20 @@ export {
 export {
 	ReportChartSection,
 	ReportDrilldownTable,
-	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
 	ReportPageTabPanel,
 	ReportPageTabs,
-	ReportPerformanceChart,
 	ReportRecordsTable,
 	ReportThumbnail,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ExporterCsvAction,
 	ReportCsvAction,
 	useReportRetry,
-	buildReportMetricSeries,
-	type ReportChartMetric,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
-	type ReportErrorStateProps,
 	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
@@ -164,7 +157,6 @@ export {
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
-	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
 	type ReportCsvActionProps,
 } from './report-page';
@@ -185,6 +177,7 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
+export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	FeedbackModal,
 	PageOptionsMenu,

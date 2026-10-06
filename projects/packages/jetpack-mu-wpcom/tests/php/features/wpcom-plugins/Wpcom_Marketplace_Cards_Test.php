@@ -56,7 +56,10 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 		foreach (
 			array(
 				$this->card( 'usps', 'USPS Shipping Method' ),
-				$this->card( 'bookings', 'Bookings', 'Take bookings, with shipping for physical rentals.' ),
+				array_merge(
+					$this->card( 'bookings', 'Bookings', 'Take bookings, with shipping for physical rentals.' ),
+					array( 'requires_plugins' => array( 'woocommerce', 'woocommerce-payments' ) )
+				),
 				$this->card( 'table-rate', 'Table Rate Shipping' ),
 				$this->card( 'yoast', 'Yoast SEO Premium' ),
 			) as $card
@@ -75,6 +78,7 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		delete_transient( Marketplace_Catalog::LIST_CACHE_KEY );
 		delete_site_transient( 'update_plugins' );
+		delete_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . 'woocommerce' );
 		remove_filter( self::FLAG_FILTER, '__return_true' );
 		remove_all_filters( 'plugins_api_result' );
 		remove_all_filters( 'plugin_install_action_links' );
@@ -271,5 +275,120 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 
 		unset( $_REQUEST['s'] );
 		$this->assertSame( wpcom_marketplace_tab_url(), wpcom_marketplace_back_url() );
+	}
+
+	/**
+	 * Checkout installs what a product needs, so a card bought through it says so.
+	 */
+	public function test_purchasable_cards_say_their_dependencies_will_be_installed() {
+		$label = 'data-requires-label="Additional plugins will be installed"';
+		$needs = array_merge( $this->card( 'bookings', 'Bookings' ), array( 'requires_plugins' => array( 'woocommerce' ) ) );
+
+		$this->assertStringContainsString( $label, wpcom_marketplace_card_description_markup( '', $needs ) );
+		$this->assertStringNotContainsString( $label, wpcom_marketplace_card_description_markup( '', $this->card( 'usps', 'USPS Shipping Method' ) ), 'Nothing to install.' );
+
+		$referral                                     = $needs;
+		$referral['wpcom_pricing']['yearly']['type']  = 'saas_plugin';
+		$referral['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+		$this->assertStringNotContainsString( $label, wpcom_marketplace_card_description_markup( '', $referral ), 'Bought from the vendor.' );
+
+		set_site_transient(
+			'update_plugins',
+			(object) array(
+				'response' => array(
+					'bookings/bookings.php' => (object) array(
+						'slug'        => 'bookings',
+						'new_version' => '9.9.9',
+					),
+				),
+			)
+		);
+		$this->assertStringNotContainsString( $label, wpcom_marketplace_card_description_markup( '', $needs ), 'Already installed.' );
+	}
+
+	/**
+	 * Only core's notice asking after one of our dependencies is cached.
+	 */
+	public function test_only_cores_notice_lookups_are_cached() {
+		$this->assertSame( 'woocommerce', wpcom_marketplace_dependency_lookup( 'plugin_information', (object) array( 'slug' => 'woocommerce' ) ) );
+
+		$this->assertSame(
+			'',
+			wpcom_marketplace_dependency_lookup(
+				'plugin_information',
+				(object) array(
+					'slug'   => 'woocommerce',
+					'fields' => array(),
+				)
+			)
+		);
+		$this->assertSame( '', wpcom_marketplace_dependency_lookup( 'plugin_information', (object) array( 'slug' => 'akismet' ) ) );
+		$this->assertSame( '', wpcom_marketplace_dependency_lookup( 'query_plugins', (object) array( 'slug' => 'woocommerce' ) ) );
+	}
+
+	/**
+	 * The details modal asks with the slug alone too, and must get WordPress.org's whole page.
+	 */
+	public function test_the_details_modal_is_never_answered_from_the_cache() {
+		$in_modal = null;
+		set_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . 'woocommerce', array( 'name' => 'WooCommerce' ) );
+
+		remove_all_actions( 'install_plugins_pre_plugin-information' );
+		add_action(
+			'install_plugins_pre_plugin-information',
+			function () use ( &$in_modal ) {
+				$in_modal = wpcom_marketplace_cached_dependency( false, 'plugin_information', (object) array( 'slug' => 'woocommerce' ) );
+			}
+		);
+		do_action( 'install_plugins_pre_plugin-information' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Core's hook.
+		remove_all_actions( 'install_plugins_pre_plugin-information' );
+
+		$this->assertFalse( $in_modal );
+	}
+
+	/**
+	 * WordPress.org is asked about a dependency once, not once per card that needs it.
+	 */
+	public function test_a_dependency_is_looked_up_once_then_cached() {
+		$args = (object) array( 'slug' => 'woocommerce' );
+
+		$this->assertFalse( wpcom_marketplace_cached_dependency( false, 'plugin_information', $args ) );
+
+		$org = (object) array(
+			'name'     => 'WooCommerce',
+			'slug'     => 'woocommerce',
+			'version'  => '10.2.0',
+			'sections' => array( 'description' => 'Long.' ),
+		);
+		$this->assertSame( $org, wpcom_marketplace_remember_dependency( $org, 'plugin_information', $args ) );
+
+		$cached = wpcom_marketplace_cached_dependency( false, 'plugin_information', $args );
+		$this->assertSame( 'WooCommerce', $cached->name );
+		$this->assertSame( 'woocommerce', $cached->slug );
+		$this->assertObjectNotHasProperty( 'sections', $cached, 'Only what the notice needs is kept.' );
+
+		// A cached answer passing back through plugins_api_result is not written again.
+		wpcom_marketplace_remember_dependency( (object) array( 'name' => 'Renamed' ), 'plugin_information', $args );
+		$this->assertSame( 'WooCommerce', wpcom_marketplace_cached_dependency( false, 'plugin_information', $args )->name );
+	}
+
+	/**
+	 * A failed lookup is not retried for every card, and core falls back to the bare slug.
+	 */
+	public function test_a_failed_lookup_is_remembered_briefly() {
+		$args = (object) array( 'slug' => 'woocommerce' );
+
+		wpcom_marketplace_remember_dependency( new WP_Error( 'http_request_failed', 'Timeout' ), 'plugin_information', $args );
+
+		$this->assertInstanceOf( WP_Error::class, wpcom_marketplace_cached_dependency( false, 'plugin_information', $args ) );
+	}
+
+	/**
+	 * Anything already answered, such as one of our own products, passes through untouched.
+	 */
+	public function test_an_earlier_answer_is_kept() {
+		$ours = (object) array( 'name' => 'WooCommerce Subscriptions' );
+
+		$this->assertSame( $ours, wpcom_marketplace_cached_dependency( $ours, 'plugin_information', (object) array( 'slug' => 'woocommerce' ) ) );
 	}
 }

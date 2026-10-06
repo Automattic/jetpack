@@ -7,13 +7,12 @@ import type { SiteCopy, TailoredOutput, TailorResult, TailorSource, WizardInput 
 /**
  * A tailored output that exists only in memory: nothing has been persisted, no
  * `tailored` record has been logged, and the Tracks context still points at the
- * previous run. Prewarming stops here.
+ * previous run.
  */
 export interface PreparedTailoring {
 	source: TailorSource;
 	output: TailoredOutput;
-	// The tailoring call's own duration, so a prewarmed run doesn't also count the
-	// time the user then spent in the wizard.
+	// The tailoring call's own duration, excluding the persist.
 	durationMs: number;
 	attempts: number;
 	aiSessionId: string;

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Users as WorDBless_Users;
@@ -123,6 +124,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
 		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
 		$this->assertArrayHasKey( 'videopress_inline_player_enabled', $data );
+		$this->assertArrayHasKey( 'videopress_share_menu_disabled', $data );
 		$this->assertArrayHasKey( 'site_is_private', $data );
 		$this->assertArrayHasKey( 'site_type', $data );
 	}
@@ -137,12 +139,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		delete_option( 'videopress_auto_subtitles_disabled' );
 		delete_option( 'videopress_player_preload_disabled' );
 		delete_option( 'videopress_inline_player_enabled' );
+		delete_option( 'videopress_share_menu_disabled' );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_videos_private_for_site', true );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
 		$request->set_param( 'videopress_player_preload_disabled', true );
 		$request->set_param( 'videopress_inline_player_enabled', true );
+		$request->set_param( 'videopress_share_menu_disabled', true );
 
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		$response = $endpoint->videopress_update_settings( $request );
@@ -154,7 +158,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_inline_player_enabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_share_menu_disabled' ) );
 		delete_option( 'videopress_inline_player_enabled' );
+		delete_option( 'videopress_share_menu_disabled' );
 	}
 
 	/**
@@ -1128,5 +1134,91 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		wp_cache_delete( 'get_post_by_guid_' . $guid, 'videopress' );
 
 		return $attachment_id;
+	}
+
+	/**
+	 * Send a meta update for a local VideoPress attachment and return the body sent to WordPress.com.
+	 *
+	 * @param array $params Meta params, without the attachment id.
+	 * @return array The decoded request body.
+	 */
+	private function send_meta_update( array $params ) {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		$post_id = wp_insert_attachment(
+			array(
+				'post_title'     => 'Share test',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $post_id, 'videopress_guid', 'abcDEF12' );
+		wp_update_attachment_metadata( $post_id, array( 'videopress' => array( 'display_embed' => true ) ) );
+
+		$sent    = null;
+		$capture = function ( $preempt, $args ) use ( &$sent ) {
+			$sent = json_decode( $args['body'], true );
+			return array(
+				'headers'  => array(),
+				'body'     => 'true',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $capture, 10, 2 );
+
+		$request = new \WP_REST_Request( 'POST', self::ROUTE_META );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array_merge( array( 'id' => $post_id ), $params ), JSON_UNESCAPED_SLASHES ) );
+		( new WPCOM_REST_API_V2_Endpoint_VideoPress() )->videopress_block_update_meta( $request );
+
+		remove_filter( 'pre_http_request', $capture, 10 );
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		$this->assertIsArray( $sent, 'The meta update was not sent to WordPress.com.' );
+		return (array) $sent;
+	}
+
+	/**
+	 * Test that a video can't turn sharing on while the site setting hides the share menu.
+	 */
+	public function test_update_meta_drops_share_on_while_site_disables_sharing() {
+		update_option( 'videopress_share_menu_disabled', true );
+
+		$sent = $this->send_meta_update(
+			array(
+				'display_embed' => true,
+				'title'         => 'Renamed',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'display_embed', $sent );
+		$this->assertSame( 'Renamed', $sent['title'] );
+		delete_option( 'videopress_share_menu_disabled' );
+	}
+
+	/**
+	 * Test that a video can still turn sharing off while the site setting hides the share menu.
+	 */
+	public function test_update_meta_keeps_share_off_while_site_disables_sharing() {
+		update_option( 'videopress_share_menu_disabled', true );
+
+		$sent = $this->send_meta_update( array( 'display_embed' => false ) );
+
+		$this->assertFalse( $sent['display_embed'] );
+		delete_option( 'videopress_share_menu_disabled' );
+	}
+
+	/**
+	 * Test that each video controls its own sharing while the site allows it.
+	 */
+	public function test_update_meta_sends_share_on_while_site_allows_sharing() {
+		delete_option( 'videopress_share_menu_disabled' );
+
+		$sent = $this->send_meta_update( array( 'display_embed' => true ) );
+
+		$this->assertTrue( $sent['display_embed'] );
 	}
 }

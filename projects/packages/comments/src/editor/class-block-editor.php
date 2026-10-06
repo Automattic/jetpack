@@ -107,7 +107,7 @@ class Block_Editor {
 		/**
 		 * Offer the block editor in the Jetpack Comments form.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.4.0
 		 *
 		 * @param bool $enabled Whether to offer the block editor. Default true, unless WordPress.com's
 		 *                      "blocks in comments" Discussion setting is off.
@@ -230,6 +230,7 @@ class Block_Editor {
 
 		$labels = array(
 			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
+			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
 		);
 
 		wp_add_inline_script(

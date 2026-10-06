@@ -84,6 +84,17 @@ class Data {
 	}
 
 	/**
+	 * Gets whether the share menu is turned off for every video on the site.
+	 *
+	 * Sharing follows each video's own setting by default, so this opt-out option defaults to false.
+	 *
+	 * @return boolean If no video may display the share menu, whatever its own setting.
+	 */
+	public static function get_videopress_share_menu_disabled() {
+		return boolval( get_option( 'videopress_share_menu_disabled', false ) );
+	}
+
+	/**
 	 * Gets the VideoPress Settings.
 	 *
 	 * @return array The settings as an associative array.
@@ -105,6 +116,7 @@ class Data {
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
 			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
 			'videopress_inline_player_enabled'   => self::get_videopress_inline_player_enabled(),
+			'videopress_share_menu_disabled'     => self::get_videopress_share_menu_disabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);

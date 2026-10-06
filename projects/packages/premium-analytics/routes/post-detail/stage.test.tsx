@@ -1,8 +1,4 @@
-import {
-	PERIOD_CHANGE_ATTENTION_MS,
-	useRaisePeriodChange,
-	useReportScope,
-} from '@jetpack-premium-analytics/data';
+import { PERIOD_CHANGE_ATTENTION_MS, useReportScope } from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
@@ -12,6 +8,7 @@ import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolki
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -96,7 +93,7 @@ jest.mock(
 		)
 );
 
-// The range the routing mock above applies, as the card would raise it.
+// The range the routing mock above applies, as the card would set it.
 const JUNE_2026 = {
 	from: createTZDateFromParts( [ 2026, 5, 1 ], 'UTC' ),
 	to: createTZDateFromParts( [ 2026, 5, 16 ], 'UTC' ),
@@ -108,12 +105,8 @@ const JUNE_2026 = {
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
-	const raisePeriodChange = useRaisePeriodChange();
-	const openJune = useCallback(
-		() => raisePeriodChange( 'post:41', JUNE_2026 ),
-		[ raisePeriodChange ]
-	);
+	const { offersComparison, openPeriod } = useReportScope();
+	const openJune = useCallback( () => openPeriod?.( JUNE_2026 ), [ openPeriod ] );
 
 	return (
 		<div>
@@ -208,6 +201,7 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
 	useParams: () => ( { postId: '41' } ),
 	useSearch: () => mockSearch,
 } ) );
@@ -729,7 +723,29 @@ describe( 'post detail stage on the provisional all-time window', () => {
 		render( stage() );
 
 		expect( screen.queryByText( 'Post widgets without comparison' ) ).not.toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this post. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the publish day is denied', () => {
+		mockSummary( {
+			isError: true,
+			error: { code: 'rest_forbidden', status: 403 },
+			publishedDate: undefined,
+		} );
+
+		render( stage() );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

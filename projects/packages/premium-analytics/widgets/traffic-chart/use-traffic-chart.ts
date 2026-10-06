@@ -15,6 +15,7 @@ import { endOfDay, isEqual, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
+import { buildTrafficTooltipExtras } from './tooltip-extras';
 import {
 	TRAFFIC_CHART_METRICS,
 	type TrafficChartGranularity,
@@ -91,7 +92,9 @@ export default function useTrafficChart(
 	);
 
 	// Memoize each request's params (as sibling Stats widgets do) so the query key
-	// is stable across renders.
+	// is stable across renders. `post_titles` feeds the tooltip's posts-published
+	// row; it rides with likes and comments so a slow or failed post lookup cannot
+	// take the Views chart down with it. The hourly report has no titles to give.
 	const viewsVisitorsParams = useMemo(
 		() => toVisitsParams( reportParams, isHourly ? 'views' : 'views,visitors', period ),
 		[ reportParams, period, isHourly ]
@@ -100,7 +103,7 @@ export default function useTrafficChart(
 		() =>
 			isHourly
 				? toVisitsParams( reportParams, 'visitors,likes,comments', 'day' )
-				: toVisitsParams( reportParams, 'likes,comments', period ),
+				: toVisitsParams( reportParams, 'likes,comments,post_titles', period ),
 		[ reportParams, period, isHourly ]
 	);
 
@@ -125,12 +128,36 @@ export default function useTrafficChart(
 	// The daily totals only fill cards, so losing them must not hide the hourly Views chart.
 	const showsDailyTotals = hasDailyTotals && ! likesCommentsFailed;
 
+	// Views per visitor and the posts published, read out under the Views and
+	// Visitors tabs the way classic Stats does; the other tabs list their own metric only.
+	const trafficTooltipExtras = useMemo(
+		() =>
+			buildTrafficTooltipExtras(
+				{ views: vvPrimary, posts: isHourly ? undefined : lcPrimary },
+				vvZone,
+				vvHasComparison
+					? { views: vvComparison, posts: lcHasComparison ? lcComparison : undefined }
+					: undefined
+			),
+		[
+			vvPrimary,
+			vvZone,
+			vvComparison,
+			vvHasComparison,
+			lcPrimary,
+			lcComparison,
+			lcHasComparison,
+			isHourly,
+		]
+	);
+
 	// One tab per metric, in canonical definition order.
 	const metrics = useMemo(
 		() =>
 			TRAFFIC_CHART_METRICS.map( metric => {
 				// At the hourly grain visitors move to the daily request.
 				const isFirst = metric.id === 'views' || ( metric.id === 'visitors' && ! isHourly );
+				const readsTraffic = metric.id === 'views' || metric.id === 'visitors';
 				const tab = {
 					...buildMetricTab( {
 						primary: isFirst ? vvPrimary : lcPrimary,
@@ -143,6 +170,8 @@ export default function useTrafficChart(
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
+					tooltipExtras:
+						readsTraffic && trafficTooltipExtras.length ? trafficTooltipExtras : undefined,
 				};
 
 				if ( isServed( metric.id ) ) {
@@ -164,6 +193,7 @@ export default function useTrafficChart(
 			isServed,
 			isHourly,
 			showsDailyTotals,
+			trafficTooltipExtras,
 			vvPrimary,
 			vvComparison,
 			vvHasComparison,

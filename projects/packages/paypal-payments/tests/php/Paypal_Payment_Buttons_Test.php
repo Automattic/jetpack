@@ -631,6 +631,20 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * The note is for a popup that cannot close itself; in the editor's frame it
+	 * shows over the post while onboarding is completed.
+	 */
+	public function test_onboarding_return_page_hides_its_note_inside_the_editor_frame() {
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '<p id="note">', $markup );
+		$this->assertMatchesRegularExpression(
+			'/if \( framed \) \{\s*(?:\/\/[^\n]*\n\s*)?document\.getElementById\( "note" \)\.hidden = true;/',
+			$markup
+		);
+	}
+
+	/**
 	 * The return page handler serves the markup covered above.
 	 */
 	public function test_onboarding_return_page_is_served() {
@@ -1142,16 +1156,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that buttonShowPoweredBy draws "Powered by" and the PayPal wordmark.
-	 *
-	 * The word PayPal stays as text for screen readers, and style.scss draws it
-	 * as the wordmark.
 	 */
 	public function test_render_button_shows_the_attribution_when_asked() {
 		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => true ) );
 
-		$this->assertStringContainsString(
-			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>',
+		$this->assertMatchesRegularExpression(
+			'#<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="[^"]+/paypal-payment-buttons/images/paypal-wordmark-color\.svg" alt="PayPal" width="42" height="15" /></p>#',
 			$result
+		);
+	}
+
+	/**
+	 * Test that the bundled wordmark is PayPal's file, unmodified.
+	 *
+	 * The hash is of https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg.
+	 */
+	public function test_bundled_wordmark_is_paypals_file() {
+		$this->assertSame(
+			'f766ba6d9471acc787c0808b8c30f38494d12b287ccfb2ff610fd617cfa2a432',
+			hash_file( 'sha256', dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons/images/paypal-wordmark-color.svg' )
 		);
 	}
 

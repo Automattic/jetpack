@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make line, bar, donut and semi-circle chart tooltips match the heatmap tooltips, with the same padding and shadow.
