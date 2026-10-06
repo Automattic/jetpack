@@ -39,7 +39,7 @@ class Reader_Link {
 			return;
 		}
 
-		if ( ! is_user_logged_in() || ! is_admin_bar_showing() ) {
+		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -59,6 +59,10 @@ class Reader_Link {
 	 * @return void
 	 */
 	public function enqueue_stylesheet() {
+		if ( ! is_admin_bar_showing() ) {
+			return;
+		}
+
 		$build_path = dirname( __DIR__ ) . '/build/reader-link.css';
 		if ( ! file_exists( $build_path ) ) {
 			return;

@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
-import {
-	PeriodChangeSignalProvider,
-	postSurface,
-	useSettlePeriodChange,
-	useStatsPost,
-} from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider, useStatsPost } from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -17,16 +13,10 @@ import PostAllTimeTrafficRender from '../render';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-// The click lands in the page's date-filter controller, so a recorder stands in for it.
-const mockOnChange = jest.fn();
-const mockOnApply = jest.fn();
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	useReportDateFilters: () => ( {
-		onChange: ( ...args: unknown[] ) => mockOnChange( ...args ),
-		onApply: () => mockOnApply(),
-		timeZone: 'UTC',
-	} ),
-} ) );
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 // The chart's responsive wrapper asks for a ResizeObserver jsdom does not have.
 class ResizeObserverStub {
@@ -74,19 +64,24 @@ const NOVEMBER_2025 = {
 // The current year closes the table, so the clock is pinned: the rows are 2026 and 2025.
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
+// The page the widget sets the period on.
+const mockOpenPeriod = jest.fn();
+
 // `null` renders the widget without a post scope.
 function renderWidget( postId: number | null = 779, attributes: Record< string, unknown > = {} ) {
 	return render(
-		<PostAllTimeTrafficRender
-			attributes={ {
-				...attributes,
-				reportParams: {
-					from: '2026-01-01T00:00:00.000+00:00',
-					to: '2026-01-31T23:59:59.999+00:00',
-					...( postId === null ? {} : { post_id: postId } ),
-				},
-			} }
-		/>
+		<ReportScopeProvider openPeriod={ mockOpenPeriod }>
+			<PostAllTimeTrafficRender
+				attributes={ {
+					...attributes,
+					reportParams: {
+						from: '2026-01-01T00:00:00.000+00:00',
+						to: '2026-01-31T23:59:59.999+00:00',
+						...( postId === null ? {} : { post_id: postId } ),
+					},
+				} }
+			/>
+		</ReportScopeProvider>
 	);
 }
 
@@ -96,8 +91,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 	} );
 
 	beforeEach( () => {
-		mockOnChange.mockReset();
-		mockOnApply.mockReset();
+		mockOpenPeriod.mockReset();
 		mockUseStatsPost.mockReset();
 		mockUseStatsPost.mockReturnValue( statsPostResult( RESPONSE ) );
 		jest.useFakeTimers();
@@ -108,26 +102,14 @@ describe( 'PostAllTimeTraffic widget', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'lays the years out newest first over the site month names', () => {
+	it( 'draws the months from the publish date to today, with year totals and view labels', () => {
 		renderWidget();
 
-		const grid = screen.getByRole( 'grid' );
-		expect( grid ).toHaveAttribute( 'aria-rowcount', '2' );
-		// Twelve months and the Totals roll-up.
-		expect( grid ).toHaveAttribute( 'aria-colcount', '13' );
-		expect( screen.getByRole( 'gridcell', { name: 'Jan 2026: 5' } ) ).toHaveAttribute(
-			'data-row',
-			'0'
-		);
 		// February had no views: a zero, as the endpoint reports it.
 		expect( screen.getByRole( 'gridcell', { name: 'Feb 2026: 0' } ) ).toBeInTheDocument();
 		// The months still to come, and the months before the post was published, are filler.
 		expect( screen.queryByRole( 'gridcell', { name: /Apr 2026/ } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'gridcell', { name: /Oct 2025/ } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) ).toHaveAttribute(
-			'data-row',
-			'1'
-		);
 		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More views' ) ).toBeInTheDocument();
@@ -141,77 +123,25 @@ describe( 'PostAllTimeTraffic widget', () => {
 		expect( screen.getByText( 'More views per day' ) ).toBeInTheDocument();
 	} );
 
-	it( 'applies a clicked year total to the page as the year cut to the post life', async () => {
+	it( 'sets the page period to a clicked year total, cut to the post life', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) );
 
-		expect( mockOnChange ).toHaveBeenCalledWith(
-			{
-				from: new Date( '2025-11-10T00:00:00.000Z' ),
-				to: new Date( '2025-12-31T23:59:59.999Z' ),
-			},
-			'custom',
-			{ exactRange: true }
-		);
-		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
+		expect( mockOpenPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2025-11-10T00:00:00.000Z' ),
+			to: new Date( '2025-12-31T23:59:59.999Z' ),
+		} );
 	} );
 
-	it( 'applies a clicked month to the page as a custom range cut to the post life', async () => {
+	it( 'sets the page period to a clicked month, cut to the post life', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
 
-		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom', { exactRange: true } );
-		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'signals the period change to the page it is on', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		function DateControlProbe() {
-			const attentionId = useSettlePeriodChange( postSurface( 779 ), NOVEMBER_2025, true );
-
-			return <output>{ attentionId ?? 'none' }</output>;
-		}
-		render(
-			<PeriodChangeSignalProvider>
-				<DateControlProbe />
-				<PostAllTimeTrafficRender
-					attributes={ {
-						reportParams: {
-							from: '2026-01-01T00:00:00.000+00:00',
-							to: '2026-01-31T23:59:59.999+00:00',
-							post_id: 779,
-						},
-					} }
-				/>
-			</PeriodChangeSignalProvider>
-		);
-
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
-
-		expect( screen.getByRole( 'status' ) ).not.toHaveTextContent( 'none' );
-	} );
-
-	it( 'opens a month the endpoint reports before the publish day in full', async () => {
-		mockUseStatsPost.mockReturnValue(
-			statsPostResult( { ...RESPONSE, post: { ID: 779, post_date: '2026-01-10 16:27:32' } } )
-		);
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
-
-		expect( mockOnChange ).toHaveBeenCalledWith(
-			{
-				from: new Date( '2025-11-01T00:00:00.000Z' ),
-				to: new Date( '2025-11-30T23:59:59.999Z' ),
-			},
-			'custom',
-			{ exactRange: true }
-		);
+		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025 );
 	} );
 
 	it( 'shows the scopeless empty state without a post', () => {

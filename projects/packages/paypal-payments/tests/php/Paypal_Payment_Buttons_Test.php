@@ -631,6 +631,20 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * The note is for a popup that cannot close itself; in the editor's frame it
+	 * shows over the post while onboarding is completed.
+	 */
+	public function test_onboarding_return_page_hides_its_note_inside_the_editor_frame() {
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '<p id="note">', $markup );
+		$this->assertMatchesRegularExpression(
+			'/if \( framed \) \{\s*(?:\/\/[^\n]*\n\s*)?document\.getElementById\( "note" \)\.hidden = true;/',
+			$markup
+		);
+	}
+
+	/**
 	 * The return page handler serves the markup covered above.
 	 */
 	public function test_onboarding_return_page_is_served() {

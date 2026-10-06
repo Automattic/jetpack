@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -242,7 +242,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// The keyboard-navigation index space and the highlight CSS both stride over primary
-	// bars only; the accessible tooltip must use the same list, or its datum diverges from
+	// bars only; `XYChartTooltip` must use the same list, or its datum diverges from
 	// the highlighted bar once a comparison series shifts the indices.
 	const primarySeries = useMemo(
 		() => primaryEntries.map( ( { series } ) => series ),
@@ -767,23 +767,29 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											<WholeNumberTicks { ...wholeNumberTicksProps }>
 												{ valueTicks => (
 													<>
-														<Axis
-															{ ...chartOptions.axis.x }
-															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
-														/>
-														<Axis
-															{ ...chartOptions.axis.y }
-															{ ...( ! horizontal && valueTicks
-																? { tickValues: valueTicks }
-																: {} ) }
-														/>
+														{ chartOptions.axis.x.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.x }
+																{ ...( horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
+														{ chartOptions.axis.y.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( ! horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
 													</>
 												) }
 											</WholeNumberTicks>
 										) }
 
 										{ withTooltips && (
-											<AccessibleTooltip
+											<XYChartTooltip
 												tooltipPlacement={ tooltipPlacement }
 												tooltipAnchorTop={ tooltipAnchorTop }
 												style={ tooltipStyle }

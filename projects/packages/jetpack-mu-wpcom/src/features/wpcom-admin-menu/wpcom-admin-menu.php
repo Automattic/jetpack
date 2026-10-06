@@ -94,17 +94,9 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
-	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
-	if (
-		current_user_can( 'manage_options' )
-		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
-		&& wpcom_ai_launchpad_is_eligible()
-	) {
-		return;
-	}
-
-	// No-guidance sites get no My Home at all; removing it here also drops it from the Calypso sidebar.
-	if ( wpcom_launchpad_is_no_guidance() ) {
+	// My Home only goes with the legacy launchpad: AI Launchpad and no-guidance sites drop it for every user.
+	// Removing it here also drops it from the Calypso sidebar.
+	if ( get_option( 'wpcom_ai_launchpad_enabled' ) || wpcom_launchpad_is_no_guidance() ) {
 		return;
 	}
 
@@ -350,7 +342,8 @@ function wpcom_add_jetpack_submenu() {
 			function () {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
 				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+					wp_safe_redirect( apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ) );
 					exit;
 				}
 			}

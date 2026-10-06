@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
-import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
 
@@ -13,7 +12,7 @@ import './style.scss';
  * @return The identity line.
  */
 export const Identity = () => {
-	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen, logIn } =
+	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen } =
 		useContext( CommentSignals );
 	const { mustLogIn, identity, strings } = JetpackComments;
 	const current = commenter.value;
@@ -22,23 +21,6 @@ export const Identity = () => {
 		return (
 			<span className="jetpack-comments__who">
 				{ strings.mustLogIn } <a href={ formSettings.loginUrl }>{ strings.logIn }</a>
-			</span>
-		);
-	}
-
-	// A site that needs a log-in goes straight to WordPress.com; anyone else is asked who they are.
-	if ( current.kind === 'unknown' && mustLogIn ) {
-		return (
-			<span className="jetpack-comments__who">
-				<a
-					href="#"
-					onClick={ event => {
-						event.preventDefault();
-						logIn.current?.( false );
-					} }
-				>
-					{ strings.logInWithWordPress }
-				</a>
 			</span>
 		);
 	}
@@ -54,7 +36,7 @@ export const Identity = () => {
 						isDialogOpen.value = true;
 					} }
 				>
-					{ strings.addYourName }
+					{ mustLogIn ? strings.logInWithWordPress : strings.addYourName }
 				</a>
 			</span>
 		);
@@ -96,21 +78,12 @@ export const Identity = () => {
 };
 
 /**
- * The row the chevron drops below the box: log out or change details, and where
- * to manage subscriptions.
+ * The row the chevron drops below the box: log out, and where to manage subscriptions.
  *
  * @return The options, or nothing for a commenter the dialog will ask.
  */
 export const Options = () => {
-	const {
-		formSettings,
-		details,
-		commenter,
-		rememberDetails,
-		isOptionsOpen,
-		isDialogOpen,
-		isEditingDetails,
-	} = useContext( CommentSignals );
+	const { formSettings, details, commenter, isOptionsOpen, forget } = useContext( CommentSignals );
 	const { strings } = JetpackComments;
 	const { kind } = commenter.value;
 
@@ -131,49 +104,32 @@ export const Options = () => {
 		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isOptionsOpen.value } ) }>
 			<div>
 				{ /* Anchors, not buttons, so the theme styles them like the link beside them. */ }
-				{ kind === 'user' && formSettings.logoutUrl && (
-					<a
-						href={ formSettings.logoutUrl }
-						onClick={ async event => {
-							// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
-							event.preventDefault();
+				<a
+					href={ formSettings.logoutUrl || '#' }
+					onClick={ async event => {
+						event.preventDefault();
+
+						// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
+						if ( kind === 'user' ) {
 							await logOut();
 							window.location.href = formSettings.logoutUrl;
-						} }
-					>
-						{ strings.logOut }
-					</a>
-				) }
-				{ kind === 'wordpress' && (
-					<a
-						href="#"
-						onClick={ async event => {
-							event.preventDefault();
-							// A blank slate: nothing of this reader stays behind.
-							await logOut();
-							saveGuest( null );
-							details.value = { author: '', email: '', url: '' };
-							rememberDetails.value = false;
-							commenter.value = { kind: 'unknown' };
-							isOptionsOpen.value = false;
-						} }
-					>
-						{ strings.logOut }
-					</a>
-				) }
-				{ kind === 'guest' && (
-					<a
-						href="#"
-						aria-haspopup="dialog"
-						onClick={ event => {
-							event.preventDefault();
-							isEditingDetails.value = true;
-							isDialogOpen.value = true;
-						} }
-					>
-						{ strings.changeDetails }
-					</a>
-				) }
+							return;
+						}
+
+						// Read before the await: currentTarget is gone once the click is dispatched.
+						const root = event.currentTarget.closest( '.jetpack-comments' );
+
+						await logOut();
+						forget();
+						isOptionsOpen.value = false;
+						// This link unmounts; a timeout lets the footer's dialog link render to take focus.
+						window.setTimeout( () =>
+							root?.querySelector< HTMLElement >( '.jetpack-comments__who a' )?.focus()
+						);
+					} }
+				>
+					{ strings.logOut }
+				</a>
 				{ manageUrl && (
 					<a href={ manageUrl } target="_blank" rel="noopener">
 						{ strings.manageSubscriptions }

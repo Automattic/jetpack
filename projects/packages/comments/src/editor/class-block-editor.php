@@ -107,7 +107,7 @@ class Block_Editor {
 		/**
 		 * Offer the block editor in the Jetpack Comments form.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.4.0
 		 *
 		 * @param bool $enabled Whether to offer the block editor. Default true, unless WordPress.com's
 		 *                      "blocks in comments" Discussion setting is off.

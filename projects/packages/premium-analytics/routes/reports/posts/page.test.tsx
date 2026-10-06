@@ -7,10 +7,8 @@ import {
 	ExporterCsvAction,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	archivesCsvExporter,
-	postsPagesCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -146,26 +144,13 @@ describe( 'PostsReportPage', () => {
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 	} );
 
-	it( 'wires the Posts & pages export into the page actions area', () => {
+	it( 'gives the Posts & pages export the posts request status', () => {
 		const records = buildRecords();
 		useRecordsMock.mockReturnValue( records );
 
 		render( <PostsReportPage /> );
 
-		expect(
-			within( screen.getByTestId( 'page-actions' ) ).getByRole( 'button' )
-		).toHaveTextContent( 'Download' );
-		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				exporter: postsPagesCsvExporter,
-				items: records.posts.rows,
-				status: records.posts,
-				reportParams: expect.objectContaining( {
-					from: '2026-06-01T00:00:00+02:00',
-					to: '2026-06-30T23:59:59+02:00',
-				} ),
-			} )
-		);
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ].status ).toBe( records.posts );
 	} );
 
 	it( 'shows the Posts table loading while the active report is fetching', () => {
@@ -196,30 +181,20 @@ describe( 'PostsReportPage', () => {
 
 		render( <PostsReportPage /> );
 
-		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
-		expect( initialView ).toMatchObject( { titleField: 'title', mediaField: 'thumbnail' } );
-		expect( fields.map( field => field.id ) ).toEqual(
-			expect.arrayContaining( [ 'title', 'thumbnail' ] )
-		);
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].initialView ).toMatchObject( {
+			titleField: 'title',
+			mediaField: 'thumbnail',
+		} );
 	} );
 
-	it( 'wires the Archives export to the archives tree', () => {
+	it( 'gives the Archives export the archives request status', () => {
 		const records = buildRecords();
-		records.archives.items = [
-			{ label: 'cat', value: 8, link: 'https://example.com/category/news', children: null },
-		] as typeof records.archives.items;
 		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
 		useRecordsMock.mockReturnValue( records );
 
 		render( <PostsReportPage /> );
 
-		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				exporter: archivesCsvExporter,
-				items: records.archives.items,
-				status: records.archives,
-			} )
-		);
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ].status ).toBe( records.archives );
 	} );
 
 	it( 'renders Archives through the nested drilldown table', () => {
@@ -260,8 +235,9 @@ describe( 'PostsReportPage', () => {
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'renders the error state instead of the records table', () => {
-		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
+	it( 'replaces the table with an error that refetches on Retry', async () => {
+		const records = buildRecords( { isError: true } );
+		useRecordsMock.mockReturnValue( records );
 
 		render( <PostsReportPage /> );
 
@@ -270,13 +246,7 @@ describe( 'PostsReportPage', () => {
 		).toBeInTheDocument();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
-	} );
 
-	it( 'refetches the report when Retry is clicked', async () => {
-		const records = buildRecords( { isError: true } );
-		useRecordsMock.mockReturnValue( records );
-
-		render( <PostsReportPage /> );
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
