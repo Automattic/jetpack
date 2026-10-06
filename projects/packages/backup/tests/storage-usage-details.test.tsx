@@ -67,12 +67,9 @@ function mockEndpoints( {
 /**
  * The usage reading, once it has arrived.
  *
- * The copy wraps the used figure in `<strong>`, so the line's own element
- * holds only the fragments either side of it — and those fragments are all
- * Testing Library's text matcher reads. Hence a search for the opening
- * word, and anchored regexes at the call sites: `toHaveTextContent` takes
- * a bare string as a *substring* match, which would pass on a line that
- * had grown an extra clause.
+ * Found by its opening word, with anchored regexes at the call sites:
+ * `toHaveTextContent` takes a bare string as a *substring* match, which would
+ * pass on a line that had grown an extra clause.
  *
  * @return The element carrying the line.
  */
@@ -93,20 +90,6 @@ function retentionLink(): Promise< HTMLElement > {
 	return screen.findByRole( 'link', { name: /backups saved/ } );
 }
 
-/**
- * The details row's layout container.
- *
- * A layout wrapper carries no role and no accessible name, so its class is
- * the only handle — the same escape hatch `storage-meter.test.tsx` uses to
- * reach the bar's modifier classes. Kept out of the `describe` blocks so
- * the one direct DOM read lives in a single named place.
- *
- * @return The row, or null before it has rendered.
- */
-function detailsRow(): HTMLElement | null {
-	return document.querySelector( '.jpb-storage-space__details' );
-}
-
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockEndpoints();
@@ -121,7 +104,9 @@ describe( 'the usage reading', () => {
 	it( 'states both figures in gigabytes on a plan sold in them', async () => {
 		mockEndpoints( { size: { size: 12.4 * GB }, policies: { storage_limit_bytes: 20 * GB } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( usageLine() ).resolves.toHaveTextContent( /^Using 12\.4GB of 20GB$/ );
+		await expect( usageLine() ).resolves.toHaveTextContent(
+			/^Using 12\.4GB of 20GB storage space$/
+		);
 	} );
 
 	it( 'switches the limit to terabytes once the plan is sold in them', async () => {
@@ -130,7 +115,7 @@ describe( 'the usage reading', () => {
 		// question nobody asked.
 		mockEndpoints( { size: { size: 12.4 * GB }, policies: { storage_limit_bytes: TB } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( usageLine() ).resolves.toHaveTextContent( /^Using 12GB of 1TB$/ );
+		await expect( usageLine() ).resolves.toHaveTextContent( /^Using 12GB of 1TB storage space$/ );
 	} );
 
 	it( 'reads the bytes as binary multiples, as the plans are sold', async () => {
@@ -138,7 +123,9 @@ describe( 'the usage reading', () => {
 		// same plan is advertised back to the reader as 10.7GB.
 		mockEndpoints( { size: { size: 5 * GB }, policies: { storage_limit_bytes: 10 * GB } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( usageLine() ).resolves.toHaveTextContent( /^Using 5\.0GB of 10GB$/ );
+		await expect( usageLine() ).resolves.toHaveTextContent(
+			/^Using 5\.0GB of 10GB storage space$/
+		);
 	} );
 } );
 
@@ -161,9 +148,7 @@ describe( 'the usage reading, translated', () => {
 	it( 'keeps used and total the right way round when a translation fronts the total', async () => {
 		setLocaleData(
 			{
-				'Using <strong>%1$.1fGB</strong> of %2$fGB': [
-					'Of %2$fGB, using <strong>%1$.1fGB</strong>',
-				],
+				'Using %1$.1fGB of %2$fGB storage space': [ 'Of %2$fGB, using %1$.1fGB' ],
 				// The pre-fix spelling, carried here on purpose. Without
 				// it, reverting the msgid fails this test with "unable to
 				// find /^Of/" — a translation that no longer matches any
@@ -171,7 +156,7 @@ describe( 'the usage reading, translated', () => {
 				// to update the key and bless the bug back in. With it, the
 				// failure is the transposed figures themselves, which is
 				// the thing actually worth seeing.
-				'Using <strong>%1.1fGB</strong> of %2fGB': [ 'Of %2fGB, using <strong>%1.1fGB</strong>' ],
+				'Using %1.1fGB of %2fGB storage space': [ 'Of %2fGB, using %1.1fGB' ],
 			},
 			'jetpack-backup-pkg'
 		);
@@ -218,7 +203,9 @@ describe( 'the retention line', () => {
 		renderWithClient( <StorageSpace /> );
 		// Awaited first, so this is a real absence rather than an assertion
 		// that ran before anything had rendered at all.
-		await expect( usageLine() ).resolves.toHaveTextContent( /^Using 10\.0GB of 100GB$/ );
+		await expect( usageLine() ).resolves.toHaveTextContent(
+			/^Using 10\.0GB of 100GB storage space$/
+		);
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
@@ -245,46 +232,6 @@ describe( 'the retention line', () => {
 			'href',
 			'https://jetpack.com/redirect/?source=backup-plugin-storage-backups-saved'
 		);
-	} );
-} );
-
-describe( 'the row itself', () => {
-	it( 'lays the two readings out as a wrapping, space-between row', async () => {
-		// The entire responsive and RTL story, and nothing else asserts it.
-		// There is no breakpoint here on purpose — `Stack` writes these as
-		// inline styles, so a media query would need `!important` to beat
-		// them. Wrapping is what makes the row stack on a narrow viewport,
-		// and `space-between` is what puts the wrapped line flush with the
-		// start rather than pinned to the end. Flexbox resolves both
-		// against the writing direction, which is what keeps the row
-		// mirrored in RTL without a second rule.
-		mockEndpoints();
-		renderWithClient( <StorageSpace /> );
-
-		await waitFor( () => expect( detailsRow() ).not.toBeNull() );
-		expect( detailsRow() ).toHaveStyle( {
-			flexDirection: 'row',
-			flexWrap: 'wrap',
-			justifyContent: 'space-between',
-		} );
-	} );
-
-	it( 'separates the readings by the gap legacy stacks them at', async () => {
-		// `xs` is 4px, which is what legacy's phone-down rule uses. A
-		// larger token would leave the wrapped line floating away from the
-		// bar it belongs to.
-		mockEndpoints();
-		renderWithClient( <StorageSpace /> );
-
-		await waitFor( () => expect( detailsRow() ).not.toBeNull() );
-
-		// The literal fallback is the design system's own: its build injects
-		// one into every token reference, so this pins the token *and* the
-		// value it currently resolves to. A bump that moves `xs` off 4px
-		// should fail here and be looked at rather than land silently.
-		expect( detailsRow() ).toHaveStyle( {
-			gap: 'var(--wpds-dimension-gap-xs, 4px)',
-		} );
 	} );
 } );
 

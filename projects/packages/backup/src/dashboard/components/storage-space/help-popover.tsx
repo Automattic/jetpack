@@ -90,7 +90,16 @@ export default function StorageHelpPopover( { forecastInDays, storageUsed, stora
 			 * unopened. `Button` with `Button.Icon` rather than `IconButton`, which
 			 * renders no text and puts its `label` in `aria-label`.
 			 */ }
-			<Popover.Trigger render={ <Button variant="minimal" tone="neutral" size="small" /> }>
+			<Popover.Trigger
+				render={
+					<Button
+						variant="minimal"
+						tone="neutral"
+						size="small"
+						className="jpb-storage-space__help-trigger"
+					/>
+				}
+			>
 				<Button.Icon icon={ info } />
 				{ heading }
 			</Popover.Trigger>

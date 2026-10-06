@@ -4,7 +4,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import StorageHelpPopover from './help-popover';
-import type { ReactNode } from 'react';
 
 // Binary multiples, as legacy spells them. WordPress.com reports these
 // figures in bytes and sells storage in powers of two, so a 10GB plan is
@@ -14,62 +13,27 @@ const GIGABYTE = 2 ** 30;
 const TERABYTE = 2 ** 40;
 
 /**
- * The "Using 12.4GB of 20GB" reading.
+ * The usage reading, as one plain sentence.
  *
- * Usage is always stated in gigabytes and only the limit switches unit,
- * at 1TB — which is what the larger storage add-ons are sold in. A site
- * that has filled whole terabytes is vanishingly rare, and "0.01TB used"
- * would answer a question nobody asked.
- *
- * Both msgids are shared with legacy's copy in
- * `js/components/backup-storage-space/storage-usage-details/use-storage-usage-text.tsx`,
- * character for character. Change one and the other has to change in the
- * same breath, or the two dashboards become separate GlotPress entries
- * saying the same thing.
- *
- * Both are spelled positionally — `%1$.1f`/`%2$f` here, `%1$d`/`%2$d` for
- * terabytes — and that spelling is the whole of what keeps them correct
- * once translated. `@tannin/sprintf`, which is what `@wordpress/i18n`
- * uses, reads a digit that is *not* followed by `$` as a min-width
- * specifier, annotates it "Min width (unsupported)", discards it, and then
- * fills what is left in the order the placeholders appear. The gigabyte
- * msgid used to be spelled that way, `%1.1f` and `%2f`, which rendered
- * correctly in English at every value and transposed the two figures the
- * moment a translation fronted the total — natural in plenty of languages.
- * On the one screen whose job is to say whether backups are at risk, that
- * told the reader they were over quota when they were not.
- *
- * @param storageUsed  - Bytes of backup storage in use.
- * @param storageLimit - The plan's storage limit in bytes.
- * @return The reading, with the used figure emphasized.
+ * @param storageUsed  - Bytes in use.
+ * @param storageLimit - The plan's limit in bytes.
+ * @return The sentence.
  */
-function usageText( storageUsed: number, storageLimit: number ): ReactNode {
+function usageText( storageUsed: number, storageLimit: number ): string {
 	const usedGigabytes = storageUsed / GIGABYTE;
 
-	if ( storageLimit < TERABYTE ) {
-		// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1$.1f: numeric amount of disk space used, %2$f: numeric amount of disk space available.
-		const inGigabytes = __( 'Using <strong>%1$.1fGB</strong> of %2$fGB', 'jetpack-backup-pkg' );
+	// Keep both placeholders positional: `@tannin/sprintf` reads `%1.1f` as a width,
+	// and a reordering translation then transposes the figures.
 
-		// Not machine-checked here: `@wordpress/valid-sprintf` only inspects
-		// a format string it can resolve at the call, and hoisting the msgid
-		// into a `const` — the spelling this file uses throughout — puts it
-		// out of reach. Legacy's copy is the one the rule reads. What guards
-		// the placeholders on this side is `storage-usage-details.test.tsx`,
-		// which renders the line under a reordering translation.
-		return createInterpolateElement(
-			sprintf( inGigabytes, usedGigabytes, storageLimit / GIGABYTE ),
-			{
-				strong: <strong />,
-			}
-		);
+	if ( storageLimit < TERABYTE ) {
+		// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. Using 20.0GB of 30GB storage space). %1$.1f: numeric amount of disk space used, %2$f: numeric amount of disk space available.
+		const inGigabytes = __( 'Using %1$.1fGB of %2$fGB storage space', 'jetpack-backup-pkg' );
+		return sprintf( inGigabytes, usedGigabytes, storageLimit / GIGABYTE );
 	}
 
-	// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 1TB used, 0.5GB of 2TB used). %1$d: numeric amount of disk space used, %2$d: numeric amount of disk space available.
-	const inTerabytes = __( 'Using <strong>%1$dGB</strong> of %2$dTB', 'jetpack-backup-pkg' );
-
-	return createInterpolateElement( sprintf( inTerabytes, usedGigabytes, storageLimit / TERABYTE ), {
-		strong: <strong />,
-	} );
+	// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. Using 20GB of 1TB storage space). %1$d: numeric amount of disk space used, %2$d: numeric amount of disk space available.
+	const inTerabytes = __( 'Using %1$dGB of %2$dTB storage space', 'jetpack-backup-pkg' );
+	return sprintf( inTerabytes, usedGigabytes, storageLimit / TERABYTE );
 }
 
 /**
@@ -154,27 +118,15 @@ export default function StorageUsageDetails( {
 	);
 
 	return (
-		<Stack
-			className="jpb-storage-space__details"
-			direction="row"
-			justify="space-between"
-			align="baseline"
-			// No breakpoint and no media query: `Stack` writes its flex
-			// properties as inline styles, so a responsive override would
-			// have to reach for `!important`. Letting the row wrap gets the
-			// same result — a single item on the second line sits at the
-			// start under `space-between`, which is exactly the stacked
-			// layout legacy switches to on phones, at legacy's 4px gap.
-			wrap="wrap"
-			gap="xs"
-		>
-			{ /*
-			 * The reading and its info button share a row of their own rather than
-			 * becoming two children of the space-between row above, where the button
-			 * would be flung to the far end.
-			 */ }
-			<Stack direction="row" gap="xs" align="center">
-				<Text variant="body-md">{ usageText( storageUsed, storageLimit ) }</Text>
+		<>
+			<Stack
+				className="jpb-storage-space__usage"
+				direction="row"
+				wrap="wrap"
+				gap="xs"
+				align="center"
+			>
+				<Text variant="body-sm">{ usageText( storageUsed, storageLimit ) }</Text>
 				{ helpForecastInDays !== null && (
 					<StorageHelpPopover
 						forecastInDays={ helpForecastInDays }
@@ -183,21 +135,14 @@ export default function StorageUsageDetails( {
 					/>
 				) }
 			</Stack>
-			{ /*
-			 * Omitted rather than shown as "0 days" when the count is
-			 * missing. Legacy renders the plural label over its selector's
-			 * `null` and prints "null days of backups saved"; it only gets
-			 * away with it because a response complete enough to draw the
-			 * meter has always carried this field too. Saying nothing is
-			 * the honest answer if that ever stops being true.
-			 */ }
+			{ /* Omitted, not "0 days", when WordPress.com sends no count. */ }
 			{ daysOfBackupsSaved !== null && (
-				<Text variant="body-sm">
+				<Text variant="body-sm" className="jpb-storage-space__days">
 					{ createInterpolateElement( daysOfBackupsLabel( daysOfBackupsSaved ), {
 						a: <Link openInNewTab href={ backupsSavedUrl } />,
 					} ) }
 				</Text>
 			) }
-		</Stack>
+		</>
 	);
 }

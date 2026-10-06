@@ -175,7 +175,9 @@ beforeEach( () => {
 describe( 'the render gate', () => {
 	it( 'draws a meter once both a usage figure and a limit have arrived', async () => {
 		renderWithClient( <StorageSpace /> );
-		await expect( screen.findByText( 'Cloud storage space' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
 		expect( meterValue() ).toBe( 10 );
 	} );
 
@@ -201,7 +203,7 @@ describe( 'the render gate', () => {
 		expect( document.querySelector( '.jpb-storage-meter__placeholder' ) ).not.toBeNull();
 		/* eslint-enable testing-library/no-node-access */
 		// Nothing is claimed while we are still looking.
-		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 
 		release( { ok: true, size: 10 * GB, policies: { storage_limit_bytes: 100 * GB } } );
@@ -216,7 +218,7 @@ describe( 'the render gate', () => {
 		mockEndpoints( { policies: Undecodable } );
 		renderWithClient( <StorageSpace /> );
 		await settled();
-		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
 
@@ -228,7 +230,7 @@ describe( 'the render gate', () => {
 		mockEndpoints( { size: Undecodable } );
 		renderWithClient( <StorageSpace /> );
 		await settled();
-		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
 
@@ -242,7 +244,7 @@ describe( 'the render gate', () => {
 		mockFailedRead( '/site/backup/policies' );
 		renderWithClient( <StorageSpace /> );
 		await settled();
-		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
 
@@ -250,7 +252,7 @@ describe( 'the render gate', () => {
 		mockFailedRead( '/site/backup/size' );
 		renderWithClient( <StorageSpace /> );
 		await settled();
-		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
 
@@ -268,14 +270,14 @@ describe( 'the render gate', () => {
 		} );
 		renderWithClient( <StorageSpace /> );
 		await settled();
-		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'stays silent on a zero limit rather than reading it as 100% full', async () => {
 		mockEndpoints( { policies: { storage_limit_bytes: 0 } } );
 		renderWithClient( <StorageSpace /> );
 		await settled();
-		expect( screen.queryByText( 'Cloud storage full' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
 
@@ -286,39 +288,6 @@ describe( 'the render gate', () => {
 		renderWithClient( <StorageSpace /> );
 		await settled();
 		expect( meterValue() ).toBeNull();
-	} );
-} );
-
-describe( 'the section heading', () => {
-	it( 'escalates to "almost full" past 80%', async () => {
-		mockEndpoints( { size: { size: 85 * GB } } );
-		renderWithClient( <StorageSpace /> );
-		await expect(
-			screen.findByText( 'Cloud storage is almost full' )
-		).resolves.toBeInTheDocument();
-	} );
-
-	it( 'escalates to "full" at the limit', async () => {
-		mockEndpoints( { size: { size: 100 * GB } } );
-		renderWithClient( <StorageSpace /> );
-		await expect( screen.findByText( 'Cloud storage full' ) ).resolves.toBeInTheDocument();
-	} );
-
-	it( 'stays calm at "BackupsDiscarded", which is not a fullness reading', async () => {
-		// Half full by bytes, but retention has already been cut short.
-		// The heading is driven by fullness, so this one keeps the neutral
-		// wording — the sibling upsell issue is what reports it.
-		mockEndpoints( {
-			size: {
-				size: 50 * GB,
-				min_days_of_backups_allowed: 7,
-				days_of_backups_allowed: 7,
-				days_of_backups_saved: 7,
-				retention_days: 30,
-			},
-		} );
-		renderWithClient( <StorageSpace /> );
-		await expect( screen.findByText( 'Cloud storage space' ) ).resolves.toBeInTheDocument();
 	} );
 } );
 
@@ -338,7 +307,9 @@ describe( 'colour and geometry', () => {
 	it( 'takes the full-width geometry only when the bar actually reaches the end', async () => {
 		mockEndpoints( { size: { size: 100 * GB } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( screen.findByText( 'Cloud storage full' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
 		expect( barModifiers() ).toContain( 'jpb-storage-meter__bar--complete' );
 	} );
 
@@ -358,15 +329,18 @@ describe( 'colour and geometry', () => {
 			},
 		} );
 		renderWithClient( <StorageSpace /> );
-		await expect( screen.findByText( 'Cloud storage space' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
 		expect( barModifiers() ).toContain( 'jpb-storage-meter__bar--error' );
 		expect( barModifiers() ).not.toContain( 'jpb-storage-meter__bar--complete' );
 	} );
 
 	it.each( [
-		[ 10, 'jpb-storage-meter__bar--neutral' ],
+		[ 10, 'jpb-storage-meter__bar--brand' ],
 		[ 70, 'jpb-storage-meter__bar--caution' ],
-		[ 85, 'jpb-storage-meter__bar--error' ],
+		[ 85, 'jpb-storage-meter__bar--caution' ],
+		[ 100, 'jpb-storage-meter__bar--error' ],
 	] )( 'fills %i%% with %s', async ( percent, expected ) => {
 		mockEndpoints( { size: { size: percent * GB } } );
 		renderWithClient( <StorageSpace /> );
@@ -378,24 +352,9 @@ describe( 'colour and geometry', () => {
 describe( 'landmarks', () => {
 	it( 'exposes the section as a named region, not a bare container', async () => {
 		// `<section>` maps to `region` only when it has an accessible name.
-		// Without one a screen reader cannot jump to the answer to "why did
-		// my backups stop". Querying by name also proves the `id` survives
-		// `<Text render={ … } />`, which is what `aria-labelledby` points at.
 		renderWithClient( <StorageSpace /> );
 		await expect(
-			screen.findByRole( 'region', { name: 'Cloud storage space' } )
-		).resolves.toBeInTheDocument();
-	} );
-
-	it( 'puts the heading at level 2, level with its siblings', async () => {
-		// The page's `h1` comes from the `<Page>` chassis and this section
-		// renders inside it, so `h2` is the first in-body level. The backup
-		// and activity detail cards are `h2` as well, so the three read as
-		// siblings rather than as cards nested inside cloud storage — which
-		// is what kept this at `h3` until the outline was fixed.
-		renderWithClient( <StorageSpace /> );
-		await expect(
-			screen.findByRole( 'heading', { level: 2, name: 'Cloud storage space' } )
+			screen.findByRole( 'region', { name: 'Backup storage' } )
 		).resolves.toBeInTheDocument();
 	} );
 } );
@@ -404,7 +363,9 @@ describe( 'the meter itself', () => {
 	it( 'clamps a site holding more than its limit to a full bar', async () => {
 		mockEndpoints( { size: { size: 150 * GB } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( screen.findByText( 'Cloud storage full' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
 		expect( meterValue() ).toBe( 100 );
 	} );
 
@@ -435,7 +396,9 @@ describe( 'the meter itself', () => {
 				<BackupNowButton />
 			</>
 		);
-		await expect( screen.findByText( 'Cloud storage space' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
 		const paths = mockApiFetch.mock.calls.map( ( [ o ] ) => o?.path );
 		expect( paths.filter( p => p?.includes( '/site/backup/size' ) ) ).toHaveLength( 1 );
 		expect( paths.filter( p => p?.includes( '/site/backup/policies' ) ) ).toHaveLength( 1 );
@@ -457,7 +420,9 @@ describe( 'the meter itself', () => {
 				<StorageSpace />
 			</QueryClientProvider>
 		);
-		await expect( screen.findByText( 'Cloud storage space' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
 		view.unmount();
 
 		render(

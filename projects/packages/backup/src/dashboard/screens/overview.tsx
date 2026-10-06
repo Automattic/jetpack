@@ -15,7 +15,7 @@ import BackupStatusBanner, {
 import DashboardLayout from '../components/dashboard-layout';
 import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
-import StorageSpace from '../components/storage-space';
+import StorageSpace, { StorageNotice } from '../components/storage-space';
 import { isRestoreRowId } from '../data/normalize/restores';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
@@ -276,6 +276,7 @@ function OverviewBody() {
 
 	return (
 		<>
+			<StorageNotice />
 			{ /*
 			 * A backup running on a site that already has restore points is
 			 * reported alongside the list rather than in place of it. The
@@ -328,36 +329,17 @@ function OverviewBody() {
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
 			{ /*
-			 * When the next one runs, above the storage section because that is the
-			 * order legacy reads in.
-			 *
-			 * Legacy's `COMPLETE` gate, widened to include `in-progress`: legacy takes
-			 * the line down for the length of every run, where reporting both facts
-			 * side by side is the call `summarizeBackups` already made.
-			 *
-			 * `replacesOverview` above is not enough to arrange this. Its veto is up
-			 * whenever restore points are loading or errored, not only when the site
-			 * has them, and it has no branch at all for `error` or `loading` — so
-			 * without this gate a site with an undecodable backups read promised a next
-			 * run directly under "We couldn't check your site's backup status."
-			 *
-			 * The component self-hides on the other half of legacy's gate.
+			 * The storage row, with the next scheduled backup at its end. The gate stops an
+			 * errored or loading backups read promising a next run under "We couldn't check
+			 * your site's backup status."
 			 */ }
-			{ ( backupsState === 'complete' || backupsState === 'in-progress' ) && (
-				<NextScheduledBackup />
-			) }
-			{ /*
-			 * Above the list, and a sibling of the grid for the same
-			 * reason the banners are. It answers a question the list
-			 * cannot — a site whose backups have stopped because storage
-			 * ran out sees only an activity log that quietly stops — so it
-			 * belongs where that news is read first, not below the fold.
-			 *
-			 * It renders nothing until it has both a usage figure and a
-			 * limit, so on a site with no retention policy this costs a
-			 * pair of requests and no layout.
-			 */ }
-			<StorageSpace />
+			<StorageSpace
+				trailing={
+					( backupsState === 'complete' || backupsState === 'in-progress' ) && (
+						<NextScheduledBackup />
+					)
+				}
+			/>
 			{ /*
 			 * Where `clearSelected` puts focus once the empty state unmounts, so the
 			 * next Tab reaches the list rather than the top of the page.

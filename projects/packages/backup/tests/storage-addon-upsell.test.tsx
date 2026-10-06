@@ -28,13 +28,30 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
-import StorageSpace from '../src/dashboard/components/storage-space';
+import RealStorageSpace, { StorageNotice } from '../src/dashboard/components/storage-space';
 import { useStorageAddonOffer } from '../src/dashboard/hooks/use-storage-addon-offer';
 import type { ReactNode } from 'react';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const GB = 1024 * 1024 * 1024;
 const SITE = 'example.wordpress.com';
+
+/** `@wordpress/a11y` echoes every notice into a live region, which would match twice. */
+const SPEECH = '.a11y-speak-region';
+
+/**
+ * The notice and the row, as the Overview places them.
+ *
+ * @return The pair.
+ */
+function StorageSpace() {
+	return (
+		<>
+			<StorageNotice />
+			<RealStorageSpace />
+		</>
+	);
+}
 
 /** Figures that put the site above `Normal` without reaching `Full`. */
 const CRITICAL = { size: 90 * GB, limit: 100 * GB };
@@ -125,7 +142,7 @@ function offerRequests(): string[] {
  * @return The anchor.
  */
 function offerLink(): Promise< HTMLElement > {
-	return screen.findByRole( 'link', { name: /additional storage/ } );
+	return screen.findByRole( 'link', { name: /Upgrade now/ } );
 }
 
 /**
@@ -135,7 +152,7 @@ function offerLink(): Promise< HTMLElement > {
  * @return The element carrying it.
  */
 function warning( pattern: RegExp ): Promise< HTMLElement > {
-	return screen.findByText( pattern );
+	return screen.findByText( pattern, { ignore: SPEECH } );
 }
 
 /**
@@ -215,7 +232,7 @@ describe( 'when the upsell appears', () => {
 		// Awaited on the reading first, so this is a real absence.
 		await expect( screen.findByText( /^Using/ ) ).resolves.toBeInTheDocument();
 		await settle();
-		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /storage limit/ ) ).not.toBeInTheDocument();
 	} );
 
@@ -234,11 +251,12 @@ describe( 'when the upsell appears', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /You are very close to reaching your storage limit/ )
+			warning( /You are close to reaching your storage limit/ )
 		).resolves.toBeInTheDocument();
-		await expect( offerLink() ).resolves.toHaveTextContent(
-			/^Add 100GB additional storage for \$9\.95\/month, billed monthly$/
-		);
+		await expect( offerLink() ).resolves.toHaveTextContent( /^Upgrade now$/ );
+		expect(
+			screen.getByText( /Upgrade to add additional 100GB of storage\./, { ignore: SPEECH } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'still warns when the offer never arrives', async () => {
@@ -261,10 +279,10 @@ describe( 'when the upsell appears', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /You are very close to reaching your storage limit/ )
+			warning( /You are close to reaching your storage limit/ )
 		).resolves.toBeInTheDocument();
 		await settle();
-		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers no link when the pricing block came back empty', async () => {
@@ -274,83 +292,14 @@ describe( 'when the upsell appears', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /You are very close to reaching your storage limit/ )
+			warning( /You are close to reaching your storage limit/ )
 		).resolves.toBeInTheDocument();
 		await settle();
-		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
-	} );
-} );
-
-describe( 'how the offer is laid out', () => {
-	it( 'hands the button one child, so nothing is spaced out as a flex item', async () => {
-		renderWithClient( <StorageSpace /> );
-		const link = await offerLink();
-
-		expect( link.childNodes ).toHaveLength( 1 );
-		expect( link ).toHaveTextContent(
-			/^Add 100GB additional storage for \$9\.95\/month, billed monthly$/
-		);
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
 	} );
 } );
 
 describe( 'what the offer says', () => {
-	it( 'quotes a Brazilian site in reais, with no dollar sign anywhere', async () => {
-		// Why `price.jsx` was not ported: it reads `currencyCode` off a block keyed
-		// `currency_code` and `getCurrencyObject` falls back to `$`. This catalogue is
-		// priced from where the site appears to be.
-		mockEndpoints( {
-			offer: { pricing: { currency_code: 'BRL', full_price: 44.95, discount_price: 44.95 } },
-		} );
-		renderWithClient( <StorageSpace /> );
-
-		await expect( offerLink() ).resolves.toHaveTextContent(
-			/^Add 100GB additional storage for R\$44\.95\/month, billed monthly$/
-		);
-	} );
-
-	it( 'quotes a currency with no minor unit without inventing one', async () => {
-		mockEndpoints( {
-			offer: { pricing: { currency_code: 'JPY', full_price: 1000, discount_price: 1000 } },
-		} );
-		renderWithClient( <StorageSpace /> );
-
-		await expect( offerLink() ).resolves.toHaveTextContent(
-			/^Add 100GB additional storage for ¥1,000\/month, billed monthly$/
-		);
-	} );
-
-	it( 'quotes the introductory price when one is running', async () => {
-		mockEndpoints( {
-			offer: { pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 4.95 } },
-		} );
-		renderWithClient( <StorageSpace /> );
-
-		await expect( offerLink() ).resolves.toHaveTextContent( /\$4\.95\/month/ );
-	} );
-
-	it( 'ignores a discount that is not one', async () => {
-		// The helper seeds `discount_price` with the full cost, so the two are usually
-		// equal — and a catalogue sending a higher one must not quote it.
-		mockEndpoints( {
-			offer: { pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 19.95 } },
-		} );
-		renderWithClient( <StorageSpace /> );
-
-		await expect( offerLink() ).resolves.toHaveTextContent( /\$9\.95\/month/ );
-	} );
-
-	it( 'ignores a discount of zero rather than quoting the add-on as free', async () => {
-		// A separate failure: zero is *lower* than the full price, so the discount
-		// comparison waves it through. Only the `> 0` test stops "$0.00/month".
-		mockEndpoints( {
-			offer: { pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 0 } },
-		} );
-		renderWithClient( <StorageSpace /> );
-
-		await expect( offerLink() ).resolves.toHaveTextContent( /\$9\.95\/month/ );
-		expect( screen.queryByText( /\$0\.00/ ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'names the level in the warning it leads with', async () => {
 		// The wording is the whole of what tells "getting close" apart from "backups
 		// have stopped".
@@ -358,7 +307,7 @@ describe( 'what the offer says', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /^You are close to reaching your storage limit/ )
+			warning( /^You are close to reaching your storage limit$/ )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -374,7 +323,7 @@ describe( 'what the offer says', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /^You have reached your storage limit with 3 day\(s\) of backups saved/ )
+			warning( /^You have reached your storage limit with 3 days of backup saved\.$/ )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -420,10 +369,10 @@ describe( 'the checkout link', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /You are very close to reaching your storage limit/ )
+			warning( /You are close to reaching your storage limit/ )
 		).resolves.toBeInTheDocument();
 		await settle();
-		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -485,8 +434,12 @@ describe( 'a full site that reported no day count', () => {
 		// Deliberately anchored: the counted sentence starts the same way, so a loose
 		// match would pass on legacy's "…with null day(s) of backups saved".
 		await expect(
-			warning(
-				/^You have reached your storage limit\. Backups have been stopped\. Please upgrade your storage to resume backups\.$/
+			warning( /^You have reached your storage limit\.$/ )
+		).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText(
+				/^Backups have been stopped\. Please upgrade to add additional 100GB of storage and resume backups\.$/,
+				{ ignore: SPEECH }
 			)
 		).resolves.toBeInTheDocument();
 	} );
@@ -495,7 +448,7 @@ describe( 'a full site that reported no day count', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect( offerLink() ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /day\(s\) of backups saved/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /days? of backup saved/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'says it even when the offer never arrives', async () => {
@@ -519,9 +472,49 @@ describe( 'a full site that reported no day count', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /^You have reached your storage limit\. Backups have been stopped/ )
+			warning( /^Backups have been stopped\. Please upgrade your storage to resume backups\.$/ )
 		).resolves.toBeInTheDocument();
 		await settle();
-		expect( screen.queryByRole( 'link', { name: /additional storage/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'dismissal', () => {
+	beforeEach( () => {
+		window.localStorage.clear();
+	} );
+
+	const closeButton = () => screen.queryByRole( 'button', { name: /close|dismiss/i } );
+
+	it( 'remembers a dismissal across a reload, but shows a worse level again', async () => {
+		mockEndpoints( { size: { size: 70 * GB } } );
+		const view = renderWithClient( <StorageSpace /> );
+		await warning( /^You are close to reaching your storage limit$/ );
+		await userEvent.click( closeButton() as HTMLElement );
+		expect(
+			screen.queryByText( /^You are close to reaching/, { ignore: SPEECH } )
+		).not.toBeInTheDocument();
+		view.unmount();
+
+		const { unmount } = renderWithClient( <StorageSpace /> );
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect(
+			screen.queryByText( /^You are close to reaching/, { ignore: SPEECH } )
+		).not.toBeInTheDocument();
+		unmount();
+
+		mockEndpoints( { size: { size: 85 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await expect( warning( /^You are close to reaching/ ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'offers no way to close a full site notice', async () => {
+		mockEndpoints( { size: { size: 100 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await warning( /^You have reached your storage limit/ );
+		expect( closeButton() ).not.toBeInTheDocument();
 	} );
 } );

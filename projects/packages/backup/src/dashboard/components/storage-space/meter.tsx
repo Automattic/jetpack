@@ -14,17 +14,17 @@ import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
  * fully-rounded pill floating in the track at 50% — the exact shape the
  * partly-filled treatment exists to avoid.
  *
- * `Critical`, `Full` and `BackupsDiscarded` share the error fill
- * deliberately: the reader needs one alarm, not three shades of one.
+ * `Full` and `BackupsDiscarded` share the error fill deliberately: the reader needs
+ * one alarm, not two shades of one.
  */
 // Spelled as literal keys rather than `[ StorageUsageLevels.Normal ]`:
 // the members of that object are typed as the whole union, so a computed
 // key from it widens and the record stops being exhaustive — which is the
 // one thing this table is for.
 const FILL_MODIFIERS: Record< StorageUsageLevelName, string > = {
-	Normal: 'neutral',
+	Normal: 'brand',
 	Warning: 'caution',
-	Critical: 'error',
+	Critical: 'caution',
 	Full: 'error',
 	BackupsDiscarded: 'error',
 };

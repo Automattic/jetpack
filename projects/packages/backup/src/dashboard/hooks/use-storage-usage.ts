@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { fetchSitePolicies } from '../data/api/policies';
 import { keys } from '../data/query-client';
 import { getUsageLevel, type StorageUsageLevelName } from '../data/storage-usage-levels';
@@ -150,4 +151,76 @@ export function useStorageUsage(): Result {
 	}
 
 	return { ...figures, hasUsableFigures: false, storageUsed, storageLimit };
+}
+
+const DISMISSED_KEY = 'jetpack-backup-storage-notice-dismissed';
+const DISMISSIBLE_LEVELS: StorageUsageLevelName[] = [ 'Warning', 'Critical' ];
+
+/**
+ * Reads the stored dismissal.
+ *
+ * @return The stored level, or null when none or storage is blocked.
+ */
+function readDismissedLevel(): StorageUsageLevelName | null {
+	try {
+		const stored = window.localStorage.getItem( DISMISSED_KEY );
+		return DISMISSIBLE_LEVELS.find( level => level === stored ) ?? null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Stores or clears the dismissal.
+ *
+ * @param level - The level to store, or null to clear.
+ */
+function writeDismissedLevel( level: StorageUsageLevelName | null ) {
+	try {
+		if ( level === null ) {
+			window.localStorage.removeItem( DISMISSED_KEY );
+		} else {
+			window.localStorage.setItem( DISMISSED_KEY, level );
+		}
+	} catch {
+		// Blocked storage only means the notice comes back on the next load.
+	}
+}
+
+/**
+ * Remembers, in this browser, the highest warning level the reader dismissed.
+ *
+ * A worse level shows its notice again. `Full` and `BackupsDiscarded` are never
+ * dismissible, so they are never read or stored.
+ *
+ * @param usageLevel - The current level, or null while unknown.
+ * @return Whether the current level is dismissed, and a function to dismiss it.
+ */
+export function useStorageNoticeDismissal( usageLevel: StorageUsageLevelName | null ) {
+	const [ dismissedLevel, setDismissedLevel ] = useState( readDismissedLevel );
+
+	// Back to Normal means a later climb is a new event, so forget the old dismissal.
+	useEffect( () => {
+		if ( usageLevel === 'Normal' && dismissedLevel !== null ) {
+			writeDismissedLevel( null );
+			setDismissedLevel( null );
+		}
+	}, [ usageLevel, dismissedLevel ] );
+
+	const rank = usageLevel === null ? -1 : DISMISSIBLE_LEVELS.indexOf( usageLevel );
+	const isDismissible = rank !== -1;
+	const isDismissed =
+		isDismissible &&
+		dismissedLevel !== null &&
+		DISMISSIBLE_LEVELS.indexOf( dismissedLevel ) >= rank;
+
+	const dismiss = useCallback( () => {
+		if ( usageLevel === null || ! DISMISSIBLE_LEVELS.includes( usageLevel ) ) {
+			return;
+		}
+		writeDismissedLevel( usageLevel );
+		setDismissedLevel( usageLevel );
+	}, [ usageLevel ] );
+
+	return { isDismissible, isDismissed, dismiss };
 }

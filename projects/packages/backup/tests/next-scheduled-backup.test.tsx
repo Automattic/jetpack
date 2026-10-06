@@ -738,11 +738,10 @@ describe( 'on the Overview', () => {
 		const row = scheduleRow();
 		expect( overviewGrid() ).not.toBeNull();
 		expect( row ).not.toBeNull();
-		// A block box, or the 16px separating this from the storage section below
-		// computes and then does nothing — vertical margins do not apply to the
-		// inline box `Text` renders by default.
 		expect( row?.tagName ).toBe( 'DIV' );
-		expect( placementRelativeToGrid( row as HTMLElement ) ).toEqual( {
+		// Inside the storage row's wrapper, which is the grid's sibling.
+		// eslint-disable-next-line testing-library/no-node-access -- Placement is the thing under test.
+		expect( placementRelativeToGrid( row?.parentElement as HTMLElement ) ).toEqual( {
 			isSibling: true,
 			comesFirst: true,
 		} );
