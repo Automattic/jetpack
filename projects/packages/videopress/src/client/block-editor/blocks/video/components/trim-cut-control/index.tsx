@@ -1,23 +1,24 @@
 import { ToolbarButton } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import scissors from '../../../../../components/icons/scissors';
 import TrimCutModal from '../../../../../components/trim-cut-modal/lazy';
-import { getVideoPressUrl } from '../../../../../lib/url';
 import type { VideoControlProps } from '../../types';
+
+type TrimCutControlProps = VideoControlProps & {
+	onProcessed: () => void;
+};
 
 /**
  * Open the trim editor from the block toolbar.
  *
- * @param props            - Video block props.
- * @param props.attributes - Video block attributes.
+ * @param props             - Video block props.
+ * @param props.attributes  - Video block attributes.
+ * @param props.onProcessed - Reload the block preview after processing.
  * @return The toolbar control and its lazy modal.
  */
-function TrimCutControlEnabled( { attributes }: VideoControlProps ) {
+function TrimCutControlEnabled( { attributes, onProcessed }: TrimCutControlProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
-	const { invalidateResolution } = useDispatch( coreStore );
 	const { guid, id, title } = attributes;
 	return (
 		<>
@@ -33,9 +34,7 @@ function TrimCutControlEnabled( { attributes }: VideoControlProps ) {
 					attachmentId={ id }
 					title={ title }
 					onClose={ () => setIsOpen( false ) }
-					onProcessed={ () =>
-						invalidateResolution( 'getEmbedPreview', [ getVideoPressUrl( guid, attributes ) ] )
-					}
+					onProcessed={ onProcessed }
 				/>
 			) }
 		</>
@@ -48,7 +47,7 @@ function TrimCutControlEnabled( { attributes }: VideoControlProps ) {
  * @param props - Video block props.
  * @return The enabled toolbar control, or null.
  */
-export default function TrimCutControl( props: VideoControlProps ) {
+export default function TrimCutControl( props: TrimCutControlProps ) {
 	const enabled = window?.videoPressEditorState?.trimCutEnabled;
 	return enabled === true || enabled === '1' ? <TrimCutControlEnabled { ...props } /> : null;
 }

@@ -251,11 +251,19 @@ export default function VideoPressEdit( {
 		setAttributes( { videoRatio: ratio } );
 	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
 
+	const [ playerRevision, setPlayerRevision ] = useState( 0 );
+
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	const invalidateCachedEmbedPreview = useCallback( () => {
 		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [ videoPressUrl, invalidateResolution ] );
+
+	const reloadProcessedVideo = useCallback( () => {
+		invalidateCachedEmbedPreview();
+		// The GUID and embed markup can stay unchanged after edits, so remount either player.
+		setPlayerRevision( revision => revision + 1 );
+	}, [ invalidateCachedEmbedPreview ] );
 
 	/*
 	 * Getting VideoPress preview.
@@ -601,7 +609,11 @@ export default function VideoPressEdit( {
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
 
-				<TrimCutControl attributes={ attributes } setAttributes={ setAttributes } />
+				<TrimCutControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					onProcessed={ reloadProcessedVideo }
+				/>
 				<ChaptersControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
@@ -717,6 +729,7 @@ export default function VideoPressEdit( {
 			/>
 
 			<Player
+				key={ playerRevision }
 				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
