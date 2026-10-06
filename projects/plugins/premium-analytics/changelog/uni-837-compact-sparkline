@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Let a summary chart resized to one row show its tooltip, by drawing it as a sparkline without axes.
