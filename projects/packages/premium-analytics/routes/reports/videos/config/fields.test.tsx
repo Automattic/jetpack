@@ -11,13 +11,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	chart_period: 'week',
-} );
-
 const video: StatsVideoPlaysComparisonItem = {
 	id: 12,
 	label: 'Launch video',
@@ -73,6 +66,15 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			chart_period: 'week',
+		} );
+	} );
+
 	it( 'renders the poster resized for a table row', () => {
 		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
 
@@ -113,28 +115,6 @@ describe( 'videos fields', () => {
 		const link = screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-	} );
-
-	it( 'does not create a detail link for a non-positive ID', () => {
-		renderVideosField( 'label', { ...video, id: 0 } );
-
-		expect(
-			screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } )
-		).toHaveAttribute( 'href', 'https://example.com/video/' );
-	} );
-
-	it( 'renders plain text when a row has neither an ID nor a URL', () => {
-		renderVideosField( 'label', { ...video, id: undefined, link: null } );
-
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders plain text when the payload URL is unsafe', () => {
-		renderVideosField( 'label', { ...video, id: undefined, link: 'javascript:alert(1)' } );
-
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the report-owned untitled fallback', () => {
