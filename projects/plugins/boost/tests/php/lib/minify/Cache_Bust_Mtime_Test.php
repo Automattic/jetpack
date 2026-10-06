@@ -26,7 +26,7 @@ class Cache_Bust_Mtime_Test extends BaseTestCase {
 	public static function provide_site_urls() {
 		return array(
 			'port and subdirectory' => array( 'http://localhost:8888/blog', 'http://localhost:8888/wp-content/missing.js' ),
-			'default port'          => array( 'https://example.com/blog', 'https://example.com/wp-content/missing.js' ),
+			'no port'               => array( 'https://example.com/blog', 'https://example.com/wp-content/missing.js' ),
 		);
 	}
 }
