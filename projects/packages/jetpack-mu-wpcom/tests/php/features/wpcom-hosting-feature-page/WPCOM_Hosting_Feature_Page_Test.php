@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Backup page.
+ * Tests for the hosting feature pages.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -8,14 +8,17 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
- * Tests for the Backup page.
+ * Tests for the hosting feature pages. Shared behavior is exercised through the Backup page.
  */
-class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
+class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Screen ID wp-admin gives this page, from its parent and menu slug.
@@ -34,20 +37,54 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A Simple site is never Atomic, so the page always has something to offer —
-	 * either the upgrade or the transfer that makes the plan's backups real.
+	 * Every page.
+	 *
+	 * @return array
 	 */
-	public function test_page_registers_on_simple() {
-		$this->assertTrue( WPCOM_Backup::should_register() );
+	public static function provide_pages() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class ),
+			'Protect' => array( WPCOM_Scan::class ),
+		);
+	}
+
+	/**
+	 * Every page, with the slug it must keep.
+	 *
+	 * @return array
+	 */
+	public static function provide_pinned_slugs() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class, 'jetpack-backup' ),
+			'Protect' => array( WPCOM_Scan::class, 'jetpack-protect' ),
+		);
+	}
+
+	/**
+	 * A Simple site is never Atomic, so the page always has something to offer —
+	 * either the upgrade or the transfer that makes the plan's feature real.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
+	 */
+	#[DataProvider( 'provide_pages' )]
+	public function test_page_registers_on_simple( $page ) {
+		$this->assertTrue( $page::should_register() );
 	}
 
 	/**
 	 * Without the plan there is still an upgrade to offer on WoA.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_page_registers_on_woa_without_the_plan() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_page_registers_on_woa_without_the_plan( $page ) {
 		Constants::set_constant( 'IS_ATOMIC', true );
 
-		$this->assertTrue( WPCOM_Backup::should_register() );
+		$this->assertTrue( $page::should_register() );
 	}
 
 	/**
@@ -161,7 +198,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'wpcom_backup_admin',
+					'user_login' => 'wpcom_hosting_feature_admin',
 					'user_pass'  => 'password',
 					'role'       => 'administrator',
 				)
@@ -229,6 +266,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
+		WPCOM_Scan::reset();
 
 		parent::tear_down();
 	}
@@ -284,30 +322,54 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
-	 * "tidy" into something else.
+	 * "tidy" into something else, and links into the page depend on it.
+	 *
+	 * @param string $page Page class.
+	 * @param string $slug The slug the page must keep.
+	 *
+	 * @dataProvider provide_pinned_slugs
 	 */
-	public function test_menu_slug_matches_the_real_backup_page() {
-		$this->assertSame( 'jetpack-backup', WPCOM_Backup::MENU_SLUG );
+	#[DataProvider( 'provide_pinned_slugs' )]
+	public function test_menu_slug_is_pinned( $page, $slug ) {
+		$this->assertSame( $slug, $page::MENU_SLUG );
 	}
 
 	/**
 	 * Nothing but this connects the constant to the route's package.json, and a
 	 * mismatch degrades silently to a blank page.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_render_callback_matches_the_wp_build_page_name() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_render_callback_matches_the_wp_build_page_name( $page ) {
 		$route = (array) json_decode(
 			(string) file_get_contents(
-				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/wpcom-backup/package.json'
+				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/' . $page::WP_BUILD_PAGE . '/package.json'
 			),
 			true
 		);
-		$page  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
+		$name  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
 
-		$this->assertSame( WPCOM_Backup::WP_BUILD_PAGE, $page );
+		$this->assertSame( $page::WP_BUILD_PAGE, $name );
 		$this->assertSame(
-			WPCOM_Backup::RENDER_CALLBACK,
-			'jetpack_mu_wpcom_' . str_replace( '-', '_', $page ) . '_wp_admin_render_page'
+			$page::RENDER_CALLBACK,
+			'jetpack_mu_wpcom_' . str_replace( '-', '_', $name ) . '_wp_admin_render_page'
 		);
+	}
+
+	/**
+	 * Registration state is per page, so one page claiming its slug must not make
+	 * another alias the screen or localize state for a page it never registered.
+	 */
+	public function test_one_page_registering_does_not_make_another_own_its_slug() {
+		$this->set_up_admin_menu();
+
+		WPCOM_Backup::register_page();
+
+		$this->assertTrue( WPCOM_Backup::owns_page() );
+		$this->assertFalse( WPCOM_Scan::owns_page() );
 	}
 
 	/**
@@ -428,8 +490,13 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Pages are declared, not discovered: wp-build only emits a page's PHP when
 	 * it is listed in wpPlugin.pages, and an undeclared page renders blank.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_wp_build_page_is_declared_in_the_package_manifest() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_wp_build_page_is_declared_in_the_package_manifest( $page ) {
 		$manifest = (array) json_decode(
 			(string) file_get_contents(
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'package.json'
@@ -439,7 +506,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 
 		$pages = $manifest['wpPlugin']['pages'] ?? array();
 
-		$this->assertContains( WPCOM_Backup::WP_BUILD_PAGE, $pages );
+		$this->assertContains( $page::WP_BUILD_PAGE, $pages );
 	}
 
 	/**
@@ -487,11 +554,11 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	 * Requests to admin-ajax.php are also `is_admin()`, and a stray `page` arg
 	 * there must not drag in the wp-build assets for a page that never renders.
 	 */
-	public function test_ajax_requests_are_not_backup_page_requests() {
+	public function test_ajax_requests_are_not_page_requests() {
 		$this->set_up_backup_request();
 		$GLOBALS['pagenow'] = 'admin-ajax.php';
 
-		$this->assertFalse( WPCOM_Backup::is_backup_admin_request() );
+		$this->assertFalse( WPCOM_Backup::is_page_request() );
 	}
 
 	/**
@@ -537,7 +604,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'wpcom_backup_subscriber',
+					'user_login' => 'wpcom_hosting_feature_subscriber',
 					'user_pass'  => 'password',
 					'role'       => 'subscriber',
 				)

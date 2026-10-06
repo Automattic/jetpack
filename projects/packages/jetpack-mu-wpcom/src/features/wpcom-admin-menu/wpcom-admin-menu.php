@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
@@ -374,6 +375,12 @@ function wpcom_add_jetpack_submenu() {
 		'https://wordpress.com/scan/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
+
+	// Jetpack > Protect. Calypso owns the nav, so hide the page WPCOM_Scan registers; only when it
+	// owns the slug, because the standalone Protect plugin serves the same one with its own entry.
+	if ( class_exists( WPCOM_Scan::class, false ) && WPCOM_Scan::owns_page() ) {
+		wpcom_hide_submenu_page( 'jetpack', WPCOM_Scan::MENU_SLUG );
+	}
 
 	// Jetpack > Backup. Calypso owns the nav, so hide the Jetpack plugin's own `jetpack-backup`
 	// entry; hidden rather than removed, so links into that page keep working.

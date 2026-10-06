@@ -1,7 +1,7 @@
-// Component styles for the Backup page; the page-level layout lives
-// in routes/wpcom-backup/style.scss.
+// Component styles for the hosting feature pages; the page-level layout lives
+// in each page's routes/<page>/style.scss.
 
-.wpcom-backup {
+.wpcom-hosting-feature {
 
 	&__body {
 		// Grows to fill the space between the fixed header and the pinned footer.

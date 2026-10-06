@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import type { TransferError } from './types.ts';
+import type { EligibilityCopy, TransferError } from './types.ts';
 
 /** Eligibility error codes this page has copy for. */
 export const EligibilityErrors = {
@@ -36,34 +36,19 @@ export type HoldingMessage = {
 
 type MessageMap< T > = Partial< Record< EligibilityErrorCode, T > >;
 
-let blockingMessages: MessageMap< BlockingMessage > | null = null;
-let holdingMessages: MessageMap< HoldingMessage > | null = null;
-
-/**
- * Last-resort copy for an error the API sent with no message of its own.
- *
- * @return The message.
- */
-function getGenericBlockingMessage(): string {
-	return __(
-		'This site is not currently eligible to activate backups. Please contact our support team for help.',
-		'jetpack-mu-wpcom'
-	);
-}
-
 /**
  * Errors that stop the transfer outright, shown as a single notice.
  *
- * Built on first call rather than at module scope so `__()` runs once the locale
- * data is loaded, then cached
+ * Built on call rather than at module scope so `__()` runs once the locale data is loaded.
  *
+ * @param copy - The feature's own eligibility copy.
  * @return The messages, keyed by error code.
  */
-function getBlockingMessages(): MessageMap< BlockingMessage > {
-	blockingMessages ||= {
+function getBlockingMessages( copy: EligibilityCopy ): MessageMap< BlockingMessage > {
+	return {
 		[ EligibilityErrors.BLOCKED_ATOMIC_TRANSFER ]: {
 			code: EligibilityErrors.BLOCKED_ATOMIC_TRANSFER,
-			message: getGenericBlockingMessage(),
+			message: copy.genericBlocking,
 			intent: 'error',
 		},
 		[ EligibilityErrors.TRANSFER_ALREADY_EXISTS ]: {
@@ -102,17 +87,16 @@ function getBlockingMessages(): MessageMap< BlockingMessage > {
 			intent: 'info',
 		},
 	};
-
-	return blockingMessages;
 }
 
 /**
  * Errors the reader can clear themselves, listed as steps to take.
  *
+ * @param copy - The feature's own eligibility copy.
  * @return The messages, keyed by error code.
  */
-function getHoldingMessages(): MessageMap< HoldingMessage > {
-	holdingMessages ||= {
+function getHoldingMessages( copy: EligibilityCopy ): MessageMap< HoldingMessage > {
+	return {
 		[ EligibilityErrors.NO_BUSINESS_PLAN ]: {
 			code: EligibilityErrors.NO_BUSINESS_PLAN,
 			title: sprintf(
@@ -159,14 +143,9 @@ function getHoldingMessages(): MessageMap< HoldingMessage > {
 		[ EligibilityErrors.IS_STAGING_SITE ]: {
 			code: EligibilityErrors.IS_STAGING_SITE,
 			title: __( 'Create a new staging site', 'jetpack-mu-wpcom' ),
-			description: __(
-				'Backups cannot be activated for a staging site. Create a new staging site to continue.',
-				'jetpack-mu-wpcom'
-			),
+			description: copy.stagingSite,
 		},
 	};
-
-	return holdingMessages;
 }
 
 /**
@@ -201,10 +180,14 @@ export function isAtomicSiteWithoutBusinessPlan( errors: TransferError[] ) {
  * API's own message and then to a generic line — never to an empty modal.
  *
  * @param errors - Eligibility errors.
+ * @param copy   - The feature's own eligibility copy.
  * @return The matching message, or null.
  */
-export function findFirstBlockingError( errors: TransferError[] ): BlockingMessage | null {
-	const messages = getBlockingMessages();
+export function findFirstBlockingError(
+	errors: TransferError[],
+	copy: EligibilityCopy
+): BlockingMessage | null {
+	const messages = getBlockingMessages( copy );
 	const known = errors.find( error => lookUp( messages, error.code ) );
 
 	if ( known ) {
@@ -212,7 +195,7 @@ export function findFirstBlockingError( errors: TransferError[] ): BlockingMessa
 	}
 
 	// Holds render as their own list below, so they are not a gap to fill here.
-	const holds = getHoldingMessages();
+	const holds = getHoldingMessages( copy );
 	const uncovered = errors.find( error => ! lookUp( holds, error.code ) );
 
 	if ( ! uncovered ) {
@@ -221,7 +204,7 @@ export function findFirstBlockingError( errors: TransferError[] ): BlockingMessa
 
 	return {
 		code: uncovered.code,
-		message: uncovered.message || getGenericBlockingMessage(),
+		message: uncovered.message || copy.genericBlocking,
 		intent: 'error',
 	};
 }
@@ -230,10 +213,11 @@ export function findFirstBlockingError( errors: TransferError[] ): BlockingMessa
  * The errors the reader can clear themselves.
  *
  * @param errors - Eligibility errors.
+ * @param copy   - The feature's own eligibility copy.
  * @return The matching messages, in the order the API returned them.
  */
-export function findHoldingErrors( errors: TransferError[] ) {
-	const messages = getHoldingMessages();
+export function findHoldingErrors( errors: TransferError[], copy: EligibilityCopy ) {
+	const messages = getHoldingMessages( copy );
 
 	return errors.reduce( ( acc: HoldingMessage[], err ) => {
 		const message = lookUp( messages, err.code );
@@ -250,10 +234,11 @@ export function findHoldingErrors( errors: TransferError[] ) {
  * Whether any error stops the transfer outright.
  *
  * @param errors - Eligibility errors.
+ * @param copy   - The feature's own eligibility copy.
  * @return Whether a blocking error is present.
  */
-export function hasAnyBlockingError( errors: TransferError[] ) {
-	return findFirstBlockingError( errors ) !== null;
+export function hasAnyBlockingError( errors: TransferError[], copy: EligibilityCopy ) {
+	return findFirstBlockingError( errors, copy ) !== null;
 }
 
 /**

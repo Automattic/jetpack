@@ -157,7 +157,8 @@
 		"handlePrefix": "jetpack-mu-wpcom",
 		"pages": [
 			"site-setup",
-			"wpcom-backup"
+			"wpcom-backup",
+			"wpcom-scan"
 		]
 	}
 }

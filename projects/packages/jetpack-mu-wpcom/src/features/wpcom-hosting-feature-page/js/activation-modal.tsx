@@ -4,7 +4,8 @@ import { Badge, Button, Dialog, Link, LinkButton, Stack, Text } from '@wordpress
 import { splitDomainName } from './domain.ts';
 import { canProceed, hasAnyBlockingError, needsPlanUpgrade } from './eligibility.ts';
 import { ErrorContentInfo } from './error-content-info.tsx';
-import { ViewTracker, recordActivationConfirm } from './tracks.ts';
+import { useFeature } from './feature-context.ts';
+import { ViewTracker, useTracks } from './tracks.ts';
 import type { DomainNames, TransferError, TransferWarning } from './types.ts';
 
 /**
@@ -35,22 +36,22 @@ function AddressPair( { names }: { names: DomainNames } ) {
 			{ items.map( item => (
 				<Stack
 					key={ item.intent }
-					className="wpcom-backup__domain"
+					className="wpcom-hosting-feature__domain"
 					direction="row"
 					align="center"
 					justify="space-between"
 					gap="sm"
 				>
 					<Stack
-						className="wpcom-backup__address"
+						className="wpcom-hosting-feature__address"
 						direction="row"
 						align="center"
 						justify="flex-start"
 					>
-						<Text className="wpcom-backup__domain-name">{ item.label.first }</Text>
-						<Text className="wpcom-backup__domain-suffix">{ item.label.rest }</Text>
+						<Text className="wpcom-hosting-feature__domain-name">{ item.label.first }</Text>
+						<Text className="wpcom-hosting-feature__domain-suffix">{ item.label.rest }</Text>
 					</Stack>
-					<Badge className="wpcom-backup__domain-badge" intent={ item.intent }>
+					<Badge className="wpcom-hosting-feature__domain-badge" intent={ item.intent }>
 						{ item.badgeLabel }
 					</Badge>
 				</Stack>
@@ -129,35 +130,28 @@ export function TransferActivationModal( {
 	activateUrl: string;
 	onClose: () => void;
 } ) {
-	const isBlocked = hasAnyBlockingError( errors );
+	const { activate, modal, eligibility } = useFeature();
+	const { recordActivationConfirm } = useTracks();
+	const isBlocked = hasAnyBlockingError( errors, eligibility );
 	const needsUpgrade = needsPlanUpgrade( errors );
 
 	const actionLabel = needsUpgrade
 		? __( 'Upgrade and continue', 'jetpack-mu-wpcom' )
-		: __( 'Activate backups', 'jetpack-mu-wpcom' );
+		: activate.action;
 
 	return (
 		<Dialog.Root open onOpenChange={ open => ! open && onClose() }>
-			<Dialog.Popup className="wpcom-backup__modal" size="medium">
+			<Dialog.Popup className="wpcom-hosting-feature__modal" size="medium">
 				<ViewTracker eventName="calypso_dashboard_hosting_feature_activation_modal_impression" />
 				<Dialog.Header>
 					<Dialog.Title>
-						{ errors.length > 0
-							? __( 'Backups cannot be activated', 'jetpack-mu-wpcom' )
-							: __( 'One more step', 'jetpack-mu-wpcom' ) }
+						{ errors.length > 0 ? modal.blockedTitle : __( 'One more step', 'jetpack-mu-wpcom' ) }
 					</Dialog.Title>
 					<Dialog.CloseIcon />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="md">
-						{ isEligible && ! isBlocked && (
-							<Text>
-								{ __(
-									'To turn Jetpack VaultPress Backup on, we’ll need to move your site over to WordPress.com’s advanced managed cloud hosting.',
-									'jetpack-mu-wpcom'
-								) }
-							</Text>
-						) }
+						{ isEligible && ! isBlocked && <Text>{ modal.intro }</Text> }
 						{ errors.length > 0 && <ErrorContentInfo errors={ errors } /> }
 						{ warnings.length > 0 && ! isBlocked && (
 							<Stack direction="column" gap="sm">

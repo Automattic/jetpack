@@ -120,10 +120,11 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 		}
 
-		// The Backup page serves both platforms: it offers the transfer on Simple
-		// and the plan upgrade on WoA, and steps aside once backups are live.
+		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple
+		// and the plan upgrade on WoA, and step aside once the feature is live.
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
 		}
 
 		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
@@ -907,6 +908,15 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_backup() {
 		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';
+	}
+
+	/**
+	 * Load the Protect page, which offers Scan, on WordPress.com Simple and WoA sites.
+	 *
+	 * The file hooks its own `init`, where the plan lookup it gates on is ready.
+	 */
+	public static function load_wpcom_scan() {
+		require_once __DIR__ . '/features/wpcom-scan/wpcom-scan.php';
 	}
 
 	/**

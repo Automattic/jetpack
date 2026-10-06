@@ -26,24 +26,33 @@ export function Callout( {
 	actions?: ReactNode;
 } ) {
 	return (
-		<Card.Root className="wpcom-backup__callout" role="article">
-			<Stack className="wpcom-backup__callout-container" direction="row" gap="xl" align="stretch">
+		<Card.Root className="wpcom-hosting-feature__callout" role="article">
+			<Stack
+				className="wpcom-hosting-feature__callout-container"
+				direction="row"
+				gap="xl"
+				align="stretch"
+			>
 				<Stack
-					className="wpcom-backup__callout-content"
+					className="wpcom-hosting-feature__callout-content"
 					direction="column"
 					gap="lg"
 					justify="flex-start"
 					align="flex-start"
 				>
 					{ icon && <Icon icon={ icon } /> }
-					<Text className="wpcom-backup__callout-title" variant="heading-lg" render={ <h2 /> }>
+					<Text
+						className="wpcom-hosting-feature__callout-title"
+						variant="heading-lg"
+						render={ <h2 /> }
+					>
 						{ title }
 					</Text>
 					{ description }
 					{ actions }
 				</Stack>
 				{ image && (
-					<div className="wpcom-backup__callout-image" aria-hidden="true">
+					<div className="wpcom-hosting-feature__callout-image" aria-hidden="true">
 						<img src={ image } alt="" />
 					</div>
 				) }

@@ -5,6 +5,7 @@ import {
 	findHoldingErrors,
 	isAtomicSiteWithoutBusinessPlan,
 } from './eligibility.ts';
+import { useFeature } from './feature-context.ts';
 import { ViewTracker } from './tracks.ts';
 import type { TransferError } from './types.ts';
 import type { ReactNode } from 'react';
@@ -39,8 +40,10 @@ function LearnMore( { supportUrl }: { supportUrl: string } ): ReactNode {
  * @return The rendered errors.
  */
 export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
-	const blocking = ! isAtomicSiteWithoutBusinessPlan( errors ) && findFirstBlockingError( errors );
-	const holds = findHoldingErrors( errors );
+	const { modal, eligibility } = useFeature();
+	const blocking =
+		! isAtomicSiteWithoutBusinessPlan( errors ) && findFirstBlockingError( errors, eligibility );
+	const holds = findHoldingErrors( errors, eligibility );
 
 	return (
 		<Stack direction="column" gap="sm">
@@ -62,13 +65,18 @@ export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
 				<Card.Root>
 					<Card.Header>
 						<Text variant="heading-sm" render={ <h2 /> }>
-							{ __( 'To activate backups you’ll need to:', 'jetpack-mu-wpcom' ) }
+							{ modal.holdsHeading }
 						</Text>
 					</Card.Header>
 					<Card.Content>
 						<Stack direction="column" gap="lg">
 							{ holds.map( hold => (
-								<Stack key={ hold.code } className="wpcom-backup__hold" direction="column" gap="sm">
+								<Stack
+									key={ hold.code }
+									className="wpcom-hosting-feature__hold"
+									direction="column"
+									gap="sm"
+								>
 									<ViewTracker
 										eventName="calypso_dashboard_hosting_feature_activation_modal_holding_error_impression"
 										properties={ { code: hold.code } }
