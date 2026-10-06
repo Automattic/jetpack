@@ -72,12 +72,9 @@ class Jetpack_Protect_Dashboard {
 	public static function register_section( Jetpack_Protect_Dashboard_Section $section ) {
 		$key = $section->get_key();
 		if ( isset( self::$sections[ $key ] ) ) {
-			_doing_it_wrong(
-				__METHOD__,
-				/* translators: %s is a dashboard section key. */
-				esc_html( sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack' ), $key ) ),
-				'$$next-version$$'
-			);
+			/* translators: %s is a dashboard section key. */
+			$message = sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack' ), $key );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
 			return;
 		}
 		self::$sections[ $key ] = $section;
