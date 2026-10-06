@@ -9,7 +9,6 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes;
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sharing_Likes\REST\Endpoints;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
@@ -24,7 +23,7 @@ use WorDBless\BaseTestCase;
 class Initializer_Test extends BaseTestCase {
 
 	/**
-	 * Start every case uninitialized, outside wp-admin.
+	 * Start every case uninitialized.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -33,11 +32,9 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Leave no constants, hooks, screen or initialization behind.
+	 * Leave no hooks or initialization behind.
 	 */
 	public function tear_down() {
-		Constants::clear_constants();
-		unset( $GLOBALS['current_screen'] );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
@@ -58,63 +55,24 @@ class Initializer_Test extends BaseTestCase {
 		$property->setValue( null, false );
 	}
 
-	/**
-	 * Make `is_admin()` true, as it is for any request to a wp-admin screen.
-	 */
-	private function given_wp_admin(): void {
-		$GLOBALS['current_screen'] = new class() {
-			/**
-			 * Whether the screen is in wp-admin.
-			 */
-			public function in_admin(): bool {
-				return true;
-			}
-		};
-	}
-
 	public function test_package_version_is_a_version_string(): void {
 		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+/', Initializer::PACKAGE_VERSION );
 	}
 
 	/**
-	 * REST requests are not admin requests, so the routes register everywhere.
+	 * `is_admin()` is false here, as it is in the REST requests that serve the routes and the admin-menu endpoint.
 	 */
-	public function test_registers_the_rest_routes_outside_wp_admin(): void {
+	public function test_wires_up_the_routes_screen_and_form_handler_outside_wp_admin(): void {
 		Initializer::init();
 
 		$this->assertNotFalse( has_action( 'rest_api_init', array( Endpoints::class, 'register_routes' ) ) );
-	}
-
-	public function test_leaves_the_screen_out_of_requests_outside_wp_admin(): void {
-		Initializer::init();
-
-		$this->assertFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );
-		$this->assertFalse( has_action( 'admin_init', array( Post_Handler::class, 'maybe_handle' ) ) );
-	}
-
-	public function test_hooks_up_the_screen_and_its_form_handler_in_wp_admin(): void {
-		$this->given_wp_admin();
-
-		Initializer::init();
-
 		$this->assertNotFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );
 		$this->assertNotFalse( has_action( 'admin_init', array( Post_Handler::class, 'maybe_handle' ) ) );
 	}
 
-	public function test_hooks_up_the_screen_outside_wp_admin_on_simple(): void {
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Initializer::init();
-
-		$this->assertNotFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );
-	}
-
-	/**
-	 * A second caller must not wire anything up again.
-	 */
 	public function test_runs_once_per_request(): void {
 		Initializer::init();
-		$this->given_wp_admin();
+		remove_all_actions( 'admin_menu' );
 
 		Initializer::init();
 

@@ -42,7 +42,6 @@ class Sharing_Admin_Simple_Bridge_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
-		set_current_screen( 'front' );
 		remove_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) );
 		remove_action( 'admin_init', array( Post_Handler::class, 'maybe_handle' ) );
 		$this->set_initialized( true );
@@ -65,7 +64,7 @@ class Sharing_Admin_Simple_Bridge_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Simple gets the screen and the handler that saves its forms, outside wp-admin too.
+	 * Simple gets the screen and the handler that saves its forms.
 	 */
 	public function test_registers_the_screen_and_its_handler_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -80,8 +79,6 @@ class Sharing_Admin_Simple_Bridge_Test extends WP_UnitTestCase {
 	 * Elsewhere `load-jetpack.php` sets the package up, so this file must not do it again.
 	 */
 	public function test_leaves_registration_to_the_plugin_elsewhere() {
-		set_current_screen( 'dashboard' );
-
 		sharing_admin_init();
 
 		$this->assertFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );

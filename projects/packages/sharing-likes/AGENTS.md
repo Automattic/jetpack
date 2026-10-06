@@ -8,8 +8,10 @@ Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: men
 registration, the three feature sections (Sharing buttons, Like buttons, Comment
 Likes), the shared placement section, the extras section, and the form handling for all of
 them. It also serves the same settings over REST, under `src/rest/`.
-`Initializer::init()` wires both up: the REST routes on every request, the
-screen in wp-admin. The Jetpack plugin calls it from `load-jetpack.php`, so the
+`Initializer::init()` wires both up on every request, not behind `is_admin()`:
+REST requests are not admin requests, and Calypso's sidebar comes from
+`wpcom/v2/admin-menu`, a REST request that fires `admin_menu` to collect the
+menu. The Jetpack plugin calls it from `load-jetpack.php`, so the
 screen and every section on it exist even with the Sharing, Likes and Comment
 Likes modules off. The menu itself only registers where
 `Environment::settings_screen_supported()` holds (Simple, a connected site, or
@@ -211,8 +213,7 @@ request carries.
 `src/rest/` serves the same settings under `wpcom/v2/sharing-likes/` for the
 React screen: `settings`, `status`, `services`, the custom services, and
 `<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
-namespace. `Initializer::init()` registers the routes outside its `is_admin()`
-branch, since REST requests are not admin requests, and whether or not the
+namespace. `Initializer::init()` registers the routes whether or not the
 Sharing, Likes and Comment Likes modules are active. Where the screen itself
 does not exist (`Environment::settings_screen_supported()`), every route
 answers 409.
@@ -260,10 +261,9 @@ data rather than history.
 test classes extend `WorDBless\BaseTestCase`; create users with `wp_insert_user()`
 rather than a factory.
 
-**`is_admin()` is false under WP-CLI**, so off Simple `Initializer::init()` hooks
-up no screen there and `wp eval` will report the menu as absent whatever the code does.
-Call `Settings_Page::init()` by hand to test the class; proving the wiring needs a
-real authenticated admin request.
+**WP-CLI never fires `admin_menu`**, so `wp eval` will report the menu as absent
+whatever the code does. Proving the wiring needs a real authenticated admin
+request, or a `wpcom/v2/admin-menu` response.
 
 **wp-admin over SSL needs two cookies**, `SECURE_AUTH_COOKIE` and
 `LOGGED_IN_COOKIE`, generated from the same session token. The logged-in cookie

@@ -6,7 +6,7 @@ Today the package ships the wp-admin **Settings > Sharing** screen, under
 `src/settings/`, and the same settings over REST, under `wpcom/v2/sharing-likes/`,
 for the React version of the screen. A host plugin sets both up with one call,
 on every request rather than in an `is_admin()` branch, since REST requests are
-not admin requests:
+not admin requests, and Calypso's sidebar is built in one:
 
 ```php
 \Automattic\Jetpack\Sharing_Likes\Initializer::init();
