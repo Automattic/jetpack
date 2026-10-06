@@ -96,7 +96,7 @@ export default function BackupDetail( { item }: Props ) {
 						align="center"
 					>
 						<Icon icon={ cloud } size={ 24 } />
-						<Text variant="heading-xl" className="jpb-backup-detail__title" render={ <h2 /> }>
+						<Text variant="body-xl" render={ <h2 /> }>
 							{ item.title }
 						</Text>
 					</Stack>

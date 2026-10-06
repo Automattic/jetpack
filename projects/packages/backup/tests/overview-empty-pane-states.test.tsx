@@ -17,9 +17,10 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
+import { onlineManager } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
-import { queryClient } from '../src/dashboard/data/query-client';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const PROMPT = 'Select an item from the list to see details.';
@@ -88,6 +89,7 @@ beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	mockApiFetch.mockReset();
+	onlineManager.setOnline( true );
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: { isRegistered: true, hasConnectedOwner: true, isUserConnected: true },
@@ -120,5 +122,20 @@ describe( 'The right pane with nothing selected', () => {
 		render( <OverviewStage /> );
 
 		await expect( screen.findByText( PROMPT ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'shows neither spinner nor prompt when the list query is paused offline', async () => {
+		mockEndpoints( 'post-only' );
+		// Cached, so the gate lets the Overview mount while every request is parked.
+		queryClient.setQueryData( keys.capabilities(), { hasBackupPlan: true, hasScan: false } );
+		onlineManager.setOnline( false );
+		render( <OverviewStage /> );
+
+		// The group is the positive: the Overview body mounted and nothing in it answered.
+		await expect(
+			screen.findByRole( 'group', { name: 'Backup activity' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( LOADING ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( PROMPT ) ).not.toBeInTheDocument();
 	} );
 } );

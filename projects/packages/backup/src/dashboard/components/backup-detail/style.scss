@@ -1,7 +1,7 @@
 .jpb-backup-detail {
 
 	&__header {
-		padding-block: 23px;
+		padding-block: var(--wpds-dimension-padding-2xl);
 		// Card.Header doesn't ship its own separator; add one so the
 		// header row and the body content read as distinct sections.
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
@@ -14,7 +14,7 @@
 	// collapses into an unreadable squeeze.
 	&__header-row {
 		flex-wrap: wrap;
-		row-gap: 8px;
+		row-gap: var(--wpds-dimension-gap-sm);
 	}
 
 	// Keep the title pinned to its icon and let the heading shrink with
@@ -63,11 +63,9 @@
 		display: inline-flex;
 		gap: 6px;
 		align-items: center;
-		padding: 10px 12px;
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
 		border-radius: 2px;
 		background-color: var(--wp-admin-theme-color, #007cba);
-		font-size: 14px;
-		line-height: 20px;
 		text-decoration: none;
 
 		// wp-admin's global `a { color: #2271b1 }` is unlayered and wins
@@ -96,28 +94,22 @@
 		}
 	}
 
-	h2.jpb-backup-detail__title {
-		font-size: var(--wpds-typography-font-size-xl);
-		font-weight: var(--wpds-typography-font-weight-default);
-		line-height: 32px;
-	}
-
 	&__by {
 		display: flex;
 		flex-wrap: wrap;
-		column-gap: 16px;
+		column-gap: var(--wpds-dimension-gap-lg);
 	}
 
 
 	// Doubled selectors: the Card rules would otherwise win.
 	&.jpb-backup-detail {
-		border-radius: 12px;
+		border-radius: var(--wpds-border-radius-xl);
 	}
 
 	.jpb-backup-detail__header {
 
 		@media (min-width: 600px) {
-			padding-inline: 32px 24px;
+			padding-inline: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
 		}
 	}
 

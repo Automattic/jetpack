@@ -1,8 +1,7 @@
-import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
@@ -418,19 +417,29 @@ function RightPane( {
 	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
+	const { item, hasAnswered, error, isFetching } = useActivityById(
+		selectedId,
+		page,
+		pageSize,
+		sortOrder
+	);
+	// Paused (offline) or disabled queries never answer, and the list cannot load either.
+	if ( ! selectedId && ! error && ! hasAnswered && ! isFetching ) {
+		return null;
+	}
+	if ( ! item && ! error && ! hasAnswered ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</div>
+		);
+	}
 	if ( ! selectedId ) {
 		// The list beside this pane already reports a failed log.
 		if ( error ) {
 			return null;
-		}
-		if ( ! hasAnswered ) {
-			return (
-				<div className="jpb-overview__detail jpb-overview__detail--empty">
-					<Spinner />
-					<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
-				</div>
-			);
 		}
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
@@ -447,15 +456,6 @@ function RightPane( {
 				 * each is two error notices and two buttons for one thing to fix.
 				 */ }
 				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
-			</div>
-		);
-	}
-	if ( ! item && ! hasAnswered ) {
-		return (
-			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
-				<Spinner />
-				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
 			</div>
 		);
 	}
