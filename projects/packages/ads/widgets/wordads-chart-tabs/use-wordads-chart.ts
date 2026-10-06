@@ -43,6 +43,8 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 					dataFormat: metric.dataFormat,
 					countLabel: metric.countLabel,
 					zone: timezone,
+					// WordAds counts nightly, so today's bucket is not a zero reading.
+					pendingLabel: __( 'Not counted yet. WordAds updates overnight.', 'jetpack-ads-pkg' ),
 				} ),
 				// Only CPM goes null, when nothing was served: a ratio of nothing, not a zero.
 				...( primaryData?.summary[ metric.id ] === null

@@ -86,6 +86,16 @@ describe( 'DatedTooltip', () => {
 		expect( screen.getByRole( 'rowheader' ) ).toHaveTextContent( '— ViewsNo data for Views' );
 	} );
 
+	it( 'reads the note under the rows when the bucket has not been counted', () => {
+		renderTooltip( { rows: [ row( { value: null } ) ], note: 'Not counted yet.' } );
+
+		expect( cells() ).toEqual( [
+			[ 'September 18, 2026' ],
+			[ '— ViewsNo data for Views' ],
+			[ 'Not counted yet.' ],
+		] );
+	} );
+
 	it( 'keeps a real zero as 0', () => {
 		renderTooltip( { rows: [ row( { value: 0 } ) ] } );
 

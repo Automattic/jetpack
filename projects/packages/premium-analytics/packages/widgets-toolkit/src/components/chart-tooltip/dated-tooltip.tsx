@@ -141,6 +141,15 @@ export function DatedTooltip( { model, indicatorType }: DatedTooltipProps ) {
 					</tr>
 				) ) }
 			</tbody>
+			{ model.note && (
+				<tfoot>
+					<tr>
+						<td colSpan={ hasPrevious ? 2 : 1 } className={ styles.note }>
+							{ model.note }
+						</td>
+					</tr>
+				</tfoot>
+			) }
 		</table>
 	);
 }

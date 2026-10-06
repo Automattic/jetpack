@@ -1,3 +1,5 @@
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import { format } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
 import { sanitizeStatsTimeSeriesResponse, type StatsTimeSeriesDataPoint } from './time-series';
 import { coerceStatsRecord } from './utils';
@@ -13,10 +15,13 @@ export type StatsWordAdsRawResponse = {
 };
 
 export type StatsWordAdsDataPoint = StatsTimeSeriesDataPoint & {
-	impressions?: number;
-	revenue?: number;
-	/** Null when no ads were served: CPM is undefined there, not zero. */
+	/** Null for today's bucket, which WordAds has not counted yet. */
+	impressions?: number | null;
+	revenue?: number | null;
+	/** Null when no ads were served (CPM is undefined there, not zero), or for today's bucket. */
 	cpm?: number | null;
+	/** Set on today's day bucket: WordAds counts nightly, so its zeros are not readings. */
+	pending?: true;
 };
 
 export type StatsWordAdsResponse = StatsNormalizedReport & {
@@ -102,6 +107,34 @@ function withoutUnservedCpm( row: StatsWordAdsDataPoint ): StatsWordAdsDataPoint
 	return row.impressions === 0 ? { ...row, cpm: null } : row;
 }
 
+/**
+ * Mark today's day bucket as pending: the endpoint serves it as zeros until the
+ * nightly run, and nothing in the payload tells those from real zeros.
+ *
+ * @param data   - The normalized rows, oldest first.
+ * @param period - The query's bucket size.
+ * @return The rows, with today's values nulled and the row flagged.
+ */
+function withPendingToday(
+	data: StatsWordAdsDataPoint[],
+	period: string | undefined
+): StatsWordAdsDataPoint[] {
+	const last = data[ data.length - 1 ];
+	// A week or month bucket that includes today is partial, not empty, so it stands.
+	if ( ! last || ( period ?? 'day' ) !== 'day' ) {
+		return data;
+	}
+
+	if ( last.time_interval !== format( localTZDate(), 'yyyy-MM-dd' ) ) {
+		return data;
+	}
+
+	return [
+		...data.slice( 0, -1 ),
+		{ ...last, impressions: null, revenue: null, cpm: null, pending: true },
+	];
+}
+
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
 	// Not `safeParseFloat`: its `fallback = 0` fires on an explicit `undefined`,
 	// and `0` means something for both fields, so an absent value must stay absent.
@@ -134,10 +167,13 @@ export function sanitizeStatsWordAdsStatsResponse(
 ): StatsWordAdsResponse {
 	const report = sanitizeStatsTimeSeriesResponse( response, query ) as StatsWordAdsResponse;
 
+	const data = withPendingToday( report.data.map( withoutUnservedCpm ), query?.period );
+
 	return {
 		...report,
-		data: report.data.map( withoutUnservedCpm ),
-		summary: summarizeWordAdsStats( report.data, report.summary ),
+		data,
+		// A pending bucket's nulls add nothing, so the totals cover counted days only.
+		summary: summarizeWordAdsStats( data, report.summary ),
 	};
 }
 

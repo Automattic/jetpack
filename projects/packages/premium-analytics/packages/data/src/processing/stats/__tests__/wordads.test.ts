@@ -72,6 +72,62 @@ describe( 'Stats WordAds normalizers', () => {
 		);
 	} );
 
+	// WordAds counts nightly, so today's day bucket is zeros until the run: not readings.
+	describe( "today's bucket", () => {
+		beforeEach( () => {
+			jest.useFakeTimers().setSystemTime( new Date( '2026-06-02T15:00:00Z' ) );
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it( 'nulls all three fields of a day range ending today, flags it pending, and totals the rest', () => {
+			const result = sanitizeStatsWordAdsStatsResponse(
+				{
+					unit: 'day',
+					fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+					data: [
+						[ '2026-06-01', 800, 3.25, 4.06 ],
+						[ '2026-06-02', 0, 0, 0 ],
+					],
+				},
+				{ period: 'day', date: '2026-06-02' }
+			);
+
+			expect( result.data[ 1 ] ).toEqual(
+				expect.objectContaining( { impressions: null, revenue: null, cpm: null, pending: true } )
+			);
+			expect( result.data[ 0 ].pending ).toBeUndefined();
+			expect( result.summary ).toEqual(
+				expect.objectContaining( { impressions: 800, revenue: 3.25, cpm: 4.0625 } )
+			);
+		} );
+
+		it.each( [
+			[ 'a day range ending before today', 'day', '2026-06-01' ],
+			[
+				'a month bucket that includes today, which is partial rather than empty',
+				'month',
+				'2026-06',
+			],
+		] )( 'leaves %s alone', ( _case, unit, period ) => {
+			const result = sanitizeStatsWordAdsStatsResponse(
+				{
+					unit,
+					fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+					data: [ [ period, 0, 0, 0 ] ],
+				},
+				{ period: unit }
+			);
+
+			expect( result.data[ 0 ] ).toEqual(
+				expect.objectContaining( { impressions: 0, revenue: 0 } )
+			);
+			expect( result.data[ 0 ].pending ).toBeUndefined();
+		} );
+	} );
+
 	it( 'returns an empty report for empty WordAds stats payloads', () => {
 		expect( sanitizeStatsWordAdsStatsResponse( wordAdsStatsEmptyFixture ) ).toEqual( {
 			summary: {
