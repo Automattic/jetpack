@@ -108,11 +108,6 @@
 		column-gap: 16px;
 	}
 
-	// The select row's divider runs the card's full width, past the body padding.
-	.jpb-file-browser__selection {
-		margin-inline: calc(-1 * var(--wp-ui-card-padding, 24px));
-		padding-inline: var(--wp-ui-card-padding, 24px);
-	}
 
 	// Doubled selectors: the Card rules would otherwise win.
 	&.jpb-backup-detail {
