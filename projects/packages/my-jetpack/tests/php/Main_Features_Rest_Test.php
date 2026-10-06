@@ -185,6 +185,10 @@ class Main_Features_Rest_Test extends TestCase {
 		if ( $plugin === 'jetpack-boost' ) {
 			update_option( 'jb_get_started', true );
 		}
+		$standalone_modules = function ( $modules ) {
+			return array_merge( $modules, array( 'protect', 'publicize' ) );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $standalone_modules, 10, 1 );
 		\Automattic\Jetpack\Connection\Utils::init_default_constants();
 		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -214,6 +218,7 @@ class Main_Features_Rest_Test extends TestCase {
 				$this->assertFalse( get_option( 'jb_get_started', 'not_started' ) );
 			}
 			$this->assertSame( array(), $attempts );
+			$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
 		} finally {
 			if ( $file ) {
 				if ( null !== $original ) {
@@ -226,6 +231,7 @@ class Main_Features_Rest_Test extends TestCase {
 				}
 			}
 			remove_filter( 'pre_http_request', $tripwire, 10 );
+			remove_filter( 'jetpack_get_available_standalone_modules', $standalone_modules );
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 			remove_all_filters( 'jetpack_offline_mode' );
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -235,12 +241,14 @@ class Main_Features_Rest_Test extends TestCase {
 	/** @return array Offline plugin/route cases. */
 	public static function offline_plugin_switches() {
 		return array(
-			'Boost single'  => array( 'jetpack-boost', false ),
-			'Boost bulk'    => array( 'jetpack-boost', true ),
-			'Backup single' => array( 'jetpack-backup', false ),
-			'Backup bulk'   => array( 'jetpack-backup', true ),
-			'Search single' => array( 'jetpack-search', false ),
-			'Search bulk'   => array( 'jetpack-search', true ),
+			'Boost single'   => array( 'jetpack-boost', false ),
+			'Boost bulk'     => array( 'jetpack-boost', true ),
+			'Backup single'  => array( 'jetpack-backup', false ),
+			'Backup bulk'    => array( 'jetpack-backup', true ),
+			'Search single'  => array( 'jetpack-search', false ),
+			'Search bulk'    => array( 'jetpack-search', true ),
+			'Protect single' => array( 'jetpack-protect', false ),
+			'Social single'  => array( 'jetpack-social', false ),
 		);
 	}
 
@@ -259,12 +267,29 @@ class Main_Features_Rest_Test extends TestCase {
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		\Automattic\Jetpack\Status\Cache::clear();
-		$available = function ( $modules, $requires_connection ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress filter signature.
-			return false === $requires_connection ? array( 'markdown' ) : array( 'protect', 'markdown' );
+		require __DIR__ . '/fixtures/offline-module-info.php';
+		\Automattic\Jetpack\Connection\Utils::init_default_constants();
+		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
+		$available = function ( $modules ) {
+			return array_merge( $modules, array( 'protect', 'publicize', 'waf', 'markdown' ) );
 		};
-		add_filter( 'jetpack_get_available_standalone_modules', $available, 10, 2 );
+		add_filter( 'jetpack_get_available_standalone_modules', $available, 10, 1 );
+		$activation_attempts = array();
+		$record_activation   = function ( $slug ) use ( &$activation_attempts ) {
+			$activation_attempts[] = $slug;
+		};
+		add_action( 'jetpack_pre_activate_module', $record_activation );
+		$http_attempts = array();
+		$tripwire      = function ( $response, $args, $url ) use ( &$http_attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
+			$http_attempts[] = $url;
+			return new \WP_Error( 'unexpected_http', 'Offline module switch attempted HTTP.' );
+		};
+		add_filter( 'pre_http_request', $tripwire, 10, 3 );
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		try {
+			\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
+			$this->assertCount( 1, $http_attempts, 'The signed control must reach the tripwire.' );
+			$http_attempts = array();
 			if ( $plugin_route ) {
 				add_option( 'jetpack-protect_activated', true );
 				Products\Protect::do_product_specific_activation( true, true );
@@ -278,8 +303,12 @@ class Main_Features_Rest_Test extends TestCase {
 				);
 			}
 			$this->assertSame( $active, ( new \Automattic\Jetpack\Modules() )->is_active( $module ) );
+			$this->assertSame( $active ? array( $module ) : array(), $activation_attempts );
+			$this->assertSame( array(), $http_attempts );
 		} finally {
+			remove_filter( 'pre_http_request', $tripwire, 10 );
 			remove_filter( 'jetpack_get_available_standalone_modules', $available, 10 );
+			remove_action( 'jetpack_pre_activate_module', $record_activation );
 			remove_all_filters( 'jetpack_offline_mode' );
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -291,6 +320,8 @@ class Main_Features_Rest_Test extends TestCase {
 		return array(
 			'Protect product step' => array( true, 'protect', false ),
 			'Protect bulk module'  => array( false, 'protect', false ),
+			'WAF bulk module'      => array( false, 'waf', false ),
+			'Social bulk module'   => array( false, 'publicize', false ),
 			'local bulk module'    => array( false, 'markdown', true ),
 		);
 	}

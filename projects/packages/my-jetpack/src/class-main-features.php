@@ -48,6 +48,19 @@ class Main_Features {
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
 
 	/**
+	 * Whether module metadata proves it can run without either connection.
+	 *
+	 * @since $$next-version$$
+	 * @param string $slug Module slug.
+	 * @return bool
+	 */
+	public static function module_works_locally( $slug ) {
+		// Standalone module callbacks can ignore connection filters; missing metadata cannot prove local operation.
+		$details = ( new \Automattic\Jetpack\Modules() )->get( $slug );
+		return $details && ! $details['requires_connection'] && ! $details['requires_user_connection'];
+	}
+
+	/**
 	 * The static feature catalog.
 	 *
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside

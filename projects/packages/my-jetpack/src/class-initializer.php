@@ -765,7 +765,7 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		$block_availability = class_exists( '\Jetpack_Gutenberg' )
+		$block_availability = ! self::is_offline_features_enabled() && class_exists( '\Jetpack_Gutenberg' )
 			? \Jetpack_Gutenberg::get_cached_availability()
 			: array();
 
@@ -1089,7 +1089,13 @@ class Initializer {
 		 *
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
-		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+
+		if ( self::is_offline_features_enabled() && ! self::current_user_can_access_page() ) {
+			return false;
+		}
+
+		return $should;
 	}
 
 	/**

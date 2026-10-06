@@ -275,7 +275,7 @@ class REST_Main_Features {
 		}
 
 		if ( $active && Initializer::is_offline_features_enabled()
-			&& ! in_array( $slug, $modules->get_available( false, false, false, false ), true )
+			&& ! Main_Features::module_works_locally( $slug )
 		) {
 			return new WP_Error( 'switch_failed', __( 'Could not be switched on. It may need a Jetpack connection, or a plan that includes it.', 'jetpack-my-jetpack' ) );
 		}

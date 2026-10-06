@@ -136,7 +136,7 @@ class Initializer_Test extends BaseTestCase {
 		$_GET['page'] = 'my-jetpack';
 		$this->assertSame( $network_admin, REST_Main_Features::permissions_callback() );
 		$this->assertSame( $network_admin, isset( Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures'] ) );
-		$this->assertTrue( Initializer::should_initialize() );
+		$this->assertSame( $network_admin, Initializer::should_initialize() );
 		Initializer::add_my_jetpack_menu_item();
 		$this->assertSame( $network_admin, false !== has_action( 'load-admin_page_my-jetpack', array( Initializer::class, 'admin_init' ) ) );
 		$this->assert_offline_page_permission( $network_admin );
@@ -191,6 +191,29 @@ class Initializer_Test extends BaseTestCase {
 			remove_filter( 'wp_die_handler', $handler );
 		}
 		$this->assertSame( $allowed, false !== has_action( 'admin_enqueue_scripts', array( Initializer::class, 'enqueue_scripts' ) ) );
+	}
+
+	public function test_offline_initialization_answers_link_callers_for_the_current_user() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'link-admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$this->assertTrue( Initializer::should_initialize() );
+		wp_get_current_user()->add_cap( 'activate_plugins', false );
+		$this->assertFalse( Initializer::should_initialize() );
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+		$this->assertFalse( Initializer::should_initialize(), 'A host opt-in cannot offer a page the viewer cannot use.' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		$this->assertTrue( Initializer::should_initialize(), 'Online link behavior remains unchanged.' );
 	}
 
 	/**

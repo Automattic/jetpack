@@ -122,7 +122,7 @@ abstract class Hybrid_Product extends Product {
 		}
 
 		if ( ! empty( static::$module_name ) ) {
-			if ( $local && ! in_array( static::$module_name, ( new Modules() )->get_available( false, false, false, false ), true ) ) {
+			if ( $local && ! Main_Features::module_works_locally( static::$module_name ) ) {
 				return true;
 			}
 

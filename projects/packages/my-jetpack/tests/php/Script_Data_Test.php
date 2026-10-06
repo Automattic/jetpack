@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -126,6 +128,44 @@ class Script_Data_Test extends BaseTestCase {
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 			unset( $_GET['page'] );
 			wp_set_current_user( 0 );
+		}
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_script_data_does_not_compute_block_availability() {
+		require __DIR__ . '/stubs/class-jetpack-gutenberg.php';
+		\Automattic\Jetpack\Connection\Utils::init_default_constants();
+		\Jetpack_Options::update_options(
+			array(
+				'id'         => 123,
+				'blog_token' => 'copiedkey.copiedsecret',
+			)
+		);
+		$attempts = array();
+		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
+			$attempts[] = $url;
+			return new \WP_Error( 'unexpected_http', 'Block availability attempted HTTP.' );
+		};
+		add_filter( 'pre_http_request', $tripwire, 10, 3 );
+		try {
+			Initializer::add_script_data( array() );
+			$this->assertCount( 1, $attempts, 'The online block lookup must reach the signed HTTP tripwire.' );
+			$attempts = array();
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			\Automattic\Jetpack\Status\Cache::clear();
+			Initializer::add_script_data( array() );
+			$this->assertSame( array(), $attempts );
+		} finally {
+			remove_filter( 'pre_http_request', $tripwire, 10 );
+			remove_all_filters( 'jetpack_offline_mode' );
+			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+			\Automattic\Jetpack\Status\Cache::clear();
 		}
 	}
 
