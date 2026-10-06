@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { selectFallback } from './fallback.ts';
-import { contextFromTailorResult, setTracksContext } from './tracks.ts';
+import { contextFromTailorResult, setTracksContext, trackTailoringSaveFailed } from './tracks.ts';
 import type { SiteCopy, TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
 
 /**
@@ -66,6 +66,52 @@ async function persist(
 	} );
 }
 
+/** The longest WP error code the save-failed event carries. */
+const MAX_ERROR_CODE_LENGTH = 64;
+
+/**
+ * Report a failed write to Tracks, with only the status and the error code: never the message, which
+ * can quote the payload, and never the payload itself. Reporting must not throw, since it runs inside
+ * the catch that keeps a failed write from reaching the UI.
+ *
+ * @param source      - Which write failed.
+ * @param error       - What apiFetch rejected with: the WP error body, `{ code: 'fetch_error' }` offline, or
+ *                    an Error thrown on the way (e.g. a failed nonce refresh).
+ * @param aiSessionId - The id minted for this tailoring run.
+ */
+function reportSaveFailure( source: TailorSource, error: unknown, aiSessionId: string ): void {
+	try {
+		const { code, data } = ( error ?? {} ) as {
+			code?: unknown;
+			data?: { status?: unknown } | null;
+		};
+		const status = data?.status;
+		// A thrown Error carries no WP code; its name (TypeError, AbortError, ...) still tells a failed
+		// nonce refresh or an aborted request apart from a rejected payload.
+		let rawCode: string | null = null;
+		if ( typeof code === 'string' ) {
+			rawCode = code;
+		} else if ( error instanceof Error ) {
+			rawCode = error.name;
+		}
+		const errorCode =
+			null !== rawCode
+				? rawCode
+						.toLowerCase()
+						.replace( /[^a-z0-9_]/g, '' )
+						.slice( 0, MAX_ERROR_CODE_LENGTH )
+				: '';
+		trackTailoringSaveFailed( {
+			failed_write: source,
+			http_status: typeof status === 'number' && Number.isInteger( status ) ? status : 0,
+			error_code: errorCode || 'unknown',
+			ai_session_id: '' !== aiSessionId ? aiSessionId : 'none',
+		} );
+	} catch {
+		// Telemetry only.
+	}
+}
+
 /**
  * Write a prepared tailoring: persist it and point the Tracks context at the run
  * that produced it. Call this once, for the one tailoring the user ends up with.
@@ -85,8 +131,9 @@ export async function commitTailoring(
 			await persist( prepared.output, 'ai', prepared );
 			setTracksContext( contextFromTailorResult( 'ai', prepared.aiSessionId ) );
 			return { source: 'ai', output: prepared.output };
-		} catch {
+		} catch ( error ) {
 			// PUT rejected the AI output; fall through to the deterministic fallback below.
+			reportSaveFailure( 'ai', error, prepared.aiSessionId );
 		}
 	}
 
@@ -95,8 +142,9 @@ export async function commitTailoring(
 	try {
 		// `attempts` counts the failed AI calls that preceded the fallback.
 		await persist( fallbackOutput, 'fallback', prepared );
-	} catch {
+	} catch ( error ) {
 		// Even if the write fails, still return the fallback so the consumer renders a list, not an empty launchpad.
+		reportSaveFailure( 'fallback', error, prepared.aiSessionId );
 	}
 	setTracksContext( contextFromTailorResult( 'fallback', prepared.aiSessionId ) );
 	return { source: 'fallback', output: fallbackOutput };

@@ -295,3 +295,24 @@ export function trackTaskCtaClicked( props: { task_id: string } ): void {
 export function trackTaskSkipped( props: { task_id: string } ): void {
 	record( 'jetpack_ai_launchpad_task_skipped', props );
 }
+
+/**
+ * Records a failed `PUT /tailored` write, once per failed write: the AI output's, then the fallback's if
+ * that fails too. Without it a site whose writes keep failing just lands back on the wizard, and nothing
+ * on the server side says why, since the `tailored` Logstash record is only written on success.
+ *
+ * @param props               - The event properties.
+ * @param props.failed_write  - Which write failed: the AI output or the deterministic fallback. Not
+ *                            `source`, which is a standard prop with its own meaning.
+ * @param props.http_status   - The response status, or 0 when there was no response (e.g. offline).
+ * @param props.error_code    - The WP error code, or a thrown Error's name, reduced to [a-z0-9_]; else 'unknown'.
+ * @param props.ai_session_id - The id of the tailoring run whose write failed, or 'none'.
+ */
+export function trackTailoringSaveFailed( props: {
+	failed_write: TailorSource;
+	http_status: number;
+	error_code: string;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_failed', props );
+}
