@@ -786,6 +786,15 @@ describe( 'AreaChart', () => {
 			expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 			expect( chart ).toHaveAttribute( 'aria-label', 'Area chart' );
 		} );
+
+		test.each( [
+			[ undefined, 'Area chart' ],
+			[ 'Views over time', 'Views over time' ],
+		] )( 'names the chart container from ariaLabel %p', ( ariaLabel, name ) => {
+			renderWithProvider( { ariaLabel } );
+			expect( screen.getByRole( 'application', { name } ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'XYChart' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Chart Ref Interface', () => {

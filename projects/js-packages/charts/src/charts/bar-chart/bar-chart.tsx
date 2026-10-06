@@ -100,6 +100,7 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
+	ariaLabel,
 	chartId: providedChartId,
 	width,
 	height,
@@ -607,7 +608,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						<div
 							role="application"
 							ref={ chartRef }
-							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+							aria-label={ ariaLabel ?? __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }
 							onKeyDown={ onChartKeyDown }
 							onFocus={ onChartFocus }
@@ -616,6 +617,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							{ chartHeight > 0 && (
 								<div className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
+										accessibilityLabel=""
 										theme={ theme }
 										width={ width }
 										height={ chartHeight }

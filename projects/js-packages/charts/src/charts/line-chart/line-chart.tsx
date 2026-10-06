@@ -232,6 +232,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -628,7 +629,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 							<div
 								ref={ chartRef }
 								role="application"
-								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
+								aria-label={ ariaLabel ?? __( 'Line chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
@@ -638,6 +639,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }

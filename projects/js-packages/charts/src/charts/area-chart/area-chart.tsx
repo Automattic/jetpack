@@ -52,6 +52,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -425,7 +426,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 							<div
 								ref={ chartRef }
 								role="application"
-								aria-label={ __( 'Area chart', 'jetpack-charts' ) }
+								aria-label={ ariaLabel ?? __( 'Area chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
@@ -435,6 +436,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }

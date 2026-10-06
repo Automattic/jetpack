@@ -19,6 +19,8 @@ export type BandHighlightSelection = {
 };
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+	/** Accessible name of the chart. Defaults to a localized "Bar chart". */
+	ariaLabel?: string;
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
