@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Improve sanitization of submitted values and escaping of form attributes.
