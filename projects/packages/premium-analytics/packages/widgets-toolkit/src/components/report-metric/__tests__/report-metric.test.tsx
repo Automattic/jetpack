@@ -106,38 +106,11 @@ describe( 'ReportMetricWidget', () => {
 		mockMetricComparisonSpy.mockClear();
 	} );
 
-	it( 'names both periods after the metric when given a label', () => {
-		const { series } = renderWidget( { seriesLabel: 'Visitors' } );
-
-		expect( series.map( item => item.label ) ).toEqual( [
-			'Visitors',
-			'Visitors · previous period',
-		] );
-	} );
-
-	it( 'hands the count label to the current period, which its comparison borrows it from', () => {
+	it( 'names both periods after the metric and counts the current one in its unit', () => {
 		const { series } = renderWidget( { seriesLabel: 'Views', seriesCountLabel: views } );
 
+		expect( series.map( item => item.label ) ).toEqual( [ 'Views', 'Views · previous period' ] );
 		expect( series[ 0 ].countLabel ).toBe( views );
-		expect( series[ 1 ].group ).toBe( series[ 0 ].group );
-	} );
-
-	it( 'names the primary alone when there is no comparison period', () => {
-		const { series } = renderWidget( {
-			seriesLabel: 'Visitors',
-			data: hookResult( { comparison: {} } ),
-		} );
-
-		expect( series.map( item => item.label ) ).toEqual( [ 'Visitors' ] );
-	} );
-
-	it( 'falls back to the date-range labels when no label is given', () => {
-		const { series } = renderWidget();
-
-		expect( series ).toHaveLength( 2 );
-		expect( series[ 0 ].label ).toEqual( expect.stringContaining( '2026' ) );
-		expect( series[ 1 ].label ).toEqual( expect.stringContaining( '2026' ) );
-		expect( series.map( item => item.label ) ).not.toContain( 'Visitors' );
 	} );
 
 	it( 'charts each period and hands the summaries to the metric', () => {

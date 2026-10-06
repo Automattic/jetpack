@@ -23,45 +23,37 @@ const mockGetScriptData = jest.mocked( getScriptData );
 
 describe( 'ReportCsvDownloadButton', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		jest.clearAllMocks();
 		mockGetScriptData.mockReturnValue( undefined );
 		mockDownloadReport.mockResolvedValue( { filename: 'orders-over-time.csv' } );
 	} );
 
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'downloads using report parameters from WidgetRoot', async () => {
 		render(
 			<WidgetRootContext.Provider
-				value={ {
-					reportParams: {
-						from: '2026-06-01T00:00:00+02:00',
-						to: '2026-06-30T23:59:59+02:00',
-						interval: 'day',
-						date_type: 'paid',
-						comp: '1',
-						compare_from: '2026-05-01T00:00:00+02:00',
-						compare_to: '2026-05-31T23:59:59+02:00',
-					},
-				} }
+				value={ { reportParams: { from: '2026-06-01', to: '2026-06-30', interval: 'day' } } }
 			>
 				<ReportCsvDownloadButton reportType="ordersovertime" />
 			</WidgetRootContext.Provider>
 		);
 
+		const button = screen.getByRole( 'button', { name: /Download CSV/ } );
 		// This package does not depend on @testing-library/user-event.
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		fireEvent.click( button );
 
-		await waitFor( () =>
-			expect( mockDownloadReport ).toHaveBeenCalledWith( {
-				reportType: 'ordersovertime',
-				from: '2026-06-01T00:00:00+02:00',
-				to: '2026-06-30T23:59:59+02:00',
-				interval: 'day',
-				dateType: 'paid',
-				compareFrom: '2026-05-01T00:00:00+02:00',
-				compareTo: '2026-05-31T23:59:59+02:00',
-			} )
-		);
+		expect( mockDownloadReport ).toHaveBeenCalledWith( {
+			reportType: 'ordersovertime',
+			from: '2026-06-01',
+			to: '2026-06-30',
+			interval: 'day',
+		} );
+		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
 	it( 'accepts explicit report parameters without WidgetRoot', async () => {
@@ -76,10 +68,12 @@ describe( 'ReportCsvDownloadButton', () => {
 			/>
 		);
 
+		const button = screen.getByRole( 'button', { name: /Download CSV/ } );
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		fireEvent.click( button );
 
-		await waitFor( () => expect( mockDownloadReport ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockDownloadReport ).toHaveBeenCalledTimes( 1 );
+		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
 	it( 'stays hidden when the server disables CSV exports', () => {

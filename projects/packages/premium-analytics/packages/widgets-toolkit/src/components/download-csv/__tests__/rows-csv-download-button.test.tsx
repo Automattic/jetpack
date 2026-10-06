@@ -7,6 +7,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
  * Internal dependencies
  */
 import { buildCsv, saveCsv } from '../../../helpers/build-csv';
+import { ReportCsvAction } from '../../report-page/report-csv-action';
 import { RowsCsvDownloadButton } from '../rows-csv-download-button';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -21,12 +22,17 @@ const mockBuildCsv = jest.mocked( buildCsv );
 const mockSaveCsv = jest.mocked( saveCsv );
 const mockGetScriptData = jest.mocked( getScriptData );
 
-describe( 'RowsCsvDownloadButton', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		mockGetScriptData.mockReturnValue( undefined );
-	} );
+beforeEach( () => {
+	jest.useFakeTimers();
+	jest.clearAllMocks();
+	mockGetScriptData.mockReturnValue( undefined );
+} );
 
+afterEach( () => {
+	jest.useRealTimers();
+} );
+
+describe( 'RowsCsvDownloadButton', () => {
 	it( 'builds and saves rows after committing the loading state', async () => {
 		const rows = [ { title: 'Hello' } ];
 		const columns = [ { label: 'Title', getValue: ( row: { title: string } ) => row.title } ];
@@ -74,5 +80,22 @@ describe( 'RowsCsvDownloadButton', () => {
 		);
 
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'ReportCsvAction', () => {
+	it( 'renders a labelled button without an icon', () => {
+		render(
+			<ReportCsvAction
+				columns={ [ { label: 'Title', getValue: ( row: { title: string } ) => row.title } ] }
+				rows={ [ { title: 'Hello' } ] }
+				filename="top-posts"
+			/>
+		);
+
+		const button = screen.getByRole( 'button', { name: 'Download CSV' } );
+		expect( button ).toHaveTextContent( 'Download CSV' );
+		// eslint-disable-next-line testing-library/no-node-access -- the icon is hidden from the accessibility tree.
+		expect( button.querySelector( 'svg' ) ).toBeNull();
 	} );
 } );

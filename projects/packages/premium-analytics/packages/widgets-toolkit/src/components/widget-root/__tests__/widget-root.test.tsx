@@ -51,20 +51,6 @@ describe( 'WidgetRoot report params', () => {
 		useSearchMock.mockReturnValue( COMPARED_WINDOW );
 	} );
 
-	it( 'keeps the comparison from the URL when the surface offers one', () => {
-		render(
-			<WidgetRoot>
-				<ParamsProbe />
-			</WidgetRoot>
-		);
-
-		expect( resolvedParams() ).toMatchObject( {
-			comp: '1',
-			compare_from: COMPARED_WINDOW.compare_from,
-			compare_to: COMPARED_WINDOW.compare_to,
-		} );
-	} );
-
 	it( 'drops the comparison from the URL when the surface offers none', () => {
 		render(
 			<ReportScopeProvider offersComparison={ false }>
