@@ -325,7 +325,10 @@ for ( const [ label, query, copy, height ] of [
 		for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 			await expect( chart.locator( '.visx-rows line' ) ).toHaveCount( 3 );
-			await expect( chart.getByLabel( 'XYChart' ) ).toHaveCSS( 'height', '96px' );
+			await expect( chart.getByRole( 'application' ).locator( 'svg' ).first() ).toHaveCSS(
+				'height',
+				'96px'
+			);
 		}
 
 		const desktop = page.getByRole( 'region', { name: 'Desktop score history' } );
@@ -337,7 +340,11 @@ for ( const [ label, query, copy, height ] of [
 		const band = ( await highlight.boundingBox() )!;
 		const firstPanel = ( await desktop.boundingBox() )!;
 		const secondPanel = ( await mobile.boundingBox() )!;
-		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+		const secondSvg = ( await mobile
+			.getByRole( 'application' )
+			.locator( 'svg' )
+			.first()
+			.boundingBox() )!;
 		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
 		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
 		expect( band.y + band.height ).toBeCloseTo( secondPanel.y + secondPanel.height, 0 );
