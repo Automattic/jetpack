@@ -562,21 +562,21 @@ class Jetpack_Connector_Test extends TestCase {
 	 * Test that core looks up the card's translations under the package domain and the file's real path.
 	 */
 	public function test_card_translations_are_looked_up_under_the_package_domain_and_real_path() {
-		$restore = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
-		/** @var array<int,array{0:string,1:string}> $lookups */
-		$lookups = array();
-		/** @var string[] $paths */
-		$paths = array();
+		$restore       = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
+		$lookup_file   = '';
+		$lookup_domain = '';
+		$path          = '';
 
-		$record_lookup = static function ( $file, $handle, $domain ) use ( &$lookups ) {
-			if ( Jetpack_Connector::MODULE_ID === $handle ) {
-				$lookups[] = array( basename( (string) $file ), $domain );
+		$record_lookup = static function ( $file, $handle, $domain ) use ( &$lookup_file, &$lookup_domain ) {
+			if ( Jetpack_Connector::MODULE_ID === $handle && '' === $lookup_file ) {
+				$lookup_file   = basename( (string) $file );
+				$lookup_domain = (string) $domain;
 			}
 			return $file;
 		};
-		$record_path   = static function ( $relative, $src ) use ( &$paths ) {
-			if ( str_contains( $src, 'connectors-card.js' ) ) {
-				$paths[] = $relative;
+		$record_path   = static function ( $relative, $src ) use ( &$path ) {
+			if ( str_contains( $src, 'connectors-card.js' ) && '' === $path ) {
+				$path = (string) $relative;
 			}
 			return $relative;
 		};
@@ -594,12 +594,10 @@ class Jetpack_Connector_Test extends TestCase {
 			remove_filter( 'load_script_textdomain_relative_path', $record_path );
 		}
 
-		$this->assertNotEmpty( $lookups );
-		$this->assertSame( 'jetpack-connection', $lookups[0][1] );
-		$this->assertStringStartsWith( 'jetpack-connection-', $lookups[0][0] );
-		$this->assertNotEmpty( $paths );
-		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $paths[0] );
-		$this->assertStringNotContainsString( '..', $paths[0] );
+		$this->assertSame( 'jetpack-connection', $lookup_domain );
+		$this->assertStringStartsWith( 'jetpack-connection-', $lookup_file );
+		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $path );
+		$this->assertStringNotContainsString( '..', $path );
 	}
 
 	/**
