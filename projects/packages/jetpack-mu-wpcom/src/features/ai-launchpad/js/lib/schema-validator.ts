@@ -198,20 +198,26 @@ export function validateAgainstSchema( value: unknown, schema: JsonSchema, path 
 }
 
 /**
- * Remove an `inferred.inferred_goal` that fails its schema, so an analytics-only field can't
+ * Remove optional `inferred` fields that fail their schema, so a field nothing requires can't
  * discard an otherwise valid output.
  *
  * @param parsed - The parsed model output, mutated in place.
  */
-function dropInvalidInferredGoal( parsed: unknown ): void {
+function dropInvalidOptionalInferred( parsed: unknown ): void {
 	const inferred = ( parsed as { inferred?: unknown } | null )?.inferred;
-	if ( ! inferred || typeof inferred !== 'object' || ! ( 'inferred_goal' in inferred ) ) {
+	if ( ! inferred || typeof inferred !== 'object' ) {
 		return;
 	}
-	const goalSchema = AGENT_OUTPUT_SCHEMA.properties?.inferred?.properties?.inferred_goal;
 	const record = inferred as Record< string, unknown >;
-	if ( goalSchema && validateAgainstSchema( record.inferred_goal, goalSchema ).length > 0 ) {
-		delete record.inferred_goal;
+	for ( const field of [ 'inferred_goal', 'theme_category' ] ) {
+		const fieldSchema = AGENT_OUTPUT_SCHEMA.properties?.inferred?.properties?.[ field ];
+		if (
+			field in record &&
+			fieldSchema &&
+			validateAgainstSchema( record[ field ], fieldSchema ).length > 0
+		) {
+			delete record[ field ];
+		}
 	}
 }
 
@@ -231,7 +237,7 @@ export function parseAgentResponse( content: string ): TailoredOutput | null {
 		return null;
 	}
 
-	dropInvalidInferredGoal( parsed );
+	dropInvalidOptionalInferred( parsed );
 
 	if ( validateAgainstSchema( parsed, AGENT_OUTPUT_SCHEMA ).length > 0 ) {
 		return null;

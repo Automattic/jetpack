@@ -187,17 +187,27 @@ describe( 'parseAgentResponse', () => {
 		assert.equal( parseAgentResponse( '{ not json' ), null );
 	} );
 
-	it( 'drops an out-of-enum inferred_goal instead of rejecting the output', () => {
-		const out = validOutput();
-		out.inferred.inferred_goal = 'business';
-		const parsed = parseAgentResponse( JSON.stringify( out ) );
-		assert.ok( parsed );
-		assert.equal( 'inferred_goal' in parsed.inferred, false );
-	} );
+	for ( const [ field, value ] of [
+		[ 'inferred_goal', 'business' ],
+		[ 'theme_category', 'hiking' ],
+	] ) {
+		it( `drops an out-of-enum ${ field } instead of rejecting the output`, () => {
+			const out = validOutput();
+			out.inferred[ field ] = value;
+			const parsed = parseAgentResponse( JSON.stringify( out ) );
+			assert.ok( parsed );
+			assert.equal( field in parsed.inferred, false );
+		} );
+	}
 
-	it( 'returns null for schema-invalid JSON', () => {
-		const out = validOutput();
-		out.tasks = out.tasks.slice( 0, 3 );
-		assert.equal( parseAgentResponse( JSON.stringify( out ) ), null );
-	} );
+	for ( const [ label, mutate ] of [
+		[ 'too few tasks', out => ( out.tasks = out.tasks.slice( 0, 3 ) ) ],
+		[ 'an out-of-enum required goal', out => ( out.inferred.goal = 'business' ) ],
+	] as Mutation[] ) {
+		it( `returns null for schema-invalid JSON: ${ label }`, () => {
+			const out = validOutput();
+			mutate( out );
+			assert.equal( parseAgentResponse( JSON.stringify( out ) ), null );
+		} );
+	}
 } );
