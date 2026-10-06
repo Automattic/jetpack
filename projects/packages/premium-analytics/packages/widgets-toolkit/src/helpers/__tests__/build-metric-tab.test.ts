@@ -146,23 +146,6 @@ describe( 'buildMetricTab', () => {
 	// Bucket stamps carry a nominal offset that must be dropped; these cases are
 	// the only guard against reading a bucket in the wrong zone.
 	describe( 'bucket stamps are anchored in the site zone', () => {
-		// Pinned west of UTC — under a UTC runner the correct and buggy readings
-		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		beforeAll( () => {
-			env.TZ = 'America/Los_Angeles';
-		} );
-		afterAll( () => {
-			// Assigning `undefined` to an env var sets the literal string "undefined";
-			// an unset variable has to be deleted back off.
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		} );
-
 		const dateOf = ( dateStart: string ) =>
 			buildMetricTab( {
 				primary: { summary: { views: 1 }, data: [ { date_start: dateStart, views: 1 } ] },

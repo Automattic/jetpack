@@ -12,7 +12,7 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -509,7 +509,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 
 											{ withTooltips && (
 												<>
-													<AccessibleTooltip
+													<XYChartTooltip
 														detectBounds
 														snapTooltipToDatumX
 														// Stacked mode: yAccessor returns raw value, not stacked y — snapping mispositions.

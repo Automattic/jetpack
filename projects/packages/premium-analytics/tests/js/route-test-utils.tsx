@@ -1,4 +1,5 @@
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from 'react';
+import type { AnchorHTMLAttributes, ForwardedRef, ReactNode } from 'react';
 
 type RouteSearch =
 	| Record< string, unknown >
@@ -30,9 +31,13 @@ export function setMockRouteSearch( search: Record< string, unknown > = {} ): vo
  * @param root0.params   - Route path params.
  * @param root0.search   - Search params or updater.
  * @param root0.children - Link contents.
+ * @param ref            - Forwarded to the anchor, as the design system link passes one.
  * @return The rendered anchor.
  */
-function MockRouteLink( { to, params, search, children, ...props }: MockRouteLinkProps ) {
+function RouteLinkAnchor(
+	{ to, params, search, children, ...props }: MockRouteLinkProps,
+	ref: ForwardedRef< HTMLAnchorElement >
+) {
 	const path = Object.entries( params ?? {} ).reduce(
 		( currentPath, [ key, value ] ) => currentPath.replace( `$${ key }`, String( value ) ),
 		to
@@ -49,11 +54,13 @@ function MockRouteLink( { to, params, search, children, ...props }: MockRouteLin
 	const queryString = query.toString();
 
 	return (
-		<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
+		<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
 			{ children }
 		</a>
 	);
 }
+
+const MockRouteLink = forwardRef( RouteLinkAnchor );
 
 /** Shared Jest replacement for the WordPress route module. */
 export const mockWordPressRoute = {

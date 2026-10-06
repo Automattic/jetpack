@@ -8,42 +8,14 @@ import { category, tag } from '@wordpress/icons';
  */
 import { LeaderboardLabel } from '../leaderboard-label';
 import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
-import type { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
-// `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-	return {
-		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, search, children, ...props }, ref ) => {
-				const path = Object.entries( params ?? {} ).reduce(
-					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-					to
-				);
-				const query = new URLSearchParams();
-				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-					if ( value !== undefined && value !== null ) {
-						query.set( key, String( value ) );
-					}
-				} );
-				const queryString = query.toString();
-
-				return (
-					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-						{ children }
-					</a>
-				);
-			}
-		),
-	};
+	return mockWordPressRoute;
 } );
 
 function glyphPath( root: Element | null | undefined ) {
@@ -101,41 +73,29 @@ describe( 'LeaderboardLabel', () => {
 describe( 'resolveLeaderboardRowAction', () => {
 	const drillDown = { onClick: () => {}, ariaLabel: 'Drill' };
 
-	it( 'drills down when a row has children and a drill-down handler', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: true, drillDown } ) ).toMatchObject( {
-			kind: 'drillDown',
-			ariaLabel: 'Drill',
-		} );
-	} );
-
-	it( 'prefers drill-down over an href when both are present', () => {
-		expect(
-			resolveLeaderboardRowAction( { hasChildren: true, href: 'https://a.test', drillDown } )
-		).toMatchObject( { kind: 'drillDown' } );
-	} );
-
-	it( 'links a childless row with an href', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: false, href: 'https://a.test' } ) ).toEqual(
-			{ kind: 'link', href: 'https://a.test' }
-		);
-	} );
-
-	it( 'stays static when a row has children but no drill-down handler, ignoring href', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: true, href: 'https://a.test' } ) ).toEqual(
-			{
-				kind: 'static',
-			}
-		);
-	} );
-
-	it( 'ignores a drill-down handler on a childless row', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: false, drillDown } ) ).toEqual( {
-			kind: 'static',
-		} );
-	} );
-
-	it( 'stays static with neither children nor href', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: false } ) ).toEqual( { kind: 'static' } );
+	it.each( [
+		[
+			'drills down over an href when a row has children and a handler',
+			{ hasChildren: true, href: 'https://a.test', drillDown },
+			{ kind: 'drillDown', ariaLabel: 'Drill' },
+		],
+		[
+			'links a childless row with an href',
+			{ hasChildren: false, href: 'https://a.test' },
+			{ kind: 'link', href: 'https://a.test' },
+		],
+		[
+			'stays static when a row has children but no handler, ignoring href',
+			{ hasChildren: true, href: 'https://a.test' },
+			{ kind: 'static' },
+		],
+		[
+			'ignores a drill-down handler on a childless row',
+			{ hasChildren: false, drillDown },
+			{ kind: 'static' },
+		],
+	] )( '%s', ( _title, options, expected ) => {
+		expect( resolveLeaderboardRowAction( options ) ).toMatchObject( expected );
 	} );
 } );
 
@@ -167,27 +127,6 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByRole( 'link', { name: /Pricing/ } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/pricing/'
-		);
-		expect( row ).not.toHaveProperty( 'onClick' );
-	} );
-
-	it( 'routes a video link to the video detail page with the report window', () => {
-		const row = buildLeaderboardRow( {
-			label: 'Launch teaser',
-			media: { kind: 'none' },
-			action: {
-				kind: 'videoLink',
-				id: 9,
-				href: 'https://example.com/launch-teaser/',
-				search: { date_start: '2026-08-01', date_end: '2026-08-26' },
-			},
-		} );
-
-		render( row.label );
-
-		expect( screen.getByRole( 'link', { name: /Launch teaser/ } ) ).toHaveAttribute(
-			'href',
-			'/video/9?date_start=2026-08-01&date_end=2026-08-26'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );

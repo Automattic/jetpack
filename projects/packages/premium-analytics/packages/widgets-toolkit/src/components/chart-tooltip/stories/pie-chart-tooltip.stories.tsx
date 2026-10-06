@@ -1,11 +1,13 @@
+import { TooltipBox } from '@jetpack-premium-analytics/externals';
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { PieChartTooltip } from '../pie-chart-tooltip';
-import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof PieChartTooltip > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/PieChartTooltip',
 	component: PieChartTooltip,
 	tags: [ 'autodocs' ],
+	decorators: [ withChartTheme ],
 	parameters: {
 		layout: 'centered',
 	},
