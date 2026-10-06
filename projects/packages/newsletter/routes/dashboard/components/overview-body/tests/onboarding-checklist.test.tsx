@@ -160,9 +160,9 @@ describe( 'OnboardingChecklist', () => {
 	} );
 
 	it.each( [
-		[ 'Add a subscribe form', 'subscribe_form', 'settings' ],
-		[ 'Add subscribers', 'subscribers', 'subscribers' ],
-	] )( '"%s" opens the %s tab', async ( action, step, tab ) => {
+		[ 'Add a subscribe form', 'subscribe_form', 'settings', 'subscriptions' ],
+		[ 'Add subscribers', 'subscribers', 'subscribers', undefined ],
+	] )( '"%s" opens the %s tab', async ( action, step, tab, hash ) => {
 		mockApiFetch.mockResolvedValue(
 			taskList( step === 'subscribers' ? [ 'subscribe_form' ] : [] )
 		);
@@ -173,6 +173,7 @@ describe( 'OnboardingChecklist', () => {
 
 		expect( mockNavigate ).toHaveBeenCalledWith( {
 			search: { tab, subscriber: undefined, u: undefined },
+			hash,
 		} );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
 			site_type: 'jetpack',

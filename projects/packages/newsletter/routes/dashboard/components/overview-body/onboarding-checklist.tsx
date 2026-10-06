@@ -18,6 +18,7 @@ import {
 	VisuallyHidden,
 } from '@wordpress/ui';
 import clsx from 'clsx';
+import { SUBSCRIPTIONS_SECTION_ID } from '../../../../src/settings/anchors';
 import {
 	completeOnboardingTask,
 	fetchOnboardingTasks,
@@ -53,8 +54,9 @@ function recordChecklistClick( step: OnboardingTaskId, action: 'primary' | 'skip
 /**
  * Checklist action buttons for one open step.
  *
- * The subscribe form and subscribers steps switch to their dashboard tab; the send step opens a new
- * post in the editor. Skip completes the step for good.
+ * The subscribe form step opens the Settings tab at its Subscriptions section, the subscribers step
+ * opens the Subscribers tab, and the send step opens a new post in the editor. Skip completes the
+ * step for good.
  *
  * @param props               - Action props.
  * @param props.stepId        - Checklist step slug.
@@ -86,6 +88,7 @@ function ChecklistActions( {
 					subscriber: undefined,
 					u: undefined,
 				},
+				hash: stepId === 'subscribe_form' ? SUBSCRIPTIONS_SECTION_ID : undefined,
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		}
 	}, [ navigate, stepId ] );
