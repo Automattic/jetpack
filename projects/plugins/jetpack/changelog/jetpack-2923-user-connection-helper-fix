@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-My Jetpack: Stop counting products that are off as needing a user connection, so the Overview connection card and the missing user connection notice only reflect products in use.
+My Jetpack: Stop showing an empty account avatar on the Overview connection card when nothing in use needs a user connection.
