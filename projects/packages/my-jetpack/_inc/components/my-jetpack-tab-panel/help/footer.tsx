@@ -27,15 +27,8 @@ export function HelpFooter() {
 		trackHelpRequest( 'documentation', 'clicked_debug_information_link' );
 	}, [ trackHelpRequest ] );
 
-	// These links target the Jetpack modules list (the Features list view, or the
-	// classic modules page) and the Debugger, which only exist, and are only
-	// reachable, under two conditions: the Jetpack plugin is active (My Jetpack
-	// also runs inside standalone plugins, where the Features tab lists no
-	// modules and these pages aren't registered), and the current user can
-	// manage options (both pages require it, but the Help tab is also shown to
-	// non-admins like editors). Neither page is registered on WordPress.com
-	// Simple sites. Guard on all of these to avoid links that dead-end on a
-	// 404 or a "you are not allowed to access this page" screen.
+	// The modules list and the Debugger need the Jetpack plugin and manage_options (the Help tab
+	// also shows to editors), and neither exists on WordPress.com Simple.
 	const showUsefulLinks =
 		isJetpackPluginActive() && currentUserCan( 'manage_options' ) && ! isSimpleSite();
 
