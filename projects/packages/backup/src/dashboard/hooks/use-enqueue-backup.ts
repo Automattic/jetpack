@@ -85,9 +85,10 @@ export function useEnqueueBackup(): Result {
 
 	const mutation = useMutation( {
 		onMutate: () => {
-			queryClient.setQueryData< Requested >( REQUESTED_KEY, {
+			const requested: Requested = {
 				baselineId: newestBackupId( queryClient.getQueryData( keys.backups() ) ),
-			} );
+			};
+			queryClient.setQueryData( REQUESTED_KEY, requested );
 		},
 		onError: () => {
 			queryClient.setQueryData( REQUESTED_KEY, false );
