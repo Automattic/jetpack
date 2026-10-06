@@ -66,9 +66,17 @@ class Jetpack_JITM_Test extends TestCase {
 	 * It requires the runInSeparateProcess tag so that the class isn't already autoloaded.
 	 *
 	 * @runInSeparateProcess
+	 * @dataProvider data_jetpack_plugin_active
+	 *
+	 * @param bool $jetpack_active Whether the Jetpack plugin is active.
 	 */
 	#[RunInSeparateProcess]
-	public function test_prepare_jitms_enqueues_assets() {
+	#[DataProvider( 'data_jetpack_plugin_active' )]
+	public function test_prepare_jitms_enqueues_assets( $jetpack_active ) {
+		if ( $jetpack_active ) {
+			\Mockery::mock( 'alias:Jetpack' );
+		}
+
 		$mock_assets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
 
 		// Assume we're on a Jetpack page.
@@ -95,11 +103,27 @@ class Jetpack_JITM_Test extends TestCase {
 		Functions\expect( 'wp_localize_script' )->once()->with(
 			'jetpack-jitm',
 			'jitm_config',
-			\Mockery::type( 'array' )
+			\Mockery::on(
+				static function ( $config ) use ( $jetpack_active ) {
+					return $jetpack_active === $config['has_wpcom_endpoint'];
+				}
+			)
 		);
 
 		// Do the action that we asserted was added.
 		$jitm->jitm_enqueue_files();
+	}
+
+	/**
+	 * Data provider for test_prepare_jitms_enqueues_assets.
+	 *
+	 * @return array
+	 */
+	public static function data_jetpack_plugin_active() {
+		return array(
+			'standalone plugin only' => array( false ),
+			'Jetpack plugin active'  => array( true ),
+		);
 	}
 
 	/**
