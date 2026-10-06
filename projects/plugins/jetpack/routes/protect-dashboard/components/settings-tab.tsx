@@ -10,7 +10,7 @@ import type { DashboardContext } from '../sections/types';
  * @return The tab.
  */
 export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) {
-	const { isLoaded, error, dismissError } = props.settings;
+	const { isLoaded, error, dismissError, load } = props.settings;
 	const state = window.jetpackProtectDashboard ?? {};
 	const cards = sections.filter( section => section.SettingsCard );
 
@@ -18,6 +18,11 @@ export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) 
 		return error ? (
 			<Notice.Root intent="error">
 				<Notice.Description>{ error }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ load }>
+						{ __( 'Try again', 'jetpack' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
 			</Notice.Root>
 		) : (
 			<Stack direction="row" justify="center">
