@@ -66,6 +66,8 @@ export interface MyJetpackScriptData {
 	};
 	/** Absolute URL of My Jetpack's built images directory, with a trailing slash. */
 	assetsUrl?: string;
+	/** Navigation data for released footers; current My Jetpack always points to Features. */
+	productsSection?: { slug: 'features'; label: string } | null;
 }
 
 export interface JetpackScriptData {

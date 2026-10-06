@@ -691,6 +691,11 @@ class Initializer {
 	public static function add_admin_script_data( $data ) {
 		$data['myJetpack']['isAvailable'] = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']   = self::get_assets_url();
+		// Released footer bundles still read this key before falling back to Products.
+		$data['myJetpack']['productsSection'] = array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
+		);
 
 		return $data;
 	}

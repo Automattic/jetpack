@@ -38,7 +38,7 @@ class Footer_Links {
 	 * @return array{slug: string, label: string}
 	 */
 	public static function get_my_jetpack_products_section() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 
 		return array(
 			'slug'  => 'features',

@@ -39,6 +39,24 @@ class Script_Data_Test extends BaseTestCase {
 		$this->assertSame( Initializer::get_assets_url(), $data['myJetpack']['assetsUrl'] );
 	}
 
+	public function test_publishes_features_navigation_for_released_footers() {
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_false' );
+
+		try {
+			$data = Initializer::add_admin_script_data( array() );
+
+			$this->assertSame(
+				array(
+					'slug'  => 'features',
+					'label' => 'Features',
+				),
+				$data['myJetpack']['productsSection']
+			);
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_false' );
+		}
+	}
+
 	/**
 	 * Availability requires initialization, page registration, and access for the current user.
 	 */

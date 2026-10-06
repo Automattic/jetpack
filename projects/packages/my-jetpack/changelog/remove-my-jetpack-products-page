@@ -1,4 +1,4 @@
 Significance: minor
 Type: removed
 
-Remove the Products page. Links to it, including saved ones, now open the Features tab.
+Remove the Products page. Links to it, including saved ones, now open the Features tab. Point the footer's Modules link and Help's All Jetpack modules link back to the Modules page.
