@@ -80,12 +80,13 @@ function mockEmailSummary( isError = false ) {
 }
 
 describe( 'EmailsReportPage', () => {
-	it( 'renders the summary rows in the records table', () => {
+	it( 'renders the summary rows with their 0–100 open rate as a percentage', () => {
 		mockEmailSummary();
 
 		render( <EmailsReportPage /> );
 
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
+		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'replaces the table with an error that refetches on Retry', async () => {
