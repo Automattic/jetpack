@@ -70,15 +70,15 @@ describe( 'toVideoPlaysRows', () => {
 		] );
 	} );
 
-	it( 'asks the SDK for a 100 × 56 poster', () => {
-		mockGetVideoPosterUrl.mockReturnValueOnce( 'https://i0.wp.com/v/a.jpg?resize=100%2C56' );
+	it( 'asks the SDK for a 75 × 42 poster', () => {
+		mockGetVideoPosterUrl.mockReturnValueOnce( 'https://i0.wp.com/v/a.jpg?resize=75%2C42' );
 
 		const [ row ] = toVideoPlaysRows( [
 			video( { id: 101, label: 'Walkthrough', poster: 'https://i0.wp.com/v/a.jpg' } ),
 		] );
 
-		expect( mockGetVideoPosterUrl ).toHaveBeenCalledWith( 'https://i0.wp.com/v/a.jpg', 100, 56 );
-		expect( row.posterUrl ).toBe( 'https://i0.wp.com/v/a.jpg?resize=100%2C56' );
+		expect( mockGetVideoPosterUrl ).toHaveBeenCalledWith( 'https://i0.wp.com/v/a.jpg', 75, 42 );
+		expect( row.posterUrl ).toBe( 'https://i0.wp.com/v/a.jpg?resize=75%2C42' );
 	} );
 
 	it( 'keys untitled videos without an id by their link so they do not collapse', () => {

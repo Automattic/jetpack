@@ -62,9 +62,10 @@
 	--jpa-leaderboard-image-fit: cover;
 }
 
+/* As tall as a `.flag`, whose 4:3 image is drawn 28px wide. */
 .thumbnailWide {
-	--jpa-leaderboard-image-width: 50px;
-	--jpa-leaderboard-image-height: auto;
+	--jpa-leaderboard-image-width: calc(21px * 16 / 9);
+	--jpa-leaderboard-image-height: 21px;
 	--jpa-leaderboard-image-aspect-ratio: 16 / 9;
 	--jpa-leaderboard-image-radius: var(--wpds-border-radius-md);
 	--jpa-leaderboard-image-fit: cover;

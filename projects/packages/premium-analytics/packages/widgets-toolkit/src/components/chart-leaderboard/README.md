@@ -212,7 +212,7 @@ fallback, and default alt-text policy:
 | `avatar`    | 20 × 20px                 | Placeholder                      |
 | `favicon`   | 16 × 16px                 | Hidden; always decorative        |
 | `flag`      | 28px wide                 | Placeholder; proportional height |
-| `thumbnail` | 28 × 28px (16:9: 50 × 28) | Placeholder                      |
+| `thumbnail` | 28 × 28px (16:9: 37 × 21) | Placeholder                      |
 | `icon`      | 20 × 20px                 | No image; takes a glyph          |
 | `none`      | No media                  | Renders text only                |
 

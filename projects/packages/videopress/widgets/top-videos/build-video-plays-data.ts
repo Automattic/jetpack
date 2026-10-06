@@ -67,7 +67,7 @@ export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] )
 			link: video.link,
 			plays: video.plays,
 			previousPlays: video.previousPlays,
-			posterUrl: getVideoPosterUrl( video.poster, 100, 56 ),
+			posterUrl: getVideoPosterUrl( video.poster, 75, 42 ),
 		};
 	} );
 }
