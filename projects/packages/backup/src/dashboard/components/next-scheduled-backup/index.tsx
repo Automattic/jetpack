@@ -1,11 +1,10 @@
-import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Skeleton, Text } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useNextBackupSchedule } from '../../hooks/use-backup-schedule';
-import { useSiteSuffix } from '../../hooks/use-connection';
 import { useSiteSize } from '../../hooks/use-site-size';
+import BackupScheduleModal from '../backup-schedule-modal';
 import './style.scss';
 
 /**
@@ -21,10 +20,8 @@ import './style.scss';
  * the rest in source order, so dropping the `$` swaps date and time under any
  * translation that reorders them.
  *
- * Legacy's "Modify" link comes with it, and so does its Tracks event. This is the one
- * Calypso destination the modernized dashboard keeps (JETPACK-2329):
- * `cloud.jetpack.com/settings` is the only place a backup's time can be changed, and
- * there is no schedule-editing UI here to send the reader to instead.
+ * Legacy's "Modify" link went to `cloud.jetpack.com/settings`; here it opens
+ * `<BackupScheduleModal>` instead (JETPACK-2636), keeping legacy's Tracks event.
  *
  * On a half-hour timezone this deliberately disagrees with legacy, which throws the
  * minutes away and reports a window the site does not have.
@@ -33,15 +30,25 @@ import './style.scss';
  */
 export default function NextScheduledBackup() {
 	const { tracks } = useAnalytics();
-	const site = useSiteSuffix();
 	const schedule = useNextBackupSchedule();
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const [ announcement, setAnnouncement ] = useState( '' );
 	// The same `/site/backup/size` query the storage section and "Back up now" already
 	// read, shared through `useSiteSizeQuery` rather than issued again.
 	const { backupsStopped, isLoading: stoppedIsLoading } = useSiteSize();
 
 	const onModifyClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_schedule_modify_click' );
+		setAnnouncement( '' );
+		setIsModalOpen( true );
 	}, [ tracks ] );
+
+	const onModalClose = useCallback( ( saved: boolean ) => {
+		setIsModalOpen( false );
+		if ( saved ) {
+			setAnnouncement( __( 'Daily backup time changed.', 'jetpack-backup-pkg' ) );
+		}
+	}, [] );
 
 	// Both reads, or the line appears and then retracts: a site whose backups have
 	// stopped would promise a run for as long as `/size` takes to say otherwise.
@@ -56,12 +63,6 @@ export default function NextScheduledBackup() {
 	if ( backupsStopped || ! schedule.hasSchedule ) {
 		return null;
 	}
-
-	// The key is omitted rather than passed as undefined. `getRedirectUrl` walks its args
-	// with `for…in`, so a present-but-undefined `site` is encoded — the link would carry
-	// the literal string `undefined` — and its mere presence also suppresses the helper's
-	// own site fallback. See `gates/no-backup-plan.tsx`.
-	const modifyUrl = getRedirectUrl( 'backup-plugin-schedule-time-setting', site ? { site } : {} );
 
 	return (
 		// The `Text` is the row, so sentence and link are sized together rather than the
@@ -78,9 +79,23 @@ export default function NextScheduledBackup() {
 					schedule.timeRange
 				) }
 			</span>{ ' ' }
-			<Link openInNewTab href={ modifyUrl } onClick={ onModifyClick }>
+			<Link
+				render={ <button type="button" /> }
+				className="jpb-next-scheduled-backup__modify"
+				onClick={ onModifyClick }
+			>
 				{ __( 'Modify', 'jetpack-backup-pkg' ) }
 			</Link>
+			<span className="jpb-visually-hidden" role="status">
+				{ announcement }
+			</span>
+			{ isModalOpen && (
+				<BackupScheduleModal
+					scheduledHour={ schedule.scheduledHour }
+					scheduledBy={ schedule.scheduledBy }
+					onClose={ onModalClose }
+				/>
+			) }
 		</Text>
 	);
 }

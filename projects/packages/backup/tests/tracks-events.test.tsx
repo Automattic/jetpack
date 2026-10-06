@@ -78,13 +78,16 @@ function mockEndpointsForButton() {
 }
 
 /**
- * Answer the two routes `<NextScheduledBackup>` reads before it renders.
+ * Answer the two routes `<NextScheduledBackup>` reads before it renders, and the save.
  *
- * Without both, there is no link to click and the test passes vacuously.
+ * Without both reads, there is no button to click and the test passes vacuously.
  */
 function mockEndpointsForSchedule() {
-	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+	mockApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
 		const path = options?.path ?? '';
+		if ( path.includes( '/site/backup/schedule' ) && options?.method === 'POST' ) {
+			return Promise.resolve( { ok: true, scheduled_hour: 3 } );
+		}
 		if ( path.includes( '/site/backup/schedule' ) ) {
 			return Promise.resolve( { ok: true, scheduled_hour: 10 } );
 		}
@@ -310,22 +313,19 @@ describe( 'Modify schedule', () => {
 	}
 
 	/**
-	 * The "Modify" link, once the two reads behind the line have landed.
+	 * The "Modify" button, once the two reads behind the line have landed.
 	 *
-	 * Matched on a name fragment: `Link` appends "(opens in a new tab)".
-	 *
-	 * @return The anchor.
+	 * @return The button.
 	 */
-	function modifyLink(): Promise< HTMLElement > {
-		return screen.findByRole( 'link', { name: /Modify/ } );
+	function modifyButton(): Promise< HTMLElement > {
+		return screen.findByRole( 'button', { name: 'Modify' } );
 	}
 
-	// JETPACK-2329. Legacy records this on the same link, and it is the only
-	// measurement of readers leaving for `cloud.jetpack.com/settings`.
-	it( 'records the reader leaving for the schedule settings', async () => {
+	// Legacy records this on the same control, so the series continues across dashboards.
+	it( 'records the reader opening the schedule dialog', async () => {
 		await renderScheduleLine();
 
-		await userEvent.click( await modifyLink() );
+		await userEvent.click( await modifyButton() );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_schedule_modify_click' );
 		// Once, not merely at least once: a row that later grew a second click
@@ -336,10 +336,25 @@ describe( 'Modify schedule', () => {
 	it( 'records nothing until the reader actually clicks', async () => {
 		await renderScheduleLine();
 
-		// Settled on the link being there to click, so this is a click that did
+		// Settled on the button being there to click, so this is a click that did
 		// not happen rather than a component that never rendered.
-		await expect( modifyLink() ).resolves.toBeInTheDocument();
+		await expect( modifyButton() ).resolves.toBeInTheDocument();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records the new hour once WordPress.com has saved it', async () => {
+		await renderScheduleLine();
+		await userEvent.click( await modifyButton() );
+		await userEvent.click( await screen.findByRole( 'combobox', { name: 'Backup window' } ) );
+		// Jest runs in America/Sao_Paulo and the site settings default to UTC, so 3 AM is hour 3.
+		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 AM' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_schedule_update', {
+				scheduled_hour: 3,
+			} )
+		);
 	} );
 } );
 

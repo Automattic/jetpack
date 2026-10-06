@@ -17,4 +17,14 @@
 		inline-size: 260px;
 		margin-block-end: 16px;
 	}
+
+	// `Link` styles an anchor; rendered as a `<button>`, the native box shows.
+	&__modify {
+		appearance: none;
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		cursor: pointer;
+	}
 }
