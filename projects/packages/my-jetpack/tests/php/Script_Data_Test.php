@@ -39,6 +39,16 @@ class Script_Data_Test extends BaseTestCase {
 		$this->assertSame( Initializer::get_assets_url(), $data['myJetpack']['assetsUrl'] );
 	}
 
+	public function test_publishes_features_navigation_for_released_footers() {
+		$features = array(
+			'slug'  => 'features',
+			'label' => 'Features',
+		);
+
+		$this->assertSame( $features, Initializer::get_products_section() );
+		$this->assertSame( $features, Initializer::add_admin_script_data( array() )['myJetpack']['productsSection'] );
+	}
+
 	/**
 	 * Availability requires initialization, page registration, and access for the current user.
 	 */
@@ -77,20 +87,6 @@ class Script_Data_Test extends BaseTestCase {
 			$wp_actions        = $actions;
 			wp_set_current_user( $user_id );
 		}
-	}
-
-	/**
-	 * Footers on every Jetpack admin page link to the products tab from script data.
-	 */
-	public function test_adds_the_products_section() {
-		$filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
-		$this->assertSame( 'features', Initializer::add_admin_script_data( array() )['myJetpack']['productsSection']['slug'] );
-
-		add_filter( $filter, '__return_false' );
-		$data = Initializer::add_admin_script_data( array() );
-		remove_all_filters( $filter );
-
-		$this->assertNull( $data['myJetpack']['productsSection'] );
 	}
 
 	/**
