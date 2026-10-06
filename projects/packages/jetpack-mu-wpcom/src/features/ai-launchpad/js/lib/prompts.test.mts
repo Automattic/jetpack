@@ -361,30 +361,27 @@ describe( 'buildTailorPrompt', () => {
 describe( 'buildTailorPrompt output language', () => {
 	const LANGUAGE_HEADER = '============ output language ============';
 
-	it( 'sends an all-English site and account the same prompt, with no language block', () => {
-		// The A/B's English cohort must see zero prompt change: the block is only ever added for other
-		// languages, and a missing locale counts as English.
-		const baseline = buildTailorPrompt( { ...INPUT, locale: 'en' } );
-		assert.ok( ! baseline.includes( LANGUAGE_HEADER ) );
-		for ( const locale of [ 'en_US', 'en-gb', 'EN_AU', '' ] ) {
-			assert.equal(
-				buildTailorPrompt( { ...INPUT, locale, ui_locale: locale } ),
-				baseline,
-				`locale "${ locale }"`
-			);
-		}
-		// Two DIFFERENT Englishes too. They are not the "same language" by the regional test, so the
-		// subtitle reminder would otherwise be appended pointing at a section that was never written.
+	it( 'tells an English site to write in English even when the description is not', () => {
+		const prompt = buildTailorPrompt( {
+			...INPUT,
+			description: "Un'azienda di creativi!",
+			locale: 'en_US',
+			ui_locale: 'en_US',
+		} );
+		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+
+		assert.match( block, /The site's language is [^.]*English \(locale "en_US"\)/ );
+		assert.match( block, /even when the site name or description is written in another language/ );
+		assert.ok( ! block.includes( 'do not fall back to English' ) );
+	} );
+
+	it( 'does not split the subtitles between two different Englishes', () => {
 		for ( const [ locale, ui ] of [
 			[ 'en_US', 'en_GB' ],
-			[ 'en_GB', 'en_US' ],
 			[ 'en', 'en_AU' ],
 		] ) {
-			assert.equal(
-				buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } ),
-				baseline,
-				`${ locale } / ${ ui }`
-			);
+			const prompt = buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } );
+			assert.ok( ! prompt.includes( 'Two languages are in play' ), `${ locale } / ${ ui }` );
 		}
 	} );
 

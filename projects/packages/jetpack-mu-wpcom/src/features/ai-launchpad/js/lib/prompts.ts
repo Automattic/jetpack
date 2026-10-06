@@ -548,15 +548,16 @@ function sameLanguage( a: string, b: string ): boolean {
  * translating them would split one cohort into forty. When the two languages match — the ordinary
  * case — the first two groups collapse into one instruction.
  *
- * @param locale   - The site language.
- * @param uiLocale - The account language of whoever runs the wizard.
+ * @param locale         - The site language.
+ * @param uiLocale       - The account language of whoever runs the wizard.
+ * @param splitLanguages - Whether the subtitles and the published content get different languages.
  * @return The instruction sentence(s).
  */
-function languageInstruction( locale: string, uiLocale: string ): string {
+function languageInstruction( locale: string, uiLocale: string, splitLanguages: boolean ): string {
 	const site = `${ languageDisplayName( locale ) } (locale "${ locale }")`;
 
-	if ( sameLanguage( locale, uiLocale ) ) {
-		return `The site's language is ${ site }. Write these in that language: the task subtitles, the whole first_post_draft and about_page_draft, and every page_intros line. The About page title is that language's equivalent of "About".`;
+	if ( ! splitLanguages ) {
+		return `The site's language is ${ site }. Write these in that language: the task subtitles, the whole first_post_draft and about_page_draft, and every page_intros line - even when the site name or description is written in another language. The About page title is that language's equivalent of "About".`;
 	}
 
 	return `Two languages are in play, and mixing them up is the failure to avoid. Write the task "subtitle" values in ${ languageDisplayName(
@@ -589,13 +590,11 @@ export function buildTailorPrompt(
 			? TASK_ANNOTATIONS.filter( task => availableTaskIds.includes( task.id ) )
 			: TASK_ANNOTATIONS;
 
-	// A site and an account that are both English get no language block at all, so the prompt those
-	// users have always had stays byte-identical — including two different Englishes, where there is
-	// nothing to instruct.
-	const hasLanguageSection = ! isEnglishLocale( locale ) || ! isEnglishLocale( uiLocale );
-	// Whether the two audiences need telling apart. Gated on the section existing as well, or the
-	// reminder below would point at a section that was never written.
-	const splitLanguages = hasLanguageSection && ! sameLanguage( locale, uiLocale );
+	// English sites get the block too: without it, a description in another language pulls the output
+	// into that language. Two different Englishes are not worth splitting the subtitles over.
+	const splitLanguages =
+		! sameLanguage( locale, uiLocale ) &&
+		! ( isEnglishLocale( locale ) && isEnglishLocale( uiLocale ) );
 
 	// Naming the subtitle language once at the top is not enough: STEP 2 spends a paragraph on
 	// subtitles without mentioning language, and the model follows the nearer instruction. Repeat it
@@ -606,14 +605,18 @@ export function buildTailorPrompt(
 			) }, NOT in the language of the rest of this response - see the output-language section above.`
 		: '';
 
-	const languageSection = ! hasLanguageSection
-		? ''
-		: `
+	const noEnglishFallback =
+		isEnglishLocale( locale ) && isEnglishLocale( uiLocale )
+			? ''
+			: ', and do not fall back to English for the fields named above';
+
+	const languageSection = `
 ============ output language ============
 ${ languageInstruction(
 	locale,
-	uiLocale
-) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe" and "audience", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them, and do not fall back to English for the fields named above.
+	uiLocale,
+	splitLanguages
+) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe" and "audience", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them${ noEnglishFallback }.
 `;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
