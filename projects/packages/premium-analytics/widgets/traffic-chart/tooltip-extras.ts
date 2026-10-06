@@ -73,11 +73,23 @@ function viewsPerVisitorOf( point: Record< string, unknown > ): number | undefin
 		: undefined;
 }
 
-// An untitled post arrives as `''` and still counts, as in classic Stats.
+// An untitled post arrives as `''` and still counts, as in classic Stats. A bucket
+// the report lists without posts reads 0; one it leaves out has no reading.
 function postsPublishedOf( point: Record< string, unknown > ): number | undefined {
-	const posts = Array.isArray( point.post_titles ) ? point.post_titles.length : 0;
+	return Array.isArray( point.post_titles ) ? point.post_titles.length : undefined;
+}
 
-	return posts || undefined;
+/**
+ * Drop the buckets where both periods read 0, so a count row stays out of the
+ * tooltip until one period has something to count, as in classic Stats. A 0
+ * against a real count stays, so the row reads 0 rather than no data.
+ */
+function omitZeroPairs( points: ExtraPoints, others: ExtraPoints ): ExtraPoints {
+	return points.filter(
+		point =>
+			point.value !== 0 ||
+			others.some( other => other.date.getTime() === point.date.getTime() && other.value !== 0 )
+	);
 }
 
 /**
@@ -87,7 +99,7 @@ function postsPublishedOf( point: Record< string, unknown > ): number | undefine
  * @param current    - The current period's reports.
  * @param zone       - The reports' reporting timezone.
  * @param comparison - The comparison period's reports, when a comparison is on.
- * @return The extra series, each omitted when no bucket has a reading for it.
+ * @return The extra series, each omitted when neither period has a reading for it.
  */
 export function buildTrafficTooltipExtras(
 	current: TrafficTooltipReports,
@@ -102,6 +114,7 @@ export function buildTrafficTooltipExtras(
 			current: readRow( current.views, zone, viewsPerVisitorOf ),
 			comparisonReport: comparison?.views,
 			valueOf: viewsPerVisitorOf,
+			isCount: false,
 		},
 		{
 			label: __( 'Posts published', 'jetpack-premium-analytics-pkg' ),
@@ -110,23 +123,37 @@ export function buildTrafficTooltipExtras(
 			current: readRow( current.posts, zone, postsPublishedOf ),
 			comparisonReport: comparison?.posts,
 			valueOf: postsPublishedOf,
+			isCount: true,
 		},
 	];
 
 	return rows
-		.filter( row => row.current.points.length )
-		.map( ( { label, icon, dataFormat, countLabel, current: own, comparisonReport, valueOf } ) => {
-			const previous = comparisonReport
-				? readRow( comparisonReport, zone, valueOf, own.dates ).points
-				: [];
-
-			return {
+		.map(
+			( {
 				label,
 				icon,
 				dataFormat,
 				countLabel,
-				data: own.points,
-				previous: previous.length ? previous : undefined,
-			};
-		} );
+				current: own,
+				comparisonReport,
+				valueOf,
+				isCount,
+			} ) => {
+				const previous = comparisonReport
+					? readRow( comparisonReport, zone, valueOf, own.dates ).points
+					: [];
+				const data = isCount ? omitZeroPairs( own.points, previous ) : own.points;
+				const previousData = isCount ? omitZeroPairs( previous, own.points ) : previous;
+
+				return {
+					label,
+					icon,
+					dataFormat,
+					countLabel,
+					data,
+					previous: previousData.length ? previousData : undefined,
+				};
+			}
+		)
+		.filter( row => row.data.length || row.previous );
 }

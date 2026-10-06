@@ -30,10 +30,7 @@ function modelFor(
 	series = SERIES
 ) {
 	return buildDatedTooltipModel( {
-		tooltipData: {
-			nearestDatum: { datum: entries[ 0 ]?.[ 1 ].datum },
-			datumByKey: Object.fromEntries( entries ),
-		},
+		tooltipData: { datumByKey: Object.fromEntries( entries ) },
 		series,
 		seriesStyles: STYLES,
 		extras,
@@ -87,6 +84,29 @@ describe( 'buildDatedTooltipModel', () => {
 				value: 100,
 				previous: {
 					value: 80,
+					indicator: { kind: 'series', style: { stroke: '#views-previous' } },
+				},
+			} ),
+		] );
+	} );
+
+	// A shorter comparison period has no point for the last bucket, so visx hands over
+	// the dashed line's nearest point from the bucket before.
+	it( 'reads a comparison point from another bucket as no data, under the current date', () => {
+		const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
+		const model = modelFor( [
+			entry( 'Views · previous period', COMPARISON_POINT ),
+			entry( 'Views', { date: JULY_2, value: 100 } ),
+		] );
+
+		expect( model?.date ).toBe( '2026-07-02' );
+		expect( model?.previousDate ).toBeUndefined();
+		expect( model?.rows ).toEqual( [
+			expect.objectContaining( {
+				name: 'Views',
+				value: 100,
+				previous: {
+					value: null,
 					indicator: { kind: 'series', style: { stroke: '#views-previous' } },
 				},
 			} ),

@@ -121,4 +121,22 @@ describe( 'DatedTooltip', () => {
 			'#views',
 		] );
 	} );
+
+	it( 'keeps the comparison column, with no date, when no comparison point sits on the bucket', () => {
+		renderTooltip( {
+			rows: [
+				row( {
+					previous: {
+						value: null,
+						indicator: { kind: 'series', style: { stroke: '#views-previous' } },
+					},
+				} ),
+			],
+		} );
+
+		expect( cells() ).toEqual( [
+			[ 'September 18, 2026', '' ],
+			[ '130,859 Views', '—No data' ],
+		] );
+	} );
 } );

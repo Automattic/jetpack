@@ -13,12 +13,6 @@ const meta: Meta< typeof DatedTooltip > = {
 	decorators: [ withChartTheme ],
 	parameters: {
 		layout: 'centered',
-		docs: {
-			description: {
-				component:
-					'The tooltip of the comparative line and bar charts: the hovered date once as a header, then one row per metric reading value then unit. With a comparison on, a second column lists the comparison values under their own date.',
-			},
-		},
 	},
 	render: args => (
 		<TooltipBox>

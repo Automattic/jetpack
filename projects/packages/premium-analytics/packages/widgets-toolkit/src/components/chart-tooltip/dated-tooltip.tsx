@@ -101,7 +101,8 @@ function CurrentReading( { row }: { row: DatedTooltipRow } ) {
  * comparison bucket's values under its own date, each beside its row.
  */
 export function DatedTooltip( { model, indicatorType }: DatedTooltipProps ) {
-	const hasPrevious = model.previousDate !== undefined;
+	const hasPrevious =
+		model.previousDate !== undefined || model.rows.some( row => row.previous !== undefined );
 
 	return (
 		<table className={ styles.table }>

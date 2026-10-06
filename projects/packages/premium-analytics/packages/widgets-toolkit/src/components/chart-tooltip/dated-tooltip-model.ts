@@ -37,14 +37,16 @@ export type DatedTooltipRow = TooltipReading & {
 export type DatedTooltipModel = {
 	/** The hovered bucket's date, formatted. */
 	date: string;
-	/** The comparison bucket's own date, formatted, when any row has a comparison. */
+	/**
+	 * The comparison bucket's own date, formatted. Unset when no comparison point
+	 * sits on the hovered bucket, though a row may still carry an empty comparison.
+	 */
 	previousDate?: string;
 	rows: DatedTooltipRow[];
 };
 
 type TooltipData = {
 	datumByKey?: Record< string, unknown >;
-	nearestDatum?: { datum?: unknown };
 };
 
 export type DatedTooltipModelOptions = {
@@ -80,11 +82,14 @@ export function buildDatedTooltipModel(
 ): DatedTooltipModel | null {
 	const { tooltipData, series, seriesStyles, extras, dataFormat, formatDate } = options;
 	const entries = Object.values( tooltipData?.datumByKey ?? {} ).filter( isChartDatumEntry );
-	// Every point sits on the current period's axis date; a comparison point keeps
-	// its own date in `realDate`, so the header reads `date` whichever is nearest.
-	const hoveredDate =
-		( tooltipData?.nearestDatum?.datum as Point | undefined )?.date ??
-		( entries[ 0 ]?.datum as Point | undefined )?.date;
+	const isComparison = ( key: string ) =>
+		series.find( s => s.label === key )?.options?.type === 'comparison';
+	// visx reports each line's nearest point however far it sits, so a comparison
+	// point can come from another bucket when its period is shorter. The header
+	// reads a current-period point, which always sits on the hovered bucket.
+	const hoveredDate = (
+		( entries.find( e => ! isComparison( e.key ) ) ?? entries[ 0 ] )?.datum as Point | undefined
+	 )?.date;
 
 	if ( ! entries.length || ! hoveredDate ) {
 		return null;
@@ -129,12 +134,16 @@ export function buildDatedTooltipModel(
 			continue;
 		}
 
+		// A point from another bucket is no reading for this one.
 		const point = entry.datum as Point;
+		const inBucket = point.date?.getTime() === hoveredTime;
 		row.previous = {
-			value: readingOf( point ),
+			value: inBucket ? readingOf( point ) : null,
 			indicator: { kind: 'series', style: styleOf( drawn.label ) },
 		};
-		previousDate ??= point.realDate ?? point.date;
+		if ( inBucket ) {
+			previousDate ??= point.realDate ?? point.date;
+		}
 	}
 
 	extras?.forEach( extra => {

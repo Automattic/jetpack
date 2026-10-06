@@ -136,7 +136,7 @@ const renderTooltip = params => {
 | Field            | Type                                    | Description                                                                              |
 | ---------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `date`           | `string`                                | The hovered bucket's date, formatted                                                     |
-| `previousDate`   | `string \| undefined`                   | The comparison bucket's date, when any row has a comparison                              |
+| `previousDate`   | `string \| undefined`                   | The comparison bucket's date, when a comparison point sits on the hovered bucket         |
 | `rows[].name`    | `string`                                | The metric's name, read as the value's unit                                              |
 | `rows[].countLabel` | `CountLabel \| undefined`           | The metric's plural-aware unit, from the series or extra                                 |
 | `rows[].dataFormat` | `DataFormat`                         | The extra's own format, else the chart's                                                 |
