@@ -55,6 +55,9 @@ type DateIntervalDropdownProps = {
 
 /**
  * Name a bucket as the menu lists it.
+ *
+ * @param interval - The bucket.
+ * @return Its label, such as "By days".
  */
 export function getIntervalLabel( interval: IntervalType ): string {
 	switch ( interval ) {
@@ -88,9 +91,10 @@ function getTriggerLabel( value?: IntervalType ): string {
 }
 
 /**
- * The bucket size every chart draws, opening a menu of what the active range allows. The
- * glyph (not a clock: it buckets the charts, doesn't narrow the period) opens even with one
- * option; `withLabel` names the bucket instead, and has nothing to open with one.
+ * The chart bucket-size control: a menu of what the active range allows.
+ *
+ * The glyph trigger (not a clock: it buckets the charts, doesn't narrow the period) opens
+ * even with one option. With `withLabel` it names the bucket, and is disabled with one.
  */
 export function DateIntervalDropdown( {
 	options,
@@ -166,10 +170,7 @@ export function DateIntervalDropdown( {
 								isSelected={ isSelected }
 								icon={ isSelected ? check : undefined }
 								onClick={ () => {
-									// Re-picking the active bucket would push an identical history entry.
-									if ( ! isSelected ) {
-										onChange( option );
-									}
+									onChange( option );
 									setIsOpen( false );
 								} }
 							>

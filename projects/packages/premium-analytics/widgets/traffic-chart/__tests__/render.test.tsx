@@ -169,7 +169,6 @@ describe( 'TrafficChart inherited Stats v1 choice', () => {
 } );
 
 describe( 'TrafficChart bucket size', () => {
-	// Each range would default to the finer bucket, so the saved one decides.
 	it.each( [
 		[ 'week', 'day' ],
 		[ 'month', 'week' ],
@@ -181,10 +180,16 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( chartInterval );
 	} );
 
-	it( 'draws the bucket the range suggests when none is saved', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'month' ) } } /> );
+	it( "draws the range's default bucket, not the page's, when none is saved", () => {
+		render(
+			<TrafficChartRender
+				attributes={ {
+					reportParams: { ...RANGE_FOR_INTERVAL.day, interval: 'week' } as ReportParams,
+				} }
+			/>
+		);
 
-		expect( requestedBucket() ).toBe( 'month' );
+		expect( requestedBucket() ).toBe( 'day' );
 	} );
 
 	it( 'clamps a saved bucket the range rules out', () => {
@@ -198,7 +203,7 @@ describe( 'TrafficChart bucket size', () => {
 	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
-	// layout can still carry it, and it must not override the page.
+	// layout can still carry it, and it must not override the range's bucket.
 	it( 'ignores a granularity persisted before the widget dropped the control', () => {
 		const staleAttributes = {
 			reportParams: reportParams( 'month' ),
@@ -228,7 +233,7 @@ describe( 'TrafficChart bucket size', () => {
 } );
 
 describe( 'TrafficChart drill-down', () => {
-	// A yearly page draws in months here, so the click must open the month:
+	// A multi-year range draws in months here, so the click must open the month:
 	// left to the page interval, a click on February would open the whole year.
 	it( 'sets the period to the bar it drew, not the page interval', () => {
 		const openPeriod = jest.fn();

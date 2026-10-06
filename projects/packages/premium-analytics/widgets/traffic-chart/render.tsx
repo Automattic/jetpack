@@ -56,7 +56,6 @@ type TrafficChartInnerProps = {
  */
 function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// Clamped like the widget's interval control, so the chart draws the bucket it names.
 	const period: TrafficChartGranularity = chartInterval(
 		{ ...reportParams, interval },
 		TRAFFIC_PERIODS

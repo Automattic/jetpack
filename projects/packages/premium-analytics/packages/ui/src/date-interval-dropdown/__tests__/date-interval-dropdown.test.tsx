@@ -27,21 +27,6 @@ describe( 'DateIntervalDropdown', () => {
 		expect( onChange ).toHaveBeenCalledWith( 'week' );
 	} );
 
-	it( 'closes without reporting a pick of the active bucket', async () => {
-		const onChange = jest.fn();
-		const user = userEvent.setup();
-
-		render(
-			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ onChange } />
-		);
-
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
-		await user.click( screen.getByRole( 'menuitemradio', { name: 'By days' } ) );
-
-		expect( onChange ).not.toHaveBeenCalled();
-		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
-	} );
-
 	describe( 'opening focus', () => {
 		beforeEach( () => jest.useFakeTimers() );
 		afterEach( () => jest.useRealTimers() );

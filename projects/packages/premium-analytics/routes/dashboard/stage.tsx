@@ -210,8 +210,7 @@ function Dashboard(): JSX.Element {
 	const showHeaderDateControl =
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
 	const showHeaderIntervalControl =
-		showHeaderDateControl &&
-		( activeSectionRecord?.date_filter_options?.with_header_interval_control ?? true );
+		activeSectionRecord?.date_filter_options?.with_header_interval_control ?? true;
 
 	// A widget can set the period, here or on another section (WOOA7S-2036); once
 	// the section shows the period control, it draws attention to the new period.

@@ -9,7 +9,11 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { CHART_INTERVAL_ELEMENTS, chartIntervalField } from '@jetpack-premium-analytics/fields';
+import {
+	chartIntervalElements,
+	chartIntervalField,
+	type ChartIntervalFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
 import {
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
@@ -100,17 +104,13 @@ export const TRAFFIC_CHART_METRICS = [
  * @property chartType     - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
  * @property chartInterval - The bucket size. Defaults to the one the date range suggests.
  */
-export type TrafficChartAttributes = {
+export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartGranularity > & {
 	chartType?: TrafficChartType;
-	chartInterval?: TrafficChartGranularity;
 };
 
-// Lists only the buckets this chart draws.
 const chartIntervalAttribute = {
 	...chartIntervalField,
-	elements: CHART_INTERVAL_ELEMENTS.filter( ( { value } ) =>
-		( TRAFFIC_PERIODS as readonly string[] ).includes( value )
-	),
+	elements: chartIntervalElements( TRAFFIC_PERIODS ),
 };
 
 // The switch must show what the chart draws, and the default depends on Stats v1.

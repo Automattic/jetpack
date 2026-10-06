@@ -10,6 +10,7 @@ import {
 	normalizeReportParams,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
+import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
 import { DateIntervalDropdown, getIntervalLabel } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
@@ -18,39 +19,45 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { WIDGET_HEADER_TRIGGER_PROPS } from '../helpers/widget-header-trigger';
+import type { ReportParamsFieldAttributes } from '../report-params-field/report-params-field';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type ChartIntervalFieldAttributes = {
-	chartInterval?: StatsPeriod;
+export type ChartIntervalFieldAttributes< P extends StatsPeriod = StatsPeriod > = {
+	chartInterval?: P;
 };
 
-const STATS_PERIODS = [ 'hour', 'day', 'week', 'month', 'year' ] as const;
-
 /**
- * Every bucket a chart may draw. A widget lists only its own chart's by overriding `elements`.
+ * The `elements` that list the buckets a chart draws, from the same list the chart clamps to.
+ *
+ * @param periods - The periods the chart draws.
+ * @return The field's elements.
  */
-export const CHART_INTERVAL_ELEMENTS = STATS_PERIODS.map( period => ( {
-	value: period,
-	label: getIntervalLabel( period ),
-} ) );
+export function chartIntervalElements( periods: readonly [ StatsPeriod, ...StatsPeriod[] ] ) {
+	return periods.map( period => ( { value: period, label: getIntervalLabel( period ) } ) );
+}
 
 function ChartIntervalControl( {
 	data,
 	field,
 	onChange,
-}: DataFormControlProps< ChartIntervalFieldAttributes > ) {
+}: DataFormControlProps< ChartIntervalFieldAttributes & Partial< ReportParamsFieldAttributes > > ) {
 	// The host renders this outside the widget tree, so it reads the applied range off the route.
 	const search = useSearch( { strict: false } ) as Parameters< typeof normalizeReportParams >[ 0 ];
-	const elements = field.elements ?? CHART_INTERVAL_ELEMENTS;
+	const ownRange =
+		data.reportParams && Object.keys( data.reportParams ).length > 0 ? data.reportParams : null;
+	const elements = field.elements;
 
-	// Clamped like the chart, so the saved bucket shows again once the range allows it.
+	// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
 	const { options, value } = useMemo( () => {
-		const periods = elements.map( ( { value: period } ) => period ) as [
-			StatsPeriod,
-			...StatsPeriod[],
-		];
-		const params = normalizeReportParams( search, getDefaultPreset( getStoreInfo().launchedDate ) );
+		const periods = (
+			elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
+		) as [ StatsPeriod, ...StatsPeriod[] ];
+		// Like the chart: a widget that owns its range reads it before the page's.
+		const params = normalizeReportParams(
+			ownRange ?? search,
+			getDefaultPreset( getStoreInfo().launchedDate )
+		);
 		const allowed = getAllowedIntervalsForPreset(
 			params.preset,
 			params.from ?? '',
@@ -61,7 +68,7 @@ function ChartIntervalControl( {
 			options: drawableIntervals( allowed, periods ),
 			value: chartInterval( { ...params, interval: data.chartInterval }, periods ),
 		};
-	}, [ elements, search, data.chartInterval ] );
+	}, [ elements, ownRange, search, data.chartInterval ] );
 
 	return (
 		<DateIntervalDropdown
@@ -75,13 +82,15 @@ function ChartIntervalControl( {
 }
 
 /**
- * The "Chart interval" attribute a chart widget declares to save its own bucket size.
+ * The "Chart interval" attribute a chart widget declares to save its own bucket size. Pair it
+ * with `with_header_interval_control: false` on the section, so the header offers no second one.
  */
 export const chartIntervalField: WidgetAttributeField< ChartIntervalFieldAttributes > = {
 	id: 'chartInterval',
-	label: __( 'Chart interval', 'jetpack-premium-analytics-pkg' ),
-	// The host renders a high-relevance field in the widget's own header.
+	// A getter: this module loads before the translations do.
+	get label() {
+		return __( 'Chart interval', 'jetpack-premium-analytics-pkg' );
+	},
 	relevance: 'high',
-	elements: CHART_INTERVAL_ELEMENTS,
 	Edit: ChartIntervalControl as WidgetAttributeField< ChartIntervalFieldAttributes >[ 'Edit' ],
 };

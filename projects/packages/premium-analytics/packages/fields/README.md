@@ -78,12 +78,11 @@ lists one the chart would clamp away.
 
 `chartIntervalField` saves a chart's own bucket size on the widget instance,
 and needs no factory: the buckets are its `elements`, a key dataviews keeps, so
-a widget whose chart draws fewer overrides them:
+a widget lists the ones its chart draws:
 
 ```ts
-attributes: [ { ...chartIntervalField, elements: CHART_INTERVAL_ELEMENTS.filter( isMine ) } ]
+attributes: [ { ...chartIntervalField, elements: chartIntervalElements( MY_PERIODS ) } ]
 ```
 
 A saved bucket the range rules out shows as the nearest one it allows, and is
-kept for when the range allows it again. A section whose charts carry this field
-sets `with_header_interval_control` to false, so the header offers no second one.
+kept for when the range allows it again.
