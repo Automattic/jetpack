@@ -24,7 +24,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 } ) );
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import OnboardingChecklist from '../onboarding-checklist';
 
 const LIST_PATH = '/wpcom/v2/newsletter/task-lists/onboarding';
@@ -255,9 +255,10 @@ describe( 'OnboardingChecklist', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( { path: LIST_PATH } );
 	} );
 
-	it( 'removes the spinners in a view transition once WP.com answers', async () => {
+	it( 'applies a refreshed completion and removes the spinners in one view transition', async () => {
+		const updates: Array< () => void > = [];
 		const startViewTransition = jest.fn( ( update: () => void ) => {
-			queueMicrotask( update );
+			updates.push( update );
 			return { ready: Promise.resolve() };
 		} );
 		Object.assign( document, { startViewTransition } );
@@ -265,12 +266,21 @@ describe( 'OnboardingChecklist', () => {
 			defaultOptions: { queries: { retry: false, staleTime: Infinity } },
 		} );
 		queryClient.setQueryData( [ 'newsletter', 'task-lists', 'onboarding' ], taskList() );
+		mockApiFetch.mockResolvedValue( taskList( [ 'subscribe_form' ] ) );
 		renderChecklist( queryClient );
 
-		await waitFor( () =>
-			expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument()
+		await waitFor( () => expect( startViewTransition ).toHaveBeenCalledTimes( 1 ) );
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+			'Add a subscribe form to your site'
 		);
-		expect( startViewTransition ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getAllByRole( 'presentation', { hidden: true } ) ).toHaveLength( 3 );
+
+		act( () => updates[ 0 ]() );
+
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+			'Add a subscribe form to your siteComplete'
+		);
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		delete ( document as Partial< Document > ).startViewTransition;
 	} );
 

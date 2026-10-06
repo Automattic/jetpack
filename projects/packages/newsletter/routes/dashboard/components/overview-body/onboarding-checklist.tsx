@@ -178,22 +178,27 @@ function ChecklistSteps( {
 	onSkip: ( stepId: OnboardingTaskId ) => void;
 } ): JSX.Element {
 	const [ firstOpenStep ] = useState( () => STEPS.find( step => ! completed.has( step.id ) )?.id );
-	const [ showSpinners, setShowSpinners ] = useState( isRefreshing );
+	const completedKey = STEPS.filter( step => completed.has( step.id ) )
+		.map( step => step.id )
+		.join();
+	const [ shown, setShown ] = useState( { completedKey, isRefreshing } );
 
-	// Removing the spinners inside a view transition fades them out instead of cutting them.
+	// Applying changes inside a view transition fades steps and spinners instead of cutting them.
 	useEffect( () => {
-		if ( showSpinners === isRefreshing ) {
+		if ( shown.completedKey === completedKey && shown.isRefreshing === isRefreshing ) {
 			return;
 		}
+		const next = { completedKey, isRefreshing };
 		if ( ! document.startViewTransition ) {
-			setShowSpinners( isRefreshing );
+			setShown( next );
 			return;
 		}
 		// Another view transition (e.g. a route change) aborts this one; that's fine.
 		document
-			.startViewTransition( () => flushSync( () => setShowSpinners( isRefreshing ) ) )
+			.startViewTransition( () => flushSync( () => setShown( next ) ) )
 			.ready.catch( () => {} );
-	}, [ isRefreshing, showSpinners ] );
+	}, [ completedKey, isRefreshing, shown ] );
+	const shownCompleted = new Set( shown.completedKey.split( ',' ) );
 
 	return (
 		<Stack
@@ -208,7 +213,7 @@ function ChecklistSteps( {
 				</VisuallyHidden>
 			) : null }
 			{ STEPS.map( step => {
-				const complete = completed.has( step.id );
+				const complete = shownCompleted.has( step.id );
 				return (
 					<CollapsibleCard.Root
 						key={ step.id }
@@ -216,6 +221,7 @@ function ChecklistSteps( {
 							'jetpack-newsletter-overview__step--complete': complete,
 						} ) }
 						defaultOpen={ step.id === firstOpenStep }
+						style={ { viewTransitionName: `jetpack-newsletter-step-${ step.id }` } }
 					>
 						<CollapsibleCard.Header className="jetpack-newsletter-overview__step-header">
 							<Stack direction="row" align="center" gap="sm">
@@ -242,7 +248,7 @@ function ChecklistSteps( {
 										</Text>
 									) : null }
 								</Card.Title>
-								{ showSpinners && ! complete ? (
+								{ shown.isRefreshing && ! complete ? (
 									<Spinner
 										aria-hidden="true"
 										className="jetpack-newsletter-overview__step-spinner"

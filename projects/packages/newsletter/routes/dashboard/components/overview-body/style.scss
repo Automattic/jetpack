@@ -158,19 +158,22 @@
 	}
 }
 
-// Names match the spinners' view-transition-name, one per open step.
-@each $step in subscribe_form, subscribers, send_newsletter {
+// Names match the steps' and spinners' view-transition-name.
+@each $name in step, step-spinner {
 
-	::view-transition-group(jetpack-newsletter-step-spinner-#{$step}) {
-		animation-duration: 0.3s;
-	}
+	@each $step in subscribe_form, subscribers, send_newsletter {
 
-	@media (prefers-reduced-motion: reduce) {
+		::view-transition-group(jetpack-newsletter-#{$name}-#{$step}) {
+			animation-duration: 0.3s;
+		}
 
-		::view-transition-group(jetpack-newsletter-step-spinner-#{$step}),
-		::view-transition-old(jetpack-newsletter-step-spinner-#{$step}),
-		::view-transition-new(jetpack-newsletter-step-spinner-#{$step}) {
-			animation: none;
+		@media (prefers-reduced-motion: reduce) {
+
+			::view-transition-group(jetpack-newsletter-#{$name}-#{$step}),
+			::view-transition-old(jetpack-newsletter-#{$name}-#{$step}),
+			::view-transition-new(jetpack-newsletter-#{$name}-#{$step}) {
+				animation: none;
+			}
 		}
 	}
 }
