@@ -11,7 +11,9 @@
 	// container, gone with this line.
 	box-sizing: border-box;
 	inline-size: 100%;
+	column-gap: 4px;
 	margin: 0;
+	padding: 17px 15px 19px;
 	text-align: start;
 }
 
@@ -23,4 +25,24 @@
 // `.jpb-backup-status-banner`, the sibling that occupies the same slot.
 .jpb-query-error--standalone {
 	margin-block-end: 16px;
+}
+
+// `Text` sets its own colour, so the notice's error colour is applied here.
+.jpb-query-error__text {
+	color: var(--wpds-color-foreground-content-error);
+}
+
+.jpb-query-error__title {
+	font-weight: 500;
+}
+
+.jpb-query-error__retry {
+	font-weight: 400;
+	margin-block-start: 6px;
+	padding-inline: 8px;
+}
+
+// The icon box sits 2px above the title line in the design.
+.jpb-query-error > svg {
+	margin-block-start: -2px;
 }

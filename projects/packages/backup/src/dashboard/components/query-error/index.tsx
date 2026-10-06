@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { caution } from '@wordpress/icons';
+import { error as errorIcon } from '@wordpress/icons';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import './style.scss';
 
@@ -65,18 +65,19 @@ export default function QueryError( {
 	return (
 		<Notice.Root
 			intent="error"
-			icon={ caution }
+			icon={ errorIcon }
 			spokenMessage={ [ title, error?.message ].filter( Boolean ).join( ' ' ) }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
-			<Stack direction="column" gap="sm" align="flex-start">
-				<Text>{ title }</Text>
-				{ error?.message && <Text variant="body-sm">{ error.message }</Text> }
+			<Stack direction="column" gap="xs" align="flex-start" className="jpb-query-error__body">
+				<Text className="jpb-query-error__text jpb-query-error__title">{ title }</Text>
+				{ error?.message && <Text className="jpb-query-error__text">{ error.message }</Text> }
 				{ onRetry && (
 					<Button
 						variant="solid"
 						tone="brand"
 						size="compact"
+						className="jpb-query-error__retry"
 						onClick={ onRetry }
 						loading={ isRetrying }
 						loadingAnnouncement={ __( 'Retrying', 'jetpack-backup-pkg' ) }
