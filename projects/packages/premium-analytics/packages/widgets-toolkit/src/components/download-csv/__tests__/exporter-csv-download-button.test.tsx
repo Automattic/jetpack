@@ -3,10 +3,12 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { downloadReportCsv } from '../../../report-exports/download-report-csv';
+import { createNoticesRegistry } from '../../../../../../tests/js/notice-test-utils';
+import * as downloadReportCsvModule from '../../../report-exports/download-report-csv';
 import { WidgetRootContext } from '../../widget-root';
 import { useExporterCsvAction } from '../csv-download-action';
 import { ExporterCsvDownloadButton } from '../exporter-csv-download-button';
@@ -14,34 +16,27 @@ import type { ReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
-const mockCreateErrorNotice = jest.fn();
-
 jest.mock(
-	'@wordpress/data',
+	'@automattic/jetpack-script-data',
 	() =>
-		new Proxy(
-			{
-				useRegistry: () => ( {
-					dispatch: () => ( { createErrorNotice: mockCreateErrorNotice } ),
-				} ),
-			},
-			{
-				get: ( overrides, prop ) =>
-					prop in overrides
-						? overrides[ prop as keyof typeof overrides ]
-						: jest.requireActual( '@wordpress/data' )[ prop ],
-			}
-		)
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-} ) );
-jest.mock( '../../../report-exports/download-report-csv', () => ( {
-	downloadReportCsv: jest.fn(),
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
 
 const mockGetScriptData = jest.mocked( getScriptData );
-const mockDownloadReportCsv = jest.mocked( downloadReportCsv );
+
+const { registry, createErrorNotice } = createNoticesRegistry();
+
+let mockDownloadReportCsv: jest.SpiedFunction< typeof downloadReportCsvModule.downloadReportCsv >;
+
+function setUp() {
+	jest.clearAllMocks();
+	mockGetScriptData.mockReturnValue( undefined );
+	mockDownloadReportCsv = jest.spyOn( downloadReportCsvModule, 'downloadReportCsv' );
+}
 
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
 const SETTLED = { isLoading: false, isFetching: false, isError: false };
@@ -54,18 +49,23 @@ const exporter = {
 	getColumns: jest.fn(),
 } as unknown as ReportCsvExporter< unknown, unknown >;
 
-const wrapper = ( { children }: { children: ReactNode } ) => (
-	<WidgetRootContext.Provider value={ { reportParams: REPORT_PARAMS } }>
-		{ children }
-	</WidgetRootContext.Provider>
-);
-
-beforeEach( () => {
-	jest.clearAllMocks();
-	mockGetScriptData.mockReturnValue( undefined );
-} );
+function wrapper( { children }: { children: ReactNode } ) {
+	return (
+		<RegistryProvider value={ registry }>
+			<WidgetRootContext.Provider value={ { reportParams: REPORT_PARAMS } }>
+				{ children }
+			</WidgetRootContext.Provider>
+		</RegistryProvider>
+	);
+}
 
 describe( 'useExporterCsvAction', () => {
+	beforeEach( setUp );
+
+	afterEach( () => {
+		mockDownloadReportCsv.mockRestore();
+	} );
+
 	it( 'reports a failed download itself instead of rejecting to the action runner', async () => {
 		mockDownloadReportCsv.mockRejectedValue( new Error( 'Upstream API unavailable.' ) );
 		const { result } = renderHook(
@@ -74,7 +74,7 @@ describe( 'useExporterCsvAction', () => {
 		);
 
 		await act( () => expect( result.current?.callback() ).resolves.toBeUndefined() );
-		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
+		expect( createErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
 			type: 'snackbar',
 			explicitDismiss: true,
 		} );
@@ -138,12 +138,14 @@ describe( 'useExporterCsvAction', () => {
 
 describe( 'ExporterCsvDownloadButton', () => {
 	beforeEach( () => {
+		setUp();
 		jest.useFakeTimers();
 		mockDownloadReportCsv.mockResolvedValue( undefined );
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
+		mockDownloadReportCsv.mockRestore();
 	} );
 
 	function renderButton( status = SETTLED, rowCount = 3 ) {

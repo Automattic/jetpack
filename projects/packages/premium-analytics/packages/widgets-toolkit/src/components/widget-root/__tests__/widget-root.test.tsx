@@ -3,19 +3,21 @@
  */
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../../../../tests/js/route-test-utils';
 import { useWidgetRootContext } from '../context';
 import { WidgetRoot } from '../widget-root';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: jest.fn(),
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-const useSearchMock = jest.mocked( useSearch );
+	return mockWordPressRoute;
+} );
 
 const COMPARED_WINDOW = {
 	from: '2026-01-01T00:00:00.000Z',
@@ -48,7 +50,7 @@ function resolvedNavigationParams(): ReportParams {
 
 describe( 'WidgetRoot report params', () => {
 	beforeEach( () => {
-		useSearchMock.mockReturnValue( COMPARED_WINDOW );
+		setMockRouteSearch( COMPARED_WINDOW );
 	} );
 
 	it( 'drops the comparison from the URL when the surface offers none', () => {
@@ -75,7 +77,7 @@ describe( 'WidgetRoot report params', () => {
 	} );
 
 	it( 'drops the comparison a widget carries in its own attributes', () => {
-		useSearchMock.mockReturnValue( {} );
+		setMockRouteSearch();
 
 		render(
 			<ReportScopeProvider offersComparison={ false }>

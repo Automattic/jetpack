@@ -1,34 +1,32 @@
 /**
  * External dependencies
  */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render as baseRender, screen, waitFor } from '@testing-library/react';
+import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { createNoticesRegistry } from '../../../../../../tests/js/notice-test-utils';
 import { CsvDownloadButton } from '../csv-download-button';
+import type { ReactElement } from 'react';
 
-const mockCreateErrorNotice = jest.fn();
-const mockDispatch = jest.fn( () => ( {
-	createErrorNotice: mockCreateErrorNotice,
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
 
-// Override `useRegistry` only — a bare mock breaks other `@wordpress/data`
-// consumers; the fall-through resolves lazily since `requireActual` re-enters mid-init.
-jest.mock(
-	'@wordpress/data',
-	() =>
-		new Proxy(
-			{ useRegistry: () => ( { dispatch: mockDispatch } ) },
-			{
-				get: ( overrides, prop ) =>
-					prop in overrides
-						? overrides[ prop as keyof typeof overrides ]
-						: jest.requireActual( '@wordpress/data' )[ prop ],
-			}
-		)
-);
+const { registry, createErrorNotice } = createNoticesRegistry();
 
 describe( 'CsvDownloadButton', () => {
+	function render( ui: ReactElement ) {
+		return baseRender( <RegistryProvider value={ registry }>{ ui }</RegistryProvider> );
+	}
+
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
@@ -103,12 +101,11 @@ describe( 'CsvDownloadButton', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 
 		await waitFor( () =>
-			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
+			expect( createErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
 				type: 'snackbar',
 				explicitDismiss: true,
 			} )
 		);
-		expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upstream API unavailable.' ) ).not.toBeInTheDocument();
 	} );
@@ -127,7 +124,7 @@ describe( 'CsvDownloadButton', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 
 		await waitFor( () =>
-			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( message, {
+			expect( createErrorNotice ).toHaveBeenCalledWith( message, {
 				type: 'snackbar',
 				explicitDismiss: true,
 			} )

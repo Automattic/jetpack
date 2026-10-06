@@ -24,8 +24,17 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	fetchStatsClicksRows: jest.fn(),
+	fetchStatsComments: jest.fn(),
+	fetchStatsEmailSummaryRows: jest.fn(),
+	fetchStatsFileDownloadsRows: jest.fn(),
+	fetchStatsInsightsYears: jest.fn(),
+	fetchStatsLocationsRows: jest.fn(),
 	fetchStatsReferrersRows: jest.fn(),
+	fetchStatsSearchTermsReport: jest.fn(),
+	fetchStatsTagsRows: jest.fn(),
 	fetchStatsTopAuthorsRows: jest.fn(),
+	fetchStatsUtmRows: jest.fn(),
+	fetchStatsVideoPlaysRows: jest.fn(),
 } ) );
 
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
@@ -40,6 +49,10 @@ async function exportCsvTable< TItem, TRow >( exporter: ReportCsvExporter< TItem
 }
 
 describe( 'hierarchy report exporters', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
 	it( 'exports Referrers depth-first with each row’s group', async () => {
 		jest.mocked( fetchStatsReferrersRows ).mockResolvedValue( [
 			{
@@ -94,6 +107,7 @@ describe( 'hierarchy report exporters on a raw Stats payload', () => {
 	const actualData = jest.requireActual( '@jetpack-premium-analytics/data' );
 
 	beforeEach( () => {
+		jest.clearAllMocks();
 		actualData.queryClient.clear();
 		jest.mocked( fetchStatsClicksRows ).mockImplementation( actualData.fetchStatsClicksRows );
 		jest

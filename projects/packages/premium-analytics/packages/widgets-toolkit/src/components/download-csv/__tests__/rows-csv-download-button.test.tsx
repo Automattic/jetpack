@@ -6,33 +6,40 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { buildCsv, saveCsv } from '../../../helpers/build-csv';
+import * as buildCsvModule from '../../../helpers/build-csv';
 import { ReportCsvAction } from '../../report-page/report-csv-action';
 import { RowsCsvDownloadButton } from '../rows-csv-download-button';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-} ) );
-jest.mock( '../../../helpers/build-csv', () => ( {
-	buildCsv: jest.fn( () => '"Title"\n"Hello"' ),
-	saveCsv: jest.fn(),
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
 
-const mockBuildCsv = jest.mocked( buildCsv );
-const mockSaveCsv = jest.mocked( saveCsv );
 const mockGetScriptData = jest.mocked( getScriptData );
 
-beforeEach( () => {
-	jest.useFakeTimers();
-	jest.clearAllMocks();
-	mockGetScriptData.mockReturnValue( undefined );
-} );
-
-afterEach( () => {
-	jest.useRealTimers();
-} );
-
 describe( 'RowsCsvDownloadButton', () => {
+	let mockBuildCsv: jest.SpiedFunction< typeof buildCsvModule.buildCsv >;
+	let mockSaveCsv: jest.SpiedFunction< typeof buildCsvModule.saveCsv >;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		jest.clearAllMocks();
+		mockGetScriptData.mockReturnValue( undefined );
+		mockBuildCsv = jest.spyOn( buildCsvModule, 'buildCsv' );
+		mockSaveCsv = jest.spyOn( buildCsvModule, 'saveCsv' ).mockImplementation( () => {} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		mockBuildCsv.mockRestore();
+		mockSaveCsv.mockRestore();
+	} );
+
 	it( 'builds and saves rows after committing the loading state', async () => {
 		const rows = [ { title: 'Hello' } ];
 		const columns = [ { label: 'Title', getValue: ( row: { title: string } ) => row.title } ];
@@ -84,6 +91,10 @@ describe( 'RowsCsvDownloadButton', () => {
 } );
 
 describe( 'ReportCsvAction', () => {
+	beforeEach( () => {
+		mockGetScriptData.mockReturnValue( undefined );
+	} );
+
 	it( 'renders a labelled button without an icon', () => {
 		render(
 			<ReportCsvAction
