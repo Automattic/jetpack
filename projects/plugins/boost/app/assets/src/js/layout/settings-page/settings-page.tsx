@@ -7,7 +7,6 @@ import styles from './settings-page.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import NoticeManager from '$features/notice/manager';
 import { NoticeProvider } from '$features/notice/context';
-import CloudCssUpgradeNotice from '$features/critical-css/cloud-css-upgrade-notice';
 import type { ReactNode } from 'react';
 
 type SettingsPageProps = {
@@ -22,7 +21,6 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 		<NoticeProvider>
 			<BoostAdminPage>
 				<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-					<CloudCssUpgradeNotice />
 					<div className="jb-section jb-section--alt jb-section--scores">
 						<SpeedScore />
 					</div>
