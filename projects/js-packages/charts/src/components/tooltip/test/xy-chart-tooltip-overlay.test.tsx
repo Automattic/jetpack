@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
 import { useContext, useEffect } from 'react';
-import { XyChartTooltipOverlay } from '../xy-chart-tooltip';
+import { XyChartTooltipOverlay } from '../private/xy-chart-tooltip-overlay';
 import type { XyChartTooltipProps } from '../../../visx/types';
 import type { EventHandlerParams, XYChartTheme } from '@visx/xychart';
 
