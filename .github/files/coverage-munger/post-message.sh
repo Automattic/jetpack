@@ -54,16 +54,19 @@ if [[ -n "$PHP_COVERAGE_STATUS" && -n "$JS_COVERAGE_STATUS" ]]; then
 	RUNS=$( jq -nc --arg php "$PHP_COVERAGE_STATUS" --arg js "$JS_COVERAGE_STATUS" '[ { conclusion: $php }, { conclusion: $js } ]' )
 else
 	echo "::group::Looking for latest coverage runs"
-	COVERAGE_GROUPS=( php js )
+	# The `check_name` filter only matches exact names, and JS coverage is split across several jobs, so we have to filter by prefix ourselves.
 	RUNS='[]'
-	for GROUP in "${COVERAGE_GROUPS[@]}"; do
-		ENC_TEST_NAME=$( jq -nr --arg N "Code coverage (${GROUP@U})" '$N | @uri' )
-		# The check-runs endpoint can be filtered by name and defaults to grab just the latest run, which simplifies the API call.
-		J=$( curl -v -L fail \
-			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?check_name=$ENC_TEST_NAME" \
+	PAGE=1
+	while true; do
+		J=$( curl -v -L --fail \
+			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?per_page=100&page=$PAGE" \
 			--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 		)
-		RUNS=$( jq --argjson prev "$RUNS" '$prev + .check_runs' <<<"$J" )
+		RUNS=$( jq --argjson prev "$RUNS" '$prev + [ .check_runs[] | select( .name | startswith( "Code coverage (" ) ) ]' <<<"$J" )
+		if jq -e '.check_runs | length < 100' <<<"$J" &>/dev/null; then
+			break
+		fi
+		PAGE=$(( PAGE + 1 ))
 	done
 	echo "::endgroup::"
 fi
