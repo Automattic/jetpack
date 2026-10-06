@@ -1,7 +1,6 @@
 <?php
 /**
  * The Search Plan class.
- * Registers the REST routes for Search.
  *
  * @package automattic/jetpack-search
  */
@@ -18,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the REST routes for Search.
+ * Manage Search plan information.
  */
 class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
@@ -48,7 +47,9 @@ class Plan {
 	}
 
 	/**
-	 * Refresh plan info stored in options
+	 * Refresh stored plan info from WordPress.com when online.
+	 *
+	 * @return array|WP_Error Response, or an error if offline, unregistered, or the request fails.
 	 */
 	public function get_plan_info_from_wpcom() {
 		if ( ( new Status() )->is_offline_mode() ) {
@@ -77,7 +78,7 @@ class Plan {
 	/**
 	 * Get plan info.
 	 *
-	 * @param bool $force_refresh - Default to false. Set true to load from WPCOM.
+	 * @param bool $force_refresh - Default to false. Set true to attempt a refresh via get_plan_info_from_wpcom().
 	 */
 	public function get_plan_info( $force_refresh = false ) {
 		if ( $force_refresh ) {
