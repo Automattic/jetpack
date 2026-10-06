@@ -300,7 +300,11 @@ describe( 'buildTailorPrompt', () => {
 		// of its task selection.
 		[
 			'asks for a diagnostic inferred_goal that must not influence the output',
-			[ '"inferred_goal"', /must NOT influence/ ],
+			[
+				'"inferred_goal"',
+				/must NOT influence/,
+				/"inferred_goal".*exactly one of: write, build, sell, newsletter, educate, portfolio - never/,
+			],
 		],
 		// The full slug menu must be in the prompt, and the instruction must steer the model
 		// toward the specific subject over the generic goal bucket.
