@@ -22,6 +22,9 @@
 		border: 0;
 		border-radius: 2px;
 		background: none;
+		box-shadow: none;
+		// Format buttons sit inline in a slot's div, where `middle` drops them.
+		vertical-align: top;
 		color: inherit;
 		font-family: inherit;
 		font-size: 13px;
