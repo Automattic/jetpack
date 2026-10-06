@@ -266,7 +266,6 @@ export function ComparativeLineChart( {
 	);
 
 	const chartOptions = useMemo( () => {
-		// On a short tile the axis labels would fill the chart and leave nothing to hover.
 		const hiddenWhenCompact = isCompact ? { display: false } : {};
 		const baseOptions = {
 			axis: {

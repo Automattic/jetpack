@@ -6,7 +6,7 @@ same series shape and shares its date alignment, so `MetricTabsChart` swaps the 
 
 ## Theme-driven, not pure
 
-Unlike `ComparativeLineChart`, this component reads the chart theme through
+Unlike `ComparativeLineChart`, this component reads its styling from the chart theme through
 `useGlobalChartsContext()` and **must be rendered inside a `GlobalChartsProvider`** — outside one
 that hook throws, before `BarChart` gets a chance to supply its own.
 
