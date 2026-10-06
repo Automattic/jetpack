@@ -40,21 +40,13 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	public function test_publishes_features_navigation_for_released_footers() {
-		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_false' );
+		$features = array(
+			'slug'  => 'features',
+			'label' => 'Features',
+		);
 
-		try {
-			$data = Initializer::add_admin_script_data( array() );
-
-			$this->assertSame(
-				array(
-					'slug'  => 'features',
-					'label' => 'Features',
-				),
-				$data['myJetpack']['productsSection']
-			);
-		} finally {
-			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_false' );
-		}
+		$this->assertSame( $features, Initializer::get_products_section() );
+		$this->assertSame( $features, Initializer::add_admin_script_data( array() )['myJetpack']['productsSection'] );
 	}
 
 	/**

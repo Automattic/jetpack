@@ -678,6 +678,23 @@ class Initializer {
 	}
 
 	/**
+	 * Get the slug and label of the Features tab, for footer links to it.
+	 *
+	 * Kept for footers built before the Products tab was removed: Jetpack 16.3 calls this, and
+	 * older JS footers read it from script data. Without it they link to "Products".
+	 *
+	 * @since 6.4.0
+	 *
+	 * @return array{slug: string, label: string}
+	 */
+	public static function get_products_section() {
+		return array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
 	 * Add My Jetpack availability and image base URL to admin script data.
 	 *
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
@@ -689,13 +706,9 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_admin_script_data( $data ) {
-		$data['myJetpack']['isAvailable'] = self::is_admin_page_available();
-		$data['myJetpack']['assetsUrl']   = self::get_assets_url();
-		// Released footer bundles still read this key before falling back to Products.
-		$data['myJetpack']['productsSection'] = array(
-			'slug'  => 'features',
-			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
-		);
+		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
+		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
+		$data['myJetpack']['productsSection'] = self::get_products_section();
 
 		return $data;
 	}
