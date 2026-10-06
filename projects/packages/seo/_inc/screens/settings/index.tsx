@@ -49,6 +49,10 @@ const indexingPrivateHelp = __(
 	'jetpack-seo'
 );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
+const platformManagedHelp = __(
+	'This setting is managed by your hosting platform and cannot be changed here.',
+	'jetpack-seo'
+);
 // Figures are what search *displays*, not a limit we enforce — the field is
 // deliberately uncapped. Google measures a pixel width (920px desktop / 680px
 // mobile), which works out around 155 and 120 characters.
@@ -133,6 +137,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// A sitemap only works when search engines are allowed, so its effective
 	// state (and the toggle below) is gated on `search_engines_visible`.
 	const sitemapEffectivelyOn = local.search_engines_visible && local.sitemap_active;
+	const sitemapIndexingHelp = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
 	const visibilityEnabledCount =
 		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
 
@@ -247,13 +252,15 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
+									help={ ! local.sitemap_switchable ? platformManagedHelp : sitemapIndexingHelp }
 									// Reflect the effective state: a sitemap can't be generated while
 									// indexing is blocked, so show it off (the stored preference is kept
 									// and restored when indexing is re-enabled).
 									checked={ sitemapEffectivelyOn }
 									onChange={ next => commit( { sitemap_active: next } ) }
-									disabled={ isSaving || ! local.search_engines_visible }
+									disabled={
+										isSaving || ! local.search_engines_visible || ! local.sitemap_switchable
+									}
 									__nextHasNoMarginBottom
 								/>
 								{ sitemapEffectivelyOn && local.sitemap_url && (
@@ -320,13 +327,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<CollapsibleCard.Content>
 							<ToggleControl
 								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-								help={ __(
-									"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
-									'jetpack-seo'
-								) }
+								help={
+									! local.canonical_switchable
+										? platformManagedHelp
+										: __(
+												"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
+												'jetpack-seo'
+											)
+								}
 								checked={ local.canonical_active }
 								onChange={ next => commit( { canonical_active: next } ) }
-								disabled={ isSaving }
+								disabled={ isSaving || ! local.canonical_switchable }
 								__nextHasNoMarginBottom
 							/>
 						</CollapsibleCard.Content>

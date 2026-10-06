@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-SEO: fix settings not saving on WordPress.com Simple sites.
+SEO: Fix saving settings, clearing front-page descriptions, and switching sitemaps off on private sites.

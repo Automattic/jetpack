@@ -39,10 +39,12 @@ export interface SettingsResponse {
 	// setting here can change — so the toggle is disabled rather than silently inert.
 	site_is_private: boolean;
 	sitemap_active: boolean;
+	sitemap_switchable: boolean;
 	// Read-only: the reachable sitemap URL, or '' until it's been generated and is
 	// serveable. Not editable, so it's never sent back in a save payload.
 	sitemap_url: string;
 	canonical_active: boolean;
+	canonical_switchable: boolean;
 	// Read by the Settings bootstrap; saved through `/jetpack/v4/seo/schema-settings`.
 	schema: SchemaSettings;
 }

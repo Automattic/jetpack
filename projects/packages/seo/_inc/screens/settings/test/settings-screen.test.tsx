@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactNode } from 'react';
@@ -69,8 +69,10 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		search_engines_visible: false,
 		site_is_private: false,
 		sitemap_active: false,
+		sitemap_switchable: true,
 		sitemap_url: '',
 		canonical_active: false,
+		canonical_switchable: true,
 		schema: {} as SettingsResponse[ 'schema' ],
 		...overrides,
 	};
@@ -139,6 +141,27 @@ describe( 'Indexing toggle on an unpublished site', () => {
 } );
 
 describe( 'Settings module completion status', () => {
+	it( 'keeps platform-managed sitemap and canonical controls read-only', async () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( {
+					search_engines_visible: true,
+					sitemap_active: true,
+					sitemap_switchable: false,
+					canonical_active: true,
+					canonical_switchable: false,
+				} ) }
+			/>
+		);
+		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeDisabled();
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
+		).resolves.toBeDisabled();
+		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
+	} );
+
 	describe( 'Site visibility — counts its two toggles', () => {
 		it( 'reports not started when neither indexing nor the sitemap is on', () => {
 			render( <SettingsScreen form={ buildForm() } /> );

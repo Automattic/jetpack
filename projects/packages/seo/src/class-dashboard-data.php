@@ -221,6 +221,7 @@ class Dashboard_Data {
 		// `update_option()` routes through `add_option()`.
 		add_action( 'add_option_' . self::FRONT_PAGE_META_OPTION, array( __CLASS__, 'after_setting_write' ) );
 		add_action( 'update_option_' . self::FRONT_PAGE_META_OPTION, array( __CLASS__, 'after_setting_write' ) );
+		add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'after_settings_request' ), 10, 3 );
 	}
 
 	/**
@@ -568,6 +569,30 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Clear legacy text after a successful empty save, including an unchanged modern option.
+	 *
+	 * @param mixed           $response REST response.
+	 * @param array           $handler  Route handler (unused).
+	 * @param WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function after_settings_request( $response, $handler, WP_REST_Request $request ) {
+		if ( is_wp_error( $response ) || rest_ensure_response( $response )->get_status() >= 400
+			|| '/wp/v2/settings' !== $request->get_route()
+			|| ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true )
+			|| '' !== $request->get_param( self::FRONT_PAGE_META_OPTION ) ) {
+			return $response;
+		}
+
+		$settings = get_registered_settings();
+		if ( isset( $settings[ self::FRONT_PAGE_META_OPTION ] ) && '' === get_option( self::FRONT_PAGE_META_OPTION, '' ) ) {
+			self::after_setting_write();
+		}
+
+		return $response;
+	}
+
+	/**
 	 * Whether this site has the given Jetpack module at all.
 	 *
 	 * Deliberately not `Modules::is_module()`: that's a path-traversal check, and it
@@ -583,68 +608,39 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Toggle a legacy Jetpack module to match the setting that now drives it.
-	 *
-	 * A no-op where the module already agrees, so a toggle that changes nothing does
-	 * no work. (The Jetpack plugin's own module → option sync writes the durable option
-	 * from module state on the activate/deactivate actions; it never calls back into
-	 * this package, so there is no loop to break here.) Callers must have checked
-	 * {@see self::has_module()} first.
+	 * Switch a module without persisting wpcomsh's temporary private-site suppression.
 	 *
 	 * @param string $module  Module slug.
 	 * @param bool   $enabled Whether the setting is on.
 	 * @return bool Whether the module now matches the setting.
 	 */
-	private static function sync_module_to_option( $module, $enabled ) {
-		$modules = new Modules();
-
-		if ( self::is_module_switched_on( $module ) === $enabled ) {
-			return true;
-		}
-
-		$modules->update_status( $module, $enabled, false, false );
-
-		return self::is_module_switched_on( $module ) === $enabled;
-	}
-
-	/**
-	 * Whether a module is switched on in this site's own module list, ignoring the
-	 * private-site filter.
-	 *
-	 * `Modules::is_active()` reports through `jetpack_active_modules`, and wpcomsh
-	 * strips `sitemaps` and `verification-tools` from it on private and coming-soon
-	 * sites. Verifying a switch through that read reported failure for a module that
-	 * had switched correctly, so the route answered 500 on a save that worked and the
-	 * durable option was skipped. Only that one callback is lifted, so every other
-	 * filter still counts and a module something else is genuinely holding off stays a
-	 * failure. Mirrors `Jetpack::is_module_active_for_seo_option()`, which works around
-	 * the same filter for the same reason.
-	 *
-	 * @param string $module Module slug.
-	 * @return bool
-	 */
-	private static function is_module_switched_on( $module ) {
+	private static function switch_module( $module, $enabled ) {
 		global $wp_filter;
 
 		$modules  = new Modules();
 		$hook     = 'jetpack_active_modules';
 		$callback = '\Private_Site\filter_jetpack_active_modules';
 		$priority = has_filter( $hook, $callback );
+		$original = null;
 
-		if ( false === $priority ) {
-			return $modules->is_active( $module );
+		if ( false !== $priority ) {
+			$original = $wp_filter[ $hook ];
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the original hook after the switch.
+			$wp_filter[ $hook ] = clone $original;
+			remove_filter( $hook, $callback, $priority );
 		}
 
-		$original = $wp_filter[ $hook ];
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Read through an isolated hook copy, restored below.
-		$wp_filter[ $hook ] = clone $original;
-		remove_filter( $hook, $callback, $priority );
-
 		try {
-			return $modules->is_active( $module );
+			if ( $modules->is_active( $module ) === $enabled ) {
+				return true;
+			}
+			$modules->update_status( $module, $enabled, false, false );
+			return $modules->is_active( $module ) === $enabled;
 		} finally {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the untouched original hook.
-			$wp_filter[ $hook ] = $original;
+			if ( null !== $original ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the untouched original hook.
+				$wp_filter[ $hook ] = $original;
+			}
 		}
 	}
 
@@ -812,26 +808,15 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * The dashboard settings that are backed by a Jetpack module rather than by a plain
-	 * option: request field => [ module slug, durable option or null ].
+	 * Map the dashboard's module-backed fields to module slugs.
 	 *
-	 * These are the settings core's `/wp/v2/settings` can't own. Writing them switches a
-	 * module, that can fail, and a failure has to reach the user — and a `register_setting()`
-	 * sanitizer is the wrong place for a side effect, since it runs before the write and
-	 * fires on paths where nothing is ever persisted. So they get a route callback that
-	 * switches the module, checks it took, and returns a real error when it didn't.
-	 *
-	 * Sitemap and canonical URLs also have a durable option, which is what the dashboard
-	 * reads and what keeps them working where there's no module at all. Site verification
-	 * has none: the module's own state is the setting.
-	 *
-	 * @return array<string, array{0:string, 1:string|null}>
+	 * @return array<string, string>
 	 */
 	private static function module_settings() {
 		return array(
-			'sitemap_active'            => array( 'sitemaps', Initializer::SITEMAP_ENABLED_OPTION ),
-			'canonical_active'          => array( 'canonical-urls', Initializer::CANONICAL_ENABLED_OPTION ),
-			'verification_tools_active' => array( 'verification-tools', null ),
+			'sitemap_active'            => 'sitemaps',
+			'canonical_active'          => 'canonical-urls',
+			'verification_tools_active' => 'verification-tools',
 		);
 	}
 
@@ -871,15 +856,14 @@ class Dashboard_Data {
 	public static function update_modules( WP_REST_Request $request ) {
 		$applied = array();
 
-		foreach ( self::module_settings() as $field => $target ) {
+		foreach ( self::module_settings() as $field => $module ) {
 			if ( null === $request[ $field ] ) {
 				continue;
 			}
 
-			list( $module, $option ) = $target;
-			$enabled                 = (bool) $request[ $field ];
+			$enabled = (bool) $request[ $field ];
 
-			$error = self::apply_module_setting( $module, $option, $enabled );
+			$error = self::apply_module_setting( $module, $enabled );
 			if ( is_wp_error( $error ) ) {
 				// No rollback across fields — module activation fires hooks that other
 				// code has already reacted to, and undoing those is riskier than the
@@ -904,74 +888,30 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Switch one module-backed setting, leaving the site consistent whether it works
-	 * or not.
+	 * Switch a module and report a failure instead of saving a duplicate option.
 	 *
-	 * The module goes first and the durable option is only recorded once that took, so
-	 * the option can never claim a state the module never reached. The option write is
-	 * then read back — `update_option()`'s own return value can't be trusted for this,
-	 * since it is also false for a no-op — and if storage disagrees (a
-	 * `pre_update_option_*` filter, a failed write) the module is put back where it was.
-	 * That read-back is the only check on WordPress.com Simple, where there is no module
-	 * and the option is the entire setting.
-	 *
-	 * @param string      $module  Module slug.
-	 * @param string|null $option  Durable option mirroring it, or null when the module's
-	 *                             own state is the setting.
-	 * @param bool        $enabled Requested state.
+	 * @param string $module  Module slug.
+	 * @param bool   $enabled Requested state.
 	 * @return true|WP_Error
 	 */
-	private static function apply_module_setting( $module, $option, $enabled ) {
-		$has_module = self::has_module( $module );
-
-		if ( ! $has_module && null === $option ) {
-			// Nothing to switch and nothing to remember it in.
+	private static function apply_module_setting( $module, $enabled ) {
+		if ( ! self::has_module( $module ) ) {
 			return new WP_Error(
 				'jetpack_seo_module_unavailable',
-				/* translators: %s: name of a Jetpack module, e.g. "verification-tools". */
+				/* translators: %s: name of a Jetpack module, e.g. "sitemaps". */
 				sprintf( __( 'This site has no %s module to switch.', 'jetpack-seo' ), $module ),
 				array( 'status' => 400 )
 			);
 		}
 
-		$was_active = $has_module ? ( new Modules() )->is_active( $module ) : null;
-
-		if ( $has_module && ! self::sync_module_to_option( $module, $enabled ) ) {
-			return new WP_Error(
-				'jetpack_seo_module_toggle_failed',
-				/* translators: %s: name of a Jetpack module, e.g. "sitemaps". */
-				sprintf( __( 'The %s module could not be switched.', 'jetpack-seo' ), $module ),
-				array( 'status' => 500 )
-			);
-		}
-
-		if ( null === $option ) {
+		if ( self::switch_module( $module, $enabled ) ) {
 			return true;
-		}
-
-		// `add_option()` first, because `update_option()` short-circuits when the new
-		// value equals the old one and a missing option reads back as `false`. Writing
-		// "off" where no row exists therefore stored nothing while the read-back below
-		// still agreed, so the route reported success and the toggle snapped back on.
-		// WordPress.com Simple is exactly that case: the durable options are seeded by
-		// a Jetpack-plugin upgrade hook that never runs there, so "off" could never be
-		// saved. `add_option()` no-ops when a row already exists.
-		add_option( $option, $enabled );
-		update_option( $option, $enabled );
-		if ( (bool) get_option( $option, false ) === $enabled ) {
-			return true;
-		}
-
-		// The setting didn't stick. Put the module back so the two don't disagree —
-		// only where we actually moved it.
-		if ( $has_module && $was_active !== $enabled ) {
-			self::sync_module_to_option( $module, $was_active );
 		}
 
 		return new WP_Error(
-			'jetpack_seo_setting_not_saved',
-			/* translators: %s: name of a WordPress option, e.g. "jetpack_seo_sitemap_enabled". */
-			sprintf( __( 'The %s setting could not be saved.', 'jetpack-seo' ), $option ),
+			'jetpack_seo_module_toggle_failed',
+			/* translators: %s: name of a Jetpack module, e.g. "sitemaps". */
+			sprintf( __( 'The %s module could not be switched.', 'jetpack-seo' ), $module ),
 			array( 'status' => 500 )
 		);
 	}
@@ -1094,11 +1034,13 @@ class Dashboard_Data {
 			// SEO setting and can't be unhidden by one — see {@see self::block_publishing_a_private_site()}.
 			'site_is_private'            => self::is_site_private(),
 			'sitemap_active'             => $sitemap_active,
+			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
 			// it's on + the site is public), or '' when sitemaps are off, so the Settings
 			// tab shows the "View sitemap" link exactly when there's a sitemap to view.
 			'sitemap_url'                => self::get_reachable_sitemap_url( $sitemap_active ),
 			'canonical_active'           => $modules->is_active( 'canonical-urls' ),
+			'canonical_switchable'       => self::has_module( 'canonical-urls' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
 			// Separator WordPress joins default document-title parts with. A page type

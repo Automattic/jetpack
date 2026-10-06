@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Fix SEO settings not saving on WordPress.com Simple sites.
+Fix saving SEO settings, clearing front-page descriptions, and switching sitemaps off on private sites.

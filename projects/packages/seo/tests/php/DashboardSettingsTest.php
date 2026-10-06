@@ -32,8 +32,6 @@ class DashboardSettingsTest extends TestCase {
 	 * @var string[]
 	 */
 	private $options = array(
-		Initializer::SITEMAP_ENABLED_OPTION,
-		Initializer::CANONICAL_ENABLED_OPTION,
 		Dashboard_Data::AI_SEO_ENHANCER_OPTION,
 		Llms_Txt::OPTION,
 		Ai_Crawlers::OPTION,
@@ -85,6 +83,8 @@ class DashboardSettingsTest extends TestCase {
 		remove_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 		remove_action( 'add_option_' . Dashboard_Data::FRONT_PAGE_META_OPTION, array( Dashboard_Data::class, 'after_setting_write' ) );
 		remove_action( 'update_option_' . Dashboard_Data::FRONT_PAGE_META_OPTION, array( Dashboard_Data::class, 'after_setting_write' ) );
+		remove_filter( 'rest_request_after_callbacks', array( Dashboard_Data::class, 'after_settings_request' ), 10 );
+		remove_filter( 'jetpack_active_modules', '\\Private_Site\\filter_jetpack_active_modules' );
 		remove_filter( 'register_setting_args', array( Dashboard_Data::class, 'force_setting_args' ), 10 );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
@@ -261,8 +261,8 @@ class DashboardSettingsTest extends TestCase {
 	public function test_module_backed_settings_are_not_core_settings() {
 		$registered = get_registered_settings();
 
-		$this->assertArrayNotHasKey( Initializer::SITEMAP_ENABLED_OPTION, $registered );
-		$this->assertArrayNotHasKey( Initializer::CANONICAL_ENABLED_OPTION, $registered );
+		$this->assertArrayNotHasKey( 'jetpack_seo_sitemap_enabled', $registered );
+		$this->assertArrayNotHasKey( 'jetpack_seo_canonical_urls_enabled', $registered );
 	}
 
 	/**
@@ -478,6 +478,39 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
 	}
 
+	/** Tests clearing legacy text without first changing the modern option. */
+	public function test_clearing_a_legacy_description_when_the_modern_option_is_unchanged() {
+		$this->act_as( 'administrator' );
+		$description = new \ReflectionMethod( Dashboard_Data::class, 'get_front_page_meta_description_without_helper' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$description->setAccessible( true );
+		}
+		foreach ( array( false, true ) as $modern_exists ) {
+			delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
+			if ( $modern_exists ) {
+				add_option( Dashboard_Data::FRONT_PAGE_META_OPTION, '' );
+			}
+			update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
+			$this->assertSame( 'Old description.', $description->invoke( null ) );
+			$response = $this->save_settings( array( Dashboard_Data::FRONT_PAGE_META_OPTION => '' ) );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+			$this->assertSame( '', $description->invoke( null ) );
+		}
+	}
+
+	/** Tests that rejected clears and unrelated requests preserve legacy text. */
+	public function test_legacy_description_survives_requests_that_do_not_save_it() {
+		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
+		$this->act_as( 'editor' );
+		$response = $this->save_settings( array( Dashboard_Data::FRONT_PAGE_META_OPTION => '' ) );
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'Old description.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+		$this->act_as( 'administrator' );
+		$this->save_settings( array( Llms_Txt::OPTION => true ) );
+		$this->assertSame( 'Old description.', get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+	}
+
 	/**
 	 * The Settings bootstrap reports the same legacy state the save writes by, so the
 	 * form can't offer a field that the save would send to a different option.
@@ -626,8 +659,7 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * Turning the sitemap setting on activates the legacy `sitemaps` module where that
-	 * module exists, and records the durable option the dashboard reads.
+	 * Switching sitemaps changes the module state the dashboard reads.
 	 */
 	public function test_sitemap_setting_toggles_the_legacy_module() {
 		$this->make_modules_available( array( 'sitemaps' ) );
@@ -637,79 +669,42 @@ class DashboardSettingsTest extends TestCase {
 		$response = $this->update_modules( array( 'sitemap_active' => true ) );
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertTrue( $modules->is_active( 'sitemaps' ) );
-		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
 
 		$this->update_modules( array( 'sitemap_active' => false ) );
 		$this->assertFalse( $modules->is_active( 'sitemaps' ) );
-		$this->assertFalse( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
 	}
 
-	/**
-	 * Where the module doesn't exist — WordPress.com Simple has no Jetpack modules on
-	 * disk — the durable option is the whole story and still saves. This is what makes
-	 * the toggle work on every platform.
-	 */
-	public function test_sitemap_setting_saves_without_a_module_present() {
+	/** Tests reject a module write when the platform owns that behavior. */
+	public function test_module_settings_are_refused_without_a_module_present() {
 		$this->act_as( 'administrator' );
-
-		$response = $this->update_modules( array( 'sitemap_active' => true ) );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
+		foreach ( array( 'sitemap_active', 'canonical_active', 'verification_tools_active' ) as $field ) {
+			foreach ( array( true, false ) as $enabled ) {
+				$response = $this->update_modules( array( $field => $enabled ) );
+				$this->assertSame( 400, $response->get_status() );
+				$this->assertSame( 'jetpack_seo_module_unavailable', $response->get_data()['code'] );
+			}
+		}
 		$this->assertEmpty( \Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertFalse( get_option( 'jetpack_seo_sitemap_enabled' ) );
+		$this->assertFalse( get_option( 'jetpack_seo_canonical_urls_enabled' ) );
 	}
-
-	/**
-	 * ...and can be turned back off there, which is the half that didn't work.
-	 *
-	 * With no row yet stored, `update_option( $option, false )` matched the `false` a
-	 * missing option reads back as, so WordPress short-circuited and wrote nothing —
-	 * while the route's read-back still agreed and reported success. The dashboard then
-	 * re-read, found no row, and fell back to asking the module, which reports active
-	 * unconditionally on WordPress.com. The toggle snapped straight back on.
-	 *
-	 * WordPress.com Simple is always in that state: the durable options are seeded by a
-	 * Jetpack-plugin upgrade hook that never runs there, and the toggle starts on — so
-	 * "off" was the only move available and the only one that silently failed.
-	 */
-	public function test_sitemap_setting_saves_off_without_a_module_to_switch() {
-		// The shape WordPress.com Simple is always in: the module reports active, but
-		// isn't present to switch, and no durable option has been stored yet. (`is_active()`
-		// returns true unconditionally under the real `IS_WPCOM` constant, which a test
-		// can't define; forcing the same answer through the filter it applies last
-		// reproduces the condition without it.)
+	/** Tests read-only module state on a platform without switchable modules. */
+	public function test_platform_module_state_is_read_only() {
 		add_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
-		$this->act_as( 'administrator' );
-
-		// The precondition that makes the bug reachable: with nothing stored, the
-		// dashboard reports the sitemap on, from the module state alone.
-		$this->assertTrue( Dashboard_Data::get_settings_data()['sitemap_active'] );
-
-		$response = $this->update_modules( array( 'sitemap_active' => false ) );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertFalse( Dashboard_Data::get_settings_data()['sitemap_active'] );
-
+		$settings = Dashboard_Data::get_settings_data();
+		$this->assertTrue( $settings['sitemap_active'] );
+		$this->assertTrue( $settings['canonical_active'] );
+		$this->assertFalse( $settings['sitemap_switchable'] );
+		$this->assertFalse( $settings['canonical_switchable'] );
 		remove_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
 	}
-
-	/**
-	 * The same for canonical URLs, which shares the code path.
-	 */
-	public function test_canonical_setting_saves_off_without_a_module_to_switch() {
-		add_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
-		$this->act_as( 'administrator' );
-
-		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_active'] );
-
-		$response = $this->update_modules( array( 'canonical_active' => false ) );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
-
-		remove_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+	/** Tests switchability follows module availability, not activation. */
+	public function test_available_modules_are_switchable() {
+		$this->make_modules_available( array( 'sitemaps', 'canonical-urls' ) );
+		$settings = Dashboard_Data::get_settings_data();
+		$this->assertTrue( $settings['sitemap_switchable'] );
+		$this->assertTrue( $settings['canonical_switchable'] );
 	}
-
 	/**
 	 * Report both module-backed settings as active regardless of what's stored or
 	 * available, the way WordPress.com does.
@@ -732,13 +727,7 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * A private or coming-soon Atomic site can still switch the sitemap on.
-	 *
-	 * Wpcomsh strips `sitemaps` and `verification-tools` from `jetpack_active_modules`
-	 * on those sites, so verifying the switch through `Modules::is_active()` reported
-	 * failure for a module that had switched correctly: the route answered 500 on a save
-	 * that worked, and skipped the durable option. The Jetpack plugin works around the
-	 * same filter in `Jetpack::is_module_active_for_seo_option()`.
+	 * A private Atomic site can save its sitemap preference while output stays suppressed.
 	 */
 	public function test_sitemap_setting_saves_on_a_private_site() {
 		$this->make_modules_available( array( 'sitemaps' ) );
@@ -748,12 +737,29 @@ class DashboardSettingsTest extends TestCase {
 		$response = $this->update_modules( array( 'sitemap_active' => true ) );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
 		// The module really is switched on in the site's own list; only the filtered
 		// report hides it.
 		$this->assertContains( 'sitemaps', (array) \Jetpack_Options::get_option( 'active_modules' ) );
 
 		remove_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
+	}
+
+	/** Tests disabling a suppressed sitemap without removing other saved modules. */
+	public function test_sitemap_setting_saves_off_on_private_and_coming_soon_sites() {
+		$this->make_modules_available( array( 'sitemaps', 'verification-tools' ) );
+		$this->suppress_modules_for_private_site();
+		$this->act_as( 'administrator' );
+		$original_hook = $GLOBALS['wp_filter']['jetpack_active_modules'];
+		foreach ( array( -1, -2 ) as $visibility ) {
+			update_option( 'blog_public', $visibility );
+			\Jetpack_Options::update_option( 'active_modules', array( 'sitemaps', 'verification-tools' ) );
+			$this->assertFalse( ( new Modules() )->is_active( 'sitemaps' ) );
+			$response = $this->update_modules( array( 'sitemap_active' => false ) );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertSame( array( 'verification-tools' ), \Jetpack_Options::get_option( 'active_modules' ) );
+			$this->assertSame( $visibility, get_option( 'blog_public' ) );
+			$this->assertSame( $original_hook, $GLOBALS['wp_filter']['jetpack_active_modules'] );
+		}
 	}
 
 	/**
@@ -818,13 +824,10 @@ class DashboardSettingsTest extends TestCase {
 		$this->update_modules( array( 'canonical_active' => true ) );
 
 		$this->assertTrue( ( new Modules() )->is_active( 'canonical-urls' ) );
-		$this->assertTrue( get_option( Initializer::CANONICAL_ENABLED_OPTION ) );
 	}
 
 	/**
-	 * A module that won't switch is an error the client can show — and the durable
-	 * option is left alone, so it never claims a state the module never reached. This
-	 * is exactly what core's settings endpoint had no way to express.
+	 * A module that will not switch returns an error the client can show.
 	 */
 	public function test_sitemap_setting_errors_when_the_module_will_not_switch() {
 		$this->make_modules_available( array( 'sitemaps' ) );
@@ -842,72 +845,23 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertSame( 500, $response->get_status() );
 		$this->assertSame( 'jetpack_seo_module_toggle_failed', $response->get_data()['code'] );
-		$this->assertEmpty( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
 
 		remove_all_filters( 'jetpack_active_modules' );
 	}
 
-	/**
-	 * A setting the store refuses is an error, not a success — and the module goes back
-	 * where it was, so the two never disagree. This is the whole check on WordPress.com
-	 * Simple, where there's no module and the option is the entire setting.
-	 */
-	public function test_sitemap_setting_errors_when_the_option_will_not_save() {
+	/** Tests repeated module writes are successful no-ops. */
+	public function test_an_unchanged_module_setting_is_not_an_error() {
 		$this->make_modules_available( array( 'sitemaps' ) );
 		$this->act_as( 'administrator' );
-		// Something else owns this option and refuses the change — a `pre_update_option_*`
-		// filter is how that shows up in practice.
-		add_filter( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION, '__return_false' );
-
+		\Jetpack_Options::update_option( 'active_modules', array( 'sitemaps' ) );
 		$response = $this->update_modules( array( 'sitemap_active' => true ) );
-
-		$this->assertSame( 500, $response->get_status() );
-		$this->assertSame( 'jetpack_seo_setting_not_saved', $response->get_data()['code'] );
-		// Rolled back: the module isn't left on while the setting reads off.
-		$this->assertFalse( ( new Modules() )->is_active( 'sitemaps' ) );
-
-		remove_all_filters( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION );
-	}
-
-	/**
-	 * The same check with no module at all — the WordPress.com Simple shape, where a
-	 * silently dropped write would otherwise be reported as saved.
-	 */
-	public function test_sitemap_setting_errors_when_the_option_will_not_save_without_a_module() {
-		$this->act_as( 'administrator' );
-		add_filter( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION, '__return_false' );
-
-		$response = $this->update_modules( array( 'sitemap_active' => true ) );
-
-		$this->assertSame( 500, $response->get_status() );
-		$this->assertSame( 'jetpack_seo_setting_not_saved', $response->get_data()['code'] );
-
-		remove_all_filters( 'pre_update_option_' . Initializer::SITEMAP_ENABLED_OPTION );
-	}
-
-	/**
-	 * Writing a value that's already stored is not a failure. `update_option()` returns
-	 * false for a no-op, so only reading the value back tells the two apart.
-	 */
-	public function test_an_unchanged_module_setting_is_not_an_error() {
-		$this->act_as( 'administrator' );
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, true );
-
-		$response = $this->update_modules( array( 'sitemap_active' => true ) );
-
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( array( 'sitemap_active' => true ), $response->get_data() );
 	}
-
-	/**
-	 * When one field of a multi-field request fails, the error names it and lists what
-	 * did land, so the client isn't left with a generic failure and unknown state.
-	 */
+	/** Tests a partial failure identifies the failed field and successful switches. */
 	public function test_a_partial_failure_reports_which_field_and_what_applied() {
 		$this->make_modules_available( array( 'sitemaps' ) );
 		$this->act_as( 'administrator' );
-		add_filter( 'pre_update_option_' . Initializer::CANONICAL_ENABLED_OPTION, '__return_false' );
-
 		$response = $this->update_modules(
 			array(
 				'sitemap_active'   => true,
@@ -915,16 +869,11 @@ class DashboardSettingsTest extends TestCase {
 			)
 		);
 		$data     = $response->get_data();
-
-		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'canonical_active', $data['data']['field'] );
 		$this->assertSame( array( 'sitemap_active' => true ), $data['data']['applied'] );
-		// And the field that did land really did.
-		$this->assertTrue( get_option( Initializer::SITEMAP_ENABLED_OPTION ) );
-
-		remove_all_filters( 'pre_update_option_' . Initializer::CANONICAL_ENABLED_OPTION );
+		$this->assertTrue( ( new Modules() )->is_active( 'sitemaps' ) );
 	}
-
 	/**
 	 * One request can carry several module-backed settings, and applies each of them.
 	 */

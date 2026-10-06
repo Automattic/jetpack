@@ -74,7 +74,10 @@ export function buildModulesPayload(
 	const payload: Record< string, unknown > = {};
 
 	MODULE_FIELDS.forEach( field => {
-		if ( local[ field ] !== baseline[ field ] ) {
+		const switchable =
+			( field !== 'sitemap_active' || baseline.sitemap_switchable ) &&
+			( field !== 'canonical_active' || baseline.canonical_switchable );
+		if ( switchable && local[ field ] !== baseline[ field ] ) {
 			payload[ field ] = local[ field ];
 		}
 	} );

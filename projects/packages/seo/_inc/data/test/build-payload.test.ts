@@ -16,8 +16,10 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	site_is_private: false,
 	search_engines_visible: true,
 	sitemap_active: false,
+	sitemap_switchable: true,
 	sitemap_url: '',
 	canonical_active: false,
+	canonical_switchable: true,
 	schema: makeSchemaSettings(),
 	...overrides,
 } );
@@ -135,6 +137,12 @@ describe( 'buildCorePayload', () => {
 } );
 
 describe( 'buildModulesPayload', () => {
+	it( 'does not send changes to platform-managed modules', () => {
+		const baseline = makeSettings( { sitemap_switchable: false, canonical_switchable: false } );
+		const local = { ...baseline, sitemap_active: true, canonical_active: true };
+		expect( buildModulesPayload( baseline, local ) ).toEqual( {} );
+	} );
+
 	it( 'returns an empty payload when nothing module-backed changed', () => {
 		const baseline = makeSettings();
 		expect( buildModulesPayload( baseline, makeSettings() ) ).toEqual( {} );
