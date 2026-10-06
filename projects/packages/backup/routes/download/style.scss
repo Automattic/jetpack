@@ -70,7 +70,7 @@
 	// Scoped: ProgressBar's emotion class has equal specificity.
 	&__status &__bar {
 		// Colours the indicator and, at 10%, the track.
-		--wp-components-color-foreground: var(--wp-admin-theme-color);
+		--wp-components-color-foreground: var(--wpds-color-background-interactive-brand-strong);
 		inline-size: 100%;
 		block-size: 8px;
 		border-radius: 4px;
