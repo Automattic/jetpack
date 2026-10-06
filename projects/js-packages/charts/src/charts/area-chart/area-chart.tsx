@@ -421,9 +421,10 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 						return (
+							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 							<div
 								ref={ chartRef }
-								role="grid"
+								role="application"
 								aria-label={ __( 'Area chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }

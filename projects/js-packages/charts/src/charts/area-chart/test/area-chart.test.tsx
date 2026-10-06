@@ -59,7 +59,7 @@ describe( 'AreaChart', () => {
 			try {
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 				renderWithProvider();
-				const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+				const chart = screen.getByRole( 'application', { name: /area chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -139,7 +139,7 @@ describe( 'AreaChart', () => {
 
 		test( 'renders with valid data', () => {
 			renderWithProvider();
-			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /area chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -203,7 +203,7 @@ describe( 'AreaChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -228,7 +228,7 @@ describe( 'AreaChart', () => {
 				},
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
 		} );
 
@@ -254,7 +254,7 @@ describe( 'AreaChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
 		} );
 	} );
@@ -275,7 +275,7 @@ describe( 'AreaChart', () => {
 
 		test( 'accepts custom stackOffset', () => {
 			renderWithProvider( { stackOffset: 'expand' } );
-			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /area chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -344,7 +344,7 @@ describe( 'AreaChart', () => {
 
 			// Open a tooltip via keyboard navigation, then verify the hidden
 			// series' label is absent from the rendered tooltip rows.
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 
@@ -364,7 +364,7 @@ describe( 'AreaChart', () => {
 			} );
 
 			await user.click( screen.getByText( 'Series A' ) );
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 
@@ -762,7 +762,7 @@ describe( 'AreaChart', () => {
 				context?.toggleSeriesVisibility( chartId, 'Series A' );
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 
@@ -775,14 +775,14 @@ describe( 'AreaChart', () => {
 	describe( 'Without GlobalChartsProvider', () => {
 		test( 'self-wraps in a provider when none is present', () => {
 			render( <AreaChartUnresponsive { ...defaultProps } /> );
-			expect( screen.getByRole( 'grid', { name: /area chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /area chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'Accessibility', () => {
 		test( 'chart container has expected ARIA attributes', () => {
 			renderWithProvider();
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			expect( chart ).toHaveAttribute( 'tabIndex', '0' );
 			expect( chart ).toHaveAttribute( 'aria-label', 'Area chart' );
 		} );
@@ -822,7 +822,7 @@ describe( 'AreaChart', () => {
 		// surface the visx TooltipContext state in a jsdom environment.
 		const focusFirstDatum = async () => {
 			const user = userEvent.setup();
-			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const chart = screen.getByRole( 'application', { name: /area chart/i } );
 			chart.focus();
 			await user.keyboard( '{ArrowRight}' );
 		};
@@ -972,7 +972,7 @@ describe( 'AreaChart', () => {
 
 			// The visx grid has no role/testid, so query its internal class from within the plot.
 			/* eslint-disable testing-library/no-node-access */
-			const plot = screen.getByRole( 'grid' );
+			const plot = screen.getByRole( 'application' );
 			expect( plot.querySelector( '.visx-rows' ) ).toBeInTheDocument();
 
 			const buttons = screen.getAllByRole( 'button' );

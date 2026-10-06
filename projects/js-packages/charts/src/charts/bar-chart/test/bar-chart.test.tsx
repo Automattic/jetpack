@@ -42,12 +42,12 @@ describe( 'BarChart', () => {
 	// visx renders bars and grid lines without accessible roles or configurable test IDs.
 	const getBarRects = () => {
 		// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
-		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+		return screen.getByRole( 'application' ).querySelectorAll( '.visx-bar-group rect' );
 	};
 
 	const getGridLines = () => {
 		// eslint-disable-next-line testing-library/no-node-access -- visx grid lines cannot receive test IDs.
-		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-rows line' );
+		return screen.getByRole( 'application' ).querySelectorAll( '.visx-rows line' );
 	};
 
 	const renderWithTheme = ( props = {}, children = undefined ) => {
@@ -151,20 +151,21 @@ describe( 'BarChart', () => {
 
 		const pointer = ( type: string, clientX: number, clientY: number ) => {
 			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			const chart = screen.getByRole( 'application' );
 			// eslint-disable-next-line testing-library/no-node-access
-			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			const target = chart.querySelector( 'svg > rect[fill="transparent"]' );
 			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
 		};
 
 		const hover = ( clientX: number, clientY: number ) =>
 			pointer( 'pointermove', clientX, clientY );
 
-		test( 'Escape returns focus to the grid without reopening either tooltip', async () => {
+		test( 'Escape returns focus to the chart without reopening either tooltip', async () => {
 			jest.useFakeTimers();
 			try {
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 				renderWithTheme( { withTooltips: true } );
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				await user.tab();
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
@@ -369,7 +370,7 @@ describe( 'BarChart', () => {
 			unmount();
 			renderWithTheme( { withBandHighlight: true, onBandHighlightChange } );
 			expect( warn ).toHaveBeenCalledTimes( 1 );
-			expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application' ) ).toBeInTheDocument();
 			expect( warn ).toHaveBeenCalledWith(
 				'[Charts] BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
 			);
@@ -473,7 +474,7 @@ describe( 'BarChart', () => {
 
 		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
 			renderWithTheme( { data: wholeNumberData } );
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -482,7 +483,7 @@ describe( 'BarChart', () => {
 
 		test( 'labels a horizontal whole-number range once per whole number', () => {
 			renderWithTheme( { data: wholeNumberData, orientation: 'horizontal' } );
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -501,7 +502,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -530,7 +531,7 @@ describe( 'BarChart', () => {
 						},
 					},
 				} );
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
 			}
 		);
@@ -540,7 +541,7 @@ describe( 'BarChart', () => {
 				data: wholeNumberData,
 				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
 			} );
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
 		} );
 	} );
@@ -584,7 +585,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles negative values', () => {
@@ -600,7 +601,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
@@ -617,7 +618,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'draws no bar for a bucket with no reading', () => {
@@ -736,7 +737,7 @@ describe( 'BarChart', () => {
 			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			const html = document.body.innerHTML;
 			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
-				html.indexOf( 'role="grid"' )
+				html.indexOf( 'role="application"' )
 			);
 		} );
 	} );
@@ -744,7 +745,7 @@ describe( 'BarChart', () => {
 	describe( 'Grid tick counts', () => {
 		const getPositions = ( selector: string, coordinate: string ) => {
 			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
-			const lines = screen.getByRole( 'grid' ).querySelectorAll( selector );
+			const lines = screen.getByRole( 'application' ).querySelectorAll( selector );
 			return Array.from( lines, line => Number( line.getAttribute( coordinate ) ) );
 		};
 
@@ -834,21 +835,21 @@ describe( 'BarChart', () => {
 	describe( 'Grid Visibility', () => {
 		test( 'renders with different grid visibility options', () => {
 			const { rerender } = renderWithTheme( { gridVisibility: 'x' } );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
 				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } gridVisibility="y" />
 				</GlobalChartsProvider>
 			);
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
 				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } gridVisibility="xy" />
 				</GlobalChartsProvider>
 			);
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -930,7 +931,7 @@ describe( 'BarChart', () => {
 
 		// Scoped to the chart: @visx/text parks a measuring node on document.body,
 		// which a negative assertion would otherwise match.
-		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+		const inChart = () => within( screen.getByRole( 'application', { name: /bar chart/i } ) );
 
 		test( 'leaves tick values alone when a bucket is labelled rather than dated', () => {
 			// visx builds the band domain from `label || date`, so a labelled bucket
@@ -1134,7 +1135,7 @@ describe( 'BarChart', () => {
 		// on document.body, which outlives RTL's cleanup still holding the last
 		// string measured. Query inside the chart so a previous test's measurement
 		// can't answer for this one's axis.
-		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+		const inChart = () => within( screen.getByRole( 'application', { name: /bar chart/i } ) );
 
 		test( 'renders distinct date ticks for daily buckets within a year', () => {
 			renderWithTheme( {
@@ -1570,7 +1571,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			// The month tick reads "2024" here; the tooltip names the bucket itself.
@@ -1629,7 +1630,7 @@ describe( 'BarChart', () => {
 
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Check that pattern definitions container is present
 			expect( screen.getByTestId( 'bar-chart-patterns' ) ).toBeInTheDocument();
@@ -1637,7 +1638,7 @@ describe( 'BarChart', () => {
 
 		test( 'renders without patterns by default', () => {
 			renderWithTheme( { withPatterns: false } );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Check that no pattern definitions container is present
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
@@ -1679,17 +1680,17 @@ describe( 'BarChart', () => {
 		describe( 'Chart Focus and Accessibility Attributes', () => {
 			test( 'chart container has proper accessibility attributes', () => {
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
-				expect( chart ).toHaveAttribute( 'role', 'grid' );
+				expect( chart ).toHaveAttribute( 'role', 'application' );
 				expect( chart ).toHaveAttribute( 'aria-label', 'Bar chart' );
 			} );
 
 			test( 'chart container can receive focus', async () => {
 				const user = userEvent.setup();
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -1719,7 +1720,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 
 				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
@@ -1735,7 +1736,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}[Space]' );
 
 				expect( onDatumActivate ).toHaveBeenCalledWith( {
@@ -1753,7 +1754,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A, SERIES_B ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 
 				expect( onDatumActivate ).toHaveBeenCalledWith( {
@@ -1768,7 +1769,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
@@ -1802,7 +1803,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Single tab should focus on the first tooltip.
@@ -1853,7 +1854,7 @@ describe( 'BarChart', () => {
 						],
 					} );
 
-					const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+					const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 					chart.focus();
 
 					await user.keyboard( '{ArrowRight}' );
@@ -1902,7 +1903,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Right arrow key should focus on the first tooltip.
@@ -1925,7 +1926,7 @@ describe( 'BarChart', () => {
 			} );
 		} );
 
-		describe( 'ARIA grid boundaries', () => {
+		describe( 'Keyboard navigation boundaries', () => {
 			// Three points, so a clamp at a boundary lands on a different index than a wrap would.
 			const threePointData = [
 				{
@@ -1943,7 +1944,7 @@ describe( 'BarChart', () => {
 				const user = userEvent.setup();
 				renderWithTheme( { withTooltips: true, data: threePointData } );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Move to the first, then on to the last (third) point.
@@ -1953,7 +1954,7 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveFocus();
 
 				// Right arrow at the last point must not move focus: the highlighted
-				// bar/tooltip stays visible and focused (ARIA grid: focus does not move).
+				// bar/tooltip stays visible and focused (focus does not move).
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toBeInTheDocument();
 				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveFocus();
@@ -1968,7 +1969,7 @@ describe( 'BarChart', () => {
 				const user = userEvent.setup();
 				renderWithTheme( { withTooltips: true, data: threePointData } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowLeft}' );
 
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
@@ -2002,7 +2003,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				await user.keyboard( '{ArrowRight}' );
@@ -2037,7 +2038,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Slot 0 is the first primary bar (Mon); slot 1 must be the SECOND primary
@@ -2069,7 +2070,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}' );
 
 				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
@@ -2102,7 +2103,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}' );
 
 				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
@@ -2162,7 +2163,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Chart should be in focus.
@@ -2202,7 +2203,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Navigate to the first bar
@@ -2237,7 +2238,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Navigate to the first bar (Series A, Jan 1)
@@ -2269,7 +2270,7 @@ describe( 'BarChart', () => {
 					const user = userEvent.setup();
 					renderWithTheme( { withTooltips: true, data } );
 
-					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 					await user.keyboard( '{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
@@ -2280,7 +2281,7 @@ describe( 'BarChart', () => {
 					const user = userEvent.setup();
 					renderWithTheme( { withTooltips: true, data } );
 
-					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 					await user.keyboard( '{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
@@ -2313,7 +2314,7 @@ describe( 'BarChart', () => {
 					];
 					renderWithTheme( { withTooltips: true, data: twoSeries } );
 
-					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
@@ -2340,7 +2341,7 @@ describe( 'BarChart', () => {
 
 			renderWithTheme( { withTooltips: true, renderTooltip: customTooltipRenderer } );
 
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			chart.focus();
 
 			// Click on right arrow key to focus on the first tooltip.
@@ -2372,7 +2373,9 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			// Should have 2 bars
@@ -2399,7 +2402,9 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			// Should have 2 bars
@@ -2432,7 +2437,9 @@ describe( 'BarChart', () => {
 				orientation: 'horizontal',
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			// Both bars should be visible in horizontal mode
@@ -2461,7 +2468,9 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			expect( bars?.length ).toBe( 2 );
@@ -2501,7 +2510,7 @@ describe( 'BarChart', () => {
 				},
 			} );
 
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'truncates labels with CSS text-overflow ellipsis', () => {
@@ -2594,7 +2603,7 @@ describe( 'BarChart', () => {
 			} );
 
 			// Chart should still render without errors
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Labels should still be present and have minimum width applied
 			const label = screen.getByText( /Very Long Category Label One/i );
@@ -2890,7 +2899,7 @@ describe( 'BarChart', () => {
 				</GlobalChartsProvider>
 			);
 
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			chart.focus();
 
 			// Navigate through all 4 primary slots (2 series × 2 data points)
@@ -3176,8 +3185,9 @@ describe( 'BarChart', () => {
 				</GlobalChartsProvider>
 			);
 
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			// eslint-disable-next-line testing-library/no-node-access
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = chart.querySelector( 'svg' );
 			// eslint-disable-next-line testing-library/no-node-access
 			expect( svgElement?.querySelectorAll( '.visx-bar-group rect' ) ).toHaveLength( 2 );
 
@@ -3382,7 +3392,7 @@ describe( 'BarChart', () => {
 			const user = userEvent.setup();
 			const toggle = mountWithVisibilityToggle();
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			for ( let i = 0; i < 6; i++ ) {
 				await user.keyboard( '{ArrowRight}' );
 			}
@@ -3427,7 +3437,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			for ( let i = 0; i < 6; i++ ) {
 				await user.keyboard( '{ArrowRight}' );
 			}
@@ -3484,12 +3494,12 @@ describe( 'BarChart', () => {
 				</GlobalChartsProvider>
 			);
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}{ArrowRight}' );
 			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series A' );
 
 			// Move focus out of the chart, then swap which series is hidden without changing the count.
-			screen.getByRole( 'grid', { name: /bar chart/i } ).blur();
+			screen.getByRole( 'application', { name: /bar chart/i } ).blur();
 			act( () => context.setChartHiddenSeries( 'test-equal-count-swap', [ 'Series A' ] ) );
 
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
@@ -3528,7 +3538,7 @@ describe( 'BarChart', () => {
 
 			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
 
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			chart.focus();
 
 			for ( let i = 0; i < 5; i++ ) {

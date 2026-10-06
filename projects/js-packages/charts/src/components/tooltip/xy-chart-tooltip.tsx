@@ -261,10 +261,10 @@ export const useKeyboardNavigation = ( {
 	preventTooltipScroll = false,
 	visibleSeriesKey,
 }: UseKeyboardNavigationProps ) => {
-	// `chartRef` sits inside the focusable grid, so the grid is what focus returns to and is measured against.
+	// `chartRef` sits inside the focusable chart container, so that container is what focus returns to and is measured against.
 	const getChartRoot = useCallback(
 		(): HTMLElement | null =>
-			chartRef.current?.closest< HTMLElement >( '[role="grid"]' ) ?? chartRef.current,
+			chartRef.current?.closest< HTMLElement >( '[role="application"]' ) ?? chartRef.current,
 		[ chartRef ]
 	);
 

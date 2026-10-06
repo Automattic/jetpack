@@ -603,8 +603,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 					return (
+						// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 						<div
-							role="grid"
+							role="application"
 							ref={ chartRef }
 							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }
