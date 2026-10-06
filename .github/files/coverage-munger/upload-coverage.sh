@@ -104,7 +104,7 @@ function onexit {
 trap onexit exit
 
 for (( O=0; O < SZ; O+=CSZ )); do
-	dd if=coverage-data.zip of=chunk bs=32K skip=${O}B count=${CSZ}B
+	dd if=coverage-data.zip of=chunk bs=32K skip="${O}B" count="${CSZ}B"
 	do_req "op=chunk&token=$TOKEN" chunk
 done
 
