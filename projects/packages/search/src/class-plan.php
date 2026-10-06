@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 
@@ -50,6 +51,9 @@ class Plan {
 	 * Refresh plan info stored in options
 	 */
 	public function get_plan_info_from_wpcom() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return new WP_Error( 'site_offline', 'Site is in offline mode.' );
+		}
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		// An unregistered site (or a stale cache view hiding the registration) has no
 		// blog ID: bail rather than requesting the malformed `/sites//…` path.
