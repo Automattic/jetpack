@@ -118,7 +118,9 @@ function rowDate( item: ActivityItem ): string {
 function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 	return (
 		<>
-			{ item.title }
+			<Text variant="body-md" render={ <span /> }>
+				{ item.title }
+			</Text>
 			{ isNew && (
 				<Badge intent="none" className="jpb-activity-list__new">
 					{ __( 'New', 'jetpack-backup-pkg' ) }
@@ -366,7 +368,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 					className="jpb-activity-list__toolbar"
 				>
 					<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
-						<Text variant="heading-md" className="jpb-activity-list__title" render={ <h2 /> }>
+						<Text variant="heading-lg" render={ <h2 /> }>
 							{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
 						</Text>
 						<Text variant="body-sm" className="jpb-text-muted">
@@ -382,9 +384,11 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 							) }
 						</Text>
 						{ activityLogUrl && (
-							<Link href={ activityLogUrl }>
-								{ __( 'See all activity in the Activity Log', 'jetpack-backup-pkg' ) }
-							</Link>
+							<Text variant="body-sm">
+								<Link href={ activityLogUrl }>
+									{ __( 'See all activity in the Activity Log', 'jetpack-backup-pkg' ) }
+								</Link>
+							</Text>
 						) }
 					</Stack>
 					<DataViews.ViewConfig />

@@ -28,14 +28,8 @@
 		min-inline-size: 0;
 		align-items: flex-start;
 
-		.jpb-activity-list__title {
-			font-size: var(--wpds-typography-font-size-lg);
-			font-weight: 500;
-		}
-
 		// Quiet, not underlined: the design has neither this line nor the link.
 		a {
-			font-size: var(--wpds-typography-font-size-sm);
 			text-decoration: none;
 		}
 	}
@@ -84,10 +78,6 @@
 		&::after {
 			box-shadow: none;
 		}
-	}
-
-	.dataviews-view-list .dataviews-title-field {
-		font-weight: var(--wpds-typography-font-weight-default);
 	}
 
 	// Keep the date + summary metadata on a single line with overflow
