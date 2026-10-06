@@ -39,7 +39,7 @@ abstract class Controller extends WP_REST_Controller {
 			);
 		}
 
-		// Checked per request, not at registration: on Simple the routes register before the site is switched.
+		// Per request, not at registration: see `Endpoints::init()`.
 		if ( ! Environment::settings_screen_supported() ) {
 			return new WP_Error(
 				'rest_sharing_likes_unavailable',

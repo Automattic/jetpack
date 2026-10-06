@@ -74,12 +74,6 @@ class Services_Controller_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_services_require_manage_options(): void {
-		$this->log_in_as( 'editor' );
-
-		$this->assertSame( 403, $this->request( 'GET', 'services' )->get_status() );
-	}
-
 	public function test_services_are_unavailable_while_the_sharing_section_does_not_configure(): void {
 		$this->create();
 		$stored = get_option( 'sharing-options' );

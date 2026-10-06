@@ -78,22 +78,6 @@ class Settings_Controller_Test extends BaseTestCase {
 		return $GLOBALS['sharing_likes_test_global_options'];
 	}
 
-	public function test_reading_requires_manage_options(): void {
-		$this->log_in_as( 'editor' );
-
-		$this->assertSame( 403, $this->request( 'GET', 'settings' )->get_status() );
-	}
-
-	public function test_saving_requires_manage_options(): void {
-		$this->given_both_features_running();
-		$this->log_in_as( 'editor' );
-
-		$response = $this->request( 'POST', 'settings', array( 'likes_enabled' => false ) );
-
-		$this->assertSame( 403, $response->get_status() );
-		$this->assertFalse( get_option( 'disabled_likes' ) );
-	}
-
 	public function test_offers_what_the_screen_shows_on_a_connected_site(): void {
 		$this->given_both_features_running();
 

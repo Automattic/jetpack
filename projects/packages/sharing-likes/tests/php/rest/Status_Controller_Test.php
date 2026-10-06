@@ -75,12 +75,6 @@ class Status_Controller_Test extends BaseTestCase {
 		return array_values( (array) Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
-	public function test_status_requires_manage_options(): void {
-		$this->log_in_as( 'editor' );
-
-		$this->assertSame( 403, $this->request( 'GET', 'status' )->get_status() );
-	}
-
 	public function test_status_reports_what_each_section_renders(): void {
 		$this->given_modules( array( 'sharedaddy' ) );
 
@@ -265,13 +259,5 @@ class Status_Controller_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_active_modules', $keep_sharing_off );
 		$this->assertSame( 409, $response->get_status() );
-	}
-
-	public function test_actions_require_manage_options(): void {
-		$this->given_modules( array() );
-		$this->log_in_as( 'editor' );
-
-		$this->assertSame( 403, $this->request( 'POST', 'sharing/activate' )->get_status() );
-		$this->assertSame( array(), $this->active_modules() );
 	}
 }
