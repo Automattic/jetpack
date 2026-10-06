@@ -198,6 +198,24 @@ export function validateAgainstSchema( value: unknown, schema: JsonSchema, path 
 }
 
 /**
+ * Remove an `inferred.inferred_goal` that fails its schema, so an analytics-only field can't
+ * discard an otherwise valid output.
+ *
+ * @param parsed - The parsed model output, mutated in place.
+ */
+function dropInvalidInferredGoal( parsed: unknown ): void {
+	const inferred = ( parsed as { inferred?: unknown } | null )?.inferred;
+	if ( ! inferred || typeof inferred !== 'object' || ! ( 'inferred_goal' in inferred ) ) {
+		return;
+	}
+	const goalSchema = AGENT_OUTPUT_SCHEMA.properties?.inferred?.properties?.inferred_goal;
+	const record = inferred as Record< string, unknown >;
+	if ( goalSchema && validateAgainstSchema( record.inferred_goal, goalSchema ).length > 0 ) {
+		delete record.inferred_goal;
+	}
+}
+
+/**
  * Parse the raw `content` string returned by jetpack-ai-query and validate it
  * against the agent output schema. Returns the typed output, or null if the JSON
  * is malformed or fails validation.
@@ -212,6 +230,8 @@ export function parseAgentResponse( content: string ): TailoredOutput | null {
 	} catch {
 		return null;
 	}
+
+	dropInvalidInferredGoal( parsed );
 
 	if ( validateAgainstSchema( parsed, AGENT_OUTPUT_SCHEMA ).length > 0 ) {
 		return null;

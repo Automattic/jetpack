@@ -187,6 +187,14 @@ describe( 'parseAgentResponse', () => {
 		assert.equal( parseAgentResponse( '{ not json' ), null );
 	} );
 
+	it( 'drops an out-of-enum inferred_goal instead of rejecting the output', () => {
+		const out = validOutput();
+		out.inferred.inferred_goal = 'business';
+		const parsed = parseAgentResponse( JSON.stringify( out ) );
+		assert.ok( parsed );
+		assert.equal( 'inferred_goal' in parsed.inferred, false );
+	} );
+
 	it( 'returns null for schema-invalid JSON', () => {
 		const out = validOutput();
 		out.tasks = out.tasks.slice( 0, 3 );
