@@ -91,6 +91,7 @@ export type Strings = {
 	logInWithWordPress: string;
 	logOut: string;
 	change: string;
+	editProfile: string;
 	addYourName: string;
 	cancel: string;
 	signInFailed: string;
@@ -117,7 +118,8 @@ export type Settings = {
 	manageSubscriptionsUrl: string;
 	strings: Strings;
 	commenter: Details;
-	user: { name: string } | null;
+	/** Empty `editProfileUrl` for a user who may not edit their own profile. */
+	user: { name: string; editProfileUrl: string } | null;
 	identity: IdentitySettings;
 };
 

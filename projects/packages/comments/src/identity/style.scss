@@ -7,6 +7,8 @@
 	flex: 1 1 0;
 	min-inline-size: 0;
 	font-size: 0.8125em;
+	// Pinned, so a theme's tall line height cannot stretch the row.
+	line-height: 1.4;
 }
 
 .jetpack-comments__profile {
@@ -46,6 +48,14 @@
 	}
 }
 
-.jetpack-comments__avatar {
+.jetpack-comments__avatar,
+.jetpack-comments__avatar-link {
+	display: flex;
 	flex-shrink: 0;
+}
+
+// Past a theme's own `.avatar` sizing, so the submit beside it can match.
+.jetpack-comments .jetpack-comments__identity .jetpack-comments__avatar {
+	inline-size: var(--jetpack-comments-avatar-size);
+	block-size: var(--jetpack-comments-avatar-size);
 }

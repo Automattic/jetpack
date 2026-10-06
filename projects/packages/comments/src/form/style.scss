@@ -6,6 +6,8 @@
 
 .jetpack-comments.is-mounted {
 	--jetpack-comments-pad: 1em;
+	// The avatar's, which the submit's height matches.
+	--jetpack-comments-avatar-size: 40px;
 }
 
 // One box around the textarea and the submit row, in the post's own colours.
@@ -114,7 +116,15 @@
 	margin: 0 !important;
 	padding: 0 !important;
 
+	// Sized here, as tall as the avatar beside it; the theme keeps its look:
+	// font family, weight, colours, border and radius.
 	input {
+		box-sizing: border-box;
+		block-size: var(--jetpack-comments-avatar-size) !important;
+		min-block-size: 0 !important;
+		padding: 0 1.25em !important;
+		font-size: 0.875em !important;
+		line-height: 1 !important;
 		cursor: pointer;
 
 		&:not(:focus, :active) {

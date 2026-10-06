@@ -427,6 +427,7 @@ class Comment_Form {
 				'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
 				'logOut'              => __( 'Log out', 'jetpack-comments' ),
 				'change'              => _x( 'Change', 'edit the name and email a comment posts under', 'jetpack-comments' ),
+				'editProfile'         => __( 'Edit profile', 'jetpack-comments' ),
 				'addYourName'         => __( 'Add your name', 'jetpack-comments' ),
 				'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 				'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),

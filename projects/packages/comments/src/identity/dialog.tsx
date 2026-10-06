@@ -84,7 +84,9 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 			// The control that opened it can be gone, as when a sign-in replaces "Add your name".
 			if ( ! opener.current?.isConnected ) {
-				internals.form?.querySelector< HTMLElement >( '.jetpack-comments__identity a' )?.focus();
+				internals.form
+					?.querySelector< HTMLElement >( '.jetpack-comments__identity a:not([tabindex])' )
+					?.focus();
 			}
 		}
 

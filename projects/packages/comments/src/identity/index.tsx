@@ -6,14 +6,14 @@ import './style.scss';
 
 /**
  * Who the comment will be attributed to, in the footer: a link to the dialog until
- * the site knows the commenter, then their name, linked to their subscriptions, and
- * one link: Change for a guest, Log out for anyone signed in.
+ * the site knows the commenter, then their avatar and name, linked to a site user's
+ * profile or a guest's subscriptions, and Change for a guest or Log out for anyone else.
  *
  * @return The identity line.
  */
 export const Identity = () => {
 	const { formSettings, details, commenter, isDialogOpen, forget } = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl } = JetpackComments;
+	const { mustLogIn, identity, strings, avatarUrl, user } = JetpackComments;
 	const current = commenter.value;
 
 	// Only where the site shows avatars; a commenter it does not know gets its default.
@@ -53,15 +53,23 @@ export const Identity = () => {
 		);
 	}
 
-	// Empty where the site offers no subscriptions, and on a page cached before this key existed.
-	let manageUrl = JetpackComments.manageSubscriptionsUrl ?? '';
+	// A site user's own profile, as core links it. Subscriptions only for a guest: their email
+	// is the one the comment posts under, where anyone else's details are leftover cookies.
+	// The manage URL is empty where the Newsletter is off, and on a page cached before it existed.
+	const manageUrl = JetpackComments.manageSubscriptionsUrl ?? '';
+	let profile = { url: '', label: '' };
 
-	// Logged out, the portal asks for an email address; hand it a guest's. Anyone else's
-	// details are leftover cookies, which on Simple can come from another site.
-	if ( manageUrl && current.kind === 'guest' && details.value.email ) {
-		manageUrl += `&email=${ encodeURIComponent( details.value.email ) }`;
+	if ( current.kind === 'user' && user?.editProfileUrl ) {
+		profile = { url: user.editProfileUrl, label: strings.editProfile };
+	} else if ( current.kind === 'guest' && manageUrl && details.value.email ) {
+		profile = {
+			url: `${ manageUrl }&email=${ encodeURIComponent( details.value.email ) }`,
+			label: strings.manageSubscriptions,
+		};
 	}
 
+	// Subscriptions open beside the post; a profile replaces it, as core's link does.
+	const opens = current.kind === 'user' ? {} : { target: '_blank', rel: 'noopener' };
 	const name = current.kind === 'guest' ? details.value.author : current.name;
 
 	return (
@@ -73,20 +81,30 @@ export const Identity = () => {
 				) : (
 					<input type="hidden" name={ identity.passportField } value="1" />
 				) ) }
-			{ avatar }
+			{ /* The avatar repeats the name's link for the pointer; Tab and screen readers get the name's alone. */ }
+			{ profile.url && avatar ? (
+				<a
+					className="jetpack-comments__avatar-link"
+					href={ profile.url }
+					tabIndex={ -1 }
+					aria-hidden="true"
+					{ ...opens }
+				>
+					{ avatar }
+				</a>
+			) : (
+				avatar
+			) }
 			<span className="jetpack-comments__profile">
-				{ manageUrl ? (
+				{ profile.url ? (
 					<a
 						className="jetpack-comments__name"
-						href={ manageUrl }
-						target="_blank"
-						rel="noopener"
-						title={ strings.manageSubscriptions }
+						href={ profile.url }
+						title={ profile.label }
+						{ ...opens }
 					>
 						{ name }
-						<span className="jetpack-comments__visually-hidden">
-							{ ` ${ strings.manageSubscriptions }` }
-						</span>
+						<span className="jetpack-comments__visually-hidden">{ ` ${ profile.label }` }</span>
 					</a>
 				) : (
 					<span className="jetpack-comments__name">{ name }</span>
