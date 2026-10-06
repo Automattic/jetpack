@@ -25,7 +25,7 @@
 
 .is-modern {
 
-	// The element selector beats Button's (0,3,0) size rule without !important.
+	// Element selector so this wins over Button's size rule.
 	button:global(.components-button.is-link) {
 		font-size: inherit;
 		line-height: inherit;
