@@ -16,7 +16,6 @@
 		// `FileBrowser` adds this only when it renders the card in-column;
 		// too narrow for that and the preview goes to `<FileInfoDialog>`.
 		&--with-card {
-			grid-template-columns: minmax(0, 1fr) 450px;
 
 			// `align-self` is load-bearing: grid stretches the card to its row's
 			// height — the tree's — and a stretched card has nowhere to travel.

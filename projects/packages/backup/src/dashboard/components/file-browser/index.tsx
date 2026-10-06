@@ -42,8 +42,10 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
-// Must match the card track in style.scss: below `CARD_TRACK + COLUMN_GAP + MIN_TREE` the dialog takes over.
-const CARD_TRACK = 450;
+// The card track runs from `CARD_TRACK` up to `CARD_MAX`; the tree track never drops below `MIN_TREE`.
+// Below `CARD_TRACK + COLUMN_GAP + MIN_TREE` there is no room for two columns, so the dialog takes over.
+const CARD_TRACK = 280;
+const CARD_MAX = 450;
 const COLUMN_GAP = 16;
 // Floor for the tree: a nested row spends ~120px on indent, checkbox, chevron
 // and glyph before a single character of filename.
@@ -475,6 +477,12 @@ export default function FileBrowser( {
 
 	// The card only takes a column when it is actually rendered there; a bare
 	// tree keeps the full panel width.
+	const layoutStyle =
+		openFile && ! isNarrow
+			? {
+					gridTemplateColumns: `minmax(${ MIN_TREE }px, 1fr) minmax(${ CARD_TRACK }px, ${ CARD_MAX }px)`,
+				}
+			: undefined;
 	const layoutClassName =
 		openFile && ! isNarrow
 			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
@@ -500,7 +508,7 @@ export default function FileBrowser( {
 
 	return (
 		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
-			<div className={ layoutClassName }>
+			<div className={ layoutClassName } style={ layoutStyle }>
 				<div className="jpb-file-browser__main">
 					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
 						<CheckboxControl

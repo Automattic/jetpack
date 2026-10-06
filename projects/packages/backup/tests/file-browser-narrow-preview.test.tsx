@@ -243,8 +243,24 @@ it( 'gives the dialog preview a named region focus can enter, as the card has', 
 	expect( preview ).toContainElement( screen.getByText( 'Hello.' ) );
 } );
 
-it( 'uses the dialog for a panel between the old and new two-column floors', async () => {
+it( 'keeps two columns from 640px, with the tree track floored and the card track flexible', async () => {
 	panel = mockPanelWidth( 700 );
+
+	await openTheFile();
+
+	await expect(
+		screen.findByRole( 'heading', { level: 3, name: 'readme.txt' } )
+	).resolves.toBeInTheDocument();
+	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	// jsdom does not lay out a grid, so the track definition is what can be asserted.
+	// eslint-disable-next-line testing-library/no-node-access -- no role or text names the layout box
+	expect( document.querySelector( '.jpb-file-browser__layout' ) ).toHaveStyle( {
+		gridTemplateColumns: 'minmax(344px, 1fr) minmax(280px, 450px)',
+	} );
+} );
+
+it( 'uses the dialog below 640px', async () => {
+	panel = mockPanelWidth( 630 );
 
 	await openTheFile();
 
