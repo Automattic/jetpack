@@ -25,11 +25,13 @@ class Proxy_Request {
 	 *
 	 * @param string $site_path Path after `/sites/<blog id>/`.
 	 * @param array  $args      See {@see to_path()}.
-	 * @return array|WP_Error See {@see to_path()}. A site without a blog id gets the unauthorized error.
+	 * @return array|WP_Error See {@see to_path()}. An unsigned request from a site without a blog id gets the unauthorized error.
 	 */
 	public static function to_site( string $site_path, array $args = array() ) {
 		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
+
+		// A signed request is gated by its token. An unsigned one has the blog id alone.
+		if ( ! $blog_id && 'none' === ( $args['context'] ?? 'user' ) ) {
 			return self::unauthorized_error( $args );
 		}
 
