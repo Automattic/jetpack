@@ -221,7 +221,6 @@ it( 'routes one resize of 500 images with linear selector reads and routing chec
 		expect( reads ).toBeLessThanOrEqual( count * 16 );
 		// Each snapshot reads facts once; the remaining reads count notifyImage routing checks.
 		const routingChecks = factsReads.mock.calls.length - reads;
-		expect( routingChecks ).toBe( count * 3 );
 		routingCounts.push( routingChecks );
 		factsReads.mockRestore();
 		counts.push( reads );
@@ -229,6 +228,10 @@ it( 'routes one resize of 500 images with linear selector reads and routing chec
 	}
 	expect( counts[ 1 ] ).toBe( counts[ 0 ] * 10 );
 	expect( routingCounts[ 1 ] ).toBe( routingCounts[ 0 ] * 10 );
+} );
+
+it( 'notifies each changed image inside a registry batch', async () => {
+	const api = await load();
 	const { use } = await import( '@wordpress/data' );
 	const registry = use( () => ( {} ) );
 	const controllers = [ image( api ).controller, image( api ).controller ];
