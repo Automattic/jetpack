@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "435a6f8b3a341b7a584fdcc79e0019fb",
+    "content-hash": "f5407da685b15bc64d1f2998987d5764",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -109,23 +109,23 @@
         },
         {
             "name": "automattic/jetpack-account-protection",
-            "version": "v0.4.0",
+            "version": "v0.4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-account-protection.git",
-                "reference": "55b25e7c703fdac1556dd23ed7e834563e2304aa"
+                "reference": "1062ccbeca2fe3316f61233097fdd915e43d098e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-account-protection/zipball/55b25e7c703fdac1556dd23ed7e834563e2304aa",
-                "reference": "55b25e7c703fdac1556dd23ed7e834563e2304aa",
+                "url": "https://api.github.com/repos/Automattic/jetpack-account-protection/zipball/1062ccbeca2fe3316f61233097fdd915e43d098e",
+                "reference": "1062ccbeca2fe3316f61233097fdd915e43d098e",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "^9.1.0",
+                "automattic/jetpack-connection": "^9.9.0.1",
                 "automattic/jetpack-constants": "^4.0.0",
-                "automattic/jetpack-logo": "^4.0.0",
-                "automattic/jetpack-status": "^7.0.0",
+                "automattic/jetpack-logo": "^4.0.1",
+                "automattic/jetpack-status": "^7.1.0",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -161,9 +161,9 @@
             ],
             "description": "Account protection",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-account-protection/tree/v0.4.0"
+                "source": "https://github.com/Automattic/jetpack-account-protection/tree/v0.4.0.1"
             },
-            "time": "2026-09-01T15:50:25+00:00"
+            "time": "2026-10-06T15:44:56+00:00"
         },
         {
             "name": "automattic/jetpack-activity-log",
@@ -1144,16 +1144,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v9.9.0",
+            "version": "v9.9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "7cefd70b928a2e8733dbe519b1f9840481cee250"
+                "reference": "288a5003fd29b46630d1af9edaf227b767c31d01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/7cefd70b928a2e8733dbe519b1f9840481cee250",
-                "reference": "7cefd70b928a2e8733dbe519b1f9840481cee250",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/288a5003fd29b46630d1af9edaf227b767c31d01",
+                "reference": "288a5003fd29b46630d1af9edaf227b767c31d01",
                 "shasum": ""
             },
             "require": {
@@ -1214,9 +1214,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v9.9.0"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v9.9.0.1"
             },
-            "time": "2026-10-05T15:24:57+00:00"
+            "time": "2026-10-06T15:44:38+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -1598,23 +1598,23 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v8.3.0",
+            "version": "v8.3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "1a899046a357308167e13caf29327e2124f50d3e"
+                "reference": "179b107eaec9f8a2f8a9b64570d8c62ee4b4507d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/1a899046a357308167e13caf29327e2124f50d3e",
-                "reference": "1a899046a357308167e13caf29327e2124f50d3e",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/179b107eaec9f8a2f8a9b64570d8c62ee4b4507d",
+                "reference": "179b107eaec9f8a2f8a9b64570d8c62ee4b4507d",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.14.3",
                 "automattic/jetpack-assets": "^5.0.8",
                 "automattic/jetpack-blocks": "^4.0.0",
-                "automattic/jetpack-connection": "^9.9.0",
+                "automattic/jetpack-connection": "^9.9.0.1",
                 "automattic/jetpack-device-detection": "^4.0.0",
                 "automattic/jetpack-external-connections": "^0.2.4",
                 "automattic/jetpack-jwt": "^0.3.0",
@@ -1628,7 +1628,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
-                "automattic/jetpack-connection": "^9.9.0",
+                "automattic/jetpack-connection": "^9.9.0.1",
                 "automattic/phpunit-select-config": "^1.0.11",
                 "automattic/wp-feature-api": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1662,9 +1662,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v8.3.0"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v8.3.0.1"
             },
-            "time": "2026-10-05T15:25:57+00:00"
+            "time": "2026-10-06T15:46:23+00:00"
         },
         {
             "name": "automattic/jetpack-image-cdn",
@@ -2369,22 +2369,22 @@
         },
         {
             "name": "automattic/jetpack-paypal-payments",
-            "version": "v0.12.0",
+            "version": "v0.12.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-paypal-payments.git",
-                "reference": "a829dacc82d6e54ac571bb0d7a2e26d4024ddbb1"
+                "reference": "a97269903d5ba20705d34b8f4295159764de7dc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-paypal-payments/zipball/a829dacc82d6e54ac571bb0d7a2e26d4024ddbb1",
-                "reference": "a829dacc82d6e54ac571bb0d7a2e26d4024ddbb1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-paypal-payments/zipball/a97269903d5ba20705d34b8f4295159764de7dc0",
+                "reference": "a97269903d5ba20705d34b8f4295159764de7dc0",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^5.0.8",
                 "automattic/jetpack-blocks": "^4.0.0",
-                "automattic/jetpack-connection": "^9.9.0",
+                "automattic/jetpack-connection": "^9.9.0.1",
                 "automattic/jetpack-constants": "^4.0.0",
                 "automattic/jetpack-feature-flags": "^0.2.0",
                 "automattic/jetpack-plans": "^0.14.0",
@@ -2424,9 +2424,9 @@
             ],
             "description": "Add PayPal, credit, and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-paypal-payments/tree/v0.12.0"
+                "source": "https://github.com/Automattic/jetpack-paypal-payments/tree/v0.12.0.1"
             },
-            "time": "2026-10-05T15:25:37+00:00"
+            "time": "2026-10-06T15:45:51+00:00"
         },
         {
             "name": "automattic/jetpack-plans",
@@ -3537,22 +3537,22 @@
         },
         {
             "name": "automattic/jetpack-videopress",
-            "version": "v0.55.0",
+            "version": "v0.55.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-videopress.git",
-                "reference": "02edd30da6da66c348b8123c37f58865df739d30"
+                "reference": "a2cfadc2710d140cf5b73cb9a84d48eb72e6a35a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-videopress/zipball/02edd30da6da66c348b8123c37f58865df739d30",
-                "reference": "02edd30da6da66c348b8123c37f58865df739d30",
+                "url": "https://api.github.com/repos/Automattic/jetpack-videopress/zipball/a2cfadc2710d140cf5b73cb9a84d48eb72e6a35a",
+                "reference": "a2cfadc2710d140cf5b73cb9a84d48eb72e6a35a",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.14.3",
                 "automattic/jetpack-assets": "^5.0.8",
-                "automattic/jetpack-connection": "^9.9.0",
+                "automattic/jetpack-connection": "^9.9.0.1",
                 "automattic/jetpack-my-jetpack": "^6.8.0",
                 "automattic/jetpack-plans": "^0.14.0",
                 "automattic/jetpack-status": "^7.1.0",
@@ -3598,9 +3598,9 @@
             ],
             "description": "VideoPress package",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-videopress/tree/v0.55.0"
+                "source": "https://github.com/Automattic/jetpack-videopress/tree/v0.55.0.1"
             },
-            "time": "2026-10-05T15:26:15+00:00"
+            "time": "2026-10-06T15:46:59+00:00"
         },
         {
             "name": "automattic/jetpack-waf",
