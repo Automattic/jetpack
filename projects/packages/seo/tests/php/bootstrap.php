@@ -9,15 +9,18 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 define( 'WP_DEBUG', true );
 
-// Avoid a siteurl query before SQLite installs its tables in isolated processes.
+// Isolated PHPUnit processes run PHP from stdin, without a script filename for WordPress URL discovery.
 if ( getenv( 'JETPACK_SEO_TEST_WITHOUT_PLUGIN_HELPER' ) ) {
+	$_SERVER['SCRIPT_FILENAME'] = __FILE__;
 	define( 'WP_CONTENT_URL', 'http://anything.example/wp-content' );
 }
 
 // SQLite rather than the default dbless engine: the Overview's content-coverage counts
 // are a single SQL aggregate over wp_posts/wp_postmeta, and dbless has no database for it
 // to run against — every count would be zero no matter what the query said.
-\Automattic\Jetpack\Test_Environment::init( null, 'sqlite' );
+// The isolated settings test needs option/user storage only, not SQL or SQLite's PHP-version-specific driver.
+$seo_test_db_engine = getenv( 'JETPACK_SEO_TEST_WITHOUT_PLUGIN_HELPER' ) ? 'dbless' : 'sqlite';
+\Automattic\Jetpack\Test_Environment::init( null, $seo_test_db_engine );
 
 // A real database starts without the default roles, so every capability check fails.
 // Seed them, so tests that act as an administrator have the capabilities of one.
