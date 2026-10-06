@@ -13,9 +13,8 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 /**
  * Registers the WooCommerce section.
  *
- * The package decides nothing about who gets the section: the Jetpack plugin calls `init()`
- * outside the WordPress.com platform, jetpack-mu-wpcom calls the registrant on Simple and Atomic.
- * The section registers when the dashboard's registry hydrates.
+ * The package decides nothing about who gets the section: the plugin that bundles it calls
+ * `init()`, and the section registers when the dashboard's registry hydrates.
  *
  * @since 0.1.0-alpha
  */

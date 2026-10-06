@@ -2,7 +2,7 @@
 
 The WooCommerce section of the Premium Analytics dashboard. This package registers the section. It does not place widgets.
 
-The package decides nothing about who gets the section. The Jetpack plugin calls `Analytics_Dashboard::init()` outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrant on Simple and Atomic. Availability — WooCommerce active, the store-reports capability, and the store-section flag — stays on the section itself.
+The package decides nothing about who gets the section. The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. Availability stays on the section itself: WooCommerce active, the store-reports capability, and the store-section flag.
 
 ## Using this package in your WordPress plugin
 
