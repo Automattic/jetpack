@@ -15,7 +15,6 @@ import BackupStatusBanner, {
 import DashboardLayout from '../components/dashboard-layout';
 import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
-import ReviewRequest from '../components/review-request';
 import StorageSpace from '../components/storage-space';
 import { isRestoreRowId } from '../data/normalize/restores';
 import {
@@ -359,13 +358,6 @@ function OverviewBody() {
 			 * pair of requests and no layout.
 			 */ }
 			<StorageSpace />
-			{ /*
-			 * Only on this path, never beside the takeover panel: the restore
-			 * trigger can still fire on a site whose backups have since broken, and
-			 * that reader is the wrong one to ask. Below the storage section, which
-			 * a reader whose storage is full needs to read first.
-			 */ }
-			<ReviewRequest />
 			{ /*
 			 * Where `clearSelected` puts focus once the empty state unmounts, so the
 			 * next Tab reaches the list rather than the top of the page.

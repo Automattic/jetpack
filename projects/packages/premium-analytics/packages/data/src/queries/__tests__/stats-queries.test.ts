@@ -1254,6 +1254,31 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'date' );
 	} );
 
+	it.each( [
+		[ 'subscribers', statsSubscribersReportQuery ],
+		[ 'WordAds', statsWordAdsStatsQuery ],
+	] )( 'labels a %s week the range starts in with the range start', async ( _name, toQuery ) => {
+		mockApiFetch.mockResolvedValueOnce( {
+			unit: 'week',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '2025-12-29', 1 ],
+				[ '2026-01-05', 2 ],
+			],
+		} );
+
+		const query = toQuery( {
+			from: '2026-01-01',
+			to: '2026-01-11',
+			interval: 'week',
+		} as StatsReportParams );
+		const report = ( await ( query.queryFn as () => Promise< unknown > )() ) as {
+			data: Array< { date_start: string } >;
+		};
+
+		expect( report.data[ 0 ].date_start ).toBe( '2026-01-01T00:00:00' );
+	} );
+
 	it( 'builds WordAds stats query keys with the range translated to endpoint params', () => {
 		const query = statsWordAdsStatsQuery( {
 			from: '2026-05-01',
@@ -1278,6 +1303,7 @@ describe( 'Stats query factories', () => {
 			{
 				period: 'month',
 				date: '2026-06-30',
+				start_date: '2026-05-01',
 			},
 			'UTC',
 		] );

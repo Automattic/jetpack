@@ -1,14 +1,15 @@
 /**
+ * External dependencies
+ */
+import { render, screen } from '@testing-library/react';
+/**
  * Internal dependencies
  */
 import {
 	buildLeaderboardChartData,
 	type LeaderboardRowInput,
 } from '../build-leaderboard-chart-data';
-import type { LeaderboardRowProps } from '../../chart-leaderboard/leaderboard-row';
-import type { ReactElement } from 'react';
-
-const rowProps = ( label: unknown ) => ( label as ReactElement ).props as LeaderboardRowProps;
+import { resolveDrillDownTrail } from '../drill-down-trail';
 
 const ROWS: LeaderboardRowInput[] = [
 	{ id: 'a', label: 'Alpha', value: 80, previousValue: 100 },
@@ -46,37 +47,12 @@ describe( 'buildLeaderboardChartData', () => {
 	it( 'defaults a row to no media and no action', () => {
 		const [ row ] = buildLeaderboardChartData( [ { id: 'a', label: 'Alpha', value: 1 } ] );
 
-		expect( rowProps( row.label ) ).toEqual( {
-			label: 'Alpha',
-			media: { kind: 'none' },
-			action: { kind: 'static' },
-		} );
+		render( row.label );
+
+		expect( screen.getByText( 'Alpha' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
 		expect( row.onClick ).toBeUndefined();
-	} );
-
-	it( 'fills the dashboard window into a detail link that declares none', () => {
-		const detailSearch = { from: '2026-06-01', to: '2026-06-16' };
-		const [ video, post, own ] = buildLeaderboardChartData(
-			[
-				{ id: 'v', label: 'Video', value: 1, action: { kind: 'videoLink', id: 7 } },
-				{ id: 'p', label: 'Post', value: 1, action: { kind: 'postLink', id: 9, href: '/p' } },
-				{ id: 'o', label: 'Own', value: 1, action: { kind: 'postLink', id: 3, search: {} } },
-			],
-			{ detailSearch }
-		);
-
-		expect( rowProps( video.label ).action ).toEqual( {
-			kind: 'videoLink',
-			id: 7,
-			search: detailSearch,
-		} );
-		expect( rowProps( post.label ).action ).toEqual( {
-			kind: 'postLink',
-			id: 9,
-			href: '/p',
-			search: detailSearch,
-		} );
-		expect( rowProps( own.label ).action ).toEqual( { kind: 'postLink', id: 3, search: {} } );
 	} );
 
 	it( 'turns a row with children into a drill-down when asked, over its own action', () => {
@@ -85,7 +61,7 @@ describe( 'buildLeaderboardChartData', () => {
 			id: 'p',
 			label: 'Parent',
 			value: 3,
-			action: { kind: 'link', href: 'https://example.com' },
+			action: { kind: 'link', href: 'https://example.com/' },
 			children: [ { id: 'c', label: 'Child', value: 1 } ],
 		};
 
@@ -96,25 +72,51 @@ describe( 'buildLeaderboardChartData', () => {
 
 		expect( drilled.ariaLabel ).toBe( 'Open Parent' );
 		expect( onSelect ).toHaveBeenCalledWith( parent );
+
 		// Without a drill-down the row keeps its link.
-		expect( rowProps( buildLeaderboardChartData( [ parent ] )[ 0 ].label ).action ).toEqual( {
-			kind: 'link',
-			href: 'https://example.com',
-		} );
+		render( buildLeaderboardChartData( [ parent ] )[ 0 ].label );
+		expect( screen.getByRole( 'link', { name: /Parent/ } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/'
+		);
+	} );
+} );
+
+describe( 'resolveDrillDownTrail', () => {
+	const TREE: LeaderboardRowInput[] = [
+		{
+			id: 'google',
+			label: 'Google',
+			value: 10,
+			children: [
+				{
+					id: 'images',
+					label: 'Images',
+					value: 4,
+					children: [ { id: 'x', label: 'X', value: 1 } ],
+				},
+				{ id: 'search', label: 'Search', value: 6 },
+			],
+		},
+		{ id: 'direct', label: 'Direct', value: 5 },
+	];
+
+	it( 'walks the path through the children', () => {
+		expect( resolveDrillDownTrail( TREE, [ 'google', 'images' ] ).map( row => row.id ) ).toEqual( [
+			'google',
+			'images',
+		] );
 	} );
 
-	it( 'carries a drill-down action to the chart row', () => {
-		const onClick = jest.fn();
-		const [ row ] = buildLeaderboardChartData( [
-			{
-				id: 'd',
-				label: 'Drill',
-				value: 1,
-				action: { kind: 'drillDown', onClick, ariaLabel: 'View Drill' },
-			},
+	it( 'stops where the path no longer matches a row with children', () => {
+		expect( resolveDrillDownTrail( TREE, [ 'google', 'search' ] ).map( row => row.id ) ).toEqual( [
+			'google',
 		] );
+		expect( resolveDrillDownTrail( TREE, [ 'direct' ] ) ).toEqual( [] );
+		expect( resolveDrillDownTrail( TREE, [ 'gone' ] ) ).toEqual( [] );
+	} );
 
-		expect( row.onClick ).toBe( onClick );
-		expect( row.ariaLabel ).toBe( 'View Drill' );
+	it( 'is empty without a path', () => {
+		expect( resolveDrillDownTrail( TREE, null ) ).toEqual( [] );
 	} );
 } );

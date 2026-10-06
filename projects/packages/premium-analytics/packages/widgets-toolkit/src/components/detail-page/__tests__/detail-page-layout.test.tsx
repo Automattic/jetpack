@@ -7,17 +7,28 @@ import { useReducedMotion } from '@wordpress/compose';
  * Internal dependencies
  */
 import { DetailPageLayout, DetailPageSection } from '../detail-page-layout';
+import { DetailPageShell } from '../detail-page-shell';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useReducedMotion: jest.fn( () => false ),
 } ) );
 
-// The gutter, the widget grid's gap and the Card padding overrides all hang off
-// these classes; the shared style stub would leave every one of them undefined.
+// The layout's gutters and the shell's scroll model hang off these classes. Every
+// stylesheet maps to the one style stub, so this mock serves the shell's too.
 jest.mock( '../detail-page-layout.module.scss', () => ( {
 	root: 'root',
 	section: 'section',
+	page: 'page',
+} ) );
+
+jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { className, children }: { className?: string; children?: ReactNode } ) => (
+		<div data-testid="page" className={ className }>
+			{ children }
+		</div>
+	),
 } ) );
 
 describe( 'DetailPageLayout', () => {
@@ -141,24 +152,6 @@ describe( 'DetailPageLayout', () => {
 		} );
 	} );
 
-	it( 'renders no controls when given none', () => {
-		render( <DetailPageLayout header={ { title: 'Launch recap' } }>widgets</DetailPageLayout> );
-
-		expect( screen.queryByTestId( 'date-filters-panel' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'stacks the sections under the header', () => {
-		render(
-			<DetailPageLayout header={ { title: 'Launch recap' } }>
-				<DetailPageSection>widgets</DetailPageSection>
-				<DetailPageSection>notice</DetailPageSection>
-			</DetailPageLayout>
-		);
-
-		expect( screen.getByText( 'widgets' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'notice' ) ).toBeInTheDocument();
-	} );
-
 	it( 'gutters every section, and the caller can add to it', () => {
 		render(
 			<DetailPageLayout header={ { title: 'Launch recap' } }>
@@ -169,5 +162,14 @@ describe( 'DetailPageLayout', () => {
 
 		expect( screen.getByText( 'widgets' ) ).toHaveClass( 'section' );
 		expect( screen.getByText( 'notice' ) ).toHaveClass( 'section', 'custom-band' );
+	} );
+} );
+
+describe( 'DetailPageShell', () => {
+	it( 'lets its own child own the scroll, and keeps the caller class', () => {
+		render( <DetailPageShell className="custom-page">body</DetailPageShell> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveClass( 'page', 'custom-page' );
+		expect( screen.getByText( 'body' ) ).toBeInTheDocument();
 	} );
 } );

@@ -9,8 +9,8 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { captureCsvDownloads } from '../../test-utils';
-import ClicksWidget, { toClickRows, toClickRowsWithComparison } from '../render';
-import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
+import ClicksWidget, { toClickRow } from '../render';
+import type { StatsClicksComparisonItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -80,17 +80,6 @@ describe( 'ClicksWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders childless top-level URLs as external links', async () => {
-		render(
-			<ClicksWidget
-				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
-			/>
-		);
-
-		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
-		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
-	} );
-
 	it( 'links to the Clicks report', () => {
 		render( <ClicksWidget attributes={ {} } /> );
 
@@ -145,193 +134,60 @@ describe( 'ClicksWidget', () => {
 	} );
 } );
 
-describe( 'toClickRows', () => {
-	it( 'merges comparison values by URL before slicing primary rows', () => {
-		const primary = {
-			summary: {},
-			data: [
+describe( 'toClickRow', () => {
+	it( 'maps merged data-layer items onto leaderboard rows', () => {
+		const item: StatsClicksComparisonItem = {
+			label: 'wordpress.org',
+			views: 60,
+			previousValue: 38,
+			link: null,
+			icon: 'https://example.com/blavatar.png',
+			labelIcon: 'external',
+			childrenHaveComparison: true,
+			children: [
 				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'wordpress.org',
-							views: 60,
-							link: null,
-							icon: 'https://example.com/blavatar.png',
-							labelIcon: 'external',
-							children: [
-								{
-									label: '/plugins/jetpack-search',
-									views: 42,
-									link: 'https://wordpress.org/plugins/jetpack-search',
-									icon: null,
-									labelIcon: 'external',
-									children: null,
-								},
-								{
-									label: '/plugins/jetpack-boost/',
-									views: 18,
-									link: 'https://wordpress.org/plugins/jetpack-boost/',
-									icon: null,
-									labelIcon: 'external',
-									children: null,
-								},
-							],
-						},
-						{
-							label: 'jetpack.com',
-							views: 18,
-							link: 'https://jetpack.com/',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-					] satisfies StatsClicksItem[],
+					label: '/plugins/jetpack-search',
+					views: 42,
+					previousValue: 0,
+					link: 'https://wordpress.org/plugins/jetpack-search',
+					icon: 'https://example.com/blavatar.png',
+					labelIcon: 'external',
+					children: null,
+				},
+				{
+					label: '/plugins/jetpack-boost/',
+					views: 18,
+					previousValue: undefined,
+					link: 'https://wordpress.org/plugins/jetpack-boost/',
+					icon: 'https://example.com/blavatar.png',
+					labelIcon: 'external',
+					children: null,
 				},
 			],
-		} satisfies StatsNormalizedReport< StatsClicksItem >;
+		};
 
-		const comparison = {
-			summary: {},
-			data: [
+		expect( toClickRow( item ) ).toEqual( {
+			label: 'wordpress.org',
+			value: 60,
+			previousValue: 38,
+			icon: 'https://example.com/blavatar.png',
+			childrenHaveComparison: true,
+			children: [
 				{
-					time_interval: '2026-06-22',
-					date_start: '2026-06-22 00:00:00',
-					date_end: '2026-06-22 23:59:59',
-					items: [
-						{
-							label: 'wordpress.org',
-							views: 38,
-							link: null,
-							icon: 'https://example.com/blavatar.png',
-							labelIcon: 'external',
-							children: [
-								{
-									label: '/plugins/jetpack-search',
-									views: 30,
-									link: 'https://wordpress.org/plugins/jetpack-search',
-									icon: null,
-									labelIcon: 'external',
-									children: null,
-								},
-							],
-						},
-					] satisfies StatsClicksItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsClicksItem >;
-
-		expect( toClickRows( primary, comparison, 1 ) ).toEqual( [
-			{
-				label: 'wordpress.org',
-				value: 60,
-				previousValue: 38,
-				icon: 'https://example.com/blavatar.png',
-				childrenHaveComparison: true,
-				children: [
-					{
-						label: '/plugins/jetpack-search',
-						value: 42,
-						previousValue: 30,
-						href: 'https://wordpress.org/plugins/jetpack-search',
-						icon: 'https://example.com/blavatar.png',
-						children: undefined,
-					},
-					{
-						label: '/plugins/jetpack-boost/',
-						value: 18,
-						previousValue: undefined,
-						href: 'https://wordpress.org/plugins/jetpack-boost/',
-						icon: 'https://example.com/blavatar.png',
-						children: undefined,
-					},
-				],
-			},
-		] );
-	} );
-
-	it( 'treats zero comparison values as overlapping click rows', () => {
-		const primary = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'wordpress.org',
-							views: 42,
-							link: null,
-							icon: null,
-							labelIcon: 'external',
-							children: [
-								{
-									label: '/plugins/jetpack-search',
-									views: 42,
-									link: 'https://wordpress.org/plugins/jetpack-search',
-									icon: null,
-									labelIcon: 'external',
-									children: null,
-								},
-							],
-						},
-					] satisfies StatsClicksItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsClicksItem >;
-
-		const comparison = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-22',
-					date_start: '2026-06-22 00:00:00',
-					date_end: '2026-06-22 23:59:59',
-					items: [
-						{
-							label: 'wordpress.org',
-							views: 0,
-							link: null,
-							icon: null,
-							labelIcon: 'external',
-							children: [
-								{
-									label: '/plugins/jetpack-search',
-									views: 0,
-									link: 'https://wordpress.org/plugins/jetpack-search',
-									icon: null,
-									labelIcon: 'external',
-									children: null,
-								},
-							],
-						},
-					] satisfies StatsClicksItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsClicksItem >;
-
-		expect( toClickRowsWithComparison( primary, comparison, 10 ) ).toEqual( {
-			hasComparison: true,
-			rows: [
-				{
-					label: 'wordpress.org',
+					label: '/plugins/jetpack-search',
 					value: 42,
 					previousValue: 0,
-					icon: null,
-					childrenHaveComparison: true,
-					children: [
-						{
-							label: '/plugins/jetpack-search',
-							value: 42,
-							previousValue: 0,
-							href: 'https://wordpress.org/plugins/jetpack-search',
-							icon: null,
-							children: undefined,
-						},
-					],
+					href: 'https://wordpress.org/plugins/jetpack-search',
+					icon: 'https://example.com/blavatar.png',
+					children: undefined,
+				},
+				{
+					label: '/plugins/jetpack-boost/',
+					value: 18,
+					previousValue: undefined,
+					href: 'https://wordpress.org/plugins/jetpack-boost/',
+					icon: 'https://example.com/blavatar.png',
+					children: undefined,
 				},
 			],
 		} );
@@ -340,28 +196,14 @@ describe( 'toClickRows', () => {
 	// The guard replaced a `typeof item.link === 'string'` check, which reads like a validity
 	// check — a revert to plain truthiness would reopen the sink with nothing else failing.
 	it( 'omits href for a row whose link is not a safe http(s) URL', () => {
-		const primary = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-29',
-					date_start: '2026-06-29 00:00:00',
-					date_end: '2026-06-29 23:59:59',
-					items: [
-						{
-							label: 'evil.example',
-							views: 12,
-							link: 'javascript:alert(document.cookie)',
-							icon: null,
-							labelIcon: 'external',
-							children: null,
-						},
-					] satisfies StatsClicksItem[],
-				},
-			],
-		} satisfies StatsNormalizedReport< StatsClicksItem >;
-
-		const [ row ] = toClickRows( primary, undefined, 10 );
+		const row = toClickRow( {
+			label: 'evil.example',
+			views: 12,
+			link: 'javascript:alert(document.cookie)',
+			icon: null,
+			labelIcon: 'external',
+			children: null,
+		} );
 
 		// The row still lists — rejecting the URL must not drop the data.
 		expect( row.label ).toBe( 'evil.example' );

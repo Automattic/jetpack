@@ -1,19 +1,19 @@
-import { Tooltip } from '@visx/tooltip';
-import clsx from 'clsx';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { TOOLTIP_SCOPE_CLASS } from '../../../styles/chart-scope-class';
-import styles from '../base-tooltip.module.scss';
-import { TooltipTheme } from './tooltip-theme';
+import { TooltipBox } from '../tooltip-box';
 import type { TooltipPlacement } from '../../../visx/types';
-import type { TooltipProps } from '@visx/tooltip';
+import type { TooltipBoxProps } from '../tooltip-box';
+import type { ReactNode } from 'react';
 
 type Bounds = { left: number; top: number; right: number; bottom: number };
 type Size = { width: number; height: number };
 
-export type BoundedTooltipProps = Omit< TooltipProps, 'left' | 'top' | 'applyPositionStyle' > & {
+export type BoundedTooltipProps = Omit< TooltipBoxProps, 'children' > & {
+	children?: ReactNode;
 	/** Anchor, in the coordinates of the positioned wrapper the box renders into. */
 	left?: number;
 	top?: number;
+	offsetLeft?: number;
+	offsetTop?: number;
 	placement?: TooltipPlacement;
 };
 
@@ -135,7 +135,7 @@ export const getBoundedPosition = ( {
 };
 
 /**
- * visx's `Tooltip`, positioned like its `TooltipWithBounds` but kept inside the
+ * A `TooltipBox`, positioned like visx's `TooltipWithBounds` but kept inside the
  * nearest clipping ancestor — or the viewport when there is none — rather than
  * inside its own parent. Rendered in-tree, a tooltip's parent is the chart
  * wrapper, which is often narrower than the box; measuring against the parent
@@ -144,7 +144,7 @@ export const getBoundedPosition = ( {
  * Re-measures on every render, so a box whose content changes width between
  * two hovers is placed for its current size.
  *
- * @param props            - visx `Tooltip` props.
+ * @param props            - `TooltipBox` props plus placement.
  * @param props.left       - Anchor x, in wrapper coordinates.
  * @param props.top        - Anchor y, in wrapper coordinates.
  * @param props.offsetLeft - Gap between the anchor and the box, horizontally.
@@ -213,11 +213,13 @@ export const BoundedTooltip = ( {
 	const x = position?.x ?? left + offsetLeft;
 	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
 
-	const box = (
-		<Tooltip
+	return (
+		<TooltipBox
 			ref={ nodeRef }
+			role="presentation"
 			data-testid="bounded-tooltip"
-			className={ clsx( ! unstyled && [ TOOLTIP_SCOPE_CLASS, styles.surface ], className ) }
+			unstyled={ unstyled }
+			className={ className }
 			style={ {
 				position: 'absolute',
 				left: 0,
@@ -245,8 +247,6 @@ export const BoundedTooltip = ( {
 				/>
 			) }
 			{ children }
-		</Tooltip>
+		</TooltipBox>
 	);
-
-	return unstyled ? box : <TooltipTheme>{ box }</TooltipTheme>;
 };

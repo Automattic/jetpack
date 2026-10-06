@@ -7,6 +7,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
+	compareOptionalNumbers,
 	MetricWithComparison,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
@@ -20,6 +21,16 @@ import type { Field } from '@jetpack-premium-analytics/externals';
 const METRIC_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
+} as const;
+
+const HOURS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 1, useMultipliers: false },
+} as const;
+
+const RATE_DATA_FORMAT = {
+	type: 'percentage',
+	options: { decimals: 1, signDisplay: 'never' },
 } as const;
 
 /**
@@ -123,7 +134,7 @@ export function getVideosFields(
 		},
 		{
 			id: 'plays',
-			label: __( 'Plays', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.plays,
 			render: ( { item } ) => (
 				<MetricWithComparison
@@ -146,6 +157,35 @@ export function getVideosFields(
 					fontSize="md"
 				/>
 			),
+		},
+		{
+			id: 'watch_time',
+			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
+			getValue: ( { item } ) => item.watch_time,
+			render: ( { item } ) => (
+				<MetricWithComparison
+					value={ item.watch_time }
+					dataFormat={ HOURS_DATA_FORMAT }
+					fontSize="md"
+				/>
+			),
+		},
+		{
+			id: 'retention_rate',
+			label: __( 'Retention rate', 'jetpack-premium-analytics-pkg' ),
+			getValue: ( { item } ) => item.retention_rate,
+			sort: compareOptionalNumbers,
+			render: ( { item } ) =>
+				item.retention_rate === null ? (
+					<>—</>
+				) : (
+					// The endpoint sends a percentage (67.6); the formatter expects a fraction.
+					<MetricWithComparison
+						value={ item.retention_rate / 100 }
+						dataFormat={ RATE_DATA_FORMAT }
+						fontSize="md"
+					/>
+				),
 		},
 	];
 }

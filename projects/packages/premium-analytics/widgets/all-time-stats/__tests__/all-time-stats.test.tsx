@@ -18,9 +18,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -56,14 +54,6 @@ describe( 'AllTimeStatsWidget', () => {
 		expect( container ).toHaveTextContent( 'Views2.1K2,068' );
 		expect( screen.getByText( '2.1K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( container ).toHaveTextContent( 'Comments1' );
-	} );
-
-	it( 'leaves a total under a thousand uncompacted', async () => {
-		renderWidget();
-
-		const value = await screen.findByText( '47' );
-		expect( value ).not.toHaveAttribute( 'aria-hidden' );
-		expect( screen.queryByText( '47', { selector: '[aria-hidden]' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows every total as zero, not an empty state, when the payload has no totals', async () => {

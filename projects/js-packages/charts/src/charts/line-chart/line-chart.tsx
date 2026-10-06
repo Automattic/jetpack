@@ -15,7 +15,7 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -784,7 +784,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											</ZoomClip>
 
 											{ withTooltips && (
-												<AccessibleTooltip
+												<XYChartTooltip
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }

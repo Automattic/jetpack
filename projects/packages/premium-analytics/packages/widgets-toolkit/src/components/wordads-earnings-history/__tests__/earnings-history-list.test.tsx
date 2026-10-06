@@ -5,14 +5,10 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { useElementSize } from '../../../hooks/use-element-size';
 import { EarningsHistoryList } from '../earnings-history-list';
 import type { EarningsHistoryRow } from '../fields';
 
-jest.mock( '../../../hooks/use-element-size' );
-
-const mockUseElementSize = jest.mocked( useElementSize );
-
+// Oldest first, so only the list's own sort can put September on top.
 const ROWS: EarningsHistoryRow[] = [ '2026-07', '2026-08', '2026-09' ].map( period => ( {
 	id: period,
 	period,
@@ -21,37 +17,49 @@ const ROWS: EarningsHistoryRow[] = [ '2026-07', '2026-08', '2026-09' ].map( peri
 	status: 1,
 } ) );
 
-// jsdom lays nothing out; the list measures its root first and its first row second.
-function mockSizes( root: number, row: number ) {
-	let call = 0;
-	mockUseElementSize.mockImplementation(
-		() =>
-			[ jest.fn(), { width: 0, height: call++ % 2 === 0 ? root : row } ] as ReturnType<
-				typeof useElementSize
-			>
-	);
+const originalGetRect = Element.prototype.getBoundingClientRect;
+
+// jsdom lays nothing out, so the list root and its rows report these heights.
+function stubHeights( root: number, row: number ) {
+	Element.prototype.getBoundingClientRect = function () {
+		if ( this.tagName === 'LI' ) {
+			return { width: 0, height: row } as DOMRect;
+		}
+		// eslint-disable-next-line testing-library/no-node-access -- Identifying the measured root requires a DOM query.
+		if ( this.querySelector( ':scope > ul' ) ) {
+			return { width: 0, height: root } as DOMRect;
+		}
+		return originalGetRect.call( this );
+	};
 }
 
-const hiddenFlags = () =>
-	screen.getAllByRole( 'listitem', { hidden: true } ).map( item => item.hidden );
+// Hidden rows leave the accessibility tree, so these are the periods on screen, in order.
+const visiblePeriods = () =>
+	screen
+		.getAllByRole( 'listitem' )
+		.map( item => item.textContent?.match( /^\D+ \d{4}/ )?.[ 0 ] ?? '' );
 
 describe( 'EarningsHistoryList', () => {
-	it( 'hides the rows that do not fit whole', () => {
-		mockSizes( 100, 36 );
+	afterEach( () => {
+		Element.prototype.getBoundingClientRect = originalGetRect;
+	} );
+
+	it( 'lists the newest periods first, as many as fit whole', () => {
+		stubHeights( 100, 36 );
 		render( <EarningsHistoryList rows={ ROWS } /> );
 
-		expect( hiddenFlags() ).toEqual( [ false, false, true ] );
+		expect( visiblePeriods() ).toEqual( [ 'September 2026', 'August 2026' ] );
 	} );
 
 	it( 'keeps one row visible when not even one fits whole', () => {
-		mockSizes( 20, 36 );
+		stubHeights( 20, 36 );
 		render( <EarningsHistoryList rows={ ROWS } /> );
 
-		expect( hiddenFlags() ).toEqual( [ false, true, true ] );
+		expect( visiblePeriods() ).toEqual( [ 'September 2026' ] );
 	} );
 
 	it( 'renders each status as a badge, with a pending reason in an info button', () => {
-		mockSizes( 200, 36 );
+		stubHeights( 200, 36 );
 		render( <EarningsHistoryList rows={ [ ...ROWS, { ...ROWS[ 0 ], id: 'p', status: 3 } ] } /> );
 
 		expect( screen.getAllByText( 'Paid' ) ).toHaveLength( 3 );

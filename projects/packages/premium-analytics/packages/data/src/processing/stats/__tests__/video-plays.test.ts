@@ -75,6 +75,26 @@ describe( 'Stats video plays normalizer', () => {
 		}
 	} );
 
+	it( 'keeps an unknown retention rate as null instead of a measured zero', () => {
+		const response = {
+			date: '2026-06-22',
+			period: 'day',
+			days: {
+				'2026-06-22': {
+					data: [ { post_id: 12, title: 'Launch video', views: 3, retention_rate: null } ],
+				},
+			},
+		};
+
+		expect(
+			sanitizeStatsVideoPlaysResponse( response, {
+				period: 'day',
+				end_date: '2026-06-22',
+				complete_stats: true,
+			} ).data[ 0 ].items[ 0 ].retention_rate
+		).toBeNull();
+	} );
+
 	it( 'does not add link actions when video rows have no URL', () => {
 		const result = sanitizeStatsVideoPlaysResponse(
 			{
