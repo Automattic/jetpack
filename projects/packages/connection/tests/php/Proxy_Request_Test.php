@@ -28,6 +28,11 @@ class Proxy_Request_Test extends BaseTestCase {
 
 	const BLOG_ID = 4242;
 
+	const CACHE = array(
+		'prefix'  => 'proxy_request_test_',
+		'success' => 300,
+	);
+
 	/**
 	 * Object using the trait, configured like a v1.1 `publicize/connections` controller.
 	 *
@@ -320,6 +325,241 @@ class Proxy_Request_Test extends BaseTestCase {
 		$this->assertSame( $expected, $this->get_forwarded_query( $this->http_calls[0]['url'] ) );
 	}
 
+	/**
+	 * A second read after `/sites/4242/stats?period=day&num=7` as the blog, and the requests both add up to.
+	 *
+	 * @return array<string, array{string, array, int}>
+	 */
+	public static function data_second_reads() {
+		return array(
+			'the same read is served from the cache'  => array( '/sites/4242/stats', array(), 1 ),
+			'params in another order share the entry' => array(
+				'/sites/4242/stats',
+				array(
+					'query' => array(
+						'num'    => '7',
+						'period' => 'day',
+					),
+				),
+				1,
+			),
+			'another query is another entry'          => array( '/sites/4242/stats', array( 'query' => array( 'period' => 'week' ) ), 2 ),
+			'another path is another entry'           => array( '/sites/4242/stats/top-posts', array(), 2 ),
+			'another version is another entry'        => array(
+				'/sites/4242/stats',
+				array(
+					'version'       => '1.1',
+					'base_api_path' => 'rest',
+				),
+				2,
+			),
+			'another context is another entry'        => array( '/sites/4242/stats', array( 'context' => 'none' ), 2 ),
+			'a write is not served from the cache'    => array( '/sites/4242/stats', array( 'method' => 'POST' ), 2 ),
+			'bypass skips the cached response'        => array( '/sites/4242/stats', array( 'cache' => self::CACHE + array( 'bypass' => true ) ), 2 ),
+			'no cache argument, no cache'             => array( '/sites/4242/stats', array( 'cache' => array() ), 2 ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_second_reads
+	 *
+	 * @param string $path      Path of the second read.
+	 * @param array  $overrides Args the second read changes.
+	 * @param int    $requests  Outbound requests expected after both reads.
+	 */
+	#[DataProvider( 'data_second_reads' )]
+	public function test_the_cache_key_is_computed_from_the_request( string $path, array $overrides, int $requests ) {
+		$args = array(
+			'context' => 'blog',
+			'query'   => array(
+				'period' => 'day',
+				'num'    => '7',
+			),
+			'cache'   => self::CACHE,
+		);
+
+		$first  = Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$second = Proxy_Request::to_path( $path, array_merge( $args, $overrides ) );
+
+		$this->assertCount( $requests, $this->http_calls );
+		$this->assertSame( $first, $second );
+	}
+
+	/**
+	 * Token context, and the requests two users reading the same path add up to.
+	 *
+	 * @return array<string, array{string, int}>
+	 */
+	public static function data_contexts_for_two_users() {
+		return array(
+			'signed as the user, each user has an entry' => array( 'user', 2 ),
+			'signed as the blog, users share the entry'  => array( 'blog', 1 ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_contexts_for_two_users
+	 *
+	 * @param string $context  Token context.
+	 * @param int    $requests Outbound requests expected after both users read.
+	 */
+	#[DataProvider( 'data_contexts_for_two_users' )]
+	public function test_a_read_signed_as_the_user_is_cached_per_user( string $context, int $requests ) {
+		$other_user = wp_insert_user(
+			array(
+				'user_login' => 'proxy_request_other_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->user_id => 'user_token.secret.' . $this->user_id,
+				$other_user    => 'user_token.secret.' . $other_user,
+			)
+		);
+		$args = array(
+			'context' => $context,
+			'cache'   => self::CACHE,
+		);
+
+		Proxy_Request::to_path( '/sites/4242/stats', $args );
+		wp_set_current_user( $other_user );
+		Proxy_Request::to_path( '/sites/4242/stats', $args );
+
+		$this->assertCount( $requests, $this->http_calls );
+	}
+
+	/**
+	 * Upstream answer, `cache` durations, and the requests two reads add up to.
+	 *
+	 * @return array<string, array{int|null, array, int}>
+	 */
+	public static function data_durations() {
+		return array(
+			'a success with a success duration is cached' => array( 200, array( 'success' => 300 ), 1 ),
+			'a success with an error duration is not'     => array( 200, array( 'error' => 300 ), 2 ),
+			'an error with a success duration is not'     => array( 500, array( 'success' => 300 ), 2 ),
+			'an error with an error duration is cached'   => array( 500, array( 'error' => 300 ), 1 ),
+			'a transport error is never cached'           => array(
+				null,
+				array(
+					'success' => 300,
+					'error'   => 300,
+				),
+				2,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider data_durations
+	 *
+	 * @param int|null $status    Upstream status, or null for a transport error.
+	 * @param array    $durations `success` and `error` of the `cache` argument.
+	 * @param int      $requests  Outbound requests expected after two reads.
+	 */
+	#[DataProvider( 'data_durations' )]
+	public function test_the_status_picks_the_cache_duration( ?int $status, array $durations, int $requests ) {
+		$this->http_response = null === $status
+			? new WP_Error( 'http_request_failed', 'cURL error 28' )
+			: $this->build_http_response( $status, array( 'code' => 'x' ) );
+		$args                = array(
+			'context' => 'blog',
+			'cache'   => array( 'prefix' => 'proxy_request_test_' ) + $durations,
+		);
+
+		$first  = Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$second = Proxy_Request::to_path( '/sites/4242/stats', $args );
+
+		$this->assertCount( $requests, $this->http_calls );
+		$this->assertEquals( $first, $second );
+	}
+
+	public function test_bypass_stores_the_fresh_response() {
+		$args = array(
+			'context' => 'blog',
+			'cache'   => self::CACHE,
+		);
+		Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$this->http_response = $this->build_http_response( 200, array( 'fresh' => true ) );
+
+		$bypassed = Proxy_Request::to_path( '/sites/4242/stats', array( 'cache' => self::CACHE + array( 'bypass' => true ) ) + $args );
+		$next     = Proxy_Request::to_path( '/sites/4242/stats', $args );
+
+		$this->assertSame( '{"fresh":true}', $bypassed['body'] );
+		$this->assertSame( $bypassed, $next );
+		$this->assertCount( 2, $this->http_calls );
+	}
+
+	public function test_forget_makes_the_reads_under_its_prefix_miss() {
+		$args  = array(
+			'context' => 'blog',
+			'cache'   => self::CACHE,
+		);
+		$other = array( 'cache' => array( 'prefix' => 'proxy_request_other_' ) + self::CACHE ) + $args;
+		Proxy_Request::to_path( '/sites/4242/stats', $args );
+		Proxy_Request::to_path( '/sites/4242/stats', $other );
+
+		Proxy_Request::forget( self::CACHE['prefix'] );
+		$missed = Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$cached = Proxy_Request::to_path( '/sites/4242/stats', $args );
+		Proxy_Request::to_path( '/sites/4242/stats', $other );
+
+		$this->assertCount( 3, $this->http_calls );
+		$this->assertSame( $missed, $cached );
+	}
+
+	public function test_a_cached_response_is_not_served_once_the_token_is_gone() {
+		$args = array(
+			'context' => 'blog',
+			'cache'   => self::CACHE,
+		);
+		Proxy_Request::to_path( '/sites/4242/stats', $args );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Manager() )->reset_connection_status();
+
+		$result = Proxy_Request::to_path( '/sites/4242/stats', $args );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'rest_unauthorized', $result->get_error_code() );
+	}
+
+	/**
+	 * Cache properties of the host, the call's request options, and the requests two reads add up to.
+	 *
+	 * @return array<string, array{array, array, int}>
+	 */
+	public static function data_trait_caches() {
+		return array(
+			'not declared'               => array( array(), array(), 2 ),
+			'declared on the host'       => array( self::CACHE, array(), 1 ),
+			'turned off for the call'    => array( self::CACHE, array( 'cache' => false ), 2 ),
+			'declared for the call only' => array( array(), array( 'cache' => self::CACHE ), 1 ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_trait_caches
+	 *
+	 * @param array $cache           Cache properties the host sets.
+	 * @param array $request_options Request options of each call.
+	 * @param int   $requests        Outbound requests expected after two reads.
+	 */
+	#[DataProvider( 'data_trait_caches' )]
+	public function test_the_trait_declares_the_cache( array $cache, array $request_options, int $requests ) {
+		$host    = $this->make_host( 'publicize/connections', '1.1', 'rest', $cache );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
+
+		$first  = $host->proxy_request_to_wpcom_as_blog( $request, '', $request_options );
+		$second = $host->proxy_request_to_wpcom_as_blog( $request, '', $request_options );
+
+		$this->assertCount( $requests, $this->http_calls );
+		$this->assertSame( array( 'ok' => true ), $first );
+		$this->assertSame( $first, $second );
+	}
+
 	public function test_proxy_request_carries_the_request_to_the_rest_base_path_signed_as_the_blog() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/connections/12' );
 		$request->set_query_params(
@@ -457,10 +697,11 @@ class Proxy_Request_Test extends BaseTestCase {
 	 * @param string $rest_base     Route base, which the trait maps under `/sites/<id>/`.
 	 * @param string $version       WordPress.com API version.
 	 * @param string $base_api_path WordPress.com API base.
+	 * @param array  $cache         `prefix` and `success` for the cache properties, if any.
 	 * @return object
 	 */
-	private function make_host( $rest_base, $version, $base_api_path ) {
-		return new class( $rest_base, $version, $base_api_path ) {
+	private function make_host( $rest_base, $version, $base_api_path, array $cache = array() ) {
+		return new class( $rest_base, $version, $base_api_path, $cache ) {
 			use WPCOM_REST_API_Proxy_Request;
 
 			/**
@@ -469,11 +710,14 @@ class Proxy_Request_Test extends BaseTestCase {
 			 * @param string $rest_base     Route base.
 			 * @param string $version       API version.
 			 * @param string $base_api_path API base.
+			 * @param array  $cache         Cache properties.
 			 */
-			public function __construct( $rest_base, $version, $base_api_path ) {
-				$this->rest_base     = $rest_base;
-				$this->version       = $version;
-				$this->base_api_path = $base_api_path;
+			public function __construct( $rest_base, $version, $base_api_path, array $cache ) {
+				$this->rest_base              = $rest_base;
+				$this->version                = $version;
+				$this->base_api_path          = $base_api_path;
+				$this->cache_prefix           = $cache['prefix'] ?? '';
+				$this->cache_duration_success = $cache['success'] ?? 0;
 			}
 		};
 	}

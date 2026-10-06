@@ -11,8 +11,8 @@ use Automattic\Jetpack\Status\Visitor;
 use WP_Error;
 
 /**
- * Forwards a request to WordPress.com: resolves the token context, checks the connection, signs
- * and sends. It needs no route and no WP_REST_Request.
+ * Forwards a request to WordPress.com: resolves the token context, checks the connection, signs,
+ * sends, and caches a read when asked to. It needs no route and no WP_REST_Request.
  *
  * @since $$next-version$$
  */
@@ -56,6 +56,8 @@ class Proxy_Request {
 	 *     @type string      $base_api_path          WordPress.com API base, 'wpcom' or 'rest'. Default 'wpcom'.
 	 *     @type array       $request_options        Arguments for wp_remote_request(), merged over the defaults: the method, a JSON content type and, on a signed request, `X-Forwarded-For`.
 	 *     @type array       $unauthorized_error     `code`, `message` and `status` of the error for a missing token. Default `rest_unauthorized`.
+	 *     @type array       $cache                  Read cache for a GET, off by default: `prefix` (transient prefix of the consumer), `success` and `error`
+	 *                                               (seconds a response stays cached, by status below or from 400) and `bypass` (skip the cached response and store the fresh one).
 	 * }
 	 * @return array|WP_Error `status` (int), `body` (string) and `headers` (lowercase names) as WordPress.com sent them,
 	 *                        the unauthorized error when the token the context needs is missing, or `Client`'s own error.
@@ -80,12 +82,39 @@ class Proxy_Request {
 			return self::unauthorized_error( $args );
 		}
 
-		$query = self::build_query( (array) ( $args['query'] ?? array() ) );
-		if ( '' !== $query ) {
-			$path .= ( str_contains( $path, '?' ) ? '&' : '?' ) . $query;
+		$query     = (array) ( $args['query'] ?? array() );
+		$cache     = (array) ( $args['cache'] ?? array() );
+		$cache_key = self::cache_key( $path, $query, $context, $args );
+
+		if ( null !== $cache_key && empty( $cache['bypass'] ) ) {
+			$cached = get_transient( $cache_key );
+			if ( is_array( $cached ) && isset( $cached['status'] ) && isset( $cached['body'] ) && isset( $cached['headers'] ) ) {
+				return $cached;
+			}
 		}
 
-		return self::send( $path, $context, $args );
+		$response = self::send( self::with_query( $path, self::build_query( $query ) ), $context, $args );
+
+		if ( null !== $cache_key && ! is_wp_error( $response ) ) {
+			$duration = (int) ( $cache[ $response['status'] >= 400 ? 'error' : 'success' ] ?? 0 );
+			if ( $duration > 0 ) {
+				set_transient( $cache_key, $response, $duration );
+			}
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Make every cached read under a prefix miss.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $prefix The `cache` prefix of the consumer.
+	 * @return void
+	 */
+	public static function forget( string $prefix ) {
+		update_option( self::generation_option( $prefix ), wp_generate_uuid4(), false );
 	}
 
 	/**
@@ -135,11 +164,9 @@ class Proxy_Request {
 		}
 
 		$options = array_replace_recursive(
-			array(
-				'headers' => $headers,
-				'method'  => strtoupper( (string) ( $args['method'] ?? 'GET' ) ),
-			),
-			(array) ( $args['request_options'] ?? array() )
+			array( 'headers' => $headers ),
+			(array) ( $args['request_options'] ?? array() ),
+			array( 'method' => self::method( $args ) )
 		);
 
 		if ( 'user' === $context ) {
@@ -169,6 +196,99 @@ class Proxy_Request {
 			'body'    => (string) wp_remote_retrieve_body( $response ),
 			'headers' => $response_headers,
 		);
+	}
+
+	/**
+	 * The method the request goes out with: `request_options` wins over `method`.
+	 *
+	 * @param array $args See {@see to_path()}.
+	 * @return string
+	 */
+	private static function method( array $args ): string {
+		return strtoupper( (string) ( $args['request_options']['method'] ?? $args['method'] ?? 'GET' ) );
+	}
+
+	/**
+	 * Transient key of a cacheable read, or null: a GET with a `cache` prefix and a duration.
+	 *
+	 * The key is computed, never supplied: path, query in any order, version, base, token context,
+	 * the user id when signed as the user, and the prefix's generation.
+	 *
+	 * @param string $path    WordPress.com path, without the forwarded query.
+	 * @param array  $query   Query params.
+	 * @param string $context 'user', 'blog' or 'none', already resolved.
+	 * @param array  $args    See {@see to_path()}.
+	 * @return string|null
+	 */
+	private static function cache_key( string $path, array $query, string $context, array $args ): ?string {
+		$cache = $args['cache'] ?? null;
+
+		if ( ! is_array( $cache ) || empty( $cache['prefix'] ) || 'GET' !== self::method( $args ) ) {
+			return null;
+		}
+
+		if ( (int) ( $cache['success'] ?? 0 ) <= 0 && (int) ( $cache['error'] ?? 0 ) <= 0 ) {
+			return null;
+		}
+
+		$prefix = (string) $cache['prefix'];
+
+		return $prefix . md5(
+			implode(
+				'|',
+				array(
+					self::with_query( $path, self::build_query( self::sort_by_key( $query ) ) ),
+					ltrim( (string) ( $args['version'] ?? '2' ), 'v' ),
+					trim( (string) ( $args['base_api_path'] ?? 'wpcom' ), '/' ),
+					$context,
+					'user' === $context ? get_current_user_id() : 0,
+					(string) get_option( self::generation_option( $prefix ), '' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * Name of the option holding a prefix's generation, which {@see forget()} renews.
+	 *
+	 * @param string $prefix The `cache` prefix of the consumer.
+	 * @return string
+	 */
+	private static function generation_option( string $prefix ): string {
+		return $prefix . 'generation';
+	}
+
+	/**
+	 * Sort query params by key at every depth, so their order does not reach the cache key.
+	 *
+	 * @param array $params Query params.
+	 * @return array
+	 */
+	private static function sort_by_key( array $params ): array {
+		foreach ( $params as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$params[ $key ] = self::sort_by_key( $value );
+			}
+		}
+
+		ksort( $params );
+
+		return $params;
+	}
+
+	/**
+	 * Append a query string to a path that may already carry one.
+	 *
+	 * @param string $path  WordPress.com path.
+	 * @param string $query Query string, possibly empty.
+	 * @return string
+	 */
+	private static function with_query( string $path, string $query ): string {
+		if ( '' === $query ) {
+			return $path;
+		}
+
+		return $path . ( str_contains( $path, '?' ) ? '&' : '?' ) . $query;
 	}
 
 	/**
