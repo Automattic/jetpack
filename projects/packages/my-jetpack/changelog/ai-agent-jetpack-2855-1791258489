@@ -1,4 +1,4 @@
 Significance: patch
 Type: removed
 
-Remove unreachable ProductDetailTable component and dead isTieredPricing branch from ProductInterstitial.
+Remove the unreachable ProductDetailTable component and the unused `is_tiered_pricing` and `features_by_tier` product data.
