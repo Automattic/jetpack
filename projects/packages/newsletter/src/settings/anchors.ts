@@ -16,8 +16,12 @@ export function getLinkedSectionId(): string {
 	return decodeURIComponent( hash.replace( /^#/, '' ) );
 }
 
-// Where a linked section's top lands in the viewport: clear of the 140px sticky header, plus room.
-const SECTION_SCROLL_TOP = 190;
+// Room left between the sticky chrome and a section scrolled to it.
+const SECTION_SCROLL_GAP = 24;
+
+// Chrome pinned over the top of the scroll area: the dashboard's tab strip, or
+// the admin bar on the legacy Settings page.
+const STICKY_CHROME_SELECTORS = [ '.jp-admin-page-tabs', '#wpadminbar' ];
 
 /**
  * Find the element that scrolls a node: the page's middle column in the
@@ -61,7 +65,13 @@ export function scrollToSection( id: string ): void {
 	};
 	section.addEventListener( 'focusout', release );
 	section.addEventListener( 'pointerdown', release );
-	const overlap = SECTION_SCROLL_TOP - section.getBoundingClientRect().top;
+	const chromeBottom = Math.max(
+		0,
+		...STICKY_CHROME_SELECTORS.map(
+			selector => document.querySelector( selector )?.getBoundingClientRect().bottom ?? 0
+		)
+	);
+	const overlap = chromeBottom + SECTION_SCROLL_GAP - section.getBoundingClientRect().top;
 	if ( overlap > 0 ) {
 		getScrollParent( section ).scrollBy( 0, -overlap );
 	}

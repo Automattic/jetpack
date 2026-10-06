@@ -17,10 +17,12 @@ describe( 'scrollToSection', () => {
 	} );
 
 	it.each( [
-		[ 'pulls a section out from under the sticky header', 100, [ [ 0, -90 ] ] ],
-		[ 'leaves a section already clear of the sticky header', 200, [] ],
+		[ 'pulls a section out from under the tab strip', 100, [ [ 0, -44 ] ] ],
+		[ 'leaves a section already clear of the tab strip', 200, [] ],
 	] )( '%s', ( _, sectionTop, scrolls ) => {
 		document.body.innerHTML = `
+			<div id="wpadminbar"></div>
+			<div class="jp-admin-page-tabs"></div>
 			<div id="scroller" style="overflow-y: auto"><section id="subscriptions"></section></div>
 		`;
 		const scroller = document.getElementById( 'scroller' ) as HTMLElement;
@@ -33,6 +35,8 @@ describe( 'scrollToSection', () => {
 		Object.assign( scroller, { scrollBy } );
 		const scrollIntoView = jest.fn();
 		Object.assign( section, { scrollIntoView } );
+		stubRect( document.getElementById( 'wpadminbar' ) as Element, 0, 32 );
+		stubRect( document.querySelector( '.jp-admin-page-tabs' ) as Element, 60, 120 );
 		stubRect( section, sectionTop, sectionTop + 300 );
 
 		scrollToSection( 'subscriptions' );
