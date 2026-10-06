@@ -255,8 +255,8 @@ jobs:
               exit 0
             fi
 
-            # Force one CPU per worker with `split-num` jobs, allowing multiple projects to run in parallel workers, as otherwise Jest uses everything it can.
-            if (( SPLIT_NUM )); then
+            # Force one CPU per worker with generic JS test splits, allowing multiple projects to run in parallel workers, as otherwise Jest uses everything it can.
+            if [[ -z "$SPLIT_PROJECT" && ( "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ) ]]; then
               taskset -cp "$WORKERID" $$ > /dev/null
               echo "Worker $WORKERID has availableParallelism() set to $( node -p 'require( "os" ).availableParallelism()' )"
             fi
