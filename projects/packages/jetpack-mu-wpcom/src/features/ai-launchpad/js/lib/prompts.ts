@@ -545,8 +545,8 @@ function sameLanguage( a: string, b: string ): boolean {
  * page intros become the site's own published content, so they follow the site's. Everything else
  * stays English: the slugs because the server validates them against English enums, and
  * `niche`/`vibe`/`audience` because they are Tracks dimensions that are compared across sites —
- * translating them would split one cohort into forty. When the two languages match — the ordinary
- * case — the first two groups collapse into one instruction.
+ * translating them would split one cohort into forty. When the two languages match, or are two
+ * Englishes, `splitLanguages` is false and the first two groups collapse into one instruction.
  *
  * @param locale         - The site language.
  * @param uiLocale       - The account language of whoever runs the wizard.
@@ -592,23 +592,25 @@ export function buildTailorPrompt(
 
 	// English sites get the block too: without it, a description in another language pulls the output
 	// into that language. Two different Englishes are not worth splitting the subtitles over.
-	const splitLanguages =
-		! sameLanguage( locale, uiLocale ) &&
-		! ( isEnglishLocale( locale ) && isEnglishLocale( uiLocale ) );
+	const bothEnglish = isEnglishLocale( locale ) && isEnglishLocale( uiLocale );
+	const splitLanguages = ! sameLanguage( locale, uiLocale ) && ! bothEnglish;
 
-	// Naming the subtitle language once at the top is not enough: STEP 2 spends a paragraph on
-	// subtitles without mentioning language, and the model follows the nearer instruction. Repeat it
-	// where the field is actually defined.
+	// Naming each language once at the top is not enough: the model follows the nearest instruction,
+	// so a split is repeated in every step that writes text.
 	const subtitleLanguage = splitLanguages
 		? ` Write every subtitle in ${ languageDisplayName(
 				uiLocale
 			) }, NOT in the language of the rest of this response - see the output-language section above.`
 		: '';
+	const contentLanguage = splitLanguages
+		? ` Write it in ${ languageDisplayName( locale ) }, NOT in ${ languageDisplayName(
+				uiLocale
+			) } like the task subtitles.`
+		: '';
 
-	const noEnglishFallback =
-		isEnglishLocale( locale ) && isEnglishLocale( uiLocale )
-			? ''
-			: ', and do not fall back to English for the fields named above';
+	const noEnglishFallback = bothEnglish
+		? ''
+		: ', and do not fall back to English for the fields named above';
 
 	const languageSection = `
 ============ output language ============
@@ -654,18 +656,18 @@ One task is an exception to that push for specificity. For the social task "conn
 ${ HARD_RULES }
 
 ============ STEP 3 - first_post_draft ============
-Write a friendly starter blog post the user can edit and publish.
+Write a friendly starter blog post the user can edit and publish.${ contentLanguage }
 - "title": clear and evocative, max 8 words.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
 - "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain language, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
 ============ STEP 4 - about_page_draft ============
-Write starter content for the site's About page, grounded in the user's own description - never generic filler.
+Write starter content for the site's About page, grounded in the user's own description - never generic filler.${ contentLanguage }
 - "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
 - "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
 
 ============ STEP 5 - page_intros (only when it applies) ============
-Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.
+Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.${ contentLanguage }
 - "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
 - "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
 - "add_video_page": one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.

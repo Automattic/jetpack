@@ -445,20 +445,30 @@ describe( 'buildTailorPrompt output language', () => {
 		}
 	} );
 
-	it( 'repeats the subtitle language in STEP 2, where the field is defined', () => {
-		// The top-of-prompt block alone did not hold: STEP 2 talks about subtitles at length without
-		// naming a language, and the model followed the nearer instruction and wrote them in the site's.
-		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
-		const step2 = prompt.slice( prompt.indexOf( 'STEP 2' ), prompt.indexOf( 'STEP 3' ) );
+	// The top-of-prompt block alone did not hold: the model followed the nearest instruction, writing
+	// subtitles in the site's language, then the first post in the account's.
+	const stepText = ( prompt: string, step: string ) => {
+		const start = prompt.indexOf( `============ ${ step }` );
+		return prompt.slice( start, prompt.indexOf( '\n============ ', start + 1 ) );
+	};
+	const STEP_LANGUAGES: Array< [ string, RegExp ] > = [
+		[ 'STEP 2', /Write every subtitle in Italian/ ],
+		[ 'STEP 3', /Write it in French[^,]*, NOT in Italian/ ],
+		[ 'STEP 4', /Write it in French[^,]*, NOT in Italian/ ],
+		[ 'STEP 5', /Write it in French[^,]*, NOT in Italian/ ],
+	];
+	for ( const [ step, expected ] of STEP_LANGUAGES ) {
+		it( `repeats the split language in ${ step }`, () => {
+			const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
+			assert.match( stepText( prompt, step ), expected );
+		} );
+	}
 
-		assert.match( step2, /Write every subtitle in Italian/ );
-	} );
-
-	it( 'leaves STEP 2 alone when both languages match', () => {
+	it( 'leaves the steps alone when both languages match', () => {
 		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } );
-		const step2 = prompt.slice( prompt.indexOf( 'STEP 2' ), prompt.indexOf( 'STEP 3' ) );
-
-		assert.ok( ! step2.includes( 'Write every subtitle in' ) );
+		for ( const step of [ 'STEP 2', 'STEP 3', 'STEP 4', 'STEP 5' ] ) {
+			assert.ok( ! /Write (every subtitle|it) in /.test( stepText( prompt, step ) ), step );
+		}
 	} );
 
 	it( 'keeps the analytics fields in English, whatever the site speaks', () => {
