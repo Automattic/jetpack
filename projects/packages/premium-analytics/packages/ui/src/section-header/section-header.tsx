@@ -15,6 +15,9 @@ export type SectionHeaderProps = {
 	 */
 	visual?: ReactNode;
 
+	/** The visual's box keeps one height; a 16:9 box widens it, for a video poster. */
+	visualAspectRatio?: '1/1' | '16/9';
+
 	/** A line under the title: what the resource is, what window it reports over. */
 	subTitle?: ReactNode;
 
@@ -69,6 +72,7 @@ function UnforwardedSectionHeader(
 	{
 		title,
 		visual,
+		visualAspectRatio = '1/1',
 		subTitle,
 		busy = false,
 		pinned = false,
@@ -79,11 +83,18 @@ function UnforwardedSectionHeader(
 	}: SectionHeaderProps,
 	ref: ForwardedRef< HTMLDivElement >
 ) {
+	const isWide = visualAspectRatio === '16/9';
 	const header = (
 		<div ref={ ref } className={ clsx( styles.container, pinned && styles.pinned ) }>
-			<div className={ clsx( styles.layout, visual && styles.withVisual ) }>
+			<div
+				className={ clsx(
+					styles.layout,
+					visual && styles.withVisual,
+					visual && isWide && styles.withWideVisual
+				) }
+			>
 				{ visual ? (
-					<div className={ styles.visual } aria-hidden="true">
+					<div className={ clsx( styles.visual, isWide && styles.visualWide ) } aria-hidden="true">
 						{ visual }
 					</div>
 				) : null }

@@ -64,6 +64,7 @@ export function videoHeaderSlots( {
 	if ( summary.isLoading ) {
 		return {
 			visual: glyph,
+			visualAspectRatio: '16/9',
 			busy: true,
 			title: (
 				<>
@@ -80,6 +81,7 @@ export function videoHeaderSlots( {
 	if ( summary.isError || summary.isNotFound ) {
 		return {
 			visual: glyph,
+			visualAspectRatio: '16/9',
 			title: summary.isNotFound
 				? __( 'Video not found', 'jetpack-premium-analytics-pkg' )
 				: __( 'Video unavailable', 'jetpack-premium-analytics-pkg' ),
@@ -102,6 +104,7 @@ export function videoHeaderSlots( {
 
 	return {
 		visual: <VideoPoster posterUrl={ summary.posterUrl } />,
+		visualAspectRatio: '16/9',
 		title: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
 		subTitle: subtitle || undefined,
 	};
