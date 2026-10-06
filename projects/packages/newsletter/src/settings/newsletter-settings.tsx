@@ -19,6 +19,7 @@ import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { getLinkedSectionId, scrollToSection } from './anchors';
 import { fetchSettings, updateSettings } from './api';
 import { getNewsletterScriptData } from './script-data';
 import {
@@ -247,9 +248,9 @@ export function NewsletterSettingsBody( {
 			return;
 		}
 		hasScrolledToHash.current = true;
-		const hash = window.location.hash.slice( 1 );
-		if ( hash ) {
-			document.getElementById( decodeURIComponent( hash ) )?.scrollIntoView();
+		const sectionId = getLinkedSectionId();
+		if ( sectionId ) {
+			scrollToSection( sectionId );
 		}
 	}, [ isLoading, data ] );
 
