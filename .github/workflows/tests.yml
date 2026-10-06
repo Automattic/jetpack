@@ -210,20 +210,7 @@ jobs:
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
 
-          : > "$QUEUEFILE"
-
-          # Put some known slow things at the start of the queue.
-          echo projects/plugins/jetpack/composer.json >> "$QUEUEFILE"
-          echo projects/packages/premium-analytics/composer.json >> "$QUEUEFILE"
-          echo projects/packages/publicize/composer.json >> "$QUEUEFILE"
-          echo projects/packages/backup/composer.json >> "$QUEUEFILE"
-
-          # Then everything else.
-          for P in composer.json projects/*/*/composer.json; do
-            if ! grep -Fx "$P" "$QUEUEFILE" &>/dev/null; then
-              echo "$P"
-            fi
-          done >> "$QUEUEFILE"
+          printf '%s\n' composer.json projects/*/*/composer.json > "$QUEUEFILE"
 
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
