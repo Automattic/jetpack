@@ -91,6 +91,8 @@ export {
 	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	ExternalLink,
+	type ExternalLinkProps,
 	InfoTip,
 	type InfoTipProps,
 	PostTitleLink,
