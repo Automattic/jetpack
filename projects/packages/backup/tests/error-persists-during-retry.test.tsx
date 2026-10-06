@@ -193,6 +193,7 @@ describe( 'activity list', () => {
 			'aria-disabled',
 			'true'
 		);
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toHaveFocus();
 
 		retry.resolve( {
 			current: { orderedItems: [ activityEntry() ] },
