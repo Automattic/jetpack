@@ -1,6 +1,9 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { PRODUCT_STATUSES } from '../../constants';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import type { StateProducts } from '../../data/types';
 import type { ConnectionErrorSeverity } from '@automattic/jetpack-connection';
 
 export type ConnectionState = {
@@ -24,6 +27,28 @@ export type ConnectionErrorStanding = {
 	/** The package's headline for the error, shown in place of the card's own label. */
 	errorTitle: string;
 };
+
+// Statuses of a product that is switched on, whatever its plan or connection says.
+const SWITCHED_ON_STATUSES: string[] = [
+	PRODUCT_STATUSES.ACTIVE,
+	PRODUCT_STATUSES.CAN_UPGRADE,
+	PRODUCT_STATUSES.USER_CONNECTION_ERROR,
+	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
+	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
+	PRODUCT_STATUSES.EXPIRING_SOON,
+];
+
+/**
+ * Whether anything switched on needs a WordPress.com account, not just the site connection.
+ *
+ * @param products - The products from the page's initial state.
+ * @return True when at least one does.
+ */
+export function needsUserConnection( products: StateProducts | undefined ): boolean {
+	return Object.values( products ?? {} ).some(
+		product => product?.requires_user_connection && SWITCHED_ON_STATUSES.includes( product.status )
+	);
+}
 
 /**
  * Hook to determine the connection state of the site and user.
@@ -73,9 +98,23 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 		};
 	}
 
+	const needsUser = needsUserConnection( getMyJetpackWindowInitialState( 'products' )?.items );
+
 	// Connecting the account stays the prompt; a live error only tints the line, at
 	// the package's severity.
-	const status = error.hasConnectionError ? ( error.severity ?? 'error' ) : 'warning';
+	let status: ConnectionState[ 'status' ] = needsUser ? 'warning' : 'success';
+	if ( error.hasConnectionError ) {
+		status = error.severity ?? 'error';
+	}
+
+	// A site-only connection is healthy until something switched on needs an account.
+	if ( ! needsUser ) {
+		return {
+			label: __( 'Site connected', 'jetpack-my-jetpack' ),
+			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
+			status,
+		};
+	}
 
 	// If the user is not an admin, they can't connect their account unless an admin has connected their account.
 	if ( ! currentUserCan( 'manage_options' ) && ! hasConnectedOwner ) {

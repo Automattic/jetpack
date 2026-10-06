@@ -144,6 +144,14 @@ beforeEach( () => {
 	global.JetpackScriptData.user.current_user.capabilities = {};
 } );
 
+// The account prompt only shows while something switched on needs an account.
+const needAnAccount = () => {
+	Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
+		requires_user_connection: true,
+		status: 'active',
+	} );
+};
+
 const asAdmin = () => {
 	global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
 };
@@ -212,9 +220,12 @@ describe( 'ConnectionStatusCard', () => {
 				);
 			};
 
-			it( 'renders the correct site connection line item', () => {
+			it( 'reads as healthy, with no account prompt', () => {
 				setup();
 				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+				expect(
+					screen.queryByRole( 'button', { name: 'Connect my account' } )
+				).not.toBeInTheDocument();
 			} );
 		} );
 
@@ -485,6 +496,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
 			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -621,6 +633,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When a non-admin is not connected, but there is a connection owner', () => {
 		const setup = () => {
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -650,6 +663,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When a non-admin is not connected, and there is no connection owner', () => {
 		const setup = () => {
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -675,6 +689,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When an admin is not connected but site is registered', () => {
 		const setup = () => {
+			needAnAccount();
 			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
 
 			setConnectionStore( {
