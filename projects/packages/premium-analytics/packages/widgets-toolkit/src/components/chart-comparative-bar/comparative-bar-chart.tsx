@@ -25,7 +25,7 @@ import {
 	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
-	dateFormatForResolution,
+	formatBucketTooltipDate,
 	resolveTooltipUnits,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
@@ -150,9 +150,7 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution(
-		getBucketInfo( series, tickResolution ).displayResolution
-	);
+	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -222,18 +220,17 @@ export function ComparativeBarChart( {
 	// `realDate`.
 	const getTooltipLabel = useCallback(
 		(
-			datum: { date: Date; realDate?: Date },
+			datum: { date: Date; realDate?: Date; endDate?: Date },
 			_index: number,
 			key: string,
 			value: string | null,
 			rawValue: number | null
 		): string => {
-			const displayDate = datum.realDate ?? datum.date;
-			const date = formatTooltipDate( displayDate, tooltipDateFormat );
+			const date = formatBucketTooltipDate( datum, displayResolution, formatTooltipDate );
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipUnits, formatTooltipDate, displayResolution ]
 	);
 
 	/**

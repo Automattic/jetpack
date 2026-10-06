@@ -97,10 +97,52 @@ describe( 'buildTrafficTooltipExtras', () => {
 		const [ ratio, posts ] = buildTrafficTooltipExtras( current, ZONE, comparison );
 
 		expect( ratio.previous ).toEqual( [
-			{ date: ratio.data[ 0 ].date, realDate: expect.any( Date ), value: 2 },
+			{
+				date: ratio.data[ 0 ].date,
+				realDate: expect.any( Date ),
+				endDate: expect.any( Date ),
+				value: 2,
+			},
 		] );
 		expect( ratio.previous?.[ 0 ].realDate?.toISOString() ).toBe( '2026-06-01T00:00:00.000Z' );
 		expect( posts.previous?.map( point => point.value ) ).toEqual( [ 2 ] );
+	} );
+
+	it( 'skips a leading comparison week that no current week overlaps', () => {
+		const weeks = ( ...ranges: Array< [ string, string, number ] > ): StatsVisitsResponse => ( {
+			summary: {},
+			data: ranges.map( ( [ from, to, views ] ) => ( {
+				time_interval: from,
+				date_start: `${ from }T00:00:00`,
+				date_end: `${ to }T23:59:59`,
+				label: from,
+				value: views,
+				items: [],
+				views,
+				visitors: 1,
+			} ) ),
+		} );
+
+		const [ ratio ] = buildTrafficTooltipExtras(
+			{
+				views: weeks( [ '2026-08-31', '2026-09-06', 2 ], [ '2026-09-07', '2026-09-13', 4 ] ),
+				posts: undefined,
+			},
+			ZONE,
+			{
+				views: weeks(
+					[ '2025-08-31', '2025-08-31', 1 ],
+					[ '2025-09-01', '2025-09-07', 132 ],
+					[ '2025-09-08', '2025-09-13', 326 ]
+				),
+				posts: undefined,
+			}
+		);
+
+		expect( ratio.previous?.map( point => [ point.date, point.value ] ) ).toEqual( [
+			[ ratio.data[ 0 ].date, 132 ],
+			[ ratio.data[ 1 ].date, 326 ],
+		] );
 	} );
 
 	it( 'leaves `previous` out when the comparison period has no reading', () => {

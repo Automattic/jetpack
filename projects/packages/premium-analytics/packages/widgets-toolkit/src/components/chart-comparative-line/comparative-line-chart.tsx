@@ -25,7 +25,7 @@ import {
 	getPaddedYAxis,
 	getPinnedYTicks,
 	getYTickFormat,
-	dateFormatForResolution,
+	formatBucketTooltipDate,
 	resolveTooltipUnits,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
@@ -176,9 +176,7 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution(
-		getBucketInfo( series, tickResolution ).displayResolution
-	);
+	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const resolvedChartId = chartId ?? fallbackChartId;
 	const { getHiddenSeries } = useGlobalChartsContext();
@@ -214,18 +212,17 @@ export function ComparativeLineChart( {
 	// `realDate`.
 	const getTooltipLabel = useCallback(
 		(
-			datum: { date: Date; realDate?: Date },
+			datum: { date: Date; realDate?: Date; endDate?: Date },
 			_index: number,
 			key: string,
 			value: string | null,
 			rawValue: number | null
 		): string => {
-			const displayDate = datum.realDate ?? datum.date;
-			const date = formatTooltipDate( displayDate, tooltipDateFormat );
+			const date = formatBucketTooltipDate( datum, displayResolution, formatTooltipDate );
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipUnits, formatTooltipDate, displayResolution ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them

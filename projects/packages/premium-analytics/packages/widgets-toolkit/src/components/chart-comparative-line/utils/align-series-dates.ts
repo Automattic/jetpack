@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { getComparisonBucketShift } from '../../../helpers/comparison-bucket-shift';
 import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-names';
 import type { ComparativeLineChartSeries } from '../types';
 
@@ -53,9 +54,11 @@ export function alignSeriesDates(
 			return comparisonSeries;
 		}
 
+		const shift = getComparisonBucketShift( primary.data, comparisonSeries.data );
+
 		return {
 			...comparisonSeries,
-			data: comparisonSeries.data.map( ( point, index ) => {
+			data: comparisonSeries.data.slice( shift ).map( ( point, index ) => {
 				// A longer comparison series falls back to the last primary date.
 				const primaryDate =
 					primary.data[ index ]?.date ?? primary.data[ primary.data.length - 1 ]?.date;

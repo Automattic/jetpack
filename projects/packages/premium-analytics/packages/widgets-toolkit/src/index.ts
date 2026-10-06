@@ -298,6 +298,8 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	getComparisonBucketShift,
+	type BucketSpan,
 	siteChartFormatting,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,

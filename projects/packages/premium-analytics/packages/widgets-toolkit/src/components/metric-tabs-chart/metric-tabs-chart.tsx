@@ -53,6 +53,8 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
+	/** The last instant of the bucket, for a tooltip that names a week's days. */
+	endDate?: Date;
 	/** Null for a bucket with no reading, which the chart draws as a gap. */
 	value: number | null;
 }
