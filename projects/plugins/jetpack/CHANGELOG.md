@@ -2,8 +2,9 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 16.3-beta - 2026-10-05
+## 16.3 - 2026-10-06
 ### Enhancements
+- Account Protection: Improve login verification.
 - Activity Log: Show the connection error notice only when a connection error has been recorded. [#52977]
 - AI: Use WordPress Design System colors in the AI admin, assistant, and image generator. [#53022]
 - Backup: Add a Backup module, so the Backup dashboard and its menu item can be turned off from My Jetpack. [#52937]
@@ -46,17 +47,24 @@
 - AI: Hide feature links when code turns AI features off, as when the site owner turns them off. [#52967]
 - AI: Keep the Jetpack AI menu item when AI is switched off, so the MCP and Connectors tab stays reachable. [#53080]
 - AI blocks: Show a consistent placeholder in the editor when Jetpack AI is turned off. [#51971]
+- Blocks: Improve validation of stored block attributes.
 - Blocks: Show upgrade nudges for paid blocks and SEO settings in the editor's brand colors instead of pink. [#52974]
 - Calendly: Make the block preview interactive in the editor once the block is selected. [#52914]
 - Comments API: Return the real total in `found` when a post's comments are filtered by type or date, instead of -1. [#52959]
 - Connection: Stop Site Health from reporting false connection failures, and stop prompting a reconnect when the WordPress.com connection test is inconclusive. [#52916]
+- External Media: Improve validation of imported media URLs.
 - External Media: Make the featured image picker fill the sidebar width. [#52888]
+- Forms: Improve sanitization of submitted values and escaping of form attributes.
 - Forms: Start the Delete permanently and Mark as spam confirmations on Cancel, so pressing Enter no longer permanently deletes a form or marks a response as spam. [#53027]
 - Forms: Start the Empty trash and Delete spam confirmations on Cancel and show Delete in red, so pressing Enter no longer permanently deletes every response in that folder. [#52979]
 - Google Fonts: Preserve theme and user font sources and process only needed catalogue font faces on the front end. [#52653]
 - Google Photos: Show an error with a retry option when the picker cannot be opened, instead of loading indefinitely. [#53076]
+- Gravatar Hovercards: Display extra profile details as plain text.
+- Infinite Scroll: Improve handling of request parameters.
 - Likes: Let Comment Likes be turned on for a single post in the block editor while Like buttons are off. [#53039]
 - Mailchimp: Save the chosen audience right away, so the block works without also saving the Writing settings. [#52956]
+- Media API: Improve validation of requested media items.
+- Memberships: Improve access checks for tier-restricted content.
 - My Jetpack: Fix overlapping and misaligned stats on the Protect card. [#52988]
 - My Jetpack: Show a switch instead of a purchase link for a product you own whose module is turned off. [#52937]
 - Newsletter: Fix the Send a test email modal stacking its address field above the Send button. [#53049]
@@ -79,11 +87,14 @@
 - Premium Analytics: Use the default chart interval when switching to a different date preset, instead of keeping the previous preset's. [#52897]
 - Search: Show the AI Answer disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off. [#51971]
 - Search: Start the experience switch and Restore default confirmations on Cancel, so pressing Enter no longer switches the search experience or deletes a customized template. [#53033]
+- Simple Payments: Improve permission checks for orders.
+- Slideshow: Render slide captions as plain text.
 - Social: Fix publishing failing with a share message database error, which also prevented newsletters and social shares from being sent. [#52910]
 - Social: Let a Facebook or Instagram connection with no Page or account saved pick one when reconnecting. [#52963]
 - Stats: Stop showing free-plan paywalls in wp-admin on a site whose plan already includes those stats. [#52098]
 - VideoPress: Fix upgrades on WordPress.com sites by offering the Business plan. [#52923]
 - VideoPress: Offer an upgrade action in the video block when uploads require a paid plan. [#52983]
+- VideoPress: Strengthen authorization for private video playback.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Expose the `wpcom_ai_launchpad_no_guidance` site option in the `/sites` endpoint. [#52930]
