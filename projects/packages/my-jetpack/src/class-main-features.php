@@ -904,7 +904,7 @@ class Main_Features {
 	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
-	 * @param bool $local Skip ownership-dependent destinations.
+	 * @param bool $local Use the local feature contract documented in get_features().
 	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string} The state.
 	 */
 	public static function get_state( $local = false ) {
@@ -939,7 +939,8 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
-	 * @param bool $local Skip ownership-dependent destinations.
+	 * @param bool $local Keep only local management URLs, set upgrade to null, and omit
+	 *                    included, setup_note, and plan owned fields without resolving ownership.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
