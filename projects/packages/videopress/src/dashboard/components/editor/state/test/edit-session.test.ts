@@ -281,34 +281,73 @@ describe( 'ADD_CUT', () => {
 		expect( reduce( trimmed, { type: 'ADD_CUT', atMs: 15000 } ) ).toBe( trimmed );
 	} );
 
-	it( 'merges into an overlapping cut and keeps the existing id', () => {
-		const s = reduceAll( createEditSession( 20000 ), [
-			{ type: 'ADD_CUT', atMs: 3000, durationMs: 2000, id: 'c1' }, // [3000, 5000]
-			{ type: 'ADD_CUT', atMs: 4000, durationMs: 4000, id: 'c2' }, // [4000, 8000]
-		] );
-		expect( s.cuts ).toEqual( [ { id: 'c1', startMs: 3000, endMs: 8000 } ] );
-		expect( s.selectedCutId ).toBe( 'c1' );
-	} );
-
-	it( 'bridges multiple cuts into one', () => {
-		const s = reduceAll( createEditSession( 20000 ), [
-			{ type: 'ADD_CUT', atMs: 2000, durationMs: 1000, id: 'c1' }, // [2000, 3000]
-			{ type: 'ADD_CUT', atMs: 6000, durationMs: 1000, id: 'c2' }, // [6000, 7000]
-			{ type: 'ADD_CUT', atMs: 2500, durationMs: 4000, id: 'c3' }, // [2500, 6500]
-		] );
-		expect( s.cuts ).toEqual( [ { id: 'c1', startMs: 2000, endMs: 7000 } ] );
-		expect( s.selectedCutId ).toBe( 'c1' );
-	} );
-
-	it( 'is a structural no-op when the new cut is inside an existing one', () => {
+	it.each( [ 3000, 4000, 4999 ] )( 'is a no-op at %i within an existing cut', atMs => {
 		const withCut = reduce( createEditSession( 20000 ), {
 			type: 'ADD_CUT',
 			atMs: 3000,
-			durationMs: 4000,
+			durationMs: 2000,
 			id: 'c1',
 		} );
-		const s = reduce( withCut, { type: 'ADD_CUT', atMs: 4000, durationMs: 2000, id: 'c2' } );
+		const s = reduce( withCut, { type: 'ADD_CUT', atMs, id: 'c2' } );
 		expect( s ).toBe( withCut );
+	} );
+
+	it.each( [
+		[ 1000, 1000, 2900 ],
+		[ 5000, 5100, 9100 ],
+		[ 5050, 5100, 9100 ],
+		[ 5200, 5200, 9200 ],
+	] )( 'leaves a gap when adding a cut at %i beside an existing cut', ( atMs, startMs, endMs ) => {
+		const existing = { id: 'c1', startMs: 3000, endMs: 5000 };
+		const state = { ...createEditSession( 20000 ), cuts: [ existing ] };
+		const s = reduce( state, { type: 'ADD_CUT', atMs, id: 'c2' } );
+		expect( s.cuts ).toHaveLength( 2 );
+		expect( s.cuts ).toContainEqual( existing );
+		expect( s.cuts ).toContainEqual( { id: 'c2', startMs, endMs } );
+		expect( s.selectedCutId ).toBe( 'c2' );
+	} );
+
+	it( 'fits a new cut between its neighbors without merging either one', () => {
+		const state = {
+			...createEditSession( 20000 ),
+			cuts: [
+				{ id: 'a', startMs: 2000, endMs: 3000 },
+				{ id: 'b', startMs: 6000, endMs: 7000 },
+			],
+		};
+		const s = reduce( state, { type: 'ADD_CUT', atMs: 3000, id: 'c' } );
+		expect( s.cuts ).toEqual( [
+			state.cuts[ 0 ],
+			{ id: 'c', startMs: 3100, endMs: 5900 },
+			state.cuts[ 1 ],
+		] );
+	} );
+
+	it( 'leaves a gap before a backward cut at the trim end', () => {
+		const state = {
+			...createEditSession( 20000 ),
+			trimStartMs: 2000,
+			trimEndMs: 10000,
+			cuts: [ { id: 'a', startMs: 5000, endMs: 8000 } ],
+		};
+		const s = reduce( state, { type: 'ADD_CUT', atMs: 10000, id: 'b' } );
+		expect( s.cuts ).toEqual( [ state.cuts[ 0 ], { id: 'b', startMs: 8100, endMs: 10000 } ] );
+	} );
+
+	it.each( [
+		[ 2900, [ { id: 'a', startMs: 3000, endMs: 5000 } ] ],
+		[
+			5050,
+			[
+				{ id: 'a', startMs: 3000, endMs: 5000 },
+				{ id: 'b', startMs: 5200, endMs: 7000 },
+			],
+		],
+		[ 20000, [ { id: 'a', startMs: 18000, endMs: 19900 } ] ],
+		[ 20000, [ { id: 'a', startMs: 18000, endMs: 20000 } ] ],
+	] )( 'does not add a cut at %i when the neighboring gaps leave no room', ( atMs, cuts ) => {
+		const state = { ...createEditSession( 20000 ), cuts };
+		expect( reduce( state, { type: 'ADD_CUT', atMs } ) ).toBe( state );
 	} );
 
 	it( 'shrinks the span to preserve the minimum output', () => {

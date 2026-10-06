@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Start new cuts at the playhead, or end there when it is at the end of the video.
+Start new cuts at the playhead, or end there when it is at the end of the video, and keep a gap from existing cuts.

@@ -279,7 +279,8 @@ it( 'submits the current edits against their loaded revision and waits for the c
 		'aria-disabled',
 		'true'
 	);
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
+	fireEvent.keyDown( screen.getByRole( 'slider', { name: 'Trim start' } ), { key: 'ArrowRight' } );
+	expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
 		'aria-disabled',
 		'true'
 	);

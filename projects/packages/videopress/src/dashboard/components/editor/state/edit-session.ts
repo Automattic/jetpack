@@ -13,6 +13,11 @@ export const MIN_OUTPUT_MS = 1000;
 export const DEFAULT_CUT_DURATION_MS = 4000;
 
 /**
+ * Minimum kept time between a new cut and its neighbors.
+ */
+const NEW_CUT_GAP_MS = 100;
+
+/**
  * A removed range on the original master timeline.
  */
 export interface CutRange {
@@ -437,7 +442,51 @@ function setTrimEnd( state: EditSession, ms: number ): EditSession {
 }
 
 /**
- * Start a cut at the playhead, or end there when it is at the trim end.
+ * Fit a new cut near the playhead without overlapping or touching existing cuts.
+ *
+ * @param state      - Current session.
+ * @param atMs       - Playhead position on the master timeline.
+ * @param durationMs - Duration of the new cut (default 4s).
+ * @return Available range, or null when a cut cannot be added here.
+ */
+export function getNewCutRange(
+	state: EditSession,
+	atMs: number,
+	durationMs = DEFAULT_CUT_DURATION_MS
+): Pick< CutRange, 'startMs' | 'endMs' > | null {
+	const at = Math.round( atMs );
+	if ( at < state.trimStartMs || at > state.trimEndMs ) {
+		return null;
+	}
+
+	let availableStart = state.trimStartMs;
+	let availableEnd = state.trimEndMs;
+	for ( const cut of state.cuts ) {
+		if ( at >= cut.startMs && at < cut.endMs ) {
+			return null;
+		}
+		if ( cut.endMs <= at ) {
+			availableStart = cut.endMs + NEW_CUT_GAP_MS;
+		} else {
+			availableEnd = cut.startMs - NEW_CUT_GAP_MS;
+			break;
+		}
+	}
+
+	const maxDuration = Math.min(
+		Math.max( 1, Math.round( durationMs ) ),
+		getOutputDurationMs( state ) - requiredMinOutput( state )
+	);
+	const startMs =
+		at === state.trimEndMs
+			? Math.max( availableStart, at - maxDuration )
+			: Math.max( availableStart, at );
+	const endMs = at === state.trimEndMs ? at : Math.min( availableEnd, startMs + maxDuration );
+	return endMs > startMs ? { startMs, endMs } : null;
+}
+
+/**
+ * Add and select a separate cut within the available range.
  *
  * @param state      - Current session.
  * @param atMs       - Playhead position on the master timeline.
@@ -446,41 +495,16 @@ function setTrimEnd( state: EditSession, ms: number ): EditSession {
  * @return Next session.
  */
 function addCut( state: EditSession, atMs: number, durationMs?: number, id?: string ): EditSession {
-	const at = Math.round( atMs );
-	if ( at < state.trimStartMs || at > state.trimEndMs ) {
-		return state;
-	}
-	const maxDuration = Math.max( 1, Math.round( durationMs ?? DEFAULT_CUT_DURATION_MS ) );
-	const minOutput = requiredMinOutput( state );
-
-	const candidateRange = ( span: number ) => ( {
-		startMs: at === state.trimEndMs ? Math.max( state.trimStartMs, at - span ) : at,
-		endMs: at === state.trimEndMs ? at : Math.min( state.trimEndMs, at + span ),
-	} );
-	const pred = ( span: number ) =>
-		outputDuration( state.trimStartMs, state.trimEndMs, [
-			...state.cuts,
-			candidateRange( span ),
-		] ) >= minOutput;
-
-	const span = largestSatisfying( 1, maxDuration, pred );
-	if ( span === null ) {
-		return state;
-	}
-	const range = candidateRange( span );
-	if ( range.endMs <= range.startMs ) {
+	const range = getNewCutRange( state, atMs, durationMs );
+	if ( ! range ) {
 		return state;
 	}
 
 	const newId = id ?? nextCutId();
-	// A cut that merely grows an existing cut keeps the existing id.
-	const chooseId = ( memberIds: string[] ) => memberIds.find( m => m !== newId ) ?? newId;
-	const cuts = mergeCuts( [ ...state.cuts, { id: newId, ...range } ], chooseId );
-	const containing = cuts.find( cut => cut.startMs <= at && at <= cut.endMs );
 	return {
 		...state,
-		cuts,
-		selectedCutId: containing ? containing.id : normalizeSelection( cuts, state.selectedCutId ),
+		cuts: [ ...state.cuts, { id: newId, ...range } ].sort( ( a, b ) => a.startMs - b.startMs ),
+		selectedCutId: newId,
 	};
 }
 
