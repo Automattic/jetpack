@@ -190,8 +190,9 @@ describe( 'parseAgentResponse', () => {
 	for ( const [ field, value ] of [
 		[ 'inferred_goal', 'business' ],
 		[ 'theme_category', 'hiking' ],
+		[ 'brand_name', 'x'.repeat( 81 ) ],
 	] ) {
-		it( `drops an out-of-enum ${ field } instead of rejecting the output`, () => {
+		it( `drops an invalid optional ${ field } instead of rejecting the output`, () => {
 			const out = validOutput();
 			out.inferred[ field ] = value;
 			const parsed = parseAgentResponse( JSON.stringify( out ) );

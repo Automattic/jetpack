@@ -209,11 +209,11 @@ function dropInvalidOptionalInferred( parsed: unknown ): void {
 		return;
 	}
 	const record = inferred as Record< string, unknown >;
-	for ( const field of [ 'inferred_goal', 'theme_category' ] ) {
-		const fieldSchema = AGENT_OUTPUT_SCHEMA.properties?.inferred?.properties?.[ field ];
+	const inferredSchema = AGENT_OUTPUT_SCHEMA.properties?.inferred;
+	for ( const [ field, fieldSchema ] of Object.entries( inferredSchema?.properties ?? {} ) ) {
 		if (
 			field in record &&
-			fieldSchema &&
+			! inferredSchema?.required?.includes( field ) &&
 			validateAgainstSchema( record[ field ], fieldSchema ).length > 0
 		) {
 			delete record[ field ];
