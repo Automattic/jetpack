@@ -277,7 +277,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
-		const grid = chart.getByRole( 'grid' );
+		const grid = chart.getByRole( 'application' );
 		await grid.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		const surface = page.locator(
@@ -382,8 +382,12 @@ test( 'an all-zero window paints recorded scores separately from empty slots', a
 test( 'Tabbing between daily charts preserves focus and resets the previous tooltip', async ( {
 	page,
 } ) => {
-	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
-	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } ).getByRole( 'grid' );
+	const desktop = page
+		.getByRole( 'region', { name: 'Desktop score history' } )
+		.getByRole( 'application' );
+	const mobile = page
+		.getByRole( 'region', { name: 'Mobile score history' } )
+		.getByRole( 'application' );
 	const tooltip = page.getByRole( 'tooltip' );
 	await desktop.focus();
 	await page.keyboard.press( 'ArrowRight' );
@@ -408,7 +412,7 @@ test( 'Rings a keyboard-selected day but not a hovered one', async ( { page } ) 
 	await hoverDay( chart, 21 );
 	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
 	await page.mouse.move( 0, 0 );
-	await chart.getByRole( 'grid' ).focus();
+	await chart.getByRole( 'application' ).focus();
 	for ( const [ presses, date ] of [
 		[ 1, 'August 11, 2026' ],
 		[ 21, 'September 1, 2026' ],
@@ -428,7 +432,7 @@ test( 'Clicking back into a keyboard-navigated chart focuses the chart without t
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const grid = chart.getByRole( 'grid' );
+	const grid = chart.getByRole( 'application' );
 	await grid.focus();
 	for ( let press = 0; press < 22; press++ ) {
 		await page.keyboard.press( 'ArrowRight' );
@@ -449,7 +453,7 @@ test( 'Hovering a day ends the keyboard selection, and arrows continue from it',
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const grid = chart.getByRole( 'grid' );
+	const grid = chart.getByRole( 'application' );
 	const highlight = page.getByTestId( 'history-highlight' );
 	const popoverDate = page.locator(
 		'.boost-daily-history__popover .jetpack-boost-overview__tooltip-date'
@@ -475,7 +479,7 @@ test( 'Tab from the paging controls reaches the chart once the day details close
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const grid = chart.getByRole( 'grid' );
+	const grid = chart.getByRole( 'application' );
 	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
 	const popover = page.locator( '.boost-daily-history__popover' );
 	const openByPointer = async () => {
@@ -530,7 +534,7 @@ test( 'Tab moves straight through the charts while a hovered day shows its detai
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
 	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
-	const grids = page.getByRole( 'grid' );
+	const grids = page.getByRole( 'application' );
 	const popover = page.locator( '.boost-daily-history__popover' );
 	const press = async ( key: string, target: Locator ) => {
 		await page.keyboard.press( key );
@@ -554,7 +558,9 @@ test( 'Tab moves straight through the charts while a hovered day shows its detai
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
-	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const grid = page
+		.getByRole( 'region', { name: 'Desktop score history' } )
+		.getByRole( 'application' );
 	const popover = page.locator( '.boost-daily-history__popover' );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
