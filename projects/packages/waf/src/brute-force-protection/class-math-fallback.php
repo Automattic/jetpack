@@ -19,6 +19,11 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		public static $loaded;
 
 		/**
+		 * Math page field for the username; core's log field would turn the math POST into a login attempt.
+		 */
+		const USER_LOGIN_FIELD = 'jetpack_protect_user_login';
+
+		/**
 		 * Class constructor.
 		 */
 		public function __construct() {
@@ -49,6 +54,11 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		 * @return bool Returns true if the math is correct. Exits if not.
 		 */
 		public static function math_authenticate() {
+			// A form Protect approved before math was required may finish, once.
+			if ( ( new Brute_Force_Protection_Login_Attempt_Token( Brute_Force_Protection::instance() ) )->consume() ) {
+				return true;
+			}
+
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 				$brute_force_protection = Brute_Force_Protection::instance();
 				$transient              = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
@@ -93,9 +103,14 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		 * @return never
 		 */
 		public static function generate_math_page( $error = false ) {
+			$carried_fields = self::carried_login_fields();
 			ob_start();
 			?>
-			<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot. Once you solve it, you will need to log in again.', 'jetpack-waf' ); ?></h2>
+			<?php if ( '' !== $carried_fields[ self::USER_LOGIN_FIELD ] ) : ?>
+				<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot. Once you solve it, you will need to enter your password again.', 'jetpack-waf' ); ?></h2>
+			<?php else : ?>
+				<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot. Once you solve it, you will need to log in again.', 'jetpack-waf' ); ?></h2>
+			<?php endif ?>
 			<?php if ( $error ) : ?>
 				<h3><?php esc_html_e( 'Your answer was incorrect, please try again.', 'jetpack-waf' ); ?></h3>
 			<?php endif ?>
@@ -103,6 +118,9 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 			<form action="<?php echo esc_url( wp_login_url() ); ?>" method="post" accept-charset="utf-8">
 				<?php self::math_form(); ?>
 				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
+				<?php foreach ( array_filter( $carried_fields, 'strlen' ) as $field_name => $field_value ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $field_value ); ?>" />
+				<?php endforeach ?>
 				<p><input type="submit" value="<?php esc_attr_e( 'Continue &rarr;', 'jetpack-waf' ); ?>"></p>
 			</form>
 			<?php
@@ -136,8 +154,61 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 				$brute_force_protection->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
 				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 				remove_action( 'login_form', array( $this, 'math_form' ) );
+				add_filter( 'wp_login_errors', array( __CLASS__, 'prompt_for_password' ) );
+				add_filter( 'shake_error_codes', array( __CLASS__, 'skip_password_prompt_shake' ) );
 				return true;
 			}
+		}
+
+		/**
+		 * Login form fields to send back through the math page, never the password.
+		 *
+		 * @return string[] Values keyed by field name; empty when not submitted.
+		 */
+		private static function carried_login_fields() {
+			// phpcs:disable WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Echoed back into the login form; sanitized after the type check.
+			$user_login  = $_POST['log'] ?? $_POST[ self::USER_LOGIN_FIELD ] ?? '';
+			$redirect_to = $_REQUEST['redirect_to'] ?? '';
+
+			return array(
+				self::USER_LOGIN_FIELD => is_string( $user_login ) ? sanitize_user( wp_unslash( $user_login ) ) : '',
+				'redirect_to'          => is_string( $redirect_to ) ? esc_url_raw( wp_unslash( $redirect_to ) ) : '',
+				'rememberme'           => empty( $_POST['rememberme'] ) ? '' : 'forever',
+				'interim-login'        => isset( $_REQUEST['interim-login'] ) ? '1' : '',
+			);
+			// phpcs:enable
+		}
+
+		/**
+		 * After the standalone math page, ask for the password instead of reporting empty fields.
+		 *
+		 * @param \WP_Error $errors Login page errors.
+		 * @return \WP_Error
+		 */
+		public static function prompt_for_password( $errors ) {
+			if ( ! is_wp_error( $errors ) || array( 'empty_username', 'empty_password' ) !== $errors->get_error_codes() ) {
+				return $errors;
+			}
+
+			$user_login = self::carried_login_fields()[ self::USER_LOGIN_FIELD ];
+			if ( '' === $user_login ) {
+				return new \WP_Error( 'empty_password', __( 'Thanks for solving the math problem. Please log in again.', 'jetpack-waf' ), 'message' );
+			}
+
+			// Core prefills the username from log, and only for an empty_password error.
+			$_POST['log'] = wp_slash( $user_login );
+
+			return new \WP_Error( 'empty_password', __( 'Thanks for solving the math problem. Enter your password to log in.', 'jetpack-waf' ), 'message' );
+		}
+
+		/**
+		 * Keep the login form from shaking at the post-math password prompt.
+		 *
+		 * @param string[] $codes Error codes that shake the login form.
+		 * @return string[]
+		 */
+		public static function skip_password_prompt_shake( $codes ) {
+			return array_values( array_diff( (array) $codes, array( 'empty_password' ) ) );
 		}
 
 		/**

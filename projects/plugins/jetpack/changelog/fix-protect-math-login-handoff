@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 Brute Force Protection: Fix correct logins being rejected after the math challenge, and keep the username and login destination when the password must be entered again.
