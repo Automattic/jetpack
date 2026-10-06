@@ -16,8 +16,12 @@ class Config {
 	public const RECENT_PASSWORD_HASHES_USER_META_KEY = self::PREFIX . '_recent_password_hashes';
 
 	// Password Detection Constants
-	public const PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION = 600; // 10 minutes
-	public const PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT   = 4;
+	public const PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION          = 600; // 10 minutes
+	public const PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT            = 4;
+	public const PASSWORD_DETECTION_FAILED_ATTEMPT_LIMIT           = 5;
+	public const PASSWORD_DETECTION_USER_FAILED_ATTEMPT_LIMIT      = 20;
+	public const PASSWORD_DETECTION_USER_FAILED_ATTEMPT_EXPIRATION = 3600; // 1 hour
+	public const PASSWORD_DETECTION_ATTEMPT_LOCK_EXPIRATION        = 30;
 
 	// Password Manager Constants
 	public const PASSWORD_MANAGER_RECENT_PASSWORDS_LIMIT = 10;

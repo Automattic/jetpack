@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Simple Payments: Improve permission checks for orders.
