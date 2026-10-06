@@ -24,11 +24,11 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
+import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
 import styles from './styles.module.scss';
-import { useConnectionState } from './use-connection-state';
 import type { ConnectionStatusCardType } from './types';
 import type { MouseEvent } from 'react';
 
@@ -141,8 +141,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const connectionErrorTrackingCallback = useConnectionErrorTracking();
 	const {
 		hasConnectionError,
-		severity,
-		errorTitle,
 		connectionErrorMessage,
 		errorGroups,
 		showSupportLink,
@@ -156,7 +154,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	const state = useConnectionState( { hasConnectionError, severity, errorTitle } );
+	const state = useConnectionState();
 
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;

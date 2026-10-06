@@ -654,6 +654,7 @@ class Initializer {
 				),
 				'mainFeatures'           => $features_tab_enabled ? Main_Features::get_state() : null,
 				'featuresBanner'         => $features_tab_enabled ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
+				'header'                 => self::get_header_state( $modules ),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -712,6 +713,23 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * What the shared header needs beyond the rest of the state, so it renders without a request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Modules $modules The site's modules.
+	 * @return array{activeModules: string[], connectorsUrl: string|null} The state.
+	 */
+	public static function get_header_state( Modules $modules ) {
+		return array(
+			// Unlike lifecycleStats.modules, this keeps Jetpack's default modules.
+			'activeModules' => array_values( $modules->get_active() ),
+			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
+			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+		);
 	}
 
 	/**
