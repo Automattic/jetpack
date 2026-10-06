@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 
 /**
@@ -364,14 +365,8 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					/**
-					 * Filters whether the Jetpack plugin delivers Protect, through its `protect-dashboard` module.
-					 *
-					 * @since $$next-version$$
-					 *
-					 * @param bool $in_jetpack Whether the Jetpack plugin delivers Protect. Default false.
-					 */
-					'jetpack'     => (bool) apply_filters( 'jetpack_my_jetpack_protect_in_jetpack', false ),
+					// Only while the Jetpack plugin offers its `protect-dashboard` module, which is behind a feature flag.
+					'jetpack'     => ( new Modules() )->is_module( 'protect-dashboard' ),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',
