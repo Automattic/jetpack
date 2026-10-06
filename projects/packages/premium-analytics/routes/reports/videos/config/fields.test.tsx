@@ -50,7 +50,7 @@ function renderVideosField( fieldId: 'label' | 'poster', item: StatsVideoPlaysCo
  * @return The RTL render result.
  */
 function renderMetricField(
-	fieldId: 'plays' | 'impressions',
+	fieldId: 'plays' | 'impressions' | 'retention_rate',
 	item: StatsVideoPlaysComparisonItem,
 	withComparison = false
 ) {
@@ -151,6 +151,18 @@ describe( 'videos fields', () => {
 		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
 		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the endpoint percent retention as a percentage', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: 67.6 } );
+
+		expect( screen.getByText( '67.6%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a retention rate wpcom could not compute', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: null } );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides comparison deltas when comparison is disabled', () => {
