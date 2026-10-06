@@ -369,6 +369,7 @@ jobs:
       - name: Process coverage results
         id: process-coverage
         env:
+          ARTIFACT: ${{ matrix.artifact }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         if: matrix.coverage-group != '' && always()
         run: |

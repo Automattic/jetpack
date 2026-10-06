@@ -35,6 +35,8 @@ fi
 
 TMP=$( find "$PWD/coverage" -name '*.json' )
 if [[ -n "$TMP" ]]; then
+	JS_COMBINED="artifacts/js-combined-$ARTIFACT.json"
+
 	echo "::group::Combining JS coverage"
 
 	# nyc needs all input files in a single directory, not in subdirs.
@@ -44,13 +46,13 @@ if [[ -n "$TMP" ]]; then
 		cp "$F" "$TMP_DIR/jsraw/$(( IDX++ )).json"
 	done < <( find "$PWD/coverage" -name '*.json' )
 
-	pnpm --filter=./.github/files/coverage-munger/ exec nyc merge "$TMP_DIR/jsraw" "$PWD"/artifacts/js-combined.json
-	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" artifacts/js-combined.json
+	pnpm --filter=./.github/files/coverage-munger/ exec nyc merge "$TMP_DIR/jsraw" "$PWD/$JS_COMBINED"
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; } s!"$re!"!g' "$GITHUB_WORKSPACE" "$JS_COMBINED"
 	echo '::endgroup::'
 
 	echo "::group::Creating JS coverage summary"
 	mkdir "$TMP_DIR/js"
-	cp -v artifacts/js-combined.json "$TMP_DIR/js"
+	cp -v "$JS_COMBINED" "$TMP_DIR/js"
 	pnpm --filter=./.github/files/coverage-munger/ exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
 	jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$TMP_DIR/js-summary.tsv"
 	echo '::endgroup::'
@@ -60,6 +62,6 @@ else
 fi
 
 echo "::group::Saving coverage summary"
-# Name the summary per coverage group so downloading with `merge-multiple` doesn't clobber summaries from other groups. The publish job merges them.
-cp -v "$TMP_DIR/$COVERAGE_GROUP-summary.tsv" "artifacts/summary-$COVERAGE_GROUP.tsv"
+# Name the summary per artifact so downloading with `merge-multiple` doesn't clobber summaries from other jobs. The publish job merges them.
+cp -v "$TMP_DIR/$COVERAGE_GROUP-summary.tsv" "artifacts/summary-$ARTIFACT.tsv"
 echo '::endgroup::'
