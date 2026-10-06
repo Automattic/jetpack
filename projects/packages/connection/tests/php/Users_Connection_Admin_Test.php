@@ -379,6 +379,31 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
+	 * A locked site has no usable tokens, and reading the view must not be what wipes them.
+	 */
+	public function test_a_locked_site_has_no_connected_users() {
+		$this->connect_user( 'connected_one' );
+
+		// A lock only bites once the site URL no longer matches the one it was taken at,
+		// so set_lock() here would read as unlocked. Stored with another URL instead.
+		\Jetpack_Options::update_option(
+			'token_lock',
+			gmdate( 'Y-m-d\TH:i:sP', time() + HOUR_IN_SECONDS ) . '|||' . base64_encode( 'https://moved.example.com' ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Matches the format Tokens::set_lock() writes.
+		);
+		$this->assertTrue( ( new Manager() )->get_tokens()->is_locked(), 'Test setup: the tokens must read as locked.' );
+
+		$this->assertSame( array(), Users_Connection_Admin::get_connected_user_ids() );
+		$this->assertArrayNotHasKey(
+			Users_Connection_Admin::VIEW_CONNECTED,
+			Users_Connection_Admin::add_connected_view( array() )
+		);
+		$this->assertNotEmpty(
+			\Jetpack_Options::get_option( 'user_tokens' ),
+			'Reading the view must not delete the tokens.'
+		);
+	}
+
+	/**
 	 * Network admin shares these hooks but never shows the view, so the argument is ignored there.
 	 */
 	public function test_the_view_is_ignored_in_network_admin() {

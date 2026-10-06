@@ -134,11 +134,15 @@ class Users_Connection_Admin {
 	 * Local user IDs holding a valid WordPress.com user token.
 	 *
 	 * Connected users cannot be found with a meta query: the tokens live in the
-	 * `user_tokens` grouped option, keyed by local user ID. Each key is then checked with
-	 * the same call the column uses for its rows, so a malformed token, or one whose
-	 * embedded user ID disagrees with its key, cannot put a user in this view and then
-	 * render their column empty. No database read either way — the option is already
-	 * loaded and the check is a parse.
+	 * `user_tokens` grouped option, keyed by local user ID. Entries are then checked by
+	 * the same rule the column's `is_user_connected()` ends up applying, so a malformed
+	 * token, or one whose embedded user ID disagrees with its key, cannot put a user in
+	 * this view and then render their column empty.
+	 *
+	 * The option is read once and the entries parsed here, rather than calling
+	 * `is_user_connected()` per key, because that re-reads `user_tokens` every time and
+	 * the option is on the external-storage allowlist — on managed hosts each read is a
+	 * direct, uncached database query.
 	 *
 	 * An ID here still need not resolve to a user; see count_connected_users().
 	 *
@@ -147,8 +151,14 @@ class Users_Connection_Admin {
 	 * @return int[]
 	 */
 	public static function get_connected_user_ids() {
-		$manager = new Manager();
-		$tokens  = $manager->get_tokens()->get_user_tokens();
+		$tokens_api = ( new Manager() )->get_tokens();
+
+		// A locked site has no usable tokens, which is what the column reports too.
+		if ( $tokens_api->is_locked() ) {
+			return array();
+		}
+
+		$tokens = $tokens_api->get_user_tokens();
 
 		if ( ! is_array( $tokens ) ) {
 			return array();
@@ -156,10 +166,12 @@ class Users_Connection_Admin {
 
 		$ids = array();
 
-		foreach ( array_keys( $tokens ) as $id ) {
-			$id = absint( $id );
+		foreach ( $tokens as $id => $token ) {
+			$id     = absint( $id );
+			$chunks = is_string( $token ) ? explode( '.', $token ) : array();
 
-			if ( $id && $manager->is_user_connected( $id ) ) {
+			// Mirrors Tokens::get_access_token(): three parts, and the token names its own user.
+			if ( $id && ! empty( $chunks[1] ) && ! empty( $chunks[2] ) && (string) $id === $chunks[2] ) {
 				$ids[] = $id;
 			}
 		}
