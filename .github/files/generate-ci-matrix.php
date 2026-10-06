@@ -126,7 +126,7 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 		$matrix[] = array(
 			'name'           => sprintf( $name, basename( $slug ) ),
 			'script'         => $script,
-			'timeout'        => $is_cov ? 20 : 15, // todo: update with accurate time.
+			'timeout'        => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
 			'coverage-group' => $is_cov ? 'js' : '',
 			'split-project'  => $slug,
 		);
@@ -135,7 +135,7 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 		$matrix[] = array(
 			'name'           => sprintf( $name, "generic $i/$js_generic_splits" ),
 			'script'         => $script,
-			'timeout'        => $is_cov ? 20 : 15, // todo: update with accurate time.
+			'timeout'        => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
 			'coverage-group' => $is_cov ? 'js' : '',
 			'split-num'      => $i,
 			'split-total'    => $js_generic_splits,
