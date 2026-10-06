@@ -6,9 +6,9 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Protect_Status\Plan as Protect_Plan;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
-use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
+use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Redirect;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -30,6 +30,20 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	const SCANNING_STATUSES = array( 'provisioning', 'scheduled', 'scanning' );
 
 	/**
+	 * Statuses that mean the first scan has not run yet when there is no report date.
+	 *
+	 * @var string[]
+	 */
+	const INITIALIZING_STATUSES = array( 'idle', 'unavailable' );
+
+	/**
+	 * Transient set while a requested scan is enqueued, so repeated requests don't stack.
+	 *
+	 * @var string
+	 */
+	const REQUEST_LOCK = 'jetpack_protect_dashboard_scan_requested';
+
+	/**
 	 * The section key.
 	 *
 	 * @return string
@@ -44,7 +58,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	 * @return array
 	 */
 	public function get_state() {
-		$has_plan = self::has_scan_plan();
+		$has_plan = Jetpack_Protect_Dashboard::has_scan_plan();
 
 		return array_merge(
 			array(
@@ -53,7 +67,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 					? Redirect::get_url( 'my-jetpack-manage-scan' )
 					: admin_url( 'admin.php?page=my-jetpack#/add-scan' ),
 			),
-			self::get_scan_report()
+			self::get_scan_report( $has_plan )
 		);
 	}
 
@@ -87,7 +101,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	 * @return array
 	 */
 	public static function get_scan() {
-		return self::get_scan_report( true );
+		return self::get_scan_report( Jetpack_Protect_Dashboard::has_scan_plan(), true );
 	}
 
 	/**
@@ -96,55 +110,63 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	 * @return array|WP_Error
 	 */
 	public static function start_scan() {
-		if ( self::has_scan_plan() ) {
-			$response = Client::wpcom_json_api_request_as_blog(
-				sprintf( '/sites/%d/scan/enqueue', Jetpack_Options::get_option( 'id' ) ),
-				'2',
-				array( 'method' => 'POST' ),
-				null,
-				'wpcom'
-			);
+		$has_plan = Jetpack_Protect_Dashboard::has_scan_plan();
+
+		if ( $has_plan && ! get_transient( self::REQUEST_LOCK ) ) {
+			$api_url  = Scan_Status::get_api_url();
+			$response = is_wp_error( $api_url )
+				? $api_url
+				: Client::wpcom_json_api_request_as_blog( $api_url . '/enqueue', '2', array( 'method' => 'POST' ), null, 'wpcom' );
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack' ), array( 'status' => 502 ) );
 			}
+			set_transient( self::REQUEST_LOCK, time(), MINUTE_IN_SECONDS );
 			Scan_Status::delete_option();
+
+			/**
+			 * Fires after the Protect dashboard enqueues a scan on WordPress.com.
+			 *
+			 * @since $$next-version$$
+			 */
+			do_action( 'jetpack_protect_dashboard_scan_started' );
 		}
 
-		return self::get_scan_report( true );
-	}
-
-	/**
-	 * Whether the site has a Scan plan, which runs real scans.
-	 *
-	 * @return bool
-	 */
-	private static function has_scan_plan() {
-		return class_exists( Protect_Plan::class ) && Protect_Plan::has_required_plan();
+		return self::get_scan_report( $has_plan, true );
 	}
 
 	/**
 	 * The latest vulnerability report: from Scan on a paid plan, otherwise Protect's free check.
 	 *
-	 * @param bool $refresh Fetch it from WordPress.com instead of the cache.
+	 * @param bool $has_plan Whether the site has a Scan plan.
+	 * @param bool $refresh  Fetch the report from WordPress.com instead of the cache; the plan is never refreshed.
 	 * @return array
 	 */
-	private static function get_scan_report( $refresh = false ) {
-		if ( ! class_exists( Protect_Status::class ) ) {
-			return array( 'error' => true );
+	private static function get_scan_report( $has_plan, $refresh = false ) {
+		$error = array(
+			'error'    => true,
+			'scanning' => false,
+		);
+		if ( ! class_exists( Status::class ) ) {
+			return $error;
 		}
 
-		$status = Protect_Status::get_status( $refresh );
+		if ( $refresh ) {
+			Status::$status = null;
+		}
+		$status = $has_plan ? Scan_Status::get_status( $refresh ) : Protect_Status::get_status( $refresh );
 		if ( ! empty( $status->error ) ) {
-			return array( 'error' => true );
+			return $error;
 		}
 
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		$is_initializing = empty( $status->last_checked ) && in_array( $status->status, self::INITIALIZING_STATUSES, true );
+
 		return array(
 			'error'          => false,
-			'scanning'       => in_array( $status->status, self::SCANNING_STATUSES, true ),
+			'scanning'       => $is_initializing || in_array( $status->status, self::SCANNING_STATUSES, true ),
 			'lastChecked'    => $status->last_checked,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),

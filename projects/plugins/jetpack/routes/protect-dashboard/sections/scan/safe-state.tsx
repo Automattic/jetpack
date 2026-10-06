@@ -1,7 +1,7 @@
 import { dateI18n } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import ScanButton, { getNextCheck } from './scan-button';
+import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
 
 const SafeShield = () => (
@@ -40,7 +40,7 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 	const pluginsChecked = scan.pluginsChecked ?? 0;
 	const themesChecked = scan.themesChecked ?? 0;
 	const nextCheck = getNextCheck( scan.lastChecked );
-	const nextScan = nextCheck && nextCheck.getTime() > Date.now() ? nextCheck : null;
+	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
 
 	return (
 		<Stack className="jp-protect-safe" direction="column" align="center" gap="md">

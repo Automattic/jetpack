@@ -1,8 +1,3 @@
-@use "sass:meta";
-
-// js-packages/scan @imports this as plain CSS, which wp-build cannot resolve.
-@include meta.load-css("@wordpress/dataviews/build-style/style.css");
-
 .jp-protect-card {
 
 	&__stats,
@@ -42,7 +37,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		width: 100%;
+		inline-size: 100%;
 		padding: 0;
 		border: 0;
 		background: none;
@@ -66,5 +61,5 @@
 }
 
 .jp-protect-scan-button__popover {
-	max-width: 300px;
+	max-inline-size: 300px;
 }
