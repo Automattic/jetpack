@@ -103,6 +103,11 @@ describe( 'SimpleNotice', () => {
 		expect( onDismissClick ).toHaveBeenCalled();
 	} );
 
+	it( 'renders a close button by default', () => {
+		render( <SimpleNotice text="Dismissable" dismissText="Dismiss" /> );
+		expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders no close button when showDismiss is false', () => {
 		render( <SimpleNotice showDismiss={ false } text="No dismissing" /> );
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();

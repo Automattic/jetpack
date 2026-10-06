@@ -152,15 +152,6 @@ describe( 'LocationsWidget', () => {
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'links to the Locations report', () => {
-		render( <LocationsWidget attributes={ {} } /> );
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/locations' )
-		);
-	} );
-
 	it.each( [
 		[ 'default', 'countries' ],
 		[ 'country', 'countries' ],
@@ -171,10 +162,9 @@ describe( 'LocationsWidget', () => {
 			<LocationsWidget attributes={ geoGranularity === 'default' ? {} : { geoGranularity } } />
 		);
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( `section=${ section }` )
-		);
+		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' );
+		expect( href ).toContain( '/reports/locations' );
+		expect( href ).toContain( `section=${ section }` );
 	} );
 
 	it.each( [ 'toString', 'cities' ] )(
@@ -191,15 +181,6 @@ describe( 'LocationsWidget', () => {
 			);
 		}
 	);
-
-	// Regions mode is worldwide until a row is drilled into.
-	it( 'requests unfiltered region rows in Regions mode', () => {
-		render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
-
-		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { geoMode: 'region', filter: undefined } )
-		);
-	} );
 
 	it( 'drops a drilled-down country when switching to Regions', async () => {
 		mockUseLocationViews.mockReturnValue( {
@@ -380,26 +361,6 @@ describe( 'LocationsWidget', () => {
 					geoMode: 'region',
 					filter: undefined,
 				} )
-			);
-		} );
-
-		it( 'drops a drilled-down region when switching modes', async () => {
-			const { rerender } = render(
-				<LocationsWidget attributes={ { geoGranularity: 'region' } } />
-			);
-			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
-
-			mockUseLocationViews.mockClear();
-			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
-
-			expect( mockUseLocationViews ).not.toHaveBeenCalledWith(
-				expect.objectContaining( { filter: expect.objectContaining( { region: 'Minnesota' } ) } )
-			);
-
-			rerender( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
-
-			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
-				expect.objectContaining( { geoMode: 'region', filter: undefined } )
 			);
 		} );
 

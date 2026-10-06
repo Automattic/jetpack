@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Heatmap chart: Deprecate `tooltipVariant`, which no longer has an effect.

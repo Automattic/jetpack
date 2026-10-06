@@ -5,6 +5,7 @@ import {
 	flagUrl,
 	MetricWithComparison,
 	type LocationRow,
+	type LocationsReportSection,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
@@ -27,6 +28,23 @@ export interface LocationsCountryOption {
 }
 
 /**
+ * Name the location column after the active tab's place type.
+ *
+ * @param section - The active Locations tab.
+ * @return The column label.
+ */
+function getLocationColumnLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Region', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'City', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Country', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
+/**
  * DataViews fields for the Locations records table.
  *
  * `countries` adds the country filter offered on the Regions and Cities tabs.
@@ -40,11 +58,13 @@ export interface LocationsCountryOption {
  *
  * @param countries      - Selectable countries, ordered by views.
  * @param withComparison - Whether to render available period-over-period deltas.
+ * @param section        - The active tab, which names the location column.
  * @return The field config.
  */
 export function getLocationFields(
 	countries?: LocationsCountryOption[],
-	withComparison = false
+	withComparison = false,
+	section: LocationsReportSection = 'countries'
 ): Field< LocationRow >[] {
 	const countryField: Field< LocationRow >[] = countries
 		? [
@@ -66,7 +86,7 @@ export function getLocationFields(
 		...countryField,
 		{
 			id: 'location',
-			label: __( 'Location', 'jetpack-premium-analytics-pkg' ),
+			label: getLocationColumnLabel( section ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,

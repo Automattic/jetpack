@@ -107,8 +107,9 @@ See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
 
 ### Test runs that cost more than one pass
 
-- `test-tz` in `package.json` reruns its paths in two more timezones. List a path there only if
-  one of its tests fails outside UTC when the machine zone leaks in (e.g. `Date.UTC` → `new Date`).
+- `test-tz` reruns the suites listed in `tests/jest.tz.config.cjs` in two more timezones. List a
+  suite there only if one of its tests fails outside UTC when the machine zone leaks in (e.g.
+  `Date.UTC` → `new Date`) and no test fails under UTC. Prove it with a mutant before adding one.
 - CI runs suites grouped (`tests/groups/README.md`). Removing or merging a member means updating
   its group import. A path argument runs ungrouped. To keep CI's grouping, match the group file:
   `pnpm run test --testPathPatterns=<group file>` (no `--`, which turns the flag into a filter).
@@ -638,6 +639,11 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   typecheck. Use `Record< never, never >` instead.
 - Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
   `reportParams` and makes date/comparison Storybook controls misleading.
+- Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
+  `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
+  commits the range and draws the date control's attention to it. A host that offers none leaves
+  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
+  over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget

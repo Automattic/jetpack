@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reader Link: Register the admin bar node even when the admin bar is hidden, so the admin-bar REST endpoint returns it.

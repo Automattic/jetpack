@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce Analytics: Match WooCommerce's own order stats for refunds, so a full refund after a partial refund is no longer counted twice and refunds of never-paid orders no longer show as returns.

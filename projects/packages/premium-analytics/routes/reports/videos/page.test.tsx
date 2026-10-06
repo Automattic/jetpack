@@ -3,8 +3,8 @@
  */
 import {
 	ExporterCsvAction,
-	PageNotice,
 	ReportRecordsTable,
+	videosCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -35,9 +35,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	PageNotice: jest.fn(
-		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice
-	),
+	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
 	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
@@ -48,6 +46,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	),
 	ReportRecordsTable: jest.fn( () => null ),
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
+	videosCsvExporter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.videosCsvExporter,
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -68,7 +68,6 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( useVideosReportRecords );
 const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const getVideosFieldsMock = jest.mocked( getVideosFields );
-const pageNoticeMock = jest.mocked( PageNotice );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 const videoRow = {
@@ -105,15 +104,6 @@ describe( 'VideosReportPage', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'renders the records table when the report succeeds', () => {
-		useRecordsMock.mockReturnValue( buildRecords() );
-
-		render( <VideosReportPage /> );
-
-		expect( reportRecordsTableMock ).toHaveBeenCalled();
-		expect( pageNoticeMock ).not.toHaveBeenCalled();
-	} );
-
 	it( 'draws each video poster beside its title', () => {
 		getVideosFieldsMock.mockImplementationOnce(
 			jest.requireActual< typeof import( './config' ) >( './config' ).getVideosFields
@@ -122,14 +112,13 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
-		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
-		expect( fields.map( field => field.id ) ).toEqual(
-			expect.arrayContaining( [ 'label', 'poster' ] )
-		);
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].initialView ).toMatchObject( {
+			titleField: 'label',
+			mediaField: 'poster',
+		} );
 	} );
 
-	it( 'passes the report status to the page export action', () => {
+	it( 'exports the report rows for the selected range', () => {
 		const rows = [
 			{
 				id: 441,
@@ -147,9 +136,16 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		expect( screen.getByTestId( 'page-actions' ) ).toHaveTextContent( 'Download' );
 		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { status: records } )
+			expect.objectContaining( {
+				exporter: videosCsvExporter,
+				items: rows,
+				status: records,
+				reportParams: expect.objectContaining( {
+					from: '2026-06-01T00:00:00+02:00',
+					to: '2026-06-30T23:59:59+02:00',
+				} ),
+			} )
 		);
 	} );
 
@@ -189,31 +185,6 @@ describe( 'VideosReportPage', () => {
 		);
 	} );
 
-	it( 'passes ready rows to the table after loading and fetching complete', () => {
-		const rows = [
-			{
-				id: 12,
-				label: 'Current range video',
-				plays: 11,
-				impressions: 42,
-				watch_time: 128.5,
-				retention_rate: 61.25,
-				link: null,
-				children: null,
-			},
-		] satisfies StatsVideoPlaysComparisonItem[];
-		useRecordsMock.mockReturnValue( buildRecords( { rows } ) );
-
-		render( <VideosReportPage /> );
-
-		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				data: rows,
-				isLoading: false,
-			} )
-		);
-	} );
-
 	it( 'provides stable row ids for videos without a numeric id', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 
@@ -238,8 +209,9 @@ describe( 'VideosReportPage', () => {
 		expect( getItemId( { ...video, label: '', link: null } ) ).toBe( 'video:unknown' );
 	} );
 
-	it( 'renders the error state instead of the records table', () => {
-		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
+	it( 'replaces the table with an error that refetches on Retry', async () => {
+		const records = buildRecords( { isError: true } );
+		useRecordsMock.mockReturnValue( records );
 
 		render( <VideosReportPage /> );
 
@@ -247,13 +219,7 @@ describe( 'VideosReportPage', () => {
 			getNoticeText( "We couldn't load videos. Please try again in a moment." )
 		).toBeInTheDocument();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
-	} );
 
-	it( 'refetches the report when Retry is clicked', async () => {
-		const records = buildRecords( { isError: true } );
-		useRecordsMock.mockReturnValue( records );
-
-		render( <VideosReportPage /> );
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );

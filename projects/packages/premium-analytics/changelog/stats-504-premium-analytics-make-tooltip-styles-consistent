@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Charts: Give every chart tooltip the same box, with no tooltip padding, shadow or font size of its own.

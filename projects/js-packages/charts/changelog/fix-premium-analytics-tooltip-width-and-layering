@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tooltip: Keep the tooltip as wide as its content when the host page caps the width of visx tooltips.
