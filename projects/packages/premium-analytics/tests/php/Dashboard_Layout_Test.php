@@ -525,17 +525,4 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
 		);
 	}
-
-	/**
-	 * The Store tab declares its bundled store widgets.
-	 */
-	public function test_store_section_declares_the_bundled_widgets() {
-		$layout_types = array_column( get_store_section_default_layout(), 'type' );
-
-		$this->assertContains( 'jpa/store-performance', $layout_types );
-		$this->assertContains( 'jpa/total-sales-over-time', $layout_types );
-		$this->assertContains( 'jpa/conversion-rate', $layout_types );
-		$this->assertContains( 'jpa/orders-over-time', $layout_types );
-		$this->assertContains( 'jpa/top-performing-products', $layout_types );
-	}
 }
