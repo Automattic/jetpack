@@ -126,6 +126,11 @@ $accent-hover: #2145e6;
 		background: colors.$gray-100;
 	}
 
+	// The sign-in a taken email's notice points to.
+	.jetpack-comments__field > .jetpack-comments__notice + * {
+		margin-block-start: variables.$grid-unit-10;
+	}
+
 	// Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
 	// click lands on the control.
 	.jetpack-comments__toggle {

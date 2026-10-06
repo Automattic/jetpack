@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
 import { emailHasAccount, signIn } from './checkpoint/checkpoint';
+import type { ComponentChildren } from 'preact';
 import './dialog.scss';
 
 /**
@@ -267,7 +268,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 				<p id="intro" className="jetpack-comments__dialog-intro">
 					{ strings.intro }
 				</p>
-				<DetailsFields emailTaken={ emailTaken } introId="intro" />
+				<DetailsFields
+					emailTaken={ emailTaken }
+					introId="intro"
+					logIn={ identity.canSignIn && logInOrWait }
+				/>
 				{ switches }
 			</>
 		),
@@ -397,9 +402,18 @@ const LogIn = ( {
  * @param props            - Component props.
  * @param props.emailTaken - Whether the email belongs to a WordPress.com account.
  * @param props.introId    - The intro describing the fields, read with the first one.
+ * @param props.logIn      - The sign-in the taken-email notice points to, since a guest's Change opens straight on the fields.
  * @return The fields and the save switch.
  */
-const DetailsFields = ( { emailTaken, introId }: { emailTaken: boolean; introId?: string } ) => {
+const DetailsFields = ( {
+	emailTaken,
+	introId,
+	logIn,
+}: {
+	emailTaken: boolean;
+	introId?: string;
+	logIn?: ComponentChildren;
+} ) => {
 	const { details, rememberDetails } = useContext( CommentSignals );
 	const { strings, requireNameEmail } = JetpackComments;
 	const fields = [
@@ -447,9 +461,12 @@ const DetailsFields = ( { emailTaken, introId }: { emailTaken: boolean; introId?
 						</span>
 					) }
 					{ field === 'email' && emailTaken && (
-						<span className="jetpack-comments__notice" role="alert">
-							{ strings.emailHasAccount }
-						</span>
+						<>
+							<span className="jetpack-comments__notice" role="alert">
+								{ strings.emailHasAccount }
+							</span>
+							{ logIn }
+						</>
 					) }
 				</div>
 			) ) }
