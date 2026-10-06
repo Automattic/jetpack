@@ -163,7 +163,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 	} else {
 		body = (
 			<>
-				<div className="jp-protect-card__stats">
+				<CardRow className="jp-protect-card__stats">
 					<Stat
 						label={ __( 'All vulnerabilities found', 'jetpack' ) }
 						value={ threats.length }
@@ -171,7 +171,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 					/>
 					<Stat label={ __( 'Plugins checked', 'jetpack' ) } value={ scan.pluginsChecked ?? 0 } />
 					<Stat label={ __( 'Themes checked', 'jetpack' ) } value={ scan.themesChecked ?? 0 } />
-				</div>
+				</CardRow>
 				<CardRow className="jp-protect-card__disclosure">
 					<button
 						type="button"
@@ -184,13 +184,13 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 					</button>
 				</CardRow>
 				{ isOpen && (
-					<div className="jp-protect-card__threats">
+					<CardRow className="jp-protect-card__threats">
 						<ThreatsDataViews
 							data={ threats }
 							showStatusFilter={ false }
 							persistKey="jetpack-protect-dashboard:threats:view"
 						/>
-					</div>
+					</CardRow>
 				) }
 			</>
 		);

@@ -1,18 +1,17 @@
 .jp-protect-card {
 
-	&__stats,
-	&__threats {
-		border-block-start:
-			var(--wpds-border-width-xs) solid
-			var(--wpds-color-stroke-surface-neutral);
+	// Full-bleed rows whose contents set their own padding.
+	&__row.jp-protect-card__stats,
+	&__row.jp-protect-card__threats {
+		padding: 0;
 	}
 
-	&__stats {
+	&__row.jp-protect-card__stats {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 
 		> * {
-			padding: 20px 24px;
+			padding: 20px var(--wp-ui-card-padding);
 		}
 
 		> * + * {
@@ -46,7 +45,7 @@
 		text-align: start;
 	}
 
-	&__threats {
+	&__row.jp-protect-card__threats {
 		padding-block-end: 8px;
 	}
 }
