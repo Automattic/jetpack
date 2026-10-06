@@ -1,47 +1,49 @@
-// `ProgressBar` ships a 1.5px track with a near-black fill. Callers nest
-// this one class deeper than its injected styles, so no `!important`.
-@mixin jpb-status-bar( $height ) {
-	flex: 1 1 auto;
-	min-inline-size: 0;
-	block-size: $height;
-	border-radius: $height * 0.5;
-	overflow: hidden;
-	background-color: var(--wpds-color-background-track-neutral);
-
-	// `EmptyState` centres text, which would drag the fill to the middle.
-	text-align: start;
-
-	> div {
-		block-size: 100%;
-		background-color: var(--wpds-color-background-interactive-brand-strong);
-	}
-}
-
-// The first-run panel replaces the Overview grid, so it sits directly in
-// `.jpb-dashboard-body__inner`. `margin-inline: auto` centres the box.
+// The first-run panel replaces the Overview grid. The wrapper centres the
+// card in the body, whose chrome (admin bar, header, footer) is about 240px.
 .jpb-backup-status {
-	margin-block: 48px;
-	margin-inline: auto;
-	max-inline-size: 560px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-block-size: calc(100vh - 240px);
 
+	&__card {
+		box-sizing: border-box;
+		inline-size: 660px;
+		max-inline-size: 100%;
+		padding: 32px;
+		border-radius: var(--wpds-border-radius-xl);
+	}
+
+	// `EmptyState.Root` caps itself at 320px, which would wrap the support line.
 	&__body {
-		margin-inline: auto;
-		padding-block: 16px;
+		max-inline-size: none;
 	}
 
 	&__icon {
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 40px;
+		block-size: 40px;
+		padding: 0;
+		border: 0;
+		color: var(--wpds-color-foreground-content-neutral);
 
 		&--info {
-			color: var(--wpds-color-foreground-content-info);
-			background-color: var(--wpds-color-background-surface-info-weak);
-			border-color: var(--wpds-color-stroke-surface-info);
+			background-color: var(--wpds-color-background-surface-brand);
 		}
 
 		&--error {
-			color: var(--wpds-color-foreground-content-error);
 			background-color: var(--wpds-color-background-surface-error-weak);
-			border-color: var(--wpds-color-stroke-surface-error);
+			color: var(--wpds-color-foreground-content-error);
 		}
+	}
+
+	// Doubled class: `Text`'s heading rule has the same specificity.
+	&__title#{&}__title {
+		font-size: var(--wpds-typography-font-size-xl);
+		font-weight: var(--wpds-typography-font-weight-default);
 	}
 
 	&__link {
@@ -49,18 +51,22 @@
 	}
 
 	&__progress {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		inline-size: 100%;
-		max-inline-size: 240px;
-		margin-block: 12px;
+		inline-size: 200px;
+		max-inline-size: 100%;
+		margin-block: 12px 8px;
 	}
 
-	// Page-level bar: 8px. Inline bars use 4px.
+	// Thin brand-blue bar. Nested one class deeper than `ProgressBar`'s
+	// injected styles, so no `!important`.
 	&__progress &__bar {
+		inline-size: 100%;
+		block-size: 2px;
+		overflow: hidden;
+		background-color: var(--wpds-color-stroke-surface-neutral-weak);
 
-		@include jpb-status-bar( 8px );
+		> div {
+			background-color: var(--wpds-color-background-interactive-brand-strong);
+		}
 	}
 }
 
@@ -82,17 +88,13 @@
 
 .jpb-backup-status-banner {
 
-	&__progress {
-		grid-column: 1 / -1;
-		display: flex;
-		align-items: center;
-		margin-block-start: 8px;
+	&__title {
+		font-weight: var(--wpds-typography-font-weight-default);
 	}
 
-	// Inline bar: 4px.
-	& &__bar {
-
-		@include jpb-status-bar( 4px );
+	&__spinner {
+		margin-inline-start: 8px;
+		vertical-align: middle;
 	}
 }
 

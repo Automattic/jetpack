@@ -161,14 +161,14 @@ describe( 'BackupStatusPanel', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'shows a percentage only while a backup is actually running', () => {
+	it( 'reports a value only while a backup is actually running', () => {
 		const { rerender } = render( <BackupStatusPanel state="in-progress" progress={ 42 } /> );
-		expect( screen.getByText( '42%' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 42 );
 
 		// A retryable failure reports the percentage the attempt died at,
 		// which would read as a stalled backup rather than a pending retry.
 		rerender( <BackupStatusPanel state="will-retry" progress={ 42 } /> );
-		expect( screen.queryByText( '42%' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	} );
 
 	// The heading promises a backup is coming, so a panel with no sign of
@@ -190,12 +190,11 @@ describe( 'BackupStatusPanel', () => {
 	// backup starts.
 	it( 'takes a value once the first backup starts', () => {
 		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
-		expect( screen.queryByText( '19%' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'value' );
 
 		rerender( <BackupStatusPanel state="in-progress" progress={ 19 } /> );
 
-		expect( screen.getByRole( 'progressbar' ) ).toBeInTheDocument();
-		expect( screen.getByText( '19%' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 19 );
 	} );
 
 	it( 'offers a way to reach support when no attempt produced a restore point', () => {
@@ -258,9 +257,7 @@ describe( 'BackupStatusBanner', () => {
 		render( <BackupStatusBanner progress={ 36 } /> );
 
 		expect( screen.getByText( 'Generating backup… (36% progress)' ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'progressbar', { name: 'Backing up your site' } )
-		).toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	} );
 } );
 

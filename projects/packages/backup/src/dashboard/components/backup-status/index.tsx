@@ -1,9 +1,9 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProgressBar } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { cloudUpload, error as errorIcon } from '@wordpress/icons';
-import { Card, EmptyState, Link, Text } from '@wordpress/ui';
+import { Card, EmptyState, Link } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
@@ -113,24 +113,26 @@ export function ContactSupportLine() {
 export default function BackupStatusPanel( { state, progress, isStarting = false }: Props ) {
 	if ( state === 'no-good-backups' && ! isStarting ) {
 		return (
-			<Card.Root className="jpb-backup-status">
-				<Card.Content>
-					<EmptyState.Root className="jpb-backup-status__body">
-						<EmptyState.Visual>
-							<EmptyState.Icon
-								className="jpb-backup-status__icon jpb-backup-status__icon--error"
-								icon={ errorIcon }
-							/>
-						</EmptyState.Visual>
-						<EmptyState.Title>
-							{ __( 'We are having trouble backing up your site', 'jetpack-backup-pkg' ) }
-						</EmptyState.Title>
-						<EmptyState.Description>
-							<ContactSupportLine />
-						</EmptyState.Description>
-					</EmptyState.Root>
-				</Card.Content>
-			</Card.Root>
+			<div className="jpb-backup-status">
+				<Card.Root className="jpb-backup-status__card">
+					<Card.Content>
+						<EmptyState.Root className="jpb-backup-status__body">
+							<EmptyState.Visual>
+								<EmptyState.Icon
+									className="jpb-backup-status__icon jpb-backup-status__icon--error"
+									icon={ errorIcon }
+								/>
+							</EmptyState.Visual>
+							<EmptyState.Title className="jpb-backup-status__title">
+								{ __( 'We are having trouble backing up your site', 'jetpack-backup-pkg' ) }
+							</EmptyState.Title>
+							<EmptyState.Description>
+								<ContactSupportLine />
+							</EmptyState.Description>
+						</EmptyState.Root>
+					</Card.Content>
+				</Card.Root>
+			</div>
 		);
 	}
 
@@ -141,43 +143,38 @@ export default function BackupStatusPanel( { state, progress, isStarting = false
 	const isDeterminate = ! isStarting && state === 'in-progress';
 
 	return (
-		<Card.Root className="jpb-backup-status">
-			<Card.Content>
-				<EmptyState.Root className="jpb-backup-status__body">
-					<EmptyState.Visual>
-						<EmptyState.Icon
-							className="jpb-backup-status__icon jpb-backup-status__icon--info"
-							icon={ cloudUpload }
-						/>
-					</EmptyState.Visual>
-					{ showProgress && (
-						<div className="jpb-backup-status__progress">
-							{ /* Omitting `value` makes the bar indeterminate. The title is not associated with the bar — see `tests/progress-bar-names.test.tsx`. */ }
-							<ProgressBar
-								className="jpb-backup-status__bar"
-								value={ isDeterminate ? progress : undefined }
-								aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
+		<div className="jpb-backup-status">
+			<Card.Root className="jpb-backup-status__card">
+				<Card.Content>
+					<EmptyState.Root className="jpb-backup-status__body">
+						<EmptyState.Visual>
+							<EmptyState.Icon
+								className="jpb-backup-status__icon jpb-backup-status__icon--info"
+								icon={ cloudUpload }
 							/>
-							{ isDeterminate && (
-								<Text variant="body-sm" className="jpb-text-muted">
-									{ sprintf(
-										/* translators: %d: how much of the running backup is complete, as a percentage. */
-										__( '%d%%', 'jetpack-backup-pkg' ),
-										progress
-									) }
-								</Text>
-							) }
-						</div>
-					) }
-					<EmptyState.Title>{ __( 'Generating backup…', 'jetpack-backup-pkg' ) }</EmptyState.Title>
-					<EmptyState.Description>
-						{ __(
-							'The first backup usually takes a few minutes, so it will become available soon.',
-							'jetpack-backup-pkg'
+						</EmptyState.Visual>
+						{ showProgress && (
+							<div className="jpb-backup-status__progress">
+								{ /* Omitting `value` makes the bar indeterminate. The title is not associated with the bar — see `tests/progress-bar-names.test.tsx`. */ }
+								<ProgressBar
+									className="jpb-backup-status__bar"
+									value={ isDeterminate ? progress : undefined }
+									aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
+								/>
+							</div>
 						) }
-					</EmptyState.Description>
-				</EmptyState.Root>
-			</Card.Content>
-		</Card.Root>
+						<EmptyState.Title className="jpb-backup-status__title">
+							{ __( 'Generating backup…', 'jetpack-backup-pkg' ) }
+						</EmptyState.Title>
+						<EmptyState.Description>
+							{ __(
+								'The first backup usually takes a few minutes, so it will become available soon.',
+								'jetpack-backup-pkg'
+							) }
+						</EmptyState.Description>
+					</EmptyState.Root>
+				</Card.Content>
+			</Card.Root>
+		</div>
 	);
 }

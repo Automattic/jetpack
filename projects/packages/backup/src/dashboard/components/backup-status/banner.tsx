@@ -1,8 +1,8 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { ProgressBar, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { cloud } from '@wordpress/icons';
+import { cloudUpload } from '@wordpress/icons';
 import { Link, Notice, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import { ContactSupportLine } from './index';
@@ -33,11 +33,11 @@ export default function BackupStatusBanner( { progress }: Props ) {
 		<Notice.Root
 			className="jpb-backup-status-banner"
 			intent="info"
-			icon={ cloud }
+			icon={ cloudUpload }
 			// Constant, so a progress poll never re-announces the notice.
 			spokenMessage={ readySoon }
 		>
-			<Notice.Title>
+			<Notice.Title className="jpb-backup-status-banner__title">
 				{ isStarting
 					? __( 'Generating backup…', 'jetpack-backup-pkg' )
 					: sprintf(
@@ -45,20 +45,9 @@ export default function BackupStatusBanner( { progress }: Props ) {
 							__( 'Generating backup… (%d%% progress)', 'jetpack-backup-pkg' ),
 							progress
 						) }
+				{ isStarting && <Spinner className="jpb-backup-status-banner__spinner" /> }
 			</Notice.Title>
 			<Notice.Description>{ readySoon }</Notice.Description>
-			<div className="jpb-backup-status-banner__progress">
-				{ isStarting ? (
-					<Spinner />
-				) : (
-					// Named because neither the title nor the description is associated with the bar — see `tests/progress-bar-names.test.tsx`.
-					<ProgressBar
-						className="jpb-backup-status-banner__bar"
-						value={ progress }
-						aria-label={ __( 'Backing up your site', 'jetpack-backup-pkg' ) }
-					/>
-				) }
-			</div>
 		</Notice.Root>
 	);
 }
