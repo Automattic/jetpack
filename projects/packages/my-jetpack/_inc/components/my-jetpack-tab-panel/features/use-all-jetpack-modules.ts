@@ -2,7 +2,7 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
-import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 import { getProductModules } from './mappings';
 
@@ -45,12 +45,12 @@ export function withoutPluginForcedOverrides(
  *
  * @return  An object containing all Jetpack modules.
  */
-export function useAllJetpackModules(): {
+export function useAllJetpackModules( state: MainFeaturesState ): {
 	modules: Record< JetpackModuleSlug, MyJetpackModule >;
 	isLoading: boolean;
 } {
 	const { modules, isLoading } = useSelect( select => {
-		if ( isOfflineFeatures() && getOfflineFeaturesSeed()?.mainFeatures.jetpack !== 'active' ) {
+		if ( isOfflineFeatures() && state.jetpack !== 'active' ) {
 			return { modules: {}, isLoading: false };
 		}
 		// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
@@ -58,11 +58,9 @@ export function useAllJetpackModules(): {
 			modules: select( modulesStore ).getJetpackModules(),
 			isLoading: select( modulesStore ).areModulesLoading(),
 		};
-	}, [] );
+	}, [ state.jetpack ] );
 	const { data: products } = useAllProducts();
-	const localFeatures = isOfflineFeatures()
-		? getOfflineFeaturesSeed()?.mainFeatures.features
-		: null;
+	const localFeatures = isOfflineFeatures() ? state.features : null;
 
 	return useMemo(
 		() => ( {

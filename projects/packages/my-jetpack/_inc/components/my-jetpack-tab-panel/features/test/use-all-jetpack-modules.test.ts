@@ -1,10 +1,24 @@
 import { renderHook } from '@testing-library/react';
+import { getForcedReason, useFeatureStates } from '../feature-state';
 import { useAllJetpackModules, withoutPluginForcedOverrides } from '../use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
 const mockModules: { current: Record< string, MyJetpackModule > } = { current: {} };
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: () => ( {
+		myJetpack: {
+			offlineFeatures: {
+				mainFeatures: {
+					jetpack: 'active',
+					features: [ { product: 'videopress', plugin_status: 'inactive' } ],
+				},
+			},
+		},
+	} ),
+} ) );
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 
@@ -90,10 +104,55 @@ describe( 'useAllJetpackModules', () => {
 		};
 		mockProducts.current = { videopress: product( 'videopress', true ) };
 
-		const { result } = renderHook( () => useAllJetpackModules() );
+		const { result } = renderHook( () =>
+			useAllJetpackModules( { jetpack: 'active', features: [] } )
+		);
 
 		expect( result.current.isLoading ).toBe( false );
 		expect( result.current.modules.videopress.override ).toBe( false );
 		expect( result.current.modules.stats.override ).toBe( 'active' );
+	} );
+
+	it( 'keeps the offline plugin switch current after activation and deactivation', () => {
+		window.myJetpackInitialState = {
+			isOfflineFeatures: true,
+			myJetpackFlags: {},
+		} as typeof window.myJetpackInitialState;
+		const feature = {
+			slug: 'videopress',
+			product: 'videopress',
+			plugin: 'jetpack-videopress',
+			plugin_status: 'inactive',
+			in_jetpack: true,
+		} as MainFeature;
+		const state: MainFeaturesState = { jetpack: 'active', features: [ feature ] };
+		mockProducts.current = {};
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
+		};
+		const { result, rerender } = renderHook( current => useFeatureStates( current ), {
+			initialProps: state,
+		} );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
+
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', 'active' ), available: false },
+		};
+		rerender( { ...state, features: [ { ...feature, plugin_status: 'active' } ] } );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'active' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
+		expect( getForcedReason( result.current.states[ 0 ] ) ).toBeNull();
+
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
+		};
+		rerender( state );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
+		expect( getForcedReason( result.current.states[ 0 ] ) ).toBeNull();
 	} );
 } );

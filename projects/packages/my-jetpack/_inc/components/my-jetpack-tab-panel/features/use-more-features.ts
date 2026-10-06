@@ -197,7 +197,7 @@ export function getHiddenModules( modules: Record< string, MyJetpackModule > ): 
  * @return The grouped modules.
  */
 export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[] {
-	const { modules } = useAllJetpackModules();
+	const { modules } = useAllJetpackModules( state );
 	// Read here rather than in each row, so a switch in flight is answered once per module.
 	const requested = useRequestedSwitches();
 

@@ -247,7 +247,7 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	isLoading: boolean;
 } {
 	const { data: products } = useAllProducts();
-	const { modules } = useAllJetpackModules();
+	const { modules } = useAllJetpackModules( state );
 	const productModules = getProductModules();
 
 	// Until the modules land, every module lookup misses and a feature Jetpack runs would
