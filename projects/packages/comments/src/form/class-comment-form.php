@@ -285,8 +285,7 @@ class Comment_Form {
 			'postId'        => $post_id,
 			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			// None on WordPress.com, where the site's session is the reader's whole WordPress.com login.
-			'logoutUrl'     => is_user_logged_in() && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
 				'id'        => $args['id_submit'] ?? 'submit',
 				'name'      => $args['name_submit'] ?? 'submit',
@@ -416,15 +415,13 @@ class Comment_Form {
 				'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
 				'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
 				'website'             => __( 'Website (optional)', 'jetpack-comments' ),
-				'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
-				'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
+				'intro'               => __( 'Enter your name and email to comment.', 'jetpack-comments' ),
 				'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
 				'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 				'save'                => __( 'Save', 'jetpack-comments' ),
-				'saveDetails'         => __( 'Save my name, email, and website for the next time I comment.', 'jetpack-comments' ),
+				'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
 				'close'               => __( 'Close', 'jetpack-comments' ),
 				'options'             => __( 'Options', 'jetpack-comments' ),
-				'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
 				'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
 				'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 				'logIn'               => __( 'Log in', 'jetpack-comments' ),

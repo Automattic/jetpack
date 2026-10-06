@@ -18,10 +18,21 @@ import { searchTermsCsvExporter, type SearchTermRow } from '../search-terms';
 import { videosCsvExporter } from '../videos';
 import type { ReportCsvExporter } from '../types';
 
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	fetchStatsClicksRows: jest.fn(),
+	fetchStatsComments: jest.fn(),
+	fetchStatsEmailSummaryRows: jest.fn(),
 	fetchStatsFileDownloadsRows: jest.fn(),
+	fetchStatsInsightsYears: jest.fn(),
+	fetchStatsLocationsRows: jest.fn(),
+	fetchStatsReferrersRows: jest.fn(),
 	fetchStatsSearchTermsReport: jest.fn(),
+	fetchStatsTagsRows: jest.fn(),
+	fetchStatsTopAuthorsRows: jest.fn(),
+	fetchStatsUtmRows: jest.fn(),
 	fetchStatsVideoPlaysRows: jest.fn(),
 } ) );
 
@@ -36,6 +47,10 @@ function toCsvTable< TItem, TRow >( exporter: ReportCsvExporter< TItem, TRow >, 
 }
 
 describe( 'flat report exporters', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
 	it( 'requests every row of a summarized day range', () => {
 		expect( getSummarizedReportQueryParams( REPORT_PARAMS ) ).toEqual( {
 			...REPORT_PARAMS,

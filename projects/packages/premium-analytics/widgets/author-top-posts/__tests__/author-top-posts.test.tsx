@@ -3,6 +3,7 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -59,9 +60,16 @@ const TOP_AUTHORS_SUMMARY = {
 };
 
 describe( 'AuthorTopPostsWidget', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		downloads?.restore();
+		downloads = undefined;
 	} );
 
 	it( 'lists only this author’s posts, linked to their detail pages on the window', async () => {
@@ -110,7 +118,7 @@ describe( 'AuthorTopPostsWidget', () => {
 	} );
 
 	it( 'downloads every one of this author’s posts from the report it already loaded', async () => {
-		const downloads = captureCsvDownloads();
+		downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
 
 		render( <AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
@@ -118,7 +126,6 @@ describe( 'AuthorTopPostsWidget', () => {
 
 		const [ saved ] = downloads.files;
 		const lines = await downloads.lines();
-		downloads.restore();
 
 		expect( screen.queryByText( 'Older post 9' ) ).not.toBeInTheDocument();
 		expect( saved.filename ).toBe( 'author-priya-posts-2026-07-01_2026-07-07.csv' );
@@ -168,7 +175,7 @@ describe( 'AuthorTopPostsWidget', () => {
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry for a failure that can heal', async () => {
+	it( 'refetches from the Retry action for a failure that can heal', async () => {
 		// The proxy's `no_connection` 403 heals on reconnect and skips React Query's retry backoff.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
 
@@ -177,6 +184,10 @@ describe( 'AuthorTopPostsWidget', () => {
 		await expect(
 			screen.findByText( "We couldn't load this author's posts. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+
+		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		await expect( screen.findByRole( 'link', { name: 'Top post' } ) ).resolves.toBeInTheDocument();
 	} );
 } );

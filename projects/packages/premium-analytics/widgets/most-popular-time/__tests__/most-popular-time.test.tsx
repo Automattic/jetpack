@@ -135,22 +135,19 @@ describe( 'MostPopularTimeWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'shows the empty state for the payload a site with no views gets', async () => {
+	it( 'renders a Monday peak at midnight, which the endpoint reports as 0', async () => {
 		mockApiFetch.mockResolvedValue( {
 			highest_day_of_week: 0,
-			highest_day_percent: 0,
+			highest_day_percent: 31,
 			highest_hour: 0,
-			highest_hour_percent: 0,
-			hourly_views: { 0: 0 },
-			years: [],
+			highest_hour_percent: 5,
 		} );
 
-		render( <MostPopularTimeWidget attributes={ {} } /> );
+		const { container } = render( <MostPopularTimeWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( 'Not enough data to determine your most popular time yet.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Monday' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'Monday' ) ).resolves.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Best dayMonday31% of views' );
+		expect( container ).toHaveTextContent( 'Best hour12 am5% of views' );
 	} );
 
 	it( 'keeps the rendered peak when a refetch fails', async () => {

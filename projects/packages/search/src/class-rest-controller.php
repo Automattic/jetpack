@@ -636,7 +636,7 @@ class REST_Controller {
 	 *
 	 * POST `jetpack/v4/search/plan/activate-free`
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.0
 	 *
 	 * @param WP_REST_Request $request - REST request.
 	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`, which the dashboard

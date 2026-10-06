@@ -20,7 +20,7 @@ use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_mani
  * on Simple and Atomic where the plan includes VideoPress. Everything registers when the
  * dashboard's widget registry hydrates, so a call on a site without the dashboard is inert.
  *
- * @since $$next-version$$
+ * @since 0.55.0
  */
 class Analytics_Dashboard {
 

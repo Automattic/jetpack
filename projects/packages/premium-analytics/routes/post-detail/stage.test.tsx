@@ -1,8 +1,4 @@
-import {
-	PERIOD_CHANGE_ATTENTION_MS,
-	useRaisePeriodChange,
-	useReportScope,
-} from '@jetpack-premium-analytics/data';
+import { PERIOD_CHANGE_ATTENTION_MS, useReportScope } from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
@@ -97,7 +93,7 @@ jest.mock(
 		)
 );
 
-// The range the routing mock above applies, as the card would raise it.
+// The range the routing mock above applies, as the card would set it.
 const JUNE_2026 = {
 	from: createTZDateFromParts( [ 2026, 5, 1 ], 'UTC' ),
 	to: createTZDateFromParts( [ 2026, 5, 16 ], 'UTC' ),
@@ -109,12 +105,8 @@ const JUNE_2026 = {
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
-	const raisePeriodChange = useRaisePeriodChange();
-	const openJune = useCallback(
-		() => raisePeriodChange( 'post:41', JUNE_2026 ),
-		[ raisePeriodChange ]
-	);
+	const { offersComparison, openPeriod } = useReportScope();
+	const openJune = useCallback( () => openPeriod?.( JUNE_2026 ), [ openPeriod ] );
 
 	return (
 		<div>
@@ -209,6 +201,7 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
 	useParams: () => ( { postId: '41' } ),
 	useSearch: () => mockSearch,
 } ) );

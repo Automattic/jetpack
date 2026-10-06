@@ -8,7 +8,7 @@
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-The tooltip box is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class.
+The tooltip box, `TooltipBox`, is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class.
 
 `TrendIndicator` and `BaseLegend` carry the class only when no provider is above them (`useStandaloneScopeClass()`), so inside a provider they inherit its overrides like the chart they belong to.
 
@@ -60,7 +60,7 @@ What else crosses in JS is what something reads as a *value*: the series palette
 
 **The tooltip used to be the one painted exception, because visx painted it outside the scope.** `@visx/tooltip` appends each portal container straight to `document.body`, where the catalog is not declared, so a chain handed to one reached only its own hardcoded fallback — never the role, never a consumer's override. Charts no longer take that route: the box renders into the chart's own wrapper and the crosshairs and glyphs are drawn into the chart SVG, both inside the scope, so a chain handed to either resolves there natively.
 
-One tooltip color is still resolved before visx sees it: the crosshair stroke, in `AccessibleTooltip`, which only still matters where a consumer supplies a `ChartScopeContext` element that is not one of the chart's own ancestors; in the ordinary tree the CSS path now reaches it.
+One tooltip color is still resolved before visx sees it: the crosshair stroke, in `XYChartTooltip`, which only still matters where a consumer supplies a `ChartScopeContext` element that is not one of the chart's own ancestors; in the ordinary tree the CSS path now reaches it.
 
 Being resolved in JS, it then carries the bridge's limitations rather than the CSS path's: it reads at the scope element, so a role declared on the chart's own class moves the gridlines but leaves the crosshair at the catalog value, and it does not repaint on a theme change until something re-renders.
 

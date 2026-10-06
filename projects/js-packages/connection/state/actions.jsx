@@ -68,7 +68,7 @@ const setConnectionErrors = connectionErrors => {
 /**
  * No-op kept for older bundles that still call it against this shared store.
  *
- * @deprecated $$next-version$$ Connection health-check errors are no longer surfaced in notices.
+ * @deprecated 2.10.0 Connection health-check errors are no longer surfaced in notices.
  * @return {Function} Thunk resolving with an empty error map.
  */
 const runConnectionHealthCheck = () => async () => ( {} );

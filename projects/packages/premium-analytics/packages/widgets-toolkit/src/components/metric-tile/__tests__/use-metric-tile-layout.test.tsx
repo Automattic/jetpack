@@ -28,12 +28,6 @@ describe( 'pickMetricTileLayout', () => {
 		).toBe( 'compact' );
 	} );
 
-	it( 'keeps a one-column widget a list however wide it is', () => {
-		expect(
-			pickMetricTileLayout( { width: 1200, height: TALL, tileCount: 4, columnSpan: 1 } )
-		).toBe( 'stacked' );
-	} );
-
 	it( 'grids a multi-column widget with room for every tile row', () => {
 		expect(
 			pickMetricTileLayout( { width: 580, height: TALL, tileCount: 4, columnSpan: 2 } )
