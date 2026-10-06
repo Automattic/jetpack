@@ -234,6 +234,16 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'scheduled_hour' => 3,
 				),
 			),
+			'/jetpack/v4/site/backup/retention'      => array(
+				'POST',
+				'/jetpack/v4/site/backup/retention',
+				array( 'retention_days' => 30 ),
+				array( array( 'body' => '{"success":true}' ) ),
+				array(
+					'ok'             => true,
+					'retention_days' => 30,
+				),
+			),
 		);
 	}
 

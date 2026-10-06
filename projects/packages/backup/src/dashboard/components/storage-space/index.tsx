@@ -140,6 +140,8 @@ export default function StorageSpace() {
 				storageUsed={ usage.storageUsed }
 				storageLimit={ usage.storageLimit }
 				daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+				retentionDays={ usage.retentionDays }
+				lastBackupSize={ usage.lastBackupSize }
 				helpForecastInDays={ helpForecast(
 					usage.usageLevel,
 					usage.forecastInDays,
