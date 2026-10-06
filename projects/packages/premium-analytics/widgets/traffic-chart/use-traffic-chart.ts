@@ -122,8 +122,6 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
-	// A year earlier, the same dates start a day or two earlier in the Monday-to-Sunday
-	// week, so the comparison can open with a week the current period has no match for.
 	const alignsYearAgoWeeks = period === 'week' && comparesYearAgo( reportParams );
 	const vvComparison = useMemo(
 		() =>

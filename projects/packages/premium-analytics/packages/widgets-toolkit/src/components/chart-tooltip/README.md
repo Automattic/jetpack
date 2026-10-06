@@ -95,19 +95,17 @@ function defaultGetValue( datum: unknown ): number | null {
 
 ### When to Use Custom Extractors
 
-**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`). `tooltipUnits` is the map `resolveTooltipUnits( series, tooltipExtras )` returns, so an extra's key resolves too, and a count metric's row reads `1 View`, not `1 Views`:
+**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`). `tooltipUnits` is the map `resolveTooltipUnits( series, tooltipExtras )` returns, so an extra's key resolves too, and a count metric's row reads `1 View`, not `1 Views`. `formatBucketTooltipDate` reads a comparison point's own `realDate`, and names a week by its span when the point carries an `endDate`:
 
 ```tsx
+const { displayResolution } = getBucketInfo( series, tickResolution );
+
 const getLabel = ( datum, _index, key, value, rawValue ) => {
-	// A comparison point is identified by carrying `realDate`, not by its index:
-	// a chart can draw more than one current-period metric, so index 1+ is not
-	// necessarily a comparison.
-	const displayDate = datum.realDate ?? datum.date;
 	const unit = tooltipUnits.get( key );
 	return formatTooltipPointLabel(
 		value,
 		unit?.name ?? key,
-		formatDate( displayDate ),
+		formatBucketTooltipDate( datum, displayResolution ),
 		rawValue,
 		unit?.countLabel
 	);

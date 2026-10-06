@@ -188,42 +188,82 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
-	it( "skips a year-ago comparison's one-day opening week when grouped by weeks", async () => {
-		const weeks = ( ...rows: Array< [ string, number ] > ) => ( {
-			unit: 'week',
-			fields: [ 'period', 'views', 'visitors' ],
-			data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
-		} );
-		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
-			Promise.resolve(
-				path.includes( 'date=2025' )
-					? weeks( [ '2025W08W25', 1 ], [ '2025W09W01', 132 ], [ '2025W09W08', 326 ] )
-					: weeks( [ '2026W08W31', 2 ], [ '2026W09W07', 4 ] )
-			)
-		);
+	it.each( [
+		[
+			"skips a year-ago comparison's one-day opening week",
+			[ '2026-08-31', '2026-09-13' ],
+			[ '2025-08-31', '2025-09-13' ],
+			[
+				[ '2025W08W25', 1 ],
+				[ '2025W09W01', 132 ],
+				[ '2025W09W08', 326 ],
+			],
+			[
+				[ '2026W08W31', 2 ],
+				[ '2026W09W07', 4 ],
+			],
+			[ 132, 326 ],
+		],
+		[
+			"keeps a previous period's one-day opening week",
+			[ '2026-09-07', '2026-09-14' ],
+			[ '2026-08-30', '2026-09-06' ],
+			[
+				[ '2026W08W24', 1 ],
+				[ '2026W08W31', 132 ],
+			],
+			[
+				[ '2026W09W07', 2 ],
+				[ '2026W09W14', 4 ],
+			],
+			[ 1, 132 ],
+		],
+	] as const )(
+		'%s when grouped by weeks',
+		async (
+			_name,
+			[ from, to ],
+			[ compareFrom, compareTo ],
+			comparisonRows,
+			primaryRows,
+			expected
+		) => {
+			const weeks = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+				unit: 'week',
+				fields: [ 'period', 'views', 'visitors' ],
+				data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
+			} );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				Promise.resolve(
+					weeks( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+				)
+			);
 
-		const { result } = renderHook(
-			() =>
-				useTrafficChart(
-					{
-						from: '2026-08-31',
-						to: '2026-09-13',
-						interval: 'week',
-						comp: '1',
-						compare_from: '2025-08-31',
-						compare_to: '2025-09-13',
-					},
-					'week'
-				),
-			{ wrapper }
-		);
+			const { result } = renderHook(
+				() =>
+					useTrafficChart(
+						{
+							from,
+							to,
+							interval: 'week',
+							comp: '1',
+							compare_from: compareFrom,
+							compare_to: compareTo,
+						},
+						'week'
+					),
+				{ wrapper }
+			);
 
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-		const views = result.current.metrics[ 0 ];
-		expect( views.previous?.map( point => point.value ) ).toEqual( [ 132, 326 ] );
-		expect( views.previousValue ).toBe( 459 );
-	} );
+			const views = result.current.metrics[ 0 ];
+			expect( views.previous?.map( point => point.value ) ).toEqual( expected );
+			expect( views.previousValue ).toBe(
+				comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
+			);
+		}
+	);
 
 	describe( 'hourly', () => {
 		const DAY_RANGE: ReportParams = {

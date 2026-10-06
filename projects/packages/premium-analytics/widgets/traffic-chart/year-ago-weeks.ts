@@ -28,7 +28,7 @@ function overlapMs( primary: BucketSpan, comparison: BucketSpan, offsetMs: numbe
 /**
  * How many leading comparison buckets to skip so the buckets, paired in order, overlap
  * most. A comparison starting on a Sunday opens with a one-day week that pairing by
- * index would put under the first current week (UNI-843).
+ * index would put under the first current week.
  *
  * @param primary    - The current period's buckets, oldest first.
  * @param comparison - The comparison period's buckets, oldest first.
@@ -49,7 +49,7 @@ export function getComparisonBucketShift(
 	const offsetMs = primaryStart.getTime() - comparisonStart.getTime();
 	let best = { shift: 0, overlap: -1 };
 
-	// Not only when the comparison has more buckets: a one-day week at each end evens the count.
+	// Shift even when the counts match: a one-day week at each end evens them.
 	for ( let shift = 0; shift < comparison.length; shift++ ) {
 		const overlap = primary.reduce(
 			( total, bucket, index ) =>
@@ -65,21 +65,28 @@ export function getComparisonBucketShift(
 	return best.shift;
 }
 
+function yearBefore( value: string | undefined ): string | undefined {
+	const day = toDay( value );
+
+	return day ? format( subYears( parseISO( day ), 1 ), 'yyyy-MM-dd' ) : undefined;
+}
+
 /**
- * Whether the comparison ends on the same calendar date a year before the range does,
- * as every year-ago comparison does; a weekday-aligned one ends 364 days before.
+ * Whether the comparison is the same dates a year earlier, matched at either end: a
+ * range starting on the 1st keeps its start but can end on Feb 29 a year back.
  *
  * @param params - The dashboard range and its comparison.
  * @return Whether the comparison is the same dates a year earlier.
  */
-export function comparesYearAgo( params: Pick< ReportParams, 'to' | 'compare_to' > ): boolean {
-	const end = toDay( params.to );
-	const comparisonEnd = toDay( params.compare_to );
+export function comparesYearAgo(
+	params: Pick< ReportParams, 'from' | 'to' | 'compare_from' | 'compare_to' >
+): boolean {
+	const start = yearBefore( params.from );
+	const end = yearBefore( params.to );
 
 	return (
-		!! end &&
-		!! comparisonEnd &&
-		format( subYears( parseISO( end ), 1 ), 'yyyy-MM-dd' ) === comparisonEnd
+		( !! start && start === toDay( params.compare_from ) ) ||
+		( !! end && end === toDay( params.compare_to ) )
 	);
 }
 

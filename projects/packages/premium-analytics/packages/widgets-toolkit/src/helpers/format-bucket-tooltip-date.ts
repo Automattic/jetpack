@@ -32,11 +32,7 @@ export function formatBucketTooltipDate(
 	const start = datum.realDate ?? datum.date;
 	const { endDate } = datum;
 
-	if (
-		displayResolution === 'day' &&
-		endDate &&
-		formatDate( start, 'iso' ) !== formatDate( endDate, 'iso' )
-	) {
+	if ( displayResolution === 'day' && endDate ) {
 		return formatDateRange( { from: localTZDate( start ), to: localTZDate( endDate ) } );
 	}
 

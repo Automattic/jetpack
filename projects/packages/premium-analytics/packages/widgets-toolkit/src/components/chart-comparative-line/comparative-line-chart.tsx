@@ -208,8 +208,6 @@ export function ComparativeLineChart( {
 		[ series, tooltipExtras ]
 	);
 
-	// Comparison points carry the primary's date for axis alignment, so the label reads
-	// `realDate`, spanning to `endDate` for a multi-day bucket.
 	const getTooltipLabel = useCallback(
 		(
 			datum: { date: Date; realDate?: Date; endDate?: Date },
