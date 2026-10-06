@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { useAllJetpackModules } from '../../products/use-all-jetpack-modules';
+import { useAllJetpackModules } from '../use-all-jetpack-modules';
 import { useMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
-jest.mock( '../../products/use-all-jetpack-modules', () => ( {
+jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: jest.fn(),
 } ) );
 jest.mock( '../../../../data/requested-switch-state', () => ( {
