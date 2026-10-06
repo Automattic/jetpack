@@ -1091,7 +1091,8 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 
-		if ( self::is_offline_features_enabled() && ! self::current_user_can_access_page() ) {
+		// Standalone plugins can initialize before WordPress loads its pluggable user functions.
+		if ( self::is_offline_features_enabled() && function_exists( 'wp_get_current_user' ) && ! self::current_user_can_access_page() ) {
 			return false;
 		}
 

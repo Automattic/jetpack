@@ -193,6 +193,29 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertSame( $allowed, false !== has_action( 'admin_enqueue_scripts', array( Initializer::class, 'enqueue_scripts' ) ) );
 	}
 
+	public function test_offline_initialization_before_wordpress_loads_user_functions() {
+		$process = proc_open(
+			array( PHP_BINARY, '-d', 'display_errors=stderr', __DIR__ . '/fixtures/early-initialization.php' ),
+			array( array( 'pipe', 'r' ), array( 'pipe', 'w' ), array( 'pipe', 'w' ) ),
+			$pipes
+		);
+		$this->assertIsResource( $process );
+		fclose( $pipes[0] );
+		$stdout = stream_get_contents( $pipes[1] );
+		$stderr = stream_get_contents( $pipes[2] );
+		fclose( $pipes[1] );
+		fclose( $pipes[2] );
+		$this->assertSame( 0, proc_close( $process ), $stderr );
+		$this->assertSame(
+			array(
+				'user_functions_loaded' => false,
+				'initialized'           => 1,
+				'rest_registered'       => true,
+			),
+			json_decode( $stdout, true )
+		);
+	}
+
 	public function test_offline_initialization_answers_link_callers_for_the_current_user() {
 		wp_set_current_user(
 			wp_insert_user(
