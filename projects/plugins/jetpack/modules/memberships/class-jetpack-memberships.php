@@ -920,10 +920,20 @@ class Jetpack_Memberships {
 			'posts_per_page' => 1,
 		);
 
-		// We want to see if user has any plan marked as a newsletter set up.
+		// Newsletter tiers or legacy mailing list plans.
 		if ( 'newsletter' === $type ) {
-			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
-			$query['meta_value'] = true;
+			$query['meta_query'] = array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				'relation' => 'OR',
+				array(
+					'key'   => 'jetpack_memberships_type',
+					'value' => self::$type_tier,
+				),
+				array(
+					'key'   => 'jetpack_memberships_site_subscriber',
+					'value' => '1',
+				),
+			);
 		}
 
 		$plans = get_posts( $query );
