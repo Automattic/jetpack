@@ -34,7 +34,7 @@ export type ConnectionErrorStanding = {
  * @param products - The products from the page's initial state.
  * @return True when at least one does.
  */
-export function needsUserConnection( products: StateProducts | undefined ): boolean {
+export function isUserConnectionNeeded( products: StateProducts | undefined ): boolean {
 	return Object.values( products ?? {} ).some(
 		product => product?.requires_user_connection && SWITCHED_ON_STATUSES.includes( product.status )
 	);
@@ -88,17 +88,19 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 		};
 	}
 
-	const needsUser = needsUserConnection( getMyJetpackWindowInitialState( 'products' )?.items );
+	const userConnectionNeeded = isUserConnectionNeeded(
+		getMyJetpackWindowInitialState( 'products' )?.items
+	);
 
 	// Connecting the account stays the prompt; a live error only tints the line, at
 	// the package's severity.
-	let status: ConnectionState[ 'status' ] = needsUser ? 'warning' : 'success';
+	let status: ConnectionState[ 'status' ] = userConnectionNeeded ? 'warning' : 'success';
 	if ( error.hasConnectionError ) {
 		status = error.severity ?? 'error';
 	}
 
 	// A site-only connection is healthy until something switched on needs an account.
-	if ( ! needsUser ) {
+	if ( ! userConnectionNeeded ) {
 		return {
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
