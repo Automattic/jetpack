@@ -607,7 +607,7 @@ See [Keyboard Navigation](#keyboard-navigation) for supported keys and focus beh
 ### Screen Reader Support
 
 - Chart container has `role="application"`, so screen readers pass arrow keys through to the chart's point navigation.
-- Set `ariaLabel` to name the chart after what it shows. Each chart is a landmark, so two charts on one page need different names.
+- Set `ariaLabel` to name the chart after what it shows, so a screen reader user with several charts on a page can tell them apart.
 - Individual bars are navigable and announced with their values
 - Interactive elements have appropriate ARIA attributes
 - Color information is supplemented with patterns when `withPatterns` is enabled

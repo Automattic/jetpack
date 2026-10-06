@@ -754,7 +754,7 @@ Control chart layout with precise margin settings:
 ### Screen Reader Support
 
 - Chart container has `role="application"`, so screen readers pass arrow keys through to the chart's point navigation.
-- Set `ariaLabel` to name the chart after what it shows. Each chart is a landmark, so two charts on one page need different names.
+- Set `ariaLabel` to name the chart after what it shows, so a screen reader user with several charts on a page can tell them apart.
 - Data points are navigable and announced with values
 - Interactive elements have appropriate ARIA attributes
 - Interactive legend items announce their current visibility state ("visible" or "hidden")
