@@ -3,12 +3,13 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { file as categoryGlyph, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import TagsWidget from '../render';
 import type { ReactElement } from 'react';
 
@@ -181,5 +182,60 @@ describe( 'TagsWidget', () => {
 	// default of 10. Retuning the shared limit silently stops the two matching.
 	it( 'asks for the row count Jetpack Stats gets by default', () => {
 		expect( WIDGET_ROW_LIMIT ).toBe( 10 );
+	} );
+} );
+
+describe( 'TagsWidget CSV export', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	const FULL_REPORT = {
+		...TAGS_RESPONSE,
+		tags: [
+			...TAGS_RESPONSE.tags,
+			...Array.from( { length: 9 }, ( _, index ) => ( {
+				tags: [
+					{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
+				],
+				views: 100 - index,
+			} ) ),
+		],
+	};
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		downloads = captureCsvDownloads();
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.includes( 'max=1000' ) ? FULL_REPORT : TAGS_RESPONSE )
+		);
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		downloads.restore();
+	} );
+
+	it( 'downloads the whole Tags report while drilled into a group', async () => {
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click(
+			await screen.findByRole( 'button', {
+				name: /view the tags and categories in desserts, chocolate/i,
+			} )
+		);
+		await expect(
+			screen.findByRole( 'button', { name: /all tags & categories/i } )
+		).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		const lines = await downloads.lines();
+		expect( lines[ 0 ] ).toBe( '"Tag or category","Views","URL"' );
+		expect( lines ).toContain( '"Desserts, chocolate","760",""' );
+		expect( lines ).toHaveLength( 13 );
+		expect( downloads.files[ 0 ].filename ).toBe( 'tags-and-categories.csv' );
 	} );
 } );

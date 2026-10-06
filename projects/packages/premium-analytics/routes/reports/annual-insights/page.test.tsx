@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useAnnualInsightsReportRecords } from './config';
 import AnnualInsightsReportPage from './page';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
@@ -23,6 +24,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@wordpress/admin-ui', () => ( {
 	...jest.requireActual( '@wordpress/admin-ui' ),
 	Breadcrumbs: () => null,
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useSearch: () => ( {} ),
 } ) );
 
 const useRecordsMock = jest.mocked( useAnnualInsightsReportRecords );
@@ -67,7 +73,9 @@ describe( 'AnnualInsightsReportPage', () => {
 
 		render( <AnnualInsightsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load annual insights' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load annual insights. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( '2026' ) ).not.toBeInTheDocument();
 	} );

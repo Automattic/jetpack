@@ -19,7 +19,7 @@ export type FlattenedTooltipData = {
 	dataPointIndex: number;
 };
 
-// Enhanced tooltip with keyboard navigation and accessibility
+// The XY chart tooltip, as LineChart, AreaChart and BarChart render it: place it inside a visx `XYChart`, with `useKeyboardNavigation` for keyboard access.
 interface AccessibleTooltipProps extends Omit<
 	XyChartTooltipProps< DataPointDate >,
 	'renderTooltip'

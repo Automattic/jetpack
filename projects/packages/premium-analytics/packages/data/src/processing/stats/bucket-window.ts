@@ -74,7 +74,7 @@ function toWindowBound( value: unknown, edge: keyof typeof EDGE_FALLBACKS ) {
 
 // Bucket bounds compare against a window bound only in this shape; a row that
 // fails it is kept rather than silently discarded.
-const isWallClockStamp = ( value: string ) => /^\d{4}-\d{2}-\d{2}T/.test( value );
+export const isWallClockStamp = ( value: string ) => /^\d{4}-\d{2}-\d{2}T/.test( value );
 
 export type StatsBucketFilter = ( range: { date_start: string; date_end: string } ) => boolean;
 

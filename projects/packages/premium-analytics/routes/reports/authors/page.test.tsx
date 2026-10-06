@@ -9,6 +9,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useAuthorsReportRecords } from './config';
 import AuthorsReportPage from './page';
 import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -114,7 +115,9 @@ describe( 'AuthorsReportPage', () => {
 
 		render( <AuthorsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load authors' ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load authors. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
 	} );

@@ -5,7 +5,8 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ExporterCsvAction,
@@ -78,9 +79,14 @@ function ReferrersReport(): JSX.Element {
 
 	if ( records.isError ) {
 		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
 			/>
 		);
 	}

@@ -1,6 +1,6 @@
 // See README.md before adding a suite to this group.
 
-import '../../packages/widgets-toolkit/src/components/calendar-heatmap/__tests__/adaptive-calendar-heatmap.test';
+import '../../packages/widgets-toolkit/src/components/calendar-heatmap/__tests__/calendar-heatmap-pager-overlay.test';
 import '../../packages/widgets-toolkit/src/components/calendar-heatmap/__tests__/calendar-heatmap-tooltip.test';
 import '../../packages/widgets-toolkit/src/components/chart-bar/__tests__/bar-chart-skeleton.test';
 import '../../packages/widgets-toolkit/src/components/chart-comparative-line/utils/align-series-dates.test';

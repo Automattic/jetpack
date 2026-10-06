@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Reduce repeated syntax-table page generation without removing cases.

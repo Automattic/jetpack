@@ -1,6 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, Skeleton } from '@wordpress/ui';
-import { addQueryArgs } from '@wordpress/url';
+import { Icon } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import { getFeatureIcon } from './icons';
@@ -11,10 +10,10 @@ type FeatureBandProps = {
 };
 
 /**
- * The artwork across the top of a feature's modal, served from jetpack.com.
+ * The artwork across the top of a feature's modal, bundled with this package.
  *
  * The band paints its own ground, so a missing or moved image leaves the feature's
- * glyph on it rather than a hole.
+ * glyph on it rather than a hole, and a loading one leaves just the ground.
  *
  * @param {FeatureBandProps} props         - The component props.
  * @param {MainFeature}      props.feature - The feature to illustrate.
@@ -36,25 +35,20 @@ export function FeatureBand( { feature }: FeatureBandProps ) {
 	}
 
 	return (
-		<>
-			{ ! hasLoaded && <Skeleton className={ styles[ 'modal-band__skeleton' ] } /> }
-			<img
-				className={ clsx( styles[ 'modal-band__image' ], {
-					[ styles[ 'modal-band__image--loaded' ] ]: hasLoaded,
-				} ) }
-				// jetpack.com resizes on request; the full files are several times the band's size.
-				src={ addQueryArgs( feature.screenshot, { w: 600 } ) }
-				onLoad={ onLoad }
-				onError={ onError }
-				decoding="async"
-				fetchPriority="high"
-				referrerPolicy="no-referrer"
-				alt={ sprintf(
-					/* translators: %s is the feature name. */
-					__( '%s in use', 'jetpack-my-jetpack' ),
-					feature.name
-				) }
-			/>
-		</>
+		<img
+			className={ clsx( styles[ 'modal-band__image' ], {
+				[ styles[ 'modal-band__image--loaded' ] ]: hasLoaded,
+			} ) }
+			src={ feature.screenshot }
+			onLoad={ onLoad }
+			onError={ onError }
+			decoding="async"
+			fetchPriority="high"
+			alt={ sprintf(
+				/* translators: %s is the feature name. */
+				__( '%s in use', 'jetpack-my-jetpack' ),
+				feature.name
+			) }
+		/>
 	);
 }
