@@ -395,6 +395,7 @@ describe( 'buildTailorPrompt output language', () => {
 
 		assert.match( block, /Italian/ );
 		assert.ok( block.includes( '(locale "it_IT")' ) );
+		assert.ok( block.includes( 'do not fall back to English' ) );
 		// Every field that is meant to be translated is listed, so a new one cannot silently ship in
 		// English.
 		for ( const field of [ 'subtitles', 'first_post_draft', 'about_page_draft', 'page_intros' ] ) {
@@ -445,8 +446,6 @@ describe( 'buildTailorPrompt output language', () => {
 		}
 	} );
 
-	// The top-of-prompt block alone did not hold: the model followed the nearest instruction, writing
-	// subtitles in the site's language, then the first post in the account's.
 	const stepText = ( prompt: string, step: string ) => {
 		const start = prompt.indexOf( `============ ${ step }` );
 		return prompt.slice( start, prompt.indexOf( '\n============ ', start + 1 ) );
@@ -503,6 +502,10 @@ describe( 'buildTailorPrompt output language', () => {
 
 		const englishAdmin = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'en_US' } );
 		assert.match( englishAdmin, /"subtitle" values in [^"]*English/ );
+
+		for ( const prompt of [ englishSite, englishAdmin ] ) {
+			assert.ok( ! prompt.includes( 'do not fall back to English' ) );
+		}
 	} );
 
 	it( 'treats a short WordPress.com locale and its regional form as one language', () => {

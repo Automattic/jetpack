@@ -608,9 +608,11 @@ export function buildTailorPrompt(
 			) } like the task subtitles.`
 		: '';
 
-	const noEnglishFallback = bothEnglish
-		? ''
-		: ', and do not fall back to English for the fields named above';
+	// Only when no field is meant to be in English, or the warning contradicts the instruction above it.
+	const noEnglishFallback =
+		isEnglishLocale( locale ) || isEnglishLocale( uiLocale )
+			? ''
+			: ', and do not fall back to English for the fields named above';
 
 	const languageSection = `
 ============ output language ============
