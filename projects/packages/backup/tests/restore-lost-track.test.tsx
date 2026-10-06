@@ -119,7 +119,7 @@ describe( 'a restore that has gone out of sight', () => {
 		// Not merely the button: the whole form is gone, so there is
 		// nothing left on screen that could submit.
 		expect(
-			screen.queryByRole( 'checkbox', { name: 'WordPress themes' } )
+			screen.queryByRole( 'checkbox', { name: /^WordPress themes/ } )
 		).not.toBeInTheDocument();
 
 		// Two: the back link that sits above the card on every phase, and
@@ -151,8 +151,7 @@ describe( 'a restore that has gone out of sight', () => {
 		await startRestore();
 		await findMessage();
 
-		expect( screen.getByText( 'Warning notice' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Error notice' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -178,6 +177,6 @@ describe( 'a restore that definitely is not running', () => {
 		// its text into the live region.
 		await expect( screen.findAllByText( 'Restore aborted.' ) ).resolves.not.toHaveLength( 0 );
 		expect( screen.getByRole( 'button', { name: /Try again/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Error notice' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Restore aborted.' );
 	} );
 } );

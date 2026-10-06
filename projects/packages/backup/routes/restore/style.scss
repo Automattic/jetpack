@@ -13,6 +13,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+	justify-content: center;
+	min-block-size: max(480px, 60vh);
 
 	&__back {
 		display: inline-flex;
@@ -23,10 +25,62 @@
 	}
 
 	&__card {
-		padding: 24px;
+		inline-size: 100%;
+	}
+
+	&__header {
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__body {
+		padding-block-start: 24px;
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+	}
+
+	// `EmptyState.Root` caps its own width and ships `margin-inline: 0`.
+	&__status {
+		align-self: center;
+		gap: 8px;
+		max-inline-size: 420px;
+		inline-size: 100%;
+		padding-block: 24px;
+	}
+
+	&__badge {
+		padding: 12px;
+		border-width: 0;
+
+		&--success {
+			background-color: var(--wpds-color-background-surface-success-weak);
+			color: var(--wpds-color-foreground-content-success);
+		}
+
+		&--error {
+			background-color: var(--wpds-color-background-surface-error-weak);
+			color: var(--wpds-color-foreground-content-error);
+		}
+
+		&--warning {
+			background-color: var(--wpds-color-background-surface-warning-weak);
+			color: var(--wpds-color-foreground-content-warning);
+		}
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	// Scoped: ProgressBar's emotion class has equal specificity.
+	&__status &__bar {
+		// Colours the indicator and, at 10%, the track.
+		--wp-components-color-foreground: var(--wp-admin-theme-color);
+		inline-size: 100%;
+		block-size: 8px;
+		border-radius: 4px;
+		margin-block: 12px;
+		text-align: start;
 	}
 
 	// Card.Root lays its children out as a flex column, so a `<Button>`
@@ -37,13 +91,17 @@
 	&__confirm {
 		align-self: flex-start;
 
-		// wp-admin's global `svg { fill: … }` is unlayered and beats
-		// `@wordpress/ui` Button's layered icon color, so the icon
-		// renders black on the blue primary background. Force the
-		// SVG to inherit the button's text color (white for the
-		// primary variant) so the icon reads correctly.
-		svg {
-			fill: currentColor;
+		// Centres the spinner on the label line.
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+
+		> svg {
+			flex: none;
+			block-size: 16px;
+			inline-size: 16px;
+			margin: 0;
 		}
 	}
 }

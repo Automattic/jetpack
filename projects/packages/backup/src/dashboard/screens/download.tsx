@@ -1,10 +1,16 @@
-import { Notice, ProgressBar, Spinner } from '@wordpress/components';
+import { ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
+import {
+	Icon,
+	check,
+	download as downloadIcon,
+	arrowLeft,
+	error as errorIcon,
+} from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, LinkButton, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
@@ -117,134 +123,144 @@ export default function DownloadScreen() {
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className="jpb-download__card">
-					<Stack direction="row" gap="sm" align="center">
-						<Icon icon={ cloud } />
-						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h2 /> }>
-								{ __( 'Download backup', 'jetpack-backup-pkg' ) }
-							</Text>
-							<Text variant="body-sm" className="jpb-text-muted">
-								{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
-								{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
-							</Text>
-						</Stack>
-					</Stack>
-					{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
-						<>
-							<Text>
-								{ __(
-									'Choose the items you wish to include in the download:',
-									'jetpack-backup-pkg'
-								) }
-							</Text>
-							<RestoreItemsChecklist value={ items } onChange={ setItems } />
-							{ /*
-							 * The live region is mounted unconditionally and only its text
-							 * changes. A region that appears together with its first message
-							 * is unreliable — assistive tech generally needs it in the tree
-							 * before the content changes, and VoiceOver in particular often
-							 * misses the simultaneous case. `jpb-visually-hidden` takes it out
-							 * of flow while empty rather than unmounting it, because this card
-							 * is a flex column with a gap and an in-flow empty node would cost
-							 * 16px of dead space on every render where there is nothing to say.
-							 *
-							 * `aria-describedby` is likewise unconditional: it resolves to the
-							 * same element either way, and an empty target contributes nothing
-							 * to the accessible description. Between them the reader is told
-							 * both when they clear the last box and when they reach the button
-							 * — @wordpress/ui renders a disabled button as focusable
-							 * `aria-disabled`, so it is reachable but silent about why.
-							 */ }
-							<Text
-								id={ SELECTION_HINT_ID }
-								variant="body-sm"
-								role="status"
-								className={ hasSelection ? 'jpb-visually-hidden' : undefined }
-							>
-								{ hasSelection
-									? ''
-									: __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
-							</Text>
-							<Button
-								className="jpb-download__confirm"
-								variant="solid"
-								disabled={ ! hasSelection || state.phase === 'submitting' }
-								aria-describedby={ SELECTION_HINT_ID }
-								onClick={ handleGenerate }
-							>
-								{ state.phase === 'submitting' ? (
-									<Spinner />
-								) : (
-									<Icon icon={ downloadIcon } size={ 18 } />
-								) }
-								{ __( 'Generate download', 'jetpack-backup-pkg' ) }
-							</Button>
-						</>
-					) }
-					{ /*
-					 * One block for the whole wait, so the heading does not remount when
-					 * the POST resolves. The spinner covers only the window before there
-					 * is a download id to poll, and is left unnamed: it ships as
-					 * `role="presentation"`, which an `aria-label` would cancel.
-					 */ }
-					{ isPreparing && (
-						<Stack direction="column" gap="sm">
-							<Text role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
-							{ state.phase === 'progress' ? (
-								<ProgressBar
-									value={ state.percent }
-									aria-label={ __( 'Preparing your download', 'jetpack-backup-pkg' ) }
-								/>
-							) : (
-								<Spinner />
-							) }
-						</Stack>
-					) }
-					{ state.phase === 'success' && (
-						<Stack direction="column" gap="sm">
-							<Notice status="success" isDismissible={ false }>
-								{ __( 'Your download is ready.', 'jetpack-backup-pkg' ) }
-							</Notice>
-							<LinkButton
-								className="jpb-download__link"
-								variant="solid"
-								href={ state.downloadUrl }
-								download
-								rel="noreferrer"
-							>
-								<Icon icon={ downloadIcon } size={ 18 } />
-								{ __( 'Download the file', 'jetpack-backup-pkg' ) }
-							</LinkButton>
-							{ /*
-							 * WPCOM signs the archive URL with an expiry. Saying
-							 * when it lapses is the difference between coming back
-							 * to a dead link and knowing to fetch it again.
-							 */ }
-							{ state.validUntil && (
+					<Card.Header className="jpb-download__header">
+						<Stack direction="row" gap="sm" align="center">
+							<Icon icon={ downloadIcon } />
+							<Stack direction="column" gap="xs">
+								<Text variant="heading-md" render={ <h2 /> }>
+									{ __( 'Download backup', 'jetpack-backup-pkg' ) }
+								</Text>
 								<Text variant="body-sm" className="jpb-text-muted">
-									{ sprintf(
-										/* translators: %s: date and time the download link stops working. */
-										__( 'This link expires %s.', 'jetpack-backup-pkg' ),
-										dateI18n( 'M j, Y, g:i A', state.validUntil, undefined )
+									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
+									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
+								</Text>
+							</Stack>
+						</Stack>
+					</Card.Header>
+					<Card.Content className="jpb-download__body">
+						{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
+							<>
+								<Text>
+									{ __(
+										'Choose the items you wish to include in the download:',
+										'jetpack-backup-pkg'
 									) }
 								</Text>
-							) }
-						</Stack>
-					) }
-					{ state.phase === 'error' && (
-						<Stack direction="column" gap="sm">
-							<Notice status="error" isDismissible={ false }>
-								{ state.message }
-							</Notice>
-							<Button
-								className="jpb-download__confirm"
-								variant="outline"
-								onClick={ hasFileSelection ? handleRetry : reset }
-							>
-								{ __( 'Try again', 'jetpack-backup-pkg' ) }
-							</Button>
-						</Stack>
-					) }
+								<RestoreItemsChecklist value={ items } onChange={ setItems } />
+								{ /*
+								 * The live region is mounted unconditionally and only its text
+								 * changes. A region that appears together with its first message
+								 * is unreliable — assistive tech generally needs it in the tree
+								 * before the content changes, and VoiceOver in particular often
+								 * misses the simultaneous case. `jpb-visually-hidden` takes it out
+								 * of flow while empty rather than unmounting it, because this card
+								 * is a flex column with a gap and an in-flow empty node would cost
+								 * 16px of dead space on every render where there is nothing to say.
+								 *
+								 * `aria-describedby` is likewise unconditional: it resolves to the
+								 * same element either way, and an empty target contributes nothing
+								 * to the accessible description. Between them the reader is told
+								 * both when they clear the last box and when they reach the button
+								 * — @wordpress/ui renders a disabled button as focusable
+								 * `aria-disabled`, so it is reachable but silent about why.
+								 */ }
+								<Text
+									id={ SELECTION_HINT_ID }
+									variant="body-sm"
+									role="status"
+									className={ hasSelection ? 'jpb-visually-hidden' : undefined }
+								>
+									{ hasSelection
+										? ''
+										: __( 'Select at least one item to download.', 'jetpack-backup-pkg' ) }
+								</Text>
+								<Button
+									className="jpb-download__confirm"
+									variant="solid"
+									disabled={ ! hasSelection || state.phase === 'submitting' }
+									aria-describedby={ SELECTION_HINT_ID }
+									onClick={ handleGenerate }
+								>
+									{ state.phase === 'submitting' ? (
+										<Spinner />
+									) : (
+										<Icon icon={ downloadIcon } size={ 18 } />
+									) }
+									{ __( 'Generate download', 'jetpack-backup-pkg' ) }
+								</Button>
+							</>
+						) }
+						{ /*
+						 * One block for the whole wait, so the heading does not remount when
+						 * the POST resolves. The spinner covers only the window before there
+						 * is a download id to poll, and is left unnamed: it ships as
+						 * `role="presentation"`, which an `aria-label` would cancel.
+						 */ }
+						{ isPreparing && (
+							<EmptyState.Root className="jpb-download__status">
+								<EmptyState.Title>
+									<span role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</span>
+								</EmptyState.Title>
+								{ state.phase === 'progress' ? (
+									<ProgressBar
+										className="jpb-download__bar"
+										value={ state.percent }
+										aria-label={ __( 'Preparing your download', 'jetpack-backup-pkg' ) }
+									/>
+								) : (
+									<Spinner />
+								) }
+							</EmptyState.Root>
+						) }
+						{ state.phase === 'success' && (
+							<EmptyState.Root className="jpb-download__status">
+								<EmptyState.Visual>
+									<EmptyState.Icon
+										className="jpb-download__badge jpb-download__badge--success"
+										icon={ check }
+									/>
+								</EmptyState.Visual>
+								<EmptyState.Title>
+									{ __( 'Your download is ready', 'jetpack-backup-pkg' ) }
+								</EmptyState.Title>
+								{ /*
+								 * WPCOM signs the archive URL with an expiry. Saying
+								 * when it lapses is the difference between coming back
+								 * to a dead link and knowing to fetch it again.
+								 */ }
+								{ state.validUntil && (
+									<EmptyState.Description>
+										{ sprintf(
+											/* translators: %s: date and time the download link stops working. */
+											__( 'This expires %s.', 'jetpack-backup-pkg' ),
+											dateI18n( 'M j, Y, g:i A', state.validUntil, undefined )
+										) }
+									</EmptyState.Description>
+								) }
+								<EmptyState.Actions>
+									<LinkButton variant="solid" href={ state.downloadUrl } download rel="noreferrer">
+										{ __( 'Download file', 'jetpack-backup-pkg' ) }
+									</LinkButton>
+								</EmptyState.Actions>
+							</EmptyState.Root>
+						) }
+						{ state.phase === 'error' && (
+							<EmptyState.Root className="jpb-download__status">
+								<EmptyState.Visual>
+									<EmptyState.Icon
+										className="jpb-download__badge jpb-download__badge--error"
+										icon={ errorIcon }
+									/>
+								</EmptyState.Visual>
+								<EmptyState.Title role="alert">{ state.message }</EmptyState.Title>
+								<EmptyState.Actions>
+									<Button variant="solid" onClick={ hasFileSelection ? handleRetry : reset }>
+										{ __( 'Try again', 'jetpack-backup-pkg' ) }
+									</Button>
+								</EmptyState.Actions>
+							</EmptyState.Root>
+						) }
+					</Card.Content>
 				</Card.Root>
 			</div>
 		</DashboardLayout>

@@ -1,7 +1,7 @@
 import { CheckboxControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import './style.scss';
 import type { RestoreItems } from '../../types/restore';
 
@@ -24,23 +24,23 @@ const ITEMS: ItemDef[] = [
 	{
 		key: 'roots',
 		label: __( 'WordPress root', 'jetpack-backup-pkg' ),
-		description: __( 'Includes wp-config.php and any non-WordPress files.', 'jetpack-backup-pkg' ),
+		description: __( 'includes wp-config.php and any non-WordPress files', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'contents',
 		label: __( 'WP-content directory', 'jetpack-backup-pkg' ),
-		description: __( 'Excludes themes, plugins, and uploads.', 'jetpack-backup-pkg' ),
+		description: __( 'excludes themes, plugins, and uploads', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'sqls',
 		label: __( 'Site database', 'jetpack-backup-pkg' ),
-		description: __( 'Includes pages and posts.', 'jetpack-backup-pkg' ),
+		description: __( 'includes pages and posts', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'uploads',
 		label: __( 'Media uploads', 'jetpack-backup-pkg' ),
 		description: __(
-			'You must also select Site database for restored media uploads to appear.',
+			'you must also select Site database for restored media uploads to appear',
 			'jetpack-backup-pkg'
 		),
 	},
@@ -53,8 +53,8 @@ type RowProps = {
 };
 
 /**
- * Single row of the restore checklist: a labeled checkbox plus an optional
- * muted description below it. Lives in its own component so the per-item
+ * Single row of the restore checklist: a checkbox whose label is the bold item
+ * name followed by an optional description in brackets. Lives in its own component so the per-item
  * `onChange` handler can be memoized via `useCallback` and satisfy
  * `react/jsx-no-bind`.
  *
@@ -70,20 +70,32 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 		[ onChange, value, item.key ]
 	);
 
+	const label = (
+		<>
+			<strong>{ item.label }</strong>
+			{ item.description && (
+				<span className="jpb-restore-checklist__desc">
+					{ ' ' }
+					{ sprintf(
+						/* translators: %s: short note about what the item covers, e.g. "includes pages and posts". */
+						__( '(%s)', 'jetpack-backup-pkg' ),
+						item.description
+					) }
+				</span>
+			) }
+		</>
+	);
+
 	return (
-		<Stack direction="column" gap="xs" className="jpb-restore-checklist__row">
+		<div className="jpb-restore-checklist__row">
 			<CheckboxControl
 				checked={ value[ item.key ] }
-				label={ item.label }
+				// @ts-expect-error -- CheckboxControl renders nodes in its label; its type says string.
+				label={ label }
 				onChange={ handleChange }
 				__nextHasNoMarginBottom
 			/>
-			{ item.description && (
-				<Text variant="body-sm" className="jpb-restore-checklist__desc">
-					{ item.description }
-				</Text>
-			) }
-		</Stack>
+		</div>
 	);
 }
 
@@ -91,7 +103,7 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
  * Six-checkbox toggle list shared by the Restore and Download screens.
  *
  * The keys map to `RestoreItems` (themes/plugins/roots/contents/sqls/uploads);
- * descriptions render as small muted text directly beneath their checkbox.
+ * each description follows its label in brackets.
  *
  * @param props          - Component props.
  * @param props.value    - Current state of each toggle.

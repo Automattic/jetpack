@@ -299,7 +299,7 @@ describe( 'Download screen without a file selection', () => {
 			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		for ( const label of ITEM_LABELS ) {
-			expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeChecked();
+			expect( screen.getByRole( 'checkbox', { name: new RegExp( `^${ label }` ) } ) ).toBeChecked();
 		}
 
 		// The other half of "unchanged": the waiting state the selection
@@ -343,7 +343,9 @@ describe( 'Download screen with a file selection', () => {
 		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		for ( const label of ITEM_LABELS ) {
-			expect( screen.queryByRole( 'checkbox', { name: label } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'checkbox', { name: new RegExp( `^${ label }` ) } )
+			).not.toBeInTheDocument();
 		}
 		expect( screen.queryByRole( 'button', { name: /Generate download/ } ) ).not.toBeInTheDocument();
 	} );
@@ -457,17 +459,10 @@ describe( 'Download screen with a file selection', () => {
 			error: '',
 		};
 
-		const link = await screen.findByRole( 'link', { name: 'Download the file' } );
+		const link = await screen.findByRole( 'link', { name: 'Download file' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
 		expect( link ).toHaveAttribute( 'download' );
-		// `Notice` also speaks its text through `wp.a11y.speak`, which
-		// mirrors the string into a live region — so an unscoped query
-		// matches twice. The visible notice is the one under assertion.
-		expect(
-			screen.getByText( 'Your download is ready.', {
-				ignore: '.a11y-speak-region, script, style',
-			} )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Your download is ready' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 

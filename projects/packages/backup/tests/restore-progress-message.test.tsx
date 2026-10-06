@@ -99,7 +99,9 @@ describe( 'the Restore screen during a running restore', () => {
 		// Exact, not `toHaveTextContent`: that matches a substring on any ancestor,
 		// so it passes with the role moved onto the whole block — which is the
 		// re-announce-every-poll regression this scoping exists to prevent.
-		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent( /^Restoring…$/ );
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			/^Restoring from backup…$/
+		);
 	} );
 
 	// Both figures, so a hardcoded `0%` cannot pass: the preflight pins it at

@@ -82,7 +82,9 @@ beforeEach( () => {
  */
 async function untickEverything() {
 	for ( const label of ITEM_LABELS ) {
-		await userEvent.click( await screen.findByRole( 'checkbox', { name: label } ) );
+		await userEvent.click(
+			await screen.findByRole( 'checkbox', { name: new RegExp( `^${ label }` ) } )
+		);
 	}
 }
 
@@ -158,7 +160,7 @@ describe( 'Download screen with nothing selected', () => {
 	it( 're-arms as soon as one category comes back', async () => {
 		render( <DownloadStage /> );
 		await untickEverything();
-		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Site database' } ) );
+		await userEvent.click( screen.getByRole( 'checkbox', { name: /^Site database/ } ) );
 
 		expect( screen.queryByText( 'Select at least one item to download.' ) ).not.toBeInTheDocument();
 		expect( button( /Generate download/ ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
