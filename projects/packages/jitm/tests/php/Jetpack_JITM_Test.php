@@ -66,13 +66,18 @@ class Jetpack_JITM_Test extends TestCase {
 	 * It requires the runInSeparateProcess tag so that the class isn't already autoloaded.
 	 *
 	 * @runInSeparateProcess
-	 * @dataProvider data_jetpack_plugin_active
+	 * @dataProvider data_has_wpcom_endpoint
 	 *
-	 * @param bool $jetpack_active Whether the Jetpack plugin is active.
+	 * @param bool $is_wpcom_simple Whether this is a WordPress.com Simple site.
+	 * @param bool $jetpack_active  Whether the Jetpack plugin is active.
+	 * @param bool $expected        Expected has_wpcom_endpoint value.
 	 */
 	#[RunInSeparateProcess]
-	#[DataProvider( 'data_jetpack_plugin_active' )]
-	public function test_prepare_jitms_enqueues_assets( $jetpack_active ) {
+	#[DataProvider( 'data_has_wpcom_endpoint' )]
+	public function test_prepare_jitms_enqueues_assets( $is_wpcom_simple, $jetpack_active, $expected ) {
+		if ( $is_wpcom_simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
 		if ( $jetpack_active ) {
 			\Mockery::mock( 'alias:Jetpack' );
 		}
@@ -104,8 +109,8 @@ class Jetpack_JITM_Test extends TestCase {
 			'jetpack-jitm',
 			'jitm_config',
 			\Mockery::on(
-				static function ( $config ) use ( $jetpack_active ) {
-					return $jetpack_active === $config['has_wpcom_endpoint'];
+				static function ( $config ) use ( $expected ) {
+					return $expected === $config['has_wpcom_endpoint'];
 				}
 			)
 		);
@@ -119,10 +124,11 @@ class Jetpack_JITM_Test extends TestCase {
 	 *
 	 * @return array
 	 */
-	public static function data_jetpack_plugin_active() {
+	public static function data_has_wpcom_endpoint() {
 		return array(
-			'standalone plugin only' => array( false ),
-			'Jetpack plugin active'  => array( true ),
+			'standalone plugin only' => array( false, false, false ),
+			'Jetpack plugin active'  => array( false, true, true ),
+			'WordPress.com Simple'   => array( true, false, true ),
 		);
 	}
 
