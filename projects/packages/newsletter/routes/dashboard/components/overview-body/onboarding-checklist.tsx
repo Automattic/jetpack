@@ -142,51 +142,28 @@ const STEPS: ChecklistStep[] = [
 ];
 
 /**
- * Render the Newsletter onboarding checklist.
+ * Render the checklist steps.
  *
- * Completion comes from WP.com, which checks each step and stores it once done. Because that is
- * final, the steps this browser has already seen complete are kept in localStorage: they render
- * straight away, and WP.com is only asked while a step is still open. If the task list can't be
- * loaded, the steps not known to be complete read as open and can still be skipped.
+ * The cards are uncontrolled, so the step opened by default is decided once, when they mount:
+ * steps completed later (by WP.com catching up with the stored copy, or by Skip) keep whatever
+ * open state the visitor left them in.
  *
- * @return The onboarding checklist.
+ * @param props              - Steps props.
+ * @param props.completed    - Ids of the completed steps.
+ * @param props.skippingStep - Step whose Skip request is in flight, if any.
+ * @param props.onSkip       - Complete a step by hand.
+ * @return The checklist steps.
  */
-export default function OnboardingChecklist(): JSX.Element {
-	const queryClient = useQueryClient();
-	const [ storedCompleted ] = useState( getStoredCompletedTasks );
-	const allStoredComplete = STEPS.every(
-		step => step.id === 'start' || storedCompleted.includes( step.id )
-	);
-	const tasksQuery = useQuery( {
-		queryKey: ONBOARDING_TASKS_QUERY_KEY,
-		queryFn: fetchOnboardingTasks,
-		enabled: ! allStoredComplete,
-	} );
-	const skipMutation = useMutation( {
-		mutationFn: completeOnboardingTask,
-		onSuccess: ( taskList: OnboardingTaskList ) => {
-			queryClient.setQueryData( ONBOARDING_TASKS_QUERY_KEY, taskList );
-		},
-	} );
-	const { mutate: skip } = skipMutation;
-	const handleSkip = useCallback( ( stepId: OnboardingTaskId ) => skip( stepId ), [ skip ] );
-
-	// Without a stored copy, wait for WP.com so the first open step is the one opened by default.
-	if ( tasksQuery.isPending && storedCompleted.length === 0 ) {
-		return (
-			<Stack direction="row" justify="center" className="jetpack-newsletter-overview__checklist">
-				<Spinner />
-			</Stack>
-		);
-	}
-
-	const completed = new Set< OnboardingTaskId >( [ 'start', ...storedCompleted ] );
-	tasksQuery.data?.tasks.forEach( task => {
-		if ( task.complete ) {
-			completed.add( task.id );
-		}
-	} );
-	const firstOpenStep = STEPS.find( step => ! completed.has( step.id ) )?.id;
+function ChecklistSteps( {
+	completed,
+	skippingStep,
+	onSkip,
+}: {
+	completed: Set< OnboardingTaskId >;
+	skippingStep?: OnboardingTaskId;
+	onSkip: ( stepId: OnboardingTaskId ) => void;
+} ): JSX.Element {
+	const [ firstOpenStep ] = useState( () => STEPS.find( step => ! completed.has( step.id ) )?.id );
 
 	return (
 		<Stack direction="column" gap="sm" className="jetpack-newsletter-overview__checklist">
@@ -236,8 +213,8 @@ export default function OnboardingChecklist(): JSX.Element {
 									<ChecklistActions
 										stepId={ step.id }
 										primaryAction={ step.primaryAction }
-										isSkipping={ skipMutation.isPending && skipMutation.variables === step.id }
-										onSkip={ handleSkip }
+										isSkipping={ skippingStep === step.id }
+										onSkip={ onSkip }
 									/>
 								) : null }
 							</Stack>
@@ -246,5 +223,60 @@ export default function OnboardingChecklist(): JSX.Element {
 				);
 			} ) }
 		</Stack>
+	);
+}
+
+/**
+ * Render the Newsletter onboarding checklist.
+ *
+ * Completion comes from WP.com, which checks each step and stores it once done. Because that is
+ * final, the steps this browser has already seen complete are kept in localStorage: they render
+ * straight away, and WP.com is only asked while a step is still open. If the task list can't be
+ * loaded, the steps not known to be complete read as open and can still be skipped.
+ *
+ * @return The onboarding checklist.
+ */
+export default function OnboardingChecklist(): JSX.Element {
+	const queryClient = useQueryClient();
+	const [ storedCompleted ] = useState( getStoredCompletedTasks );
+	const allStoredComplete = STEPS.every(
+		step => step.id === 'start' || storedCompleted.includes( step.id )
+	);
+	const tasksQuery = useQuery( {
+		queryKey: ONBOARDING_TASKS_QUERY_KEY,
+		queryFn: fetchOnboardingTasks,
+		enabled: ! allStoredComplete,
+	} );
+	const skipMutation = useMutation( {
+		mutationFn: completeOnboardingTask,
+		onSuccess: ( taskList: OnboardingTaskList ) => {
+			queryClient.setQueryData( ONBOARDING_TASKS_QUERY_KEY, taskList );
+		},
+	} );
+	const { mutate: skip } = skipMutation;
+	const handleSkip = useCallback( ( stepId: OnboardingTaskId ) => skip( stepId ), [ skip ] );
+
+	// Without a stored copy, wait for WP.com so the first open step is the one opened by default.
+	if ( tasksQuery.isPending && storedCompleted.length === 0 ) {
+		return (
+			<Stack direction="row" justify="center" className="jetpack-newsletter-overview__checklist">
+				<Spinner />
+			</Stack>
+		);
+	}
+
+	const completed = new Set< OnboardingTaskId >( [ 'start', ...storedCompleted ] );
+	tasksQuery.data?.tasks.forEach( task => {
+		if ( task.complete ) {
+			completed.add( task.id );
+		}
+	} );
+
+	return (
+		<ChecklistSteps
+			completed={ completed }
+			skippingStep={ skipMutation.isPending ? skipMutation.variables : undefined }
+			onSkip={ handleSkip }
+		/>
 	);
 }

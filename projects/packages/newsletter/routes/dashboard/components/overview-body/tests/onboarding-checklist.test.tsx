@@ -86,7 +86,10 @@ describe( 'OnboardingChecklist', () => {
 	it( 'renders every step with the first open step expanded', async () => {
 		renderChecklist();
 
-		expect( await findStep( /start a newsletter/i ) ).toHaveAttribute( 'aria-expanded', 'false' );
+		await expect( findStep( /start a newsletter/i ) ).resolves.toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
 		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
 			'aria-expanded',
 			'true'
@@ -102,7 +105,7 @@ describe( 'OnboardingChecklist', () => {
 		mockApiFetch.mockResolvedValue( taskList( [ 'subscribe_form' ] ) );
 		renderChecklist();
 
-		expect( await findStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
+		await expect( findStep( /add a subscribe form to your site/i ) ).resolves.toHaveAccessibleName(
 			'Add a subscribe form to your siteComplete'
 		);
 		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
@@ -115,7 +118,7 @@ describe( 'OnboardingChecklist', () => {
 	it( 'announces the completed start step in its accessible name', async () => {
 		renderChecklist();
 
-		expect( await findStep( /start a newsletter/i ) ).toHaveAccessibleName(
+		await expect( findStep( /start a newsletter/i ) ).resolves.toHaveAccessibleName(
 			'Start a newsletterComplete'
 		);
 	} );
@@ -134,7 +137,7 @@ describe( 'OnboardingChecklist', () => {
 		mockApiFetch.mockRejectedValue( new Error( 'offline' ) );
 		renderChecklist();
 
-		expect( await findStep( /start a newsletter/i ) ).toHaveAccessibleName(
+		await expect( findStep( /start a newsletter/i ) ).resolves.toHaveAccessibleName(
 			'Start a newsletterComplete'
 		);
 		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
@@ -147,11 +150,11 @@ describe( 'OnboardingChecklist', () => {
 	it( 'shows the subscribe form step copy and actions', async () => {
 		renderChecklist();
 
-		expect(
-			await screen.findByText(
+		await expect(
+			screen.findByText(
 				'Give visitors a way to subscribe: a form at the end of your posts, a pop-up, or a floating button.'
 			)
-		).toBeVisible();
+		).resolves.toBeVisible();
 		expect( screen.getByRole( 'button', { name: 'Add a subscribe form' } ) ).toBeVisible();
 		expect( screen.getByRole( 'button', { name: 'Skip' } ) ).toBeVisible();
 	} );
@@ -182,7 +185,7 @@ describe( 'OnboardingChecklist', () => {
 		mockApiFetch.mockResolvedValue( taskList( [ 'subscribe_form', 'subscribers' ] ) );
 		renderChecklist();
 
-		expect( await screen.findByRole( 'link', { name: 'Write a post' } ) ).toHaveAttribute(
+		await expect( screen.findByRole( 'link', { name: 'Write a post' } ) ).resolves.toHaveAttribute(
 			'href',
 			'https://example.com/wp-admin/post-new.php'
 		);
@@ -284,7 +287,7 @@ describe( 'OnboardingChecklist', () => {
 		window.localStorage.setItem( STORAGE_KEY, '{not json' );
 		renderChecklist();
 
-		expect( await findStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
+		await expect( findStep( /add a subscribe form to your site/i ) ).resolves.toHaveAttribute(
 			'aria-expanded',
 			'true'
 		);
