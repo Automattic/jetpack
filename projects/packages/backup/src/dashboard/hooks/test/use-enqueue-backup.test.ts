@@ -2,7 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
-import { useEnqueueBackup } from '../use-enqueue-backup';
+import { keys } from '../../data/query-client';
+import { useBackupRequested, useEnqueueBackup } from '../use-enqueue-backup';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -105,5 +106,59 @@ describe( 'useEnqueueBackup', () => {
 
 		await waitFor( () => expect( result.current.state ).toBe( 'idle' ) );
 		expect( result.current.errorMessage ).toBeNull();
+	} );
+} );
+
+describe( 'useBackupRequested', () => {
+	// The status banner is not a child of the button, so without this shared flag
+	// nothing on the page reacts to the click until WPCOM reports a running backup.
+	it( 'is true from the click until reset, and false after a failure', async () => {
+		mockedApiFetch.mockResolvedValueOnce( { success: true } );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook(
+			() => ( { requested: useBackupRequested(), enqueue: useEnqueueBackup() } ),
+			{ wrapper }
+		);
+		expect( result.current.requested ).toBe( false );
+
+		act( () => result.current.enqueue.enqueue() );
+		await waitFor( () => expect( result.current.enqueue.state ).toBe( 'enqueued' ) );
+		expect( result.current.requested ).toBe( true );
+
+		act( () => result.current.enqueue.reset() );
+		await waitFor( () => expect( result.current.requested ).toBe( false ) );
+
+		mockedApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+		act( () => result.current.enqueue.enqueue() );
+		await waitFor( () => expect( result.current.enqueue.state ).toBe( 'error' ) );
+		await waitFor( () => expect( result.current.requested ).toBe( false ) );
+	} );
+
+	// A short backup can finish between two polls, so the read goes from one
+	// `complete` straight to another and never shows `in-progress`.
+	it( 'ends when a newer backup appears, even one that is already finished', async () => {
+		const finished = ( id: number ) => ( {
+			id,
+			started: '2026-10-06 10:00:00',
+			last_updated: '2026-10-06 10:05:00',
+			status: 'finished',
+			period: 1,
+			percent: 100,
+			is_backup: 1,
+			is_scan: 0,
+		} );
+		mockedApiFetch.mockResolvedValueOnce( { success: true } );
+		const { client, wrapper } = makeWrapper();
+		client.setQueryData( keys.backups(), [ finished( 1 ) ] );
+		const { result } = renderHook(
+			() => ( { requested: useBackupRequested(), enqueue: useEnqueueBackup() } ),
+			{ wrapper }
+		);
+
+		act( () => result.current.enqueue.enqueue() );
+		await waitFor( () => expect( result.current.requested ).toBe( true ) );
+
+		act( () => client.setQueryData( keys.backups(), [ finished( 2 ), finished( 1 ) ] ) );
+		await waitFor( () => expect( result.current.requested ).toBe( false ) );
 	} );
 } );

@@ -153,7 +153,7 @@ describe( 'BackupStatusPanel', () => {
 	it( 'gives a site with no backups the first-backup copy', () => {
 		render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
 
-		expect( screen.getByText( 'Your first cloud backup will be ready soon' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
 				'The first backup usually takes a few minutes, so it will become available soon.'
@@ -201,7 +201,7 @@ describe( 'BackupStatusPanel', () => {
 	it( 'offers a way to reach support when no attempt produced a restore point', () => {
 		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
 
-		expect( screen.getByText( "We're having trouble backing up your site" ) ).toBeInTheDocument();
+		expect( screen.getByText( 'We are having trouble backing up your site' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
 	} );
 
@@ -257,8 +257,10 @@ describe( 'BackupStatusBanner', () => {
 	it( 'reports the running backup without hiding anything', () => {
 		render( <BackupStatusBanner progress={ 36 } /> );
 
-		expect( screen.getByText( 'Your backup will be ready soon' ) ).toBeInTheDocument();
-		expect( screen.getByText( '36%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Generating backup… (36% progress)' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'progressbar', { name: 'Backing up your site' } )
+		).toBeInTheDocument();
 	} );
 } );
 
@@ -312,10 +314,14 @@ describe( 'BackupNowButton', () => {
 
 		renderWithClient( <BackupNowButton /> );
 
-		const button = await screen.findByRole( 'button', { name: 'Backup in progress' } );
 		// `focusableWhenDisabled` keeps it in the tab order and marks it
 		// aria-disabled rather than using the native attribute.
-		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 	} );
 
 	it( 'refuses to queue a backup when WPCOM has stopped them', async () => {
@@ -398,9 +404,12 @@ describe( 'BackupNowButton', () => {
 			await client.invalidateQueries( { queryKey: [ 'backup', 'backups' ] } );
 		} );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Backup in progress' } )
-		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 	} );
 
 	// The legacy button has no rejection handler and discards the body,

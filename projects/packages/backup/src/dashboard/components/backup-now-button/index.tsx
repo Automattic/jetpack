@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useBackups } from '../../hooks/use-backups';
-import { useEnqueueBackup } from '../../hooks/use-enqueue-backup';
+import { useBackupRequested, useEnqueueBackup } from '../../hooks/use-enqueue-backup';
 import { useGateState } from '../../hooks/use-gate-state';
 import { useSiteSize } from '../../hooks/use-site-size';
 
@@ -41,17 +41,19 @@ function BackupNow() {
 	// Keep polling between the enqueue and WPCOM publishing a record for
 	// it: until that record exists, nothing in the response says a backup
 	// is coming.
-	const { state: backupsState } = useBackups( { forcePoll: enqueueState === 'enqueued' } );
+	const isRequested = useBackupRequested();
+	const { state: backupsState } = useBackups( {
+		forcePoll: enqueueState === 'enqueued' && isRequested,
+	} );
 	const isBackupRunning = backupsState === 'in-progress';
 
-	// Hand over from "enqueued" to "in progress" once the backup actually
-	// starts, which also ends the forced polling above — from here the
-	// backups query polls on its own because the state says it should.
+	// Hand over from "enqueued" once WPCOM reports the backup, running or
+	// already finished, which also ends the forced polling above.
 	useEffect( () => {
-		if ( isBackupRunning && enqueueState === 'enqueued' ) {
+		if ( ( isBackupRunning || ! isRequested ) && enqueueState === 'enqueued' ) {
 			reset();
 		}
-	}, [ isBackupRunning, enqueueState, reset ] );
+	}, [ isBackupRunning, isRequested, enqueueState, reset ] );
 
 	// Recorded on the click rather than on a successful enqueue, which is
 	// where legacy records it (`back-up-now/index.jsx:25-26`, before the
@@ -76,7 +78,6 @@ function BackupNow() {
 	if ( backupsStopped ) {
 		tooltip = __( 'Cannot queue backups due to reaching storage limits.', 'jetpack-backup-pkg' );
 	} else if ( isBackupRunning ) {
-		label = __( 'Backup in progress', 'jetpack-backup-pkg' );
 		tooltip = __( 'A backup is currently in progress.', 'jetpack-backup-pkg' );
 	} else if ( isEnqueuing ) {
 		label = __( 'Queueing backup', 'jetpack-backup-pkg' );
@@ -101,7 +102,7 @@ function BackupNow() {
 			// spinner — it keeps the button's width so the header doesn't
 			// jump, but it also hides the text, which is only acceptable for
 			// the second the POST is in flight. A backup runs for minutes,
-			// and "Backup in progress" is the whole point of that state.
+			// and the label must stay readable for all of it.
 			loading={ isEnqueuing }
 			loadingAnnouncement={ label }
 			onClick={ handleClick }

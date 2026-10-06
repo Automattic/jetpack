@@ -1,11 +1,58 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ApiError } from '../data/api/_helpers';
-import { enqueueBackup } from '../data/api/backups';
+import { enqueueBackup, fetchBackups, type RawBackupEntry } from '../data/api/backups';
+import { normalizeBackups } from '../data/normalize/backups';
 import { keys } from '../data/query-client';
 
 export type EnqueueState = 'idle' | 'enqueuing' | 'enqueued' | 'error';
+
+// Shared through the query cache so the status banner, which is not a child of the button, can see the click.
+// Holds the newest backup id known at click time, or false when nothing is pending.
+const REQUESTED_KEY = [ 'backup', 'enqueue-requested' ] as const;
+
+type Requested = false | { baselineId: string | null };
+
+/**
+ * The newest backup id in the backups read, or null when there is none.
+ *
+ * @param data - Raw backups response.
+ * @return The newest id, as a string.
+ */
+function newestBackupId( data: RawBackupEntry[] | null | undefined ): string | null {
+	return normalizeBackups( Array.isArray( data ) ? data : undefined )[ 0 ]?.id ?? null;
+}
+
+/**
+ * Whether a backup was requested and WPCOM has not reported it yet.
+ *
+ * True from the click until the backups read shows a running backup or a
+ * newer one than at click time. It reads the query data, not the button,
+ * so a backup that finishes between polls, or a button that unmounted,
+ * cannot leave it stuck.
+ *
+ * @return True while a requested backup is not yet reported.
+ */
+export function useBackupRequested(): boolean {
+	const { data: requested } = useQuery( {
+		queryKey: REQUESTED_KEY,
+		queryFn: (): Requested => false,
+		enabled: false,
+		initialData: false as Requested,
+	} );
+	const { data: backups } = useQuery( {
+		queryKey: keys.backups(),
+		queryFn: fetchBackups,
+		enabled: false,
+	} );
+
+	if ( ! requested ) {
+		return false;
+	}
+	const newest = newestBackupId( backups );
+	return newest === null || newest === requested.baselineId;
+}
 
 type Result = {
 	state: EnqueueState;
@@ -37,6 +84,14 @@ export function useEnqueueBackup(): Result {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation( {
+		onMutate: () => {
+			queryClient.setQueryData< Requested >( REQUESTED_KEY, {
+				baselineId: newestBackupId( queryClient.getQueryData( keys.backups() ) ),
+			} );
+		},
+		onError: () => {
+			queryClient.setQueryData( REQUESTED_KEY, false );
+		},
 		mutationFn: async () => {
 			const result = await enqueueBackup();
 			if ( result === null ) {
@@ -66,7 +121,8 @@ export function useEnqueueBackup(): Result {
 
 	const reset = useCallback( () => {
 		resetMutation();
-	}, [ resetMutation ] );
+		queryClient.setQueryData( REQUESTED_KEY, false );
+	}, [ resetMutation, queryClient ] );
 
 	let state: EnqueueState = 'idle';
 	if ( isPending ) {

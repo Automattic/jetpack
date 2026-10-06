@@ -3,7 +3,7 @@ import { ProgressBar } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { cloudUpload, error as errorIcon } from '@wordpress/icons';
-import { EmptyState, Link, Text } from '@wordpress/ui';
+import { Card, EmptyState, Link, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
@@ -12,6 +12,8 @@ type Props = {
 	state: BackupsState;
 	/** Completion of the running backup, 0–100. */
 	progress: number;
+	/** A backup was requested but WPCOM has not reported it yet. */
+	isStarting?: boolean;
 };
 
 /**
@@ -73,6 +75,7 @@ export function ContactSupportLine() {
 			a: (
 				<Link
 					openInNewTab
+					className="jpb-backup-status__link"
 					// Omitted rather than passed as undefined — see `useSiteSuffix`.
 					href={ getRedirectUrl(
 						'jetpack-contact-support',
@@ -101,76 +104,80 @@ export function ContactSupportLine() {
  * Legacy's closing "backup management on Jetpack.com" is deliberately gone: it
  * points at the screen this dashboard replaces (JETPACK-2329).
  *
- * @param props          - Component props.
- * @param props.state    - Derived backup state.
- * @param props.progress - Completion of the running backup, 0–100.
+ * @param props            - Component props.
+ * @param props.state      - Derived backup state.
+ * @param props.progress   - Completion of the running backup, 0–100.
+ * @param props.isStarting - A backup was requested but WPCOM has not reported it yet.
  * @return The rendered panel.
  */
-export default function BackupStatusPanel( { state, progress }: Props ) {
-	if ( state === 'no-good-backups' ) {
+export default function BackupStatusPanel( { state, progress, isStarting = false }: Props ) {
+	if ( state === 'no-good-backups' && ! isStarting ) {
 		return (
-			<EmptyState.Root className="jpb-backup-status">
-				<EmptyState.Visual>
-					<EmptyState.Icon icon={ errorIcon } />
-				</EmptyState.Visual>
-				<EmptyState.Title>
-					{ __( "We're having trouble backing up your site", 'jetpack-backup-pkg' ) }
-				</EmptyState.Title>
-				<EmptyState.Description>
-					<ContactSupportLine />
-				</EmptyState.Description>
-			</EmptyState.Root>
+			<Card.Root className="jpb-backup-status">
+				<Card.Content>
+					<EmptyState.Root className="jpb-backup-status__body">
+						<EmptyState.Visual>
+							<EmptyState.Icon
+								className="jpb-backup-status__icon jpb-backup-status__icon--error"
+								icon={ errorIcon }
+							/>
+						</EmptyState.Visual>
+						<EmptyState.Title>
+							{ __( 'We are having trouble backing up your site', 'jetpack-backup-pkg' ) }
+						</EmptyState.Title>
+						<EmptyState.Description>
+							<ContactSupportLine />
+						</EmptyState.Description>
+					</EmptyState.Root>
+				</Card.Content>
+			</Card.Root>
 		);
 	}
 
-	// A retryable failure is the one state with nothing to show: WPCOM
-	// reports the percentage the attempt died at, which would read as a
-	// stalled backup rather than one waiting to be retried.
-	//
-	// `no-backups` still gets a bar, in indeterminate mode. The heading
-	// promises a backup is coming, so a panel with no sign of activity
-	// contradicts itself — and this is the state a brand-new customer
-	// sits in, watching. Only a running backup has a real percentage.
-	const showProgress = state !== 'will-retry';
-	const isDeterminate = state === 'in-progress';
+	// A retryable failure has nothing to show: WPCOM reports the percentage
+	// the attempt died at, which would read as a stalled backup.
+	const showProgress = isStarting || state !== 'will-retry';
+	// `no-backups` and a just-requested backup have no percentage yet, so the bar is indeterminate.
+	const isDeterminate = ! isStarting && state === 'in-progress';
 
 	return (
-		<EmptyState.Root className="jpb-backup-status">
-			<EmptyState.Visual>
-				<EmptyState.Icon icon={ cloudUpload } />
-			</EmptyState.Visual>
-			<EmptyState.Title>
-				{ __( 'Your first cloud backup will be ready soon', 'jetpack-backup-pkg' ) }
-			</EmptyState.Title>
-			{ showProgress && (
-				<div className="jpb-backup-status__progress">
-					{ /*
-					 * Omitting `value` puts ProgressBar into indeterminate mode. One name
-					 * serves both states, and the title above is not associated with the
-					 * bar — see `tests/progress-bar-names.test.tsx`.
-					 */ }
-					<ProgressBar
-						className="jpb-backup-status__bar"
-						value={ isDeterminate ? progress : undefined }
-						aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
-					/>
-					{ isDeterminate && (
-						<Text variant="body-sm" className="jpb-text-muted">
-							{ sprintf(
-								/* translators: %d: how much of the running backup is complete, as a percentage. */
-								__( '%d%%', 'jetpack-backup-pkg' ),
-								progress
+		<Card.Root className="jpb-backup-status">
+			<Card.Content>
+				<EmptyState.Root className="jpb-backup-status__body">
+					<EmptyState.Visual>
+						<EmptyState.Icon
+							className="jpb-backup-status__icon jpb-backup-status__icon--info"
+							icon={ cloudUpload }
+						/>
+					</EmptyState.Visual>
+					{ showProgress && (
+						<div className="jpb-backup-status__progress">
+							{ /* Omitting `value` makes the bar indeterminate. The title is not associated with the bar — see `tests/progress-bar-names.test.tsx`. */ }
+							<ProgressBar
+								className="jpb-backup-status__bar"
+								value={ isDeterminate ? progress : undefined }
+								aria-label={ __( 'Preparing your first cloud backup', 'jetpack-backup-pkg' ) }
+							/>
+							{ isDeterminate && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ sprintf(
+										/* translators: %d: how much of the running backup is complete, as a percentage. */
+										__( '%d%%', 'jetpack-backup-pkg' ),
+										progress
+									) }
+								</Text>
 							) }
-						</Text>
+						</div>
 					) }
-				</div>
-			) }
-			<EmptyState.Description>
-				{ __(
-					'The first backup usually takes a few minutes, so it will become available soon.',
-					'jetpack-backup-pkg'
-				) }
-			</EmptyState.Description>
-		</EmptyState.Root>
+					<EmptyState.Title>{ __( 'Generating backup…', 'jetpack-backup-pkg' ) }</EmptyState.Title>
+					<EmptyState.Description>
+						{ __(
+							'The first backup usually takes a few minutes, so it will become available soon.',
+							'jetpack-backup-pkg'
+						) }
+					</EmptyState.Description>
+				</EmptyState.Root>
+			</Card.Content>
+		</Card.Root>
 	);
 }

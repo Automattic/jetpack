@@ -26,6 +26,7 @@ import {
 } from '../hooks/use-activity-log';
 import { useAnalytics } from '../hooks/use-analytics';
 import { useBackups } from '../hooks/use-backups';
+import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
 import type { ActivitySortOrder } from '../data/api/activity-log';
@@ -209,6 +210,7 @@ function OverviewBody() {
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
+	const isBackupRequested = useBackupRequested();
 	// Owned here, and only here. `BackupNowButton` reads the same query
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
@@ -271,7 +273,13 @@ function OverviewBody() {
 			restorePointsLoading || restorePointsError || restorePointsPaused || hasRestorePoints
 		)
 	) {
-		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
+		return (
+			<BackupStatusPanel
+				state={ backupsState }
+				progress={ progress }
+				isStarting={ isBackupRequested && backupsState !== 'in-progress' }
+			/>
+		);
 	}
 
 	return (
@@ -283,7 +291,9 @@ function OverviewBody() {
 			 * that element is a two-column grid above 960px, and a third
 			 * child would be auto-placed into it.
 			 */ }
-			{ backupsState === 'in-progress' && <BackupStatusBanner progress={ progress } /> }
+			{ ( backupsState === 'in-progress' || isBackupRequested ) && (
+				<BackupStatusBanner progress={ backupsState === 'in-progress' ? progress : undefined } />
+			) }
 			{ /*
 			 * The backup-state read failed. Reported here rather than as a
 			 * takeover for the same reason as the banner: whatever the
