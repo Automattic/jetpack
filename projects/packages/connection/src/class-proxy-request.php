@@ -48,7 +48,7 @@ class Proxy_Request {
 	 *     @type string      $context                Sign as the current user ('user') or as the site ('blog'), or send unsigned ('none'). Default 'user'.
 	 *     @type bool        $allow_fallback_to_blog Sign as the site when the current user is not connected. Default false.
 	 *     @type string      $method                 HTTP method. Default 'GET'.
-	 *     @type array       $query                  Query params.
+	 *     @type array       $query                  Query params. See {@see build_query()} for the ones that are not forwarded.
 	 *     @type string|null $body                   Request body. Default null, which an empty string becomes too.
 	 *     @type string      $version                WordPress.com API version. Default '2'.
 	 *     @type string      $base_api_path          WordPress.com API base, 'wpcom' or 'rest'. Default 'wpcom'.
@@ -170,13 +170,38 @@ class Proxy_Request {
 	}
 
 	/**
-	 * Query string for the params to forward.
+	 * Query string for the params to forward, without `_method` and without unsafe keys.
+	 *
+	 * `Client` rebuilds the URL with add_query_arg(), which writes each key decoded: a key holding
+	 * `%`, `&` or `=` would reach WordPress.com as another param, a method override included.
 	 *
 	 * @param array $query Query params.
 	 * @return string
 	 */
 	private static function build_query( array $query ): string {
-		return http_build_query( $query, '', '&' );
+		unset( $query['_method'] );
+
+		return http_build_query( self::with_safe_keys( $query ), '', '&' );
+	}
+
+	/**
+	 * Drop, at every depth, the params whose key is not made of letters, digits, `_` and `-`.
+	 *
+	 * @param array $params Query params.
+	 * @return array
+	 */
+	private static function with_safe_keys( array $params ): array {
+		$safe = array();
+
+		foreach ( $params as $key => $value ) {
+			if ( ! preg_match( '/^[A-Za-z0-9_-]+$/', (string) $key ) ) {
+				continue;
+			}
+
+			$safe[ $key ] = is_array( $value ) ? self::with_safe_keys( $value ) : $value;
+		}
+
+		return $safe;
 	}
 
 	/**

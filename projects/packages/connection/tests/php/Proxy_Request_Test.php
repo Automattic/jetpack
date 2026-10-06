@@ -246,7 +246,7 @@ class Proxy_Request_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Query params given to the forward, and the ones WordPress.com must receive.
+	 * Query params as PHP hands them over, and the ones WordPress.com must receive.
 	 *
 	 * @return array<string, array{array, array}>
 	 */
@@ -268,6 +268,36 @@ class Proxy_Request_Test extends BaseTestCase {
 				array( 'filter' => array( 'status' => array( 'a b', 'c' ) ) ),
 				array( 'filter' => array( 'status' => array( 'a b', 'c' ) ) ),
 			),
+			'a method override is dropped'            => array(
+				array(
+					'_method' => 'PUT',
+					'period'  => 'day',
+				),
+				array( 'period' => 'day' ),
+			),
+			'an encoded key is dropped'               => array(
+				array(
+					'%5Fmethod' => 'PUT',
+					'period'    => 'day',
+				),
+				array( 'period' => 'day' ),
+			),
+			'a key with a separator is dropped'       => array(
+				array(
+					'x&_method' => 'PUT',
+					'period'    => 'day',
+				),
+				array( 'period' => 'day' ),
+			),
+			'an unsafe nested key is dropped'         => array(
+				array(
+					'filter' => array(
+						'x&_method' => 'PUT',
+						'status'    => 'a',
+					),
+				),
+				array( 'filter' => array( 'status' => 'a' ) ),
+			),
 		);
 	}
 
@@ -278,7 +308,7 @@ class Proxy_Request_Test extends BaseTestCase {
 	 * @param array $expected Query params on the outbound request.
 	 */
 	#[DataProvider( 'data_queries' )]
-	public function test_a_query_param_reaches_wordpress_com_as_written( array $query, array $expected ) {
+	public function test_a_query_param_reaches_wordpress_com_as_written_or_not_at_all( array $query, array $expected ) {
 		Proxy_Request::to_path(
 			'/sites/4242/stats',
 			array(
