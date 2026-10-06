@@ -85,7 +85,6 @@
 - AI: Turn off AI SEO and Search AI Answers when the `jetpack_ai_enabled` filter returns false. [#52748]
 - AI blocks: Show a consistent placeholder in the editor when Jetpack AI is turned off. [#51971]
 - Blocks: Align the premium block upgrade banner with its text on narrow screens. [#52823]
-- Security: Improve validation of stored block attributes.
 - Blocks: Show the selected style in the Calendly and Eventbrite style pickers. [#52843]
 - Blocks: Show upgrade nudges for paid blocks and SEO settings in the editor's brand colors instead of pink. [#52974]
 - Calendly: Make the block preview interactive in the editor once the block is selected. [#52914]
@@ -129,7 +128,6 @@
 - Google Photos: Show an error with a retry option when the picker cannot be opened, instead of loading indefinitely. [#53076]
 - Gravatar Hovercards: Display extra profile details as plain text.
 - Heartbeat: Prevent fatal errors when another plugin loads an older Connection package. [#52390]
-- Security: Improve handling of request parameters in Infinite Scroll.
 - Jetpack Manage: Only show the sidebar link to agency accounts. [#52336]
 - Likes: Hide the "Loading…" placeholder from the widget itself, so it disappears even when the Likes stylesheet fails to load. [#52154]
 - Likes: Let Comment Likes be turned on for a single post in the block editor while Like buttons are off. [#53039]
@@ -165,6 +163,9 @@
 - Search: Show the connection error at the top of the dashboard on every tab. [#52820]
 - Search: Start the experience switch and Restore default confirmations on Cancel, so pressing Enter no longer switches the search experience or deletes a customized template. [#53033]
 - Search: Stop offering Search blocks in the Overlay search sidebar's widget inserter, and flag any already there. [#52670]
+- Security: Improve handling of request parameters in Infinite Scroll.
+- Security: Improve login verification in Account Protection.
+- Security: Improve validation of stored block attributes.
 - SEO: Fix Sitemap and Canonical URLs status to reflect the active modules. [#52516]
 - SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com. [#52100]
 - SEO: Respect excerpt filters in generated `llms.txt` summaries. [#52414]
@@ -194,7 +195,6 @@
 - VideoPress: Prevent the empty library prompt from appearing while videos are loading. [#52819]
 - VideoPress: Show specific validation messages for chapters entered in video descriptions. [#52488]
 - VideoPress: Strengthen authorization for private video playback.
-- Security: Improve login verification in Account Protection.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - AI: Link the AI Answers row to the Search settings page where it is available, and to the docs otherwise. [#52679]
