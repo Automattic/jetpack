@@ -1,17 +1,28 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Icon, Spinner } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { Icon } from '@wordpress/components';
+import { flushSync, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card, CollapsibleCard, LinkButton, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	CollapsibleCard,
+	LinkButton,
+	Skeleton,
+	Spinner,
+	Stack,
+	Text,
+	VisuallyHidden,
+} from '@wordpress/ui';
 import clsx from 'clsx';
 import {
 	completeOnboardingTask,
 	fetchOnboardingTasks,
-	getStoredCompletedTasks,
+	isStoredListComplete,
+	ONBOARDING_TASK_IDS,
 	ONBOARDING_TASKS_QUERY_KEY,
 	type OnboardingTaskId,
 	type OnboardingTaskList,
@@ -145,28 +156,57 @@ const STEPS: ChecklistStep[] = [
  * Render the checklist steps.
  *
  * The cards are uncontrolled, so the step opened by default is decided once, when they mount:
- * steps completed later (by WP.com catching up with the stored copy, or by Skip) keep whatever
- * open state the visitor left them in.
+ * steps completed later (by a refresh from WP.com, or by Skip) keep whatever open state the
+ * visitor left them in.
  *
  * @param props              - Steps props.
  * @param props.completed    - Ids of the completed steps.
+ * @param props.isRefreshing - Whether WP.com is being asked for a fresher list.
  * @param props.skippingStep - Step whose Skip request is in flight, if any.
  * @param props.onSkip       - Complete a step by hand.
  * @return The checklist steps.
  */
 function ChecklistSteps( {
 	completed,
+	isRefreshing,
 	skippingStep,
 	onSkip,
 }: {
 	completed: Set< OnboardingTaskId >;
+	isRefreshing: boolean;
 	skippingStep?: OnboardingTaskId;
 	onSkip: ( stepId: OnboardingTaskId ) => void;
 } ): JSX.Element {
 	const [ firstOpenStep ] = useState( () => STEPS.find( step => ! completed.has( step.id ) )?.id );
+	const [ showSpinners, setShowSpinners ] = useState( isRefreshing );
+
+	// Removing the spinners inside a view transition fades them out instead of cutting them.
+	useEffect( () => {
+		if ( showSpinners === isRefreshing ) {
+			return;
+		}
+		if ( ! document.startViewTransition ) {
+			setShowSpinners( isRefreshing );
+			return;
+		}
+		// Another view transition (e.g. a route change) aborts this one; that's fine.
+		document
+			.startViewTransition( () => flushSync( () => setShowSpinners( isRefreshing ) ) )
+			.ready.catch( () => {} );
+	}, [ isRefreshing, showSpinners ] );
 
 	return (
-		<Stack direction="column" gap="sm" className="jetpack-newsletter-overview__checklist">
+		<Stack
+			direction="column"
+			gap="sm"
+			className="jetpack-newsletter-overview__checklist"
+			aria-busy={ isRefreshing }
+		>
+			{ isRefreshing ? (
+				<VisuallyHidden role="status">
+					{ __( 'Updating checklist…', 'jetpack-newsletter' ) }
+				</VisuallyHidden>
+			) : null }
 			{ STEPS.map( step => {
 				const complete = completed.has( step.id );
 				return (
@@ -202,6 +242,13 @@ function ChecklistSteps( {
 										</Text>
 									) : null }
 								</Card.Title>
+								{ showSpinners && ! complete ? (
+									<Spinner
+										aria-hidden="true"
+										className="jetpack-newsletter-overview__step-spinner"
+										style={ { viewTransitionName: `jetpack-newsletter-step-spinner-${ step.id }` } }
+									/>
+								) : null }
 							</Stack>
 						</CollapsibleCard.Header>
 						<CollapsibleCard.Content>
@@ -227,25 +274,51 @@ function ChecklistSteps( {
 }
 
 /**
+ * Placeholder for the checklist while WP.com is first asked for it.
+ *
+ * @return The checklist skeleton.
+ */
+function ChecklistSkeleton(): JSX.Element {
+	return (
+		<Stack
+			direction="column"
+			gap="sm"
+			className="jetpack-newsletter-overview__checklist"
+			role="status"
+			aria-busy="true"
+		>
+			<VisuallyHidden>{ __( 'Loading checklist…', 'jetpack-newsletter' ) }</VisuallyHidden>
+			{ STEPS.map( step => (
+				<Card.Root
+					key={ step.id }
+					className="jetpack-newsletter-overview__step jetpack-newsletter-overview__step--loading"
+				>
+					<Skeleton className="jetpack-newsletter-overview__step-skeleton" />
+				</Card.Root>
+			) ) }
+		</Stack>
+	);
+}
+
+/**
  * Render the Newsletter onboarding checklist.
  *
- * Completion comes from WP.com, which checks each step and stores it once done. Because that is
- * final, the steps this browser has already seen complete are kept in localStorage: they render
- * straight away, and WP.com is only asked while a step is still open. If the task list can't be
- * loaded, the steps not known to be complete read as open and can still be skipped.
+ * Completion comes from WP.com, which checks each step and stores it once done. Every visit asks
+ * WP.com again, showing the last list it returned meanwhile; only a fully complete list is kept in
+ * localStorage, since it can never reopen. If the task list can't be loaded, the steps read as
+ * open and can still be skipped.
  *
  * @return The onboarding checklist.
  */
 export default function OnboardingChecklist(): JSX.Element {
 	const queryClient = useQueryClient();
-	const [ storedCompleted ] = useState( getStoredCompletedTasks );
-	const allStoredComplete = STEPS.every(
-		step => step.id === 'start' || storedCompleted.includes( step.id )
-	);
+	const [ storedComplete ] = useState( isStoredListComplete );
 	const tasksQuery = useQuery( {
 		queryKey: ONBOARDING_TASKS_QUERY_KEY,
 		queryFn: fetchOnboardingTasks,
-		enabled: ! allStoredComplete,
+		enabled: ! storedComplete,
+		// Steps complete outside this screen, so ask again on every visit despite the cached list.
+		refetchOnMount: 'always',
 	} );
 	const skipMutation = useMutation( {
 		mutationFn: completeOnboardingTask,
@@ -256,16 +329,14 @@ export default function OnboardingChecklist(): JSX.Element {
 	const { mutate: skip } = skipMutation;
 	const handleSkip = useCallback( ( stepId: OnboardingTaskId ) => skip( stepId ), [ skip ] );
 
-	// Without a stored copy, wait for WP.com so the first open step is the one opened by default.
-	if ( tasksQuery.isPending && storedCompleted.length === 0 ) {
-		return (
-			<Stack direction="row" justify="center" className="jetpack-newsletter-overview__checklist">
-				<Spinner />
-			</Stack>
-		);
+	// Without a list, wait for WP.com so the first open step is the one opened by default.
+	if ( ! storedComplete && tasksQuery.isPending ) {
+		return <ChecklistSkeleton />;
 	}
 
-	const completed = new Set< OnboardingTaskId >( [ 'start', ...storedCompleted ] );
+	const completed = new Set< OnboardingTaskId >(
+		storedComplete ? ONBOARDING_TASK_IDS : [ 'start' ]
+	);
 	tasksQuery.data?.tasks.forEach( task => {
 		if ( task.complete ) {
 			completed.add( task.id );
@@ -275,6 +346,7 @@ export default function OnboardingChecklist(): JSX.Element {
 	return (
 		<ChecklistSteps
 			completed={ completed }
+			isRefreshing={ tasksQuery.isFetching }
 			skippingStep={ skipMutation.isPending ? skipMutation.variables : undefined }
 			onSkip={ handleSkip }
 		/>

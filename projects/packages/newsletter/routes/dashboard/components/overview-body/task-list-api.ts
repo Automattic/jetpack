@@ -19,10 +19,10 @@ const ONBOARDING_PATH = '/wpcom/v2/newsletter/task-lists/onboarding';
 
 export const ONBOARDING_TASKS_QUERY_KEY = [ 'newsletter', 'task-lists', 'onboarding' ] as const;
 
-const STORAGE_KEY_PREFIX = 'jetpack-newsletter-onboarding-completed-';
+const STORAGE_KEY_PREFIX = 'jetpack-newsletter-onboarding-complete-';
 
 /**
- * localStorage key for this site's completed tasks, or null when the WP.com blog id is unknown.
+ * localStorage key for this site's checklist, or null when the WP.com blog id is unknown.
  *
  * @return The storage key.
  */
@@ -32,68 +32,55 @@ function getStorageKey(): string | null {
 }
 
 /**
- * Read the ids of the tasks this browser has already seen complete.
+ * Whether this browser has already seen every task complete. Completion is final on WP.com, so a
+ * complete list never needs asking about again.
  *
- * Completion is final on WP.com, so this copy can only lag behind it, never contradict it: it is
- * safe to show these as complete before WP.com answers.
- *
- * @return Completed task ids.
+ * @return Whether the whole checklist is stored as complete.
  */
-export function getStoredCompletedTasks(): OnboardingTaskId[] {
+export function isStoredListComplete(): boolean {
 	const key = getStorageKey();
 	if ( ! key ) {
-		return [];
+		return false;
 	}
 	try {
-		const stored: unknown = JSON.parse( window.localStorage.getItem( key ) ?? '[]' );
-		return Array.isArray( stored )
-			? ONBOARDING_TASK_IDS.filter( taskId => stored.includes( taskId ) )
-			: [];
+		return window.localStorage.getItem( key ) === '1';
 	} catch {
-		return [];
+		return false;
 	}
 }
 
 /**
- * Add a task list's completed tasks to the stored copy. Tasks are never removed from it.
+ * Remember the checklist once WP.com reports every task complete. Individual tasks are not stored,
+ * so open checklists always show WP.com's current answer.
  *
  * @param taskList - Task list from WP.com.
  */
-function storeCompletedTasks( taskList: OnboardingTaskList ): void {
+function storeIfListComplete( taskList: OnboardingTaskList ): void {
 	const key = getStorageKey();
-	if ( ! key ) {
+	if ( ! key || ! taskList.tasks.every( task => task.complete ) ) {
 		return;
 	}
-	const completed = new Set( getStoredCompletedTasks() );
-	taskList.tasks.forEach( task => {
-		if ( task.complete ) {
-			completed.add( task.id );
-		}
-	} );
 	try {
-		window.localStorage.setItem(
-			key,
-			JSON.stringify( ONBOARDING_TASK_IDS.filter( taskId => completed.has( taskId ) ) )
-		);
+		window.localStorage.setItem( key, '1' );
 	} catch {
-		// No-op: the checklist still works from WP.com, just without the fast path.
+		// No-op: the checklist still works from WP.com, it is just asked again next time.
 	}
 }
 
 /**
- * Fetch the onboarding task list and update the stored copy. WP.com decides each task's
+ * Fetch the onboarding task list, remembering it once complete. WP.com decides each task's
  * completion; on Jetpack sites the request is proxied there.
  *
  * @return The onboarding task list.
  */
 export async function fetchOnboardingTasks(): Promise< OnboardingTaskList > {
 	const taskList = await apiFetch< OnboardingTaskList >( { path: ONBOARDING_PATH } );
-	storeCompletedTasks( taskList );
+	storeIfListComplete( taskList );
 	return taskList;
 }
 
 /**
- * Mark an onboarding task complete by hand and update the stored copy. Completion is final.
+ * Mark an onboarding task complete by hand, remembering the list once complete. Completion is final.
  *
  * @param taskId - Task to complete.
  * @return The updated onboarding task list.
@@ -105,6 +92,6 @@ export async function completeOnboardingTask(
 		path: `${ ONBOARDING_PATH }/tasks/${ taskId }/complete`,
 		method: 'POST',
 	} );
-	storeCompletedTasks( taskList );
+	storeIfListComplete( taskList );
 	return taskList;
 }

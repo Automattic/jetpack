@@ -55,6 +55,20 @@
 		box-sizing: border-box;
 	}
 
+	&__step-spinner {
+		flex: none;
+	}
+
+	&__step--loading {
+		padding: var(--wpds-dimension-padding-sm);
+	}
+
+	&__step-skeleton {
+		inline-size: 100%;
+		min-block-size: 56px;
+		border-radius: var(--wpds-border-radius-sm);
+	}
+
 	&__step-header {
 
 		div[role="button"] {
@@ -140,6 +154,23 @@
 		// No font-size token matches 24px; nearest are xl (20px) and 2xl (32px).
 		&__title {
 			font-size: 24px !important;
+		}
+	}
+}
+
+// Names match the spinners' view-transition-name, one per open step.
+@each $step in subscribe_form, subscribers, send_newsletter {
+
+	::view-transition-group(jetpack-newsletter-step-spinner-#{$step}) {
+		animation-duration: 0.3s;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		::view-transition-group(jetpack-newsletter-step-spinner-#{$step}),
+		::view-transition-old(jetpack-newsletter-step-spinner-#{$step}),
+		::view-transition-new(jetpack-newsletter-step-spinner-#{$step}) {
+			animation: none;
 		}
 	}
 }

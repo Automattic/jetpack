@@ -29,9 +29,7 @@ import OnboardingChecklist from '../onboarding-checklist';
 
 const LIST_PATH = '/wpcom/v2/newsletter/task-lists/onboarding';
 
-const STORAGE_KEY = 'jetpack-newsletter-onboarding-completed-42';
-
-const getStored = () => JSON.parse( window.localStorage.getItem( STORAGE_KEY ) ?? 'null' );
+const STORAGE_KEY = 'jetpack-newsletter-onboarding-complete-42';
 
 /**
  * Build a task list response.
@@ -51,12 +49,14 @@ function taskList( completed: string[] = [] ) {
 
 /**
  * Render the checklist with an isolated query cache.
+ *
+ * @param queryClient - Query client, to start from a cached list.
  */
-function renderChecklist(): void {
-	const queryClient = new QueryClient( {
+function renderChecklist(
+	queryClient = new QueryClient( {
 		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-	} );
-
+	} )
+): void {
 	render(
 		<QueryClientProvider client={ queryClient }>
 			<OnboardingChecklist />
@@ -225,30 +225,68 @@ describe( 'OnboardingChecklist', () => {
 		await findStep( /start a newsletter/i );
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
-	it( 'keeps a copy of the completed steps in localStorage', async () => {
-		mockApiFetch.mockResolvedValue( taskList( [ 'subscribers' ] ) );
-		renderChecklist();
-
-		await waitFor( () => expect( getStored() ).toEqual( [ 'start', 'subscribers' ] ) );
-	} );
-
-	it( 'shows the stored completed steps before WP.com answers', async () => {
-		window.localStorage.setItem( STORAGE_KEY, JSON.stringify( [ 'start', 'subscribe_form' ] ) );
+	it( 'shows a skeleton until WP.com answers', async () => {
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 		renderChecklist();
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Loading checklist…' );
+		expect(
+			screen.queryByRole( 'button', { name: /start a newsletter/i } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the cached list, with spinners on the open steps, while asking WP.com again', async () => {
+		const queryClient = new QueryClient( {
+			defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+		} );
+		queryClient.setQueryData(
+			[ 'newsletter', 'task-lists', 'onboarding' ],
+			taskList( [ 'subscribe_form' ] )
+		);
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
+		renderChecklist( queryClient );
 
 		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
 			'Add a subscribe form to your siteComplete'
 		);
-		expect( getStep( /get your first 3 subscribers/i ) ).toHaveAttribute( 'aria-expanded', 'true' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Updating checklist…' );
+		// Only `subscribers` and `send_newsletter` are still open.
+		expect( screen.getAllByRole( 'presentation', { hidden: true } ) ).toHaveLength( 2 );
 		expect( mockApiFetch ).toHaveBeenCalledWith( { path: LIST_PATH } );
 	} );
 
-	it( 'does not ask WP.com when every step is stored as complete', async () => {
-		window.localStorage.setItem(
-			STORAGE_KEY,
-			JSON.stringify( [ 'start', 'subscribe_form', 'subscribers', 'send_newsletter' ] )
+	it( 'removes the spinners in a view transition once WP.com answers', async () => {
+		const startViewTransition = jest.fn( ( update: () => void ) => {
+			queueMicrotask( update );
+			return { ready: Promise.resolve() };
+		} );
+		Object.assign( document, { startViewTransition } );
+		const queryClient = new QueryClient( {
+			defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+		} );
+		queryClient.setQueryData( [ 'newsletter', 'task-lists', 'onboarding' ], taskList() );
+		renderChecklist( queryClient );
+
+		await waitFor( () =>
+			expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument()
 		);
+		expect( startViewTransition ).toHaveBeenCalledTimes( 1 );
+		delete ( document as Partial< Document > ).startViewTransition;
+	} );
+
+	it.each( [
+		[ 'stores', [ 'subscribe_form', 'subscribers', 'send_newsletter' ], '1' ],
+		[ 'does not store', [ 'subscribe_form', 'subscribers' ], null ],
+	] )( '%s the list when WP.com reports %j complete', async ( _, completed, stored ) => {
+		mockApiFetch.mockResolvedValue( taskList( completed ) );
+		renderChecklist();
+
+		await findStep( /start a newsletter/i );
+		expect( window.localStorage.getItem( STORAGE_KEY ) ).toBe( stored );
+	} );
+
+	it( 'does not ask WP.com when the list is stored as complete', async () => {
+		window.localStorage.setItem( STORAGE_KEY, '1' );
 		renderChecklist();
 
 		expect( getStep( /send your first newsletter/i ) ).toHaveAccessibleName(
@@ -256,40 +294,5 @@ describe( 'OnboardingChecklist', () => {
 		);
 		expect( screen.queryByRole( 'button', { expanded: true } ) ).not.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
-	} );
-
-	it( 'never drops a stored completion when WP.com answers', async () => {
-		window.localStorage.setItem( STORAGE_KEY, JSON.stringify( [ 'start', 'subscribe_form' ] ) );
-		mockApiFetch.mockResolvedValue( taskList( [ 'subscribers' ] ) );
-		renderChecklist();
-
-		await waitFor( () =>
-			expect( getStored() ).toEqual( [ 'start', 'subscribe_form', 'subscribers' ] )
-		);
-		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
-			'Add a subscribe form to your siteComplete'
-		);
-	} );
-
-	it( 'stores a skipped step', async () => {
-		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
-			Promise.resolve( method === 'POST' ? taskList( [ 'subscribe_form' ] ) : taskList() )
-		);
-		renderChecklist();
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- Avoid adding a dependency for one click.
-		fireEvent.click( await screen.findByRole( 'button', { name: 'Skip' } ) );
-
-		await waitFor( () => expect( getStored() ).toEqual( [ 'start', 'subscribe_form' ] ) );
-	} );
-
-	it( 'ignores an unreadable stored copy', async () => {
-		window.localStorage.setItem( STORAGE_KEY, '{not json' );
-		renderChecklist();
-
-		await expect( findStep( /add a subscribe form to your site/i ) ).resolves.toHaveAttribute(
-			'aria-expanded',
-			'true'
-		);
 	} );
 } );
