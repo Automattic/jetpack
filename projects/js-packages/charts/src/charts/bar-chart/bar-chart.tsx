@@ -767,16 +767,22 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											<WholeNumberTicks { ...wholeNumberTicksProps }>
 												{ valueTicks => (
 													<>
-														<Axis
-															{ ...chartOptions.axis.x }
-															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
-														/>
-														<Axis
-															{ ...chartOptions.axis.y }
-															{ ...( ! horizontal && valueTicks
-																? { tickValues: valueTicks }
-																: {} ) }
-														/>
+														{ chartOptions.axis.x.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.x }
+																{ ...( horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
+														{ chartOptions.axis.y.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( ! horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
 													</>
 												) }
 											</WholeNumberTicks>
