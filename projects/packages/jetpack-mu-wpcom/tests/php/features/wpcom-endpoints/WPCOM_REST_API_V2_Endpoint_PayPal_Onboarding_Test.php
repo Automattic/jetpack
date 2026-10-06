@@ -1130,6 +1130,208 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
+	 * Test that a blog's own tracking ID authorizes it even after the seller connected another site.
+	 *
+	 * PayPal's record then names the other blog as the latest referral, but the
+	 * tracking ID this blog onboarded the seller with still resolves to them.
+	 */
+	public function test_forwarded_request_is_authorized_by_the_blogs_own_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'?tracking_id='                    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT1' ) ),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response( 9999 ),
+				'/v1/checkout/payment-resources'   => $this->http_response( 200, array( 'resources' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request(
+				array(
+					'method'      => 'GET',
+					'tracking_id' => 'woo-ncps-1234-1700000000',
+				)
+			)
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 200, $result->get_data()['status'] );
+		$this->assertStringContainsString( '/merchant-integrations?tracking_id=woo-ncps-1234-1700000000', $requests[1]['url'] );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( '/merchant-integrations/MERCHANT1', $request['url'] );
+		}
+		$this->assertSame( 1, get_transient( $this->merchant_binding_transient() ) );
+	}
+
+	/**
+	 * Test that a tracking ID issued for another blog is refused before PayPal is asked.
+	 */
+	public function test_forwarded_request_refuses_another_blogs_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-9999-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertEmpty( $requests );
+	}
+
+	/**
+	 * Test that a blog's tracking ID resolving to a different seller does not authorize the one named.
+	 */
+	public function test_forwarded_request_refuses_a_tracking_id_naming_another_seller() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT2' ) ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( '/v1/checkout/payment-resources', $request['url'] );
+		}
+		$this->assertFalse( get_transient( $this->merchant_binding_transient() ) );
+	}
+
+	/**
+	 * Test that a tracking ID PayPal has no referral for is refused, since the blog never onboarded anyone with it.
+	 */
+	public function test_forwarded_request_refuses_a_tracking_id_paypal_does_not_know() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => $this->http_response( 404, array( 'name' => 'RESOURCE_NOT_FOUND' ) ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that PayPal being unreachable during the tracking ID lookup is reported as such, not as a refusal.
+	 */
+	public function test_forwarded_request_reports_paypal_unreachable_during_the_tracking_id_lookup() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => new WP_Error( 'http_request_failed', 'cURL error 28' ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertNotSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a blog reading a seller with its own tracking ID gets the record even when the latest referral is another blog's.
+	 */
+	public function test_merchant_integration_is_read_with_the_blogs_own_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'?tracking_id='                    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT1' ) ),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response( 9999 ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request(
+				array(
+					'merchant_id' => 'MERCHANT1',
+					'tracking_id' => 'woo-ncps-1234-1700000000',
+				)
+			)
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
+		$this->assertSame( 'woo-ncps-9999-1700000000', $result->get_data()['tracking_id'] );
+		$this->assertSame( 1, get_transient( $this->merchant_binding_transient() ) );
+	}
+
+	/**
+	 * Test that a seller found by a blog's tracking ID is reported even when another blog referred them since.
+	 */
+	public function test_merchant_integration_by_tracking_id_tolerates_a_later_referral_elsewhere() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'?tracking_id='                    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT1' ) ),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response( 9999 ),
+			)
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
+	}
+
+	/**
+	 * Test that a blog with a tracking ID of another blog's cannot read a seller by merchant ID either.
+	 */
+	public function test_merchant_integration_refuses_another_blogs_tracking_id_with_a_merchant_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request(
+				array(
+					'merchant_id' => 'MERCHANT1',
+					'tracking_id' => 'woo-ncps-9999-1700000000',
+				)
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertEmpty( $requests );
+	}
+
+	/**
 	 * Test that only the Payment Links & Buttons API can be called through the proxy.
 	 *
 	 * @dataProvider provide_paths

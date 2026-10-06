@@ -3,7 +3,9 @@
  */
 import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
+	ExporterCsvDownloadButton,
 	LeaderboardChart,
+	LOCATIONS_GEO_MODES,
 	LocationsGeoChart,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
@@ -15,11 +17,14 @@ import {
 	calculateDelta,
 	flagUrl,
 	getCombinedPeriodMax,
+	getLocationsReportSection,
+	locationsCsvExporter,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LocationsGeoRow,
+	type LocationsScope,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Disabled } from '@wordpress/components';
@@ -49,15 +54,6 @@ type LocationsDrillDown = {
 	region?: string;
 };
 
-// Tab ids owned by the Locations report; `ReportLink` takes a bare string, so
-// naming them here is what catches a typo at build time.
-type LocationsReportSection = 'countries' | 'regions' | 'cities';
-
-const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
-	country: 'countries',
-	region: 'regions',
-	city: 'cities',
-};
 const DEFAULT_GEO_GRANULARITY: GeoGranularity = 'country';
 
 type LocationsInnerProps = {
@@ -88,17 +84,28 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		drillDepth = drillDownPath.region ? 2 : 1;
 	}
 
+	const scope = useMemo(
+		(): LocationsScope | undefined =>
+			drillDownPath
+				? { country: drillDownPath.country.code, region: drillDownPath.region }
+				: undefined,
+		[ drillDownPath ]
+	);
+
 	const views = useLocationViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		geoMode,
-		filter: drillDownPath
-			? { country: drillDownPath.country.code, region: drillDownPath.region }
-			: undefined,
+		filter: scope,
 	} );
 
 	const { isLoading, isFetching, isError, refetch } = views;
 	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+
+	const csvExporter = useMemo(
+		() => locationsCsvExporter( getLocationsReportSection( geoMode ), scope ),
+		[ geoMode, scope ]
+	);
 
 	// The held level's rows would land on the wrong map, so the map waits empty for the new ones.
 	const geoRows = useMemo(
@@ -227,51 +234,62 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	// The back link stays a sibling of <WidgetState> so users can drill back up
 	// from an empty or failed drilled view.
 	return (
-		<div className={ styles.content }>
-			{ bodyHeader }
-			<div className={ styles.stateArea }>
-				<WidgetState
-					isLoading={ isLoading && ! isHeld }
-					isFetching={ isFetching }
-					isError={ isError }
-					isEmpty={ data.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load location data. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-				>
-					<div className={ styles.chartArea }>
-						<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
-							<LeaderboardChart
-								data={ leaderboardData }
-								loading={ isHeld }
-								withOverlayLabel
-								withComparison={ hasComparison }
-								showLegend={ false }
-								dataFormat={ {
-									type: 'number',
-									options: { useMultipliers: true, decimals: 0 },
-								} }
-								className={ styles.leaderboard }
-							/>
-						</Disabled>
-						<div className={ styles.geoChart }>
-							<LocationsGeoChart
-								rows={ geoRows }
-								mode={ geoMode }
-								focusCountry={ focusCountry }
-								resizeDebounceTime={ 100 }
-							/>
+		<>
+			<div className={ styles.content }>
+				{ bodyHeader }
+				<div className={ styles.stateArea }>
+					<WidgetState
+						isLoading={ isLoading && ! isHeld }
+						isFetching={ isFetching }
+						isError={ isError }
+						isEmpty={ data.length === 0 }
+						error={ {
+							description: __(
+								"We couldn't load location data. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							actions: [
+								{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+							],
+						} }
+					>
+						<div className={ styles.chartArea }>
+							<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
+								<LeaderboardChart
+									data={ leaderboardData }
+									loading={ isHeld }
+									withOverlayLabel
+									withComparison={ hasComparison }
+									showLegend={ false }
+									dataFormat={ {
+										type: 'number',
+										options: { useMultipliers: true, decimals: 0 },
+									} }
+									className={ styles.leaderboard }
+								/>
+							</Disabled>
+							<div className={ styles.geoChart }>
+								<LocationsGeoChart
+									rows={ geoRows }
+									mode={ geoMode }
+									focusCountry={ focusCountry }
+									resizeDebounceTime={ 100 }
+								/>
+							</div>
 						</div>
-					</div>
-				</WidgetState>
+					</WidgetState>
+				</div>
 			</div>
-		</div>
+			<WidgetFooter>
+				{ /* View all opens the whole tab; only the download follows the drill-down. */ }
+				<ReportLink report="locations" section={ getLocationsReportSection( geoGranularity ) } />
+				<ExporterCsvDownloadButton
+					exporter={ csvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ data.length }
+				/>
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -284,9 +302,9 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	// A persisted layout can carry a granularity this widget no longer knows, and
 	// it becomes both an endpoint path segment and a report tab.
 	const storedGranularity = attributes?.geoGranularity ?? DEFAULT_GEO_GRANULARITY;
-	// `in` would also accept inherited keys such as `toString`, which would then
-	// reach the endpoint as a path segment.
-	const geoGranularity = Object.prototype.hasOwnProperty.call( REPORT_SECTIONS, storedGranularity )
+	const geoGranularity = ( Object.values( LOCATIONS_GEO_MODES ) as string[] ).includes(
+		storedGranularity
+	)
 		? storedGranularity
 		: DEFAULT_GEO_GRANULARITY;
 
@@ -295,9 +313,6 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 			<div className={ styles.root }>
 				{ /* Keyed so a drill-down picked in one mode never outlives a switch to another. */ }
 				<LocationsInner key={ geoGranularity } geoGranularity={ geoGranularity } />
-				<WidgetFooter>
-					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

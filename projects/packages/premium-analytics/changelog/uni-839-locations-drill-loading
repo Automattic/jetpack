@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Locations: Keep the previous list on screen, dimmed, while a drill-down loads, and move the map to the picked country straight away.

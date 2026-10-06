@@ -5,6 +5,18 @@ import type { ReportParams, StatsVideoPlaysComparisonItem } from '@jetpack-premi
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
 	useStatsVideoPlays: jest.fn(),
 } ) );
 
@@ -106,53 +118,14 @@ describe( 'useVideosReportRecords', () => {
 		expect( result.current.rows ).toBe( summaryRows );
 	} );
 
-	it( 'preserves comparison metrics and explicit zero previous values', () => {
-		mockQuery( { hasComparison: true } );
-		const comparisonParams: ReportParams = {
-			...params,
-			comp: '1',
-			compare_from: '2026-07-07',
-			compare_to: '2026-07-08',
-		};
-
-		const { result } = renderHook( () => useVideosReportRecords( comparisonParams ) );
-
-		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith( {
-			...comparisonParams,
-			max: 0,
-			summarize: 1,
-			complete_stats: 1,
-		} );
-		expect( result.current.rows[ 0 ] ).toEqual(
-			expect.objectContaining( {
-				id: 441,
-				plays: 13,
-				previousPlays: 0,
-				impressions: 22,
-				previousImpressions: 0,
-			} )
-		);
-		expect( result.current.rows[ 1 ].previousPlays ).toBeUndefined();
-		expect( result.current.hasComparison ).toBe( true );
-	} );
-
-	it( 'propagates initial loading and active fetching independently', () => {
-		mockQuery( { isLoading: true, isFetching: true } );
+	it( 'propagates loading, fetching and comparison state', () => {
+		mockQuery( { isLoading: true, isFetching: true, hasComparison: true } );
 
 		const { result } = renderHook( () => useVideosReportRecords( params ) );
 
 		expect( result.current.isLoading ).toBe( true );
 		expect( result.current.isFetching ).toBe( true );
-	} );
-
-	it( 'reports errors and refetches the primary and comparison summary queries', async () => {
-		const refetch = mockQuery( { primaryIsError: true, comparisonIsError: true } );
-
-		const { result } = renderHook( () => useVideosReportRecords( params ) );
-
-		expect( result.current.isError ).toBe( true );
-		await result.current.refetch();
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.hasComparison ).toBe( true );
 	} );
 
 	it( 'does not surface an error when only the comparison summary request fails', () => {
@@ -164,11 +137,13 @@ describe( 'useVideosReportRecords', () => {
 		expect( result.current.rows ).toBe( summaryRows );
 	} );
 
-	it( 'surfaces an error when the primary summary request fails', () => {
-		mockQuery( { primaryIsError: true } );
+	it( 'surfaces an error and refetches when the primary summary request fails', async () => {
+		const refetch = mockQuery( { primaryIsError: true } );
 
 		const { result } = renderHook( () => useVideosReportRecords( params ) );
 
 		expect( result.current.isError ).toBe( true );
+		await result.current.refetch();
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

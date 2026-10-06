@@ -8,3 +8,5 @@ import '../../packages/widgets-toolkit/src/report-exports/__tests__/clicks-aggre
 import '../../packages/widgets-toolkit/src/report-exports/__tests__/clicks-csv-group.test';
 import '../../packages/widgets-toolkit/src/report-exports/__tests__/referrers-aggregate.test';
 import '../../packages/widgets-toolkit/src/report-exports/__tests__/search-terms-aggregate.test';
+import '../../packages/widgets-toolkit/src/report-exports/__tests__/posts.test';
+import '../../packages/widgets-toolkit/src/hooks/__tests__/use-stored-detail-layout.test';

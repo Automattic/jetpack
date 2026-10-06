@@ -28,6 +28,7 @@ export function useClicksReportRecords( reportParams: ReportParams ) {
 
 	return {
 		isError: report.isError,
+		error: report.error,
 		refetch: report.refetch,
 		rows,
 		hasComparison: report.hasComparison,

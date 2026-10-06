@@ -1,15 +1,14 @@
 import {
 	Button,
-	Notice,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useAllProducts } from '../../data/products/use-all-products';
@@ -311,32 +310,23 @@ const ProductDetailTable = ( {
 	// If the plugin cannot be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
 	const cantInstallPluginNotice = cantInstallPlugin && (
-		<Notice
-			level="error"
-			hideCloseButton
-			title={
-				<Text>
-					{ sprintf(
-						// translators: %s is the plugin name.
-						__(
-							"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
-							'jetpack-my-jetpack'
-						),
-						title
-					) }
-				</Text>
-			}
-			actions={ [
-				<Button
-					key="get"
-					variant="secondary"
-					href={ `https://wordpress.org/plugins/${ pluginSlug }` }
-					isExternalLink
-				>
+		<Notice.Root intent="error">
+			<Notice.Description>
+				{ sprintf(
+					// translators: %s is the plugin name.
+					__(
+						"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+						'jetpack-my-jetpack'
+					),
+					title
+				) }
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionLink href={ `https://wordpress.org/plugins/${ pluginSlug }` } openInNewTab>
 					{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-				</Button>,
-			] }
-		/>
+				</Notice.ActionLink>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 
 	// The feature list/descriptions for the pricing table.

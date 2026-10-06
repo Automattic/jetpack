@@ -10,9 +10,11 @@ import { createElement } from 'react';
  */
 import { useStatsClicks } from '../../hooks/use-stats-clicks';
 import { useStatsFileDownloads } from '../../hooks/use-stats-file-downloads';
+import { useStatsLocations } from '../../hooks/use-stats-locations';
 import { useStatsReferrers } from '../../hooks/use-stats-referrers';
 import { useStatsSearchTerms } from '../../hooks/use-stats-search-terms';
 import { useStatsTopAuthors } from '../../hooks/use-stats-top-authors';
+import { useStatsUtm, type StatsUtmParams } from '../../hooks/use-stats-utm';
 import { useStatsVideoPlays } from '../../hooks/use-stats-video-plays';
 import { queryClient } from '../../providers/query-client-provider';
 import {
@@ -20,13 +22,16 @@ import {
 	fetchStatsClicksRows,
 	fetchStatsEmailSummaryRows,
 	fetchStatsFileDownloadsRows,
+	fetchStatsLocationsRows,
 	fetchStatsReferrersRows,
 	fetchStatsSearchTermsReport,
 	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
+	fetchStatsUtmRows,
 	fetchStatsVideoPlaysRows,
 } from '../fetch-stats-report-rows';
+import type { StatsLocationsParams } from '../stats-locations-query';
 import type { StatsReportParams } from '../stats-query';
 import type { ReactNode } from 'react';
 
@@ -148,6 +153,14 @@ const RANGE = {
 const FULL = { ...RANGE, max: 0, summarize: 1, period: 'day' } as StatsReportParams;
 const AUTHORS = { ...RANGE, max: 0 } as StatsReportParams;
 const VIDEO_SUMMARY = { ...RANGE, max: 0, summarize: 1, complete_stats: 1 } as StatsReportParams;
+const LOCATIONS = { ...FULL, geoMode: 'region', filter_by_country: 'US' } as StatsLocationsParams;
+const UTM = {
+	...RANGE,
+	max: 0,
+	summarize: 0,
+	query_top_posts: true,
+	utmParam: 'utm_campaign',
+} as StatsUtmParams;
 
 describe( 'report row fetchers', () => {
 	beforeEach( () => {
@@ -163,6 +176,28 @@ describe( 'report row fetchers', () => {
 	function requestedPaths(): string[] {
 		return mockApiFetch.mock.calls.map( ( [ { path } ] ) => path );
 	}
+
+	it( 'fetches every location row inside the requested country and region', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-03-10',
+			summary: { views: [ { country_code: 'US', location: 'Saint Cloud', views: 4 } ] },
+			'country-info': { US: { country_full: 'United States' } },
+		} );
+
+		const rows = await fetchStatsLocationsRows( {
+			...FULL,
+			geoMode: 'city',
+			filter_by_country: 'US',
+			filter_by_region: 'Minnesota',
+		} );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/location-views/city' );
+		expect( requestedPaths()[ 0 ] ).toContain( 'filter_by_country=US' );
+		expect( requestedPaths()[ 0 ] ).toContain( 'filter_by_region=Minnesota' );
+		expect( requestedPaths()[ 0 ] ).toContain( 'max=0' );
+		expect( rows.map( row => [ row.label, row.views ] ) ).toEqual( [ [ 'Saint Cloud', 4 ] ] );
+	} );
 
 	it( 'fetches every file download', async () => {
 		mockApiFetch.mockResolvedValue( {
@@ -317,6 +352,8 @@ const SHARED_QUERY_CASES: [
 		() => fetchStatsVideoPlaysRows( VIDEO_SUMMARY ),
 		() => useStatsVideoPlays( VIDEO_SUMMARY ),
 	],
+	[ 'UTM', () => fetchStatsUtmRows( UTM ), () => useStatsUtm( UTM ) ],
+	[ 'locations', () => fetchStatsLocationsRows( LOCATIONS ), () => useStatsLocations( LOCATIONS ) ],
 ];
 
 describe( 'report row fetchers and the report hooks', () => {

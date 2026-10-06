@@ -25,7 +25,7 @@ export function getClicksFields( withComparison = false ): Field< ClickRow >[] {
 	return [
 		{
 			id: 'clickedUrl',
-			label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Link', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.clickedUrl,

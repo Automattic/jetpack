@@ -2,6 +2,7 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/checkpoint/passport';
+import { saveGuest } from './guest';
 import type { Details, FormSettings, Commenter } from './types';
 
 /**
@@ -40,9 +41,13 @@ export function createSignals( formSettings: FormSettings ) {
 	const isBoxOpen = signal( false );
 	const isOptionsOpen = signal( false );
 	const isDialogOpen = signal( false );
-	const isEditingDetails = signal( false );
-	// The dialog's WordPress.com log-in, for a link outside it to start inside a click, where a popup is allowed.
-	const logIn: { current: ( ( fromDialog?: boolean ) => void ) | null } = { current: null };
+
+	const forget = () => {
+		saveGuest( null );
+		details.value = { author: '', email: '', url: '' };
+		rememberDetails.value = false;
+		commenter.value = { kind: 'unknown' };
+	};
 
 	return {
 		formSettings,
@@ -56,8 +61,7 @@ export function createSignals( formSettings: FormSettings ) {
 		isBoxOpen,
 		isOptionsOpen,
 		isDialogOpen,
-		isEditingDetails,
-		logIn,
+		forget,
 	} as const;
 }
 

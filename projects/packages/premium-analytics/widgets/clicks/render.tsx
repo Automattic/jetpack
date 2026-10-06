@@ -2,11 +2,9 @@
  * External dependencies
  */
 import {
-	mergeStatsClicksComparisonRows,
 	useStatsClicks,
 	type StatsClicksComparisonItem,
 	type StatsClicksItem,
-	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -87,7 +85,11 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 	return item.link ?? '';
 }
 
-function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+/**
+ * Maps a merged data-layer row (comparison matching and the row cap happen in
+ * `mergeStatsClicksComparisonRows`) onto the widget's row shape.
+ */
+export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	const href = safeHttpUrl( item.link );
 
 	return {
@@ -99,36 +101,6 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
-}
-
-/**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present. Rows are capped
- * client-side by `max`; `max = 0` keeps all rows.
- */
-export function toClickRowsWithComparison(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
-	const clickRows = rows.map( toClickRow );
-
-	return {
-		rows: clickRows,
-		hasComparison,
-	};
-}
-
-/**
- * `toClickRowsWithComparison` without the `hasComparison` flag.
- */
-export function toClickRows(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): ClickRow[] {
-	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
 /**

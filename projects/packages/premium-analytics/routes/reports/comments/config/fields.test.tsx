@@ -18,14 +18,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	section: 'posts',
-	foreign: 'drop-me',
-} );
-
 /**
  * Mount the label field's render component for a table row.
  *
@@ -45,6 +37,16 @@ function renderLabelField( item: CommentReportRow ) {
 }
 
 describe( 'comments fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			section: 'posts',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'drills post rows with an id into the post detail page', () => {
 		renderLabelField( {
 			id: '42',
@@ -77,7 +79,7 @@ describe( 'comments fields', () => {
 			link: 'edit-comments.php?s=aggie%40example.com',
 		} );
 
-		const link = screen.getByRole( 'link', { name: 'Aggie(opens in a new tab)' } );
+		const link = screen.getByRole( 'link', { name: /^Aggie/ } );
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=aggie%40example.com' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

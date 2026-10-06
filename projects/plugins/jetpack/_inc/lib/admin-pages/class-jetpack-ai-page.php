@@ -132,8 +132,10 @@ class Jetpack_AI_Page {
 			'jetpack-ai',
 			array( $this, 'render' ),
 			null,
-			// No product gate: the Hub also holds the MCP and Connectors tab, which works with AI off.
-			array( 'key' => 'jetpack-ai' )
+			array(
+				'product' => 'jetpack-ai',
+				'key'     => 'jetpack-ai',
+			)
 		);
 	}
 
@@ -352,7 +354,7 @@ class Jetpack_AI_Page {
 					? 'admin.php?page=my-jetpack#/connection'
 					: 'admin.php?page=jetpack-settings#/connect-user',
 				'manageUrl'         => $has_my_jetpack
-					? 'admin.php?page=my-jetpack#/products'
+					? 'admin.php?page=my-jetpack#/features'
 					: 'admin.php?page=jetpack_modules',
 				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',

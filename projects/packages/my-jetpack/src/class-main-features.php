@@ -91,7 +91,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'security', 'complete' ),
+				'plans'            => array( 'backup', 'security', 'complete' ),
 				// The WordPress.com site feature the Activity Log package gates its paid history on.
 				'paid_feature'     => 'full-activity-log',
 			),
@@ -390,7 +390,7 @@ class Main_Features {
 				),
 				'paid_highlights'  => array(
 					__( 'Room for more records and monthly searches as your site grows', 'jetpack-my-jetpack' ),
-					__( 'AI Answers without the free plan’s limits', 'jetpack-my-jetpack' ),
+					__( 'AI Answers', 'jetpack-my-jetpack' ),
 					__( 'No Jetpack branding, plus priority support', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
@@ -497,7 +497,7 @@ class Main_Features {
 	/**
 	 * The paid bundles that include a feature, named for display.
 	 *
-	 * Named by the bundle products themselves, so the Features tab and the Products tab
+	 * Named by the bundle products themselves, so the Features tab and the rest of My Jetpack
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.

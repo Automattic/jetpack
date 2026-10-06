@@ -8,10 +8,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\My_Jetpack\Menu_Visibility;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -50,14 +47,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
-		remove_all_filters( 'jetpack_ai_enabled' );
-		remove_all_filters( 'jetpack_admin_menu_visibility' );
-		Admin_Menu::set_visibility_resolver( null );
-		Admin_Menu::reset();
-		foreach ( array( 'tos_agreed', 'user_tokens', 'master_user', 'id', 'blog_token' ) as $option ) {
-			Jetpack_Options::delete_option( $option );
-		}
-		( new Connection_Manager() )->reset_connection_status();
+		Jetpack_Options::delete_option( 'tos_agreed' );
+		Jetpack_Options::delete_option( 'user_tokens' );
 		wp_set_current_user( 0 );
 		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
 		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
@@ -168,77 +159,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_get_page_hook_registers_jetpack_ai_menu() {
 		$this->assertSame( 'jetpack_page_jetpack-ai', ( new Jetpack_AI_Page() )->get_page_hook() );
-	}
-
-	/**
-	 * Connect the site with an admin owner.
-	 */
-	private function given_connected_owner() {
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
-
-		Jetpack_Options::update_option( 'master_user', $user_id );
-		Jetpack_Options::update_option( 'id', 1234 );
-		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
-		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "honey.badger.$user_id" ) );
-		( new Connection_Manager() )->reset_connection_status();
-	}
-
-	/**
-	 * Build the Jetpack submenu as wp-admin renders it, with My Jetpack deciding gated items.
-	 *
-	 * @return string[] Jetpack submenu slugs.
-	 */
-	private function render_jetpack_submenu() {
-		$GLOBALS['submenu'] = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		Admin_Menu::reset();
-		Menu_Visibility::init();
-		Menu_Visibility::forget_resolved_gates();
-
-		( new Jetpack_AI_Page() )->get_page_hook();
-		Admin_Menu::admin_menu_hook_callback();
-		Admin_Menu::remove_hidden_menu_items();
-
-		return array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
-	}
-
-	/**
-	 * The item stays when the site switches AI off, so the MCP and Connectors tab stays reachable.
-	 */
-	public function test_menu_item_stays_when_the_ai_module_is_off() {
-		$this->given_connected_owner();
-		$this->given_active_modules( array() );
-
-		$this->assertContains( 'jetpack-ai', $this->render_jetpack_submenu() );
-	}
-
-	/**
-	 * The item stays when the host switches AI off.
-	 */
-	public function test_menu_item_stays_when_the_host_switches_ai_off() {
-		$this->given_connected_owner();
-		$this->given_active_modules( array( 'ai' ) );
-		add_filter( 'jetpack_ai_enabled', '__return_false' );
-
-		$this->assertContains( 'jetpack-ai', $this->render_jetpack_submenu() );
-	}
-
-	/**
-	 * A host can still take the item out of the menu.
-	 */
-	public function test_host_can_hide_the_menu_item() {
-		$this->given_connected_owner();
-		$this->assertContains( 'jetpack-ai', $this->render_jetpack_submenu() );
-
-		add_filter(
-			'jetpack_admin_menu_visibility',
-			static function ( $states ) {
-				$states['jetpack-ai'] = Admin_Menu::VISIBILITY_HIDDEN;
-				return $states;
-			}
-		);
-
-		$this->assertNotContains( 'jetpack-ai', $this->render_jetpack_submenu() );
 	}
 
 	/**
@@ -546,7 +466,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['hasMyJetpack'] );
-		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['manageUrl'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/features', $settings['manageUrl'] );
 	}
 
 	/**

@@ -40,12 +40,15 @@ function renderField( id: string, item: StatsFileDownloadsComparisonItem, withCo
 }
 
 describe( 'downloads fields', () => {
-	it( 'renders the filename as an external asset link', () => {
-		renderField( 'file', download );
+	it.each( [
+		[ 'an absolute', 'https://example.com/files/report.pdf' ],
+		[ 'a root-relative', '/files/report.pdf' ],
+	] )( 'links the filename to %s asset URL in a new tab', ( _kind, link ) => {
+		renderField( 'file', { ...download, link } );
 
-		const link = screen.getByRole( 'link', { name: 'report.pdf(opens in a new tab)' } );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/files/report.pdf' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
+		const anchor = screen.getByRole( 'link', { name: 'report.pdf(opens in a new tab)' } );
+		expect( anchor ).toHaveAttribute( 'href', link );
+		expect( anchor ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'renders the filename as plain text when the asset URL is unsafe', () => {
@@ -55,15 +58,12 @@ describe( 'downloads fields', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'marks the file field searchable and formats the download count', () => {
+	it( 'marks the file field searchable and shows the full download count', () => {
 		const fileField = getDownloadsFields().find( field => field.id === 'file' );
 		expect( fileField?.enableGlobalSearch ).toBe( true );
 
-		renderField( 'downloads', download );
-		expect(
-			screen.getByText( content => content.replace( /\D/g, '' ) === '1234' )
-		).toBeInTheDocument();
-		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+		const { container } = renderField( 'downloads', download );
+		expect( container ).toHaveTextContent( /^1,234$/ );
 	} );
 
 	it( 'renders the download delta when comparison is enabled', () => {

@@ -58,6 +58,65 @@ class Jetpack_Plan_Test extends TestCase {
 	}
 
 	/**
+	 * Reset the Simple-site feature cache and recorded billing calls.
+	 */
+	private function reset_simple_features_cache() {
+		$property = new \ReflectionProperty( Jetpack_Plan::class, 'simple_site_specific_features' );
+		// Required to write a private static on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, array() );
+		$GLOBALS['jetpack_test_store_product_list_calls'] = array();
+	}
+
+	/**
+	 * Test that active-only requests skip the upgradeable list.
+	 */
+	public function test_simple_site_features_can_skip_the_upgradeable_list() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->reset_simple_features_cache();
+		$full = Jetpack_Plan::get_simple_site_specific_features();
+		$this->assertSame( array( true ), $GLOBALS['jetpack_test_store_product_list_calls'], 'Precondition: the default asks for the upgradeable list.' );
+		$this->assertArrayHasKey( 'available', $full );
+
+		$this->reset_simple_features_cache();
+		$active_only = Jetpack_Plan::get_simple_site_specific_features( false );
+
+		$this->assertSame( array( false ), $GLOBALS['jetpack_test_store_product_list_calls'], 'The upgradeable list must not be requested.' );
+		$this->assertArrayHasKey( 'active', $active_only );
+		$this->assertArrayNotHasKey( 'available', $active_only );
+	}
+
+	/**
+	 * Test that an active-only request reuses a cached full result.
+	 */
+	public function test_an_active_only_request_reuses_a_full_result() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->reset_simple_features_cache();
+
+		Jetpack_Plan::get_simple_site_specific_features();
+		Jetpack_Plan::get_simple_site_specific_features( false );
+
+		$this->assertSame( array( true ), $GLOBALS['jetpack_test_store_product_list_calls'], 'The second call should be served from the first.' );
+	}
+
+	/**
+	 * Test that a full request does not reuse a cached active-only result.
+	 */
+	public function test_a_full_request_is_not_answered_by_an_active_only_result() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->reset_simple_features_cache();
+
+		Jetpack_Plan::get_simple_site_specific_features( false );
+		$full = Jetpack_Plan::get_simple_site_specific_features();
+
+		$this->assertSame( array( false, true ), $GLOBALS['jetpack_test_store_product_list_calls'] );
+		$this->assertArrayHasKey( 'available', $full );
+	}
+
+	/**
 	 * A refresh reads WordPress.com directly, so the shared site record cache can still hold an
 	 * older record. A cached read stores the plan again, so leaving that copy in place would
 	 * revert the plan this fetch just stored — the case a plan purchase hits.

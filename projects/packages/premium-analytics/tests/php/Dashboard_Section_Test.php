@@ -162,15 +162,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Switch on the feature flag the Store section sits behind.
-	 *
-	 * @return void
-	 */
-	private function enable_store_section() {
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
-	}
-
-	/**
 	 * Load the Jetpack class mock for a separate-process test.
 	 *
 	 * @return void
@@ -384,11 +375,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The built-in Insights section offers the year date filter; the rest keep the range.
 	 */
 	public function test_built_in_sections_declare_their_date_filters() {
-		// Store needs every gate: its flag, the filter standing in for WooCommerce, and
-		// the admin user for the capability check added in #50889.
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -397,7 +384,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'traffic'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
 				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
-				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
 			),
 			array_column(
 				array_map(
@@ -481,11 +467,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Insights and Subscribers move their date control to widgets and disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
-		// Store needs every gate: its flag, the filter standing in for WooCommerce, and
-		// the admin user for the capability check added in #50889.
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -503,10 +485,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'with_date_comparison'     => false,
 					'with_header_date_control' => false,
 				),
-				'store'       => array(
-					'with_date_comparison'     => true,
-					'with_header_date_control' => true,
-				),
 			),
 			array_column(
 				array_map(
@@ -522,12 +500,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Only store data waits on the analytics sync; the site sections render at once.
+	 * The site sections render at once. Store data waits on the sync from its own package.
 	 */
-	public function test_only_the_store_section_requires_the_sync() {
+	public function test_built_in_sections_do_not_require_the_sync() {
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -536,7 +512,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'traffic'     => false,
 				'insights'    => false,
 				'subscribers' => false,
-				'store'       => true,
 			),
 			array_column(
 				array_map(
@@ -552,14 +527,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The analytics sections carry their own heading; Store still falls back to its label.
+	 * The analytics sections carry their own heading.
 	 */
 	public function test_built_in_sections_declare_their_headings() {
-		// Store needs every gate: its flag, the filter standing in for WooCommerce, and
-		// the admin user for the capability check added in #50889.
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -575,7 +546,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'traffic'     => 'Site traffic',
 				'insights'    => 'Site insights',
 				'subscribers' => 'Subscribers stats',
-				'store'       => null,
 			),
 			array_column( $sections, 'title', 'slug' )
 		);
@@ -701,7 +671,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 			'analytics/traffic'     => 'traffic',
 			'analytics/insights'    => 'insights',
 			'analytics/subscribers' => 'subscribers',
-			'woocommerce/store'     => 'store',
 		);
 
 		foreach ( $expected as $id => $slug ) {
@@ -1014,36 +983,15 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The WooCommerce section is registered when WooCommerce is available.
+	 * The WooCommerce section registers from the WooCommerce stats package, not from here.
 	 */
-	public function test_registers_woocommerce_dashboard_section_when_available() {
+	public function test_does_not_register_the_woocommerce_section() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->enable_store_section();
 		$this->set_admin_user();
 
 		register_default_dashboard_sections();
 
-		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
-		$this->assertTrue( $woocommerce->is_available() );
-		$this->assertSame( 'Store', $woocommerce->label );
-		$this->assertSame( 40, $woocommerce->order );
-		$this->assertSame(
-			array(
-				'analytics/traffic',
-				'analytics/insights',
-				'analytics/subscribers',
-				'woocommerce/store',
-			),
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->id;
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			)
-		);
-		$this->assertContains( 'jpa/store-performance', array_column( $woocommerce->get_default_layout(), 'type' ) );
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce-analytics/woocommerce' ) );
 	}
 
 	/**
@@ -1186,51 +1134,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The blog sticker and the enablement filter leave the option off, and keep the Store tab without the flag.
-	 */
-	public function test_store_section_shows_without_its_flag_outside_the_site_opt_in() {
-		$this->enable_every_section();
-
-		register_default_dashboard_sections();
-
-		$this->assertContains( 'woocommerce/store', $this->available_section_ids() );
-	}
-
-	public function test_store_section_flag_shows_the_store_tab() {
-		$this->enable_every_section();
-		$this->enable_store_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$this->assertSame(
-			array(
-				'analytics/traffic',
-				'analytics/insights',
-				'analytics/subscribers',
-				'woocommerce/store',
-			),
-			$this->available_section_ids()
-		);
-	}
-
-	public function test_store_section_flag_does_not_bypass_woocommerce_availability() {
-		$this->set_admin_user();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-		$this->enable_store_section();
-
-		register_default_dashboard_sections();
-
-		$this->assertNotContains( 'woocommerce/store', $this->available_section_ids() );
-	}
-
-	/**
 	 * The site's own opt-in no longer limits the dashboard to a fixed list of tabs.
 	 */
 	public function test_site_opt_in_exposes_every_available_section() {
 		$this->enable_every_section();
-		$this->enable_store_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
@@ -1244,7 +1151,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'store', 'extra' ),
+			array( 'traffic', 'insights', 'subscribers', 'extra' ),
 			get_available_dashboard_section_slugs()
 		);
 	}
@@ -1271,29 +1178,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
-	/**
-	 * A hidden Store tab is a 404 for anyone who addresses it directly.
-	 */
-	public function test_hidden_store_section_is_unavailable_from_the_route() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'woocommerce/store' );
-
-		$this->assertInstanceOf( \WP_Error::class, $section );
-		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
-	}
-
 	public function test_available_section_slugs_list_every_available_tab() {
 		$this->enable_every_section();
-		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'store' ),
+			array( 'traffic', 'insights', 'subscribers' ),
 			get_available_dashboard_section_slugs()
 		);
 	}
@@ -1414,59 +1305,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array( 'traffic', 'insights' ),
 			$this->request_section_slugs()
-		);
-	}
-
-	/**
-	 * The WooCommerce section is omitted from available sections when WooCommerce is unavailable.
-	 */
-	public function test_omits_woocommerce_dashboard_section_when_unavailable() {
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-
-		register_default_dashboard_sections();
-
-		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
-		$this->assertFalse( $woocommerce->is_available() );
-		$this->assertSame(
-			array(
-				'analytics/traffic',
-				'analytics/insights',
-				'analytics/subscribers',
-			),
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->id;
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			)
-		);
-	}
-
-	/**
-	 * Store data is only served to administrators, so a reader who reached the
-	 * dashboard through view_stats is not offered the section at all.
-	 */
-	public function test_omits_woocommerce_dashboard_section_from_a_view_stats_reader() {
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		$this->enable_store_section();
-		$user_id = $this->set_editor_user();
-		$this->grant_view_stats_to( $user_id );
-
-		register_default_dashboard_sections();
-
-		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
-
-		$this->assertFalse( $woocommerce->is_available() );
-		$this->assertNotContains(
-			'woocommerce/store',
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->id;
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			)
 		);
 	}
 
@@ -1688,41 +1526,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				),
 			),
 			$response->get_data()
-		);
-	}
-
-	/**
-	 * Sections route includes the store section only when WooCommerce is detected.
-	 */
-	public function test_sections_route_reflects_woocommerce_availability() {
-		$this->enable_store_section();
-		register_default_dashboard_sections();
-
-		$this->set_admin_user();
-
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers' ),
-			array_column( $response->get_data(), 'slug' )
-		);
-
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'store' ),
-			array_column( $response->get_data(), 'slug' )
 		);
 	}
 

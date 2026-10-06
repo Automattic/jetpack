@@ -65,6 +65,7 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
+		"automattic/jetpack-woocommerce-stats": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/jetpack-ads": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",
@@ -123,7 +124,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_3_a_7",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_3_beta",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

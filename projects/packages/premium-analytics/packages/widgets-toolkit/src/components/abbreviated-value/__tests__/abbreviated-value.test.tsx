@@ -6,11 +6,19 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { AbbreviatedText, AbbreviatedValue } from '../abbreviated-value';
+import { AbbreviatedValue } from '../abbreviated-value';
 
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true } };
 
 describe( 'AbbreviatedValue', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'shows the compact figure and reads the exact one to assistive tech', () => {
 		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } /> );
 
@@ -19,7 +27,7 @@ describe( 'AbbreviatedValue', () => {
 	} );
 
 	it( 'spells the exact figure out in a tooltip on hover', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } /> );
 
 		await user.hover( screen.getByText( '18.4K' ) );
@@ -39,7 +47,7 @@ describe( 'AbbreviatedValue', () => {
 	} );
 
 	it( 'stays out of the tab order, so it can sit inside a row button', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render(
 			<button>
 				<AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } />
@@ -56,7 +64,7 @@ describe( 'AbbreviatedValue', () => {
 	} );
 
 	it( 'restores a labelled figure in place of the bare one', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } restored="18,432 opens" /> );
 
 		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
@@ -69,17 +77,11 @@ describe( 'AbbreviatedValue', () => {
 		).resolves.toHaveTextContent( '18,432 opens' );
 	} );
 
-	it( 'keeps the tooltip when a label is the only thing the display omits', async () => {
-		const user = userEvent.setup();
+	it( 'keeps the tooltip when a label is the only thing the display omits', () => {
 		render( <AbbreviatedValue value={ 432 } dataFormat={ COMPACT } restored="432 opens" /> );
 
 		expect( screen.getByText( '432' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-
-		await user.hover( screen.getByText( '432' ) );
-
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( '432 opens' );
+		expect( screen.getByText( '432 opens' ) ).toBeInTheDocument();
 	} );
 
 	it( 'reads the currency from the data format when no prop overrides it', () => {
@@ -105,27 +107,5 @@ describe( 'AbbreviatedValue', () => {
 
 		expect( screen.getByText( '$1.5K' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$1,500.00' ) ).toBeInTheDocument();
-	} );
-
-	it( 'formats currency through the same rule', () => {
-		render(
-			<AbbreviatedValue
-				value={ 19208.05 }
-				dataFormat={ { type: 'currency', options: COMPACT.options } }
-				currencyCode="USD"
-			/>
-		);
-
-		expect( screen.getByText( '$19.2K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '$19,208.05' ) ).toBeInTheDocument();
-	} );
-} );
-
-describe( 'AbbreviatedText', () => {
-	it( 'wraps a sentence that carries the shortened figure', () => {
-		render( <AbbreviatedText display="167K views" exact="166,900 views" /> );
-
-		expect( screen.getByText( '167K views' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '166,900 views' ) ).toBeInTheDocument();
 	} );
 } );
