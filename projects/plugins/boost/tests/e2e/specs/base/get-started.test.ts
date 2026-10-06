@@ -37,8 +37,12 @@ test.describe( 'Getting started page', () => {
 	} ) => {
 		await boostUtils.mockSpeedScore();
 
-		await page.getByRole( 'button', { name: 'Start for free' } ).click();
-		await expect( page ).toHaveURL( /page=jetpack-boost(?:#\/)?$/, { timeout: 180000 } );
+		await jetpackBoostPage.chooseFreePlan();
+		await page.reload();
+		await expect(
+			page.getByRole( 'button', { name: 'Start for free', exact: true } ),
+			'Getting started should not return after connecting'
+		).toBeHidden();
 
 		await jetpackBoostPage.expectScoreToBeVisible();
 

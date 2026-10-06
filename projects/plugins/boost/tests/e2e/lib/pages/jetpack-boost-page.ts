@@ -17,18 +17,10 @@ export default class JetpackBoostPage {
 	}
 
 	/**
-	 * Connection flow.
-	 */
-	async connect() {
-		await this.chooseFreePlan();
-		await this.expectScoreToBeLoading();
-	}
-
-	/**
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {
-		const button = this.page.getByRole( 'button', { name: 'Start for free' } );
+		const button = this.page.getByRole( 'button', { name: 'Start for free', exact: true } );
 
 		const connectionResponse = this.page.waitForResponse(
 			response => response.url().includes( '/jetpack-boost/v1/connection' ),
@@ -38,9 +30,9 @@ export default class JetpackBoostPage {
 		await connectionResponse;
 
 		await expect(
-			this.page.getByRole( 'button', { name: 'Refresh' } ),
-			'Refresh button should be visible after connection'
-		).toBeVisible( { timeout: 40000 } );
+			this.page.getByRole( 'heading', { name: 'Optimize your speed' } ),
+			'Settings should be shown after connection'
+		).toBeInViewport( { timeout: 40000 } );
 	}
 
 	/**
@@ -78,53 +70,45 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * The Overview's "Your site speed" card. History and the sticky score bar repeat its region names.
+	 * @return The card locator.
+	 */
+	scoresCard() {
+		return this.page.locator( '.jetpack-boost-overview__scores-card' );
+	}
+
+	/**
 	 * Returns the score for a specific platform.
-	 * @param  platform - The platform to get the score for, either 'desktop' or 'mobile'.
+	 * @param  platform - The platform to get the score for.
 	 * @return {Promise<number>} - The score for the specified platform.
 	 */
-	async getSpeedScore( platform: string ): Promise< number > {
-		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
-
-		const score = this.page.locator( parent + ' .jb-score-bar__score' );
-		await score.waitFor( {
+	async getSpeedScore( platform: 'Desktop' | 'Mobile' ): Promise< number > {
+		const meter = this.scoresCard().getByRole( 'progressbar', { name: platform, exact: true } );
+		await meter.waitFor( {
 			state: 'visible',
 			timeout: 80000,
 		} );
 
-		return Number( await score.textContent() );
+		return Number( await meter.getAttribute( 'value' ) );
 	}
 
 	/**
-	 * Expects the overall score header and speed scores to be visible and valid.
+	 * Expects the overall grade and speed scores to be visible and valid.
 	 * Waits for both mobile and desktop scores to be greater than 0.
 	 */
 	async expectScoreToBeVisible() {
 		await expect(
-			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
-			'Overall score heading should be visible'
-		).toBeVisible( { timeout: 60000 } ); // Wait up to 60 seconds for the overall score heading to be visible
+			this.scoresCard().getByRole( 'region', { name: 'Overall', exact: true } ),
+			'Overall grade should be visible'
+		).toContainText( /Overall\s*[A-F]/, { timeout: 60000 } );
 		await expect( async () => {
-			const mobileScore = await this.getSpeedScore( 'mobile' );
+			const mobileScore = await this.getSpeedScore( 'Mobile' );
 			expect( mobileScore, 'Mobile score should be greater than 0' ).toBeGreaterThan( 0 );
 		} ).toPass();
 		await expect( async () => {
-			const desktopScore = await this.getSpeedScore( 'desktop' );
+			const desktopScore = await this.getSpeedScore( 'Desktop' );
 			expect( desktopScore, 'Desktop score should be greater than 0' ).toBeGreaterThan( 0 );
 		} ).toPass();
-	}
-
-	/**
-	 * Expects the loading state of the score to be visible.
-	 */
-	async expectScoreToBeLoading() {
-		await expect(
-			this.page.getByRole( 'heading', { name: 'Loading…' } ),
-			'Loading… heading should be visible'
-		).toBeVisible();
-		await expect(
-			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
-			'Overall score heading should not be visible'
-		).toBeHidden();
 	}
 
 	/**
@@ -197,6 +181,18 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * Clicks Generate in the Critical CSS row and waits for generation to finish.
+	 * The modern dashboard never starts a manual generation on its own.
+	 *
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
+	 */
+	async generateCriticalCss( timeout = 240000 ) {
+		const generated = this.waitForCriticalCssGeneration( timeout );
+		await this.page.getByRole( 'button', { name: 'Generate', exact: true } ).click();
+		await generated;
+	}
+
+	/**
 	 * Waits for the client to send the speed score refresh request.
 	 * Use when the test asserts that the client initiated a refresh — for example,
 	 * to verify that a debounce timer has fired. Decouples from backend latency and
@@ -250,15 +246,29 @@ export default class JetpackBoostPage {
 	}
 
 	/**
-	 * Opens the Cornerstone Pages panel if not already open and checks if it is visible.
+	 * Returns the toggle of the collapsed Cornerstone Pages group in Settings.
+	 * @return The toggle button locator.
+	 */
+	getCornerstonePagesToggle() {
+		return this.page
+			.getByRole( 'region', { name: 'Optimize your speed' } )
+			.getByRole( 'button', { name: 'Cornerstone Pages', exact: true } );
+	}
+
+	/**
+	 * Opens the Cornerstone Pages group and its nested pages list, both collapsed by default.
 	 */
 	async openCornerstonePagesPanel() {
-		const panelToggle = this.page.getByRole( 'button', { name: 'Cornerstone Pages' } ).first();
-		const panelContent = this.page.getByText( 'List the most important pages' );
-		if ( ! ( await panelContent.isVisible() ) ) {
-			await panelToggle.click();
-			await expect( panelContent, 'Panel content should be visible' ).toBeVisible();
+		const textarea = await this.getCornerstonePagesTextarea();
+		if ( await textarea.isVisible() ) {
+			return;
 		}
+		const groupToggle = this.getCornerstonePagesToggle();
+		if ( ( await groupToggle.getAttribute( 'aria-expanded' ) ) !== 'true' ) {
+			await groupToggle.click();
+		}
+		await this.page.getByRole( 'button', { name: 'Customize pages list', exact: true } ).click();
+		await expect( textarea, 'Cornerstone Pages list should be visible' ).toBeVisible();
 	}
 
 	/**

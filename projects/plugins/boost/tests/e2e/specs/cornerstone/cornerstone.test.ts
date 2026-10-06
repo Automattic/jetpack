@@ -35,25 +35,17 @@ test.describe( 'Cornerstone Pages', () => {
 
 	test( 'Cornerstone Pages panel should be visible and toggleable', async ( {
 		jetpackBoostPage,
-		page,
 	} ) => {
-		// Test panel toggle functionality - title should be visible but content should be collapsed
-		const panelToggle = page.getByRole( 'button', { name: 'Cornerstone Pages' } ).first();
-		await expect( panelToggle, 'Panel title should be visible' ).toBeVisible();
-
-		// Panel content should NOT be visible initially (collapsed by default)
 		await expect(
-			page.getByText( 'List the most important pages' ),
+			jetpackBoostPage.getCornerstonePagesToggle(),
+			'Panel title should be visible'
+		).toBeVisible();
+		await expect(
+			await jetpackBoostPage.getCornerstonePagesTextarea(),
 			'Cornerstone Pages content should be collapsed by default'
 		).toBeHidden();
 
-		// Open the panel
 		await jetpackBoostPage.openCornerstonePagesPanel();
-
-		await expect(
-			page.getByText( 'List the most important pages' ),
-			'Panel content should be visible when opened'
-		).toBeVisible();
 	} );
 
 	test( 'Should display predefined pages (homepage) correctly', async ( {
@@ -145,7 +137,7 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Verify that premium features are detected
 		await expect(
-			page.getByText( 'Premium users can add up to' ),
+			page.getByText( 'Add up to 10 Cornerstone Pages' ),
 			'Upgrade CTA should be hidden when premium features are active'
 		).toBeHidden();
 
@@ -195,7 +187,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		await expect(
-			page.getByText( 'Premium users can add up to 10 Cornerstone Pages' ),
+			page.getByText( 'Add up to 10 Cornerstone Pages' ),
 			'Upgrade CTA should be visible on free plan'
 		).toBeVisible();
 	} );
@@ -293,18 +285,16 @@ test.describe( 'Cornerstone Pages', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
-		// Should show "Added: Homepage" when no custom pages
 		await expect(
-			page.getByText( 'Added: Homepage' ),
+			page.getByText( 'Homepage', { exact: true } ),
 			'Should show only homepage when no custom pages'
 		).toBeVisible();
 
 		await jetpackBoostPage.openCornerstonePagesPanel();
 		await jetpackBoostPage.addCornerstonePage( '/test-summary' );
 
-		// Should show "Added: Homepage + 1 page"
 		await expect(
-			page.getByText( 'Added: Homepage + 1 page' ),
+			page.getByText( 'Homepage + 1 page' ),
 			'Should show correct count with 1 custom page'
 		).toBeVisible();
 	} );
