@@ -181,7 +181,7 @@ class Proxy_Request {
 	private static function build_query( array $query ): string {
 		unset( $query['_method'] );
 
-		return http_build_query( self::with_safe_keys( $query ), '', '&' );
+		return http_build_query( self::drop_unsafe_query_keys( $query ), '', '&' );
 	}
 
 	/**
@@ -190,7 +190,7 @@ class Proxy_Request {
 	 * @param array $params Query params.
 	 * @return array
 	 */
-	private static function with_safe_keys( array $params ): array {
+	private static function drop_unsafe_query_keys( array $params ): array {
 		$safe = array();
 
 		foreach ( $params as $key => $value ) {
@@ -198,7 +198,7 @@ class Proxy_Request {
 				continue;
 			}
 
-			$safe[ $key ] = is_array( $value ) ? self::with_safe_keys( $value ) : $value;
+			$safe[ $key ] = is_array( $value ) ? self::drop_unsafe_query_keys( $value ) : $value;
 		}
 
 		return $safe;
