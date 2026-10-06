@@ -215,7 +215,6 @@ export default function StorageUsageDetails( {
 					} ) }
 				</Text>
 			) }
-			{ /* `aria-live`, not only the role: the dialog `aria-hidden`s everything else but this. */ }
 			<span className="jpb-visually-hidden" role="status" aria-live="polite">
 				{ announcement }
 			</span>

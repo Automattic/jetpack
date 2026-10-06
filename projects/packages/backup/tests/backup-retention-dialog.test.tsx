@@ -9,11 +9,12 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 
 // Imports must come after the jest.mock factory above.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StorageSpace from '../src/dashboard/components/storage-space';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+const MB = 2 ** 20;
 const GB = 2 ** 30;
 const SITE = 'example.wordpress.com';
 const DASHBOARD = '/wp-admin/admin.php?page=jetpack-backup';
@@ -125,21 +126,36 @@ beforeEach( () => {
 } );
 
 describe( 'the retention dialog', () => {
-	it( 'starts on the retention in force, with nothing to save', async () => {
-		renderSection();
-		const dialog = await openDialog();
+	it.each( [
+		[ 'with room to spare', {}, 'Needs about 30GB of your 100GB.' ],
+		[
+			'too small to state in GB',
+			{ size: { last_backup_size: 5 * MB } },
+			'Needs about 150MB of your 100GB.',
+		],
+		[
+			'already over its limit',
+			{ policies: { storage_limit_bytes: 10 * GB } },
+			'Needs about 30GB of your 10GB.',
+		],
+	] )(
+		'starts on the retention in force, with nothing to save, on a site %s',
+		async ( _case, endpoints, estimate ) => {
+			mockEndpoints( endpoints );
+			renderSection();
+			const dialog = await openDialog();
 
-		expect(
-			within( dialog ).getByRole( 'combobox', { name: 'Keep backups for' } )
-		).toHaveTextContent( '30 days' );
-		expect(
-			within( dialog ).getByText( 'Needs about 30GB. Your plan includes 100GB.' )
-		).toBeVisible();
-		expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-	} );
+			expect(
+				within( dialog ).getByRole( 'combobox', { name: 'Keep backups for' } )
+			).toHaveTextContent( '30 days' );
+			expect( within( dialog ).getByText( estimate ) ).toBeVisible();
+			expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( within( dialog ).queryByText( /additional storage/ ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'saves a longer retention that fits, then closes and announces it', async () => {
 		mockEndpoints( { size: { last_backup_size: GB / 2 } } );
@@ -154,17 +170,23 @@ describe( 'the retention dialog', () => {
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Backup retention changed.' );
 	} );
 
-	it( 'asks before a shorter retention deletes older backups', async () => {
+	it.each( [
+		[ 'a shorter retention', {} ],
+		[
+			'a retention that may be shorter than an unreported one',
+			{ size: { retention_days: 0 }, policies: { activity_log_limit_days: null } },
+		],
+	] )( 'asks before %s deletes older backups', async ( _case, endpoints ) => {
+		mockEndpoints( endpoints );
 		renderSection();
 		const dialog = await openDialog();
 
 		await pick( '7 days' );
 		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
 
-		expect(
-			within( dialog ).getByText( /Backups older than 7 days will be deleted\.$/ )
-		).toBeVisible();
-		expect( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+		const cancel = within( dialog ).getByRole( 'button', { name: 'Cancel' } );
+		expect( cancel ).toHaveFocus();
+		expect( cancel ).toHaveAccessibleDescription( /Backups older than 7 days will be deleted\.$/ );
 		expect( savedDays() ).toEqual( [] );
 
 		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Confirm change' } ) );
@@ -200,7 +222,23 @@ describe( 'the retention dialog', () => {
 		);
 	} );
 
-	it( 'keeps the dialog open with the reason when WordPress.com refuses', async () => {
+	it( 'does not take the second click of a double-click on Save as confirmation', async () => {
+		renderSection();
+		const dialog = await openDialog();
+
+		await pick( '7 days' );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
+		// What a browser sends to whatever now sits under the pointer; userEvent cannot set `detail`.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( within( dialog ).getByRole( 'button', { name: 'Confirm change' } ), {
+			detail: 2,
+		} );
+		await act( () => Promise.resolve() );
+
+		expect( savedDays() ).toEqual( [] );
+	} );
+
+	it( 'keeps the dialog open with the error when the save fails', async () => {
 		mockEndpoints( { save: () => Promise.reject( { message: 'Refused.' } ) } );
 		renderSection();
 		const dialog = await openDialog();
@@ -225,10 +263,17 @@ describe( 'returning from checkout', () => {
 	} );
 
 	it.each( [
-		[ 'shortens retention', '&retention=7&storage_purchased=1', '7 days' ],
-		[ 'still exceeds the limit', '&retention=365&storage_purchased=1', '1 year' ],
-	] )( 'waits for the reader when the choice %s', async ( _case, args, label ) => {
+		[ 'shortens retention', '&retention=7&storage_purchased=1', '7 days', {} ],
+		[ 'still exceeds the limit', '&retention=365&storage_purchased=1', '1 year', {} ],
+		[
+			'cannot be sized',
+			'&retention=120&storage_purchased=1',
+			'120 days',
+			{ size: { last_backup_size: undefined }, policies: { storage_limit_bytes: 200 * GB } },
+		],
+	] )( 'waits for the reader when the choice %s', async ( _case, args, label, endpoints ) => {
 		window.history.replaceState( null, '', `${ DASHBOARD }${ args }` );
+		mockEndpoints( endpoints );
 		renderSection();
 
 		const dialog = await screen.findByRole( 'dialog', { name: 'Days of backups saved' } );

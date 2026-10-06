@@ -1,13 +1,13 @@
 import { formatNumber } from '@automattic/number-formatters';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, LinkButton, Notice, SelectControl, Stack } from '@wordpress/ui';
 import {
 	RETENTION_OPTIONS,
 	isRetentionOption,
 	type RetentionDays,
 } from '../../data/api/backup-retention';
-import { GIGABYTE, TERABYTE } from '../../data/storage-units';
+import { GIGABYTE, MEGABYTE, TERABYTE } from '../../data/storage-units';
 import useAdminMenuWidth from '../../hooks/use-admin-menu-width';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
@@ -49,14 +49,20 @@ function optionLabel( days: RetentionDays ): string {
 	return labels[ days ];
 }
 
+const LONGEST = RETENTION_OPTIONS[ RETENTION_OPTIONS.length - 1 ];
+
 /**
- * A byte count in the units storage is sold in, e.g. `12.4GB` or `1.5TB`.
+ * A byte count in the units storage is sold in, e.g. `12.4GB` or `1.5TB`; MB below 1GB.
  *
  * @param bytes - The amount.
  * @return The amount, abbreviated as legacy does.
  */
 function sizeText( bytes: number ): string {
 	const options = { numberFormatOptions: { maximumFractionDigits: 1 } };
+
+	if ( bytes < GIGABYTE ) {
+		return `${ formatNumber( bytes / MEGABYTE ) }MB`;
+	}
 
 	return bytes >= TERABYTE
 		? `${ formatNumber( bytes / TERABYTE, options ) }TB`
@@ -98,9 +104,14 @@ export default function BackupRetentionDialog( {
 	const [ confirming, setConfirming ] = useState< RetentionDays | null >( null );
 	const { mutate, isPending, isError, error } = useUpdateBackupRetention();
 
+	const isUnchanged = selected === null || selected === currentDays;
+	// With the current setting unknown, anything but the longest might shorten it.
+	const isReduction =
+		selected !== null && ( currentDays === null ? selected < LONGEST : selected < currentDays );
 	// Calypso's estimate: every day costs one full backup.
 	const spaceNeeded = selected !== null && lastBackupSize ? lastBackupSize * selected : null;
-	const needsStorage = spaceNeeded !== null && spaceNeeded > storageLimit;
+	// Only a change can need storage; buying more for the current setting is the upsell's job.
+	const needsStorage = ! isUnchanged && spaceNeeded !== null && spaceNeeded > storageLimit;
 	const offer = useStorageAddonOffer(
 		needsStorage ? spaceNeeded : null,
 		needsStorage ? storageLimit : null
@@ -109,8 +120,6 @@ export default function BackupRetentionDialog( {
 		needsStorage && selected !== null && offer.slug && site
 			? retentionCheckoutUrl( offer.slug, site, selected )
 			: null;
-	const isUnchanged = selected === null || selected === currentDays;
-	const isReduction = selected !== null && currentDays !== null && selected < currentDays;
 
 	const save = useCallback( () => {
 		if ( selected !== null ) {
@@ -125,6 +134,7 @@ export default function BackupRetentionDialog( {
 			initialDays !== undefined &&
 			currentDays !== null &&
 			initialDays > currentDays &&
+			spaceNeeded !== null &&
 			! needsStorage
 	);
 	const hasApplied = useRef( false );
@@ -161,8 +171,19 @@ export default function BackupRetentionDialog( {
 	const handleCancel = useCallback( () => onClose( false ), [ onClose ] );
 	const handleBack = useCallback( () => setConfirming( null ), [] );
 
+	// The second click of a double-click on Save lands here, on the same button.
+	const handleConfirm = useCallback(
+		( event: { detail: number } ) => {
+			if ( event.detail <= 1 ) {
+				save();
+			}
+		},
+		[ save ]
+	);
+
 	// The steps swap in place, so focus would otherwise stay on "Confirm change".
 	const cancelRef = useRef< HTMLButtonElement >( null );
+	const warningId = useId();
 	useEffect( () => {
 		if ( confirming !== null ) {
 			cancelRef.current?.focus();
@@ -174,6 +195,8 @@ export default function BackupRetentionDialog( {
 			retention_option: selected,
 		} );
 	}, [ selected, tracks ] );
+
+	const purchaseLabel = __( 'Purchase and update', 'jetpack-backup-pkg' );
 
 	const errorNotice = isError && (
 		<Notice.Root intent="error">
@@ -195,11 +218,13 @@ export default function BackupRetentionDialog( {
 				{ confirming !== null ? (
 					<Dialog.Content>
 						<Stack direction="column" gap="lg">
-							<Dialog.Description>
+							<Dialog.Description id={ warningId }>
 								{ sprintf(
 									/* translators: %d: number of days of backups that will be kept. */
-									__(
+									_n(
+										'You are about to reduce the number of days your backups are saved. Backups older than %d day will be deleted.',
 										'You are about to reduce the number of days your backups are saved. Backups older than %d days will be deleted.',
+										confirming,
 										'jetpack-backup-pkg'
 									),
 									confirming
@@ -224,7 +249,7 @@ export default function BackupRetentionDialog( {
 									spaceNeeded !== null
 										? sprintf(
 												/* translators: %1$s: estimated storage, e.g. "45.2GB". %2$s: the site's storage limit, e.g. "10GB". */
-												__( 'Needs about %1$s. Your plan includes %2$s.', 'jetpack-backup-pkg' ),
+												__( 'Needs about %1$s of your %2$s.', 'jetpack-backup-pkg' ),
 												sizeText( spaceNeeded ),
 												sizeText( storageLimit )
 											)
@@ -258,10 +283,11 @@ export default function BackupRetentionDialog( {
 								tone="neutral"
 								disabled={ isPending }
 								onClick={ handleBack }
+								aria-describedby={ warningId }
 							>
 								{ __( 'Cancel', 'jetpack-backup-pkg' ) }
 							</Button>
-							<Button onClick={ save } disabled={ isPending } loading={ isPending }>
+							<Button onClick={ handleConfirm } disabled={ isPending } loading={ isPending }>
 								{ __( 'Confirm change', 'jetpack-backup-pkg' ) }
 							</Button>
 						</>
@@ -276,13 +302,14 @@ export default function BackupRetentionDialog( {
 							>
 								{ __( 'Cancel', 'jetpack-backup-pkg' ) }
 							</Button>
-							{ needsStorage ? (
-								checkoutUrl && (
-									<LinkButton href={ checkoutUrl } onClick={ recordPurchase }>
-										{ __( 'Purchase and update', 'jetpack-backup-pkg' ) }
-									</LinkButton>
-								)
-							) : (
+							{ needsStorage && checkoutUrl && (
+								<LinkButton href={ checkoutUrl } onClick={ recordPurchase }>
+									{ purchaseLabel }
+								</LinkButton>
+							) }
+							{ /* Held in place while the offer loads, and if it never does. */ }
+							{ needsStorage && ! checkoutUrl && <Button disabled>{ purchaseLabel }</Button> }
+							{ ! needsStorage && (
 								<Button
 									onClick={ handleSave }
 									disabled={ isUnchanged || isPending }
