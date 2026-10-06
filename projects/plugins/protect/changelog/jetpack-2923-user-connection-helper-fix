@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: Only treat switched-on products as needing a user connection.
+My Jetpack: Stop showing an empty account avatar on the Overview connection card when nothing in use needs a user connection.

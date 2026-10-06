@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-My Jetpack: Only treat switched-on products as needing a user connection.
+My Jetpack: Stop counting products that are off as needing a user connection, so the Overview connection card and the missing user connection notice only reflect products in use.
