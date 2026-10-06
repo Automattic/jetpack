@@ -68,8 +68,10 @@ jobs:
     outputs:
       did-coverage: ${{ case( matrix.coverage-group != '' && job.status != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
       php-coverage-status: ${{ case( matrix.coverage-group == 'php', job.status, '' ) }}
+      js-tests-status: ${{ case( matrix.script == 'test-js', job.status, '' ) }}
       js-coverage-status: ${{ case( matrix.coverage-group == 'js', job.status, '' ) }}
-      # Matrix outputs are last-wins, so only failures set this to catch any failed JS split.
+      # Only set these on failure, so a later successful split can't hide a failed one.
+      js-tests-failed: ${{ case( matrix.script == 'test-js' && job.status != 'success', job.status, '' ) }}
       js-coverage-failed: ${{ case( matrix.coverage-group == 'js' && job.status != 'success', job.status, '' ) }}
 
     steps:
@@ -397,6 +399,17 @@ jobs:
           path: artifacts
           include-hidden-files: true
           retention-days: 7
+
+  js-tests:
+    name: JS tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    needs: run-tests
+    if: always()
+    steps:
+      - name: Fail if any JS test split failed
+        if: needs.run-tests.outputs.js-tests-failed != '' || needs.run-tests.outputs.js-tests-status != 'success'
+        run: exit 1
 
   publish-coverage-data:
     name: Publish coverage data
