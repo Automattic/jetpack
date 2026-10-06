@@ -7,18 +7,15 @@ import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
  */
 import { siteChartFormatting } from '../../helpers';
 import { useChartTheme } from '../../hooks';
-import styles from './charts-provider.module.scss';
 import type { ReactNode } from 'react';
 
-/** The charts context every Premium Analytics chart renders in: its theme, the site's formatting, and light tooltips. */
+/** The charts context every Premium Analytics chart renders in: its theme and the site's formatting. */
 export function ChartsProvider( { children }: { children: ReactNode } ) {
 	const chartTheme = useChartTheme();
 
 	return (
-		<div className={ styles.root }>
-			<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
-				{ children }
-			</GlobalChartsProvider>
-		</div>
+		<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
+			{ children }
+		</GlobalChartsProvider>
 	);
 }

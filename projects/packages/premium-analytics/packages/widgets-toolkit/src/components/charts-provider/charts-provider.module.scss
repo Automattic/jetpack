@@ -1,9 +1,0 @@
-.root {
-	display: contents;
-}
-
-/* Seeds every tooltip's theme from the chart surface, so tooltips draw dark
-   text on the light surface the charts sit on. */
-.root :global(.a8c-charts-scope) {
-	--a8c-charts-color-tooltip-surface: var(--a8c-charts-color-surface);
-}
