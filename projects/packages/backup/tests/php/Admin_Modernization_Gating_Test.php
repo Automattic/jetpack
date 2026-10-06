@@ -65,14 +65,21 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	/** @var array The `admin_print_scripts` callback `maybe_load_wp_build()` adds. */
 	private const INITIAL_STATE_CALLBACK = array( Jetpack_Backup::class, 'render_connection_initial_state' );
 
+	/** @var array|null The `$_parent_pages` global as the test found it. */
+	private $original_parent_pages;
+
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->original_parent_pages = $GLOBALS['_parent_pages'] ?? null;
+		$GLOBALS['_parent_pages']    = array();
 
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
 	}
 
 	public function tearDown(): void {
+		$GLOBALS['_parent_pages'] = $this->original_parent_pages;
 		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'pre_http_request' );
@@ -333,23 +340,39 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertStringContainsString( '<script id="jetpack-backup-connection-initial-state">', $output );
 		// render() declares a bare `var`; that is a window global only in a classic script tag.
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $output );
-		$this->assertStringContainsString( 'JPBACKUP_DASHBOARD_STATE', $output );
+	}
+
+	public function test_render_connection_initial_state_emits_a_null_activity_log_url_without_the_page() {
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null};', $output );
+	}
+
+	public function test_render_connection_initial_state_emits_the_activity_log_url_when_the_page_exists() {
+		$this->register_activity_log_page();
+
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '"activityLogUrl":"http://example.org/wp-admin/admin.php?page=jetpack-activity-log"', $output );
 	}
 
 	public function test_activity_log_url_is_null_without_the_page_and_the_page_url_with_it() {
-		global $_parent_pages;
-		$original = $_parent_pages;
-
-		$_parent_pages = array();
 		$this->assertNull( Jetpack_Backup::get_activity_log_url() );
 
-		$_parent_pages = array(
+		$this->register_activity_log_page();
+		$this->assertStringEndsWith( 'admin.php?page=jetpack-activity-log', Jetpack_Backup::get_activity_log_url() );
+	}
+
+	/** Make `menu_page_url()` see the Activity Log page the way a built admin menu would. */
+	private function register_activity_log_page() {
+		$GLOBALS['_parent_pages'] = array(
 			'jetpack'              => false,
 			'jetpack-activity-log' => 'jetpack',
 		);
-		$this->assertStringEndsWith( 'admin.php?page=jetpack-activity-log', Jetpack_Backup::get_activity_log_url() );
-
-		$_parent_pages = $original;
 	}
 
 	/** `can_use_analytics()` needs offline mode off and the terms of service agreed. */

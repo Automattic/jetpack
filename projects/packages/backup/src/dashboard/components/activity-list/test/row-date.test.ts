@@ -1,3 +1,4 @@
+import { getSettings, setSettings } from '@wordpress/date';
 import { formatRowDate } from '../row-date';
 
 const NOW = new Date( '2026-10-06T12:00:00Z' );
@@ -11,6 +12,21 @@ describe( 'formatRowDate', () => {
 		[ '2026-09-30T08:00:00Z', 'Sep 30, 2026, 8:00 AM' ],
 	] )( 'formats %s as %s', ( published, expected ) => {
 		expect( formatRowDate( published, NOW ) ).toBe( expected );
+	} );
+
+	test.each( [
+		// 08:00 UTC is 9:00 PM the evening before in Auckland (UTC+13 in October).
+		[ 'Pacific/Auckland', 13, '2026-10-06T08:00:00Z', 'Yesterday, 9:00 PM' ],
+		// 03:00 UTC is 8:00 PM the evening before in Los Angeles (UTC-7 in October).
+		[ 'America/Los_Angeles', -7, '2026-10-06T03:00:00Z', 'Yesterday, 8:00 PM' ],
+	] )( 'uses the site day, not the UTC day, in %s', ( string, offset, published, expected ) => {
+		const original = getSettings();
+		setSettings( { ...original, timezone: { offset, offsetFormatted: '', string, abbr: '' } } );
+		try {
+			expect( formatRowDate( published, NOW ) ).toBe( expected );
+		} finally {
+			setSettings( original );
+		}
 	} );
 
 	test( 'steps back over a month boundary', () => {

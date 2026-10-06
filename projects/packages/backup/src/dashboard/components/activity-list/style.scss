@@ -6,10 +6,10 @@
 	flex-direction: column;
 	min-height: 0;
 
-	// Rows stay flush so dividers run edge-to-edge.
 	&__toolbar {
 		min-block-size: 64px;
-		padding: 12px 20px 12px 24px;
+		padding-block: 12px;
+		padding-inline: 24px 20px;
 		box-sizing: border-box;
 		align-items: center;
 		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
@@ -44,12 +44,12 @@
 		margin-inline-start: 8px;
 	}
 
-	// The selected row drops its grey tile and shows the icon in the theme colour.
-	// 72px rows, a flat tint and no outline on the selected row.
+	// 72px rows.
 	.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper {
 		padding-block: 12px;
 	}
 
+	// Selected row: flat tint, no tile or outline, theme-colour icon.
 	.dataviews-view-list div[role="row"].is-selected.is-selected {
 		background: var(--wpds-color-background-surface-brand);
 		border-block-start-color: transparent;
@@ -71,8 +71,7 @@
 		display: none;
 	}
 
-	// Center the gridicon inside DataViews' 52x52 media placeholder.
-	// Without this the Icon element sits in the top-left of the box.
+	// A 32px filled tile with the icon centred in it and no outline.
 	.dataviews-view-list .dataviews-view-list__media-wrapper {
 		display: flex;
 		align-items: center;
@@ -82,7 +81,6 @@
 		background: var(--wpds-color-background-surface-neutral-weak);
 		color: var(--wpds-color-foreground-content-neutral-weak);
 
-		// Filled tile, no outline.
 		&::after {
 			box-shadow: none;
 		}
@@ -113,10 +111,6 @@
 		align-items: center;
 	}
 
-	// Center the gridicon inside DataViews' media tile. The tile's own
-	// background + border come from DataViews's media-wrapper styles, so
-	// we don't add a second border here (that produced two concentric
-	// outlines around the icon).
 	&__icon {
 		display: inline-flex;
 		align-items: center;

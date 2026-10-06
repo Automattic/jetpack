@@ -33,8 +33,6 @@ export type BackupActivityItem = ActivityItemBase & {
 
 export type NonBackupActivityItem = ActivityItemBase & {
 	kind: Exclude< ActivityKind, 'backup' >;
-	/** Set on a restore that settled without succeeding. */
-	failed?: boolean;
 };
 
 export type ActivityItem = BackupActivityItem | NonBackupActivityItem;

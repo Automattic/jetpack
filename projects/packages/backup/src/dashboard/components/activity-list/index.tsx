@@ -1,5 +1,5 @@
 import { DataViews } from '@wordpress/dataviews';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -17,6 +17,7 @@ import { useFinishedRunCount } from '../../hooks/use-refresh-activity-on-backup-
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
 import { formatRowDate } from './row-date';
+import { useNewBackupRow } from './use-new-backup-row';
 import './style.scss';
 import type { ActivitySortOrder } from '../../data/api/activity-log';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
@@ -162,10 +163,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  * @return The URL, or null.
  */
 function getActivityLogUrl(): string | null {
-	const state = (
-		window as unknown as { JPBACKUP_DASHBOARD_STATE?: { activityLogUrl?: string | null } }
-	 ).JPBACKUP_DASHBOARD_STATE;
-	return state?.activityLogUrl || null;
+	return window.JPBACKUP_DASHBOARD_STATE?.activityLogUrl || null;
 }
 
 /**
@@ -205,37 +203,15 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		sortOrder,
 	} );
 
-	// The row a watched run just produced. Only page 1, newest first, can hold it.
-	const [ newRowId, setNewRowId ] = useState< string | null >( null );
-	const finishedRuns = useFinishedRunCount();
-	const seenRuns = useRef( finishedRuns );
-	const baselineTopId = useRef< string | null | undefined >( undefined );
 	const onNewestPage = page === 1 && sortOrder === 'desc';
-	const topBackupId = onNewestPage ? ( items.find( isBackupItem )?.rewindId ?? null ) : null;
-
-	useEffect( () => {
-		if ( finishedRuns !== seenRuns.current ) {
-			seenRuns.current = finishedRuns;
-			baselineTopId.current = topBackupId;
-		}
-	}, [ finishedRuns, topBackupId ] );
-
-	// A run that ended with no new backup leaves the baseline in place until one lands.
-	useEffect( () => {
-		if ( baselineTopId.current === undefined || ! onNewestPage ) {
-			return;
-		}
-		if ( topBackupId !== null && topBackupId !== baselineTopId.current ) {
-			baselineTopId.current = undefined;
-			setNewRowId( topBackupId );
-		}
-	}, [ topBackupId, onNewestPage ] );
-
-	useEffect( () => {
-		if ( ! onNewestPage ) {
-			setNewRowId( null );
-		}
-	}, [ onNewestPage ] );
+	const isReady = onNewestPage && ! isLoading && ! isPlaceholderData;
+	const topBackupId = isReady ? ( items.find( isBackupItem )?.rewindId ?? null ) : null;
+	const finishedRuns = useFinishedRunCount();
+	const { newRowId, clearNewRow } = useNewBackupRow( {
+		finishedRuns,
+		topBackupId,
+		isReady,
+	} );
 
 	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
 	// `sort`, so without this a reorder strands the reader on page 3 of an
@@ -325,11 +301,11 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		( next: string[] ) => {
 			const [ first ] = next;
 			if ( first ) {
-				setNewRowId( null );
+				clearNewRow();
 				onSelect( first );
 			}
 		},
-		[ onSelect ]
+		[ onSelect, clearNewRow ]
 	);
 
 	const selection = useMemo< string[] >(
