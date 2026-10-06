@@ -1,4 +1,4 @@
-import { ProgressBar, Spinner } from '@wordpress/components';
+import { ProgressBar } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -10,7 +10,7 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, LinkButton, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
@@ -127,7 +127,7 @@ export default function DownloadScreen() {
 						<Stack direction="row" gap="sm" align="center">
 							<Icon icon={ downloadIcon } />
 							<Stack direction="column" gap="xs">
-								<Text variant="body-lg" className="jpb-download__title" render={ <h2 /> }>
+								<Text variant="body-lg" render={ <h2 /> }>
 									{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
@@ -208,7 +208,9 @@ export default function DownloadScreen() {
 									<Spinner />
 								) }
 								<EmptyState.Title className="jpb-download__status-title">
-									<span role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</span>
+									<Text variant="body-xl" role="status" render={ <span /> }>
+										{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }
+									</Text>
 								</EmptyState.Title>
 							</EmptyState.Root>
 						) }
@@ -221,9 +223,9 @@ export default function DownloadScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-download__status-title">
-									<span role="status">
+									<Text variant="body-xl" role="status" render={ <span /> }>
 										{ __( 'Your download is ready', 'jetpack-backup-pkg' ) }
-									</span>
+									</Text>
 								</EmptyState.Title>
 								{ /*
 								 * WPCOM signs the archive URL with an expiry. Saying
@@ -255,7 +257,9 @@ export default function DownloadScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-download__status-title">
-									{ __( 'Could not prepare the download', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ __( 'Could not prepare the download', 'jetpack-backup-pkg' ) }
+									</Text>
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<EmptyState.Actions>

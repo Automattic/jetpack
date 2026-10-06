@@ -1,4 +1,4 @@
-import { ProgressBar, Spinner } from '@wordpress/components';
+import { ProgressBar } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -12,7 +12,7 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, LinkButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
@@ -92,7 +92,7 @@ export default function RestoreScreen() {
 						<Stack direction="row" gap="sm" align="center">
 							<Icon icon={ backupIcon } />
 							<Stack direction="column" gap="xs">
-								<Text variant="body-lg" className="jpb-restore__title" render={ <h2 /> }>
+								<Text variant="body-lg" render={ <h2 /> }>
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
@@ -195,10 +195,12 @@ export default function RestoreScreen() {
 									aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
 								/>
 								<EmptyState.Title className="jpb-restore__status-title">
-									{ __(
-										'Your restore is queued and will begin automatically.',
-										'jetpack-backup-pkg'
-									) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ __(
+											'Your restore is queued and will begin automatically.',
+											'jetpack-backup-pkg'
+										) }
+									</Text>
 								</EmptyState.Title>
 							</EmptyState.Root>
 						) }
@@ -217,9 +219,9 @@ export default function RestoreScreen() {
 								 * below change on every 5s poll and would re-announce with it.
 								 */ }
 								<EmptyState.Title className="jpb-restore__status-title">
-									<span role="status">
+									<Text variant="body-xl" role="status" render={ <span /> }>
 										{ __( 'Restoring from backup…', 'jetpack-backup-pkg' ) }
-									</span>
+									</Text>
 								</EmptyState.Title>
 
 								<EmptyState.Description>
@@ -277,7 +279,9 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									<span role="status">{ __( 'Restore complete.', 'jetpack-backup-pkg' ) }</span>
+									<Text variant="body-xl" role="status" render={ <span /> }>
+										{ __( 'Restore complete.', 'jetpack-backup-pkg' ) }
+									</Text>
 								</EmptyState.Title>
 								<EmptyState.Actions>
 									<LinkButton variant="solid" render={ <Link to="/" /> }>
@@ -301,9 +305,9 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									<span role="status">
+									<Text variant="body-xl" role="status" render={ <span /> }>
 										{ __( 'Restore finished with errors', 'jetpack-backup-pkg' ) }
-									</span>
+									</Text>
 								</EmptyState.Title>
 								<EmptyState.Description>
 									{ state.message ||
@@ -391,7 +395,9 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									{ __( 'Restore failed', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ __( 'Restore failed', 'jetpack-backup-pkg' ) }
+									</Text>
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<EmptyState.Actions>

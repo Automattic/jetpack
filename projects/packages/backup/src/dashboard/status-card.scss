@@ -30,11 +30,6 @@
 			border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		}
 
-		// Regular weight, as in the design; the Text variants default to bold.
-		&__header &__title {
-			font-weight: var(--wpds-typography-font-weight-default);
-		}
-
 		&__body {
 			display: flex;
 			flex-direction: column;
@@ -53,8 +48,6 @@
 
 		&__status &__status-title {
 			margin-block-start: 24px;
-			font-size: var(--wpds-typography-font-size-xl);
-			font-weight: var(--wpds-typography-font-weight-default);
 		}
 
 		// A 40px circle with a light tint and a small dark icon.
