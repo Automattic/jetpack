@@ -6,14 +6,6 @@ import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
 /**
  * Level → fill colour.
  *
- * Colour only. Geometry is a separate modifier keyed off how full the bar
- * actually is, because the two do not travel together: `BackupsDiscarded`
- * is the one level derived from the retention day-counts rather than the
- * percentage, so it fires at any fill level while carrying the same alarm
- * colour as `Full`. Folding the two into one modifier drew it as a
- * fully-rounded pill floating in the track at 50% — the exact shape the
- * partly-filled treatment exists to avoid.
- *
  * `Full` and `BackupsDiscarded` share the error fill deliberately: the reader needs
  * one alarm, not two shades of one.
  */
@@ -55,13 +47,7 @@ export default function StorageMeter( { storageUsed, storageLimit, usageLevel }:
 	// level is unknown: the figures are still real, only the judgement
 	// about them is missing.
 	const fill = FILL_MODIFIERS[ usageLevel ?? StorageUsageLevels.Normal ];
-	// Only a bar that actually reaches the end may take the track's own
-	// rounding on both ends and give up the trailing-edge buffer. Driven
-	// by the measurement, never by the level name.
 	const classNames = [ 'jpb-storage-meter__bar', `jpb-storage-meter__bar--${ fill }` ];
-	if ( percent >= 100 ) {
-		classNames.push( 'jpb-storage-meter__bar--complete' );
-	}
 
 	return (
 		<div className="jpb-storage-meter">

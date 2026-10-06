@@ -1,6 +1,6 @@
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { LinkButton, Notice } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
@@ -169,13 +169,15 @@ export default function StorageAddonUpsell( {
 			className="jpb-storage-notice"
 			spokenMessage={ [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) }
 		>
-			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
+			{ copy.title && (
+				<Notice.Title className="jpb-storage-notice__title">{ copy.title }</Notice.Title>
+			) }
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (
 				<Notice.Actions>
-					<Notice.ActionLink href={ href } onClick={ recordClick }>
+					<LinkButton variant="solid" size="compact" href={ href } onClick={ recordClick }>
 						{ __( 'Upgrade now', 'jetpack-backup-pkg' ) }
-					</Notice.ActionLink>
+					</LinkButton>
 				</Notice.Actions>
 			) }
 			{ onDismiss && <Notice.CloseIcon onClick={ onDismiss } /> }

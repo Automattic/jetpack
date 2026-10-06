@@ -126,7 +126,9 @@ export default function StorageUsageDetails( {
 				gap="xs"
 				align="center"
 			>
-				<Text variant="body-sm">{ usageText( storageUsed, storageLimit ) }</Text>
+				<Text variant="body-sm" className="jpb-text-muted">
+					{ usageText( storageUsed, storageLimit ) }
+				</Text>
 				{ helpForecastInDays !== null && (
 					<StorageHelpPopover
 						forecastInDays={ helpForecastInDays }
@@ -139,7 +141,7 @@ export default function StorageUsageDetails( {
 			{ daysOfBackupsSaved !== null && (
 				<Text variant="body-sm" className="jpb-storage-space__days">
 					{ createInterpolateElement( daysOfBackupsLabel( daysOfBackupsSaved ), {
-						a: <Link openInNewTab href={ backupsSavedUrl } />,
+						a: <Link openInNewTab tone="neutral" href={ backupsSavedUrl } />,
 					} ) }
 				</Text>
 			) }

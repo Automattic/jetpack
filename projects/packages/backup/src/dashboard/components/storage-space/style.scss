@@ -4,7 +4,7 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	column-gap: 16px;
+	column-gap: 24px;
 	row-gap: 8px;
 	inline-size: 100%;
 	margin-block-end: 24px;
@@ -33,6 +33,7 @@
 	&__help-trigger {
 		font-size: var(--wpds-typography-font-size-sm);
 		font-weight: var(--wpds-typography-font-weight-default);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 		white-space: nowrap;
 	}
 
@@ -46,7 +47,14 @@
 }
 
 .jpb-storage-notice {
-	margin-block-end: 16px;
+	margin-block-end: 24px;
+	padding-block: 16px;
+	padding-inline: 20px;
+
+	// Medium, not the design system's bold.
+	&__title {
+		font-weight: 500;
+	}
 }
 
 // Not nested in `.jpb-storage-space`: `Popover.Popup` portals out.
@@ -58,17 +66,14 @@
 	// `ProgressBar` styles its track with an emotion class of equal
 	// specificity that lands after this file, so each rule nests one more class.
 	& &__bar {
-		block-size: 4px;
+		block-size: 8px;
 		inline-size: 100%;
-		border-radius: 2px;
+		border-radius: 4px;
 		background-color: var(--wpds-color-background-track-neutral);
 
 		> div {
-			border-radius: 0;
-			border-start-start-radius: 2px;
-			border-end-start-radius: 2px;
-			min-inline-size: 2px;
-			max-inline-size: calc(100% - 2px);
+			border-radius: 4px;
+			min-inline-size: 24px;
 		}
 	}
 
@@ -87,15 +92,8 @@
 	}
 
 	& &__placeholder {
-		block-size: 4px;
+		block-size: 8px;
 		inline-size: 100%;
-		border-radius: 2px;
-	}
-
-	// Geometry follows the measurement, not the level: `BackupsDiscarded`
-	// is red at any fill.
-	& &__bar--complete > div {
-		border-radius: 2px;
-		max-inline-size: none;
+		border-radius: 4px;
 	}
 }

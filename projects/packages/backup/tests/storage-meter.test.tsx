@@ -304,38 +304,6 @@ describe( 'colour and geometry', () => {
 		return bar ? Array.from( bar.classList ) : null;
 	}
 
-	it( 'takes the full-width geometry only when the bar actually reaches the end', async () => {
-		mockEndpoints( { size: { size: 100 * GB } } );
-		renderWithClient( <StorageSpace /> );
-		await expect(
-			screen.findByRole( 'region', { name: 'Backup storage' } )
-		).resolves.toBeInTheDocument();
-		expect( barModifiers() ).toContain( 'jpb-storage-meter__bar--complete' );
-	} );
-
-	it( 'keeps the flat trailing edge at BackupsDiscarded, which fires at any fill level', async () => {
-		// The regression this guards: geometry used to be keyed off the
-		// level name, and `BackupsDiscarded` shares `Full`'s alarm colour.
-		// A half-full bar was therefore drawn as a fully-rounded pill
-		// floating in the track — the exact shape the partly-filled
-		// treatment exists to avoid. Colour is shared; geometry is not.
-		mockEndpoints( {
-			size: {
-				size: 50 * GB,
-				min_days_of_backups_allowed: 7,
-				days_of_backups_allowed: 7,
-				days_of_backups_saved: 7,
-				retention_days: 30,
-			},
-		} );
-		renderWithClient( <StorageSpace /> );
-		await expect(
-			screen.findByRole( 'region', { name: 'Backup storage' } )
-		).resolves.toBeInTheDocument();
-		expect( barModifiers() ).toContain( 'jpb-storage-meter__bar--error' );
-		expect( barModifiers() ).not.toContain( 'jpb-storage-meter__bar--complete' );
-	} );
-
 	it.each( [
 		[ 10, 'jpb-storage-meter__bar--brand' ],
 		[ 70, 'jpb-storage-meter__bar--caution' ],
