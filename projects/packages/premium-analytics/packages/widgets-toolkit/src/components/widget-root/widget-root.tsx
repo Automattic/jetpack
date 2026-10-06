@@ -6,14 +6,12 @@ import {
 	useReportScope,
 	withoutComparison,
 } from '@jetpack-premium-analytics/data';
-import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import { siteChartFormatting } from '../../helpers';
-import { useChartTheme } from '../../hooks';
 import { useNormalizedReportParams } from '../../hooks/use-normalized-report-params';
+import { ChartsProvider } from '../charts-provider';
 import { WidgetRootContext } from './context';
 import styles from './widget-root.module.scss';
 import type { ReportParamsFieldAttributes } from '../../fields';
@@ -42,7 +40,6 @@ type WidgetRootProps = {
 
 /** Wraps a lazy-loaded widget with its query client, chart theme, and resolved report params. */
 export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
-	const chartTheme = useChartTheme();
 	const navigationParams = useNormalizedReportParams( attributes );
 
 	// Stripped after resolution, not at the source, so a no-comparison surface
@@ -60,11 +57,11 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
+			<ChartsProvider>
 				<WidgetRootContext.Provider value={ contextValue }>
 					<div className={ styles.root }>{ children }</div>
 				</WidgetRootContext.Provider>
-			</GlobalChartsProvider>
+			</ChartsProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

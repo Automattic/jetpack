@@ -30,6 +30,7 @@ export {
 	type MetricTabDatum,
 	type MetricTabsChartProps,
 	type MetricTabsChartType,
+	ChartsProvider,
 	WidgetRoot,
 	WidgetRootContext,
 	useWidgetRootContext,

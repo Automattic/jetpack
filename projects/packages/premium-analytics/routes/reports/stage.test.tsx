@@ -19,24 +19,10 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 } ) );
 
-const mockChartFormatting = { locale: 'en-US', timeZone: 'Asia/Tokyo' };
-
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	GlobalChartsProvider: ( {
-		children,
-		locale,
-		timeZone,
-	}: {
-		children: ReactNode;
-		locale?: string;
-		timeZone?: string;
-	} ) => (
-		<div data-testid="charts-provider" data-locale={ locale } data-time-zone={ timeZone }>
-			{ children }
-		</div>
+	ChartsProvider: ( { children }: { children: ReactNode } ) => (
+		<div data-testid="charts-provider">{ children }</div>
 	),
-	siteChartFormatting: () => mockChartFormatting,
-	useChartTheme: () => ( {} ),
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -71,12 +57,11 @@ describe( 'Report stage report scope', () => {
 		await expect( screen.findByText( 'no comparison' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( "formats charts with the site's locale and timezone", async () => {
+	it( 'renders the report inside the charts provider', async () => {
 		render( <ReportStage /> );
 
 		const provider = await screen.findByTestId( 'charts-provider' );
 
-		expect( provider ).toHaveAttribute( 'data-locale', mockChartFormatting.locale );
-		expect( provider ).toHaveAttribute( 'data-time-zone', mockChartFormatting.timeZone );
+		expect( provider ).toContainElement( await screen.findByText( 'no comparison' ) );
 	} );
 } );
