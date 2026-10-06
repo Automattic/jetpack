@@ -571,6 +571,9 @@ class Dashboard_Data {
 	/**
 	 * Clear legacy text after a successful empty save, including an unchanged modern option.
 	 *
+	 * An unchanged option does not fire the add/update hooks, so an explicit REST clear
+	 * must also remove legacy text that the front end would otherwise use as a fallback.
+	 *
 	 * @param mixed           $response REST response.
 	 * @param array           $handler  Route handler (unused).
 	 * @param WP_REST_Request $request  REST request.
@@ -610,6 +613,18 @@ class Dashboard_Data {
 	/**
 	 * Switch a module without persisting wpcomsh's temporary private-site suppression.
 	 *
+	 * `Modules::is_active()` reads through `jetpack_active_modules`, where wpcomsh
+	 * hides `sitemaps` and `verification-tools` on private and coming-soon sites.
+	 * That filtered state cannot tell whether a saved preference is already off:
+	 * it reports false even when the module remains in the site's stored list.
+	 * Deactivation also reads that list through the filter, so lifting the callback
+	 * only for the initial check or final read-back would still leave the switch broken.
+	 *
+	 * Lift only wpcomsh's callback for the entire read-modify-write. Other filters
+	 * still count, so a module genuinely held off remains an error. An isolated hook
+	 * copy and the finally block restore the original suppression even after a failure;
+	 * saving a module preference does not change the site's visibility.
+	 *
 	 * @param string $module  Module slug.
 	 * @param bool   $enabled Whether the setting is on.
 	 * @return bool Whether the module now matches the setting.
@@ -625,6 +640,7 @@ class Dashboard_Data {
 
 		if ( false !== $priority ) {
 			$original = $wp_filter[ $hook ];
+
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the original hook after the switch.
 			$wp_filter[ $hook ] = clone $original;
 			remove_filter( $hook, $callback, $priority );
@@ -634,7 +650,9 @@ class Dashboard_Data {
 			if ( $modules->is_active( $module ) === $enabled ) {
 				return true;
 			}
+
 			$modules->update_status( $module, $enabled, false, false );
+
 			return $modules->is_active( $module ) === $enabled;
 		} finally {
 			if ( null !== $original ) {
@@ -810,6 +828,13 @@ class Dashboard_Data {
 	/**
 	 * Map the dashboard's module-backed fields to module slugs.
 	 *
+	 * These are the settings core's `/wp/v2/settings` cannot own. Switching a module
+	 * can fail, and that failure must reach the user rather than return a successful
+	 * response with an unchanged stored value. A `register_setting()` sanitizer is
+	 * also the wrong place for the switch: it runs before the write and can run on
+	 * paths where nothing is persisted. The module route switches the module, checks
+	 * the result, and returns a real error when the requested state was not reached.
+	 *
 	 * @return array<string, string>
 	 */
 	private static function module_settings() {
@@ -889,6 +914,9 @@ class Dashboard_Data {
 
 	/**
 	 * Switch a module and report a failure instead of saving a duplicate option.
+	 *
+	 * Module state is the source of truth; there is no second option to write or roll
+	 * back, and a platform without the module cannot honor this switch.
 	 *
 	 * @param string $module  Module slug.
 	 * @param bool   $enabled Requested state.
