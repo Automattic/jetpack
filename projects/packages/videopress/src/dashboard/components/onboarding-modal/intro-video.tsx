@@ -56,6 +56,7 @@ const prefersReducedMotion = () =>
 const getEmbedUrl = ( guid: string, autoplay: boolean ) =>
 	addQueryArgs( `https://videopress.com/embed/${ guid }`, {
 		resizeToParent: true,
+		useAverageColor: true,
 		...( autoplay ? { autoplay: 1, muted: 1, loop: 1, playsinline: 1 } : {} ),
 	} );
 
