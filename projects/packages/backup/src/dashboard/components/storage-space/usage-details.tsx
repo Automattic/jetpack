@@ -117,34 +117,39 @@ export default function StorageUsageDetails( {
 		site ? { site } : {}
 	);
 
+	const hasExtras = helpForecastInDays !== null || daysOfBackupsSaved !== null;
+
 	return (
-		<>
-			<Stack
-				className="jpb-storage-space__usage"
-				direction="row"
-				wrap="wrap"
-				gap="xs"
-				align="center"
-			>
-				<Text variant="body-sm" className="jpb-text-muted">
-					{ usageText( storageUsed, storageLimit ) }
-				</Text>
-				{ helpForecastInDays !== null && (
-					<StorageHelpPopover
-						forecastInDays={ helpForecastInDays }
-						storageUsed={ storageUsed }
-						storageLimit={ storageLimit }
-					/>
-				) }
-			</Stack>
-			{ /* Omitted, not "0 days", when WordPress.com sends no count. */ }
-			{ daysOfBackupsSaved !== null && (
-				<Text variant="body-sm" className="jpb-storage-space__days">
-					{ createInterpolateElement( daysOfBackupsLabel( daysOfBackupsSaved ), {
-						a: <Link openInNewTab tone="neutral" href={ backupsSavedUrl } />,
-					} ) }
-				</Text>
+		<Stack className="jpb-storage-space__label" direction="column" gap="xs" align="start">
+			<Text variant="body-sm" className="jpb-text-muted">
+				{ usageText( storageUsed, storageLimit ) }
+			</Text>
+			{ /* A second line only when something fills it, so no empty gap. */ }
+			{ hasExtras && (
+				<Stack
+					className="jpb-storage-space__extras"
+					direction="row"
+					wrap="wrap"
+					gap="md"
+					align="center"
+				>
+					{ /* Omitted, not "0 days", when WordPress.com sends no count. */ }
+					{ daysOfBackupsSaved !== null && (
+						<Text variant="body-sm" className="jpb-storage-space__days">
+							{ createInterpolateElement( daysOfBackupsLabel( daysOfBackupsSaved ), {
+								a: <Link openInNewTab tone="neutral" href={ backupsSavedUrl } />,
+							} ) }
+						</Text>
+					) }
+					{ helpForecastInDays !== null && (
+						<StorageHelpPopover
+							forecastInDays={ helpForecastInDays }
+							storageUsed={ storageUsed }
+							storageLimit={ storageLimit }
+						/>
+					) }
+				</Stack>
 			) }
-		</>
+		</Stack>
 	);
 }

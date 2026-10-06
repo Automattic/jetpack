@@ -3,7 +3,7 @@
 .jpb-storage-space {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: center;
+	align-items: flex-start;
 	column-gap: 24px;
 	row-gap: 8px;
 	inline-size: 100%;
@@ -15,8 +15,19 @@
 
 	// The meter takes the space the labels leave, and wraps when that is
 	// too little for a readable bar.
+	// Centred on the 20px usage line, not on the label's second row.
 	.jpb-storage-meter {
 		flex: 1 1 160px;
+		margin-block-start: 6px;
+	}
+
+	// Small and muted, not the link blue.
+	&__days {
+		font-size: var(--wpds-typography-font-size-xs);
+
+		a {
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
 	}
 
 	&__details-placeholder {
@@ -29,9 +40,9 @@
 		margin-inline-start: auto;
 	}
 
-	// The popover trigger is a `Button`; match the row text.
+	// The popover trigger is a `Button`; match the small row text.
 	&__help-trigger {
-		font-size: var(--wpds-typography-font-size-sm);
+		font-size: var(--wpds-typography-font-size-xs);
 		font-weight: var(--wpds-typography-font-weight-default);
 		color: var(--wpds-color-foreground-content-neutral-weak);
 		white-space: nowrap;
