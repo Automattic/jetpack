@@ -30,6 +30,17 @@ describe( 'getComparisonBucketShift', () => {
 			1,
 		],
 		[
+			'skips it when the current period also ends on a one-day week',
+			[ ...CURRENT_FROM_MONDAY, ...spans( [ '2026-09-21', '2026-09-21' ] ) ],
+			spans(
+				[ '2025-08-31', '2025-08-31' ],
+				[ '2025-09-01', '2025-09-07' ],
+				[ '2025-09-08', '2025-09-14' ],
+				[ '2025-09-15', '2025-09-21' ]
+			),
+			1,
+		],
+		[
 			'keeps an extra trailing week in place',
 			spans( [ '2026-09-08', '2026-09-13' ], [ '2026-09-14', '2026-09-20' ] ),
 			spans(

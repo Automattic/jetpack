@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
 import {
 	formatDate,
 	formatDateRange,
@@ -36,7 +37,7 @@ export function formatBucketTooltipDate(
 		endDate &&
 		formatDate( start, 'iso' ) !== formatDate( endDate, 'iso' )
 	) {
-		return formatDateRange( { from: start, to: endDate } );
+		return formatDateRange( { from: localTZDate( start ), to: localTZDate( endDate ) } );
 	}
 
 	return formatTooltipDate( start, dateFormatForResolution( displayResolution ) );

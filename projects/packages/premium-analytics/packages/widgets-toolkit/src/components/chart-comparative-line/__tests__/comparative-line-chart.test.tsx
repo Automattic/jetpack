@@ -143,7 +143,7 @@ const COMPARISON_POINT = {
 };
 
 type GetTooltipLabel = (
-	datum: { date: Date; realDate?: Date },
+	datum: { date: Date; realDate?: Date; endDate?: Date },
 	index: number,
 	key: string,
 	value: string,
@@ -188,6 +188,7 @@ function recordedProps(): RecordedLineProps {
  * @param datum          - The hovered point.
  * @param datum.date     - The axis date it is plotted on.
  * @param datum.realDate - Its own date, when it belongs to a comparison series.
+ * @param datum.endDate  - Its bucket's last instant.
  * @param index          - Its series index.
  * @param key            - The series it belongs to.
  * @param value          - Its value, as the tooltip spelled it out.
@@ -195,7 +196,7 @@ function recordedProps(): RecordedLineProps {
  * @return The rendered row label.
  */
 function tooltipLabelFor(
-	datum: { date: Date; realDate?: Date },
+	datum: { date: Date; realDate?: Date; endDate?: Date },
 	index = 0,
 	key = 'Views',
 	value = '100',
@@ -392,6 +393,20 @@ describe( 'ComparativeLineChart', () => {
 		expect( tooltipLabelFor( COMPARISON_POINT, 3, 'Visitors · previous period', '30' ) ).toBe(
 			'30 Visitors · June 1, 2026'
 		);
+	} );
+
+	it( 'names a comparison week by its own span', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeLineChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			tooltipLabelFor(
+				{ ...COMPARISON_POINT, endDate: new Date( '2026-06-07T12:00:00Z' ) },
+				3,
+				'Visitors · previous period',
+				'30'
+			)
+		).toBe( '30 Visitors · June 1\u2009\u2013\u20097, 2026' );
 	} );
 
 	it( "reads a count metric's rows in the plural form each count calls for", () => {

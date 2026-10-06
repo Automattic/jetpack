@@ -18,9 +18,9 @@ function overlapMs( primary: BucketSpan, comparison: BucketSpan, offsetMs: numbe
 }
 
 /**
- * How many leading comparison buckets to skip so each pairs with the current bucket it
- * overlaps most. A comparison starting on a Sunday opens with a one-day week that
- * pairing by index would put under the first current week (UNI-843).
+ * How many leading comparison buckets to skip so the buckets, paired in order, overlap
+ * most. A comparison starting on a Sunday opens with a one-day week that pairing by
+ * index would put under the first current week (UNI-843).
  *
  * @param primary    - The current period's buckets, oldest first.
  * @param comparison - The comparison period's buckets, oldest first.
@@ -30,11 +30,10 @@ export function getComparisonBucketShift(
 	primary: readonly BucketSpan[],
 	comparison: readonly BucketSpan[]
 ): number {
-	const extra = comparison.length - primary.length;
 	const primaryStart = primary[ 0 ]?.date;
 	const comparisonStart = comparison[ 0 ]?.date;
 
-	if ( extra < 1 || ! primaryStart || ! comparisonStart ) {
+	if ( ! primaryStart || ! comparisonStart ) {
 		return 0;
 	}
 
@@ -42,7 +41,8 @@ export function getComparisonBucketShift(
 	const offsetMs = primaryStart.getTime() - comparisonStart.getTime();
 	let best = { shift: 0, overlap: -1 };
 
-	for ( let shift = 0; shift <= extra; shift++ ) {
+	// Not only when the comparison has more buckets: a one-day week at each end evens the count.
+	for ( let shift = 0; shift < comparison.length; shift++ ) {
 		const overlap = primary.reduce(
 			( total, bucket, index ) =>
 				total + overlapMs( bucket, comparison[ index + shift ] ?? {}, offsetMs ),

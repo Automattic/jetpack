@@ -154,7 +154,7 @@ type TooltipProps = {
 	seriesStyles: { stroke: string; opacity?: number }[];
 	seriesKeys?: string[];
 	getLabel: (
-		datum: { date?: Date; realDate?: Date },
+		datum: { date?: Date; realDate?: Date; endDate?: Date },
 		index: number,
 		key: string,
 		value: string,
@@ -360,6 +360,27 @@ describe( 'ComparativeBarChart', () => {
 				'30'
 			)
 		).toBe( '30 Visitors · June 1, 2026' );
+	} );
+
+	it( 'names a comparison week by its own span', () => {
+		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		const { getLabel } = recordedProps().renderTooltip( {
+			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
+		} ).props;
+
+		expect(
+			getLabel(
+				{
+					date: JULY_1,
+					realDate: new Date( '2026-06-01T00:00:00Z' ),
+					endDate: new Date( '2026-06-07T12:00:00Z' ),
+				},
+				3,
+				'Visitors · June',
+				'30'
+			)
+		).toBe( '30 Visitors · June 1\u2009\u2013\u20097, 2026' );
 	} );
 
 	it( "reads a count metric's rows, comparison included, in the count's plural form", () => {
