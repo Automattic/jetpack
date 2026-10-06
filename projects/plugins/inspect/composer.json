@@ -17,16 +17,15 @@
 	},
 	"require": {
 		"php": ">=7.4",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-config": "@dev"
+		"automattic/jetpack-assets": "^5.0.9",
+		"automattic/jetpack-autoloader": "^6.0.1",
+		"automattic/jetpack-composer-plugin": "^5.0.0",
+		"automattic/jetpack-connection": "^9.9.1",
+		"automattic/jetpack-config": "^4.0.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/phpunit-select-config": "@dev",
-		"automattic/jetpack-test-environment": "@dev"
+		"automattic/phpunit-select-config": "^1.0.11"
 	},
 	"config": {
 		"allow-plugins": {
@@ -44,15 +43,7 @@
 		"build-development": "pnpm run build",
 		"build-production": "pnpm run build-production"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
@@ -64,6 +55,9 @@
 			"versioning": "semver"
 		},
 		"release-branch-prefix": "inspect",
-		"beta-plugin-slug": "jetpack-inspect"
+		"beta-plugin-slug": "jetpack-inspect",
+		"non-mirrored-require-dev": [
+			"automattic/jetpack-test-environment"
+		]
 	}
 }
