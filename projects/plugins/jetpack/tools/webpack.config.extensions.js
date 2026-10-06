@@ -226,6 +226,10 @@ module.exports = [
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
+			'unavailable-blocks-notice': path.join(
+				__dirname,
+				'../extensions/shared/unavailable-blocks-notice/standalone.ts'
+			),
 			...viewBlocksScripts,
 			...adminBlocksScripts,
 		},

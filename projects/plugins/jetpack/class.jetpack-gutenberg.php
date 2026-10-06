@@ -15,6 +15,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -334,6 +335,17 @@ class Jetpack_Gutenberg {
 			'reason'  => $reason,
 			'details' => $details,
 		);
+	}
+
+	/**
+	 * Get the names of blocks Jetpack no longer ships.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[]
+	 */
+	public static function get_deprecated_blocks() {
+		return self::$deprecated_blocks;
 	}
 
 	/**
@@ -982,6 +994,11 @@ class Jetpack_Gutenberg {
 			'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
+
+		$unavailable_blocks = Unavailable_Blocks::get_editor_data();
+		if ( null !== $unavailable_blocks ) {
+			$initial_state['unavailable_blocks'] = $unavailable_blocks;
+		}
 
 		wp_localize_script(
 			Shared_Stores_Assets::SCRIPT_HANDLE,

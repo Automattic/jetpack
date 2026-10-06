@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Block editor: Explain why a Jetpack block is unavailable when Jetpack Blocks or a required feature is turned off, or when Jetpack is not connected.
