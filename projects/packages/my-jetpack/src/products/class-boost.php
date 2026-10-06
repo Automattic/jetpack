@@ -56,13 +56,6 @@ class Boost extends Product {
 	public static $category = 'performance';
 
 	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
-
-	/**
 	 * Boost has a standalone plugin
 	 *
 	 * @var bool
