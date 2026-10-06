@@ -923,8 +923,8 @@ class Jetpack_Memberships {
 		// Newsletter tiers or legacy mailing list plans, excluding deleted ones.
 		if ( 'newsletter' === $type ) {
 			$query['meta_query'] = array(
-				'relation' => 'AND',
 				array(
+					// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 					'relation' => 'OR',
 					array(
 						'key'   => 'jetpack_memberships_type',
