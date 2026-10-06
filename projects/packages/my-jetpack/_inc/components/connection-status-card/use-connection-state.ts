@@ -29,7 +29,7 @@ export type ConnectionErrorStanding = {
 };
 
 /**
- * Whether anything switched on needs a WordPress.com account, not just the site connection.
+ * Whether anything switched on needs a user connection, not just the site connection.
  *
  * @param products - The products from the page's initial state.
  * @return True when at least one does.
@@ -99,7 +99,7 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 		status = error.severity ?? 'error';
 	}
 
-	// A site-only connection is healthy until something switched on needs an account.
+	// A site-only connection is healthy until something switched on needs a user connection.
 	if ( ! userConnectionNeeded ) {
 		return {
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
