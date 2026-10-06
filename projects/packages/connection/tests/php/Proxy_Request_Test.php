@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the WPCOM_REST_API_Proxy_Request trait.
+ * Tests for Proxy_Request and the WPCOM_REST_API_Proxy_Request trait built on it.
  *
  * @package automattic/jetpack-connection
  */
@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -16,12 +17,14 @@ use WP_Error;
 use WP_REST_Request;
 
 /**
- * Drives the trait through a bare host object, down to the HTTP layer.
+ * Drives the forward directly and through a bare object using the trait, down to the HTTP layer.
  *
+ * @covers \Automattic\Jetpack\Connection\Proxy_Request
  * @covers \Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request
  */
+#[CoversClass( Proxy_Request::class )]
 #[CoversTrait( WPCOM_REST_API_Proxy_Request::class )]
-class WPCOM_REST_API_Proxy_Request_Test extends BaseTestCase {
+class Proxy_Request_Test extends BaseTestCase {
 
 	const BLOG_ID = 4242;
 
@@ -66,7 +69,7 @@ class WPCOM_REST_API_Proxy_Request_Test extends BaseTestCase {
 
 		$this->user_id = wp_insert_user(
 			array(
-				'user_login' => 'proxy_trait_user_' . wp_rand(),
+				'user_login' => 'proxy_request_user_' . wp_rand(),
 				'user_pass'  => 'password',
 				'role'       => 'administrator',
 			)
@@ -116,6 +119,177 @@ class WPCOM_REST_API_Proxy_Request_Test extends BaseTestCase {
 		return $this->http_response;
 	}
 
+	/**
+	 * Upstream statuses the forward must hand back as they came.
+	 *
+	 * @return array<string, array{int}>
+	 */
+	public static function data_statuses() {
+		return array(
+			'success' => array( 200 ),
+			'error'   => array( 404 ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_statuses
+	 *
+	 * @param int $status Upstream status.
+	 */
+	#[DataProvider( 'data_statuses' )]
+	public function test_to_path_returns_the_status_body_and_headers_as_sent( int $status ) {
+		$this->http_response = $this->build_http_response( $status, array( 'code' => 'x' ), array( 'X-WP-Total' => '7' ) );
+
+		$result = Proxy_Request::to_path( '/sites/4242/stats', array( 'context' => 'blog' ) );
+
+		$this->assertSame(
+			array(
+				'status'  => $status,
+				'body'    => '{"code":"x"}',
+				'headers' => array( 'x-wp-total' => '7' ),
+			),
+			$result
+		);
+	}
+
+	public function test_to_path_args_shape_the_outbound_request() {
+		Proxy_Request::to_path(
+			'/sites/4242/stats',
+			array(
+				'context'         => 'blog',
+				'method'          => 'post',
+				'query'           => array( 'period' => 'day' ),
+				'body'            => '{"a":1}',
+				'version'         => '1.1',
+				'base_api_path'   => 'rest',
+				'request_options' => array(
+					'timeout' => 120,
+					'headers' => array( 'Content-Type' => 'text/plain' ),
+				),
+			)
+		);
+
+		$call = $this->http_calls[0];
+		$this->assertSame( '/rest/v1.1/sites/4242/stats', wp_parse_url( $call['url'], PHP_URL_PATH ) );
+		$this->assertSame( array( 'period' => 'day' ), $this->get_forwarded_query( $call['url'] ) );
+		$this->assertSame( 'POST', $call['args']['method'] );
+		$this->assertSame( 120, $call['args']['timeout'] );
+		$this->assertSame( '{"a":1}', $call['args']['body'] );
+		$this->assertSame( 'text/plain', $call['args']['headers']['Content-Type'] );
+		$this->assertSame( '203.0.113.9', $call['args']['headers']['X-Forwarded-For'] );
+	}
+
+	public function test_an_unsigned_request_needs_no_connection_and_carries_no_token_or_visitor_ip() {
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Manager() )->reset_connection_status();
+
+		$result = Proxy_Request::to_site(
+			'posts/7/likes',
+			array(
+				'context'       => 'none',
+				'version'       => '1.1',
+				'base_api_path' => 'rest',
+			)
+		);
+
+		$this->assertSame( 200, $result['status'] );
+		$call = $this->http_calls[0];
+		$this->assertSame( 'https://public-api.wordpress.com/rest/v1.1/sites/4242/posts/7/likes', $call['url'] );
+		$this->assertSame( 'GET', $call['args']['method'] );
+		$this->assertArrayNotHasKey( 'Authorization', $call['args']['headers'] );
+		$this->assertArrayNotHasKey( 'X-Forwarded-For', $call['args']['headers'] );
+	}
+
+	/**
+	 * Forward args and whether the site keeps its blog id, for calls that must be refused locally.
+	 *
+	 * @return array<string, array{array, bool}>
+	 */
+	public static function data_refused_forwards() {
+		return array(
+			'blog context on an unconnected site'  => array( array( 'context' => 'blog' ), true ),
+			'unsigned site path without a blog id' => array( array( 'context' => 'none' ), false ),
+			'unknown context'                      => array( array( 'context' => 'jetpack' ), true ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_refused_forwards
+	 *
+	 * @param array $args        Forward args.
+	 * @param bool  $has_blog_id Whether the site keeps its blog id.
+	 */
+	#[DataProvider( 'data_refused_forwards' )]
+	public function test_a_refused_forward_returns_the_callers_unauthorized_error( array $args, bool $has_blog_id ) {
+		\Jetpack_Options::delete_option( 'blog_token' );
+		if ( ! $has_blog_id ) {
+			\Jetpack_Options::delete_option( 'id' );
+		}
+		( new Manager() )->reset_connection_status();
+
+		$result = Proxy_Request::to_site(
+			'stats',
+			$args + array(
+				'unauthorized_error' => array(
+					'code'    => 'no_connection',
+					'message' => 'This site is not connected.',
+					'status'  => 418,
+				),
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'no_connection', $result->get_error_code() );
+		$this->assertSame( 'This site is not connected.', $result->get_error_message() );
+		$this->assertSame( 418, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $this->http_calls );
+	}
+
+	/**
+	 * Query params given to the forward, and the ones WordPress.com must receive.
+	 *
+	 * @return array<string, array{array, array}>
+	 */
+	public static function data_queries() {
+		return array(
+			'a value with separators stays one param' => array(
+				array(
+					'search' => 'a&_method=PUT',
+					'tag'    => 'a#b',
+					'sum'    => '1+2',
+				),
+				array(
+					'search' => 'a&_method=PUT',
+					'tag'    => 'a#b',
+					'sum'    => '1+2',
+				),
+			),
+			'a nested param keeps its shape'          => array(
+				array( 'filter' => array( 'status' => array( 'a b', 'c' ) ) ),
+				array( 'filter' => array( 'status' => array( 'a b', 'c' ) ) ),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider data_queries
+	 *
+	 * @param array $query    Query params given to the forward.
+	 * @param array $expected Query params on the outbound request.
+	 */
+	#[DataProvider( 'data_queries' )]
+	public function test_a_query_param_reaches_wordpress_com_as_written( array $query, array $expected ) {
+		Proxy_Request::to_path(
+			'/sites/4242/stats',
+			array(
+				'context' => 'blog',
+				'query'   => $query,
+			)
+		);
+
+		$this->assertSame( $expected, $this->get_forwarded_query( $this->http_calls[0]['url'] ) );
+	}
+
 	public function test_proxy_request_carries_the_request_to_the_rest_base_path_signed_as_the_blog() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/connections/12' );
 		$request->set_query_params(
@@ -138,6 +312,16 @@ class WPCOM_REST_API_Proxy_Request_Test extends BaseTestCase {
 		$this->assertSame( '{"shared":true}', $call['args']['body'] );
 		$this->assertSame( 'application/json', $call['args']['headers']['Content-Type'] );
 		$this->assertSame( '203.0.113.9', $call['args']['headers']['X-Forwarded-For'] );
+	}
+
+	public function test_proxy_request_sends_no_body_for_an_empty_request_body() {
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/publicize/connections' );
+		$request->set_body( '' );
+
+		$result = $this->host->proxy_request_to_wpcom_as_blog( $request );
+
+		$this->assertSame( array( 'ok' => true ), $result );
+		$this->assertNull( $this->http_calls[0]['args']['body'] );
 	}
 
 	/**
@@ -235,92 +419,6 @@ class WPCOM_REST_API_Proxy_Request_Test extends BaseTestCase {
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'http_request_failed', $result->get_error_code() );
 		$this->assertSame( 'cURL error 28', $result->get_error_message() );
-	}
-
-	/**
-	 * Upstream statuses the raw forward must hand back as they came.
-	 *
-	 * @return array<string, array{int}>
-	 */
-	public static function data_statuses() {
-		return array(
-			'success' => array( 200 ),
-			'error'   => array( 404 ),
-		);
-	}
-
-	/**
-	 * @dataProvider data_statuses
-	 *
-	 * @param int $status Upstream status.
-	 */
-	#[DataProvider( 'data_statuses' )]
-	public function test_forward_returns_the_raw_response_whatever_the_status( int $status ) {
-		$this->http_response = $this->build_http_response( $status, array( 'code' => 'x' ), array( 'x-wp-total' => '7' ) );
-
-		$result = $this->host->forward_request_to_wpcom( new WP_REST_Request( 'GET', '/x' ), '/sites/4242/stats', array( 'context' => 'blog' ) );
-
-		$this->assertSame( $status, wp_remote_retrieve_response_code( $result ) );
-		$this->assertSame( '{"code":"x"}', wp_remote_retrieve_body( $result ) );
-		$this->assertSame( '7', wp_remote_retrieve_header( $result, 'x-wp-total' ) );
-	}
-
-	public function test_forward_args_override_the_host_defaults() {
-		$request = new WP_REST_Request( 'GET', '/x' );
-		$request->set_body( 'from the request' );
-
-		$this->host->forward_request_to_wpcom(
-			$request,
-			'/sites/4242/stats?period=day',
-			array(
-				'context'         => 'blog',
-				'version'         => '2',
-				'base_api_path'   => 'wpcom',
-				'body'            => '{"a":1}',
-				'request_options' => array(
-					'method'  => 'POST',
-					'timeout' => 120,
-					'headers' => array( 'Content-Type' => 'text/plain' ),
-				),
-			)
-		);
-
-		$call = $this->http_calls[0];
-		$this->assertSame( '/wpcom/v2/sites/4242/stats', wp_parse_url( $call['url'], PHP_URL_PATH ) );
-		$this->assertSame( array( 'period' => 'day' ), $this->get_forwarded_query( $call['url'] ) );
-		$this->assertSame( 'POST', $call['args']['method'] );
-		$this->assertSame( 120, $call['args']['timeout'] );
-		$this->assertSame( '{"a":1}', $call['args']['body'] );
-		$this->assertSame( 'text/plain', $call['args']['headers']['Content-Type'] );
-	}
-
-	/**
-	 * Request body, forward args, and the body sent.
-	 *
-	 * @return array<string, array{string, array, string|null}>
-	 */
-	public static function data_bodies() {
-		return array(
-			'an empty request body sends none' => array( '', array(), null ),
-			'an explicit null sends none despite the request' => array( '{"a":1}', array( 'body' => null ), null ),
-		);
-	}
-
-	/**
-	 * @dataProvider data_bodies
-	 *
-	 * @param string      $request_body Body on the incoming request.
-	 * @param array       $args         Forward args.
-	 * @param string|null $sent         Body expected on the wire.
-	 */
-	#[DataProvider( 'data_bodies' )]
-	public function test_forward_resolves_the_body( string $request_body, array $args, ?string $sent ) {
-		$request = new WP_REST_Request( 'POST', '/x' );
-		$request->set_body( $request_body );
-
-		$this->host->forward_request_to_wpcom( $request, '/sites/4242/stats', array_merge( array( 'context' => 'blog' ), $args ) );
-
-		$this->assertSame( $sent, $this->http_calls[0]['args']['body'] );
 	}
 
 	/**
