@@ -920,24 +920,18 @@ class Jetpack_Memberships {
 			'posts_per_page' => 1,
 		);
 
-		// Newsletter tiers or legacy mailing list plans, excluding deleted ones.
+		// Newsletter tiers or legacy mailing list plans.
 		if ( 'newsletter' === $type ) {
 			$query['meta_query'] = array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				'relation' => 'OR',
 				array(
-					// @phan-suppress-next-line PhanPluginMixedKeyNoKey
-					'relation' => 'OR',
-					array(
-						'key'   => 'jetpack_memberships_type',
-						'value' => self::$type_tier,
-					),
-					array(
-						'key'   => 'jetpack_memberships_site_subscriber',
-						'value' => '1',
-					),
+					'key'   => 'jetpack_memberships_type',
+					'value' => self::$type_tier,
 				),
 				array(
-					'key'     => 'jetpack_memberships_is_deleted',
-					'compare' => 'NOT EXISTS',
+					'key'   => 'jetpack_memberships_site_subscriber',
+					'value' => '1',
 				),
 			);
 		}

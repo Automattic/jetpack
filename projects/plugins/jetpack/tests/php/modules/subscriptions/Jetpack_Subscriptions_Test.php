@@ -276,13 +276,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			),
 			'legacy mailing list plan'   => array( array( 'jetpack_memberships_site_subscriber' => '1' ), true ),
 			'non-tier plan'              => array( array( 'jetpack_memberships_site_subscriber' => '0' ), false ),
-			'deleted tier'               => array(
-				array(
-					'jetpack_memberships_type'       => 'tier',
-					'jetpack_memberships_is_deleted' => '1',
-				),
-				false,
-			),
 		);
 	}
 
@@ -291,6 +284,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'newsletter_plan_meta_provider' )]
 	public function test_has_configured_newsletter_plan( array $meta, bool $expected ): void {
+		// Outrank wpcomsh's priority-1000 filter.
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
 		$plan_id = $this->factory->post->create( array( 'post_type' => Jetpack_Memberships::$post_type_plan ) );
 		foreach ( $meta as $key => $value ) {
 			update_post_meta( $plan_id, $key, $value );
