@@ -1,0 +1,70 @@
+@use "sass:meta";
+
+// js-packages/scan @imports this as plain CSS, which wp-build cannot resolve.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+.jp-protect-card {
+
+	&__stats,
+	&__threats {
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__stats {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+
+		> * {
+			padding: 20px 24px;
+		}
+
+		> * + * {
+			border-inline-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+
+			> * + * {
+				border-inline-start: 0;
+				border-block-start:
+					var(--wpds-border-width-xs) solid
+					var(--wpds-color-stroke-surface-neutral);
+			}
+		}
+	}
+
+	&__disclosure-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		cursor: pointer;
+		text-align: start;
+	}
+
+	&__threats {
+		padding-block-end: 8px;
+	}
+}
+
+.jp-protect-safe {
+	padding-block: 32px;
+	text-align: center;
+
+	&__details {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+.jp-protect-scan-button__popover {
+	max-width: 300px;
+}
