@@ -15,16 +15,18 @@ import './route.scss';
  * @return The Protect page.
  */
 const Stage = () => {
-	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as { tab?: string };
+	// `@wordpress/route` types no route tree, so `from` and the navigate argument below need a cast.
+	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
+	const requestedTab = typeof search.tab === 'string' ? search.tab : '';
 	const navigate = useNavigate();
 	const goTo = useCallback(
-		( next: unknown ) => {
+		( next: string ) => {
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
 					tab: next === 'overview' ? undefined : next,
 				} ),
-			} as unknown as Parameters< typeof navigate >[ 0 ] );
+			} as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]
 	);
@@ -39,7 +41,7 @@ const Stage = () => {
 			: []
 	);
 	const tabValues = [ 'overview', ...sectionTabs.map( tab => tab.value ), 'settings' ];
-	const activeTab = tabValues.includes( search.tab ?? '' ) ? ( search.tab as string ) : 'overview';
+	const activeTab = tabValues.includes( requestedTab ) ? requestedTab : 'overview';
 	const { load } = settings;
 
 	useEffect( () => {

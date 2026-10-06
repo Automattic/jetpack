@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -439,7 +440,8 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
+		// The Jetpack plugin's `protect-dashboard` module serves the same page as the standalone plugin.
+		if ( static::is_standalone_plugin_active() || ( new Modules() )->is_active( 'protect-dashboard' ) ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}

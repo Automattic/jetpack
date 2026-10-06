@@ -29,6 +29,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryPeriodHost } from '../../stories/with-story-period-host';
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostAllTimeTrafficRender from '../render';
@@ -85,9 +86,8 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostAllTimeTraffic',
 	component: PostAllTimeTrafficRender,
 	tags: [ 'autodocs' ],
-	// The widget applies a picked month through the route's date filters, so it
-	// needs a router even in the close-up stories that mount it without a dashboard.
-	decorators: [ withStoryRouter ],
+	// A picked month sets the period through the page hosting the widget, stood in for here.
+	decorators: [ withStoryPeriodHost, withStoryRouter ],
 	argTypes: {
 		hasPostScope: hasPostScopeArgType,
 		metric: metricArgType,

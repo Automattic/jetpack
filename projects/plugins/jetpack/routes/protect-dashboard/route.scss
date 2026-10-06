@@ -24,17 +24,11 @@ body.toplevel_page_jetpack-protect {
 }
 
 .jp-protect-card {
-	overflow: hidden;
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-md);
-	background: var(--wpds-color-background-surface-neutral);
 
-	&__header,
+	// The row is full-bleed for its divider; the padding re-aligns its contents.
 	&__row {
-		padding: 16px 24px;
-	}
-
-	&__row {
+		box-sizing: border-box;
+		padding: 16px var(--wp-ui-card-padding);
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
 

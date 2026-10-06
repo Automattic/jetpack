@@ -74,6 +74,14 @@
 			],
 		},
 		{
+			extends: [ 'packages:stylelint' ],
+			groupName: 'Stylelint packages',
+			matchPackageNames: [
+				// Add this too.
+				'@stylistic/stylelint-plugin',
+			],
+		},
+		{
 			extends: [ 'packages:jsUnitTest' ],
 			groupName: 'JS unit testing packages',
 			matchPackageNames: [ 'babel-jest' ],

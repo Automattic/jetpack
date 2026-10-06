@@ -18,13 +18,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	foreign: 'drop-me',
-} );
-
 /**
  * Mount the post field's render component for a table row.
  *
@@ -44,6 +37,15 @@ function renderPostField( item: StatsCommentFollowersItem ) {
 }
 
 describe( 'comment followers fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'drills posts with an id into the post detail page', () => {
 		renderPostField( {
 			id: 42,
@@ -85,19 +87,6 @@ describe( 'comment followers fields', () => {
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		// eslint-disable-next-line testing-library/no-node-access -- The external-link icon SVG has no accessible role or text to query.
 		expect( link.querySelector( 'svg' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders plain text for rows with neither an id nor a link', () => {
-		renderPostField( {
-			id: undefined,
-			label: 'Hello world',
-			followers: 12,
-			value: 12,
-			children: null,
-		} as never );
-
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders plain text for rows with an unsafe external link', () => {

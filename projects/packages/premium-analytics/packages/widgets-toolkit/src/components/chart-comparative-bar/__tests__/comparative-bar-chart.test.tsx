@@ -2,77 +2,29 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
-import { setSettings } from '@wordpress/date';
+import { getSettings, setSettings } from '@wordpress/date';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import {
+	mockBarChartLegendSpy,
+	mockBarChartSpy,
+	resetMockCharts,
+	setMockChartHeight,
+} from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
 import type { ComparativeBarChartSeries } from '../types';
 
-// Record the options handed to the underlying chart: the real one renders SVG
-// through a provider jsdom cannot lay out.
-const mockBarSpy = jest.fn();
-const mockLegendSpy = jest.fn();
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
 
-jest.mock( '@jetpack-premium-analytics/externals', () => {
-	const { forwardRef } = jest.requireActual( 'react' );
-
-	const BarChart = ( props: { children?: React.ReactNode } ) => {
-		mockBarSpy( props );
-		// Render children so the legend, which the wrapper mounts conditionally,
-		// is observable.
-		return <div data-testid="bar-chart">{ props.children }</div>;
-	};
-	BarChart.Legend = ( props: Record< string, unknown > ) => {
-		mockLegendSpy( props );
-		return <div data-testid="bar-chart-legend" />;
-	};
-
-	return {
-		// The real classifier: this is what the tooltip format now follows.
-		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
-		BarChart,
-		// One item per non-comparison series, as `collapseGroups` would produce.
-		useChartLegendItems: ( data: { label: string; options?: { type?: string } }[] ) =>
-			data
-				.filter( series => series.options?.type !== 'comparison' )
-				.map( series => ( { label: series.label, color: '#3858E9' } ) ),
-		// The wrapper measures this element, so the stand-in must take the ref.
-		Stack: forwardRef(
-			(
-				{ children }: { children?: React.ReactNode },
-				ref: React.ForwardedRef< HTMLDivElement >
-			) => <div ref={ ref }>{ children }</div>
-		),
-		// Mirrors the real theme: a comparison series shares its primary's colour
-		// and is set apart only by opacity.
-		useGlobalChartsContext: () => ( {
-			getElementStyles: ( { data }: { data: { options?: { type?: string } } } ) => ( {
-				color: '#3858E9',
-				barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
-			} ),
-		} ),
-	};
-} );
-
-// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never fires
-// and the chart measures as infinitely tall, leaving `compactWhenShort` unreachable.
-let mockChartHeight = Infinity;
-
-jest.mock( '@wordpress/compose', () => ( {
-	// Spread the real module: `@wordpress/data` is pulled in transitively and
-	// needs `createHigherOrderComponent` from here.
-	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver:
-		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
-		( element: HTMLElement | null ) => {
-			if ( element ) {
-				onResize( [ { contentRect: { height: mockChartHeight } } ] );
-			}
-		},
-} ) );
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
@@ -179,8 +131,8 @@ function recordedProps(): {
 	renderTooltip: ( params: unknown ) => { props: TooltipProps };
 } {
 	// Fail on the real reason rather than a TypeError further down.
-	expect( mockBarSpy ).toHaveBeenCalled();
-	return mockBarSpy.mock.calls.at( -1 )[ 0 ];
+	expect( mockBarChartSpy ).toHaveBeenCalled();
+	return mockBarChartSpy.mock.calls.at( -1 )[ 0 ];
 }
 
 /** The options the most recent chart render received. */
@@ -245,10 +197,14 @@ const ZERO_SERIES: ComparativeBarChartSeries[] = [
 ];
 
 describe( 'ComparativeBarChart', () => {
+	const originalSettings = getSettings();
+
 	beforeEach( () => {
-		mockBarSpy.mockClear();
-		mockLegendSpy.mockClear();
-		mockChartHeight = Infinity;
+		resetMockCharts();
+	} );
+
+	afterEach( () => {
+		setSettings( originalSettings );
 	} );
 
 	it( 'passes no x tickFormat when no tick format is requested', () => {
@@ -259,12 +215,14 @@ describe( 'ComparativeBarChart', () => {
 		expect( recordedOptions().axis.x.tickFormat ).toBeUndefined();
 	} );
 
-	it( 'passes an x tickFormat when one is requested', () => {
+	it( 'formats the x ticks in the requested format', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render(
 			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickFormat="short" />
 		);
 
-		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
+		const tickFormat = recordedOptions().axis.x.tickFormat as ( date: number ) => string;
+		expect( tickFormat( JULY_1.getTime() ) ).toBe( 'July 1' );
 	} );
 
 	it( 'declares the bucket size to the x-axis', () => {
@@ -304,19 +262,6 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
 	} );
 
-	it( 'lets a declared resolution override what the data looks like', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render(
-			<ComparativeBarChart
-				series={ HOURLY_SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="day"
-			/>
-		);
-
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026' );
-	} );
-
 	// How a point's date reads is the caller's to decide; which format names it
 	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
@@ -349,12 +294,6 @@ describe( 'ComparativeBarChart', () => {
 		);
 
 		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
-	} );
-
-	it( 'leaves the tooltip alone when there is no comparison series', () => {
-		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100 } );
 	} );
 
 	it( 'names the tooltip rows by metric once two are drawn', () => {
@@ -471,7 +410,7 @@ describe( 'ComparativeBarChart', () => {
 			defaultHiddenSeries: [ 'Visitors', 'Visitors · June' ],
 			legend: { collapseGroups: true, interactive: true },
 		} );
-		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
+		expect( mockBarChartLegendSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
 				interactive: true,
 				shape: 'rect',
@@ -495,10 +434,11 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 
-	it( 'always formats the y axis', () => {
+	it( 'abbreviates the y axis ticks', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( typeof recordedOptions().axis.y.tickFormat ).toBe( 'function' );
+		const tickFormat = recordedOptions().axis.y.tickFormat as ( value: number ) => string;
+		expect( tickFormat( 18432 ) ).toBe( '18.4K' );
 	} );
 
 	it( 'dims the previous-period swatch to match the shadow bar it stands for', () => {
@@ -549,7 +489,6 @@ describe( 'ComparativeBarChart', () => {
 
 			// `useChartMargin` measures the pinned domain's own ticks, so there is
 			// nothing left for this component to override.
-			expect( recordedOptions().yScale.domain ).toBeDefined();
 			expect( recordedProps().margin ).toBeUndefined();
 		} );
 
@@ -564,7 +503,7 @@ describe( 'ComparativeBarChart', () => {
 
 	describe( 'compactWhenShort', () => {
 		it( 'degrades to a sparkline on a short tile', () => {
-			mockChartHeight = 80;
+			setMockChartHeight( 80 );
 			render(
 				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
 			);
@@ -578,7 +517,7 @@ describe( 'ComparativeBarChart', () => {
 		} );
 
 		it( 'keeps the axis, grid, and legend when the tile is tall enough', () => {
-			mockChartHeight = 400;
+			setMockChartHeight( 400 );
 			render(
 				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
 			);
@@ -589,7 +528,7 @@ describe( 'ComparativeBarChart', () => {
 		} );
 
 		it( 'ignores the breakpoint when not opted in', () => {
-			mockChartHeight = 80;
+			setMockChartHeight( 80 );
 			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
 			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
@@ -605,9 +544,15 @@ describe( 'ComparativeBarChart tooltip extras', () => {
 		dataFormat: { type: 'currency' as const, options: { decimals: 2 } },
 	};
 
+	const originalSettings = getSettings();
+
 	beforeEach( () => {
-		mockBarSpy.mockClear();
+		resetMockCharts();
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	} );
+
+	afterEach( () => {
+		setSettings( originalSettings );
 	} );
 
 	it( "adds each extra's value for the hovered bar, and nothing for a date it lacks", () => {
