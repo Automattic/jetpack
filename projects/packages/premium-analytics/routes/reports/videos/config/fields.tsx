@@ -7,6 +7,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
+	compareOptionalNumbers,
 	MetricWithComparison,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
@@ -173,14 +174,18 @@ export function getVideosFields(
 			id: 'retention_rate',
 			label: __( 'Retention rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.retention_rate,
-			render: ( { item } ) => (
-				// The endpoint sends a percentage (67.6); the formatter expects a fraction.
-				<MetricWithComparison
-					value={ item.retention_rate / 100 }
-					dataFormat={ RATE_DATA_FORMAT }
-					fontSize="md"
-				/>
-			),
+			sort: compareOptionalNumbers,
+			render: ( { item } ) =>
+				item.retention_rate === null ? (
+					<>—</>
+				) : (
+					// The endpoint sends a percentage (67.6); the formatter expects a fraction.
+					<MetricWithComparison
+						value={ item.retention_rate / 100 }
+						dataFormat={ RATE_DATA_FORMAT }
+						fontSize="md"
+					/>
+				),
 		},
 	];
 }

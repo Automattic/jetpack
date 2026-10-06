@@ -159,6 +159,12 @@ describe( 'videos fields', () => {
 		expect( screen.getByText( '67.6%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders an em dash for a retention rate wpcom could not compute', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: null } );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+	} );
+
 	it( 'hides comparison deltas when comparison is disabled', () => {
 		renderMetricField( 'plays', {
 			...video,
