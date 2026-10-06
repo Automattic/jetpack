@@ -265,6 +265,40 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$this->assertSame( $labels[ $expected_access ], ob_get_clean() );
 	}
 
+	public static function newsletter_plan_meta_provider(): array {
+		return array(
+			'tier with mailing list off' => array(
+				array(
+					'jetpack_memberships_type'            => 'tier',
+					'jetpack_memberships_site_subscriber' => '0',
+				),
+				true,
+			),
+			'legacy mailing list plan'   => array( array( 'jetpack_memberships_site_subscriber' => '1' ), true ),
+			'non-tier plan'              => array( array( 'jetpack_memberships_site_subscriber' => '0' ), false ),
+			'deleted tier'               => array(
+				array(
+					'jetpack_memberships_type'       => 'tier',
+					'jetpack_memberships_is_deleted' => '1',
+				),
+				false,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider newsletter_plan_meta_provider
+	 */
+	#[DataProvider( 'newsletter_plan_meta_provider' )]
+	public function test_has_configured_newsletter_plan( array $meta, bool $expected ): void {
+		$plan_id = $this->factory->post->create( array( 'post_type' => Jetpack_Memberships::$post_type_plan ) );
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( $plan_id, $key, $value );
+		}
+
+		$this->assertSame( $expected, Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) );
+	}
+
 	/**
 	 * Removing the Paywall block makes a post with no stored access level public again.
 	 */
