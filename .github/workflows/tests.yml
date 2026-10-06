@@ -141,14 +141,16 @@ jobs:
           echo "::endgroup::"
 
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
+          echo "any=$( jq any <<<"$CHANGED" )" >> "$GITHUB_OUTPUT"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Select WordPress version
-        if: matrix.wp != 'none'
+        if: matrix.wp != 'none' && steps.changed.outputs.any == 'true'
         run: .github/files/select-wordpress-tag.sh
 
       - name: Composer Install
+        if: steps.changed.outputs.any == 'true'
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
@@ -200,6 +202,7 @@ jobs:
         run: .github/files/setup-wordpress-env.sh
 
       - name: Prepare test queue
+        if: steps.changed.outputs.any == 'true'
         env:
           QUEUEFILE: ${{ runner.temp }}/testqueue
           WORKERTOKENS: ${{ runner.temp }}/workertokens
@@ -240,6 +243,7 @@ jobs:
       - parallel:
         - &testworker
           name: Run project tests
+          if: steps.changed.outputs.any == 'true'
           env:
             FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
             CHANGED: ${{ steps.changed.outputs.projects }}
