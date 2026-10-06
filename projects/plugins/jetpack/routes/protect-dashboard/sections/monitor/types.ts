@@ -1,3 +1,5 @@
+import type { DashboardContext } from '../types';
+
 /** The Monitor section's state from PHP. */
 export type MonitorState = {
 	available: boolean;
@@ -17,3 +19,6 @@ export type Uptime = {
 	/** Whether the site is up right now; null when unknown. */
 	isUp: boolean | null;
 };
+
+/** Undefined when PHP registered no Monitor section. */
+export type MonitorContext = DashboardContext< MonitorState | undefined >;

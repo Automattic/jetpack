@@ -3,8 +3,7 @@ import { seen } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import SettingToggle from '../../components/settings/setting-toggle';
-import type { DashboardContext } from '../types';
-import type { MonitorState } from './types';
+import type { MonitorContext } from './types';
 
 /**
  * The Monitor settings: downtime monitoring and its email alerts.
@@ -14,8 +13,8 @@ import type { MonitorState } from './types';
  * @param props.settings - Jetpack settings and their save function.
  * @return The card.
  */
-export default function MonitorSettingsCard( { state, settings }: DashboardContext ) {
-	const available = Boolean( ( state as MonitorState | undefined )?.available );
+export default function MonitorSettingsCard( { state, settings }: MonitorContext ) {
+	const available = Boolean( state?.available );
 	return (
 		<ProtectCard icon={ seen } title={ __( 'Monitor', 'jetpack' ) }>
 			<CardRow>

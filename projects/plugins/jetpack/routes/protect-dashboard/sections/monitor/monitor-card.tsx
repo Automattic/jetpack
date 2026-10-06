@@ -7,9 +7,8 @@ import { Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import SettingsLink from '../../components/settings-link';
 import isModuleActive from '../../data/is-module-active';
+import type { MonitorContext, Uptime, UptimeDay } from './types';
 import type { CardStatus } from '../../components/card';
-import type { DashboardContext } from '../types';
-import type { MonitorState, Uptime, UptimeDay } from './types';
 import './style.scss';
 
 /**
@@ -84,8 +83,7 @@ function getStatus(
  * @param props.openSettings - Opens the Settings tab.
  * @return The card.
  */
-export default function MonitorCard( { state, settings, openSettings }: DashboardContext ) {
-	const monitor = state as MonitorState | undefined;
+export default function MonitorCard( { state: monitor, settings, openSettings }: MonitorContext ) {
 	const available = Boolean( monitor?.available );
 	const active =
 		available && isModuleActive( settings.settings, 'monitor', Boolean( monitor?.active ) );
