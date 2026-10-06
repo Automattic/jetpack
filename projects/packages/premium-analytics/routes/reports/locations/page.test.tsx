@@ -363,6 +363,20 @@ describe( 'LocationsReportPage', () => {
 		expect( getLocationFields ).toHaveBeenCalledWith( undefined, hasComparison, 'countries' );
 	} );
 
+	it.each( [
+		[ 'countries', 'Country' ],
+		[ 'regions', 'Region' ],
+		[ 'cities', 'City' ],
+	] as const )( 'names the location column after the %s tab', ( tab, label ) => {
+		mockTabState( tab );
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+
+		const { fields } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( fields.find( field => field.id === 'location' )?.label ).toBe( label );
+	} );
+
 	// The country is a filter, not a column.
 	it( 'keeps the country out of the table columns', () => {
 		mockTabState( 'regions' );
