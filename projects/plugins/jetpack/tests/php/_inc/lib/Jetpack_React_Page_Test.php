@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 
@@ -52,6 +53,8 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 		unset( $_GET['page'] );
 
 		( new Connection_Manager() )->reset_connection_status();
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 		Status_Cache::clear();
 
 		parent::tear_down();
@@ -136,6 +139,33 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-settings' ), $table['fallback'] );
 		$this->assertSame( array( '/plans', '/plans-prompt', '/newsletter' ), array_keys( $table['routes'] ) );
+	}
+
+	/**
+	 * @dataProvider page_access_cases
+	 * @param bool $offline Whether the site is offline.
+	 * @param bool $restricted Whether the administrator lacks plugin activation.
+	 */
+	#[DataProvider( 'page_access_cases' )]
+	public function test_main_page_hands_over_only_to_an_accessible_my_jetpack_page( $offline, $restricted ) {
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+		Status_Cache::clear();
+		wp_get_current_user()->add_cap( 'activate_plugins', ! $restricted );
+		$before = Jetpack_React_Page::get_legacy_route_redirects()['fallback'];
+		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline ? 'jetpack-settings' : 'my-jetpack' ) ), $before );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$after = Jetpack_React_Page::get_legacy_route_redirects()['fallback'];
+		$this->assertSame( admin_url( 'admin.php?page=' . ( $offline && $restricted ? 'jetpack-settings' : 'my-jetpack' ) ), $after );
+	}
+
+	/** @return array Landing permission cases. */
+	public static function page_access_cases() {
+		return array(
+			'offline full administrator'       => array( true, false ),
+			'offline restricted administrator' => array( true, true ),
+			'online full administrator'        => array( false, false ),
+			'online restricted administrator'  => array( false, true ),
+		);
 	}
 
 	/**

@@ -267,7 +267,9 @@ JS;
 		return current_user_can( 'manage_options' )
 			&& class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
 			&& method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' )
-			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize()
+			&& ( ! method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'current_user_can_access_page' )
+				|| \Automattic\Jetpack\My_Jetpack\Initializer::current_user_can_access_page() );
 	}
 
 	/**

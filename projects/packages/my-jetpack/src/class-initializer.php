@@ -244,7 +244,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
-		if ( self::is_offline_features_enabled() && ! REST_Main_Features::permissions_callback() ) {
+		if ( self::is_offline_features_enabled() && ! self::current_user_can_access_page() ) {
 			return;
 		}
 
@@ -264,13 +264,24 @@ class Initializer {
 	}
 
 	/**
+	 * Whether the current user may access the page selected by My Jetpack.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function current_user_can_access_page() {
+		return current_user_can( 'edit_posts' )
+			&& ( ! self::is_offline_features_enabled() || REST_Main_Features::permissions_callback() );
+	}
+
+	/**
 	 * Callback for the load my jetpack page hook.
 	 *
 	 * @return void
 	 */
 	public static function admin_init() {
 		if ( self::is_offline_features_enabled() ) {
-			if ( ! REST_Main_Features::permissions_callback() ) {
+			if ( ! self::current_user_can_access_page() ) {
 				wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-my-jetpack' ), 403 );
 			}
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
