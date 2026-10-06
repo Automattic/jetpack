@@ -233,8 +233,9 @@ jobs:
           if [[ -n "$SPLIT_PROJECT" && ( $TEST_SCRIPT == 'test-js' || $TEST_SCRIPT == 'test-js-coverage' ) ]]; then
             echo "Enabling 1 worker for $N CPU(s)"
             N=1
+          else
+            echo "Enabling $N worker(s) for $N CPU(s)"
           fi
-          echo "Enabling $N worker(s) for $N CPU(s)"
           for (( i=0; i<N; i++)); do
             echo "$i"
           done > "$WORKERTOKENS"
