@@ -7,18 +7,41 @@
 		min-height: 320px;
 	}
 
-	// Centres the card in the space the page leaves, not the viewport.
+	// Centres the card in the space between the page header and footer.
 	&__stage {
 		display: flex;
+		flex: 1;
 		align-items: center;
-		min-block-size: 60vh;
+		justify-content: center;
 	}
 
 	&__card {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
 		box-sizing: border-box;
 		inline-size: 100%;
 		max-inline-size: 660px;
-		padding: 40px;
+		padding: 32px;
+		border-radius: var(--wpds-border-radius-xl);
+
+		&--compact {
+			gap: 16px;
+			max-inline-size: 420px;
+
+			.jpb-gates__badge {
+				margin-block-end: 4px;
+			}
+
+			.jpb-gates__actions {
+				margin-block-start: 8px;
+			}
+
+			.jpb-gates__title {
+				margin-block-end: -4px;
+			}
+		}
 
 		@media ( max-width: 600px ) {
 			padding: 24px;
@@ -29,22 +52,30 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		inline-size: 48px;
-		block-size: 48px;
+		inline-size: 40px;
+		block-size: 40px;
+		margin-block-end: 8px;
 		border-radius: 50%;
-
-		&--info {
-			background-color: var(--wpds-color-background-surface-info-weak);
-			color: var(--wpds-color-foreground-content-info);
-		}
+		background-color: var(--wpds-color-background-surface-brand);
+		color: var(--wpds-color-foreground-content-neutral);
 
 		&--warning {
-			background-color: var(--wpds-color-background-surface-warning-weak);
-			color: var(--wpds-color-foreground-content-warning);
+			background-color: var(--wpds-color-background-surface-error-weak);
 		}
 	}
 
+	&__paragraph {
+		margin-block-start: 8px;
+	}
+
+	&__price {
+		font-weight: var(--wpds-typography-font-weight-default);
+	}
+
 	&__features {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -58,15 +89,27 @@
 
 		svg {
 			flex: none;
-			fill: var(--wpds-color-foreground-content-info);
+			fill: currentColor;
 		}
 	}
 
-	&__actions {
-		margin-block-start: 8px;
+	// Aligns the link text with the button's edge when it wraps below it.
+	&__license {
+		padding-inline: 0;
 	}
 
-	&__price-old {
-		color: var(--wpds-color-foreground-content-neutral-weak);
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 24px;
+		margin-block-start: 12px;
 	}
+}
+
+// Lets the stage fill the body so the card centres vertically.
+.jpb-dashboard-body__inner:has(> .jpb-gates__stage) {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 100%;
 }

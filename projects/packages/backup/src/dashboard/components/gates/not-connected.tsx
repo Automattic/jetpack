@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, plugins } from '@wordpress/icons';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Card, Text } from '@wordpress/ui';
 import LicenseKeyLink from './license-key-link';
 
 /**
@@ -34,26 +34,24 @@ export default function NotConnectedScreen() {
 	return (
 		<div className="jpb-gates__stage">
 			<Card.Root className="jpb-gates__card">
-				<Stack direction="column" gap="lg" align="start">
-					<span className="jpb-gates__badge jpb-gates__badge--info" aria-hidden="true">
-						<Icon icon={ plugins } />
-					</span>
-					<Text variant="heading-lg" render={ <h2 /> }>
-						{ __( 'Connect Jetpack to get started', 'jetpack-backup-pkg' ) }
-					</Text>
-					<Text>
-						{ __(
-							'Backup needs an active Jetpack connection to show your backup history.',
-							'jetpack-backup-pkg'
-						) }
-					</Text>
-					<Stack direction="row" gap="lg" align="center" wrap="wrap" className="jpb-gates__actions">
-						<Button variant="primary" href={ JETPACK_CONNECT_URL }>
-							{ __( 'Connect Jetpack', 'jetpack-backup-pkg' ) }
-						</Button>
-						<LicenseKeyLink />
-					</Stack>
-				</Stack>
+				<span className="jpb-gates__badge" aria-hidden="true">
+					<Icon icon={ plugins } />
+				</span>
+				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
+					{ __( 'Connect Jetpack to get started', 'jetpack-backup-pkg' ) }
+				</Text>
+				<Text>
+					{ __(
+						'Backup needs an active Jetpack connection to show your backup history.',
+						'jetpack-backup-pkg'
+					) }
+				</Text>
+				<div className="jpb-gates__actions">
+					<Button variant="primary" href={ JETPACK_CONNECT_URL }>
+						{ __( 'Connect Jetpack', 'jetpack-backup-pkg' ) }
+					</Button>
+					<LicenseKeyLink />
+				</div>
 			</Card.Root>
 		</div>
 	);

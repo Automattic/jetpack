@@ -29,7 +29,12 @@ const ADD_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
  */
 export default function LicenseKeyLink() {
 	return (
-		<LinkButton variant="minimal" tone="brand" href={ ADD_LICENSE_URL }>
+		<LinkButton
+			className="jpb-gates__license"
+			variant="minimal"
+			tone="brand"
+			href={ ADD_LICENSE_URL }
+		>
 			{ __( 'Use license key', 'jetpack-backup-pkg' ) }
 		</LinkButton>
 	);

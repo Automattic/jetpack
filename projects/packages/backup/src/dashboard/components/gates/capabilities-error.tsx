@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, caution } from '@wordpress/icons';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Icon, error as errorIcon } from '@wordpress/icons';
+import { Card, Text } from '@wordpress/ui';
 
 type Props = {
 	error: Error;
@@ -20,37 +20,33 @@ type Props = {
  * retry.
  *
  * @param props            - Component props.
- * @param props.error      - The error the capabilities query failed with.
  * @param props.onRetry    - Refetches the capabilities query.
  * @param props.isRetrying - Whether a retry is already in flight.
  * @return The rendered fallback.
  */
-export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
+export default function CapabilitiesErrorScreen( { onRetry, isRetrying = false }: Props ) {
 	return (
 		<div className="jpb-gates__stage">
 			<Card.Root className="jpb-gates__card">
-				<Stack direction="column" gap="lg" align="start">
-					<span className="jpb-gates__badge jpb-gates__badge--warning" aria-hidden="true">
-						<Icon icon={ caution } />
-					</span>
-					<Text variant="heading-lg" render={ <h2 /> }>
-						{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
-					</Text>
-					{ /*
-					 * Not "this is usually temporary". This screen also covers
-					 * `capabilities_unreadable`, which is upstream shape drift —
-					 * no amount of retrying clears it, so the copy has to leave
-					 * the reader somewhere to go when the button doesn't help.
-					 */ }
-					<Text>
-						{ __(
-							"We couldn't reach WordPress.com to check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
-							'jetpack-backup-pkg'
-						) }
-					</Text>
-					<Text variant="body-sm" className="jpb-text-muted">
-						{ error.message }
-					</Text>
+				<span className="jpb-gates__badge jpb-gates__badge--warning" aria-hidden="true">
+					<Icon icon={ errorIcon } />
+				</span>
+				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
+					{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
+				</Text>
+				{ /*
+				 * Not "this is usually temporary". This screen also covers
+				 * `capabilities_unreadable`, which is upstream shape drift —
+				 * no amount of retrying clears it, so the copy has to leave
+				 * the reader somewhere to go when the button doesn't help.
+				 */ }
+				<Text>
+					{ __(
+						"We couldn't reach WordPress.com to check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
+						'jetpack-backup-pkg'
+					) }
+				</Text>
+				<div className="jpb-gates__actions">
 					{ /*
 					 * Busy rather than merely clickable: the screen holds its
 					 * error across a retry, so without this the DOM is
@@ -73,7 +69,7 @@ export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = 
 					>
 						{ __( 'Try again', 'jetpack-backup-pkg' ) }
 					</Button>
-				</Stack>
+				</div>
 			</Card.Root>
 		</div>
 	);

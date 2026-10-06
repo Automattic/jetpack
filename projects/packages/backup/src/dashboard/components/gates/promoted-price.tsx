@@ -37,18 +37,6 @@ export default function PromotedPrice() {
 	// saving.
 	const hasDiscount = effectiveText !== fullText;
 
-	// These three are the legacy no-plan card's, unchanged, so they arrive
-	// already translated instead of waiting a GlotPress cycle.
-	//
-	// One const per string, rather than a `__()` call chosen inside a
-	// ternary: the minifier factors the shared call out and leaves the
-	// msgid a variable, which the text-domain scanner then drops.
-	const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup-pkg' );
-	const introductoryInfoText = __(
-		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-		'jetpack-backup-pkg'
-	);
-	const infoText = hasDiscount ? introductoryInfoText : basicInfoText;
 	const priceDetails =
 		hasDiscount && introYears !== null
 			? // The singular has no placeholder, which is the standard `_n()` idiom for "one".
@@ -83,8 +71,10 @@ export default function PromotedPrice() {
 
 	return (
 		<Stack direction="column" gap="xs" align="start">
-			<Stack direction="row" gap="sm" align="baseline" wrap="wrap">
-				<Text variant="heading-2xl">{ effectiveText }</Text>
+			<Text variant="heading-2xl" className="jpb-gates__price">
+				{ effectiveText }
+			</Text>
+			<Text className="jpb-text-muted">
 				{ /*
 				 * Hidden from assistive tech rather than read out. A
 				 * strikethrough carries no meaning a screen reader
@@ -97,21 +87,13 @@ export default function PromotedPrice() {
 				 * further down as visually-hidden text.
 				 */ }
 				{ hasDiscount && (
-					<Text
-						variant="body-lg"
-						render={ <s /> }
-						className="jpb-gates__price-old"
-						aria-hidden="true"
-					>
-						{ fullText }
-					</Text>
+					<>
+						<s aria-hidden="true">{ fullText }</s>{ ' ' }
+					</>
 				) }
-			</Stack>
-			<Text variant="body-sm">{ priceDetails }</Text>
-			{ hasDiscount && <VisuallyHidden>{ renewalText }</VisuallyHidden> }
-			<Text variant="body-sm" className="jpb-text-muted">
-				{ infoText }
+				{ priceDetails }
 			</Text>
+			{ hasDiscount && <VisuallyHidden>{ renewalText }</VisuallyHidden> }
 		</Stack>
 	);
 }

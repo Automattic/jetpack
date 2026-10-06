@@ -33,10 +33,8 @@ import QueryClientProvider from '../src/dashboard/providers/query-client-provide
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
 const UPSTREAM_REASON = "Could not read this site's plan details.";
-// Matched as a pattern, not an exact string: `Notice` renders a
-// visually-hidden "Error notice" label inside the same content element,
-// so no single node's text equals the message on its own.
-const REASON_SHOWN = /Could not read this site's plan details/;
+// The screen no longer prints the upstream message, so its title marks "the error screen is up".
+const REASON_SHOWN = /We couldn't load your backup details/;
 
 /**
  * A promise whose settlement the test controls, so a retry can be held

@@ -189,7 +189,6 @@ describe( 'No-plan gate', () => {
 		// The legacy screen hardcodes `$` in one of its price strings,
 		// which is wrong for every site this fixture represents.
 		expect( price ).toHaveTextContent( 'R$' );
-		expect( screen.getByText( '14 day money back guarantee.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'leads with the introductory price and explains the renewal', async () => {
@@ -203,7 +202,7 @@ describe( 'No-plan gate', () => {
 
 		// Two amounts on screen is only honest if the screen says which
 		// one recurs.
-		expect( screen.getByText( /all renewals are at full price/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /per month for the first year, billed yearly/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not read the superseded price out as a second price', async () => {
