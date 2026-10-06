@@ -120,9 +120,13 @@ export function usePromotedProduct(): Result {
 
 	const introMonthlyPrice = offerCost !== null && months !== null ? offerCost / months : null;
 
+	const yearCount = offer?.interval_count ?? 1;
 	const introYears =
-		introMonthlyPrice !== null && offer?.interval_unit === 'year'
-			? Math.max( 1, offer.interval_count ?? 1 )
+		introMonthlyPrice !== null &&
+		offer?.interval_unit === 'year' &&
+		Number.isInteger( yearCount ) &&
+		yearCount > 0
+			? yearCount
 			: null;
 
 	return { monthlyPrice, introMonthlyPrice, introYears, currencyCode };

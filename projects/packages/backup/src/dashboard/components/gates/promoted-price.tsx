@@ -53,16 +53,8 @@ export default function PromotedPrice() {
 				)
 			: __( 'per month, billed yearly', 'jetpack-backup-pkg' );
 
-	// The one string here that is not legacy's, so the one that waits a
-	// GlotPress cycle. It earns that: the struck-through figure is the
-	// only place the renewal amount appears, and it is hidden below, so
-	// without this a screen reader is told a full price exists and never
-	// told what it is.
-	//
-	// Deliberately says nothing about *when* it renews. The offer's
-	// interval is a year today and the hook handles monthly ones too, so
-	// naming a period here would be wrong for the case that handling
-	// exists for.
+	// The struck-through figure is hidden from assistive tech, so this restores the renewal amount.
+	// It says nothing about *when* it renews: the offer's interval is not always a year.
 	const renewalText = sprintf(
 		/* translators: %s is the full monthly price the subscription renews at. */
 		__( 'Renews at %s per month.', 'jetpack-backup-pkg' ),
@@ -71,9 +63,7 @@ export default function PromotedPrice() {
 
 	return (
 		<Stack direction="column" gap="xs" align="start">
-			<Text variant="heading-2xl" className="jpb-gates__price">
-				{ effectiveText }
-			</Text>
+			<Text variant="heading-2xl">{ effectiveText }</Text>
 			<Text className="jpb-text-muted">
 				{ /*
 				 * Hidden from assistive tech rather than read out. A
@@ -81,10 +71,8 @@ export default function PromotedPrice() {
 				 * conveys, so announcing it gives two bare amounts and no
 				 * hint which one is charged.
 				 *
-				 * Hiding it is only half the fix. "All renewals are at
-				 * full price" establishes that a full price exists and
-				 * never says what it is, so the amount itself is restored
-				 * further down as visually-hidden text.
+				 * Hiding it is only half the fix: the amount itself is
+				 * restored below as visually-hidden text.
 				 */ }
 				{ hasDiscount && (
 					<>

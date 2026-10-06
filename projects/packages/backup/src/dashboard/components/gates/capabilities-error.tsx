@@ -1,10 +1,8 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, error as errorIcon } from '@wordpress/icons';
-import { Card, Text } from '@wordpress/ui';
+import { Button, Card, Text } from '@wordpress/ui';
 
 type Props = {
-	error: Error;
 	onRetry: () => void;
 	/** A retry is already in flight. */
 	isRetrying?: boolean;
@@ -34,12 +32,7 @@ export default function CapabilitiesErrorScreen( { onRetry, isRetrying = false }
 				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
 					{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
 				</Text>
-				{ /*
-				 * Not "this is usually temporary". This screen also covers
-				 * `capabilities_unreadable`, which is upstream shape drift —
-				 * no amount of retrying clears it, so the copy has to leave
-				 * the reader somewhere to go when the button doesn't help.
-				 */ }
+				{ /* Not "this is usually temporary": retrying does not clear every cause. */ }
 				<Text>
 					{ __(
 						"We couldn't reach WordPress.com to check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
@@ -48,25 +41,11 @@ export default function CapabilitiesErrorScreen( { onRetry, isRetrying = false }
 				</Text>
 				<div className="jpb-gates__actions">
 					{ /*
-					 * Busy rather than merely clickable: the screen holds its
-					 * error across a retry, so without this the DOM is
-					 * byte-identical before and after the click and a retry
-					 * that fails again reads as a dead button.
-					 *
-					 * `accessibleWhenDisabled` keeps that from costing keyboard
-					 * users the page. `Button` sets the *native* `disabled`
-					 * attribute unless it is passed, and a browser blurs the
-					 * element it has just disabled — focus would land on
-					 * `<body>`, and this card is the entire dashboard body, so
-					 * there is nothing adjacent to land on.
+					 * `loading` keeps the button focusable: a natively disabled
+					 * button would drop focus to `<body>`, and this card is the
+					 * whole dashboard body.
 					 */ }
-					<Button
-						variant="primary"
-						onClick={ onRetry }
-						isBusy={ isRetrying }
-						disabled={ isRetrying }
-						accessibleWhenDisabled
-					>
+					<Button variant="solid" tone="brand" onClick={ onRetry } loading={ isRetrying }>
 						{ __( 'Try again', 'jetpack-backup-pkg' ) }
 					</Button>
 				</div>

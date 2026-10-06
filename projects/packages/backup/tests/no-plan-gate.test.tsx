@@ -261,6 +261,36 @@ describe( 'No-plan gate', () => {
 		expect( screen.queryByText( /0[.,]83/ ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[
+			'one year',
+			{ interval_unit: 'year', interval_count: 1, cost_per_interval: 275.4 },
+			'per month for the first year, billed yearly',
+		],
+		[
+			'several years',
+			{ interval_unit: 'year', interval_count: 2, cost_per_interval: 550.8 },
+			'per month for the first 2 years, billed yearly',
+		],
+		[
+			'a fractional year count',
+			{ interval_unit: 'year', interval_count: 1.5, cost_per_interval: 413.1 },
+			'per month, billed yearly',
+		],
+		[
+			'a monthly offer',
+			{ interval_unit: 'month', interval_count: 1, cost_per_interval: 9.99 },
+			'per month, billed yearly',
+		],
+		[ 'no offer', null, 'per month, billed yearly' ],
+	] )( 'words the price line for %s', async ( _label, offer, line ) => {
+		mockApiFetch.mockResolvedValue( { ...PRICED_PRODUCT, introductory_offer: offer } );
+
+		renderScreen( NoBackupPlanScreen );
+
+		await expect( screen.findByText( line ) ).resolves.toBeInTheDocument();
+	} );
+
 	it( 'still offers the purchase path when the catalogue cannot be read', async () => {
 		// This screen is the only way a site without Backup can buy one.
 		// A catalogue that is down may cost the reader the price; it must
