@@ -55,11 +55,18 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	private const COMPLETE_ROUTE = '/wpcom/v2/newsletter/task-lists/(?P<list_id>[a-z_-]+)/tasks/(?P<task_id>[a-z_]+)/complete';
 
 	/**
-	 * Method and URL of the last request proxied to WP.com.
+	 * Method of the last request proxied to WP.com, or '' when nothing was proxied.
 	 *
-	 * @var array|null
+	 * @var string
 	 */
-	private $proxied = null;
+	private $proxied_method = '';
+
+	/**
+	 * URL (without query string) of the last request proxied to WP.com, or '' when nothing was proxied.
+	 *
+	 * @var string
+	 */
+	private $proxied_url = '';
 
 	/**
 	 * Create shared database fixtures.
@@ -138,7 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 
 		$this->assertSame( 401, $this->get_list()->get_status() );
 		$this->assertSame( 401, $this->complete( 'subscribers' )->get_status() );
-		$this->assertNull( $this->proxied );
+		$this->assertSame( '', $this->proxied_url );
 	}
 
 	/**
@@ -150,7 +157,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 
 		$this->assertSame( 403, $this->get_list()->get_status() );
 		$this->assertSame( 403, $this->complete( 'subscribers' )->get_status() );
-		$this->assertNull( $this->proxied );
+		$this->assertSame( '', $this->proxied_url );
 	}
 
 	/**
@@ -175,10 +182,10 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'onboarding', $response->get_data()['id'] );
-		$this->assertSame( Requests::GET, $this->proxied['method'] );
+		$this->assertSame( Requests::GET, $this->proxied_method );
 		$this->assertSame(
 			'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/newsletter/task-lists/onboarding',
-			$this->proxied['url']
+			$this->proxied_url
 		);
 	}
 
@@ -191,21 +198,22 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 		$response = $this->complete( 'send_newsletter' );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( Requests::POST, $this->proxied['method'] );
+		$this->assertSame( Requests::POST, $this->proxied_method );
 		$this->assertSame(
 			'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/newsletter/task-lists/onboarding/tasks/send_newsletter/complete',
-			$this->proxied['url']
+			$this->proxied_url
 		);
 	}
 
 	/**
-	 * Ids are path segments, so anything outside their shape doesn't match a route and is never proxied.
+	 * Ids are path segments, so anything outside their shape doesn't match a route and is never
+	 * proxied. Route matching is case-insensitive, so letter case is left for WP.com to reject.
 	 */
 	public function test_malformed_ids_do_not_match_a_route() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ), 10, 3 );
 
 		foreach ( array(
-			array( Requests::GET, '/wpcom/v2/newsletter/task-lists/Onboarding' ),
+			array( Requests::GET, '/wpcom/v2/newsletter/task-lists/onboarding2' ),
 			array( Requests::GET, '/wpcom/v2/newsletter/task-lists/on%2Fboarding' ),
 			array( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/send-newsletter/complete' ),
 			array( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/subscribers' ),
@@ -213,7 +221,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 			$response = $this->server->dispatch( new WP_REST_Request( $method, $path ) );
 			$this->assertSame( 404, $response->get_status(), $path );
 		}
-		$this->assertNull( $this->proxied );
+		$this->assertSame( '', $this->proxied_url );
 	}
 
 	/**
@@ -281,10 +289,8 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	 * @return array
 	 */
 	public function mock_wpcom_response( $response, $args, $url ) {
-		$this->proxied = array(
-			'method' => $args['method'],
-			'url'    => strtok( $url, '?' ),
-		);
+		$this->proxied_method = $args['method'];
+		$this->proxied_url    = (string) strtok( $url, '?' );
 
 		return array(
 			'headers'  => array(),
