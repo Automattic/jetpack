@@ -102,4 +102,3 @@ export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
-export { appendTooltipExtras } from './tooltip-extras';

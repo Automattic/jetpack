@@ -33,8 +33,8 @@ export type TooltipStyle = {
 type DatumWithLabel = { label: string };
 type DatumWithValue = { value: number | null };
 
-// The default extractors assume the common datum shape; charts with other
-// shapes (dates on line charts, for one) pass their own via `getLabel`.
+// The default extractors assume the common datum shape; a chart with another
+// shape passes its own via `getLabel`.
 function defaultGetLabel( datum: unknown ): string {
 	return ( datum as DatumWithLabel ).label ?? '';
 }

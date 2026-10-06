@@ -96,7 +96,7 @@ Uses `RectShape` from the chart library. Supports:
 
 ## Styling
 
-The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart. The box re-themes the design system tokens inside it for its dark surface, so row text that reads the neutral foreground token stays readable.
+The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart.
 
 ## Used By
 
@@ -106,7 +106,7 @@ The tooltip is content only. The chart draws the box around it: the shared `@aut
 
 # DatedTooltip
 
-The tooltip of the comparative line and bar charts. The hovered bucket's date heads the rows once; each row is the series swatch (or an icon, for a row the chart does not draw), the value in emphasis, then the unit (`130,859 Views`). With a comparison on, a second column lists the comparison bucket's values under its own date, each beside its row, with the comparison series' swatch. It renders as a table, so each metric's two readings share a row.
+The tooltip of the comparative line and bar charts. The hovered bucket's date heads the rows once; each row is the series swatch (or an icon, for a row the chart does not draw), the value in emphasis, then the unit (`130,859 Views`). With a comparison on, a second column lists the comparison bucket's values under its own date, each beside its row, with the comparison series' swatch. It renders as a table: each metric's two readings share a row, and the metric's cell is the row header, so the comparison value is read with its name.
 
 ## Basic Usage
 
@@ -114,12 +114,10 @@ The charts build the model from the rows the chart library reports, then render 
 
 ```tsx
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
-import { appendTooltipExtras } from '../../helpers';
 
 const renderTooltip = params => {
-	const tooltipData = appendTooltipExtras( params.tooltipData, tooltipExtras );
 	const model = buildDatedTooltipModel( {
-		tooltipData,
+		tooltipData: params.tooltipData,
 		series,
 		seriesStyles,
 		extras: tooltipExtras,
@@ -133,7 +131,7 @@ const renderTooltip = params => {
 
 ## Model
 
-`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (an ungrouped one joins the first series), and an extra's comparison point, appended under `previousRowKey( label )`, joins the extra's row the same way. A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. The first comparison point's own date (`realDate`) heads the comparison column.
+`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (one with no current series in its group, or no group, joins the first series). A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. Extras are read at the hovered date from their own `data` and `previous` points; an extra with a reading in either period gets a row, and one that names a drawn series keeps that series' row. The header reads the hovered point's axis `date`, so a nearer comparison point cannot swap in its own; the first comparison point's `realDate` heads the comparison column.
 
 | Field            | Type                                    | Description                                                                              |
 | ---------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -143,12 +141,12 @@ const renderTooltip = params => {
 | `rows[].countLabel` | `CountLabel \| undefined`           | The metric's plural-aware unit, from the series or extra                                 |
 | `rows[].dataFormat` | `DataFormat`                         | The extra's own format, else the chart's                                                 |
 | `rows[].indicator` | `series` / `icon` / `blank`           | The series swatch, the extra's `icon`, or a blank of the same width                      |
-| `rows[].value`   | `number \| null`                        | The current reading; `null` reads as a dash, announced "No data"                         |
-| `rows[].previous` | `{ value, style? } \| undefined`      | The comparison reading, with its series' style for the swatch; absent leaves the cell empty |
+| `rows[].value`   | `number \| null`                        | The current reading; `null` reads as a dash, announced "No data for <name>"              |
+| `rows[].previous` | `{ value, indicator } \| undefined`   | The comparison reading with its own indicator (the comparison series' swatch); absent or `null` reads as a dash |
 
 ## Reading
 
-`formatTooltipReading()` composes value then unit in the translated order, through the metric's `countLabel` when it has one (`1 View`, `2 Views`) or `%1$s %2$s` otherwise, and hands the value to a render callback so it can take its own weight.
+Each reading is one translated sentence, value then unit, through the metric's `countLabel` when it has one (`1 View`, `2 Views`) or `%1$s %2$s` otherwise; the value is rendered as its own element so it can take its own weight while translators keep the word order.
 
 ---
 

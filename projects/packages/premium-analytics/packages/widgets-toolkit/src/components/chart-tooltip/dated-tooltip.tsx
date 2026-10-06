@@ -3,7 +3,7 @@
  */
 import { Icon, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -44,7 +44,7 @@ function Value( { children }: { children: ReactNode } ) {
 	return <span className={ styles.value }>{ children }</span>;
 }
 
-/** A bucket with no reading: a dash where the value goes, announced as such. */
+/** A comparison cell with no reading: a dash, announced as no data. */
 function NoData() {
 	return (
 		<Value>
@@ -64,9 +64,18 @@ function CurrentReading( { row }: { row: DatedTooltipRow } ) {
 	if ( row.value === null ) {
 		return (
 			<>
-				{ formatTooltipReading( '', row.name, null, undefined, () => (
-					<NoData />
-				) ) }
+				<span aria-hidden="true">
+					{ formatTooltipReading( '—', row.name, null, undefined, dash => (
+						<Value>{ dash }</Value>
+					) ) }
+				</span>
+				<VisuallyHidden>
+					{ sprintf(
+						/* translators: %s: metric name. */
+						__( 'No data for %s', 'jetpack-premium-analytics-pkg' ),
+						row.name
+					) }
+				</VisuallyHidden>
 			</>
 		);
 	}
@@ -105,33 +114,27 @@ export function DatedTooltip( { model, indicatorType }: DatedTooltipProps ) {
 			<tbody>
 				{ model.rows.map( row => (
 					<tr key={ row.key }>
-						<td>
+						<th scope="row">
 							<span className={ styles.reading }>
 								<Indicator indicator={ row.indicator } indicatorType={ indicatorType } />
 								<span>
 									<CurrentReading row={ row } />
 								</span>
 							</span>
-						</td>
+						</th>
 						{ hasPrevious && (
 							<td>
-								{ row.previous && (
-									<span className={ styles.reading }>
-										<Indicator
-											indicator={
-												row.indicator.kind === 'series' && row.previous.style
-													? { kind: 'series', style: row.previous.style }
-													: row.indicator
-											}
-											indicatorType={ indicatorType }
-										/>
-										{ row.previous.value === null ? (
-											<NoData />
-										) : (
-											<Value>{ formatValue( row, row.previous.value ) }</Value>
-										) }
-									</span>
-								) }
+								<span className={ styles.reading }>
+									<Indicator
+										indicator={ row.previous?.indicator ?? row.indicator }
+										indicatorType={ indicatorType }
+									/>
+									{ row.previous?.value == null ? (
+										<NoData />
+									) : (
+										<Value>{ formatValue( row, row.previous.value ) }</Value>
+									) }
+								</span>
 							</td>
 						) }
 					</tr>

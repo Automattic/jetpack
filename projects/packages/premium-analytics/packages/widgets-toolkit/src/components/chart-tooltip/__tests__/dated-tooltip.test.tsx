@@ -23,7 +23,8 @@ const views = ( count: number ) =>
 const row = ( overrides: Partial< DatedTooltipRow > ): DatedTooltipRow => ( {
 	key: 'Views',
 	name: 'Views',
-	dataFormat: { type: 'number' },
+	// Multipliers on, so a compact `130.9K` would show if the tooltip stopped spelling values out.
+	dataFormat: { type: 'number', options: { useMultipliers: true } },
 	indicator: { kind: 'series', style: { stroke: '#views' } },
 	value: 130859,
 	...overrides,
@@ -65,9 +66,9 @@ describe( 'DatedTooltip', () => {
 	it( 'sets the value apart from the unit, in the plural form the count calls for', () => {
 		renderTooltip( { rows: [ row( { value: 1, countLabel: views } ) ] } );
 
-		expect( screen.getByRole( 'cell' ) ).toHaveTextContent( '1 View' );
+		expect( screen.getByRole( 'rowheader' ) ).toHaveTextContent( '1 View' );
 		// The value is its own element, so it can take its own weight.
-		expect( screen.getByText( '1' ) ).not.toBe( screen.getByRole( 'cell' ) );
+		expect( screen.getByText( '1' ) ).not.toBe( screen.getByRole( 'rowheader' ) );
 	} );
 
 	it( 'draws an icon in place of the swatch for a row the chart does not draw', () => {
@@ -79,17 +80,28 @@ describe( 'DatedTooltip', () => {
 		expect( screen.queryByTestId( 'swatch' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'reads a bucket with no reading as a dash, announced as no data', () => {
+	it( 'reads a bucket with no reading as a dash, announced with the metric name', () => {
 		renderTooltip( { rows: [ row( { value: null } ) ] } );
 
-		expect( screen.getByRole( 'cell' ) ).toHaveTextContent( '—No data Views' );
+		expect( screen.getByRole( 'rowheader' ) ).toHaveTextContent( '— ViewsNo data for Views' );
+	} );
+
+	it( 'keeps a real zero as 0', () => {
+		renderTooltip( { rows: [ row( { value: 0 } ) ] } );
+
+		expect( screen.getByRole( 'rowheader' ) ).toHaveTextContent( '0 Views' );
 	} );
 
 	it( 'lists the comparison values in a second column under their own date, values only', () => {
 		renderTooltip( {
 			previousDate: 'September 18, 2025',
 			rows: [
-				row( { previous: { value: 98765, style: { stroke: '#views-previous' } } } ),
+				row( {
+					previous: {
+						value: 98765,
+						indicator: { kind: 'series', style: { stroke: '#views-previous' } },
+					},
+				} ),
 				row( { key: 'Visitors', name: 'Visitors', value: 67365 } ),
 			],
 		} );
@@ -97,13 +109,15 @@ describe( 'DatedTooltip', () => {
 		expect( cells() ).toEqual( [
 			[ 'September 18, 2026', 'September 18, 2025' ],
 			[ '130,859 Views', '98,765' ],
-			// Visitors has no comparison, so its cell stays empty.
-			[ '67,365 Visitors', '' ],
+			// Visitors has no comparison reading, so its cell reads as no data.
+			[ '67,365 Visitors', '—No data' ],
 		] );
-		// Reading order: the Views row's two swatches, then the Visitors row's one.
+		// Reading order: the Views row's two swatches, then the Visitors row's two; a
+		// missing comparison keeps the row's own swatch beside its dash.
 		expect( screen.getAllByTestId( 'swatch' ).map( el => el.dataset.fill ) ).toEqual( [
 			'#views',
 			'#views-previous',
+			'#views',
 			'#views',
 		] );
 	} );

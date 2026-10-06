@@ -3,7 +3,6 @@
  */
 import { render } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
-import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -372,101 +371,6 @@ describe( 'ComparativeLineChart', () => {
 		} );
 	} );
 
-	it( 'pairs a comparison row with its metric, under the comparison date', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render( <ComparativeLineChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		const model = tooltipModelFor(
-			{ datum: { date: JULY_1, value: 100 }, key: 'Views' },
-			{ datum: COMPARISON_POINT, key: 'Views · previous period' },
-			{ datum: { date: JULY_1, value: 40 }, key: 'Visitors' },
-			{ datum: { ...COMPARISON_POINT, value: 30 }, key: 'Visitors · previous period' }
-		);
-
-		expect( model.date ).toBe( 'July 1, 2026' );
-		expect( model.previousDate ).toBe( 'June 1, 2026' );
-		expect( readings( model ) ).toEqual( [
-			[ 'Views', 100, 80 ],
-			[ 'Visitors', 40, 30 ],
-		] );
-	} );
-
-	it( "hands each row its metric's count label, the comparison borrowing its group's", () => {
-		const views = ( count: number ) =>
-			/* translators: %s: number of views. */
-			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
-		const [ current, comparison ] = SERIES_WITH_COMPARISON;
-
-		render(
-			<ComparativeLineChart
-				series={ [ { ...current, countLabel: views }, comparison ] }
-				dataFormat={ DATA_FORMAT }
-			/>
-		);
-
-		const model = tooltipModelFor(
-			{ datum: { date: JULY_1, value: 1 }, key: 'Views' },
-			{ datum: { ...COMPARISON_POINT, value: 2 }, key: 'Views · previous period' }
-		);
-
-		expect( model.rows ).toEqual( [
-			expect.objectContaining( {
-				name: 'Views',
-				countLabel: views,
-				previous: expect.objectContaining( { value: 2 } ),
-			} ),
-		] );
-	} );
-
-	it( "gives an extra's row its own count label and format, and no swatch", () => {
-		const impressions = ( count: number ) =>
-			/* translators: %s: number of impressions. */
-			_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' );
-
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [
-					{ label: 'Impressions', data: [ { date: JULY_1, value: 1 } ], countLabel: impressions },
-				] }
-			/>
-		);
-
-		const [ views, extra ] = tooltipModelFor( {
-			datum: { date: JULY_1, value: 1 },
-			key: 'Views',
-		} ).rows;
-
-		expect( views ).toEqual( expect.objectContaining( { countLabel: undefined } ) );
-		expect( views.indicator.kind ).toBe( 'series' );
-		expect( extra ).toEqual(
-			expect.objectContaining( { name: 'Impressions', value: 1, countLabel: impressions } )
-		);
-		expect( extra.indicator ).toEqual( { kind: 'blank' } );
-	} );
-
-	it( 'lists each drawn metric on a multi-metric chart with no comparison', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		const twoMetrics: ComparativeLineChartSeries[] = [
-			{ label: 'Views', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
-			{ label: 'Visitors', group: 'visitors', data: [ { date: JULY_1, value: 40 } ] },
-		];
-
-		render( <ComparativeLineChart series={ twoMetrics } dataFormat={ DATA_FORMAT } /> );
-
-		const model = tooltipModelFor(
-			{ datum: { date: JULY_1, value: 100 }, key: 'Views' },
-			{ datum: { date: JULY_1, value: 40 }, key: 'Visitors' }
-		);
-
-		expect( model.previousDate ).toBeUndefined();
-		expect( readings( model ) ).toEqual( [
-			[ 'Views', 100, undefined ],
-			[ 'Visitors', 40, undefined ],
-		] );
-	} );
-
 	it( "heads the tooltip with the point's date in the site's timezone", () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
@@ -543,103 +447,35 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 	const CPM_EXTRA = {
 		label: 'Average CPM',
 		data: [ { date: JULY_1, value: 0.15 } ],
+		previous: [ { date: JULY_1, realDate: JUNE_1, value: 0.1 } ],
 		dataFormat: CURRENCY,
 	};
-	const HOVERED_VIEWS = { datum: { date: JULY_1, value: 100 }, key: 'Views' };
 
 	beforeEach( () => {
 		mockLineSpy.mockClear();
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 	} );
 
-	it( "lists each extra's point for the hovered date after the drawn rows, in its own format", () => {
+	// What the model does with an extra is its own suite's; this checks the chart hands them over.
+	it( 'hands the extras to the tooltip model, comparison included', () => {
 		render(
 			<ComparativeLineChart
-				series={ SERIES }
+				series={ SERIES_WITH_COMPARISON }
 				dataFormat={ DATA_FORMAT }
 				tooltipExtras={ [ CPM_EXTRA ] }
 			/>
 		);
 
-		const model = tooltipModelFor( HOVERED_VIEWS );
-
-		expect( readings( model ) ).toEqual( [
-			[ 'Views', 100, undefined ],
-			[ 'Average CPM', 0.15, undefined ],
-		] );
-		expect( model.rows[ 1 ].dataFormat ).toEqual( CURRENCY );
-		expect( model.rows[ 0 ].dataFormat ).toEqual( DATA_FORMAT );
-	} );
-
-	it( "reads an extra's comparison point beside it", () => {
-		render(
-			<ComparativeLineChart
-				series={ SERIES_WITH_COMPARISON }
-				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [
-					{ ...CPM_EXTRA, previous: [ { date: JULY_1, realDate: JUNE_1, value: 0.1 } ] },
-				] }
-			/>
+		const model = tooltipModelFor(
+			{ datum: { date: JULY_1, value: 100 }, key: 'Views' },
+			{ datum: COMPARISON_POINT, key: 'Views · previous period' }
 		);
-
-		const model = tooltipModelFor( HOVERED_VIEWS, {
-			datum: COMPARISON_POINT,
-			key: 'Views · previous period',
-		} );
 
 		expect( readings( model ) ).toEqual( [
 			[ 'Views', 100, 80 ],
 			[ 'Average CPM', 0.15, 0.1 ],
 		] );
-	} );
-
-	it( 'skips an extra with no point for the hovered date', () => {
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [ CPM_EXTRA ] }
-			/>
-		);
-
-		expect(
-			readings( tooltipModelFor( { datum: { date: JULY_2, value: 200 }, key: 'Views' } ) )
-		).toEqual( [ [ 'Views', 200, undefined ] ] );
-	} );
-
-	it( 'keeps the swatch of a drawn series that is also listed as an extra', () => {
-		// A counterpart in `MetricTabsChart` is drawn (hidden until revealed) and
-		// listed; once the chart reports it, it must not turn into a blank row.
-		const twoMetrics: ComparativeLineChartSeries[] = [
-			{ label: 'Views', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
-			{ label: 'Visitors', group: 'visitors', data: [ { date: JULY_1, value: 40 } ] },
-		];
-		render(
-			<ComparativeLineChart
-				series={ twoMetrics }
-				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [ { label: 'Visitors', data: twoMetrics[ 1 ].data }, CPM_EXTRA ] }
-			/>
-		);
-
-		const model = tooltipModelFor( HOVERED_VIEWS, {
-			datum: { date: JULY_1, value: 40 },
-			key: 'Visitors',
-		} );
-
-		expect( model.rows.map( row => [ row.name, row.indicator.kind ] ) ).toEqual( [
-			[ 'Views', 'series' ],
-			[ 'Visitors', 'series' ],
-			[ 'Average CPM', 'blank' ],
-		] );
-	} );
-
-	it( 'leaves the tooltip alone without extras', () => {
-		render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		expect( readings( tooltipModelFor( HOVERED_VIEWS ) ) ).toEqual( [
-			[ 'Views', 100, undefined ],
-		] );
+		expect( model.rows[ 1 ].dataFormat ).toEqual( CURRENCY );
 	} );
 
 	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {

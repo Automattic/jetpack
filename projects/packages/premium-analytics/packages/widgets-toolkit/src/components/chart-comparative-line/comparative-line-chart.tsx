@@ -18,7 +18,6 @@ import { type ComponentProps } from 'react';
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
-	appendTooltipExtras,
 	isEmptyChartData,
 	getFixedYAxis,
 	getPaddedYAxis,
@@ -210,9 +209,8 @@ export function ComparativeLineChart( {
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			const tooltipData = appendTooltipExtras( params.tooltipData, tooltipExtras );
 			const model = buildDatedTooltipModel( {
-				tooltipData,
+				tooltipData: params.tooltipData,
 				series,
 				seriesStyles: resolvedStyles,
 				extras: tooltipExtras,

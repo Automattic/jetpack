@@ -53,7 +53,7 @@ const ROWS: DatedTooltipRow[] = [
 		dataFormat: { type: 'number' },
 		indicator: { kind: 'series', style: LINE },
 		value: 130859,
-		previous: { value: 98765, style: LINE_PREVIOUS },
+		previous: { value: 98765, indicator: { kind: 'series', style: LINE_PREVIOUS } },
 	},
 	{
 		key: 'Visitors',
@@ -62,7 +62,7 @@ const ROWS: DatedTooltipRow[] = [
 		dataFormat: { type: 'number' },
 		indicator: { kind: 'series', style: GREEN },
 		value: 67365,
-		previous: { value: 51200, style: GREEN_PREVIOUS },
+		previous: { value: 51200, indicator: { kind: 'series', style: GREEN_PREVIOUS } },
 	},
 	{
 		key: 'Views per visitor',
@@ -70,7 +70,7 @@ const ROWS: DatedTooltipRow[] = [
 		dataFormat: { type: 'average' },
 		indicator: { kind: 'icon', icon: seen },
 		value: 1.94,
-		previous: { value: 1.93 },
+		previous: { value: 1.93, indicator: { kind: 'icon', icon: seen } },
 	},
 	{
 		key: 'Posts published',
@@ -79,7 +79,7 @@ const ROWS: DatedTooltipRow[] = [
 		dataFormat: { type: 'number' },
 		indicator: { kind: 'icon', icon: postContent },
 		value: 16,
-		previous: { value: 12 },
+		previous: { value: 12, indicator: { kind: 'icon', icon: postContent } },
 	},
 ];
 
@@ -113,7 +113,10 @@ export const BarChartWithComparison: Story = {
 							indicator: { kind: 'series', style: { stroke: row.indicator.style.stroke } },
 							previous: row.previous && {
 								...row.previous,
-								style: { stroke: row.indicator.style.stroke, opacity: 0.5 },
+								indicator: {
+									kind: 'series',
+									style: { stroke: row.indicator.style.stroke, opacity: 0.5 },
+								},
 							},
 						}
 					: row
@@ -123,8 +126,7 @@ export const BarChartWithComparison: Story = {
 };
 
 /**
- * A bucket with no reading shows a dash in place of the value; a metric with no
- * comparison bucket leaves its comparison cell empty.
+ * A bucket with no reading shows a dash in place of the value, in either column.
  */
 export const MissingReadings: Story = {
 	args: {
@@ -133,9 +135,13 @@ export const MissingReadings: Story = {
 			date: 'March 1, 2026',
 			previousDate: 'March 1, 2025',
 			rows: [
-				{ ...ROWS[ 0 ], value: null, previous: { value: 0, style: LINE_PREVIOUS } },
+				{
+					...ROWS[ 0 ],
+					value: null,
+					previous: { value: 0, indicator: { kind: 'series', style: LINE_PREVIOUS } },
+				},
 				{ ...ROWS[ 1 ], previous: undefined },
-				{ ...ROWS[ 3 ], previous: { value: null } },
+				{ ...ROWS[ 3 ], previous: { value: null, indicator: ROWS[ 3 ].indicator } },
 			],
 		},
 	},

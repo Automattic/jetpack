@@ -20,12 +20,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import {
-	appendTooltipExtras,
-	isEmptyChartData,
-	getFixedYAxis,
-	dateFormatForResolution,
-} from '../../helpers';
+import { isEmptyChartData, getFixedYAxis, dateFormatForResolution } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
@@ -267,13 +262,9 @@ export function ComparativeBarChart( {
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			const tooltipData = appendTooltipExtras(
-				withComparisonDatum( params.tooltipData ),
-				tooltipExtras
-			);
 			// `seriesStyles` follows `alignedSeries`, so the model pairs rows by that order.
 			const model = buildDatedTooltipModel( {
-				tooltipData,
+				tooltipData: withComparisonDatum( params.tooltipData ),
 				series: alignedSeries,
 				seriesStyles,
 				extras: tooltipExtras,

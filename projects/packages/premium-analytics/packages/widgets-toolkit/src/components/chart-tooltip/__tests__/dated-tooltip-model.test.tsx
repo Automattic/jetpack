@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { previousRowKey } from '../../../helpers/tooltip-extras';
 import { buildDatedTooltipModel } from '../dated-tooltip-model';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 
@@ -16,6 +15,7 @@ const SERIES: ComparativeLineChartSeries[] = [
 	{ label: 'Visitors', group: 'visitors', data: [] },
 ];
 const STYLES = [ { stroke: '#views' }, { stroke: '#views-previous' }, { stroke: '#visitors' } ];
+const COMPARISON_POINT = { date: JULY_1, realDate: JUNE_1, value: 80 };
 
 type Entry = [ string, { datum: Record< string, unknown >; index: number; key: string } ];
 const entry = ( key: string, datum: Record< string, unknown > ): Entry => [
@@ -26,14 +26,15 @@ const formatDate = ( date: Date ) => date.toISOString().slice( 0, 10 );
 
 function modelFor(
 	entries: Entry[],
-	extras?: Parameters< typeof buildDatedTooltipModel >[ 0 ][ 'extras' ]
+	extras?: Parameters< typeof buildDatedTooltipModel >[ 0 ][ 'extras' ],
+	series = SERIES
 ) {
 	return buildDatedTooltipModel( {
 		tooltipData: {
 			nearestDatum: { datum: entries[ 0 ]?.[ 1 ].datum },
 			datumByKey: Object.fromEntries( entries ),
 		},
-		series: SERIES,
+		series,
 		seriesStyles: STYLES,
 		extras,
 		dataFormat: DATA_FORMAT,
@@ -70,18 +71,24 @@ describe( 'buildDatedTooltipModel', () => {
 		} );
 	} );
 
-	it( 'pairs a comparison with its group under the comparison date, whatever order the rows arrive in', () => {
+	// visx picks the nearest point by distance, so near the dashed line the hovered
+	// point is the comparison one; its `realDate` must not take over the header.
+	it( 'keeps the current date in the header when the nearest point is a comparison', () => {
 		const model = modelFor( [
-			entry( 'Views · previous period', { date: JULY_1, realDate: JUNE_1, value: 80 } ),
+			entry( 'Views · previous period', COMPARISON_POINT ),
 			entry( 'Views', { date: JULY_1, value: 100 } ),
 		] );
 
+		expect( model?.date ).toBe( '2026-07-01' );
 		expect( model?.previousDate ).toBe( '2026-06-01' );
 		expect( model?.rows ).toEqual( [
 			expect.objectContaining( {
 				name: 'Views',
 				value: 100,
-				previous: { value: 80, style: { stroke: '#views-previous' } },
+				previous: {
+					value: 80,
+					indicator: { kind: 'series', style: { stroke: '#views-previous' } },
+				},
 			} ),
 		] );
 	} );
@@ -89,23 +96,40 @@ describe( 'buildDatedTooltipModel', () => {
 	it( 'drops a comparison whose metric is not reported, as a hidden series is not', () => {
 		const model = modelFor( [
 			entry( 'Visitors', { date: JULY_1, value: 40 } ),
-			entry( 'Views · previous period', { date: JULY_1, realDate: JUNE_1, value: 80 } ),
+			entry( 'Views · previous period', COMPARISON_POINT ),
 		] );
 
 		expect( model?.rows.map( row => row.name ) ).toEqual( [ 'Visitors' ] );
 		expect( model?.previousDate ).toBeUndefined();
 	} );
 
-	it( 'reads an extra as its own row with its icon, format and comparison', () => {
-		const cpm = { label: 'Average CPM', icon: <span />, data: [], dataFormat: CURRENCY };
+	// `alignSeriesDates` places such a comparison on the first series, so the
+	// tooltip reads it there too rather than losing a line the chart draws.
+	it.each( [
+		[ 'ungrouped', { label: 'June', options: { type: 'comparison' as const }, data: [] } ],
+		[
+			'grouped with no current series in its group',
+			{ label: 'June', group: 'orphan', options: { type: 'comparison' as const }, data: [] },
+		],
+	] )( 'pairs a comparison %s with the first series', ( _case, comparison ) => {
 		const model = modelFor(
-			[
-				entry( 'Views', { date: JULY_1, value: 100 } ),
-				entry( 'Average CPM', { date: JULY_1, value: 0.15 } ),
-				entry( previousRowKey( 'Average CPM' ), { date: JULY_1, realDate: JUNE_1, value: 0.1 } ),
-			],
-			[ cpm ]
+			[ entry( 'Views', { date: JULY_1, value: 100 } ), entry( 'June', COMPARISON_POINT ) ],
+			undefined,
+			[ SERIES[ 0 ], comparison ]
 		);
+
+		expect( model?.rows[ 0 ].previous?.value ).toBe( 80 );
+	} );
+
+	it( 'reads an extra at the hovered date as its own row, icon, format and comparison included', () => {
+		const cpm = {
+			label: 'Average CPM',
+			icon: <span />,
+			data: [ { date: JULY_1, value: 0.15 } ],
+			previous: [ { date: JULY_1, realDate: JUNE_1, value: 0.1 } ],
+			dataFormat: CURRENCY,
+		};
+		const model = modelFor( [ entry( 'Views', { date: JULY_1, value: 100 } ) ], [ cpm ] );
 
 		expect( model?.rows[ 1 ] ).toEqual( {
 			key: 'Average CPM',
@@ -114,19 +138,52 @@ describe( 'buildDatedTooltipModel', () => {
 			dataFormat: CURRENCY,
 			indicator: { kind: 'icon', icon: cpm.icon },
 			value: 0.15,
-			previous: { value: 0.1, style: undefined },
+			previous: { value: 0.1, indicator: { kind: 'icon', icon: cpm.icon } },
 		} );
 		expect( model?.previousDate ).toBe( '2026-06-01' );
 	} );
 
-	it( 'leaves an extra without an icon blank, and keeps a null reading as a row', () => {
+	it( 'keeps an extra whose comparison bucket has a reading but the current one does not', () => {
+		const posts = { label: 'Posts published', data: [], previous: [ { date: JULY_1, value: 3 } ] };
+		const model = modelFor( [ entry( 'Views', { date: JULY_1, value: 100 } ) ], [ posts ] );
+
+		expect( model?.rows[ 1 ] ).toEqual(
+			expect.objectContaining( {
+				name: 'Posts published',
+				value: null,
+				previous: expect.objectContaining( { value: 3 } ),
+			} )
+		);
+	} );
+
+	it( 'skips an extra with no point for the hovered date, and leaves an extra without an icon blank', () => {
 		const model = modelFor(
-			[ entry( 'Revenue', { date: JULY_1, value: null } ) ],
-			[ { label: 'Revenue', data: [] } ]
+			[ entry( 'Views', { date: JULY_1, value: 100 } ) ],
+			[
+				{ label: 'Revenue', data: [ { date: JULY_1, value: null } ] },
+				{ label: 'Orders', data: [ { date: JUNE_1, value: 5 } ] },
+			]
 		);
 
-		expect( model?.rows ).toEqual( [
+		expect( model?.rows.slice( 1 ) ).toEqual( [
 			expect.objectContaining( { name: 'Revenue', value: null, indicator: { kind: 'blank' } } ),
+		] );
+	} );
+
+	// A counterpart in `MetricTabsChart` is drawn (hidden until revealed) and
+	// listed; once the chart reports it, it must not turn into a blank row.
+	it( 'keeps the swatch of a drawn series that is also listed as an extra', () => {
+		const model = modelFor(
+			[
+				entry( 'Views', { date: JULY_1, value: 100 } ),
+				entry( 'Visitors', { date: JULY_1, value: 40 } ),
+			],
+			[ { label: 'Visitors', data: [ { date: JULY_1, value: 999 } ] } ]
+		);
+
+		expect( model?.rows.map( row => [ row.name, row.value, row.indicator.kind ] ) ).toEqual( [
+			[ 'Views', 100, 'series' ],
+			[ 'Visitors', 40, 'series' ],
 		] );
 	} );
 } );

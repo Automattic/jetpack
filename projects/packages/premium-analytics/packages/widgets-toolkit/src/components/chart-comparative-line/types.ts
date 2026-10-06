@@ -34,7 +34,7 @@ export type TooltipExtraSeries = {
 	icon?: ReactElement;
 	/**
 	 * The comparison period's points, each placed on the current period's date with
-	 * its own in `realDate`. Read right after the current row, under the same label.
+	 * its own in `realDate`. Read beside the current reading, in the comparison column.
 	 */
 	previous?: ComparativeDatePointDate[];
 	data: ComparativeDatePointDate[];

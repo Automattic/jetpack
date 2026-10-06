@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
-import { previousRowLabel } from '../../helpers/tooltip-extras';
 import { isChartDatumEntry } from './utils';
 import type { TooltipStyle } from './chart-tooltip';
 import type { CountLabel, DataFormat } from '../../types';
@@ -19,17 +18,20 @@ export type TooltipIndicator =
 	| { kind: 'icon'; icon: ReactElement }
 	| { kind: 'blank' };
 
-export type DatedTooltipRow = {
+/** A reading: null for a bucket with no reading. */
+export type TooltipReading = {
+	value: number | null;
+	indicator: TooltipIndicator;
+};
+
+export type DatedTooltipRow = TooltipReading & {
 	key: string;
 	/** The metric's name, read as the value's unit. */
 	name: string;
 	countLabel?: CountLabel;
 	dataFormat: DataFormat;
-	indicator: TooltipIndicator;
-	/** The current period's reading; null for a bucket with no reading. */
-	value: number | null;
 	/** The comparison period's reading, with the swatch of its own series. */
-	previous?: { value: number | null; style?: TooltipStyle };
+	previous?: TooltipReading;
 };
 
 export type DatedTooltipModel = {
@@ -50,18 +52,16 @@ export type DatedTooltipModelOptions = {
 	/** The chart's series, in the order the styles follow. */
 	series: readonly ComparativeLineChartSeries[];
 	seriesStyles: readonly TooltipStyle[];
+	/** Series read out at the hovered date without being drawn. */
 	extras?: readonly TooltipExtraSeries[];
 	dataFormat: DataFormat;
 	formatDate: ( date: Date ) => string;
 };
 
-function readingOf( datum: unknown ): number | null {
-	return ( datum as { value?: number | null } ).value ?? null;
-}
+type Point = Partial< ComparativeDatePointDate >;
 
-function dateOf( datum: unknown ): Date | undefined {
-	const point = datum as Partial< ComparativeDatePointDate > | undefined;
-	return point?.realDate ?? point?.date;
+function readingOf( point: Point | undefined ): number | null {
+	return point?.value ?? null;
 }
 
 /**
@@ -69,7 +69,8 @@ function dateOf( datum: unknown ): Date | undefined {
  * extra, each carrying its comparison reading beside it, under one date.
  *
  * The rows the chart reports are respected as they are, so a series the legend
- * hid stays out; a comparison whose metric is hidden is dropped with it.
+ * hid stays out; a comparison whose metric is hidden is dropped with it. Extras
+ * are read at the hovered date from their own points.
  *
  * @param options - The chart's tooltip data and series.
  * @return The model, or null when nothing is hovered.
@@ -79,67 +80,95 @@ export function buildDatedTooltipModel(
 ): DatedTooltipModel | null {
 	const { tooltipData, series, seriesStyles, extras, dataFormat, formatDate } = options;
 	const entries = Object.values( tooltipData?.datumByKey ?? {} ).filter( isChartDatumEntry );
-	const hoveredDate = dateOf( tooltipData?.nearestDatum?.datum ) ?? dateOf( entries[ 0 ]?.datum );
+	// Every point sits on the current period's axis date; a comparison point keeps
+	// its own date in `realDate`, so the header reads `date` whichever is nearest.
+	const hoveredDate =
+		( tooltipData?.nearestDatum?.datum as Point | undefined )?.date ??
+		( entries[ 0 ]?.datum as Point | undefined )?.date;
 
 	if ( ! entries.length || ! hoveredDate ) {
 		return null;
 	}
 
+	const hoveredTime = hoveredDate.getTime();
 	const primaryByGroup = resolvePrimarySeriesByGroup( series );
-	const styleOf = ( label: string ) => seriesStyles[ series.findIndex( s => s.label === label ) ];
+	const styleOf = ( label: string ): TooltipStyle =>
+		seriesStyles[ series.findIndex( s => s.label === label ) ] ?? seriesStyles[ 0 ];
 	const rows = new Map< string, DatedTooltipRow >();
-	let previousDate: string | undefined;
+	let previousDate: Date | undefined;
 
 	// Current-period rows first, so a comparison always finds its row.
 	for ( const entry of entries ) {
 		const drawn = series.find( s => s.label === entry.key );
-		if ( drawn?.options?.type === 'comparison' || previousRowLabel( entry.key ) ) {
+		if ( drawn?.options?.type === 'comparison' ) {
 			continue;
-		}
-
-		const extra = drawn ? undefined : extras?.find( e => e.label === entry.key );
-		let indicator: TooltipIndicator = { kind: 'blank' };
-		if ( drawn ) {
-			indicator = { kind: 'series', style: styleOf( drawn.label ) };
-		} else if ( extra?.icon ) {
-			indicator = { kind: 'icon', icon: extra.icon };
 		}
 
 		rows.set( entry.key, {
 			key: entry.key,
 			name: entry.key,
-			countLabel: drawn?.countLabel ?? extra?.countLabel,
-			dataFormat: extra?.dataFormat ?? dataFormat,
-			indicator,
-			value: readingOf( entry.datum ),
+			countLabel: drawn?.countLabel,
+			dataFormat,
+			indicator: drawn ? { kind: 'series', style: styleOf( drawn.label ) } : { kind: 'blank' },
+			value: readingOf( entry.datum as Point ),
 		} );
 	}
 
 	for ( const entry of entries ) {
 		const drawn = series.find( s => s.label === entry.key );
-		let row: DatedTooltipRow | undefined;
-		let style: TooltipStyle | undefined;
-
-		if ( drawn?.options?.type === 'comparison' ) {
-			// An ungrouped comparison belongs to the first series, as the chart aligns it.
-			const primary = drawn.group !== undefined ? primaryByGroup.get( drawn.group ) : series[ 0 ];
-			row = primary && rows.get( primary.label );
-			style = styleOf( drawn.label );
-		} else {
-			const label = previousRowLabel( entry.key );
-			row = label === undefined ? undefined : rows.get( label );
+		if ( drawn?.options?.type !== 'comparison' ) {
+			continue;
 		}
 
+		// An ungrouped comparison, or one whose group has no current series, belongs
+		// to the first series, as `alignSeriesDates` places it.
+		const primary =
+			( drawn.group !== undefined ? primaryByGroup.get( drawn.group ) : undefined ) ?? series[ 0 ];
+		const row = primary && rows.get( primary.label );
 		if ( ! row ) {
 			continue;
 		}
 
-		row.previous = { value: readingOf( entry.datum ), style };
-		const date = dateOf( entry.datum );
-		if ( previousDate === undefined && date ) {
-			previousDate = formatDate( date );
-		}
+		const point = entry.datum as Point;
+		row.previous = {
+			value: readingOf( point ),
+			indicator: { kind: 'series', style: styleOf( drawn.label ) },
+		};
+		previousDate ??= point.realDate ?? point.date;
 	}
 
-	return { date: formatDate( hoveredDate ), previousDate, rows: [ ...rows.values() ] };
+	extras?.forEach( extra => {
+		// A drawn series listed as an extra too keeps its own row and swatch.
+		if ( rows.has( extra.label ) ) {
+			return;
+		}
+
+		const point = extra.data.find( candidate => candidate.date.getTime() === hoveredTime );
+		const previous = extra.previous?.find( candidate => candidate.date.getTime() === hoveredTime );
+		if ( ! point && ! previous ) {
+			return;
+		}
+
+		const indicator: TooltipIndicator = extra.icon
+			? { kind: 'icon', icon: extra.icon }
+			: { kind: 'blank' };
+		rows.set( extra.label, {
+			key: extra.label,
+			name: extra.label,
+			countLabel: extra.countLabel,
+			dataFormat: extra.dataFormat ?? dataFormat,
+			indicator,
+			value: readingOf( point ),
+			previous: previous && { value: readingOf( previous ), indicator },
+		} );
+		if ( previous ) {
+			previousDate ??= previous.realDate ?? previous.date;
+		}
+	} );
+
+	return {
+		date: formatDate( hoveredDate ),
+		previousDate: previousDate && formatDate( previousDate ),
+		rows: [ ...rows.values() ],
+	};
 }

@@ -3,7 +3,6 @@
  */
 import { render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
-import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -347,22 +346,6 @@ describe( 'ComparativeBarChart', () => {
 		] );
 	} );
 
-	it( "hands a count metric's row its count label", () => {
-		const views = ( count: number ) =>
-			/* translators: %s: number of views. */
-			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
-		const [ current, comparison ] = SERIES_WITH_COMPARISON;
-
-		render(
-			<ComparativeBarChart
-				series={ [ { ...current, countLabel: views }, comparison ] }
-				dataFormat={ DATA_FORMAT }
-			/>
-		);
-
-		expect( tooltipModelFor( hoveredJuly( JULY_1 ) ).rows[ 0 ].countLabel ).toBe( views );
-	} );
-
 	it( 'gives each row the swatch of its own series, the comparison its own too', () => {
 		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
 
@@ -377,12 +360,18 @@ describe( 'ComparativeBarChart', () => {
 			kind: 'series',
 			style: { stroke: '#3858E9', opacity: undefined },
 		} );
-		expect( july.previous?.style ).toEqual( { stroke: '#3858E9', opacity: 0.5 } );
+		expect( july.previous?.indicator ).toEqual( {
+			kind: 'series',
+			style: { stroke: '#3858E9', opacity: 0.5 },
+		} );
 		expect( visitors.indicator ).toEqual( {
 			kind: 'series',
 			style: { stroke: '#3858E9', opacity: undefined },
 		} );
-		expect( visitors.previous?.style ).toEqual( { stroke: '#3858E9', opacity: 0.5 } );
+		expect( visitors.previous?.indicator ).toEqual( {
+			kind: 'series',
+			style: { stroke: '#3858E9', opacity: 0.5 },
+		} );
 	} );
 
 	it( 'leaves a hidden metric out of the tooltip', () => {
