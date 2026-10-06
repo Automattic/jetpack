@@ -49,7 +49,7 @@ class Plan {
 	/**
 	 * Refresh stored plan info from WordPress.com when online.
 	 *
-	 * @return array|WP_Error Response, or an error if offline, unregistered, or the request fails.
+	 * @return array|WP_Error HTTP response, or an error when offline, unregistered, or the request could not be sent.
 	 */
 	public function get_plan_info_from_wpcom() {
 		if ( ( new Status() )->is_offline_mode() ) {

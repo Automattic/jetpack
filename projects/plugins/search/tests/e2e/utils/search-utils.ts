@@ -69,3 +69,14 @@ export async function clearSearchPlanInfo(): Promise< string > {
 	// When running locally, sometimes there could be data in the option - better clear it.
 	return await executeWpCommand( 'option delete jetpack_search_plan_info' );
 }
+
+/**
+ * Seed the mocked plan for offline WP-CLI setup.
+ * @return {string} wp-cli command output
+ */
+export async function seedSearchPlanInfo(): Promise< string > {
+	return executeWpCommand( [
+		'eval',
+		"$response = e2e_jetpack_search_intercept_plan_data_request( false, array(), sprintf( '/sites/%d/jetpack-search/plan', Jetpack_Options::get_option( 'id' ) ) ); ( new Automattic\\Jetpack\\Search\\Plan() )->set_plan_options( json_decode( $response['body'], true ) );",
+	] );
+}

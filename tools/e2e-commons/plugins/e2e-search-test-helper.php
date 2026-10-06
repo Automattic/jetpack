@@ -9,8 +9,6 @@
  * @package automattic/jetpack
  */
 
-// CLI requests use localhost; these tests exercise online Search with mocked plan responses.
-add_filter( 'jetpack_offline_mode', '__return_false' );
 add_filter( 'pre_http_request', 'e2e_jetpack_search_intercept_plan_data_request', 3, 3 );
 add_action( 'wp_footer', 'e2e_jetpack_search_maybe_show_link_in_footer' );
 
