@@ -35,7 +35,7 @@ import type { StatsLocationsParams } from '../stats-locations-query';
 import type { StatsReportParams } from '../stats-query';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 

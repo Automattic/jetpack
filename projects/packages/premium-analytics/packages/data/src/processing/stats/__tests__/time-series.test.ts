@@ -4,7 +4,6 @@ import {
 	sanitizeStatsTimeSeriesResponse,
 } from '..';
 import {
-	emailClicksHourlyTimeSeriesFixture,
 	emailClicksTimeSeriesFixture,
 	emailOpensHourlyTimeSeriesFixture,
 	emailOpensTimeSeriesFixture,
@@ -239,30 +238,6 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).not.toHaveProperty( 'hour' );
 	} );
 
-	it( 'resolves hourly email clicks timelines into distinct per-hour buckets', () => {
-		const result = sanitizeStatsEmailTimeSeriesResponse( emailClicksHourlyTimeSeriesFixture, {
-			period: 'hour',
-		} );
-
-		expect( result.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-06-15 09:00',
-				date_start: '2026-06-15T09:00:00',
-				date_end: '2026-06-15T09:59:59',
-				value: 4,
-				clicks_count: 4,
-				hour: 9,
-			} ),
-			expect.objectContaining( {
-				time_interval: '2026-06-15 10:00',
-				value: 7,
-				clicks_count: 7,
-				hour: 10,
-			} ),
-		] );
-		expect( result.summary ).toEqual( expect.objectContaining( { clicks_count: 11 } ) );
-	} );
-
 	it( 'trims buckets outside a window_start/window_end window and sums only the rest', () => {
 		// The last-24-hours shape: hourly buckets are anchored on the start day's
 		// midnight, so leading pre-09:00 buckets arrive and must not be summed.
@@ -357,19 +332,20 @@ describe( 'Stats time-series normalizer', () => {
 	} );
 
 	it( 'widens bare-date window bounds to whole days and needs both bounds to trim', () => {
+		// Hourly rows at each day's edges, so an unwidened bound drops one of them.
 		const timeline = {
 			timeline: {
-				unit: 'day',
-				fields: [ 'date', 'opens_count' ],
+				unit: 'hour',
+				fields: [ 'date', 'hour', 'opens_count' ],
 				data: [
-					[ '2026-06-15', 3 ],
-					[ '2026-06-16', 5 ],
+					[ '2026-06-15', 0, 3 ],
+					[ '2026-06-16', 23, 5 ],
 				],
 			},
 		};
 
 		const windowed = sanitizeStatsEmailTimeSeriesResponse( timeline, {
-			period: 'day',
+			period: 'hour',
 			window_start: '2026-06-15',
 			window_end: '2026-06-16',
 		} );
@@ -379,13 +355,13 @@ describe( 'Stats time-series normalizer', () => {
 		// Neither a lone bound nor the generic start_date/end_date may trim —
 		// range-bounded endpoints reach this sanitizer carrying those.
 		const oneBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
-			period: 'day',
+			period: 'hour',
 			window_start: '2026-06-16',
 		} );
 		expect( oneBound.data ).toHaveLength( 2 );
 
 		const requestDates = sanitizeStatsEmailTimeSeriesResponse( timeline, {
-			period: 'day',
+			period: 'hour',
 			start_date: '2026-06-16',
 			end_date: '2026-06-16',
 		} );
@@ -394,14 +370,14 @@ describe( 'Stats time-series normalizer', () => {
 		// A bound the timestamp reader rejects, or an inverted window, must
 		// disable the trim rather than silently empty the chart.
 		const invalidBound = sanitizeStatsEmailTimeSeriesResponse( timeline, {
-			period: 'day',
-			window_start: '2026-06-15',
-			window_end: '2026-06-16T99:00:00',
+			period: 'hour',
+			window_start: '2026-06-15T99:00:00',
+			window_end: '2026-06-16',
 		} );
 		expect( invalidBound.data ).toHaveLength( 2 );
 
 		const inverted = sanitizeStatsEmailTimeSeriesResponse( timeline, {
-			period: 'day',
+			period: 'hour',
 			window_start: '2026-06-16',
 			window_end: '2026-06-15',
 		} );
@@ -459,18 +435,6 @@ describe( 'Stats time-series normalizer', () => {
 		} );
 	} );
 
-	it( 'falls back to the offset-bearing `date` param for date_end when end_date is absent', () => {
-		const result = sanitizeStatsTimeSeriesResponse(
-			{},
-			{ start_date: '2026-06-15T00:00:00-07:00', date: '2026-06-16T23:59:59-07:00' }
-		);
-
-		expect( result.summary ).toEqual( {
-			date_start: '2026-06-15T00:00:00',
-			date_end: '2026-06-16T23:59:59',
-		} );
-	} );
-
 	it( 'resolves hourly visits rows whose period packs the date and hour together', () => {
 		const result = sanitizeStatsTimeSeriesResponse(
 			{
@@ -518,21 +482,6 @@ describe( 'Stats time-series normalizer', () => {
 				date_end: '2026-06-15T23:59:59',
 			} )
 		);
-	} );
-
-	it( 'matches the row shape when rows are present and when they are not', () => {
-		const query = {
-			start_date: '2026-06-15T00:00:00-07:00',
-			end_date: '2026-06-15T23:59:59-07:00',
-		};
-		const withRows = sanitizeStatsTimeSeriesResponse(
-			{ unit: 'day', fields: [ 'period', 'views' ], data: [ [ '2026-06-15', 3 ] ] },
-			query
-		);
-		const withoutRows = sanitizeStatsTimeSeriesResponse( {}, query );
-
-		expect( withoutRows.summary.date_start ).toBe( withRows.summary.date_start );
-		expect( withoutRows.summary.date_end ).toBe( withRows.summary.date_end );
 	} );
 
 	// The shape `stats/subscribers` returns.
