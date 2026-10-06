@@ -148,6 +148,18 @@
 			opacity: 1 !important;
 			cursor: default;
 		}
+
+		// The dialog's busy stripes, in the post's text colour.
+		// Its keyframes are in dialog.scss, built into this same file.
+		&.is-busy {
+			$stripe: color-mix(in sRGB, currentColor 15%, transparent);
+			background-image: linear-gradient(-45deg, transparent 33%, $stripe 33%, $stripe 70%, transparent 70%) !important;
+			background-size: 100px 100% !important;
+
+			@media not (prefers-reduced-motion) {
+				animation: jetpack-comments-busy 2500ms infinite linear;
+			}
+		}
 	}
 }
 

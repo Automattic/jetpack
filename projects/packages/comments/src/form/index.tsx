@@ -293,7 +293,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 							id={ submit.id }
 							name={ submit.name }
 							type="submit"
-							className={ submit.class }
+							className={ clsx( submit.class, { 'is-busy': isPosting.value } ) }
 							disabled={
 								( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
 								isEmptyComment.value ||

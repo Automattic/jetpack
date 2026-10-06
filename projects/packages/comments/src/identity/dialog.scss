@@ -5,6 +5,7 @@
 // has no say: the dialog renders in a shadow root and inherits nothing.
 $accent: #3858e9;
 $accent-hover: #2145e6;
+$accent-darker: #183ad6;
 
 :host {
 	all: initial;
@@ -217,11 +218,22 @@ $accent-hover: #2145e6;
 			}
 
 			// Outlined, as the comment form's own submit is.
-			&:disabled {
+			&:disabled:not(.is-busy) {
 				background: transparent;
 				box-shadow: inset 0 0 0 1px currentColor;
 				color: inherit;
 				cursor: default;
+			}
+
+			// Core's busy button, held until the page reloads with the comment.
+			&.is-busy {
+				background-image: linear-gradient(-45deg, $accent 33%, $accent-darker 33%, $accent-darker 70%, $accent 70%);
+				background-size: 100px 100%;
+				cursor: default;
+
+				@media not (prefers-reduced-motion) {
+					animation: jetpack-comments-busy 2500ms infinite linear;
+				}
 			}
 		}
 
@@ -290,5 +302,12 @@ $accent-hover: #2145e6;
 
 	to {
 		transform: rotate(360deg);
+	}
+}
+
+@keyframes jetpack-comments-busy {
+
+	0% {
+		background-position: 200px 0;
 	}
 }

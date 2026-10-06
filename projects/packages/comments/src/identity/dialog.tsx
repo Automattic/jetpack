@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
@@ -35,6 +36,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		commenter,
 		rememberDetails,
 		isDialogOpen,
+		isPosting,
 		forget,
 	} = useContext( CommentSignals );
 	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
@@ -256,7 +258,12 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 					) }
 					{ /* Only with a comment to post, and where core takes one with no name. */ }
 					{ posting && ! mustLogIn && ! requireNameEmail && (
-						<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
+						<button
+							type="submit"
+							name="anonymous"
+							className="jetpack-comments__button is-link"
+							disabled={ isPosting.value }
+						>
 							{ strings.postWithoutSaving }
 						</button>
 					) }
@@ -324,8 +331,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 						<div className="jetpack-comments__dialog-actions">
 							<button
 								type="submit"
-								className="jetpack-comments__button is-primary"
-								disabled={ emailTaken }
+								className={ clsx( 'jetpack-comments__button is-primary', {
+									'is-busy': isPosting.value,
+								} ) }
+								disabled={ emailTaken || isPosting.value }
 							>
 								{ ! posting && strings.save }
 								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
