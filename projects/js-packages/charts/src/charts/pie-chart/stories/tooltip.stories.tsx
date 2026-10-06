@@ -57,7 +57,7 @@ Default.args = {
 Default.parameters = {
 	docs: {
 		description: {
-			story: 'Default pie chart with tooltips enabled using the built-in BaseTooltip component.',
+			story: 'Default pie chart with tooltips enabled using the default `label: value` tooltip.',
 		},
 	},
 };

@@ -19,7 +19,7 @@ type CapturedRenderTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 let capturedRenderTooltip: CapturedRenderTooltip | undefined;
 jest.mock( '../../../components/tooltip', () => ( {
 	...jest.requireActual( '../../../components/tooltip' ),
-	AccessibleTooltip: ( props: { renderTooltip?: CapturedRenderTooltip } ) => {
+	XYChartTooltip: ( props: { renderTooltip?: CapturedRenderTooltip } ) => {
 		capturedRenderTooltip = props.renderTooltip;
 		return null;
 	},

@@ -57,6 +57,8 @@ const RECORDS_VIEW = {
 		styles: {
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
+			watch_time: { align: 'end' as const },
+			retention_rate: { align: 'end' as const },
 		},
 	},
 };

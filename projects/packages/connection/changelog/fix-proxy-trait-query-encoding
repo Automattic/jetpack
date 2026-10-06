@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+REST API proxy trait: Encode the query params forwarded to WordPress.com.

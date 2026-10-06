@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\Podcast_Episode_Block;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Supports;
@@ -150,7 +151,13 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_renders_post_title_author_and_date() {
+	/**
+	 * @param array $attrs       Attributes merged over the defaults.
+	 * @param bool  $show_author Whether the author should render.
+	 * @dataProvider provide_author_visibility
+	 */
+	#[DataProvider( 'provide_author_visibility' )]
+	public function test_renders_post_title_author_and_date( array $attrs, bool $show_author ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login'   => 'episode_author',
@@ -168,16 +175,23 @@ class Podcast_Episode_Block_Test extends BaseTestCase {
 			)
 		);
 
-		$result    = Podcast_Episode_Block::render_block( $this->default_attrs, '', $this->block_ctx( $post_id ) );
+		$result    = Podcast_Episode_Block::render_block( array_merge( $this->default_attrs, $attrs ), '', $this->block_ctx( $post_id ) );
 		$permalink = get_permalink( $post_id );
 
 		wp_delete_post( $post_id, true );
 		wp_delete_user( $user_id );
 
 		$this->assertStringContainsString( '<a href="' . esc_url( $permalink ) . '">Episode 7: The Renderer</a>', $result );
-		$this->assertStringContainsString( 'Jane Host', $result );
-		$this->assertStringContainsString( 'itemprop="author" itemscope itemtype="https://schema.org/Person"', $result );
 		$this->assertStringContainsString( 'datetime="2026-04-15', $result );
+		$this->assertSame( $show_author, str_contains( $result, 'Jane Host' ) );
+		$this->assertSame( $show_author, str_contains( $result, 'itemprop="author" itemscope itemtype="https://schema.org/Person"' ) );
+	}
+
+	public static function provide_author_visibility(): array {
+		return array(
+			'default'          => array( array(), true ),
+			'showAuthor false' => array( array( 'showAuthor' => false ), false ),
+		);
 	}
 
 	public function test_video_media_type_renders_video_element() {

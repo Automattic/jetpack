@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Fix file tree rows stretching in the modernized dashboard, which is behind a feature flag.
+

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Stats app: Pass the site timezone to the app, so links into the new analytics dashboard keep whole days across daylight-saving changes.

@@ -134,6 +134,7 @@ const mockTrackCustomize = {
 
 jest.mock( '@wordpress/route', () => ( {
 	...jest.requireActual( '@wordpress/route' ),
+	useNavigate: () => jest.fn(),
 	useSearch: () => ( {} ),
 } ) );
 
@@ -205,18 +206,22 @@ function MockOriginProbe() {
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
+	const { offersComparison, openPeriod } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
 	const openJuly = useCallback(
 		() => raisePeriodChange( 'traffic', JULY_2026 ),
 		[ raisePeriodChange ]
 	);
+	const setJuly = useCallback( () => openPeriod?.( JULY_2026 ), [ openPeriod ] );
 
 	return (
 		<>
 			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
 			<button type="button" onClick={ openJuly }>
 				Open July from a widget
+			</button>
+			<button type="button" onClick={ setJuly }>
+				Set July from a chart on this section
 			</button>
 		</>
 	);
@@ -561,6 +566,22 @@ describe( 'Dashboard period change signal', () => {
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
 		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 		jest.useRealTimers();
+	} );
+
+	it( 'draws attention to a period a widget set on the section it sits in', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click(
+			screen.getByRole( 'button', { name: 'Set July from a chart on this section' } )
+		);
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
 	} );
 
 	it( 'lets a signal go when the reader lands on another section instead', async () => {

@@ -66,8 +66,8 @@ async function fetchAiOutput(
 			body: JSON.stringify( {
 				messages: [ { role: 'user', content: buildTailorPrompt( input, availableTaskIds ) } ],
 				feature: 'ai-launchpad',
-				model: 'gpt-4o',
-				max_tokens: 1800,
+				model: 'gpt-6-luna',
+				max_tokens: 6000,
 				response_format: 'json_object',
 				stream: false,
 			} ),
@@ -149,7 +149,7 @@ async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[]
 /**
  * Produce a tailored output for the wizard input without writing it anywhere:
  * the AI call, or the deterministic fallback when it fails or returns nothing
- * usable. Safe to run speculatively while the user is still filling the wizard.
+ * usable.
  *
  * @param input - The collected wizard input.
  * @param copy  - The site-language copy the fallback drafts are written from.

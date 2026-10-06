@@ -403,7 +403,24 @@ export const SANITY_RANGES = {
 	// Keep broad bounds: 1MB catches an unloaded app; 50MB catches a bytes-vs-KB scale error
 	// without clipping legitimate changes in any one page's bundle size.
 	decodedBytesKB: { min: 1000, max: 51200 },
+	// The core-only Dashboard control can be smaller than the rendered apps above.
+	dashboardDecodedBytesKB: { min: 1, max: 51200 },
 };
+
+export const DASHBOARD_DELTA_METRICS = [
+	[ 'lcp', 'largestContentfulPaint' ],
+	[ 'ttfb', 'timeToFirstByte' ],
+	[ 'fcp', 'firstContentfulPaint' ],
+	[ 'decodedBytesKB', 'decodedBytesKB' ],
+	[ 'tbt', 'loadBlockingTime' ],
+	[ 'wpTotal', 'wp-total' ],
+	[ 'wpMemoryUsage', 'wp-memory-usage' ],
+	[ 'wpDbQueries', 'wp-db-queries' ],
+].map( ( [ field, suffix ] ) => ( {
+	field,
+	codevitalsKey: `wp-admin-dashboard-jetpackOverhead-${ suffix }-staging`,
+	type: field,
+} ) );
 
 /**
  * Get the URL for a scenario from environment or default

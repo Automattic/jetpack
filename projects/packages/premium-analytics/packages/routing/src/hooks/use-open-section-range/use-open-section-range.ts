@@ -1,19 +1,12 @@
 /**
  * External dependencies
  */
-import { useRaisePeriodChange } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildRangePatch,
-	type ReportQuerySearchParams,
-} from '../use-report-date-filters/build-range-patch';
-import { useStagedSearch } from '../use-staged-search';
-
-type SectionRangeSearch = ReportQuerySearchParams & { section?: string };
+import { useCommitExactRange } from '../use-period-host/use-commit-exact-range';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 export type OpenSectionRange = ( section: string, range: Required< DateRange > ) => void;
 
@@ -24,22 +17,10 @@ export type OpenSectionRange = ( section: string, range: Required< DateRange > )
  * @return The navigation, taking the section slug and the range to apply.
  */
 export function useOpenSectionRange(): OpenSectionRange {
-	const { effective, stage, commit } = useStagedSearch< SectionRangeSearch, string >( {} );
-	const raisePeriodChange = useRaisePeriodChange();
+	const commitExactRange = useCommitExactRange();
 
 	return useCallback(
-		( section, range ) => {
-			const patch = buildRangePatch( {
-				nextRange: range,
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			raisePeriodChange( section, range );
-			stage( { ...patch, section } );
-			commit( { replace: false } );
-		},
-		[ effective, stage, commit, raisePeriodChange ]
+		( section, range ) => commitExactRange( section, range, { opensSection: true } ),
+		[ commitExactRange ]
 	);
 }
