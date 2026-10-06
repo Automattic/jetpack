@@ -333,6 +333,23 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertStringContainsString( '<script id="jetpack-backup-connection-initial-state">', $output );
 		// render() declares a bare `var`; that is a window global only in a classic script tag.
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $output );
+		$this->assertStringContainsString( 'JPBACKUP_DASHBOARD_STATE', $output );
+	}
+
+	public function test_activity_log_url_is_null_without_the_page_and_the_page_url_with_it() {
+		global $_parent_pages;
+		$original = $_parent_pages;
+
+		$_parent_pages = array();
+		$this->assertNull( Jetpack_Backup::get_activity_log_url() );
+
+		$_parent_pages = array(
+			'jetpack'              => false,
+			'jetpack-activity-log' => 'jetpack',
+		);
+		$this->assertStringEndsWith( 'admin.php?page=jetpack-activity-log', Jetpack_Backup::get_activity_log_url() );
+
+		$_parent_pages = $original;
 	}
 
 	/** `can_use_analytics()` needs offline mode off and the terms of service agreed. */

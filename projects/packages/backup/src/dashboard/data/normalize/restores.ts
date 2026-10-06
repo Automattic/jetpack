@@ -78,6 +78,7 @@ export function normalizeRestore( restore: RecentRestore ): ActivityItem | null 
 		publishedAt: new Date( when ).toISOString(),
 		actor: { type: 'Application', name: 'Jetpack' },
 		summary: restoreSummary( restore.rewind_id ),
+		failed: restore.settled && ! restore.succeeded,
 	};
 }
 

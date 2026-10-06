@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useSyncExternalStore } from '@wordpress/element';
 import { keys } from '../data/query-client';
 import type { BackupsState } from '../types/backup';
 
@@ -19,6 +19,27 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
 	'will-retry',
 	'no-good-backups',
 ] as const;
+
+let finishedRuns = 0;
+const finishedRunListeners = new Set< () => void >();
+
+/**
+ * How many runs this tab has watched end, for the list's "new" marker.
+ *
+ * A counter and not a flag: the list compares it to the value it mounted with, so a
+ * run that ended before the list mounted never marks a row.
+ *
+ * @return The count of watched runs that have ended.
+ */
+export function useFinishedRunCount(): number {
+	return useSyncExternalStore(
+		listener => {
+			finishedRunListeners.add( listener );
+			return () => finishedRunListeners.delete( listener );
+		},
+		() => finishedRuns
+	);
+}
 
 /**
  * Refresh the activity list once a running backup has ended.
@@ -61,6 +82,8 @@ export function useRefreshActivityOnBackupComplete(
 		}
 		if ( sawInProgress.current && RUN_ENDED_STATES.includes( state ) ) {
 			sawInProgress.current = false;
+			finishedRuns += 1;
+			finishedRunListeners.forEach( listener => listener() );
 			queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 		}
 	}, [ state, isRequested, queryClient ] );

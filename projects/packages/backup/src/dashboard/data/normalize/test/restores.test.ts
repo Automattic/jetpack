@@ -40,11 +40,13 @@ const PAGE_1 = { page: 1, totalPages: 1, sortOrder: 'desc' as const };
 
 describe( 'normalizeRestore', () => {
 	test.each( [
-		[ { settled: true, succeeded: true }, 'Restore complete' ],
-		[ { settled: true, succeeded: false }, "Restore didn't finish" ],
-		[ { settled: false, succeeded: false }, 'Restore in progress' ],
-	] )( 'titles %p as %p', ( status, title ) => {
-		expect( normalizeRestore( restore( status ) )?.title ).toBe( title );
+		[ { settled: true, succeeded: true }, 'Restore complete', false ],
+		[ { settled: true, succeeded: false }, "Restore didn't finish", true ],
+		[ { settled: false, succeeded: false }, 'Restore in progress', false ],
+	] )( 'titles %p as %p and flags failure as %p', ( status, title, failed ) => {
+		const row = normalizeRestore( restore( status ) );
+		expect( row?.title ).toBe( title );
+		expect( row && 'failed' in row && row.failed ).toBe( failed );
 	} );
 
 	test( 'names the backup it was aiming at', () => {

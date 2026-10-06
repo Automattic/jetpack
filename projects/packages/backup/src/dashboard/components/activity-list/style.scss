@@ -6,10 +6,40 @@
 	flex-direction: column;
 	min-height: 0;
 
-	// Give the search + view-actions row some breathing room from the
-	// card edge; rows below stay flush so dividers run edge-to-edge.
-	.dataviews__view-actions {
+	// Rows stay flush so dividers run edge-to-edge.
+	&__toolbar {
 		padding: 16px 16px 8px;
+	}
+
+	// A failure has no rows to fill the height the grid gives it.
+	&--failed {
+		align-self: start;
+
+		.dataviews-no-results {
+			padding: 16px;
+		}
+	}
+
+	&__heading {
+		min-inline-size: 0;
+		align-items: flex-start;
+	}
+
+	&__new {
+		margin-inline-start: 8px;
+	}
+
+	// The selected row drops its grey tile and shows the icon in the theme colour.
+	.dataviews-view-list div[role="row"].is-selected .dataviews-view-list__media-wrapper {
+		background: transparent;
+
+		&::after {
+			box-shadow: none;
+		}
+	}
+
+	.dataviews-view-list div[role="row"].is-selected .jpb-activity-list__icon {
+		color: var(--wpds-color-foreground-interactive-brand);
 	}
 
 	// DataViews renders a `role="checkbox"` selection indicator in the
@@ -60,6 +90,18 @@
 		justify-content: center;
 		color: var(--wp-components-color-foreground, #1e1e1e);
 		flex-shrink: 0;
+
+		&--success {
+			color: var(--wpds-color-foreground-content-success);
+		}
+
+		&--error {
+			color: var(--wpds-color-foreground-content-error);
+		}
+
+		&--info {
+			color: var(--wpds-color-foreground-content-info);
+		}
 
 		svg {
 			fill: currentColor;

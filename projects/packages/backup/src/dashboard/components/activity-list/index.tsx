@@ -1,7 +1,6 @@
 import { DataViews } from '@wordpress/dataviews';
-import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	cloud,
@@ -12,10 +11,12 @@ import {
 	info,
 	rotateLeft,
 } from '@wordpress/icons';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
+import { useFinishedRunCount } from '../../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
+import { formatRowDate } from './row-date';
 import './style.scss';
 import type { ActivitySortOrder } from '../../data/api/activity-log';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
@@ -74,17 +75,34 @@ function getRowId( item: ActivityItem ): string {
 }
 
 /**
- * Renders the icon tile that DataViews shows in the `media` slot of the
- * list layout — a small white square with a thin border, matching the
- * legacy admin's row affordance.
+ * The state that colours a row's icon; `none` keeps the neutral default.
+ *
+ * @param item - The activity item.
+ * @return The state modifier.
+ */
+function iconState( item: ActivityItem ): 'success' | 'error' | 'info' | 'none' {
+	if ( item.kind === 'backup' ) {
+		return 'success';
+	}
+	if ( item.kind === 'restore' ) {
+		return item.failed ? 'error' : 'info';
+	}
+	return 'none';
+}
+
+/**
+ * Renders the icon that DataViews shows in the `media` slot of the list layout.
  *
  * @param props      - Component props.
  * @param props.item - The activity item to render an icon for.
- * @return The rendered icon tile.
+ * @return The rendered icon.
  */
 function MediaCell( { item }: { item: ActivityItem } ) {
 	return (
-		<span className="jpb-activity-list__icon" aria-hidden="true">
+		<span
+			className={ `jpb-activity-list__icon jpb-activity-list__icon--${ iconState( item ) }` }
+			aria-hidden="true"
+		>
 			<Icon icon={ ICON_BY_KIND[ item.kind ] } size={ 20 } />
 		</span>
 	);
@@ -100,7 +118,7 @@ function MediaCell( { item }: { item: ActivityItem } ) {
  * @return The formatted timestamp.
  */
 function rowDate( item: ActivityItem ): string {
-	return dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined );
+	return formatRowDate( item.publishedAt );
 }
 
 /**
@@ -110,14 +128,20 @@ function rowDate( item: ActivityItem ): string {
  * the date every row announces the same sentence and a screen-reader user
  * cannot tell which restore point they are about to open, download or restore.
  *
- * @param props      - Component props.
- * @param props.item - The activity item.
+ * @param props       - Component props.
+ * @param props.item  - The activity item.
+ * @param props.isNew - Whether to flag the row as a just-finished backup.
  * @return The rendered title.
  */
-function TitleCell( { item }: { item: ActivityItem } ) {
+function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 	return (
 		<>
 			{ item.title }
+			{ isNew && (
+				<Badge intent="informational" className="jpb-activity-list__new">
+					{ __( 'New', 'jetpack-backup-pkg' ) }
+				</Badge>
+			) }
 			{ /* JSX drops the newline, and the name computation adds nothing back. */ }{ ' ' }
 			<span className="jpb-visually-hidden">{ rowDate( item ) }</span>
 		</>
@@ -149,6 +173,18 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 			) }
 		</Stack>
 	);
+}
+
+/**
+ * The Activity Log admin URL PHP emitted, or null when that page is not registered.
+ *
+ * @return The URL, or null.
+ */
+function getActivityLogUrl(): string | null {
+	const state = (
+		window as unknown as { JPBACKUP_DASHBOARD_STATE?: { activityLogUrl?: string | null } }
+	 ).JPBACKUP_DASHBOARD_STATE;
+	return state?.activityLogUrl || null;
 }
 
 /**
@@ -187,6 +223,38 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		pageSize,
 		sortOrder,
 	} );
+
+	// The row a watched run just produced. Only page 1, newest first, can hold it.
+	const [ newRowId, setNewRowId ] = useState< string | null >( null );
+	const finishedRuns = useFinishedRunCount();
+	const seenRuns = useRef( finishedRuns );
+	const baselineTopId = useRef< string | null | undefined >( undefined );
+	const onNewestPage = page === 1 && sortOrder === 'desc';
+	const topBackupId = onNewestPage ? ( items.find( isBackupItem )?.rewindId ?? null ) : null;
+
+	useEffect( () => {
+		if ( finishedRuns !== seenRuns.current ) {
+			seenRuns.current = finishedRuns;
+			baselineTopId.current = topBackupId;
+		}
+	}, [ finishedRuns, topBackupId ] );
+
+	// A run that ended with no new backup leaves the baseline in place until one lands.
+	useEffect( () => {
+		if ( baselineTopId.current === undefined || ! onNewestPage ) {
+			return;
+		}
+		if ( topBackupId !== null && topBackupId !== baselineTopId.current ) {
+			baselineTopId.current = undefined;
+			setNewRowId( topBackupId );
+		}
+	}, [ topBackupId, onNewestPage ] );
+
+	useEffect( () => {
+		if ( ! onNewestPage ) {
+			setNewRowId( null );
+		}
+	}, [ onNewestPage ] );
 
 	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
 	// `sort`, so without this a reorder strands the reader on page 3 of an
@@ -253,7 +321,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
-				render: TitleCell,
+				render: ( { item } ) => <TitleCell item={ item } isNew={ getRowId( item ) === newRowId } />,
 				getValue: ( { item } ) => item.title,
 				enableSorting: false,
 				filterBy: false,
@@ -269,13 +337,14 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				filterBy: false,
 			},
 		],
-		[]
+		[ newRowId ]
 	);
 
 	const onChangeSelection = useCallback(
 		( next: string[] ) => {
 			const [ first ] = next;
 			if ( first ) {
+				setNewRowId( null );
 				onSelect( first );
 			}
 		},
@@ -306,9 +375,15 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// control the reader just used; DataViews offers no way to separate
 	// those, so that case is unchanged rather than fixed.
 	const isBusy = isLoading || ( isFetching && isPlaceholderData );
+	const activityLogUrl = getActivityLogUrl();
 
 	return (
-		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>
+		<Card.Root
+			className={ `jpb-activity-list${
+				failure && ! reportsAboveList ? ' jpb-activity-list--failed' : ''
+			}` }
+			aria-busy={ isBusy }
+		>
 			{ reportsAboveList && <div className="jpb-activity-list__failure">{ failure }</div> }
 			<DataViews< ActivityItem >
 				data={ items }
@@ -325,7 +400,41 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				isLoading={ isBusy }
 				search={ false }
 				empty={ reportsAboveList ? undefined : failure }
-			/>
+			>
+				<Stack
+					direction="row"
+					align="start"
+					justify="space-between"
+					gap="sm"
+					className="jpb-activity-list__toolbar"
+				>
+					<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
+						<Text variant="heading-md" render={ <h2 /> }>
+							{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
+						</Text>
+						<Text variant="body-sm" className="jpb-text-muted">
+							{ sprintf(
+								/* translators: %d: number of restore points shown on each page of the list. */
+								_n(
+									"Restore points from your site's activity, newest first. %d per page.",
+									"Restore points from your site's activity, newest first. %d per page.",
+									pageSize,
+									'jetpack-backup-pkg'
+								),
+								pageSize
+							) }
+						</Text>
+						{ activityLogUrl && (
+							<Link href={ activityLogUrl }>
+								{ __( 'See all activity in the Activity Log', 'jetpack-backup-pkg' ) }
+							</Link>
+						) }
+					</Stack>
+					<DataViews.ViewConfig />
+				</Stack>
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
 		</Card.Root>
 	);
 }
