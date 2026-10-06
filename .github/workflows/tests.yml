@@ -69,6 +69,8 @@ jobs:
       did-coverage: ${{ case( matrix.coverage-group != '' && job.status != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
       php-coverage-status: ${{ case( matrix.coverage-group == 'php', job.status, '' ) }}
       js-coverage-status: ${{ case( matrix.coverage-group == 'js', job.status, '' ) }}
+      # Matrix outputs are last-wins, so only failures set this to catch any failed JS split.
+      js-coverage-failed: ${{ case( matrix.coverage-group == 'js' && job.status != 'success', job.status, '' ) }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -435,7 +437,7 @@ jobs:
           PR_ID: ${{ case( github.event_name != 'pull_request', 'trunk', github.event.pull_request.number ) }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
           PHP_COVERAGE_STATUS: ${{ needs.run-tests.outputs.php-coverage-status }}
-          JS_COVERAGE_STATUS: ${{ needs.run-tests.outputs.js-coverage-status }}
+          JS_COVERAGE_STATUS: ${{ needs.run-tests.outputs.js-coverage-failed || needs.run-tests.outputs.js-coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
           POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
