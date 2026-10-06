@@ -118,6 +118,28 @@ jobs:
             CHANGED=$( jq -c '. += { "plugins/jetpack": true }' <<<"$CHANGED" )
           fi
 
+          # Narrow to this job's split, if any.
+          if [[ -n "$SPLIT_PROJECT" ]]; then
+            CHANGED=$( jq -c --arg p "$SPLIT_PROJECT" 'with_entries( select( .key == $p ) )' <<<"$CHANGED" )
+          elif (( SPLIT_NUM )); then
+            readarray -t FILES < <( jq -r 'keys[] | if . == "monorepo" then "composer.json" else "projects/\( . )/composer.json" end' <<<"$CHANGED" )
+            CHANGED=$( jq -nc --argjson changed "$CHANGED" --arg script "$TEST_SCRIPT" --arg exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" '
+              # Find the projects that will run: defining the script, and not excluded from generic runs.
+              [ inputs | select( .scripts[ $script ] ) | input_filename
+                # Generate slug from filename.
+                | if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end
+                | select( IN( $exclude | split( " " )[] ) | not )
+              ]
+              # Deal out every nth one, balanced by count.
+              | [ .[ range( $num - 1; length; $total ) ] ] as $split
+              | $changed | with_entries( select( .key | IN( $split[] ) ) )
+            ' "${FILES[@]}" < /dev/null )
+          fi
+
+          echo "::group::Projects to test in this job"
+          jq -r 'keys[]' <<<"$CHANGED"
+          echo "::endgroup::"
+
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
@@ -179,7 +201,6 @@ jobs:
 
       - name: Prepare test queue
         env:
-          CHANGED: ${{ steps.changed.outputs.projects }}
           QUEUEFILE: ${{ runner.temp }}/testqueue
           WORKERTOKENS: ${{ runner.temp }}/workertokens
         run: |
@@ -200,30 +221,6 @@ jobs:
               echo "$P"
             fi
           done >> "$QUEUEFILE"
-
-          # Narrow the queue to this job's split, if any.
-          if [[ -n "$SPLIT_PROJECT" ]]; then
-            echo "projects/$SPLIT_PROJECT/composer.json" > "$QUEUEFILE"
-          elif (( SPLIT_NUM )); then
-            readarray -t QUEUE < "$QUEUEFILE"
-            jq -nr --arg script "$TEST_SCRIPT" --argjson changed "$CHANGED" --arg exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" '
-              # Find the projects that will run: changed, defining the script, and not excluded from generic runs.
-              [ inputs | select( .scripts[ $script ] ) | input_filename
-                # Generate slug from filename.
-                | ( if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end ) as $slug
-                # We only care about changed projects.
-                | select( $changed[ $slug ] )
-                # Ignore them if they are excluded from generic runs.
-                | select( $slug | IN( $exclude | split( " " )[] ) | not )
-              ]
-              # Deal out every nth one, balanced by count.
-              | .[ range( $num - 1; length; $total ) ]
-            ' "${QUEUE[@]}" > "$QUEUEFILE"
-          fi
-
-          echo "::group::Queued projects"
-          cat "$QUEUEFILE"
-          echo "::endgroup::"
 
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
