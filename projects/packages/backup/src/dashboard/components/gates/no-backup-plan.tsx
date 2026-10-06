@@ -1,6 +1,6 @@
-import { Card, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, check, lock } from '@wordpress/icons';
+import { Card, Stack, Text } from '@wordpress/ui';
 import LicenseKeyLink from './license-key-link';
 import PromotedPrice from './promoted-price';
 import UpgradeButton from './upgrade-button';
@@ -21,22 +21,49 @@ import UpgradeButton from './upgrade-button';
  * @return The rendered fallback.
  */
 export default function NoBackupPlanScreen() {
+	const features = [
+		__( 'Real-time cloud backups', 'jetpack-backup-pkg' ),
+		__( 'Starts with 10GB of backup storage', 'jetpack-backup-pkg' ),
+		__( '30-day archive & activity log', 'jetpack-backup-pkg' ),
+		__( 'One-click restores', 'jetpack-backup-pkg' ),
+	];
+
 	return (
-		<Card className="jpb-gates__card">
-			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h2 /> }>
-					{ __( "This site doesn't have an active Backup plan", 'jetpack-backup-pkg' ) }
-				</Text>
-				<Notice status="info" isDismissible={ false }>
-					{ __(
-						'Add Jetpack Backup to start protecting your site with automatic backups, granular restores, and offsite storage.',
-						'jetpack-backup-pkg'
-					) }
-				</Notice>
-				<PromotedPrice />
-				<UpgradeButton />
-				<LicenseKeyLink />
-			</Stack>
-		</Card>
+		<div className="jpb-gates__stage">
+			<Card.Root className="jpb-gates__card">
+				<Stack direction="column" gap="lg" align="start">
+					<span className="jpb-gates__badge jpb-gates__badge--info" aria-hidden="true">
+						<Icon icon={ lock } />
+					</span>
+					<Text variant="heading-lg" render={ <h2 /> }>
+						{ __( 'Add a Jetpack Backup plan', 'jetpack-backup-pkg' ) }
+					</Text>
+					<Text>
+						{ __(
+							'Save every change with real-time backups and get back online with one-click restores.',
+							'jetpack-backup-pkg'
+						) }
+					</Text>
+					<PromotedPrice />
+					<Stack direction="column" gap="sm" align="start">
+						<Text variant="heading-md" render={ <h3 /> }>
+							{ __( "What's included?", 'jetpack-backup-pkg' ) }
+						</Text>
+						<ul className="jpb-gates__features">
+							{ features.map( feature => (
+								<li key={ feature }>
+									<Icon icon={ check } size={ 20 } />
+									<Text>{ feature }</Text>
+								</li>
+							) ) }
+						</ul>
+					</Stack>
+					<Stack direction="row" gap="lg" align="center" wrap="wrap" className="jpb-gates__actions">
+						<UpgradeButton />
+						<LicenseKeyLink />
+					</Stack>
+				</Stack>
+			</Card.Root>
+		</div>
 	);
 }

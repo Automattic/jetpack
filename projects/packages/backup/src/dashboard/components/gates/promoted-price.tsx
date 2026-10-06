@@ -1,6 +1,6 @@
 import { formatCurrency } from '@automattic/number-formatters';
 import { VisuallyHidden } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { usePromotedProduct } from '../../hooks/use-promoted-product';
 
@@ -17,7 +17,7 @@ import { usePromotedProduct } from '../../hooks/use-promoted-product';
  * @return The price block, or null while there is no price to show.
  */
 export default function PromotedPrice() {
-	const { monthlyPrice, introMonthlyPrice, currencyCode } = usePromotedProduct();
+	const { monthlyPrice, introMonthlyPrice, introYears, currencyCode } = usePromotedProduct();
 
 	if ( monthlyPrice === null || ! currencyCode ) {
 		return null;
@@ -49,7 +49,21 @@ export default function PromotedPrice() {
 		'jetpack-backup-pkg'
 	);
 	const infoText = hasDiscount ? introductoryInfoText : basicInfoText;
-	const priceDetails = __( 'per month, billed yearly', 'jetpack-backup-pkg' );
+	const priceDetails =
+		hasDiscount && introYears !== null
+			? // The singular has no placeholder, which is the standard `_n()` idiom for "one".
+				// eslint-disable-next-line @wordpress/valid-sprintf
+				sprintf(
+					/* translators: %d is the number of years the introductory price lasts. */
+					_n(
+						'per month for the first year, billed yearly',
+						'per month for the first %d years, billed yearly',
+						introYears,
+						'jetpack-backup-pkg'
+					),
+					introYears
+				)
+			: __( 'per month, billed yearly', 'jetpack-backup-pkg' );
 
 	// The one string here that is not legacy's, so the one that waits a
 	// GlotPress cycle. It earns that: the struck-through figure is the
@@ -68,8 +82,9 @@ export default function PromotedPrice() {
 	);
 
 	return (
-		<Stack direction="column" gap="xs" align="center">
-			<Stack direction="row" gap="xs" align="baseline" justify="center" wrap="wrap">
+		<Stack direction="column" gap="xs" align="start">
+			<Stack direction="row" gap="sm" align="baseline" wrap="wrap">
+				<Text variant="heading-2xl">{ effectiveText }</Text>
 				{ /*
 				 * Hidden from assistive tech rather than read out. A
 				 * strikethrough carries no meaning a screen reader
@@ -82,15 +97,21 @@ export default function PromotedPrice() {
 				 * further down as visually-hidden text.
 				 */ }
 				{ hasDiscount && (
-					<Text variant="body-lg" render={ <s /> } aria-hidden="true">
+					<Text
+						variant="body-lg"
+						render={ <s /> }
+						className="jpb-gates__price-old"
+						aria-hidden="true"
+					>
 						{ fullText }
 					</Text>
 				) }
-				<Text variant="heading-lg">{ effectiveText }</Text>
 			</Stack>
 			<Text variant="body-sm">{ priceDetails }</Text>
 			{ hasDiscount && <VisuallyHidden>{ renewalText }</VisuallyHidden> }
-			<Text variant="body-sm">{ infoText }</Text>
+			<Text variant="body-sm" className="jpb-text-muted">
+				{ infoText }
+			</Text>
 		</Stack>
 	);
 }

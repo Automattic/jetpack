@@ -357,9 +357,7 @@ describe( 'A gate verdict that changes under the reader', () => {
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
-		await expect(
-			screen.findByText( "This site doesn't have an active Backup plan" )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Add a Jetpack Backup plan' ) ).resolves.toBeInTheDocument();
 
 		hasBackupPlan = true;
 		await act( async () => {

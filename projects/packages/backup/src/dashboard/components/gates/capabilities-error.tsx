@@ -1,6 +1,7 @@
-import { Button, Card, Notice } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, caution } from '@wordpress/icons';
+import { Card, Stack, Text } from '@wordpress/ui';
 
 type Props = {
 	error: Error;
@@ -26,49 +27,54 @@ type Props = {
  */
 export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
 	return (
-		<Card className="jpb-gates__card">
-			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h2 /> }>
-					{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
-				</Text>
-				<Notice status="error" isDismissible={ false }>
-					{ error.message }
-				</Notice>
-				{ /*
-				 * Not "this is usually temporary". This screen also covers
-				 * `capabilities_unreadable`, which is upstream shape drift —
-				 * no amount of retrying clears it, so the copy has to leave
-				 * the reader somewhere to go when the button doesn't help.
-				 */ }
-				<Text>
-					{ __(
-						'Your backups are unaffected. Try again, and contact support if this keeps happening.',
-						'jetpack-backup-pkg'
-					) }
-				</Text>
-				{ /*
-				 * Busy rather than merely clickable: the screen holds its
-				 * error across a retry, so without this the DOM is
-				 * byte-identical before and after the click and a retry
-				 * that fails again reads as a dead button.
-				 *
-				 * `accessibleWhenDisabled` keeps that from costing keyboard
-				 * users the page. `Button` sets the *native* `disabled`
-				 * attribute unless it is passed, and a browser blurs the
-				 * element it has just disabled — focus would land on
-				 * `<body>`, and this card is the entire dashboard body, so
-				 * there is nothing adjacent to land on.
-				 */ }
-				<Button
-					variant="primary"
-					onClick={ onRetry }
-					isBusy={ isRetrying }
-					disabled={ isRetrying }
-					accessibleWhenDisabled
-				>
-					{ __( 'Try again', 'jetpack-backup-pkg' ) }
-				</Button>
-			</Stack>
-		</Card>
+		<div className="jpb-gates__stage">
+			<Card.Root className="jpb-gates__card">
+				<Stack direction="column" gap="lg" align="start">
+					<span className="jpb-gates__badge jpb-gates__badge--warning" aria-hidden="true">
+						<Icon icon={ caution } />
+					</span>
+					<Text variant="heading-lg" render={ <h2 /> }>
+						{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
+					</Text>
+					{ /*
+					 * Not "this is usually temporary". This screen also covers
+					 * `capabilities_unreadable`, which is upstream shape drift —
+					 * no amount of retrying clears it, so the copy has to leave
+					 * the reader somewhere to go when the button doesn't help.
+					 */ }
+					<Text>
+						{ __(
+							"We couldn't reach WordPress.com to check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
+							'jetpack-backup-pkg'
+						) }
+					</Text>
+					<Text variant="body-sm" className="jpb-text-muted">
+						{ error.message }
+					</Text>
+					{ /*
+					 * Busy rather than merely clickable: the screen holds its
+					 * error across a retry, so without this the DOM is
+					 * byte-identical before and after the click and a retry
+					 * that fails again reads as a dead button.
+					 *
+					 * `accessibleWhenDisabled` keeps that from costing keyboard
+					 * users the page. `Button` sets the *native* `disabled`
+					 * attribute unless it is passed, and a browser blurs the
+					 * element it has just disabled — focus would land on
+					 * `<body>`, and this card is the entire dashboard body, so
+					 * there is nothing adjacent to land on.
+					 */ }
+					<Button
+						variant="primary"
+						onClick={ onRetry }
+						isBusy={ isRetrying }
+						disabled={ isRetrying }
+						accessibleWhenDisabled
+					>
+						{ __( 'Try again', 'jetpack-backup-pkg' ) }
+					</Button>
+				</Stack>
+			</Card.Root>
+		</div>
 	);
 }

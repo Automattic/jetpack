@@ -24,6 +24,11 @@ type Result = {
 	 */
 	introMonthlyPrice: number | null;
 	/**
+	 * How many years the introductory price lasts, or null when the offer
+	 * is not a whole number of years (or there is no offer).
+	 */
+	introYears: number | null;
+	/**
 	 * The currency WordPress.com priced this in. Null whenever
 	 * `monthlyPrice` is null; there is no default, and assuming one
 	 * would mislabel every non-USD site.
@@ -31,7 +36,12 @@ type Result = {
 	currencyCode: string | null;
 };
 
-const EMPTY: Result = { monthlyPrice: null, introMonthlyPrice: null, currencyCode: null };
+const EMPTY: Result = {
+	monthlyPrice: null,
+	introMonthlyPrice: null,
+	introYears: null,
+	currencyCode: null,
+};
 
 /**
  * Months covered by one interval of an introductory offer.
@@ -110,5 +120,10 @@ export function usePromotedProduct(): Result {
 
 	const introMonthlyPrice = offerCost !== null && months !== null ? offerCost / months : null;
 
-	return { monthlyPrice, introMonthlyPrice, currencyCode };
+	const introYears =
+		introMonthlyPrice !== null && offer?.interval_unit === 'year'
+			? Math.max( 1, offer.interval_count ?? 1 )
+			: null;
+
+	return { monthlyPrice, introMonthlyPrice, introYears, currencyCode };
 }

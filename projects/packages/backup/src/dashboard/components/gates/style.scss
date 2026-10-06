@@ -7,10 +7,66 @@
 		min-height: 320px;
 	}
 
+	// Centres the card in the space the page leaves, not the viewport.
+	&__stage {
+		display: flex;
+		align-items: center;
+		min-block-size: 60vh;
+	}
+
 	&__card {
-		max-width: 560px;
-		margin-inline: auto;
-		margin-block: 48px;
-		padding: 32px;
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-inline-size: 660px;
+		padding: 40px;
+
+		@media ( max-width: 600px ) {
+			padding: 24px;
+		}
+	}
+
+	&__badge {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 48px;
+		block-size: 48px;
+		border-radius: 50%;
+
+		&--info {
+			background-color: var(--wpds-color-background-surface-info-weak);
+			color: var(--wpds-color-foreground-content-info);
+		}
+
+		&--warning {
+			background-color: var(--wpds-color-background-surface-warning-weak);
+			color: var(--wpds-color-foreground-content-warning);
+		}
+	}
+
+	&__features {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		li {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin: 0;
+		}
+
+		svg {
+			flex: none;
+			fill: var(--wpds-color-foreground-content-info);
+		}
+	}
+
+	&__actions {
+		margin-block-start: 8px;
+	}
+
+	&__price-old {
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }

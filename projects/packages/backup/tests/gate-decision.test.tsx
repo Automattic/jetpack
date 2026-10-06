@@ -29,7 +29,7 @@ const CAPABILITIES_PATH = '/jetpack/v4/site/capabilities';
 // expects one screen cannot be satisfied by another.
 const NOT_CONNECTED = 'Connect Jetpack to get started';
 const SECONDARY_ADMIN_SCREEN = 'Link your WordPress.com account';
-const NO_PLAN = "This site doesn't have an active Backup plan";
+const NO_PLAN = 'Add a Jetpack Backup plan';
 const CAPABILITIES_ERROR = "We couldn't load your backup details";
 const BODY = 'dashboard body';
 

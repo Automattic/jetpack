@@ -31,7 +31,7 @@ import { BACKUPS_POLL_INTERVAL_MS } from '../src/dashboard/hooks/use-backups';
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const DISCONNECTED = { isRegistered: false, hasConnectedOwner: false, isUserConnected: false };
 
-const NO_PLAN = "This site doesn't have an active Backup plan";
+const NO_PLAN = 'Add a Jetpack Backup plan';
 const UPSELL_CTA = /^Get VaultPress Backup$/;
 const NOT_CONNECTED = 'Connect Jetpack to get started';
 const RESTORING = 'Restoring your site';

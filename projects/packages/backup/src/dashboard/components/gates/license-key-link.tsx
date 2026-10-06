@@ -1,5 +1,5 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { LinkButton } from '@wordpress/ui';
 
 /**
  * Where a license key is redeemed. My Jetpack owns redemption for the
@@ -29,8 +29,8 @@ const ADD_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
  */
 export default function LicenseKeyLink() {
 	return (
-		<Button variant="link" href={ ADD_LICENSE_URL }>
+		<LinkButton variant="minimal" tone="brand" href={ ADD_LICENSE_URL }>
 			{ __( 'Use license key', 'jetpack-backup-pkg' ) }
-		</Button>
+		</LinkButton>
 	);
 }
