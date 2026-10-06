@@ -8,13 +8,19 @@ require_once __DIR__ . '/class-test-jetpack-token-subscription-service.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Subscription_Service as Subscription_Service_Interface;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
+use Automattic\Jetpack\VideoPress\Access_Control;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access;
 use function Automattic\Jetpack\Extensions\Premium_Content\maybe_renew_session_cookie;
 use function Automattic\Jetpack\Extensions\Premium_Content\prewarm_premium_content_session_cookie;
 use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
+use function Automattic\Jetpack\Extensions\Premium_Content\visitor_can_access_plan_ids;
+use function Automattic\Jetpack\Extensions\Premium_Content\visitor_has_subscription_access_to_plan_ids;
 use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
 /**
@@ -22,12 +28,14 @@ use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
  * @covers ::Automattic\Jetpack\Extensions\Premium_Content\get_subscriptions_for_logged_in_user
  * @covers ::Automattic\Jetpack\Extensions\Premium_Content\maybe_renew_session_cookie
  * @covers ::Automattic\Jetpack\Extensions\Premium_Content\prewarm_premium_content_session_cookie
+ * @covers ::Automattic\Jetpack\Extensions\Premium_Content\visitor_can_access_plan_ids
  * @covers \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service
  */
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\current_visitor_can_access' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\get_subscriptions_for_logged_in_user' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\maybe_renew_session_cookie' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\prewarm_premium_content_session_cookie' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\visitor_can_access_plan_ids' )]
 #[CoversClass( Abstract_Token_Subscription_Service::class )]
 class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -53,6 +61,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		Jetpack_Memberships::clear_cache();
 		Jetpack_Subscriptions::init();
 		// Priority must be higher than wpcomsh's `WPCOMSH_Require_Connection_Owner` filter
 		// (registered at 1000), which would otherwise force-return false in CI's wpcomsh
@@ -1472,5 +1481,482 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 			current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ),
 			'A subscription whose end_date day has passed should be denied.'
 		);
+	}
+
+	/**
+	 * Create a newsletter tier plan mapped to $product_id at the given monthly price.
+	 *
+	 * @param int $product_id The plan's WordPress.com product id.
+	 * @param int $price      The plan's monthly price.
+	 * @return int The plan post id.
+	 */
+	private function create_tier_plan( $product_id, $price ) {
+		$plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $product_id );
+		update_post_meta( $plan_id, 'jetpack_memberships_type', Jetpack_Memberships::$type_tier );
+		update_post_meta( $plan_id, 'jetpack_memberships_price', $price );
+		update_post_meta( $plan_id, 'jetpack_memberships_currency', 'USD' );
+		update_post_meta( $plan_id, 'jetpack_memberships_interval', '1 month' );
+		return $plan_id;
+	}
+
+	/**
+	 * Build a token payload for a subscriber holding a single active subscription to $product_id.
+	 *
+	 * @param int $product_id The product id the subscriber holds.
+	 * @return array
+	 */
+	private function tier_token_payload( $product_id ) {
+		return array(
+			'blog_sub'      => 'active',
+			'subscriptions' => array(
+				$product_id => array(
+					'status'     => 'active',
+					'end_date'   => time() + HOUR_IN_SECONDS,
+					'product_id' => $product_id,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Set up two newsletter tiers ($5 and $50) and a post restricted to the $50 tier.
+	 *
+	 * @return array{0:int,1:int,2:int,3:int} [ post_id, pricey_plan_id, cheap_product_id, pricey_product_id ]
+	 */
+	private function set_up_two_tier_gated_post() {
+		$cheap_product_id  = 5001;
+		$pricey_product_id = 5002;
+
+		$this->create_tier_plan( $cheap_product_id, 5 );
+		$pricey_plan_id = $this->create_tier_plan( $pricey_product_id, 50 );
+
+		$post_id = $this->factory->post->create();
+		update_post_meta( $post_id, Jetpack_Memberships::$post_access_level_meta_name, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+		update_post_meta( $post_id, Jetpack_Memberships::$post_access_tier_meta_name, $pricey_plan_id );
+
+		return array( $post_id, $pricey_plan_id, $cheap_product_id, $pricey_product_id );
+	}
+
+	/**
+	 * A cheaper-tier subscriber is denied a higher-tier post when checked outside the loop, as during a render.
+	 *
+	 * @return void
+	 */
+	public function test_user_can_view_post_enforces_tier_when_checked_outside_the_loop() {
+		list( $post_id, , $cheap_product_id ) = $this->set_up_two_tier_gated_post();
+
+		// An anonymous visitor identified only by their memberships token.
+		wp_set_current_user( 0 );
+		$this->set_returned_token( $this->tier_token_payload( $cheap_product_id ) );
+
+		// Guard against test order: an earlier test may have left $GLOBALS['post'] set, which would
+		// make get_the_ID() return an id instead of false and mask the outside-the-loop condition.
+		unset( $GLOBALS['post'] );
+
+		// Precondition: this really runs outside the loop.
+		$this->assertFalse( get_the_ID(), 'Precondition: the test must run outside the loop.' );
+
+		$this->assertFalse(
+			Jetpack_Memberships::user_can_view_post( $post_id ),
+			'A subscriber on the cheaper tier must be denied a higher-tier post even when the check runs outside the loop.'
+		);
+	}
+
+	/**
+	 * A subscriber on the required tier is still granted access outside the loop.
+	 *
+	 * @return void
+	 */
+	public function test_user_can_view_post_grants_matching_tier_outside_the_loop() {
+		list( $post_id, , , $pricey_product_id ) = $this->set_up_two_tier_gated_post();
+
+		wp_set_current_user( 0 );
+		$this->set_returned_token( $this->tier_token_payload( $pricey_product_id ) );
+
+		// Guard against test order (see the companion test): keep this check genuinely outside the loop.
+		unset( $GLOBALS['post'] );
+
+		$this->assertTrue(
+			Jetpack_Memberships::user_can_view_post( $post_id ),
+			'A subscriber on the required tier must retain access outside the loop, confirming the fix does not over-deny.'
+		);
+	}
+
+	/**
+	 * Called with no id during a render, the check still resolves the loop post and denies a cheaper tier.
+	 *
+	 * @return void
+	 */
+	public function test_user_can_view_post_enforces_tier_in_the_loop_unchanged() {
+		list( $post_id, , $cheap_product_id ) = $this->set_up_two_tier_gated_post();
+
+		// Put the tier-gated post in the loop so get_the_ID() resolves it, then call with no id.
+		$GLOBALS['post'] = get_post( $post_id );
+
+		wp_set_current_user( 0 );
+		$this->set_returned_token( $this->tier_token_payload( $cheap_product_id ) );
+
+		// Precondition: we are in the loop and it resolves to the gated post.
+		$this->assertSame( $post_id, get_the_ID(), 'Precondition: the test must run inside the loop on the gated post.' );
+
+		$this->assertFalse(
+			Jetpack_Memberships::user_can_view_post(),
+			'A cheaper-tier subscriber must be denied a higher-tier post in the loop.'
+		);
+
+		unset( $GLOBALS['post'] );
+	}
+
+	/**
+	 * The shared block gate expands tiers for an explicit post, so a $50 subscriber passes a $5 gate.
+	 *
+	 * @return void
+	 */
+	public function test_visitor_can_access_plan_ids_expands_tiers_for_an_explicit_post() {
+		$cheap_product_id  = 6001;
+		$pricey_product_id = 6002;
+
+		$cheap_plan_id = $this->create_tier_plan( $cheap_product_id, 5 );
+		$this->create_tier_plan( $pricey_product_id, 50 );
+
+		$post_id = $this->factory->post->create();
+
+		// The out-of-loop case the extraction exists for: no loop post to fall back on.
+		wp_set_current_user( 0 );
+		unset( $GLOBALS['post'] );
+		$this->assertFalse( get_the_ID(), 'Precondition: the test must run outside the loop.' );
+
+		$this->set_returned_token( $this->tier_token_payload( $pricey_product_id ) );
+
+		$this->assertTrue(
+			visitor_can_access_plan_ids( array( $cheap_plan_id ), $post_id ),
+			'A subscriber on the pricier tier must be granted content gated to the cheaper tier, as they are on the page itself.'
+		);
+	}
+
+	/**
+	 * Tier expansion still denies a cheaper tier content gated to a pricier one.
+	 *
+	 * @return void
+	 */
+	public function test_visitor_can_access_plan_ids_still_denies_a_cheaper_tier() {
+		$cheap_product_id  = 6003;
+		$pricey_product_id = 6004;
+
+		$this->create_tier_plan( $cheap_product_id, 5 );
+		$pricey_plan_id = $this->create_tier_plan( $pricey_product_id, 50 );
+
+		$post_id = $this->factory->post->create();
+
+		wp_set_current_user( 0 );
+		unset( $GLOBALS['post'] );
+
+		$this->set_returned_token( $this->tier_token_payload( $cheap_product_id ) );
+
+		$this->assertFalse(
+			visitor_can_access_plan_ids( array( $pricey_plan_id ), $post_id ),
+			'A subscriber on the cheaper tier must not reach content gated to a pricier tier.'
+		);
+	}
+
+	/**
+	 * @dataProvider subscription_editor_capabilities
+	 * @param bool $can_read Whether the editor has the read capability.
+	 */
+	#[DataProvider( 'subscription_editor_capabilities' )]
+	public function test_subscription_access_does_not_inherit_editor_preview( $can_read ) {
+		$post_id = $this->create_subscription_editor_post( $can_read );
+		$service = new Test_Jetpack_Token_Subscription_Service();
+		$level   = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+
+		$this->assertTrue( $service->visitor_can_view_content( array( 9999 ), $level, $post_id ) );
+		$this->assertFalse( $service->visitor_has_subscription_access( array( 9999 ), $level, $post_id ) );
+		$this->assertTrue( $service->visitor_can_view_content( array( 9999 ), $level, $post_id ) );
+	}
+
+	/**
+	 * @dataProvider subscription_editor_capabilities
+	 * @param bool $can_read Whether the editor has the read capability.
+	 */
+	#[DataProvider( 'subscription_editor_capabilities' )]
+	public function test_subscription_access_does_not_reuse_cached_editor_membership_grant( $can_read ) {
+		$post_id = $this->create_subscription_editor_post( $can_read );
+		$plan_id = $this->create_tier_plan( 7001, 5 );
+		update_post_meta( $post_id, Jetpack_Memberships::$post_access_level_meta_name, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+		update_post_meta( $post_id, Jetpack_Memberships::$post_access_tier_meta_name, $plan_id );
+
+		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+		$this->assertFalse( Jetpack_Memberships::user_has_subscription_access( $post_id ) );
+		$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+	}
+
+	/**
+	 * @dataProvider subscription_editor_plan_cases
+	 * @param bool $can_read Whether the editor has the read capability.
+	 * @param bool $is_tier Whether the block uses a newsletter tier.
+	 */
+	#[DataProvider( 'subscription_editor_plan_cases' )]
+	public function test_block_subscription_access_does_not_inherit_editor_preview( $can_read, $is_tier ) {
+		$post_id = $this->create_subscription_editor_post( $can_read );
+		$plan_id = $is_tier ? $this->create_tier_plan( 7002, 5 ) : $this->create_subscription_plan( 7002 );
+
+		$GLOBALS['post'] = get_post( $post_id );
+		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertFalse( visitor_has_subscription_access_to_plan_ids( array( $plan_id ), $post_id ) );
+		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		unset( $GLOBALS['post'] );
+	}
+
+	public function test_subscription_access_preserves_paid_tier_expansion_and_exact_plans() {
+		$post_id = $this->create_subscription_editor_post( true );
+		$cheap   = $this->create_tier_plan( 7003, 5 );
+		$pricey  = $this->create_tier_plan( 7004, 50 );
+		$regular = $this->create_subscription_plan( 7005 );
+
+		$this->set_returned_token( $this->tier_token_payload( 7004 ) );
+		$this->assertTrue( visitor_has_subscription_access_to_plan_ids( array( $cheap ), $post_id ) );
+		$this->assertTrue( visitor_has_subscription_access_to_plan_ids( array( $pricey ), $post_id ) );
+		$this->assertFalse( visitor_has_subscription_access_to_plan_ids( array( $regular ), $post_id ) );
+
+		$this->set_returned_token( $this->tier_token_payload( 7003 ) );
+		$this->assertFalse( visitor_has_subscription_access_to_plan_ids( array( $pricey ), $post_id ) );
+
+		$this->set_returned_token( $this->tier_token_payload( 7005 ) );
+		$this->assertTrue( visitor_has_subscription_access_to_plan_ids( array( $regular ), $post_id ) );
+	}
+
+	public function test_membership_subscription_access_grants_a_matching_paid_subscriber() {
+		$plan_id = $this->create_tier_plan( 7007, 50 );
+		$post_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+		update_post_meta( $post_id, Jetpack_Memberships::$post_access_level_meta_name, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+		update_post_meta( $post_id, Jetpack_Memberships::$post_access_tier_meta_name, $plan_id );
+		wp_set_current_user( 0 );
+		unset( $GLOBALS['post'] );
+		$this->set_returned_token( $this->tier_token_payload( 7007 ) );
+
+		$this->assertTrue( Jetpack_Memberships::user_has_subscription_access( $post_id ) );
+	}
+
+	public function test_subscription_access_restores_editor_preview_after_an_exception() {
+		$post_id  = $this->create_subscription_editor_post( true );
+		$service  = new Test_Jetpack_Token_Subscription_Service();
+		$level    = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+		$expected = new RuntimeException( 'Subscription observer failed.' );
+		$throw    = /** @return never */ static function () use ( $expected ) {
+			throw $expected;
+		};
+		add_action( 'earn_user_has_access', $throw );
+		try {
+			$service->visitor_has_subscription_access( array( 9999 ), $level, $post_id );
+			$this->fail( 'The subscription observer should throw.' );
+		} catch ( RuntimeException $error ) {
+			$this->assertSame( $expected, $error );
+		} finally {
+			remove_action( 'earn_user_has_access', $throw );
+		}
+
+		$this->assertTrue( $service->visitor_can_view_content( array( 9999 ), $level, $post_id ) );
+	}
+
+	public function test_online_subscription_access_does_not_inherit_editor_preview() {
+		$post_id = $this->create_subscription_editor_post( true );
+		$service = new class() extends WPCOM_Online_Subscription_Service {
+			public function is_current_user_subscribed(): bool {
+				return false;
+			}
+		};
+		$level   = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+		add_filter( 'earn_get_user_subscriptions_for_site_id', '__return_empty_array', PHP_INT_MAX );
+
+		$this->assertTrue( $service->visitor_can_view_content( array( 9999 ), $level, $post_id ) );
+		$this->assertFalse( $service->visitor_has_subscription_access( array( 9999 ), $level, $post_id ) );
+		$this->assertTrue( $service->visitor_can_view_content( array( 9999 ), $level, $post_id ) );
+	}
+
+	public function test_legacy_subscription_service_still_renders_but_cannot_grant_playback() {
+		$plan_id = $this->create_subscription_plan( 7008 );
+		$service = new class() implements Subscription_Service_Interface {
+			/** @var int */
+			public $view_calls = 0;
+
+			public static function available() {
+				return true;
+			}
+
+			public function initialize() {}
+
+			public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+				++$this->view_calls;
+				return ! empty( $valid_plan_ids ) && 'paid_subscribers' === $access_level;
+			}
+
+			public function is_current_user_pending_subscriber(): bool {
+				return false;
+			}
+
+			public function access_url( $mode = 'subscribe' ) {
+				return '#' . $mode;
+			}
+		};
+		add_filter(
+			PAYWALL_FILTER,
+			static function () use ( $service ) {
+				return $service;
+			},
+			PHP_INT_MAX
+		);
+		// The factory warns about external implementers even though it returns their service.
+		$this->setExpectedIncorrectUsage( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\subscription_service' );
+		wp_set_current_user( 0 );
+		$post_id         = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+		$GLOBALS['post'] = get_post( $post_id );
+
+		$this->assertTrue( visitor_can_access_plan_ids( array( $plan_id ), $post_id ) );
+		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
+		$this->assertSame( 2, $service->view_calls );
+		$this->assertFalse( visitor_has_subscription_access_to_plan_ids( array( $plan_id ), $post_id ) );
+		$this->assertSame( 2, $service->view_calls, 'Playback does not use the rendering check.' );
+		unset( $GLOBALS['post'] );
+	}
+
+	/**
+	 * @dataProvider videopress_editor_gate_cases
+	 * @param bool   $can_read Whether the editor has the read capability.
+	 * @param string $gate Post, block, or empty block restriction.
+	 */
+	#[DataProvider( 'videopress_editor_gate_cases' )]
+	public function test_videopress_denies_unpaid_embedding_post_editors( $can_read, $gate ) {
+		$post_id = $this->create_subscription_editor_post( $can_read );
+		$guid    = 'EdIt7001';
+		$plan_id = $this->create_tier_plan( 7006, 5 );
+		$this->create_unreadable_private_video( $guid );
+		$content = '<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->';
+		if ( 'post' === $gate ) {
+			update_post_meta( $post_id, Jetpack_Memberships::$post_access_level_meta_name, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+			update_post_meta( $post_id, Jetpack_Memberships::$post_access_tier_meta_name, $plan_id );
+			$this->assertTrue( Jetpack_Memberships::user_can_view_post( $post_id ) );
+		} else {
+			$attributes = 'block' === $gate ? wp_json_encode( array( 'selectedPlanIds' => array( $plan_id ) ), JSON_UNESCAPED_SLASHES ) : '{}';
+			$content    = '<!-- wp:premium-content/container ' . $attributes . ' -->'
+				. '<!-- wp:premium-content/subscriber-view -->' . $content . '<!-- /wp:premium-content/subscriber-view -->'
+				. '<!-- /wp:premium-content/container -->';
+		}
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => wp_slash( $content ),
+			)
+		);
+		delete_transient( 'videopress_guids_' . $post_id );
+		$this->assertContains( $guid, Access_Control::build_and_cache_post_guids( $post_id ) );
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_videopress_subscriptions' ) );
+		try {
+			foreach ( array( 0, 1, $plan_id ) as $submitted_plan ) {
+				$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $post_id, $submitted_plan ) );
+			}
+		} finally {
+			remove_filter( 'jetpack_active_modules', array( $this, 'activate_videopress_subscriptions' ) );
+		}
+	}
+
+	/** @return array */
+	public static function subscription_editor_capabilities() {
+		return array(
+			'without read' => array( false ),
+			'with read'    => array( true ),
+		);
+	}
+
+	/** @return array */
+	public static function subscription_editor_plan_cases() {
+		return array(
+			'tier without read'     => array( false, true ),
+			'tier with read'        => array( true, true ),
+			'non-tier without read' => array( false, false ),
+			'non-tier with read'    => array( true, false ),
+		);
+	}
+
+	/** @return array */
+	public static function videopress_editor_gate_cases() {
+		return array(
+			'post without read'        => array( false, 'post' ),
+			'post with read'           => array( true, 'post' ),
+			'block without read'       => array( false, 'block' ),
+			'block with read'          => array( true, 'block' ),
+			'empty block without read' => array( false, 'empty' ),
+			'empty block with read'    => array( true, 'empty' ),
+		);
+	}
+
+	/**
+	 * @param array $modules Active modules.
+	 * @return array
+	 */
+	public function activate_videopress_subscriptions( $modules ) {
+		$modules[] = 'subscriptions';
+		return $modules;
+	}
+
+	/**
+	 * @param bool $can_read Whether the editor has the read capability.
+	 * @return int
+	 */
+	private function create_subscription_editor_post( $can_read ) {
+		unset( $_GET['token'], $_COOKIE['wp-jp-premium-content-session'], $GLOBALS['post'] );
+		$user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$user    = get_userdata( $user_id );
+		$user->add_cap( 'publish_posts' );
+		$user->add_cap( 'edit_published_posts' );
+		$user->add_cap( 'read', $can_read );
+		wp_set_current_user( $user_id );
+		$post_id = self::factory()->post->create(
+			array(
+				'post_author' => $user_id,
+				'post_status' => 'publish',
+			)
+		);
+		$this->assertTrue( current_user_can( 'edit_post', $post_id ) );
+		$this->assertSame( $can_read, current_user_can( 'read_post', $post_id ) );
+		$this->assertFalse( current_user_can( 'upload_files' ) );
+		return $post_id;
+	}
+
+	/**
+	 * @param int $product_id The product identifier.
+	 * @return int
+	 */
+	private function create_subscription_plan( $product_id ) {
+		$plan_id = self::factory()->post->create( array( 'post_type' => Jetpack_Memberships::$post_type_plan ) );
+		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $product_id );
+		return $plan_id;
+	}
+
+	/**
+	 * @param string $guid Video identifier.
+	 */
+	private function create_unreadable_private_video( $guid ) {
+		$owner_id  = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$parent_id = self::factory()->post->create(
+			array(
+				'post_author' => $owner_id,
+				'post_status' => 'private',
+			)
+		);
+		$video_id  = self::factory()->post->create(
+			array(
+				'post_author'    => $owner_id,
+				'post_parent'    => $parent_id,
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $video_id, 'videopress_guid', $guid );
+		wp_update_attachment_metadata( $video_id, array( 'videopress' => array( 'privacy_setting' => VIDEOPRESS_PRIVACY::IS_PRIVATE ) ) );
+		$this->assertFalse( current_user_can( 'read_post', $video_id ) );
 	}
 }
