@@ -330,8 +330,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => false,
+				'with_date_comparison'         => false,
+				'with_header_date_control'     => false,
+				'with_header_interval_control' => true,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -350,8 +351,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => true,
-				'with_header_date_control' => false,
+				'with_date_comparison'         => true,
+				'with_header_date_control'     => false,
+				'with_header_interval_control' => true,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -419,20 +421,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$section = new Dashboard_Section(
 			'example_dashboard',
 			'example/insights',
-			array( 'date_filter_options' => array( 'with_date_comparison' => false ) )
+			array(
+				'date_filter_options' => array(
+					'with_date_comparison'         => false,
+					'with_header_interval_control' => false,
+				),
+			)
 		);
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => false,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => false,
 			),
 			$section->date_filter_options
 		);
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => false,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => false,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -455,8 +464,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => true,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => true,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => true,
 			),
 			$section->date_filter_options
 		);
@@ -470,8 +480,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => true,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => true,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => true,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -492,20 +503,24 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'traffic'     => array(
-					'with_date_comparison'     => true,
-					'with_header_date_control' => true,
+					'with_date_comparison'         => true,
+					'with_header_date_control'     => true,
+					'with_header_interval_control' => false,
 				),
 				'insights'    => array(
-					'with_date_comparison'     => false,
-					'with_header_date_control' => false,
+					'with_date_comparison'         => false,
+					'with_header_date_control'     => false,
+					'with_header_interval_control' => true,
 				),
 				'subscribers' => array(
-					'with_date_comparison'     => false,
-					'with_header_date_control' => false,
+					'with_date_comparison'         => false,
+					'with_header_date_control'     => false,
+					'with_header_interval_control' => true,
 				),
 				'store'       => array(
-					'with_date_comparison'     => true,
-					'with_header_date_control' => true,
+					'with_date_comparison'         => true,
+					'with_header_date_control'     => true,
+					'with_header_interval_control' => true,
 				),
 			),
 			array_column(
@@ -610,7 +625,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );
 		$this->assertSame(
-			array( 'with_date_comparison', 'with_header_date_control' ),
+			array( 'with_date_comparison', 'with_header_date_control', 'with_header_interval_control' ),
 			array_keys( $schema['properties']['date_filter_options']['properties'] )
 		);
 		$this->assertTrue(
@@ -618,6 +633,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		$this->assertTrue(
 			$schema['properties']['date_filter_options']['properties']['with_header_date_control']['default']
+		);
+		$this->assertTrue(
+			$schema['properties']['date_filter_options']['properties']['with_header_interval_control']['default']
 		);
 	}
 
@@ -845,8 +863,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
@@ -967,8 +986,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => false,
 					),
 					'requires_sync'       => false,
 				),
@@ -980,8 +1000,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 20,
 					'date_filter'         => 'year',
 					'date_filter_options' => array(
-						'with_date_comparison'     => false,
-						'with_header_date_control' => false,
+						'with_date_comparison'         => false,
+						'with_header_date_control'     => false,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 				),
@@ -993,8 +1014,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 30,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => false,
-						'with_header_date_control' => false,
+						'with_date_comparison'         => false,
+						'with_header_date_control'     => false,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 				),
@@ -1666,8 +1688,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
@@ -1680,8 +1703,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 20,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
@@ -1762,8 +1786,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(

@@ -169,18 +169,32 @@ describe( 'TrafficChart inherited Stats v1 choice', () => {
 } );
 
 describe( 'TrafficChart bucket size', () => {
-	it.each( [ 'hour', 'day', 'week', 'month' ] )( 'follows the page interval: %s', interval => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
+	// Each range would default to the finer bucket, so the saved one decides.
+	it.each( [
+		[ 'week', 'day' ],
+		[ 'month', 'week' ],
+	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
+		render(
+			<TrafficChartRender attributes={ { reportParams: reportParams( range ), chartInterval } } />
+		);
 
-		expect( requestedBucket() ).toBe( interval );
+		expect( requestedBucket() ).toBe( chartInterval );
 	} );
 
-	// `year` is the only interval the dashboard still offers that this chart has
-	// no bucket for, so it is what reaches the clamp to the coarsest offered.
-	it( 'resolves a page interval this chart cannot draw to one it can', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
+	it( 'draws the bucket the range suggests when none is saved', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'month' ) } } /> );
 
 		expect( requestedBucket() ).toBe( 'month' );
+	} );
+
+	it( 'clamps a saved bucket the range rules out', () => {
+		render(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'hour' ), chartInterval: 'week' } }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'hour' );
 	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
@@ -238,11 +252,8 @@ describe( 'TrafficChart drill-down', () => {
 			<ReportScopeProvider openPeriod={ openPeriod }>
 				<TrafficChartRender
 					attributes={ {
-						reportParams: {
-							from: '2026-02-10',
-							to: '2026-06-30',
-							interval: 'month',
-						} as ReportParams,
+						reportParams: { from: '2026-02-10', to: '2026-06-30' } as ReportParams,
+						chartInterval: 'month',
 					} }
 				/>
 			</ReportScopeProvider>

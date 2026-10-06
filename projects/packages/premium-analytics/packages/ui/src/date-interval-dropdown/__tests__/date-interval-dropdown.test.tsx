@@ -27,6 +27,21 @@ describe( 'DateIntervalDropdown', () => {
 		expect( onChange ).toHaveBeenCalledWith( 'week' );
 	} );
 
+	it( 'closes without reporting a pick of the active bucket', async () => {
+		const onChange = jest.fn();
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ onChange } />
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'By days' } ) );
+
+		expect( onChange ).not.toHaveBeenCalled();
+		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+	} );
+
 	describe( 'opening focus', () => {
 		beforeEach( () => jest.useFakeTimers() );
 		afterEach( () => jest.useRealTimers() );
@@ -115,5 +130,39 @@ describe( 'DateIntervalDropdown', () => {
 		await user.keyboard( '{ArrowDown}' );
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
+	} );
+
+	describe( 'with a label', () => {
+		it( 'names the active bucket on the trigger and reports the pick', async () => {
+			const onChange = jest.fn();
+			const user = userEvent.setup();
+
+			render(
+				<DateIntervalDropdown
+					options={ [ 'day', 'week' ] }
+					value="day"
+					withLabel
+					onChange={ onChange }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) );
+
+			expect( onChange ).toHaveBeenCalledWith( 'week' );
+		} );
+
+		it( 'shows a lone bucket without a menu that has nothing to choose', () => {
+			render(
+				<DateIntervalDropdown
+					options={ [ 'hour' ] }
+					value="hour"
+					withLabel
+					onChange={ jest.fn() }
+				/>
+			);
+
+			expect( screen.getByRole( 'button', { name: 'Chart interval: By hours' } ) ).toBeDisabled();
+		} );
 	} );
 } );

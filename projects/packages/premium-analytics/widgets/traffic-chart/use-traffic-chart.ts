@@ -25,8 +25,7 @@ import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widge
 
 /**
  * Bucket size the chart draws. Sent to the visits endpoint as its `unit`; which
- * one applies comes from the dashboard's interval control, along with the range
- * and comparison.
+ * one applies comes from the widget's own interval control, clamped to the range.
  */
 export type TrafficPeriod = TrafficChartGranularity;
 
