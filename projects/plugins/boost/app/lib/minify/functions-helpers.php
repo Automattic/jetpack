@@ -439,7 +439,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	// Absolute paths should dump the path component of siteurl.
 	if ( str_starts_with( $path, '/' ) ) {
 		$parts   = wp_parse_url( $siteurl );
-		$siteurl = $parts['scheme'] . '://' . $parts['host'];
+		$siteurl = $parts['scheme'] . '://' . $parts['host'] . ( isset( $parts['port'] ) ? ':' . $parts['port'] : '' );
 	}
 
 	$url = $siteurl . $path;
