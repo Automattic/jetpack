@@ -26,15 +26,19 @@ export default function ActivityDetail( { item }: Props ) {
 						{ item.title }
 					</Text>
 					<Text variant="body-sm" className="jpb-text-muted">
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: %1$s formatted date+time, %2$s actor name */
-								__( '%1$s · By %2$s', 'jetpack-backup-pkg' ),
-								dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ),
-								'<Actor />'
-							),
-							{ Actor: <bdi>{ item.actor.name }</bdi> }
-						) }
+						<Stack direction="row" gap="lg" wrap="wrap">
+							<span>{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }</span>
+							<span>
+								{ createInterpolateElement(
+									sprintf(
+										/* translators: %s: actor name */
+										__( 'By %s', 'jetpack-backup-pkg' ),
+										'<Actor />'
+									),
+									{ Actor: <bdi>{ item.actor.name }</bdi> }
+								) }
+							</span>
+						</Stack>
 					</Text>
 					{ item.summary && <Text dir="auto">{ item.summary }</Text> }
 				</Stack>

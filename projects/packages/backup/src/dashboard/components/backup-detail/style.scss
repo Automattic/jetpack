@@ -1,6 +1,7 @@
 .jpb-backup-detail {
 
 	&__header {
+		padding-block: 23px;
 		// Card.Header doesn't ship its own separator; add one so the
 		// header row and the body content read as distinct sections.
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
@@ -62,11 +63,11 @@
 		display: inline-flex;
 		gap: 6px;
 		align-items: center;
-		padding: 6px 12px;
+		padding: 10px 12px;
 		border-radius: 2px;
 		background-color: var(--wp-admin-theme-color, #007cba);
-		font-size: 13px;
-		line-height: 1.4;
+		font-size: 14px;
+		line-height: 20px;
 		text-decoration: none;
 
 		// wp-admin's global `a { color: #2271b1 }` is unlayered and wins
@@ -95,7 +96,38 @@
 		}
 	}
 
-	&__stats {
-		font-weight: 600;
+	h2.jpb-backup-detail__title {
+		font-size: var(--wpds-typography-font-size-xl);
+		font-weight: var(--wpds-typography-font-weight-default);
+		line-height: 32px;
+	}
+
+	&__by {
+		display: flex;
+		flex-wrap: wrap;
+		column-gap: 16px;
+	}
+
+	// The select row's divider runs the card's full width, past the body padding.
+	.jpb-file-browser__selection {
+		margin-inline: calc(-1 * var(--wp-ui-card-padding, 24px));
+		padding-inline: var(--wp-ui-card-padding, 24px);
+	}
+
+	// Doubled selectors: the Card rules would otherwise win.
+	&.jpb-backup-detail {
+		border-radius: 12px;
+	}
+
+	.jpb-backup-detail__header {
+
+		@media (min-width: 600px) {
+			padding-inline: 32px 24px;
+		}
+	}
+
+	.jpb-backup-detail__header-actions {
+		flex-shrink: 1;
+		max-inline-size: 100%;
 	}
 }

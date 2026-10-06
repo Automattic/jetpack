@@ -244,7 +244,7 @@ describe( 'bidi isolation on names of unknown direction', () => {
 
 		expectBidiIsolated( BACKUP_ITEM.actor.name );
 		// Isolating the name must not cost the sentence built around it.
-		expect( container ).toHaveTextContent( `· By ${ BACKUP_ITEM.actor.name }` );
+		expect( container ).toHaveTextContent( `By ${ BACKUP_ITEM.actor.name }` );
 	} );
 
 	it( 'isolates the actor name on the non-backup detail pane', () => {
