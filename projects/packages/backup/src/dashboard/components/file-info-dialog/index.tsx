@@ -1,6 +1,6 @@
 import { useCallback, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, download as downloadIcon, page as fileIcon } from '@wordpress/icons';
+import { Icon, page as fileIcon } from '@wordpress/icons';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import useAdminMenuWidth from '../../hooks/use-admin-menu-width';
 import FileInfoMeta from '../file-info-card/file-info-meta';
@@ -90,7 +90,6 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 								onClick={ download }
 								disabled={ isDownloading }
 							>
-								<Button.Icon icon={ downloadIcon } />
 								{ __( 'Download file', 'jetpack-backup-pkg' ) }
 							</Button>
 							{ downloadFailed && (

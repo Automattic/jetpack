@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, closeSmall, download as downloadIcon, page as fileIcon } from '@wordpress/icons';
+import { Icon, closeSmall, page as fileIcon } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import FileInfoMeta from './file-info-meta';
 import PreviewBody from './preview-body';
@@ -77,7 +77,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				justify="space-between"
 				className="jpb-file-info-card__header"
 			>
-				<Text variant="heading-md" className="jpb-file-info-card__header-title" render={ <h3 /> }>
+				<Text variant="body-md" className="jpb-file-info-card__header-title" render={ <h3 /> }>
 					<Icon icon={ fileIcon } size={ 20 } className="jpb-file-info-card__header-icon" />
 					{ /* A filename is LTR data even on an RTL page. */ }
 					<span dir="ltr">{ file.name }</span>
@@ -93,49 +93,55 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					<Button.Icon icon={ closeSmall } />
 				</Button>
 			</Stack>
-			<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
-			{ canDownload && (
-				<Stack direction="column" gap="xs" align="start">
-					<Button variant="outline" size="compact" onClick={ download } disabled={ isDownloading }>
-						<Button.Icon icon={ downloadIcon } />
-						{ __( 'Download file', 'jetpack-backup-pkg' ) }
-					</Button>
-					{ downloadFailed && (
-						<Text variant="body-sm" className="jpb-text-muted" role="alert">
-							{ __( 'The download could not start. Try again.', 'jetpack-backup-pkg' ) }
-						</Text>
-					) }
-				</Stack>
-			) }
-			{ /*
-			 * A scroll container (`max-height: 320px; overflow: auto`) that
-			 * nothing can put focus in cannot be scrolled by keyboard at all —
-			 * the only focusable thing in this card is Close. `tabIndex={ 0 }`
-			 * makes it a stop; `role="region"` plus a name is what stops that
-			 * stop being an unlabelled mystery when it is reached.
-			 */ }
-			<div
-				ref={ previewRef }
-				className="jpb-file-info-card__preview"
-				tabIndex={ 0 }
-				role="region"
-				aria-busy={ contentsLoading }
-				aria-label={ sprintf(
-					/* translators: %s: file name. */
-					__( 'Preview of %s', 'jetpack-backup-pkg' ),
-					file.name
+			<div className="jpb-file-info-card__body">
+				<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
+				{ canDownload && (
+					<Stack direction="column" gap="xs" align="start">
+						<Button
+							variant="outline"
+							size="compact"
+							onClick={ download }
+							disabled={ isDownloading }
+						>
+							{ __( 'Download file', 'jetpack-backup-pkg' ) }
+						</Button>
+						{ downloadFailed && (
+							<Text variant="body-sm" className="jpb-text-muted" role="alert">
+								{ __( 'The download could not start. Try again.', 'jetpack-backup-pkg' ) }
+							</Text>
+						) }
+					</Stack>
 				) }
-			>
-				<PreviewBody
-					awaitingReveal={ awaitingReveal }
-					onReveal={ handleReveal }
-					showPreview={ showPreview }
-					isLoading={ contentsLoading }
-					content={ content }
-					isText={ isText }
-					truncated={ truncated }
-					error={ contentsError }
-				/>
+				{ /*
+				 * A scroll container (`max-height: 320px; overflow: auto`) that
+				 * nothing can put focus in cannot be scrolled by keyboard at all —
+				 * the only focusable thing in this card is Close. `tabIndex={ 0 }`
+				 * makes it a stop; `role="region"` plus a name is what stops that
+				 * stop being an unlabelled mystery when it is reached.
+				 */ }
+				<div
+					ref={ previewRef }
+					className="jpb-file-info-card__preview"
+					tabIndex={ 0 }
+					role="region"
+					aria-busy={ contentsLoading }
+					aria-label={ sprintf(
+						/* translators: %s: file name. */
+						__( 'Preview of %s', 'jetpack-backup-pkg' ),
+						file.name
+					) }
+				>
+					<PreviewBody
+						awaitingReveal={ awaitingReveal }
+						onReveal={ handleReveal }
+						showPreview={ showPreview }
+						isLoading={ contentsLoading }
+						content={ content }
+						isText={ isText }
+						truncated={ truncated }
+						error={ contentsError }
+					/>
+				</div>
 			</div>
 		</Card.Root>
 	);

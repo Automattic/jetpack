@@ -32,6 +32,13 @@
 		}
 	}
 
+	&__main {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
 	&__tree {
 		// `max-content` must be the track's base size, not its growth limit —
 		// a definite min like `minmax(100%, max-content)` caps at the scrollport.
@@ -47,11 +54,16 @@
 		align-items: center;
 		gap: 8px;
 		padding: 6px 8px;
+	}
 
-		&--open {
-			background-color: var(--wpds-color-background-surface-brand);
-			color: var(--wpds-color-foreground-interactive-brand);
-		}
+	// Tints the file button, not the row: the design leaves the checkbox clear.
+	&__row--open &__file {
+		flex: 1;
+		margin-block: -6px;
+		margin-inline: -8px;
+		padding-block: 6px;
+		padding-inline: 8px;
+		background-color: var(--wpds-color-background-surface-brand);
 	}
 
 	&__toggle,

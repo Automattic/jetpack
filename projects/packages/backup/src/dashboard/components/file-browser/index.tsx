@@ -500,40 +500,42 @@ export default function FileBrowser( {
 
 	return (
 		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
-			<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
-				<CheckboxControl
-					checked={ selected.size > 0 }
-					label={ sprintf(
-						/* translators: %d count of selected items (files + opaque folders) */
-						_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
-						selectedCount
-					) }
-					onChange={ toggleSelectAll }
-					__nextHasNoMarginBottom
-				/>
-			</Stack>
 			<div className={ layoutClassName }>
-				<div className="jpb-file-browser__tree">
-					{ rootsLoading && (
-						<div className="jpb-file-browser__loading">
-							<Spinner />
-						</div>
-					) }
-					{ ! rootsLoading &&
-						roots.map( node => (
-							<NodeRow
-								key={ node.path }
-								node={ node }
-								depth={ 0 }
-								openPath={ openFile?.manifestPath }
-								ancestorSelected={ false }
-								rewindId={ rewindId }
-								selection={ selection }
-								onToggle={ toggleAt }
-								onOpenFile={ openInfoCard }
-								onRegisterChildren={ registerChildren }
-							/>
-						) ) }
+				<div className="jpb-file-browser__main">
+					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
+						<CheckboxControl
+							checked={ selected.size > 0 }
+							label={ sprintf(
+								/* translators: %d count of selected items (files + opaque folders) */
+								_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
+								selectedCount
+							) }
+							onChange={ toggleSelectAll }
+							__nextHasNoMarginBottom
+						/>
+					</Stack>
+					<div className="jpb-file-browser__tree">
+						{ rootsLoading && (
+							<div className="jpb-file-browser__loading">
+								<Spinner />
+							</div>
+						) }
+						{ ! rootsLoading &&
+							roots.map( node => (
+								<NodeRow
+									key={ node.path }
+									node={ node }
+									depth={ 0 }
+									openPath={ openFile?.manifestPath }
+									ancestorSelected={ false }
+									rewindId={ rewindId }
+									selection={ selection }
+									onToggle={ toggleAt }
+									onOpenFile={ openInfoCard }
+									onRegisterChildren={ registerChildren }
+								/>
+							) ) }
+					</div>
 				</div>
 				{ openFile && ! isNarrow && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
 			</div>
