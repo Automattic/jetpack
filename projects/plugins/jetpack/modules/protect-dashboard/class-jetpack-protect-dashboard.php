@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Protect_Status\Plan;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -69,7 +70,17 @@ class Jetpack_Protect_Dashboard {
 	 * @return void
 	 */
 	public static function register_section( Jetpack_Protect_Dashboard_Section $section ) {
-		self::$sections[ $section->get_key() ] = $section;
+		$key = $section->get_key();
+		if ( isset( self::$sections[ $key ] ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				/* translators: %s is a dashboard section key. */
+				esc_html( sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack' ), $key ) ),
+				'$$next-version$$'
+			);
+			return;
+		}
+		self::$sections[ $key ] = $section;
 	}
 
 	/**
@@ -103,6 +114,15 @@ class Jetpack_Protect_Dashboard {
 	 */
 	public static function can_manage() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Whether the site has a plan that includes Scan.
+	 *
+	 * @return bool
+	 */
+	public static function has_scan_plan() {
+		return class_exists( Plan::class ) && Plan::has_required_plan();
 	}
 
 	/**
@@ -168,9 +188,8 @@ class Jetpack_Protect_Dashboard {
 	public static function render() {
 		$render_fn = 'jetpack_plugin_' . str_replace( '-', '_', self::WP_BUILD_PAGE_ID ) . '_wp_admin_render_page';
 		if ( function_exists( $render_fn ) ) {
-			wp_print_inline_script_tag(
-				'window.jetpackProtectDashboard = ' . wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
-			);
+			$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+			wp_print_inline_script_tag( 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
 			$render_fn();
 			return;
 		}

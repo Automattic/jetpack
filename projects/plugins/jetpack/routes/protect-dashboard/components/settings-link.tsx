@@ -2,7 +2,10 @@ import { useCallback } from '@wordpress/element';
 import { Link } from '@wordpress/ui';
 import type { MouseEvent, ReactNode } from 'react';
 
-const SETTINGS_URL = 'admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings';
+/** Matches `Jetpack_Protect_Dashboard::MENU_SLUG`. */
+export const PROTECT_PAGE_SLUG = 'jetpack-protect';
+
+const SETTINGS_URL = `admin.php?page=${ PROTECT_PAGE_SLUG }&p=${ encodeURIComponent( '/?tab=settings' ) }`;
 
 /**
  * A link to the Settings tab that switches tabs in place, and still opens in a new tab when asked.

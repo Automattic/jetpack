@@ -50,12 +50,15 @@ class Jetpack_Protect_Dashboard_Threats {
 	/**
 	 * Shape a list of threats.
 	 *
-	 * @param iterable $threats Threats.
+	 * @param iterable $threats Threats, as an array or a Traversable.
 	 * @return array
 	 */
 	public static function format_all( $threats ) {
 		$formatted = array();
-		foreach ( (array) $threats as $threat ) {
+		if ( ! is_iterable( $threats ) ) {
+			return $formatted;
+		}
+		foreach ( $threats as $threat ) {
 			$formatted[] = self::format( $threat );
 		}
 		return $formatted;

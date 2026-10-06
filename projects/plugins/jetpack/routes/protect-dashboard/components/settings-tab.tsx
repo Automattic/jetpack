@@ -10,11 +10,11 @@ import type { DashboardContext } from '../sections/types';
  * @return The tab.
  */
 export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) {
-	const { settings, error, dismissError } = props.settings;
+	const { isLoaded, error, dismissError } = props.settings;
 	const state = window.jetpackProtectDashboard ?? {};
 	const cards = sections.filter( section => section.SettingsCard );
 
-	if ( ! settings ) {
+	if ( ! isLoaded ) {
 		return error ? (
 			<Notice.Root intent="error">
 				<Notice.Description>{ error }</Notice.Description>

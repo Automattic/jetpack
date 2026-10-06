@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
@@ -40,6 +40,13 @@ const Stage = () => {
 	);
 	const tabValues = [ 'overview', ...sectionTabs.map( tab => tab.value ), 'settings' ];
 	const activeTab = tabValues.includes( search.tab ?? '' ) ? ( search.tab as string ) : 'overview';
+	const { load } = settings;
+
+	useEffect( () => {
+		if ( activeTab === 'settings' ) {
+			load();
+		}
+	}, [ activeTab, load ] );
 
 	return (
 		<AdminPage

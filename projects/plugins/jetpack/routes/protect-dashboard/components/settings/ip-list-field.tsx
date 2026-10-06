@@ -44,7 +44,7 @@ export default function IpListField( { data, name, label, description, currentIp
 		[ currentIp ]
 	);
 
-	const hasIp = !! currentIp && draft.split( /\s+/ ).includes( currentIp );
+	const hasIp = !! currentIp && draft.split( /[\s,]+/ ).includes( currentIp );
 
 	return (
 		<Stack direction="column" gap="sm">
