@@ -40,6 +40,7 @@ describe( 'useGetPaidPlanNeedsPluginsContent', () => {
 				>[ 0 ][ 'alert' ],
 				planName: 'Jetpack Security',
 				planPurchaseId: '123',
+				numPluginsNeedingAction: needsActivated.length,
 			} )
 		).result.current;
 

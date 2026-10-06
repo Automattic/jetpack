@@ -12,14 +12,14 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 	alert,
 	planName,
 	planPurchaseId,
+	numPluginsNeedingAction,
 }: {
 	alert: NeedsPluginsAlert;
 	planName: string;
 	planPurchaseId: string;
+	numPluginsNeedingAction: number;
 } ) => {
 	const { needs_installed, needs_activated_only } = alert || {};
-	const numPluginsNeedingAction =
-		( needs_installed?.length ?? 0 ) + ( needs_activated_only?.length ?? 0 );
 
 	const { siteSuffix } = getMyJetpackWindowInitialState();
 

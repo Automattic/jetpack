@@ -59,8 +59,6 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 
 	const planName = planPurchase && planPurchase.product_name;
 	const { needs_installed, needs_activated_only } = alert || {};
-	const numPluginsNeedingAction =
-		( needs_installed?.length ?? 0 ) + ( needs_activated_only?.length ?? 0 );
 
 	const {
 		products: { items: products },
@@ -120,10 +118,13 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 		);
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
+	const numPluginsNeedingAction = pluginsList?.length ?? 0;
+
 	const { noticeTitle, noticeMessage, buttonLabel } = useGetPaidPlanNeedsPluginsContent( {
 		alert,
 		planName,
 		planPurchaseId: String( planPurchase?.ID ),
+		numPluginsNeedingAction,
 	} );
 
 	const prepareProductsArray = useCallback(
@@ -275,14 +276,24 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 					loadingText:
 						actionType === 'activate'
 							? sprintf(
-									/* translators: %s is the singular or plural "plugin" or "plugins". */
-									__( 'Activating %s…', 'jetpack-my-jetpack' ),
-									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
+									/* translators: %d is the number of plugins. */
+									_n(
+										'Activating %d plugin…',
+										'Activating %d plugins…',
+										numPluginsNeedingAction,
+										'jetpack-my-jetpack'
+									),
+									numPluginsNeedingAction
 								)
 							: sprintf(
-									/* translators: %s is the singular or plural "plugin" or "plugins". */
-									__( 'Installing and activating %s…', 'jetpack-my-jetpack' ),
-									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
+									/* translators: %d is the number of plugins. */
+									_n(
+										'Installing and activating %d plugin…',
+										'Installing and activating %d plugins…',
+										numPluginsNeedingAction,
+										'jetpack-my-jetpack'
+									),
+									numPluginsNeedingAction
 								),
 					noDefaultClasses: true,
 				},
