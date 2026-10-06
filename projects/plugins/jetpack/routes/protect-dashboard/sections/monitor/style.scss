@@ -1,0 +1,24 @@
+.jp-protect-uptime {
+	display: flex;
+	gap: 4px;
+	height: 40px;
+
+	&__bar {
+		flex: 1;
+		min-width: 2px;
+		border-radius: 2px;
+		background: #8c8f94;
+
+		&.is-up {
+			background: #008710;
+		}
+
+		&.is-down {
+			background: #d63638;
+		}
+	}
+
+	&__skeleton {
+		height: 40px;
+	}
+}
