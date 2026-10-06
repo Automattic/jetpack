@@ -54,6 +54,10 @@ export declare const PRESET_LAST_7_DAYS: string;
 export declare const PRESET_LAST_30_DAYS: string;
 export declare const PRESET_LAST_12_MONTHS: string;
 
+// Report queries. Runs a query and its comparison in the dashboard's query client, so a product
+// package builds its own report hooks on it and does not publish them here.
+export declare function useReport( ...args: any[] ): any;
+
 // Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
 // generic report hooks they are built on.
 export declare function useStatsWordAdsStats( ...args: any[] ): any;

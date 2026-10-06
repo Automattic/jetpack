@@ -25,6 +25,7 @@ export {
 export {
 	ReportScopeProvider,
 	chartInterval,
+	useReport,
 	useStatsVideoPlays,
 	useStatsWordAdsEarnings,
 	useStatsWordAdsStats,

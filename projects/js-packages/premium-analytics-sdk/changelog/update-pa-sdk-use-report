@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Declare `useReport`, which runs a report query and its comparison in the dashboard query client.
