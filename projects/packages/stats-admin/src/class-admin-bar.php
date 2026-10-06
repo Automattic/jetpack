@@ -96,7 +96,7 @@ class Admin_Bar {
 		$wp_admin_bar->add_menu(
 			array(
 				'id'    => 'stats',
-				'href'  => admin_url( 'admin.php?page=stats' ),
+				'href'  => self::get_dashboard_url(),
 				'title' => "<div><img fetchpriority='low' loading='lazy' decoding='async' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 			)
 		);
@@ -125,9 +125,29 @@ class Admin_Bar {
 				'parent' => 'site-name',
 				'id'     => 'jetpack-stats',
 				'title'  => __( 'Stats', 'jetpack-stats-admin' ),
-				'href'   => admin_url( 'admin.php?page=stats' ),
+				'href'   => self::get_dashboard_url(),
 			)
 		);
+	}
+
+	/**
+	 * Where the admin bar's Stats links go.
+	 *
+	 * @return string
+	 */
+	private static function get_dashboard_url() {
+		/**
+		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
+		 *
+		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
+		 * Return `$url` unchanged for a view the dashboard has no page for.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $url  The Stats URL.
+		 * @param array  $args The page the link opens.
+		 */
+		return apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) );
 	}
 
 	/**
