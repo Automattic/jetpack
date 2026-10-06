@@ -84,12 +84,6 @@ describe( 'videos fields', () => {
 		);
 	} );
 
-	it( 'leaves linking the poster to DataViews', () => {
-		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
-
-		expect( screen.queryByRole( 'link', { hidden: true } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'renders the placeholder for an unsafe poster URL', () => {
 		renderVideosField( 'poster', { ...video, poster: 'javascript:alert(1)' } );
 
@@ -129,12 +123,15 @@ describe( 'videos fields', () => {
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
-	it.each( [ undefined, 0, -3, 1.5, 'abc' ] )( 'does not make a row with ID %p clickable', id => {
-		expect( isVideoRowClickable( { ...video, id: id as never } ) ).toBe( false );
-	} );
-
-	it( 'makes a row with a positive integer ID clickable', () => {
-		expect( isVideoRowClickable( video ) ).toBe( true );
+	it.each( [
+		[ 12, true ],
+		[ undefined, false ],
+		[ 0, false ],
+		[ -3, false ],
+		[ 1.5, false ],
+		[ 'abc', false ],
+	] )( 'treats a row with ID %p as clickable: %p', ( id, expected ) => {
+		expect( isVideoRowClickable( { ...video, id: id as never } ) ).toBe( expected );
 	} );
 
 	it( 'keeps the external page link as the fallback for a row without an ID', () => {

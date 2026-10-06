@@ -74,13 +74,18 @@ describe( 'PostTitleLink', () => {
 } );
 
 describe( 'VideoTitleLink', () => {
-	it( 'renders custom content inside the detail link', () => {
+	it.each( [
+		[ 'detail link', { id: 12 } ],
+		[ 'external link', { link: 'https://example.com/launch/' } ],
+		[ 'plain wrapper', {} ],
+	] )( 'renders custom content in place of the label inside the %s', ( _branch, props ) => {
 		render(
-			<VideoTitleLink id={ 12 } label="Launch" search={ {} }>
+			<VideoTitleLink label="Launch" title="Launch" { ...props }>
 				<span>custom</span>
 			</VideoTitleLink>
 		);
 
-		expect( screen.getByRole( 'link' ) ).toContainElement( screen.getByText( 'custom' ) );
+		expect( screen.getByTitle( 'Launch' ) ).toContainElement( screen.getByText( 'custom' ) );
+		expect( screen.queryByText( 'Launch' ) ).not.toBeInTheDocument();
 	} );
 } );

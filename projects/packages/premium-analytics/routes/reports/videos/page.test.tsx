@@ -12,13 +12,20 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { getNoticeText } from '../../../tests/js/notice-test-utils';
-import { getVideosFields, useVideosReportRecords } from './config';
+import {
+	getVideosFields,
+	isVideoRowClickable,
+	renderVideoRowLink,
+	useVideosReportRecords,
+} from './config';
 import VideosReportPage from './page';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
 	getVideosFields: jest.fn( () => [] ),
+	isVideoRowClickable: jest.requireActual( './config' ).isVideoRowClickable,
+	renderVideoRowLink: jest.requireActual( './config' ).renderVideoRowLink,
 	useVideosReportRecords: jest.fn(),
 } ) );
 
@@ -104,7 +111,7 @@ describe( 'VideosReportPage', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'draws each video poster beside its title', () => {
+	it( 'draws each video poster beside its title, linked to the detail page', () => {
 		getVideosFieldsMock.mockImplementationOnce(
 			jest.requireActual< typeof import( './config' ) >( './config' ).getVideosFields
 		);
@@ -112,9 +119,12 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		const { initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		const { initialView, isItemClickable, renderItemLink } =
+			reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
 		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
 		expect( initialView.layout ).toMatchObject( { aspectRatio: '16/9' } );
+		expect( isItemClickable ).toBe( isVideoRowClickable );
+		expect( renderItemLink ).toBe( renderVideoRowLink );
 	} );
 
 	it( 'exports the report rows for the selected range', () => {
