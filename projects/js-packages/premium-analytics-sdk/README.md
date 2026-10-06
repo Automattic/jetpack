@@ -28,7 +28,7 @@ Product data hooks are the exception, and a provisional one: `useStatsVideoPlays
 
 ## Stability
 
-`src/index.d.ts` groups the names by what will happen to them. The widget shell, the kinds, the attribute fields, the report scope and `useReport` are the contract. The footer chrome goes when widgets declare their footer as actions the host renders. The chart pieces go when their kinds exist. The product data hooks go with their owners. `Badge` and `Stack` follow `@wordpress/ui`.
+`src/index.d.ts` groups the names by what will happen to them. The widget shell, the kinds, the attribute fields, the report scope, `useReport` and `toBucketStamp` are the contract. The footer chrome goes when widgets declare their footer as actions the host renders. The chart pieces go when their kinds exist. The product data hooks go with their owners. `Badge` and `Stack` follow `@wordpress/ui`.
 
 `WIDGET_API_VERSION` in the dashboard package records each addition: a consumer compares it before registering, and waits for the minor its imports need.
 

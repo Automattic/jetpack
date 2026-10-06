@@ -58,6 +58,10 @@ export declare const PRESET_LAST_12_MONTHS: string;
 // package builds its own report hooks on it and does not publish them here.
 export declare function useReport( ...args: any[] ): any;
 
+// Bucket bounds. Writes the start or end of a report row as the dashboard's time series read it:
+// the wall time in the report's zone, with no offset.
+export declare function toBucketStamp( raw: string | undefined, zone: string ): string;
+
 // Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
 // generic report hooks they are built on.
 export declare function useStatsWordAdsStats( ...args: any[] ): any;

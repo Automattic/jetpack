@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Widget SDK: Add `useReport`, so a package that extends the dashboard can run its own report queries in the dashboard query client.
+Widget SDK: Add `useReport` and `toBucketStamp`, so a package that extends the dashboard can run its own report queries and feed the dashboard time series.
