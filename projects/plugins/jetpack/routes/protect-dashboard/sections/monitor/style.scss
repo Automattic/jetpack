@@ -1,3 +1,6 @@
+$uptime-down: var(--wpds-color-stroke-surface-error-strong);
+$uptime-down-bg: var(--wpds-color-background-surface-error);
+
 .jp-protect-uptime {
 	display: flex;
 	align-items: flex-end;
@@ -19,8 +22,7 @@
 		// Stripes, so down days don't rely on colour alone.
 		&.is-down {
 			block-size: 100%;
-			background:
-				repeating-linear-gradient(45deg, var(--wpds-color-stroke-surface-error-strong) 0 3px, var(--wpds-color-background-surface-error) 3px 5px);
+			background: repeating-linear-gradient(45deg, $uptime-down 0 3px, $uptime-down-bg 3px 5px);
 		}
 	}
 
