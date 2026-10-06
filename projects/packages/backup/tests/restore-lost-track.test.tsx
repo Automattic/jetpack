@@ -151,6 +151,7 @@ describe( 'a restore that has gone out of sight', () => {
 		await startRestore();
 		await findMessage();
 
+		expect( screen.getAllByText( /We've lost track of this restore/ ) ).not.toHaveLength( 0 );
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -177,6 +178,6 @@ describe( 'a restore that definitely is not running', () => {
 		// its text into the live region.
 		await expect( screen.findAllByText( 'Restore aborted.' ) ).resolves.not.toHaveLength( 0 );
 		expect( screen.getByRole( 'button', { name: /Try again/ } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Restore aborted.' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Restore failed.*Restore aborted\./ );
 	} );
 } );

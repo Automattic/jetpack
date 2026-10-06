@@ -462,7 +462,9 @@ describe( 'Download screen with a file selection', () => {
 		const link = await screen.findByRole( 'link', { name: 'Download file' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
 		expect( link ).toHaveAttribute( 'download' );
-		expect( screen.getByText( 'Your download is ready' ) ).toBeInTheDocument();
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			/^Your download is ready$/
+		);
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 

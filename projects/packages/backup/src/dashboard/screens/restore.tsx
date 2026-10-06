@@ -277,7 +277,7 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									{ __( 'Restore complete.', 'jetpack-backup-pkg' ) }
+									<span role="status">{ __( 'Restore complete.', 'jetpack-backup-pkg' ) }</span>
 								</EmptyState.Title>
 								<EmptyState.Actions>
 									<LinkButton variant="solid" render={ <Link to="/" /> }>
@@ -301,7 +301,9 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									{ __( 'Restore finished with errors', 'jetpack-backup-pkg' ) }
+									<span role="status">
+										{ __( 'Restore finished with errors', 'jetpack-backup-pkg' ) }
+									</span>
 								</EmptyState.Title>
 								<EmptyState.Description>
 									{ state.message ||
@@ -339,6 +341,7 @@ export default function RestoreScreen() {
 									</Text>
 								) }
 								<ProgressBar
+									className="jpb-restore__bar"
 									aria-label={ __( 'Checking whether your restore started', 'jetpack-backup-pkg' ) }
 								/>
 							</Stack>
@@ -380,16 +383,17 @@ export default function RestoreScreen() {
 						 * here and nowhere else.
 						 */ }
 						{ state.phase === 'error' && (
-							<EmptyState.Root className="jpb-restore__status">
+							<EmptyState.Root className="jpb-restore__status" role="alert">
 								<EmptyState.Visual>
 									<EmptyState.Icon
 										className="jpb-restore__badge jpb-restore__badge--error"
 										icon={ errorIcon }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title" role="alert">
-									{ state.message }
+								<EmptyState.Title className="jpb-restore__status-title">
+									{ __( 'Restore failed', 'jetpack-backup-pkg' ) }
 								</EmptyState.Title>
+								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ reset }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }

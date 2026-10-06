@@ -1,0 +1,99 @@
+// Card, header, body, status block, badge and bar shared by the download
+// and restore routes. Each route bundle inlines its own copy.
+@mixin backup-status-card($block) {
+	.#{$block} {
+		box-sizing: border-box;
+		max-inline-size: 708px;
+		margin-inline: auto;
+		padding: 24px;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		justify-content: center;
+		min-block-size: max(480px, calc(100vh - 250px));
+
+		&__back {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			text-decoration: none;
+			inline-size: max-content;
+		}
+
+		&__card {
+			inline-size: 100%;
+			border-radius: 12px;
+		}
+
+		&__header {
+			padding: 28px 32px;
+			border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		}
+
+		// Regular weight, as in the design; the Text variants default to bold.
+		&__header &__title {
+			font-weight: var(--wpds-typography-font-weight-default);
+		}
+
+		&__body {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			padding: 24px;
+		}
+
+		// `EmptyState.Root` caps its own width and ships `margin-inline: 0`.
+		&__status {
+			align-self: center;
+			gap: 8px;
+			max-inline-size: 100%;
+			inline-size: 100%;
+			padding-block: 8px 24px;
+		}
+
+		&__status &__status-title {
+			margin-block-start: 24px;
+			font-size: var(--wpds-typography-font-size-xl);
+			font-weight: var(--wpds-typography-font-weight-default);
+		}
+
+		// A 40px circle with a light tint and a small dark icon.
+		&__badge {
+			box-sizing: border-box;
+			inline-size: 40px;
+			block-size: 40px;
+			padding: 10px;
+			border-width: 0;
+			background-color: var(--wpds-color-background-surface-info-weak);
+			color: var(--wpds-color-foreground-content-neutral);
+
+			&--success {
+				background-color: var(--wpds-color-background-surface-success-weak);
+			}
+
+			&--error {
+				background-color: var(--wpds-color-background-surface-error-weak);
+				color: var(--wpds-color-foreground-content-error);
+			}
+
+			&--warning {
+				background-color: var(--wpds-color-background-surface-warning-weak);
+			}
+
+			svg {
+				fill: currentColor;
+			}
+		}
+
+		// A thin bar above the title, as in the design.
+		&__body &__bar {
+			// Colours the indicator and, at 10%, the track.
+			--wp-components-color-foreground: var(--wpds-color-background-interactive-brand-strong);
+			inline-size: 200px;
+			max-inline-size: 100%;
+			block-size: 2px;
+			margin-block: 20px 0;
+			text-align: start;
+		}
+	}
+}

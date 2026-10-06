@@ -32,8 +32,9 @@ const REWIND_ID = '1786663613.9425';
  *
  * @param progress - The `progress` field the status poll reports.
  * @param message  - The `message` field the status poll reports.
+ * @param status   - The `status` field the status poll reports.
  */
-function arrange( progress: number, message: string ) {
+function arrange( progress: number, message: string, status = 'running' ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string; method?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/site/capabilities' ) ) {
@@ -45,7 +46,7 @@ function arrange( progress: number, message: string ) {
 		if ( path.includes( '/status' ) ) {
 			return Promise.resolve( {
 				id: RESTORE_ID,
-				status: 'running',
+				status,
 				progress,
 				rewind_id: REWIND_ID,
 				error_code: '',
@@ -102,6 +103,20 @@ describe( 'the Restore screen during a running restore', () => {
 		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
 			/^Restoring from backup…$/
 		);
+	} );
+
+	// The bar's replacement is a fresh block, which a screen reader only
+	// announces if its title is a live region.
+	it.each( [
+		[ 'finished', /^Restore complete\.$/ ],
+		[ 'finished-with-errors', /^Restore finished with errors$/ ],
+	] )( 'announces the end of a restore that is %s', async ( status, title ) => {
+		arrange( 100, 'Done', status );
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent( title );
 	} );
 
 	// Both figures, so a hardcoded `0%` cannot pass: the preflight pins it at

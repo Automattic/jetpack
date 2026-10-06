@@ -210,7 +210,7 @@ describe( 'Restore screen — a restore already running', () => {
 
 		const view = within( renderScreen() );
 
-		await expect( view.findByText( outcome ) ).resolves.toBeInTheDocument();
+		await expect( view.findAllByText( outcome ) ).resolves.not.toHaveLength( 0 );
 		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
 	} );
 

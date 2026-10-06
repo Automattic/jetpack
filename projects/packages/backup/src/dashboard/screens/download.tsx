@@ -140,7 +140,7 @@ export default function DownloadScreen() {
 					<Card.Content className="jpb-download__body">
 						{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
 							<>
-								<Text>
+								<Text className="jpb-text-muted">
 									{ __(
 										'Choose the items you wish to include in the download:',
 										'jetpack-backup-pkg'
@@ -221,7 +221,9 @@ export default function DownloadScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-download__status-title">
-									{ __( 'Your download is ready', 'jetpack-backup-pkg' ) }
+									<span role="status">
+										{ __( 'Your download is ready', 'jetpack-backup-pkg' ) }
+									</span>
 								</EmptyState.Title>
 								{ /*
 								 * WPCOM signs the archive URL with an expiry. Saying
@@ -245,14 +247,14 @@ export default function DownloadScreen() {
 							</EmptyState.Root>
 						) }
 						{ state.phase === 'error' && (
-							<EmptyState.Root className="jpb-download__status">
+							<EmptyState.Root className="jpb-download__status" role="alert">
 								<EmptyState.Visual>
 									<EmptyState.Icon
 										className="jpb-download__badge jpb-download__badge--error"
 										icon={ errorIcon }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-download__status-title" role="alert">
+								<EmptyState.Title className="jpb-download__status-title">
 									{ __( 'Could not prepare the download', 'jetpack-backup-pkg' ) }
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
