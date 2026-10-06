@@ -28,7 +28,7 @@ class REST_Connector {
 	/**
 	 * Site record options left out of the site data REST response.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.1
 	 *
 	 * @var string[]
 	 */
@@ -1391,7 +1391,7 @@ class REST_Connector {
 	 * Works on a copy: a listener on 'jetpack_site_data_fetched', or any other internal
 	 * consumer holding the record, keeps seeing it whole.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.1
 	 *
 	 * @param object $site_data The decoded site record.
 	 * @return object The record to serve, with EXCLUDED_SITE_OPTIONS removed.
