@@ -70,20 +70,18 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 		[ onChange, value, item.key ]
 	);
 
-	const label = (
+	// As in the design, only a row with a description gets the bold name.
+	const label = item.description ? (
 		<>
-			<strong>{ item.label }</strong>
-			{ item.description && (
-				<span className="jpb-restore-checklist__desc">
-					{ ' ' }
-					{ sprintf(
-						/* translators: %s: short note about what the item covers, e.g. "includes pages and posts". */
-						__( '(%s)', 'jetpack-backup-pkg' ),
-						item.description
-					) }
-				</span>
+			<strong>{ item.label }</strong>{ ' ' }
+			{ sprintf(
+				/* translators: %s: short note about what the item covers, e.g. "includes pages and posts". */
+				__( '(%s)', 'jetpack-backup-pkg' ),
+				item.description
 			) }
 		</>
+	) : (
+		item.label
 	);
 
 	return (

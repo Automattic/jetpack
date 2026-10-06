@@ -1,7 +1,3 @@
 .jpb-restore-checklist {
-
-	// wp-admin's unlayered global `color` beats the layered WPDS token here.
-	&__desc {
-		color: var(--wp-components-color-foreground-muted, #757575);
-	}
+	row-gap: 20px;
 }

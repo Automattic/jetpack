@@ -127,10 +127,10 @@ export default function DownloadScreen() {
 						<Stack direction="row" gap="sm" align="center">
 							<Icon icon={ downloadIcon } />
 							<Stack direction="column" gap="xs">
-								<Text variant="heading-md" render={ <h2 /> }>
+								<Text variant="body-lg" className="jpb-download__title" render={ <h2 /> }>
 									{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 								</Text>
-								<Text variant="body-sm" className="jpb-text-muted">
+								<Text variant="body-md" className="jpb-text-muted">
 									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
 									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
 								</Text>
@@ -198,9 +198,6 @@ export default function DownloadScreen() {
 						 */ }
 						{ isPreparing && (
 							<EmptyState.Root className="jpb-download__status">
-								<EmptyState.Title>
-									<span role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</span>
-								</EmptyState.Title>
 								{ state.phase === 'progress' ? (
 									<ProgressBar
 										className="jpb-download__bar"
@@ -210,6 +207,9 @@ export default function DownloadScreen() {
 								) : (
 									<Spinner />
 								) }
+								<EmptyState.Title className="jpb-download__status-title">
+									<span role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</span>
+								</EmptyState.Title>
 							</EmptyState.Root>
 						) }
 						{ state.phase === 'success' && (
@@ -220,7 +220,7 @@ export default function DownloadScreen() {
 										icon={ check }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title>
+								<EmptyState.Title className="jpb-download__status-title">
 									{ __( 'Your download is ready', 'jetpack-backup-pkg' ) }
 								</EmptyState.Title>
 								{ /*
@@ -252,7 +252,10 @@ export default function DownloadScreen() {
 										icon={ errorIcon }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title role="alert">{ state.message }</EmptyState.Title>
+								<EmptyState.Title className="jpb-download__status-title" role="alert">
+									{ __( 'Could not prepare the download', 'jetpack-backup-pkg' ) }
+								</EmptyState.Title>
+								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ hasFileSelection ? handleRetry : reset }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }
