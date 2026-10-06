@@ -1,7 +1,7 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { SWITCHED_ON_STATUSES } from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import type { StateProducts } from '../../data/types';
 import type { ConnectionErrorSeverity } from '@automattic/jetpack-connection';
@@ -27,16 +27,6 @@ export type ConnectionErrorStanding = {
 	/** The package's headline for the error, shown in place of the card's own label. */
 	errorTitle: string;
 };
-
-// Statuses of a product that is switched on, whatever its plan or connection says.
-const SWITCHED_ON_STATUSES: string[] = [
-	PRODUCT_STATUSES.ACTIVE,
-	PRODUCT_STATUSES.CAN_UPGRADE,
-	PRODUCT_STATUSES.USER_CONNECTION_ERROR,
-	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
-	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
-	PRODUCT_STATUSES.EXPIRING_SOON,
-];
 
 /**
  * Whether anything switched on needs a WordPress.com account, not just the site connection.
