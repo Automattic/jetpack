@@ -59,7 +59,6 @@ const RECORDS_VIEW = {
 	titleField: 'label',
 	mediaField: 'poster',
 	layout: {
-		aspectRatio: '16/9' as const,
 		styles: {
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },

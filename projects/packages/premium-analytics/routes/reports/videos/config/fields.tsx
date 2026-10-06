@@ -157,7 +157,7 @@ export function getVideosFields(
 			enableHiding: false,
 			render: ( { item } ) => (
 				<ReportThumbnail
-					thumbnailUrl={ getVideoPosterUrl( item.poster, 114, 64 ) }
+					thumbnailUrl={ getVideoPosterUrl( item.poster, 64, 64 ) }
 					fallbackIcon={ videoIcon }
 				/>
 			),

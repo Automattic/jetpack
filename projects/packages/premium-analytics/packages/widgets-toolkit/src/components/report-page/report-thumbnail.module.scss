@@ -1,9 +1,7 @@
 .placeholder {
 	display: grid;
 	place-items: center;
-	inline-size: 100%;
-	block-size: 100%;
-	min-inline-size: var(--wpds-dimension-size-md);
-	min-block-size: var(--wpds-dimension-size-md);
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-md);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }

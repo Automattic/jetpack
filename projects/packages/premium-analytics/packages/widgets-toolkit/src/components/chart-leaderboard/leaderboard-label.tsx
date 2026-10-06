@@ -21,7 +21,6 @@ export type LeaderboardRowMedia =
 			kind: 'thumbnail';
 			url?: string;
 			alt: string;
-			aspectRatio?: '1/1' | '16/9';
 			/** Drawn in place of the grey placeholder when there is no image or it fails to load. */
 			fallbackIcon?: IconGlyph;
 	  }
@@ -77,7 +76,7 @@ function getMediaDetails(
 		case 'thumbnail':
 			return {
 				alt: media.alt,
-				className: media.aspectRatio === '16/9' ? styles.thumbnailWide : styles.thumbnail,
+				className: styles.thumbnail,
 				fallback: 'placeholder' as const,
 				url: media.url,
 			};

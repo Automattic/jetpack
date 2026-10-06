@@ -122,7 +122,6 @@ describe( 'VideosReportPage', () => {
 		const { initialView, isItemClickable, renderItemLink } =
 			reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
 		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
-		expect( initialView.layout ).toMatchObject( { aspectRatio: '16/9' } );
 		expect( isItemClickable ).toBe( isVideoRowClickable );
 		expect( renderItemLink ).toBe( renderVideoRowLink );
 	} );

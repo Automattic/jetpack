@@ -53,7 +53,6 @@ function toLeaderboardRow( row: VideoPlaysRow ): LeaderboardRowInput {
 			kind: 'thumbnail',
 			url: row.posterUrl,
 			alt: '',
-			aspectRatio: '16/9',
 			fallbackIcon: videoIcon,
 		},
 		action: { kind: 'videoLink', id: row.id, href: row.link },

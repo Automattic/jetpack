@@ -80,7 +80,7 @@ describe( 'videos fields', () => {
 
 		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toHaveAttribute(
 			'src',
-			'https://i0.wp.com/v/launch.jpg?resize=114%2C64'
+			'https://i0.wp.com/v/launch.jpg?resize=64%2C64'
 		);
 	} );
 

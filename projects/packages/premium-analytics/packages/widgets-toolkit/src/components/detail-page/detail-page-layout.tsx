@@ -18,7 +18,7 @@ export const DETAIL_HEADER_GLYPH_SIZE = 28;
 /** What a detail page hands the layout's header, owned by the header's own props. */
 export type DetailPageHeaderSlots = Pick<
 	SectionHeaderProps,
-	'visual' | 'visualAspectRatio' | 'title' | 'subTitle' | 'busy'
+	'visual' | 'title' | 'subTitle' | 'busy'
 >;
 
 export interface DetailPageLayoutProps {

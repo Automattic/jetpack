@@ -334,7 +334,6 @@ describe( 'video detail stage', () => {
 			'src',
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
 		);
-		expect( placeholderGlyph() ).not.toBeInTheDocument();
 
 		// A tokenless poster (private video) 404s; the broken image must swap
 		// itself for the video-glyph placeholder, keeping the image slot.

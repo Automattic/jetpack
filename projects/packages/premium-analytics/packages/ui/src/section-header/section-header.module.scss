@@ -11,13 +11,9 @@ $section-header-title-min-inline-size: 320px;
 $section-header-visual-size: 72px;
 $section-header-visual-gap: 20px;
 
-// The 16:9 visual keeps the square's height.
-$section-header-visual-wide-inline-size: 128px;
-
 // The visual widens the row by its own box and gap, so the two halves stop
 // fitting that much sooner.
 $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inline-size + $section-header-visual-size + $section-header-visual-gap;
-$section-header-visual-wide-stacked-max-inline-size: $section-header-stacked-max-inline-size + $section-header-visual-wide-inline-size + $section-header-visual-gap;
 
 // The scroll distance the condense runs over once the header pins. Tunable.
 $section-header-condense-distance: 40px;
@@ -110,14 +106,6 @@ $section-header-visual-condensed-size: 44px;
 		block-size: 100%;
 		object-fit: cover;
 		aspect-ratio: 1;
-	}
-}
-
-.visualWide {
-	inline-size: $section-header-visual-wide-inline-size;
-
-	img {
-		aspect-ratio: 16 / 9;
 	}
 }
 
@@ -267,10 +255,6 @@ $section-header-visual-condensed-size: 44px;
 			animation-range: exit;
 		}
 
-		.visualWide {
-			animation-name: condense-visual-wide;
-		}
-
 		.withVisual .text {
 			animation: condense-text linear both;
 			animation-timeline: --section-header-pin;
@@ -334,15 +318,6 @@ $section-header-visual-condensed-size: 44px;
 	}
 }
 
-@keyframes condense-visual-wide {
-
-	to {
-		inline-size: calc(#{$section-header-visual-condensed-size} * 16 / 9);
-		block-size: $section-header-visual-condensed-size;
-		margin-block: calc((#{$section-header-condensed-row-size} - #{$section-header-visual-condensed-size}) / 2);
-	}
-}
-
 @keyframes condense-text {
 
 	to {
@@ -364,16 +339,6 @@ $section-header-visual-condensed-size: 44px;
 
 	// The visual stays beside the title; only the controls take their own row.
 	.withVisual {
-		grid-template-columns: auto minmax(0, 1fr);
-		grid-template-areas: "visual text" "controls controls";
-
-		@include section-header-stacked;
-	}
-}
-
-@container (max-width: #{$section-header-visual-wide-stacked-max-inline-size}) {
-
-	.withWideVisual {
 		grid-template-columns: auto minmax(0, 1fr);
 		grid-template-areas: "visual text" "controls controls";
 

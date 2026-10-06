@@ -14,6 +14,7 @@ import { video } from '@wordpress/icons';
  */
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
+import styles from './video-header-slots.module.scss';
 import type { VideoSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
@@ -36,7 +37,12 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
 	const hidePoster = useCallback( () => setFailedPosterUrl( posterUrl ), [ posterUrl ] );
 
 	return posterUrl && posterUrl !== failedPosterUrl ? (
-		<img src={ posterUrl } alt="" onError={ hidePoster } />
+		<span className={ styles.poster }>
+			<img src={ posterUrl } alt="" onError={ hidePoster } />
+			<span className={ styles.playOverlay }>
+				<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
+			</span>
+		</span>
 	) : (
 		<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
 	);
@@ -64,7 +70,6 @@ export function videoHeaderSlots( {
 	if ( summary.isLoading ) {
 		return {
 			visual: glyph,
-			visualAspectRatio: '16/9',
 			busy: true,
 			title: (
 				<>
@@ -81,7 +86,6 @@ export function videoHeaderSlots( {
 	if ( summary.isError || summary.isNotFound ) {
 		return {
 			visual: glyph,
-			visualAspectRatio: '16/9',
 			title: summary.isNotFound
 				? __( 'Video not found', 'jetpack-premium-analytics-pkg' )
 				: __( 'Video unavailable', 'jetpack-premium-analytics-pkg' ),
@@ -104,7 +108,6 @@ export function videoHeaderSlots( {
 
 	return {
 		visual: <VideoPoster posterUrl={ summary.posterUrl } />,
-		visualAspectRatio: '16/9',
 		title: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
 		subTitle: subtitle || undefined,
 	};

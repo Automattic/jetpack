@@ -207,16 +207,16 @@ window from `useWidgetNavigationSearch()` and passes it as `search`.
 `LeaderboardRowMedia` provides six semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:
 
-| Kind        | Size                      | Missing or failed image behavior |
-| ----------- | ------------------------- | -------------------------------- |
-| `avatar`    | 20 × 20px                 | Placeholder                      |
-| `favicon`   | 16 × 16px                 | Hidden; always decorative        |
-| `flag`      | 28px wide                 | Placeholder; proportional height |
-| `thumbnail` | 28 × 28px (16:9: 37 × 21) | Placeholder                      |
-| `icon`      | 20 × 20px                 | No image; takes a glyph          |
-| `none`      | No media                  | Renders text only                |
+| Kind        | Size      | Missing or failed image behavior |
+| ----------- | --------- | -------------------------------- |
+| `avatar`    | 20 × 20px | Placeholder                      |
+| `favicon`   | 16 × 16px | Hidden; always decorative        |
+| `flag`      | 28px wide | Placeholder; proportional height |
+| `thumbnail` | 28 × 28px | Placeholder                      |
+| `icon`      | 20 × 20px | No image; takes a glyph          |
+| `none`      | No media  | Renders text only                |
 
-A `thumbnail` with `aspectRatio: '16/9'` is sized by width plus CSS `aspect-ratio`, like `flag`, because the dashboard shell's `img { height: auto }` overrides a fixed height. Pass `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', aspectRatio: '16/9', fallbackIcon: video }`.
+Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', fallbackIcon: video }`.
 
 `icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 

@@ -185,7 +185,6 @@ describe( 'buildLeaderboardRow', () => {
 				kind: 'thumbnail',
 				url: 'https://example.com/p.jpg',
 				alt: '',
-				aspectRatio: '16/9',
 			},
 			action: { kind: 'videoLink', id: 12, search: {} },
 		} );
