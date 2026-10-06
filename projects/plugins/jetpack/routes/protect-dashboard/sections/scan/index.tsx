@@ -1,7 +1,7 @@
 import ScanCard from './scan-card';
 import ScanSettingsCard from './settings-card';
-import type { DashboardContext, ProtectSection } from '../types';
-import type { ScanState } from './types';
+import type { ProtectSection } from '../types';
+import type { ScanContext, ScanState } from './types';
 
 /**
  * The Overview's Scan card, once PHP has printed the Scan state.
@@ -10,11 +10,11 @@ import type { ScanState } from './types';
  * @param props.state - The Scan section's state.
  * @return The card.
  */
-function ScanOverviewCard( { state }: DashboardContext ) {
-	return state ? <ScanCard scan={ state as ScanState } /> : null;
+function ScanOverviewCard( { state }: ScanContext ) {
+	return state ? <ScanCard scan={ state } /> : null;
 }
 
-const section: ProtectSection = {
+const section: ProtectSection< ScanState | undefined > = {
 	key: 'scan',
 	OverviewCard: ScanOverviewCard,
 	SettingsCard: ScanSettingsCard,

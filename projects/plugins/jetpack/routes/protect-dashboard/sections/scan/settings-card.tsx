@@ -2,8 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { bug } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
-import type { DashboardContext } from '../types';
-import type { ScanState } from './types';
+import type { ScanContext } from './types';
 
 /**
  * The Settings tab's Scan card: Scan has nothing to set here, so it explains and links out.
@@ -12,11 +11,10 @@ import type { ScanState } from './types';
  * @param props.state - The Scan section's state.
  * @return The card.
  */
-export default function ScanSettingsCard( { state }: DashboardContext ) {
-	if ( ! state ) {
+export default function ScanSettingsCard( { state: scan }: ScanContext ) {
+	if ( ! scan ) {
 		return null;
 	}
-	const scan = state as ScanState;
 
 	return (
 		<ProtectCard icon={ bug } title={ __( 'Scan', 'jetpack' ) }>
