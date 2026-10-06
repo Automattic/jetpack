@@ -65,7 +65,10 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flags.php';
 
-\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+// An older copy of the Newsletter package can be loaded while Jetpack is being updated.
+if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_feature_flags' ) ) {
+	\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+}
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
