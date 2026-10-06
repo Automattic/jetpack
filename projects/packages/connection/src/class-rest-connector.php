@@ -1101,7 +1101,7 @@ class REST_Connector {
 	 *
 	 * The claim is always for the signed-in user. A caller cannot name someone else.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -1130,7 +1130,7 @@ class REST_Connector {
 	 * long as it is on screen. One that flips to false between render and submit turns its own
 	 * link into a 403.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return true|WP_Error
 	 */
@@ -1160,7 +1160,7 @@ class REST_Connector {
 	/**
 	 * Release the protected owner for this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -1187,7 +1187,7 @@ class REST_Connector {
 	 * Deliberately not gated on `requires_protected_owner()`, unlike confirming: a consumer that
 	 * has stopped asking must not strand a site holding a lock it can no longer release.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return true|WP_Error
 	 */

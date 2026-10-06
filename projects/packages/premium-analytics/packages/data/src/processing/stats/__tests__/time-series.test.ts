@@ -88,6 +88,33 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
+	it( 'stamps weeks the requested range cuts through with the range edges', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'week',
+				fields: [ 'period', 'views' ],
+				data: [
+					[ '2025W12W29', 3 ],
+					[ '2026W01W05', 4 ],
+					[ '2026W10W05', 5 ],
+				],
+			},
+			{ start_date: '2026-01-01T00:00:00.000+01:00', date: '2026-10-07T23:59:59.999+02:00' }
+		);
+
+		expect( result.data.map( ( { date_start, date_end } ) => [ date_start, date_end ] ) ).toEqual( [
+			[ '2026-01-01T00:00:00', '2026-01-04T23:59:59' ],
+			[ '2026-01-05T00:00:00', '2026-01-11T23:59:59' ],
+			[ '2026-10-05T00:00:00', '2026-10-07T23:59:59' ],
+		] );
+		expect( result.summary ).toEqual(
+			expect.objectContaining( {
+				date_start: '2026-01-01T00:00:00',
+				date_end: '2026-10-07T23:59:59',
+			} )
+		);
+	} );
+
 	it( 'falls back to raw period strings for invalid ISO weeks', () => {
 		expect( sanitizeStatsTimeSeriesResponse( invalidWeekSubscribersFixture ).data[ 0 ] ).toEqual(
 			expect.objectContaining( {

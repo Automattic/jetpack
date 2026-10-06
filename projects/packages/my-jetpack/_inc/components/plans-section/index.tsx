@@ -177,6 +177,20 @@ const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 	);
 };
 
+/**
+ * Whether the Features tab would have anything under its Included in plan filter.
+ *
+ * Null while the tab is off, where the link lands on the Products tab instead and the
+ * purchase count is the only answer available.
+ *
+ * @return True, false, or null when the catalog is not on the page.
+ */
+function hasIncludedFeatures(): boolean | null {
+	const features = getMyJetpackWindowInitialState( 'mainFeatures' )?.features;
+
+	return Array.isArray( features ) ? features.some( feature => feature.included ) : null;
+}
+
 const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases } ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
@@ -229,6 +243,10 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
+	// A purchase is not the same thing as a covered feature: a domain or a free plan counts
+	// as one, and the list the link promises would then be empty.
+	const showIncludedFeatures = hasIncludedFeatures() ?? numberOfPurchases > 0;
+
 	return (
 		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
@@ -238,7 +256,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					</Link>
 				</li>
 			) }
-			{ numberOfPurchases > 0 && (
+			{ showIncludedFeatures && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }

@@ -1,17 +1,24 @@
 // `.surface` is the look alone, for a chart that positions the box itself.
+// The box carries the chart scope class inside TooltipTheme, so these roles
+// resolve for the dark tooltip theme, as in @wordpress/ui's Tooltip popup.
 .surface,
 .tooltip {
-	padding: var(--wpds-dimension-padding-sm);
-	// No WPDS token fits a translucent dark tooltip surface:
-	// bg-interactive-neutral-strong is opaque, and there is no
-	// white-on-dark content foreground token. The role carries the
-	// hardcoded translucent value as its fallback.
-	background-color: var(--a8c-charts-color-tooltip-surface, rgba(0, 0, 0, 0.85));
-	color: #fff;
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	background-color: var(--a8c-charts-color-surface);
+	color: var(--a8c-charts-color-label);
 	border-radius: var(--wpds-border-radius-md);
-	font-size: var(--wpds-typography-font-size-md);
+	font-family: var(--wpds-typography-font-family-body);
+	font-size: var(--wpds-typography-font-size-sm);
+	line-height: 1.4;
 	box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
 	pointer-events: none;
+	// Beats a host `max-width` on `.visx-tooltip`, even an `!important`
+	// one: WordPress.com's Help Center caps it at 150px.
+	min-width: fit-content;
+
+	@media (forced-colors: active) {
+		border: var(--wpds-border-width-xs) solid CanvasText;
+	}
 }
 
 .tooltip {

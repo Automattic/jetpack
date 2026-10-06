@@ -77,16 +77,15 @@ export {
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
-	computeCalendarHeatmapLayout,
 	fitWeekColumns,
-	type CalendarHeatmapLayout,
-	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export { compareOptionalNumbers } from './compare-optional-numbers';
 export {
 	formatEmailRate,
+	getClicksRateSignals,
 	getKnownEmailRate,
+	getOpensRateSignals,
 	isEmailRateKnown,
 	type EmailRateSignals,
 } from './format-email-rate';
@@ -105,8 +104,3 @@ export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipPointLabel } from './format-tooltip-point-label';
 export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';
-export {
-	buildDenseDaySeries,
-	resolveCalendarHeatmapGridStart,
-	type CalendarHeatmapWindow,
-} from './calendar-heatmap-window';

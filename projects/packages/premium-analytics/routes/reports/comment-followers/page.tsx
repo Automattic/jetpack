@@ -6,7 +6,8 @@ import { Text } from '@jetpack-premium-analytics/externals';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -102,9 +103,14 @@ function CommentFollowersReport(): JSX.Element {
 		>
 			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load subscribers. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<>

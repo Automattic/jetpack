@@ -51,12 +51,16 @@ describe( 'useMarkAsSpam', () => {
 		saveEntityRecord.mockRejectedValue( new Error( 'nope' ) );
 		const { result, switchToSpam } = setup( inboxResponse );
 
+		let confirmResult;
 		await act( async () => {
-			await result.current.onConfirmMarkAsSpam();
+			confirmResult = await result.current.onConfirmMarkAsSpam();
 		} );
 
 		expect( switchToSpam ).not.toHaveBeenCalled();
 		expect( result.current.isSaving ).toBe( false );
+		expect( confirmResult ).toEqual( {
+			error: 'Could not mark the response as spam. Please try again.',
+		} );
 	} );
 
 	it( 'asks core-data to throw so failures are observable', async () => {
