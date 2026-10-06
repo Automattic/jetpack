@@ -1,24 +1,30 @@
 .jp-protect-uptime {
 	display: flex;
+	align-items: flex-end;
 	gap: 4px;
-	height: 40px;
+	block-size: 40px;
 
 	&__bar {
 		flex: 1;
-		min-width: 2px;
+		min-inline-size: 2px;
+		block-size: 40%;
 		border-radius: 2px;
-		background: #8c8f94;
+		background: var(--wpds-color-background-track-neutral);
 
 		&.is-up {
-			background: #008710;
+			block-size: 100%;
+			background: var(--wpds-color-stroke-surface-success-strong);
 		}
 
+		// Stripes, so down days don't rely on colour alone.
 		&.is-down {
-			background: #d63638;
+			block-size: 100%;
+			background:
+				repeating-linear-gradient(45deg, var(--wpds-color-stroke-surface-error-strong) 0 3px, var(--wpds-color-background-surface-error) 3px 5px);
 		}
 	}
 
 	&__skeleton {
-		height: 40px;
+		block-size: 40px;
 	}
 }

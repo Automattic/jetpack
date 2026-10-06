@@ -43,12 +43,15 @@ class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Sec
 	}
 
 	/**
-	 * Whether the Monitor module can run here, and whether it is on.
+	 * Whether the Monitor module can run here, whether it is on, and how many days of uptime show.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
-		return Jetpack_Protect_Dashboard::get_module_state( 'monitor' );
+		return array_merge(
+			Jetpack_Protect_Dashboard::get_module_state( 'monitor' ),
+			array( 'uptimeDays' => self::UPTIME_DAYS )
+		);
 	}
 
 	/**
@@ -69,47 +72,109 @@ class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Sec
 	}
 
 	/**
-	 * Daily uptime for the last UPTIME_DAYS days, oldest first, from WordPress.com.
+	 * Daily uptime for the last UPTIME_DAYS days (oldest first) and the current status, from WordPress.com.
 	 *
 	 * @return array|WP_Error
 	 */
 	public function get_uptime() {
-		$cached = get_transient( self::UPTIME_TRANSIENT );
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
-		// The endpoint checks `manage_options` for the requesting user, so a blog token is refused.
+		// The endpoints check `manage_options` for the requesting user, so a blog token is refused.
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return new WP_Error( 'not_connected', __( 'Connect your WordPress.com account to see uptime.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
+		$cached = get_transient( self::UPTIME_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+		if ( 'failed' === $cached ) {
+			return $this->unavailable_error();
+		}
+
+		$days = $this->fetch_days();
+		if ( ! $days ) {
+			set_transient( self::UPTIME_TRANSIENT, 'failed', MINUTE_IN_SECONDS );
+			return $this->unavailable_error();
+		}
+
+		$uptime = array(
+			'days' => $days,
+			'isUp' => $this->fetch_is_up(),
+		);
+		set_transient( self::UPTIME_TRANSIENT, $uptime, null === $uptime['isUp'] ? MINUTE_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
+		return $uptime;
+	}
+
+	/**
+	 * The newest UPTIME_DAYS days of uptime, oldest first; empty when unavailable.
+	 *
+	 * @return array
+	 */
+	private function fetch_days() {
 		// It has no 40-day period, so ask for 90 and keep the newest days.
+		$body = $this->request( '/jetpack-monitor-uptime?period=' . rawurlencode( '90 days' ) );
+		if ( ! is_array( $body ) ) {
+			return array();
+		}
+
+		$body = array_filter(
+			$body,
+			function ( $day, $date ) {
+				return is_array( $day ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $date );
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+		ksort( $body );
+
+		$days = array();
+		foreach ( array_slice( $body, -self::UPTIME_DAYS, null, true ) as $date => $day ) {
+			$status = $day['status'] ?? null;
+			$days[] = array(
+				'date'              => (string) $date,
+				'status'            => in_array( $status, array( 'up', 'down' ), true ) ? $status : 'monitor_inactive',
+				'downtimeInMinutes' => (int) ( $day['downtime_in_minutes'] ?? 0 ),
+			);
+		}
+		return $days;
+	}
+
+	/**
+	 * Whether the site is up right now; null when unknown.
+	 *
+	 * @return bool|null
+	 */
+	private function fetch_is_up() {
+		$body   = $this->request( '/jetpack-monitor-status' );
+		$status = is_array( $body ) ? ( $body['status'] ?? null ) : null;
+		return is_bool( $status ) ? $status : null;
+	}
+
+	/**
+	 * GET a wpcom/v2 site endpoint as the current user.
+	 *
+	 * @param string $path Path after `/sites/<id>`.
+	 * @return mixed The decoded body, or null on failure.
+	 */
+	private function request( $path ) {
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/jetpack-monitor-uptime?period=%s', Jetpack_Options::get_option( 'id' ), rawurlencode( '90 days' ) ),
+			sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ) . $path,
 			'2',
 			array(),
 			null,
 			'wpcom'
 		);
-		$code     = wp_remote_retrieve_response_code( $response );
-		$body     = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( is_wp_error( $response ) || 200 !== $code || ! is_array( $body ) ) {
-			return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack' ), array( 'status' => 502 ) );
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
 		}
+		return json_decode( wp_remote_retrieve_body( $response ), true );
+	}
 
-		ksort( $body );
-		$days = array();
-		foreach ( array_slice( $body, -self::UPTIME_DAYS, null, true ) as $date => $day ) {
-			$days[] = array(
-				'date'              => (string) $date,
-				'status'            => (string) ( $day['status'] ?? 'monitor_inactive' ),
-				'downtimeInMinutes' => (int) ( $day['downtime_in_minutes'] ?? 0 ),
-			);
-		}
-
-		set_transient( self::UPTIME_TRANSIENT, $days, 10 * MINUTE_IN_SECONDS );
-		return $days;
+	/**
+	 * The error returned when WordPress.com can't be reached.
+	 *
+	 * @return WP_Error
+	 */
+	private function unavailable_error() {
+		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack' ), array( 'status' => 502 ) );
 	}
 }
 
