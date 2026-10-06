@@ -204,6 +204,23 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * A refund's paid and completed dates follow core's stored row, which keeps the dates an older WooCommerce wrote.
+	 */
+	public function test_refund_dates_follow_stored_order_stats_row() {
+		global $wpdb;
+
+		$order  = $this->create_completed_refundable_order();
+		$refund = $this->refund( $order, (float) $order->get_total() );
+		OrderStatsDataStore::sync_order( $refund->get_id() );
+
+		$wpdb->update( "{$wpdb->prefix}wc_order_stats", array( 'date_paid' => null ), array( 'order_id' => $refund->get_id() ) );
+		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $refund->get_id() )['order_stats'];
+
+		$this->assertNull( $synced['date_paid'] );
+		$this->assertEquals( $synced['date_created'], $synced['date_completed'] );
+	}
+
+	/**
 	 * Incremental Analytics sync emits the expanded reports payload for a real order.
 	 */
 	public function test_incremental_sync_emits_real_order_payload() {

@@ -679,6 +679,7 @@ class WooCommerce_Analytics extends Module {
 			return $order_stats_data_from_db;
 		}
 
+		$order_stats_item         = null;
 		$order_fulfillment_status = null;
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
@@ -744,10 +745,18 @@ class WooCommerce_Analytics extends Module {
 				}
 			}
 			// Refunds have no paid or completed date; backfill each from date_created, but only where the parent has it.
-			// Before WooCommerce 11.2 core always backfills, and the checksum compares both dates.
-			$dates_follow_parent                = $parent_order instanceof WC_Order && self::refund_dates_follow_parent();
-			$order_stats_data['date_completed'] = $dates_follow_parent && ! $parent_order->get_date_completed() ? null : $order_stats_data['date_created'];
-			$order_stats_data['date_paid']      = $dates_follow_parent && ! $parent_order->get_date_paid() ? null : $order_stats_data['date_created'];
+			// Follow core's stored row when there is one: rows an older WooCommerce wrote keep their dates, and the checksum compares both.
+			$order_stats_item ??= $this->get_order_stats_item( $order->get_id() );
+			if ( $order_stats_item ) {
+				$has_date_completed = null !== $order_stats_item['date_completed'];
+				$has_date_paid      = null !== $order_stats_item['date_paid'];
+			} else {
+				$dates_follow_parent = $parent_order instanceof WC_Order && self::refund_dates_follow_parent();
+				$has_date_completed  = ! $dates_follow_parent || $parent_order->get_date_completed();
+				$has_date_paid       = ! $dates_follow_parent || $parent_order->get_date_paid();
+			}
+			$order_stats_data['date_completed'] = $has_date_completed ? $order_stats_data['date_created'] : null;
+			$order_stats_data['date_paid']      = $has_date_paid ? $order_stats_data['date_created'] : null;
 		}
 
 		return $order_stats_data;
@@ -763,7 +772,7 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
-	 * Whether this refund is a single lump-sum refund for the full order. Copied from WooCommerce's Orders\Stats\DataStore, where it is private.
+	 * Whether this refund is a single lump-sum refund for the full order. Copied from WooCommerce's Orders\Stats\DataStore, where it is protected.
 	 *
 	 * @param WC_Abstract_Order $refund       Refund order.
 	 * @param WC_Abstract_Order $parent_order Parent order (not a refund).
