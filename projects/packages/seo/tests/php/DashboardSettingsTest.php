@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Request;
 
@@ -359,6 +360,68 @@ class DashboardSettingsTest extends TestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertEmpty( get_option( Dashboard_Data::TITLE_FORMATS_OPTION ) );
+	}
+
+	/**
+	 * Option writes outside REST discard malformed structures before they reach rendering.
+	 *
+	 * REST validates shapes first, but register_setting also attaches the sanitizer to
+	 * ordinary update_option calls, where that validation does not run.
+	 *
+	 * @dataProvider provide_malformed_structured_settings
+	 * @param string $option Option name.
+	 * @param mixed  $value Submitted value.
+	 * @param array  $expected Sanitized value.
+	 */
+	#[DataProvider( 'provide_malformed_structured_settings' )]
+	public function test_structured_settings_sanitize_non_rest_writes( $option, $value, $expected ) {
+		update_option( $option, $value );
+
+		$this->assertSame( $expected, get_option( $option ) );
+	}
+
+	/**
+	 * Malformed values that core's REST schema would reject before sanitization.
+	 *
+	 * @return array
+	 */
+	public static function provide_malformed_structured_settings() {
+		return array(
+			'non-array title formats' => array( Dashboard_Data::TITLE_FORMATS_OPTION, 'invalid', array() ),
+			'non-array page tokens'   => array(
+				Dashboard_Data::TITLE_FORMATS_OPTION,
+				array(
+					'posts' => 'invalid',
+					'pages' => array(),
+				),
+				array( 'pages' => array() ),
+			),
+			'non-array crawlers'      => array( Ai_Crawlers::OPTION, 'invalid', array() ),
+		);
+	}
+
+	/**
+	 * Malformed verification writes preserve saved codes and recover malformed old storage.
+	 */
+	public function test_verification_sanitizer_handles_malformed_option_values() {
+		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, array( 'bing' => 'bing-code' ) );
+
+		update_option( Dashboard_Data::VERIFICATION_CODES_OPTION, 'invalid' );
+
+		$this->assertSame( array( 'bing' => 'bing-code' ), get_option( Dashboard_Data::VERIFICATION_CODES_OPTION ) );
+
+		$old_value = static function () {
+			return 'malformed old storage';
+		};
+		add_filter( 'pre_option_' . Dashboard_Data::VERIFICATION_CODES_OPTION, $old_value );
+
+		try {
+			$sanitized = Dashboard_Data::sanitize_verification_codes( array( 'google' => 'google-code' ) );
+
+			$this->assertSame( array( 'google' => 'google-code' ), $sanitized );
+		} finally {
+			remove_filter( 'pre_option_' . Dashboard_Data::VERIFICATION_CODES_OPTION, $old_value );
+		}
 	}
 
 	/**
@@ -1020,6 +1083,28 @@ class DashboardSettingsTest extends TestCase {
 			'Someone else\'s description.',
 			$registered[ Dashboard_Data::VERIFICATION_CODES_OPTION ]['description']
 		);
+	}
+
+	/**
+	 * The description option not used by this site retains another caller's registration.
+	 */
+	public function test_registration_does_not_override_the_inactive_description_option() {
+		$this->become_legacy_site();
+		$args = array(
+			'type'         => 'string',
+			'default'      => 'Other default.',
+			'show_in_rest' => false,
+		);
+
+		register_setting( 'another_plugin', Dashboard_Data::FRONT_PAGE_META_OPTION, $args );
+
+		$registered = get_registered_settings()[ Dashboard_Data::FRONT_PAGE_META_OPTION ];
+
+		$this->assertSame( $args['type'], $registered['type'] );
+		$this->assertSame( $args['default'], $registered['default'] );
+		$this->assertFalse( $registered['show_in_rest'] );
+
+		unregister_setting( 'another_plugin', Dashboard_Data::FRONT_PAGE_META_OPTION );
 	}
 
 	/**

@@ -9,6 +9,11 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 define( 'WP_DEBUG', true );
 
+// Avoid a siteurl query before SQLite installs its tables in isolated processes.
+if ( getenv( 'JETPACK_SEO_TEST_WITHOUT_PLUGIN_HELPER' ) ) {
+	define( 'WP_CONTENT_URL', 'http://anything.example/wp-content' );
+}
+
 // SQLite rather than the default dbless engine: the Overview's content-coverage counts
 // are a single SQL aggregate over wp_posts/wp_postmeta, and dbless has no database for it
 // to run against — every count would be zero no matter what the query said.
@@ -30,7 +35,10 @@ require_once __DIR__ . '/SeoTestCase.php';
 // with class_exists(). The real implementations live in projects/plugins/jetpack
 // and are not autoloaded in the package test context, so these let the tests
 // drive Schema_Builder's behavior. Tests set their public static properties.
-require_once __DIR__ . '/stubs/class-jetpack-seo-utils.php';
+// Isolated standalone-settings tests exercise the package without the plugin helper.
+if ( ! getenv( 'JETPACK_SEO_TEST_WITHOUT_PLUGIN_HELPER' ) ) {
+	require_once __DIR__ . '/stubs/class-jetpack-seo-utils.php';
+}
 require_once __DIR__ . '/stubs/class-jetpack-redux-state-helper.php';
 require_once __DIR__ . '/stubs/class-jetpack-ai-settings.php';
 require_once __DIR__ . '/stubs/class-jetpack-ai-sidebar.php';
