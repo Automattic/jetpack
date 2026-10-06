@@ -91,35 +91,46 @@ function nextWindowStart( scheduledHourUtc: number, now: Date ): Date {
 }
 
 /**
- * A backup window as the site reads it, e.g. `10:00-10:59 AM`.
+ * A backup window as the site reads it, e.g. `10:00-10:59 AM` or `11:30 PM-12:29 AM`.
  *
- * @param start - The instant the window opens.
- * @return The window in the site's timezone.
+ * @param start    - The instant the window opens.
+ * @param timezone - A UTC offset such as `-0300`; omitted, the site's own timezone.
+ * @return The window in that timezone.
  */
-function windowLabel( start: Date ): string {
+function windowLabel( start: Date, timezone?: string ): string {
 	const lastMinute = new Date( start.getTime() + WINDOW_LAST_MINUTE_MS );
+	// The start drops its AM/PM only when the end's covers both halves.
+	const startFormat =
+		dateI18n( 'A', start, timezone ) === dateI18n( 'A', lastMinute, timezone ) ? 'g:i' : 'g:i A';
 
-	// The explicit `undefined` third argument means the site's timezone rather than the
-	// browser's. Assembled here rather than as a msgid: neither half is translatable prose.
-	return `${ dateI18n( 'g:i', start, undefined ) }-${ dateI18n( 'g:i A', lastMinute, undefined ) }`;
+	// Assembled here rather than as a msgid: neither half is translatable prose.
+	return `${ dateI18n( startFormat, start, timezone ) }-${ dateI18n(
+		'g:i A',
+		lastMinute,
+		timezone
+	) }`;
 }
 
 /**
  * Every hour WordPress.com can start the backup, labelled and ordered by the site's clock.
  *
- * @param now - Whose calendar day labels the windows, so they carry that day's offset.
+ * All 24 are read at one offset, today's, so a daylight-saving switch today cannot label
+ * two hours alike and leave a window out.
+ *
+ * @param now - The instant whose site offset labels the windows.
  * @return 24 options, earliest local window first.
  */
 export function scheduleOptions( now: Date = new Date() ): ScheduleOption[] {
+	const offset = dateI18n( 'O', now, undefined );
+
 	return Array.from( { length: 24 }, ( _, hour ) => {
 		const start = new Date(
 			Date.UTC( now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour )
 		);
 		const minuteOfDay =
-			Number( dateI18n( 'G', start, undefined ) ) * 60 +
-			Number( dateI18n( 'i', start, undefined ) );
+			Number( dateI18n( 'G', start, offset ) ) * 60 + Number( dateI18n( 'i', start, offset ) );
 
-		return { label: windowLabel( start ), value: String( hour ), minuteOfDay };
+		return { label: windowLabel( start, offset ), value: String( hour ), minuteOfDay };
 	} )
 		.sort( ( a, b ) => a.minuteOfDay - b.minuteOfDay )
 		.map( ( { label, value } ) => ( { label, value } ) );

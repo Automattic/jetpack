@@ -4,7 +4,7 @@ import { Link, Skeleton, Text } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useNextBackupSchedule } from '../../hooks/use-backup-schedule';
 import { useSiteSize } from '../../hooks/use-site-size';
-import BackupScheduleModal from '../backup-schedule-modal';
+import BackupScheduleDialog from '../backup-schedule-dialog';
 import './style.scss';
 
 /**
@@ -21,7 +21,7 @@ import './style.scss';
  * translation that reorders them.
  *
  * Legacy's "Modify" link went to `cloud.jetpack.com/settings`; here it opens
- * `<BackupScheduleModal>` instead (JETPACK-2636), keeping legacy's Tracks event.
+ * `<BackupScheduleDialog>` instead (JETPACK-2636), keeping legacy's Tracks event.
  *
  * On a half-hour timezone this deliberately disagrees with legacy, which throws the
  * minutes away and reports a window the site does not have.
@@ -31,7 +31,7 @@ import './style.scss';
 export default function NextScheduledBackup() {
 	const { tracks } = useAnalytics();
 	const schedule = useNextBackupSchedule();
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const [ announcement, setAnnouncement ] = useState( '' );
 	// The same `/site/backup/size` query the storage section and "Back up now" already
 	// read, shared through `useSiteSizeQuery` rather than issued again.
@@ -40,11 +40,11 @@ export default function NextScheduledBackup() {
 	const onModifyClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_schedule_modify_click' );
 		setAnnouncement( '' );
-		setIsModalOpen( true );
+		setIsDialogOpen( true );
 	}, [ tracks ] );
 
-	const onModalClose = useCallback( ( saved: boolean ) => {
-		setIsModalOpen( false );
+	const onDialogClose = useCallback( ( saved: boolean ) => {
+		setIsDialogOpen( false );
 		if ( saved ) {
 			setAnnouncement( __( 'Daily backup time changed.', 'jetpack-backup-pkg' ) );
 		}
@@ -82,18 +82,20 @@ export default function NextScheduledBackup() {
 			<Link
 				render={ <button type="button" /> }
 				className="jpb-next-scheduled-backup__modify"
+				aria-label={ __( 'Modify daily backup time', 'jetpack-backup-pkg' ) }
 				onClick={ onModifyClick }
 			>
 				{ __( 'Modify', 'jetpack-backup-pkg' ) }
 			</Link>
-			<span className="jpb-visually-hidden" role="status">
+			{ /* `aria-live`, not only the role: the dialog `aria-hidden`s everything else but this. */ }
+			<span className="jpb-visually-hidden" role="status" aria-live="polite">
 				{ announcement }
 			</span>
-			{ isModalOpen && (
-				<BackupScheduleModal
+			{ isDialogOpen && (
+				<BackupScheduleDialog
 					scheduledHour={ schedule.scheduledHour }
 					scheduledBy={ schedule.scheduledBy }
-					onClose={ onModalClose }
+					onClose={ onDialogClose }
 				/>
 			) }
 		</Text>

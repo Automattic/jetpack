@@ -36,7 +36,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, renderHook, screen, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { queryClient } from '../src/dashboard/data/query-client';
 import { resetAnalyticsForTesting, useAnalytics } from '../src/dashboard/hooks/use-analytics';
@@ -318,7 +318,7 @@ describe( 'Modify schedule', () => {
 	 * @return The button.
 	 */
 	function modifyButton(): Promise< HTMLElement > {
-		return screen.findByRole( 'button', { name: 'Modify' } );
+		return screen.findByRole( 'button', { name: 'Modify daily backup time' } );
 	}
 
 	// Legacy records this on the same control, so the series continues across dashboards.
@@ -342,18 +342,44 @@ describe( 'Modify schedule', () => {
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 
-	it( 'records the new hour once WordPress.com has saved it', async () => {
+	/**
+	 * Pick the 3 AM window in the schedule dialog and press Save.
+	 *
+	 * @param answer - What the save request resolves or rejects with.
+	 */
+	async function saveThreeAm( answer: () => Promise< unknown > ) {
 		await renderScheduleLine();
+		const reads = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) =>
+			options?.method === 'POST' ? answer() : reads?.( options )
+		);
+
 		await userEvent.click( await modifyButton() );
 		await userEvent.click( await screen.findByRole( 'combobox', { name: 'Backup window' } ) );
 		// Jest runs in America/Sao_Paulo and the site settings default to UTC, so 3 AM is hour 3.
 		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 AM' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+	}
+
+	it( 'records the new hour once WordPress.com has saved it', async () => {
+		await saveThreeAm( () => Promise.resolve( { ok: true, scheduled_hour: 3 } ) );
 
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_schedule_update', {
 				scheduled_hour: 3,
 			} )
+		);
+	} );
+
+	it( 'records nothing when the save is refused', async () => {
+		await saveThreeAm( () => Promise.reject( { message: 'Refused.' } ) );
+
+		await expect(
+			within( screen.getByRole( 'dialog' ) ).findByText( 'Refused.' )
+		).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_backup_schedule_update',
+			expect.anything()
 		);
 	} );
 } );

@@ -40,7 +40,7 @@ function siteTimezoneLabel(): string {
  * @param props.onClose       - Callback to close the dialog.
  * @return The rendered dialog.
  */
-export default function BackupScheduleModal( { scheduledHour, scheduledBy, onClose }: Props ) {
+export default function BackupScheduleDialog( { scheduledHour, scheduledBy, onClose }: Props ) {
 	const adminMenuWidth = useAdminMenuWidth();
 	const items = useMemo( () => scheduleOptions(), [] );
 	const [ selected, setSelected ] = useState< ScheduleOption | null >(
@@ -75,7 +75,7 @@ export default function BackupScheduleModal( { scheduledHour, scheduledBy, onClo
 			>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Daily backup time', 'jetpack-backup-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIcon disabled={ isPending } />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">
@@ -83,7 +83,7 @@ export default function BackupScheduleModal( { scheduledHour, scheduledBy, onClo
 							{ sprintf(
 								/* translators: %s: the site's timezone, e.g. "America/Sao_Paulo" or "UTC+5:30". */
 								__(
-									"Choose when your daily full backup runs. Times are in your site's timezone (%s).",
+									"Choose when your daily full backup runs. Times are shown in your site's timezone (%s).",
 									'jetpack-backup-pkg'
 								),
 								siteTimezoneLabel()

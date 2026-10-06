@@ -1,13 +1,6 @@
-// The Overview's "Next full backup: …" line (JETPACK-2328 / K2), and the dialog its
-// "Modify" button opens (JETPACK-2636).
-//
-// Pinned here and nowhere else: silence when there is no schedule, silence when
-// WordPress.com has stopped backing the site up, the date and window read in the
-// *site's* timezone — both on the line and in the dialog's picker, whose writes go back
-// as UTC hours — and the msgid's positional placeholders surviving a reordering.
-//
-// Every date assertion runs against a frozen clock, with the expectation written out
-// rather than computed the way the implementation computes it.
+// The Overview's "Next full backup: …" line (JETPACK-2328) and its schedule dialog
+// (JETPACK-2636): read in the site's timezone, written back as UTC hours. Dated
+// assertions run on a frozen clock, with expectations written out by hand.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -293,7 +286,7 @@ function scheduleLine(): Promise< HTMLElement > {
  * @return The button.
  */
 function modifyButton(): Promise< HTMLElement > {
-	return screen.findByRole( 'button', { name: 'Modify' } );
+	return screen.findByRole( 'button', { name: 'Modify daily backup time' } );
 }
 
 /**
@@ -707,6 +700,7 @@ describe( 'the Modify dialog', () => {
 	const original = getSettings();
 
 	beforeEach( () => {
+		freezeClock( '2026-10-22T12:00:00Z' );
 		// Five hours behind UTC, so a window read or written in UTC is visibly wrong.
 		setSettings( {
 			...original,
@@ -777,6 +771,60 @@ describe( 'the Modify dialog', () => {
 		expect( dialog ).toBeInTheDocument();
 	} );
 
+	it( 're-reads the schedule after a failed save, which may have landed anyway', async () => {
+		let hour = 2;
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
+		const reads = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( '/site/backup/schedule' )
+				? Promise.resolve( { ok: true, scheduled_hour: hour } )
+				: reads?.( options )
+		);
+		mockScheduleSave( value => {
+			hour = value;
+			return Promise.reject( {
+				code: 'schedule_update_failed',
+				message: 'Could not reach WordPress.com.',
+				data: { status: 504 },
+			} );
+		} );
+
+		renderWithClient( <NextScheduledBackup /> );
+		await openScheduleDialog();
+		await pickWindow( '3:00-3:59 AM' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( screen.getByText( /^Next full backup/ ) ).toHaveTextContent( /, 3:00-3:59 AM\.$/ )
+		);
+	} );
+
+	it( 'cannot be dismissed while a save is in flight, so its failure is still shown', async () => {
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
+		let refuse: ( reason: unknown ) => void = () => {};
+		mockScheduleSave(
+			() =>
+				new Promise( ( _resolve, reject ) => {
+					refuse = reject;
+				} )
+		);
+
+		renderWithClient( <NextScheduledBackup /> );
+		const dialog = await openScheduleDialog();
+		await pickWindow( '3:00-3:59 AM' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await userEvent.keyboard( '{Escape}' );
+		refuse( {
+			code: 'schedule_update_failed',
+			message: 'Could not change the backup time.',
+			data: { status: 500 },
+		} );
+
+		await expect(
+			within( dialog ).findByText( 'Could not change the backup time.' )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'lists the windows in the order the site day runs, half-hour offsets included', () => {
 		setSettings( {
 			...original,
@@ -787,7 +835,8 @@ describe( 'the Modify dialog', () => {
 
 		expect( options ).toHaveLength( 24 );
 		expect( options[ 0 ] ).toEqual( { label: '12:30-1:29 AM', value: '19' } );
-		expect( options[ 23 ] ).toEqual( { label: '11:30-12:29 AM', value: '18' } );
+		expect( options[ 23 ] ).toEqual( { label: '11:30 PM-12:29 AM', value: '18' } );
+		expect( options[ 11 ] ).toEqual( { label: '11:30 AM-12:29 PM', value: '6' } );
 	} );
 
 	it( 'goes with the line when there is no schedule to modify', async () => {
@@ -801,7 +850,9 @@ describe( 'the Modify dialog', () => {
 
 		await readsSettled( client );
 		expect( placeholder() ).toBeNull();
-		expect( screen.queryByRole( 'button', { name: 'Modify' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Modify daily backup time' } )
+		).not.toBeInTheDocument();
 	} );
 } );
 
