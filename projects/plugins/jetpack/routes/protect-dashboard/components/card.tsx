@@ -1,4 +1,4 @@
-import { Badge, Icon, Stack, Text } from '@wordpress/ui';
+import { Badge, Card, Icon, Stack, Text } from '@wordpress/ui';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 export type CardStatus = { label: string; intent: ComponentProps< typeof Badge >[ 'intent' ] };
@@ -24,27 +24,21 @@ type CardProps = {
  */
 export function ProtectCard( { icon, title, status, actions, children }: CardProps ) {
 	return (
-		<section className="jp-protect-card" aria-label={ title }>
-			<Stack
-				className="jp-protect-card__header"
-				direction="row"
-				gap="sm"
-				align="center"
-				justify="space-between"
+		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
+			<Card.Header
+				render={ <Stack direction="row" gap="sm" align="center" justify="space-between" /> }
 			>
 				<Stack direction="row" gap="sm" align="center">
 					<Icon icon={ icon } size={ 24 } />
-					<Text variant="heading-md" render={ <h2 className="jp-protect-card__title" /> }>
-						{ title }
-					</Text>
+					<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
 				</Stack>
 				<Stack direction="row" gap="sm" align="center">
 					{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
 					{ actions }
 				</Stack>
-			</Stack>
-			{ children }
-		</section>
+			</Card.Header>
+			<Card.Content>{ children }</Card.Content>
+		</Card.Root>
 	);
 }
 
@@ -63,7 +57,11 @@ export function CardRow( {
 	children: ReactNode;
 	className?: string;
 } ) {
-	return <div className={ `jp-protect-card__row ${ className }`.trim() }>{ children }</div>;
+	return (
+		<Card.FullBleed className={ `jp-protect-card__row ${ className }`.trim() }>
+			{ children }
+		</Card.FullBleed>
+	);
 }
 
 /**

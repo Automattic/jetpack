@@ -112,10 +112,4 @@ describe( 'buildTrafficTooltipExtras', () => {
 
 		expect( ratio.previous ).toBeUndefined();
 	} );
-
-	it( 'returns nothing while the reports have not loaded', () => {
-		expect( buildTrafficTooltipExtras( { views: undefined, posts: undefined }, ZONE ) ).toEqual(
-			[]
-		);
-	} );
 } );

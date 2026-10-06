@@ -85,9 +85,6 @@ module.exports = [
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 			'lib/inline-player': './src/client/lib/inline-player/index.ts',
 
-			// VideoPress dashboard page
-			'admin/index': './src/client/admin/index.jsx',
-
 			// Page-level shell stylesheet for the modernized dashboard. CSS-only
 			// entry: emits build/dashboard-shell/index.css enqueued by
 			// class-admin-ui.php so every route inherits the admin-page-layout

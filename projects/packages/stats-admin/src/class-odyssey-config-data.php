@@ -104,6 +104,8 @@ class Odyssey_Config_Data {
 			),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
+			// Empty for a site set to a fixed UTC offset; `gmt_offset` alone cannot follow daylight saving.
+			'timezone'                       => (string) get_option( 'timezone_string' ),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			// Repeated in the site record below, which a site without a connection never gets.
 			'admin_url'                      => admin_url(),

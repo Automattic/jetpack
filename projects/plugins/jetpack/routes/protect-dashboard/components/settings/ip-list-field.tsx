@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, TextareaControl } from '@wordpress/ui';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -28,14 +28,30 @@ export default function IpListField( { data, name, label, description, currentIp
 		typeof data.settings?.[ name ] === 'string' ? ( data.settings[ name ] as string ) : '';
 	const [ draft, setDraft ] = useState( saved );
 
-	useEffect( () => setDraft( saved ), [ saved ] );
+	const lastSaved = useRef( saved );
+	const submitted = useRef< string | null >( null );
+	const saving = data.isSaving( name );
+
+	// Follow `saved` unless the draft has edits, or `saved` moved because this field's own save failed.
+	useEffect( () => {
+		const previous = lastSaved.current;
+		const rolledBack = submitted.current !== null && saved !== submitted.current;
+		setDraft( current => ( current === previous && ! rolledBack ? saved : current ) );
+		lastSaved.current = saved;
+		if ( ! saving ) {
+			submitted.current = null;
+		}
+	}, [ saved, saving ] );
 
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLTextAreaElement > ) => setDraft( event.target.value ),
 		[]
 	);
 	const { save } = data;
-	const onSave = useCallback( () => save( { [ name ]: draft } ), [ save, name, draft ] );
+	const onSave = useCallback( () => {
+		submitted.current = draft;
+		return save( { [ name ]: draft } );
+	}, [ save, name, draft ] );
 	const onAddIp = useCallback(
 		() =>
 			setDraft( current =>
@@ -65,8 +81,8 @@ export default function IpListField( { data, name, label, description, currentIp
 					variant="outline"
 					size="compact"
 					onClick={ onSave }
-					disabled={ draft === saved || data.isSaving( name ) }
-					loading={ data.isSaving( name ) }
+					disabled={ draft === saved || saving }
+					loading={ saving }
 				>
 					{ __( 'Save', 'jetpack' ) }
 				</Button>

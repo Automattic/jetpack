@@ -80,6 +80,8 @@ describe( 'buildTimeSeriesChartData', () => {
 			zone: 'UTC',
 		} );
 
+		expect( series[ 0 ].label ).toEqual( expect.stringContaining( '2026' ) );
+		expect( series[ 1 ].label ).toEqual( expect.stringContaining( '2026' ) );
 		expect( series[ 0 ].label ).not.toBe( series[ 1 ].label );
 		expect( series[ 0 ].label ).not.toContain( 'Views' );
 	} );

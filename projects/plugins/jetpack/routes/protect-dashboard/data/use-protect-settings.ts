@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
@@ -19,7 +19,7 @@ export type ProtectSettingsData = {
 	error: string | null;
 	dismissError: () => void;
 	isSaving: ( key: string ) => boolean;
-	/** Fetches the settings once; later calls do nothing. */
+	/** Fetches the settings once; later calls do nothing unless the fetch failed. */
 	load: () => void;
 	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`. */
 	save: ( patch: ProtectSettings, path?: string ) => Promise< void >;
@@ -53,6 +53,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 			return;
 		}
 		loadStarted.current = true;
+		setError( null );
 
 		Promise.all( [
 			apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } ),
@@ -69,7 +70,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 			} )
 			.catch( () => {
 				loadStarted.current = false;
-				setError( __( 'Your settings couldn’t be loaded. Try again.', 'jetpack' ) );
+				setError( __( 'Your settings couldn’t be loaded.', 'jetpack' ) );
 			} );
 	}, [ setSettings ] );
 
@@ -113,5 +114,8 @@ export default function useProtectSettings(): ProtectSettingsData {
 	const isSaving = useCallback( ( key: string ) => saving.includes( key ), [ saving ] );
 	const dismissError = useCallback( () => setError( null ), [] );
 
-	return { settings, isLoaded, waf, error, dismissError, isSaving, load, save };
+	return useMemo(
+		() => ( { settings, isLoaded, waf, error, dismissError, isSaving, load, save } ),
+		[ settings, isLoaded, waf, error, dismissError, isSaving, load, save ]
+	);
 }
