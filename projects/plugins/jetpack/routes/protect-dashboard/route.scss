@@ -42,6 +42,10 @@ body.toplevel_page_jetpack-protect {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__title {
+		margin: 0;
+	}
+
 	&__subheading {
 		margin: 0;
 		font-weight: 500;

@@ -34,7 +34,9 @@ export function ProtectCard( { icon, title, status, actions, children }: CardPro
 			>
 				<Stack direction="row" gap="sm" align="center">
 					<Icon icon={ icon } size={ 24 } />
-					<Text variant="heading-md">{ title }</Text>
+					<Text variant="heading-md" render={ <h2 className="jp-protect-card__title" /> }>
+						{ title }
+					</Text>
 				</Stack>
 				<Stack direction="row" gap="sm" align="center">
 					{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
