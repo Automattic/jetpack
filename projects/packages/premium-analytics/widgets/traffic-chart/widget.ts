@@ -105,6 +105,20 @@ export type TrafficChartAttributes = {
 	chartInterval?: TrafficChartGranularity;
 };
 
+// Lists only the buckets this chart draws.
+const chartIntervalAttribute = {
+	...chartIntervalField,
+	elements: CHART_INTERVAL_ELEMENTS.filter( ( { value } ) =>
+		( TRAFFIC_PERIODS as readonly string[] ).includes( value )
+	),
+};
+
+// The switch must show what the chart draws, and the default depends on Stats v1.
+const chartTypeAttribute = {
+	...chartTypeAttributeField< TrafficChartAttributes >(),
+	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
+};
+
 /**
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
  * range and comparison come from `reportParams`; the plotted metric is the
@@ -113,18 +127,8 @@ export type TrafficChartAttributes = {
 export default {
 	icon: trendingUp,
 	attributes: [
-		{
-			...chartIntervalField,
-			elements: CHART_INTERVAL_ELEMENTS.filter( ( { value } ) =>
-				( TRAFFIC_PERIODS as readonly string[] ).includes( value )
-			),
-		},
-		{
-			...chartTypeAttributeField< TrafficChartAttributes >(),
-			// The switch must show what the chart draws, and the default depends on Stats v1.
-			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
-				item.chartType ?? defaultChartType(),
-		},
+		chartIntervalAttribute,
+		chartTypeAttribute,
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {},
