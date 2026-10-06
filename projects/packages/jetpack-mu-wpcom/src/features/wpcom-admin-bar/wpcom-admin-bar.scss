@@ -450,3 +450,88 @@
 		}
 	}
 }
+
+// Keep in sync with Calypso's `plugin-free-domain-upsell-experiment.scss`.
+#wpadminbar #wp-toolbar #wp-admin-bar-free-domain-upsell {
+	--free-domain-upsell-color: #2271b1;
+	--free-domain-upsell-text: #f0f0f1;
+	--free-domain-upsell-background: color-mix(in srgb, var(--free-domain-upsell-color) 22%, transparent);
+	--free-domain-upsell-background-hover: color-mix(in srgb, var(--free-domain-upsell-color) 42%, transparent);
+	--free-domain-upsell-ring: color-mix(in srgb, color-mix(in srgb, var(--free-domain-upsell-color) 75%, var(--free-domain-upsell-text)) 45%, transparent);
+	--free-domain-upsell-ring-hover: color-mix(in srgb, color-mix(in srgb, var(--free-domain-upsell-color) 60%, var(--free-domain-upsell-text)) 80%, transparent);
+	--free-domain-upsell-icon: color-mix(in srgb, var(--free-domain-upsell-color) 55%, var(--free-domain-upsell-text));
+	--free-domain-upsell-icon-hover: color-mix(in srgb, var(--free-domain-upsell-color) 35%, var(--free-domain-upsell-text));
+
+	display: flex;
+	align-items: center;
+	height: 32px;
+
+	@media screen and (max-width: 782px) {
+		height: 46px;
+	}
+
+	body.wp-admin:not(.admin-color-fresh) & {
+		--free-domain-upsell-color: var(--wp-admin-theme-color, #2271b1);
+		--free-domain-upsell-text: #fff;
+	}
+
+	body.wp-admin.admin-color-light & {
+		--free-domain-upsell-text: #333;
+	}
+
+	> .ab-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		height: 24px;
+		margin-inline: 8px;
+		padding-inline: 6px 8px;
+		border-radius: 4px;
+		background: var(--free-domain-upsell-background);
+		box-shadow: inset 0 0 0 1px var(--free-domain-upsell-ring);
+		color: var(--free-domain-upsell-text);
+		white-space: nowrap;
+		transition: background 0.12s linear, box-shadow 0.12s linear;
+
+		.ab-icon {
+			width: auto;
+			height: auto;
+			margin: 0;
+			padding: 0;
+
+			svg {
+				display: block;
+				color: var(--free-domain-upsell-icon);
+				transition: color 0.12s linear;
+			}
+		}
+
+		// Core recolors `span.ab-label` on hover.
+		.ab-label {
+			height: auto;
+			color: inherit;
+			line-height: 24px;
+		}
+
+		// Icon-only on mobile, where core hides ab-labels.
+		@media screen and (max-width: 782px) {
+			height: 36px;
+			padding-inline: 2px;
+
+			.ab-icon svg {
+				width: 32px;
+				height: 32px;
+			}
+		}
+	}
+
+	&:hover > .ab-item,
+	> .ab-item:focus-visible {
+		background: var(--free-domain-upsell-background-hover);
+		box-shadow: inset 0 0 0 1px var(--free-domain-upsell-ring-hover);
+
+		.ab-icon svg {
+			color: var(--free-domain-upsell-icon-hover);
+		}
+	}
+}
