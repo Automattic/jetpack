@@ -1,7 +1,8 @@
+import { TooltipBox } from '@jetpack-premium-analytics/externals';
 import { _n } from '@wordpress/i18n';
 import { postContent, seen } from '@wordpress/icons';
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { DatedTooltip } from '../dated-tooltip';
-import { TooltipBox } from './tooltip-box';
 import type { DatedTooltipRow } from '../dated-tooltip-model';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -9,6 +10,7 @@ const meta: Meta< typeof DatedTooltip > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/DatedTooltip',
 	component: DatedTooltip,
 	tags: [ 'autodocs' ],
+	decorators: [ withChartTheme ],
 	parameters: {
 		layout: 'centered',
 		docs: {

@@ -71,7 +71,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Filter hook for overriding the BN code while connected to the sandbox.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 * @var string
 	 */
 	public const SANDBOX_PARTNER_ATTRIBUTION_FILTER = 'jetpack_paypal_sandbox_partner_attribution_id';
@@ -739,7 +739,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Get the partner attribution ID (BN code) for the current environment.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return string The BN code, safe to place in a URL query or an HTML attribute.
 	 */
@@ -755,7 +755,7 @@ class PayPal_Payment_Buttons {
 		 *
 		 * The production BN code is not filterable.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.12.0
 		 *
 		 * @param string $partner_attribution_id The BN code. Defaults to the production code.
 		 */
@@ -1263,7 +1263,7 @@ class PayPal_Payment_Buttons {
 	 * Elsewhere the Tracks call blocks the page.
 	 * Skips the pages wpcom stats skip, plus framed previews and embeds.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param string $format           The block's format, as allowlisted before the draw.
 	 * @param mixed  $integration_mode The block's integrationMode attribute.

@@ -30,7 +30,12 @@ jest.mock(
 
 describe( 'CsvDownloadButton', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		jest.clearAllMocks();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'renders the widget footer action as an icon named by its label', () => {
@@ -106,5 +111,26 @@ describe( 'CsvDownloadButton', () => {
 		expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upstream API unavailable.' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'a plain-object API error',
+			{ code: 'forbidden', message: 'Sorry, you are not allowed.' },
+			'Sorry, you are not allowed.',
+		],
+		[ 'an error without a message', { code: 'unknown' }, 'Could not download report.' ],
+	] )( 'shows %s in the snackbar', async ( _case, error, message ) => {
+		render( <CsvDownloadButton onDownload={ () => Promise.reject( error ) } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( message, {
+				type: 'snackbar',
+				explicitDismiss: true,
+			} )
+		);
 	} );
 } );

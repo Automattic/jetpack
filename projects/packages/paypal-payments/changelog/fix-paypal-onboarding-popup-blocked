@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Payment Buttons: Tell the merchant when the browser blocks PayPal's onboarding window, instead of failing silently, and let the next Connect click open it.

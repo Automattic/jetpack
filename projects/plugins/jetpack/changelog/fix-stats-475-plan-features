@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: stop showing free-plan paywalls in wp-admin on a site whose plan already includes those stats.

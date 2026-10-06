@@ -43,7 +43,7 @@ export function getVideoPressConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Ad-free and customizable player', 'jetpack-my-jetpack' ),
-				free: { included: false, label: NOT_INCLUDED },
+				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,

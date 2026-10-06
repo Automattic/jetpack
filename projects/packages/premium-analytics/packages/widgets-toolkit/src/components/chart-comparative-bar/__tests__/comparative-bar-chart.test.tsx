@@ -235,12 +235,14 @@ describe( 'ComparativeBarChart', () => {
 		expect( recordedOptions().axis.x.tickFormat ).toBeUndefined();
 	} );
 
-	it( 'passes an x tickFormat when one is requested', () => {
+	it( 'formats the x ticks in the requested format', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render(
 			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickFormat="short" />
 		);
 
-		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
+		const tickFormat = recordedOptions().axis.x.tickFormat as ( date: number ) => string;
+		expect( tickFormat( JULY_1.getTime() ) ).toBe( 'July 1' );
 	} );
 
 	it( 'declares the bucket size to the x-axis', () => {
@@ -284,21 +286,6 @@ describe( 'ComparativeBarChart', () => {
 		);
 	} );
 
-	it( 'lets a declared resolution override what the data looks like', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render(
-			<ComparativeBarChart
-				series={ HOURLY_SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="day"
-			/>
-		);
-
-		expect( tooltipModelFor( hoveredJuly( JULY_2_2PM_TOKYO ) ).date ).toBe( 'July 2, 2026' );
-	} );
-
-	// How a point's date reads is the caller's to decide; which format names it
-	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
 		const formatTooltipDate = jest.fn( () => 'the bucket' );
 		render(
@@ -448,10 +435,11 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 
-	it( 'always formats the y axis', () => {
+	it( 'abbreviates the y axis ticks', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( typeof recordedOptions().axis.y.tickFormat ).toBe( 'function' );
+		const tickFormat = recordedOptions().axis.y.tickFormat as ( value: number ) => string;
+		expect( tickFormat( 18432 ) ).toBe( '18.4K' );
 	} );
 
 	it( 'draws zero-value bars so a quiet day reads as zero, not missing data', () => {

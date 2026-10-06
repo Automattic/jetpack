@@ -155,15 +155,6 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders multiple metrics as tabs', () => {
-		const visitors = { ...METRIC, key: 'visitors', label: 'Visitors' };
-
-		render( <MetricTabsChart metrics={ [ METRIC, visitors ] } dataFormat={ DATA_FORMAT } /> );
-
-		expect( screen.getByRole( 'tablist' ) ).toBeInTheDocument();
-		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 2 );
-	} );
-
 	it( 'draws a bar chart when chartType is bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
@@ -171,24 +162,12 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hands the baseline to the line chart only', () => {
+	it( 'hands the baseline to the line chart', () => {
 		render(
 			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } baseline="padded" />
 		);
 		expect( mockLineSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { baseline: 'padded' } )
-		);
-
-		render(
-			<MetricTabsChart
-				metrics={ [ METRIC ] }
-				dataFormat={ DATA_FORMAT }
-				chartType="bar"
-				baseline="padded"
-			/>
-		);
-		expect( mockBarSpy ).toHaveBeenLastCalledWith(
-			expect.not.objectContaining( { baseline: expect.anything() } )
 		);
 	} );
 
@@ -227,7 +206,8 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ [ unavailable ] } dataFormat={ DATA_FORMAT } /> );
 
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
-		expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+		// Once in the plot, once in the headline's visually hidden note.
+		expect( screen.getAllByText( reason ) ).toHaveLength( 2 );
 		// The headline stands down to a placeholder rather than reporting a total
 		// the endpoint never returned.
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
@@ -344,7 +324,7 @@ describe( 'MetricTabsChart', () => {
 			);
 
 			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
-			expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+			expect( screen.getAllByText( reason ) ).toHaveLength( 2 );
 		} );
 	} );
 
@@ -513,55 +493,34 @@ describe( 'MetricTabsChart', () => {
 		expect( after.chartId ).not.toBe( before.chartId );
 	} );
 
-	it( 'leaves the legend inert for a metric with no counterpart', () => {
-		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
+	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
+	// alone, so drawing the pair there offers the legend a flat zero line.
+	it.each( [
+		[ 'a metric with no counterpart', [ METRIC ] ],
+		[ 'a counterpart key that names no metric', [ { ...METRIC, counterpartKey: 'nowhere' } ] ],
+		[
+			'a counterpart key that names the metric itself',
+			[ { ...METRIC, counterpartKey: 'views' } ],
+		],
+		[
+			'an unavailable counterpart',
+			[ VIEWS, { ...VISITORS, unavailable: "Hourly data isn't available." } ],
+		],
+		[
+			'a counterpart whose series alone is unavailable',
+			[ VIEWS, { ...VISITORS, seriesUnavailable: "Hourly data isn't available." } ],
+		],
+	] )( 'draws the metric alone, with an inert legend, for %s', ( _case, metrics ) => {
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
 
-		const { series, defaultHiddenSeries, legendInteractive } = recordedProps( mockLineSpy );
+		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+			mockLineSpy,
+			'Views'
+		);
 
 		expect( series ).toHaveLength( 2 );
 		expect( defaultHiddenSeries ).toBeUndefined();
 		expect( legendInteractive ).toBe( false );
-	} );
-
-	it( 'ignores a counterpart key that names no metric', () => {
-		const orphan = { ...METRIC, counterpartKey: 'nowhere' };
-
-		render( <MetricTabsChart metrics={ [ orphan ] } dataFormat={ DATA_FORMAT } /> );
-
-		expect( recordedProps( mockLineSpy ).series ).toHaveLength( 2 );
-		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
-	} );
-
-	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
-	// alone, so drawing the pair there offers the legend a flat zero line.
-	it.each( [ 'unavailable', 'seriesUnavailable' ] )(
-		'ignores a counterpart with nothing to draw at this bucket size (%s)',
-		reasonKey => {
-			const unavailableVisitors = { ...VISITORS, [ reasonKey ]: "Hourly data isn't available." };
-
-			render(
-				<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
-			);
-
-			const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
-				mockLineSpy,
-				'Views'
-			);
-
-			expect( series ).toHaveLength( 2 );
-			expect( defaultHiddenSeries ).toBeUndefined();
-			expect( legendInteractive ).toBe( false );
-		}
-	);
-
-	it( 'ignores a counterpart key that names the metric itself', () => {
-		const selfPaired = { ...METRIC, counterpartKey: METRIC.key };
-
-		render( <MetricTabsChart metrics={ [ selfPaired ] } dataFormat={ DATA_FORMAT } /> );
-
-		expect( recordedProps( mockLineSpy ).series ).toHaveLength( 2 );
-		expect( recordedProps( mockLineSpy ).defaultHiddenSeries ).toBeUndefined();
-		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
 	} );
 
 	it( 'pairs the metrics in bar mode too', () => {

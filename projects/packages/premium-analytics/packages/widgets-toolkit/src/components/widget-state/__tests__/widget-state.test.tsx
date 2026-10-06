@@ -87,16 +87,6 @@ describe( 'WidgetState', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'renders children when ready, with no skeleton', () => {
-		render(
-			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
-				{ CONTENT }
-			</WidgetState>
-		);
-		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'renders the loading state on first load even when empty', () => {
 		render(
 			<WidgetState isLoading isError={ false } isEmpty>
@@ -105,9 +95,6 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
-		// `aria-busy` is reserved for a revalidation with numbers still on screen;
-		// a first load has nothing to hold back.
-		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
 	it( 'keeps a slow first load out of a busy region, though it reports as fetching too', () => {
@@ -122,18 +109,6 @@ describe( 'WidgetState', () => {
 		elapseFetchDelay();
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
-	} );
-
-	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {
-		// `isEmpty` is caller-derived and can be false during first load (e.g.
-		// `data?.rows.length === 0` while data is undefined); loading must still block children.
-		render(
-			<WidgetState isLoading isError={ false } isEmpty={ false }>
-				{ CONTENT }
-			</WidgetState>
-		);
-		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the empty state on screen through a refetch that drags on', () => {

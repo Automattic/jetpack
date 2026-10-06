@@ -1,12 +1,14 @@
+import { TooltipBox } from '@jetpack-premium-analytics/externals';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
-import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof ChartTooltip > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/ChartTooltip',
 	component: ChartTooltip,
 	tags: [ 'autodocs' ],
+	decorators: [ withChartTheme ],
 	parameters: {
 		layout: 'centered',
 	},

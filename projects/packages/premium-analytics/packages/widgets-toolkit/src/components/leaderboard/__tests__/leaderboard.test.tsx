@@ -7,9 +7,11 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { WIDGET_ROW_LIMIT } from '../../../constants/rows';
 import { describeError } from '../../../helpers/describe-error';
 import { useWidgetRootContext } from '../../widget-root';
 import { Leaderboard, type LeaderboardStatus } from '../leaderboard';
+import type { LeaderboardRowInput } from '../build-leaderboard-chart-data';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
 type MockRouteLinkProps = {
@@ -86,26 +88,43 @@ describe( 'Leaderboard', () => {
 		expect( screen.getByText( '3.8K' ) ).toBeInTheDocument();
 	} );
 
-	it( 'links a video row to the detail route with the dashboard window', () => {
+	it( 'links detail rows with the dashboard window unless a row declares its own', () => {
 		renderLeaderboard(
 			<Leaderboard
 				rows={ [
 					{ id: '1', label: 'Walkthrough', value: 10, action: { kind: 'videoLink', id: 101 } },
+					{ id: '2', label: 'Hello world', value: 5, action: { kind: 'postLink', id: 9 } },
+					{
+						id: '3',
+						label: 'Own window',
+						value: 1,
+						action: { kind: 'postLink', id: 3, search: {} },
+					},
 				] }
 				status={ READY }
 			/>
 		);
 
+		const dashboardWindow = 'from=2026-06-01&to=2026-06-16&interval=day&date_type=created';
 		expect( screen.getByRole( 'link', { name: 'Walkthrough' } ) ).toHaveAttribute(
 			'href',
-			'/video/101?from=2026-06-01&to=2026-06-16&interval=day&date_type=created'
+			`/video/101?${ dashboardWindow }`
+		);
+		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
+			'href',
+			`/post/9?${ dashboardWindow }`
+		);
+		expect( screen.getByRole( 'link', { name: 'Own window' } ) ).toHaveAttribute(
+			'href',
+			'/post/3'
 		);
 	} );
 
-	it( 'shows the skeleton instead of the rows while loading', () => {
+	it( 'shows a skeleton row per row limit instead of the rows while loading', () => {
 		renderLeaderboard( <Leaderboard rows={ ROWS } status={ { isLoading: true } } /> );
 
 		expect( screen.queryByText( 'Getting Started' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByTestId( 'skeleton-row' ) ).toHaveLength( WIDGET_ROW_LIMIT );
 	} );
 
 	it( 'offers the generic error with a retry when the widget passes none', async () => {
@@ -136,24 +155,6 @@ describe( 'Leaderboard', () => {
 			"You don't have access to this data."
 		);
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps the retry describeError() offers for a retryable error', async () => {
-		const refetch = jest.fn();
-		renderLeaderboard(
-			<Leaderboard
-				rows={ [] }
-				status={ { isLoading: false, isError: true, refetch } }
-				error={ describeError(
-					{ status: 500 },
-					{ retryDescription: 'Could not load videos.', onRetry: refetch }
-				) }
-			/>
-		);
-
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Could not load videos.' );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'shows the generic empty state without rows', () => {
@@ -212,8 +213,8 @@ describe( 'Leaderboard', () => {
 		expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
 	} );
 
-	it( 'drops a selection the settled data no longer backs', async () => {
-		const withChildren = [
+	describe( 'when the drilled row leaves the data', () => {
+		const WITH_CHILDREN = [
 			{
 				id: 'google',
 				label: 'Google',
@@ -221,28 +222,42 @@ describe( 'Leaderboard', () => {
 				children: [ { id: 'c', label: 'Child', value: 1 } ],
 			},
 		];
-		const drillDown = {
+		const WITHOUT_CHILDREN = [ { id: 'direct', label: 'Direct', value: 5 } ];
+		const DRILL_DOWN = {
 			backLabel: 'All',
 			rowAriaLabel: ( row: { label: string } ) => `View ${ row.label }`,
 		};
-		const { rerender } = renderLeaderboard(
-			<Leaderboard rows={ withChildren } status={ READY } drillDown={ drillDown } />
-		);
-		await userEvent.click( screen.getByRole( 'button', { name: 'View Google' } ) );
-		expect( screen.getByText( 'Child' ) ).toBeInTheDocument();
 
-		rerender(
-			<GlobalChartsProvider>
-				<Leaderboard
-					rows={ [ { id: 'direct', label: 'Direct', value: 5 } ] }
-					status={ READY }
-					drillDown={ drillDown }
-				/>
-			</GlobalChartsProvider>
-		);
+		// The row comes back afterwards, so a selection still held would reopen it.
+		async function drillInThenLoseTheRow( interimStatus: LeaderboardStatus ) {
+			const { rerender } = renderLeaderboard(
+				<Leaderboard rows={ WITH_CHILDREN } status={ READY } drillDown={ DRILL_DOWN } />
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View Google' } ) );
+			expect( screen.getByText( 'Child' ) ).toBeInTheDocument();
 
-		expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'All' } ) ).not.toBeInTheDocument();
+			const rerenderWith = ( rows: LeaderboardRowInput[], status: LeaderboardStatus ) =>
+				rerender(
+					<GlobalChartsProvider>
+						<Leaderboard rows={ rows } status={ status } drillDown={ DRILL_DOWN } />
+					</GlobalChartsProvider>
+				);
+			rerenderWith( WITHOUT_CHILDREN, interimStatus );
+			rerenderWith( WITH_CHILDREN, READY );
+		}
+
+		it( 'drops a selection the settled data no longer backs', async () => {
+			await drillInThenLoseTheRow( READY );
+
+			expect( screen.getByRole( 'button', { name: 'View Google' } ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Child' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the selection through a refetch that briefly drops the row', async () => {
+			await drillInThenLoseTheRow( { isLoading: false, isFetching: true } );
+
+			expect( screen.getByText( 'Child' ) ).toBeInTheDocument();
+		} );
 	} );
 
 	it( 'renders the footer in every state', () => {

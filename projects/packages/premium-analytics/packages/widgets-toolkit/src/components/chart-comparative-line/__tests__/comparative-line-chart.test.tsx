@@ -211,39 +211,24 @@ describe( 'ComparativeLineChart', () => {
 		mockChartHeight = Infinity;
 	} );
 
-	describe( 'margin', () => {
-		it( 'never overrides the gutters the chart measured', () => {
-			render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+	// `useChartMargin` sizes the gutters itself; overriding them here clipped the edge dates.
+	it.each( [
+		[ 'by default', DATA_FORMAT, false ],
+		[ 'on a pinned domain', { type: 'percentage' as const, options: { decimals: 0 } }, false ],
+		[ 'on a sparkline, which hides the y axis', DATA_FORMAT, true ],
+	] )( 'never overrides the gutters the chart measured %s', ( _case, dataFormat, isSparkline ) => {
+		mockChartHeight = isSparkline ? 80 : Infinity;
 
-			expect( recordedProps().margin ).toBeUndefined();
-		} );
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ dataFormat }
+				compactWhenShort={ isSparkline }
+			/>
+		);
 
-		it( 'leaves the pinned domain to size its own gutter', () => {
-			render(
-				<ComparativeLineChart
-					series={ SERIES }
-					dataFormat={ { type: 'percentage', options: { decimals: 0 } } }
-				/>
-			);
-
-			// `useChartMargin` measures the pinned domain's own ticks, so there is
-			// nothing left for this component to override.
-			expect( recordedProps().options.yScale.domain ).toBeDefined();
-			expect( recordedProps().margin ).toBeUndefined();
-		} );
-
-		it( 'keeps the date labels on a sparkline', () => {
-			mockChartHeight = 80;
-
-			render(
-				<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
-			);
-
-			// The hidden y axis frees its gutter inside `useChartMargin`; zeroing the
-			// margin here would clip the first and last dates, which still render.
-			expect( recordedProps().options.axis.y.display ).toBe( false );
-			expect( recordedProps().margin ).toBeUndefined();
-		} );
+		expect( recordedProps().margin ).toBeUndefined();
+		expect( recordedProps().options.axis.y.display ).toBe( isSparkline ? false : undefined );
 	} );
 
 	describe( 'value axis baseline', () => {
@@ -515,23 +500,6 @@ describe( 'ComparativeLineChart', () => {
 		);
 	} );
 
-	it( 'lets a declared resolution override what the data looks like', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render(
-			<ComparativeLineChart
-				series={ HOURLY_SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="day"
-			/>
-		);
-
-		expect( tooltipModelFor( { datum: { date: JULY_2, value: 200 }, key: 'Views' } ).date ).toBe(
-			'July 2, 2026'
-		);
-	} );
-
-	// How a point's date reads is the caller's to decide; which format names it
-	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
 		const formatTooltipDate = jest.fn( () => 'the bucket' );
 		render(

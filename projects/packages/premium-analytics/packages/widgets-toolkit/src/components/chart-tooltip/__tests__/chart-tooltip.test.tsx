@@ -5,7 +5,6 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { MetricValue } from '../../metric-value';
 import { ChartTooltip } from '../chart-tooltip';
 
 // The library's shape components need a provider jsdom cannot lay out, so stand
@@ -16,17 +15,6 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	Stack: ( { children }: { children?: React.ReactNode } ) => <div>{ children }</div>,
 } ) );
 
-// Wrapped, not replaced: `MetricValue` renders an empty span for `undefined`, so
-// only its call count tells an inline row from a split row with a blank value.
-jest.mock( '../../metric-value', () => {
-	const actual = jest.requireActual( '../../metric-value' );
-	return { ...actual, MetricValue: jest.fn( actual.MetricValue ) };
-} );
-
-beforeEach( () => {
-	jest.mocked( MetricValue ).mockClear();
-} );
-
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
 const STYLES = [
@@ -36,8 +24,6 @@ const STYLES = [
 	{ stroke: '#visitors-previous' },
 ];
 
-// The order a bar chart reports its rows in: both current periods, then both
-// previous ones — not the order the series (and so the styles) are in.
 describe( 'ChartTooltip', () => {
 	it( 'spells a compact chart value out in full', () => {
 		render(
