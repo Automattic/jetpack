@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Plugins_Installer;
 
 /**
@@ -365,8 +364,14 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// The flag is registered by the Jetpack plugin, which owns the `protect-dashboard` module.
-					'jetpack'     => Feature_Flags::is_enabled( 'jetpack-protect-dashboard' ),
+					/**
+					 * Filters whether the Jetpack plugin delivers Protect, through its `protect-dashboard` module.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param bool $in_jetpack Whether the Jetpack plugin delivers Protect. Default false.
+					 */
+					'jetpack'     => (bool) apply_filters( 'jetpack_my_jetpack_protect_in_jetpack', false ),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',
@@ -499,7 +504,7 @@ class Main_Features {
 	/**
 	 * The paid bundles that include a feature, named for display.
 	 *
-	 * Named by the bundle products themselves, so the Features tab and the Products tab
+	 * Named by the bundle products themselves, so the Features tab and the rest of My Jetpack
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.
