@@ -41,5 +41,12 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 		}
 	}
 
+	if ( $module.available === false ) {
+		return {
+			isAvailable: false,
+			reason: $module.unavailable_reason || __( 'Unavailable', 'jetpack-my-jetpack' ),
+		};
+	}
+
 	return { isAvailable: true };
 }

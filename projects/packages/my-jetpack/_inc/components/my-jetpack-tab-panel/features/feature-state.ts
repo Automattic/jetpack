@@ -1,4 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { getQueryArg } from '@wordpress/url';
 import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
@@ -7,7 +8,9 @@ import {
 	pluginSwitchKey,
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
-import { getProductModules } from './mappings';
+import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
+import { linksTo } from '../../../utils/admin-menu-sync';
+import { getProductModules, PRODUCT_MODULES } from './mappings';
 import { getModuleStatus, getOverrideReason } from './module-availability';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
@@ -50,7 +53,38 @@ export type FeatureState = {
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
 	product?: ProductCamelCase;
+	unavailableReason?: string;
+	moduleUnavailableReason?: string;
 };
+
+/**
+ * Keep offline Open links within registered admin pages.
+ *
+ * @param state - The feature state.
+ * @return A management URL, or an empty string.
+ */
+export function getFeatureManageUrl( state: FeatureState ): string {
+	if (
+		state.unavailableReason ||
+		( state.control.kind === 'module' && state.control.module.available === false )
+	) {
+		return '';
+	}
+
+	const url = state.feature.manage_url || '';
+	if ( ! isOfflineFeatures() || ! url ) {
+		return url;
+	}
+
+	const page = getQueryArg( url, 'page' );
+	const registered =
+		! page ||
+		getOfflineFeaturesSeed()?.mainFeatures.available_admin_pages?.includes( String( page ) );
+	const inSidebar = Array.from( document.querySelectorAll( '#adminmenu li' ) ).some( item =>
+		linksTo( item, url )
+	);
+	return registered || inSidebar ? url : '';
+}
 
 /**
  * Why a feature can't be switched here: a host forced its module or plugin on or off, or
@@ -74,7 +108,7 @@ export function getForcedReason( state: FeatureState ): string | null {
 		return getOverrideReason( control.override );
 	}
 
-	return null;
+	return state.unavailableReason ?? null;
 }
 
 /**
@@ -161,6 +195,21 @@ export function resolveFeatureState(
 	const $module =
 		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
+	const ungatedSlug = PRODUCT_MODULES[ feature.product as keyof typeof PRODUCT_MODULES ];
+	const gatedModule =
+		jetpack === 'active' && ungatedSlug && ! productModules[ feature.product ]
+			? modules?.[ ungatedSlug ]
+			: undefined;
+	if ( gatedModule?.available === false ) {
+		return {
+			feature,
+			product,
+			status: 'inactive',
+			control: { kind: 'none' },
+			unavailableReason: getModuleStatus( gatedModule ).reason,
+		};
+	}
+
 	if ( feature.in_jetpack && jetpack === 'active' ) {
 		// Answering from an empty module list would offer to install a plugin for a
 		// feature Jetpack is already running.
@@ -170,11 +219,14 @@ export function resolveFeatureState(
 
 		// A host's override decides the module whatever the plan, so it explains itself
 		// rather than falling through to the standalone plugin.
-		if ( $module?.available || $module?.override ) {
+
+		const hasPluginRoute = Boolean( feature.plugin && feature.plugin_status !== 'not-installed' );
+		if ( $module && ( $module.available || $module.override || ! hasPluginRoute ) ) {
 			return {
 				feature,
 				product,
-				status: $module.activated ? 'active' : 'inactive',
+				status:
+					( $module.available || $module.override ) && $module.activated ? 'active' : 'inactive',
 				control: { kind: 'module', module: $module },
 			};
 		}
@@ -209,6 +261,10 @@ export function resolveFeatureState(
 			feature,
 			product,
 			status: feature.plugin_status === 'active' || moduleIsOn ? 'active' : 'inactive',
+			moduleUnavailableReason:
+				$module?.available === false
+					? $module.unavailable_reason || getModuleStatus( { ...$module, override: false } ).reason
+					: undefined,
 			control: {
 				kind: 'plugin',
 				plugin: feature.plugin,

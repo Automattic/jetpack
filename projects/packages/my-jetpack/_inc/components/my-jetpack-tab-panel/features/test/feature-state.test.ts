@@ -1,5 +1,5 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
-import { getForcedReason, resolveFeatureState } from '../feature-state';
+import { getFeatureManageUrl, getForcedReason, resolveFeatureState } from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
@@ -84,12 +84,42 @@ describe( 'resolveFeatureState', () => {
 			} );
 		} );
 
-		it( 'offers nothing when Jetpack ships the feature but its module is unavailable', () => {
+		it( 'keeps a network-activated plugin forced on while explaining its unavailable module', () => {
+			const feature = buildFeature( {
+				in_jetpack: true,
+				module: 'videopress',
+				plugin: 'jetpack-videopress',
+				plugin_status: 'active',
+				plugin_override: 'active',
+			} );
+			const state = resolve( feature, 'active', {
+				videopress: buildModule( {
+					module: 'videopress',
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+				} ),
+			} );
+			expect( state.status ).toBe( 'active' );
+			expect( state.control ).toEqual( {
+				kind: 'plugin',
+				plugin: 'jetpack-videopress',
+				override: 'active',
+			} );
+			expect( state.moduleUnavailableReason ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBe( 'Enabled by your host or site administrator' );
+		} );
+
+		it( 'retains an unavailable module and its reason without a switch', () => {
 			const state = resolve( buildFeature( { in_jetpack: true, module: 'stats' } ), 'active', {
-				stats: buildModule( { available: false } ),
+				stats: buildModule( {
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+				} ),
 			} );
 
-			expect( state.control.kind ).toBe( 'none' );
+			expect( state.control.kind ).toBe( 'module' );
+			expect( getForcedReason( state ) ).toBe( 'Unavailable in Offline mode' );
+			expect( state.status ).toBe( 'inactive' );
 		} );
 	} );
 
@@ -147,6 +177,19 @@ describe( 'resolveFeatureState, for a product the module map has dropped', () =>
 		expect( resolveFeatureState( ai, 'active', undefined, aiModules, gated ).control.kind ).toBe(
 			'none'
 		);
+	} );
+
+	it( 'explains an unavailable AI module without bypassing its control gate', () => {
+		const modules = {
+			ai: buildModule( {
+				module: 'ai',
+				available: false,
+				unavailable_reason: 'Unavailable in Offline mode',
+			} ),
+		};
+		const state = resolveFeatureState( ai, 'active', undefined, modules, gated );
+		expect( state.control.kind ).toBe( 'none' );
+		expect( getForcedReason( state ) ).toBe( 'Unavailable in Offline mode' );
 	} );
 
 	it( 'still reports the product as running, so the card does not call it Inactive', () => {
@@ -223,10 +266,14 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 		} ),
 	};
 
-	it.each( [ 'not-installed', 'inactive' ] as const )(
+	it.each( [ 'not-installed', 'inactive', 'active' ] as const )(
 		'explains a host override instead of offering a %s plugin',
 		plugin_status => {
-			const state = resolve( { ...search, plugin_status }, 'active', forcedOff );
+			const state = resolve(
+				{ ...search, plugin_status, plugin_override: plugin_status === 'active' ? 'active' : '' },
+				'active',
+				forcedOff
+			);
 
 			expect( state.control ).toEqual( { kind: 'module', module: forcedOff.search } );
 			expect( state.status ).toBe( 'inactive' );
@@ -234,15 +281,14 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 		}
 	);
 
-	it( 'still offers the plugin when nothing forced the module', () => {
+	it( 'explains the unavailable module instead of offering its plugin', () => {
 		const unforced = {
 			search: buildModule( { module: 'search', available: false, activated: false } ),
 		};
 
-		expect( resolve( search, 'active', unforced ).control ).toEqual( {
-			kind: 'install-plugin',
-			plugin: 'jetpack-search',
-		} );
+		const state = resolve( search, 'active', unforced );
+		expect( state.control ).toEqual( { kind: 'module', module: unforced.search } );
+		expect( getForcedReason( state ) ).toBe( 'Unavailable' );
 	} );
 } );
 
@@ -315,4 +361,40 @@ describe( 'resolveFeatureState, for a feature a plan runs without its plugin', (
 		expect( state.status ).toBe( 'inactive' );
 		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
 	} );
+} );
+
+it( 'keeps offline management links only for pages registered on this site', () => {
+	const previousInitial = window.myJetpackInitialState;
+	const previousData = window.JetpackScriptData;
+	const registeredPages = [ 'jetpack-forms' ];
+	const menu = document.createElement( 'ul' );
+	menu.id = 'adminmenu';
+	document.body.appendChild( menu );
+	window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+	window.JetpackScriptData = {
+		myJetpack: {
+			offlineFeatures: { mainFeatures: { available_admin_pages: registeredPages } },
+		},
+	} as unknown as typeof previousData;
+	try {
+		const state = resolve(
+			buildFeature( {
+				plugin: 'jetpack-stats',
+				plugin_status: 'active',
+				manage_url: 'https://example.com/wp-admin/admin.php?page=stats',
+			} ),
+			'active'
+		);
+		expect( getFeatureManageUrl( state ) ).toBe( '' );
+		state.feature.manage_url = 'https://example.com/wp-admin/admin.php?page=jetpack-forms';
+		expect( getFeatureManageUrl( state ) ).toBe( state.feature.manage_url );
+		registeredPages.length = 0;
+		menu.innerHTML = `<li><a href="${ state.feature.manage_url }">Forms</a></li>`;
+		state.feature.manage_url += '#/responses';
+		expect( getFeatureManageUrl( state ) ).toBe( state.feature.manage_url );
+	} finally {
+		menu.remove();
+		window.myJetpackInitialState = previousInitial;
+		window.JetpackScriptData = previousData;
+	}
 } );

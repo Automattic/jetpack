@@ -5,7 +5,7 @@ import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
-import { getForcedReason } from './feature-state';
+import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
@@ -130,6 +130,7 @@ type FeatureModalActionsProps = {
  */
 export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const { feature, control } = state;
+	const manageUrl = getFeatureManageUrl( state );
 	const isActive = state.status === 'active';
 	const pluginName = feature.plugin_name || feature.name;
 	const forcedReason = getForcedReason( state );
@@ -143,13 +144,8 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 
 	return (
 		<>
-			{ isActive && feature.manage_url ? (
-				<LinkButton
-					href={ feature.manage_url }
-					variant="solid"
-					size="compact"
-					onClick={ onManageClick }
-				>
+			{ isActive && manageUrl ? (
+				<LinkButton href={ manageUrl } variant="solid" size="compact" onClick={ onManageClick }>
 					{ __( 'Open', 'jetpack-my-jetpack' ) }
 				</LinkButton>
 			) : null }

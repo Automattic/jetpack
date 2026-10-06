@@ -23,6 +23,44 @@ use WorDBless\BaseTestCase;
  * Tests for the Initializer class.
  */
 class Initializer_Test extends BaseTestCase {
+	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'unavailable-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		$_GET['page'] = 'my-jetpack';
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		$hide = static function ( $states ) {
+			return array_merge(
+				$states,
+				array(
+					'stats'   => 'hidden',
+					'social'  => 'hidden',
+					'monitor' => 'hidden',
+				)
+			);
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+		try {
+			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			$state = Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures']['mainFeatures'];
+			$slugs = array_column( $state['features'], 'slug' );
+			$this->assertContains( 'activity-log', $slugs );
+			$this->assertNotContains( 'stats', $slugs );
+			$this->assertNotContains( 'social', $slugs );
+			$this->assertContains( 'stats', $state['hidden_modules'] );
+			$this->assertContains( 'publicize', $state['hidden_modules'] );
+			$this->assertContains( 'monitor', $state['hidden_modules'] );
+		} finally {
+			remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+		}
+	}
+
 	/**
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

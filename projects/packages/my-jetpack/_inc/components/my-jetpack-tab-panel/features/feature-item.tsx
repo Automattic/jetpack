@@ -9,6 +9,7 @@ import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -24,7 +25,7 @@ import type { ReactNode } from 'react';
  */
 export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undefined {
 	// Deprecated modules are offered only to be switched off; the widgets link opens no widgets panel on a block theme.
-	if ( getDeprecatedModules().includes( $module.module ) ) {
+	if ( $module.available === false || getDeprecatedModules().includes( $module.module ) ) {
 		return undefined;
 	}
 
@@ -72,6 +73,19 @@ export function FeatureItem( {
 	const isActive = state.status === 'active';
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
+	const unavailable =
+		Boolean( state.unavailableReason ) ||
+		( state.control.kind === 'module' && state.control.module.available === false );
+	const reason = state.moduleUnavailableReason
+		? sprintf(
+				/* translators: %s is why the Jetpack module is unavailable; its standalone plugin can still be switched. */
+				__( 'Jetpack module: %s', 'jetpack-my-jetpack' ),
+				state.moduleUnavailableReason
+			)
+		: state.unavailableReason ||
+			( unavailable && state.control.kind === 'module'
+				? state.control.module.unavailable_reason || getForcedReason( state )
+				: getForcedReason( state ) );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -142,8 +156,10 @@ export function FeatureItem( {
 					) }
 
 					{ ! isSettling && ! migration && (
-						<Badge id={ statusId } intent={ isActive ? 'stable' : 'none' }>
-							{ getActivationStatusLabel( isActive ) }
+						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
+							{ unavailable
+								? __( 'Unavailable', 'jetpack-my-jetpack' )
+								: getActivationStatusLabel( isActive ) }
 						</Badge>
 					) }
 
@@ -155,6 +171,12 @@ export function FeatureItem( {
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ migration?.notice ?? feature.description }
 				</Text>
+
+				{ ( unavailable || state.moduleUnavailableReason ) && reason && (
+					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
+						{ reason }
+					</Text>
+				) }
 
 				<FeatureInstallNotice state={ state } />
 			</span>

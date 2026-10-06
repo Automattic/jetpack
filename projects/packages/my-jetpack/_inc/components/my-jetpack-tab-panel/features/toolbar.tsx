@@ -106,7 +106,7 @@ type ToolbarProps = {
 
 // Only these two are counted from live state; the rest come from the catalog and are
 // right from the first paint.
-const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
+const LIVE_COUNTS: FeatureFilter[] = [ 'available', 'active', 'inactive' ];
 
 /**
  * The filter pills and the search box above the grid.

@@ -2,12 +2,12 @@ import { __ } from '@wordpress/i18n';
 import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
-	'all' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
+	'all' | 'available' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
 
 const PLANS = [ 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
-	[ 'all', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
+	[ 'all', 'available', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
 
 /**
  * The filters offered as pills, in the order they are shown.
@@ -26,6 +26,7 @@ export const getFeatureFilters = (
 	ownedView = false
 ): Array< { value: FeatureFilter; label: string } > => [
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
+	{ value: 'available', label: __( 'Available', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
 	...( ownedView || 'included' === active
@@ -55,6 +56,14 @@ export const getFeatureFilters = (
 export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boolean {
 	if ( filter === 'all' ) {
 		return true;
+	}
+
+	if ( filter === 'available' ) {
+		return (
+			! state.pending &&
+			! state.unavailableReason &&
+			( state.control.kind !== 'module' || state.control.module.available !== false )
+		);
 	}
 
 	if ( filter === 'active' ) {

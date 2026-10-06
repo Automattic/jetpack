@@ -469,6 +469,8 @@ type MainFeaturesState = {
 	features: MainFeature[];
 	// Optional: a plugin carrying an older copy of this package sends none.
 	module_groups?: MainFeatureModuleGroup[];
+	hidden_modules?: string[];
+	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
 };
 
