@@ -107,6 +107,10 @@ class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
 			$this->markTestSkipped( 'Needs the wp-build output not to be loaded.' );
 		}
 
-		$this->assertStringContainsString( 'notice-error', get_echo( array( Jetpack_Protect_Dashboard::class, 'render' ) ) );
+		ob_start();
+		Jetpack_Protect_Dashboard::render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
 	}
 }
