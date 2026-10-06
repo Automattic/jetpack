@@ -2,21 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import type { ReactElement } from 'react';
 
-/*
- * The intro film that heads the welcome modal.
- *
- * VideoPress-hosted only: the modal's whole argument is "look at the player",
- * and a VideoPress-hosted asset means the thing doing the arguing IS the
- * player — captions, quality selector and all. It also dogfoods the product on
- * the screen that sells it. No film ships in the plugin bundle (a bundled
- * `.mp4` was rejected for the package weight, and a native `<video>` makes the
- * pitch without proving it); until the hosted asset exists the band shows the
- * wireframe brand artwork on its own.
- *
- * TODO(VIDP): upload the finished 28s intro film to a VideoPress account the
- * team controls and set `INTRO_VIDEO_GUID`.
- */
-const INTRO_VIDEO_GUID = '';
+const INTRO_VIDEO_GUID = 'TxHvBtrK';
 
 // The intro film is 1920x1080; the band takes its shape from the asset.
 export const INTRO_VIDEO_ASPECT = '16 / 9';
