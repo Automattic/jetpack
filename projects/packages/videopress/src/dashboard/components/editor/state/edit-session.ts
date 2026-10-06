@@ -8,10 +8,9 @@
 export const MIN_OUTPUT_MS = 1000;
 
 /**
- * Default half-span of a newly added cut: ADD_CUT removes ±2s around the playhead unless the
- * caller overrides it.
+ * Default duration of a newly added cut.
  */
-export const DEFAULT_CUT_HALF_SPAN_MS = 2000;
+export const DEFAULT_CUT_DURATION_MS = 4000;
 
 /**
  * A removed range on the original master timeline.
@@ -70,7 +69,7 @@ export type EditOperation = TrimOperation | CutOperation;
 export type EditSessionAction =
 	| { type: 'SET_TRIM_START'; ms: number }
 	| { type: 'SET_TRIM_END'; ms: number }
-	| { type: 'ADD_CUT'; atMs: number; halfSpanMs?: number; id?: string }
+	| { type: 'ADD_CUT'; atMs: number; durationMs?: number; id?: string }
 	| { type: 'UPDATE_CUT'; id: string; startMs?: number; endMs?: number }
 	| { type: 'MOVE_CUT'; id: string; startMs: number }
 	| { type: 'REMOVE_CUT'; id: string }
@@ -438,37 +437,37 @@ function setTrimEnd( state: EditSession, ms: number ): EditSession {
 }
 
 /**
- * Add a cut around the playhead.
+ * Start a cut at the playhead, or end there when it is at the trim end.
  *
  * @param state      - Current session.
  * @param atMs       - Playhead position on the master timeline.
- * @param halfSpanMs - Half-span of the new cut (default ±2s).
+ * @param durationMs - Duration of the new cut (default 4s).
  * @param id         - Explicit id for the new cut (tests/UI).
  * @return Next session.
  */
-function addCut( state: EditSession, atMs: number, halfSpanMs?: number, id?: string ): EditSession {
+function addCut( state: EditSession, atMs: number, durationMs?: number, id?: string ): EditSession {
 	const at = Math.round( atMs );
 	if ( at < state.trimStartMs || at > state.trimEndMs ) {
 		return state;
 	}
-	const maxHalf = Math.max( 1, Math.round( halfSpanMs ?? DEFAULT_CUT_HALF_SPAN_MS ) );
+	const maxDuration = Math.max( 1, Math.round( durationMs ?? DEFAULT_CUT_DURATION_MS ) );
 	const minOutput = requiredMinOutput( state );
 
-	const candidateRange = ( half: number ) => ( {
-		startMs: Math.max( state.trimStartMs, at - half ),
-		endMs: Math.min( state.trimEndMs, at + half ),
+	const candidateRange = ( span: number ) => ( {
+		startMs: at === state.trimEndMs ? Math.max( state.trimStartMs, at - span ) : at,
+		endMs: at === state.trimEndMs ? at : Math.min( state.trimEndMs, at + span ),
 	} );
-	const pred = ( half: number ) =>
+	const pred = ( span: number ) =>
 		outputDuration( state.trimStartMs, state.trimEndMs, [
 			...state.cuts,
-			candidateRange( half ),
+			candidateRange( span ),
 		] ) >= minOutput;
 
-	const half = largestSatisfying( 1, maxHalf, pred );
-	if ( half === null ) {
+	const span = largestSatisfying( 1, maxDuration, pred );
+	if ( span === null ) {
 		return state;
 	}
-	const range = candidateRange( half );
+	const range = candidateRange( span );
 	if ( range.endMs <= range.startMs ) {
 		return state;
 	}
@@ -617,7 +616,7 @@ export function editSessionReducer( state: EditSession, action: EditSessionActio
 			break;
 
 		case 'ADD_CUT':
-			next = addCut( state, action.atMs, action.halfSpanMs, action.id );
+			next = addCut( state, action.atMs, action.durationMs, action.id );
 			break;
 
 		case 'UPDATE_CUT':

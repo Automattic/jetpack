@@ -21,8 +21,8 @@ it( 'keeps source coordinates left-to-right inside an RTL editor', () => {
 	const onSeek = jest.fn();
 	const session = editSessionReducer( createEditSession( 10000 ), {
 		type: 'ADD_CUT',
-		atMs: 2000,
-		halfSpanMs: 1000,
+		atMs: 1000,
+		durationMs: 2000,
 		id: 'a',
 	} );
 	render(
