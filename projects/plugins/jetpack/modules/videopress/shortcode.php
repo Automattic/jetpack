@@ -89,7 +89,6 @@ class VideoPress_Shortcode {
 			'freedom'         => false, // Whether to use only free/libre codecs
 			'autoplay'        => false, // Whether to autoplay the video on load
 			'permalink'       => true,  // Whether to display the permalink to the video
-			'flashonly'       => false, // Whether to support the Flash player exclusively
 			'defaultlangcode' => false, // Default language code
 			'cover'           => true,  // Whether to scale the video to its container.
 			'muted'           => false, // Whether the video should start without sound.
@@ -167,9 +166,7 @@ class VideoPress_Shortcode {
 				'freedom'         => $attr['freedom'],
 				'autoplay'        => $attr['autoplay'],
 				'permalink'       => $attr['permalink'],
-				'force_flash'     => (bool) $attr['flashonly'],
 				'defaultlangcode' => $attr['defaultlangcode'],
-				'forcestatic'     => false, // This used to be a displayed option, but now is only.
 				'muted'           => $attr['muted'],
 				'controls'        => $attr['controls'],
 				'playsinline'     => $attr['playsinline'],
@@ -180,7 +177,7 @@ class VideoPress_Shortcode {
 		);
 
 		// Register VideoPress scripts
-		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery', 'swfobject' ), '1.09', false );
+		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery' ), '1.09', false );
 
 		require_once __DIR__ . '/class.videopress-video.php';
 		require_once __DIR__ . '/class.videopress-player.php';

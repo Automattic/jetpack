@@ -154,14 +154,6 @@ class VideoPress_Video {
 	public $videos;
 
 	/**
-	 * Video player information
-	 *
-	 * @var stdClass
-	 * @since 1.3
-	 */
-	public $players;
-
-	/**
 	 * Video player skinning preferences including background color and watermark
 	 *
 	 * @var array
@@ -276,13 +268,6 @@ class VideoPress_Video {
 			if ( isset( $data->ogv ) ) {
 				$this->videos->ogv = $data->ogv;
 			}
-		}
-
-		if ( isset( $data->swf ) ) {
-			if ( ! isset( $this->players ) ) {
-				$this->players = new stdClass();
-			}
-			$this->players->swf = $data->swf;
 		}
 
 		if ( isset( $data->skin ) ) {

@@ -287,14 +287,8 @@ class Jetpack_Brightcove_Shortcode {
 				</object>';
 		}
 
-		return sprintf(
-			'<embed src="%s" bgcolor="#FFFFFF" flashvars="%s" base="http://admin.brightcove.com" name="%s" width="%s" height="%s" allowFullScreen="true" seamlesstabbing="false" type="application/x-shockwave-flash" swLiveConnect="true" pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" />',
-			esc_url( $src ),
-			$flashvars,
-			esc_attr( $name ),
-			esc_attr( $width ),
-			esc_attr( $height )
-		);
+		// Legacy Brightcove Flash player; Flash has been EOL since 2020 and is no longer supported.
+		return '';
 	}
 }
 
