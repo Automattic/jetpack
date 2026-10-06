@@ -22,16 +22,31 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-pag
  * @covers Akismet_Admin_Chrome
  * @covers Jetpack_Admin_Page::wrap_ui
  * @covers Automattic\Jetpack\Plugin\Footer_Links::is_my_jetpack_available
+ * @covers Automattic\Jetpack\Plugin\Footer_Links::get_my_jetpack_products_section
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
 #[CoversMethod( Jetpack_Admin_Page::class, 'wrap_ui' )]
 #[CoversMethod( Footer_Links::class, 'is_my_jetpack_available' )]
+#[CoversMethod( Footer_Links::class, 'get_my_jetpack_products_section' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	private $registered_pages;
 	private $actions;
 	private $user_id;
+
+	public function test_deprecated_products_section_returns_features() {
+		$this->setExpectedDeprecated( Footer_Links::class . '::get_my_jetpack_products_section' );
+
+		$this->assertSame(
+			array(
+				'slug'  => 'features',
+				'label' => 'Features',
+			),
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Exercise the compatibility shim.
+			Footer_Links::get_my_jetpack_products_section()
+		);
+	}
 
 	/**
 	 * Reset the status cache, which memoizes both the offline-mode and the

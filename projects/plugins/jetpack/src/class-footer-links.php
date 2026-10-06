@@ -28,4 +28,21 @@ class Footer_Links {
 		return method_exists( My_Jetpack_Initializer::class, 'is_admin_page_available' )
 			&& My_Jetpack_Initializer::is_admin_page_available();
 	}
+
+	/**
+	 * Get the slug and label of My Jetpack's Features tab.
+	 *
+	 * @since 16.3
+	 * @deprecated $$next-version$$ Use the Features route directly.
+	 *
+	 * @return array{slug: string, label: string}
+	 */
+	public static function get_my_jetpack_products_section() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+
+		return array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack' ),
+		);
+	}
 }
