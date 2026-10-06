@@ -5174,6 +5174,41 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The summary shows a stored less-than sign as typed.
+	 */
+	public function test_get_submission_display_value_shows_stored_text_as_typed() {
+		$this->assertSame( "<\f!-- note --> one", $this->invoke_private_static( 'get_submission_display_value', array( "&lt;\f!-- note --> one", 'textarea' ) ) );
+		$this->assertSame( array( 'x < 5', 'y' ), $this->invoke_private_static( 'get_submission_display_value', array( array( 'x &lt; 5', 'y' ), 'checkbox-multiple' ) ) );
+	}
+
+	/**
+	 * The notification subject reads as the text that was typed.
+	 */
+	public function test_process_submission_mail_subject_reads_as_typed() {
+		$subject = null;
+		add_filter(
+			'pre_wp_mail',
+			function ( $short_circuit, $atts ) use ( &$subject ) {
+				$subject = $atts['subject'];
+				return true;
+			},
+			1,
+			2
+		);
+
+		$this->add_field_values(
+			array(
+				'email'   => 'john@example.com',
+				'subject' => wp_slash( 'Order <b>42</b> & x < 5' ),
+			)
+		);
+		$form = new Contact_Form( array(), "[contact-field label='Email' type='email' required='1'/][contact-field label='Subject' type='subject'/]" );
+
+		$this->assertIsString( $form->process_submission() );
+		$this->assertSame( 'Order <b>42</b> & x < 5', $subject );
+	}
+
+	/**
 	 * A ticked and an unticked checkbox must render different SVGs, and only the
 	 * ticked one carries the checkmark path.
 	 */

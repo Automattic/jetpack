@@ -871,9 +871,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
 			$context = 'widget-' . $attributes['widget'];
 		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-			$context = 'block-template-' . $attributes['block_template'];
+			$context = 'block-template-' . sanitize_title( (string) $attributes['block_template'] );
 		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$context = 'block-template-part-' . $attributes['block_template_part'];
+			$context = 'block-template-part-' . sanitize_title( (string) $attributes['block_template_part'] );
 		} elseif ( $post instanceof WP_Post ) {
 			$context = (string) $post->ID;
 		}
@@ -1639,7 +1639,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$r  = '';
 		$r .= "<div data-test='contact-form'
-			id='contact-form-$id'
+			id='contact-form-" . esc_attr( $id ) . "'
 			class='{$container_classes_string}'
 			data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . "
 			data-wp-on--focusin=\"actions.trackFirstInteraction\"
@@ -1811,7 +1811,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( isset( $attributes['hasFormSettingsSet'] ) && $attributes['hasFormSettingsSet'] ) {
 				$r .= "\t\t<input type='hidden' name='is_block' value='1' />\n";
 			}
-			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
+			$r .= "\t\t<input type='hidden' name='contact-form-id' value='" . esc_attr( $id ) . "' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 
@@ -2002,7 +2002,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return __( 'No', 'jetpack-forms' );
 		}
 
-		return self::maybe_transform_value( $value );
+		// The summary prints this with esc_html() and data-wp-text, so it can hold the text as typed.
+		return Feedback::decode_special_chars( self::maybe_transform_value( $value ) );
 	}
 
 	/**
@@ -3393,7 +3394,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 */
 			do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
 
-			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+			// A mail header is plain text, so the subject can read as typed.
+			self::wp_mail( $to, Feedback::decode_special_chars( "{$spam}{$subject}" ), $message, $headers );
 		}
 
 		// Schedule deletes of old spam feedbacks.
