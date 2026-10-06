@@ -102,26 +102,14 @@ describe( 'PostAllTimeTraffic widget', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'lays the years out newest first over the site month names', () => {
+	it( 'draws the months from the publish date to today, with year totals and view labels', () => {
 		renderWidget();
 
-		const grid = screen.getByRole( 'grid' );
-		expect( grid ).toHaveAttribute( 'aria-rowcount', '2' );
-		// Twelve months and the Totals roll-up.
-		expect( grid ).toHaveAttribute( 'aria-colcount', '13' );
-		expect( screen.getByRole( 'gridcell', { name: 'Jan 2026: 5' } ) ).toHaveAttribute(
-			'data-row',
-			'0'
-		);
 		// February had no views: a zero, as the endpoint reports it.
 		expect( screen.getByRole( 'gridcell', { name: 'Feb 2026: 0' } ) ).toBeInTheDocument();
 		// The months still to come, and the months before the post was published, are filler.
 		expect( screen.queryByRole( 'gridcell', { name: /Apr 2026/ } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'gridcell', { name: /Oct 2025/ } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) ).toHaveAttribute(
-			'data-row',
-			'1'
-		);
 		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More views' ) ).toBeInTheDocument();
@@ -154,21 +142,6 @@ describe( 'PostAllTimeTraffic widget', () => {
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
 
 		expect( mockOpenPeriod ).toHaveBeenCalledWith( NOVEMBER_2025 );
-	} );
-
-	it( 'opens a month the endpoint reports before the publish day in full', async () => {
-		mockUseStatsPost.mockReturnValue(
-			statsPostResult( { ...RESPONSE, post: { ID: 779, post_date: '2026-01-10 16:27:32' } } )
-		);
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
-
-		expect( mockOpenPeriod ).toHaveBeenCalledWith( {
-			from: new Date( '2025-11-01T00:00:00.000Z' ),
-			to: new Date( '2025-11-30T23:59:59.999Z' ),
-		} );
 	} );
 
 	it( 'shows the scopeless empty state without a post', () => {

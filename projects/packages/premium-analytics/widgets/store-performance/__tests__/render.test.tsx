@@ -27,11 +27,29 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useReportCustomersByDate: () => mockEmptyReport,
 } ) );
 
-// The chart itself is visx SVG rendering, outside this widget's concern.
+// The chart itself is visx SVG rendering, outside this widget's concern. Keep
+// each tab's count label observable.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: ( { empty }: { empty?: ReactNode } ) => (
-		<div data-testid="metric-tabs-chart">{ empty }</div>
+	MetricTabsChart: ( {
+		metrics,
+		empty,
+	}: {
+		metrics: { key: string; countLabel?: ( count: number ) => string }[];
+		empty?: ReactNode;
+	} ) => (
+		<div
+			data-testid="metric-tabs-chart"
+			data-count-labels={ JSON.stringify(
+				Object.fromEntries(
+					metrics
+						.filter( metric => metric.countLabel )
+						.map( metric => [ metric.key, [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ] ] )
+				)
+			) }
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -46,5 +64,18 @@ describe( 'StorePerformanceRender', () => {
 		expect(
 			screen.getByText( 'We couldn’t find results for this time period.' )
 		).toBeInTheDocument();
+	} );
+
+	it( 'pluralizes the tooltip unit of every count metric', () => {
+		render( <StorePerformanceRender attributes={ {} } /> );
+
+		expect(
+			JSON.parse( screen.getByTestId( 'metric-tabs-chart' ).dataset.countLabels ?? '' )
+		).toEqual( {
+			orders: [ '%s Order', '%s Orders' ],
+			bookings: [ '%s Booking', '%s Bookings' ],
+			visitors: [ '%s Visitor', '%s Visitors' ],
+			customers: [ '%s Customer', '%s Customers' ],
+		} );
 	} );
 } );

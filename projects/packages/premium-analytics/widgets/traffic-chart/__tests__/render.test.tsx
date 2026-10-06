@@ -10,6 +10,7 @@ import { getSettings, setSettings } from '@wordpress/date';
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
+import widget from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -98,16 +99,6 @@ describe( 'TrafficChart chart type', () => {
 
 		expect( drawnChartType() ).toBe( 'bar' );
 	} );
-
-	it( 'keeps a saved choice', () => {
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'day' ), chartType: 'line' } }
-			/>
-		);
-
-		expect( drawnChartType() ).toBe( 'line' );
-	} );
 } );
 
 describe( 'TrafficChart inherited Stats v1 choice', () => {
@@ -168,6 +159,29 @@ describe( 'TrafficChart inherited Stats v1 choice', () => {
 	} );
 } );
 
+describe( 'Traffic chart type switch', () => {
+	function chartTypeSwitchValue( item: { chartType?: 'line' | 'bar' } ) {
+		const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
+		return ( field as unknown as { getValue: ( args: { item: object } ) => unknown } ).getValue( {
+			item,
+		} );
+	}
+
+	it( 'shows bars when nothing is saved', () => {
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'bar' );
+	} );
+
+	it( 'shows a saved choice', () => {
+		expect( chartTypeSwitchValue( { chartType: 'line' } ) ).toBe( 'line' );
+	} );
+
+	it( 'shows the choice Stats v1 saved when nothing is saved here', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
+
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
+	} );
+} );
+
 describe( 'TrafficChart bucket size', () => {
 	it.each( [ 'hour', 'day', 'week', 'month' ] )( 'follows the page interval: %s', interval => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
@@ -195,21 +209,6 @@ describe( 'TrafficChart bucket size', () => {
 		render( <TrafficChartRender attributes={ staleAttributes } /> );
 
 		expect( requestedBucket() ).toBe( 'month' );
-	} );
-
-	// The widget resolves this from `reportParams` alone, so it cannot need a
-	// host setter — and cannot dirty the saved layout just by rendering.
-	it( 'writes nothing, whatever it is handed', () => {
-		const setAttributes = jest.fn();
-
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ) } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
 } );
 

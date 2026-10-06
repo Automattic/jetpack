@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
@@ -48,6 +48,25 @@ describe( 'MonthCalendarHeatmap', () => {
 			await user.hover( screen.getByRole( 'gridcell', { name: 'Sat, Oct 4, 2025: No data' } ) );
 			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Sat, Oct 4, 2025No posts' );
 		} );
+	} );
+
+	it( 'steps the arrow keys day by day across a month boundary', async () => {
+		const user = userEvent.setup();
+		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
+		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		const selectedName = () =>
+			within( grid )
+				.getAllByRole( 'gridcell' )
+				.find( cell => cell.id === grid.getAttribute( 'aria-activedescendant' ) )
+				?.getAttribute( 'aria-label' );
+
+		grid.focus();
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Wed, Oct 1, 2025: No data' );
+		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Fri, Oct 31, 2025: No data' );
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Sat, Nov 1, 2025: No data' );
 	} );
 
 	describe( 'when the months overflow the tile', () => {
