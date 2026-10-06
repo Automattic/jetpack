@@ -284,8 +284,6 @@ class Comment_Form {
 		$settings = array(
 			'postId'        => $post_id,
 			'loginUrl'      => wp_login_url( $permalink ),
-			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
 				'id'        => $args['id_submit'] ?? 'submit',
 				'name'      => $args['name_submit'] ?? 'submit',
@@ -425,7 +423,6 @@ class Comment_Form {
 				'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 				'logIn'               => __( 'Log in', 'jetpack-comments' ),
 				'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
-				'logOut'              => __( 'Log out', 'jetpack-comments' ),
 				'editProfile'         => __( 'Edit profile', 'jetpack-comments' ),
 				'change'              => _x( 'Change', 'switch the identity a comment posts under', 'jetpack-comments' ),
 				'addYourName'         => __( 'Add your name', 'jetpack-comments' ),

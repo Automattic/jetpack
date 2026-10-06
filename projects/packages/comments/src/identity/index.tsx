@@ -90,21 +90,20 @@ export const Identity = () => {
 				) : (
 					<span className="jetpack-comments__name">{ name }</span>
 				) }
-				<span className="jetpack-comments__links">
-					{ /* A session on this site gets core's links; one anywhere else is not this site's to end. */ }
-					{ current.kind === 'user' ? (
-						<>
-							{ user?.editProfileUrl && (
-								<a href={ user.editProfileUrl }>{ strings.editProfile }</a>
-							) }
-							<a href={ formSettings.logoutUrl }>{ strings.logOut }</a>
-						</>
-					) : (
+				{ /* A site user's session is the site's to end, not the comment form's, so they only get core's profile link. */ }
+				{ current.kind === 'user' ? (
+					user?.editProfileUrl && (
+						<span className="jetpack-comments__links">
+							<a href={ user.editProfileUrl }>{ strings.editProfile }</a>
+						</span>
+					)
+				) : (
+					<span className="jetpack-comments__links">
 						<a href="#" aria-haspopup="dialog" onClick={ openDialog }>
 							{ strings.change }
 						</a>
-					) }
-				</span>
+					</span>
+				) }
 			</span>
 		</span>
 	);

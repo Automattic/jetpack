@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Replace the identity menu with links under the commenter's name: Edit profile and Log out for people logged in to the site, and Change for everyone else. The name links to subscription management.
+Replace the identity menu with links beside the commenter's name: Edit profile for people logged in to the site, and Change for everyone else. The name links to subscription management.

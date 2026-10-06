@@ -55,7 +55,6 @@ export type Subscription = {
 export type FormSettings = {
 	postId: number;
 	loginUrl: string;
-	logoutUrl: string;
 	submit: {
 		id: string;
 		name: string;
@@ -89,7 +88,6 @@ export type Strings = {
 	mustLogIn: string;
 	logIn: string;
 	logInWithWordPress: string;
-	logOut: string;
 	editProfile: string;
 	change: string;
 	addYourName: string;
