@@ -166,13 +166,6 @@ abstract class Product {
 	public static $requires_plan = false;
 
 	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = false;
-
-	/**
 	 * The feature slug that identifies the paid plan
 	 *
 	 * @var string
@@ -272,7 +265,6 @@ abstract class Product {
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),
-			'is_tiered_pricing'               => static::$is_tiered_pricing,
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
 			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),

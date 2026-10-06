@@ -20,7 +20,6 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl, getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
-import ProductDetailTable from '../product-detail-table';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
@@ -73,7 +72,7 @@ export default function ProductInterstitial( {
 		redirectUri = detail.postActivationUrlsByFeature[ feature ];
 	}
 
-	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
+	const { isUpgradableByBundle, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
@@ -219,65 +218,52 @@ export default function ProductInterstitial( {
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
-					{ isTieredPricing ? (
-						<ProductDetailTable
-							slug={ slug }
-							clickHandler={ clickHandler }
-							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductOrBundleClick }
-							preferProductName={ preferProductName }
-							isFetching={ isActivating || siteIsRegistering }
-							isFetchingSuccess={ isSuccess }
-							feature={ feature }
-						/>
-					) : (
-						<Container
-							className={ ! isUpgradableByBundle ? styles.container : null }
-							horizontalSpacing={ 0 }
-							horizontalGap={ 0 }
-							fluid
+					<Container
+						className={ ! isUpgradableByBundle ? styles.container : null }
+						horizontalSpacing={ 0 }
+						horizontalGap={ 0 }
+						fluid
+					>
+						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+							<ProductDetailCard
+								slug={ slug }
+								trackButtonClick={ trackProductOrBundleClick }
+								onClick={ installsPlugin ? clickHandler : undefined }
+								className={ isUpgradableByBundle ? styles.container : null }
+								supportingInfo={ supportingInfo }
+								preferProductName={ preferProductName }
+								ctaButtonLabel={ ctaButtonLabel }
+								hideTOS={ hideTOS || showBundledTOS }
+								quantity={ quantity }
+								highlightLastFeature={ highlightLastFeature }
+								isFetching={ isActivating || siteIsRegistering }
+								isFetchingSuccess={ isSuccess }
+							/>
+						</Col>
+						<Col
+							sm={ 4 }
+							md={ 4 }
+							lg={ 5 }
+							className={ clsx( styles.imageContainer, imageContainerClassName ) }
 						>
-							<Col sm={ 4 } md={ 4 } lg={ 7 }>
+							{ bundle ? (
 								<ProductDetailCard
-									slug={ slug }
+									slug={ bundle }
 									trackButtonClick={ trackProductOrBundleClick }
-									onClick={ installsPlugin ? clickHandler : undefined }
+									onClick={ clickHandler }
 									className={ isUpgradableByBundle ? styles.container : null }
-									supportingInfo={ supportingInfo }
-									preferProductName={ preferProductName }
-									ctaButtonLabel={ ctaButtonLabel }
 									hideTOS={ hideTOS || showBundledTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating || siteIsRegistering }
+									isFetching={ isActivating }
 									isFetchingSuccess={ isSuccess }
+									isUpsell={ true }
 								/>
-							</Col>
-							<Col
-								sm={ 4 }
-								md={ 4 }
-								lg={ 5 }
-								className={ clsx( styles.imageContainer, imageContainerClassName ) }
-							>
-								{ bundle ? (
-									<ProductDetailCard
-										slug={ bundle }
-										trackButtonClick={ trackProductOrBundleClick }
-										onClick={ clickHandler }
-										className={ isUpgradableByBundle ? styles.container : null }
-										hideTOS={ hideTOS || showBundledTOS }
-										quantity={ quantity }
-										highlightLastFeature={ highlightLastFeature }
-										isFetching={ isActivating }
-										isFetchingSuccess={ isSuccess }
-										isUpsell={ true }
-									/>
-								) : (
-									children
-								) }
-							</Col>
-						</Container>
-					) }
+							) : (
+								children
+							) }
+						</Col>
+					</Container>
 				</Col>
 				<Col>
 					{ showBundledTOS && (
