@@ -23,7 +23,6 @@
 
 	// Small and muted, not the link blue.
 	&__days {
-		font-size: var(--wpds-typography-font-size-xs);
 
 		a {
 			color: var(--wpds-color-foreground-content-neutral-weak);
@@ -42,8 +41,6 @@
 
 	// The popover trigger is a `Button`; match the small row text.
 	&__help-trigger {
-		font-size: var(--wpds-typography-font-size-xs);
-		font-weight: var(--wpds-typography-font-weight-default);
 		color: var(--wpds-color-foreground-content-neutral-weak);
 		white-space: nowrap;
 	}
@@ -61,11 +58,6 @@
 	margin-block-end: 24px;
 	padding-block: 16px;
 	padding-inline: 20px;
-
-	// Medium, not the design system's bold.
-	&__title {
-		font-weight: 500;
-	}
 }
 
 // Not nested in `.jpb-storage-space`: `Popover.Popup` portals out.
@@ -92,10 +84,10 @@
 		background-color: var(--wpds-color-background-interactive-brand-strong);
 	}
 
-	// Legacy's warning yellow. The `--jp-*` tokens are not declared on this
-	// route and WPDS has no saturated caution fill, so this stays a literal.
+	// WPDS has no saturated caution fill; this is the strongest caution tone
+	// that still reads against the track.
 	& &__bar--caution > div {
-		background-color: #f0c930;
+		background-color: var(--wpds-color-stroke-surface-caution-strong);
 	}
 
 	& &__bar--error > div {

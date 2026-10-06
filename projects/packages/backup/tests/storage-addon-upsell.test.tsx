@@ -323,7 +323,7 @@ describe( 'what the offer says', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /^You have reached your storage limit with 3 days of backup saved\.$/ )
+			warning( /^You have reached your storage limit with 3 days of backup saved$/ )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -433,9 +433,7 @@ describe( 'a full site that reported no day count', () => {
 
 		// Deliberately anchored: the counted sentence starts the same way, so a loose
 		// match would pass on legacy's "…with null day(s) of backups saved".
-		await expect(
-			warning( /^You have reached your storage limit\.$/ )
-		).resolves.toBeInTheDocument();
+		await expect( warning( /^You have reached your storage limit$/ ) ).resolves.toBeInTheDocument();
 		await expect(
 			screen.findByText(
 				/^Backups have been stopped\. Please upgrade to add additional 100GB of storage and resume backups\.$/,
@@ -511,10 +509,43 @@ describe( 'dismissal', () => {
 		await expect( warning( /^You are close to reaching/ ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'offers no way to close a full site notice', async () => {
-		mockEndpoints( { size: { size: 100 * GB } } );
+	it( 'forgets a dismissal once usage is back to Normal', async () => {
+		mockEndpoints( { size: { size: 70 * GB } } );
+		const view = renderWithClient( <StorageSpace /> );
+		await warning( /^You are close to reaching/ );
+		await userEvent.click( closeButton() as HTMLElement );
+		view.unmount();
+
+		mockEndpoints( { size: { size: 10 * GB } } );
+		const utils = renderWithClient( <StorageSpace /> );
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
+		await settle();
+		utils.unmount();
+
+		mockEndpoints( { size: { size: 70 * GB } } );
 		renderWithClient( <StorageSpace /> );
-		await warning( /^You have reached your storage limit/ );
+		await expect( warning( /^You are close to reaching/ ) ).resolves.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'Full', { size: 100 * GB }, /^You have reached your storage limit/ ],
+		[
+			'BackupsDiscarded',
+			{
+				size: 50 * GB,
+				min_days_of_backups_allowed: 7,
+				days_of_backups_allowed: 7,
+				days_of_backups_saved: 7,
+				retention_days: 30,
+			},
+			/^We removed your oldest backup/,
+		],
+	] )( 'offers no way to close a %s notice', async ( _level, size, text ) => {
+		mockEndpoints( { size } );
+		renderWithClient( <StorageSpace /> );
+		await warning( text );
 		expect( closeButton() ).not.toBeInTheDocument();
 	} );
 } );

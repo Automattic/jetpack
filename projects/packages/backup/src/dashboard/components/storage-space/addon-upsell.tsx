@@ -28,21 +28,23 @@ function noticeCopy(
 	sizeText: string | null
 ): { title?: string; body: string } | null {
 	if ( usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical ) {
-		const warning = __(
-			'Once you do, we will delete your oldest backups to make space for new ones.',
-			'jetpack-backup-pkg'
-		);
-		const upgrade =
+		const body =
 			sizeText === null
-				? ''
+				? __(
+						'Once you do, we will delete your oldest backups to make space for new ones.',
+						'jetpack-backup-pkg'
+					)
 				: sprintf(
 						/* translators: %s is a storage size such as 10GB. */
-						__( 'Upgrade to add additional %s of storage.', 'jetpack-backup-pkg' ),
+						__(
+							'Once you do, we will delete your oldest backups to make space for new ones. Upgrade to add additional %s of storage.',
+							'jetpack-backup-pkg'
+						),
 						sizeText
 					);
 		return {
 			title: __( 'You are close to reaching your storage limit', 'jetpack-backup-pkg' ),
-			body: `${ warning } ${ upgrade }`.trim(),
+			body,
 		};
 	}
 
@@ -63,15 +65,15 @@ function noticeCopy(
 					);
 
 		if ( daysOfBackupsSaved === null ) {
-			return { title: __( 'You have reached your storage limit.', 'jetpack-backup-pkg' ), body };
+			return { title: __( 'You have reached your storage limit', 'jetpack-backup-pkg' ), body };
 		}
 
 		return {
 			title: sprintf(
 				/* translators: %d is a number greater than 0 that means a number of days. */
 				_n(
-					'You have reached your storage limit with %d day of backup saved.',
-					'You have reached your storage limit with %d days of backup saved.',
+					'You have reached your storage limit with %d day of backup saved',
+					'You have reached your storage limit with %d days of backup saved',
 					daysOfBackupsSaved,
 					'jetpack-backup-pkg'
 				),
@@ -169,9 +171,7 @@ export default function StorageAddonUpsell( {
 			className="jpb-storage-notice"
 			spokenMessage={ [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) }
 		>
-			{ copy.title && (
-				<Notice.Title className="jpb-storage-notice__title">{ copy.title }</Notice.Title>
-			) }
+			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (
 				<Notice.Actions>
