@@ -242,7 +242,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// The keyboard-navigation index space and the highlight CSS both stride over primary
-	// bars only; the accessible tooltip must use the same list, or its datum diverges from
+	// bars only; `XYChartTooltip` must use the same list, or its datum diverges from
 	// the highlighted bar once a comparison series shifts the indices.
 	const primarySeries = useMemo(
 		() => primaryEntries.map( ( { series } ) => series ),
