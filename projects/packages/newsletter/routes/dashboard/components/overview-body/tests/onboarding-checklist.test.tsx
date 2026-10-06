@@ -191,14 +191,22 @@ describe( 'OnboardingChecklist', () => {
 		);
 	} );
 
-	it( 'Skip completes the step on WP.com and shows it as complete', async () => {
+	it( 'Skip shows a spinner, then completes the step on WP.com and shows it as complete', async () => {
+		let resolveSkip: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
-			Promise.resolve( method === 'POST' ? taskList( [ 'subscribe_form' ] ) : taskList() )
+			method === 'POST'
+				? new Promise( resolve => ( resolveSkip = resolve ) )
+				: Promise.resolve( taskList() )
 		);
 		renderChecklist();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- Avoid adding a dependency for one click.
 		fireEvent.click( await screen.findByRole( 'button', { name: 'Skip' } ) );
+
+		await waitFor( () =>
+			expect( screen.getAllByRole( 'presentation', { hidden: true } ) ).toHaveLength( 1 )
+		);
+		resolveSkip( taskList( [ 'subscribe_form' ] ) );
 
 		await waitFor( () =>
 			expect( getStep( /add a subscribe form to your site/i ) ).toHaveAccessibleName(
@@ -217,6 +225,7 @@ describe( 'OnboardingChecklist', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Add a subscribe form' } )
 		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'records a checklist action on click and not on render', async () => {

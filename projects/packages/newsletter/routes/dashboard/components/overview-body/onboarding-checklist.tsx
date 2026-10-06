@@ -181,14 +181,19 @@ function ChecklistSteps( {
 	const completedKey = STEPS.filter( step => completed.has( step.id ) )
 		.map( step => step.id )
 		.join();
-	const [ shown, setShown ] = useState( { completedKey, isRefreshing } );
+	const spinnerKey = STEPS.filter(
+		step => ! completed.has( step.id ) && ( isRefreshing || step.id === skippingStep )
+	)
+		.map( step => step.id )
+		.join();
+	const [ shown, setShown ] = useState( { completedKey, spinnerKey } );
 
 	// Applying changes inside a view transition fades steps and spinners instead of cutting them.
 	useEffect( () => {
-		if ( shown.completedKey === completedKey && shown.isRefreshing === isRefreshing ) {
+		if ( shown.completedKey === completedKey && shown.spinnerKey === spinnerKey ) {
 			return;
 		}
-		const next = { completedKey, isRefreshing };
+		const next = { completedKey, spinnerKey };
 		if ( ! document.startViewTransition ) {
 			setShown( next );
 			return;
@@ -197,8 +202,9 @@ function ChecklistSteps( {
 		document
 			.startViewTransition( () => flushSync( () => setShown( next ) ) )
 			.ready.catch( () => {} );
-	}, [ completedKey, isRefreshing, shown ] );
+	}, [ completedKey, spinnerKey, shown ] );
 	const shownCompleted = new Set( shown.completedKey.split( ',' ) );
+	const shownSpinners = new Set( shown.spinnerKey.split( ',' ) );
 
 	return (
 		<Stack
@@ -248,7 +254,7 @@ function ChecklistSteps( {
 										</Text>
 									) : null }
 								</Card.Title>
-								{ shown.isRefreshing && ! complete ? (
+								{ shownSpinners.has( step.id ) ? (
 									<Spinner
 										aria-hidden="true"
 										className="jetpack-newsletter-overview__step-spinner"
