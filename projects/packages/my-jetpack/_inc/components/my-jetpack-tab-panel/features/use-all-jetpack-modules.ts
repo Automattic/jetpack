@@ -4,7 +4,10 @@ import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 import { getProductModules } from './mappings';
+import { useMainFeatures } from './use-main-features';
 import type { ProductCamelCase } from '../../../data/types';
+
+const NO_MODULES: Record< string, MyJetpackModule > = {};
 
 /**
  * Drop the forced-on override that a product's own standalone plugin causes.
@@ -49,13 +52,21 @@ export function useAllJetpackModules(): {
 	modules: Record< JetpackModuleSlug, MyJetpackModule >;
 	isLoading: boolean;
 } {
-	const { modules, isLoading } = useSelect( select => {
-		// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
-		return {
-			modules: select( modulesStore ).getJetpackModules(),
-			isLoading: select( modulesStore ).areModulesLoading(),
-		};
-	}, [] );
+	const isJetpackActive = useMainFeatures().jetpack === 'active';
+	const { modules, isLoading } = useSelect(
+		select => {
+			// Only the Jetpack plugin serves the module list, so asking without it fails every load.
+			if ( ! isJetpackActive ) {
+				return { modules: NO_MODULES, isLoading: false };
+			}
+
+			return {
+				modules: select( modulesStore ).getJetpackModules(),
+				isLoading: select( modulesStore ).areModulesLoading(),
+			};
+		},
+		[ isJetpackActive ]
+	);
 	const { data: products } = useAllProducts();
 
 	return useMemo(
