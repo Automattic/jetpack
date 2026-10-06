@@ -25,14 +25,13 @@ class Sharing_Admin_Simple_Bridge_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Start from a wp-admin request on which nothing has set the package up yet.
+	 * Start from a request on which nothing has set the package up yet.
 	 *
 	 * The test bootstrap runs `load-jetpack.php`, which already called `init()` once.
 	 */
 	public function set_up() {
 		parent::set_up();
 
-		set_current_screen( 'dashboard' );
 		$this->set_initialized( false );
 		remove_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) );
 		remove_action( 'admin_init', array( Post_Handler::class, 'maybe_handle' ) );
@@ -66,7 +65,7 @@ class Sharing_Admin_Simple_Bridge_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Simple gets the screen and the handler that saves its forms.
+	 * Simple gets the screen and the handler that saves its forms, outside wp-admin too.
 	 */
 	public function test_registers_the_screen_and_its_handler_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -81,6 +80,8 @@ class Sharing_Admin_Simple_Bridge_Test extends WP_UnitTestCase {
 	 * Elsewhere `load-jetpack.php` sets the package up, so this file must not do it again.
 	 */
 	public function test_leaves_registration_to_the_plugin_elsewhere() {
+		set_current_screen( 'dashboard' );
+
 		sharing_admin_init();
 
 		$this->assertFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );

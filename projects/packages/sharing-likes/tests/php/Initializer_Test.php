@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sharing_Likes\REST\Endpoints;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
@@ -32,9 +33,10 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Leave no hooks, screen or initialization behind.
+	 * Leave no constants, hooks, screen or initialization behind.
 	 */
 	public function tear_down() {
+		Constants::clear_constants();
 		unset( $GLOBALS['current_screen'] );
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
@@ -97,6 +99,14 @@ class Initializer_Test extends BaseTestCase {
 
 		$this->assertNotFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );
 		$this->assertNotFalse( has_action( 'admin_init', array( Post_Handler::class, 'maybe_handle' ) ) );
+	}
+
+	public function test_hooks_up_the_screen_outside_wp_admin_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Initializer::init();
+
+		$this->assertNotFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );
 	}
 
 	/**

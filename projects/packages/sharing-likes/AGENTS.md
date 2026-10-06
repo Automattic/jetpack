@@ -260,8 +260,8 @@ data rather than history.
 test classes extend `WorDBless\BaseTestCase`; create users with `wp_insert_user()`
 rather than a factory.
 
-**`is_admin()` is false under WP-CLI**, so `Initializer::init()` hooks up no
-screen there and `wp eval` will report the menu as absent whatever the code does.
+**`is_admin()` is false under WP-CLI**, so off Simple `Initializer::init()` hooks
+up no screen there and `wp eval` will report the menu as absent whatever the code does.
 Call `Settings_Page::init()` by hand to test the class; proving the wiring needs a
 real authenticated admin request.
 
