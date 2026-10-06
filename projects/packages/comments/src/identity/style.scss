@@ -1,10 +1,11 @@
-// Shares the row with the submit down to 10em, its links dropping under the
-// name first when they run out of room; below that it wraps above the submit.
+// Always shares the row with the submit: a zero basis never forces a wrap, and
+// it takes whatever room is left, its link dropping under the name when short.
 .jetpack-comments__identity {
 	display: flex;
 	align-items: center;
 	gap: 0.75em;
-	flex: 1 1 10em;
+	flex: 1 1 0;
+	min-inline-size: 0;
 	font-size: 0.8125em;
 }
 
@@ -16,12 +17,23 @@
 	min-inline-size: 0;
 }
 
-// Capped, so a long name ends in an ellipsis and leaves room for the links.
-.jetpack-comments__name {
-	max-inline-size: min(100%, 10em);
+// Ellipsis rather than overflow into the submit, however little room is left.
+.jetpack-comments__name,
+.jetpack-comments__link {
+	max-inline-size: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+// Capped, so a long name leaves room for the link.
+.jetpack-comments__name {
+	max-inline-size: min(100%, 10em);
+}
+
+// Smaller than the name, so it reads as an aside.
+.jetpack-comments__link {
+	font-size: 0.875em;
 }
 
 // Three classes deep, past a theme's link colours and underlines.
@@ -32,12 +44,6 @@
 	&:hover {
 		text-decoration: underline;
 	}
-}
-
-.jetpack-comments__links {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0 0.75em;
 }
 
 .jetpack-comments__avatar {

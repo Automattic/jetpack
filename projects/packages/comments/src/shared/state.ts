@@ -2,6 +2,7 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/checkpoint/passport';
+import { saveGuest } from './guest';
 import type { Details, FormSettings, Commenter } from './types';
 
 /**
@@ -39,6 +40,13 @@ export function createSignals( formSettings: FormSettings ) {
 	const isBoxOpen = signal( false );
 	const isDialogOpen = signal( false );
 
+	const forget = () => {
+		saveGuest( null );
+		details.value = { author: '', email: '', url: '' };
+		rememberDetails.value = false;
+		commenter.value = { kind: 'unknown' };
+	};
+
 	return {
 		formSettings,
 		commentValue,
@@ -50,6 +58,7 @@ export function createSignals( formSettings: FormSettings ) {
 		rememberDetails,
 		isBoxOpen,
 		isDialogOpen,
+		forget,
 	} as const;
 }
 

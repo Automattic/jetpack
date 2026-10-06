@@ -92,8 +92,7 @@
 }
 
 // Reversed so the submit precedes the identity line in the DOM, and Tab
-// reaches it straight from the textarea; wrapped in reverse too, so the
-// identity line stacks above the submit.
+// reaches it straight from the textarea. Wraps only for the too-long notice.
 .jetpack-comments__actions {
 	display: flex;
 	flex-flow: row-reverse wrap-reverse;

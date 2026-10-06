@@ -55,6 +55,7 @@ export type Subscription = {
 export type FormSettings = {
 	postId: number;
 	loginUrl: string;
+	logoutUrl: string;
 	submit: {
 		id: string;
 		name: string;
@@ -88,7 +89,7 @@ export type Strings = {
 	mustLogIn: string;
 	logIn: string;
 	logInWithWordPress: string;
-	editProfile: string;
+	logOut: string;
 	change: string;
 	addYourName: string;
 	cancel: string;
@@ -116,8 +117,7 @@ export type Settings = {
 	manageSubscriptionsUrl: string;
 	strings: Strings;
 	commenter: Details;
-	/** Empty `editProfileUrl` for a user who may not edit their own profile, as core's link would be. */
-	user: { name: string; editProfileUrl: string } | null;
+	user: { name: string } | null;
 	identity: IdentitySettings;
 };
 

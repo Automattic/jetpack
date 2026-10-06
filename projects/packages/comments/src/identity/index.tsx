@@ -1,18 +1,19 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
+import { logOut } from './checkpoint/checkpoint';
 
 import './style.scss';
 
 /**
  * Who the comment will be attributed to, in the footer: a link to the dialog until
- * the site knows the commenter, then their name, linked to their subscriptions, over
- * core's profile and log out links for a site user, or a way to change who they are.
+ * the site knows the commenter, then their name, linked to their subscriptions, and
+ * one link: Change for a guest, Log out for anyone signed in.
  *
  * @return The identity line.
  */
 export const Identity = () => {
-	const { formSettings, details, commenter, isDialogOpen } = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl, user } = JetpackComments;
+	const { formSettings, details, commenter, isDialogOpen, forget } = useContext( CommentSignals );
+	const { mustLogIn, identity, strings, avatarUrl } = JetpackComments;
 	const current = commenter.value;
 
 	// Only where the site shows avatars; a commenter it does not know gets its default.
@@ -90,19 +91,42 @@ export const Identity = () => {
 				) : (
 					<span className="jetpack-comments__name">{ name }</span>
 				) }
-				{ /* A site user's session is the site's to end, not the comment form's, so they only get core's profile link. */ }
-				{ current.kind === 'user' ? (
-					user?.editProfileUrl && (
-						<span className="jetpack-comments__links">
-							<a href={ user.editProfileUrl }>{ strings.editProfile }</a>
-						</span>
-					)
+				{ current.kind === 'guest' ? (
+					<a
+						className="jetpack-comments__link"
+						href="#"
+						aria-haspopup="dialog"
+						onClick={ openDialog }
+					>
+						{ strings.change }
+					</a>
 				) : (
-					<span className="jetpack-comments__links">
-						<a href="#" aria-haspopup="dialog" onClick={ openDialog }>
-							{ strings.change }
-						</a>
-					</span>
+					<a
+						className="jetpack-comments__link"
+						href={ formSettings.logoutUrl || '#' }
+						onClick={ async event => {
+							event.preventDefault();
+
+							// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
+							if ( current.kind === 'user' ) {
+								await logOut();
+								window.location.href = formSettings.logoutUrl;
+								return;
+							}
+
+							// Read before the await: currentTarget is gone once the click is dispatched.
+							const root = event.currentTarget.closest( '.jetpack-comments' );
+
+							await logOut();
+							forget();
+							// This link unmounts; a timeout lets "Add your name" render to take focus.
+							window.setTimeout( () =>
+								root?.querySelector< HTMLElement >( '.jetpack-comments__identity a' )?.focus()
+							);
+						} }
+					>
+						{ strings.logOut }
+					</a>
 				) }
 			</span>
 		</span>
