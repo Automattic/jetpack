@@ -125,16 +125,7 @@ final class Services_Controller extends Controller {
 			return $unavailable;
 		}
 
-		$sharer  = new \Sharing_Service();
-		$enabled = $sharer->get_blog_services();
-
-		return rest_ensure_response(
-			array(
-				'visible'  => array_keys( $enabled['visible'] ),
-				'hidden'   => array_keys( $enabled['hidden'] ),
-				'services' => array_values( array_map( array( __CLASS__, 'prepare_service' ), $sharer->get_all_services_blog() ) ),
-			)
-		);
+		return rest_ensure_response( self::services() );
 	}
 
 	/**
@@ -151,7 +142,8 @@ final class Services_Controller extends Controller {
 
 		( new \Sharing_Service() )->set_blog_services( $request->get_param( 'visible' ), $request->get_param( 'hidden' ) );
 
-		return $this->get_items( $request );
+		// Not `get_items()`: an empty save can hand the section to the block, closing these routes.
+		return rest_ensure_response( self::services() );
 	}
 
 	/**
@@ -231,6 +223,22 @@ final class Services_Controller extends Controller {
 				'deleted' => true,
 				'id'      => $service->get_id(),
 			)
+		);
+	}
+
+	/**
+	 * The enabled services, and every service the site can enable.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function services(): array {
+		$sharer  = new \Sharing_Service();
+		$enabled = $sharer->get_blog_services();
+
+		return array(
+			'visible'  => array_keys( $enabled['visible'] ),
+			'hidden'   => array_keys( $enabled['hidden'] ),
+			'services' => array_values( array_map( array( __CLASS__, 'prepare_service' ), $sharer->get_all_services_blog() ) ),
 		);
 	}
 

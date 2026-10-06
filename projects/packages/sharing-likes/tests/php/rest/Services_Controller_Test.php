@@ -160,6 +160,27 @@ class Services_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * With the block on offer, an empty save hands the section over to it, so the
+	 * answer cannot depend on the section still showing the list.
+	 */
+	public function test_emptying_the_services_where_the_block_is_on_offer_reports_the_save(): void {
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+
+		$response = $this->request(
+			'POST',
+			'services',
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array(), $response->get_data()['visible'] );
+	}
+
+	/**
 	 * An absent list would read as "none", and switch off every service in it.
 	 */
 	public function test_saving_services_needs_both_lists(): void {
