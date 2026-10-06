@@ -1,6 +1,6 @@
 import { LineSeries, XYChart } from '@visx/xychart';
 import { GlobalChartsProvider } from '../../../providers';
-import { AccessibleTooltip } from '../index';
+import { XYChartTooltip } from '../index';
 import type { DataPointDate } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ComponentProps } from 'react';
@@ -16,7 +16,7 @@ const DATA: DataPointDate[] = [
 const xAccessor = ( d: DataPointDate ) => d.date;
 const yAccessor = ( d: DataPointDate ) => d.value;
 
-const renderTooltip: ComponentProps< typeof AccessibleTooltip >[ 'renderTooltip' ] = ( {
+const renderTooltip: ComponentProps< typeof XYChartTooltip >[ 'renderTooltip' ] = ( {
 	tooltipData,
 } ) => {
 	const datum = tooltipData?.nearestDatum?.datum;
@@ -29,7 +29,7 @@ const renderTooltip: ComponentProps< typeof AccessibleTooltip >[ 'renderTooltip'
 	);
 };
 
-const renderCardTooltip: ComponentProps< typeof AccessibleTooltip >[ 'renderTooltip' ] = params => (
+const renderCardTooltip: ComponentProps< typeof XYChartTooltip >[ 'renderTooltip' ] = params => (
 	<div
 		style={ {
 			padding: '12px',
@@ -43,17 +43,17 @@ const renderCardTooltip: ComponentProps< typeof AccessibleTooltip >[ 'renderTool
 	</div>
 );
 
-type Story = StoryObj< typeof AccessibleTooltip >;
+type Story = StoryObj< typeof XYChartTooltip >;
 
 const meta = {
-	title: 'JS Packages/Charts Library/Components/AccessibleTooltip',
-	component: AccessibleTooltip,
+	title: 'JS Packages/Charts Library/Components/XYChartTooltip',
+	component: XYChartTooltip,
 	parameters: {
 		layout: 'centered',
 		docs: {
 			description: {
 				component:
-					'The XY chart tooltip: the one LineChart, AreaChart and BarChart render, exported for a custom visx `XYChart`. Place it inside the `XYChart`; it reads the hovered datum from visx. It adds the accessible behavior those charts share: `role="tooltip"`, a live region for pointer updates, and focus on the tooltip during keyboard navigation with `useKeyboardNavigation`. It draws the shared chart tooltip box; set `unstyled` to drop the box and draw your own. For a tooltip outside an `XYChart`, use `BaseTooltip`.',
+					'The XY chart tooltip: the one LineChart, AreaChart and BarChart render, exported for a custom visx `XYChart`. Place it inside the `XYChart`; it reads the hovered datum from visx. It adds the accessible behavior those charts share: `role="tooltip"`, a live region for pointer updates, and, in those charts, focus on the tooltip during keyboard navigation. It draws the shared chart tooltip box; set `unstyled` to drop the box and draw your own. For a tooltip outside an `XYChart`, use `TooltipBox`.',
 			},
 		},
 	},
@@ -72,7 +72,7 @@ const meta = {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 					/>
-					<AccessibleTooltip { ...args } />
+					<XYChartTooltip { ...args } />
 				</XYChart>
 			</div>
 		</GlobalChartsProvider>
@@ -82,7 +82,7 @@ const meta = {
 		snapTooltipToDatumX: true,
 		showVerticalCrosshair: true,
 	},
-} satisfies Meta< typeof AccessibleTooltip >;
+} satisfies Meta< typeof XYChartTooltip >;
 
 export default meta;
 
