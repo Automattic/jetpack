@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getComparisonBucketShift, type BucketSpan } from '../comparison-bucket-shift';
+import { comparesYearAgo, getComparisonBucketShift, type BucketSpan } from '../year-ago-weeks';
 
 const spans = ( ...ranges: Array< [ string, string ] > ): BucketSpan[] =>
 	ranges.map( ( [ from, to ] ) => ( {
@@ -70,5 +70,22 @@ describe( 'getComparisonBucketShift', () => {
 		],
 	] )( '%s', ( _name, primary, comparison, expected ) => {
 		expect( getComparisonBucketShift( primary, comparison ) ).toBe( expected );
+	} );
+} );
+
+describe( 'comparesYearAgo', () => {
+	it.each( [
+		[
+			'the same dates a year earlier',
+			'2026-10-04T23:59:59.999+02:00',
+			'2025-10-04T23:59:59.999+02:00',
+			true,
+		],
+		[ 'a leap day against the day before it', '2028-02-29', '2027-02-28', true ],
+		[ 'the weekday-aligned year, 364 days earlier', '2026-10-04', '2025-10-05', false ],
+		[ 'the previous 30 days', '2026-10-06', '2026-09-06', false ],
+		[ 'no comparison', '2026-10-04', undefined, false ],
+	] )( '%s', ( _name, to, compareTo, expected ) => {
+		expect( comparesYearAgo( { to, compare_to: compareTo } ) ).toBe( expected );
 	} );
 } );

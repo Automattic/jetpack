@@ -104,38 +104,6 @@ describe( 'alignSeriesDates', () => {
 			expect( result[ 1 ].data[ 2 ].date ).toEqual( new Date( '2024-01-10' ) );
 		} );
 
-		it( 'drops a leading comparison week that no current week overlaps', () => {
-			const week = ( from: string, to: string ) => ( {
-				date: new Date( `${ from }T00:00:00Z` ),
-				endDate: new Date( `${ to }T23:59:59Z` ),
-				value: 1,
-			} );
-			const primary: ComparativeLineChartSeries = {
-				label: 'Views',
-				data: [ week( '2026-08-31', '2026-09-06' ), week( '2026-09-07', '2026-09-13' ) ],
-			};
-			const comparison: ComparativeLineChartSeries = {
-				label: 'Views · previous period',
-				options: { type: 'comparison' },
-				data: [
-					week( '2025-08-31', '2025-08-31' ),
-					week( '2025-09-01', '2025-09-07' ),
-					week( '2025-09-08', '2025-09-13' ),
-				],
-			};
-
-			const [ , aligned ] = alignSeriesDates( [ primary, comparison ] );
-
-			expect( aligned.data.map( point => point.realDate ) ).toEqual( [
-				new Date( '2025-09-01T00:00:00Z' ),
-				new Date( '2025-09-08T00:00:00Z' ),
-			] );
-			expect( aligned.data.map( point => point.date ) ).toEqual( [
-				new Date( '2026-08-31T00:00:00Z' ),
-				new Date( '2026-09-07T00:00:00Z' ),
-			] );
-		} );
-
 		it( 'leaves a second current-period series where it is', () => {
 			const views = createSeries( 'Views', [ new Date( '2024-01-08' ), new Date( '2024-01-09' ) ] );
 			// A paired metric is not a comparison: its dates are its own, and

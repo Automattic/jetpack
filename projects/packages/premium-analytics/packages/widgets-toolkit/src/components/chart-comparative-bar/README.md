@@ -47,7 +47,7 @@ second current-period series keeps its own dates.
 
 Comparison dates are aligned onto the primary series' dates so both land in the same band slot; the
 original date survives in `realDate` and is what the tooltip shows, as a span when the point's
-`endDate` falls on a later day. See the comparative line chart's README for how points pair.
+`endDate` falls on a later day.
 
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
 their values never reach a custom `renderTooltip`. This component re-pairs them by date before

@@ -16,6 +16,7 @@ import { endOfDay, isEqual, startOfDay } from 'date-fns';
  * Internal dependencies
  */
 import { buildTrafficTooltipExtras } from './tooltip-extras';
+import { comparesYearAgo, withoutLeadingComparisonWeeks } from './year-ago-weeks';
 import {
 	TRAFFIC_CHART_METRICS,
 	type TrafficChartGranularity,
@@ -113,13 +114,31 @@ export default function useTrafficChart(
 	} );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
-	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
+	const vvComparisonReport = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
 	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
-	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
+	const lcComparisonReport = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
+
+	// A year earlier, the same dates start a day or two earlier in the Monday-to-Sunday
+	// week, so the comparison can open with a week the current period has no match for.
+	const alignsYearAgoWeeks = period === 'week' && comparesYearAgo( reportParams );
+	const vvComparison = useMemo(
+		() =>
+			alignsYearAgoWeeks
+				? withoutLeadingComparisonWeeks( vvPrimary, vvComparisonReport, vvZone )
+				: vvComparisonReport,
+		[ alignsYearAgoWeeks, vvPrimary, vvComparisonReport, vvZone ]
+	);
+	const lcComparison = useMemo(
+		() =>
+			alignsYearAgoWeeks
+				? withoutLeadingComparisonWeeks( lcPrimary, lcComparisonReport, lcZone )
+				: lcComparisonReport,
+		[ alignsYearAgoWeeks, lcPrimary, lcComparisonReport, lcZone ]
+	);
 
 	// Gate the error per query so a failed one surfaces beside the other's populated
 	// tabs instead of rendering empty; placeholder data spares a query that still has rows.

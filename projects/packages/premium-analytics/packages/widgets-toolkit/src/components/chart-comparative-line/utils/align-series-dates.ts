@@ -1,14 +1,13 @@
 /**
  * Internal dependencies
  */
-import { getComparisonBucketShift } from '../../../helpers/comparison-bucket-shift';
 import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-names';
 import type { ComparativeLineChartSeries } from '../types';
 
 /**
- * Aligns comparison points onto the primary series in order, after skipping leading
- * buckets no primary bucket overlaps, keeping their real dates in `realDate`. A grouped
- * comparison aligns to its group's current period; an ungrouped one to series[0].
+ * Aligns comparison points onto the primary series by index, keeping their real dates
+ * in `realDate` for tooltips. A grouped comparison aligns to its group's current
+ * period; an ungrouped one keeps the historical behavior of aligning to series[0].
  */
 export function alignSeriesDates(
 	series: ComparativeLineChartSeries[]
@@ -54,11 +53,9 @@ export function alignSeriesDates(
 			return comparisonSeries;
 		}
 
-		const shift = getComparisonBucketShift( primary.data, comparisonSeries.data );
-
 		return {
 			...comparisonSeries,
-			data: comparisonSeries.data.slice( shift ).map( ( point, index ) => {
+			data: comparisonSeries.data.map( ( point, index ) => {
 				// A longer comparison series falls back to the last primary date.
 				const primaryDate =
 					primary.data[ index ]?.date ?? primary.data[ primary.data.length - 1 ]?.date;

@@ -104,5 +104,4 @@ export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipPointLabel } from './format-tooltip-point-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
-export { getComparisonBucketShift, type BucketSpan } from './comparison-bucket-shift';
 export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';
