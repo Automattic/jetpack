@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Line, Area and Bar charts: Give the chart container a valid screen reader role, and add an `ariaLabel` prop to name each chart.
