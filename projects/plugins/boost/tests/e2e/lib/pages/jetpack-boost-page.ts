@@ -36,6 +36,15 @@ export default class JetpackBoostPage {
 	}
 
 	/**
+	 * Returns a module's own toggle. Rows also contain their settings' toggles, such as Page Cache logging.
+	 * @param moduleName - The module slug, as used in the row's data-testid.
+	 * @return The checkbox locator.
+	 */
+	getModuleToggle( moduleName: string ) {
+		return this.page.getByTestId( `module-${ moduleName }` ).getByRole( 'checkbox' ).first();
+	}
+
+	/**
 	 * Toggle a module and wait for the success notice to appear.
 	 *
 	 * @param {string}  moduleName     - The name of the module to toggle. It should match the data-testid attribute of the module's checkbox.
@@ -45,7 +54,7 @@ export default class JetpackBoostPage {
 	async toggleModule( moduleName: string, targetState: boolean, checkForNotice = true ) {
 		logger.debug( `toggleModule > ${ moduleName } > ${ targetState ? 'on' : 'off' }` );
 
-		const checkbox = this.page.getByTestId( `module-${ moduleName }` ).getByRole( 'checkbox' );
+		const checkbox = this.getModuleToggle( moduleName );
 
 		await expect(
 			checkbox,
