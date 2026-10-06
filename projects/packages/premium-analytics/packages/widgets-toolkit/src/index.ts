@@ -95,8 +95,6 @@ export {
 	type ReportLinkProps,
 	ExternalLink,
 	type ExternalLinkProps,
-	InternalLink,
-	type InternalLinkProps,
 	InfoTip,
 	type InfoTipProps,
 	PostTitleLink,

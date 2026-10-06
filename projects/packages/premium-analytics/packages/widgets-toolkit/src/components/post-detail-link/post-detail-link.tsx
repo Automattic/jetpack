@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { createDetailLinkSearch } from '@jetpack-premium-analytics/routing';
-import { InternalLink } from '../internal-link';
-import type { JSX, ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { InternalLink } from '../internal-link';
+import type { JSX, ReactNode } from 'react';
 
 export type PostDetailLinkProps = {
 	/**
