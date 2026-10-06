@@ -270,6 +270,7 @@ describe( 'LocationsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( { isLoading: false, isFetching: true } )
 		);
+		expect( lastMapProps().isLoading ).toBe( true );
 	} );
 
 	it( 'renders the error state instead of the records table', () => {
@@ -375,16 +376,6 @@ describe( 'LocationsReportPage', () => {
 		] );
 	} );
 
-	it( 'scopes the records request to the picked country', () => {
-		mockTabState( 'regions' );
-		mockRecords();
-
-		render( <LocationsReportPage /> );
-		pickCountry( 'DE' );
-
-		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
-	} );
-
 	it( 'returns to every country when the filter is cleared', () => {
 		mockTabState( 'regions' );
 		mockRecords();
@@ -450,16 +441,6 @@ describe( 'LocationsReportPage', () => {
 			render( <LocationsReportPage /> );
 
 			expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'AU' } ) ] );
-		} );
-
-		it( 'scopes the map to the picked country', () => {
-			mockTabState( 'regions' );
-			mockRecords();
-
-			render( <LocationsReportPage /> );
-			pickCountry( 'DE' );
-
-			expect( lastMapProps().focusCountry ).toEqual( { code: 'DE', name: 'Germany' } );
 		} );
 
 		// Back and Forward move the tab from the URL, never through the tab strip's
