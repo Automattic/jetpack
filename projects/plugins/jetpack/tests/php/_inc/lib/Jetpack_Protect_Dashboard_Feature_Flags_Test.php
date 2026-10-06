@@ -49,7 +49,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 		$this->assertContains( Jetpack_Protect_Dashboard_Feature_Flags::MODULE, Jetpack::get_available_modules() );
 	}
 
-	public function test_my_jetpack_reads_the_same_flag() {
+	public function test_my_jetpack_follows_the_flag() {
 		$this->enable_flag();
 
 		// Main_Features memoizes per locale, so a locale nothing else uses gets a fresh read of the flag.

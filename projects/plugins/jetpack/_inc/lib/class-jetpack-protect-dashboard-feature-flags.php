@@ -38,6 +38,8 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 		);
 
 		add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'filter_available_modules' ) );
+		// My Jetpack offers Protect through Jetpack only while the module can be switched on.
+		add_filter( 'jetpack_my_jetpack_protect_in_jetpack', array( __CLASS__, 'is_enabled' ) );
 	}
 
 	/**
