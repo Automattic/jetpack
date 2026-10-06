@@ -3,7 +3,7 @@ import { ProgressBar } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cloudUpload, error as errorIcon } from '@wordpress/icons';
-import { Card, EmptyState, Link } from '@wordpress/ui';
+import { Card, EmptyState, Link, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
@@ -123,7 +123,7 @@ export default function BackupStatusPanel( { state, progress, isStarting = false
 									icon={ errorIcon }
 								/>
 							</EmptyState.Visual>
-							<EmptyState.Title className="jpb-backup-status__title">
+							<EmptyState.Title render={ <Text variant="body-xl" render={ <h2 /> } /> }>
 								{ __( 'We are having trouble backing up your site', 'jetpack-backup-pkg' ) }
 							</EmptyState.Title>
 							<EmptyState.Description>
@@ -163,7 +163,7 @@ export default function BackupStatusPanel( { state, progress, isStarting = false
 								/>
 							</div>
 						) }
-						<EmptyState.Title className="jpb-backup-status__title">
+						<EmptyState.Title render={ <Text variant="body-xl" render={ <h2 /> } /> }>
 							{ __( 'Generating backup…', 'jetpack-backup-pkg' ) }
 						</EmptyState.Title>
 						<EmptyState.Description>

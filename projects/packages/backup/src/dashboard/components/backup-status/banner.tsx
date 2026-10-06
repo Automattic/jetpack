@@ -1,9 +1,8 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { cloudUpload } from '@wordpress/icons';
-import { Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import { ContactSupportLine } from './index';
 import './style.scss';

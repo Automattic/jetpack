@@ -1,10 +1,20 @@
-// The first-run panel replaces the Overview grid. The wrapper centres the
-// card in the body, whose chrome (admin bar, header, footer) is about 240px.
+// The first-run panel fills the body, so the card can centre in it. The body
+// and its inner wrapper belong to `dashboard-layout`, hence the `:has()`.
+.jpb-dashboard-body:has(.jpb-backup-status) {
+	display: flex;
+	flex-direction: column;
+
+	> .jpb-dashboard-body__inner {
+		display: flex;
+		flex: 1 1 auto;
+	}
+}
+
 .jpb-backup-status {
 	display: flex;
+	flex: 1 1 auto;
 	align-items: center;
 	justify-content: center;
-	min-block-size: calc(100vh - 240px);
 
 	&__card {
 		box-sizing: border-box;
@@ -38,12 +48,6 @@
 			background-color: var(--wpds-color-background-surface-error-weak);
 			color: var(--wpds-color-foreground-content-error);
 		}
-	}
-
-	// Doubled class: `Text`'s heading rule has the same specificity.
-	&__title#{&}__title {
-		font-size: var(--wpds-typography-font-size-xl);
-		font-weight: var(--wpds-typography-font-weight-default);
 	}
 
 	&__link {
@@ -87,10 +91,6 @@
 }
 
 .jpb-backup-status-banner {
-
-	&__title {
-		font-weight: var(--wpds-typography-font-weight-default);
-	}
 
 	&__spinner {
 		margin-inline-start: 8px;

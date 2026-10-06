@@ -261,6 +261,21 @@ describe( 'BackupStatusBanner', () => {
 	} );
 } );
 
+describe( 'a backup that was just requested', () => {
+	it( 'shows the starting state before WPCOM reports a percentage', () => {
+		const { unmount } = render( <BackupStatusBanner /> );
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'presentation' ) ).toHaveClass( 'jpb-backup-status-banner__spinner' );
+		expect( screen.queryByText( /% progress/ ) ).not.toBeInTheDocument();
+		unmount();
+
+		// Over a failing site too: the request replaces the trouble panel.
+		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } isStarting /> );
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Get in touch/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
 describe( 'BackupNowButton', () => {
 	it( 'is offered when the site has a plan', async () => {
 		renderWithClient( <BackupNowButton /> );

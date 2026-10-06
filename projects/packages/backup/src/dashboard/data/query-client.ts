@@ -53,6 +53,8 @@ export const keys = {
 	// registered `/jetpack/v4/backups`. Polled while a backup runs, so it
 	// deliberately does not share the activity-log family's key.
 	backups: () => [ 'backup', 'backups' ] as const,
+	// Client-only: the pending "Back up now" request. Never fetched.
+	enqueueRequested: () => [ 'backup', 'enqueue-requested' ] as const,
 	siteSize: () => [ 'backup', 'site-size' ] as const,
 	// The site's retention and storage policies. Separate from
 	// `siteSize` because it is a separate route with a much flatter

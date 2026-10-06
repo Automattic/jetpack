@@ -38,13 +38,8 @@ function BackupNow() {
 	const { backupsStopped } = useSiteSize();
 	const { state: enqueueState, errorMessage, enqueue, reset } = useEnqueueBackup();
 
-	// Keep polling between the enqueue and WPCOM publishing a record for
-	// it: until that record exists, nothing in the response says a backup
-	// is coming.
 	const isRequested = useBackupRequested();
-	const { state: backupsState } = useBackups( {
-		forcePoll: enqueueState === 'enqueued' && isRequested,
-	} );
+	const { state: backupsState } = useBackups();
 	const isBackupRunning = backupsState === 'in-progress';
 
 	// Hand over from "enqueued" once WPCOM reports the backup, running or
