@@ -21,7 +21,6 @@ class Premium_Features {
 	const TRANSIENT_KEY              = 'premium_features';
 	const CLOUD_CSS_BASELINE_OPTION  = 'jetpack_boost_cloud_css_plan_baseline';
 	const CLOUD_CSS_ACTIVATED_OPTION = 'jetpack_boost_cloud_css_plan_activated';
-	const CLOUD_CSS_NOTICE_OPTION    = 'jetpack_boost_ds_cloud_css_upgrade_notice';
 
 	/**
 	 * Record a verified plan baseline when the site connects, without activating Cloud CSS.
@@ -75,7 +74,6 @@ class Premium_Features {
 
 		$entry = new Modules_State_Entry( array( Cloud_CSS::class ) );
 		$entry->set( array( Cloud_CSS::get_slug() => array( 'active' => true ) ) );
-		jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
 	}
 
 	public static function has_feature( $feature ) {

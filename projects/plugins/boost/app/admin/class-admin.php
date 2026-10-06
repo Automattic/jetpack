@@ -203,7 +203,11 @@ class Admin {
 		// Clear premium features cache when the plugin settings page is loaded.
 		Premium_Features::clear_cache();
 		if ( current_user_can( 'manage_options' ) ) {
+			$already_activated = get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION );
 			Premium_Features::enable_cloud_css_after_upgrade();
+			if ( $this->modern_dashboard_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
+				jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
+			}
 		}
 
 		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
