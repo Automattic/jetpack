@@ -21,6 +21,7 @@ use function add_filter;
 use function do_action;
 use function home_url;
 use function remove_filter;
+use function set_url_scheme;
 use function wp_insert_user;
 use function wp_json_encode;
 use function wp_set_current_user;
@@ -899,7 +900,7 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 * instead of saving it.
 	 */
 	public function test_file_download_url_asks_for_an_attachment_and_returns_only_the_url() {
-		$signed = home_url( '/signed-download?sig=abc' );
+		$signed = set_url_scheme( home_url( '/signed-download?sig=abc' ), 'https' );
 		$this->arrange_wpcom_raw(
 			wp_json_encode(
 				array(
@@ -916,6 +917,20 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$this->assertSame( array( 'url' => $signed ), $response->get_data() );
 		$this->assertCount( 1, $this->captured_urls, 'The file must not be fetched server-side.' );
 		$this->assertStringContainsString( '/file/ZjU6L3dwLWNvbmZpZy5waHA=/url?disposition=attachment', $this->captured_urls[0] );
+	}
+
+	/**
+	 * The link goes to the browser as a bearer credential, so a plain `http` one is refused.
+	 * The preview still accepts it: there the server fetches it, and nothing leaves the host.
+	 */
+	public function test_file_download_url_refuses_a_plain_http_link() {
+		$this->arrange_wpcom_raw( wp_json_encode( array( 'url' => home_url( '/signed-download' ) ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = File_Browser_Bridge::get_file_download_url( self::file_download_url_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_file_download_url_missing', $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
 	}
 
 	/**

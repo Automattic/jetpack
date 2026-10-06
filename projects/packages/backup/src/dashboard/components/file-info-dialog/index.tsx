@@ -37,6 +37,7 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 		hash,
 		modified,
 		awaitingReveal,
+		previewable,
 		showPreview,
 		reveal,
 		content,
@@ -113,6 +114,7 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 						) }
 					>
 						<PreviewBody
+							previewable={ previewable }
 							awaitingReveal={ awaitingReveal }
 							onReveal={ handleReveal }
 							showPreview={ showPreview }

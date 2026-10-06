@@ -56,6 +56,13 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	private const SIGNED_URL_BODY = '@signed-url-body';
 
 	/**
+	 * Like the above, but `https`: the download route refuses any other scheme.
+	 *
+	 * @var string
+	 */
+	private const HTTPS_SIGNED_URL_BODY = '@https-signed-url-body';
+
+	/**
 	 * REST Server.
 	 *
 	 * @var WP_REST_Server
@@ -187,10 +194,10 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'encoded_manifest_path' => 'ZjU6L3dwLWNvbmZpZy5waHA=',
 				),
 				array(
-					array( 'body' => self::SIGNED_URL_BODY ),
+					array( 'body' => self::HTTPS_SIGNED_URL_BODY ),
 				),
 				array(
-					'url' => self::SIGNED_URL_BODY,
+					'url' => 'https://example.org/signed-stream',
 				),
 			),
 			'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
@@ -291,9 +298,6 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 			$response->get_status(),
 			sprintf( '%s %s: %s', $method, $path, wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) )
 		);
-		if ( isset( $expected['url'] ) && self::SIGNED_URL_BODY === $expected['url'] ) {
-			$expected['url'] = home_url( '/signed-stream' );
-		}
 		$this->assertSame( $expected, $response->get_data() );
 	}
 
@@ -383,6 +387,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 			if ( isset( $answer['body'] ) && self::SIGNED_URL_BODY === $answer['body'] ) {
 				$answers[ $index ]['body'] = wp_json_encode(
 					array( 'url' => home_url( '/signed-stream' ) ),
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+			if ( isset( $answer['body'] ) && self::HTTPS_SIGNED_URL_BODY === $answer['body'] ) {
+				$answers[ $index ]['body'] = wp_json_encode(
+					array( 'url' => 'https://example.org/signed-stream' ),
 					JSON_UNESCAPED_SLASHES
 				);
 			}

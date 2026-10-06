@@ -125,9 +125,9 @@ export default function useFileInfo( file: FileNodeFile ) {
 		setRevealedFor( null );
 	}
 	const revealed = revealedFor === previewId;
-	// Withholding the fetch too, not just the `<pre>`: unrevealed secrets never
-	// reach the browser at all.
-	const awaitingReveal = Boolean( mimeType ) && isSensitivePath( file.manifestPath ) && ! revealed;
+	// From the path alone: a secret with no previewable extension (`.env`, `.sql.gz`)
+	// still waits for the click. Also withholds the fetch, not just the `<pre>`.
+	const awaitingReveal = isSensitivePath( file.manifestPath ) && ! revealed;
 	const showPreview = Boolean( mimeType ) && ! awaitingReveal;
 	const reveal = useCallback( () => {
 		setRevealedFor( previewId );
@@ -149,6 +149,7 @@ export default function useFileInfo( file: FileNodeFile ) {
 		hash,
 		modified: lastModified ?? file.lastModified,
 		awaitingReveal,
+		previewable: Boolean( mimeType ),
 		showPreview,
 		reveal,
 		content,

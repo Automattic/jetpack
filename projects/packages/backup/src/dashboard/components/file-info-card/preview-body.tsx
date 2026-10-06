@@ -11,6 +11,7 @@ import { Button, Stack, Text } from '@wordpress/ui';
  * specific enough to blame.
  *
  * @param props                - Component props.
+ * @param props.previewable    - Whether the file type can be previewed at all; picks the reveal button's label.
  * @param props.awaitingReveal - Whether the file holds secrets the reader has not asked for yet.
  * @param props.onReveal       - Called when the reader asks for the hidden preview.
  * @param props.showPreview    - Whether the filename's extension is in the previewable map.
@@ -23,6 +24,7 @@ import { Button, Stack, Text } from '@wordpress/ui';
  */
 export default function PreviewBody( {
 	awaitingReveal,
+	previewable,
 	onReveal,
 	showPreview,
 	isLoading,
@@ -32,6 +34,7 @@ export default function PreviewBody( {
 	error,
 }: {
 	awaitingReveal: boolean;
+	previewable: boolean;
 	onReveal: () => void;
 	showPreview: boolean;
 	isLoading: boolean;
@@ -52,7 +55,9 @@ export default function PreviewBody( {
 					) }
 				</Text>
 				<Button variant="outline" size="compact" onClick={ onReveal }>
-					{ __( 'Show preview', 'jetpack-backup-pkg' ) }
+					{ previewable
+						? __( 'Show preview', 'jetpack-backup-pkg' )
+						: __( 'Show download', 'jetpack-backup-pkg' ) }
 				</Button>
 			</Stack>
 		);
@@ -110,9 +115,9 @@ export default function PreviewBody( {
 				</Text>
 			) }
 			{ /* `ltr`, not `auto`: source stays LTR even when it opens with an RTL string literal. */ }
-			<pre className="jpb-file-info__code" dir="ltr">
+			<Text variant="body-sm" render={ <pre className="jpb-file-info__code" dir="ltr" /> }>
 				{ content }
-			</pre>
+			</Text>
 		</>
 	);
 }

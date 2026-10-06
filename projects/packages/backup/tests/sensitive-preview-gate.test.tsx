@@ -323,15 +323,17 @@ describe( 'sensitive preview gate', () => {
 		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 	} );
 
-	// The pattern matches this one too, and the map still wins.
-	it( 'refuses a wp-config.php.bak outright rather than offering a reveal', async () => {
+	// The extension is not previewable, but the path is sensitive: the box still shows.
+	it( 'hides a wp-config.php.bak behind the reveal and offers no preview', async () => {
 		mockEndpoints( SECRET );
 
 		renderCard( fileAt( '/wp-config.php.bak' ) );
 
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: /show download/i } ) );
 		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
 	} );
 

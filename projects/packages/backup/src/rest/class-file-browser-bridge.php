@@ -364,7 +364,8 @@ class File_Browser_Bridge {
 			(string) $request->get_param( 'file_period' ),
 			(string) $request->get_param( 'encoded_manifest_path' ),
 			array( 'disposition' => 'attachment' ),
-			'backup_file_download'
+			'backup_file_download',
+			true
 		);
 		if ( is_wp_error( $signed_url ) ) {
 			return $signed_url;
@@ -381,9 +382,10 @@ class File_Browser_Bridge {
 	 * @param string               $encoded_manifest_path Base64 manifest path, already validated.
 	 * @param array<string,string> $query                 Extra query args for the lookup.
 	 * @param string               $code_prefix           Prefix of the error codes, so each route keeps its own.
+	 * @param bool                 $https_only            Refuse any other scheme, for a link that goes to the browser.
 	 * @return string|WP_Error The validated URL, or the error to return.
 	 */
-	private static function resolve_signed_url( $blog_id, $file_period, $encoded_manifest_path, array $query = array(), $code_prefix = 'backup_file_content' ) {
+	private static function resolve_signed_url( $blog_id, $file_period, $encoded_manifest_path, array $query = array(), $code_prefix = 'backup_file_content', $https_only = false ) {
 		// `$encoded_manifest_path` goes in verbatim. It is already
 		// base64, and WPCOM's stream route runs a plain
 		// `base64_decode()` on this segment, so percent-encoding it
@@ -440,7 +442,7 @@ class File_Browser_Bridge {
 
 		$url_body   = json_decode( wp_remote_retrieve_body( $url_response ), true );
 		$signed_url = is_array( $url_body ) && isset( $url_body['url'] ) ? $url_body['url'] : null;
-		if ( ! $signed_url || ! wp_http_validate_url( $signed_url ) ) {
+		if ( ! $signed_url || ! wp_http_validate_url( $signed_url ) || ( $https_only && 'https' !== wp_parse_url( $signed_url, PHP_URL_SCHEME ) ) ) {
 			// Defense-in-depth: WPCOM is supposed to hand back an HTTPS
 			// URL, but a regression that returned `file://…` or another
 			// scheme would otherwise reach `wp_remote_get`, or the browser.

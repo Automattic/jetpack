@@ -1,4 +1,4 @@
-import { CheckboxControl, Spinner } from '@wordpress/components';
+import { CheckboxControl } from '@wordpress/components';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
@@ -11,7 +11,7 @@ import {
 	file as folderIcon,
 	page as fileIcon,
 } from '@wordpress/icons';
-import { Stack } from '@wordpress/ui';
+import { Spinner, Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
 import useNarrowElement from '../../hooks/use-narrow-element';
 import { isFolder } from '../../types/file-tree';
@@ -42,8 +42,8 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
-// Card track floor; the card grows to 450px (see style.scss). The floor decides when two columns still fit.
-const CARD_TRACK = 280;
+// Must match the card track in style.scss: below `CARD_TRACK + COLUMN_GAP + MIN_TREE` the dialog takes over.
+const CARD_TRACK = 450;
 const COLUMN_GAP = 16;
 // Floor for the tree: a nested row spends ~120px on indent, checkbox, chevron
 // and glyph before a single character of filename.
@@ -537,9 +537,13 @@ export default function FileBrowser( {
 							) ) }
 					</div>
 				</div>
-				{ openFile && ! isNarrow && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
+				{ openFile && ! isNarrow && (
+					<FileInfoCard key={ openFile.manifestPath } file={ openFile } onClose={ closeInfoCard } />
+				) }
 			</div>
-			{ openFile && isNarrow && <FileInfoDialog file={ openFile } onClose={ closeInfoCard } /> }
+			{ openFile && isNarrow && (
+				<FileInfoDialog key={ openFile.manifestPath } file={ openFile } onClose={ closeInfoCard } />
+			) }
 		</div>
 	);
 }

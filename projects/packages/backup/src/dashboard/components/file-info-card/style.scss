@@ -7,7 +7,6 @@
 		flex-direction: column;
 		gap: 10px;
 		margin: 0;
-		font-size: 13px;
 
 		div {
 			display: flex;
@@ -46,8 +45,6 @@
 	&__code {
 		margin: 0;
 		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-		font-size: 12px;
-		line-height: 1.5;
 		white-space: pre-wrap;
 		// `anywhere` breaks the unbroken runs — minified JS, base64 — that
 		// `pre-wrap` alone will not.

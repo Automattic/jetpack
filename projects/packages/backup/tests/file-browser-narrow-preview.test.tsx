@@ -242,3 +242,43 @@ it( 'gives the dialog preview a named region focus can enter, as the card has', 
 	expect( preview ).toHaveAttribute( 'tabindex', '0' );
 	expect( preview ).toContainElement( screen.getByText( 'Hello.' ) );
 } );
+
+it( 'uses the dialog for a panel between the old and new two-column floors', async () => {
+	panel = mockPanelWidth( 700 );
+
+	await openTheFile();
+
+	await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+} );
+
+it( 'does not carry a failed download over to the next file', async () => {
+	panel = mockPanelWidth( 900 );
+	mockApiFetch.mockImplementation( ( options: { path: string } ) => {
+		if ( options.path.includes( '/file-download-url' ) ) {
+			return Promise.reject( new Error( 'nope' ) );
+		}
+		if ( options.path.includes( '/rewind/backup/file-content' ) ) {
+			return Promise.resolve( { content: 'Hello.', is_text: true, truncated: false } );
+		}
+		if ( options.path.includes( '/rewind/backup/path-info' ) ) {
+			return Promise.resolve( { size: 42 } );
+		}
+		return Promise.resolve( {
+			contents: {
+				...ROOT,
+				'other.txt': { type: 'file', period: '1786644531', manifest_path: 'f5:/other.txt' },
+			},
+		} );
+	} );
+
+	await openTheFile();
+	await userEvent.click( await screen.findByRole( 'button', { name: 'Download file' } ) );
+	await expect( screen.findByRole( 'alert' ) ).resolves.toBeInTheDocument();
+
+	await userEvent.click( screen.getByRole( 'button', { name: 'File: other.txt' } ) );
+
+	await expect(
+		screen.findByRole( 'heading', { level: 3, name: 'other.txt' } )
+	).resolves.toBeInTheDocument();
+	expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+} );
