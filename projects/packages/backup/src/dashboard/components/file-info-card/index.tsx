@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { closeSmall } from '@wordpress/icons';
+import { Icon, closeSmall, download as downloadIcon, page as fileIcon } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import FileInfoMeta from './file-info-meta';
 import PreviewBody from './preview-body';
@@ -41,6 +41,10 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 		truncated,
 		contentsLoading,
 		contentsError,
+		canDownload,
+		download,
+		isDownloading,
+		downloadFailed,
 	} = useFileInfo( file );
 
 	const handleReveal = useCallback( () => {
@@ -74,6 +78,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				className="jpb-file-info-card__header"
 			>
 				<Text variant="heading-md" className="jpb-file-info-card__header-title" render={ <h3 /> }>
+					<Icon icon={ fileIcon } size={ 20 } className="jpb-file-info-card__header-icon" />
 					{ /* A filename is LTR data even on an RTL page. */ }
 					<span dir="ltr">{ file.name }</span>
 				</Text>
@@ -89,6 +94,19 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				</Button>
 			</Stack>
 			<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
+			{ canDownload && (
+				<Stack direction="column" gap="xs" align="start">
+					<Button variant="outline" size="compact" onClick={ download } disabled={ isDownloading }>
+						<Button.Icon icon={ downloadIcon } />
+						{ __( 'Download file', 'jetpack-backup-pkg' ) }
+					</Button>
+					{ downloadFailed && (
+						<Text variant="body-sm" className="jpb-text-muted" role="alert">
+							{ __( 'The download could not start. Try again.', 'jetpack-backup-pkg' ) }
+						</Text>
+					) }
+				</Stack>
+			) }
 			{ /*
 			 * A scroll container (`max-height: 320px; overflow: auto`) that
 			 * nothing can put focus in cannot be scrolled by keyboard at all —

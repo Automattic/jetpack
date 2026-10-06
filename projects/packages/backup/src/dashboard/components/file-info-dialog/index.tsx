@@ -1,6 +1,7 @@
 import { useCallback, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Dialog } from '@wordpress/ui';
+import { Icon, download as downloadIcon, page as fileIcon } from '@wordpress/icons';
+import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import useAdminMenuWidth from '../../hooks/use-admin-menu-width';
 import FileInfoMeta from '../file-info-card/file-info-meta';
 import PreviewBody from '../file-info-card/preview-body';
@@ -43,6 +44,10 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 		truncated,
 		contentsLoading,
 		contentsError,
+		canDownload,
+		download,
+		isDownloading,
+		downloadFailed,
 	} = useFileInfo( file );
 
 	const handleReveal = useCallback( () => {
@@ -70,12 +75,31 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 			>
 				<Dialog.Header>
 					<Dialog.Title className="jpb-file-info-dialog__title">
+						<Icon icon={ fileIcon } size={ 20 } className="jpb-file-info-dialog__title-icon" />
 						<span dir="ltr">{ file.name }</span>
 					</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close preview', 'jetpack-backup-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content className="jpb-file-info-dialog__body">
 					<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
+					{ canDownload && (
+						<Stack direction="column" gap="xs" align="start">
+							<Button
+								variant="outline"
+								size="compact"
+								onClick={ download }
+								disabled={ isDownloading }
+							>
+								<Button.Icon icon={ downloadIcon } />
+								{ __( 'Download file', 'jetpack-backup-pkg' ) }
+							</Button>
+							{ downloadFailed && (
+								<Text variant="body-sm" className="jpb-text-muted" role="alert">
+									{ __( 'The download could not start. Try again.', 'jetpack-backup-pkg' ) }
+								</Text>
+							) }
+						</Stack>
+					) }
 					{ /* Focusable because `handleReveal` hands focus here. */ }
 					<div
 						ref={ previewRef }

@@ -21,8 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   - POST /jetpack/v4/rewind/backup/ls           → list folder children
  *   - GET  /jetpack/v4/rewind/backup/file-content → text preview proxy
  *   - GET  /jetpack/v4/rewind/backup/path-info    → per-file metadata
+ *   - GET  /jetpack/v4/rewind/backup/file-download-url → signed one-file download link
  *
- * All three address a file by the *file's own* `period` from `/ls` —
+ * All four address a file by the *file's own* `period` from `/ls` —
  * the timestamp at which that file last changed — never by the parent
  * backup's rewindId. VaultPress records one row per file version and
  * matches `period` exactly, with no nearest-earlier fallback, so a
@@ -141,6 +142,29 @@ class File_Browser_Bridge {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/rewind/backup/file-download-url',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_file_download_url' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				'args'                => array(
+					'file_period'           => array(
+						'type'     => 'string',
+						'required' => true,
+						'pattern'  => self::PERIOD_PATTERN,
+					),
+					// Lands in the WPCOM URL path unescaped, like `file-content`.
+					'encoded_manifest_path' => array(
+						'type'     => 'string',
+						'required' => true,
+						'pattern'  => self::BASE64_PATTERN,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -215,7 +239,7 @@ class File_Browser_Bridge {
 	/**
 	 * Fetch a text file's content for the preview pane.
 	 *
-	 * Resolves the one-time signed URL from WPCOM, then fetches the
+	 * Resolves the signed URL from WPCOM, then fetches the
 	 * stream server-side and caps the body at PREVIEW_MAX_BYTES.
 	 * WPCOM's signed-URL stream endpoint doesn't send CORS headers, so
 	 * the browser can't fetch it directly.
@@ -243,72 +267,11 @@ class File_Browser_Bridge {
 		$file_period           = (string) $request->get_param( 'file_period' );
 		$encoded_manifest_path = (string) $request->get_param( 'encoded_manifest_path' );
 
-		// Step 1: resolve the signed stream URL.
-		//
-		// `$encoded_manifest_path` goes in verbatim. It is already
-		// base64, and WPCOM's stream route runs a plain
-		// `base64_decode()` on this segment, so percent-encoding it
-		// first is silently destructive: PHP's non-strict decoder
-		// discards the `%` and keeps the `3` and the `D`, both valid
-		// base64 characters. `ZjU6L3dwLWNvbmZpZy5waHA%3D` decodes to
-		// `f5:/wp-config.php7`, and VaultPress then correctly reports
-		// `File not found` for a file that is really there. Base64's
-		// `+`, `/` and `=` are all legal in a path segment, and the
-		// upstream route captures it as `\S+`, so nothing needs
-		// escaping. `$file_period` is digits, so its encoding is a
-		// no-op either way.
-		//
-		// Because nothing escapes it here, `BASE64_PATTERN` on the arg
-		// definition is the guard. That matters: cURL applies RFC 3986
-		// dot-segment removal before the request leaves the host, so an
-		// unconstrained value containing `../` would climb out of this
-		// route — with a `?` swallowing the trailing `/url` — and turn
-		// a file proxy into an arbitrary authenticated WPCOM GET. The
-		// base64 alphabet contains neither `%` nor `.`, so the pattern
-		// closes that off without re-breaking the preview.
-		$url_response = Client::wpcom_json_api_request_as_user(
-			sprintf(
-				'/sites/%d/rewind/backup/%s/file/%s/url',
-				$blog_id,
-				rawurlencode( $file_period ),
-				$encoded_manifest_path
-			),
-			'v2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		if ( is_wp_error( $url_response ) ) {
-			return Rest_Controller::transport_error( $url_response, 'backup_file_content_url_failed' );
-		}
-
-		// Cast because `wp_remote_retrieve_response_code()` hands back
-		// whatever the transport put there, and a numeric string fails the
-		// strict comparison below — routing a perfectly good response into
-		// the failure branch, where `upstream_error()`'s clamp then reports
-		// it as a 500. Same reasoning at every bridge; the long version is
-		// on `Rest_Controller::upstream_error()`.
-		$url_status = (int) wp_remote_retrieve_response_code( $url_response );
-		if ( 200 !== $url_status ) {
-			return Rest_Controller::upstream_error(
-				$url_response,
-				'backup_file_content_url_failed',
-				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' )
-			);
-		}
-
-		$url_body   = json_decode( wp_remote_retrieve_body( $url_response ), true );
-		$signed_url = is_array( $url_body ) && isset( $url_body['url'] ) ? $url_body['url'] : null;
-		if ( ! $signed_url || ! wp_http_validate_url( $signed_url ) ) {
-			// Defense-in-depth: WPCOM is supposed to hand back an HTTPS
-			// URL, but a regression that returned `file://…` or another
-			// scheme would otherwise reach `wp_remote_get` below.
-			return new WP_Error(
-				'backup_file_content_url_missing',
-				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
-				array( 'status' => 502 )
-			);
+		// Step 1: resolve the signed stream URL. `$encoded_manifest_path` goes in
+		// verbatim; see `resolve_signed_url()` for why.
+		$signed_url = self::resolve_signed_url( $blog_id, $file_period, $encoded_manifest_path );
+		if ( is_wp_error( $signed_url ) ) {
+			return $signed_url;
 		}
 
 		// Step 2: fetch the stream body server-side.
@@ -378,6 +341,117 @@ class File_Browser_Bridge {
 				'truncated' => $truncated,
 			)
 		);
+	}
+
+	/**
+	 * Fetch the one-file download link for the info card's "Download file" button.
+	 *
+	 * Resolved on click, never alongside the preview, so the link exists only
+	 * for a reader who asked for it. Asks WPCOM for `disposition=attachment`
+	 * so the browser saves the file instead of rendering it.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_file_download_url( WP_REST_Request $request ) {
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$signed_url = self::resolve_signed_url(
+			$blog_id,
+			(string) $request->get_param( 'file_period' ),
+			(string) $request->get_param( 'encoded_manifest_path' ),
+			array( 'disposition' => 'attachment' ),
+			'backup_file_download'
+		);
+		if ( is_wp_error( $signed_url ) ) {
+			return $signed_url;
+		}
+
+		return rest_ensure_response( array( 'url' => $signed_url ) );
+	}
+
+	/**
+	 * Resolve the signed storage URL for one file version.
+	 *
+	 * @param int                  $blog_id               WPCOM blog id.
+	 * @param string               $file_period           The file's own snapshot period.
+	 * @param string               $encoded_manifest_path Base64 manifest path, already validated.
+	 * @param array<string,string> $query                 Extra query args for the lookup.
+	 * @param string               $code_prefix           Prefix of the error codes, so each route keeps its own.
+	 * @return string|WP_Error The validated URL, or the error to return.
+	 */
+	private static function resolve_signed_url( $blog_id, $file_period, $encoded_manifest_path, array $query = array(), $code_prefix = 'backup_file_content' ) {
+		// `$encoded_manifest_path` goes in verbatim. It is already
+		// base64, and WPCOM's stream route runs a plain
+		// `base64_decode()` on this segment, so percent-encoding it
+		// first is silently destructive: PHP's non-strict decoder
+		// discards the `%` and keeps the `3` and the `D`, both valid
+		// base64 characters. `ZjU6L3dwLWNvbmZpZy5waHA%3D` decodes to
+		// `f5:/wp-config.php7`, and VaultPress then correctly reports
+		// `File not found` for a file that is really there. Base64's
+		// `+`, `/` and `=` are all legal in a path segment, and the
+		// upstream route captures it as `\S+`, so nothing needs
+		// escaping. `$file_period` is digits, so its encoding is a
+		// no-op either way.
+		//
+		// Because nothing escapes it here, `BASE64_PATTERN` on the arg
+		// definition is the guard. That matters: cURL applies RFC 3986
+		// dot-segment removal before the request leaves the host, so an
+		// unconstrained value containing `../` would climb out of this
+		// route — with a `?` swallowing the trailing `/url` — and turn
+		// a file proxy into an arbitrary authenticated WPCOM GET. The
+		// base64 alphabet contains neither `%` nor `.`, so the pattern
+		// closes that off without re-breaking the preview.
+		$url_response = Client::wpcom_json_api_request_as_user(
+			sprintf(
+				'/sites/%d/rewind/backup/%s/file/%s/url%s',
+				$blog_id,
+				rawurlencode( $file_period ),
+				$encoded_manifest_path,
+				$query ? '?' . http_build_query( $query ) : ''
+			),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $url_response ) ) {
+			return Rest_Controller::transport_error( $url_response, $code_prefix . '_url_failed' );
+		}
+
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below — routing a perfectly good response into
+		// the failure branch, where `upstream_error()`'s clamp then reports
+		// it as a 500. Same reasoning at every bridge; the long version is
+		// on `Rest_Controller::upstream_error()`.
+		$url_status = (int) wp_remote_retrieve_response_code( $url_response );
+		if ( 200 !== $url_status ) {
+			return Rest_Controller::upstream_error(
+				$url_response,
+				$code_prefix . '_url_failed',
+				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' )
+			);
+		}
+
+		$url_body   = json_decode( wp_remote_retrieve_body( $url_response ), true );
+		$signed_url = is_array( $url_body ) && isset( $url_body['url'] ) ? $url_body['url'] : null;
+		if ( ! $signed_url || ! wp_http_validate_url( $signed_url ) ) {
+			// Defense-in-depth: WPCOM is supposed to hand back an HTTPS
+			// URL, but a regression that returned `file://…` or another
+			// scheme would otherwise reach `wp_remote_get`, or the browser.
+			return new WP_Error(
+				$code_prefix . '_url_missing',
+				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
+				array( 'status' => 502 )
+			);
+		}
+
+		return $signed_url;
 	}
 
 	/**

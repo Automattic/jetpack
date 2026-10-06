@@ -1,6 +1,7 @@
 import { useCallback, useState } from '@wordpress/element';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useFileContents } from '../../hooks/use-file-contents';
+import { useFileDownload } from '../../hooks/use-file-download';
 import { usePathInfo } from '../../hooks/use-path-info';
 import type { FileNodeFile } from '../../types/file-tree';
 
@@ -140,6 +141,7 @@ export default function useFileInfo( file: FileNodeFile ) {
 		error: contentsError,
 	} = useFileContents( file.period, file.manifestPath, showPreview );
 	const { size, hash, lastModified } = usePathInfo( file.period, file.manifestPath );
+	const fileDownload = useFileDownload( file.period, file.manifestPath );
 
 	return {
 		mimeType,
@@ -154,5 +156,10 @@ export default function useFileInfo( file: FileNodeFile ) {
 		truncated,
 		contentsLoading,
 		contentsError,
+		// Same reveal rule as the preview. The route itself does not enforce it.
+		canDownload: fileDownload.canDownload && ! awaitingReveal,
+		download: fileDownload.download,
+		isDownloading: fileDownload.isDownloading,
+		downloadFailed: fileDownload.downloadFailed,
 	};
 }

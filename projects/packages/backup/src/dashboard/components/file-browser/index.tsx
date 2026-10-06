@@ -42,6 +42,7 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
+// Card track floor; the card grows to 450px (see style.scss). The floor decides when two columns still fit.
 const CARD_TRACK = 280;
 const COLUMN_GAP = 16;
 // Floor for the tree: a nested row spends ~120px on indent, checkbox, chevron
@@ -473,7 +474,7 @@ export default function FileBrowser( {
 	}, [] );
 
 	// The card only takes a column when it is actually rendered there; a bare
-	// tree keeps the full panel width so zebra rows run edge to edge.
+	// tree keeps the full panel width.
 	const layoutClassName =
 		openFile && ! isNarrow
 			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
@@ -519,12 +520,12 @@ export default function FileBrowser( {
 						</div>
 					) }
 					{ ! rootsLoading &&
-						roots.map( ( node, index ) => (
+						roots.map( node => (
 							<NodeRow
 								key={ node.path }
 								node={ node }
 								depth={ 0 }
-								isAlternate={ index % 2 === 1 }
+								openPath={ openFile?.manifestPath }
 								ancestorSelected={ false }
 								rewindId={ rewindId }
 								selection={ selection }
@@ -544,7 +545,7 @@ export default function FileBrowser( {
 type NodeRowProps = {
 	node: FileNode;
 	depth: number;
-	isAlternate: boolean;
+	openPath: string | undefined;
 	ancestorSelected: boolean;
 	rewindId: string;
 	selection: FileSelection;
@@ -556,14 +557,14 @@ type NodeRowProps = {
 /**
  * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
  *
- * Two pieces of state propagate top-down: `ancestorSelected` carries the *effective* checked state of the nearest ancestor (own selected beats own deselected beats ancestor), and zebra parity (`isAlternate`) is toggled before each child so the stripe runs continuously through nested branches.
+ * `ancestorSelected` propagates top-down and carries the *effective* checked state of the nearest ancestor (own selected beats own deselected beats ancestor).
  *
  * A folder renders the indeterminate "—" dash when (a) it's effectively checked and any descendant path lives in `selection.deselected`, or (b) it's effectively unchecked and any descendant lives in `selection.selected`.
  *
  * @param props                    - Component props.
  * @param props.node               - The node to render.
  * @param props.depth              - Indent depth (root = 0).
- * @param props.isAlternate        - Whether this row gets the alt (gray) background.
+ * @param props.openPath           - Manifest path of the file open in the info card, if any.
  * @param props.ancestorSelected   - True when this row inherits a checked state from a selected ancestor (modulo its own deselection).
  * @param props.rewindId           - The selected backup's rewind id, threaded down so each folder row can fetch its own children via `useFileTree`.
  * @param props.selection          - Current selection state (selected + deselected sets).
@@ -575,7 +576,7 @@ type NodeRowProps = {
 function NodeRow( {
 	node,
 	depth,
-	isAlternate,
+	openPath,
 	ancestorSelected,
 	rewindId,
 	selection,
@@ -643,8 +644,10 @@ function NodeRow( {
 		onRegisterChildren( node.path, children );
 	}, [ open, nodeIsFolder, isLoading, children, node.path, onRegisterChildren ] );
 
-	const rowClassName = isAlternate
-		? 'jpb-file-browser__row jpb-file-browser__row--alt'
+	const isOpenFile =
+		! nodeIsFolder && openPath !== undefined && openPath === ( node as FileNodeFile ).manifestPath;
+	const rowClassName = isOpenFile
+		? 'jpb-file-browser__row jpb-file-browser__row--open'
 		: 'jpb-file-browser__row';
 
 	return (
@@ -700,6 +703,7 @@ function NodeRow( {
 					<button
 						type="button"
 						className="jpb-file-browser__file"
+						aria-current={ isOpenFile ? 'true' : undefined }
 						aria-label={ sprintf(
 							/* translators: %s: file name. */
 							__( 'File: %s', 'jetpack-backup-pkg' ),
@@ -765,14 +769,12 @@ function NodeRow( {
 							: '' }
 					</div>
 					{ ! isLoading &&
-						( children ?? [] ).map( ( child, index ) => (
+						( children ?? [] ).map( child => (
 							<NodeRow
 								key={ child.path }
 								node={ child }
 								depth={ depth + 1 }
-								// Toggle before each child so the first one inverts the
-								// parent's parity, then alternates from there.
-								isAlternate={ index % 2 === 0 ? ! isAlternate : isAlternate }
+								openPath={ openPath }
 								ancestorSelected={ isEffectivelySelected }
 								rewindId={ rewindId }
 								selection={ selection }

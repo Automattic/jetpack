@@ -58,7 +58,7 @@ const README: FileNodeFile = {
 	manifestPath: 'f5:/readme.txt',
 };
 
-const HIDDEN = 'This preview is hidden because it contains sensitive information.';
+const HIDDEN = 'The preview is hidden because it contains sensitive information.';
 const UNAVAILABLE = 'Preview unavailable for this file.';
 const SHOW = /show preview/i;
 

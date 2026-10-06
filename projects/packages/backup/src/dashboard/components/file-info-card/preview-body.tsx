@@ -43,11 +43,11 @@ export default function PreviewBody( {
 	// Ahead of `showPreview`, which the gate holds false until the reveal.
 	if ( awaitingReveal ) {
 		return (
-			<Stack direction="column" align="center" gap="xs">
+			<Stack direction="column" align="center" gap="xs" className="jpb-file-info__sensitive">
 				<Icon icon={ unseen } />
 				<Text variant="body-sm" render={ <p /> }>
 					{ __(
-						'This preview is hidden because it contains sensitive information.',
+						'The preview is hidden because it contains sensitive information.',
 						'jetpack-backup-pkg'
 					) }
 				</Text>

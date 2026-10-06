@@ -16,7 +16,7 @@
 		// `FileBrowser` adds this only when it renders the card in-column;
 		// too narrow for that and the preview goes to `<FileInfoDialog>`.
 		&--with-card {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+			grid-template-columns: minmax(0, 1fr) minmax(280px, 450px);
 
 			// `align-self` is load-bearing: grid stretches the card to its row's
 			// height — the tree's — and a stretched card has nowhere to travel.
@@ -48,18 +48,9 @@
 		gap: 8px;
 		padding: 6px 8px;
 
-		// Alt-row tint. Applied via a class set by `<NodeRow>` so the
-		// stripe respects the legacy backup-contents component's parity
-		// rule — a white parent's first child renders gray, a gray
-		// parent's first child renders white. Using a literal hex
-		// rather than `--wp-components-color-gray-100` because the
-		// token is locally re-mapped to white inside `Card.Content`.
-		// The row is a block-level flex container that fills its
-		// wrapper's full width, so the tint spans the panel edge to
-		// edge — no inner border-radius (which would have looked like
-		// a "pill" cropped from the surrounding bg).
-		&--alt {
-			background-color: #f6f7f7;
+		&--open {
+			background-color: var(--wpds-color-background-surface-brand);
+			color: var(--wpds-color-foreground-interactive-brand);
 		}
 	}
 

@@ -16,7 +16,6 @@
 
 		dt {
 			margin: 0;
-			font-weight: 600;
 			flex: 0 0 auto;
 		}
 
@@ -27,9 +26,14 @@
 	}
 
 	&__hash {
-		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-		font-size: 12px;
 		word-break: break-all;
+	}
+
+	// Fills the preview region so the reveal prompt sits centred in a tall box.
+	&__sensitive {
+		min-block-size: 200px;
+		justify-content: center;
+		text-align: center;
 	}
 
 	&__note {
@@ -68,8 +72,15 @@
 	// Filenames offer no break at `.` or `_`, so a long stem pushes the close
 	// button past `Card.Root`'s `overflow: clip` and out of reach.
 	&__header-title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 		min-width: 0;
 		overflow-wrap: anywhere;
+	}
+
+	&__header-icon {
+		flex-shrink: 0;
 	}
 
 	&__header-close {

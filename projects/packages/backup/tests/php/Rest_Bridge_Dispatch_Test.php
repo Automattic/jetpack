@@ -106,7 +106,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 */
 	public static function provide_bridge_dispatches() {
 		return array(
-			'/jetpack/v4/site/capabilities'          => array(
+			'/jetpack/v4/site/capabilities'               => array(
 				'GET',
 				'/jetpack/v4/site/capabilities',
 				array(),
@@ -116,7 +116,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'hasScan'       => true,
 				),
 			),
-			'/jetpack/v4/site/rewindable-activity'   => array(
+			'/jetpack/v4/site/rewindable-activity'        => array(
 				'GET',
 				'/jetpack/v4/site/rewindable-activity',
 				array(
@@ -130,7 +130,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'totalPages' => 1,
 				),
 			),
-			'/jetpack/v4/rewind/backup/ls'           => array(
+			'/jetpack/v4/rewind/backup/ls'                => array(
 				'POST',
 				'/jetpack/v4/rewind/backup/ls',
 				array(
@@ -148,7 +148,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					),
 				),
 			),
-			'/jetpack/v4/rewind/backup/path-info'    => array(
+			'/jetpack/v4/rewind/backup/path-info'         => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/path-info',
 				array(
@@ -162,7 +162,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'mtime' => 1748888135,
 				),
 			),
-			'/jetpack/v4/rewind/backup/file-content' => array(
+			'/jetpack/v4/rewind/backup/file-content'      => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/file-content',
 				array(
@@ -177,6 +177,20 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'content'   => "<?php\ndefine( 'DB_NAME', 'wordpress' );\n",
 					'is_text'   => true,
 					'truncated' => false,
+				),
+			),
+			'/jetpack/v4/rewind/backup/file-download-url' => array(
+				'GET',
+				'/jetpack/v4/rewind/backup/file-download-url',
+				array(
+					'file_period'           => '1748888135',
+					'encoded_manifest_path' => 'ZjU6L3dwLWNvbmZpZy5waHA=',
+				),
+				array(
+					array( 'body' => self::SIGNED_URL_BODY ),
+				),
+				array(
+					'url' => self::SIGNED_URL_BODY,
 				),
 			),
 			'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
@@ -277,6 +291,9 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 			$response->get_status(),
 			sprintf( '%s %s: %s', $method, $path, wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) )
 		);
+		if ( isset( $expected['url'] ) && self::SIGNED_URL_BODY === $expected['url'] ) {
+			$expected['url'] = home_url( '/signed-stream' );
+		}
 		$this->assertSame( $expected, $response->get_data() );
 	}
 

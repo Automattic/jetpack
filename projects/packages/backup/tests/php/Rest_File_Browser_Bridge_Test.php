@@ -96,7 +96,7 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	 */
 	public static function provide_bridge_routes() {
 		return array(
-			'ls'           => array(
+			'ls'                => array(
 				'POST',
 				'/jetpack/v4/rewind/backup/ls',
 				array(
@@ -104,7 +104,7 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 					'path'      => '/',
 				),
 			),
-			'file-content' => array(
+			'file-content'      => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/file-content',
 				array(
@@ -112,7 +112,15 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 					'encoded_manifest_path' => 'abc',
 				),
 			),
-			'path-info'    => array(
+			'file-download-url' => array(
+				'GET',
+				'/jetpack/v4/rewind/backup/file-download-url',
+				array(
+					'file_period'           => '123',
+					'encoded_manifest_path' => 'abc',
+				),
+			),
+			'path-info'         => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/path-info',
 				array(
@@ -882,5 +890,89 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		// The storage host answers in XML, which `upstream_reason()` reads nothing out
 		// of — so the status is all the client has to go on.
 		$this->assertArrayNotHasKey( 'wpcom', $response->get_error_data() );
+	}
+
+	/**
+	 * The download route asks WPCOM for an attachment link and returns the URL alone.
+	 *
+	 * Without `disposition=attachment` the browser renders an HTML or SVG file in a tab
+	 * instead of saving it.
+	 */
+	public function test_file_download_url_asks_for_an_attachment_and_returns_only_the_url() {
+		$signed = home_url( '/signed-download?sig=abc' );
+		$this->arrange_wpcom_raw(
+			wp_json_encode(
+				array(
+					'url'   => $signed,
+					'extra' => 'x',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = File_Browser_Bridge::get_file_download_url( self::file_download_url_request() );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( array( 'url' => $signed ), $response->get_data() );
+		$this->assertCount( 1, $this->captured_urls, 'The file must not be fetched server-side.' );
+		$this->assertStringContainsString( '/file/ZjU6L3dwLWNvbmZpZy5waHA=/url?disposition=attachment', $this->captured_urls[0] );
+	}
+
+	/**
+	 * A signed URL this server would not fetch is not handed to the browser either.
+	 */
+	public function test_file_download_url_refuses_a_url_with_a_file_scheme() {
+		$this->arrange_wpcom_raw( '{"url":"file:///etc/passwd"}' );
+
+		$response = File_Browser_Bridge::get_file_download_url( self::file_download_url_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_file_download_url_missing', $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * A failed lookup carries the upstream status through.
+	 */
+	public function test_file_download_url_reports_a_failed_lookup() {
+		$this->arrange_wpcom_answers(
+			array(
+				array(
+					'body'   => '{"code":"rewind_error","message":"No backup for this period."}',
+					'status' => 451,
+				),
+			)
+		);
+
+		$response = File_Browser_Bridge::get_file_download_url( self::file_download_url_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_file_download_url_failed', $response->get_error_code() );
+		$this->assertSame( 451, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * A manifest path that is not base64 is refused, as on the preview route.
+	 */
+	public function test_file_download_url_refuses_a_manifest_path_that_is_not_base64() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-download-url' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', '../../../../../me/sites?f=' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
+	 * Request for the download route.
+	 *
+	 * @return WP_REST_Request
+	 */
+	private static function file_download_url_request() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-download-url' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', 'ZjU6L3dwLWNvbmZpZy5waHA=' );
+		return $request;
 	}
 }
