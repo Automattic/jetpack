@@ -97,6 +97,7 @@
 - Connection: Fix a stale connection error notice that could persist on healthy sites. [#52264]
 - Connection: Hide connection error notices from users who cannot fix the connection. [#52049]
 - Connection: Let users without admin access reconnect their own broken account from the connection error notice. [#52718]
+- Connection: Limit the data returned by the site data endpoint.
 - Connection: Reconnect only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt. [#52851]
 - Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good. [#52130]
 - Connection: Show a connection break only its owner can repair as a warning to other users, not an error. [#52130]
