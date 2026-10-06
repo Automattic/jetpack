@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -16,13 +18,10 @@ jest.mock( '../use-traffic-chart' );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
 
-// The click lands in the date-filter controller, so a recorder stands in for it.
-const mockDrillDown = jest.fn();
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	useReportDateFilters: () => ( {
-		drillDown: ( ...args: unknown[] ) => mockDrillDown( ...args ),
-	} ),
-} ) );
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 // The chart itself is not this file's subject: `useTrafficChart` resolves the
 // bucket. The stand-in records props so the click handler can be driven.
@@ -75,7 +74,6 @@ function drawnChartType(): string {
 beforeEach( () => {
 	window.localStorage.clear();
 	mockGetScriptData.mockReturnValue( { site: { wpcom: { blog_id: 123 } } } as never );
-	mockDrillDown.mockClear();
 	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
 	mockUseTrafficChart.mockReturnValue( {
@@ -216,15 +214,52 @@ describe( 'TrafficChart bucket size', () => {
 } );
 
 describe( 'TrafficChart drill-down', () => {
-	// A yearly page draws in months here, so the click must name the month:
-	// left to the page interval, a click on March would open the whole year.
-	it( 'names the bucket size it drew, not the page interval', () => {
+	// A yearly page draws in months here, so the click must open the month:
+	// left to the page interval, a click on February would open the whole year.
+	it( 'sets the period to the bar it drew, not the page interval', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } />
+			</ReportScopeProvider>
+		);
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-02-01T00:00:00.000Z' ),
+			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'cuts an edge bar to the window it drew', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender
+					attributes={ {
+						reportParams: {
+							from: '2026-02-10',
+							to: '2026-06-30',
+							interval: 'month',
+						} as ReportParams,
+					} }
+				/>
+			</ReportScopeProvider>
+		);
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-02-10T00:00:00.000Z' ),
+			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'leaves the bars inert on a surface with no period to set', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
-		const clicked = new Date( '2026-02-14T00:00:00.000Z' );
-		chartClickHandler()( clicked );
-
-		expect( mockDrillDown ).toHaveBeenCalledWith( clicked, 'month' );
+		expect( chartClickHandler() ).toBeUndefined();
 	} );
 } );
 

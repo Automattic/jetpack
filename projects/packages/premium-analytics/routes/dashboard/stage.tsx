@@ -3,10 +3,9 @@ import {
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
-	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
@@ -211,11 +210,11 @@ function Dashboard(): JSX.Element {
 	const showHeaderDateControl =
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
 
-	// A widget can open another section over a month (WOOA7S-2036); once that
-	// section shows the period control, it draws attention to the new period.
+	// A widget can set the period, here or on another section (WOOA7S-2036); once
+	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const attentionId = useSettlePeriodChange(
+	const { openPeriod, attentionId } = usePeriodHost(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl
@@ -336,7 +335,7 @@ function Dashboard(): JSX.Element {
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
-			<ReportScopeProvider offersComparison={ showComparison }>
+			<ReportScopeProvider offersComparison={ showComparison } openPeriod={ openPeriod }>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
 				<WidgetDashboard.Policy canPerform={ canPerform }>
 					<WidgetDashboard

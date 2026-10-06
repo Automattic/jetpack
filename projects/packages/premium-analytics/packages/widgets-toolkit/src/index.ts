@@ -321,6 +321,7 @@ export {
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 	monthlyHeatmapLifeStart,
+	bucketRange,
 	monthRange,
 	yearRange,
 	type PeriodBounds,
