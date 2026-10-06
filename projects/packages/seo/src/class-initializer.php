@@ -239,8 +239,9 @@ class Initializer {
 			return true;
 		}
 
+		// Only active features are needed for this check.
 		$features = ( new Host() )->is_wpcom_simple()
-			? Current_Plan::get_simple_site_specific_features()
+			? Current_Plan::get_simple_site_specific_features( false )
 			: Current_Plan::get()['features'];
 
 		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );

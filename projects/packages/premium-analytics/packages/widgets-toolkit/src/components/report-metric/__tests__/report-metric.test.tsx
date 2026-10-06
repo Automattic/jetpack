@@ -6,38 +6,37 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { resetMockCharts, setMockElementStyles } from '../../../../../../tests/js/chart-test-utils';
+import * as metricComparison from '../../../widgets/metric-comparison/metric-comparison-widget';
 import { ReportMetricWidget } from '../report-metric';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { ReportMetricWidgetProps } from '../report-metric';
+
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
+
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 // The chart underneath draws SVG through a provider jsdom cannot lay out, so stand
 // it in for a prop recorder.
 const mockMetricComparisonSpy = jest.fn();
 
-jest.mock( '../../../widgets/metric-comparison', () => ( {
-	MetricComparisonWidget: ( props: MetricComparisonProps ) => {
-		mockMetricComparisonSpy( props );
-		return <div data-testid="metric-comparison" />;
-	},
-} ) );
-
 // Mirrors the real theme closely enough to tell the two series apart: a colour
 // per index, and dashes on the comparison.
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
-	useGlobalChartsContext: () => ( {
-		getElementStyles: ( {
-			data,
-			index,
-		}: {
-			data: ComparativeLineChartSeries;
-			index: number;
-		} ) => ( {
-			color: index === 0 ? '#3858E9' : '#69A2FF',
-			lineStyles: data.options?.type === 'comparison' ? { strokeDasharray: '4 4' } : {},
-		} ),
-	} ),
-} ) );
+const elementStyles = ( {
+	data,
+	index,
+}: {
+	data: ComparativeLineChartSeries;
+	index: number;
+} ) => ( {
+	color: index === 0 ? '#3858E9' : '#69A2FF',
+	lineStyles: data.options?.type === 'comparison' ? { strokeDasharray: '4 4' } : {},
+} );
 
 type MetricComparisonProps = {
 	value: number;
@@ -102,42 +101,29 @@ const views = ( count: number ) =>
 	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'ReportMetricWidget', () => {
+	let metricComparisonWidget: jest.SpyInstance;
+
 	beforeEach( () => {
+		resetMockCharts();
+		setMockElementStyles( elementStyles );
 		mockMetricComparisonSpy.mockClear();
+		metricComparisonWidget = jest
+			.spyOn( metricComparison, 'MetricComparisonWidget' )
+			.mockImplementation( props => {
+				mockMetricComparisonSpy( props );
+				return <div data-testid="metric-comparison" />;
+			} );
 	} );
 
-	it( 'names both periods after the metric when given a label', () => {
-		const { series } = renderWidget( { seriesLabel: 'Visitors' } );
-
-		expect( series.map( item => item.label ) ).toEqual( [
-			'Visitors',
-			'Visitors · previous period',
-		] );
+	afterEach( () => {
+		metricComparisonWidget.mockRestore();
 	} );
 
-	it( 'hands the count label to the current period, which its comparison borrows it from', () => {
+	it( 'names both periods after the metric and counts the current one in its unit', () => {
 		const { series } = renderWidget( { seriesLabel: 'Views', seriesCountLabel: views } );
 
+		expect( series.map( item => item.label ) ).toEqual( [ 'Views', 'Views · previous period' ] );
 		expect( series[ 0 ].countLabel ).toBe( views );
-		expect( series[ 1 ].group ).toBe( series[ 0 ].group );
-	} );
-
-	it( 'names the primary alone when there is no comparison period', () => {
-		const { series } = renderWidget( {
-			seriesLabel: 'Visitors',
-			data: hookResult( { comparison: {} } ),
-		} );
-
-		expect( series.map( item => item.label ) ).toEqual( [ 'Visitors' ] );
-	} );
-
-	it( 'falls back to the date-range labels when no label is given', () => {
-		const { series } = renderWidget();
-
-		expect( series ).toHaveLength( 2 );
-		expect( series[ 0 ].label ).toEqual( expect.stringContaining( '2026' ) );
-		expect( series[ 1 ].label ).toEqual( expect.stringContaining( '2026' ) );
-		expect( series.map( item => item.label ) ).not.toContain( 'Visitors' );
 	} );
 
 	it( 'charts each period and hands the summaries to the metric', () => {

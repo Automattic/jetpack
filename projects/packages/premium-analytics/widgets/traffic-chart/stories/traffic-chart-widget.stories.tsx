@@ -9,6 +9,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryPeriodHost } from '../../stories/with-story-period-host';
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
@@ -71,9 +72,8 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TrafficChart',
 	component: TrafficChartRender,
 	tags: [ 'autodocs' ],
-	// The widget reads the report window off the route to drill on a click, so it
-	// needs a router even in the close-up stories that mount it without a dashboard.
-	decorators: [ withStoryRouter, withSiteTimeZone ],
+	// A bar click sets the period through the page hosting the widget, stood in for here.
+	decorators: [ withStoryPeriodHost, withStoryRouter, withSiteTimeZone ],
 	argTypes: {
 		...siteTimeZoneArgTypes,
 		withComparison: { control: 'boolean' },
