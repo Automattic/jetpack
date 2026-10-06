@@ -75,22 +75,6 @@ function getRowId( item: ActivityItem ): string {
 }
 
 /**
- * The state that colours a row's icon; `none` keeps the neutral default.
- *
- * @param item - The activity item.
- * @return The state modifier.
- */
-function iconState( item: ActivityItem ): 'success' | 'error' | 'info' | 'none' {
-	if ( item.kind === 'backup' ) {
-		return 'success';
-	}
-	if ( item.kind === 'restore' ) {
-		return item.failed ? 'error' : 'info';
-	}
-	return 'none';
-}
-
-/**
  * Renders the icon that DataViews shows in the `media` slot of the list layout.
  *
  * @param props      - Component props.
@@ -99,10 +83,7 @@ function iconState( item: ActivityItem ): 'success' | 'error' | 'info' | 'none' 
  */
 function MediaCell( { item }: { item: ActivityItem } ) {
 	return (
-		<span
-			className={ `jpb-activity-list__icon jpb-activity-list__icon--${ iconState( item ) }` }
-			aria-hidden="true"
-		>
+		<span className="jpb-activity-list__icon" aria-hidden="true">
 			<Icon icon={ ICON_BY_KIND[ item.kind ] } size={ 20 } />
 		</span>
 	);
@@ -138,7 +119,7 @@ function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 		<>
 			{ item.title }
 			{ isNew && (
-				<Badge intent="informational" className="jpb-activity-list__new">
+				<Badge intent="none" className="jpb-activity-list__new">
 					{ __( 'New', 'jetpack-backup-pkg' ) }
 				</Badge>
 			) }
@@ -158,7 +139,7 @@ function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
  */
 function DescriptionCell( { item }: { item: ActivityItem } ) {
 	return (
-		<Stack direction="row" align="center" gap="xs">
+		<Stack direction="row" align="center" gap="md">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ rowDate( item ) }
 			</Text>
@@ -409,7 +390,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 					className="jpb-activity-list__toolbar"
 				>
 					<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
-						<Text variant="heading-md" render={ <h2 /> }>
+						<Text variant="heading-md" className="jpb-activity-list__title" render={ <h2 /> }>
 							{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
 						</Text>
 						<Text variant="body-sm" className="jpb-text-muted">

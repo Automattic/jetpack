@@ -8,7 +8,11 @@
 
 	// Rows stay flush so dividers run edge-to-edge.
 	&__toolbar {
-		padding: 16px 16px 8px;
+		min-block-size: 64px;
+		padding: 12px 20px 12px 24px;
+		box-sizing: border-box;
+		align-items: center;
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 
 	// A failure has no rows to fill the height the grid gives it.
@@ -23,6 +27,17 @@
 	&__heading {
 		min-inline-size: 0;
 		align-items: flex-start;
+
+		.jpb-activity-list__title {
+			font-size: var(--wpds-typography-font-size-lg);
+			font-weight: 500;
+		}
+
+		// Quiet, not underlined: the design has neither this line nor the link.
+		a {
+			font-size: var(--wpds-typography-font-size-sm);
+			text-decoration: none;
+		}
 	}
 
 	&__new {
@@ -30,12 +45,18 @@
 	}
 
 	// The selected row drops its grey tile and shows the icon in the theme colour.
+	// 72px rows, a flat tint and no outline on the selected row.
+	.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper {
+		padding-block: 12px;
+	}
+
+	.dataviews-view-list div[role="row"].is-selected.is-selected {
+		background: var(--wpds-color-background-surface-brand);
+		border-block-start-color: transparent;
+	}
+
 	.dataviews-view-list div[role="row"].is-selected .dataviews-view-list__media-wrapper {
 		background: transparent;
-
-		&::after {
-			box-shadow: none;
-		}
 	}
 
 	.dataviews-view-list div[role="row"].is-selected .jpb-activity-list__icon {
@@ -52,11 +73,23 @@
 
 	// Center the gridicon inside DataViews' 52x52 media placeholder.
 	// Without this the Icon element sits in the top-left of the box.
-	.dataviews-view-list__media-wrapper {
+	.dataviews-view-list .dataviews-view-list__media-wrapper {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #757575;
+		inline-size: 32px;
+		block-size: 32px;
+		background: var(--wpds-color-background-surface-neutral-weak);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+
+		// Filled tile, no outline.
+		&::after {
+			box-shadow: none;
+		}
+	}
+
+	.dataviews-view-list .dataviews-title-field {
+		font-weight: var(--wpds-typography-font-weight-default);
 	}
 
 	// Keep the date + summary metadata on a single line with overflow
@@ -88,20 +121,7 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--wp-components-color-foreground, #1e1e1e);
 		flex-shrink: 0;
-
-		&--success {
-			color: var(--wpds-color-foreground-content-success);
-		}
-
-		&--error {
-			color: var(--wpds-color-foreground-content-error);
-		}
-
-		&--info {
-			color: var(--wpds-color-foreground-content-info);
-		}
 
 		svg {
 			fill: currentColor;
