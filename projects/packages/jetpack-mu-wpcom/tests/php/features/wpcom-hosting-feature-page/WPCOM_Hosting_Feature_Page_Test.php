@@ -8,7 +8,9 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Hosting_Feature_Page;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
@@ -26,13 +28,113 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	const SCREEN_ID = 'jetpack_page_jetpack-backup';
 
 	/**
-	 * An environment that cannot prove the site has backups must not offer to
-	 * activate them.
+	 * A site whose plan lacks the feature must not be offered activation.
 	 */
-	public function test_state_defaults_to_upgrade_without_wpcom_libraries() {
+	public function test_state_is_upgrade_without_the_plan() {
 		$this->assertSame(
 			WPCOM_Backup::STATE_UPGRADE,
 			WPCOM_Backup::get_state( 1 )
+		);
+	}
+
+	/**
+	 * Stand in for wpcom's plan lookup, with a plan that includes nothing.
+	 *
+	 * @return void
+	 */
+	public function set_up() {
+		parent::set_up();
+		// Some earlier suites never tear Brain Monkey down, and a leftover stub would block this one.
+		\Brain\Monkey\tearDown();
+		\Brain\Monkey\setUp();
+		$this->grant_feature( '' );
+	}
+
+	/**
+	 * Give the site exactly one plan feature.
+	 *
+	 * @param string $granted The feature the plan includes.
+	 * @return void
+	 */
+	private function grant_feature( $granted ) {
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function ( $feature ) use ( $granted ) {
+				return $granted === $feature;
+			}
+		);
+	}
+
+	/**
+	 * Each page, a feature granted on its own, and whether that unlocks the page's feature.
+	 *
+	 * @return array
+	 */
+	public static function provide_granted_features() {
+		return array(
+			'Backup with self-serve backups' => array( WPCOM_Backup::class, \WPCOM_Features::BACKUPS_SELF_SERVE, true ),
+			'Backup with self-serve Scan'    => array( WPCOM_Backup::class, \WPCOM_Features::SCAN_SELF_SERVE, false ),
+			'Protect with self-serve Scan'   => array( WPCOM_Scan::class, \WPCOM_Features::SCAN_SELF_SERVE, true ),
+			// Personal and Premium plans include SCAN but never show Scan's UI.
+			'Protect with SCAN alone'        => array( WPCOM_Scan::class, \WPCOM_Features::SCAN, false ),
+		);
+	}
+
+	/**
+	 * Each page asks the plan for its own feature, and only that one.
+	 *
+	 * @param string $page     Page class.
+	 * @param string $granted  The feature the plan includes.
+	 * @param bool   $expected Whether the page should see its feature.
+	 *
+	 * @dataProvider provide_granted_features
+	 */
+	#[DataProvider( 'provide_granted_features' )]
+	public function test_page_checks_its_own_plan_feature( $page, $granted, $expected ) {
+		$this->grant_feature( $granted );
+
+		$this->assertSame( $expected, $page::has_feature() );
+	}
+
+	/**
+	 * A Simple site with the plan is offered the transfer that switches the feature on.
+	 *
+	 * @param string $page    Page class.
+	 * @param string $feature The page's plan feature.
+	 *
+	 * @dataProvider provide_page_features
+	 */
+	#[DataProvider( 'provide_page_features' )]
+	public function test_simple_site_with_the_plan_is_offered_activation( $page, $feature ) {
+		$this->grant_feature( $feature );
+
+		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_ACTIVATE, $page::get_state( 1 ) );
+	}
+
+	/**
+	 * On WoA the plan makes the feature live, so the page steps aside for the real one.
+	 *
+	 * @param string $page    Page class.
+	 * @param string $feature The page's plan feature.
+	 *
+	 * @dataProvider provide_page_features
+	 */
+	#[DataProvider( 'provide_page_features' )]
+	public function test_woa_site_with_the_plan_does_not_register_the_page( $page, $feature ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->grant_feature( $feature );
+
+		$this->assertFalse( $page::should_register() );
+	}
+
+	/**
+	 * Each page with the plan feature that unlocks it.
+	 *
+	 * @return array
+	 */
+	public static function provide_page_features() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class, \WPCOM_Features::BACKUPS_SELF_SERVE ),
+			'Protect' => array( WPCOM_Scan::class, \WPCOM_Features::SCAN_SELF_SERVE ),
 		);
 	}
 
@@ -267,6 +369,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
 		WPCOM_Scan::reset();
+		\Brain\Monkey\tearDown();
 
 		parent::tear_down();
 	}
