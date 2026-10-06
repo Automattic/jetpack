@@ -52,10 +52,10 @@ export function useAllJetpackModules(): {
 	modules: Record< JetpackModuleSlug, MyJetpackModule >;
 	isLoading: boolean;
 } {
+	// The gate the callers use, so both agree on whether modules are coming.
 	const isJetpackActive = useMainFeatures().jetpack === 'active';
 	const { modules, isLoading } = useSelect(
 		select => {
-			// Only the Jetpack plugin serves the module list, so asking without it fails every load.
 			if ( ! isJetpackActive ) {
 				return { modules: NO_MODULES, isLoading: false };
 			}
