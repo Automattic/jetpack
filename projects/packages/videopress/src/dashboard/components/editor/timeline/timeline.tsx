@@ -148,7 +148,7 @@ export default function StudioEditorTimeline( {
 						),
 					},
 				] }
-				overlay={ ( { pxPerMs, contentRef } ) => (
+				overlay={ ( { pxPerMs, contentRef, scrollerEl } ) => (
 					<StudioEditorEditOverlay
 						onGestureStart={ onScrubStart }
 						onGestureEnd={ onScrubEnd }
@@ -156,6 +156,7 @@ export default function StudioEditorTimeline( {
 						currentMs={ currentMs }
 						pxPerMs={ pxPerMs }
 						contentRef={ contentRef }
+						scrollerEl={ scrollerEl }
 						dispatch={ dispatch }
 						onSeek={ seekClamped }
 					/>
