@@ -178,6 +178,13 @@ describe( 'activity list', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
 
+		// Exact match: the default spoken text would also carry "Try again".
+		expect(
+			screen.getByText( "We couldn't load your site's activity. Service unavailable", {
+				selector: '.a11y-speak-region',
+			} )
+		).toBeInTheDocument();
+
 		const retry = deferred< unknown >();
 		mockApiFetch.mockImplementation( () => retry.promise );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
