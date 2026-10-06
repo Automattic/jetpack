@@ -16,31 +16,50 @@ export interface PreparedTailoring {
 	durationMs: number;
 	attempts: number;
 	aiSessionId: string;
+	// One reason per failed jetpack-ai-query attempt (paths and rule names only, never values).
+	validationErrors: string[];
 }
+
+/** At most this many failure reasons are sent; the server caps them again. */
+export const MAX_VALIDATION_ERRORS = 4;
+
+/** Each failure reason is cut to this many characters; the server caps them again. */
+export const MAX_VALIDATION_ERROR_LENGTH = 400;
 
 /**
  * Persist the tailored output via Stream B's PUT /tailored. The timing/attempt
  * telemetry rides along as query params so the server's `tailored` Logstash
  * record carries it; there is no separate client-side event.
  *
- * @param output                - The tailored output to persist.
- * @param source                - Whether the output came from AI or the fallback.
- * @param telemetry             - Tailoring telemetry for the server's Logstash record.
- * @param telemetry.durationMs  - How long tailoring took, in milliseconds.
- * @param telemetry.attempts    - How many jetpack-ai-query attempts were made.
- * @param telemetry.aiSessionId - The id minted for this tailoring run.
+ * @param output                     - The tailored output to persist.
+ * @param source                     - Whether the output came from AI or the fallback.
+ * @param telemetry                  - Tailoring telemetry for the server's Logstash record.
+ * @param telemetry.durationMs       - How long tailoring took, in milliseconds.
+ * @param telemetry.attempts         - How many jetpack-ai-query attempts were made.
+ * @param telemetry.aiSessionId      - The id minted for this tailoring run.
+ * @param telemetry.validationErrors - Why each failed attempt failed.
  */
 async function persist(
 	output: TailoredOutput,
 	source: TailorSource,
-	telemetry: { durationMs: number; attempts: number; aiSessionId: string }
+	telemetry: {
+		durationMs: number;
+		attempts: number;
+		aiSessionId: string;
+		validationErrors: string[];
+	}
 ): Promise< void > {
+	const validationErrors = telemetry.validationErrors
+		.slice( 0, MAX_VALIDATION_ERRORS )
+		.map( reason => reason.slice( 0, MAX_VALIDATION_ERROR_LENGTH ) );
 	await apiFetch( {
 		path: addQueryArgs( '/wpcom/v2/ai-launchpad/tailored', {
 			source,
 			duration_ms: telemetry.durationMs,
 			attempts: telemetry.attempts,
 			ai_session_id: telemetry.aiSessionId,
+			// Left off entirely when every attempt succeeded, so the record keeps its usual shape.
+			...( validationErrors.length > 0 ? { validation_errors: validationErrors } : {} ),
 		} ),
 		method: 'PUT',
 		data: output,

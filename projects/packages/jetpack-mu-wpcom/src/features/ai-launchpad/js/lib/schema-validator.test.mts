@@ -5,9 +5,11 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
 	AGENT_OUTPUT_SCHEMA,
+	MAX_REASONS_PER_ATTEMPT,
 	parseAgentResponse,
 	validateAgainstSchema,
 } from './schema-validator.ts';
+import type { TailoredOutput } from './types.ts';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
 const CONTRACTS = resolve( __dirname, '../../contracts' );
@@ -178,13 +180,18 @@ describe( 'validateAgainstSchema', () => {
 
 describe( 'parseAgentResponse', () => {
 	it( 'returns the typed output for a valid JSON string', () => {
-		const parsed = parseAgentResponse( JSON.stringify( validOutput() ) );
-		assert.ok( parsed );
-		assert.equal( parsed.tasks.length, 6 );
+		const { output, errors } = parseAgentResponse( JSON.stringify( validOutput() ) );
+		assert.ok( output );
+		assert.equal( output.tasks.length, 6 );
+		assert.deepEqual( errors, [] );
 	} );
 
-	it( 'returns null for malformed JSON', () => {
-		assert.equal( parseAgentResponse( '{ not json' ), null );
+	it( 'returns a fixed reason for malformed JSON, never the parser message', () => {
+		// V8's SyntaxError message quotes the offending text, which is the model's reply.
+		assert.deepEqual( parseAgentResponse( 'Here is your plan: { not json' ), {
+			output: null,
+			errors: [ '$: invalid JSON' ],
+		} );
 	} );
 
 	for ( const [ field, value ] of [
@@ -195,20 +202,144 @@ describe( 'parseAgentResponse', () => {
 		it( `drops an invalid optional ${ field } instead of rejecting the output`, () => {
 			const out = validOutput();
 			out.inferred[ field ] = value;
-			const parsed = parseAgentResponse( JSON.stringify( out ) );
-			assert.ok( parsed );
-			assert.equal( field in parsed.inferred, false );
+			const { output } = parseAgentResponse( JSON.stringify( out ) );
+			assert.ok( output );
+			assert.equal( field in output.inferred, false );
 		} );
 	}
 
-	for ( const [ label, mutate ] of [
-		[ 'too few tasks', out => ( out.tasks = out.tasks.slice( 0, 3 ) ) ],
-		[ 'an out-of-enum required goal', out => ( out.inferred.goal = 'business' ) ],
-	] as Mutation[] ) {
-		it( `returns null for schema-invalid JSON: ${ label }`, () => {
+	// Models spell "leave this out" as null or "". Each of these used to throw an otherwise complete
+	// output away into a retry; now the empty optional key is removed before validation.
+	const loose = ( value: unknown ) => value as Record< string, unknown >;
+	const EMPTY_OPTIONAL: Array<
+		[
+			label: string,
+			mutate: ( out: AgentOutput ) => unknown,
+			check: ( output: TailoredOutput ) => void,
+		]
+	> = [
+		[
+			'a null first_post_draft subtitle',
+			out => ( loose( out.first_post_draft ).subtitle = null ),
+			output => assert.equal( 'subtitle' in output.first_post_draft, false ),
+		],
+		[
+			'an empty first_post_draft subtitle',
+			out => ( loose( out.first_post_draft ).subtitle = '' ),
+			output => assert.equal( 'subtitle' in output.first_post_draft, false ),
+		],
+		[
+			'a null page_intros',
+			out => ( loose( out ).page_intros = null ),
+			output => assert.equal( 'page_intros' in output, false ),
+		],
+		[
+			'an empty page_intros string',
+			out => ( loose( out ).page_intros = '' ),
+			output => assert.equal( 'page_intros' in output, false ),
+		],
+		[
+			'empty and null intros for page tasks the model did not choose',
+			out =>
+				( loose( out ).page_intros = {
+					add_contact_page: 'Say hello.',
+					add_events_page: '',
+					add_video_page: null,
+					add_gallery_page: '',
+				} ),
+			output => assert.deepEqual( output.page_intros, { add_contact_page: 'Say hello.' } ),
+		],
+		[
+			'an intro for a task that has none',
+			out => ( out.page_intros = { add_contact_page: 'Say hello.', add_about_page: 'Hi.' } ),
+			output => assert.deepEqual( output.page_intros, { add_contact_page: 'Say hello.' } ),
+		],
+		[
+			'a null optional inferred field',
+			out => ( loose( out.inferred ).vibe = null ),
+			output => assert.equal( 'vibe' in output.inferred, false ),
+		],
+	];
+	for ( const [ label, mutate, check ] of EMPTY_OPTIONAL ) {
+		it( `accepts ${ label }, leaving the key out`, () => {
 			const out = validOutput();
 			mutate( out );
-			assert.equal( parseAgentResponse( JSON.stringify( out ) ), null );
+			const { output, errors } = parseAgentResponse( JSON.stringify( out ) );
+			assert.ok( output, errors.join( '; ' ) );
+			check( output );
 		} );
 	}
+
+	// Required fields keep failing: only optional keys are ever dropped.
+	for ( const [ label, mutate, reason ] of [
+		[
+			'too few tasks',
+			out => ( out.tasks = out.tasks.slice( 0, 3 ) ),
+			'tasks: length 3 < minItems 6',
+		],
+		[
+			'an out-of-enum required goal',
+			out => ( out.inferred.goal = 'business' ),
+			'inferred.goal: not in enum',
+		],
+		[
+			'a null task subtitle',
+			out => ( ( out.tasks[ 5 ] as { subtitle: unknown } ).subtitle = null ),
+			'tasks[5].subtitle: expected string',
+		],
+		[
+			'an empty task subtitle',
+			out => ( out.tasks[ 0 ].subtitle = '' ),
+			'tasks[0].subtitle: length 0 < minLength 1',
+		],
+		[
+			'a null first_post_draft title',
+			out => ( ( out.first_post_draft as { title: unknown } ).title = null ),
+			'first_post_draft.title: expected string',
+		],
+		[
+			'a null required inferred goal',
+			out => ( ( out.inferred as Record< string, unknown > ).goal = null ),
+			'inferred.goal: expected string',
+		],
+		[
+			'a page intro past the length ceiling',
+			out => ( out.page_intros = { add_contact_page: 'x'.repeat( 201 ) } ),
+			'page_intros.add_contact_page: length 201 > maxLength 200',
+		],
+	] as Array< [ string, ( out: AgentOutput ) => unknown, string ] > ) {
+		it( `rejects ${ label }, and says why`, () => {
+			const out = validOutput();
+			mutate( out );
+			assert.deepEqual( parseAgentResponse( JSON.stringify( out ) ), {
+				output: null,
+				errors: [ reason ],
+			} );
+		} );
+	}
+
+	it( 'never puts a field value in a reason', () => {
+		const out = validOutput();
+		out.inferred.goal = 'Private Bakery Name';
+		out.tasks[ 0 ].subtitle = 'Ceramics from my studio at 12 Example Street. '.repeat( 5 );
+		const { errors } = parseAgentResponse( JSON.stringify( out ) );
+		assert.equal( errors.length, 2 );
+		for ( const reason of errors ) {
+			assert.equal( /Bakery|Ceramics|Example/.test( reason ), false, reason );
+		}
+	} );
+
+	it( 'caps the reasons per reply, and strips odd characters from invented keys', () => {
+		const out = validOutput() as unknown as Record< string, unknown >;
+		out[ 'naïve "key" 🎉' ] = 1;
+		out.extra_two = 2;
+		out.extra_three = 3;
+		out.extra_four = 4;
+		const { errors } = parseAgentResponse( JSON.stringify( out ) );
+		assert.equal( errors.length, MAX_REASONS_PER_ATTEMPT );
+		assert.equal( errors[ 0 ], 'nave key : additionalProperties:false but key present' );
+		for ( const reason of errors ) {
+			assert.match( reason, /^[A-Za-z0-9_.$[\]:<>= -]{1,120}$/ );
+		}
+	} );
 } );

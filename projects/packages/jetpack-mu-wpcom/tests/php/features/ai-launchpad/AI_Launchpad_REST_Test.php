@@ -1347,6 +1347,99 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that PUT /tailored accepts the client's per-attempt failure reasons, sanitized, and the tailored Logstash
+	 * record carries them; a run with no failed attempt keeps the record's usual shape.
+	 */
+	public function test_update_tailored_carries_validation_errors_into_the_log() {
+		$captured_param = null;
+		$capture        = function ( $response, $handler, $request ) use ( &$captured_param ) {
+			$captured_param = $request->get_param( 'validation_errors' );
+			return $response;
+		};
+		add_filter( 'rest_request_before_callbacks', $capture, 10, 3 );
+
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'            => 'ai',
+				'attempts'          => 2,
+				'validation_errors' => array( 'first_post_draft.subtitle: expected string' ),
+			)
+		);
+		remove_filter( 'rest_request_before_callbacks', $capture, 10 );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'first_post_draft.subtitle: expected string' ), $captured_param );
+
+		$builder  = new \ReflectionMethod( AI_Launchpad_REST::class, 'tailoring_log_extra' );
+		$captured = $builder->invoke(
+			new AI_Launchpad_REST(),
+			get_option( 'wpcom_ai_launchpad_ai_output' ),
+			array(),
+			18580,
+			2,
+			null,
+			$captured_param
+		);
+		$this->assertSame( array( 'first_post_draft.subtitle: expected string' ), $captured['validation_errors'] );
+
+		// Without failures the record keeps its original shape.
+		$captured = $builder->invoke( new AI_Launchpad_REST(), get_option( 'wpcom_ai_launchpad_ai_output' ), array(), 4200, 1, null, array() );
+		$this->assertArrayNotHasKey( 'validation_errors', $captured );
+	}
+
+	/**
+	 * Test that a malformed validation_errors param is sanitized down rather than rejected: it is a diagnostic, and
+	 * must never cost the user their tailored list.
+	 */
+	public function test_update_tailored_accepts_a_malformed_validation_errors_param() {
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array( 'validation_errors' => array( array( 'nested' ), 42, str_repeat( 'x', 5000 ) ) )
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+	}
+
+	/**
+	 * Test that the sanitizer keeps only strings, strips everything a path and rule never use (so a quoted value
+	 * cannot ride along), and caps both the count and the length.
+	 *
+	 * @param mixed    $raw      The raw param value.
+	 * @param string[] $expected The sanitized reasons.
+	 *
+	 * @dataProvider provide_validation_errors
+	 */
+	#[DataProvider( 'provide_validation_errors' )]
+	public function test_sanitize_validation_errors( $raw, $expected ) {
+		$this->assertSame( $expected, AI_Launchpad_REST::sanitize_validation_errors( $raw ) );
+	}
+
+	/**
+	 * Data provider for test_sanitize_validation_errors.
+	 *
+	 * @return array
+	 */
+	public static function provide_validation_errors() {
+		return array(
+			'a valid reason passes through'      => array(
+				array( 'tasks[5].subtitle: length 0 < minLength 1; $: invalid JSON' ),
+				array( 'tasks[5].subtitle: length 0 < minLength 1; $: invalid JSON' ),
+			),
+			'a bare string becomes a list'       => array( 'http: 503', array( 'http: 503' ) ),
+			'non-strings and blanks are dropped' => array( array( 42, null, array( 'x' ), '   ', 'content: empty' ), array( 'content: empty' ) ),
+			'quotes and other characters go'     => array( array( 'inferred.goal: "Café" not in enum' ), array( 'inferred.goal: Caf not in enum' ) ),
+			'a non-array, non-string is empty'   => array( 42, array() ),
+			'the count is capped'                => array( array_fill( 0, 10, 'http: 503' ), array_fill( 0, AI_Launchpad_REST::MAX_VALIDATION_ERRORS, 'http: 503' ) ),
+			'the length is capped'               => array( array( str_repeat( 'a', 1000 ) ), array( str_repeat( 'a', AI_Launchpad_REST::MAX_VALIDATION_ERROR_LENGTH ) ) ),
+		);
+	}
+
+	/**
 	 * Test that the tailoring run's session id is persisted on the envelope, so every event
 	 * fired afterwards — on this page load and on later ones — is attributable to that run.
 	 */

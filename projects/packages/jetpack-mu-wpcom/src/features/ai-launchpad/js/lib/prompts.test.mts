@@ -349,7 +349,23 @@ describe( 'buildTailorPrompt', () => {
 			'asks for a gallery-page intro that describes no particular picture and names no platform',
 			[ /^- "add_gallery_page": .*particular image.*platform or account/m ],
 		],
+		// Models spell "omit this" as null or "", which the schema rejects for most fields. The client
+		// now drops those, but each one still costs nothing only if the model never writes it.
+		[
+			'tells the model to leave a key out rather than write null or an empty string',
+			[ /never write null or an empty string/i, /leave its key out/i ],
+		],
 	];
+
+	// The format template is copied far more literally than the STEP text: listing all four page
+	// intro keys there invited the model to fill the ones it had not chosen with "" or null.
+	it( 'shows a single page_intros key in the output template', () => {
+		const template = buildTailorPrompt( INPUT ).split( '============ format ============' )[ 1 ];
+		assert.match( template, /"page_intros": \{ "add_contact_page": "\.\.\." \}/ );
+		for ( const key of [ 'add_events_page', 'add_video_page', 'add_gallery_page' ] ) {
+			assert.equal( template.includes( key ), false, `${ key } is in the output template` );
+		}
+	} );
 	for ( const [ name, needles ] of REQUIRED ) {
 		it( name, () => {
 			const prompt = buildTailorPrompt( INPUT );

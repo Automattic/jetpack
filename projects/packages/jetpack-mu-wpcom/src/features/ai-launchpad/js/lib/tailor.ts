@@ -16,9 +16,11 @@ interface AiQueryResponse {
 
 /**
  * Outcome of a single jetpack-ai-query attempt; `retryable` flags transient
- * failures worth a second attempt.
+ * failures worth a second attempt, and `reason` says why the attempt failed, for
+ * the `tailored` Logstash record. A reason never carries any of the reply's text.
  */
-type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
+type FetchOutcome =
+	{ ok: true; output: TailoredOutput } | { ok: false; retryable: boolean; reason: string };
 
 /**
  * Mints a session id for a tailoring run, or '' when `crypto.randomUUID` isn't available.
@@ -76,25 +78,33 @@ async function fetchAiOutput(
 
 		if ( ! response.ok ) {
 			// 5xx and 429 are transient; 4xx (auth/quota) will not change on retry.
-			return { ok: false, retryable: response.status === 429 || response.status >= 500 };
+			return {
+				ok: false,
+				retryable: response.status === 429 || response.status >= 500,
+				reason: `http: ${ response.status }`,
+			};
 		}
 
 		const body = ( await response.json() ) as AiQueryResponse;
 		const content = body.choices?.[ 0 ]?.message?.content;
 		if ( ! content ) {
-			return { ok: false, retryable: true };
+			return { ok: false, retryable: true, reason: 'content: empty' };
 		}
 
-		const output = parseAgentResponse( content );
+		const { output, errors } = parseAgentResponse( content );
 		if ( ! output ) {
 			// Malformed or schema-invalid JSON: a re-roll often returns valid output.
-			return { ok: false, retryable: true };
+			return { ok: false, retryable: true, reason: errors.join( '; ' ) };
 		}
 
 		return { ok: true, output };
 	} catch {
 		// Network error or timeout: not retried, since a retry only doubles the wait before the fallback.
-		return { ok: false, retryable: false };
+		return {
+			ok: false,
+			retryable: false,
+			reason: controller.signal.aborted ? 'request: timed out' : 'request: failed',
+		};
 	} finally {
 		clearTimeout( timeout );
 	}
@@ -102,23 +112,31 @@ async function fetchAiOutput(
 
 /**
  * Call jetpack-ai-query, retrying once on a transient/validation failure, and
- * return the validated output (or null) plus how many attempts were made.
+ * return the validated output (or null), how many attempts were made, and why
+ * each failed attempt failed.
  *
  * @param input            - The collected wizard input.
  * @param availableTaskIds - Task ids the prompt may offer (filters the menu).
- * @return The validated output (or null) and the attempt count.
+ * @return The validated output (or null), the attempt count, and one reason per failed attempt.
  */
 async function fetchAiOutputWithRetry(
 	input: WizardInput,
 	availableTaskIds: readonly string[]
-): Promise< { output: TailoredOutput | null; attempts: number } > {
+): Promise< { output: TailoredOutput | null; attempts: number; failures: string[] } > {
+	const failures: string[] = [];
 	let attempts = 1;
 	let outcome = await fetchAiOutput( input, availableTaskIds );
+	if ( ! outcome.ok ) {
+		failures.push( outcome.reason );
+	}
 	if ( ! outcome.ok && outcome.retryable ) {
 		attempts = 2;
 		outcome = await fetchAiOutput( input, availableTaskIds );
+		if ( ! outcome.ok ) {
+			failures.push( outcome.reason );
+		}
 	}
-	return { output: outcome.ok ? outcome.output : null, attempts };
+	return { output: outcome.ok ? outcome.output : null, attempts, failures };
 }
 
 /**
@@ -165,7 +183,7 @@ export async function prepareTailoring(
 	// a list and still fires events against it.
 	const aiSessionId = mintAiSessionId();
 	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
-	const { output, attempts } = await fetchAiOutputWithRetry( input, availableTaskIds );
+	const { output, attempts, failures } = await fetchAiOutputWithRetry( input, availableTaskIds );
 
 	return {
 		source: output ? 'ai' : 'fallback',
@@ -173,6 +191,7 @@ export async function prepareTailoring(
 		durationMs: Math.round( performance.now() - start ),
 		attempts,
 		aiSessionId,
+		validationErrors: failures,
 	};
 }
 

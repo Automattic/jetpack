@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import apiFetch from '@wordpress/api-fetch';
-import { commitTailoring, type PreparedTailoring } from './commit-tailoring.ts';
+import {
+	commitTailoring,
+	MAX_VALIDATION_ERROR_LENGTH,
+	MAX_VALIDATION_ERRORS,
+	type PreparedTailoring,
+} from './commit-tailoring.ts';
 import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 import type { TailoredOutput, WizardInput } from './types.ts';
 
@@ -48,6 +53,7 @@ function prepared( overrides: Partial< PreparedTailoring > = {} ): PreparedTailo
 		durationMs: 1234,
 		attempts: 1,
 		aiSessionId: 'session-id',
+		validationErrors: [],
 		...overrides,
 	};
 }
@@ -109,5 +115,71 @@ describe( 'commitTailoring', () => {
 
 		assert.equal( result.source, 'fallback' );
 		assert.ok( result.output.tasks.length > 0 );
+	} );
+
+	describe( 'validation_errors', () => {
+		/**
+		 * The validation_errors values a write carried, in order.
+		 *
+		 * @param path - The PUT path, query string included.
+		 * @return The decoded values.
+		 */
+		const sent = ( path: string ) =>
+			[ ...new URLSearchParams( path.split( '?' )[ 1 ] ).entries() ]
+				.filter( ( [ key ] ) => key.startsWith( 'validation_errors[' ) )
+				.map( ( [ , value ] ) => value );
+
+		it( 'leaves the param off when every attempt succeeded', async () => {
+			await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+
+			assert.equal( writes[ 0 ].path.includes( 'validation_errors' ), false );
+		} );
+
+		it( 'sends one reason per failed attempt with the AI write', async () => {
+			await commitTailoring(
+				prepared( {
+					attempts: 2,
+					validationErrors: [ 'first_post_draft.subtitle: expected string' ],
+				} ),
+				INPUT,
+				ENGLISH_SITE_COPY
+			);
+
+			assert.deepEqual( sent( writes[ 0 ].path ), [
+				'first_post_draft.subtitle: expected string',
+			] );
+		} );
+
+		it( 'carries the reasons onto the fallback write when the server rejects the AI output', async () => {
+			reject = path => path.includes( 'source=ai' );
+
+			await commitTailoring(
+				prepared( { attempts: 2, validationErrors: [ '$: invalid JSON' ] } ),
+				INPUT,
+				ENGLISH_SITE_COPY
+			);
+
+			assert.match( writes[ 1 ].path, /source=fallback/ );
+			assert.deepEqual( sent( writes[ 1 ].path ), [ '$: invalid JSON' ] );
+		} );
+
+		it( 'caps how many reasons are sent and how long each is', async () => {
+			await commitTailoring(
+				prepared( {
+					source: 'fallback',
+					validationErrors: Array.from( { length: MAX_VALIDATION_ERRORS + 2 }, () =>
+						'x'.repeat( MAX_VALIDATION_ERROR_LENGTH + 50 )
+					),
+				} ),
+				INPUT,
+				ENGLISH_SITE_COPY
+			);
+
+			const reasons = sent( writes[ 0 ].path );
+			assert.equal( reasons.length, MAX_VALIDATION_ERRORS );
+			for ( const reason of reasons ) {
+				assert.equal( reason.length, MAX_VALIDATION_ERROR_LENGTH );
+			}
+		} );
 	} );
 } );
