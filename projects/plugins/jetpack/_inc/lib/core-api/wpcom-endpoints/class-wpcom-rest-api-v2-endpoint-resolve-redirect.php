@@ -196,6 +196,11 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	 * @return bool True when the URL is safe to request, false otherwise.
 	 */
 	public function validate_url( $url ) {
+		// An older jetpack-ip without url_is_public() may win the autoloader; keep the local check for that case.
+		if ( method_exists( Utils::class, 'url_is_public' ) ) {
+			return Utils::url_is_public( $url );
+		}
+
 		if ( ! wp_http_validate_url( $url ) ) {
 			return false;
 		}

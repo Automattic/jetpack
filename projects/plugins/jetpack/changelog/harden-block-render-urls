@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blocks: Improve validation of stored block attributes.
