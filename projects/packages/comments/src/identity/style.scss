@@ -1,14 +1,13 @@
-// Its whole width as the basis, so it shares the row with the submit only
-// when avatar, name and links all fit on one line; otherwise it wraps above.
+// Shares the row with the submit down to 10em, its links dropping under the
+// name first when they run out of room; below that it wraps above the submit.
 .jetpack-comments__identity {
 	display: flex;
 	align-items: center;
 	gap: 0.75em;
-	flex: 1 1 auto;
+	flex: 1 1 10em;
 	font-size: 0.8125em;
 }
 
-// The links wrap under the name once the line runs out.
 .jetpack-comments__profile {
 	display: flex;
 	flex-wrap: wrap;
