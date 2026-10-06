@@ -1,4 +1,6 @@
 import { dateI18n } from '@wordpress/date';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Card, Stack, Text } from '@wordpress/ui';
 import type { NonBackupActivityItem } from '../../types/activity';
 
@@ -24,9 +26,15 @@ export default function ActivityDetail( { item }: Props ) {
 						{ item.title }
 					</Text>
 					<Text variant="body-sm" className="jpb-text-muted">
-						{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
-						{ ' · ' }
-						<bdi>{ item.actor.name }</bdi>
+						{ createInterpolateElement(
+							sprintf(
+								/* translators: %1$s formatted date+time, %2$s actor name */
+								__( '%1$s · By %2$s', 'jetpack-backup-pkg' ),
+								dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ),
+								'<Actor />'
+							),
+							{ Actor: <bdi>{ item.actor.name }</bdi> }
+						) }
 					</Text>
 					{ item.summary && <Text dir="auto">{ item.summary }</Text> }
 				</Stack>

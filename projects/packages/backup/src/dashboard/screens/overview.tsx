@@ -420,6 +420,18 @@ function RightPane( {
 	// All four must match the list's arguments — this reads its cache entry.
 	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
+		// The list beside this pane already reports a failed log.
+		if ( error ) {
+			return null;
+		}
+		if ( ! hasAnswered ) {
+			return (
+				<div className="jpb-overview__detail jpb-overview__detail--empty">
+					<Spinner />
+					<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+				</div>
+			);
+		}
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Text>{ __( 'Select an item from the list to see details.', 'jetpack-backup-pkg' ) }</Text>

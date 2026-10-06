@@ -96,7 +96,7 @@ export default function BackupDetail( { item }: Props ) {
 						align="center"
 					>
 						<Icon icon={ cloud } />
-						<Text variant="heading-md" render={ <h2 /> }>
+						<Text variant="heading-lg" render={ <h2 /> }>
 							{ item.title }
 						</Text>
 					</Stack>
@@ -146,24 +146,19 @@ export default function BackupDetail( { item }: Props ) {
 					{ createInterpolateElement(
 						sprintf(
 							/* translators: %1$s formatted date+time, %2$s actor name */
-							__( '%1$s by %2$s', 'jetpack-backup-pkg' ),
+							__( '%1$s · By %2$s', 'jetpack-backup-pkg' ),
 							dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ),
 							'<Actor />'
 						),
 						{ Actor: <bdi>{ item.actor.name }</bdi> }
 					) }
 				</Text>
-				<div className="jpb-backup-detail__files">
-					<div className="jpb-backup-detail__files-title">
-						{ __( 'Files', 'jetpack-backup-pkg' ) }
-					</div>
-					<FileBrowser
-						rewindId={ item.rewindId }
-						selection={ selection }
-						onSelectionChange={ setSelection }
-						onSelectionIdsChange={ handleSelectionIdsChange }
-					/>
-				</div>
+				<FileBrowser
+					rewindId={ item.rewindId }
+					selection={ selection }
+					onSelectionChange={ setSelection }
+					onSelectionIdsChange={ handleSelectionIdsChange }
+				/>
 			</Card.Content>
 		</Card.Root>
 	);
