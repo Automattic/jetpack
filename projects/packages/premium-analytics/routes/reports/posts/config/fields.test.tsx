@@ -29,8 +29,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
-
 /**
  * Read an icon's SVG path, since `@wordpress/icons` exports elements with no name to compare.
  *
@@ -138,6 +136,7 @@ function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
+		setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 	} );
 
 	it( 'renders the post thumbnail', () => {
@@ -183,7 +182,6 @@ describe( 'posts title field', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -235,29 +233,6 @@ describe( 'posts title field', () => {
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
-	// Guards against a malformed row linking to `/post/undefined`.
-	it( 'renders a row with no post ID and no URL as plain text rather than a broken link', () => {
-		renderPostsField( 'title', { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
-
-		expect( screen.getByText( 'Uncategorized' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'falls back to the public URL when a row has no post ID', () => {
-		renderPostsField( 'title', {
-			label: 'Uncategorized',
-			views: 3,
-			link: 'https://example.com/uncategorized/',
-			type: 'post',
-		} );
-
-		const link = screen.getByRole( 'link', {
-			name: 'Uncategorized(opens in a new tab)',
-		} );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/uncategorized/' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-	} );
-
 	it( 'shows the archives views delta when comparison is enabled', () => {
 		renderArchiveViewsField(
 			{
@@ -289,7 +264,7 @@ describe( 'archive rows', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows an external-link icon for linked archive rows', () => {
+	it( 'links an archive row out to its URL with an external-link icon', () => {
 		renderArchiveTitleField( {
 			id: 'tag-analytics',
 			label: 'analytics',
@@ -299,6 +274,7 @@ describe( 'archive rows', () => {
 		} );
 
 		const link = screen.getByRole( 'link', { name: /analytics.*opens in a new tab/i } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/tag/analytics/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();

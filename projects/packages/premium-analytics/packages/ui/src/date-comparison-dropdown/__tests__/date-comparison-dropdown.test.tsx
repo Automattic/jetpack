@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
@@ -53,6 +53,30 @@ describe( 'DateComparisonDropdown', () => {
 
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous month' } ) );
 		expect( onPresetChange ).toHaveBeenCalledWith( 'previous-month' );
+	} );
+
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'opens on No comparison while nothing is compared', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+			render(
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled={ false }
+					onPresetChange={ jest.fn() }
+					onClear={ jest.fn() }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toHaveFocus()
+			);
+		} );
 	} );
 
 	it( 'collapses into a trigger naming the active preset', async () => {

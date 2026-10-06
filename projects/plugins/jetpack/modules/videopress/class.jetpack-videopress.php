@@ -126,7 +126,7 @@ class Jetpack_VideoPress {
 	 * whether the site has a paid VideoPress plan, whether the free upload has
 	 * already been used, and where to send the user to upgrade. Mirrors the
 	 * checks behind the VideoPress dashboard's upgrade notice: the paid check
-	 * matches Admin_UI::initial_state()'s paidFeatures, and the used check
+	 * matches Initial_State::has_videopress_access(), and the used check
 	 * matches the dashboard's VideoPress video count (video/videopress
 	 * attachments).
 	 *

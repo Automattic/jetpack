@@ -12,6 +12,7 @@ const SUMMARY: PostSummary = {
 	url: 'https://example.com/hello-world',
 	isLoading: false,
 	isError: false,
+	error: null,
 	refetch: () => {},
 };
 

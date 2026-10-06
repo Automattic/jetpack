@@ -40,7 +40,7 @@ export function FeaturesBanner() {
 				</h2>
 				<p className={ styles.banner__description }>
 					{ __(
-						'Switch a feature on or off right here. Open one first to see what it does, what it needs, and where to find it once it is on.',
+						'Activate or deactivate a feature right here. Open one first to see what it does, what it needs, and where to find it once it is on.',
 						'jetpack-my-jetpack'
 					) }
 				</p>

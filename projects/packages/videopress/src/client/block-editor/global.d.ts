@@ -16,6 +16,8 @@ declare global {
 			// Optional so payloads from a build predating the gate still typecheck.
 			chaptersEditorEnabled?: boolean | '' | '1';
 			trimCutEnabled?: boolean | '' | '1';
+			// Site setting that hides the share menu on every video; stringified like chaptersEditorEnabled.
+			shareMenuDisabled?: boolean | '' | '1';
 			jetpackVideoPressSettingUrl: string;
 			imagesURLBase: string;
 			playerBridgeUrl: string;

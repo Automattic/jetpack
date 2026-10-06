@@ -51,7 +51,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_resolve_goal' ) ) {
 	 * to install WooCommerce at GET.
 	 *
 	 * The payload is the fallback and only covers one race: the wizard PUT is fire-and-forget in
-	 * wizard/wizard.tsx, so a prewarmed tailor can land before the option is written. The output schema
+	 * wizard/wizard.tsx, so the tailor can land before the option is written. The output schema
 	 * has already validated the payload's goal against the same six slugs.
 	 *
 	 * @param array $payload The AI output payload — the persisted one on read, the incoming one at PUT.
@@ -237,7 +237,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			// server-fired events fire inside REST requests, where $pagenow is index.php, and
 			// the two recorders have to report the same screen for the same user.
 			'screen'        => 'admin.php',
-			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'ref'           => 'ai_launchpad',
 			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
 			'agent_name'    => 'ai_launchpad',
 			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,

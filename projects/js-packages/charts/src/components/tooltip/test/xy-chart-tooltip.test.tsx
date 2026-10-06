@@ -1,405 +1,335 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { BarSeries, buildChartTheme, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
-import { useContext, useEffect } from 'react';
-import { XyChartTooltip } from '../xy-chart-tooltip';
-import type { XyChartTooltipProps } from '../../../visx/types';
-import type { EventHandlerParams, XYChartTheme } from '@visx/xychart';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useCallback, useRef, useState } from 'react';
+import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
+import { GlobalChartsProvider } from '../../../providers';
+import { ChartScopeContext } from '../../../providers/chart-scope';
+import { AccessibleTooltip, XYChartTooltip, useKeyboardNavigation } from '../xy-chart-tooltip';
+import type { ReactNode } from 'react';
 
-type Datum = { x: number; y: number };
+// A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
+const renderChart = ( scope?: HTMLElement, tooltipPlacement?: 'auto' | 'below-axis' ) => {
+	const chart = (
+		<LineChartUnresponsive
+			width={ 500 }
+			height={ 300 }
+			data={ [
+				{
+					label: 'Series A',
+					data: [
+						{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+						{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+					],
+					options: {},
+				},
+			] }
+			withTooltips
+			tooltipPlacement={ tooltipPlacement }
+			withTooltipCrosshairs={ { showVertical: true } }
+			withGradientFill={ false }
+		/>
+	);
 
-const SERIES_A: Datum[] = [
-	{ x: 0, y: 0 },
-	{ x: 5, y: 50 },
-	{ x: 10, y: 100 },
-];
-const SERIES_B: Datum[] = [
-	{ x: 0, y: 100 },
-	{ x: 5, y: 25 },
-	{ x: 10, y: 0 },
-];
+	const scoped: ReactNode = scope ? (
+		<ChartScopeContext.Provider value={ scope }>{ chart }</ChartScopeContext.Provider>
+	) : (
+		chart
+	);
 
-const xAccessor = ( d: Datum ) => d.x;
-const yAccessor = ( d: Datum ) => d.y;
-
-type BandDatum = { x: string; y: number };
-const BAND_DATA: BandDatum[] = [
-	{ x: 'a', y: 50 },
-	{ x: 'b', y: 80 },
-];
-const bandXAccessor = ( d: BandDatum ) => d.x;
-const bandYAccessor = ( d: BandDatum ) => d.y;
-const renderBarTooltip = () => <span>bar</span>;
-const BAND_PARAMS = [
-	{ key: 'bars', index: 0, datum: BAND_DATA[ 0 ], svgPoint: { x: 20, y: 90 } },
-] as unknown as EventHandlerParams< Datum >[];
-
-// The pointer sits on A's datum, 25px above B's, so A is the nearest datum.
-const BOTH_SERIES: EventHandlerParams< Datum >[] = [
-	{
-		key: 'A',
-		index: 1,
-		datum: SERIES_A[ 1 ],
-		svgPoint: { x: 100, y: 50 },
-		distanceX: 0,
-		distanceY: 0,
-	},
-	{
-		key: 'B',
-		index: 1,
-		datum: SERIES_B[ 1 ],
-		svgPoint: { x: 100, y: 50 },
-		distanceX: 0,
-		distanceY: 25,
-	},
-];
-
-// Opens the tooltip the way a pointer event would, once the series have registered.
-const OpenTooltip = ( { params }: { params: EventHandlerParams< Datum >[] } ) => {
-	const tooltipContext = useContext( TooltipContext );
-	useEffect( () => {
-		params.forEach( p => tooltipContext?.showTooltip( p ) );
-		// The context object changes identity on every tooltip update; re-running would loop.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-	return null;
+	return render( <GlobalChartsProvider>{ scoped }</GlobalChartsProvider> );
 };
 
-const renderTooltip: XyChartTooltipProps< Datum >[ 'renderTooltip' ] = ( { tooltipData } ) => (
-	<span>{ `nearest:${ tooltipData?.nearestDatum?.key ?? '' }` }</span>
-);
+const openTooltip = async () => {
+	const user = userEvent.setup();
 
-const NO_MARGIN = { top: 0, right: 0, bottom: 0, left: 0 };
+	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+	await user.keyboard( '{ArrowRight}' );
 
-// 200x100 chart; with no margin x maps 0..10 to 0..200px and y maps 0..100 to 100..0px.
-const renderChart = (
-	tooltipProps: Partial< XyChartTooltipProps< Datum > > = {},
-	params: EventHandlerParams< Datum >[] = [
-		{ key: 'A', index: 1, datum: SERIES_A[ 1 ], svgPoint: { x: 123, y: 45 } },
-	],
-	margin = NO_MARGIN,
-	theme?: XYChartTheme
-) =>
-	render(
-		<div data-testid="wrapper" style={ { position: 'relative' } }>
-			<XYChart
-				width={ 200 }
-				height={ 100 }
-				margin={ margin }
-				theme={ theme }
-				xScale={ { type: 'linear', domain: [ 0, 10 ] } }
-				yScale={ { type: 'linear', domain: [ 0, 100 ] } }
-			>
-				<LineSeries dataKey="A" data={ SERIES_A } xAccessor={ xAccessor } yAccessor={ yAccessor } />
-				<LineSeries dataKey="B" data={ SERIES_B } xAccessor={ xAccessor } yAccessor={ yAccessor } />
-				<XyChartTooltip
-					renderTooltip={ renderTooltip }
-					data-testid="tooltip-box"
-					{ ...tooltipProps }
-				/>
-				<OpenTooltip params={ params } />
-			</XYChart>
-		</div>
-	);
+	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+};
 
-describe( 'XyChartTooltip', () => {
-	test.each( [
-		[ 'CanvasText', '0 1px 2px #22222255' ],
-		[ '#123456', '0 1px 2px #12345655' ],
-	] )( 'renders a valid shadow for htmlLabel color %s', async ( color, boxShadow ) => {
-		const theme = buildChartTheme( {
-			backgroundColor: '#ffffff',
-			colors: [ '#123456' ],
-			tickLength: 4,
-			gridColor: '#dddddd',
-			gridColorDark: '#222222',
-			htmlLabel: { color },
-		} );
-		renderChart( {}, undefined, undefined, theme );
-
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { boxShadow } );
+describe( 'XYChartTooltip', () => {
+	it( 'keeps AccessibleTooltip as an alias', () => {
+		expect( AccessibleTooltip ).toBe( XYChartTooltip );
 	} );
 
-	test( 'renders the tooltip box inside the chart wrapper, not in a body-level portal', async () => {
-		const { container } = renderChart();
+	// The stroke is read at the scope element, not inherited through the DOM; see TOKENS.md#the-svg-bridge.
+	it( 'reads the grid role from the scope element', async () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-grid', 'rgb(1, 2, 3)' );
+		document.body.appendChild( scope );
 
-		const box = await screen.findByTestId( 'tooltip-box' );
+		renderChart( scope );
 
-		expect( box ).toHaveTextContent( 'nearest:A' );
-		expect( screen.getByTestId( 'wrapper' ) ).toContainElement( box );
-		// A body-level portal would sit outside the render root.
-		expect( container ).toContainElement( box );
+		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', 'rgb(1, 2, 3)' );
+
+		document.body.removeChild( scope );
 	} );
 
-	test( 'places the box at the pointer position when snapping is off', async () => {
+	it( 'keeps the existing focus scrolling for automatic tooltips', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart();
+			await openTooltip();
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( focus ).toHaveBeenLastCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it( 'focuses below-axis keyboard tooltips without scrolling their ancestors', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart( undefined, 'below-axis' );
+			await openTooltip();
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it.each( [
+		[ 'Tab', '{Tab}' ],
+		[ 'Escape', '{Escape}' ],
+	] )( 'requests scroll suppression when returning focus after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderChart( undefined, 'below-axis' );
+		await openTooltip();
+		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		try {
+			await user.keyboard( keys );
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it.each( [
+		[ 'Tab', '{Tab}' ],
+		[ 'Escape', '{Escape}' ],
+	] )( 'keeps default focus scrolling when returning focus after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderChart();
+		await openTooltip();
+		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		try {
+			await user.keyboard( keys );
+			expect( focus ).toHaveBeenCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 
-		// TooltipWithBounds moves the box through a transform from (0, 0), after its 10px offsets.
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
-			transform: 'translate(133px, 55px)',
-		} );
+		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
+	} );
+} );
+
+// Mirrors the charts' markup: the focusable grid wraps the element `chartRef` points at.
+const NavigationHarness = ( {
+	totalPoints,
+	trackBlur = false,
+}: {
+	totalPoints: number;
+	trackBlur?: boolean;
+} ) => {
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
+	const [ isNavigating, setIsNavigating ] = useState( false );
+	const chartRef = useRef< HTMLDivElement >( null );
+	const { onChartKeyDown, onChartBlur, onChartPointerMove } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
+	const moveToFour = useCallback( () => onChartPointerMove( 4 ), [ onChartPointerMove ] );
+	const moveToOne = useCallback( () => onChartPointerMove( 1 ), [ onChartPointerMove ] );
+
+	return (
+		<>
+			<div
+				role="grid"
+				aria-label="Harness"
+				tabIndex={ 0 }
+				onKeyDown={ onChartKeyDown }
+				onBlur={ trackBlur ? onChartBlur : undefined }
+			>
+				<div ref={ chartRef } data-testid="selected-index">
+					{ selectedIndex ?? 'none' }
+					<button type="button">Inside</button>
+				</div>
+				<div data-testid="point-4" onPointerMove={ moveToFour } />
+				<div data-testid="point-1" onPointerMove={ moveToOne } />
+			</div>
+			<button type="button">Outside</button>
+		</>
+	);
+};
+
+describe( 'useKeyboardNavigation', () => {
+	const navigate = async ( presses: number ) => {
+		const user = userEvent.setup();
+		const view = render( <NavigationHarness totalPoints={ 6 } /> );
+
+		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		for ( let i = 0; i < presses; i++ ) {
+			await user.keyboard( '{ArrowRight}' );
+		}
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( String( presses - 1 ) );
+
+		return { user, view };
+	};
+
+	it( 'moves the selection to the last point when the count shrinks while the grid has focus', async () => {
+		const { view } = await navigate( 6 );
+
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
-	test( 'pins beside placement to the explicit SVG top anchor', async () => {
-		renderChart( { tooltipPlacement: 'beside', tooltipAnchorTop: 20, snapTooltipToDatumY: true } );
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
-			transform: 'translate(133px, 20px)',
-		} );
+	// In range rather than past the end: the effect reconciles on any count change, not only an overflow.
+	it( 'clears an in-range selection when the count changes after focus has left the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Outside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
 	} );
 
-	test( 'snaps the box to the nearest datum', async () => {
-		renderChart( { snapTooltipToDatumX: true, snapTooltipToDatumY: true } );
+	it( 'returns focus to the grid on Escape when there are no points', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 0 } /> );
 
-		// Datum (5, 50) sits at (100px, 50px); the default 10px offsets apply after snapping.
-		await waitFor( () =>
-			expect( screen.getByTestId( 'tooltip-box' ) ).toHaveStyle( {
-				transform: 'translate(110px, 60px)',
-			} )
-		);
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
-	test( 'anchors below the x-axis label band without moving datum glyphs or crosshairs', async () => {
-		const originalRect = Element.prototype.getBoundingClientRect;
-		const rectSpy = jest
-			.spyOn( Element.prototype, 'getBoundingClientRect' )
-			.mockImplementation( function ( this: Element ) {
-				const rect = originalRect.call( this );
-				return this.classList.contains( 'visx-tooltip' )
-					? { ...rect, width: 80, height: 30, right: rect.left + 80, bottom: rect.top + 30 }
-					: rect;
-			} );
+	it( 'returns focus to the grid when the count drops to zero while focus is in the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'hands a keyboard selection to the pointer and continues from where the pointer is', async () => {
+		const { user } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.hover( screen.getByTestId( 'point-4' ) );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '5' );
+	} );
+
+	it( 'continues from the last point the pointer reached after taking over', async () => {
+		const { user } = await navigate( 2 );
+
+		await user.hover( screen.getByTestId( 'point-4' ) );
+		await user.hover( screen.getByTestId( 'point-1' ) );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
+	} );
+
+	it( 'restarts from the first point once focus leaves after the pointer took over', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } trackBlur /> );
+		const grid = screen.getByRole( 'grid', { name: 'Harness' } );
+
+		act( () => grid.focus() );
+		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		await user.hover( screen.getByTestId( 'point-4' ) );
+		act( () => screen.getByRole( 'button', { name: 'Outside' } ).focus() );
+		act( () => grid.focus() );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '0' );
+	} );
+
+	it( 'leaves focus outside the chart when the pointer ends a selection', async () => {
+		const { user } = await navigate( 2 );
+		const outside = screen.getByRole( 'button', { name: 'Outside' } );
+
+		outside.focus();
+		await user.hover( screen.getByTestId( 'point-4' ) );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( outside ).toHaveFocus();
+	} );
+
+	it( 'ignores the pointer when there is no keyboard selection', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+
+		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		await user.hover( screen.getByTestId( 'point-4' ) );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '0' );
+	} );
+
+	// The page sees the event after the handler, so this is what a surrounding scroll or Modal gets.
+	const recordPageKeyDown = () => {
+		const onKeyDown = jest.fn< void, [ KeyboardEvent ] >();
+		document.addEventListener( 'keydown', onKeyDown );
+		return { onKeyDown, stop: () => document.removeEventListener( 'keydown', onKeyDown ) };
+	};
+
+	it( 'leaves keys it does not handle available to the page', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+		const { onKeyDown, stop } = recordPageKeyDown();
 
 		try {
-			renderChart(
-				{
-					tooltipPlacement: 'below-axis',
-					snapTooltipToDatumY: true,
-					showDatumGlyph: true,
-					showVerticalCrosshair: true,
-					showHorizontalCrosshair: true,
-				},
-				undefined,
-				{ top: 10, right: 20, bottom: 30, left: 40 }
-			);
+			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			await user.keyboard( '{ArrowDown}{PageDown}[Space]' );
 
-			const box = await screen.findByTestId( 'tooltip-box' );
-			expect( box ).toHaveStyle( { transform: 'translate(70px, 106px)' } );
-			expect( screen.getByTestId( 'wrapper' ) ).toContainElement( box );
-			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveStyle( {
-				left: '34px',
-				top: '-6px',
-			} );
-			expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-A' ) ).toHaveAttribute(
-				'transform',
-				'translate(110, 40)'
-			);
-			expect( screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' ) ).toHaveAttribute(
-				'y2',
-				'70'
-			);
-			expect( screen.getByTestId( 'xy-chart-tooltip-crosshair-horizontal' ) ).toHaveAttribute(
-				'y1',
-				'40'
-			);
+			expect( onKeyDown ).toHaveBeenCalledTimes( 3 );
+			for ( const [ event ] of onKeyDown.mock.calls ) {
+				expect( event.defaultPrevented ).toBe( false );
+			}
 		} finally {
-			rectSpy.mockRestore();
+			stop();
 		}
 	} );
 
-	test( 'draws one glyph per series in the SVG at the datum position', async () => {
-		renderChart( { showSeriesGlyphs: true }, BOTH_SERIES );
+	// `@wordpress/components` Modal skips its own close-on-Escape once the event is defaultPrevented.
+	it( 'leaves Escape to the page when there is no selection to dismiss', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+		const { onKeyDown, stop } = recordPageKeyDown();
 
-		const glyphA = await screen.findByTestId( 'xy-chart-tooltip-glyph-A' );
-		const glyphB = await screen.findByTestId( 'xy-chart-tooltip-glyph-B' );
+		try {
+			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			await user.keyboard( '{Escape}' );
 
-		// The group is placed at the datum; the glyph itself draws at the origin.
-		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-A' ) ).toHaveAttribute(
-			'transform',
-			'translate(100, 50)'
-		);
-		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-B' ) ).toHaveAttribute(
-			'transform',
-			'translate(100, 75)'
-		);
-		expect( glyphA ).toHaveAttribute( 'cx', '0' );
-		expect( glyphA ).toHaveAttribute( 'cy', '0' );
-		expect( glyphB ).toHaveAttribute( 'cx', '0' );
-		expect( glyphB ).toHaveAttribute( 'cy', '0' );
-		// Drawn into the chart SVG, not portaled out as HTML.
-		expect( glyphA ).toBeInstanceOf( SVGElement );
-	} );
+			expect( onKeyDown.mock.calls[ 0 ][ 0 ].defaultPrevented ).toBe( false );
 
-	test( 'hands the glyph renderer the origin, like visx, and marks the nearest datum', async () => {
-		const renderGlyph = jest.fn( () => null );
-		renderChart( { showSeriesGlyphs: true, renderGlyph }, BOTH_SERIES );
+			await user.keyboard( '{ArrowRight}{Escape}' );
 
-		await waitFor( () => expect( renderGlyph ).toHaveBeenCalledTimes( 2 ) );
-
-		const calls = renderGlyph.mock.calls as unknown as Array<
-			[ { key: string; x: number; y: number; isNearestDatum: boolean; datum: Datum } ]
-		>;
-		const byKey = Object.fromEntries( calls.map( ( [ p ] ) => [ p.key, p ] ) );
-		// A renderer written against visx's Tooltip ignores x and y, so both stay 0.
-		expect( byKey.A ).toMatchObject( { x: 0, y: 0, datum: SERIES_A[ 1 ] } );
-		expect( byKey.B ).toMatchObject( { x: 0, y: 0, datum: SERIES_B[ 1 ] } );
-		expect( byKey.A.isNearestDatum ).toBe( true );
-		expect( byKey.B.isNearestDatum ).toBe( false );
-	} );
-
-	test( 'centres a band-scale datum in its band', async () => {
-		render(
-			<div style={ { position: 'relative' } }>
-				<XYChart
-					width={ 200 }
-					height={ 100 }
-					margin={ NO_MARGIN }
-					xScale={ { type: 'band', domain: [ 'a', 'b' ], paddingInner: 0, paddingOuter: 0 } }
-					yScale={ { type: 'linear', domain: [ 0, 100 ] } }
-				>
-					<BarSeries
-						dataKey="bars"
-						data={ BAND_DATA }
-						xAccessor={ bandXAccessor }
-						yAccessor={ bandYAccessor }
-					/>
-					<XyChartTooltip
-						renderTooltip={ renderBarTooltip }
-						data-testid="tooltip-box"
-						snapTooltipToDatumX
-						snapTooltipToDatumY
-						showDatumGlyph
-					/>
-					<OpenTooltip params={ BAND_PARAMS } />
-				</XYChart>
-			</div>
-		);
-
-		// Band 'a' spans 0..100px; the datum sits at its centre, 50px, not its start.
-		await waitFor( () =>
-			expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-bars' ) ).toHaveAttribute(
-				'transform',
-				'translate(50, 50)'
-			)
-		);
-		expect( screen.getByTestId( 'tooltip-box' ) ).toHaveStyle( {
-			transform: 'translate(60px, 60px)',
-		} );
-	} );
-
-	test( 'draws the crosshairs across the plot area, inside the margins, at the snapped position', async () => {
-		renderChart(
-			{
-				snapTooltipToDatumX: true,
-				snapTooltipToDatumY: true,
-				showVerticalCrosshair: true,
-				showHorizontalCrosshair: true,
-			},
-			undefined,
-			{ top: 10, right: 20, bottom: 30, left: 40 }
-		);
-
-		const vertical = await screen.findByTestId( 'xy-chart-tooltip-crosshair-vertical' );
-		const horizontal = await screen.findByTestId( 'xy-chart-tooltip-crosshair-horizontal' );
-
-		// Plot area is 140x60 at (40, 10); datum (5, 50) sits at its centre, (110, 40).
-		expect( vertical ).toHaveAttribute( 'x1', '110' );
-		expect( vertical ).toHaveAttribute( 'y1', '10' );
-		expect( vertical ).toHaveAttribute( 'y2', '70' );
-		expect( horizontal ).toHaveAttribute( 'y1', '40' );
-		expect( horizontal ).toHaveAttribute( 'x1', '40' );
-		expect( horizontal ).toHaveAttribute( 'x2', '180' );
-	} );
-
-	test( 'applies crosshair paint without allowing geometry overrides', async () => {
-		const consumerStyle = {
-			stroke: 'purple',
-			strokeWidth: 8,
-			className: 'custom-crosshair',
-			x1: 999,
-			transform: 'translate(100 0)',
-			style: { strokeOpacity: 0.25, transform: 'translateX(100px)' },
-		};
-		renderChart( {
-			snapTooltipToDatumX: true,
-			snapTooltipToDatumY: true,
-			showVerticalCrosshair: true,
-			showHorizontalCrosshair: true,
-			verticalCrosshairStyle: consumerStyle,
-			horizontalCrosshairStyle: consumerStyle,
-		} );
-
-		for ( const direction of [ 'vertical', 'horizontal' ] ) {
-			const guide = await screen.findByTestId( `xy-chart-tooltip-crosshair-${ direction }` );
-			expect( guide ).toHaveAttribute( 'stroke', 'purple' );
-			expect( guide ).toHaveAttribute( 'stroke-width', '8' );
-			expect( guide ).toHaveClass( 'custom-crosshair' );
-			expect( guide ).toHaveStyle( { 'stroke-opacity': '0.25', transform: 'none' } );
-			expect( guide ).not.toHaveAttribute( 'transform' );
-			expect( guide ).toHaveAttribute( 'x1', direction === 'vertical' ? '100' : '0' );
-			expect( guide ).toHaveAttribute( 'x2', direction === 'vertical' ? '100' : '200' );
-			expect( guide ).toHaveAttribute( 'y1', direction === 'vertical' ? '0' : '50' );
-			expect( guide ).toHaveAttribute( 'y2', direction === 'vertical' ? '100' : '50' );
+			expect( onKeyDown.mock.calls.at( -1 )?.[ 0 ].defaultPrevented ).toBe( true );
+		} finally {
+			stop();
 		}
-	} );
-
-	test( 'stacks the box above the chart overlays, with zIndex as the override', async () => {
-		const { unmount } = renderChart();
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '3' } );
-		unmount();
-
-		renderChart( { zIndex: 9 } );
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '9' } );
-	} );
-
-	test.each( [ 'auto', 'below-axis' ] as const )(
-		'preserves %s background and stacking with a partial style override',
-		async tooltipPlacement => {
-			const { unmount } = renderChart( { tooltipPlacement } );
-			const defaultBox = await screen.findByTestId( 'tooltip-box' );
-			const background = defaultBox.style.backgroundColor;
-			expect( background ).not.toBe( '' );
-			expect( background ).not.toBe( 'transparent' );
-			unmount();
-
-			renderChart( { tooltipPlacement, style: { color: 'red' } } );
-
-			await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
-				backgroundColor: background,
-				zIndex: '3',
-				color: 'rgb(255, 0, 0)',
-			} );
-		}
-	);
-
-	test( 'accepts the portal-era options without passing them to the box', async () => {
-		renderChart( { scroll: true, debounce: 50, resizeObserverPolyfill: undefined } );
-
-		const box = await screen.findByTestId( 'tooltip-box' );
-
-		expect( box ).not.toHaveAttribute( 'scroll' );
-		expect( box ).not.toHaveAttribute( 'debounce' );
-	} );
-
-	test( 'renders no box when there is no tooltip renderer', async () => {
-		renderChart( { renderTooltip: undefined } );
-
-		await expect( screen.findByTestId( 'xy-chart-tooltip-anchor' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'tooltip-box' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renders nothing when the tooltip content is empty', async () => {
-		renderChart( { renderTooltip: () => null, showSeriesGlyphs: true }, BOTH_SERIES );
-
-		// The anchor is the only thing rendered while there is nothing to show.
-		await expect( screen.findByTestId( 'xy-chart-tooltip-anchor' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'tooltip-box' ) ).not.toBeInTheDocument();
-		expect( screen.queryByTestId( 'xy-chart-tooltip-glyph-A' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renders nothing while the tooltip is closed', () => {
-		renderChart( { showSeriesGlyphs: true, showVerticalCrosshair: true }, [] );
-
-		expect( screen.queryByTestId( 'tooltip-box' ) ).not.toBeInTheDocument();
-		expect( screen.queryByTestId( 'xy-chart-tooltip-glyph-A' ) ).not.toBeInTheDocument();
-		expect( screen.queryByTestId( 'xy-chart-tooltip-crosshair-vertical' ) ).not.toBeInTheDocument();
 	} );
 } );

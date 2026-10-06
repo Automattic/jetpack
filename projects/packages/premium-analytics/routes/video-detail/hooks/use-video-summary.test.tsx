@@ -105,6 +105,16 @@ describe( 'useVideoSummary', () => {
 		expect( result.current.isLoading ).toBe( true );
 	} );
 
+	it( 'passes the failed request error through', () => {
+		const error = { code: 'rest_forbidden', status: 403 };
+		mockVideoQuery( { data: undefined, isError: true, isSuccess: false, error } );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.error ).toBe( error );
+	} );
+
 	it.each( [
 		{ isLoading: true, isSuccess: false },
 		{ isError: true, isSuccess: false },

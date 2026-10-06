@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
+import { useReportScope } from '@jetpack-premium-analytics/data';
+import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
+	bucketRange,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -11,9 +14,8 @@ import {
 	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -55,15 +57,29 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 		TRAFFIC_PERIODS
 	);
 
-	// Bound to whichever route hosts the widget, the same way `reportParams` are.
-	const { drillDown } = useReportDateFilters();
+	// A host without a period to set leaves the bars inert.
+	const { openPeriod } = useReportScope();
 
 	// Names the bucket size drawn, not the page interval: a year page interval
 	// clamps to months here, and the click must open the bar it hit.
-	const openBucket = useCallback(
-		( date: Date ) => drillDown( date, period ),
-		[ drillDown, period ]
-	);
+	const openBucket = useMemo( () => {
+		if ( ! openPeriod ) {
+			return undefined;
+		}
+
+		const window = {
+			from: parseSiteDateTime( reportParams.from ),
+			to: parseSiteDateTime( reportParams.to ),
+		};
+
+		return ( date: Date ) => {
+			const range = bucketRange( date, period, window, { timeZone: reportingTimeZone() } );
+
+			if ( range ) {
+				openPeriod( range );
+			}
+		};
+	}, [ openPeriod, period, reportParams.from, reportParams.to ] );
 
 	const {
 		metrics: metricTabs,

@@ -169,6 +169,8 @@ class Block_Editor_Extensions {
 			// and isStandaloneActive above. Read it as a truthy check, never `=== true`.
 			'chaptersEditorEnabled'       => Admin_UI::is_chapters_editor_enabled(),
 			'trimCutEnabled'              => Admin_UI::is_trim_cut_enabled(),
+			// Also stringified by wp_localize_script(): '1' when the site hides the share menu on every video.
+			'shareMenuDisabled'           => Data::get_videopress_share_menu_disabled(),
 			// Set when the site renders players from the shared bundle: the block editor then previews videos the same way.
 			'inlinePlayer'                => Inline_Player::is_enabled()
 				? array_merge(

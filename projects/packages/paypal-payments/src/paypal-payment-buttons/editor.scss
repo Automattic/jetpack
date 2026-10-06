@@ -195,10 +195,15 @@
 }
 
 .jetpack-paypal-wizard__logo {
-	display: block;
-	width: 140px;
-	height: auto;
-	margin: 12px 0 16px;
+	display: flex;
+	justify-content: center;
+	margin: 16px 0;
+
+	// The block icon is drawn at 24px. The design shows it at 48 here.
+	svg {
+		width: 48px;
+		height: 48px;
+	}
 }
 
 .jetpack-paypal-wizard__welcome,
@@ -209,11 +214,41 @@
 	h3 {
 		margin-top: 0;
 		margin-bottom: 8px;
+		// Core's .interface-complementary-area h3 rule would otherwise show "PAYPAL".
+		text-transform: none;
 	}
 
 	p {
 		color: #757575;
 		margin-bottom: 12px;
+	}
+}
+
+// Design: centered, with the button the full width.
+.jetpack-paypal-wizard__welcome {
+	text-align: center;
+
+	// Core's .interface-complementary-area h3 rule would otherwise make it 11px.
+	h3 {
+		font-size: variables.$font-size-medium;
+		line-height: variables.$font-line-height-small;
+	}
+
+	// Plus the toggle's own 12px, the design's 20px down to the button.
+	p {
+		color: inherit;
+		margin-bottom: 8px;
+	}
+
+	.jetpack-paypal-wizard__actions .components-button {
+		justify-content: center;
+		width: 100%;
+	}
+
+	// Keep the toggle and the error notice left-aligned.
+	.jetpack-paypal-wizard__env-toggle,
+	.components-notice {
+		text-align: start;
 	}
 }
 

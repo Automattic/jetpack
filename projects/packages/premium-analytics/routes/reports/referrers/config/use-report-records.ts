@@ -25,6 +25,7 @@ export function useReferrersReportRecords( reportParams: ReportParams ) {
 
 	return {
 		isError: report.isError,
+		error: report.error,
 		refetch: report.refetch,
 		rows,
 		isLoading: report.isLoading,

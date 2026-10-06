@@ -57,7 +57,6 @@ export { default as ProductPrice } from './components/product-price/index.tsx';
 export { default as DotPager } from './components/dot-pager/index.tsx';
 export { default as DonutMeter } from './components/donut-meter/index.tsx';
 export { default as RecordMeterBar } from './components/record-meter-bar/index.tsx';
-export { default as Notice } from './components/notice/index.tsx';
 export { default as Popover } from './components/popover/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
 export { default as ActionPopover } from './components/action-popover/index.tsx';

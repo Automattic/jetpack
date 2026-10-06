@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { queryClientWrapper } from '../../test-utils';
 import useLocationViews from '../use-location-views';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = jest.mocked( apiFetch );
 
@@ -19,7 +19,7 @@ describe( 'useLocationViews', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'keeps rows Stats cannot place as one unknown country', async () => {
+	it( 'maps each row onto its key, country code, country name and view count', async () => {
 		const views = [
 			{ location: 'United States', country_code: 'US', views: 10 },
 			{ location: false, country_code: 'AP', views: 4 },
@@ -48,6 +48,27 @@ describe( 'useLocationViews', () => {
 			[ 'US:United States', 'US', 'United States', 10 ],
 			[ ':Unknown', '', 'Unknown', 7 ],
 		] );
+	} );
+
+	it( 'returns the same rows across renders, which the widget holds by reference', async () => {
+		const views = [ { location: 'Japan', country_code: 'JP', views: 5 } ];
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-16',
+			days: { '2026-06-16': { views } },
+			summary: { views },
+			'country-info': { JP: { country_full: 'Japan' } },
+		} );
+
+		const { result, rerender } = renderHook(
+			() => useLocationViews( { reportParams: getDefaultQueryParams( false ), max: 10 } ),
+			{ wrapper: queryClientWrapper }
+		);
+		await waitFor( () => expect( result.current.data ).toHaveLength( 1 ) );
+		const rows = result.current.data;
+
+		rerender();
+
+		expect( result.current.data ).toBe( rows );
 	} );
 
 	it( 'sends the region filter alongside its country', async () => {

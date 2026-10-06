@@ -24,7 +24,8 @@ export function getPostsReportQueryParams( reportParams: ReportParams ): StatsRe
 
 type PostsCsvRow = { label?: unknown; views: number; link?: string | null };
 
-function getPostsCsvColumns< Row extends PostsCsvRow >(): CsvColumn< Row >[] {
+/** Title, Views, URL: the columns every post list exports. */
+export function getPostsCsvColumns< Row extends PostsCsvRow >(): CsvColumn< Row >[] {
 	return [
 		{
 			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
