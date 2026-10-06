@@ -5,8 +5,10 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\SSO\Helpers as SSO_Helpers;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -34,17 +36,21 @@ class Jetpack_Protect_Dashboard_Login_Protection implements Jetpack_Protect_Dash
 	 * @return array
 	 */
 	public function get_state() {
-		$brute_force = Jetpack_Protect_Dashboard::get_module_state( 'protect' );
-
 		return array(
-			'bruteForce'        => $brute_force,
+			'bruteForce'        => Jetpack_Protect_Dashboard::get_module_state( 'protect' ),
 			'accountProtection' => Jetpack_Protect_Dashboard::get_module_state( 'account-protection' ),
 			'sso'               => Jetpack_Protect_Dashboard::get_module_state( 'sso' ),
-			'blockedCount'      => $brute_force['active'] ? (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) : null,
+			'blockedCount'      => number_format_i18n( (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ),
+			// WordPress.com login needs a connected owner and doesn't work in offline mode.
+			'ssoUsable'         => ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode(),
 			// A filter or constant can force these, and Jetpack Settings then locks the toggle.
 			'ssoLocks'          => array(
 				'matchByEmail' => method_exists( SSO_Helpers::class, 'is_match_by_email_checkbox_disabled' ) && SSO_Helpers::is_match_by_email_checkbox_disabled(),
 				'twoStep'      => method_exists( SSO_Helpers::class, 'is_require_two_step_checkbox_disabled' ) && SSO_Helpers::is_require_two_step_checkbox_disabled(),
+			),
+			'ssoEffective'      => array(
+				'matchByEmail' => SSO_Helpers::match_by_email(),
+				'twoStep'      => SSO_Helpers::is_two_step_required(),
 			),
 			'currentIp'         => (string) IP_Utils::get_ip(),
 		);

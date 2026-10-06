@@ -4,6 +4,7 @@ import { Badge, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import SettingsLink from '../../components/settings-link';
 import isModuleActive from '../../data/is-module-active';
+import type { CardStatus } from '../../components/card';
 import type { DashboardContext } from '../types';
 import type { LoginProtectionState, ModuleState } from './types';
 
@@ -48,6 +49,20 @@ function Method( {
 }
 
 /**
+ * The card badge's intent: neutral when no method is available.
+ *
+ * @param on        - How many methods are on.
+ * @param available - How many methods are available.
+ * @return The intent.
+ */
+function getStatusIntent( on: number, available: number ): CardStatus[ 'intent' ] {
+	if ( available === 0 ) {
+		return 'none';
+	}
+	return on === available ? 'stable' : 'medium';
+}
+
+/**
  * The Login protection card: brute force protection, account protection and WordPress.com login.
  *
  * @param props              - The dashboard context.
@@ -85,14 +100,14 @@ export default function LoginProtectionCard( { state, settings, openSettings }: 
 					on,
 					available
 				),
-				intent: on === available ? 'stable' : 'medium',
+				intent: getStatusIntent( on, available ),
 			} }
 		>
 			{ bruteForce.active && (
 				<CardRow>
 					<Stat
 						label={ __( 'All-time blocked login attempts', 'jetpack' ) }
-						value={ login.blockedCount ?? 0 }
+						value={ login.blockedCount }
 					/>
 				</CardRow>
 			) }
@@ -119,7 +134,7 @@ export default function LoginProtectionCard( { state, settings, openSettings }: 
 			/>
 			<CardRow>
 				<SettingsLink onOpen={ openSettings }>
-					{ __( 'Configure Login Protection', 'jetpack' ) }
+					{ __( 'Configure login protection', 'jetpack' ) }
 				</SettingsLink>
 			</CardRow>
 		</ProtectCard>
