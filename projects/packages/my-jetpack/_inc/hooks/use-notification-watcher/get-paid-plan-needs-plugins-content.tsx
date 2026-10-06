@@ -47,85 +47,76 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 		activate: __( 'Some plugins need to be activated', 'jetpack-my-jetpack' ),
 	};
 
-	const noticeMessages = {
-		install_activate: createInterpolateElement(
-			sprintf(
-				// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", and %2$d is the number of plugins.
-				_n(
-					'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and/or activate the following %2$d plugin:',
-					'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and/or activate the following %2$d plugins:',
-					numPluginsNeedingAction,
-					'jetpack-my-jetpack'
-				),
-				planName,
-				numPluginsNeedingAction
+	const noticeMessagesSingular = {
+		install_activate: sprintf(
+			// translators: %s is the name of the Jetpack paid plan, i.e.- "Jetpack Security".
+			__(
+				'To get the most out of your <link>%s paid subscription</link> and have access to all its features, we recommend you install and/or activate the following plugin:',
+				'jetpack-my-jetpack'
 			),
-			{
-				link: (
-					<Link
-						openInNewTab
-						href={ getRedirectUrl( 'jetpack-subscription-renew', {
-							site: siteSuffix,
-							path: planPurchaseId,
-						} ) }
-						children={ null }
-					/>
-				),
-			}
+			planName
 		),
-		install: createInterpolateElement(
-			sprintf(
-				// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", and %2$d is the number of plugins.
-				_n(
-					'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and activate the following %2$d plugin:',
-					'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and activate the following %2$d plugins:',
-					numPluginsNeedingAction,
-					'jetpack-my-jetpack'
-				),
-				planName,
-				numPluginsNeedingAction
+		install: sprintf(
+			// translators: %s is the name of the Jetpack paid plan, i.e.- "Jetpack Security".
+			__(
+				'To get the most out of your <link>%s paid subscription</link> and have access to all its features, we recommend you install and activate the following plugin:',
+				'jetpack-my-jetpack'
 			),
-			{
-				link: (
-					<Link
-						openInNewTab
-						href={ getRedirectUrl( 'jetpack-subscription-renew', {
-							site: siteSuffix,
-							path: planPurchaseId,
-						} ) }
-						children={ null }
-					/>
-				),
-			}
+			planName
 		),
-		activate: createInterpolateElement(
-			sprintf(
-				// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", and %2$d is the number of plugins.
-				_n(
-					'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you activate the following %2$d plugin:',
-					'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you activate the following %2$d plugins:',
-					numPluginsNeedingAction,
-					'jetpack-my-jetpack'
-				),
-				planName,
-				numPluginsNeedingAction
+		activate: sprintf(
+			// translators: %s is the name of the Jetpack paid plan, i.e.- "Jetpack Security".
+			__(
+				'To get the most out of your <link>%s paid subscription</link> and have access to all its features, we recommend you activate the following plugin:',
+				'jetpack-my-jetpack'
 			),
-			{
-				link: (
-					<Link
-						openInNewTab
-						href={ getRedirectUrl( 'jetpack-subscription-renew', {
-							site: siteSuffix,
-							path: planPurchaseId,
-						} ) }
-						children={ null }
-					/>
-				),
-			}
+			planName
 		),
 	};
 
-	const buttonLabels = {
+	const noticeMessagesPlural = {
+		install_activate: sprintf(
+			// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", and %2$d is the number of plugins.
+			_n(
+				'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and/or activate the following %2$d plugin:',
+				'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and/or activate the following %2$d plugins:',
+				numPluginsNeedingAction,
+				'jetpack-my-jetpack'
+			),
+			planName,
+			numPluginsNeedingAction
+		),
+		install: sprintf(
+			// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", and %2$d is the number of plugins.
+			_n(
+				'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and activate the following %2$d plugin:',
+				'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you install and activate the following %2$d plugins:',
+				numPluginsNeedingAction,
+				'jetpack-my-jetpack'
+			),
+			planName,
+			numPluginsNeedingAction
+		),
+		activate: sprintf(
+			// translators: %1$s is the name of the Jetpack paid plan, i.e.- "Jetpack Security", and %2$d is the number of plugins.
+			_n(
+				'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you activate the following %2$d plugin:',
+				'To get the most out of your <link>%1$s paid subscription</link> and have access to all its features, we recommend you activate the following %2$d plugins:',
+				numPluginsNeedingAction,
+				'jetpack-my-jetpack'
+			),
+			planName,
+			numPluginsNeedingAction
+		),
+	};
+
+	const buttonLabelsSingular = {
+		install_activate: __( 'Install and/or activate plugin in one click', 'jetpack-my-jetpack' ),
+		install: __( 'Install and activate plugin in one click', 'jetpack-my-jetpack' ),
+		activate: __( 'Activate plugin in one click', 'jetpack-my-jetpack' ),
+	};
+
+	const buttonLabelsPlural = {
 		install_activate: sprintf(
 			/* translators: %d is the number of plugins. */
 			_n(
@@ -158,14 +149,31 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 		),
 	};
 
-	const noticeTitle =
-		numPluginsNeedingAction === 1
-			? noticeTitleSingular[ actionType ]
-			: noticeTitlePlural[ actionType ];
+	const isSinglePlugin = numPluginsNeedingAction === 1;
 
-	const noticeMessage = noticeMessages[ actionType ];
+	const noticeTitle = isSinglePlugin
+		? noticeTitleSingular[ actionType ]
+		: noticeTitlePlural[ actionType ];
 
-	const buttonLabel = buttonLabels[ actionType as keyof typeof buttonLabels ];
+	const noticeMessage = createInterpolateElement(
+		isSinglePlugin ? noticeMessagesSingular[ actionType ] : noticeMessagesPlural[ actionType ],
+		{
+			link: (
+				<Link
+					openInNewTab
+					href={ getRedirectUrl( 'jetpack-subscription-renew', {
+						site: siteSuffix,
+						path: planPurchaseId,
+					} ) }
+					children={ null }
+				/>
+			),
+		}
+	);
+
+	const buttonLabel = isSinglePlugin
+		? buttonLabelsSingular[ actionType ]
+		: buttonLabelsPlural[ actionType ];
 
 	return {
 		noticeTitle,

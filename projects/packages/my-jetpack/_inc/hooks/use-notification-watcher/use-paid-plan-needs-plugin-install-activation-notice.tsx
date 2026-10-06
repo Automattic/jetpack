@@ -231,6 +231,36 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 			return;
 		}
 
+		const loadingTextsSingular = {
+			activate: __( 'Activating plugin…', 'jetpack-my-jetpack' ),
+			install: __( 'Installing and activating plugin…', 'jetpack-my-jetpack' ),
+		};
+
+		const loadingTextsPlural = {
+			activate: sprintf(
+				/* translators: %d is the number of plugins. */
+				_n(
+					'Activating %d plugin…',
+					'Activating %d plugins…',
+					numPluginsNeedingAction,
+					'jetpack-my-jetpack'
+				),
+				numPluginsNeedingAction
+			),
+			install: sprintf(
+				/* translators: %d is the number of plugins. */
+				_n(
+					'Installing and activating %d plugin…',
+					'Installing and activating %d plugins…',
+					numPluginsNeedingAction,
+					'jetpack-my-jetpack'
+				),
+				numPluginsNeedingAction
+			),
+		};
+
+		const loadingTexts = numPluginsNeedingAction === 1 ? loadingTextsSingular : loadingTextsPlural;
+
 		const actionNounMap = {
 			install: __( 'Needs installation and activation', 'jetpack-my-jetpack' ),
 			activate: __( 'Needs activation', 'jetpack-my-jetpack' ),
@@ -273,28 +303,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
 					isLoading: isInstallingOrActivating,
-					loadingText:
-						actionType === 'activate'
-							? sprintf(
-									/* translators: %d is the number of plugins. */
-									_n(
-										'Activating %d plugin…',
-										'Activating %d plugins…',
-										numPluginsNeedingAction,
-										'jetpack-my-jetpack'
-									),
-									numPluginsNeedingAction
-								)
-							: sprintf(
-									/* translators: %d is the number of plugins. */
-									_n(
-										'Installing and activating %d plugin…',
-										'Installing and activating %d plugins…',
-										numPluginsNeedingAction,
-										'jetpack-my-jetpack'
-									),
-									numPluginsNeedingAction
-								),
+					loadingText: actionType === 'activate' ? loadingTexts.activate : loadingTexts.install,
 					noDefaultClasses: true,
 				},
 			],
