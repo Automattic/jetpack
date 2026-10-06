@@ -1,15 +1,5 @@
 import { parseAsLocalDate } from '../utils/date-parsing';
 
-// The `jetpack-js-tools` console guard registers the matcher but ships no types for it.
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace jest {
-		interface Matchers< R > {
-			toHaveWarnedWith( ...args: unknown[] ): R;
-		}
-	}
-}
-
 // Every case asserts an absolute instant, so running the suite from more than one
 // worker zone is what proves the result does not depend on the viewer's.
 const CASES: Array< [ string, string, string ] > = [
