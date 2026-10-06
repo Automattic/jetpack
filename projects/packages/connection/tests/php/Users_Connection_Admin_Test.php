@@ -347,6 +347,57 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
+	 * A token whose embedded user ID disagrees with its key is not a connection.
+	 *
+	 * The column reaches the same verdict, so counting it here would put a user in the
+	 * view whose WordPress.com column renders empty.
+	 */
+	public function test_get_connected_user_ids_skips_a_mismatched_token() {
+		$valid    = $this->connect_user( 'connected_one' );
+		$mismatch = $this->connect_user( 'connected_two' );
+
+		$tokens              = (array) \Jetpack_Options::get_option( 'user_tokens' );
+		$tokens[ $mismatch ] = 'key.secret.' . ( $mismatch + 1 );
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		$this->assertSame( array( $valid ), Users_Connection_Admin::get_connected_user_ids() );
+		$this->assertFalse( ( new Manager() )->is_user_connected( $mismatch ), 'The column must agree.' );
+	}
+
+	/**
+	 * A token that is not three dot-separated parts is not a connection either.
+	 */
+	public function test_get_connected_user_ids_skips_a_malformed_token() {
+		$valid     = $this->connect_user( 'connected_one' );
+		$malformed = $this->connect_user( 'connected_two' );
+
+		$tokens               = (array) \Jetpack_Options::get_option( 'user_tokens' );
+		$tokens[ $malformed ] = 'not-a-token';
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		$this->assertSame( array( $valid ), Users_Connection_Admin::get_connected_user_ids() );
+	}
+
+	/**
+	 * Network admin shares these hooks but never shows the view, so the argument is ignored there.
+	 */
+	public function test_the_view_is_ignored_in_network_admin() {
+		$this->connect_user( 'connected_one' );
+		$this->activate_connected_view();
+		set_current_screen( 'users-network' );
+		$this->assertTrue( is_network_admin(), 'Test setup: the screen must read as network admin.' );
+
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array( 'number' => 20 ) );
+
+		ob_start();
+		Users_Connection_Admin::keep_connected_view_on_submit( 'top' );
+		$field = ob_get_clean();
+
+		$this->assertArrayNotHasKey( 'include', $args );
+		$this->assertSame( '', $field );
+	}
+
+	/**
 	 * The view is offered with a count once somebody is connected.
 	 */
 	public function test_connected_view_is_added_with_a_count() {
@@ -499,6 +550,56 @@ class Users_Connection_Admin_Test extends TestCase {
 		$args = Users_Connection_Admin::filter_query_to_connected_users( array() );
 
 		$this->assertSame( array( 0 ), $args['include'] );
+	}
+
+	/**
+	 * An `include` that is present but empty already means "nobody", and must stay that way.
+	 *
+	 * Core sets exactly this for `role=none` when every user on the site has a role.
+	 */
+	public function test_an_empty_include_still_means_nobody() {
+		$this->connect_user( 'connected_one' );
+		$this->activate_connected_view();
+
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array( 'include' => array() ) );
+
+		$this->assertSame( array( 0 ), $args['include'] );
+	}
+
+	/**
+	 * WP_User_Query drops `exclude` once `include` is set, so the exclusion is applied here.
+	 */
+	public function test_an_existing_exclude_is_honoured() {
+		$first  = $this->connect_user( 'connected_one' );
+		$second = $this->connect_user( 'connected_two' );
+		$this->activate_connected_view();
+
+		$args = Users_Connection_Admin::filter_query_to_connected_users( array( 'exclude' => array( $first ) ) );
+
+		$this->assertSame( array( $second ), $args['include'] );
+	}
+
+	/**
+	 * Several instances run per request, but the view's hooks must act once.
+	 */
+	public function test_connected_view_hooks_act_once_when_several_instances_run() {
+		$first_instance  = $this->create_admin();
+		$second_instance = $this->create_admin();
+
+		$first_instance->init();
+		$second_instance->init();
+
+		$connected = $this->connect_user( 'connected_one' );
+		$this->activate_connected_view();
+		$this->answer_user_query_with( array( $connected ) );
+
+		$views = apply_filters( 'views_users', array() );
+		$this->assertCount( 1, $views );
+
+		ob_start();
+		do_action( 'restrict_manage_users', 'top' );
+
+		$this->assertSame( 1, substr_count( ob_get_clean(), 'type="hidden"' ) );
 	}
 
 	/**

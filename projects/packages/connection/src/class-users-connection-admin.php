@@ -65,7 +65,9 @@ class Users_Connection_Admin {
 		// Registered as static callbacks, not `array( $this, … )`: a slugged Manager builds its
 		// own Plugin, and so its own instance of this class, so a request runs several. WP keys
 		// callbacks by object hash, so instance callbacks would stack up — repeating the count
-		// query and printing the hidden field once per instance.
+		// query and printing the hidden field once per instance. The column callbacks above
+		// stay instance callbacks on purpose: their hook identity is part of the package's
+		// shipped surface, and stacking them is idempotent in effect.
 		add_filter( 'views_users', array( self::class, 'add_connected_view' ) );
 		add_filter( 'users_list_table_query_args', array( self::class, 'filter_query_to_connected_users' ) );
 		add_action( 'restrict_manage_users', array( self::class, 'keep_connected_view_on_submit' ) );
@@ -98,11 +100,19 @@ class Users_Connection_Admin {
 	/**
 	 * Whether the users list is currently filtered to connected users.
 	 *
+	 * Only the per-site Users screen offers the view. Network admin shares the same
+	 * list-table hooks but never shows the link, so honouring the argument there would
+	 * narrow those lists silently, by this site's tokens, with no way to clear it.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function is_connected_view() {
+		if ( is_network_admin() ) {
+			return false;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter, compared against a fixed value.
 		$view = isset( $_GET[ self::VIEW_QUERY_ARG ] ) ? sanitize_key( wp_unslash( $_GET[ self::VIEW_QUERY_ARG ] ) ) : '';
 
@@ -121,28 +131,40 @@ class Users_Connection_Admin {
 	}
 
 	/**
-	 * Local user IDs that hold a WordPress.com user token.
+	 * Local user IDs holding a valid WordPress.com user token.
 	 *
 	 * Connected users cannot be found with a meta query: the tokens live in the
-	 * `user_tokens` grouped option, keyed by local user ID. Reading the keys costs one
-	 * option read and no per-user work, which is why this is used for the query filter
-	 * rather than Manager::get_connected_users().
+	 * `user_tokens` grouped option, keyed by local user ID. Each key is then checked with
+	 * the same call the column uses for its rows, so a malformed token, or one whose
+	 * embedded user ID disagrees with its key, cannot put a user in this view and then
+	 * render their column empty. No database read either way — the option is already
+	 * loaded and the check is a parse.
 	 *
-	 * IDs here are not guaranteed to resolve to a user — a token outlives the local
-	 * account it belonged to until something prunes it.
+	 * An ID here still need not resolve to a user; see count_connected_users().
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return int[]
 	 */
 	public static function get_connected_user_ids() {
-		$tokens = ( new Manager() )->get_tokens()->get_user_tokens();
+		$manager = new Manager();
+		$tokens  = $manager->get_tokens()->get_user_tokens();
 
 		if ( ! is_array( $tokens ) ) {
 			return array();
 		}
 
-		return array_values( array_filter( array_map( 'absint', array_keys( $tokens ) ) ) );
+		$ids = array();
+
+		foreach ( array_keys( $tokens ) as $id ) {
+			$id = absint( $id );
+
+			if ( $id && $manager->is_user_connected( $id ) ) {
+				$ids[] = $id;
+			}
+		}
+
+		return $ids;
 	}
 
 	/**
@@ -161,9 +183,12 @@ class Users_Connection_Admin {
 		$connected = self::get_connected_user_ids();
 
 		// A pre-existing `include` means something else already narrowed the list, so both
-		// constraints are kept rather than overwriting theirs.
-		if ( ! empty( $args['include'] ) ) {
-			$connected = array_intersect( wp_parse_id_list( $args['include'] ), $connected );
+		// constraints are kept rather than overwriting theirs. Tested with isset(), not
+		// empty(): core sets an empty `include` for `role=none` when every user has a role,
+		// and that already means "nobody" — reading it as "unset" would list everyone.
+		if ( isset( $args['include'] ) ) {
+			$existing  = wp_parse_id_list( $args['include'] );
+			$connected = $existing ? array_intersect( $existing, $connected ) : array();
 		}
 
 		// WP_User_Query only honours `exclude` when `include` is empty, so setting `include`
@@ -217,10 +242,13 @@ class Users_Connection_Admin {
 	/**
 	 * Number of connected users the list will actually show.
 	 *
-	 * Queried rather than counted off the token option because the two can disagree:
-	 * `WP_User_Query` scopes to the current site, so a user removed from this site but
-	 * still on the network — `remove_user_from_blog()` does not fire `deleted_user`, so
-	 * the token survives — is counted out, as are IDs with no user left at all.
+	 * Queried rather than counted off the token option because a token can outlive its
+	 * user: accounts deleted while no connection-bearing plugin was active, direct edits
+	 * to the option, and restored token sets can all leave entries whose ID no longer
+	 * resolves. `WP_User_Query` also scopes to the current site.
+	 *
+	 * Ordered by ID so the query does not filesort on `user_login`, which is the default
+	 * and is wasted work for a count.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -238,6 +266,7 @@ class Users_Connection_Admin {
 				'include'     => $ids,
 				'fields'      => 'ID',
 				'number'      => -1,
+				'orderby'     => 'ID',
 				'count_total' => false,
 			)
 		);
