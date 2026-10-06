@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-AI Launchpad: Accept AI output that leaves optional fields null or empty, log why a reply was rejected, and record a Tracks event when saving the tailored list fails.
+AI Launchpad: Accept AI output that leaves optional fields null or empty, log why a reply was rejected, and record Tracks events when saving the tailored list fails or the user leaves before it is saved.

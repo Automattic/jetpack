@@ -5,6 +5,7 @@ import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
 import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
+import { watchTailoring } from './tailoring-watch.ts';
 import type { SiteCopy, TailoredOutput, TailorResult, WizardInput } from './types.ts';
 
 const AI_QUERY_ENDPOINT = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
@@ -169,19 +170,17 @@ async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[]
  * the AI call, or the deterministic fallback when it fails or returns nothing
  * usable.
  *
- * @param input - The collected wizard input.
- * @param copy  - The site-language copy the fallback drafts are written from.
+ * @param input       - The collected wizard input.
+ * @param copy        - The site-language copy the fallback drafts are written from.
+ * @param aiSessionId - The id for this tailoring run; minted here when the caller has none.
  * @return The prepared tailoring, awaiting a commit.
  */
 export async function prepareTailoring(
 	input: WizardInput,
-	copy: SiteCopy
+	copy: SiteCopy,
+	aiSessionId: string = mintAiSessionId()
 ): Promise< PreparedTailoring > {
 	const start = performance.now();
-	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
-	// here rather than server-side so it survives a failed PUT, where the client still renders
-	// a list and still fires events against it.
-	const aiSessionId = mintAiSessionId();
 	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
 	const { output, attempts, failures } = await fetchAiOutputWithRetry( input, availableTaskIds );
 
@@ -204,5 +203,16 @@ export async function prepareTailoring(
  * @return The tailored result, tagged with whether it came from AI or fallback.
  */
 export async function tailor( input: WizardInput, copy: SiteCopy ): Promise< TailorResult > {
-	return commitTailoring( await prepareTailoring( input, copy ), input, copy );
+	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
+	// here rather than server-side so it survives a failed PUT, where the client still renders
+	// a list and still fires events against it, and so a run abandoned mid-call can name it.
+	const aiSessionId = mintAiSessionId();
+	const watch = watchTailoring( aiSessionId );
+	try {
+		const prepared = await prepareTailoring( input, copy, aiSessionId );
+		watch.setStage( 'saving' );
+		return await commitTailoring( prepared, input, copy );
+	} finally {
+		watch.settle();
+	}
 }

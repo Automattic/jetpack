@@ -20,6 +20,9 @@ declare global {
 /** The screens the Site Setup page can open on. */
 export type ViewedStep = 'goal' | 'site_details' | 'launchpad';
 
+/** How far a tailoring run had got: waiting on the AI call, or saving the result. */
+export type TailoringStage = 'ai' | 'saving';
+
 /** The wizard steps that can be completed or skipped. */
 export type WizardStepName = 'goal' | 'site_details';
 
@@ -315,4 +318,25 @@ export function trackTailoringSaveFailed( props: {
 	ai_session_id: string;
 } ): void {
 	record( 'jetpack_ai_launchpad_tailoring_save_failed', props );
+}
+
+/**
+ * Records the user leaving the page while a tailoring run is still in progress, so the list it was
+ * producing was never saved.
+ *
+ * Sent with `use_beacon`: the Tracks transport (stats.wp.com/w.js) then sends the event with
+ * `fetch( …, { keepalive: true } )` instead of an image pixel, so the request outlives the page that
+ * is unloading. The flag also goes out as an event property, as it does for every other caller of it.
+ *
+ * @param props               - The event properties.
+ * @param props.stage         - Whether the run was still waiting on the AI call or already saving.
+ * @param props.elapsed_ms    - How long the run had been going, in milliseconds.
+ * @param props.ai_session_id - The id of the abandoned tailoring run, or 'none'.
+ */
+export function trackTailoringAbandoned( props: {
+	stage: TailoringStage;
+	elapsed_ms: number;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_abandoned', { ...props, use_beacon: true } );
 }
