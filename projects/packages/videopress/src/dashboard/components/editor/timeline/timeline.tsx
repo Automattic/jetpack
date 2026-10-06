@@ -5,7 +5,7 @@ import StudioTimelineShell, {
 } from '../../../../client/components/chapters-editor/timeline/timeline-shell';
 import { useKeyboardShortcuts } from '../../../../client/components/chapters-editor/timeline/use-keyboard-shortcuts';
 import { getFilmstripZoomLadder } from '../../../../client/components/chapters-editor/timeline/zoom-ladder';
-import { getOutputDurationMs, MIN_OUTPUT_MS } from '../state/edit-session';
+import { getNewCutRange } from '../state/edit-session';
 import StudioEditorEditOverlay from './edit-overlay';
 import StudioEditorFilmstripTrack from './filmstrip-track';
 import StudioEditorTimelineToolbar from './toolbar';
@@ -116,12 +116,7 @@ export default function StudioEditorTimeline( {
 						onTogglePlay={ onTogglePlay }
 						currentMs={ currentMs }
 						durationMs={ durationMs }
-						canAddCut={
-							! locked &&
-							currentMs >= session.trimStartMs &&
-							currentMs <= session.trimEndMs &&
-							getOutputDurationMs( session ) > MIN_OUTPUT_MS
-						}
+						canAddCut={ ! locked && getNewCutRange( session, currentMs ) !== null }
 						onAddCut={ () => dispatch( { type: 'ADD_CUT', atMs: currentMs } ) }
 						selectedCut={ session.cuts.find( cut => cut.id === session.selectedCutId ) ?? null }
 						onRemoveCut={ id => ! locked && dispatch( { type: 'REMOVE_CUT', id } ) }

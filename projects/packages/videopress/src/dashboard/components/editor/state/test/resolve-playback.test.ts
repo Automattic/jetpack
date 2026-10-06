@@ -141,7 +141,7 @@ describe( 'resolvePlayback', () => {
 			let session = createEditSession( 30000 );
 			session = editSessionReducer( session, { type: 'SET_TRIM_START', ms: 2000 } );
 			session = editSessionReducer( session, { type: 'SET_TRIM_END', ms: 28000 } );
-			session = editSessionReducer( session, { type: 'ADD_CUT', atMs: 10000, id: 'c1' } );
+			session = editSessionReducer( session, { type: 'ADD_CUT', atMs: 8000, id: 'c1' } );
 
 			expect( resolvePlayback( 500, session, true ) ).toEqual( { seekTo: 2000 } );
 			expect( resolvePlayback( 9000, session, true ) ).toEqual( { seekTo: 12000 } );
