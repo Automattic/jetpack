@@ -248,7 +248,7 @@ class Jetpack_Connector {
 	 * `viewerIsConfirmedOwner` is that method's `is_current_user_the_po`. It tells the recovery
 	 * copy apart: an owner whose own token broke is asked to reconnect, not to connect.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return array{status: string, viewerIsConfirmedOwner: bool}|null
@@ -288,7 +288,7 @@ class Jetpack_Connector {
 	 * The card always uses the package dialogs. `jetpack_connection_protected_owner_default_ui`
 	 * is for a consumer's own surface, not this one.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return bool

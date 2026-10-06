@@ -85,7 +85,7 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
-		remove_all_filters( 'jetpack_stats_post_list_column_url' );
+		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
 		Constants::clear_constants();
@@ -174,13 +174,13 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The post list table's views column links here once the dashboard boots.
+	 * Stats links elsewhere open this dashboard once it boots.
 	 *
 	 * @param bool $wpcom_simple Whether to boot the WordPress.com Simple path.
 	 * @dataProvider provide_init_entry_points
 	 */
 	#[DataProvider( 'provide_init_entry_points' )]
-	public function test_init_claims_the_post_list_column_link( $wpcom_simple ) {
+	public function test_init_claims_the_stats_links( $wpcom_simple ) {
 		$this->reset_analytics_init_state();
 
 		if ( $wpcom_simple ) {
@@ -190,7 +190,7 @@ class Analytics_Test extends TestCase {
 		}
 
 		$this->assertNotFalse(
-			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) )
+			has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) )
 		);
 	}
 

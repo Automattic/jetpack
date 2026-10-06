@@ -1,24 +1,18 @@
 /**
  * External dependencies
  */
-import { flagUrl, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	flagUrl,
+	MetricWithComparison,
+	type LocationRow,
+	type LocationsReportSection,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
-import type { StatsLocationCoordinates } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
-
-export type LocationRow = {
-	id: string;
-	label: string;
-	countryCode?: string;
-	countryFull: string;
-	views: number;
-	previousViews?: number;
-	coordinates?: StatsLocationCoordinates;
-};
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number',
@@ -31,6 +25,23 @@ const VIEWS_DATA_FORMAT = {
 export interface LocationsCountryOption {
 	code: string;
 	label: string;
+}
+
+/**
+ * Name the location column after the active tab's place type.
+ *
+ * @param section - The active Locations tab.
+ * @return The column label.
+ */
+function getLocationColumnLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Region', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'City', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Country', 'jetpack-premium-analytics-pkg' );
+	}
 }
 
 /**
@@ -47,11 +58,13 @@ export interface LocationsCountryOption {
  *
  * @param countries      - Selectable countries, ordered by views.
  * @param withComparison - Whether to render available period-over-period deltas.
+ * @param section        - The active tab, which names the location column.
  * @return The field config.
  */
 export function getLocationFields(
 	countries?: LocationsCountryOption[],
-	withComparison = false
+	withComparison = false,
+	section: LocationsReportSection = 'countries'
 ): Field< LocationRow >[] {
 	const countryField: Field< LocationRow >[] = countries
 		? [
@@ -73,7 +86,7 @@ export function getLocationFields(
 		...countryField,
 		{
 			id: 'location',
-			label: __( 'Location', 'jetpack-premium-analytics-pkg' ),
+			label: getLocationColumnLabel( section ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,

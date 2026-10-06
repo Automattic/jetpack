@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 
@@ -25,6 +25,25 @@ describe( 'DateIntervalDropdown', () => {
 
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) );
 		expect( onChange ).toHaveBeenCalledWith( 'week' );
+	} );
+
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'opens on the active bucket', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+			render(
+				<DateIntervalDropdown options={ [ 'day', 'week' ] } value="week" onChange={ jest.fn() } />
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Chart interval: By weeks' } ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveFocus()
+			);
+		} );
 	} );
 
 	it( 'still opens a menu when the range allows one bucket', async () => {

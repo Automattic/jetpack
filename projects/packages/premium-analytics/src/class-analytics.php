@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.10.0';
+	const PACKAGE_VERSION = '0.11.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -195,8 +195,8 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The posts and pages list tables link their views column here.
-		Post_List_Link::register();
+		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
+		Stats_Links::register();
 	}
 
 	/**

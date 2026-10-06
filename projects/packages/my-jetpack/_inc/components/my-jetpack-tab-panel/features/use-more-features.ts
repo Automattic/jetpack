@@ -129,17 +129,25 @@ export function filterMoreFeatures(
 ): MoreFeaturesGroup[] {
 	const terms = hasSearch( search ) ? searchTerms( search ) : null;
 
+	if ( terms ) {
+		const states = rankBy(
+			groups.flatMap( group => group.states ),
+			terms,
+			state => {
+				const $module = getStateModule( state );
+
+				return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+			}
+		).map( ( { item } ) => item );
+
+		return states.length ? [ { label: '', states } ] : [];
+	}
+
 	return groups
 		.map( group => ( {
 			...group,
-			states: terms
-				? rankBy( group.states, terms, state => {
-						const $module = getStateModule( state );
-
-						return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
-					} ).map( ( { item } ) => item )
-				: // A module being switched stays put, for the reason the main list keeps its card.
-					group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
+			// A module being switched stays put, for the reason the main list keeps its card.
+			states: group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
 		} ) )
 		.filter( group => group.states.length > 0 );
 }

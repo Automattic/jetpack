@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, Notice } from '@wordpress/components';
 import {
 	forwardRef,
 	useCallback,
@@ -349,6 +349,7 @@ function CaptionPreviewPlayer(
 	const nativePreviewSrc = isDirectVideoSource( videoSrc ) ? videoSrc : '';
 	// Hold the embed back until the playback-token fetch for a private video settles.
 	const isAwaitingPlaybackToken = !! isPrivate && playbackToken === null;
+	const hasPlaybackTokenError = !! isPrivate && playbackToken === '';
 	const videoPressPreviewUrl =
 		nativePreviewSrc || isAwaitingPlaybackToken
 			? ''
@@ -392,6 +393,14 @@ function CaptionPreviewPlayer(
 
 	return (
 		<aside className="videopress-caption-manager__preview">
+			{ hasPlaybackTokenError && ! nativePreviewSrc && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'This private video may not play because its access token could not be loaded. Close and reopen to try again.',
+						'jetpack-videopress-pkg'
+					) }
+				</Notice>
+			) }
 			<div
 				className="videopress-caption-manager__video"
 				style={

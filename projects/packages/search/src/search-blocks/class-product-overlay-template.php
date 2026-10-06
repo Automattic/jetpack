@@ -8,6 +8,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Theme-agnostic customization surface for the product Search overlay template
  * via post.php. Falls back to `templates/jetpack-search-overlay-product.html`

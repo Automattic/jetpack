@@ -110,44 +110,29 @@ describe( 'PlansSection', () => {
 	} );
 
 	describe( 'the "View included features" link', () => {
-		beforeEach( () => setPurchases( [ buildPurchase( 'Jetpack Security' ) ] ) );
+		it( 'opens the included Features filter when the catalog includes a feature', () => {
+			window.myJetpackInitialState.mainFeatures = {
+				features: [ { included: true } ],
+			} as MainFeaturesState;
+			render( <PlansSection /> );
 
-		const ownBundles = ( ...owned: string[] ) =>
-			mockUseProduct.mockImplementation(
-				slug =>
-					( {
-						detail: { hasPaidPlanForProduct: owned.includes( slug ) },
-					} ) as ReturnType< typeof useProduct >
+			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
+				'href',
+				'https://example.org/wp-admin/admin.php?page=my-jetpack#/features?filter=included'
 			);
-		const includedFeaturesHref = () =>
-			screen.getByRole( 'link', { name: 'View included features' } ).getAttribute( 'href' );
-		const base = 'https://example.org/wp-admin/admin.php?page=my-jetpack#/features';
-
-		it( 'points at the unfiltered Features tab when no bundle is owned', () => {
-			render( <PlansSection /> );
-
-			expect( includedFeaturesHref() ).toBe( base );
 		} );
 
-		it.each( [ 'security', 'growth' ] )( 'filters the Features tab to %s', bundle => {
-			ownBundles( bundle );
-			render( <PlansSection /> );
+		it.each( [ undefined, { features: [ { included: false } ] } ] )(
+			'does not offer an empty included list even when there is a purchase (%s)',
+			catalog => {
+				setPurchases( [ buildPurchase( 'Domain registration' ) ] );
+				window.myJetpackInitialState.mainFeatures = catalog as MainFeaturesState;
+				render( <PlansSection /> );
 
-			expect( includedFeaturesHref() ).toBe( `${ base }?filter=${ bundle }` );
-		} );
-
-		it( 'filters to Complete, which includes the other bundles', () => {
-			ownBundles( 'complete', 'security', 'growth' );
-			render( <PlansSection /> );
-
-			expect( includedFeaturesHref() ).toBe( `${ base }?filter=complete` );
-		} );
-
-		it( 'does not filter when Security and Growth are both owned', () => {
-			ownBundles( 'security', 'growth' );
-			render( <PlansSection /> );
-
-			expect( includedFeaturesHref() ).toBe( base );
-		} );
+				expect(
+					screen.queryByRole( 'link', { name: 'View included features' } )
+				).not.toBeInTheDocument();
+			}
+		);
 	} );
 } );

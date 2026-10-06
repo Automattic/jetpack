@@ -1109,7 +1109,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Read endpoint backing the client's availability-aware tailoring: the task ids that will render for the given
-	 * goal. Fetched before the AI call (which the wizard prewarms), so the prompt offers only renderable tasks.
+	 * goal. Fetched before the AI call, so the prompt offers only renderable tasks.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array

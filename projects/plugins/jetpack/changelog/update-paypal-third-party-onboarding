@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-PayPal Payment Buttons: Connect with PayPal no longer stores API credentials on the site; PayPal calls for referred sellers are made through WordPress.com.

@@ -45,6 +45,6 @@ describe( 'MetricTileGridSkeleton', () => {
 		// that literally would leave an empty loading state.
 		render( <MetricTileGridSkeleton tiles={ 0 } /> );
 
-		expect( screen.getAllByTestId( 'skeleton-tile' ).length ).toBeGreaterThan( 1 );
+		expect( screen.getAllByTestId( 'skeleton-tile' ) ).toHaveLength( 4 );
 	} );
 } );

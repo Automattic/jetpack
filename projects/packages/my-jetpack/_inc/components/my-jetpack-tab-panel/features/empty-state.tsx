@@ -79,7 +79,7 @@ function getEmptyStateReason( {
 		return 'search';
 	}
 
-	if ( filter === 'active' || filter === 'inactive' ) {
+	if ( filter === 'active' || filter === 'inactive' || filter === 'included' ) {
 		return filter;
 	}
 
@@ -206,6 +206,21 @@ export function FeaturesEmptyState( {
 				mark={ infoMark }
 				heading={ __( 'Everything is turned on.', 'jetpack-my-jetpack' ) }
 				body={ __( 'There are no inactive features left on this site.', 'jetpack-my-jetpack' ) }
+			>
+				{ exploreAll }
+			</Empty>
+		);
+	}
+
+	if ( reason === 'included' ) {
+		return (
+			<Empty
+				mark={ infoMark }
+				heading={ __( 'Your plan doesn’t include any of these yet.', 'jetpack-my-jetpack' ) }
+				body={ __(
+					'Features a paid plan covers will appear here once you have one.',
+					'jetpack-my-jetpack'
+				) }
 			>
 				{ exploreAll }
 			</Empty>

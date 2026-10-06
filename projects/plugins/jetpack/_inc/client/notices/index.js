@@ -45,7 +45,6 @@ const notices = {
 			},
 			onRemoveCallback: options.onRemoveCallback || function () {},
 			arrow: options.arrow,
-			isCompact: options.isCompact,
 			showDismiss: options.showDismiss,
 			persistent: options.persistent,
 		};

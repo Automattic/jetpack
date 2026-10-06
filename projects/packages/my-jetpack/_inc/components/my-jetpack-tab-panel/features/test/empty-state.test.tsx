@@ -59,6 +59,18 @@ describe( 'FeaturesEmptyState', () => {
 		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
 	} );
 
+	it( 'says a plan covers nothing yet, rather than blaming the list', async () => {
+		render( <FeaturesEmptyState { ...props } filter="included" /> );
+
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent(
+			'Your plan doesn’t include any of these yet.'
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
+
+		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
+	} );
+
 	it( 'reports a catalog that never arrived as a failure, not as an empty site', async () => {
 		render( <FeaturesEmptyState { ...props } hasCatalog={ false } /> );
 

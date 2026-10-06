@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.7.1';
+	const PACKAGE_VERSION = '6.8.0';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.

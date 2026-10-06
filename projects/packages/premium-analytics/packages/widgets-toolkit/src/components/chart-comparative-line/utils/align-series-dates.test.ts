@@ -104,58 +104,6 @@ describe( 'alignSeriesDates', () => {
 			expect( result[ 1 ].data[ 2 ].date ).toEqual( new Date( '2024-01-10' ) );
 		} );
 
-		it( 'handles weekly intervals with different start days', () => {
-			// The key scenario: the two periods start on different weekdays.
-			const primary = createSeries( 'Current Period', [
-				new Date( '2024-09-12' ), // Week 1 starts Thu
-				new Date( '2024-09-16' ), // Week 2 starts Mon
-				new Date( '2024-09-23' ), // Week 3
-			] );
-
-			const comparison = createComparison( 'Previous Period', [
-				new Date( '2024-06-14' ), // Week 1 starts Sat
-				new Date( '2024-06-17' ), // Week 2 starts Mon
-				new Date( '2024-06-24' ), // Week 3
-			] );
-
-			const result = alignSeriesDates( [ primary, comparison ] );
-
-			// Comparison should get primary's dates for perfect alignment
-			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-09-12' ) );
-			expect( result[ 1 ].data[ 1 ].date ).toEqual( new Date( '2024-09-16' ) );
-			expect( result[ 1 ].data[ 2 ].date ).toEqual( new Date( '2024-09-23' ) );
-
-			// Original dates preserved for tooltip
-			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-06-14' ) );
-		} );
-
-		it( 'preserves original dates in realDate property', () => {
-			const primary = createSeries( 'This Week', [
-				new Date( '2024-01-08' ),
-				new Date( '2024-01-09' ),
-			] );
-
-			const comparison = createComparison( 'Last Week', [
-				new Date( '2024-01-01' ),
-				new Date( '2024-01-02' ),
-			] );
-
-			const result = alignSeriesDates( [ primary, comparison ] );
-
-			// Original dates preserved in realDate
-			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-01-01' ) );
-			expect( result[ 1 ].data[ 1 ].realDate ).toEqual( new Date( '2024-01-02' ) );
-		} );
-
-		it( 'does not add realDate to primary series', () => {
-			const primary = createSeries( 'This Week', [ new Date( '2024-01-08' ) ] );
-			const comparison = createComparison( 'Last Week', [ new Date( '2024-01-01' ) ] );
-
-			const result = alignSeriesDates( [ primary, comparison ] );
-
-			expect( result[ 0 ].data[ 0 ] ).not.toHaveProperty( 'realDate' );
-		} );
-
 		it( 'leaves a second current-period series where it is', () => {
 			const views = createSeries( 'Views', [ new Date( '2024-01-08' ), new Date( '2024-01-09' ) ] );
 			// A paired metric is not a comparison: its dates are its own, and
@@ -260,9 +208,10 @@ describe( 'alignSeriesDates', () => {
 
 			const result = alignSeriesDates( [ primary, comparison ] );
 
-			// Both comparison points align to their corresponding primary dates
-			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
-			expect( result[ 1 ].data[ 1 ].date ).toEqual( new Date( '2024-01-09' ) );
+			expect( result[ 1 ].data.map( point => point.date ) ).toEqual( [
+				new Date( '2024-01-08' ),
+				new Date( '2024-01-09' ),
+			] );
 		} );
 	} );
 

@@ -5,7 +5,8 @@ import { type StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/d
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
@@ -56,6 +57,8 @@ const RECORDS_VIEW = {
 		styles: {
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
+			watch_time: { align: 'end' as const },
+			retention_rate: { align: 'end' as const },
 		},
 	},
 };
@@ -81,9 +84,14 @@ function VideosReport(): JSX.Element {
 
 	if ( records.isError ) {
 		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load videos. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
 			/>
 		);
 	}

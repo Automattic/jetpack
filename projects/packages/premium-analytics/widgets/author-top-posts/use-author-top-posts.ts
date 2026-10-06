@@ -20,6 +20,8 @@ export type AuthorTopPostRow = {
 
 export interface AuthorTopPostsState {
 	rows: AuthorTopPostRow[];
+	/** The author's display name in this window's report, or empty when absent. */
+	authorName: string;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -47,8 +49,12 @@ export default function useAuthorTopPosts(
 	const { primary, comparisonRows, isLoading, isFetching, isError, error, refetch } =
 		useStatsTopAuthors( statsParams, { enabled: authorId > 0 } );
 
+	const author = useMemo(
+		() => findAuthorRow( comparisonRows?.rows, authorId ),
+		[ comparisonRows, authorId ]
+	);
+
 	const rows = useMemo( () => {
-		const author = findAuthorRow( comparisonRows?.rows, authorId );
 		const posts = ( author?.children ?? [] ).slice( 0, maxRows );
 		const maxValue = Math.max( ...posts.map( post => post.views ), 0 );
 
@@ -60,10 +66,11 @@ export default function useAuthorTopPosts(
 			views: post.views,
 			share: sharePercentage( post.views, maxValue ),
 		} ) );
-	}, [ comparisonRows, authorId, maxRows ] );
+	}, [ author, maxRows ] );
 
 	return {
 		rows,
+		authorName: String( author?.label ?? '' ),
 		isLoading,
 		isFetching,
 		isError,

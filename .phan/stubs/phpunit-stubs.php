@@ -26909,7 +26909,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     {
     }
     /**
-     * @return \RecursiveIteratorIterator<Iterator<AbstractNode>>
+     * @return \RecursiveIteratorIterator<Iterator>&\Traversable<int, AbstractNode>
      */
     public function getIterator(): \RecursiveIteratorIterator
     {

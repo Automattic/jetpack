@@ -1017,7 +1017,7 @@ class Initializer {
 					/**
 					 * Filters where a playlist entry opens when the block has no player.
 					 *
-					 * @since $$next-version$$
+					 * @since 0.55.0
 					 *
 					 * @param string $url  The video's page on videopress.com.
 					 * @param string $guid The video GUID.
