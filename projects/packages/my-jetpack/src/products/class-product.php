@@ -260,7 +260,6 @@ abstract class Product {
 			'long_description'                => static::get_long_description(),
 			'tiers'                           => static::get_tiers(),
 			'features'                        => static::get_features(),
-			'features_by_tier'                => static::get_features_by_tier(),
 			/* End of legacy compatibility fields. */
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
@@ -321,7 +320,6 @@ abstract class Product {
 			'description'                   => static::get_description(),
 			'tiers'                         => static::get_tiers(),
 			'features'                      => static::get_features(),
-			'features_by_tier'              => static::get_features_by_tier(),
 			'long_description'              => static::get_long_description(),
 			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
@@ -466,15 +464,6 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_features();
-
-	/**
-	 * Get the internationalized comparison of features grouped by each tier
-	 *
-	 * @return array
-	 */
-	public static function get_features_by_tier() {
-		return array();
-	}
 
 	/**
 	 * Get the product pricing
