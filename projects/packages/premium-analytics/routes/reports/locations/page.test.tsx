@@ -360,7 +360,7 @@ describe( 'LocationsReportPage', () => {
 
 		render( <LocationsReportPage /> );
 
-		expect( getLocationFields ).toHaveBeenCalledWith( undefined, hasComparison );
+		expect( getLocationFields ).toHaveBeenCalledWith( undefined, hasComparison, 'countries' );
 	} );
 
 	// The country is a filter, not a column.

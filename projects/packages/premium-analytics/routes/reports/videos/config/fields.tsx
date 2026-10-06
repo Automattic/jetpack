@@ -22,6 +22,16 @@ const METRIC_DATA_FORMAT = {
 	options: { decimals: 0, useMultipliers: false },
 } as const;
 
+const HOURS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 1, useMultipliers: false },
+} as const;
+
+const RATE_DATA_FORMAT = {
+	type: 'percentage',
+	options: { decimals: 1, signDisplay: 'never' },
+} as const;
+
 /**
  * Resolve the table label for a complete-stats video row.
  *
@@ -123,7 +133,7 @@ export function getVideosFields(
 		},
 		{
 			id: 'plays',
-			label: __( 'Plays', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.plays,
 			render: ( { item } ) => (
 				<MetricWithComparison
@@ -143,6 +153,31 @@ export function getVideosFields(
 					value={ item.impressions }
 					previousValue={ withComparison ? item.previousImpressions : undefined }
 					dataFormat={ METRIC_DATA_FORMAT }
+					fontSize="md"
+				/>
+			),
+		},
+		{
+			id: 'watch_time',
+			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
+			getValue: ( { item } ) => item.watch_time,
+			render: ( { item } ) => (
+				<MetricWithComparison
+					value={ item.watch_time }
+					dataFormat={ HOURS_DATA_FORMAT }
+					fontSize="md"
+				/>
+			),
+		},
+		{
+			id: 'retention_rate',
+			label: __( 'Retention rate', 'jetpack-premium-analytics-pkg' ),
+			getValue: ( { item } ) => item.retention_rate,
+			render: ( { item } ) => (
+				// The endpoint sends a percentage (67.6); the formatter expects a fraction.
+				<MetricWithComparison
+					value={ item.retention_rate / 100 }
+					dataFormat={ RATE_DATA_FORMAT }
 					fontSize="md"
 				/>
 			),
