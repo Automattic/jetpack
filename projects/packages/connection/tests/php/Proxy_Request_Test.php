@@ -470,10 +470,11 @@ class Proxy_Request_Test extends BaseTestCase {
 			'cache'   => array( 'prefix' => 'proxy_request_test_' ) + $durations,
 		);
 
-		Proxy_Request::to_path( '/sites/4242/stats', $args );
-		Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$first  = Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$second = Proxy_Request::to_path( '/sites/4242/stats', $args );
 
 		$this->assertCount( $requests, $this->http_calls );
+		$this->assertEquals( $first, $second );
 	}
 
 	public function test_bypass_stores_the_fresh_response() {
@@ -502,11 +503,12 @@ class Proxy_Request_Test extends BaseTestCase {
 		Proxy_Request::to_path( '/sites/4242/stats', $other );
 
 		Proxy_Request::forget( self::CACHE['prefix'] );
-		Proxy_Request::to_path( '/sites/4242/stats', $args );
-		Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$missed = Proxy_Request::to_path( '/sites/4242/stats', $args );
+		$cached = Proxy_Request::to_path( '/sites/4242/stats', $args );
 		Proxy_Request::to_path( '/sites/4242/stats', $other );
 
 		$this->assertCount( 3, $this->http_calls );
+		$this->assertSame( $missed, $cached );
 	}
 
 	public function test_a_cached_response_is_not_served_once_the_token_is_gone() {
