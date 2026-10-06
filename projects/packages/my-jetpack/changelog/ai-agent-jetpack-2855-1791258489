@@ -1,4 +1,5 @@
 Significance: patch
 Type: removed
+Comment: Internal cleanup with no user-facing changes.
 
-Remove the unreachable ProductDetailTable component and the unused `is_tiered_pricing` and `features_by_tier` product data.
+
