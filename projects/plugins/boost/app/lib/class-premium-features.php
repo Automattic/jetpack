@@ -41,8 +41,10 @@ class Premium_Features {
 	}
 
 	private static function remember_cloud_css_baseline( $features ) {
-		// The first observation is a baseline, so existing premium sites keep their setting.
-		add_option( self::CLOUD_CSS_BASELINE_OPTION, in_array( self::CLOUD_CSS, $features, true ) ? 'premium' : 'free', '', false );
+		// A stored Cloud CSS choice survives a plan that lapsed before the first observation.
+		$has_cloud_css_choice = null !== get_option( Status::get_option_name( Cloud_CSS::get_slug() ), null );
+		$baseline             = $has_cloud_css_choice || in_array( self::CLOUD_CSS, $features, true ) ? 'premium' : 'free';
+		add_option( self::CLOUD_CSS_BASELINE_OPTION, $baseline, '', false );
 	}
 
 	/**
@@ -73,7 +75,7 @@ class Premium_Features {
 
 		$entry = new Modules_State_Entry( array( Cloud_CSS::class ) );
 		$entry->set( array( Cloud_CSS::get_slug() => array( 'active' => true ) ) );
-		update_option( self::CLOUD_CSS_NOTICE_OPTION, true, false );
+		jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
 	}
 
 	public static function has_feature( $feature ) {

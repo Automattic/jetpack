@@ -17,6 +17,7 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
@@ -53,6 +54,9 @@ class Premium_Features_Test extends Base_TestCase {
 		);
 		Functions\when( 'update_option' )->alias(
 			function ( $name, $value ) {
+				if ( $value === ( $this->options[ $name ] ?? false ) ) {
+					return false;
+				}
 				$changed                = ! isset( $this->options[ $name ] ) || $this->options[ $name ] !== $value;
 				$this->options[ $name ] = $value;
 				return $changed;
@@ -70,6 +74,11 @@ class Premium_Features_Test extends Base_TestCase {
 		Functions\when( 'delete_option' )->alias(
 			function ( $name ) {
 				unset( $this->options[ $name ] );
+			}
+		);
+		Functions\when( 'jetpack_boost_ds_set' )->alias(
+			function ( $key, $value ) {
+				return update_option( 'jetpack_boost_ds_' . $key, $value );
 			}
 		);
 		Transient::set( Premium_Features::TRANSIENT_KEY, array(), 3600 );
@@ -266,5 +275,30 @@ class Premium_Features_Test extends Base_TestCase {
 		$this->observe_plan( array( Premium_Features::CLOUD_CSS ) );
 		$this->assertFalse( ( new Status( 'cloud_css' ) )->get() );
 		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
+	}
+
+	public function test_stored_manual_disable_before_free_baseline_survives_plan_return() {
+		Actions\expectDone( 'jetpack_boost_module_status_updated' )->never();
+		$status = new Status( Cloud_CSS::get_slug() );
+		$status->set( true );
+		$status->set( false );
+		$this->observe_plan( array() );
+		$this->observe_plan( array( Premium_Features::CLOUD_CSS ) );
+		$this->assertFalse( $status->get() );
+		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
+	}
+
+	public function test_free_site_saves_another_module_before_baseline_then_upgrades() {
+		$entry                         = new Modules_State_Entry( array( Cloud_CSS::class, Minify_JS::class ) );
+		$states                        = $entry->get();
+		$states['minify_js']['active'] = true;
+		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'minify_js', true );
+		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true );
+		$entry->set( $states );
+		$this->assertNull( get_option( Status::get_option_name( Cloud_CSS::get_slug() ), null ) );
+		$this->observe_plan( array() );
+		$this->observe_plan( array( Premium_Features::CLOUD_CSS ) );
+		$this->assertTrue( ( new Status( Cloud_CSS::get_slug() ) )->get() );
+		$this->assertTrue( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
 	}
 }
