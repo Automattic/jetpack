@@ -7,18 +7,19 @@ import { render } from '@testing-library/react';
  * Internal dependencies
  */
 import { ExporterCsvAction } from '../exporter-csv-action';
-import { ReportCsvAction } from '../report-csv-action';
+import * as reportCsvActionModule from '../report-csv-action';
 import type { ReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
-jest.mock( '../report-csv-action', () => ( {
-	ReportCsvAction: jest.fn( () => null ),
-} ) );
-
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
 
 type Item = { name: string; count: number };
 
@@ -40,9 +41,18 @@ function buildExporter(): ReportCsvExporter< Item, Item > {
 }
 
 describe( 'ExporterCsvAction', () => {
+	let reportCsvActionMock: jest.SpiedFunction< typeof reportCsvActionModule.ReportCsvAction >;
+
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( getScriptData ).mockReturnValue( undefined );
+		reportCsvActionMock = jest
+			.spyOn( reportCsvActionModule, 'ReportCsvAction' )
+			.mockImplementation( () => null );
+	} );
+
+	afterEach( () => {
+		reportCsvActionMock.mockRestore();
 	} );
 
 	it( 'exports the loaded items through the exporter, with a dated filename', () => {

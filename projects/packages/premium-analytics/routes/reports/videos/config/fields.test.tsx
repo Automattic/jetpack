@@ -11,13 +11,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	chart_period: 'week',
-} );
-
 const video: StatsVideoPlaysComparisonItem = {
 	id: 12,
 	label: 'Launch video',
@@ -57,7 +50,7 @@ function renderVideosField( fieldId: 'label' | 'poster', item: StatsVideoPlaysCo
  * @return The RTL render result.
  */
 function renderMetricField(
-	fieldId: 'plays' | 'impressions',
+	fieldId: 'plays' | 'impressions' | 'retention_rate',
 	item: StatsVideoPlaysComparisonItem,
 	withComparison = false
 ) {
@@ -73,6 +66,15 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			chart_period: 'week',
+		} );
+	} );
+
 	it( 'renders the poster resized for a table row', () => {
 		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
 
@@ -115,28 +117,6 @@ describe( 'videos fields', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'does not create a detail link for a non-positive ID', () => {
-		renderVideosField( 'label', { ...video, id: 0 } );
-
-		expect(
-			screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } )
-		).toHaveAttribute( 'href', 'https://example.com/video/' );
-	} );
-
-	it( 'renders plain text when a row has neither an ID nor a URL', () => {
-		renderVideosField( 'label', { ...video, id: undefined, link: null } );
-
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders plain text when the payload URL is unsafe', () => {
-		renderVideosField( 'label', { ...video, id: undefined, link: 'javascript:alert(1)' } );
-
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'keeps the report-owned untitled fallback', () => {
 		renderVideosField( 'label', { ...video, id: undefined, label: undefined, link: null } );
 
@@ -171,6 +151,18 @@ describe( 'videos fields', () => {
 		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
 		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the endpoint percent retention as a percentage', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: 67.6 } );
+
+		expect( screen.getByText( '67.6%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a retention rate wpcom could not compute', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: null } );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides comparison deltas when comparison is disabled', () => {

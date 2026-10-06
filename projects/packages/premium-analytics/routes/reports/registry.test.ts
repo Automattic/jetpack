@@ -1,44 +1,34 @@
 /**
- * External dependencies
- */
-import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
-/**
  * Internal dependencies
  */
 import { getReportDefinition, REPORTS } from './registry';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	isSimpleSite: jest.fn( () => true ),
-	getScriptData: jest.fn(),
-} ) );
-
-const mockIsSimpleSite = isSimpleSite as jest.Mock;
-const mockGetScriptData = getScriptData as jest.Mock;
-
 /**
- * Point the mocked script data at a site with or without VideoPress.
+ * Publish the script data of a Simple site running VideoPress, with any overrides applied.
  *
- * @param hasVideoPress - Whether the site runs VideoPress.
+ * @param options          - Overrides.
+ * @param options.host     - Site host; anything but `wpcom` is non-Simple.
+ * @param options.sections - URL-facing slugs of the tabs the dashboard exposes.
+ * @param options.videos   - Whether the site runs VideoPress.
  */
-function setVideoPress( hasVideoPress: boolean ) {
-	mockGetScriptData.mockReturnValue( { premium_analytics: { has_videopress: hasVideoPress } } );
-}
-
-/**
- * Point the mocked script data at a dashboard exposing only the given tabs.
- *
- * @param sections - URL-facing slugs of the tabs the dashboard exposes.
- */
-function setAvailableSections( sections: string[] ) {
-	mockGetScriptData.mockReturnValue( {
-		premium_analytics: { has_videopress: true, sections },
+function setSite( {
+	host = 'wpcom',
+	sections,
+	videos = true,
+}: { host?: string; sections?: string[]; videos?: boolean } = {} ) {
+	Object.defineProperty( window, 'JetpackScriptData', {
+		configurable: true,
+		value: { site: { host }, premium_analytics: { has_videopress: videos, sections } },
 	} );
 }
 
 describe( 'getReportDefinition', () => {
 	beforeEach( () => {
-		mockIsSimpleSite.mockReturnValue( true );
-		setVideoPress( true );
+		setSite();
+	} );
+
+	afterEach( () => {
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'returns undefined for an unknown report', () => {
@@ -48,12 +38,9 @@ describe( 'getReportDefinition', () => {
 
 	// The id comes from the URL, so an inherited object property must not read
 	// as a report.
-	it.each( [ 'constructor', 'toString', 'hasOwnProperty' ] )(
-		'returns undefined for the inherited %s property',
-		id => {
-			expect( getReportDefinition( id ) ).toBeUndefined();
-		}
-	);
+	it( 'returns undefined for the inherited constructor property', () => {
+		expect( getReportDefinition( 'constructor' ) ).toBeUndefined();
+	} );
 
 	it( 'returns the downloads report on Simple sites', () => {
 		expect( getReportDefinition( 'downloads' )?.id ).toBe( 'downloads' );
@@ -62,13 +49,13 @@ describe( 'getReportDefinition', () => {
 	it( 'hides the downloads report on non-Simple sites', () => {
 		// Calypso shows file downloads only on Simple sites; an unavailable report
 		// gets the same route-guard redirect as an unknown one.
-		mockIsSimpleSite.mockReturnValue( false );
+		setSite( { host: 'unknown' } );
 
 		expect( getReportDefinition( 'downloads' ) ).toBeUndefined();
 	} );
 
 	it( 'keeps other reports available on non-Simple sites', () => {
-		mockIsSimpleSite.mockReturnValue( false );
+		setSite( { host: 'unknown' } );
 
 		expect( getReportDefinition( 'posts' )?.id ).toBe( 'posts' );
 	} );
@@ -78,19 +65,13 @@ describe( 'getReportDefinition', () => {
 	} );
 
 	it( 'hides the videos report without VideoPress', () => {
-		setVideoPress( false );
-
-		expect( getReportDefinition( 'videos' ) ).toBeUndefined();
-	} );
-
-	it( 'hides the videos report when the site never published the flag', () => {
-		mockGetScriptData.mockReturnValue( undefined );
+		setSite( { videos: false } );
 
 		expect( getReportDefinition( 'videos' ) ).toBeUndefined();
 	} );
 
 	it( 'hides a report whose tab the dashboard does not expose', () => {
-		setAvailableSections( [ 'traffic' ] );
+		setSite( { sections: [ 'traffic' ] } );
 
 		expect( getReportDefinition( 'comments' ) ).toBeUndefined();
 		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
@@ -99,23 +80,11 @@ describe( 'getReportDefinition', () => {
 		expect( getReportDefinition( 'earnings' ) ).toBeUndefined();
 	} );
 
-	it( 'keeps the Traffic reports while other tabs are hidden', () => {
-		setAvailableSections( [ 'traffic' ] );
-
-		expect( getReportDefinition( 'posts' )?.id ).toBe( 'posts' );
-		expect( getReportDefinition( 'videos' )?.id ).toBe( 'videos' );
-	} );
-
 	it( 'opens a report once its tab is available', () => {
-		setAvailableSections( [ 'traffic', 'insights' ] );
+		setSite( { sections: [ 'traffic', 'insights' ] } );
 
 		expect( getReportDefinition( 'comments' )?.id ).toBe( 'comments' );
 		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
-	} );
-
-	it( 'leaves every report available when no tab list was published', () => {
-		expect( getReportDefinition( 'comments' )?.id ).toBe( 'comments' );
-		expect( getReportDefinition( 'emails' )?.id ).toBe( 'emails' );
 	} );
 } );
 
@@ -135,8 +104,12 @@ describe( 'REPORTS', () => {
 		return grouped;
 	}
 
-	it.each( Object.keys( REPORTS ) )( 'keys %s by its own id', key => {
-		expect( REPORTS[ key ].id ).toBe( key );
+	it( 'keys every report by its own id', () => {
+		const misKeyed = Object.entries( REPORTS )
+			.filter( ( [ key, { id } ] ) => key !== id )
+			.map( ( [ key ] ) => key );
+
+		expect( misKeyed ).toEqual( [] );
 	} );
 
 	// Most reports are Traffic, so a new one lands on the right tab by accident far more

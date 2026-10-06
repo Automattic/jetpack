@@ -240,6 +240,7 @@ class Podcast_Episode_Block {
 		$is_explicit    = ! empty( $attributes['explicit'] );
 		$duration       = isset( $attributes['duration'] ) ? (string) $attributes['duration'] : '';
 		$show_poster    = ! isset( $attributes['showPoster'] ) || ! empty( $attributes['showPoster'] );
+		$show_author    = ! isset( $attributes['showAuthor'] ) || ! empty( $attributes['showAuthor'] );
 		$transcript_url = isset( $attributes['transcriptUrl'] ) ? esc_url_raw( $attributes['transcriptUrl'] ) : '';
 		$location_name  = isset( $attributes['locationName'] ) ? (string) $attributes['locationName'] : '';
 		$license        = isset( $attributes['license'] ) ? (string) $attributes['license'] : '';
@@ -285,8 +286,8 @@ class Podcast_Episode_Block {
 
 		$author_id        = (int) $post->post_author;
 		$title            = get_the_title( $post );
-		$author_name      = get_the_author_meta( 'display_name', $author_id );
-		$author_url       = esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) );
+		$author_name      = $show_author ? get_the_author_meta( 'display_name', $author_id ) : '';
+		$author_url       = $show_author ? esc_url_raw( (string) get_the_author_meta( 'url', $author_id ) ) : '';
 		$publish_date_iso = get_the_date( 'c', $post );
 		$publish_date     = get_the_date( '', $post );
 		$episode_url      = get_permalink( $post );
@@ -635,7 +636,8 @@ class Podcast_Episode_Block {
 		}
 
 		$title          = get_the_title( $post );
-		$author_name    = get_the_author_meta( 'display_name', (int) $post->post_author );
+		$show_author    = ! isset( $attrs['showAuthor'] ) || ! empty( $attrs['showAuthor'] );
+		$author_name    = $show_author ? get_the_author_meta( 'display_name', (int) $post->post_author ) : '';
 		$publish_date   = get_the_date( '', $post );
 		$duration       = isset( $attrs['duration'] ) ? trim( (string) $attrs['duration'] ) : '';
 		$season_number  = isset( $attrs['seasonNumber'] ) ? (int) $attrs['seasonNumber'] : 0;
