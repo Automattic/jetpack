@@ -6,9 +6,8 @@ import { AlertDialog, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
+import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
-import type { DashboardContext } from '../types';
-import type { LoginProtectionState } from './types';
 
 const noop = () => {};
 const NO_LOCKS: LoginProtectionState[ 'ssoLocks' ] = { matchByEmail: false, twoStep: false };
@@ -67,8 +66,10 @@ function SsoOptionToggle( {
  * @param props.settings - The settings and their save function.
  * @return The card.
  */
-export default function LoginProtectionSettingsCard( { state, settings: data }: DashboardContext ) {
-	const login = state as LoginProtectionState | undefined;
+export default function LoginProtectionSettingsCard( {
+	state: login,
+	settings: data,
+}: LoginProtectionContext ) {
 	const settings = data.settings ?? {};
 	const ssoLocks = login?.ssoLocks ?? NO_LOCKS;
 	const ssoEffective = login?.ssoEffective ?? NO_LOCKS;

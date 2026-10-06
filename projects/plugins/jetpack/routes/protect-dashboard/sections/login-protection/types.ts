@@ -1,3 +1,5 @@
+import type { DashboardContext } from '../types';
+
 export type ModuleState = {
 	available: boolean;
 	active: boolean;
@@ -19,3 +21,6 @@ export type LoginProtectionState = {
 	ssoEffective: SsoOptions;
 	currentIp: string;
 };
+
+/** Undefined when PHP registered no Login protection section. */
+export type LoginProtectionContext = DashboardContext< LoginProtectionState | undefined >;

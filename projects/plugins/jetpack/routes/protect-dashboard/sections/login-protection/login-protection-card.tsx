@@ -4,9 +4,8 @@ import { Badge, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import SettingsLink from '../../components/settings-link';
 import isModuleActive from '../../data/is-module-active';
+import type { LoginProtectionContext, ModuleState } from './types';
 import type { CardStatus } from '../../components/card';
-import type { DashboardContext } from '../types';
-import type { LoginProtectionState, ModuleState } from './types';
 
 /**
  * One way of protecting logins, with whether it's on.
@@ -71,8 +70,11 @@ function getStatusIntent( on: number, available: number ): CardStatus[ 'intent' 
  * @param props.openSettings - Switches to the Settings tab.
  * @return The card, or nothing without the section's state.
  */
-export default function LoginProtectionCard( { state, settings, openSettings }: DashboardContext ) {
-	const login = state as LoginProtectionState | undefined;
+export default function LoginProtectionCard( {
+	state: login,
+	settings,
+	openSettings,
+}: LoginProtectionContext ) {
 	if ( ! login ) {
 		return null;
 	}
