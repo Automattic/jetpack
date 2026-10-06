@@ -318,6 +318,7 @@ foreach ( $matrix as &$m ) {
 }
 unset( $m );
 
+// @phan-suppress-next-line PhanImpossibleConditionInGlobalScope -- Phan is confused: https://github.com/phan/phan/issues/5575
 if ( $any_errors ) {
 	exit( 1 );
 }
