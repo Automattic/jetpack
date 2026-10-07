@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Improve cache key handling and URL purges for unusual request URIs and parameters. Clear old cached pages once after updating.
