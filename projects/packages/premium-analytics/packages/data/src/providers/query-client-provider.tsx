@@ -6,7 +6,12 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import { getApiErrorStatus, shouldRetryApiError, StatsResponseShapeError } from '../utils';
+// Not the `../utils` barrel, which loads `@wordpress/core-data`.
+import {
+	getApiErrorStatus,
+	shouldRetryApiError,
+	StatsResponseShapeError,
+} from '../utils/api-error';
 import { globalErrorManager } from './global-error-manager';
 
 // Everything below reads the HTTP status, which apiFetch drops on its way to

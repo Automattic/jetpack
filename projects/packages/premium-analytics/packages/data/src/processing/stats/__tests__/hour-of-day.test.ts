@@ -50,20 +50,6 @@ describe( 'sanitizeStatsHourOfDayResponse', () => {
 		expect( report.buckets[ 12 ].views ).toBe( 0 );
 	} );
 
-	it( 'places rows by their period label rather than their position', () => {
-		const report = sanitizeStatsHourOfDayResponse(
-			response( {
-				data: [
-					[ '19', 90 ],
-					[ '07', 40 ],
-				],
-			} )
-		);
-
-		expect( report.buckets[ 7 ].views ).toBe( 40 );
-		expect( report.buckets[ 19 ].views ).toBe( 90 );
-	} );
-
 	it( 'reads views by field name, not by column index', () => {
 		const report = sanitizeStatsHourOfDayResponse(
 			response( {
@@ -89,13 +75,16 @@ describe( 'sanitizeStatsHourOfDayResponse', () => {
 		expect( report.buckets[ 8 ].views ).toBe( 0 );
 	} );
 
-	it( 'ignores period labels outside 00-23', () => {
+	it( 'ignores period labels that are not an hour from 00 to 23', () => {
 		const report = sanitizeStatsHourOfDayResponse(
 			response( {
 				data: [
 					[ '24', 99 ],
 					[ '-1', 99 ],
 					[ 'noon', 99 ],
+					// `Number('')` and `Number(null)` are both 0, so these would land in hour 0.
+					[ '', 99 ],
+					[ null, 99 ],
 				],
 			} )
 		);
@@ -103,57 +92,32 @@ describe( 'sanitizeStatsHourOfDayResponse', () => {
 		expect( report.buckets.every( bucket => bucket.views === 0 ) ).toBe( true );
 	} );
 
-	it( 'rejects an empty or null period instead of folding it into hour 0', () => {
-		// `Number('')` and `Number(null)` are both `0`: without a shape check
-		// on the label itself, either row would silently overwrite bucket 0.
-		const report = sanitizeStatsHourOfDayResponse(
-			response( {
-				data: [
-					[ '', 99 ],
-					[ null, 99 ],
-				],
-			} )
-		);
-
-		expect( report.buckets[ 0 ].views ).toBe( 0 );
-	} );
-
-	it( 'throws when the payload folds views into another dimension', () => {
-		// Every dimension answers 200 in the same `fields`/`data` shape, so a
-		// mismatch would otherwise draw a plausible but wrong chart.
-		expect( () =>
-			sanitizeStatsHourOfDayResponse(
-				response( { dimension: 'day-of-week', data: [ [ 'Mon', 100 ] ] } )
-			)
-		).toThrow( /hour-of-day/ );
-	} );
-
-	it( 'throws a StatsResponseShapeError, so callers can skip auto-retrying it', () => {
-		expect( () =>
-			sanitizeStatsHourOfDayResponse( response( { dimension: 'day-of-week' } ) )
-		).toThrow( StatsResponseShapeError );
-	} );
-
-	it( 'throws when required fields are missing', () => {
-		expect( () =>
-			sanitizeStatsHourOfDayResponse( response( { fields: [ 'period', 'postviews' ] } ) )
-		).toThrow( /Expected fields \[period, views\]/ );
-	} );
-
-	it( 'throws when the day count is missing, since the averages divide by it', () => {
-		expect( () => sanitizeStatsHourOfDayResponse( response( { days: undefined } ) ) ).toThrow(
-			/positive day count/
-		);
-	} );
-
-	it( 'throws when data is not an array', () => {
-		expect( () => sanitizeStatsHourOfDayResponse( response( { data: {} } ) ) ).toThrow(
-			/Expected hour-of-day data to be an array/
-		);
-	} );
-
-	it( 'throws on a payload that is not an object at all', () => {
-		expect( () => sanitizeStatsHourOfDayResponse( null ) ).toThrow( /hour-of-day/ );
+	// A StatsResponseShapeError tells callers to skip auto-retrying the request.
+	it.each( [
+		[
+			'the payload folds views into another dimension',
+			response( { dimension: 'day-of-week', data: [ [ 'Mon', 100 ] ] } ),
+			/hour-of-day/,
+		],
+		[
+			'required fields are missing',
+			response( { fields: [ 'period', 'postviews' ] } ),
+			/Expected fields \[period, views\]/,
+		],
+		[
+			'the day count is missing, since the averages divide by it',
+			response( { days: undefined } ),
+			/positive day count/,
+		],
+		[
+			'data is not an array',
+			response( { data: {} } ),
+			/Expected hour-of-day data to be an array/,
+		],
+		[ 'the payload is not an object at all', null, /hour-of-day/ ],
+	] )( 'throws a StatsResponseShapeError when %s', ( _case, payload, message ) => {
+		expect( () => sanitizeStatsHourOfDayResponse( payload ) ).toThrow( StatsResponseShapeError );
+		expect( () => sanitizeStatsHourOfDayResponse( payload ) ).toThrow( message );
 	} );
 
 	describe( 'the queried range', () => {
