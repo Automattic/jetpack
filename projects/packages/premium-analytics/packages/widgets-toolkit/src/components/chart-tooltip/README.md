@@ -1,6 +1,6 @@
 # ChartTooltip
 
-A **shared** tooltip component for chart visualizations. Supports both line charts and bar charts with configurable indicator types and value formatting.
+A tooltip for charts whose rows are label/value pairs, one per series. Date-bucketed charts (the comparative line and bar charts) use [`DatedTooltip`](#datedtooltip) below instead.
 
 ## Features
 
@@ -11,30 +11,6 @@ A **shared** tooltip component for chart visualizations. Supports both line char
 - **MetricValue integration**: Formatted values with currency, number, or percentage
 
 ## Basic Usage
-
-### With Line Charts
-
-```tsx
-import { ChartTooltip } from '../chart-tooltip';
-
-const renderTooltip = params => (
-	<ChartTooltip
-		tooltipData={ params.tooltipData }
-		dataFormat={ { type: 'currency' } }
-		seriesStyles={ [
-			{ stroke: '#3858E9', strokeWidth: 2 },
-			{ stroke: '#3858E9', strokeDasharray: '4 4', strokeWidth: 1.5 },
-		] }
-		indicatorType="line"
-		layout="inline"
-		getLabel={ ( datum, _index, key, value ) =>
-			formatTooltipPointLabel( value, key, formatDate( datum.date ) )
-		}
-	/>
-);
-```
-
-### With Bar Charts
 
 ```tsx
 import { ChartTooltip } from '../chart-tooltip';
@@ -57,10 +33,8 @@ const renderTooltip = params => (
 | `tooltipData`   | `{ datumByKey?: Record<string, unknown> }`       | No       | Tooltip data from visx chart                                                                                                                                                                                                                                         |
 | `dataFormat`    | `DataFormat`                                     | Yes      | Format for values: currency, number, percentage                                                                                                                                                                                                                      |
 | `seriesStyles`  | `TooltipStyle[]`                                 | Yes      | Styles for each series (color, stroke properties)                                                                                                                                                                                                                    |
-| `seriesKeys`    | `string[]`                                       | No       | Series keys in the same order as `seriesStyles`. Pairs a row with its style by key rather than by position, for charts that emit rows out of series order (a bar chart drawing two metrics lists both current periods before either previous period)                 |
 | `indicatorType` | `'line' \| 'rect'`                               | Yes      | Shape indicator: line for line charts, rect for bars                                                                                                                                                                                                                 |
-| `layout`        | `'split' \| 'inline'`                            | No       | `split` (default) sets the label left and the value right; `inline` renders the label alone, for a `getLabel` that spells the value into it                                                                                                                          |
-| `getLabel`      | `(datum, index, key, value, rawValue) => string` | No       | Custom label extractor (default: `datum.label`). `key` is the series key/label; `value` is the row's value spelled out in full, in the row's own format; `rawValue` is the number it spells, for picking a plural form. Both are `null` for a bucket with no reading |
+| `getLabel`      | `(datum, index, key, value, rawValue) => string` | No       | Custom label extractor (default: `datum.label`). `key` is the series key/label; `value` is the row's value spelled out in full; `rawValue` is the number it spells. Both are `null` for a bucket with no reading                                                     |
 | `getValue`      | `(datum) => number \| null`                      | No       | Custom value extractor (default: `datum.value`). A `null` value reads "No data"                                                                                                                                                                                      |
 
 ## TooltipStyle Type
@@ -95,22 +69,7 @@ function defaultGetValue( datum: unknown ): number | null {
 
 ### When to Use Custom Extractors
 
-**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`). `tooltipUnits` is the map `resolveTooltipUnits( series, tooltipExtras )` returns, so an extra's key resolves too, and a count metric's row reads `1 View`, not `1 Views`. `formatBucketTooltipDate` reads a comparison point's own `realDate`, and names a week by its span when the point carries an `endDate`:
-
-```tsx
-const { displayResolution } = getBucketInfo( series, tickResolution );
-
-const getLabel = ( datum, _index, key, value, rawValue ) => {
-	const unit = tooltipUnits.get( key );
-	return formatTooltipPointLabel(
-		value,
-		unit?.name ?? key,
-		formatBucketTooltipDate( datum, displayResolution ),
-		rawValue,
-		unit?.countLabel
-	);
-};
-```
+**Charts bucketed by date**: use `DatedTooltip`; see below.
 
 **Bar charts with label-value data**: Use defaults (no custom extractors needed):
 
@@ -137,13 +96,57 @@ Uses `RectShape` from the chart library. Supports:
 
 ## Styling
 
-The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart. The box re-themes the design system tokens inside it for its dark surface, so row text that reads the neutral foreground token stays readable.
+The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart.
 
 ## Used By
 
-- `ComparativeLineChart` - With `indicatorType="line"`, `layout="inline"` and a value-first date label
-- `ComparativeBarChart` - With `indicatorType="rect"`, `layout="inline"` and the same label
 - `BarChart` - With `indicatorType="rect"` and default label/value extractors
+
+---
+
+# DatedTooltip
+
+The tooltip of the comparative line and bar charts. The hovered bucket's date heads the rows once; each row is the series swatch (or an icon, for a row the chart does not draw), the value in emphasis, then the unit (`130,859 Views`). With a comparison on, a second column lists the comparison bucket's values under its own date, each beside its row, with the comparison series' swatch. It renders as a table: each metric's two readings share a row, and the metric's cell is the row header, so the comparison value is read with its name.
+
+## Basic Usage
+
+The charts build the model from the rows the chart library reports, then render it:
+
+```tsx
+import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
+
+const renderTooltip = params => {
+	const model = buildDatedTooltipModel( {
+		tooltipData: params.tooltipData,
+		series,
+		seriesStyles,
+		extras: tooltipExtras,
+		dataFormat,
+		formatDate: point => formatBucketTooltipDate( point, displayResolution ),
+	} );
+
+	return model && <DatedTooltip model={ model } indicatorType="line" />;
+};
+```
+
+## Model
+
+`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (one with no current series in its group, or no group, joins the first series). A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. Extras are read at the hovered date from their own `data` and `previous` points; an extra with a reading in either period gets a row, and one that names a drawn series keeps that series' row. The header reads a current-period point's axis `date`, so a nearer comparison point cannot swap in its own; the `realDate` of a comparison point on the hovered bucket heads the comparison column, named by `formatDate`, which the charts point at `formatBucketTooltipDate` so a week reads as its span.
+
+| Field            | Type                                    | Description                                                                              |
+| ---------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `date`           | `string`                                | The hovered bucket's date, formatted                                                     |
+| `previousDate`   | `string \| undefined`                   | The comparison bucket's date, when a comparison point sits on the hovered bucket         |
+| `rows[].name`    | `string`                                | The metric's name, read as the value's unit                                              |
+| `rows[].countLabel` | `CountLabel \| undefined`           | The metric's plural-aware unit, from the series or extra                                 |
+| `rows[].dataFormat` | `DataFormat`                         | The extra's own format, else the chart's                                                 |
+| `rows[].indicator` | `series` / `icon` / `blank`           | The series swatch, the extra's `icon`, or a blank of the same width                      |
+| `rows[].value`   | `number \| null`                        | The current reading; `null` reads as a dash, announced "No data for <name>"              |
+| `rows[].previous` | `{ value, indicator } \| undefined`   | The comparison reading with its own indicator (the comparison series' swatch); absent or `null` reads as a dash |
+
+## Reading
+
+Each reading is one translated sentence, value then unit, through the metric's `countLabel` when it has one (`1 View`, `2 Views`) or `%1$s %2$s` otherwise; the value is rendered as its own element so it can take its own weight while translators keep the word order.
 
 ---
 
