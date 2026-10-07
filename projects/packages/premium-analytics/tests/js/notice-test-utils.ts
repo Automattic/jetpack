@@ -27,7 +27,7 @@ export function getNoticeText( text: string ): HTMLElement {
 }
 
 /**
- * Build a registry whose `core/notices` store records `createErrorNotice` and `createSuccessNotice` calls.
+ * Build a registry whose `core/notices` store records error and success notice calls.
  *
  * `@wordpress/notices` is not a dependency of this package; wp-admin registers it in production.
  *

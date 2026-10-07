@@ -67,6 +67,19 @@ async function confirm() {
 	await userEvent.click( screen.getByRole( 'button', { name: 'Mark as spam' } ) );
 }
 
+/**
+ * Press the Undo action of the success snackbar.
+ */
+async function undo() {
+	const [ , { actions } ] = createSuccessNotice.mock.calls[ 0 ] as unknown as [
+		string,
+		{ actions: { label: string; onClick: () => Promise< void > }[] },
+	];
+	expect( actions[ 0 ].label ).toBe( 'Undo' );
+
+	await act( () => actions[ 0 ].onClick() );
+}
+
 describe( 'useMarkAsSpamAction', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -92,20 +105,29 @@ describe( 'useMarkAsSpamAction', () => {
 			expect.objectContaining( { type: 'snackbar', explicitDismiss: true } )
 		);
 
-		const [ , { actions } ] = createSuccessNotice.mock.calls[ 0 ] as unknown as [
-			string,
-			{ actions: { label: string; onClick: () => Promise< void > }[] },
-		];
-		expect( actions[ 0 ].label ).toBe( 'Undo' );
-
-		await act( () => actions[ 0 ].onClick() );
+		await undo();
 
 		expect( unmarkSpam ).toHaveBeenCalledWith( { domain: 'spam.example' } );
 		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 	} );
 
+	it( 'keeps the domain hidden when Undo fails', async () => {
+		markSpam.mockResolvedValue( { success: true } );
+		unmarkSpam.mockRejectedValue( { error: 'api_error' } );
+
+		await confirm();
+		await undo();
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'spam.example' );
+		expect( createErrorNotice ).toHaveBeenCalledWith(
+			'Couldn’t undo marking "spam.example" as spam.',
+			expect.objectContaining( { type: 'snackbar' } )
+		);
+		expect( console ).toHaveErrored();
+	} );
+
 	it.each( [
-		[ 'reach-limit', 'You’ve reached the limit of 500 spam referrers.' ],
+		[ 'reach-limit', 'You’ve reached the limit of spam referrers for this site.' ],
 		[ 'api_error', 'Couldn’t mark "spam.example" as spam.' ],
 	] )( 'keeps the row and explains a %s failure', async ( error, message ) => {
 		markSpam.mockRejectedValue( { error } );
@@ -118,14 +140,19 @@ describe( 'useMarkAsSpamAction', () => {
 			message,
 			expect.objectContaining( { type: 'snackbar' } )
 		);
+		expect( console ).toHaveErrored();
 	} );
 
-	it( 'treats a domain already marked elsewhere as marked', async () => {
+	it( 'hides a domain already marked elsewhere without offering Undo', async () => {
 		markSpam.mockRejectedValue( { error: 'already-spammed' } );
 
 		await confirm();
 
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'spam.example' );
 		expect( createErrorNotice ).not.toHaveBeenCalled();
+		expect( createSuccessNotice ).toHaveBeenCalledWith(
+			'"spam.example" was already marked as spam.',
+			expect.not.objectContaining( { actions: expect.anything() } )
+		);
 	} );
 } );

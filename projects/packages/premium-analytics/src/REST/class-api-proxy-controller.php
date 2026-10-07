@@ -101,7 +101,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  Only meaningful alongside `writes`.
 	 *  - `invalidates` (string[], optional) Sub-paths whose cached reads, at any params or version,
 	 *                  a successful POST in this group makes stale. Each covers that sub-path and
-	 *                  everything under it. Only meaningful alongside `writes`.
+	 *                  everything under it, and must lie inside this group, since a read only
+	 *                  consults its own group's entries. Only meaningful alongside `writes`.
 	 *  - `path`       (string, optional) printf template (`%d` = blog id) for groups NOT under
 	 *                  `/sites/<id>/` (e.g. `upgrades` → `/upgrades?site=%d`). A group with a
 	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
@@ -626,7 +627,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
 		}
 
-		// The signer hashes '' like any body, and WPCOM rejects a hash on an empty one.
+		// The signer hashes '' like any body, then refuses to sign a hash on an empty one.
 		if ( '' === $body ) {
 			$body = null;
 		}

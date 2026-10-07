@@ -108,7 +108,9 @@ export function useMarkAsSpamAction() {
 		async ( domain: string ) => {
 			try {
 				await unmarkSpam( { domain } );
-			} catch {
+			} catch ( error ) {
+				// eslint-disable-next-line no-console -- the notice names no cause, so the code goes where a report can find it
+				console.error( 'Unmarking a referrer as spam failed:', getApiErrorCode( error ) ?? error );
 				createErrorNotice(
 					sprintf(
 						// translators: %s: The referrer domain, e.g. example.com.
@@ -132,23 +134,36 @@ export function useMarkAsSpamAction() {
 			} catch ( error ) {
 				const code = getApiErrorCode( error );
 
-				// Marked elsewhere since this report loaded: the reader's intent already holds.
-				if ( code !== 'already-spammed' ) {
-					createErrorNotice(
-						code === 'reach-limit'
-							? __(
-									'You’ve reached the limit of 500 spam referrers.',
-									'jetpack-premium-analytics-pkg'
-								)
-							: sprintf(
-									// translators: %s: The referrer domain, e.g. example.com.
-									__( 'Couldn’t mark "%s" as spam.', 'jetpack-premium-analytics-pkg' ),
-									domain
-								),
+				// Marked elsewhere since this report loaded, so no Undo: the mark isn't the reader's to remove.
+				if ( code === 'already-spammed' ) {
+					setSpammed( domain, true );
+					createSuccessNotice(
+						sprintf(
+							// translators: %s: The referrer domain, e.g. example.com.
+							__( '"%s" was already marked as spam.', 'jetpack-premium-analytics-pkg' ),
+							domain
+						),
 						{ type: 'snackbar', id: NOTICE_ID }
 					);
 					return;
 				}
+
+				// eslint-disable-next-line no-console -- the notice names no cause, so the code goes where a report can find it
+				console.error( 'Marking a referrer as spam failed:', code ?? error );
+				createErrorNotice(
+					code === 'reach-limit'
+						? __(
+								'You’ve reached the limit of spam referrers for this site.',
+								'jetpack-premium-analytics-pkg'
+							)
+						: sprintf(
+								// translators: %s: The referrer domain, e.g. example.com.
+								__( 'Couldn’t mark "%s" as spam.', 'jetpack-premium-analytics-pkg' ),
+								domain
+							),
+					{ type: 'snackbar', id: NOTICE_ID }
+				);
+				return;
 			}
 
 			setSpammed( domain, true );

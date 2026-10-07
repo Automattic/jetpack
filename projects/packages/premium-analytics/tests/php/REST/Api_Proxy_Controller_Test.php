@@ -1060,8 +1060,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			$read( 'stats/referrers', array( 'period' => 'day' ) );
 			$read( 'stats/referrers', array( 'period' => 'week' ) );
 			$read( 'stats/top-posts' );
+			$read( 'stats/referrers/spam' );
 			$read( 'stats/referrers', array( 'period' => 'day' ) );
-			$this->assertCount( 3, $calls, 'a repeated read is served from the cache' );
+			$this->assertCount( 4, $calls, 'a repeated read is served from the cache' );
 
 			$write = $this->build_data_request( 'POST', 'stats/referrers/spam/new', array( 'domain' => 'spam.example' ), '1.1' );
 			$write->set_body( '' );
@@ -1071,6 +1072,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			$read( 'stats/referrers', array( 'period' => 'day' ) );
 			$read( 'stats/referrers', array( 'period' => 'week' ) );
 			$read( 'stats/top-posts' );
+			$read( 'stats/referrers/spam' );
 		} finally {
 			remove_all_filters( 'pre_http_request' );
 			\Jetpack_Options::delete_option( 'blog_token' );
@@ -1083,6 +1085,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			array(
 				'/rest/v1.1/sites/4242/stats/referrers?period=day',
 				'/rest/v1.1/sites/4242/stats/referrers?period=week',
+				'/rest/v1.1/sites/4242/stats/referrers/spam',
 			),
 			$calls,
 			'every referrers read refetches, while an unrelated stats read stays cached'
