@@ -133,7 +133,7 @@ class File_Browser_Bridge {
 					// Both of these land in the WPCOM URL *path*, and the
 					// manifest path deliberately goes in unescaped, so
 					// these patterns are the only guard on it. See
-					// `get_file_content()` for why escaping is not an option.
+					// `resolve_signed_url()` for why escaping is not an option.
 					'encoded_manifest_path' => array(
 						'type'     => 'string',
 						'required' => true,

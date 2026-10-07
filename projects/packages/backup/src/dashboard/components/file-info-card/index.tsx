@@ -115,9 +115,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				) }
 				{ /*
 				 * A scroll container (`max-height: 320px; overflow: auto`) that
-				 * nothing can put focus in cannot be scrolled by keyboard at all —
-				 * the only focusable thing in this card is Close. `tabIndex={ 0 }`
-				 * makes it a stop; `role="region"` plus a name is what stops that
+				 * nothing can put focus in cannot be scrolled by keyboard at all.
+				 * `tabIndex={ 0 }` makes it a stop; `role="region"` plus a name is what stops that
 				 * stop being an unlabelled mystery when it is reached.
 				 */ }
 				<div

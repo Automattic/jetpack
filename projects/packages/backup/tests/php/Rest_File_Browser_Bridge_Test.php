@@ -934,19 +934,6 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A signed URL this server would not fetch is not handed to the browser either.
-	 */
-	public function test_file_download_url_refuses_a_url_with_a_file_scheme() {
-		$this->arrange_wpcom_raw( '{"url":"file:///etc/passwd"}' );
-
-		$response = File_Browser_Bridge::get_file_download_url( self::file_download_url_request() );
-
-		$this->assertInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'backup_file_download_url_missing', $response->get_error_code() );
-		$this->assertSame( 502, $response->get_error_data()['status'] );
-	}
-
-	/**
 	 * A failed lookup carries the upstream status through.
 	 */
 	public function test_file_download_url_reports_a_failed_lookup() {

@@ -86,6 +86,16 @@ const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
 ];
 
 /**
+ * Whether the manifest path is a database table dump (`dd:wp_users`).
+ *
+ * @param manifestPath - The volume-prefixed manifest path.
+ * @return True for a `dd:` path.
+ */
+function isTableDump( manifestPath: string | undefined ): boolean {
+	return Boolean( manifestPath?.toLowerCase().startsWith( 'dd:' ) );
+}
+
+/**
  * Whether the given manifest path matches one of the patterns above.
  *
  * The `5` in `f5:` is a data-type code, not identity, so the prefix goes.
@@ -99,7 +109,7 @@ function isSensitivePath( manifestPath: string | undefined ): boolean {
 	if ( ! manifestPath ) {
 		return false;
 	}
-	if ( manifestPath.toLowerCase().startsWith( 'dd:' ) ) {
+	if ( isTableDump( manifestPath ) ) {
 		return true;
 	}
 	const path = manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase();
@@ -163,7 +173,8 @@ export default function useFileInfo( file: FileNodeFile ) {
 		contentsLoading,
 		contentsError,
 		// Same reveal rule as the preview. The route itself does not enforce it.
-		canDownload: fileDownload.canDownload && ! awaitingReveal,
+		// Table dumps need a granular download job, which is not implemented.
+		canDownload: fileDownload.canDownload && ! awaitingReveal && ! isTableDump( file.manifestPath ),
 		download: fileDownload.download,
 		isDownloading: fileDownload.isDownloading,
 		downloadFailed: fileDownload.downloadFailed,

@@ -287,7 +287,7 @@ describe( 'sensitive preview gate', () => {
 	} );
 
 	// Table dumps under `sql/` have no extension, only the `dd:` data-type prefix.
-	it( 'hides a database table dump and withholds its download until revealed', async () => {
+	it( 'hides a database table dump and never offers its download', async () => {
 		mockEndpoints( SECRET );
 
 		renderCard( {
@@ -301,9 +301,8 @@ describe( 'sensitive preview gate', () => {
 		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Download file' } ) ).not.toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: /show download/i } ) );
-		await expect(
-			screen.findByRole( 'button', { name: 'Download file' } )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /preview unavailable/i ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Download file' } ) ).not.toBeInTheDocument();
 	} );
 
 	// Two gated files in one tree is what makes the stale-reveal render
