@@ -154,7 +154,7 @@ describe( 'getNewsletterOverviewText', () => {
 				main: 'This post is emailed to ‘Plus’ subscribers who chose these newsletter categories.',
 				categoryNames: [ 'Movies' ],
 				details: [
-					'Plus subscribers on your ‘Plus’ tier who chose ‘All content’.',
+					'Plus paid subscribers who chose ‘All content’.',
 					isPasswordProtected
 						? 'The post stays password protected on your site. Only people with the password can read it there.'
 						: 'Only subscribers on your ‘Plus’ tier can read it on your site.',

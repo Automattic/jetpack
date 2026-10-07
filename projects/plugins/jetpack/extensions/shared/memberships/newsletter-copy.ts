@@ -152,16 +152,7 @@ function getEmailedAudienceText( {
 						)
 					: toCategories[ audience ],
 			categoryNames,
-			details: [
-				isPaid && tierName
-					? sprintf(
-							/* translators: %s: paid newsletter tier name, e.g. "VIP". */
-							__( 'Plus subscribers on your ‘%s’ tier who chose ‘All content’.', 'jetpack' ),
-							tierName
-						)
-					: plusAllContent[ audience ],
-				readAccess,
-			],
+			details: [ plusAllContent[ audience ], readAccess ],
 		};
 	}
 
