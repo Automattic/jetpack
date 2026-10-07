@@ -84,19 +84,6 @@ function NewsletterRepublishTracker() {
 	return null;
 }
 
-function NewsletterPostSettingsPanel( props ) {
-	return (
-		<PluginDocumentSettingPanel
-			className="jetpack-subscribe-newsletter-panel"
-			title={ <NewsletterOverviewTitle accessLevel={ props.accessLevel } /> }
-			icon={ <JetpackEditorPanelLogo /> }
-			name="jetpack-subscribe-newsletters-editor-panel"
-		>
-			<NewsletterOverview { ...props } />
-		</PluginDocumentSettingPanel>
-	);
-}
-
 // Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
 // nor on sites that have not been launched yet.
 const getNewsletterDisabledMessage = () => {
@@ -256,7 +243,6 @@ export default function SubscribePanels( { openPreviewModal } ) {
 	return (
 		<>
 			<NewsletterRepublishTracker />
-			<NewsletterPostSettingsPanel { ...overviewProps } />
 			<NewsletterPrePublishSettingsPanel
 				{ ...overviewProps }
 				openTestEmailModal={ openPrePublishTestEmailModal }
