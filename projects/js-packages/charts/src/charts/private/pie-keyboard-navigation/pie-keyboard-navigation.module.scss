@@ -1,4 +1,16 @@
-.pie-segment--selected {
+// The clip to the segment removes the outer half of each stroke,
+// so widths are doubled.
+.selected-ring__contrast,
+.selected-ring__focus {
+	fill: none;
+}
+
+.selected-ring__contrast {
+	stroke: var(--a8c-charts-color-background);
+	stroke-width: calc(4 * var(--wpds-border-width-focus));
+}
+
+.selected-ring__focus {
 	stroke: var(--wpds-color-stroke-focus);
-	stroke-width: var(--wpds-border-width-focus);
+	stroke-width: calc(2 * var(--wpds-border-width-focus));
 }
