@@ -34,17 +34,6 @@ describe( 'useRememberAppliedPreset', () => {
 		);
 	} );
 
-	it( 'remembers a preset staged and applied in the same tick', () => {
-		const { result } = renderHook( () => useRememberAppliedPreset() );
-
-		act( () => {
-			result.current.onChange( RANGE, 'last-30-days' );
-			result.current.onApply();
-		} );
-
-		expect( remembered() ).toBe( 'last-30-days' );
-	} );
-
 	it( 'does not save again when the reader re-applies the remembered preset', () => {
 		const actions = dispatch( preferencesStore ) as unknown as PreferencesActions;
 		const set = jest.spyOn( actions, 'set' );
@@ -57,6 +46,7 @@ describe( 'useRememberAppliedPreset', () => {
 			result.current.onApply();
 		} );
 
+		expect( remembered() ).toBe( 'last-30-days' );
 		expect( set ).toHaveBeenCalledTimes( 1 );
 		set.mockRestore();
 	} );
@@ -64,13 +54,13 @@ describe( 'useRememberAppliedPreset', () => {
 	it.each( [
 		[ 'a custom range', undefined ],
 		[ 'a year', 'year-2024' ],
-	] )( 'keeps the remembered preset when the reader applies %s', ( _label, presetId ) => {
+	] as const )( 'keeps the remembered preset when the reader applies %s', ( _label, presetId ) => {
 		const { result } = renderHook( () => useRememberAppliedPreset() );
 
 		act( () => {
 			result.current.onChange( RANGE, 'last-30-days' );
 			result.current.onApply();
-			result.current.onChange( RANGE, presetId as never );
+			result.current.onChange( RANGE, presetId );
 			result.current.onApply();
 		} );
 

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	DASHBOARD_PREFERENCES_SCOPE,
 	PERIOD_CHANGE_ATTENTION_MS,
 	queryClient,
 	useRaisePeriodChange,
@@ -11,6 +12,8 @@ import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/da
 import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { dispatch, select } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -41,8 +44,6 @@ let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
 const mockResetLayout = jest.fn();
-const mockRememberOnChange = jest.fn();
-const mockRememberOnApply = jest.fn();
 let mockDateFiltersPanelProps: { onChange: ( ...args: unknown[] ) => void; onApply: () => void };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
@@ -179,12 +180,13 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
+	...jest.requireActual( '@wordpress/components' ),
 	Spinner: () => null,
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+jest.mock( '../use-widget-modules', () => ( { useWidgetModules: () => [] } ) );
 
 /**
  * Reads the scope the dashboard declares, from where the header's date controls
@@ -381,10 +383,8 @@ jest.mock( './hooks', () => ( {
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
-	useRememberAppliedPreset: () => ( {
-		onChange: mockRememberOnChange,
-		onApply: mockRememberOnApply,
-	} ),
+	useRememberAppliedPreset: jest.requireActual( './hooks/use-remember-applied-preset' )
+		.useRememberAppliedPreset,
 	useSectionDateFilter: jest.fn(),
 } ) );
 
@@ -895,6 +895,10 @@ describe( 'Dashboard header date control', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
+	afterEach( () => {
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+	} );
+
 	it( 'renders the control by default', () => {
 		mockSection( { date_filter: DATE_FILTER_RANGE } );
 
@@ -925,8 +929,9 @@ describe( 'Dashboard header date control', () => {
 			mockDateFiltersPanelProps.onApply();
 		} );
 
-		expect( mockRememberOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-30-days' );
-		expect( mockRememberOnApply ).toHaveBeenCalledTimes( 1 );
+		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
+			'last-30-days'
+		);
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {
