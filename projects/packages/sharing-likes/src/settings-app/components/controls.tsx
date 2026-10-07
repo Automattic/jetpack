@@ -1,5 +1,6 @@
 import { CheckboxControl, RadioControl, SelectControl, ToggleControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
+import { Stack } from '@wordpress/ui';
 import type { Settings } from '../types';
 import type { DeepPartial, NormalizedField } from '@wordpress/dataviews';
 import type { JSX } from 'react';
@@ -192,7 +193,7 @@ export function CheckboxGroupEdit( { data, field, onChange }: EditProps ): JSX.E
 	);
 
 	return (
-		<fieldset>
+		<Stack render={ <fieldset /> } direction="column" gap="sm">
 			<legend className="screen-reader-text">{ field.label }</legend>
 			{ ( field.elements ?? [] ).map( ( { value, label } ) => (
 				<GroupCheckbox
@@ -203,6 +204,6 @@ export function CheckboxGroupEdit( { data, field, onChange }: EditProps ): JSX.E
 					onToggle={ handleToggle }
 				/>
 			) ) }
-		</fieldset>
+		</Stack>
 	);
 }

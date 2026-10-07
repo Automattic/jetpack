@@ -4,34 +4,27 @@
 // DataForm's layout and spacing live in the DataViews stylesheet.
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
-// The content column other Jetpack wp-build pages use (708px with gutters).
-$column: 660px;
-$gutter: 24px;
-$divider: 1px solid #f0f0f0;
-
 body.settings_page_sharing {
 
 	@include jetpack-admin-page-layout-wp-build;
 }
 
+// The content column other Jetpack wp-build pages use.
 .jetpack-sharing-likes {
 	box-sizing: border-box;
-	max-inline-size: $column + 2 * $gutter;
+	max-inline-size: 708px;
 	margin-inline: auto;
-	padding: $gutter;
+	padding: var(--wpds-dimension-padding-2xl);
 }
 
 .jetpack-sharing-likes__box {
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	background: #fff;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	background: var(--wpds-color-background-surface-neutral-strong);
 }
 
 .jetpack-sharing-likes__box-header {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 20px $gutter;
+	padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
 }
 
 .jetpack-sharing-likes__box-icon {
@@ -39,44 +32,28 @@ body.settings_page_sharing {
 	fill: currentColor;
 }
 
-.jetpack-sharing-likes__box-title {
+// wp-admin gives every h2 and p its own margins.
+.jetpack-sharing-likes__box-title,
+.jetpack-sharing-likes__box-row p {
 	margin: 0;
-	font-size: 18px;
-	font-weight: 400;
 }
 
 .jetpack-sharing-likes__box-badge {
-	color: #757575;
-	font-size: 14px;
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .jetpack-sharing-likes__box-description {
 	margin: 0;
-	padding: 0 $gutter 20px;
-	border-block-end: $divider;
-	font-size: 14px;
+	padding: 0 var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 }
 
 .jetpack-sharing-likes__box-row {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	padding: 20px $gutter;
+	padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
 
 	& + & {
-		border-block-start: $divider;
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
-
-	p {
-		margin: 0;
-	}
-}
-
-// Placement checkboxes would otherwise sit flush against each other.
-.jetpack-sharing-likes__box-row fieldset {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
 }
 
 // Focused after "Turn on" or "Switch to the … block", never tabbed to.

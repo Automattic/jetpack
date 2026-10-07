@@ -1,4 +1,5 @@
 import { Icon } from '@wordpress/icons';
+import { Stack, Text } from '@wordpress/ui';
 import type { JSX, ReactElement, ReactNode } from 'react';
 
 /**
@@ -30,12 +31,24 @@ export function SectionBox( {
 } ): JSX.Element {
 	return (
 		<section id={ id } className="jetpack-sharing-likes__box">
-			<header className="jetpack-sharing-likes__box-header">
+			<Stack
+				render={ <header /> }
+				direction="row"
+				align="center"
+				gap="md"
+				className="jetpack-sharing-likes__box-header"
+			>
 				<Icon icon={ icon } className="jetpack-sharing-likes__box-icon" />
-				<h2 className="jetpack-sharing-likes__box-title">{ title }</h2>
-				{ badge && <span className="jetpack-sharing-likes__box-badge">{ badge }</span> }
-			</header>
-			{ description && <p className="jetpack-sharing-likes__box-description">{ description }</p> }
+				<Text variant="heading-lg" render={ <h2 /> } className="jetpack-sharing-likes__box-title">
+					{ title }
+				</Text>
+				{ badge && <Text className="jetpack-sharing-likes__box-badge">{ badge }</Text> }
+			</Stack>
+			{ description && (
+				<Text render={ <p /> } className="jetpack-sharing-likes__box-description">
+					{ description }
+				</Text>
+			) }
 			{ children }
 		</section>
 	);
@@ -49,5 +62,9 @@ export function SectionBox( {
  * @return Row.
  */
 export function BoxRow( { children }: { children: ReactNode } ): JSX.Element {
-	return <div className="jetpack-sharing-likes__box-row">{ children }</div>;
+	return (
+		<Stack direction="column" gap="md" className="jetpack-sharing-likes__box-row">
+			{ children }
+		</Stack>
+	);
 }
