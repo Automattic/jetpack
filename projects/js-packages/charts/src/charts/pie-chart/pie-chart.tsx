@@ -1,5 +1,5 @@
 import { Group } from '@visx/group';
-import { Pie } from '@visx/shape';
+import { arc, pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
@@ -43,7 +43,11 @@ import type {
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
+import type { PieProvidedProps } from '@visx/shape';
 import type { JSX, SVGProps, MouseEvent, ReactNode, FC } from 'react';
+
+type PieDatum = DataPointPercentageCalculated & { index: number };
+type PieArcDatum = PieProvidedProps< PieDatum >[ 'arcs' ][ number ];
 
 /**
  * Parameters passed to the renderTooltip function for pie charts.
@@ -383,6 +387,9 @@ const PieChartInternal = ( {
 						? Math.min( cornerScale * outerRadius, maxCornerRadius )
 						: 0;
 
+					const path = arc< PieArcDatum >( { innerRadius, outerRadius, cornerRadius } );
+					const arcs = pie< PieDatum >( { value: accessors.value, padAngle } )( dataWithIndex );
+
 					return (
 						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
 							<svg
@@ -411,100 +418,89 @@ const PieChartInternal = ( {
 											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
-										<Pie< DataPointPercentageCalculated & { index: number } >
-											data={ dataWithIndex }
-											pieValue={ accessors.value }
-											outerRadius={ outerRadius }
-											innerRadius={ innerRadius }
-											padAngle={ padAngle }
-											cornerRadius={ cornerRadius }
-										>
-											{ pie => {
-												return pie.arcs.map( ( arc, index ) => {
-													const [ centroidX, centroidY ] = pie.path.centroid( arc );
-													const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-													const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
-														if ( ! withTooltips ) {
-															return;
-														}
+										arcs.map( ( arcDatum, index ) => {
+											const [ centroidX, centroidY ] = path.centroid( arcDatum );
+											const hasSpaceForLabel = arcDatum.endAngle - arcDatum.startAngle >= 0.25;
+											const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
+												if ( ! withTooltips ) {
+													return;
+												}
 
-														const bounds = containerRef.current?.getBoundingClientRect();
-														if ( ! bounds ) {
-															return;
-														}
+												const bounds = containerRef.current?.getBoundingClientRect();
+												if ( ! bounds ) {
+													return;
+												}
 
-														showTooltip( {
-															tooltipData: arc.data,
-															tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
-															tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
-														} );
-													};
-
-													const fill = accessors.fill( arc.data );
-													const pathProps: SVGProps< SVGPathElement > & {
-														'data-testid'?: string;
-													} = {
-														d: pie.path( arc ) || '',
-														fill,
-														'data-testid': 'pie-segment',
-													};
-
-													const groupProps: SVGProps< SVGGElement > = {};
-													if ( withTooltips ) {
-														groupProps.onMouseMove = handleMouseMove;
-														groupProps.onMouseLeave = onMouseLeave;
-													}
-
-													const svgLabelSmall = providerTheme.svgLabelSmall;
-													const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
-													const estimatedTextWidth = getStringWidth( arc.data.label, {
-														fontSize,
-														fontFamily: svgLabelSmall?.fontFamily,
-														fontWeight: svgLabelSmall?.fontWeight,
-													} );
-													const labelPadding = 6;
-													const backgroundWidth = estimatedTextWidth + labelPadding * 2;
-													const backgroundHeight = fontSize + labelPadding * 2;
-
-													return (
-														<g key={ `arc-${ index }` } { ...groupProps }>
-															<path { ...pathProps } />
-															{ showLabels && hasSpaceForLabel && (
-																<g>
-																	<rect
-																		className={ styles[ 'pie-chart__label-plate' ] }
-																		x={ centroidX - backgroundWidth / 2 }
-																		y={ centroidY - backgroundHeight / 2 }
-																		width={ backgroundWidth }
-																		height={ backgroundHeight }
-																		rx={ 4 }
-																		ry={ 4 }
-																		pointerEvents="none"
-																	/>
-																	<text
-																		className={ clsx(
-																			styles[ 'pie-chart__label-text' ],
-																			LABEL_TEXT_MODIFIER[
-																				pickLabelTextColor( fill, labelRoles, 'label-inverse' )
-																			]
-																		) }
-																		data-testid="pie-label"
-																		x={ centroidX }
-																		y={ centroidY }
-																		dy=".33em"
-																		fontSize={ fontSize }
-																		textAnchor="middle"
-																		pointerEvents="none"
-																	>
-																		{ arc.data.label }
-																	</text>
-																</g>
-															) }
-														</g>
-													);
+												showTooltip( {
+													tooltipData: arcDatum.data,
+													tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
+													tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
 												} );
-											} }
-										</Pie>
+											};
+
+											const fill = accessors.fill( arcDatum.data );
+											const pathProps: SVGProps< SVGPathElement > & {
+												'data-testid'?: string;
+											} = {
+												d: path( arcDatum ) || '',
+												fill,
+												'data-testid': 'pie-segment',
+											};
+
+											const groupProps: SVGProps< SVGGElement > = {};
+											if ( withTooltips ) {
+												groupProps.onMouseMove = handleMouseMove;
+												groupProps.onMouseLeave = onMouseLeave;
+											}
+
+											const svgLabelSmall = providerTheme.svgLabelSmall;
+											const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
+											const estimatedTextWidth = getStringWidth( arcDatum.data.label, {
+												fontSize,
+												fontFamily: svgLabelSmall?.fontFamily,
+												fontWeight: svgLabelSmall?.fontWeight,
+											} );
+											const labelPadding = 6;
+											const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+											const backgroundHeight = fontSize + labelPadding * 2;
+
+											return (
+												<g key={ `arc-${ index }` } { ...groupProps }>
+													<path { ...pathProps } />
+													{ showLabels && hasSpaceForLabel && (
+														<g>
+															<rect
+																className={ styles[ 'pie-chart__label-plate' ] }
+																x={ centroidX - backgroundWidth / 2 }
+																y={ centroidY - backgroundHeight / 2 }
+																width={ backgroundWidth }
+																height={ backgroundHeight }
+																rx={ 4 }
+																ry={ 4 }
+																pointerEvents="none"
+															/>
+															<text
+																className={ clsx(
+																	styles[ 'pie-chart__label-text' ],
+																	LABEL_TEXT_MODIFIER[
+																		pickLabelTextColor( fill, labelRoles, 'label-inverse' )
+																	]
+																) }
+																data-testid="pie-label"
+																x={ centroidX }
+																y={ centroidY }
+																dy=".33em"
+																fontSize={ fontSize }
+																textAnchor="middle"
+																pointerEvents="none"
+															>
+																{ arcDatum.data.label }
+															</text>
+														</g>
+													) }
+												</g>
+											);
+										} )
 									) }
 
 									{ /* Render SVG children (like Group, Text) inside the SVG */ }
