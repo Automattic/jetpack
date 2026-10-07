@@ -5,6 +5,7 @@ import {
 	buildMetricTab,
 	MetricTabsChart,
 	WidgetState,
+	type ChartDisplayChartType,
 	type DataFormat,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
@@ -44,6 +45,8 @@ type ReportMetricChartProps = {
 	countLabel?: ( count: number ) => string;
 	/** How the metric's values are written. */
 	dataFormat: DataFormat;
+	/** How the series is drawn. `MetricTabsChart` owns the default. */
+	chartType?: ChartDisplayChartType;
 	emptyText: string;
 	errorText: string;
 };
@@ -60,6 +63,7 @@ export function ReportMetricChart( {
 	label,
 	countLabel,
 	dataFormat,
+	chartType,
 	emptyText,
 	errorText,
 }: ReportMetricChartProps ) {
@@ -98,7 +102,7 @@ export function ReportMetricChart( {
 				} }
 				empty={ { icon: chartBar, description: emptyText } }
 			>
-				<MetricTabsChart metrics={ metrics } dataFormat={ dataFormat } />
+				<MetricTabsChart metrics={ metrics } dataFormat={ dataFormat } chartType={ chartType } />
 			</WidgetState>
 		</div>
 	);

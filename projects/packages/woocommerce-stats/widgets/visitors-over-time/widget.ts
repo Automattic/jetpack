@@ -1,14 +1,21 @@
 /**
  * External dependencies
  */
-import { seen } from '@wordpress/icons';
+import {
+	chartTypeAttributeField,
+	type ChartDisplayChartType,
+} from '@automattic/jetpack-premium-analytics-sdk';
+import { chartBar } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * No configurable attributes; the empty record allows host-provided fields, such as the report
- * params.
+ * @property chartType - How the series is drawn. Defaults to `line`.
  */
-export type VisitorsOverTimeAttributes = Record< never, never >;
+export type VisitorsOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 export default {
-	icon: seen,
+	icon: chartBar,
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< VisitorsOverTimeAttributes >[],
 };

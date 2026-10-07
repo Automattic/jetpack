@@ -4,6 +4,7 @@
 import {
 	useWidgetRootContext,
 	WidgetRoot,
+	type ChartDisplayChartType,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __, _n } from '@wordpress/i18n';
@@ -25,14 +26,17 @@ const countLabel = ( count: number ) =>
 /**
  * Visitors of the visitors report, read under the widget root for its report params.
  *
+ * @param {object}                props             - The component props.
+ * @param {ChartDisplayChartType} [props.chartType] - How the series is drawn.
  * @return {JSX.Element} The chart.
  */
-function VisitorsOverTime() {
+function VisitorsOverTime( { chartType }: { chartType?: ChartDisplayChartType } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	return (
 		<ReportMetricChart
 			report={ useReportVisitors( reportParams ) }
+			chartType={ chartType }
 			field="visitors"
 			label={ __( 'Visitors', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }
@@ -57,7 +61,7 @@ export default function VisitorsOverTimeRender( {
 }: WidgetRenderProps< VisitorsOverTimeRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<VisitorsOverTime />
+			<VisitorsOverTime chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }
