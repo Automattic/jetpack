@@ -33,7 +33,7 @@ function getFeatureDestinations(): LauncherDestination[] {
 	const state = getMyJetpackWindowInitialState();
 	const mainFeatures = state?.mainFeatures;
 
-	// Null with the Features tab off; absent from a plugin carrying an older copy of this package.
+	// Absent from a plugin carrying an older copy of this package.
 	if ( ! mainFeatures || ! Array.isArray( mainFeatures.features ) ) {
 		return [];
 	}
