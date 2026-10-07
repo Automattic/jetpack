@@ -481,6 +481,20 @@ describe( 'HeatmapChart', () => {
 		document.body.removeChild( scope );
 	} );
 
+	test( 'reads the computed style once per re-render for the fill scale', () => {
+		const { rerender } = renderChart();
+		const spy = jest.spyOn( window, 'getComputedStyle' );
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
+			</GlobalChartsProvider>
+		);
+
+		expect( spy ).toHaveBeenCalledTimes( 1 );
+		spy.mockRestore();
+	} );
+
 	test( 'paints a zero as an empty cell, still announcing its value', () => {
 		renderChart();
 		const zero = screen.getByRole( 'gridcell', { name: 'W2: 0' } );

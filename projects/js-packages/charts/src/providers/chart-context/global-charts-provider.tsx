@@ -13,6 +13,7 @@ import {
 import '../../styles/chart-scope.scss';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import {
+	createCssVariableResolver,
 	getItemShapeStyles,
 	getSeriesBarStyles,
 	getSeriesLineStyles,
@@ -132,11 +133,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			}
 		}
 
+		const resolveAtWrapper = createCssVariableResolver( wrapperRef.current );
 		const backgroundHex =
-			resolveOpaqueHex( CATALOG_POINTERS.background, wrapperRef.current ) ?? BACKGROUND_FALLBACK;
+			resolveOpaqueHex( CATALOG_POINTERS.background, resolveAtWrapper ) ?? BACKGROUND_FALLBACK;
 		// The two roles pie labels choose between on a fill; one left see-through is never painted there.
 		const labelColors = [ CATALOG_POINTERS.label, CATALOG_POINTERS.labelInverse ]
-			.map( pointer => resolveOpaqueHex( pointer, wrapperRef.current ) )
+			.map( pointer => resolveOpaqueHex( pointer, resolveAtWrapper ) )
 			.filter( ( hex ): hex is string => hex !== null );
 
 		setColorCache( {
