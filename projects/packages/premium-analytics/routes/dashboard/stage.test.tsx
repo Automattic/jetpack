@@ -53,7 +53,6 @@ jest.mock( '../site-readiness', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {

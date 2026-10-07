@@ -167,25 +167,3 @@ export function getDefaultIntervalForPeriod(
 ): IntervalType {
 	return resolveIntervalForRange( preset, from, to );
 }
-
-export function getDateFormatFromInterval(
-	preset: PrimaryPresetId | undefined,
-	from: string,
-	to: string
-): string {
-	const interval = getDefaultIntervalForPeriod( preset, from, to );
-
-	switch ( interval ) {
-		case 'hour':
-			return 'HH:mm';
-		case 'day':
-		case 'week':
-			return 'MMM d';
-		case 'month':
-			return 'MMM yyyy';
-		case 'year':
-			return 'yyyy';
-		default:
-			return 'MMM d';
-	}
-}

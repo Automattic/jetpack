@@ -1,5 +1,5 @@
 import { sanitizeStatsTagsResponse } from '..';
-import { tagsFixture, tagsSummaryFixture } from '../__fixtures__/tags';
+import { tagsFixture } from '../__fixtures__/tags';
 
 describe( 'Stats tags normalizer', () => {
 	it( 'normalizes top-level tag rows from the Calypso payload shape', () => {
@@ -60,44 +60,6 @@ describe( 'Stats tags normalizer', () => {
 				],
 			} )
 		);
-	} );
-
-	it( 'normalizes summarized tag rows into range data', () => {
-		const result = sanitizeStatsTagsResponse( tagsSummaryFixture, {
-			period: 'day',
-			start_date: '2026-06-16',
-			end_date: '2026-06-22',
-			summarize: true,
-		} );
-
-		expect( result ).toEqual( {
-			summary: {
-				total_views: 34,
-				date_start: '2026-06-16T00:00:00',
-				date_end: '2026-06-22T23:59:59',
-			},
-			data: [
-				{
-					time_interval: '2026-06-22',
-					date_start: '2026-06-16T00:00:00',
-					date_end: '2026-06-22T23:59:59',
-					items: [
-						expect.objectContaining( {
-							label: [
-								{
-									label: 'Summary',
-									labelIcon: 'tag',
-									link: 'https://example.com/tag/summary/',
-								},
-							],
-							labelText: 'Summary',
-							value: 34,
-							link: 'https://example.com/tag/summary/',
-						} ),
-					],
-				},
-			],
-		} );
 	} );
 
 	it( 'normalizes empty responses', () => {

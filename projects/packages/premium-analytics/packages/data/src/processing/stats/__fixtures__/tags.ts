@@ -29,23 +29,3 @@ export const tagsFixture = {
 		},
 	],
 };
-
-export const tagsSummaryFixture = {
-	date: '2026-06-22',
-	period: 'day',
-	summary: {
-		tags: [
-			{
-				tags: [
-					{
-						type: 'tag',
-						name: 'Summary',
-						link: 'https://example.com/tag/summary/',
-					},
-				],
-				views: '34',
-			},
-		],
-		total_views: '34',
-	},
-};

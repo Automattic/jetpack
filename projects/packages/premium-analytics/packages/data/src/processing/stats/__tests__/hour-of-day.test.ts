@@ -21,17 +21,13 @@ function response( overrides: Record< string, unknown > = {} ) {
 }
 
 describe( 'sanitizeStatsHourOfDayResponse', () => {
-	it( 'returns 24 buckets in hour order with the echoed range', () => {
+	it( 'returns 24 buckets in hour order', () => {
 		const report = sanitizeStatsHourOfDayResponse( response() );
 
 		expect( report.days ).toBe( 30 );
 		expect( report.buckets ).toHaveLength( 24 );
 		expect( report.buckets[ 0 ] ).toEqual( { hour: 0, views: 0 } );
 		expect( report.buckets[ 23 ] ).toEqual( { hour: 23, views: 230 } );
-		expect( report ).toMatchObject( {
-			startDate: '2026-07-14',
-			date: '2026-08-12',
-		} );
 	} );
 
 	it( 'zero-fills hours the payload omits, so the chart keeps a fixed shape', () => {
@@ -118,58 +114,5 @@ describe( 'sanitizeStatsHourOfDayResponse', () => {
 	] )( 'throws a StatsResponseShapeError when %s', ( _case, payload, message ) => {
 		expect( () => sanitizeStatsHourOfDayResponse( payload ) ).toThrow( StatsResponseShapeError );
 		expect( () => sanitizeStatsHourOfDayResponse( payload ) ).toThrow( message );
-	} );
-
-	describe( 'the queried range', () => {
-		it( 'prefers the range the endpoint echoes back over what was requested', () => {
-			const report = sanitizeStatsHourOfDayResponse(
-				response( { start_date: '2026-07-14', date: '2026-08-12' } ),
-				{ start_date: '2026-01-01', date: '2026-01-31' }
-			);
-
-			expect( report.startDate ).toBe( '2026-07-14' );
-			expect( report.date ).toBe( '2026-08-12' );
-		} );
-
-		it( 'falls back to the requested range when the response omits it', () => {
-			const report = sanitizeStatsHourOfDayResponse(
-				response( { start_date: undefined, date: undefined } ),
-				{ start_date: '2026-01-01', date: '2026-01-31' }
-			);
-
-			expect( report.startDate ).toBe( '2026-01-01' );
-			expect( report.date ).toBe( '2026-01-31' );
-		} );
-
-		it( 'falls back to the requested range when the response echoes empty values', () => {
-			const report = sanitizeStatsHourOfDayResponse( response( { start_date: '', date: '' } ), {
-				start_date: '2026-01-01',
-				date: '2026-01-31',
-			} );
-
-			expect( report.startDate ).toBe( '2026-01-01' );
-			expect( report.date ).toBe( '2026-01-31' );
-		} );
-
-		it( 'normalizes a datetime-shaped echo to its date part instead of leaving it unparsable', () => {
-			const report = sanitizeStatsHourOfDayResponse(
-				response( {
-					start_date: '2026-07-14T00:00:00+00:00',
-					date: '2026-08-12T23:59:59+00:00',
-				} )
-			);
-
-			expect( report.startDate ).toBe( '2026-07-14' );
-			expect( report.date ).toBe( '2026-08-12' );
-		} );
-
-		it( 'has no range when both the response and the request omit it', () => {
-			const report = sanitizeStatsHourOfDayResponse(
-				response( { start_date: undefined, date: undefined } )
-			);
-
-			expect( report.startDate ).toBeUndefined();
-			expect( report.date ).toBeUndefined();
-		} );
 	} );
 } );

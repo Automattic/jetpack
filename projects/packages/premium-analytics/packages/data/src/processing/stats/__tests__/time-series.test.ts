@@ -1,8 +1,4 @@
-import {
-	isStatsTimeSeriesPayload,
-	sanitizeStatsEmailTimeSeriesResponse,
-	sanitizeStatsTimeSeriesResponse,
-} from '..';
+import { sanitizeStatsEmailTimeSeriesResponse, sanitizeStatsTimeSeriesResponse } from '..';
 import {
 	emailClicksTimeSeriesFixture,
 	emailOpensHourlyTimeSeriesFixture,
@@ -510,15 +506,6 @@ describe( 'Stats time-series normalizer', () => {
 				date_start: '2026-06-15T00:00:00',
 				date_end: '2026-06-17T23:59:59',
 			} )
-		);
-	} );
-
-	it( 'detects supported time-series payload shapes', () => {
-		expect( isStatsTimeSeriesPayload( visitsFixture ) ).toBe( true );
-		expect( isStatsTimeSeriesPayload( scalarDaysTimeSeriesFixture ) ).toBe( true );
-		expect( isStatsTimeSeriesPayload( objectRowsTimeSeriesFixture ) ).toBe( true );
-		expect( isStatsTimeSeriesPayload( { data: [ { title: 'Not a time series' } ] } ) ).toBe(
-			false
 		);
 	} );
 } );

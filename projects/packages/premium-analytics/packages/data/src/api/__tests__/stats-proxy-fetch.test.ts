@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { fetchReport, fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
+import { fetchReport, fetchStatsProxy } from '../stats-proxy-fetch';
 
 jest.mock( '@wordpress/api-fetch' );
 
@@ -25,26 +25,36 @@ function setSimpleScriptData( blogId = 191664832 ) {
 	} );
 }
 
-describe( 'getStatsProxyPath', () => {
+describe( 'fetchStatsProxy request path', () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( {} );
+	} );
+
 	afterEach( () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'preserves comma-separated UTM endpoint segments', () => {
-		expect(
-			getStatsProxyPath( {
+	const requestedPath = async ( params: Parameters< typeof fetchStatsProxy >[ 0 ] ) => {
+		await fetchStatsProxy( params );
+		return mockApiFetch.mock.calls[ 0 ][ 0 ].path;
+	};
+
+	it( 'preserves comma-separated UTM endpoint segments', async () => {
+		await expect(
+			requestedPath( {
 				version: '1.1',
 				endpoint: 'stats/utm/utm_source,utm_medium',
 				params: { period: 'month' },
 			} )
-		).toBe(
+		).resolves.toBe(
 			'/jetpack-premium-analytics/v1/proxy/v1.1/stats/utm/utm_source,utm_medium?period=month'
 		);
 	} );
 
-	it( 'omits nullish query params', () => {
-		expect(
-			getStatsProxyPath( {
+	it( 'omits nullish query params', async () => {
+		await expect(
+			requestedPath( {
 				version: '1.1',
 				endpoint: 'stats/visits',
 				params: {
@@ -53,50 +63,51 @@ describe( 'getStatsProxyPath', () => {
 					start_date: null,
 				} as never,
 			} )
-		).toBe( '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits?period=day' );
+		).resolves.toBe( '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits?period=day' );
 	} );
 
-	it( 'does not overwrite an explicit site query on Simple global requests', () => {
+	it( 'does not overwrite an explicit site query on Simple global requests', async () => {
 		setSimpleScriptData( 67890 );
 
-		expect(
-			getStatsProxyPath( {
+		await expect(
+			requestedPath( {
 				version: '1.2',
 				endpoint: '/upgrades',
 				params: { site: 41 },
 				global: true,
 			} )
-		).toBe( '/rest/v1.2/upgrades?site=41' );
+		).resolves.toBe( '/rest/v1.2/upgrades?site=41' );
 	} );
 
-	it( 'does not scope a request as global on Simple without opting in', () => {
+	it( 'does not scope a request as global on Simple without opting in', async () => {
 		setSimpleScriptData( 67890 );
 
 		// No `global: true` — treated as an ordinary site-scoped request even
 		// though the endpoint name is `upgrades`, since the resolver no longer
 		// infers `global` from the endpoint string.
-		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades' } ) ).toBe(
+		await expect( requestedPath( { version: '1.2', endpoint: '/upgrades' } ) ).resolves.toBe(
 			'/rest/v1.2/upgrades'
 		);
 	} );
 
-	it( 'throws for a Simple global request with no site to scope to', () => {
+	it( 'throws for a Simple global request with no site to scope to', async () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
 			value: { site: { host: 'wpcom' } },
 		} );
 
-		expect( () =>
-			getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } )
-		).toThrow( /has no site to scope to/ );
+		await expect(
+			fetchStatsProxy( { version: '1.2', endpoint: '/upgrades', global: true } )
+		).rejects.toThrow( /has no site to scope to/ );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'does not require a site for a non-Simple global request', () => {
+	it( 'does not require a site for a non-Simple global request', async () => {
 		// Local proxy path is unaffected by `global` — the flag only changes
 		// Simple's public-api dispatch, so a missing blog id shouldn't throw here.
-		expect( getStatsProxyPath( { version: '1.2', endpoint: '/upgrades', global: true } ) ).toBe(
-			'/jetpack-premium-analytics/v1/proxy/v1.2/upgrades'
-		);
+		await expect(
+			requestedPath( { version: '1.2', endpoint: '/upgrades', global: true } )
+		).resolves.toBe( '/jetpack-premium-analytics/v1/proxy/v1.2/upgrades' );
 	} );
 } );
 
