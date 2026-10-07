@@ -96,6 +96,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					ariaLabel={ __( 'Post views', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>

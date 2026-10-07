@@ -135,6 +135,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					baseline="padded"
+					ariaLabel={ __( 'Subscriber summary', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
