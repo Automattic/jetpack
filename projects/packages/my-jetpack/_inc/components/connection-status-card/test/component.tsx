@@ -20,6 +20,23 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	};
 } );
 
+// Answered from the page's products, so the card never waits on the request.
+jest.mock( '../../../data/products/use-all-products', () => {
+	const { prepareProductData } = jest.requireActual( '../../../data/utils/prepare-product-data' );
+
+	return {
+		useAllProducts: () => ( {
+			data: Object.fromEntries(
+				Object.entries( globalThis.myJetpackInitialState.products.items ).map(
+					( [ slug, product ] ) => [ slug, prepareProductData( product ) ]
+				)
+			),
+			isLoading: false,
+			isError: false,
+		} ),
+	};
+} );
+
 const mockRecordEvent = jest.fn();
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -148,7 +165,7 @@ beforeEach( () => {
 const needAnAccount = () => {
 	Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
 		requires_user_connection: true,
-		status: 'active',
+		is_plugin_active: true,
 	} );
 };
 
@@ -244,6 +261,28 @@ describe( 'ConnectionStatusCard', () => {
 				setup();
 				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
+
+			it.each( [ 'active', 'can_upgrade' ] )(
+				'keeps asking while its plugin is on, as %s, whatever the plan',
+				status => {
+					asAdmin();
+					setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
+					Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
+						requires_user_connection: true,
+						is_plugin_active: true,
+						status,
+					} );
+					render(
+						<Providers>
+							<ConnectionStatusCard { ...testProps } />
+						</Providers>
+					);
+
+					expect(
+						screen.getByRole( 'button', { name: 'Connect my account' } )
+					).toBeInTheDocument();
+				}
+			);
 
 			it( 'renders the correct user connection line item', () => {
 				setup();

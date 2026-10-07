@@ -135,16 +135,22 @@ describe( 'useConnectionState — a site connected without an account', () => {
 	} );
 } );
 
-describe( 'useConnectionState — a live error on a connected account', () => {
-	it( 'takes the package title as its label and leaves the copy to the package', () => {
-		setConnectionStore( { isUserConnected: true, connectionErrors: siteTokenBroken } );
+describe( 'useConnectionState — a live error with no account prompt to keep', () => {
+	it.each( [
+		[ 'on a connected account', true, true ],
+		[ 'on a site connection when nothing in use needs an account', false, false ],
+	] )(
+		'takes the package title as its label and leaves the copy to the package %s',
+		( _, isUserConnected, shouldAskForUserConnection ) => {
+			setConnectionStore( { isUserConnected, connectionErrors: siteTokenBroken } );
 
-		const { result } = renderConnectionState();
+			const { result } = renderConnectionState( shouldAskForUserConnection );
 
-		expect( result.current ).toEqual( {
-			label: 'Jetpack Connection error: Site connection',
-			status: 'error',
-			isDiagnosis: true,
-		} );
-	} );
+			expect( result.current ).toEqual( {
+				label: 'Jetpack Connection error: Site connection',
+				status: 'error',
+				isDiagnosis: true,
+			} );
+		}
+	);
 } );

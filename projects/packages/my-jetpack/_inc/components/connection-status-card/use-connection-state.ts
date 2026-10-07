@@ -61,15 +61,16 @@ export function useConnectionState(
 
 	// We are here, which means the site is connected.
 
-	if ( isUserConnected ) {
-		if ( error.hasConnectionError ) {
-			return {
-				label: error.errorTitle,
-				status: error.severity ?? 'error',
-				isDiagnosis: true,
-			};
-		}
+	// With no account prompt to keep, a live error is the whole story.
+	if ( error.hasConnectionError && ( isUserConnected || ! shouldAskForUserConnection ) ) {
+		return {
+			label: error.errorTitle,
+			status: error.severity ?? 'error',
+			isDiagnosis: true,
+		};
+	}
 
+	if ( isUserConnected ) {
 		return {
 			label: __( 'Site and account connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
@@ -77,20 +78,17 @@ export function useConnectionState(
 		};
 	}
 
-	// Connecting the account stays the prompt; a live error only tints the line, at
-	// the package's severity.
-	let status: ConnectionState[ 'status' ] = shouldAskForUserConnection ? 'warning' : 'success';
-	if ( error.hasConnectionError ) {
-		status = error.severity ?? 'error';
-	}
-
 	if ( ! shouldAskForUserConnection ) {
 		return {
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
-			status,
+			status: 'success',
 		};
 	}
+
+	// Connecting the account stays the prompt; a live error only tints the line, at
+	// the package's severity.
+	const status = error.hasConnectionError ? ( error.severity ?? 'error' ) : 'warning';
 
 	// If the user is not an admin, they can't connect their account unless an admin has connected their account.
 	if ( ! currentUserCan( 'manage_options' ) && ! hasConnectedOwner ) {
