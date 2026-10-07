@@ -5,6 +5,7 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@tanstack/react-query": "5.102.8",
 		"@types/react": "18.3.31",
+		"@wordpress/a11y": "4.55.0",
 		"@wordpress/admin-ui": "2.10.0",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/components": "40.1.0",

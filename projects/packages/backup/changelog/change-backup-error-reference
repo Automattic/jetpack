@@ -1,5 +1,5 @@
 Significance: patch
-Type: added
-Comment: Show a copyable error code and related ID under each error in the modernized dashboard, which is behind a feature flag; forward WordPress.com's error code from the legacy routes.
+Type: changed
+Comment: The modernized dashboard, behind a feature flag, also shows a copyable error code and related ID under each error.
 
-
+Include WordPress.com's error reason in failed backup REST responses.

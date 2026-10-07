@@ -1,8 +1,9 @@
+import { speak } from '@wordpress/a11y';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
-import { IconButton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { IconButton, Stack, Text } from '@wordpress/ui';
 import type { FailureReference, ReferenceId } from '../../types/failure-reference';
 
 const COPIED_FOR_MS = 3000;
@@ -38,15 +39,17 @@ function formatId( id: ReferenceId ): string {
  * @return The line, or an empty string when there is nothing to quote.
  */
 export function formatReference( reference: FailureReference ): string {
-	const parts: string[] = [];
+	let code = '';
 	if ( reference.code ) {
 		/* translators: %s: machine-readable error code, quoted to support. */
-		parts.push( sprintf( __( 'Error code: %s', 'jetpack-backup-pkg' ), reference.code ) );
+		code = sprintf( __( 'Error code: %s', 'jetpack-backup-pkg' ), reference.code );
 	}
-	if ( reference.id ) {
-		parts.push( formatId( reference.id ) );
+	const id = reference.id ? formatId( reference.id ) : '';
+	if ( code && id ) {
+		/* translators: 1: the labelled error code. 2: the labelled ID, such as "Restore ID: 7". */
+		return sprintf( __( '%1$s · %2$s', 'jetpack-backup-pkg' ), code, id );
 	}
-	return parts.join( ' · ' );
+	return code || id;
 }
 
 /**
@@ -57,17 +60,21 @@ export function formatReference( reference: FailureReference ): string {
  */
 export default function ErrorReference( reference: FailureReference ) {
 	const text = formatReference( reference );
-	const [ copied, setCopied ] = useState( false );
+	// A fresh value per copy, so copying again restarts the check mark's timer.
+	const [ copiedAt, setCopiedAt ] = useState< number | null >( null );
 	// Falls back to `execCommand` where `navigator.clipboard` is missing, as on plain-HTTP sites.
-	const ref = useCopyToClipboard< HTMLButtonElement >( text, () => setCopied( true ) );
+	const ref = useCopyToClipboard< HTMLButtonElement >( text, () => {
+		setCopiedAt( Date.now() );
+		speak( __( 'Copied', 'jetpack-backup-pkg' ) );
+	} );
 
 	useEffect( () => {
-		if ( ! copied ) {
+		if ( copiedAt === null ) {
 			return;
 		}
-		const timer = setTimeout( () => setCopied( false ), COPIED_FOR_MS );
+		const timer = setTimeout( () => setCopiedAt( null ), COPIED_FOR_MS );
 		return () => clearTimeout( timer );
-	}, [ copied ] );
+	}, [ copiedAt ] );
 
 	if ( ! text ) {
 		return null;
@@ -78,22 +85,15 @@ export default function ErrorReference( reference: FailureReference ) {
 			<Text variant="body-sm" className="jpb-text-muted">
 				{ text }
 			</Text>
+			{ /* A fixed label: `speak()` reports the copy, and renaming a focused button says it twice. */ }
 			<IconButton
 				ref={ ref }
-				label={
-					copied
-						? __( 'Copied', 'jetpack-backup-pkg' )
-						: __( 'Copy error reference', 'jetpack-backup-pkg' )
-				}
-				icon={ copied ? check : copy }
+				label={ __( 'Copy error reference', 'jetpack-backup-pkg' ) }
+				icon={ copiedAt === null ? copy : check }
 				variant="minimal"
 				tone="neutral"
 				size="small"
 			/>
-			{ /* Mounted empty so it exists before it has anything to say. */ }
-			<VisuallyHidden role="status">
-				{ copied ? __( 'Copied', 'jetpack-backup-pkg' ) : '' }
-			</VisuallyHidden>
 		</Stack>
 	);
 }

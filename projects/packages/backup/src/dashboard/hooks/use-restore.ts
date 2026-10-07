@@ -71,7 +71,7 @@ type DeriveInput = {
 	startedRewindId: string | null;
 	restoreId: number | null;
 	/** Our restore, found already over in the collection; null when no row matches. */
-	settledOutcome: 'succeeded' | 'failed' | null;
+	settledOutcome: { succeeded: boolean; restoreId: number } | null;
 	statusError: Error | null;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
@@ -135,12 +135,12 @@ function deriveState( input: DeriveInput ): RestoreState {
 		// Answered as soon as it is found rather than after the deadline,
 		// whose message would deny the restore ever ran.
 		if ( settledOutcome !== null ) {
-			return settledOutcome === 'succeeded'
+			return settledOutcome.succeeded
 				? { phase: 'success' }
 				: {
 						phase: 'error',
 						message: __( 'Restore failed.', 'jetpack-backup-pkg' ),
-						reference: { code: null, id: referenceId },
+						reference: { code: null, id: { kind: 'restore', value: settledOutcome.restoreId } },
 					};
 		}
 		if ( lostTrack ) {
@@ -424,7 +424,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		if ( ! row ) {
 			return null;
 		}
-		return row.succeeded ? ( 'succeeded' as const ) : ( 'failed' as const );
+		return { succeeded: row.succeeded, restoreId: row.restore_id };
 	}, [ needsId, restoresQuery.data, startedRewindId ] );
 
 	// An adoption stands in for a submission on both counts: it names the

@@ -1,6 +1,10 @@
-import { render } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import ErrorReference, { formatReference } from '../src/dashboard/components/error-reference';
 import type { FailureReference } from '../src/dashboard/types/failure-reference';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 describe( 'formatReference', () => {
 	it.each< [ string, FailureReference, string ] >( [
@@ -22,4 +26,17 @@ describe( 'formatReference', () => {
 it( 'renders nothing, not an empty line with a copy button, when there is nothing to quote', () => {
 	const { container } = render( <ErrorReference code={ null } id={ null } /> );
 	expect( container ).toBeEmptyDOMElement();
+} );
+
+it( 'copies exactly the line it shows, and announces it', async () => {
+	// `setup()` stands in a clipboard, which jsdom lacks.
+	const user = userEvent.setup();
+	render( <ErrorReference code="rewind_error" id={ { kind: 'restore', value: 7 } } /> );
+
+	await user.click( screen.getByRole( 'button', { name: 'Copy error reference' } ) );
+
+	await waitFor( () => expect( speak ).toHaveBeenCalledWith( 'Copied' ) );
+	await expect( navigator.clipboard.readText() ).resolves.toBe(
+		'Error code: rewind_error · Restore ID: 7'
+	);
 } );

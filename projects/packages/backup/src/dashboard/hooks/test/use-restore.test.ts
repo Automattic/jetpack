@@ -1036,30 +1036,34 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 	// finished leaves no live row — and reporting that as "didn't start"
 	// asserts the site is untouched next to a Try again button.
 	it.each( [
-		[ 'finished', 'success' ],
-		[ 'fail', 'error' ],
-	] )( 'reports a %s restore it recovers rather than denying it ran', async ( row, phase ) => {
-		respondWith( {
-			initiateError: TIMEOUT,
-			restores: [
-				{
-					restore_id: 912682,
-					rewind_id: REWIND_ID,
-					when: '2026-08-20T10:00:00+00:00',
-					status: row,
-				},
-			],
-		} );
-		const { wrapper } = makeWrapper();
+		[ 'finished', 'success', {} ],
+		[ 'fail', 'error', { reference: { code: null, id: { kind: 'restore', value: 912682 } } } ],
+	] )(
+		'reports a %s restore it recovers rather than denying it ran',
+		async ( row, phase, extra ) => {
+			respondWith( {
+				initiateError: TIMEOUT,
+				restores: [
+					{
+						restore_id: 912682,
+						rewind_id: REWIND_ID,
+						when: '2026-08-20T10:00:00+00:00',
+						status: row,
+					},
+				],
+			} );
+			const { wrapper } = makeWrapper();
 
-		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
-		submitAll( result );
+			const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+			submitAll( result );
 
-		await settleAt( result, phase );
-		expect( result.current.state ).not.toMatchObject( {
-			message: "Your restore didn't start, so nothing on your site has changed.",
-		} );
-	} );
+			await settleAt( result, phase );
+			expect( result.current.state ).not.toMatchObject( {
+				message: "Your restore didn't start, so nothing on your site has changed.",
+			} );
+			expect( result.current.state ).toMatchObject( extra );
+		}
+	);
 
 	it( 'adopts the restore when it turns out to have started', async () => {
 		respondWith( {

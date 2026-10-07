@@ -562,8 +562,9 @@ class Jetpack_Backup {
 	 * A WordPress.com blip then reaches the dashboard as an empty success, which
 	 * is how a paying customer ends up looking at the first-run screen. A
 	 * WP_Error makes the REST layer answer with a status, so every caller's
-	 * existing failure path runs. The status and WordPress.com's reason are
-	 * read the way the bridges read them.
+	 * existing failure path runs. WordPress.com's reason, when its reply has one,
+	 * rides along as `data.wpcom`; unlike preflight's, these routes' callers are all
+	 * in this package, so the extra key is safe.
 	 *
 	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @return WP_Error
