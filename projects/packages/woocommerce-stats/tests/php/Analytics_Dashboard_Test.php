@@ -103,6 +103,11 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::BOOKINGS_OVER_TIME_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
+				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
+				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
+				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
+				Analytics_Dashboard::BOOKINGS_BY_STATUS_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);
