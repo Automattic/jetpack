@@ -61,7 +61,7 @@ export function useConnectionState(
 
 	// We are here, which means the site is connected.
 
-	// With no account prompt to keep, a live error is the whole story.
+	// Show a live error as the diagnosis unless the card is asking for a user connection.
 	if ( error.hasConnectionError && ( isUserConnected || ! shouldAskForUserConnection ) ) {
 		return {
 			label: error.errorTitle,
