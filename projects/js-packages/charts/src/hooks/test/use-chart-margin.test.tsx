@@ -295,7 +295,7 @@ describe( 'useChartMargin', () => {
 			);
 
 			expect( mockGetEdgeTickWidths ).not.toHaveBeenCalled();
-			expect( result.current ).toEqual( { top: 10, right: 20, bottom: 20, left: 51 } );
+			expect( result.current ).toEqual( { top: 10, right: 20, bottom: 10, left: 51 } );
 		} );
 	} );
 
