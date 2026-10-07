@@ -31,6 +31,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	/**
 	 * Top-level admin bar node IDs that are considered safe to show.
 	 *
+	 * Every node under these IDs, at any depth, reaches every role that can read the site, not only administrators. A node meant for administrators must check the capability in the callback that adds it.
+	 *
 	 * @var string[]
 	 */
 	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'launch-site', 'reader', 'help-center', 'agents-manager-ai-chat', 'notes', 'my-account', 'stats' );
@@ -62,7 +64,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	/**
 	 * Checks if a given request has access to the admin bar.
 	 *
-	 * Any role on the site qualifies: the admin bar is built for the current user, and each node checks its own capability.
+	 * Any role on the site qualifies. The admin bar is built for the current user, so a node shows only if its own callback adds it for that user; nothing here filters nodes by capability.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access for the item, WP_Error object otherwise.
