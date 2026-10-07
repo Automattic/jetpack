@@ -1029,6 +1029,66 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_referrer_spam_write_makes_every_cached_referrers_read_stale() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$calls = array();
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$calls ) {
+				wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+				$calls[] = wp_parse_url( $url, PHP_URL_PATH ) . ( isset( $query['period'] ) ? '?period=' . $query['period'] : '' );
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$read = function ( string $endpoint, array $params = array() ) {
+			$this->controller->handle_data_request( $this->build_data_request( 'GET', $endpoint, $params, '1.1' ) );
+		};
+
+		try {
+			$read( 'stats/referrers', array( 'period' => 'day' ) );
+			$read( 'stats/referrers', array( 'period' => 'week' ) );
+			$read( 'stats/top-posts' );
+			$read( 'stats/referrers', array( 'period' => 'day' ) );
+			$this->assertCount( 3, $calls, 'a repeated read is served from the cache' );
+
+			$write = $this->build_data_request( 'POST', 'stats/referrers/spam/new', array( 'domain' => 'spam.example' ), '1.1' );
+			$write->set_body( '' );
+			$this->assertSame( 200, $this->controller->handle_data_request( $write )->get_status(), 'a bodiless write is signed without a body hash' );
+			$calls = array();
+
+			$read( 'stats/referrers', array( 'period' => 'day' ) );
+			$read( 'stats/referrers', array( 'period' => 'week' ) );
+			$read( 'stats/top-posts' );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		$this->assertSame(
+			array(
+				'/rest/v1.1/sites/4242/stats/referrers?period=day',
+				'/rest/v1.1/sites/4242/stats/referrers?period=week',
+			),
+			$calls,
+			'every referrers read refetches, while an unrelated stats read stays cached'
+		);
+	}
+
 	public function test_bust_is_scoped_to_the_written_path_and_version() {
 		// An unrelated path, and the same path at a different version, must survive a bust.
 		$other_path    = $this->read_cache_key( 'stats/top-posts', '1.1' );
