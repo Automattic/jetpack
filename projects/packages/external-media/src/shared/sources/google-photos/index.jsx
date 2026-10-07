@@ -51,8 +51,6 @@ function GooglePhotos( props ) {
 					break;
 
 				case 'invalid':
-				case 'broken':
-				case 'refresh-failed':
 					setAuthenticated( true );
 					setIsAuthUpgradeRequired( true );
 					break;
@@ -74,7 +72,12 @@ function GooglePhotos( props ) {
 	}
 
 	if ( isAuthUpgradeRequired || isReconnectRequired ) {
-		return <GooglePhotosAuthUpgrade { ...props } />;
+		return (
+			<GooglePhotosAuthUpgrade
+				{ ...props }
+				onRetry={ isReconnectRequired ? requestPickerSession : undefined }
+			/>
+		);
 	}
 
 	if ( pickerFeatureEnabled && ! pickerSession?.mediaItemsSet ) {

@@ -14,7 +14,7 @@ const isExpired = session =>
 	!! session.expireTime && new Date( session.expireTime ).getTime() < Date.now();
 
 // `data` carries Google's status; on Atomic the proxy drops the HTTP status, so don't rely on it.
-const isGrantRevoked = error =>
+const isAuthenticationFailure = error =>
 	error?.data?.status === 401 || error?.data?.google_status === 'UNAUTHENTICATED';
 
 /**
@@ -59,7 +59,7 @@ export default function useGooglePhotosPickerSession( {
 					return session;
 				} )
 				.catch( error => {
-					if ( ! signal.aborted && isGrantRevoked( error ) ) {
+					if ( ! signal.aborted && isAuthenticationFailure( error ) ) {
 						supersedeRequests();
 						setStatus( 'reconnect' );
 					}
@@ -93,7 +93,7 @@ export default function useGooglePhotosPickerSession( {
 				if ( signal.aborted ) {
 					return null;
 				}
-				if ( isGrantRevoked( error ) ) {
+				if ( isAuthenticationFailure( error ) ) {
 					setStatus( 'reconnect' );
 					return null;
 				}
