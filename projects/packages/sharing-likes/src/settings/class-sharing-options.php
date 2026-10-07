@@ -53,8 +53,10 @@ final class Sharing_Options {
 	 * @param array<string, mixed> $changes Options to change, slashed and keyed as `set_global_options()` reads them.
 	 */
 	public static function update( array $changes ): void {
+		// Before `get()`, whose first read on a site that never saved stores the posts-and-pages default.
+		$show                     = Placement_Section::selected_post_types();
 		$current                  = self::get();
-		$current['show']          = Placement_Section::selected_post_types();
+		$current['show']          = $show;
 		$current['sharing_label'] = wp_slash( $current['sharing_label'] );
 		$sharer                   = new \Sharing_Service();
 		$options                  = array_merge( $current, $changes );

@@ -46,7 +46,7 @@ class Settings_Controller_Test extends BaseTestCase {
 	 * Leave no options or constants behind.
 	 */
 	public function tear_down() {
-		unset( $GLOBALS['sharing_likes_test_global_options'] );
+		unset( $GLOBALS['sharing_likes_test_global_options'], $GLOBALS['sharing_likes_test_likes_show'] );
 
 		foreach ( array( 'sharing-options', 'sharing-services', 'disabled_likes', 'disabled_reblogs', 'jetpack_comment_likes_enabled', Twitter_Site_Tag::OPTION, Sharing_Resources::OPTION ) as $option ) {
 			delete_option( $option );
@@ -212,6 +212,15 @@ class Settings_Controller_Test extends BaseTestCase {
 
 		remove_filter( 'gettext', $translate, 10 );
 		$this->assertSame( "Partage l'article :", $this->saved_global_options()['sharing_label'] );
+	}
+
+	public function test_saving_another_option_keeps_the_likes_placement_default(): void {
+		$this->given_both_features_running();
+		$GLOBALS['sharing_likes_test_likes_show'] = array( 'post', 'page', 'book' );
+
+		$this->request( 'POST', 'settings', array( 'button_style' => 'icon' ) );
+
+		$this->assertSame( array( 'post', 'page', 'book' ), $this->saved_global_options()['show'] );
 	}
 
 	public function test_saving_writes_nothing_it_was_not_sent(): void {

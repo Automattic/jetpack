@@ -188,6 +188,8 @@ class Sharing_Service {
 				'show'          => array( 'post', 'page' ),
 				'custom'        => array(),
 			);
+
+			update_option( 'sharing-options', array( 'global' => $global ) );
 		}
 
 		if ( ! isset( $global['show'] ) ) {
