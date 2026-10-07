@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { resolveFeatureState } from '../../components/my-jetpack-tab-panel/features/feature-state';
 import { getProductModules } from '../../components/my-jetpack-tab-panel/features/mappings';
 import { getMyJetpackSections } from '../../components/my-jetpack-tab-panel/utils';
+import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { prepareProductData } from '../../data/utils/prepare-product-data';
 import { isJetpackPluginActive } from '../../utils/is-jetpack-plugin-active';
@@ -47,6 +48,24 @@ function getFeatureDestinations(): LauncherDestination[] {
 		] )
 	);
 	const productModules = getProductModules();
+	const activated = new Set( state.header?.activatedProducts ?? [] );
+
+	/**
+	 * A feature's product as the Features tab expects it.
+	 *
+	 * @param slug - The product slug.
+	 * @return The product, or undefined when the site has none by that slug.
+	 */
+	const getProduct = ( slug: string ) => {
+		if ( ! items[ slug ] ) {
+			return undefined;
+		}
+
+		const product = prepareProductData( items[ slug ] );
+
+		// Mark a product active when the sidebar's test says it's on, since the page state has no statuses.
+		return activated.has( slug ) ? { ...product, status: PRODUCT_STATUSES.ACTIVE } : product;
+	};
 
 	return mainFeatures.features
 		.filter( feature => feature.manage_url )
@@ -55,7 +74,7 @@ function getFeatureDestinations(): LauncherDestination[] {
 				resolveFeatureState(
 					feature,
 					mainFeatures.jetpack,
-					items[ feature.product ] ? prepareProductData( items[ feature.product ] ) : undefined,
+					getProduct( feature.product ),
 					modules,
 					productModules
 				).status === 'active'

@@ -661,14 +661,23 @@ class Initializer {
 	 * @since $$next-version$$
 	 *
 	 * @param Modules $modules The site's modules.
-	 * @return array{activeModules: string[], connectorsUrl: string|null} The state.
+	 * @return array{activeModules: string[], activatedProducts: string[], connectorsUrl: string|null} The state.
 	 */
 	public static function get_header_state( Modules $modules ) {
 		return array(
 			// Unlike lifecycleStats.modules, this keeps Jetpack's default modules.
-			'activeModules' => array_values( $modules->get_active() ),
+			'activeModules'     => array_values( $modules->get_active() ),
+			// The sidebar's own test, which never asks WordPress.com.
+			'activatedProducts' => array_keys(
+				array_filter(
+					Products::get_products_classes(),
+					static function ( $product_class ) {
+						return $product_class::is_activated();
+					}
+				)
+			),
 			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
-			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+			'connectorsUrl'     => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
 		);
 	}
 

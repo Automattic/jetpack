@@ -49,6 +49,14 @@ const FEATURES = [
 		module: 'podcast',
 		manage_url: `${ ADMIN }admin.php?page=jetpack-podcast`,
 	} ),
+	// No module or plugin of its own while the AI module is gated, so only its product says whether it's on.
+	feature( {
+		slug: 'jetpack-ai',
+		name: 'Jetpack AI',
+		in_jetpack: true,
+		product: 'jetpack-ai',
+		manage_url: `${ ADMIN }admin.php?page=my-jetpack#/jetpack-ai`,
+	} ),
 	// Switched on, but with nowhere to go.
 	feature( { slug: 'jetpack-forms', name: 'Forms', in_jetpack: true, product: 'jetpack-forms' } ),
 ];
@@ -56,10 +64,11 @@ const FEATURES = [
 type Site = {
 	jetpack: MainFeaturePluginStatus;
 	activeModules: string[];
-	backup: { status: string; has_paid_plan_for_product: boolean };
+	activatedProducts: string[];
+	hasBackupPlan: boolean;
 };
 
-const setSite = ( { jetpack, activeModules, backup }: Site ) => {
+const setSite = ( { jetpack, activeModules, activatedProducts, hasBackupPlan }: Site ) => {
 	global.JetpackScriptData = {
 		site: { admin_url: ADMIN, host: 'standard' },
 		user: { current_user: { capabilities: { manage_options: true } } },
@@ -67,12 +76,13 @@ const setSite = ( { jetpack, activeModules, backup }: Site ) => {
 	} as unknown as typeof global.JetpackScriptData;
 	window.myJetpackInitialState = {
 		mainFeatures: { jetpack, features: FEATURES },
-		header: { activeModules, connectorsUrl: null },
+		header: { activeModules, activatedProducts, connectorsUrl: null },
 		products: {
 			items: {
-				backup: backup,
-				boost: { status: 'active' },
-				'jetpack-forms': { status: 'active' },
+				backup: { has_paid_plan_for_product: hasBackupPlan },
+				boost: {},
+				'jetpack-ai': {},
+				'jetpack-forms': {},
 			},
 		},
 		plugins: { 'jetpack/jetpack.php': { Name: 'Jetpack', active: jetpack === 'active' } },
@@ -86,16 +96,37 @@ describe( 'getLauncherDestinations', () => {
 			{
 				jetpack: 'active',
 				activeModules: [ 'activity-log' ],
-				backup: { status: 'active', has_paid_plan_for_product: true },
+				activatedProducts: [ 'backup', 'boost', 'jetpack-ai' ],
+				hasBackupPlan: true,
 			},
-			[ 'activity-log', 'backup', 'boost', 'overview', 'features', 'help', 'jetpack-settings' ],
+			[
+				'activity-log',
+				'backup',
+				'boost',
+				'jetpack-ai',
+				'overview',
+				'features',
+				'help',
+				'jetpack-settings',
+			],
+		],
+		[
+			'a Jetpack site with AI and Backup off',
+			{
+				jetpack: 'active',
+				activeModules: [],
+				activatedProducts: [ 'boost' ],
+				hasBackupPlan: true,
+			},
+			[ 'boost', 'overview', 'features', 'help', 'jetpack-settings' ],
 		],
 		[
 			'a free site with only Boost',
 			{
 				jetpack: 'not-installed',
 				activeModules: [],
-				backup: { status: 'needs_plan', has_paid_plan_for_product: false },
+				activatedProducts: [ 'boost' ],
+				hasBackupPlan: false,
 			},
 			[ 'boost', 'overview', 'features', 'help' ],
 		],
@@ -109,7 +140,8 @@ describe( 'getLauncherDestinations', () => {
 		setSite( {
 			jetpack: 'not-installed',
 			activeModules: [],
-			backup: { status: 'needs_plan', has_paid_plan_for_product: false },
+			activatedProducts: [ 'boost' ],
+			hasBackupPlan: false,
 		} );
 
 		expect( getLauncherDestinations()[ 0 ] ).toEqual( {
