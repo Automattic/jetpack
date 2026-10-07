@@ -76,12 +76,6 @@ export type ComparativeBarChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to `formatDate`.
-	 */
-	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
-
-	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -140,7 +134,6 @@ export function ComparativeBarChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
-	formatTooltipDate = formatDate,
 	compactWhenShort = false,
 	maxWidth = Infinity,
 	defaultHiddenSeries,
@@ -224,11 +217,11 @@ export function ComparativeBarChart( {
 			value: string | null,
 			rawValue: number | null
 		): string => {
-			const date = formatBucketTooltipDate( datum, displayResolution, formatTooltipDate );
+			const date = formatBucketTooltipDate( datum, displayResolution );
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipUnits, formatTooltipDate, displayResolution ]
+		[ tooltipUnits, displayResolution ]
 	);
 
 	/**

@@ -306,23 +306,6 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
 	} );
 
-	// How a point's date reads is the caller's to decide; which format names it
-	// stays here.
-	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
-		const formatTooltipDate = jest.fn( () => 'the bucket' );
-		render(
-			<ComparativeBarChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="hour"
-				formatTooltipDate={ formatTooltipDate }
-			/>
-		);
-
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · the bucket' );
-		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2_2PM_TOKYO, 'dateTime' );
-	} );
-
 	it( 'adds the previous-period value to the tooltip when comparing', () => {
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 

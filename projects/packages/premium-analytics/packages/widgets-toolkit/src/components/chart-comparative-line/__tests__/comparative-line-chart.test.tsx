@@ -492,28 +492,14 @@ describe( 'ComparativeLineChart', () => {
 
 	// Most widgets declare no resolution, so reading the caller's prop alone left
 	// an hourly series naming all 24 of a day's points with the same date.
-	it( 'adds the hour for an hourly series that declares no resolution', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	it.each( [
+		[ 'Asia/Tokyo', 'July 2, 2026 2:00 pm' ],
+		[ 'America/Los_Angeles', 'July 1, 2026 10:00 pm' ],
+	] )( 'adds the hour for an hourly series that declares no resolution, in %s', ( zone, label ) => {
+		setSettings( siteSettingsIn( zone ) );
 		render( <ComparativeLineChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · July 2, 2026 2:00 pm' );
-	} );
-
-	// How a point's date reads is the caller's to decide; which format names it
-	// stays here.
-	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
-		const formatTooltipDate = jest.fn( () => 'the bucket' );
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="hour"
-				formatTooltipDate={ formatTooltipDate }
-			/>
-		);
-
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · the bucket' );
-		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2, 'dateTime' );
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( `100 Views · ${ label }` );
 	} );
 
 	it( 'labels a comparison row from its own date, not the axis date it shares', () => {

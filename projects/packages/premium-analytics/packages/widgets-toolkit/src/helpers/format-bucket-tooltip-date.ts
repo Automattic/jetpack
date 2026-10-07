@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { localTZDate } from '@jetpack-premium-analytics/datetime';
-import {
-	formatDate,
-	formatDateRange,
-	type DateFormatName,
-} from '@jetpack-premium-analytics/formatters';
+import { formatDate, formatDateRange } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
@@ -21,13 +17,11 @@ type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
  *
  * @param datum             - The point; a comparison point's own dates are in `realDate`.
  * @param displayResolution - The resolution the chart labels its buckets at.
- * @param formatTooltipDate - Formats a single date.
  * @return The formatted date or span.
  */
 export function formatBucketTooltipDate(
 	datum: BucketDatum,
-	displayResolution: BucketInfo[ 'displayResolution' ],
-	formatTooltipDate: ( date: Date, format: DateFormatName ) => string = formatDate
+	displayResolution: BucketInfo[ 'displayResolution' ]
 ): string {
 	const start = datum.realDate ?? datum.date;
 	const { endDate } = datum;
@@ -36,5 +30,5 @@ export function formatBucketTooltipDate(
 		return formatDateRange( { from: localTZDate( start ), to: localTZDate( endDate ) } );
 	}
 
-	return formatTooltipDate( start, dateFormatForResolution( displayResolution ) );
+	return formatDate( start, dateFormatForResolution( displayResolution ) );
 }

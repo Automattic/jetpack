@@ -8,7 +8,6 @@ import {
 	VisuallyHidden,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
-import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -275,10 +274,6 @@ function MetricChart( {
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
 	}, [ metric, counterpart, chartType ] );
-	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( date, format ),
-		[]
-	);
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -372,7 +367,6 @@ function MetricChart( {
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
@@ -386,7 +380,6 @@ function MetricChart( {
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
 			compactWhenShort

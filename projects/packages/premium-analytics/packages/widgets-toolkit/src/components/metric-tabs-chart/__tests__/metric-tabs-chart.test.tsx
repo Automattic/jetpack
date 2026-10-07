@@ -2,16 +2,13 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { setSettings } from '@wordpress/date';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
-import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 // The charts render SVG through a provider jsdom cannot lay out, so stand them in
 // for prop recorders.
@@ -119,14 +116,6 @@ function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 		.at( -1 );
 	expect( call ).toBeDefined();
 	return call[ 0 ];
-}
-
-/** The tooltip date formatter the most recent chart render received. */
-function recordedTooltipDateFormatter(
-	spy: jest.Mock
-): ( date: Date, format: DateFormatName ) => string {
-	expect( spy ).toHaveBeenCalled();
-	return spy.mock.calls.at( -1 )[ 0 ].formatTooltipDate;
 }
 
 describe( 'MetricTabsChart', () => {
@@ -350,28 +339,6 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( reason ) ).toBeInTheDocument();
 		expect( screen.getByText( '300' ) ).toBeInTheDocument();
-	} );
-
-	// A point's date is the instant it is: the component passes it through, and
-	// the site's zone decides which calendar day that instant lands on.
-	it.each( [
-		[ 'Asia/Tokyo', 'July 2, 2026 12:00 am' ],
-		[ 'America/Los_Angeles', 'July 1, 2026 8:00 am' ],
-	] )( 'labels a point in the site zone, on a site in %s', ( siteZone, expected ) => {
-		setSettings( siteSettingsIn( siteZone ) );
-
-		const instant = new Date( Date.UTC( 2026, 6, 1, 15, 0 ) );
-
-		render(
-			<MetricTabsChart
-				metrics={ [
-					{ ...METRIC, current: [ { date: instant, value: 100 } ], previous: undefined },
-				] }
-				dataFormat={ DATA_FORMAT }
-			/>
-		);
-
-		expect( recordedTooltipDateFormatter( mockLineSpy )( instant, 'dateTime' ) ).toBe( expected );
 	} );
 
 	it( 'keeps an unavailable metric selectable, so its reason stays reachable', () => {

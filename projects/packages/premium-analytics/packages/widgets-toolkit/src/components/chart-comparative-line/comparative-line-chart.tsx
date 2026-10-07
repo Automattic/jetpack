@@ -113,12 +113,6 @@ export type ComparativeLineChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to `formatDate`.
-	 */
-	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
-
-	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area is too
 	 * short for readable axis labels.
 	 */
@@ -165,7 +159,6 @@ export function ComparativeLineChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
-	formatTooltipDate = formatDate,
 	maxWidth = Infinity,
 	compactWhenShort = false,
 	defaultHiddenSeries,
@@ -216,11 +209,11 @@ export function ComparativeLineChart( {
 			value: string | null,
 			rawValue: number | null
 		): string => {
-			const date = formatBucketTooltipDate( datum, displayResolution, formatTooltipDate );
+			const date = formatBucketTooltipDate( datum, displayResolution );
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipUnits, formatTooltipDate, displayResolution ]
+		[ tooltipUnits, displayResolution ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
