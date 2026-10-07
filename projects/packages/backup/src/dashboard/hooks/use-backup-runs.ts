@@ -1,12 +1,12 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { fetchBackupSizes } from '../data/api/backup-sizes';
 import { matchBackupRun, type BackupRun } from '../data/normalize/backup-runs';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
 import type { BackupActivityItem } from '../types/activity';
 
-type BackupRow = Pick< BackupActivityItem, 'rewindId' | 'isDiscarded' >;
+type BackupRow = Pick< BackupActivityItem, 'rewindId' | 'isRewindable' >;
 
 export type BackupRunLookup = ( item: BackupRow ) => BackupRun | null;
 
@@ -19,9 +19,9 @@ export type BackupRunLookup = ( item: BackupRow ) => BackupRun | null;
  * @return A lookup answering null until a row's own record has loaded.
  */
 export function useBackupRuns( rows: BackupRow[] ): BackupRunLookup {
-	// A discarded backup has no record, so it must not send the query paging to the end.
+	// A row WordPress.com has no record for must not send the query paging to the end.
 	const finishes = rows
-		.filter( row => ! row.isDiscarded )
+		.filter( row => row.isRewindable )
 		.map( row => Number( row.rewindId ) )
 		.filter( Number.isFinite );
 	const oldest = finishes.length > 0 ? Math.min( ...finishes ) : null;
@@ -32,7 +32,7 @@ export function useBackupRuns( rows: BackupRow[] ): BackupRunLookup {
 	const { data, hasNextPage, isFetching, isError, fetchNextPage, refetch } = useInfiniteQuery( {
 		queryKey: keys.backupSizes(),
 		// A row only exists once its backup has finished, so a request sent after seeing
-		// it holds its record — a causal bound, where clocks would disagree.
+		// it holds its record.
 		queryFn: async ( { pageParam } ) => ( {
 			...( await fetchBackupSizes( pageParam ) ),
 			seenUpTo: newest ?? 0,
@@ -51,14 +51,19 @@ export function useBackupRuns( rows: BackupRow[] ): BackupRunLookup {
 		Infinity
 	);
 
+	// The rows the last request was for; after a failure, only new rows earn another try.
+	const attemptedFor = useRef( '' );
+
 	useEffect( () => {
-		// Never after a failure: retrying on render would hammer an upstream that is down.
-		if ( ! data || isFetching || isError ) {
+		const rowsKey = `${ newest }:${ oldest }`;
+		if ( ! data || isFetching || ( isError && attemptedFor.current === rowsKey ) ) {
 			return;
 		}
 		if ( newest !== null && newest > seenUpTo ) {
+			attemptedFor.current = rowsKey;
 			refetch( { cancelRefetch: false } );
 		} else if ( oldest !== null && hasNextPage && oldestLoaded > oldest ) {
+			attemptedFor.current = rowsKey;
 			fetchNextPage( { cancelRefetch: false } );
 		}
 	}, [

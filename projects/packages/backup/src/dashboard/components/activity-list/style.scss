@@ -126,7 +126,10 @@
 	// Keep the date text on a single line — without this the comma in
 	// "May 15, 2026, 9:26 AM" lets the row wrap mid-date, pushing the
 	// summary onto a second visual line at the column's typical width.
-	&__date,
+	&__date {
+		white-space: nowrap;
+	}
+
 	&__run {
 		white-space: nowrap;
 	}

@@ -140,8 +140,8 @@ function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 }
 
 /**
- * Descriptions cell — single muted line with the timestamp + optional
- * summary, joined by a thin separator.
+ * Descriptions cell — single muted line with the timestamp, a backup's
+ * size and duration once known, and the optional summary.
  *
  * @param props      - Component props.
  * @param props.item - The activity item.

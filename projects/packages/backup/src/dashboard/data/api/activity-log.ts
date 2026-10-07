@@ -10,9 +10,8 @@ export type WpcomActivityEntry = {
 	actor?: { type: string; name: string };
 	content?: { text?: string };
 	object?: { backup_stats?: string };
+	/** False when WordPress.com has no backup record for the row. */
 	is_rewindable?: boolean;
-	/** True once the backup has aged out of the retention window. */
-	is_discarded?: boolean;
 };
 
 export type WpcomActivityLogResponse = {

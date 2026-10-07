@@ -12,12 +12,12 @@ const SEEN_UP_TO = 1791400000;
 /**
  * A backup row as `matchBackupRun` reads it.
  *
- * @param rewindId    - When the backup finished.
- * @param isDiscarded - Whether WordPress.com has aged the backup out.
+ * @param rewindId     - When the backup finished.
+ * @param isRewindable - False when WordPress.com has no record of the backup.
  * @return The row.
  */
-function row( rewindId: string, isDiscarded = false ) {
-	return { rewindId, isDiscarded };
+function row( rewindId: string, isRewindable = true ) {
+	return { rewindId, isRewindable };
 }
 
 describe( 'matchBackupRun', () => {
@@ -37,8 +37,8 @@ describe( 'matchBackupRun', () => {
 
 	it.each( [
 		[
-			'its backup is discarded, so the latest earlier start is another backup',
-			row( '1791313657.958', true ),
+			'WordPress.com has no record of its backup, so the latest earlier start is another backup',
+			row( '1791313657.958', false ),
 			SEEN_UP_TO,
 		],
 		[ 'it finished before every loaded start', row( '1791000000' ), SEEN_UP_TO ],

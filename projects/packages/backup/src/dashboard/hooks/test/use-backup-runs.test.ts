@@ -27,12 +27,12 @@ function requestedPages(): number[] {
 /**
  * A backup row as the hook reads it.
  *
- * @param rewindId    - When the backup finished.
- * @param isDiscarded - Whether WordPress.com has aged the backup out.
+ * @param rewindId     - When the backup finished.
+ * @param isRewindable - False when WordPress.com has no record of the backup.
  * @return The row.
  */
-function row( rewindId: string, isDiscarded = false ) {
-	return { rewindId, isDiscarded };
+function row( rewindId: string, isRewindable = true ) {
+	return { rewindId, isRewindable };
 }
 
 /**
@@ -71,7 +71,7 @@ describe( 'useBackupRuns', () => {
 	it.each( [
 		[ 'stops at the page that reaches the oldest row', row( '150' ), [ 1, 2 ] ],
 		[ 'stops at the last page when none reaches it', row( '10' ), [ 1, 2, 3 ] ],
-		[ 'does not page for a discarded row, which has no record', row( '10', true ), [ 1 ] ],
+		[ 'does not page for a row whose backup has no record', row( '10', false ), [ 1 ] ],
 	] )( '%s', async ( _, oldest, expected ) => {
 		const { client, wrapper } = setup();
 		renderHook( () => useBackupRuns( [ row( '250' ), oldest ] ), { wrapper } );
@@ -116,5 +116,25 @@ describe( 'useBackupRuns', () => {
 		await waitFor( () => expect( requestedPages() ).toEqual( [ 1, 1 ] ) );
 		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 		expect( requestedPages() ).toEqual( [ 1, 1 ] );
+	} );
+
+	it( 'tries again once the rows change after a failure', async () => {
+		const { client, wrapper } = setup();
+		const { rerender } = renderHook( ( { rows } ) => useBackupRuns( rows ), {
+			initialProps: { rows: [ row( '250' ) ] },
+			wrapper,
+		} );
+		await waitFor( () => expect( requestedPages() ).toEqual( [ 1 ] ) );
+
+		const answer = mockedApiFetch.getMockImplementation();
+		mockedApiFetch.mockRejectedValue( new Error( 'WordPress.com is down' ) );
+		rerender( { rows: [ row( '1500' ), row( '250' ) ] } );
+		await waitFor( () => expect( requestedPages() ).toEqual( [ 1, 1 ] ) );
+		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+
+		mockedApiFetch.mockImplementation( answer );
+		rerender( { rows: [ row( '1500' ), row( '250' ), row( '150' ) ] } );
+
+		await waitFor( () => expect( requestedPages() ).toEqual( [ 1, 1, 1, 2 ] ) );
 	} );
 } );

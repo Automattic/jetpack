@@ -60,7 +60,7 @@ class Rest_Backup_Sizes_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Only v3 carries a size per backup, and it answers a bare `[]` above 100 per page.
+	 * Builds the upstream URL.
 	 */
 	public function test_asks_v3_for_the_largest_page_it_serves() {
 		$this->arrange_wpcom( array( 'backups' => array() ) );

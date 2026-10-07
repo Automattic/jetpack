@@ -76,6 +76,15 @@ describe( 'normalizeEntry', () => {
 		} );
 	} );
 
+	test.each( [
+		[ false, false ],
+		[ true, true ],
+		[ undefined, true ],
+	] )( 'reads is_rewindable %s as isRewindable %s', ( isRewindable, expected ) => {
+		const item = normalizeEntry( { ...backupEntry, is_rewindable: isRewindable } );
+		expect( item ).toMatchObject( { isRewindable: expected } );
+	} );
+
 	test( 'maps a post entry to a post ActivityItem', () => {
 		const item = normalizeEntry( postEntry );
 		expect( item ).toMatchObject( { id: 'a-2', kind: 'post', actor: { type: 'Person' } } );

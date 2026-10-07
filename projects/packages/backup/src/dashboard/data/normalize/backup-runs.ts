@@ -13,7 +13,7 @@ export type BackupRun = {
  *
  * Records are keyed by start time and rows by finish time, so a row's record is the
  * latest start at or before its finish. That only holds while the record is present:
- * a discarded backup, or one newer than `seenUpTo`, would match the backup before it.
+ * a row that is not rewindable, or one newer than `seenUpTo`, would match the backup before it.
  *
  * @param item     - The backup row.
  * @param records  - Records from every loaded page.
@@ -21,12 +21,12 @@ export type BackupRun = {
  * @return The row's run, or null when no record can be trusted to be its own.
  */
 export function matchBackupRun(
-	item: Pick< BackupActivityItem, 'rewindId' | 'isDiscarded' >,
+	item: Pick< BackupActivityItem, 'rewindId' | 'isRewindable' >,
 	records: RawBackupSize[],
 	seenUpTo: number
 ): BackupRun | null {
 	const finish = Number( item.rewindId );
-	if ( item.isDiscarded || ! Number.isFinite( finish ) || finish > seenUpTo ) {
+	if ( ! item.isRewindable || ! Number.isFinite( finish ) || finish > seenUpTo ) {
 		return null;
 	}
 
