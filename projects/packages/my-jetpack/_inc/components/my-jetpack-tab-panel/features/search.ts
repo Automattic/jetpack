@@ -1,12 +1,4 @@
-import { JetpackModuleSlug, MyJetpackModule } from '../../../types';
-
-/**
- * Legacy modules that should only appear in the module list when they are already active.
- * New users will not see these modules; existing users keep the ability to deactivate them.
- */
-export const LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE: readonly string[] = [
-	'google-fonts' satisfies JetpackModuleSlug,
-];
+import { MyJetpackModule } from '../../../types';
 
 /**
  * A field to match against, with a relevance weight. Name/title dominate, then the curated
@@ -135,14 +127,21 @@ export function rankBy< T >(
 /**
  * The weighted fields for a standalone module.
  *
- * @param {MyJetpackModule} module - The module.
+ * @param {MyJetpackModule} module   - The module.
+ * @param {boolean}         migrated - Whether the term came from Modules.
  * @return The weighted fields to match against.
  */
-export function moduleFields( module: MyJetpackModule ): Array< ScoredField > {
+export function moduleFields( module: MyJetpackModule, migrated = false ): Array< ScoredField > {
 	return [
 		{ value: module.name, weight: 3 },
 		{ value: module.search_terms, weight: 2 },
 		{ value: module.description, weight: 1 },
+		...( migrated
+			? [
+					{ value: module.long_description, weight: 1 },
+					{ value: module.module_tags?.join( ' ' ), weight: 1 },
+				]
+			: [] ),
 	];
 }
 

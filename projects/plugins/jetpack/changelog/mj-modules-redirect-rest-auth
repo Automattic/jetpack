@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Show Modules when REST authentication fails.

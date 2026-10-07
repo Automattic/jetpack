@@ -18,6 +18,18 @@ use Automattic\Jetpack\Feature_Policy;
  * and the sidebar's alike, so one policy covers both surfaces.
  */
 class Feature_Visibility {
+	/**
+	 * Modules offered only to sites already running them.
+	 *
+	 * @since $$next-version$$
+	 * @return string[] Module slugs.
+	 */
+	public static function get_deprecated_modules() {
+		return array_merge(
+			array( 'google-fonts' ),
+			function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ? array( 'widgets', 'widget-visibility' ) : array()
+		);
+	}
 
 	/**
 	 * Slugs a host has hidden from the page.

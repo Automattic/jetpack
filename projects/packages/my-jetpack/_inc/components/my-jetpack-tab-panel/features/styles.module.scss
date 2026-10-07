@@ -331,6 +331,10 @@ $band-ground: #f8f8f8;
 	text-decoration: underline;
 }
 
+.modules-navigation {
+	margin-block: var(--wpds-dimension-gap-md);
+}
+
 // Jetpack's other modules, under their group headings.
 .more-features {
 	display: flex;

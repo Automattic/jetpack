@@ -914,13 +914,12 @@ class Main_Features {
 	}
 
 	/**
-	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
-	 * headings for Jetpack's other modules, and whether the current user may install plugins.
+	 * Host-hidden items and the modules their feature or product names refer to.
 	 *
-	 * @param bool $local Use the local feature contract documented in get_features().
-	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[], available_admin_pages?: string[]} The state.
+	 * @since $$next-version$$
+	 * @return string[] Hidden module and feature slugs.
 	 */
-	public static function get_state( $local = false ) {
+	public static function get_hidden_modules() {
 		$hidden = Feature_Visibility::get_hidden();
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
 			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
@@ -929,13 +928,23 @@ class Main_Features {
 				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::$module_name : '' );
 			}
 		}
+		return array_values( array_unique( array_filter( $hidden ) ) );
+	}
 
+	/**
+	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
+	 * headings for Jetpack's other modules, and whether the current user may install plugins.
+	 *
+	 * @param bool $local Use the local feature contract documented in get_features().
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[], available_admin_pages?: string[]} The state.
+	 */
+	public static function get_state( $local = false ) {
 		$state = array(
 			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
 			'features'        => self::get_features( $local ),
 			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
-			'hidden_modules'  => array_values( array_unique( array_filter( $hidden ) ) ),
+			'hidden_modules'  => self::get_hidden_modules(),
 		);
 
 		if ( $local ) {

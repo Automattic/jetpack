@@ -22,6 +22,10 @@ const recordEvent = jest.fn();
 jest.mock( '../../../../hooks/use-analytics' );
 jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: {}, isLoading: false } ),
+} ) );
+
 jest.mock( '../use-main-features', () => ( {
 	useMainFeatures: () => ( {
 		jetpack: 'active',

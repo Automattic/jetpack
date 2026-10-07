@@ -1,4 +1,9 @@
-import { currentUserCan, getMyJetpackUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { MyJetpackRoutes } from '../../constants';
 import {
@@ -40,6 +45,17 @@ export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
 	return feature
 		? getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?${ new URLSearchParams( { feature } ) }` )
 		: '';
+}
+
+/**
+ * The module-management destination supplied by the loaded PHP package.
+ *
+ * @param classicUrl - Destination for older packages and ineligible sites.
+ * @return The management URL.
+ */
+export function getModulesManagementUrl( classicUrl: string ): string {
+	const data = getScriptData()?.myJetpack as { modulesManagementUrl?: string } | undefined;
+	return data?.modulesManagementUrl || classicUrl;
 }
 
 /**

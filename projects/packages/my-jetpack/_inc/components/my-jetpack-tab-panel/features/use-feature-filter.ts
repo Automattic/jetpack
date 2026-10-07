@@ -1,6 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { getFeatureModuleSlug } from './feature-state';
+import { getProductModules } from './mappings';
 import { getFeatureUnavailableReason, isFeatureAvailable } from './module-availability';
 import type { FeatureState } from './feature-state';
+import type { MyJetpackModule } from '../../../types';
 
 export type FeatureFilter =
 	'all' | 'available' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
@@ -80,4 +83,27 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 	}
 
 	return state.feature.essential;
+}
+
+/**
+ * Match the exact module tag carried by a legacy Modules link.
+ *
+ * @param state   - The feature or module row.
+ * @param tag     - The legacy tag.
+ * @param modules - Existing module metadata, keyed by slug.
+ * @return Whether the row matches, or is still awaiting metadata.
+ */
+export function matchesModuleTag(
+	state: FeatureState,
+	tag: string,
+	modules: Record< string, MyJetpackModule >
+): boolean {
+	if ( ! tag || state.pending ) {
+		return true;
+	}
+	const module =
+		state.control.kind === 'module'
+			? state.control.module
+			: modules[ getFeatureModuleSlug( state.feature, getProductModules() ) ];
+	return module?.module_tags?.includes( tag ) ?? false;
 }

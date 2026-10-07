@@ -27,7 +27,7 @@ import { useReplayPendingNotice } from '../../utils/pending-notice';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesManagementUrl, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -166,6 +166,7 @@ export default function MyJetpackScreen() {
 
 	const optionalMenuItems = buildOptionalMenuItems( {
 		adminUrl,
+		modulesManagementUrl: getModulesManagementUrl( `${ adminUrl }admin.php?page=jetpack_modules` ),
 		isDevVersion,
 		userIsAdmin,
 		isSiteConnected,
