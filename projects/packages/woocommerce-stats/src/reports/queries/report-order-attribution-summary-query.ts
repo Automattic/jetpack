@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportOrderAttributionByProduct } from '../api/report-order-attribution-by-product-fetch';

@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportVisitorsByLocation } from '../api/report-visitors-by-location-fetch';

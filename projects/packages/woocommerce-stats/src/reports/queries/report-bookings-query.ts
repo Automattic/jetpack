@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportBookings } from '../api/report-bookings-fetch';

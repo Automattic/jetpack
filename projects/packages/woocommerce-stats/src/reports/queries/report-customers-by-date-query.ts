@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportCustomersByDate } from '../api/report-customers-by-date-fetch';

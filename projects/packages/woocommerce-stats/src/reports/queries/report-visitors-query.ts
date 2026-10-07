@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportVisitors } from '../api/report-visitors-fetch';

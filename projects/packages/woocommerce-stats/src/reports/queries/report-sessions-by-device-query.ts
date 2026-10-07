@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportSessionsByDevice } from '../api/report-sessions-by-device-fetch';

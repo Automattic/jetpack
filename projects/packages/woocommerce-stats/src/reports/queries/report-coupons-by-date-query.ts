@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { fetchReportCouponsByDate } from '../api/report-coupons-by-date-fetch';
