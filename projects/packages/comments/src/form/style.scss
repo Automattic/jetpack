@@ -149,10 +149,6 @@
 		// `currentColor` in `color` would read the parent's colour.
 		&:disabled:not(.is-busy) {
 			-webkit-text-fill-color: color-mix(in sRGB, currentColor 40%, transparent);
-
-			@supports not (color: color-mix(in sRGB, red, red)) {
-				opacity: 0.5 !important;
-			}
 		}
 
 		// Core's busy button: the theme's fill, with darker bands sliding over it.
