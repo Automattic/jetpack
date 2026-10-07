@@ -80,13 +80,24 @@ final class Placement_Section {
 	}
 
 	/**
+	 * Every place the buttons can appear: `index` for the front page, archives and search, then public post types.
+	 *
+	 * @return string[]
+	 */
+	public static function choices(): array {
+		$choices = array_values( get_post_types( array( 'public' => true ) ) );
+		array_unshift( $choices, 'index' );
+
+		return $choices;
+	}
+
+	/**
 	 * Render the section.
 	 */
 	public static function render(): void {
 		$shown = self::selected_post_types();
 
-		$choices = array_values( get_post_types( array( 'public' => true ) ) );
-		array_unshift( $choices, 'index' );
+		$choices = self::choices();
 		?>
 		<div class="jetpack-sharing-settings__section" id="<?php echo esc_attr( self::ANCHOR ); ?>">
 			<h2><?php echo esc_html( self::heading() ); ?></h2>
@@ -273,7 +284,7 @@ final class Placement_Section {
 	 *
 	 * @param string $choice Post type slug, or 'index' for the archive pages.
 	 */
-	private static function label_for( string $choice ): string {
+	public static function label_for( string $choice ): string {
 		if ( 'index' === $choice ) {
 			return __( 'Front Page, Archive Pages, and Search Results', 'jetpack-sharing-likes' );
 		}
