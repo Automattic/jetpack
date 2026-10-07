@@ -48,7 +48,7 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 const $module = { module: 'stats', available: true, activated: true } as MyJetpackModule;
 const forcedModule = {
 	module: 'activity-log',
-	available: true,
+	available: false,
 	activated: true,
 	override: 'active',
 } as MyJetpackModule;
@@ -374,19 +374,24 @@ describe( 'FeatureModalActions', () => {
 } );
 
 describe( 'FeatureItem', () => {
-	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
+	it( 'keeps the host status and reason when its forced module is unavailable', () => {
 		const state = buildState(
-			{ kind: 'module', module: forcedModule },
+			{ kind: 'module', module: { ...forcedModule, available: false } },
 			{
 				status: 'active',
-				feature: buildFeature( { slug: 'stats', name: 'Stats', description: 'See who visits.' } ),
+				feature: buildFeature( {
+					slug: 'stats',
+					name: 'Stats',
+					description: 'See who visits.',
+					plugin: '',
+				} ),
 			}
 		);
 
 		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
 

@@ -281,27 +281,37 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 		}
 	);
 
-	it( 'explains the unavailable module instead of offering its plugin', () => {
+	it( 'still offers the plugin when nothing forced the module', () => {
 		const unforced = {
 			search: buildModule( { module: 'search', available: false, activated: false } ),
 		};
 
 		const state = resolve( search, 'active', unforced );
-		expect( state.control ).toEqual( { kind: 'module', module: unforced.search } );
-		expect( getForcedReason( state ) ).toBe( 'Unavailable' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-search' } );
+		expect( state.moduleUnavailableReason ).toBe( 'Unavailable' );
+		expect( getForcedReason( state ) ).toBeNull();
 	} );
 } );
 
 describe( 'resolveFeatureState, for a feature a plan runs without its plugin', () => {
 	const backup = buildFeature( {
 		slug: 'backup',
+		in_jetpack: true,
+		module: 'backup',
+		manage_url: '/backup',
 		plugin: 'jetpack-backup',
 		plugin_status: 'not-installed',
 		product: 'backup',
 	} );
 
 	const withProduct = ( product: ProductCamelCase ) =>
-		resolveFeatureState( backup, 'active', product, {}, {} );
+		resolveFeatureState(
+			backup,
+			'active',
+			product,
+			{ backup: buildModule( { module: 'backup', available: false } ) },
+			{}
+		);
 
 	it( 'is active and opens in place of Install when a paid plan runs it', () => {
 		const state = withProduct( {
@@ -310,6 +320,7 @@ describe( 'resolveFeatureState, for a feature a plan runs without its plugin', (
 		} as ProductCamelCase );
 
 		expect( state.status ).toBe( 'active' );
+		expect( getFeatureManageUrl( state ) ).toBe( '/backup' );
 		expect( state.control ).toEqual( {
 			kind: 'install-plugin',
 			plugin: 'jetpack-backup',

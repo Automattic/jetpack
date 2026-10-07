@@ -5,6 +5,7 @@ import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-s
 import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
 import { getFeatureModuleSlug } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
+import { getFeatureUnavailableReason } from './module-availability';
 import {
 	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
 	compareModulesByName,
@@ -40,7 +41,7 @@ export function getModuleFeatureState(
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
-	return {
+	const state: FeatureState = {
 		feature: {
 			slug: $module.module,
 			name: $module.name,
@@ -52,6 +53,7 @@ export function getModuleFeatureState(
 		isSwitching: asked !== undefined,
 		control: { kind: 'module', module: $module },
 	};
+	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
 }
 
 /**

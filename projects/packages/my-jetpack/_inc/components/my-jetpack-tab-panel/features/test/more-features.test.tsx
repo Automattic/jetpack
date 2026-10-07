@@ -84,6 +84,8 @@ describe( 'MoreFeatures', () => {
 			{}
 		);
 		const groups = [ { label: 'Analytics', states: [ unavailable ] } ];
+		expect( filterMoreFeatures( groups, 'active', '' ) ).toEqual( [] );
+		expect( unavailable.status ).toBe( 'inactive' );
 		const tree = ( filter: 'all' | 'available' ) => (
 			<MoreFeatures
 				groups={ filterMoreFeatures( groups, filter, '' ) }
@@ -103,43 +105,77 @@ describe( 'MoreFeatures', () => {
 		expect( screen.getByText( 'Requires WooCommerce 3+ plugin' ) ).toBeVisible();
 	} );
 
-	it( 'keeps an installed plugin switch and selection while explaining only its unavailable module', () => {
+	it( 'explains a multisite-blocked module and leaves it out of Available', () => {
 		setSiteEditor( { isBlockTheme: false } );
-		const state = resolveFeatureState(
-			{
-				slug: 'videopress',
-				name: 'VideoPress',
-				description: 'Manage videos.',
-				plans: [],
-				in_jetpack: true,
-				product: 'videopress',
-				plugin: 'jetpack-videopress',
-				plugin_status: 'inactive',
-			} as MainFeature,
-			'active',
-			undefined,
-			{
-				videopress: {
-					...sharing,
-					module: 'videopress',
-					available: false,
-					unavailable_reason: 'Unavailable in Offline mode',
-				},
-			},
-			{}
-		);
-		const groups = filterMoreFeatures( [ { label: 'Video', states: [ state ] } ], 'available', '' );
-		render(
-			<QueryClientProvider client={ new QueryClient() }>
-				<MoreFeatures groups={ groups } selection={ selection } jetpack="active" isList />
-			</QueryClientProvider>
-		);
-		expect( screen.getByText( 'Jetpack module: Unavailable in Offline mode' ) ).toBeVisible();
-		expect( screen.getByText( 'Inactive' ) ).toBeVisible();
-		expect( screen.queryByText( 'Unavailable' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: 'Activate VideoPress' } ) ).toBeEnabled();
-		expect( screen.getByRole( 'checkbox', { name: 'Select VideoPress' } ) ).toBeEnabled();
+		window.JetpackScriptData.site.is_multisite = true;
+		try {
+			const state = getModuleFeatureState( { ...sharing, module: 'waf', activated: true }, {} );
+			const groups = [ { label: 'Security', states: [ state ] } ];
+			render( <MoreFeatures groups={ groups } selection={ selection } jetpack="active" /> );
+			expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
+			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( filterMoreFeatures( groups, 'available', '' ) ).toEqual( [] );
+		} finally {
+			window.JetpackScriptData.site.is_multisite = false;
+		}
 	} );
+
+	it.each( [ false, 'active' ] as const )(
+		'never badges an installed plugin unavailable with module override %s',
+		override => {
+			setSiteEditor( { isBlockTheme: false } );
+			const state = resolveFeatureState(
+				{
+					slug: 'videopress',
+					name: 'VideoPress',
+					description: 'Manage videos.',
+					plans: [],
+					in_jetpack: true,
+					product: 'videopress',
+					plugin: 'jetpack-videopress',
+					plugin_status: 'inactive',
+				} as MainFeature,
+				'active',
+				undefined,
+				{
+					videopress: {
+						...sharing,
+						module: 'videopress',
+						available: false,
+						unavailable_reason: 'Unavailable in Offline mode',
+						override,
+					},
+				},
+				{}
+			);
+			const groups = filterMoreFeatures(
+				[ { label: 'Video', states: [ state ] } ],
+				'available',
+				''
+			);
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<MoreFeatures groups={ groups } selection={ selection } jetpack="active" isList />
+				</QueryClientProvider>
+			);
+			expect(
+				screen.getByText(
+					override
+						? 'Enabled by your host or site administrator'
+						: 'Jetpack module: Unavailable in Offline mode'
+				)
+			).toBeVisible();
+			expect( screen.getByText( 'Inactive' ) ).toBeVisible();
+			expect( screen.queryByText( 'Unavailable' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox', { name: 'Activate VideoPress' } ) !== null ).toBe(
+				! override
+			);
+			expect( screen.queryByRole( 'checkbox', { name: 'Select VideoPress' } ) !== null ).toBe(
+				! override
+			);
+		}
+	);
 
 	it( 'says what to do in the Site Editor, and drops the status badge, where the block replaces the module', () => {
 		setSiteEditor( {

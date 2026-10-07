@@ -43,10 +43,7 @@ export const PRODUCT_MODULES: {
 /**
  * The product-to-module map to build cards from.
  *
- * Pre-release gate: outside internal testing environments the AI card is not
- * backed by the 'ai' module, so its cards resolve no module and render exactly
- * as they did before the module existed. Remove when the AI settings page goes
- * public.
+ * The AI pre-release gate suppresses its module control; availability still explains the card.
  *
  * @return The map, without the AI entry while the gate is on.
  */

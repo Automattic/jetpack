@@ -11,7 +11,11 @@ import {
 import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
 import { linksTo } from '../../../utils/admin-menu-sync';
 import { getProductModules, PRODUCT_MODULES } from './mappings';
-import { getModuleStatus, getOverrideReason } from './module-availability';
+import {
+	getFeatureUnavailableReason,
+	getModuleStatus,
+	getOverrideReason,
+} from './module-availability';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
@@ -64,10 +68,7 @@ export type FeatureState = {
  * @return A management URL, or an empty string.
  */
 export function getFeatureManageUrl( state: FeatureState ): string {
-	if (
-		state.unavailableReason ||
-		( state.control.kind === 'module' && state.control.module.available === false )
-	) {
+	if ( getFeatureUnavailableReason( state ) ) {
 		return '';
 	}
 
@@ -84,6 +85,22 @@ export function getFeatureManageUrl( state: FeatureState ): string {
 		linksTo( item, url )
 	);
 	return registered || inSidebar ? url : '';
+}
+
+/**
+ * The module's limitation when the standalone plugin remains available.
+ *
+ * @param state - The feature's live state.
+ * @return The inline note, or undefined.
+ */
+export function getModuleUnavailableNote( state: FeatureState ): string | undefined {
+	return state.moduleUnavailableReason
+		? sprintf(
+				/* translators: %s is why the Jetpack module is unavailable; its standalone plugin remains available. */
+				__( 'Jetpack module: %s', 'jetpack-my-jetpack' ),
+				state.moduleUnavailableReason
+			)
+		: undefined;
 }
 
 /**
@@ -217,16 +234,15 @@ export function resolveFeatureState(
 			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 		}
 
-		// A host's override decides the module whatever the plan, so it explains itself
-		// rather than falling through to the standalone plugin.
-
-		const hasPluginRoute = Boolean( feature.plugin && feature.plugin_status !== 'not-installed' );
-		if ( $module && ( $module.available || $module.override || ! hasPluginRoute ) ) {
+		const moduleStatus = $module && getModuleStatus( $module );
+		if ( $module && ( moduleStatus?.isAvailable || $module.override || ! feature.plugin ) ) {
 			return {
 				feature,
 				product,
 				status:
-					( $module.available || $module.override ) && $module.activated ? 'active' : 'inactive',
+					( moduleStatus?.isAvailable || $module.override ) && $module.activated
+						? 'active'
+						: 'inactive',
 				control: { kind: 'module', module: $module },
 			};
 		}
@@ -236,7 +252,9 @@ export function resolveFeatureState(
 		// Read for status even where a plugin is the switch: the wp-admin sidebar counts a
 		// Hybrid product as on when either its plugin or its module is, and a card that
 		// disagreed with the sidebar would be wrong on any Jetpack site running the module.
-		const moduleIsOn = Boolean( $module?.available && $module.activated );
+		const moduleStatus = $module && getModuleStatus( $module );
+		const moduleIsOn = Boolean( moduleStatus?.isAvailable && $module?.activated );
+		const moduleUnavailableReason = moduleStatus?.reason;
 
 		if ( feature.plugin_status === 'not-installed' ) {
 			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,
@@ -249,6 +267,7 @@ export function resolveFeatureState(
 				feature,
 				product,
 				status: moduleIsOn || runsWithoutPlugin ? 'active' : 'inactive',
+				moduleUnavailableReason,
 				control: {
 					kind: 'install-plugin',
 					plugin: feature.plugin,
@@ -261,10 +280,7 @@ export function resolveFeatureState(
 			feature,
 			product,
 			status: feature.plugin_status === 'active' || moduleIsOn ? 'active' : 'inactive',
-			moduleUnavailableReason:
-				$module?.available === false
-					? $module.unavailable_reason || getModuleStatus( { ...$module, override: false } ).reason
-					: undefined,
+			moduleUnavailableReason,
 			control: {
 				kind: 'plugin',
 				plugin: feature.plugin,

@@ -9,7 +9,8 @@ import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getForcedReason } from './feature-state';
+import { getForcedReason, getModuleUnavailableNote } from './feature-state';
+import { getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -73,19 +74,8 @@ export function FeatureItem( {
 	const isActive = state.status === 'active';
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
-	const unavailable =
-		Boolean( state.unavailableReason ) ||
-		( state.control.kind === 'module' && state.control.module.available === false );
-	const reason = state.moduleUnavailableReason
-		? sprintf(
-				/* translators: %s is why the Jetpack module is unavailable; its standalone plugin can still be switched. */
-				__( 'Jetpack module: %s', 'jetpack-my-jetpack' ),
-				state.moduleUnavailableReason
-			)
-		: state.unavailableReason ||
-			( unavailable && state.control.kind === 'module'
-				? state.control.module.unavailable_reason || getForcedReason( state )
-				: getForcedReason( state ) );
+	const unavailable = getFeatureUnavailableReason( state );
+	const reason = getForcedReason( state ) || getModuleUnavailableNote( state );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -172,11 +162,12 @@ export function FeatureItem( {
 					{ migration?.notice ?? feature.description }
 				</Text>
 
-				{ ( unavailable || state.moduleUnavailableReason ) && reason && (
-					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
-						{ reason }
-					</Text>
-				) }
+				{ ( unavailable || state.moduleUnavailableReason || state.control.kind === 'module' ) &&
+					reason && (
+						<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
+							{ reason }
+						</Text>
+					) }
 
 				<FeatureInstallNotice state={ state } />
 			</span>

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { getFeatureUnavailableReason } from './module-availability';
 import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
@@ -59,19 +60,15 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 	}
 
 	if ( filter === 'available' ) {
-		return (
-			! state.pending &&
-			! state.unavailableReason &&
-			( state.control.kind !== 'module' || state.control.module.available !== false )
-		);
+		return ! state.pending && ! getFeatureUnavailableReason( state );
 	}
 
 	if ( filter === 'active' ) {
-		return state.status === 'active';
+		return state.status === 'active' && ! getFeatureUnavailableReason( state );
 	}
 
 	if ( filter === 'inactive' ) {
-		return state.status !== 'active';
+		return state.status !== 'active' || !! getFeatureUnavailableReason( state );
 	}
 
 	if ( filter === 'included' ) {

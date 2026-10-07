@@ -7,7 +7,6 @@ import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
-import { getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
@@ -72,7 +71,10 @@ function getIncludedIn( count: number ): string {
  * @return True when the feature is off and the host decides that.
  */
 function isForcedOff( state: FeatureState ): boolean {
-	return state.status !== 'active' && !! getForcedReason( state );
+	return (
+		( state.control.kind === 'module' && state.control.module.override === 'inactive' ) ||
+		( state.control.kind === 'plugin' && state.control.override === 'inactive' )
+	);
 }
 
 /**

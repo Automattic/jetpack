@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
 Features: Show unavailable modules with their reasons and add an available-only filter.

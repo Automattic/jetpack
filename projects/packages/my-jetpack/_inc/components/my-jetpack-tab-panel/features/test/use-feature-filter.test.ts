@@ -15,11 +15,13 @@ describe( 'matchesFilter', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
 
-	it( 'keeps forced available modules while excluding unavailable modules from Available', () => {
+	it( 'keeps host-forced modules in Available even when their module is unsupported', () => {
 		const state = buildState( {} );
 		state.control = { kind: 'module', module: { available: true, override: 'active' } as never };
 		expect( matchesFilter( state, 'available' ) ).toBe( true );
 		state.control.module.available = false;
+		expect( matchesFilter( state, 'available' ) ).toBe( true );
+		state.control.module.override = false;
 		expect( matchesFilter( state, 'available' ) ).toBe( false );
 		expect( matchesFilter( state, 'all' ) ).toBe( true );
 	} );

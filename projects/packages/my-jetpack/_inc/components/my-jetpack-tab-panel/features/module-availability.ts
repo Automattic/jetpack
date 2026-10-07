@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../../../types';
+import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
 
@@ -49,4 +50,22 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 	}
 
 	return { isAvailable: true };
+}
+
+/**
+ * Why a feature has no available route on this site.
+ *
+ * @param state - The feature's live state.
+ * @return The unavailable reason, or undefined when a plugin or host provides a route.
+ */
+export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
+	if ( state.feature.plugin && state.feature.plugin_status !== 'not-installed' ) {
+		return undefined;
+	}
+	if ( state.control.kind === 'module' ) {
+		return state.control.module.override
+			? undefined
+			: getModuleStatus( state.control.module ).reason;
+	}
+	return state.unavailableReason;
 }

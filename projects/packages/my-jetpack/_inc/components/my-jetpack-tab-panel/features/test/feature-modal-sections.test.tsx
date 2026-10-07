@@ -1,8 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureDelivery } from '../feature-delivery';
+import { FeatureItem } from '../feature-item';
 import { FeatureModal } from '../feature-modal';
 import { FeaturePaid, UpgradeButton } from '../feature-paid';
+import { resolveFeatureState } from '../feature-state';
 import { FeaturesTrackingProvider } from '../features-tracking-context';
 import type { FeatureState } from '../feature-state';
 
@@ -138,6 +141,27 @@ describe( 'FeatureDelivery', () => {
 } );
 
 describe( 'FeaturePaid', () => {
+	it( 'keeps Upgrade and plans when an unavailable module has no standalone plugin', () => {
+		const state = moduleState( false, 'inactive' );
+		if ( state.control.kind === 'module' ) {
+			state.control.module.available = false;
+			state.control.module.unavailable_reason = 'A connection is required';
+		}
+		state.feature = {
+			...feature,
+			plugin: '',
+			upgrade: { path: '/add-complete', name: 'Complete' },
+		};
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Complete' } ) ).toBeVisible();
+	} );
+
 	it( 'leaves out the plans for a module a host forced off', () => {
 		render( <FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } /> );
 
@@ -288,6 +312,63 @@ describe( 'FeatureModal Free column', () => {
 				onClose={ jest.fn() }
 			/>
 		);
+
+	it( 'keeps Install, Upgrade and plans with a module note when the standalone plugin is missing', () => {
+		const state = resolveFeatureState(
+			{
+				...feature,
+				plugin: 'jetpack-search',
+				plugin_status: 'not-installed',
+				module: 'search',
+				upgrade: { path: '/add-search', name: 'Search' },
+			},
+			'active',
+			undefined,
+			{
+				search: {
+					module: 'search',
+					available: false,
+					activated: false,
+					unavailable_reason: 'Requires a Search plan',
+				} as never,
+			},
+			{}
+		);
+		render(
+			<QueryClientProvider client={ new QueryClient() }>
+				<FeatureModal
+					state={ state }
+					position={ 1 }
+					total={ 1 }
+					onStep={ jest.fn() }
+					onClose={ jest.fn() }
+				/>
+			</QueryClientProvider>
+		);
+		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Search' } ) ).toBeVisible();
+		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeVisible();
+		expect( screen.getByText( 'Jetpack module: Requires a Search plan' ) ).toBeVisible();
+		expect( screen.getByText( 'Inactive' ) ).toBeVisible();
+	} );
+
+	it( 'agrees with the card status for an unavailable feature with no standalone route', () => {
+		const state = moduleState( false, 'inactive' );
+		state.feature = { ...feature, plugin: '' };
+		if ( state.control.kind === 'module' ) {
+			state.control.module.available = false;
+			state.control.module.unavailable_reason = 'A connection is required';
+		}
+		const view = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+		expect( screen.getByText( 'A connection is required' ) ).toBeVisible();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		view.unmount();
+		renderModal( state );
+		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+		expect( screen.getByText( 'A connection is required' ) ).toBeVisible();
+		expect( screen.queryByRole( 'button', { name: /Activate/ } ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'shows the Free column when the feature has free highlights', () => {
 		renderModal( modalState( [ 'Unlimited forms' ] ) );
