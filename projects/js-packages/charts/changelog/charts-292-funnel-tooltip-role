@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-ConversionFunnelChart: Give the tooltip content `role="tooltip"`, like the other charts.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the editing preview on retained footage when playback reaches a trim or trailing cut.
