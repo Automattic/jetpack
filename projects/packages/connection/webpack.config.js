@@ -7,6 +7,7 @@ const { glob } = require( 'glob' );
 
 // Module-only packages, imported statically through the import map. Any the card imports must also be
 // in Jetpack_Connector::MODULE_DEPENDENCIES, or the import map won't contain it at runtime.
+// The plugin's default knows only a few module-only packages and throws on the rest (an upstream gap).
 const AS_MODULE = new Set( [
 	'@wordpress/connectors',
 	'@wordpress/interactivity',
@@ -20,7 +21,10 @@ const AS_MODULE = new Set( [
 /**
  * Externals for the Connectors card script module.
  *
- * In module mode the wrapper's `requestMap` is ignored, so the shared mapping is repeated here.
+ * Module builds ignore `requestToExternal`, which the wrapper's `requestMap` feeds, so the shared mapping is repeated here.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/485f42ae8a1c58ceea18371a507fd4acfa86fbd8/packages/dependency-extraction-webpack-plugin/README.md#requesttoexternal
+ * @see https://github.com/WordPress/gutenberg/blob/485f42ae8a1c58ceea18371a507fd4acfa86fbd8/packages/dependency-extraction-webpack-plugin/lib/util.js#L86-L109
  *
  * @param {string} request - Module request.
  * @return {string|false} External with its type prefix, or false to bundle the request.
@@ -39,7 +43,8 @@ const connectorsCardRequestToExternalModule = request => {
 			`Import ${ request } from '@automattic/jetpack-connection' instead, so it comes from the shared jetpack-connection script.`
 		);
 	}
-	// A classic script global for WordPress scripts and React; undefined for packages meant to be bundled.
+	// Classic scripts and React become globals, because the plugin's module default throws on them.
+	// defaultRequestToExternal() returns undefined for packages meant to be bundled.
 	const global = defaultRequestToExternal( request );
 	if ( ! global ) {
 		return false;
