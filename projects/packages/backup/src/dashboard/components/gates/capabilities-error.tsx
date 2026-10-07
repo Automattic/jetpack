@@ -35,7 +35,7 @@ export default function CapabilitiesErrorScreen( { onRetry, isRetrying = false }
 				{ /* Not "this is usually temporary": retrying does not clear every cause. */ }
 				<Text>
 					{ __(
-						"We couldn't reach WordPress.com to check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
+						"We couldn't check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
 						'jetpack-backup-pkg'
 					) }
 				</Text>

@@ -24,10 +24,10 @@ type Result = {
 	 */
 	introMonthlyPrice: number | null;
 	/**
-	 * How many years the introductory price lasts, or null when the offer
-	 * is not a whole number of years (or there is no offer).
+	 * Whether the introductory price covers exactly the first year, and
+	 * nothing else is known to apply.
 	 */
-	introYears: number | null;
+	introIsFirstYear: boolean;
 	/**
 	 * The currency WordPress.com priced this in. Null whenever
 	 * `monthlyPrice` is null; there is no default, and assuming one
@@ -39,7 +39,7 @@ type Result = {
 const EMPTY: Result = {
 	monthlyPrice: null,
 	introMonthlyPrice: null,
-	introYears: null,
+	introIsFirstYear: false,
 	currencyCode: null,
 };
 
@@ -120,14 +120,13 @@ export function usePromotedProduct(): Result {
 
 	const introMonthlyPrice = offerCost !== null && months !== null ? offerCost / months : null;
 
-	const yearCount = offer?.interval_count ?? 1;
-	const introYears =
+	// `interval_count` is the billing interval, not the offer length: only a
+	// year-long interval with no extra renewals at the intro price is "first year".
+	const introIsFirstYear =
 		introMonthlyPrice !== null &&
 		offer?.interval_unit === 'year' &&
-		Number.isInteger( yearCount ) &&
-		yearCount > 0
-			? yearCount
-			: null;
+		offer.interval_count === 1 &&
+		offer.transition_after_renewal_count === 0;
 
-	return { monthlyPrice, introMonthlyPrice, introYears, currencyCode };
+	return { monthlyPrice, introMonthlyPrice, introIsFirstYear, currencyCode };
 }

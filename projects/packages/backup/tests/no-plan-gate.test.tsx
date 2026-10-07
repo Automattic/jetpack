@@ -56,6 +56,7 @@ const PRICED_PRODUCT = {
 	introductory_offer: {
 		interval_unit: 'year',
 		interval_count: 1,
+		transition_after_renewal_count: 0,
 		cost_per_interval: 275.4,
 	},
 };
@@ -231,6 +232,25 @@ describe( 'No-plan gate', () => {
 		expect( renewal ).not.toHaveAttribute( 'aria-hidden' );
 	} );
 
+	it.each( [
+		[ 'a first-year offer', PRICED_PRODUCT.introductory_offer, true ],
+		[
+			'a monthly offer',
+			{ interval_unit: 'month', interval_count: 1, cost_per_interval: 9.99 },
+			false,
+		],
+	] )(
+		'shows the renewal line visibly only when the price line does not imply it: %s',
+		async ( _label, offer, hidden ) => {
+			mockApiFetch.mockResolvedValue( { ...PRICED_PRODUCT, introductory_offer: offer } );
+
+			renderScreen( NoBackupPlanScreen );
+
+			const renewal = await screen.findByText( /Renews at .*44[.,]95 per month/ );
+			expect( renewal.matches( '.components-visually-hidden' ) ).toBe( hidden );
+		}
+	);
+
 	it( 'says nothing about renewal when there is no introductory offer', async () => {
 		// One price, nothing superseded, nothing to explain.
 		mockApiFetch.mockResolvedValue( { ...PRICED_PRODUCT, introductory_offer: null } );
@@ -264,13 +284,23 @@ describe( 'No-plan gate', () => {
 	it.each( [
 		[
 			'one year',
-			{ interval_unit: 'year', interval_count: 1, cost_per_interval: 275.4 },
+			{
+				interval_unit: 'year',
+				interval_count: 1,
+				transition_after_renewal_count: 0,
+				cost_per_interval: 275.4,
+			},
 			'per month for the first year, billed yearly',
 		],
 		[
-			'several years',
-			{ interval_unit: 'year', interval_count: 2, cost_per_interval: 550.8 },
-			'per month for the first 2 years, billed yearly',
+			'an offer that outlasts the first year',
+			{
+				interval_unit: 'year',
+				interval_count: 1,
+				transition_after_renewal_count: 1,
+				cost_per_interval: 275.4,
+			},
+			'per month, billed yearly',
 		],
 		[
 			'a fractional year count',

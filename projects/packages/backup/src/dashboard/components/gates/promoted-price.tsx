@@ -1,6 +1,6 @@
 import { formatCurrency } from '@automattic/number-formatters';
 import { VisuallyHidden } from '@wordpress/components';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { usePromotedProduct } from '../../hooks/use-promoted-product';
 
@@ -17,7 +17,7 @@ import { usePromotedProduct } from '../../hooks/use-promoted-product';
  * @return The price block, or null while there is no price to show.
  */
 export default function PromotedPrice() {
-	const { monthlyPrice, introMonthlyPrice, introYears, currencyCode } = usePromotedProduct();
+	const { monthlyPrice, introMonthlyPrice, introIsFirstYear, currencyCode } = usePromotedProduct();
 
 	if ( monthlyPrice === null || ! currencyCode ) {
 		return null;
@@ -38,23 +38,12 @@ export default function PromotedPrice() {
 	const hasDiscount = effectiveText !== fullText;
 
 	const priceDetails =
-		hasDiscount && introYears !== null
-			? // The singular has no placeholder, which is the standard `_n()` idiom for "one".
-				// eslint-disable-next-line @wordpress/valid-sprintf
-				sprintf(
-					/* translators: %d is the number of years the introductory price lasts. */
-					_n(
-						'per month for the first year, billed yearly',
-						'per month for the first %d years, billed yearly',
-						introYears,
-						'jetpack-backup-pkg'
-					),
-					introYears
-				)
+		hasDiscount && introIsFirstYear
+			? __( 'per month for the first year, billed yearly', 'jetpack-backup-pkg' )
 			: __( 'per month, billed yearly', 'jetpack-backup-pkg' );
 
-	// The struck-through figure is hidden from assistive tech, so this restores the renewal amount.
-	// It says nothing about *when* it renews: the offer's interval is not always a year.
+	// Says nothing about *when* it renews: the offer's interval is not always a year.
+	// Visible unless the first-year line already implies it; always read out, as the strikethrough is hidden.
 	const renewalText = sprintf(
 		/* translators: %s is the full monthly price the subscription renews at. */
 		__( 'Renews at %s per month.', 'jetpack-backup-pkg' ),
@@ -81,7 +70,10 @@ export default function PromotedPrice() {
 				) }
 				{ priceDetails }
 			</Text>
-			{ hasDiscount && <VisuallyHidden>{ renewalText }</VisuallyHidden> }
+			{ hasDiscount && introIsFirstYear && <VisuallyHidden>{ renewalText }</VisuallyHidden> }
+			{ hasDiscount && ! introIsFirstYear && (
+				<Text className="jpb-text-muted">{ renewalText }</Text>
+			) }
 		</Stack>
 	);
 }
