@@ -10187,10 +10187,6 @@ packages:
       tslib:
         optional: true
 
-  '@rollup/pluginutils@4.2.1':
-    resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
-    engines: {node: '>= 8.0.0'}
-
   '@rollup/pluginutils@5.4.0':
     resolution: {integrity: sha512-MfPp06CjRLfXQ3wY0R8vJDYBy/MvVcc9OulEfR0B8Iv9ko+GCNaRZ+EpJYFl27LhKsZK0o420sYCRHCjfCgeUg==}
     engines: {node: '>=14.0.0'}
@@ -16967,10 +16963,6 @@ packages:
   resolve-protobuf-schema@2.1.0:
     resolution: {integrity: sha512-kI5ffTiZWmJaS/huM8wZfEMer1eRd7oJQhDuxeCLe3t7N7mX3z94CN0xPxBQxFYQTSNz9T0i+v6inKqSdK8xrQ==}
 
-  resolve.exports@2.0.3:
-    resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
-    engines: {node: '>=10'}
-
   resolve@1.22.12:
     resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
     engines: {node: '>= 0.4'}
@@ -17048,13 +17040,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       postcss: 8.x
-
-  rollup-plugin-svelte@7.2.2:
-    resolution: {integrity: sha512-hgnIblTRewaBEVQD6N0Q43o+y6q1TmDRhBjaEzQCi50bs8TXqjc+d1zFZyE8tsfgcfNHZQzclh4RxlFUB85H8Q==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      rollup: '>=2.0.0'
-      svelte: '>=3.5.0'
 
   rollup-pluginutils@2.8.2:
     resolution: {integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==}
@@ -17766,43 +17751,6 @@ packages:
       svelte: ^3.37.0 || ^4.0.0 || ^5.0.0
     peerDependenciesMeta:
       svelte:
-        optional: true
-
-  svelte-preprocess@6.0.5:
-    resolution: {integrity: sha512-sgwew5yV/2eMeQobIWgAxCNarKwiTUDIc3siAUbq3sp0G6ONtzk0W+wJihMdqjbYb3iGU3ubpGv0usnnuXT3qg==}
-    engines: {node: '>= 18.0.0'}
-    peerDependencies:
-      '@babel/core': ^7.10.2
-      coffeescript: ^2.5.1
-      less: ^3.11.3 || ^4.0.0
-      postcss: ^7 || ^8
-      postcss-load-config: '>=3'
-      pug: ^3.0.0
-      sass: ^1.26.8
-      stylus: '>=0.55'
-      sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^4.0.0 || ^5.0.0-next.100 || ^5.0.0
-      typescript: ^5.0.0 || ^6.0.0
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      coffeescript:
-        optional: true
-      less:
-        optional: true
-      postcss:
-        optional: true
-      postcss-load-config:
-        optional: true
-      pug:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      typescript:
         optional: true
 
   svelte@5.57.1:
@@ -22047,11 +21995,6 @@ snapshots:
     optionalDependencies:
       rollup: 3.30.0
       tslib: 2.8.1
-
-  '@rollup/pluginutils@4.2.1':
-    dependencies:
-      estree-walker: 2.0.2
-      picomatch: 2.3.2
 
   '@rollup/pluginutils@5.4.0':
     dependencies:
@@ -36481,8 +36424,6 @@ snapshots:
     dependencies:
       protocol-buffers-schema: 3.6.1
 
-  resolve.exports@2.0.3: {}
-
   resolve@1.22.12:
     dependencies:
       es-errors: 1.3.0
@@ -36630,13 +36571,6 @@ snapshots:
       style-inject: 0.3.0
     transitivePeerDependencies:
       - ts-node
-
-  rollup-plugin-svelte@7.2.2(rollup@3.30.0)(svelte@5.57.1):
-    dependencies:
-      '@rollup/pluginutils': 4.2.1
-      resolve.exports: 2.0.3
-      rollup: 3.30.0
-      svelte: 5.57.1
 
   rollup-pluginutils@2.8.2:
     dependencies:
@@ -37469,15 +37403,6 @@ snapshots:
       semver: 7.7.3
     optionalDependencies:
       svelte: 5.57.1
-
-  svelte-preprocess@6.0.5(@babel/core@7.29.7)(postcss@8.5.23)(sass-embedded@1.97.3)(svelte@5.57.1)(typescript@6.0.3):
-    dependencies:
-      svelte: 5.57.1
-    optionalDependencies:
-      '@babel/core': 7.29.7
-      postcss: 8.5.23
-      sass: sass-embedded@1.97.3
-      typescript: 6.0.3
 
   svelte@5.57.1:
     dependencies:
