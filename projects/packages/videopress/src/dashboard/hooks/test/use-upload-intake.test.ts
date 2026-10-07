@@ -23,8 +23,18 @@ jest.mock( '../use-videopress-upgrade', () => ( {
 } ) );
 
 const mockCreateErrorNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( { createErrorNotice: mockCreateErrorNotice } ),
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( { createErrorNotice: mockCreateErrorNotice } ),
 } ) );
 
 const video = ( name: string ): File => new File( [ 'x' ], name, { type: 'video/mp4' } );
@@ -73,6 +83,7 @@ describe( 'useUploadIntake', () => {
 		expect( mockStartUpload ).not.toHaveBeenCalled();
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( NOT_A_VIDEO_MESSAGE, {
 			id: INVALID_FILE_NOTICE_ID,
+			type: 'snackbar',
 		} );
 	} );
 
@@ -84,6 +95,7 @@ describe( 'useUploadIntake', () => {
 		expect( mockStartUpload ).not.toHaveBeenCalled();
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( FREE_TIER_AT_LIMIT_MESSAGE, {
 			actions: [ { label: 'Upgrade', onClick: mockRunUpgrade } ],
+			type: 'snackbar',
 		} );
 	} );
 
@@ -96,7 +108,8 @@ describe( 'useUploadIntake', () => {
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 1 );
 		expect( mockStartUpload ).toHaveBeenCalledWith( files[ 0 ] );
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
-			'2 videos weren’t uploaded because they exceed your plan’s limit.'
+			'2 videos weren’t uploaded because they exceed your plan’s limit.',
+			{ type: 'snackbar' }
 		);
 	} );
 } );

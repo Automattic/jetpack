@@ -2,19 +2,23 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
-import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
-import { reloadPage } from '../../my-jetpack-tab-panel/products/reload-page';
+import { setPendingSuccessNotice } from '../../../utils/pending-notice';
+import { reloadPage } from '../../../utils/reload-page';
 import { ModuleToggle } from '../index';
 
 const mockToggleModule = jest.fn( () => Promise.resolve( true ) );
-const mockTrackProductAction = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { updateJetpackModuleStatus: mockToggleModule } ),
+	useDispatch: () => ( {
+		updateJetpackModuleStatus: mockToggleModule,
+		createSuccessNotice: mockCreateSuccessNotice,
+		createErrorNotice: mockCreateErrorNotice,
+	} ),
 	useSelect: callback => callback( () => ( { isModuleUpdating: () => false } ) ),
 } ) );
 
@@ -57,24 +61,13 @@ jest.mock( '@wordpress/ui', () => {
 	};
 } );
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( {
-		createSuccessNotice: mockCreateSuccessNotice,
-		createErrorNotice: mockCreateErrorNotice,
-	} ),
-} ) );
-
-jest.mock( '../../my-jetpack-tab-panel/products/products-tracking-context', () => ( {
-	useProductFiltersContext: () => ( { trackProductAction: mockTrackProductAction } ),
-} ) );
-
 jest.mock( '../../../utils/module-benefit-messages', () => ( {
 	getModuleActivationMessage: ( _slug: string, name: string ) => `${ name } activated.`,
 } ) );
 
 // window.location can't be mocked directly, so reloadPage is its own mockable wrapper.
-jest.mock( '../../my-jetpack-tab-panel/products/reload-page' );
-jest.mock( '../../my-jetpack-tab-panel/products/pending-notice' );
+jest.mock( '../../../utils/reload-page' );
+jest.mock( '../../../utils/pending-notice' );
 
 const legacyModule = ( overrides = {} ) => ( {
 	module: 'sharedaddy',
@@ -143,15 +136,6 @@ describe( 'ModuleToggle', () => {
 
 			// Deactivating the legacy module reveals the Site Editor link ( two-step, no redirect ).
 			expect( mockToggleModule ).toHaveBeenCalledWith( { name: module, active: false } );
-
-			// The switch path tracks the deactivation, like the toggle path.
-			expect( mockTrackProductAction ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					action: 'deactivate',
-					productSlug: module,
-					productType: 'module',
-				} )
-			);
 		}
 	);
 

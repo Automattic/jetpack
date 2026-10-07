@@ -186,13 +186,7 @@ Full control over component rendering with custom render functions:
 			</div>
 		)}
 		renderTooltip={({ step }) => (
-			<div style={{
-				background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				borderRadius: '12px',
-				padding: '16px 20px',
-				color: 'white',
-				minWidth: '200px'
-			}}>
+			<div style={{ minWidth: '200px' }}>
 				<div>{step.label}</div>
 				<div style={{ fontSize: '18px', fontWeight: 'bold' }}>
 					{step.rate.toFixed(1)}%
@@ -200,6 +194,12 @@ Full control over component rendering with custom render functions:
 				</div>
 			</div>
 		)}
+		tooltipStyle={{
+			background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+			borderRadius: '12px',
+			padding: '16px 20px',
+			color: 'white'
+		}}
 	/>` }
 />
 
@@ -208,7 +208,8 @@ Full control over component rendering with custom render functions:
 - **`renderMainMetric`**: Customize the main conversion rate display
 - **`renderStepLabel`**: Customize individual step labels
 - **`renderStepRate`**: Customize individual step rate displays
-- **`renderTooltip`**: Customize tooltip content and styling
+- **`renderTooltip`**: Customize tooltip content. It sits inside the dark tooltip box, so let it inherit the box colors.
+- **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
 
 ### Disabling Components
 

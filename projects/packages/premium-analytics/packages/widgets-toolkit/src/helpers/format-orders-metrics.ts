@@ -90,11 +90,6 @@ const metricFormatMap: Record<
 	},
 };
 
-export function formatOrderMetric( metricKey: MetricKey, options?: FormatMetricOptions ) {
-	return ( value: number ) =>
-		formatMetricValue( value, metricFormatMap[ metricKey ].metricType, options ?? {} );
-}
-
 export function getFormatByMetricKey( metricKey: MetricKey ) {
 	const config = metricFormatMap[ metricKey ];
 	return {

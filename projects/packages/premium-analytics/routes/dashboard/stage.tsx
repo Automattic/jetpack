@@ -1,12 +1,10 @@
 import {
-	GlobalErrorProvider,
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
-	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
@@ -20,6 +18,7 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
+	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
 	useTrackCustomize,
@@ -27,7 +26,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
@@ -41,7 +40,9 @@ import {
 	SectionSyncNotice,
 } from './components';
 import {
+	buildWidgetTypeRenames,
 	DATE_FILTER_YEAR,
+	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
@@ -60,6 +61,7 @@ import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
+import type { JSX } from 'react';
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -69,9 +71,30 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
+	const widgetModules = useWidgetModules();
+	const widgetTypeRenames = useMemo(
+		() => buildWidgetTypeRenames( widgetModules ),
+		[ widgetModules ]
+	);
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
+		activeSection,
+		sections,
+		widgetTypeRenames
+	);
 	const [ gridSettings ] = useDashboardGridSettings();
-	const canPerform = useDashboardPolicy();
+
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
+	/**
+	 * The widget types the inserter offers, for now, are:
+	 * - those that are already in the layout
+	 * - those that are the active section's default layout
+	 */
+	const insertableWidgetTypes = useMemo(
+		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
+		[ activeSectionRecord ]
+	);
+	const canPerform = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -105,7 +128,6 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );
@@ -171,8 +193,6 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
-
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
 	 * switch never leaves the visible control unable to represent the selection.
@@ -188,12 +208,14 @@ function Dashboard(): JSX.Element {
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
+	const showHeaderIntervalControl =
+		activeSectionRecord?.date_filter_options?.with_header_interval_control ?? true;
 
-	// A widget can open another section over a month (WOOA7S-2036); once that
-	// section shows the period control, it draws attention to the new period.
+	// A widget can set the period, here or on another section (WOOA7S-2036); once
+	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const attentionId = useSettlePeriodChange(
+	const { openPeriod, attentionId } = usePeriodHost(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl
@@ -282,11 +304,13 @@ function Dashboard(): JSX.Element {
 						containerElement={ headerElement }
 					/>
 
-					<DateIntervalDropdown
-						options={ dateFilters.intervalOptions }
-						value={ dateFilters.interval }
-						onChange={ dateFilters.onIntervalChange }
-					/>
+					{ showHeaderIntervalControl && (
+						<DateIntervalDropdown
+							options={ dateFilters.intervalOptions }
+							value={ dateFilters.interval }
+							onChange={ dateFilters.onIntervalChange }
+						/>
+					) }
 				</Stack>
 			) : (
 				/*
@@ -297,14 +321,14 @@ function Dashboard(): JSX.Element {
 					{ ...dateFilters }
 					onChange={ onDateChange }
 					onApply={ onDateApply }
-					withIntervalControl
+					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>
 			);
 	}
 
 	return (
-		<GlobalErrorProvider>
+		<>
 			<PeriodChangeStatus
 				attentionId={ attentionId }
 				appliedPresetId={ dateFilters.appliedPresetId }
@@ -314,7 +338,7 @@ function Dashboard(): JSX.Element {
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
-			<ReportScopeProvider offersComparison={ showComparison }>
+			<ReportScopeProvider offersComparison={ showComparison } openPeriod={ openPeriod }>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
 				<WidgetDashboard.Policy canPerform={ canPerform }>
 					<WidgetDashboard
@@ -391,7 +415,9 @@ function Dashboard(): JSX.Element {
 
 												<WidgetDashboard.NoWidgetsState />
 												<div ref={ setWidgetsFrame }>
-													<WidgetDashboard.Widgets className={ styles.widgets } />
+													<DashboardSectionProvider section={ section.slug }>
+														<WidgetDashboard.Widgets className={ styles.widgets } />
+													</DashboardSectionProvider>
 												</div>
 											</div>
 										) : null }
@@ -418,7 +444,7 @@ function Dashboard(): JSX.Element {
 					</WidgetDashboard>
 				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
-		</GlobalErrorProvider>
+		</>
 	);
 }
 

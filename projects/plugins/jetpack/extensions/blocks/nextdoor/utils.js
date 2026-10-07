@@ -1,13 +1,21 @@
+// Loose detector for the paste transform only; parseUrl() does the real host validation.
 export const REGEX = /(^|\/\/|www\.)(nextdoor\.[^"']*)/i;
+
+// Matches hosts where "nextdoor" is the registrable domain (nextdoor.com, nextdoor.co.uk, ...).
+export const HOST_REGEX = /(^|\.)nextdoor\.[a-z]{2,3}(\.[a-z]{2})?$/i;
 
 const PATH_REGEX = /([^/]+$)/;
 
 const getEmbedUrlFromPostUrl = postUrl => {
 	let urlObject;
-	if ( postUrl.indexOf( 'https' ) === 0 ) {
-		urlObject = new URL( postUrl );
-	} else {
-		urlObject = new URL( 'https:' + postUrl );
+	try {
+		urlObject = new URL( postUrl.indexOf( 'https' ) === 0 ? postUrl : 'https://' + postUrl );
+	} catch {
+		return;
+	}
+
+	if ( urlObject.protocol !== 'https:' || ! HOST_REGEX.test( urlObject.host ) ) {
+		return;
 	}
 
 	const embedId = urlObject.pathname.match( PATH_REGEX );
@@ -20,16 +28,11 @@ const getEmbedUrlFromPostUrl = postUrl => {
 };
 
 export const parseUrl = postUrl => {
-	if ( ! postUrl || ! postUrl.match( REGEX ) ) {
+	if ( ! postUrl ) {
 		return;
 	}
 
-	const newUrl = getEmbedUrlFromPostUrl( postUrl );
-	if ( ! newUrl ) {
-		return;
-	}
-
-	return newUrl;
+	return getEmbedUrlFromPostUrl( postUrl );
 };
 
 export const resizeIframeOnMessage = id => {

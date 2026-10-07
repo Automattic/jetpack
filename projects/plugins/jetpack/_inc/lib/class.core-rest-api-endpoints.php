@@ -1729,6 +1729,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_list_item',
 				'jp_group'          => 'comments',
 			),
+			'enable_blocks_comments'                    => array(
+				'description'       => esc_html__( 'Enable blocks in comments', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'comments',
+			),
 
 			// Custom Content Types.
 			'jetpack_portfolio'                         => array(
@@ -2551,6 +2558,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'videopress',
+			),
+			'videopress_share_menu_disabled'            => array(
+				'description'       => esc_html__( 'Hide the share menu on every video, overriding each video’s own setting', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

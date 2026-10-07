@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugins: Send Marketplace plugins sold by their vendor to that vendor with the site attached, show "Start for free" instead of a price for them, hide prices on installed plugins' cards, and record Tracks events on the tab.

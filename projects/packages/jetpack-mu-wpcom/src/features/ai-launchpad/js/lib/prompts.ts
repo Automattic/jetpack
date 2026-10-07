@@ -545,18 +545,19 @@ function sameLanguage( a: string, b: string ): boolean {
  * page intros become the site's own published content, so they follow the site's. Everything else
  * stays English: the slugs because the server validates them against English enums, and
  * `niche`/`vibe`/`audience` because they are Tracks dimensions that are compared across sites —
- * translating them would split one cohort into forty. When the two languages match — the ordinary
- * case — the first two groups collapse into one instruction.
+ * translating them would split one cohort into forty. When the two languages match, or are two
+ * Englishes, `splitLanguages` is false and the first two groups collapse into one instruction.
  *
- * @param locale   - The site language.
- * @param uiLocale - The account language of whoever runs the wizard.
+ * @param locale         - The site language.
+ * @param uiLocale       - The account language of whoever runs the wizard.
+ * @param splitLanguages - Whether the subtitles and the published content get different languages.
  * @return The instruction sentence(s).
  */
-function languageInstruction( locale: string, uiLocale: string ): string {
+function languageInstruction( locale: string, uiLocale: string, splitLanguages: boolean ): string {
 	const site = `${ languageDisplayName( locale ) } (locale "${ locale }")`;
 
-	if ( sameLanguage( locale, uiLocale ) ) {
-		return `The site's language is ${ site }. Write these in that language: the task subtitles, the whole first_post_draft and about_page_draft, and every page_intros line. The About page title is that language's equivalent of "About".`;
+	if ( ! splitLanguages ) {
+		return `The site's language is ${ site }. Write these in that language: the task subtitles, the whole first_post_draft and about_page_draft, and every page_intros line - even when the site name or description is written in another language. The About page title is that language's equivalent of "About".`;
 	}
 
 	return `Two languages are in play, and mixing them up is the failure to avoid. Write the task "subtitle" values in ${ languageDisplayName(
@@ -589,31 +590,37 @@ export function buildTailorPrompt(
 			? TASK_ANNOTATIONS.filter( task => availableTaskIds.includes( task.id ) )
 			: TASK_ANNOTATIONS;
 
-	// A site and an account that are both English get no language block at all, so the prompt those
-	// users have always had stays byte-identical — including two different Englishes, where there is
-	// nothing to instruct.
-	const hasLanguageSection = ! isEnglishLocale( locale ) || ! isEnglishLocale( uiLocale );
-	// Whether the two audiences need telling apart. Gated on the section existing as well, or the
-	// reminder below would point at a section that was never written.
-	const splitLanguages = hasLanguageSection && ! sameLanguage( locale, uiLocale );
+	// English sites get the block too: without it, a description in another language pulls the output
+	// into that language. Two different Englishes are not worth splitting the subtitles over.
+	const bothEnglish = isEnglishLocale( locale ) && isEnglishLocale( uiLocale );
+	const splitLanguages = ! sameLanguage( locale, uiLocale ) && ! bothEnglish;
 
-	// Naming the subtitle language once at the top is not enough: STEP 2 spends a paragraph on
-	// subtitles without mentioning language, and the model follows the nearer instruction. Repeat it
-	// where the field is actually defined.
+	// Naming each language once at the top is not enough: the model follows the nearest instruction,
+	// so a split is repeated in every step that writes text.
 	const subtitleLanguage = splitLanguages
 		? ` Write every subtitle in ${ languageDisplayName(
 				uiLocale
 			) }, NOT in the language of the rest of this response - see the output-language section above.`
 		: '';
+	const contentLanguage = splitLanguages
+		? ` Write it in ${ languageDisplayName( locale ) }, NOT in ${ languageDisplayName(
+				uiLocale
+			) } like the task subtitles.`
+		: '';
 
-	const languageSection = ! hasLanguageSection
-		? ''
-		: `
+	// Only when no field is meant to be in English, or the warning contradicts the instruction above it.
+	const noEnglishFallback =
+		isEnglishLocale( locale ) || isEnglishLocale( uiLocale )
+			? ''
+			: ', and do not fall back to English for the fields named above';
+
+	const languageSection = `
 ============ output language ============
 ${ languageInstruction(
 	locale,
-	uiLocale
-) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe" and "audience", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them, and do not fall back to English for the fields named above.
+	uiLocale,
+	splitLanguages
+) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe" and "audience", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them${ noEnglishFallback }.
 `;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
@@ -627,7 +634,7 @@ ${ languageSection }
 ============ STEP 1 - inferred ============
 First, read the description closely and infer the site's context. You will use this to choose and describe the tasks, so do it before anything else.
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
-- "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. Same six values. Diagnostic only - it must NOT influence your task choices or anything else you produce.
+- "inferred_goal": the goal you would infer from ONLY the site name and user description, ignoring the "Goal:" line above. MUST be exactly one of: write, build, sell, newsletter, educate, portfolio - never a slug that only appears in the theme_category list below, such as "business" or "art-design". Diagnostic only - it must NOT influence your task choices or anything else you produce.
 - "brand_name": the site name. Per the name-resolution rule below.
 - "niche": the specific subject area in a few words (e.g. "long-distance hiking", "handmade ceramics", "indie game reviews").
 - "theme_category": the theme-showcase category that best matches what the site is about, used to suggest matching site designs. MUST be exactly one of these slugs (format: slug = human name):
@@ -651,18 +658,18 @@ One task is an exception to that push for specificity. For the social task "conn
 ${ HARD_RULES }
 
 ============ STEP 3 - first_post_draft ============
-Write a friendly starter blog post the user can edit and publish.
+Write a friendly starter blog post the user can edit and publish.${ contentLanguage }
 - "title": clear and evocative, max 8 words.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
 - "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain language, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
 ============ STEP 4 - about_page_draft ============
-Write starter content for the site's About page, grounded in the user's own description - never generic filler.
+Write starter content for the site's About page, grounded in the user's own description - never generic filler.${ contentLanguage }
 - "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
 - "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
 
 ============ STEP 5 - page_intros (only when it applies) ============
-Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.
+Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.${ contentLanguage }
 - "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
 - "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
 - "add_video_page": one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.
@@ -682,8 +689,9 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "...", "add_events_page": "...", "add_video_page": "...", "add_gallery_page": "..." }
+  "page_intros": { "add_contact_page": "..." }
 }
 
-Leave "page_intros" out altogether unless STEP 5 applies.`;
+Leave "page_intros" out altogether unless STEP 5 applies, and when it does, include only the keys for the page tasks you chose.
+Never write null or an empty string for any field. When an optional field does not apply, leave its key out instead.`;
 }

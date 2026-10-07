@@ -9,6 +9,7 @@
  * @since 0.8.0
  */
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
@@ -101,7 +102,7 @@ import {
 // payment method selection (PayPal, cards, wallets, etc.).
 
 // What the form edits: the payment's attributes the merchant sets, and the block's
-// image, which is sent with them.
+// image, which stays on the site.
 const FORM_FIELDS = [
 	...RESOURCE_ATTRIBUTES.filter( key => ! PAYPAL_SET_ATTRIBUTES.includes( key ) ),
 	'imageUrl',
@@ -192,6 +193,29 @@ const helpAddressWithProfileTax = __(
 const labelShippingFirstItem = __( 'Shipping fee for first item', 'jetpack-paypal-payments' );
 const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
 
+// The PayPal addresses check_merchant_status() puts in the notices. Captured, so split() keeps them.
+const PAYPAL_URL_PATTERN = /(https:\/\/www\.(?:sandbox\.)?paypal\.com[\w/]*)/;
+
+/**
+ * Link the PayPal addresses in an account status notice, which the server sends
+ * translated with the addresses already in it.
+ *
+ * @param {string} text - The notice.
+ * @return {Array} The text, with each address as a link.
+ */
+function linkPayPalUrls( text ) {
+	// split() puts the captured addresses at the odd indexes.
+	return text.split( PAYPAL_URL_PATTERN ).map( ( part, index ) =>
+		index % 2 ? (
+			<Link key={ index } openInNewTab href={ part }>
+				{ part }
+			</Link>
+		) : (
+			part
+		)
+	);
+}
+
 /**
  * API-managed PayPal Payment Buttons edit component.
  *
@@ -258,6 +282,9 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
+	// Identifies this bundle's Tracks events with the connected user.
+	useAnalytics();
+
 	const {
 		isConnected,
 		setIsConnected,
@@ -266,6 +293,7 @@ export default function ApiManagedEdit( {
 		connectionLoading,
 		partnerAttributionId,
 		accountEmail,
+		merchantNotices,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,
@@ -290,6 +318,7 @@ export default function ApiManagedEdit( {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	} = usePayPalConnection();
@@ -433,6 +462,7 @@ export default function ApiManagedEdit( {
 		resource,
 		isBusy,
 		linkDeleted,
+		readError,
 		paymentChanged,
 		dismissPaymentChanged,
 		handleDeleteButton,
@@ -851,6 +881,7 @@ export default function ApiManagedEdit( {
 				<OnboardingFrame
 					signupUrl={ signupUrl }
 					isOverlayOpen={ isOverlayOpen }
+					isCompletingOnboarding={ isCompletingOnboarding }
 					setFrameNode={ setFrameNode }
 					cancelOnboarding={ cancelOnboarding }
 				/>
@@ -881,6 +912,7 @@ export default function ApiManagedEdit( {
 						handleClientSecretChange={ handleClientSecretChange }
 						clientIdWarning={ clientIdWarning }
 						handleConnect={ handleConnect }
+						recordWizardStarted={ recordWizardStarted }
 						fetchSignupLink={ fetchSignupLink }
 					/>
 				</InspectorControls>
@@ -976,6 +1008,14 @@ export default function ApiManagedEdit( {
 			) }
 		</Notice>
 	) : null;
+
+	// PayPal requires the seller to see these, so every block shows them.
+	const merchantStatusNotice =
+		isConnected && merchantNotices.length ? (
+			<Notice status="warning" isDismissible={ false }>
+				{ linkPayPalUrls( merchantNotices.join( ' ' ) ) }
+			</Notice>
+		) : null;
 
 	// A payment link can be shared by blocks on any post, so warn whenever there is one.
 	const sharedResourceNotice = hasButton ? (
@@ -1162,14 +1202,6 @@ export default function ApiManagedEdit( {
 					{ imageUrl ? (
 						<div className="jetpack-paypal-payment-buttons__image-preview">
 							<img src={ imageUrl } alt={ productName || '' } />
-							{ ! /^https:\/\//i.test( imageUrl ) && (
-								<Notice status="warning" isDismissible={ false }>
-									{ __(
-										'PayPal only shows images served from a public HTTPS address, so this one will not appear at checkout.',
-										'jetpack-paypal-payments'
-									) }
-								</Notice>
-							) }
 							<div className="jetpack-paypal-payment-buttons__image-actions">
 								<MediaUploadCheck>
 									<MediaUpload
@@ -1450,8 +1482,16 @@ export default function ApiManagedEdit( {
 					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
 					help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
+					// A profile tax still needs the address once shipping is off, so that one stays on.
 					onChange={ value =>
-						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
+						setAttributes(
+							value
+								? { shippingEnabled: true }
+								: {
+										...turnGateOff( 'shippingEnabled' ),
+										...( addressIsRequired ? { collectShippingAddress: true } : {} ),
+									}
+						)
 					}
 					disabled={ isBusy }
 				/>
@@ -1651,15 +1691,29 @@ export default function ApiManagedEdit( {
 			{ accountHeader }
 			{ formatControls }
 
-			{ /* The inspector only mounts when the block is selected, so notices about a
-			     broken block go on the canvas. */ }
+			{ /* The inspector only mounts when the block is selected, so these notices go
+			     on the canvas. */ }
 			{ disconnectedNotice }
+			{ merchantStatusNotice }
 
 			{ linkDeleted && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
 						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
 						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			) }
+
+			{ readError && (
+				<Notice status="error" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: the error message from PayPal. */
+						__(
+							'This payment link could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
+							'jetpack-paypal-payments'
+						),
+						readError
 					) }
 				</Notice>
 			) }

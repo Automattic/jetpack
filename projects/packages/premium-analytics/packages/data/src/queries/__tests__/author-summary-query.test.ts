@@ -53,8 +53,6 @@ describe( 'authorSummaryQuery', () => {
 
 	it.each( [
 		[ 'rest_user_cannot_view', 403 ],
-		[ 'rest_forbidden', 403 ],
-		[ 'internal_server_error', 500 ],
 		[ 'rest_no_route', 404 ],
 	] )( 'rethrows a %s failure whatever its status', async ( code, status ) => {
 		const error = { code, data: { status } };

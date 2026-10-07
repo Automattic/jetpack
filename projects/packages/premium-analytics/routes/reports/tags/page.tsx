@@ -3,14 +3,14 @@
  */
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	tagsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,8 +18,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: views sort descending, the label column absorbs
@@ -35,8 +37,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.value;
-
 /**
  * Premium Analytics Tags & categories report page component.
  *
@@ -48,52 +48,35 @@ const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.val
  */
 function TagsReport(): JSX.Element {
 	const records = useTagsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getTagsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< StatsTagsItem >[] >(
-		() => [
-			{
-				label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.labelText,
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'tags-and-categories',
-		status: records,
-		sort: sortTagCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.tags;
+	const { getLabel } = REPORTS.tags;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ tagsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table: `ReportRecordsTable`'s `empty` renders on
-				 * row count, not fetch status, so a failed refetch over cached rows would
-				 * otherwise leave stale data on screen with no notice or retry.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load tags and categories. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<ReportRecordsTable< StatsTagsItem >
@@ -101,6 +84,7 @@ function TagsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getTagRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 					/>

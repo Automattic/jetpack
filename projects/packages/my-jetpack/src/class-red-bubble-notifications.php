@@ -143,7 +143,9 @@ class Red_Bubble_Notifications {
 	}
 
 	/**
-	 * Add an alert slug if the site is missing a site connection
+	 * Add an alert slug if the site is missing a site connection, or has no connection owner recorded and the current user can become one.
+	 *
+	 * @since 6.7.1 Only alerts about a missing user connection when no connection owner is recorded, and to users who can take the vacant owner slot.
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
@@ -161,7 +163,11 @@ class Red_Bubble_Notifications {
 			return $red_bubble_slugs;
 		}
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+		// A recorded owner without a token is reported as a connection error instead. Only a user who
+		// can take the vacant owner slot (see Manager::authorize()) fixes a site without an owner.
+		if ( ! empty( $broken_modules['needs_user_connection'] )
+			&& ! Jetpack_Options::get_option( 'master_user' )
+			&& current_user_can( 'jetpack_connect' ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'user',
 				'is_error' => true,

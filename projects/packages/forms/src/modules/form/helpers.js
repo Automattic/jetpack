@@ -152,5 +152,29 @@ export const getSubmissionDisplayValue = ( value, type, uncheckedLabel ) => {
 		return uncheckedLabel;
 	}
 
-	return maybeTransformValue( value );
+	return htmlspecialcharsDecode( maybeTransformValue( value ) );
+};
+
+/**
+ * Decode the `htmlspecialchars( …, ENT_NOQUOTES )` encoding stored values carry, for a value
+ * rendered as text. Mirrors `Feedback::decode_special_chars()`.
+ *
+ * @param {*} input - The stored value.
+ * @return {*} The decoded value, with the same shape.
+ */
+export const htmlspecialcharsDecode = input => {
+	if ( Array.isArray( input ) ) {
+		return input.map( htmlspecialcharsDecode );
+	}
+	if ( typeof input !== 'string' ) {
+		return input;
+	}
+
+	return (
+		input
+			.replace( /&lt;/g, '<' )
+			.replace( /&gt;/g, '>' )
+			// Ampersand must be last.
+			.replace( /&amp;/g, '&' )
+	);
 };

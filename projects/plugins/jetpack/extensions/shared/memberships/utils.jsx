@@ -1,6 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { accessOptions } from './constants';
 
@@ -35,7 +34,7 @@ export const getPaidPlanLink = alreadyHasTierPlans => {
 };
 
 export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {
-	return postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
+	return postVisibility === 'private' && accessLevel !== accessOptions.everybody.key;
 };
 
 export const MisconfigurationWarning = () => (
@@ -44,14 +43,9 @@ export const MisconfigurationWarning = () => (
 		isDismissible={ false }
 		className="edit-post-post-misconfiguration__warning"
 	>
-		{ createInterpolateElement(
-			__(
-				'You’ll need to change the post’s access to Everybody or visibility to Public.<br/>' +
-					'<br/>' +
-					'Subscribers aren’t able to view private or password-protected posts.',
-				'jetpack'
-			),
-			{ br: <br /> }
+		{ __(
+			'Subscribers aren’t able to view private posts. To let them read it, change its visibility to Public or Password protected.',
+			'jetpack'
 		) }
 	</Notice>
 );

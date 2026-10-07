@@ -8,6 +8,7 @@ import { isFixComplete, useFixThreatsStatusQuery } from '../../data/use-fix-thre
 import { useFixThreatsMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 /**
  * Single-threat fix-confirmation modal — wired into `ThreatsDataViews`'

@@ -5,7 +5,7 @@ import { createContext, useContext } from '@wordpress/element';
 /**
  * Types
  */
-import type { PropsWithChildren } from 'react';
+import type { JSX, PropsWithChildren } from 'react';
 
 export type SetDashboardSearchParams = (
 	next: URLSearchParams | ( ( prev: URLSearchParams ) => URLSearchParams )

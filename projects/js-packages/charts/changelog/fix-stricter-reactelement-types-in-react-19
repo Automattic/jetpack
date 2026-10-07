@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Update ReactElement types for React 19. Should be no change to functionality.
+
+

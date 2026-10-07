@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	queryClient,
 } from '@jetpack-premium-analytics/data';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -152,6 +153,19 @@ describe( 'PopularPostWidget', () => {
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
+	it( 'names its own window, not the selected period, when the site has no views', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...topPostsResponse,
+			summary: { postviews: [], total_views: 0 },
+		} );
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
 		const reportParams = { ...yearReportParams( 2022 ), author_id: 7 };
 		const { unmount } = render( <PopularPostWidget attributes={ { reportParams } } /> );
@@ -164,7 +178,7 @@ describe( 'PopularPostWidget', () => {
 		render( <PopularPostWidget attributes={ { reportParams, authorScoped: true } } /> );
 
 		await expect(
-			screen.findByText( 'No views recorded for this author’s posts in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 		expect( topPostsRequests() ).toHaveLength( 0 );
 		expect(
@@ -187,8 +201,12 @@ describe( 'PopularPostWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'links the post to its detail page on the window it ranked over', async () => {
-		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+	it( 'links the post to its detail page on the window it ranked over, naming the tab to return to', async () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+			</DashboardSectionProvider>
+		);
 
 		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
 		const { searchParams: search } = getMockRouteLinkUrl( link );
@@ -198,6 +216,7 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its

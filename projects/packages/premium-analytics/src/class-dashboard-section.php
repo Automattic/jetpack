@@ -103,14 +103,18 @@ final class Dashboard_Section {
 	 *   section, not just the chrome.
 	 * - `with_header_date_control`: false hands the control to the section's widgets, which may
 	 *   save the range onto the widget instance rather than the URL.
+	 * - `with_header_interval_control`: false drops the chart interval control from the header, for
+	 *   a section whose charts each save their own.
 	 *
 	 * @since 0.3.0
 	 * @since 0.5.0 Added `with_header_date_control`.
+	 * @since $$next-version$$ Added `with_header_interval_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
-		'with_date_comparison'     => true,
-		'with_header_date_control' => true,
+		'with_date_comparison'         => true,
+		'with_header_date_control'     => true,
+		'with_header_interval_control' => true,
 	);
 
 	/**
@@ -170,12 +174,6 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
-		// The preview scope is about the rollout rather than the site, so it sits ahead of the
-		// section's own check.
-		if ( ! is_dashboard_section_in_preview_scope( $this->dashboard_name, $this->slug ) ) {
-			return false;
-		}
-
 		if ( is_callable( $this->is_available ) ) {
 			return (bool) call_user_func( $this->is_available, $this );
 		}
@@ -270,8 +268,9 @@ final class Dashboard_Section {
 			$options = array_merge( $this->date_filter_options, $args['date_filter_options'] );
 
 			$this->date_filter_options = array(
-				'with_date_comparison'     => (bool) $options['with_date_comparison'],
-				'with_header_date_control' => (bool) $options['with_header_date_control'],
+				'with_date_comparison'         => (bool) $options['with_date_comparison'],
+				'with_header_date_control'     => (bool) $options['with_header_date_control'],
+				'with_header_interval_control' => (bool) $options['with_header_interval_control'],
 			);
 		}
 

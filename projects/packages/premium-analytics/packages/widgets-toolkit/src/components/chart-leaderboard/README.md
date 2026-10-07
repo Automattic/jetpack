@@ -2,6 +2,45 @@
 
 A responsive leaderboard (horizontal bar) chart component for displaying ranking and "top X by Y" data visualizations.
 
+## Widgets: use `Leaderboard`
+
+A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
+
+```tsx
+// Inside `WidgetRoot`. Memoize the rows: the component rebuilds the chart data when they change.
+const rows = useMemo(
+	() =>
+		videos.map( video => ( {
+			id: video.key,
+			label: video.label,
+			value: video.plays,
+			previousValue: video.previousPlays,
+			action: { kind: 'videoLink', id: video.id, href: video.link },
+		} ) ),
+	[ videos ]
+);
+
+return (
+	<Leaderboard
+		rows={ rows }
+		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+		error={ describeError( error, {
+			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			onRetry: refetch,
+		} ) }
+		footer={ <ReportLink report="videos" /> }
+	/>
+);
+```
+
+A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose.
+
+Pass `error` as `describeError()` builds it, so an access-denied failure offers no Retry. Without an `error`, the component shows the generic message with a Retry bound to `status.refetch`.
+
+Rows may carry `children`. With a `drillDown` (`backLabel`, `rowAriaLabel`) every such row becomes a button that shows its children under a back link, any number of levels deep; the selection heals itself when the settled data no longer backs it, and a widget whose rows change under a control of its own resets it by giving the leaderboard a `key`.
+
+The rest of this document covers the chart on its own.
+
 ## Features
 
 - **Context-aware styling**: Integrates with GlobalChartsProvider for consistent theming
@@ -142,8 +181,7 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
-detail route instead of the post one. Same constraints: no media, never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
@@ -178,6 +216,8 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 
+Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', fallbackIcon: video }`.
+
 `icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
@@ -201,8 +241,8 @@ inline padding.
 | `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
 | `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
 | `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                       |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
 | `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
 
 ### LeaderboardChartData Type

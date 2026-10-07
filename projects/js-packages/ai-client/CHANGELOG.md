@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.4] - 2026-10-05
+### Changed
+- Update package dependencies. [#52949]
+- Use WordPress Design System colors in the image and logo generator. [#53022]
+
+### Fixed
+- Logo generator: Stop the upgrade nudge's button colors from applying to other upgrade banners. [#52974]
+
+## [0.35.3] - 2026-09-29
+### Changed
+- Update dependencies. [#52892]
+
+## [0.35.2] - 2026-09-28
+### Changed
+- Update dependencies. [#52691]
+
+### Removed
+- Remove unused dependency on `@automattic/jetpack-explat`, which does not exist outside the monorepo. [#52769]
+
 ## [0.35.1] - 2026-09-21
 ### Changed
 - Update package dependencies. [#52187]
@@ -971,6 +990,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.35.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.3...v0.35.4
+[0.35.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.2...v0.35.3
+[0.35.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.37...v0.35.0
 [0.34.37]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.36...v0.34.37

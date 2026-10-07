@@ -1,141 +1,61 @@
-/**
- * The identity block: guest fields when logged out, and the attribution line in
- * the submit row when logged in.
- */
-
-// Hidden, not just collapsed, so nothing inside a closed tray can take focus.
-// The visibility flip waits for the rows to finish collapsing.
-.jetpack-comments__tray {
-	display: grid;
-	grid-template-rows: 0fr;
-	visibility: hidden;
-	transition:
-		grid-template-rows 0.3s ease-in-out,
-		visibility 0s linear 0.3s;
-
-	&.is-open {
-		grid-template-rows: 1fr;
-		visibility: visible;
-		transition:
-			grid-template-rows 0.3s ease-in-out,
-			visibility 0s;
-	}
-
-	> div {
-		overflow: hidden;
-	}
-}
-
+// Always shares the row with the submit: a zero basis never forces a wrap, and
+// it takes whatever room is left, its link dropping under the name when short.
 .jetpack-comments__identity {
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-	background: var(--jetpack-comments-wrapper-background-color);
+	display: flex;
+	align-items: center;
+	gap: 0.75em;
+	flex: 1 1 0;
+	min-inline-size: 0;
+	font-size: 0.8125em;
+	// Pinned, so a theme's tall line height cannot stretch the row.
+	line-height: 1.4;
 }
 
-.jetpack-comments__prompt {
-	all: unset;
-	display: block;
-	padding-block-end: 16px;
-	font-size: 18px;
-	font-weight: 400;
-	color: var(--jetpack-comments-font-color);
+.jetpack-comments__profile {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 0.75em;
+	min-inline-size: 0;
 }
 
-.jetpack-comments__login {
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
+// Ellipsis rather than overflow into the submit, however little room is left.
+.jetpack-comments__name,
+.jetpack-comments__link {
+	max-inline-size: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// Capped, so a long name leaves room for the link.
+.jetpack-comments__name {
+	max-inline-size: min(100%, 10em);
+}
+
+// Smaller than the name, so it reads as an aside.
+.jetpack-comments__link {
+	font-size: 0.875em;
+}
+
+// Three classes deep, past a theme's link colours and underlines.
+.jetpack-comments .jetpack-comments__identity a.jetpack-comments__name {
 	color: inherit;
-	font-size: 14px;
 	text-decoration: none;
 
-	&:hover,
-	&:focus-visible {
-		border-color: var(--jetpack-comments-accent-color);
+	&:hover {
+		text-decoration: underline;
 	}
 }
 
-.jetpack-comments__guest {
+.jetpack-comments__avatar,
+.jetpack-comments__avatar-link {
 	display: flex;
-	flex-direction: column;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-}
-
-.jetpack-comments__guest-field {
-	all: unset;
-	position: relative;
-	display: flex;
-	align-items: center;
-	block-size: 45px;
-	border-block-end: 1px solid var(--jetpack-comments-border-color);
-	color: var(--jetpack-comments-font-color);
-
-	svg {
-		position: absolute;
-		inset-block: 0;
-		inset-inline-start: 16px;
-		margin-block: auto;
-	}
-
-	input {
-		all: initial;
-		box-sizing: border-box;
-		inline-size: 100%;
-		block-size: 100%;
-		padding-inline: 44px 16px;
-		border: none;
-		background: transparent;
-		color: var(--jetpack-comments-font-color);
-		font-family: inherit;
-		font-size: 14px;
-
-		&::placeholder {
-			color: var(--jetpack-comments-font-color);
-			opacity: 0.8;
-		}
-
-		&:focus-visible {
-			outline: 1px solid var(--jetpack-comments-accent-color);
-			outline-offset: -1px;
-		}
-	}
-}
-
-.jetpack-comments__options {
-	padding: 16px 21px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-}
-
-.jetpack-comments__guest-field:last-child {
-	border-block-end: none;
-}
-
-.jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
-	border-block-end: none;
-}
-
-
-.jetpack-comments__user {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin-inline-end: auto;
-	font-size: 14px;
-}
-
-.jetpack-comments__avatar {
 	flex-shrink: 0;
-	// 39 not 37: the border-box reset puts the 1px frame inside the box.
-	inline-size: 39px;
-	block-size: 39px;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-	background-color: var(--jetpack-comments-content-background-color);
 }
 
-.jetpack-comments__logout {
-	color: inherit;
-	font-size: 14px;
+// Past a theme's own `.avatar` sizing, so the submit beside it can match.
+.jetpack-comments .jetpack-comments__identity .jetpack-comments__avatar {
+	inline-size: var(--jetpack-comments-avatar-size);
+	block-size: var(--jetpack-comments-avatar-size);
 }

@@ -6,9 +6,7 @@
  */
 
 /**
- * Jetpack Google Font Face disables Font Face hooks in Core that prints **ALL** font faces.
- * Instead, it collects fonts that are used in global styles or block-level settings and
- * print those fonts in use.
+ * Prints used legacy catalogue faces while native font printers handle theme and user fonts.
  *
  * @phan-constructor-used-for-side-effects
  */
@@ -24,7 +22,7 @@ class Jetpack_Google_Font_Face {
 	 * The constructor.
 	 */
 	public function __construct() {
-		// Turns off hooks to print fonts
+		// Retire the legacy printer while keeping native font-face printing.
 		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
 		add_action( 'current_screen', array( $this, 'current_screen' ), 10 );
 
@@ -39,14 +37,10 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
-	 * Turn off hooks to print fonts on frontend
+	 * Turn off the legacy webfonts printer on the frontend.
 	 */
 	public function wp_loaded() {
 		remove_action( 'wp_head', 'wp_print_fonts', 50 );
-		remove_action( 'wp_head', 'wp_print_font_faces', 50 );
-		// Gutenberg 22.4+ overrides Core's font printing with its own function
-		// for classic theme support. Remove it so we can print only fonts in use.
-		remove_action( 'wp_head', 'gutenberg_print_font_faces', 50 );
 	}
 
 	/**
@@ -64,24 +58,98 @@ class Jetpack_Google_Font_Face {
 	 * Print fonts that are used in global styles or block-level settings.
 	 */
 	public function print_font_faces() {
-		$fonts             = WP_Font_Face_Resolver::get_fonts_from_theme_json();
-		$font_slug_aliases = $this->get_font_slug_aliases();
-		$fonts_to_print    = array();
+		if ( jetpack_google_fonts_load_font_faces() ) {
+			return;
+		}
 
 		$this->collect_global_styles_fonts();
-		$fonts_in_use = array_values( array_unique( $this->fonts_in_use, SORT_STRING ) );
-		$fonts_in_use = array_map(
-			function ( $font_slug ) use ( $font_slug_aliases ) {
-				return $font_slug_aliases[ $font_slug ] ?? $font_slug;
-			},
-			$fonts_in_use
+		$fonts_in_use = array_fill_keys( $this->fonts_in_use, true );
+		if ( empty( $fonts_in_use ) ) {
+			return;
+		}
+
+		$settings     = function_exists( 'gutenberg_get_global_settings' )
+			? gutenberg_get_global_settings()
+			: wp_get_global_settings();
+		$native_slugs = array();
+		$native_faces = array();
+		foreach ( $settings['typography']['fontFamilies'] ?? array() as $origin => $families ) {
+			foreach ( $families as $family ) {
+				if ( 'default' === $origin && empty( $family['fontFace'] ) ) {
+					continue;
+				}
+				if ( empty( $family['fontFamily'] ) ) {
+					continue;
+				}
+				$key = $this->format_font( self::get_font_family_name( $family ) );
+				if ( ! empty( $family['slug'] ) ) {
+					$native_slugs[ $this->format_font( $family['slug'] ) ] = $key;
+				}
+				if ( ! empty( $family['fontFace'] ) ) {
+					foreach ( $family['fontFace'] as $face ) {
+						$native_faces[ $key ][] = $face;
+					}
+				}
+			}
+		}
+
+		// Presets without their own faces can still refer to a legacy catalogue family.
+		$fonts_in_use = array_fill_keys(
+			array_map(
+				static function ( $font ) use ( $native_slugs ) {
+					return $native_slugs[ $font ] ?? $font;
+				},
+				array_keys( $fonts_in_use )
+			),
+			true
 		);
 
-		foreach ( $fonts as $font_faces ) {
-			$font_family = $font_faces[0]['font-family'] ?? '';
-			if ( in_array( $this->format_font( $font_family ), $fonts_in_use, true ) ) {
-				$fonts_to_print[] = $font_faces;
+		$data = jetpack_get_google_fonts_data();
+		if ( empty( $data['fontFamilies'] ) ) {
+			return;
+		}
+		$available_fonts = jetpack_get_available_google_fonts_map( $data );
+		$fonts_to_print  = array();
+		foreach ( $data['fontFamilies'] as $family ) {
+			if ( empty( $available_fonts[ $family['name'] ] ) || empty( $family['fontFace'] ) ) {
+				continue;
 			}
+
+			$name = self::get_font_family_name( $family );
+			$key  = $this->format_font( $name );
+			$slug = $this->format_font( $family['slug'] );
+			// A preset that reuses this slug for another family replaces it.
+			if ( isset( $native_slugs[ $slug ] ) && $native_slugs[ $slug ] !== $key ) {
+				continue;
+			}
+			if ( ! isset( $fonts_in_use[ $slug ] ) && ! isset( $fonts_in_use[ $key ] ) ) {
+				continue;
+			}
+
+			$catalogue_faces = $family['fontFace'];
+			if ( isset( $native_faces[ $key ] ) ) {
+				// Native files win; the catalogue only fills styles and weights they lack.
+				$catalogue_faces = array_filter(
+					$catalogue_faces,
+					static function ( $face ) use ( $native_faces, $key ) {
+						return ! self::is_face_provided( $face, $native_faces[ $key ] );
+					}
+				);
+				if ( empty( $catalogue_faces ) ) {
+					continue;
+				}
+			}
+
+			$faces = array();
+			foreach ( $catalogue_faces as $face ) {
+				$face['font-family'] = $name;
+				$converted           = array();
+				foreach ( $face as $property => $value ) {
+					$converted[ _wp_to_kebab_case( $property ) ] = $value;
+				}
+				$faces[] = $converted;
+			}
+			$fonts_to_print[] = $faces;
 		}
 
 		if ( ! empty( $fonts_to_print ) ) {
@@ -90,10 +158,47 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
+	 * Whether a native face already covers a catalogue face's style and weight.
+	 *
+	 * @param array   $face         Catalogue face.
+	 * @param array[] $native_faces Native faces for the same family.
+	 * @return bool
+	 */
+	private static function is_face_provided( $face, $native_faces ) {
+		$style             = $face['fontStyle'] ?? 'normal';
+		list( $min, $max ) = self::get_weight_range( $face['fontWeight'] ?? '400' );
+		foreach ( $native_faces as $native ) {
+			if ( ( $native['fontStyle'] ?? 'normal' ) !== $style ) {
+				continue;
+			}
+			list( $native_min, $native_max ) = self::get_weight_range( $native['fontWeight'] ?? '400' );
+			// Overlap, not containment: a later catalogue rule would win at a shared weight.
+			if ( $native_min <= $max && $min <= $native_max ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Parses a font-weight descriptor such as "400", "bold" or "100 900".
+	 *
+	 * @param string|int $weight Font weight.
+	 * @return int[] Minimum and maximum weight.
+	 */
+	private static function get_weight_range( $weight ) {
+		$weight = str_replace( array( 'normal', 'bold' ), array( '400', '700' ), (string) $weight );
+		$parts  = preg_split( '/\s+/', trim( $weight ) );
+		return array( (int) $parts[0], (int) ( $parts[1] ?? $parts[0] ) );
+	}
+
+	/**
 	 * Collect fonts used for global styles settings.
 	 */
 	public function collect_global_styles_fonts() {
-		$global_styles = wp_get_global_styles();
+		$global_styles = function_exists( 'gutenberg_get_global_styles' )
+			? gutenberg_get_global_styles()
+			: wp_get_global_styles();
 
 		$global_styles_font_slug = $this->get_font_slug_from_setting( $global_styles );
 		if ( $global_styles_font_slug ) {
@@ -159,33 +264,6 @@ class Jetpack_Google_Font_Face {
 	 */
 	public function format_font( $font_slug ) {
 		return _wp_to_kebab_case( strtolower( $font_slug ) );
-	}
-
-	/**
-	 * Get the font slug aliases that maps the font slug to the font family if they are different.
-	 *
-	 * The font definition may define an alias slug name, so we have to add the map from the slug name to the font family.
-	 * See https://github.com/WordPress/twentytwentyfour/blob/df92472089ede6fae5924c124a93c843b84e8cbd/theme.json#L215.
-	 */
-	public function get_font_slug_aliases() {
-		$font_slug_aliases = array();
-
-		$theme_json = WP_Theme_JSON_Resolver::get_theme_data();
-		$raw_data   = $theme_json->get_data();
-		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
-			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
-				if ( ! isset( $font['fontFamily'] ) ) {
-					continue;
-				}
-				$font_family_name = $this->format_font( $this->get_font_family_name( $font ) );
-				$font_slug        = $font['slug'] ?? '';
-				if ( $font_slug && $font_slug !== $font_family_name && ! array_key_exists( $font_slug, $font_slug_aliases ) ) {
-					$font_slug_aliases[ $font_slug ] = $font_family_name;
-				}
-			}
-		}
-
-		return $font_slug_aliases;
 	}
 
 	/**

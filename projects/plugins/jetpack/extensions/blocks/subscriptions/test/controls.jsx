@@ -469,7 +469,7 @@ describe( 'Inspector controls', () => {
 				expect( link ).toBeInTheDocument();
 				expect( link ).toHaveAttribute(
 					'href',
-					'https://admin.example.com/admin.php?page=jetpack-newsletter'
+					'https://admin.example.com/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsettings'
 				);
 			} );
 		} );

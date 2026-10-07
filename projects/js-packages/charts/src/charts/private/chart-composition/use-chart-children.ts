@@ -1,8 +1,9 @@
 import { Group } from '@visx/group';
 import { useMemo, Children, isValidElement } from 'react';
 import { Legend } from '../../../components/legend';
+import type { LegendProps } from '../../../components/legend/types';
 import type { LegendPosition } from '../../../types';
-import type { ReactElement, ReactNode } from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 
 export type LegendChild = {
 	element: ReactElement;
@@ -39,7 +40,7 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 			if ( isValidElement( child ) ) {
 				// Extract Legend children for position-based slot rendering
 				if ( child.type === Legend ) {
-					const rawPosition = child.props?.position;
+					const rawPosition = ( child as ReactElement< LegendProps > ).props?.position;
 					const position =
 						rawPosition === 'top' || rawPosition === 'bottom' ? rawPosition : 'bottom';
 
@@ -55,15 +56,19 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 				// Handle chart-specific compound components (e.g., PieChart.SVG)
 				if ( displayName === `${ chartType }.SVG` || displayName === 'Chart.SVG' ) {
 					// Extract children from Chart.SVG with safety checks
-					if ( child.props?.children ) {
-						Children.forEach( child.props.children, svgChild => {
+					const { children: svgChildren } =
+						( child as ReactElement< PropsWithChildren > ).props ?? {};
+					if ( svgChildren ) {
+						Children.forEach( svgChildren, svgChild => {
 							svg.push( svgChild );
 						} );
 					}
 				} else if ( displayName === `${ chartType }.HTML` || displayName === 'Chart.HTML' ) {
 					// Extract children from Chart.HTML with safety checks
-					if ( child.props?.children ) {
-						Children.forEach( child.props.children, htmlChild => {
+					const { children: htmlChildren } =
+						( child as ReactElement< PropsWithChildren > ).props ?? {};
+					if ( htmlChildren ) {
+						Children.forEach( htmlChildren, htmlChild => {
 							html.push( htmlChild );
 						} );
 					}

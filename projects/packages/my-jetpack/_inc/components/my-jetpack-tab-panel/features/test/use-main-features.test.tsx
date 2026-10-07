@@ -22,6 +22,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { invalidateResolution: jest.fn() } ),
@@ -32,7 +33,7 @@ jest.mock( '@wordpress/data', () => ( {
 	dispatch: jest.fn(),
 } ) );
 
-jest.mock( '../../products/use-all-jetpack-modules', () => ( {
+jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false } ),
 } ) );
 

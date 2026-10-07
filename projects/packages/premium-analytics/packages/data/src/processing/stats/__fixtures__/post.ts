@@ -55,7 +55,3 @@ export const postStatsFixture: StatsPostRawResponse = {
 		comment_count: 8,
 	},
 };
-
-export const postStatsViewsFixture: StatsPostRawResponse = {
-	views: 128,
-};

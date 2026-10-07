@@ -2,8 +2,8 @@
 /**
  * The package's own dashboard sections: the built-in tabs, their availability gates and default
  * layouts, and the filters over those gates. They register through the section API in
- * dashboard-sections.php, the same way a plugin extending the dashboard does; the Ads tab is
- * one such plugin section, registered by the WordAds module and by WordPress.com.
+ * dashboard-sections.php, the same way a plugin extending the dashboard does; the Ads tab and the
+ * WooCommerce tab are such sections, registered by their own packages.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -56,6 +56,24 @@ function is_woocommerce_dashboard_section_available() {
  */
 function is_woocommerce_dashboard_section_available_to_current_user() {
 	return is_woocommerce_dashboard_section_available() && Capabilities::current_user_can_view_store_reports();
+}
+
+/**
+ * Whether the Store dashboard section should be exposed.
+ *
+ * The site's own opt-in needs the Store flag; the blog sticker and the
+ * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
+ *
+ * @since 0.10.0
+ *
+ * @return bool
+ */
+function is_store_dashboard_section_available() {
+	// An older copy of the package may have loaded dashboard-policy.php without the flag.
+	$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
+		|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
+
+	return $is_enabled && is_woocommerce_dashboard_section_available_to_current_user();
 }
 
 /**
@@ -136,7 +154,7 @@ function get_traffic_section_default_layout() {
 			1,
 			2
 		),
-		// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
+		// Row 4: UTM insights + clicks; the VideoPress package seeds Top videos at order 8.
 		get_dashboard_default_widget_instance(
 			'default-utm-insights-widget-instance',
 			'jpa/utm-insights',
@@ -151,13 +169,6 @@ function get_traffic_section_default_layout() {
 			'default-clicks-widget-instance',
 			'jpa/clicks',
 			7,
-			1,
-			2
-		),
-		get_dashboard_default_widget_instance(
-			'default-videopress-widget-instance',
-			'jpa/videopress',
-			8,
 			1,
 			2
 		),
@@ -334,114 +345,6 @@ function get_subscribers_section_default_layout() {
 }
 
 /**
- * The Store tab's default widget layout.
- *
- * @return array Widget instances.
- */
-function get_store_section_default_layout() {
-	return array(
-		get_dashboard_default_widget_instance(
-			'default-store-performance-widget-instance',
-			'jpa/store-performance',
-			0,
-			2,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-total-sales-over-time-widget-instance',
-			'jpa/total-sales-over-time',
-			1,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-conversion-rate-widget-instance',
-			'jpa/conversion-rate',
-			2,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-orders-over-time-widget-instance',
-			'jpa/orders-over-time',
-			3,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-average-order-value-widget-instance',
-			'jpa/average-order-value',
-			4,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-top-performing-products-widget-instance',
-			'jpa/top-performing-products',
-			5,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-new-vs-returning-customer-widget-instance',
-			'jpa/new-vs-returning-customer',
-			6,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-payment-status-widget-instance',
-			'jpa/payment-status',
-			7,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-orders-fulfillment-widget-instance',
-			'jpa/orders-fulfillment',
-			8,
-			1,
-			1
-		),
-	);
-}
-
-/**
- * The Ads section's default widget layout, shared by its registrants: the WordAds module and
- * jetpack-mu-wpcom compose the section from the package's WordAds widgets until those move.
- *
- * @return array Widget instances.
- */
-function get_ads_section_default_layout() {
-	return array(
-		// Row 1: WordAds chart.
-		get_dashboard_default_widget_instance(
-			'default-wordads-chart-tabs-widget-instance',
-			'jpa/wordads-chart-tabs',
-			0,
-			3,
-			2
-		),
-		// Row 2: all-time balance.
-		get_dashboard_default_widget_instance(
-			'default-wordads-highlights-widget-instance',
-			'jpa/wordads-highlights',
-			1,
-			3,
-			1
-		),
-		// Row 3: earnings history.
-		get_dashboard_default_widget_instance(
-			'default-wordads-earnings-history-widget-instance',
-			'jpa/wordads-earnings-history',
-			2,
-			1,
-			2
-		),
-	);
-}
-
-/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * Hooked on the registration action and safe to call directly: a section already registered
@@ -457,10 +360,14 @@ function register_default_dashboard_sections( $registry = null ) {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 10,
-			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
+			'label'               => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 10,
+			// Only the Traffic summary groups by interval, and it saves its own.
+			'date_filter_options' => array(
+				'with_header_interval_control' => false,
+			),
+			'default_layout'      => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
@@ -488,16 +395,6 @@ function register_default_dashboard_sections( $registry = null ) {
 				'with_header_date_control' => false,
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
-		),
-		// Store registers no heading of its own, so it falls back to the label.
-		'woocommerce/store'     => array(
-			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
-			// Nothing backfills historical orders to WordPress.com but the analytics
-			// full sync. The site sections above read data it already holds.
-			'requires_sync'  => true,
-			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
 		),
 	);
 

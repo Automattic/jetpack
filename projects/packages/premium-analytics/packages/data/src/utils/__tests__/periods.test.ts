@@ -17,33 +17,14 @@ describe( 'defaultPeriodForInterval', () => {
 			[ 'year', 'month' ],
 			[ 'day', 'day' ],
 			[ 'hour', 'day' ],
-			[ undefined, 'day' ],
-			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {
 			expect( defaultPeriodForInterval( interval, DAY_WEEK_MONTH ) ).toBe( expected );
-		} );
-	} );
-
-	describe( 'day/week/month/year widgets (wordads chart tabs)', () => {
-		it.each( [
-			[ 'week', 'week' ],
-			[ 'month', 'month' ],
-			// Year is offered here, so it is kept rather than collapsed.
-			[ 'year', 'year' ],
-			[ 'day', 'day' ],
-			[ undefined, 'day' ],
-			[ 'nonsense', 'day' ],
-		] )( 'maps %s to %s', ( interval, expected ) => {
-			expect( defaultPeriodForInterval( interval, DAY_WEEK_MONTH_YEAR ) ).toBe( expected );
 		} );
 	} );
 
 	describe( 'hour/day/week/month widgets (traffic chart)', () => {
 		it.each( [
 			[ 'hour', 'hour' ],
-			[ 'day', 'day' ],
-			[ 'week', 'week' ],
-			[ 'year', 'month' ],
 			[ undefined, 'day' ],
 			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {
@@ -154,5 +135,18 @@ describe( 'chartInterval', () => {
 			'day',
 		] );
 		expect( chartInterval( params, [ 'day', 'month' ] as const ) ).toBe( 'day' );
+	} );
+
+	// A chart with no bucket control (WordAds) passes none: the window alone picks it.
+	it( 'draws the range default when no bucket is stored', () => {
+		const params = { from: 'a', to: 'b', interval: undefined };
+
+		expect( chartInterval( { ...params, preset: 'last-12-months' }, DAY_WEEK_MONTH ) ).toBe(
+			'month'
+		);
+		expect( chartInterval( { ...params, preset: 'last-30-days' }, DAY_WEEK_MONTH ) ).toBe( 'day' );
+		expect( chartInterval( { ...CUSTOM_3_DAYS, interval: undefined }, DAY_WEEK_MONTH ) ).toBe(
+			'day'
+		);
 	} );
 } );

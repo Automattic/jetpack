@@ -54,6 +54,7 @@ const LaunchSite = ( {
 		new: siteTitle,
 		search: 'yes',
 		ref: 'wp-admin/options-reading.php',
+		back_to: window.location.href,
 	} );
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;

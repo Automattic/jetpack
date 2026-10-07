@@ -68,7 +68,7 @@ module.exports = [
 			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.ts',
 
 			// Video Playlist block
-			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.ts',
+			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.tsx',
 			'block-editor/blocks/playlist/view': './src/client/block-editor/blocks/playlist/view.ts',
 
 			// Latest Videos Playlist block: editor only, it shares the playlist block's view assets.
@@ -84,9 +84,6 @@ module.exports = [
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 			'lib/inline-player': './src/client/lib/inline-player/index.ts',
-
-			// VideoPress dashboard page
-			'admin/index': './src/client/admin/index.jsx',
 
 			// Page-level shell stylesheet for the modernized dashboard. CSS-only
 			// entry: emits build/dashboard-shell/index.css enqueued by

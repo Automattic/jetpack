@@ -10,6 +10,7 @@ const SUMMARY: VideoSummary = {
 	posterUrl: 'https://example.com/poster.jpg',
 	isLoading: false,
 	isError: false,
+	error: null,
 	isNotFound: false,
 	refetch: () => {},
 };

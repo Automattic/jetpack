@@ -2,10 +2,12 @@
  * Builds the Jetpack Comments front-end bundle.
  */
 
+import fs from 'fs';
 import path from 'path';
 import jetpackTargets from '@automattic/jetpack-webpack-config/targets';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import webpack from 'webpack';
+import editorStubs from './tools/editor-stubs.js';
 
 const __dirname = import.meta.dirname;
 
@@ -31,6 +33,7 @@ export default {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		comments: path.join( __dirname, 'src/form/index.tsx' ),
+		admin: path.join( __dirname, 'src/editor/admin.ts' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -48,8 +51,14 @@ export default {
 		rules: [
 			// Transpile JavaScript and TypeScript.
 			jetpackWebpackConfig.TranspileRule( {
-				exclude: /node_modules\//,
+				exclude: [ /node_modules\//, path.join( __dirname, 'src/editor' ) ],
 				babelOpts,
+			} ),
+
+			// The block editor is React, on the preset's own JSX runtime.
+			jetpackWebpackConfig.TranspileRule( {
+				include: path.join( __dirname, 'src/editor' ),
+				babelOpts: { ...babelOpts, plugins: [] },
 			} ),
 
 			// Transpile @automattic/jetpack-* in node_modules too.
@@ -85,10 +94,21 @@ export default {
 		],
 	},
 	plugins: [
-		...jetpackWebpackConfig.StandardPlugins(),
+		...jetpackWebpackConfig.StandardPlugins( {
+			// Bundled, not core's wp-* scripts: the editor chunk pins its own versions.
+			DependencyExtractionPlugin: { requestToExternal: () => false },
+			// Its strings come from PHP; the editor chunk carries none of its own.
+			I18nLoaderPlugin: false,
+		} ),
+		editorStubs,
 		new webpack.ProvidePlugin( {
 			h: [ 'preact', 'h' ],
 			Fragment: [ 'preact', 'Fragment' ],
+		} ),
+		new webpack.DefinePlugin( {
+			JETPACK_COMMENTS_VERSION: JSON.stringify(
+				JSON.parse( fs.readFileSync( path.join( __dirname, 'package.json' ), 'utf8' ) ).version
+			),
 		} ),
 	],
 	watchOptions: {
