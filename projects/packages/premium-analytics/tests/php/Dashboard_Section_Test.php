@@ -669,6 +669,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Non-array section arguments are ignored and defaults are retained.
 	 */
 	public function test_section_ignores_non_array_args() {
+		// A section without a rule of its own is a Stats reader's.
+		$this->set_admin_user();
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Intentionally passing a non-array to exercise the defensive is_array() guard.
 		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic', 'not-an-array' );
 
@@ -861,6 +863,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Available sections are ordered and unavailable sections are omitted.
 	 */
 	public function test_registry_returns_available_sections_sorted_by_order() {
+		$this->set_admin_user();
 		$registry = new Dashboard_Section_Registry();
 
 		$registry->register(
@@ -904,6 +907,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Sections sharing an order are tie-broken alphabetically by ID.
 	 */
 	public function test_registry_tie_breaks_equal_order_sections_by_id() {
+		$this->set_admin_user();
 		$registry = new Dashboard_Section_Registry();
 
 		$registry->register( 'tie_dashboard', 'example/beta', array( 'order' => 10 ) );
@@ -1398,6 +1402,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * registrant that reads the registry from inside the callback.
 	 */
 	public function test_registration_action_fires_once_with_the_registry() {
+		$this->set_admin_user();
 		$calls = array();
 
 		$this->on_registry_hydration(

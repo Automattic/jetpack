@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
@@ -36,9 +35,16 @@ class Capabilities_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_analytics_capabilities();
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
-		delete_option( Enablement_Setting::ENABLED_OPTION );
+
+		// Each test hydrates the section registry under its own users and sections.
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
+		if ( false === has_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		}
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -209,47 +215,80 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A shop manager reaches the dashboard only where the site shows the store tab, since that
-	 * is all they can read there.
-	 *
-	 * @dataProvider provide_store_section_states
-	 *
-	 * @param bool $has_woocommerce Whether WooCommerce is active.
-	 * @param bool $site_opted_in   Whether the site's own option switched the dashboard on.
-	 * @param bool $expected        Whether the shop manager may view the dashboard.
+	 * A reader with no Stats access reaches the dashboard through a section available to them,
+	 * the way a shop manager does through the WooCommerce tab, and not without one.
 	 */
-	#[DataProvider( 'provide_store_section_states' )]
-	public function test_woocommerce_report_viewer_reads_the_dashboard_only_where_the_store_tab_shows( $has_woocommerce, $site_opted_in, $expected ) {
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $has_woocommerce ? '__return_true' : '__return_false' );
-		update_option( Enablement_Setting::ENABLED_OPTION, $site_opted_in ? 1 : 0 );
+	public function test_a_section_available_to_the_reader_opens_the_dashboard() {
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
-		$this->assertSame( $expected, Capabilities::current_user_can_view_analytics() );
-		$this->assertFalse( Capabilities::current_user_can_view_stats() );
-	}
+		$this->assertFalse( Capabilities::current_user_can_view_analytics(), 'No built-in section is theirs.' );
 
-	/**
-	 * Store tab states, by what decides them.
-	 *
-	 * @return array<string, array{bool, bool, bool}>
-	 */
-	public static function provide_store_section_states() {
-		return array(
-			'store tab shown'             => array( true, false, true ),
-			'no WooCommerce'              => array( false, false, false ),
-			'site opt-in, store flag off' => array( true, true, false ),
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/store',
+			array(
+				'label'        => 'Store',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+			)
 		);
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
 	}
 
 	/**
-	 * The mapping answers for the user asked about, not whoever is logged in.
+	 * A section gated on the dashboard capability itself does not count towards it, rather than
+	 * recursing.
 	 */
-	public function test_mapping_checks_the_given_user() {
-		$editor = $this->login_as( 'editor' );
+	public function test_a_section_gated_on_the_dashboard_capability_does_not_recurse() {
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/circular',
+			array(
+				'label'        => 'Circular',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_analytics' ),
+			)
+		);
 		$this->login_as( 'administrator' );
 
-		$this->assertFalse( user_can( $editor, Capabilities::VIEW_ANALYTICS ) );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * An older copy of the package may register a Stats section whose callback checks no
+	 * capability; it must still not open the dashboard to a reader without Stats access.
+	 */
+	public function test_a_stats_section_callback_cannot_open_the_dashboard_without_stats_access() {
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'analytics/subscribers',
+			array(
+				'label'        => 'Subscribers',
+				'is_available' => '__return_true',
+			)
+		);
+		$this->login_as( 'subscriber' );
+
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * Sections answer for the current user, so the mapping refuses to answer for anyone else.
+	 */
+	public function test_mapping_refuses_users_other_than_the_current_one() {
+		$other_admin = wp_insert_user(
+			array(
+				'user_login' => 'pa-other-administrator',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$this->login_as( 'administrator' );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( user_can( $other_admin, Capabilities::VIEW_ANALYTICS ) );
 	}
 
 	/**
@@ -263,16 +302,16 @@ class Capabilities_Test extends BaseTestCase {
 
 		$reader = $this->login_as( 'editor' );
 		$this->grant_view_stats_to( $reader );
-		$this->assertTrue( Capabilities::current_user_can_view_stats() );
-		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+		$this->assertTrue( Stats_Access::current_user_can_view() );
+		$this->assertSame( $controller->check_data_permission( $request ), Stats_Access::current_user_can_view() );
 
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
-		$this->assertFalse( Capabilities::current_user_can_view_stats() );
-		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+		$this->assertFalse( Stats_Access::current_user_can_view() );
+		$this->assertSame( $controller->check_data_permission( $request ), Stats_Access::current_user_can_view() );
 
 		$this->login_as( 'administrator' );
-		$this->assertTrue( Capabilities::current_user_can_view_stats() );
-		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+		$this->assertTrue( Stats_Access::current_user_can_view() );
+		$this->assertSame( $controller->check_data_permission( $request ), Stats_Access::current_user_can_view() );
 	}
 }

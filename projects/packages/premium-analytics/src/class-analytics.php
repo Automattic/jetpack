@@ -237,7 +237,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => Capabilities::current_user_can_view_stats(),
+			'can_view'  => Stats_Access::current_user_can_view(),
 			'timezone'  => self::site_timezone(),
 		);
 

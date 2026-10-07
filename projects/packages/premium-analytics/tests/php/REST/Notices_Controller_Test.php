@@ -8,10 +8,12 @@
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\PremiumAnalytics\Capabilities;
+use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_REST_Server;
-use const Automattic\Jetpack\PremiumAnalytics\WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER;
+use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
 require_once __DIR__ . '/../../../src/default-dashboard-sections.php';
 
@@ -52,7 +54,11 @@ class Notices_Controller_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Capabilities::unregister();
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
 
 		parent::tear_down();
 	}
@@ -132,7 +138,14 @@ class Notices_Controller_Test extends BaseTestCase {
 	 * A shop manager reads the dashboard's store tab, but the notices are Stats notices.
 	 */
 	public function test_permission_denied_for_a_store_only_reader() {
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/store',
+			array(
+				'label'        => 'Store',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+			)
+		);
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'jpa_notices_shop_manager',

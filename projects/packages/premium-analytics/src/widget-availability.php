@@ -208,7 +208,7 @@ function filter_registrable_widget_types_by_capability( $widget_candidates ) {
 	return remove_capability_gated_widget_types(
 		$widget_candidates,
 		Capabilities::current_user_can_view_store_reports(),
-		Capabilities::current_user_can_view_stats()
+		Stats_Access::current_user_can_view()
 	);
 }
 

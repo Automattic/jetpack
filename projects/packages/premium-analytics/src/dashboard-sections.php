@@ -136,7 +136,7 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	}
 
 	// Surfaces outside any section, such as feedback, post to Stats endpoints.
-	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
+	$data['premium_analytics']['can_view_stats'] = Stats_Access::current_user_can_view();
 
 	$sections = get_available_dashboard_section_slugs();
 

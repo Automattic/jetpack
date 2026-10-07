@@ -2,9 +2,8 @@
 /**
  * Who may see the Premium Analytics dashboard.
  *
- * Jetpack Stats grants non-administrators access via the `view_stats` meta capability, and
- * WooCommerce grants store reports via `view_woocommerce_reports`; this dashboard must honour
- * both grants, and add_menu_page() takes one capability string — hence a meta capability of our own.
+ * Who may open it is up to its sections: each decides who may see it, and add_menu_page() takes
+ * one capability string — hence a meta capability of our own.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -48,10 +47,17 @@ class Capabilities {
 	}
 
 	/**
-	 * Maps the dashboard capability to the primitives that grant it.
+	 * Whether a section's availability check is running, so a section gated on the dashboard
+	 * capability itself does not recurse.
 	 *
-	 * A reader needs at least one section they can read: Stats, or the store reports where the
-	 * site shows the WooCommerce section at all.
+	 * @var bool
+	 */
+	private static $resolving_sections = false;
+
+	/**
+	 * Maps the dashboard capability: a reader needs at least one section available to them.
+	 *
+	 * Sections answer for the current user only, so checking anyone else is refused.
 	 *
 	 * @param string[] $caps    Primitive capabilities required of the user.
 	 * @param string   $cap     Capability being checked.
@@ -63,11 +69,35 @@ class Capabilities {
 			return $caps;
 		}
 
-		if ( self::user_can_view_stats( $user_id ) || ( self::user_can_view_store_reports( $user_id ) && self::is_store_section_enabled_on_site() ) ) {
+		if ( (int) $user_id === get_current_user_id() && self::current_user_has_available_section() ) {
 			return array( 'read' );
 		}
 
 		return array( 'do_not_allow' );
+	}
+
+	/**
+	 * Whether any dashboard section is available to the current user.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_has_available_section() {
+		// Without the marker, an older copy's sections decide: keep the Stats gate they relied on.
+		if ( ! defined( Dashboard_Section::class . '::GATES_STATS_SECTIONS' ) ) {
+			return Stats_Access::current_user_can_view();
+		}
+
+		// The registry hydrates only after init; the dashboard name comes with its loaded files.
+		if ( self::$resolving_sections || ! did_action( 'init' ) || ! defined( __NAMESPACE__ . '\\DASHBOARD_NAME' ) ) {
+			return false;
+		}
+
+		self::$resolving_sections = true;
+		try {
+			return array() !== Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME );
+		} finally {
+			self::$resolving_sections = false;
+		}
 	}
 
 	/**
@@ -80,20 +110,6 @@ class Capabilities {
 	}
 
 	/**
-	 * Whether the current user may read the Stats reports.
-	 *
-	 * "Stats reports" is everything the proxy serves under `view_stats`, mirroring what
-	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces there (pinned by Capabilities_Test).
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function current_user_can_view_stats() {
-		return self::user_can_view_stats( get_current_user_id() );
-	}
-
-	/**
 	 * Whether the current user may read the store reports.
 	 *
 	 * "Store reports" is everything the proxy serves from its `analytics` prefix, mirroring what
@@ -102,44 +118,8 @@ class Capabilities {
 	 * @return bool
 	 */
 	public static function current_user_can_view_store_reports() {
-		return self::user_can_view_store_reports( get_current_user_id() );
-	}
-
-	/**
-	 * Whether a user may read the Stats reports.
-	 *
-	 * `view_stats` alone would track Stats more closely, but it only works once Stats hooks its
-	 * own `map_meta_cap` — which Analytics::init_wpcom_simple() never does, locking out administrators too.
-	 *
-	 * @param int $user_id User being checked.
-	 * @return bool
-	 */
-	private static function user_can_view_stats( $user_id ) {
-		return user_can( $user_id, 'manage_options' ) || user_can( $user_id, 'view_stats' );
-	}
-
-	/**
-	 * Whether a user may read the store reports.
-	 *
-	 * @param int $user_id User being checked.
-	 * @return bool
-	 */
-	private static function user_can_view_store_reports( $user_id ) {
 		// The proxy accepts manage_options for every prefix.
-		return user_can( $user_id, 'manage_options' ) || user_can( $user_id, 'view_woocommerce_reports' );
-	}
-
-	/**
-	 * Whether the site shows the WooCommerce section to readers who may see it.
-	 *
-	 * False until the section rules load: both entry points load them before the menu and the
-	 * REST routes check the capability.
-	 *
-	 * @return bool
-	 */
-	private static function is_store_section_enabled_on_site() {
-		return function_exists( __NAMESPACE__ . '\\is_store_dashboard_section_enabled_on_site' )
-			&& is_store_dashboard_section_enabled_on_site();
+		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
 	}
 
 	/**
