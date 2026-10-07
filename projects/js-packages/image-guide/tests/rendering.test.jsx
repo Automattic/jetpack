@@ -186,3 +186,39 @@ it( 'fades labels when loading finishes and restores them immediately on resume'
 	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
 	expect( target.querySelector( '.label' ) ).not.toHaveClass( 'jb-ig-label-fade' );
 } );
+
+function finishAnimation( element, animationName ) {
+	const event = new Event( 'webkitAnimationEnd', { bubbles: true } );
+	Object.defineProperty( event, 'animationName', { value: animationName } );
+	act( () => element.dispatchEvent( event ) );
+}
+
+it( 'clears a completed entrance so showing its container cannot replay it', async () => {
+	const stores = [ image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	const bubble = target.querySelector( '.interaction-area' );
+	expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+	finishAnimation( bubble, 'jb-ig-fade-in' );
+	expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+	finishAnimation( bubble, 'jb-ig-bubble-fly-in' );
+	target.style.display = 'none';
+	target.style.display = '';
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.interaction-area' ) ).toBe( bubble );
+	expect( bubble ).not.toHaveClass( 'jb-ig-bubble-fly' );
+	expect( bubble ).toHaveStyle( { animationDelay: '' } );
+} );
+
+it( 'clears a completed label fade so showing its container cannot replay it', async () => {
+	const stores = [ image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
+	const label = target.querySelector( '.label' );
+	expect( label ).toHaveClass( 'jb-ig-label-fade' );
+	finishAnimation( label, 'jb-ig-fade-in' );
+	target.style.display = 'none';
+	target.style.display = '';
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.label' ) ).toBe( label );
+	expect( label ).not.toHaveClass( 'jb-ig-label-fade' );
+} );
