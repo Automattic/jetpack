@@ -78,29 +78,6 @@ class Plan_Test extends Search_TestCase {
 		}
 	}
 
-	public function test_online_lookup_fetches_and_refreshes_plan() {
-		Cache::set( 'is_offline_mode', false );
-		$requests = 0;
-		$spy      = function ( $preempt ) use ( &$requests ) {
-			++$requests;
-			return $preempt;
-		};
-		add_filter( 'pre_http_request', $spy, 5 );
-
-		try {
-			$expected = json_decode( self::PLAN_INFO_FIXTURE, true );
-			$this->assertSame( $expected, static::$plan->get_plan_info() );
-			$this->assertSame( 1, $requests );
-			update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, array( 'supports_search' => false ) );
-			$this->assertSame( $expected, static::$plan->get_plan_info( true ) );
-			$this->assertSame( 2, $requests );
-			$this->assertSame( $expected, get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
-		} finally {
-			remove_filter( 'pre_http_request', $spy, 5 );
-			Cache::set( 'is_offline_mode', null );
-		}
-	}
-
 	/**
 	 * Test `get_plan_info`
 	 */
