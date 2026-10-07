@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: The `useRestore` test was advancing jest's fake timer by a large amount. React 19 doesn't like this: it doesn't get a gap between updates and winds up throwing a "Maximum update depth exceeded" error. Advance in steps of `POLL_INTERVAL_MS` instead, which gives React 19 the gaps it needs.
+
+

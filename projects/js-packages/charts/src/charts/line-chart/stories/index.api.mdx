@@ -63,8 +63,8 @@ Individual annotation component for highlighting specific data points or events.
 | `subtitle` | `string` | - | Additional descriptive text |
 | `subjectType` | `'circle' \| 'line-vertical' \| 'line-horizontal'` | `'circle'` | Visual annotation style |
 | `styles` | `AnnotationStyles` | - | Custom styling options |
-| `renderLabel` | `FC<{title: string, subtitle?: string}>` | - | Custom label component. **Disables smart positioning.** |
-| `renderLabelPopover` | `FC<{title: string, subtitle?: string}>` | - | Interactive popover content |
+| `renderLabel` | `(props: {title: string, subtitle?: string} ) => ReactNode` | - | Custom label component. **Disables smart positioning.** |
+| `renderLabelPopover` | `(props: {title: string, subtitle?: string}) => ReactNode` | - | Interactive popover content |
 | `testId` | `string` | - | Test identifier |
 
 ## SeriesData Type

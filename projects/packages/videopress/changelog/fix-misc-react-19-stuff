@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix another argless `useRef` added since #53002 fixed all the rest. Sigh.
+
+

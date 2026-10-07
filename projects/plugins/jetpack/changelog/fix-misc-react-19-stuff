@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: An `AI admin page` test was looking for the "Writing Assistant" checkbox synchronously, even though it gets added asynchronously and all the other tests look for it async. Somehow this worked ok in React 18, but breaks in 19; looking async like everything else does fixes it.
+
+

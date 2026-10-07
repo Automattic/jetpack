@@ -97,9 +97,13 @@ function submitAll( result: RenderedRestore ) {
  * @param ms - How far to advance.
  */
 async function advance( ms: number ) {
-	await act( async () => {
-		await jest.advanceTimersByTimeAsync( ms );
-	} );
+	// Advance in small steps (~POLL_INTERVAL_MS). Longer steps never give React 19 a gap between updates, so it throws "Maximum update depth exceeded".
+	while ( ms > 0 ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( Math.min( ms, 5000 ) );
+		} );
+		ms -= 5000;
+	}
 }
 
 /**
