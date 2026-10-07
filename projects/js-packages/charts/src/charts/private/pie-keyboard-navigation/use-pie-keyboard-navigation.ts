@@ -5,15 +5,15 @@ import type { DataPointPercentageCalculated } from '../../../types';
 import type { MouseEvent } from 'react';
 
 interface UsePieKeyboardNavigationProps {
-	/** Number of visible segments. Indexes run over them in `orderArcsForNavigation` order. */
-	segmentCount: number;
+	/** Labels of the visible segments in `orderArcsForNavigation` order, which indexes run over. */
+	segmentLabels: string[];
 	withTooltips: boolean;
 	tooltipOffsetX: number;
 	tooltipOffsetY: number;
 }
 
 export const usePieKeyboardNavigation = ( {
-	segmentCount,
+	segmentLabels,
 	withTooltips,
 	tooltipOffsetX,
 	tooltipOffsetY,
@@ -32,7 +32,8 @@ export const usePieKeyboardNavigation = ( {
 			isNavigating,
 			setIsNavigating,
 			chartRef,
-			totalPoints: segmentCount,
+			totalPoints: segmentLabels.length,
+			visibleSeriesKey: JSON.stringify( segmentLabels ),
 		} );
 
 	const getSegmentHandlers = ( data: DataPointPercentageCalculated, navigationIndex: number ) => ( {

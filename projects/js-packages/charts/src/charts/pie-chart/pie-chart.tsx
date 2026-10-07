@@ -294,29 +294,6 @@ const PieChartInternal = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
-	const {
-		chartRef,
-		svgRef,
-		selectedIndex,
-		getSegmentHandlers,
-		getKeyboardTooltipPosition,
-		outputProps,
-		chartProps,
-	} = usePieKeyboardNavigation( {
-		segmentCount: visibleData.length,
-		withTooltips,
-		tooltipOffsetX,
-		tooltipOffsetY,
-	} );
-
-	if ( ! isValid ) {
-		return (
-			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-				<div className={ styles[ 'error-message' ] }>{ message }</div>
-			</div>
-		);
-	}
-
 	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
 
@@ -336,6 +313,32 @@ const PieChartInternal = ( {
 			return getElementStyles( { data: d, index: d.index } ).color;
 		},
 	};
+
+	const arcs = pie< PieDatum >( { value: accessors.value, padAngle } )( dataWithIndex );
+	const navigationArcs = orderArcsForNavigation( arcs );
+
+	const {
+		chartRef,
+		svgRef,
+		selectedIndex,
+		getSegmentHandlers,
+		getKeyboardTooltipPosition,
+		outputProps,
+		chartProps,
+	} = usePieKeyboardNavigation( {
+		segmentLabels: navigationArcs.map( arcDatum => arcDatum.data.label ),
+		withTooltips,
+		tooltipOffsetX,
+		tooltipOffsetY,
+	} );
+
+	if ( ! isValid ) {
+		return (
+			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
+				<div className={ styles[ 'error-message' ] }>{ message }</div>
+			</div>
+		);
+	}
 
 	const legendElement = showLegend && (
 		<Legend
@@ -400,8 +403,6 @@ const PieChartInternal = ( {
 						: 0;
 
 					const path = arc< PieArcDatum >( { innerRadius, outerRadius, cornerRadius } );
-					const arcs = pie< PieDatum >( { value: accessors.value, padAngle } )( dataWithIndex );
-					const navigationArcs = orderArcsForNavigation( arcs );
 					const selectedArc =
 						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
