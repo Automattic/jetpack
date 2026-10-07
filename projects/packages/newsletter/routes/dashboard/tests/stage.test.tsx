@@ -101,12 +101,7 @@ jest.mock( '../../../src/settings/newsletter-settings', () => ( {
 
 jest.mock( '../components/overview-body', () => ( {
 	__esModule: true,
-	default: () => null,
-} ) );
-
-jest.mock( '../components/subscriber-stats-chart', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="subscriber-stats-chart" />,
+	default: () => <div data-testid="overview-body" />,
 } ) );
 
 jest.mock( '../../../src/settings/script-data', () => ( {
@@ -219,7 +214,7 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		} );
 	} );
 
-	it( 'records the Stats tab without a previous tab when the route deep-links to ?tab=stats', () => {
+	it( 'records an old ?tab=stats link as the Overview tab', () => {
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 
 		render( <Stage /> );
@@ -227,7 +222,7 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
 			site_type: 'jetpack',
-			tab: 'stats',
+			tab: 'overview',
 		} );
 	} );
 
@@ -357,34 +352,22 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 	} );
 } );
 
-describe( 'Newsletter dashboard Stage Stats tab gating', () => {
-	// Stats exposes real subscriber/email data over REST, so it must stay
-	// unreachable — not just hidden from nav — while the shared Overview flag
-	// that also gates it is off. Stats is a temporary standalone page that
-	// shares Overview's flag rather than getting its own.
-	it( 'does not render the Stats panel when overviewEnabled is false, even via ?tab=stats', () => {
+describe( 'Newsletter dashboard Stage old Stats links', () => {
+	// Stats now lives in the Overview tab, which exposes real subscriber data, so an old ?tab=stats
+	// link must stay behind the Overview flag.
+	it.each( [
+		[ 'opens the Overview', true, true ],
+		[ 'does not open the Overview while its flag is off', false, false ],
+	] )( '%s for ?tab=stats', ( _, overviewEnabled, shown ) => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: false,
+			overviewEnabled,
 			tracksUserData: { userid: 1, username: 'tester' },
 		} );
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 
 		render( <Stage /> );
 
-		expect( screen.queryByTestId( 'subscriber-stats-chart' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the Stats panel when overviewEnabled is true and the route deep-links to ?tab=stats', () => {
-		mockGetNewsletterScriptData.mockReturnValue( {
-			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-			tracksUserData: { userid: 1, username: 'tester' },
-		} );
-		mockSearch.mockReturnValue( { tab: 'stats' } );
-
-		render( <Stage /> );
-
-		expect( screen.getByTestId( 'subscriber-stats-chart' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'overview-body' ) !== null ).toBe( shown );
 	} );
 } );
