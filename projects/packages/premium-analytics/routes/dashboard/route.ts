@@ -42,10 +42,10 @@ export const route = {
 			const normalized = seedReportDateParams( params );
 
 			/*
-			 * Overlay the normalized params onto `params`, not replace them, so
+			 * Overlay the seeded params onto `params`, not replace them, so
 			 * passthrough params like `section` survive the seed. Comparison keys
-			 * only survive when normalize returned a complete comparison: a
-			 * hand-edited bare `comp=1` must not outlive the seed.
+			 * only survive when the seed returned a complete comparison: a
+			 * hand-edited bare `comp=1` must not outlive it.
 			 */
 			const merged = { ...params, ...normalized };
 			const seeded: Record< string, unknown > = hasComparisonEnabled( normalized )

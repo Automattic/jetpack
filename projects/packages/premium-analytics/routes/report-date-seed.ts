@@ -10,8 +10,8 @@ import {
 
 /**
  * The date params a site-wide route seeds its URL with: normalized, and compared
- * with the previous period only when the URL carries no window. A bare `preset`
- * is a detail page's way back, which must not undo a comparison switched off.
+ * with the previous period only when the URL names no window. A URL with dates or
+ * a preset keeps the comparison it carries, so switching it off sticks.
  *
  * @param search - The current route search params.
  * @return The normalized report params.

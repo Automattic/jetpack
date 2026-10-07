@@ -143,7 +143,7 @@ export function normalizeReportParams(
 	};
 
 	// Comparison only ever comes from the URL; a fresh load gets its default
-	// from the route seed, via `withDefaultComparison`.
+	// from the routes' `seedReportDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;
