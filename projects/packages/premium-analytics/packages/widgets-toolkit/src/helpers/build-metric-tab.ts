@@ -14,7 +14,7 @@ import type { CountLabel, DataFormat } from '../types';
  */
 export type MetricReport = {
 	summary?: Record< string, unknown >;
-	data?: Array< { date_start: string } >;
+	data?: Array< { date_start: string; date_end?: string } >;
 };
 
 export type BuildMetricTabOptions< TReport extends MetricReport > = {
@@ -63,9 +63,11 @@ function toPoints(
 ): MetricTabDatum[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
+		const endDate = resolveBucketStamp( point.date_end, zone );
 		const raw = ( point as Record< string, unknown > )[ field ];
+		const value = raw === null ? null : Number( raw ?? 0 );
 
-		return date ? [ { date, value: raw === null ? null : Number( raw ?? 0 ) } ] : [];
+		return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 	} );
 }
 

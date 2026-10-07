@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: Rename the Videos, Clicks, Authors and Locations CSV headers to match the report table columns.

@@ -230,6 +230,19 @@ Add visual accessibility and distinction with pattern fills instead of solid col
 - **Waves**: Wave line patterns
 - **Hexagons**: Hexagonal patterns
 
+### Bar Radius
+
+Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role inside the provider tree to round their corners:
+
+<Canvas of={ BarChartStories.BarRadius } />
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-border-radius-bar-chart: var(--wpds-border-radius-sm);
+	}` }
+/>
+
 ### Smart Formatting
 
 Automatic formatting handles large numbers with appropriate abbreviations:

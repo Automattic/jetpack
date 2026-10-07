@@ -65,7 +65,10 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flags.php';
 
-\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+// Another plugin may have loaded an older version of this class, so only call the method if it exists.
+if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_feature_flags' ) ) {
+	\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+}
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
@@ -76,11 +79,15 @@ if ( is_admin() ) {
 
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 
-	// Settings > Sharing owns its own screen, so it exists whichever modules are active.
+	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
+}
+
+// Another plugin's autoloader can serve a jetpack-sharing-likes release from before the Initializer.
+if ( class_exists( \Automattic\Jetpack\Sharing_Likes\Initializer::class ) ) {
+	\Automattic\Jetpack\Sharing_Likes\Initializer::init();
+} elseif ( is_admin() ) {
 	\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
 	\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
-
-	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
 // Play nice with https://wp-cli.org/.

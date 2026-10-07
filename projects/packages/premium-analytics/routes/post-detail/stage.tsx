@@ -1,6 +1,5 @@
 import {
 	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
 	PeriodChangeSignalProvider,
 	postSurface,
 	ReportScopeProvider,
@@ -204,7 +203,7 @@ function PostDetail(): JSX.Element {
 	);
 
 	return (
-		<GlobalErrorProvider>
+		<>
 			<PeriodChangeStatus
 				attentionId={ attentionId }
 				appliedPresetId={ dateFilters.appliedPresetId }
@@ -307,7 +306,7 @@ function PostDetail(): JSX.Element {
 					</WidgetDashboard>
 				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
-		</GlobalErrorProvider>
+		</>
 	);
 }
 

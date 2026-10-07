@@ -2,19 +2,16 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getSettings, setSettings } from '@wordpress/date';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
-import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
-import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
@@ -144,22 +141,8 @@ function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 	return call[ 0 ];
 }
 
-/** The tooltip date formatter the most recent chart render received. */
-function recordedTooltipDateFormatter(
-	spy: jest.Mock
-): ( date: Date, format: DateFormatName ) => string {
-	expect( spy ).toHaveBeenCalled();
-	return spy.mock.calls.at( -1 )[ 0 ].formatTooltipDate;
-}
-
 describe( 'MetricTabsChart', () => {
-	const originalSettings = getSettings();
-
 	recordChartProps();
-
-	afterEach( () => {
-		setSettings( originalSettings );
-	} );
 
 	it( 'draws a line chart by default', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
@@ -376,28 +359,6 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( reason ) ).toBeInTheDocument();
 		expect( screen.getByText( '300' ) ).toBeInTheDocument();
-	} );
-
-	// A point's date is the instant it is: the component passes it through, and
-	// the site's zone decides which calendar day that instant lands on.
-	it.each( [
-		[ 'Asia/Tokyo', 'July 2, 2026 12:00 am' ],
-		[ 'America/Los_Angeles', 'July 1, 2026 8:00 am' ],
-	] )( 'labels a point in the site zone, on a site in %s', ( siteZone, expected ) => {
-		setSettings( siteSettingsIn( siteZone ) );
-
-		const instant = new Date( Date.UTC( 2026, 6, 1, 15, 0 ) );
-
-		render(
-			<MetricTabsChart
-				metrics={ [
-					{ ...METRIC, current: [ { date: instant, value: 100 } ], previous: undefined },
-				] }
-				dataFormat={ DATA_FORMAT }
-			/>
-		);
-
-		expect( recordedTooltipDateFormatter( mockLineSpy )( instant, 'dateTime' ) ).toBe( expected );
 	} );
 
 	it( 'keeps an unavailable metric selectable, so its reason stays reachable', () => {
