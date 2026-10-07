@@ -7,54 +7,21 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../../../../tests/js/route-test-utils';
 import { WIDGET_ROW_LIMIT } from '../../../constants/rows';
 import { describeError } from '../../../helpers/describe-error';
-import { useWidgetRootContext } from '../../widget-root';
+import { WidgetRootContext, type WidgetRootContextValue } from '../../widget-root';
 import { Leaderboard, type LeaderboardStatus } from '../leaderboard';
 import type { LeaderboardRowInput } from '../build-leaderboard-chart-data';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
-// `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-	return {
-		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, search, children, ...props }, ref ) => {
-				const path = Object.entries( params ?? {} ).reduce(
-					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-					to
-				);
-				const query = new URLSearchParams();
-				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-					if ( value !== undefined && value !== null ) {
-						query.set( key, String( value ) );
-					}
-				} );
-				const queryString = query.toString();
-
-				return (
-					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-						{ children }
-					</a>
-				);
-			}
-		),
-	};
+	return mockWordPressRoute;
 } );
-
-jest.mock( '../../widget-root', () => ( {
-	useWidgetRootContext: jest.fn(),
-} ) );
-
-const mockUseWidgetRootContext = jest.mocked( useWidgetRootContext );
 
 const REPORT_PARAMS = {
 	from: '2026-06-01',
@@ -70,14 +37,19 @@ const ROWS = [
 	{ id: '2', label: 'Product Launch', value: 2640, previousValue: 2700 },
 ];
 
-const renderLeaderboard = ( ui: ReactNode ) =>
-	render( <GlobalChartsProvider>{ ui }</GlobalChartsProvider> );
+const WIDGET_ROOT = { reportParams: REPORT_PARAMS } as unknown as WidgetRootContextValue;
+
+const Providers = ( { children }: { children: ReactNode } ) => (
+	<WidgetRootContext.Provider value={ WIDGET_ROOT }>
+		<GlobalChartsProvider>{ children }</GlobalChartsProvider>
+	</WidgetRootContext.Provider>
+);
+
+const renderLeaderboard = ( ui: ReactNode ) => render( ui, { wrapper: Providers } );
 
 describe( 'Leaderboard', () => {
 	beforeEach( () => {
-		mockUseWidgetRootContext.mockReturnValue( {
-			reportParams: REPORT_PARAMS,
-		} as unknown as ReturnType< typeof useWidgetRootContext > );
+		setMockRouteSearch();
 	} );
 
 	it( 'renders the rows with their values', () => {
@@ -237,11 +209,7 @@ describe( 'Leaderboard', () => {
 			expect( screen.getByText( 'Child' ) ).toBeInTheDocument();
 
 			const rerenderWith = ( rows: LeaderboardRowInput[], status: LeaderboardStatus ) =>
-				rerender(
-					<GlobalChartsProvider>
-						<Leaderboard rows={ rows } status={ status } drillDown={ DRILL_DOWN } />
-					</GlobalChartsProvider>
-				);
+				rerender( <Leaderboard rows={ rows } status={ status } drillDown={ DRILL_DOWN } /> );
 			rerenderWith( WITHOUT_CHILDREN, interimStatus );
 			rerenderWith( WITH_CHILDREN, READY );
 		}

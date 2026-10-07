@@ -26,7 +26,7 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 | `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
 | `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                    |
 | `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
-| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's.                |
+| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, their gates and their default layouts, registered through the action like any plugin's. The WooCommerce tab registers from the WooCommerce stats package. |
 | `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
@@ -173,11 +173,11 @@ A section that declares no layout opens in customize mode on the empty state, si
 
 `is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.
 
-The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. Store checks WooCommerce and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
+The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. WooCommerce checks that WooCommerce is active and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
 A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.
 
-Store and Subscribers each have a filter of their own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
+WooCommerce and Subscribers each have a filter of their own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
 
 A section that fails its rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
 

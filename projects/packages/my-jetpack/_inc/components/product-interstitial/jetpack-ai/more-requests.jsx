@@ -18,9 +18,9 @@ import { useCallback } from 'react';
  * Internal dependencies
  */
 import { assetUrl } from '../../../assets/url';
+import { MyJetpackRoutes } from '../../../constants';
 import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
-import { getProductsSectionPath } from '../../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 
 const jetpackAiImage = assetUrl( 'components/product-interstitial/assets/jetpack-ai.webp' );
@@ -50,7 +50,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ getProductsSectionPath() }
+					to={ MyJetpackRoutes.Features }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -74,7 +74,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 										</LinkButton>
 										<LinkButton
 											variant="outline"
-											href={ getMyJetpackUrl( `#${ getProductsSectionPath() }` ) }
+											href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Features }` ) }
 											onClick={ onClickGoBack }
 										>
 											{ __( 'Back', 'jetpack-my-jetpack' ) }

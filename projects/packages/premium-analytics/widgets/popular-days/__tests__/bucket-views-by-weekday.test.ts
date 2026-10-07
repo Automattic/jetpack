@@ -17,12 +17,14 @@ function dailyRow( date: string, views: number ) {
 }
 
 describe( 'bucketViewsByWeekday', () => {
-	it( 'always returns seven buckets, Monday first', () => {
+	it( 'always returns seven buckets, Monday first, with localized weekday names', () => {
 		const buckets = bucketViewsByWeekday( [] );
 
 		expect( buckets ).toHaveLength( 7 );
 		expect( buckets.map( bucket => bucket.weekday ) ).toEqual( [ 0, 1, 2, 3, 4, 5, 6 ] );
 		expect( buckets.every( bucket => bucket.occurrences === 0 ) ).toBe( true );
+		expect( buckets[ 0 ].label ).toBe( 'Monday' );
+		expect( buckets[ 6 ].label ).toBe( 'Sunday' );
 	} );
 
 	it( 'assigns each date to its weekday', () => {
@@ -85,13 +87,6 @@ describe( 'bucketViewsByWeekday', () => {
 		] );
 
 		expect( buckets.reduce( ( sum, bucket ) => sum + bucket.total, 0 ) ).toBe( 10 );
-	} );
-
-	it( 'labels buckets with localized weekday names', () => {
-		const buckets = bucketViewsByWeekday( [] );
-
-		expect( buckets[ 0 ].label ).toBe( 'Monday' );
-		expect( buckets[ 6 ].label ).toBe( 'Sunday' );
 	} );
 } );
 

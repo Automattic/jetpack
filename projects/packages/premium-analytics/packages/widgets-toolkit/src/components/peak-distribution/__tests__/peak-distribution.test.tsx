@@ -7,13 +7,15 @@ import { render, screen } from '@testing-library/react';
  */
 import { PeakDistribution } from '../peak-distribution';
 
-// Keep visx out of jsdom and make the series the component passes assertable.
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
-	Sparkline: ( { data }: { data: number[] } ) => (
-		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
-	),
-} ) );
+// Keep visx out of jsdom; the shared sparkline stand-in exposes the series it was handed.
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
+
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 describe( 'PeakDistribution', () => {
 	it( 'abbreviates a value at or above 1000 but keeps the exact figure available', () => {

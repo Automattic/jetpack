@@ -10,9 +10,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { WidgetRootContext } from '../../widget-root';
 import { ReportCsvDownloadButton } from '../report-csv-download-button';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-} ) );
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	downloadReport: jest.fn(),

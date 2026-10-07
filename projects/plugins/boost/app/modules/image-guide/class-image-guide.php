@@ -7,6 +7,8 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 
 class Image_Guide implements Feature {
+	/** @var string Asset manifest path. */
+	protected $asset_file = __DIR__ . '/dist/guide.min.asset.php';
 
 	public function setup() {
 		if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
@@ -34,7 +36,11 @@ class Image_Guide implements Feature {
 	}
 
 	public function enqueue_assets() {
-		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.js', __FILE__ ), array( 'wp-i18n' ), JETPACK_BOOST_VERSION, true );
+		$asset = file_exists( $this->asset_file ) ? require $this->asset_file : array(
+			'dependencies' => array( 'wp-data', 'wp-i18n', 'wp-polyfill' ),
+			'version'      => JETPACK_BOOST_VERSION,
+		);
+		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.js', __FILE__ ), $asset['dependencies'], $asset['version'], true );
 		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
 
 		wp_localize_script(

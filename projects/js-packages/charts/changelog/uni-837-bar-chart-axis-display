@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bar chart: Stop drawing an axis set to display: false.

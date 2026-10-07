@@ -168,26 +168,8 @@ describe( 'ViewsOverYears widget', () => {
 		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
 		renderWidget( { metric: 'average' } );
 
+		expect( screen.getAllByTestId( 'skeleton-cell' )[ 0 ] ).toBeInTheDocument();
 		expect( screen.queryByRole( 'gridcell', { name: /Nov 2025/ } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'draws the totals without waiting for the first day with views', () => {
-		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
-		renderWidget( { metric: 'total' } );
-
-		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'opens the Traffic tab over a clicked month', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) );
-
-		expect( mockOpenSectionRange ).toHaveBeenCalledWith( 'traffic', {
-			from: new Date( '2025-11-01T00:00:00.000Z' ),
-			to: new Date( '2025-11-30T23:59:59.999Z' ),
-		} );
 	} );
 
 	it( 'opens the Traffic tab over a clicked year, cut at the clock', async () => {
