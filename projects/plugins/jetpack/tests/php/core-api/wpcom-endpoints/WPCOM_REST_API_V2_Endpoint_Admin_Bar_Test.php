@@ -136,7 +136,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
-	 * Every node under an allowed ID reaches subscribers. A node added under one of them must either check its own capability or be added here on purpose.
+	 * Fails when a subscriber gets a node that is not in SUBSCRIBER_NODES.
 	 */
 	public function test_returns_only_the_known_nodes_to_a_subscriber() {
 		remove_action( 'admin_bar_menu', array( $this, 'add_stats_node' ), 100 );

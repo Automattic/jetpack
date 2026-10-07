@@ -48,7 +48,7 @@ class Admin_Bar {
 	/**
 	 * Add the views chart when the current user should see it.
 	 *
-	 * Runs on admin_bar_menu rather than a page head, so the admin-bar REST endpoint gets the node too.
+	 * Hooked to admin_bar_menu because a REST request fires no page head, and the admin-bar endpoint needs this node.
 	 *
 	 * @param \WP_Admin_Bar $wp_admin_bar The admin bar.
 	 * @return void
