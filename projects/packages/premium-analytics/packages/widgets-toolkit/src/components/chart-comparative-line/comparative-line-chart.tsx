@@ -18,21 +18,23 @@ import { type ComponentProps } from 'react';
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
-	appendTooltipExtras,
-	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
 	getYTickFormat,
 	formatBucketTooltipDate,
-	resolveTooltipUnits,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
-import { ChartTooltip } from '../chart-tooltip';
+import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
-import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries } from './types';
+import type {
+	ComparativeLineChartSeries,
+	SeriesStyle,
+	TooltipExtraSeries,
+	ComparativeDatePointDate,
+} from './types';
 import type { ChartBaseline } from '../../helpers';
 import type { DataFormat } from '../../types';
 
@@ -196,51 +198,25 @@ export function ComparativeLineChart( {
 		[ legendInteractive ]
 	);
 
-	const tooltipUnits = useMemo(
-		() => resolveTooltipUnits( series, tooltipExtras ),
-		[ series, tooltipExtras ]
+	const formatTooltipBucket = useCallback(
+		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
+		[ displayResolution ]
 	);
-
-	const getTooltipLabel = useCallback(
-		(
-			datum: { date: Date; realDate?: Date; endDate?: Date },
-			_index: number,
-			key: string,
-			value: string | null,
-			rawValue: number | null
-		): string => {
-			const date = formatBucketTooltipDate( datum, displayResolution );
-			const unit = tooltipUnits.get( key );
-			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
-		},
-		[ tooltipUnits, displayResolution ]
-	);
-
-	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
-	// by key (see `ChartTooltip`'s `seriesKeys`).
-	const seriesKeys = useMemo( () => series.map( item => item.label ), [ series ] );
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			const { tooltipData, supplementaryRows } = appendTooltipExtras(
-				params.tooltipData,
-				tooltipExtras
-			);
+			const model = buildDatedTooltipModel( {
+				tooltipData: params.tooltipData,
+				series,
+				seriesStyles: resolvedStyles,
+				extras: tooltipExtras,
+				dataFormat,
+				formatDate: formatTooltipBucket,
+			} );
 
-			return (
-				<ChartTooltip
-					tooltipData={ tooltipData }
-					dataFormat={ dataFormat }
-					seriesStyles={ resolvedStyles }
-					seriesKeys={ seriesKeys }
-					indicatorType="line"
-					layout="inline"
-					supplementaryRows={ supplementaryRows }
-					getLabel={ getTooltipLabel }
-				/>
-			);
+			return model && <DatedTooltip model={ model } indicatorType="line" />;
 		},
-		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel, tooltipExtras ]
+		[ dataFormat, resolvedStyles, series, tooltipExtras, formatTooltipBucket ]
 	);
 
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
