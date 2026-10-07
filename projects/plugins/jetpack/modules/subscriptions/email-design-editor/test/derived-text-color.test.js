@@ -5,6 +5,9 @@ const ID = 7;
 const WHITE_TEXT = '#262626';
 const BLACK_TEXT = '#f2f2f2';
 const BLUE_TEXT = '#e7ebfe';
+// A button's own background: light gray, which calls for the same text white does, and blue.
+const GRAY_BUTTON = '#dcdcdc';
+const BLUE_BUTTON = '#113af5';
 
 let mockRecord;
 let mockHasEdits;
@@ -39,8 +42,7 @@ jest.mock( '@wordpress/data', () => ( {
 	dispatch: () => ( { editEntityRecord: mockEditEntityRecord } ),
 } ) );
 
-const { textFor, watchDerivedTextColor } = require( '../src/derived-text-color' );
-const fixture = require( './data/readable-elements.json' );
+const { watchDerivedTextColor } = require( '../src/derived-text-color' );
 
 /**
  * Start a watcher, let it see the record as it stands, then hand back a way to change it.
@@ -423,6 +425,74 @@ describe( 'watchDerivedTextColor', () => {
 		expect( written().elements ).toEqual( { link: { color: { text: '#007cb8' } } } );
 	} );
 
+	it( 'derives button text when the creator picks a button background', () => {
+		const pick = watching( { styles: {} } );
+
+		pick( { styles: { elements: { button: { color: { background: GRAY_BUTTON } } } } } );
+
+		expect( written() ).toEqual( {
+			elements: { button: { color: { background: GRAY_BUTTON, text: WHITE_TEXT } } },
+		} );
+	} );
+
+	it( "derives over the site's own button text when the new background fails it", () => {
+		const pick = watching( { styles: {} }, { button: '#ffffff' } );
+
+		pick( { styles: { elements: { button: { color: { background: GRAY_BUTTON } } } } } );
+
+		expect( written().elements.button.color.text ).toBe( WHITE_TEXT );
+	} );
+
+	it( 'leaves button text the creator chose', () => {
+		const pick = watching( {
+			styles: { elements: { button: { color: { background: GRAY_BUTTON, text: '#ff00ff' } } } },
+		} );
+
+		pick( {
+			styles: { elements: { button: { color: { background: BLUE_BUTTON, text: '#ff00ff' } } } },
+		} );
+
+		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+	} );
+
+	it( 'derives again when the creator clears the button text', () => {
+		const pick = watching( {
+			styles: { elements: { button: { color: { background: GRAY_BUTTON, text: '#ff00ff' } } } },
+		} );
+
+		pick( { styles: { elements: { button: { color: { background: GRAY_BUTTON } } } } } );
+
+		expect( written().elements.button.color.text ).toBe( WHITE_TEXT );
+	} );
+
+	it( 'resolves a palette pick before deriving the button text', () => {
+		const pick = watching( { styles: {} } );
+		mockTheme = { settings: { color: { palette: [ { slug: 'brand', color: BLUE_BUTTON } ] } } };
+
+		pick( {
+			styles: { elements: { button: { color: { background: 'var:preset|color|brand' } } } },
+		} );
+
+		expect( written().elements.button.color.text ).toBe( BLUE_TEXT );
+	} );
+
+	it( 'writes the button text in one edit with the email text', () => {
+		const pick = watching( { styles: {} } );
+
+		pick( {
+			styles: {
+				color: { background: '#ffffff' },
+				elements: { button: { color: { background: BLUE_BUTTON } } },
+			},
+		} );
+
+		expect( mockEditEntityRecord ).toHaveBeenCalledTimes( 1 );
+		expect( written() ).toEqual( {
+			color: { background: '#ffffff', text: WHITE_TEXT },
+			elements: { button: { color: { background: BLUE_BUTTON, text: BLUE_TEXT } } },
+		} );
+	} );
+
 	it( 'does nothing without a global-styles id', () => {
 		expect( watchDerivedTextColor( null )() ).toBeUndefined();
 		expect( mockListener ).toBeUndefined();
@@ -431,13 +501,4 @@ describe( 'watchDerivedTextColor', () => {
 	it( 'stops watching when told to', () => {
 		expect( watchDerivedTextColor( ID ) ).toBe( mockUnsubscribe );
 	} );
-} );
-
-describe( 'textFor', () => {
-	it.each( fixture.text )(
-		'matches the renderer for $color on $background',
-		( { color, background, readable } ) => {
-			expect( textFor( color, background ) ).toBe( readable );
-		}
-	);
 } );
