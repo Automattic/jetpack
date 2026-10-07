@@ -93,13 +93,29 @@ class Configuration {
 	}
 
 	/**
+	 * Whether the site offers the Store section, whose data is all this sync carries.
+	 *
+	 * @return bool
+	 */
+	private static function is_store_section_offered(): bool {
+		// This can run before Analytics::boot_shared_services() loads the policy file.
+		if ( ! function_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\register_dashboard_feature_flags' ) ) {
+			require_once dirname( __DIR__ ) . '/dashboard-policy.php';
+		}
+
+		// An older copy of the policy file predates the check; sync nothing rather than guess.
+		return function_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\is_dashboard_store_section_offered' )
+			&& \Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_offered();
+	}
+
+	/**
 	 * Register the Jetpack Sync filters and ensure the Sync feature when WooCommerce
-	 * is active.
+	 * is active and the site offers the Store section.
 	 *
 	 * @return void
 	 */
 	public function configure_sync(): void {
-		if ( ! self::is_woocommerce_active() ) {
+		if ( ! self::is_woocommerce_active() || ! self::is_store_section_offered() ) {
 			return;
 		}
 

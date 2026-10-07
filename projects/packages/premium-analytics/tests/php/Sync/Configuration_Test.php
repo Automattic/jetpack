@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Meta;
@@ -15,17 +16,28 @@ use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Modules\Term_Relationships;
 use Automattic\Jetpack\Sync\Modules\Terms;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_STORE_SECTION_FLAG;
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Sync\Configuration
  */
 #[CoversClass( Configuration::class )]
 class Configuration_Test extends TestCase {
+
+	/**
+	 * @after
+	 */
+	#[After]
+	public function tear_down() {
+		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
+		\WorDBless\Options::init()->clear_options();
+	}
 
 	/**
 	 * Invoke a private method on a Configuration instance.
@@ -75,8 +87,9 @@ class Configuration_Test extends TestCase {
 		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
-		$this->assertSame( 10, has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
-		$this->assertSame( 10, has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
+		// No analytics full sync has started, so order changes are dropped.
+		$this->assertFalse( apply_filters( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( array( 'order_id' => 1 ) ) ) );
+		$this->assertFalse( apply_filters( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( array( 'order_id' => 1 ) ) ) );
 
 		$data_settings = ( new Data_Settings() )->get_data_settings();
 		$this->assertContains( WooCommerce_Analytics::class, $data_settings['jetpack_sync_modules'] );
@@ -94,6 +107,47 @@ class Configuration_Test extends TestCase {
 		$modules = apply_filters( 'jetpack_sync_modules', array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
 		$this->assertNotContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
 		$this->assertContains( WooCommerce_Analytics::class, $modules );
+	}
+
+	/**
+	 * On the site's own Stats v2 opt-in, nothing syncs until the Store tab's flag is on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_registers_nothing_while_the_store_section_is_hidden() {
+		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		$configuration = new Configuration();
+		$configuration->configure_sync();
+
+		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
+		$this->assertNotContains( WooCommerce_Analytics::class, apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES ) );
+	}
+
+	/**
+	 * Turning the Store tab's flag on lets the opted-in site sync again.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_registers_once_the_store_section_flag_is_on() {
+		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
+		require_once __DIR__ . '/../../../src/dashboard-policy.php';
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
+
+		$configuration = new Configuration();
+		$configuration->configure_sync();
+
+		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertContains( WooCommerce_Analytics::class, apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES ) );
 	}
 
 	/**
@@ -220,15 +274,6 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * Order changes before the analytics full sync are dropped; that sync sends every order anyway.
-	 */
-	public function test_skip_reports_data_before_analytics_full_sync_drops_order_changes_before_the_full_sync() {
-		\WorDBless\Options::init()->clear_options();
-
-		$this->assertFalse( ( new Configuration() )->skip_reports_data_before_analytics_full_sync( array( array( 'order_id' => 1 ) ) ) );
-	}
-
-	/**
 	 * Order changes sync as usual once the analytics full sync has finished.
 	 */
 	public function test_skip_reports_data_before_analytics_full_sync_passes_order_changes_after_the_full_sync() {
@@ -236,8 +281,6 @@ class Configuration_Test extends TestCase {
 		$args = array( array( 'order_id' => 1 ) );
 
 		$this->assertSame( $args, ( new Configuration() )->skip_reports_data_before_analytics_full_sync( $args ) );
-
-		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
 	}
 
 	/**
