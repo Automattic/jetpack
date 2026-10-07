@@ -1,12 +1,14 @@
 import { useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { starEmpty } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { LIKES_ANCHOR } from '../anchors';
 import { AutoSaveFields } from '../components/auto-save-fields';
 import { booleanRadioEdit } from '../components/controls';
 import { FeatureVariant } from '../components/feature-variant';
 import { PlacementSummary } from '../components/placement-summary';
-import { SectionCard } from '../components/section-card';
+import { BoxRow, SectionBox } from '../components/section-box';
+import { featureBadge, onOffBadge } from '../components/status-badge';
 import { useStatus } from '../data/queries';
 import { configures, type Settings } from '../types';
 import type { Field } from '@wordpress/dataviews';
@@ -67,25 +69,43 @@ export function LikeButtonsSection(): JSX.Element | null {
 	}
 
 	const title = _x( 'Like buttons', 'Settings header', 'jetpack-sharing-likes' );
+	const description = __(
+		'Let readers like your posts with their WordPress.com account.',
+		'jetpack-sharing-likes'
+	);
 
 	// The screen needs Simple, a connection or offline mode, so offline mode is the only way here.
 	if ( ! status.likes.supported ) {
 		return (
-			<SectionCard id={ LIKES_ANCHOR } title={ title }>
-				<Text render={ <p /> }>
-					{ __(
-						'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.',
-						'jetpack-sharing-likes'
-					) }
-				</Text>
-			</SectionCard>
+			<SectionBox
+				id={ LIKES_ANCHOR }
+				icon={ starEmpty }
+				title={ title }
+				badge={ onOffBadge( false ) }
+				description={ description }
+			>
+				<BoxRow>
+					<Text render={ <p /> }>
+						{ __(
+							'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.',
+							'jetpack-sharing-likes'
+						) }
+					</Text>
+				</BoxRow>
+			</SectionBox>
 		);
 	}
 
 	const state = status.likes.state;
 
 	return (
-		<SectionCard id={ LIKES_ANCHOR } title={ title }>
+		<SectionBox
+			id={ LIKES_ANCHOR }
+			icon={ starEmpty }
+			title={ title }
+			badge={ featureBadge( state ) }
+			description={ description }
+		>
 			<FeatureVariant feature="likes" state={ state }>
 				{ configures( state ) && (
 					<>
@@ -94,6 +114,6 @@ export function LikeButtonsSection(): JSX.Element | null {
 					</>
 				) }
 			</FeatureVariant>
-		</SectionCard>
+		</SectionBox>
 	);
 }

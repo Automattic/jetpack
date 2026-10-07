@@ -5,6 +5,7 @@ import { Button, Stack } from '@wordpress/ui';
 import { useSettings } from '../data/queries';
 import { useSaveSetting } from '../data/use-save-setting';
 import { useUnsavedChangesWarning } from '../hooks/use-unsaved-changes-warning';
+import { BoxRow } from './section-box';
 import type { FormEvent, JSX } from 'react';
 
 type TextKey = 'sharing_label' | 'twitter_site_tag';
@@ -64,20 +65,22 @@ export function TextSetting( {
 	}
 
 	return (
-		<form onSubmit={ handleSubmit }>
-			<Stack direction="row" gap="sm" align="end">
-				<TextControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ label }
-					help={ help }
-					value={ value }
-					onChange={ setDraft }
-				/>
-				<Button type="submit" variant="solid" disabled={ ! isDirty } loading={ isSaving }>
-					{ __( 'Save', 'jetpack-sharing-likes' ) }
-				</Button>
-			</Stack>
-		</form>
+		<BoxRow>
+			<form onSubmit={ handleSubmit }>
+				<Stack direction="column" gap="md" align="start">
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ label }
+						help={ help }
+						value={ value }
+						onChange={ setDraft }
+					/>
+					<Button type="submit" variant="outline" disabled={ ! isDirty } loading={ isSaving }>
+						{ __( 'Save', 'jetpack-sharing-likes' ) }
+					</Button>
+				</Stack>
+			</form>
+		</BoxRow>
 	);
 }

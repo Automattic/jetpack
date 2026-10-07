@@ -10,7 +10,7 @@ import {
 	resetNotices,
 	setScriptData,
 } from './helpers';
-import type { Services, Settings } from '../types';
+import type { SectionState, Services, Settings } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -123,5 +123,19 @@ describe( 'SharingButtonsSection', () => {
 		} );
 
 		expect( apiCalls() ).toEqual( [] );
+	} );
+
+	it.each( [
+		[ 'configure', 'On' ],
+		[ 'configure_with_block_nudge', 'On' ],
+		[ 'block_call_to_action', 'Block' ],
+		[ 'off', 'Off' ],
+	] as [ SectionState, string ][] )( 'labels %s as "%s" beside the heading', ( state, badge ) => {
+		servicesRespond( services );
+		renderWithData( <SharingButtonsSection />, {
+			status: { ...baseStatus, sharing: { state } },
+		} );
+
+		expect( screen.getByText( badge, { exact: true } ) ).toBeInTheDocument();
 	} );
 } );

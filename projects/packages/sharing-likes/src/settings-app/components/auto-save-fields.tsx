@@ -2,15 +2,16 @@ import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { useSettings } from '../data/queries';
 import { useSaveSetting } from '../data/use-save-setting';
+import { BoxRow } from './section-box';
 import type { SettingKey, Settings } from '../types';
 import type { JSX } from 'react';
 
 /**
- * A DataForm that saves each change as it happens, showing only the fields `settings` offers.
+ * One row per field, each saving its change as it happens; only the fields `settings` offers render.
  *
  * @param props        - Props.
  * @param props.fields - Fields, in display order.
- * @return The form, or null when none of its fields are offered.
+ * @return The rows, or null when none of the fields are offered.
  */
 export function AutoSaveFields( { fields }: { fields: Field< Settings >[] } ): JSX.Element | null {
 	const settings = useSettings();
@@ -31,14 +32,17 @@ export function AutoSaveFields( { fields }: { fields: Field< Settings >[] } ): J
 	}
 
 	return (
-		<DataForm< Settings >
-			data={ settings }
-			fields={ offered }
-			form={ {
-				layout: { type: 'regular', labelPosition: 'top' },
-				fields: offered.map( field => field.id ),
-			} }
-			onChange={ handleChange }
-		/>
+		<>
+			{ offered.map( field => (
+				<BoxRow key={ field.id }>
+					<DataForm< Settings >
+						data={ settings }
+						fields={ [ field ] }
+						form={ { layout: { type: 'regular', labelPosition: 'top' }, fields: [ field.id ] } }
+						onChange={ handleChange }
+					/>
+				</BoxRow>
+			) ) }
+		</>
 	);
 }

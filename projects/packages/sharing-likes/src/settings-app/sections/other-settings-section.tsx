@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { SectionCard } from '../components/section-card';
+import { cog } from '@wordpress/icons';
+import { SectionBox } from '../components/section-box';
 import { TextSetting } from '../components/text-setting';
 import { useSettings } from '../data/queries';
 import type { JSX } from 'react';
@@ -16,7 +17,14 @@ export function OtherSettingsSection(): JSX.Element | null {
 	}
 
 	return (
-		<SectionCard title={ __( 'Other settings', 'jetpack-sharing-likes' ) }>
+		<SectionBox
+			icon={ cog }
+			title={ __( 'Other settings', 'jetpack-sharing-likes' ) }
+			description={ __(
+				'Used by Twitter Cards and the Sharing Buttons block.',
+				'jetpack-sharing-likes'
+			) }
+		>
 			<TextSetting
 				settingKey="twitter_site_tag"
 				label={ __( 'Twitter Site Tag', 'jetpack-sharing-likes' ) }
@@ -25,6 +33,6 @@ export function OtherSettingsSection(): JSX.Element | null {
 					'jetpack-sharing-likes'
 				) }
 			/>
-		</SectionCard>
+		</SectionBox>
 	);
 }

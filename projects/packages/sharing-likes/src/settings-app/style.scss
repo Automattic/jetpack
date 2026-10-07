@@ -4,14 +4,79 @@
 // DataForm's layout and spacing live in the DataViews stylesheet.
 @include meta.load-css("@wordpress/dataviews/build-style/style.css");
 
+// The content column other Jetpack wp-build pages use (708px with gutters).
+$column: 660px;
+$gutter: 24px;
+$divider: 1px solid #f0f0f0;
+
 body.settings_page_sharing {
 
 	@include jetpack-admin-page-layout-wp-build;
 }
 
 .jetpack-sharing-likes {
-	max-inline-size: 760px;
-	padding-block-end: 32px;
+	box-sizing: border-box;
+	max-inline-size: $column + 2 * $gutter;
+	margin-inline: auto;
+	padding: $gutter;
+}
+
+.jetpack-sharing-likes__box {
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.jetpack-sharing-likes__box-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 20px $gutter;
+}
+
+.jetpack-sharing-likes__box-icon {
+	flex-shrink: 0;
+	fill: currentColor;
+}
+
+.jetpack-sharing-likes__box-title {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 400;
+}
+
+.jetpack-sharing-likes__box-badge {
+	color: #757575;
+	font-size: 14px;
+}
+
+.jetpack-sharing-likes__box-description {
+	margin: 0;
+	padding: 0 $gutter 20px;
+	border-block-end: $divider;
+	font-size: 14px;
+}
+
+.jetpack-sharing-likes__box-row {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 20px $gutter;
+
+	& + & {
+		border-block-start: $divider;
+	}
+
+	p {
+		margin: 0;
+	}
+}
+
+// Placement checkboxes would otherwise sit flush against each other.
+.jetpack-sharing-likes__box-row fieldset {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 // Focused after "Turn on" or "Switch to the … block", never tabbed to.

@@ -1,10 +1,12 @@
 import { useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { share } from '@wordpress/icons';
 import { AutoSaveFields } from '../components/auto-save-fields';
-import { CheckboxEdit, SelectEdit } from '../components/controls';
+import { SelectEdit, ToggleEdit } from '../components/controls';
 import { FeatureVariant } from '../components/feature-variant';
 import { PlacementSummary } from '../components/placement-summary';
-import { SectionCard } from '../components/section-card';
+import { BoxRow, SectionBox } from '../components/section-box';
+import { featureBadge } from '../components/status-badge';
 import { TextSetting } from '../components/text-setting';
 import { useServices, useStatus } from '../data/queries';
 import { configures, type Settings } from '../types';
@@ -33,7 +35,7 @@ function buttonStyleField(): Field< Settings > {
 }
 
 /**
- * The "Disable CSS and JS" checkbox. Only offered while this section configures.
+ * The "Disable CSS and JS" toggle. Only offered while this section configures.
  *
  * @return Field.
  */
@@ -46,7 +48,7 @@ function disableResourcesField(): Field< Settings > {
 			'jetpack-sharing-likes'
 		),
 		type: 'boolean',
-		Edit: CheckboxEdit,
+		Edit: ToggleEdit,
 	};
 }
 
@@ -65,7 +67,9 @@ function SharingOptions(): JSX.Element {
 	return (
 		<>
 			{ hasServices && <PlacementSummary feature="sharing" /> }
-			<ServicesList query={ services } />
+			<BoxRow>
+				<ServicesList query={ services } />
+			</BoxRow>
 			<AutoSaveFields fields={ styleFields } />
 			<TextSetting
 				settingKey="sharing_label"
@@ -90,10 +94,18 @@ export function SharingButtonsSection(): JSX.Element | null {
 	const state = status.sharing.state;
 
 	return (
-		<SectionCard title={ _x( 'Sharing buttons', 'Settings header', 'jetpack-sharing-likes' ) }>
+		<SectionBox
+			icon={ share }
+			title={ _x( 'Sharing buttons', 'Settings header', 'jetpack-sharing-likes' ) }
+			badge={ featureBadge( state ) }
+			description={ __(
+				'Add sharing buttons to your blog and allow your visitors to share posts with their friends.',
+				'jetpack-sharing-likes'
+			) }
+		>
 			<FeatureVariant feature="sharing" state={ state }>
 				{ configures( state ) && <SharingOptions /> }
 			</FeatureVariant>
-		</SectionCard>
+		</SectionBox>
 	);
 }

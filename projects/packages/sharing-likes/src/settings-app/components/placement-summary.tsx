@@ -4,6 +4,7 @@ import { PLACEMENT_ANCHOR } from '../anchors';
 import { useSettings } from '../data/queries';
 import { placementSummary, type SummaryFeature } from '../placement';
 import { getPlacementChoices } from '../script-data';
+import { BoxRow } from './section-box';
 import type { JSX } from 'react';
 
 /**
@@ -20,11 +21,13 @@ export function PlacementSummary( { feature }: { feature: SummaryFeature } ): JS
 	}
 
 	return (
-		<Text render={ <p /> }>
-			{ placementSummary( feature, show, getPlacementChoices() ) }{ ' ' }
-			<Link href={ `#${ PLACEMENT_ANCHOR }` }>
-				{ __( 'Change where they appear', 'jetpack-sharing-likes' ) }
-			</Link>
-		</Text>
+		<BoxRow>
+			<Text render={ <p /> }>
+				{ placementSummary( feature, show, getPlacementChoices() ) }{ ' ' }
+				<Link href={ `#${ PLACEMENT_ANCHOR }` }>
+					{ __( 'Change where they appear', 'jetpack-sharing-likes' ) }
+				</Link>
+			</Text>
+		</BoxRow>
 	);
 }
