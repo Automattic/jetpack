@@ -56,6 +56,8 @@ export interface MetricTabDatum {
 	endDate?: Date;
 	/** Null for a bucket with no reading, which the chart draws as a gap. */
 	value: number | null;
+	/** Read out by the tooltip in place of the missing reading, e.g. why it is missing. */
+	note?: string;
 }
 
 /**

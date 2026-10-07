@@ -114,6 +114,16 @@ describe( 'buildDatedTooltipModel', () => {
 		] );
 	} );
 
+	it( "carries the first hovered point's note, for a bucket the source has not counted", () => {
+		const model = modelFor( [
+			entry( 'Views', { date: JULY_1, value: null, note: 'Not counted yet.' } ),
+			entry( 'Visitors', { date: JULY_1, value: null, note: 'Another note' } ),
+		] );
+
+		expect( model?.note ).toBe( 'Not counted yet.' );
+		expect( model?.rows.map( row => row.value ) ).toEqual( [ null, null ] );
+	} );
+
 	it( 'drops a comparison whose metric is not reported, as a hidden series is not', () => {
 		const model = modelFor( [
 			entry( 'Visitors', { date: JULY_1, value: 40 } ),

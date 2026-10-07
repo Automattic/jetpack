@@ -43,6 +43,8 @@ export type DatedTooltipModel = {
 	 */
 	previousDate?: string;
 	rows: DatedTooltipRow[];
+	/** Why the bucket has no reading, from the first hovered point that says so. */
+	note?: string;
 };
 
 type TooltipData = {
@@ -101,6 +103,7 @@ export function buildDatedTooltipModel(
 		seriesStyles[ series.findIndex( s => s.label === label ) ] ?? seriesStyles[ 0 ];
 	const rows = new Map< string, DatedTooltipRow >();
 	let previousPoint: Point | undefined;
+	let note: string | undefined;
 
 	// Current-period rows first, so a comparison always finds its row.
 	for ( const entry of entries ) {
@@ -109,13 +112,15 @@ export function buildDatedTooltipModel(
 			continue;
 		}
 
+		const point = entry.datum as Point;
+		note ??= point.note;
 		rows.set( entry.key, {
 			key: entry.key,
 			name: entry.key,
 			countLabel: drawn?.countLabel,
 			dataFormat,
 			indicator: drawn ? { kind: 'series', style: styleOf( drawn.label ) } : { kind: 'blank' },
-			value: readingOf( entry.datum as Point ),
+			value: readingOf( point ),
 		} );
 	}
 
@@ -162,6 +167,7 @@ export function buildDatedTooltipModel(
 		const indicator: TooltipIndicator = extra.icon
 			? { kind: 'icon', icon: extra.icon }
 			: { kind: 'blank' };
+		note ??= point?.note;
 		rows.set( extra.label, {
 			key: extra.label,
 			name: extra.label,
@@ -178,5 +184,6 @@ export function buildDatedTooltipModel(
 		date: formatDate( hoveredPoint as ComparativeDatePointDate ),
 		previousDate: previousPoint && formatDate( previousPoint as ComparativeDatePointDate ),
 		rows: [ ...rows.values() ],
+		note,
 	};
 }
