@@ -370,6 +370,7 @@ jest.mock( './hooks', () => ( {
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
+	useRememberAppliedPreset: () => ( { onChange: jest.fn(), onApply: jest.fn() } ),
 	useSectionDateFilter: jest.fn(),
 } ) );
 

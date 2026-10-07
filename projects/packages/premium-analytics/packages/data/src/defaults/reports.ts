@@ -6,39 +6,21 @@ import {
 	getComparisonRangeFromPreset,
 	localTZDate,
 } from '@jetpack-premium-analytics/datetime';
-import { differenceInCalendarDays, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
 // Leaf modules, not the `../utils` barrel, which loads `@wordpress/core-data`.
 import { getDefaultIntervalForPeriod } from '../utils/interval';
 import { computeDateRangeFromPreset } from '../utils/preset-date-range';
-import { getStoreInfo } from './store-info';
+import { getRememberedPreset, getStatsV1Preset } from './remembered-preset';
 import type { PresetType, ReportParams } from '../utils/search';
 
-const DEFAULT_PRESET: PresetType = 'last-30-days';
-
 /**
- * Pick the default date-range preset based on how long the store has been live.
+ * The preset a page opens on when its URL names no dates: the reader's last applied
+ * preset, else their Jetpack Stats v1 range, else the last 7 days v1 also opened on.
  */
-export function getDefaultPreset( launchedDate?: string ): PresetType {
-	if ( ! launchedDate ) {
-		return DEFAULT_PRESET;
-	}
-
-	const today = startOfDay( localTZDate() );
-	const launched = startOfDay( localTZDate( launchedDate ) );
-	const daysSinceLaunch = differenceInCalendarDays( today, launched );
-
-	if ( daysSinceLaunch <= 0 ) {
-		return 'today';
-	}
-
-	if ( daysSinceLaunch <= 7 ) {
-		return 'last-7-days';
-	}
-
-	return DEFAULT_PRESET;
+export function getDefaultPreset(): PresetType {
+	return getRememberedPreset() ?? getStatsV1Preset() ?? 'last-7-days';
 }
 
 /**
@@ -48,7 +30,7 @@ export function getDefaultPreset( launchedDate?: string ): PresetType {
  * load rather than freezing the dates the module was built on.
  */
 export function getDefaultReportParams(): { preset: PresetType } {
-	return { preset: getDefaultPreset( getStoreInfo().launchedDate ) };
+	return { preset: getDefaultPreset() };
 }
 
 /**
@@ -83,7 +65,7 @@ export function withDefaultComparison( params: ReportParams ): ReportParams {
  */
 export const getDefaultQueryParams = (
 	withComparison: boolean = false,
-	preset: PresetType = DEFAULT_PRESET
+	preset: PresetType = getDefaultPreset()
 ): ReportParams => {
 	const range = computeDateRangeFromPreset( preset );
 

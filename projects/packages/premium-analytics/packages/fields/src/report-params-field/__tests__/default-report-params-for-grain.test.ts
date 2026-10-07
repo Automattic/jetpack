@@ -21,8 +21,8 @@ describe( 'defaultReportParamsForGrain', () => {
 		expect( defaultReportParamsForGrain( DAILY_GRAIN ) ).toEqual( { preset: 'last-30-days' } );
 	} );
 
-	// A site launched today defaults to `today`, which a report with no sub-daily
-	// bucket would draw as a single point.
+	// A reader who last applied `today` defaults to it, which a report with no
+	// sub-daily bucket would draw as a single point.
 	it( 'falls back to the first offered window when the store default is not offered', () => {
 		mockGetDefaultReportParams.mockReturnValue( { preset: 'today' } );
 

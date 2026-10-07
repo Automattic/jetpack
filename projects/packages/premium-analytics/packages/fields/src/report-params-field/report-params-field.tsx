@@ -8,7 +8,6 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getDefaultReportParams,
-	getStoreInfo,
 	hasComparisonEnabled,
 	normalizeReportParams,
 	type StatsPeriod,
@@ -45,7 +44,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * modules can consume it through this package's script module: the toolkit is
  * bundled-from-source and its scss graph cannot enter the widget metadata build.
  *
- * `getStoreInfo()` is imported rather than read from context because the control
+ * `getDefaultPreset()` is imported rather than read from context because the control
  * renders as host chrome outside the widget tree, where `WidgetRootContext` is
  * unreachable.
  */
@@ -90,9 +89,8 @@ type ReportParamsFieldOptions = {
 /**
  * The params a widget that owns its date range starts on, clamped to its grain.
  *
- * The store default follows how long the site has been live, so a site launched
- * today starts on `today` — a window a widget whose report has no sub-daily
- * bucket does not offer, and would draw as a single point.
+ * The default follows the reader's header preset, which can be one the widget does
+ * not offer, such as `today`: a report with no sub-daily bucket draws it as one point.
  *
  * @param grain           - How fine the widget's report is.
  * @param grain.presetIds - The windows the widget offers.
@@ -190,8 +188,7 @@ function ReportParamsControl( {
 		revert,
 	} = useStagedValue< ReportParams >( committed, saveReportParams );
 
-	const { launchedDate } = getStoreInfo();
-	const defaultPreset = getDefaultPreset( launchedDate );
+	const defaultPreset = getDefaultPreset();
 
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 

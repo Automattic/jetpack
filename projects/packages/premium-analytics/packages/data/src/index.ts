@@ -97,11 +97,11 @@ export {
 export type { IntervalType } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
+	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
-	getStoreInfo,
-	type StoreInfo,
+	rememberPreset,
 	withDefaultComparison,
 } from './defaults';
 export { downloadReport, fetchStatsProxy } from './api';
