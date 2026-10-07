@@ -32,7 +32,14 @@ class Analytics_Dashboard {
 	/**
 	 * Widget type names the package builds, from `widgets/*\/widget.json`.
 	 */
-	const NET_SALES_OVER_TIME_TYPE = 'woocommerce-analytics/net-sales-over-time';
+	const NET_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/net-sales-over-time';
+	const TOTAL_SALES_OVER_TIME_TYPE   = 'woocommerce-analytics/total-sales-over-time';
+	const GROSS_SALES_OVER_TIME_TYPE   = 'woocommerce-analytics/gross-sales-over-time';
+	const ORDERS_OVER_TIME_TYPE        = 'woocommerce-analytics/orders-over-time';
+	const AVERAGE_ORDER_VALUE_TYPE     = 'woocommerce-analytics/average-order-value';
+	const AVERAGE_ITEMS_PER_ORDER_TYPE = 'woocommerce-analytics/average-items-per-order';
+	const BOOKINGS_OVER_TIME_TYPE      = 'woocommerce-analytics/bookings-over-time';
+	const VISITORS_OVER_TIME_TYPE      = 'woocommerce-analytics/visitors-over-time';
 
 	/**
 	 * Registry actions of the dashboard package.
@@ -106,6 +113,13 @@ class Analytics_Dashboard {
 	public static function get_default_layout() {
 		return array(
 			get_dashboard_default_widget_instance( 'default-net-sales-over-time-widget-instance', self::NET_SALES_OVER_TIME_TYPE, 0, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-total-sales-over-time-widget-instance', self::TOTAL_SALES_OVER_TIME_TYPE, 1, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-gross-sales-over-time-widget-instance', self::GROSS_SALES_OVER_TIME_TYPE, 2, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-orders-over-time-widget-instance', self::ORDERS_OVER_TIME_TYPE, 3, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 4, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 5, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-bookings-over-time-widget-instance', self::BOOKINGS_OVER_TIME_TYPE, 6, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 7, 1, 2 ),
 		);
 	}
 
