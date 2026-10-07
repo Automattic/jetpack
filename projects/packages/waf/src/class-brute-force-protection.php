@@ -172,7 +172,8 @@ class Brute_Force_Protection {
 			global $pagenow;
 			$brute_force_protection = self::instance();
 
-			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+			// Set-password links stay reachable so new users can finish registering; logins are still checked on `authenticate`.
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow && ! $brute_force_protection->is_valid_password_reset_request() ) {
 				$brute_force_protection->check_login_ability();
 			}
 		}
@@ -879,6 +880,36 @@ class Brute_Force_Protection {
 		new Brute_Force_Protection_Math_Authenticate();
 
 		return false;
+	}
+
+	/**
+	 * Whether this is a wp-login.php set-password request carrying a valid reset key.
+	 *
+	 * Core moves the key from the link into a cookie on the first request, so both are checked.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function is_valid_password_reset_request() {
+		// phpcs:disable WordPress.Security.NonceVerification -- Read-only; core validates the reset key itself.
+		$action = isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+		if ( 'rp' !== $action && 'resetpass' !== $action ) {
+			return false;
+		}
+
+		$rp_cookie = defined( 'COOKIEHASH' ) ? 'wp-resetpass-' . COOKIEHASH : '';
+		if ( isset( $_GET['key'] ) && isset( $_GET['login'] ) && is_string( $_GET['key'] ) && is_string( $_GET['login'] ) ) {
+			$key   = wp_unslash( $_GET['key'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passed to check_password_reset_key().
+			$login = wp_unslash( $_GET['login'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passed to check_password_reset_key().
+		} elseif ( $rp_cookie && isset( $_COOKIE[ $rp_cookie ] ) && is_string( $_COOKIE[ $rp_cookie ] ) && 0 < strpos( $_COOKIE[ $rp_cookie ], ':' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only checked for a separator.
+			list( $login, $key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passed to check_password_reset_key().
+		} else {
+			return false;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification
+
+		return ! is_wp_error( check_password_reset_key( $key, $login ) );
 	}
 
 	/**

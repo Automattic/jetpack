@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Brute Force Protection: Do not send recovery emails to accounts that have not set a password yet.
+Brute Force Protection: Let new users set their password from a blocked IP, and stop sending recovery emails to accounts that have not set one yet.
