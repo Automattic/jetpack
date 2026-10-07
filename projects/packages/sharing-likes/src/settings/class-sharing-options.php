@@ -51,8 +51,9 @@ final class Sharing_Options {
 	 * so anything the payload leaves out, placement included, would be reset.
 	 *
 	 * @param array<string, mixed> $changes Options to change, slashed and keyed as `set_global_options()` reads them.
+	 * @return array<string, mixed> The global options as saved.
 	 */
-	public static function update( array $changes ): void {
+	public static function update( array $changes ): array {
 		// Before `get()`, whose first read on a site that never saved stores the posts-and-pages default.
 		$show                     = Placement_Section::selected_post_types();
 		$current                  = self::get();
@@ -66,6 +67,6 @@ final class Sharing_Options {
 			$options['sharing_label'] = $sharer->default_sharing_label;
 		}
 
-		$sharer->set_global_options( $options );
+		return $sharer->set_global_options( $options );
 	}
 }

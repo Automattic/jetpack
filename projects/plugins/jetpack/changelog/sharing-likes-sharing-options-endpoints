@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: Stop sharing button changes made from WordPress.com or the Jetpack dashboard from dropping backslashes in the label or hiding Like buttons on custom post types.

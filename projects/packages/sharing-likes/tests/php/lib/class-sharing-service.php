@@ -33,9 +33,12 @@ class Sharing_Service {
 	 * Record a save.
 	 *
 	 * @param array<string,mixed> $data Posted data.
+	 * @return array<string,mixed>
 	 */
 	public function set_global_options( $data ) {
 		$GLOBALS['sharing_likes_test_global_options'] = $data;
+
+		return $data;
 	}
 
 	/**

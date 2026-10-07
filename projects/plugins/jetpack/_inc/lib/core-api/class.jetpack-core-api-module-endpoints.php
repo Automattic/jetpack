@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Status;
@@ -875,6 +876,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'sharing_label':
 				case 'show':
 					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
+						break;
+					}
+
+					if ( method_exists( Sharing_Options::class, 'update' ) ) {
+						// `Sharing_Options::update()` expects the label slashed, as in `$_POST`.
+						$updated = Sharing_Options::update( array( $option => 'sharing_label' === $option ? wp_slash( $value ) : $value ) );
 						break;
 					}
 

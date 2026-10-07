@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Options;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -954,7 +955,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
 					break;
 				case 'sharing_label':
-					$sharing_options[ $key ] = $value;
+					$sharing_options[ $key ] = $raw_value;
 					break;
 
 				// Keyring token option.
@@ -1523,20 +1524,30 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
-			$ss = new Sharing_Service();
-
-			/*
-			 * Merge current values with updated, since Sharing_Service expects
-			 * all values to be included when updating
-			 */
-			$current_sharing_options = $ss->get_global_options();
-			foreach ( $current_sharing_options as $key => $val ) {
-				if ( ! isset( $sharing_options[ $key ] ) ) {
-					$sharing_options[ $key ] = $val;
+			if ( method_exists( Sharing_Options::class, 'update' ) ) {
+				$changes = $sharing_options;
+				if ( isset( $changes['sharing_label'] ) ) {
+					// `Sharing_Options::update()` expects the label slashed, as in `$_POST`.
+					$changes['sharing_label'] = wp_slash( $changes['sharing_label'] );
 				}
-			}
 
-			$updated_social_options = $ss->set_global_options( $sharing_options );
+				$updated_social_options = Sharing_Options::update( $changes );
+			} else {
+				$ss = new Sharing_Service();
+
+				/*
+				 * Merge current values with updated, since Sharing_Service expects
+				 * all values to be included when updating
+				 */
+				$current_sharing_options = $ss->get_global_options();
+				foreach ( $current_sharing_options as $key => $val ) {
+					if ( ! isset( $sharing_options[ $key ] ) ) {
+						$sharing_options[ $key ] = $val;
+					}
+				}
+
+				$updated_social_options = $ss->set_global_options( $sharing_options );
+			}
 
 			if ( isset( $input['sharing_button_style'] ) ) {
 				$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
