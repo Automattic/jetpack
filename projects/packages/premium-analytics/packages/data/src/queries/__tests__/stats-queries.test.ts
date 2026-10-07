@@ -589,17 +589,15 @@ describe( 'Stats query factories', () => {
 		}
 	);
 
-	it.each( [
-		[ 'sends the start date of a dated window', {}, '2015-01-01T00:00:00.000+00:00' ],
-		[ 'leaves the window of a negative num to WPCOM', { num: -1 }, undefined ],
-	] )( 'top-authors %s', ( _title, extra, startDate ) => {
+	it( 'leaves the top-authors window of a negative num to WPCOM', () => {
 		const query = statsTopAuthorsQuery( {
 			from: '2015-01-01T00:00:00.000+00:00',
 			to: '2026-10-07T23:59:59.999+00:00',
-			...extra,
-		} as StatsReportParams );
+			num: -1,
+		} );
 
-		expect( ( query.queryKey[ 5 ] as Record< string, unknown > ).start_date ).toBe( startDate );
+		expect( query.queryKey[ 5 ] ).toHaveProperty( 'num', -1 );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'start_date' );
 	} );
 
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading

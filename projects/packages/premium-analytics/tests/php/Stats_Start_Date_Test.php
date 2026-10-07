@@ -157,10 +157,17 @@ class Stats_Start_Date_Test extends BaseTestCase {
 	 */
 	public function test_injects_the_start_date_on_the_dashboard_page_only() {
 		update_option( 'timezone_string', 'UTC' );
-		set_transient( 'jetpack_assumed_site_creation_date', '2012-03-04 00:00:00' );
+		$this->answer_wpcom_with(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'options' => array( 'created_at' => '2012-03-04T00:00:00+00:00' ) ), JSON_UNESCAPED_SLASHES ),
+				'headers'  => array(),
+			)
+		);
 		set_current_screen( 'dashboard' );
 
 		$this->assertSame( array(), inject_stats_start_date_script_data( array() ) );
+		$this->assertCount( 0, $this->requests );
 
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
@@ -169,5 +176,6 @@ class Stats_Start_Date_Test extends BaseTestCase {
 			array( 'premium_analytics' => array( 'stats_start_date' => '2012-03-04' ) ),
 			inject_stats_start_date_script_data( array() )
 		);
+		$this->assertCount( 1, $this->requests );
 	}
 }

@@ -57,13 +57,21 @@ describe( 'ReportPageLayout', () => {
 		jest.clearAllMocks();
 	} );
 
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
 	it( 'renders the report title as the section heading', () => {
 		render( <ReportPageLayout title="Posts & Pages">table</ReportPageLayout> );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Posts & Pages' );
 	} );
 
-	it( 'mounts the date picker with the controller it was given', () => {
+	it( 'mounts the date picker with its controller and Stats start date', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { premium_analytics: { stats_start_date: '2012-03-04' } },
+		} );
 		const dateFilters = buildDateFilters();
 
 		render(
@@ -75,6 +83,8 @@ describe( 'ReportPageLayout', () => {
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
 		expect( panelProps ).toEqual( expect.objectContaining( dateFilters ) );
+		expect( panelProps.presetIds ).toBe( ANCHORED_SURFACE_PRESETS );
+		expect( panelProps.allTimeStart ).toEqual( toLocalTZ( '2012-03-04', 'UTC' ) );
 		// The interval control stays hidden; the staged interval still rides along for the dashboard.
 		expect( panelProps.withIntervalControl ).toBeUndefined();
 	} );
@@ -100,33 +110,16 @@ describe( 'ReportPageLayout', () => {
 		expect( screen.getByText( copy ) ).toBeInTheDocument();
 	} );
 
-	it.each( [
-		[
-			'offers all time from the day Stats start',
-			'2012-03-04',
-			ANCHORED_SURFACE_PRESETS,
-			toLocalTZ( '2012-03-04', 'UTC' ),
-		],
-		[ 'leaves all time off without a start to anchor it', undefined, undefined, undefined ],
-	] )( '%s', ( _title, statsStartDate, presetIds, allTimeStart ) => {
-		Object.defineProperty( window, 'JetpackScriptData', {
-			configurable: true,
-			value: { premium_analytics: { stats_start_date: statsStartDate } },
-		} );
-
-		try {
-			render(
-				<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
-					table
-				</ReportPageLayout>
-			);
-		} finally {
-			delete window.JetpackScriptData;
-		}
+	it( 'leaves all time off without a start to anchor it', () => {
+		render(
+			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
+				table
+			</ReportPageLayout>
+		);
 
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
-		expect( panelProps.presetIds ).toBe( presetIds );
-		expect( panelProps.allTimeStart ).toEqual( allTimeStart );
+		expect( panelProps.presetIds ).toBeUndefined();
+		expect( panelProps.allTimeStart ).toBeUndefined();
 	} );
 
 	it( 'mounts no date picker on a report with no date window', () => {
