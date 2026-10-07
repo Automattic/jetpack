@@ -59,10 +59,9 @@ export function getManageConnection(): ManageConnection {
  *
  * Reads only what the page was rendered with and the connection store, so it sends no request.
  *
- * @param shouldAskForUserConnection - Whether to ask for a user connection.
  * @return The connection state
  */
-export function useConnectionState( shouldAskForUserConnection: boolean ): ConnectionState {
+export function useConnectionState(): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner, isOfflineMode } =
 		useMyJetpackConnection();
 	const { isKnown, isSafeMode } = useSelect( select => {
@@ -141,18 +140,24 @@ export function useConnectionState( shouldAskForUserConnection: boolean ): Conne
 		};
 	}
 
-	if ( isUserConnected ) {
-		if ( errorNotice.hasConnectionError ) {
-			return {
-				id: 'error',
-				label: errorNotice.errorTitle,
-				action: 'REPAIR',
-				status: errorNotice.severity ?? 'error',
-				isDiagnosis: true,
-				manageConnection,
-			};
-		}
+	// Ask for a user connection when a product that needs one has its plugin active.
+	const shouldAskForUserConnection = Object.values(
+		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
+	).some( product => product?.requires_user_connection && product.is_plugin_active );
 
+	// Show a live error as the diagnosis unless the state asks for a user connection.
+	if ( errorNotice.hasConnectionError && ( isUserConnected || ! shouldAskForUserConnection ) ) {
+		return {
+			id: 'error',
+			label: errorNotice.errorTitle,
+			action: 'REPAIR',
+			status: errorNotice.severity ?? 'error',
+			isDiagnosis: true,
+			manageConnection,
+		};
+	}
+
+	if ( isUserConnected ) {
 		return {
 			id: 'connected',
 			label: __( 'Site and account connected', 'jetpack-my-jetpack' ),
@@ -162,22 +167,19 @@ export function useConnectionState( shouldAskForUserConnection: boolean ): Conne
 		};
 	}
 
-	// Connecting the account stays the prompt; a live error only tints the line, at
-	// the package's severity.
-	let status: ConnectionState[ 'status' ] = shouldAskForUserConnection ? 'warning' : 'success';
-	if ( errorNotice.hasConnectionError ) {
-		status = errorNotice.severity ?? 'error';
-	}
-
 	if ( ! shouldAskForUserConnection ) {
 		return {
 			id: 'site-connected',
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
-			status,
+			status: 'success',
 			manageConnection,
 		};
 	}
+
+	// Connecting the account stays the prompt; a live error only tints the line, at
+	// the package's severity.
+	const status = errorNotice.hasConnectionError ? ( errorNotice.severity ?? 'error' ) : 'warning';
 
 	if ( ! hasConnectedOwner ) {
 		// Only an admin can take the empty owner slot.

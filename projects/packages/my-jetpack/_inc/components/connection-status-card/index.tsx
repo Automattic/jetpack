@@ -154,9 +154,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// Statuses come from the products request, so keep asking until it answers.
-	const shouldAskForUserConnection = isLoading || isError || hasProductsThatRequireUserConnection;
-	const state = useConnectionState( shouldAskForUserConnection );
+	const state = useConnectionState();
 
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
