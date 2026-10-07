@@ -179,16 +179,15 @@ The chart gracefully handles single data points, rendering a complete semi-circl
 
 The chart container is focusable and has `role="application"`, so screen readers pass arrow keys through to the chart.
 
-- **Tab**: Focus the chart
+- **Tab**: Focus the chart; Tab again leaves it
 - **Right and Left Arrow**: Move through the segments in the order they appear, left to right. Selection stops at the first and last segment
-- **Tooltips**: The selected segment is outlined. With `withTooltips`, its tooltip opens at the segment and takes focus. Without `withTooltips`, screen readers announce the segment's label and value
+- **Tooltips**: A focus ring marks the selected segment. With `withTooltips`, its tooltip opens at the segment and takes focus. Without `withTooltips`, screen readers announce the segment's label and value
 - **Escape**: Clear the selection
-- **Tab**: Leave the chart
-- **Pointer**: Hovering a segment ends a keyboard selection
+- **Pointer**: Hovering a segment ends a keyboard selection, and the next arrow key continues from the hovered segment
 
 ### Accessible Name
 
-Set `ariaLabel` to name the chart after what it shows. The default is "Semi-circle chart". Each chart is a landmark, so two charts on one page need different names.
+Set `ariaLabel` to name the chart after what it shows. The default is "Semi-circle chart". Give each chart on a page a different name so screen reader users can tell them apart.
 
 <Source
 	language="jsx"
