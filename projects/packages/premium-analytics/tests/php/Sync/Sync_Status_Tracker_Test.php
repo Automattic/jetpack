@@ -191,13 +191,6 @@ class Sync_Status_Tracker_Test extends TestCase {
 				),
 				false,
 			),
-			'analytics full sync not started'     => array(
-				array(
-					'started' => false,
-					'config'  => array( 'woocommerce_analytics' => 1 ),
-				),
-				false,
-			),
 		);
 	}
 

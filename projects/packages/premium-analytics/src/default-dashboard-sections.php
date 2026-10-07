@@ -61,17 +61,18 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 /**
  * Whether the Store dashboard section should be exposed.
  *
- * The site's own opt-in needs the Store flag; the blog sticker and the
- * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
- *
  * @since 0.10.0
  *
  * @return bool
  */
 function is_store_dashboard_section_available() {
-	// An older copy of the package may have loaded dashboard-policy.php without the flag.
-	$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
-		|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
+	// An older copy of the package may have loaded dashboard-policy.php without these functions.
+	if ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_offered' ) ) {
+		$is_enabled = is_dashboard_store_section_offered();
+	} else {
+		$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
+			|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
+	}
 
 	return $is_enabled && is_woocommerce_dashboard_section_available_to_current_user();
 }

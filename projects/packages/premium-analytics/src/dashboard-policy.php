@@ -66,6 +66,18 @@ function is_dashboard_store_section_enabled() {
 }
 
 /**
+ * Whether the site offers the Store section, before any check on the reader.
+ *
+ * The site's own opt-in needs the Store flag; the blog sticker and the
+ * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
+ *
+ * @return bool
+ */
+function is_dashboard_store_section_offered() {
+	return ! get_option( Enablement_Setting::ENABLED_OPTION ) || is_dashboard_store_section_enabled();
+}
+
+/**
  * No-op kept for older copies of the package, whose dashboard-sections.php calls it after
  * skipping its include of this file.
  *

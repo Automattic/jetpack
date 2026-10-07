@@ -185,8 +185,7 @@ class Sync_Status_Tracker {
 		}
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
 
-		$full_status = $module->get_status();
-		return ! empty( $full_status['started'] ) && self::includes_analytics_module( $full_status );
+		return self::includes_analytics_module( $module->get_status() );
 	}
 
 	/**
