@@ -97,6 +97,43 @@ it( 'shows loading, unknown measurements and potential savings', async () => {
 	expect( target ).toHaveTextContent( /450 KB/ );
 } );
 
+it( 'staggers each bubble entrance once on first appearance', async () => {
+	const stores = [ image(), image(), image(), image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	const bubbles = target.querySelectorAll( '.interaction-area' );
+	bubbles.forEach( ( bubble, index ) => {
+		expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+		expect( bubble ).toHaveStyle( { animationDelay: `${ 150 + 50 * index }ms` } );
+	} );
+	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
+	expect( target.querySelector( '.interaction-area' ) ).toBe( bubbles[ 0 ] );
+	expect( bubbles[ 0 ] ).toHaveClass( 'jb-ig-bubble-fly' );
+	await act( async () => commands.setGuideState( 'paused' ) );
+	await act( async () => commands.setGuideState( 'active' ) );
+	target.querySelectorAll( '.interaction-area' ).forEach( bubble => {
+		expect( bubble ).not.toHaveClass( 'jb-ig-bubble-fly' );
+	} );
+} );
+
+it( 'opens both popup links in a new tab', async () => {
+	await act( async () =>
+		root.render(
+			<Popup
+				store={ image() }
+				size="normal"
+				position={ { top: 10, left: 20 } }
+				onMouseLeave={ jest.fn() }
+			/>
+		)
+	);
+	const links = target.querySelectorAll( 'a' );
+	expect( links ).toHaveLength( 2 );
+	links.forEach( link => {
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+	} );
+} );
+
 it( 'keeps the same details panel and scroll anchor when switching shared-container images', async () => {
 	Object.defineProperty( window, 'scrollY', { configurable: true, value: 100 } );
 	const stores = [ image(), image( 'https://example.test/two.png' ) ];
@@ -131,11 +168,19 @@ it( 'keeps the same details panel and scroll anchor when switching shared-contai
 	expect( target.querySelector( '.jetpack-boost-guide-popup' ) ).toBe( popup );
 } );
 
-it( 'removes guides immediately on pause and restores them on resume', async () => {
+it( 'fades labels when loading finishes and restores them immediately on resume', async () => {
+	jest.useFakeTimers();
 	const stores = [ image(), image() ];
 	await act( async () => root.render( <Main stores={ stores } /> ) );
+	expect( target.querySelector( '.label' ) ).not.toBeInTheDocument();
+	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
+	expect( target.querySelector( '.label' ) ).toHaveClass( 'jb-ig-label-fade' );
+	act( () => jest.advanceTimersByTime( 500 ) );
 	await act( async () => commands.setGuideState( 'paused' ) );
 	expect( target.querySelector( '.guide' ) ).not.toBeInTheDocument();
 	await act( async () => commands.setGuideState( 'active' ) );
 	expect( target.querySelector( '.guide' ) ).toBeInTheDocument();
+	expect( target.querySelector( '.label' ) ).not.toHaveClass( 'jb-ig-label-fade' );
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.label' ) ).not.toHaveClass( 'jb-ig-label-fade' );
 } );

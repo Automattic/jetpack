@@ -116,12 +116,21 @@ export function Bubble( {
 	index,
 	store,
 	onHover,
+	intro = true,
 }: {
 	index: number;
 	store: MeasurableImageStore;
 	onHover: ( index: number, position: Position ) => void;
+	intro?: boolean;
 } ) {
 	const { oversizedRatio: ratio, loading } = useImage( store );
+	const [ fly ] = useState( intro );
+	const previousLoading = useRef( loading );
+	const [ fadeLabel, setFadeLabel ] = useState( false );
+	useLayoutEffect( () => {
+		setFadeLabel( previousLoading.current && ! loading );
+		previousLoading.current = loading;
+	}, [ loading ] );
 	const spinner = usePresence( loading, 300 );
 	const severity = ratio > 4 ? 'high' : ratio > 2.5 ? 'medium' : 'normal';
 	const hover = useCallback(
@@ -132,11 +141,15 @@ export function Bubble( {
 		[ index, onHover ]
 	);
 	return (
-		<div className={ `jb-ig-bubble interaction-area ${ severity }` } onMouseEnter={ hover }>
+		<div
+			className={ `jb-ig-bubble interaction-area ${ severity }${ fly ? ' jb-ig-bubble-fly' : '' }` }
+			style={ fly ? { animationDelay: `${ 150 + 50 * index }ms` } : undefined }
+			onMouseEnter={ hover }
+		>
 			<div className="jb-ig-bubble bubble">
 				{ ! loading && (
 					<div className="jb-ig-bubble bubble-inner">
-						<div className="label jb-ig-label-fade">
+						<div className={ `label${ fadeLabel ? ' jb-ig-label-fade' : '' }` }>
 							{ ratio > 9 ? (
 								`${ Math.floor( ratio ) }x`
 							) : ratio > 0.99 ? (
@@ -219,7 +232,7 @@ export function Popup( {
 			<div className="jb-ig-popup preview">
 				<div className="jb-ig-popup description">
 					<div className="jb-ig-popup title">
-						<a href={ url } target="_blank noreferrer" className="jb-ig-popup">
+						<a href={ url } target="_blank" rel="noopener noreferrer" className="jb-ig-popup">
 							{ imageName }
 						</a>
 					</div>
@@ -305,7 +318,8 @@ export function Popup( {
 					<a
 						className="jb-ig-popup documentation"
 						href="https://jetpack.com/support/jetpack-boost/image-performance-guide/"
-						target="_blank noreferrer"
+						target="_blank"
+						rel="noopener noreferrer"
 					>
 						Learn how to improve site speed by optimizing images <External />
 					</a>
@@ -327,6 +341,10 @@ export function Main( { stores }: { stores: MeasurableImageStore[] } ) {
 		} );
 	}, [ stores ] );
 	const [ hasFileSize, setHasFileSize ] = useState( hasImages );
+	const appeared = useRef( false );
+	useEffect( () => {
+		if ( state === 'active' && hasFileSize ) appeared.current = true;
+	}, [ state, hasFileSize ] );
 	useLayoutEffect( () => {
 		const stops = stores.map( controller =>
 			subscribeToFacts( () => setHasFileSize( hasImages() ), controller.id )
@@ -366,7 +384,13 @@ export function Main( { stores }: { stores: MeasurableImageStore[] } ) {
 		>
 			<div className="jb-ig-main previews">
 				{ stores.map( ( controller, index ) => (
-					<Bubble key={ controller.id } index={ index } store={ controller } onHover={ hover } />
+					<Bubble
+						key={ controller.id }
+						index={ index }
+						store={ controller }
+						onHover={ hover }
+						intro={ ! appeared.current }
+					/>
 				) ) }
 			</div>
 			{ show !== false && (
