@@ -39,7 +39,7 @@ class Jetpack_Connector {
 	const MODULE_ID = '@automattic/jetpack-connection-connectors';
 
 	/**
-	 * Script module dependencies of the card, declared by hand because the asset file mixes them with classic globals.
+	 * Script module dependencies of the card, declared by hand because the asset file also lists the classic globals it imports, such as `JetpackConnection`.
 	 * Must list every AS_MODULE package (webpack.config.js) the card imports; the build check fails if one is missing.
 	 *
 	 * @since $$next-version$$
