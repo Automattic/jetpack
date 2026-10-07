@@ -165,6 +165,20 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Another settings page with the filter on loads nothing: no polyfills, no build, no script data.
+	 */
+	public function test_maybe_load_does_nothing_on_another_page(): void {
+		add_filter( Settings_App::FILTER, '__return_true' );
+		$_GET['page'] = 'general';
+
+		Settings_App::maybe_load();
+
+		$this->assertNull( Settings_App::render_callback() );
+		$this->assertSame( array(), WP_Build_Polyfills::get_consumers() );
+		$this->assertFalse( has_filter( 'jetpack_admin_js_script_data', array( Settings_App::class, 'add_script_data' ) ) );
+	}
+
+	/**
 	 * Loading registers the polyfills, the i18n loader and the script data.
 	 */
 	public function test_load_registers_polyfills_i18n_and_script_data(): void {
