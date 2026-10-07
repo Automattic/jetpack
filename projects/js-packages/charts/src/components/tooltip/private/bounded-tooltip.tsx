@@ -1,15 +1,19 @@
-import { Tooltip, defaultStyles } from '@visx/tooltip';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { TooltipBox } from '../tooltip-box';
 import type { TooltipPlacement } from '../../../visx/types';
-import type { TooltipProps } from '@visx/tooltip';
+import type { TooltipBoxProps } from '../tooltip-box';
+import type { ReactNode } from 'react';
 
 type Bounds = { left: number; top: number; right: number; bottom: number };
 type Size = { width: number; height: number };
 
-export type BoundedTooltipProps = Omit< TooltipProps, 'left' | 'top' | 'applyPositionStyle' > & {
+export type BoundedTooltipProps = Omit< TooltipBoxProps, 'children' > & {
+	children?: ReactNode;
 	/** Anchor, in the coordinates of the positioned wrapper the box renders into. */
 	left?: number;
 	top?: number;
+	offsetLeft?: number;
+	offsetTop?: number;
 	placement?: TooltipPlacement;
 };
 
@@ -25,6 +29,15 @@ const clamp = ( position: number, min: number, max: number, size: number ) =>
 const isClipping = ( element: Element ) => {
 	const { overflow, overflowX, overflowY } = getComputedStyle( element );
 	return [ overflow, overflowX, overflowY ].some( value => value && value !== 'visible' );
+};
+
+// The positioned wrapper the box renders into, past the tooltip theme's `display: contents` element, which has no box to measure.
+const findLayoutParent = ( node: Element ): Element | null => {
+	let element = node.parentElement;
+	while ( element && getComputedStyle( element ).display === 'contents' ) {
+		element = element.parentElement;
+	}
+	return element;
 };
 
 // The first ancestor that cuts its overflow off. The box may leave the chart
@@ -122,7 +135,7 @@ export const getBoundedPosition = ( {
 };
 
 /**
- * visx's `Tooltip`, positioned like its `TooltipWithBounds` but kept inside the
+ * A `TooltipBox`, positioned like visx's `TooltipWithBounds` but kept inside the
  * nearest clipping ancestor — or the viewport when there is none — rather than
  * inside its own parent. Rendered in-tree, a tooltip's parent is the chart
  * wrapper, which is often narrower than the box; measuring against the parent
@@ -131,13 +144,14 @@ export const getBoundedPosition = ( {
  * Re-measures on every render, so a box whose content changes width between
  * two hovers is placed for its current size.
  *
- * @param props            - visx `Tooltip` props.
+ * @param props            - `TooltipBox` props plus placement.
  * @param props.left       - Anchor x, in wrapper coordinates.
  * @param props.top        - Anchor y, in wrapper coordinates.
  * @param props.offsetLeft - Gap between the anchor and the box, horizontally.
  * @param props.offsetTop  - Gap between the anchor and the box, vertically.
- * @param props.style      - Box styles; visx's defaults unless `unstyled`.
- * @param props.unstyled   - Skip `style` and leave the box bare.
+ * @param props.style      - Inline overrides on the surface; ignored when `unstyled`.
+ * @param props.unstyled   - Drop the surface and `style`, leaving the box bare.
+ * @param props.className  - Extra classes beside the surface.
  * @param props.children   - Box content.
  * @param props.placement  - Below-axis, beside without vertical flipping, or automatic flipping.
  * @return The tooltip box.
@@ -147,8 +161,9 @@ export const BoundedTooltip = ( {
 	top = 0,
 	offsetLeft = DEFAULT_OFFSET,
 	offsetTop = DEFAULT_OFFSET,
-	style = defaultStyles,
+	style,
 	unstyled = false,
+	className,
 	children,
 	placement = 'auto',
 	...rest
@@ -159,7 +174,7 @@ export const BoundedTooltip = ( {
 
 	useLayoutEffect( () => {
 		const node = nodeRef.current;
-		const wrapper = node?.parentElement;
+		const wrapper = node && findLayoutParent( node );
 		if ( ! node || ! wrapper ) {
 			return;
 		}
@@ -199,9 +214,12 @@ export const BoundedTooltip = ( {
 	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
 
 	return (
-		<Tooltip
+		<TooltipBox
 			ref={ nodeRef }
+			role="presentation"
 			data-testid="bounded-tooltip"
+			unstyled={ unstyled }
+			className={ className }
 			style={ {
 				position: 'absolute',
 				left: 0,
@@ -220,14 +238,15 @@ export const BoundedTooltip = ( {
 						left: left - x - POINTER_HEIGHT,
 						top: -POINTER_HEIGHT,
 						width: POINTER_HEIGHT * 2,
-						height: POINTER_HEIGHT,
+						// One extra pixel overlaps the box, so anti-aliasing leaves no seam between them.
+						height: POINTER_HEIGHT + 1,
 						background: 'inherit',
-						clipPath: 'polygon(50% 0, 100% 100%, 0 100%)',
+						clipPath: `polygon(50% 0, 100% ${ POINTER_HEIGHT }px, 100% 100%, 0 100%, 0 ${ POINTER_HEIGHT }px)`,
 						pointerEvents: 'none',
 					} }
 				/>
 			) }
 			{ children }
-		</Tooltip>
+		</TooltipBox>
 	);
 };

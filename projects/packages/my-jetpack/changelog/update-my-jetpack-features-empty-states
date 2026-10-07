@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Features tab: say why the list is empty and offer a way forward, behind the my-jetpack-features-tab feature flag.

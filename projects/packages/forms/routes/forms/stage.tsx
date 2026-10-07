@@ -3,15 +3,12 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { formatNumber } from '@automattic/number-formatters';
-import {
-	Button,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useSearch, useNavigate } from '@wordpress/route';
 import { Badge, EmptyState, Stack, Tooltip } from '@wordpress/ui';
 /**
@@ -20,6 +17,7 @@ import { Badge, EmptyState, Stack, Tooltip } from '@wordpress/ui';
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import { icon as formBlockIcon } from '../../src/blocks/contact-form/icon.jsx';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
+import DeleteFormConfirmationModal from '../../src/dashboard/components/delete-form-confirmation-modal';
 import { NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import {
@@ -184,13 +182,7 @@ function StageInner() {
 		[ openPermanentDeleteConfirm ]
 	);
 
-	const onClosePermanentDeleteConfirm = useCallback( () => {
-		setPendingPermanentDeleteCount( 0 );
-		closePermanentDeleteConfirm();
-	}, [ closePermanentDeleteConfirm ] );
-
 	const onConfirmPermanentDelete = useCallback( async () => {
-		setPendingPermanentDeleteCount( 0 );
 		try {
 			await confirmPermanentDelete();
 		} finally {
@@ -668,31 +660,12 @@ function StageInner() {
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 			>
-				<ConfirmDialog
-					onCancel={ onClosePermanentDeleteConfirm }
-					onConfirm={ onConfirmPermanentDelete }
+				<DeleteFormConfirmationModal
 					isOpen={ isPermanentDeleteConfirmOpen }
-					confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
-				>
-					<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
-					<p>
-						{ pendingPermanentDeleteCount === 1
-							? __(
-									'This will permanently delete this form. This action cannot be undone.',
-									'jetpack-forms'
-								)
-							: sprintf(
-									/* translators: %d: number of forms */
-									_n(
-										'This will permanently delete %d form. This action cannot be undone.',
-										'This will permanently delete %d forms. This action cannot be undone.',
-										pendingPermanentDeleteCount,
-										'jetpack-forms'
-									),
-									pendingPermanentDeleteCount
-								) }
-					</p>
-				</ConfirmDialog>
+					onCancel={ closePermanentDeleteConfirm }
+					onConfirm={ onConfirmPermanentDelete }
+					count={ pendingPermanentDeleteCount }
+				/>
 				<DataViewsHeaderRow activeTab="forms" />
 				<DataViews.Layout />
 				<DataViews.Footer />

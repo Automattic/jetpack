@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -27,6 +30,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -40,7 +44,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					dates: metric.current.map( point => point.date.toISOString().slice( 0, 10 ) ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -172,32 +178,33 @@ describe( 'AuthorPerformanceWidget', () => {
 		expect( metric.value ).toBe( 7 );
 	} );
 
-	it( 'draws a line when the chartType attribute says so', async () => {
-		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
-
-		render(
-			<AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } />
-		);
-
-		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
-			'data-chart-type',
-			'line'
-		);
-	} );
-
-	it( 'falls back to a bar for a persisted chartType it does not know', async () => {
+	it.each( [
+		[ 'line', 'line' ],
+		[ 'pie', 'bar' ],
+	] )( 'draws a chartType attribute of %s as a %s chart', async ( chartType, drawn ) => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
 
 		render(
 			<AuthorPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'pie' as never } }
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: chartType as never } }
 			/>
 		);
 
 		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
 			'data-chart-type',
-			'bar'
+			drawn
 		);
+	} );
+
+	it( 'hands the chart the no-results message as its empty state', async () => {
+		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect(
+			within( chart ).getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without an author scope', async () => {
@@ -220,7 +227,7 @@ describe( 'AuthorPerformanceWidget', () => {
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry for a failure that can heal', async () => {
+	it( 'refetches from the Retry action for a failure that can heal', async () => {
 		// The proxy's `no_connection` 403 heals on reconnect and skips React Query's retry backoff.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
 
@@ -229,6 +236,10 @@ describe( 'AuthorPerformanceWidget', () => {
 		await expect(
 			screen.findByText( "We couldn't load this author's views. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+
+		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
 	} );
 } );

@@ -66,7 +66,8 @@ async function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
+		// Broaden this one further until after this is merged and Renovate does a run:
+		// https://github.com/Automattic/jetpack/pull/52316
 		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
 			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
@@ -82,10 +83,6 @@ async function fixDeps( pkg ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			delete pkg.dependencies[ dep ];
 			pkg.peerDependencies[ dep ] = ver.startsWith( '>' ) ? ver : ver.replace( /^\^?/, '>=' );
-		}
-		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
-		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
-			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
 	}
 
@@ -108,6 +105,16 @@ async function fixDeps( pkg ) {
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
+	// Update to avoid periodic CVEs. Upstream pins deps for "security" but doesn't respond all that quickly to new issues.
+	// https://github.com/open-cli-tools/concurrently/issues/598#issuecomment-4842564626
+	if ( pkg.name === 'concurrently' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
 				pkg.dependencies[ dep ] = '^' + ver;
@@ -156,15 +163,6 @@ async function fixDeps( pkg ) {
 	}
 	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
 		pkg.dependencies.glob = '^13';
-	}
-
-	// Updated in upstream trunk with no other changes, but not released yet.
-	// https://github.com/Automattic/newspack-workspace/pull/835
-	if (
-		pkg.name === 'newspack-icons' &&
-		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0'
-	) {
-		pkg.peerDependencies[ '@wordpress/primitives' ] = '^3.0.0 || ^4.0.0';
 	}
 
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
@@ -243,16 +241,6 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// @wordpress/build's optional peer on @wordpress/theme stops below 2.0.0, blocking the theme 2.x
-	// that @wordpress/ui and @wordpress/boot require. Widened upstream, drop once a release carries it.
-	// @see https://github.com/WordPress/gutenberg/pull/82139
-	if (
-		pkg.name === '@wordpress/build' &&
-		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <2.0.0'
-	) {
-		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <3.0.0';
-	}
-
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
 	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
 	if ( pkg.name === 'rollup-plugin-license' ) {
@@ -267,14 +255,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@size-limit/file' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
 		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
-	}
-
-	// Outdated peer dependency because Gutenberg is still on node 20.
-	if (
-		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
-		! pkg.peerDependencies?.[ '@types/node' ]?.includes( '^24.' )
-	) {
-		pkg.peerDependencies[ '@types/node' ] += ' || ^24.0.0';
 	}
 
 	// Outdated dependency because Calypso is still on node 22.

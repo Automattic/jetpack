@@ -21,6 +21,7 @@ import type { CutRange, EditSession, EditSessionAction } from '../state/edit-ses
 import type { KeyboardEvent as ReactKeyboardEvent, ReactElement, RefObject } from 'react';
 
 type Props = {
+	scrollerEl?: HTMLElement | null;
 	/** The cut this segment renders. */
 	cut: CutRange;
 	/** The edit session (bounds, sibling cuts, selection). */
@@ -63,7 +64,7 @@ function cutSnapEdges( session: EditSession, cut: CutRange ): number[] {
  * @return The edge-handle element.
  */
 function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): ReactElement {
-	const { cut, session, currentMs, pxPerMs, contentRef, dispatch } = props;
+	const { cut, session, currentMs, pxPerMs, contentRef, scrollerEl, dispatch } = props;
 	const valueMs = edge === 'start' ? cut.startMs : cut.endMs;
 	const grabRef = useRef( { valueMs, edgesMs: cutSnapEdges( session, cut ) } );
 
@@ -82,6 +83,7 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 
 	const drag = useTimelinePointerDrag( {
 		contentRef,
+		scrollerEl,
 		pxPerMs,
 		getAnchorMs: () => valueMs,
 		// Selection joins the gesture as a transient, so COMMIT folds the
@@ -121,9 +123,10 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 			role="slider"
 			tabIndex={ 0 }
 			aria-label={
-				edge === 'start'
-					? __( 'Cut start', 'jetpack-videopress-pkg' )
-					: __( 'Cut end', 'jetpack-videopress-pkg' )
+				{
+					start: __( 'Cut start', 'jetpack-videopress-pkg' ),
+					end: __( 'Cut end', 'jetpack-videopress-pkg' ),
+				}[ edge ]
 			}
 			aria-orientation="horizontal"
 			aria-valuemin={ edge === 'start' ? session.trimStartMs : cut.startMs }
@@ -153,7 +156,7 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
  * @return The segment element.
  */
 export default function StudioEditorCutSegment( props: Props ): ReactElement {
-	const { cut, session, currentMs, pxPerMs, contentRef, dispatch } = props;
+	const { cut, session, currentMs, pxPerMs, contentRef, scrollerEl, dispatch } = props;
 	const selected = session.selectedCutId === cut.id;
 	const leftPx = msToPx( cut.startMs, pxPerMs );
 	const widthPx = msToPx( cut.endMs - cut.startMs, pxPerMs );
@@ -163,6 +166,7 @@ export default function StudioEditorCutSegment( props: Props ): ReactElement {
 
 	const bodyDrag = useTimelinePointerDrag( {
 		contentRef,
+		scrollerEl,
 		pxPerMs,
 		getAnchorMs: () => cut.startMs,
 		onDragStart: () => {

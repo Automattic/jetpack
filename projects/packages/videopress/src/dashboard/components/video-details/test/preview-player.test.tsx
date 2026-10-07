@@ -108,6 +108,19 @@ describe( 'PreviewPlayer', () => {
 		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( afterRename );
 	} );
 
+	it( 'keeps the iframe when processing supplies its first poster, then refreshes later poster edits', () => {
+		const { rerender } = render(
+			<PreviewPlayer video={ { ...baseVideo, isProcessing: true, thumbnailUrl: null } } />
+		);
+		const player = screen.getByTitle( 'Video preview' );
+		rerender( <PreviewPlayer video={ baseVideo } /> );
+		expect( screen.getByTitle( 'Video preview' ) ).toBe( player );
+		rerender(
+			<PreviewPlayer video={ { ...baseVideo, thumbnailUrl: 'https://example.test/custom.jpg' } } />
+		);
+		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( player );
+	} );
+
 	it( 'plays local items without a GUID through a native video element', () => {
 		render( <PreviewPlayer video={ { ...baseVideo, type: 'local', guid: '' } } /> );
 

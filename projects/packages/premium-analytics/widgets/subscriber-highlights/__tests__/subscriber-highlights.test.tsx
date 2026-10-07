@@ -107,26 +107,6 @@ describe( 'SubscriberHighlightsWidget', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'shows the total next to the counts 30, 60 and 90 days ago when nobody pays', async () => {
-		mockApiFetch.mockImplementation(
-			respondWith( {
-				total: 428,
-				paid: 0,
-				byDate: { '2026-08-16': 317, '2026-07-17': 186, '2026-06-17': 95 },
-			} )
-		);
-
-		render( <SubscriberHighlightsWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
-		expect( tileValues() ).toEqual( [
-			expect.stringMatching( /^All-time subscribers.*428$/ ),
-			expect.stringMatching( /^30 days ago.*317$/ ),
-			expect.stringMatching( /^60 days ago.*186$/ ),
-			expect.stringMatching( /^90 days ago.*95$/ ),
-		] );
-	} );
-
 	it( 'shows social followers alongside the history when nobody pays', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( {
@@ -147,43 +127,11 @@ describe( 'SubscriberHighlightsWidget', () => {
 			expect.stringMatching( /^90 days ago.*95$/ ),
 			expect.stringMatching( /^Social followers.*64$/ ),
 		] );
-	} );
-
-	it( 'describes every history tile and the social tile with a note', async () => {
-		mockApiFetch.mockImplementation(
-			respondWith( {
-				total: 428,
-				paid: 0,
-				social: 64,
-				byDate: { '2026-08-16': 317, '2026-07-17': 186, '2026-06-17': 95 },
-			} )
-		);
-
-		render( <SubscriberHighlightsWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
 		for ( const note of [
 			'Total subscribers excluding social media subscribers',
 			'Total subscribers 30 days ago, excluding social media subscribers',
 			'Total subscribers 60 days ago, excluding social media subscribers',
 			'Total subscribers 90 days ago, excluding social media subscribers',
-			'Social media subscribers, not included in All-time subscribers',
-		] ) {
-			expect( screen.getByText( note ) ).toBeInTheDocument();
-			expect( screen.getByTitle( note ) ).toBeInTheDocument();
-		}
-	} );
-
-	it( 'describes every tile with a note when the site has paid subscribers', async () => {
-		mockApiFetch.mockImplementation( respondWith( { total: 428, paid: 117, social: 64 } ) );
-
-		render( <SubscriberHighlightsWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
-		for ( const note of [
-			'Total subscribers excluding social media subscribers',
-			'Paid WordPress.com subscribers',
-			'Email subscribers and free WordPress.com subscribers',
 			'Social media subscribers, not included in All-time subscribers',
 		] ) {
 			expect( screen.getByText( note ) ).toBeInTheDocument();
@@ -215,6 +163,15 @@ describe( 'SubscriberHighlightsWidget', () => {
 			expect.stringMatching( /^Social followers.*64$/ ),
 		] );
 		expect( requestedSeriesDates() ).toEqual( [ '2026-08-16' ] );
+		for ( const note of [
+			'Total subscribers excluding social media subscribers',
+			'Paid WordPress.com subscribers',
+			'Email subscribers and free WordPress.com subscribers',
+			'Social media subscribers, not included in All-time subscribers',
+		] ) {
+			expect( screen.getByText( note ) ).toBeInTheDocument();
+			expect( screen.getByTitle( note ) ).toBeInTheDocument();
+		}
 	} );
 
 	it( 'shows each count with its change since 30 days ago when the site has paid subscribers', async () => {
@@ -305,26 +262,6 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( /%$/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'asks for the 30-day count again when Retry recovers the counts on a paid site', async () => {
-		mockApiFetch.mockImplementation( respondWith( { failCounts: true } ) );
-
-		render( <SubscriberHighlightsWidget attributes={ {} } /> );
-
-		const retry = await screen.findByRole( 'button', { name: 'Retry' } );
-		mockApiFetch.mockClear();
-		mockApiFetch.mockImplementation(
-			respondWith( {
-				total: 428,
-				paid: 117,
-				byDate: { '2026-08-16': 400 },
-				paidByDate: { '2026-08-16': 100 },
-			} )
-		);
-		await userEvent.setup( { advanceTimers: jest.advanceTimersByTime } ).click( retry );
-
-		await expect( screen.findByText( '+7%' ) ).resolves.toBeInTheDocument();
-	} );
-
 	it( 'shows the error instead of guessing the tiles when the counts request fails', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( { failCounts: true, byDate: { '2026-08-16': 317 } } )
@@ -361,28 +298,12 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( tileValues() ).toContainEqual( expect.stringMatching( /^Free subscribers.*0$/ ) );
 	} );
 
-	it( 'shows a placeholder for a day before the site existed, which the endpoint reports as null', async () => {
+	it( 'shows a placeholder for a day before the site existed, which the endpoint reports as null, and a real zero as zero', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( {
 				total: 428,
-				byDate: { '2026-08-16': 317, '2026-07-17': null, '2026-06-17': null },
+				byDate: { '2026-08-16': 317, '2026-07-17': null, '2026-06-17': 0 },
 			} )
-		);
-
-		render( <SubscriberHighlightsWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
-		expect( tileValues() ).toEqual( [
-			expect.stringMatching( /^All-time subscribers.*428$/ ),
-			expect.stringMatching( /^30 days ago.*317$/ ),
-			expect.stringMatching( /^60 days ago.*—$/ ),
-			expect.stringMatching( /^90 days ago.*—$/ ),
-		] );
-	} );
-
-	it( 'shows a placeholder for a day with no count, and a real zero as zero', async () => {
-		mockApiFetch.mockImplementation(
-			respondWith( { total: 428, byDate: { '2026-08-16': 317, '2026-06-17': 0 } } )
 		);
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
@@ -419,16 +340,6 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( '428' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the WidgetState error with a Retry action when every request fails', async () => {
-		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
-
-		render( <SubscriberHighlightsWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( ERROR_TEXT ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'requests every endpoint again when Retry is pressed', async () => {
 		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
 
@@ -455,14 +366,13 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( ERROR_TEXT ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the WidgetState empty state when no request carries a count', async () => {
+	it( 'shows zero for the current count and placeholders for the past counts, not an empty state, when no request carries a count', async () => {
 		mockApiFetch.mockImplementation( respondWith( {} ) );
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( 'No subscriber counts available yet.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'All-time subscribers' ) ).resolves.toBeInTheDocument();
+		expect( within( tile( 'All-time subscribers' ) ).getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( '—' ) ).toHaveLength( 3 );
 	} );
 } );

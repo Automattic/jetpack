@@ -5,13 +5,13 @@ import * as HeatmapStories from './index.stories';
 
 # Heatmap Chart
 
-Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells transition from a light tint to the full primary color based on relative value, with `null` cells rendered in a neutral empty-cell color.
+Visualize values across a two-dimensional matrix of cells on a sequential color scale. Cells run from a tint of the primary color to a deeper shade of it based on relative value. `null` cells, and zeros in data with no negative values, take the neutral empty-cell color.
 
 <Canvas of={ HeatmapStories.Default } />
 
 ## Overview
 
-The Heatmap Chart renders a CSS Grid of colored cells where color intensity maps to cell value. Shading is done with CSS `color-mix` against the resolved primary color, so the scale adapts to the chart background. It is suitable for activity matrices, time-based frequency data, and any dataset with two categorical axes.
+The Heatmap Chart renders a CSS Grid of colored cells where color intensity maps to cell value. The scale is derived from the resolved primary color and the chart background, so its lowest step keeps 3:1 contrast against the background and the empty cells (WCAG 1.4.11) in any theme. It is suitable for activity matrices, time-based frequency data, and any dataset with two categorical axes.
 
 <Source
 	language="jsx"
@@ -77,7 +77,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
 - **`ariaLabel`**: accessible name of the grid. Defaults to "Heatmap chart".
-- **`primaryColor`**: color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`
+- **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -329,15 +329,11 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 	/>` }
 />
 
-`tooltipVariant="dark"` draws the box on the package's tooltip surface (`--a8c-charts-color-tooltip-surface`) instead of the plain white box.
-
-`tooltipStyle` merges inline styles onto the box, over the variant's own; tighten the padding of a one-line tooltip, for example.
-
-<Canvas of={ HeatmapStories.DarkTooltip } />
+`tooltipStyle` merges inline styles onto the box, over the surface's own; tighten the padding of a one-line tooltip, for example.
 
 ## Theming
 
-The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
+The heatmap resolves the color its scale is built from in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). From it and the chart background the chart derives the two ends of the scale: the shade closest to the background that still reaches 3:1 against it and against the empty-cell color, and a deeper one toward 9:1, darker or lighter than the primary as the background requires. CSS `color-mix` fills in the steps between.
 
 Use the prop for one chart, or move the palette slot in CSS to change every chart at once.
 
@@ -400,5 +396,5 @@ The heatmap chart is designed for full keyboard and screen reader access:
 - The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible. A consumer that pins labels with `position: sticky` should give the scroll container a matching `scroll-padding`, or the cell lands under them.
 - With column groups the grid stays one `role="grid"`: `aria-colcount` counts every data column (84 for twelve months) and arrow keys cross group boundaries as if the gap were not there. Group labels are decorative (`aria-hidden`): a cell with its own `label` carries its date, and one without is named by its group, column and row labels together ("Q1 W3 Mon").
 - Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
-- **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale — with any primary color and against a themed (including dark) chart background.
+- **In-cell text contrast**: when values are shown, each cell uses whichever of `--a8c-charts-color-label` and `--a8c-charts-color-label-inverse` contrasts more with its blended fill, read at the chart's own element. Where neither reaches WCAG AA (4.5:1), the value falls back to black or white, so the number stays legible across the whole scale with any primary color. Set both roles to the same value to keep one color on every cell; its contrast is then up to you.
 - The component does not use animations by default, and no `prefers-reduced-motion` opt-out is required.

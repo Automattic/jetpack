@@ -93,9 +93,4 @@ export const keys = {
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
 	// The site's recent restores, not one restore's status; see `useRecentRestores`.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
-	// Whether one review prompt has been dismissed. Keyed on the reason
-	// because the two prompts are dismissed independently — declining to
-	// review after a restore must not also spend the backups prompt — and
-	// the server stores them under separate options for the same reason.
-	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
 };

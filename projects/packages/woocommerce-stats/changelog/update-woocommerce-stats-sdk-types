@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Type the report queries and the shared chart through the SDK contract instead of local copies of its types.
+
+

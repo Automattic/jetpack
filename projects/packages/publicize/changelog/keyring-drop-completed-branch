@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the unreachable connection-completed branch of the Keyring request handler.

@@ -31,7 +31,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			return sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
-					'Installing adds the <plugin>%s</plugin> plugin and turns it on. It does not buy anything.',
+					'Installing adds the free <plugin>%s</plugin> plugin and turns it on. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				pluginName
@@ -49,7 +49,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 
 		case 'module':
 			return __(
-				'Built into Jetpack. Activating turns it on, with nothing to install or buy.',
+				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
 
@@ -57,7 +57,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			return sprintf(
 				/* translators: %s is a feature name, such as "Stats". */
 				__(
-					'%s is part of the Jetpack plugin. Installing Jetpack turns it on; it does not buy anything.',
+					'%s is part of the Jetpack plugin. Installing Jetpack turns it on. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				feature.name
@@ -85,23 +85,31 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 
 	const pluginName = feature.plugin_name || feature.name;
 	const note = getNote( state, pluginName );
+	// A blocked install never reaches the next step, so naming it would only mislead.
+	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 
-	if ( ! note ) {
+	if ( ! note && ! setupNote ) {
 		return null;
 	}
 
 	return (
 		<Stack direction="row" align="start" gap="sm" className={ styles[ 'delivery-note' ] }>
 			<Icon icon={ info } size={ 20 } className={ styles[ 'inline-icon' ] } />
-			<Text variant="body-sm">
-				{ createInterpolateElement( note, {
-					plugin: feature.plugin_url ? (
-						<a href={ feature.plugin_url } target="_blank" rel="noreferrer" />
-					) : (
-						<span />
-					),
-				} ) }
-			</Text>
+			{ /* Separate sentences rather than a joined string: not every script spaces them. */ }
+			<Stack direction="column" gap="xs">
+				{ note ? (
+					<Text variant="body-sm">
+						{ createInterpolateElement( note, {
+							plugin: feature.plugin_url ? (
+								<a href={ feature.plugin_url } target="_blank" rel="noreferrer" />
+							) : (
+								<span />
+							),
+						} ) }
+					</Text>
+				) : null }
+				{ setupNote ? <Text variant="body-sm">{ setupNote }</Text> : null }
+			</Stack>
 		</Stack>
 	);
 }

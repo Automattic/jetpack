@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.0] - 2026-10-07
+### Added
+- Add `TooltipBox`, the chart tooltip box, and `XYChartTooltip`, the new name for `AccessibleTooltip`. [#53075]
+- Bar Chart: Add the `--a8c-charts-border-radius-bar-chart` role to round bar corners. Bars stay square by default. [#53132]
+
+### Deprecated
+- Deprecate `AccessibleTooltip` in favor of `XYChartTooltip`, and `BaseTooltip`'s `data`, `component`, `renderContainer`, `top` and `left` props in favor of `TooltipBox`. [#53075]
+
+### Fixed
+- Bar chart: Stop drawing an axis set to display: false. [#53203]
+- ConversionFunnelChart: Give the tooltip content `role="tooltip"`, like the other charts. [#53075]
+- Heatmap chart: Keep the lowest step of the color scale at 3:1 contrast against the chart background and empty cells in every theme, deepen the highest step to 9:1, and draw zeros in data without negative values as empty cells. [#53085]
+- Line, bar and area charts: Reserve no margin for a hidden x axis, matching a hidden y axis. [#53265]
+- Tooltip: Keep the tooltip as wide as its content when the host page caps the width of visx tooltips. [#53135]
+
+## [4.7.0] - 2026-10-05
+### Added
+- Conversion funnel chart: Add `tooltipStyle` to restyle the tooltip box. [#52850]
+
+### Changed
+- Tooltips: Draw every chart tooltip on one dark surface that matches the WordPress design system; set `--a8c-charts-color-tooltip-surface` for a light tooltip. [#52850]
+
+### Deprecated
+- Conversion funnel chart: Deprecate `className` in the custom `renderTooltip` props, which is no longer set. [#52850]
+- Deprecate the `prefersLightText` color utility. [#52968]
+- Heatmap chart: Deprecate `tooltipVariant`, which no longer has an effect. [#52850]
+
+### Fixed
+- Keep values drawn on heatmap and pie chart fills at WCAG AA contrast. [#52968]
+
+## [4.6.0] - 2026-09-29
+### Added
+- Geo Chart: Add a displayMode prop to draw rows as markers. [#52859]
+
+## [4.5.0] - 2026-09-28
+### Added
+- GeoChart: Add a `domain` prop that draws disputed borders from a given country's viewpoint. [#52805]
+
+### Deprecated
+- Deprecate `getColorDistance`, which is no longer used to generate palette colors. [#52680]
+
+### Fixed
+- Bar chart: End a keyboard selection when the pointer moves over the chart, instead of flickering between the hovered and selected bars. [#52821]
+- Keep generated series colors distinguishable from each other, including for color-blind viewers, and legible on the chart background. [#52680]
+- Pick pie label text that contrasts with each slice. [#52680]
+
 ## [4.4.0] - 2026-09-23
 ### Added
 - Bar chart: Add per-datum bar classes and tooltip box style overrides. [#52547]
@@ -1115,6 +1161,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.8.0]: https://github.com/Automattic/charts/compare/v4.7.0...v4.8.0
+[4.7.0]: https://github.com/Automattic/charts/compare/v4.6.0...v4.7.0
+[4.6.0]: https://github.com/Automattic/charts/compare/v4.5.0...v4.6.0
+[4.5.0]: https://github.com/Automattic/charts/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/Automattic/charts/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/Automattic/charts/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/charts/compare/v4.1.1...v4.2.0

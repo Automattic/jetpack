@@ -245,6 +245,92 @@ class Video_Authorization_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @dataProvider unpublished_embedding_provider
+	 * @param string $post_status The embedding post status.
+	 * @param int    $privacy_setting The video's privacy setting.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unpublished_embedding_provider' )]
+	public function test_unpublished_embed_does_not_authorize_private_video( $post_status, $privacy_setting ) {
+		$guid = 'dRaFt123';
+		$this->create_videopress_attachment( $guid, $privacy_setting );
+		update_option( 'videopress_private_enabled_for_site', true );
+		$this->set_current_user_role( 'contributor' );
+		kses_remove_filters();
+		$embedding = wp_insert_post(
+			array(
+				'post_author'  => get_current_user_id(),
+				'post_content' => '<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->',
+				'post_status'  => $post_status,
+				'post_date'    => 'future' === $post_status ? gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ) : '',
+			)
+		);
+
+		$this->assertFalse( current_user_can( 'upload_files' ) );
+		$this->assertSame( $post_status, get_post_status( $embedding ) );
+		$this->assertTrue( current_user_can( 'read_post', $embedding ) );
+		$this->assertContains( $guid, Access_Control::build_and_cache_post_guids( $embedding ) );
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding, 123 ) );
+	}
+
+	/**
+	 * Unpublished embedding states for explicit and site-default private videos.
+	 *
+	 * @return array
+	 */
+	public static function unpublished_embedding_provider() {
+		$cases = array();
+		foreach ( array( 'draft', 'pending', 'auto-draft', 'future', 'private', 'trash' ) as $status ) {
+			$cases[ $status . '-private' ]      = array( $status, \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+			$cases[ $status . '-site-default' ] = array( $status, \VIDEOPRESS_PRIVACY::SITE_DEFAULT );
+		}
+		return $cases;
+	}
+
+	/**
+	 * The post status must be checked even when the embedding GUID list is cached.
+	 */
+	public function test_previously_published_embed_does_not_authorize_after_unpublishing() {
+		$guid = 'uNpUb123';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = $this->create_embedding_post( '[videopress ' . $guid . ']' );
+		$this->set_current_user_role( 'contributor' );
+		wp_update_post(
+			array(
+				'ID'          => $embedding,
+				'post_author' => get_current_user_id(),
+			)
+		);
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+
+		wp_update_post(
+			array(
+				'ID'          => $embedding,
+				'post_status' => 'draft',
+			)
+		);
+		set_transient( 'videopress_guids_' . $embedding, array( $guid ), HOUR_IN_SECONDS );
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	public function test_invalid_embedding_context_does_not_use_global_post() {
+		$guid = 'gLoBa123';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = $this->create_embedding_post( '[videopress ' . $guid . ']' );
+		$unrelated = $this->create_embedding_post( 'Unrelated content.' );
+		$this->set_current_user_role( 'subscriber' );
+		$original_post   = $GLOBALS['post'] ?? null;
+		$GLOBALS['post'] = get_post( $embedding );
+
+		try {
+			$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, 0 ) );
+			$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $unrelated ) );
+		} finally {
+			$GLOBALS['post'] = $original_post;
+		}
+	}
+
+	/**
 	 * A page that embeds the video only through a synced pattern (core/block ref) is a
 	 * legitimate embedding context: parse_blocks() does not expand the ref, so the
 	 * authorization scan must resolve it manually.

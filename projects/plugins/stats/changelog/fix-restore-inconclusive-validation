@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Fix reconnecting your WordPress.com account so it no longer disconnects other users and clears the broken-connection notice on the first attempt.

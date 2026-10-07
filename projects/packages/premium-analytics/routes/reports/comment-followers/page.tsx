@@ -2,11 +2,12 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import { EmptyState, Text } from '@jetpack-premium-analytics/externals';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -16,9 +17,9 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -85,7 +86,10 @@ function CommentFollowersReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
+	const { getLabel } = REPORTS[ 'comment-followers' ];
+	// The endpoint reports site-wide followers apart from the per-post rows, so either can exist alone.
+	const hasAllPostsFollowers = ( records.allPostsFollowers ?? 0 ) > 0;
+	const hasPostRows = records.rows.length > 0;
 
 	return (
 		<ReportPageShell
@@ -97,42 +101,41 @@ function CommentFollowersReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load subscribers. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<>
-						<ReportPageSection className={ styles.summary }>
-							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
-							</Text>
-							{ records.isLoading ? (
-								<Spinner />
-							) : (
+						{ ( hasAllPostsFollowers || hasPostRows ) && (
+							<ReportPageSection className={ styles.summary }>
+								<Text variant="heading-md" render={ <h3 /> }>
+									{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
+								</Text>
 								<MetricValue
 									value={ records.allPostsFollowers ?? 0 }
 									dataFormat={ { type: 'number' } }
 								/>
-							) }
-						</ReportPageSection>
-						<ReportRecordsTable< StatsCommentFollowersItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getCommentFollowerRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
-							empty={
-								<EmptyState.Root>
-									<EmptyState.Title>
-										{ __( 'No subscribers', 'jetpack-premium-analytics-pkg' ) }
-									</EmptyState.Title>
-								</EmptyState.Root>
-							}
-						/>
+							</ReportPageSection>
+						) }
+						{ ( hasPostRows || ! hasAllPostsFollowers ) && (
+							<ReportRecordsTable< StatsCommentFollowersItem >
+								data={ records.rows }
+								fields={ fields }
+								getItemId={ getCommentFollowerRowId }
+								isLoading={ records.isLoading }
+								isFetching={ records.isFetching }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+							/>
+						) }
 					</>
 				) }
 			</ReportPageLayout>

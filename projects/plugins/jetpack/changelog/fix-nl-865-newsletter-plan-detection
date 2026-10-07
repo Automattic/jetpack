@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Detect paid newsletter plans by their tier type as well as the mailing list setting.

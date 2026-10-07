@@ -13,6 +13,7 @@ import { ConnectionFlowModal } from '../connection-flow';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
 import TrafficChartCard from './traffic-chart-card';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**

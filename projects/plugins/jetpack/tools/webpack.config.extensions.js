@@ -148,10 +148,12 @@ const sharedWebpackConfig = {
 					if ( oldTag ) {
 						oldTag.parentNode.insertBefore( linkTag, oldTag.nextSibling );
 					} else {
+						// eslint-disable-next-line no-undef -- It doesn't know that this part runs in a jsdom browser context.
 						document.head.appendChild( linkTag );
 					}
 
 					// Also insert into any editor-canvas iframes.
+					// eslint-disable-next-line no-undef -- It doesn't know that this part runs in a jsdom browser context.
 					for ( const iframe of document.querySelectorAll( 'iframe[name=editor-canvas]' ) ) {
 						try {
 							const iframeDoc = iframe.contentDocument;

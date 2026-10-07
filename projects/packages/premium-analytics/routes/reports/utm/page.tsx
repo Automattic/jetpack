@@ -4,15 +4,16 @@
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
 	useReportRetry,
-	type CsvColumn,
+	utmCsvExporters,
+	type UtmReportRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -24,13 +25,12 @@ import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
-	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
-	type UtmReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -68,16 +68,6 @@ function getUtmRowParentId( item: UtmReportRow ): string | undefined {
 }
 
 /**
- * Keep nested posts identifiable after the UTM hierarchy is flattened into CSV rows.
- *
- * @param item - The UTM parent or nested post row.
- * @return The UTM value or UTM-qualified post title.
- */
-function getUtmCsvLabel( item: UtmReportRow ): string {
-	return item.groupLabel ? `${ item.groupLabel } > ${ item.label }` : item.label;
-}
-
-/**
  * Premium Analytics UTM report page.
  *
  * @return The UTM report page.
@@ -89,47 +79,44 @@ function UtmReport(): JSX.Element {
 	const records = useUtmReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
-	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
-		() => [
-			{ label: getUtmTabLabel( activeTab ), getValue: getUtmCsvLabel },
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[ activeTab ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: `utm-${ activeTab }`,
-		range: reportParams,
-		status: records,
-	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load UTM data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
+			/>
+		);
+	}
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ utmCsvExporters[ activeTab ] }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				{ tableReplacement ?? (
 					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
@@ -137,6 +124,7 @@ function UtmReport(): JSX.Element {
 						getItemId={ getUtmRowId }
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers

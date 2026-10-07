@@ -16,6 +16,8 @@ import {
 	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	authorsCsvExporter,
 	type LeaderboardChartData,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
@@ -154,15 +156,18 @@ export function AuthorsLeaderboard( {
 						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ]
 						: undefined,
 				} }
-				empty={ {
-					icon: postAuthor,
-					description: isDrilled
-						? __(
-								'This author has no posts with views for the selected period.',
-								'jetpack-premium-analytics-pkg'
-							)
-						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				// The author row the reader drilled from had views, so "no results" would contradict it; say where the views are missing instead.
+				empty={
+					isDrilled
+						? {
+								icon: postAuthor,
+								description: __(
+									'This author has no posts with views for the selected period.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
@@ -217,6 +222,11 @@ function AuthorsReport() {
 			/>
 			<WidgetFooter>
 				<ReportLink report="authors" />
+				<ExporterCsvDownloadButton
+					exporter={ authorsCsvExporter }
+					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

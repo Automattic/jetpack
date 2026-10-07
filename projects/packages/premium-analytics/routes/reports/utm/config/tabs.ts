@@ -2,14 +2,15 @@
  * External dependencies
  */
 import { defineReportTabs } from '@jetpack-premium-analytics/routing';
-import { __ } from '@wordpress/i18n';
-import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import {
+	getUtmDimensionLabel,
+	type UtmReportSection,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Stable URL section identifiers for the UTM report's parameter selector.
  */
-export type UtmReportTabId =
-	'source-medium' | 'campaign-source-medium' | 'source' | 'medium' | 'campaign';
+export type UtmReportTabId = UtmReportSection;
 
 const DEFAULT_TAB_ID: UtmReportTabId = 'source-medium';
 
@@ -17,59 +18,33 @@ const reportUtmTabs = defineReportTabs< UtmReportTabId >(
 	[
 		{
 			id: 'source-medium',
-			getLabel: () => __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Source / Medium report', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getUtmDimensionLabel( 'source-medium' ),
 		},
 		{
 			id: 'campaign-source-medium',
-			getLabel: () => __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Campaign / Source / Medium report', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getUtmDimensionLabel( 'campaign-source-medium' ),
 		},
 		{
 			id: 'source',
-			getLabel: () => __( 'Source', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Source report', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getUtmDimensionLabel( 'source' ),
 		},
 		{
 			id: 'medium',
-			getLabel: () => __( 'Medium', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Medium report', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getUtmDimensionLabel( 'medium' ),
 		},
 		{
 			id: 'campaign',
-			getLabel: () => __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Campaign report', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getUtmDimensionLabel( 'campaign' ),
 		},
 	],
 	DEFAULT_TAB_ID
 );
 
-const UTM_PARAMS: Record< UtmReportTabId, StatsUtmParam > = {
-	'source-medium': 'utm_source,utm_medium',
-	'campaign-source-medium': 'utm_campaign,utm_source,utm_medium',
-	source: 'utm_source',
-	medium: 'utm_medium',
-	campaign: 'utm_campaign',
-};
-
 /** Build the ordered, translated report tabs. */
 export const getReportUtmTabs = reportUtmTabs.getTabs;
 
-/** Get the translated dimension label for a report tab. */
+/** Get the translated dimension label for a report tab, which also heads its section. */
 export const getUtmTabLabel = reportUtmTabs.getTabLabel;
 
 /** Resolve an arbitrary URL section to a supported UTM report tab. */
 export const resolveSection = reportUtmTabs.resolve;
-
-/** Heading for the active tab's section, where the tab declares one. */
-export const getTabTitle = reportUtmTabs.getTabTitle;
-
-/**
- * Map a report tab to the UTM endpoint's parameter dimension.
- *
- * @param tab - The active report tab.
- * @return The matching UTM endpoint parameter.
- */
-export function getUtmParam( tab: UtmReportTabId ): StatsUtmParam {
-	return UTM_PARAMS[ tab ];
-}

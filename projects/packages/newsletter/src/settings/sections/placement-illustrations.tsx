@@ -22,6 +22,7 @@
 // Embedded raster avatars stripped — replaced with WPDS-tone gray circles.
 
 import { SVG, G, Circle, Rect, Path, Defs } from '@wordpress/primitives';
+import type { JSX } from 'react';
 
 /**
  * Wireframe for the homepage subscription overlay placement.

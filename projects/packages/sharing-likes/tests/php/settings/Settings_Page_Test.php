@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
@@ -218,6 +219,13 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Settings have been saved', $this->render_screen() );
 	}
 
+	public function test_warns_when_the_comment_likes_switch_did_not_take(): void {
+		$_GET['update']                                 = 'saved';
+		$_GET[ Settings_Page::COMMENT_LIKES_UNCHANGED ] = '1';
+
+		$this->assertStringContainsString( 'Comment Likes could not be switched on or off', $this->render_screen() );
+	}
+
 	/**
 	 * A plain visit is not a save, so it must not claim one happened.
 	 */
@@ -227,13 +235,65 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Sections are ruled off from one another, but a section that declines to
-	 * render must not leave a rule with nothing after it. Here the two feature
-	 * sections render and the extras section does not, so there is exactly one.
+	 * render must not leave a rule with nothing after it. Here the three feature
+	 * sections render and the extras section does not, so there are exactly two.
 	 */
 	public function test_rules_off_between_sections_but_not_after_the_last(): void {
 		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
 
-		$this->assertSame( 1, substr_count( $this->render_screen(), '<hr />' ) );
+		$this->assertSame( 2, substr_count( $this->render_screen(), '<hr />' ) );
+	}
+
+	/**
+	 * Comment Likes follow the placement, so it stays on screen with the Like
+	 * buttons off, headed by the one feature it still governs.
+	 */
+	public function test_keeps_placement_for_comment_likes_after_the_like_buttons(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'comment-likes' ) );
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$html = $this->render_screen();
+
+		$this->assertStringContainsString( 'Where Comment Likes appear', $html );
+		$this->assertGreaterThan(
+			strpos( $html, 'id="' . Likes_Section::ANCHOR . '"' ),
+			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
+		);
+		$this->assertLessThan(
+			strpos( $html, 'id="' . Placement_Section::ANCHOR . '"' ),
+			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: string[], 1: string}>
+	 */
+	public static function provide_placement_headings(): array {
+		return array(
+			'all three'            => array( array( 'sharedaddy', 'likes', 'comment-likes' ), 'Where sharing buttons, Like buttons, and Comment Likes appear' ),
+			'sharing and likes'    => array( array( 'sharedaddy', 'likes' ), 'Where sharing and Like buttons appear' ),
+			'sharing and comments' => array( array( 'sharedaddy', 'comment-likes' ), 'Where sharing buttons and Comment Likes appear' ),
+			'likes and comments'   => array( array( 'likes', 'comment-likes' ), 'Where Like buttons and Comment Likes appear' ),
+			'likes alone'          => array( array( 'likes' ), 'Where Like buttons appear' ),
+			'comments alone'       => array( array( 'comment-likes' ), 'Where Comment Likes appear' ),
+			'sharing alone'        => array( array( 'sharedaddy' ), 'Where sharing buttons appear' ),
+		);
+	}
+
+	/**
+	 * A key missing from the heading map silently falls back to the sharing-only heading.
+	 *
+	 * @param string[] $modules Active modules.
+	 * @param string   $heading Expected placement heading.
+	 * @dataProvider provide_placement_headings
+	 */
+	#[DataProvider( 'provide_placement_headings' )]
+	public function test_names_every_feature_placement_governs( array $modules, string $heading ): void {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+
+		$this->assertStringContainsString( '<h2>' . $heading . '</h2>', $this->render_screen() );
 	}
 
 	/**

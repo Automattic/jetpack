@@ -187,7 +187,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );
-		await expect( surface ).toHaveCSS( 'height', '382px' );
+		await expect( surface ).toHaveCSS( 'height', '366px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
 		const popupBox = await expectBesideDay( page, surface );
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
@@ -214,7 +214,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await hoverDay( chart, 21 );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'400'
+			'500'
 		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics, barColor ] of [
@@ -280,7 +280,9 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const grid = chart.getByRole( 'grid' );
 		await grid.focus();
 		await page.keyboard.press( 'ArrowRight' );
-		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const surface = page.locator(
+			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
+		);
 		await expect( surface ).toContainText( 'August 26, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'No scores recorded for this day.' );
@@ -334,12 +336,15 @@ for ( const [ label, query, copy, height ] of [
 		await expect( highlight ).toBeVisible();
 		const band = ( await highlight.boundingBox() )!;
 		const firstPanel = ( await desktop.boundingBox() )!;
+		const secondPanel = ( await mobile.boundingBox() )!;
 		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
 		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
 		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
-		expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+		expect( band.y + band.height ).toBeCloseTo( secondPanel.y + secondPanel.height, 0 );
 		expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
-		const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const tooltip = page.locator(
+			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
+		);
 		await expect( tooltip ).toContainText( copy );
 		await expect( tooltip ).toHaveCSS( 'width', '265px' );
 		await expect( tooltip ).toHaveCSS( 'height', height );
@@ -350,7 +355,7 @@ for ( const [ label, query, copy, height ] of [
 		);
 		await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'600'
+			'500'
 		);
 	} );
 }
@@ -397,23 +402,23 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
-test( 'Rings a keyboard-selected recorded day but not a hovered one', async ( { page } ) => {
+test( 'Rings a keyboard-selected day but not a hovered one', async ( { page } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
 	const highlight = page.getByTestId( 'history-highlight' );
 	await hoverDay( chart, 21 );
 	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
 	await page.mouse.move( 0, 0 );
 	await chart.getByRole( 'grid' ).focus();
-	// An empty day's details are visible, and the browser rings them.
-	for ( const [ presses, date, outline ] of [
-		[ 1, 'August 11, 2026', 'none' ],
-		[ 21, 'September 1, 2026', 'solid' ],
+	for ( const [ presses, date ] of [
+		[ 1, 'August 11, 2026' ],
+		[ 21, 'September 1, 2026' ],
 	] as const ) {
 		for ( let press = 0; press < presses; press++ ) {
 			await page.keyboard.press( 'ArrowRight' );
 		}
 		await expect( page.getByRole( 'tooltip' ) ).toContainText( date );
-		await expect( highlight ).toHaveCSS( 'outline-style', outline );
+		await expect( page.locator( '.boost-daily-history__popover' ) ).toContainText( date );
+		await expect( highlight ).toHaveCSS( 'outline-style', 'solid' );
 	}
 	await page.keyboard.press( 'Escape' );
 	await expect( highlight ).toHaveCount( 0 );
@@ -550,16 +555,21 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	page,
 } ) => {
 	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const popover = page.locator( '.boost-daily-history__popover' );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
+	await expect( popover ).toBeVisible();
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await expect( popover ).toHaveCount( 0 );
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await expect( popover ).toHaveCount( 0 );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
+	await expect( popover ).toBeVisible();
 } );
 
 test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {
@@ -615,6 +625,20 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 	await pointsTrigger.press( 'Enter' );
 	await expect( pointsHelp ).toBeVisible();
 	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
+	await page.mouse.move( 0, 0 );
+	await pointsTrigger.hover();
+	await expect( pointsHelp ).toBeVisible();
+	await expect( pointsTrigger ).toHaveCSS( 'color', 'rgb(56, 88, 233)' );
+	const helpFromIcon = ( await pointsHelp.boundingBox() )!;
+	await page.mouse.move( 0, 0 );
+	await expect( pointsHelp ).toBeHidden();
+	await expect( pointsTrigger ).not.toHaveCSS( 'color', 'rgb(56, 88, 233)' );
+	await positiveBadge.hover();
+	await expect( pointsHelp ).toBeVisible();
+	await expect.poll( () => pointsHelp.boundingBox() ).toEqual( helpFromIcon );
+	await expect( pointsTrigger ).toHaveCSS( 'color', 'rgb(56, 88, 233)' );
+	await page.mouse.move( 0, 0 );
 	await expect( pointsHelp ).toBeHidden();
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
@@ -673,10 +697,25 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
 	const status = calculating.getByRole( 'status' );
 	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
-	await expect( status.locator( '.components-spinner' ) ).toHaveCount( 1 );
-	const spinner = ( await status.locator( '.components-spinner' ).boundingBox() )!;
-	const label = ( await status.getByText( 'Calculating…' ).boundingBox() )!;
-	expect( Math.abs( label.x - ( spinner.x + spinner.width ) ) ).toBeCloseTo( 12, 0 );
+	await expect( status ).toHaveText( 'Calculating…' );
+	await expect( status.getByRole( 'progressbar' ) ).toHaveCount( 0 );
+	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 0 );
+	const progress = calculating.getByRole( 'progressbar', { name: 'Testing site speed' } );
+	await expect( progress ).toHaveCount( 1 );
+	await expect( progress ).not.toHaveAttribute( 'value' );
+	await expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
+	await expect( progress ).toHaveJSProperty( 'position', -1 );
+	const track = ( await progress.locator( '..' ).boundingBox() )!;
+	const label = ( await status.boundingBox() )!;
+	expect( track.width ).toBeGreaterThan( 0 );
+	expect( track.height ).toBeGreaterThan( 0 );
+	expect( track.y ).toBeGreaterThan( label.y + label.height );
+	const group = ( await status.locator( '..' ).boundingBox() )!;
+	const body = ( await calculating
+		.locator( '.jetpack-boost-overview__scores-status' )
+		.boundingBox() )!;
+	expect( group.x + group.width / 2 ).toBeCloseTo( body.x + body.width / 2, 0 );
+	expect( group.y + group.height / 2 ).toBeCloseTo( body.y + body.height / 2, 0 );
 	await expect( calculating.getByRole( 'region' ) ).toHaveCount( 0 );
 	await expect( failed.getByText( 'Failed to load speed scores' ) ).toBeVisible();
 	await expect( failed.getByText( 'Timed out while waiting for speed-score.' ) ).toBeVisible();
