@@ -10,8 +10,8 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
- * Renders "Show buttons on", which governs where both sharing buttons and Like
- * buttons appear. Its own section because it belongs to neither feature alone.
+ * Renders "Show buttons on", which governs where sharing buttons, Like buttons,
+ * and Jetpack's Comment Likes appear. Its own section because it belongs to no feature alone.
  */
 final class Placement_Section {
 
@@ -31,10 +31,15 @@ final class Placement_Section {
 	public const FEATURE_LIKES = 'likes';
 
 	/**
+	 * Identifies the Comment Likes section to `render_summary()`.
+	 */
+	public const FEATURE_COMMENT_LIKES = 'comment-likes';
+
+	/**
 	 * Where a feature's buttons currently appear, stated inside that feature's
 	 * own section.
 	 *
-	 * This setting governs both features but lives in neither, so each section
+	 * This setting governs several features but lives in none, so each section
 	 * says what it means for that feature and links here to change it. It also
 	 * surfaces a placement that hides the buttons entirely, which is otherwise
 	 * only visible on this section further down the page.
@@ -48,15 +53,22 @@ final class Placement_Section {
 		$labels = array_map( array( __CLASS__, 'label_for' ), self::selected_post_types() );
 
 		if ( $labels === array() ) {
-			$summary = self::FEATURE_LIKES === $feature
-				? __( 'Like buttons are currently not shown anywhere.', 'jetpack-sharing-likes' )
-				: __( 'Sharing buttons are currently not shown anywhere.', 'jetpack-sharing-likes' );
-		} elseif ( self::FEATURE_LIKES === $feature ) {
-			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
-			$summary = sprintf( __( 'Like buttons currently appear on: %s.', 'jetpack-sharing-likes' ), implode( ', ', $labels ) );
+			$nowhere = array(
+				self::FEATURE_SHARING       => __( 'Sharing buttons are currently not shown anywhere.', 'jetpack-sharing-likes' ),
+				self::FEATURE_LIKES         => __( 'Like buttons are currently not shown anywhere.', 'jetpack-sharing-likes' ),
+				self::FEATURE_COMMENT_LIKES => __( 'Comment Likes are currently not shown anywhere.', 'jetpack-sharing-likes' ),
+			);
+			$summary = $nowhere[ $feature ] ?? $nowhere[ self::FEATURE_SHARING ];
 		} else {
-			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
-			$summary = sprintf( __( 'Sharing buttons currently appear on: %s.', 'jetpack-sharing-likes' ), implode( ', ', $labels ) );
+			$somewhere = array(
+				/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+				self::FEATURE_SHARING       => __( 'Sharing buttons currently appear on: %s.', 'jetpack-sharing-likes' ),
+				/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+				self::FEATURE_LIKES         => __( 'Like buttons currently appear on: %s.', 'jetpack-sharing-likes' ),
+				/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+				self::FEATURE_COMMENT_LIKES => __( 'Comment Likes currently appear on comments on: %s.', 'jetpack-sharing-likes' ),
+			);
+			$summary   = sprintf( $somewhere[ $feature ] ?? $somewhere[ self::FEATURE_SHARING ], implode( ', ', $labels ) );
 		}
 
 		printf(
@@ -132,16 +144,29 @@ final class Placement_Section {
 	 * legible without a second line of copy.
 	 */
 	private static function heading(): string {
-		$sharing = Section_State::configures( Sharing_Section::state() );
-		$likes   = Section_State::configures( Likes_Section::state() );
+		$key = implode(
+			'+',
+			array_keys(
+				array_filter(
+					array(
+						'sharing'  => Section_State::configures( Sharing_Section::state() ),
+						'likes'    => Section_State::configures( Likes_Section::state() ),
+						'comments' => Environment::comment_likes_follow_likes_settings(),
+					)
+				)
+			)
+		);
 
-		if ( $sharing && $likes ) {
-			return __( 'Where sharing and Like buttons appear', 'jetpack-sharing-likes' );
-		}
+		$headings = array(
+			'sharing+likes+comments' => __( 'Where sharing buttons, Like buttons, and Comment Likes appear', 'jetpack-sharing-likes' ),
+			'sharing+likes'          => __( 'Where sharing and Like buttons appear', 'jetpack-sharing-likes' ),
+			'sharing+comments'       => __( 'Where sharing buttons and Comment Likes appear', 'jetpack-sharing-likes' ),
+			'likes+comments'         => __( 'Where Like buttons and Comment Likes appear', 'jetpack-sharing-likes' ),
+			'likes'                  => __( 'Where Like buttons appear', 'jetpack-sharing-likes' ),
+			'comments'               => __( 'Where Comment Likes appear', 'jetpack-sharing-likes' ),
+		);
 
-		return $sharing
-			? __( 'Where sharing buttons appear', 'jetpack-sharing-likes' )
-			: __( 'Where Like buttons appear', 'jetpack-sharing-likes' );
+		return $headings[ $key ] ?? __( 'Where sharing buttons appear', 'jetpack-sharing-likes' );
 	}
 
 	/**
@@ -155,13 +180,48 @@ final class Placement_Section {
 	 * @return string[]
 	 */
 	public static function selected_post_types(): array {
-		$sharing = get_option( 'sharing-options', array() );
-
-		if ( ! is_array( $sharing ) || ! isset( $sharing['global']['show'] ) ) {
+		if ( ! self::is_saved() ) {
 			return self::default_post_types();
 		}
 
-		return self::normalize_show( $sharing['global']['show'] );
+		return self::normalize_show( get_option( 'sharing-options' )['global']['show'] );
+	}
+
+	/**
+	 * Whether a placement is stored, rather than left to each feature's default.
+	 */
+	public static function is_saved(): bool {
+		$sharing = get_option( 'sharing-options', array() );
+
+		return is_array( $sharing ) && isset( $sharing['global']['show'] );
+	}
+
+	/**
+	 * Store where the buttons appear, replacing whatever was stored.
+	 *
+	 * An empty list means "nowhere". Anything that is not a public post type or
+	 * `index` is dropped, so a crafted payload cannot widen where buttons render.
+	 *
+	 * @param array $post_types Post type slugs, plus `index` for the archive pages.
+	 */
+	public static function update( array $post_types ): void {
+		$options = get_option( 'sharing-options' );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+
+		// Sites carry a malformed `global` (see #6121), and writing into it in place
+		// would fatal where the services save, which rebuilds it wholesale, does not.
+		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
+			$options['global'] = array();
+		}
+
+		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
+		$allowed[] = 'index';
+
+		$options['global']['show'] = array_values( array_intersect( array_filter( $post_types, 'is_scalar' ), $allowed ) );
+
+		update_option( 'sharing-options', $options );
 	}
 
 	/**

@@ -18,6 +18,12 @@ class AI_Launchpad_Stub_Jetpack_Memberships {
 	public static $plans            = false;
 	public static $newsletter_plans = false;
 
+	public static function reset() {
+		self::$connected        = false;
+		self::$plans            = false;
+		self::$newsletter_plans = false;
+	}
+
 	public static function has_connected_account() {
 		return self::$connected;
 	}

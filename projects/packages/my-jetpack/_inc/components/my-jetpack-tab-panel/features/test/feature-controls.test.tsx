@@ -226,6 +226,22 @@ describe( 'FeatureAction', () => {
 } );
 
 describe( 'FeatureModalActions', () => {
+	it( 'offers Upgrade in the header beside the switch', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'module', module: { ...$module, activated: false } },
+					{ feature: buildFeature( { upgrade: { path: '/add-boost', name: 'Jetpack Boost' } } ) }
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Jetpack Boost' } ) ).toHaveAttribute(
+			'href',
+			'#/add-boost?return_feature=boost'
+		);
+	} );
+
 	it( 'offers no Install to a user who cannot install plugins', () => {
 		render(
 			<FeatureModalActions

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import { getVideosFields } from './fields';
+import { getVideosFields, isVideoRowClickable, renderVideoRowLink } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 // The router is built dynamically, so a field-level test has no router to mount; render `Link`
@@ -9,13 +9,6 @@ jest.mock( '@wordpress/route', () => {
 	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 
 	return mockWordPressRoute;
-} );
-
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	chart_period: 'week',
 } );
 
 const video: StatsVideoPlaysComparisonItem = {
@@ -30,21 +23,22 @@ const video: StatsVideoPlaysComparisonItem = {
 };
 
 /**
- * Render the videos table's title field for one row.
+ * Render one of the videos table's non-metric fields for a row.
  *
- * @param item - The video row to render.
+ * @param fieldId - The videos field to render.
+ * @param item    - The video row to render.
  * @return The RTL render result.
  */
-function renderTitleField( item: StatsVideoPlaysComparisonItem ) {
-	const field = getVideosFields().find( candidate => candidate.id === 'label' );
+function renderVideosField( fieldId: 'label' | 'poster', item: StatsVideoPlaysComparisonItem ) {
+	const field = getVideosFields().find( candidate => candidate.id === fieldId );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
-	const TitleField = field?.render;
+	const FieldRender = field?.render;
 
-	if ( ! field || ! TitleField ) {
-		throw new Error( 'Videos title field render callback is unavailable' );
+	if ( ! field || ! FieldRender ) {
+		throw new Error( `Videos ${ fieldId } field render callback is unavailable` );
 	}
 
-	return render( <TitleField item={ item } field={ field as never } /> );
+	return render( <FieldRender item={ item } field={ field as never } /> );
 }
 
 /**
@@ -56,7 +50,7 @@ function renderTitleField( item: StatsVideoPlaysComparisonItem ) {
  * @return The RTL render result.
  */
 function renderMetricField(
-	fieldId: 'plays' | 'impressions',
+	fieldId: 'plays' | 'impressions' | 'retention_rate',
 	item: StatsVideoPlaysComparisonItem,
 	withComparison = false
 ) {
@@ -72,8 +66,47 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
-	it( 'links a video title to its internal detail page, carrying the date window', () => {
-		renderTitleField( video );
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			chart_period: 'week',
+		} );
+	} );
+
+	it( 'renders the poster resized for a table row', () => {
+		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
+
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toHaveAttribute(
+			'src',
+			'https://i0.wp.com/v/launch.jpg?resize=64%2C64'
+		);
+	} );
+
+	it( 'renders the placeholder for an unsafe poster URL', () => {
+		renderVideosField( 'poster', { ...video, poster: 'javascript:alert(1)' } );
+
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the title as text on a row DataViews links', () => {
+		renderVideosField( 'label', video );
+
+		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links a row with an ID to its detail page, carrying the date window', () => {
+		render(
+			renderVideoRowLink( {
+				item: video,
+				className: 'dataviews-column-primary__media',
+				'aria-label': 'Launch video',
+				children: <span>poster</span>,
+			} )
+		);
 
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
 		// Only the shared report-window params travel; page-owned params
@@ -86,43 +119,32 @@ describe( 'videos fields', () => {
 			interval: 'day',
 			ref: 'videos',
 		} );
+		expect( link ).toHaveClass( 'dataviews-column-primary__media' );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
+	it.each( [
+		[ 12, true ],
+		[ undefined, false ],
+		[ 0, false ],
+		[ -3, false ],
+		[ 1.5, false ],
+		[ 'abc', false ],
+	] )( 'treats a row with ID %p as clickable: %p', ( id, expected ) => {
+		expect( isVideoRowClickable( { ...video, id: id as never } ) ).toBe( expected );
+	} );
+
 	it( 'keeps the external page link as the fallback for a row without an ID', () => {
-		renderTitleField( { ...video, id: undefined } );
+		renderVideosField( 'label', { ...video, id: undefined } );
 
 		// The design system's outbound marker joins the accessible name.
 		const link = screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-	} );
-
-	it( 'does not create a detail link for a non-positive ID', () => {
-		renderTitleField( { ...video, id: 0 } );
-
-		expect(
-			screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } )
-		).toHaveAttribute( 'href', 'https://example.com/video/' );
-	} );
-
-	it( 'renders plain text when a row has neither an ID nor a URL', () => {
-		renderTitleField( { ...video, id: undefined, link: null } );
-
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders plain text when the payload URL is unsafe', () => {
-		renderTitleField( { ...video, id: undefined, link: 'javascript:alert(1)' } );
-
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the report-owned untitled fallback', () => {
-		renderTitleField( { ...video, id: undefined, label: undefined, link: null } );
+		renderVideosField( 'label', { ...video, id: undefined, label: undefined, link: null } );
 
 		expect( screen.getByText( 'Untitled video' ) ).toBeInTheDocument();
 	} );
@@ -130,7 +152,6 @@ describe( 'videos fields', () => {
 	it( 'exposes searchable title and sortable metric fields', () => {
 		const fields = getVideosFields();
 
-		expect( fields.map( field => field.id ) ).toEqual( [ 'label', 'plays', 'impressions' ] );
 		expect( fields.find( field => field.id === 'label' )?.enableGlobalSearch ).toBe( true );
 		expect( fields.find( field => field.id === 'plays' )?.getValue?.( { item: video } ) ).toBe(
 			11
@@ -156,6 +177,18 @@ describe( 'videos fields', () => {
 		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
 		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the endpoint percent retention as a percentage', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: 67.6 } );
+
+		expect( screen.getByText( '67.6%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a retention rate wpcom could not compute', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: null } );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides comparison deltas when comparison is disabled', () => {

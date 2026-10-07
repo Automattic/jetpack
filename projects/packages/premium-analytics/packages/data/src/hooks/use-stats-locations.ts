@@ -10,14 +10,13 @@ import type {
 	StatsLocationsItem,
 	StatsNormalizedReport,
 } from '../processing/stats';
-import type { StatsReportParams } from '../queries/stats-query';
 
 type StatsLocationsOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
 export const useStatsLocations = createStatsListReportHook<
-	StatsReportParams & { geoMode?: 'country' | 'region' | 'city' },
+	Parameters< typeof statsLocationsQuery >[ 0 ],
 	StatsNormalizedReport< StatsLocationsItem >,
 	StatsLocationsComparisonItem,
 	StatsLocationsOptions

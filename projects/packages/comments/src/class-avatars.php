@@ -15,18 +15,6 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 class Avatars {
 
 	/**
-	 * Comment meta Highlander and Verbum wrote a stored avatar URL to.
-	 */
-	const AVATAR_META = 'hc_avatar';
-
-	/**
-	 * Hosts whose avatars are served.
-	 *
-	 * @var string[]
-	 */
-	private static $avatar_hosts = array( 'graph.facebook.com', 'twimg.com' );
-
-	/**
 	 * Register the avatar filters.
 	 *
 	 * @return void
@@ -55,7 +43,7 @@ class Avatars {
 			$args['url']          = $url;
 			$args['found_avatar'] = true;
 		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
-			// The provider had no photo, so show the site default rather than a Gravatar the commenter never chose.
+			// WordPress.com had no photo: the site default, not a Gravatar the commenter never chose.
 			$args['force_default'] = true;
 		}
 
@@ -99,9 +87,10 @@ class Avatars {
 	public static function default_url( $size ) {
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			// Re-enters wpcom_avatar_url() with no comment, so it returns early there.
-			$url_class = wpcom_get_avatar_url( '', $size, '', true, true );
+			$url_class = wpcom_get_avatar_url( '', $size, '', false, true );
 
-			return is_array( $url_class ) ? (string) $url_class[0] : '';
+			// Built for HTML, so its query string is joined with &amp;, which Gravatar reads as a parameter named amp;d.
+			return is_array( $url_class ) ? html_entity_decode( (string) $url_class[0], ENT_QUOTES ) : '';
 		}
 
 		return (string) get_avatar_url(
@@ -120,7 +109,7 @@ class Avatars {
 	 * @return bool
 	 */
 	private static function is_signed_in( $comment_id ) {
-		return '' !== (string) get_comment_meta( $comment_id, Checkpoint::META_PROVIDER, true );
+		return '' !== (string) get_comment_meta( $comment_id, Checkpoint::META_ID, true );
 	}
 
 	/**
@@ -144,9 +133,12 @@ class Avatars {
 		$stored = get_comment_meta( $comment_id, Checkpoint::META_AVATAR, true );
 
 		if ( ! is_string( $stored ) || $stored === '' || 'https' !== wp_parse_url( $stored, PHP_URL_SCHEME ) ) {
-			$stored = get_comment_meta( $comment_id, self::AVATAR_META, true );
+			// Highlander and Verbum stored a Facebook or X avatar here, which the email cannot
+			// bring back. Written by the browser, so only those two hosts are served.
+			$stored = get_comment_meta( $comment_id, 'hc_avatar', true );
+			$host   = is_string( $stored ) ? wp_parse_url( $stored, PHP_URL_HOST ) : null;
 
-			if ( ! is_string( $stored ) || $stored === '' || ! self::is_servable_avatar( $stored ) ) {
+			if ( ! is_string( $host ) || ! preg_match( '/(^|\.)(graph\.facebook\.com|twimg\.com)$/', $host ) ) {
 				$stored = null;
 			}
 		}
@@ -154,27 +146,5 @@ class Avatars {
 		$resolved[ $key ] = null === $stored ? null : Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
 
 		return $resolved[ $key ];
-	}
-
-	/**
-	 * Whether a stored avatar URL is one we are willing to serve.
-	 *
-	 * @param string $url The stored avatar URL.
-	 * @return bool
-	 */
-	private static function is_servable_avatar( $url ) {
-		$host = wp_parse_url( $url, PHP_URL_HOST );
-
-		if ( ! is_string( $host ) ) {
-			return false;
-		}
-
-		foreach ( self::$avatar_hosts as $allowed ) {
-			if ( $host === $allowed || str_ends_with( $host, ".$allowed" ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

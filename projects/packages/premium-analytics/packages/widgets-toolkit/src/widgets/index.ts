@@ -1,5 +1,3 @@
-export { MetricComparisonWidget } from './metric-comparison';
-export { OrderMetricWidget, BookingOrderMetricWidget } from './order-metric';
 export { SalesByCouponWidget } from './sales-by-coupon';
 export { ConversionRateWidget, BookingConversionRateWidget } from './conversion-rate';
 export {

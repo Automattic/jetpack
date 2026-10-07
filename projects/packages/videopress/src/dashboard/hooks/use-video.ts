@@ -17,12 +17,19 @@ import type { LibraryItem } from '../types/library';
  * Maps the response with the same toLibraryItem the library list uses, so the
  * detail view and the grid can never disagree about an item's shape.
  *
- * @param id           - The numeric or string media post ID to fetch.
- * @param options      - Query options.
- * @param options.poll - Poll attachment metadata while processing.
+ * @param id                          - The numeric or string media post ID to fetch.
+ * @param options                     - Query options.
+ * @param options.poll                - Poll attachment metadata while processing.
+ * @param options.pollForRegistration - Also poll a newly uploaded attachment until it gains a GUID.
  * @return An object with the video item, loading/error state, and the raw error.
  */
-export function useVideo( id: number | string, { poll = true }: { poll?: boolean } = {} ) {
+export function useVideo(
+	id: number | string,
+	{
+		poll = true,
+		pollForRegistration = false,
+	}: { poll?: boolean; pollForRegistration?: boolean } = {}
+) {
 	// VIDP-298 poll-cap anchor — same machinery as useLibrary, over one item.
 	const processingStartRef = useRef< ProcessingPollAnchor | null >( null );
 
@@ -37,7 +44,11 @@ export function useVideo( id: number | string, { poll = true }: { poll?: boolean
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				poll && q.state.data?.isProcessing ? [ String( id ) ] : [],
+				poll &&
+					( q.state.data?.isProcessing ||
+						( pollForRegistration && q.state.data?.type === 'local' ) )
+					? [ String( id ) ]
+					: [],
 				Date.now()
 			);
 			processingStartRef.current = anchor;
@@ -45,7 +56,11 @@ export function useVideo( id: number | string, { poll = true }: { poll?: boolean
 		},
 		// Recovery path once the cap has fired: a longer-than-cap transcode
 		// flips to ready on the next tab focus (globally this is disabled).
-		refetchOnWindowFocus: q => ( poll && Boolean( q.state.data?.isProcessing ) ? 'always' : false ),
+		refetchOnWindowFocus: q =>
+			poll &&
+			( q.state.data?.isProcessing || ( pollForRegistration && q.state.data?.type === 'local' ) )
+				? 'always'
+				: false,
 	} );
 
 	return {

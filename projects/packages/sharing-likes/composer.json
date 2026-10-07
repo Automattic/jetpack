@@ -45,7 +45,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-sharing-likes/compare/v${old}...v${new}"
@@ -53,7 +53,7 @@
 		"mirror-repo": "Automattic/jetpack-sharing-likes",
 		"textdomain": "jetpack-sharing-likes",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-sharing-likes.php"
+			"::PACKAGE_VERSION": "src/class-initializer.php"
 		}
 	},
 	"suggest": {

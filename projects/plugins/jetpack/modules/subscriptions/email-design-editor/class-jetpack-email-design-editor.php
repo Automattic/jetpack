@@ -343,8 +343,18 @@ class Jetpack_Email_Design_Editor {
 	 * @return array The `_wp_get_iframed_editor_assets()` shape, with `styles` filtered.
 	 */
 	private static function get_resolved_assets( array $allowed ) {
+		// Core collects the canvas's assets by buffering `wp_print_footer_scripts()`, one of the two
+		// actions `wp_auth_check_load()` puts its "Session expired" dialog on. Core's own editor is
+		// built before `admin_enqueue_scripts` registers that; this screen is not. NL-957.
+		$had_auth_check = remove_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
 		$assets = _wp_get_iframed_editor_assets();
-		$kept   = array();
+
+		if ( $had_auth_check ) {
+			add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+		}
+
+		$kept = array();
 
 		foreach ( explode( "\n", (string) $assets['styles'] ) as $asset ) {
 			foreach ( $allowed as $handle ) {

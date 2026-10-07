@@ -19,52 +19,12 @@ use WP_Error;
  */
 class Checkpoint {
 
-	/**
-	 * The popup, which mints a one-time code.
-	 */
-	const CONNECT_URL = 'https://public-api.wordpress.com/connect/';
-
-	/**
-	 * The only origin a result is accepted from.
-	 */
-	const MESSAGE_ORIGIN = 'https://public-api.wordpress.com';
-
-	/**
-	 * Providers the popup can sign in with, in display order.
-	 */
-	const PROVIDERS = array( 'wordpress', 'google', 'facebook' );
-
-	/**
-	 * POST field carrying the code the popup handed back.
-	 */
 	const CODE_FIELD = 'jetpack_comment_identity_code';
-
-	/**
-	 * POST field the form sends when it rendered as signed in on the passport.
-	 * Without it the passport is left alone, so a reader whose log-out never
-	 * reached the server still posts as the guest the form showed them as.
-	 */
+	// Sent when the form rendered as signed in on the passport. Without it the passport is
+	// left alone, so a log-out that never reached the server still posts as the guest shown.
 	const PASSPORT_FIELD = 'jetpack_comment_identity_passport';
-
-	/**
-	 * How long a signed popup URL stays good. WordPress.com rejects an expiry
-	 * past ten minutes out, so a minute is left for clock skew.
-	 */
-	const SIGNATURE_TTL = 9 * MINUTE_IN_SECONDS;
-
-	/**
-	 * Comment meta: the opaque per-site id WordPress.com derives for the commenter.
-	 */
-	const META_ID = 'jetpack_comment_identity_id';
-
-	/**
-	 * Comment meta: which provider they signed in with.
-	 */
-	const META_PROVIDER = 'jetpack_comment_identity_provider';
-
-	/**
-	 * Comment meta: the avatar the provider gave.
-	 */
+	// Comment meta: the commenter's id and avatar.
+	const META_ID     = 'jetpack_comment_identity_id';
 	const META_AVATAR = 'jetpack_comment_identity_avatar';
 
 	/**
@@ -144,18 +104,13 @@ class Checkpoint {
 	}
 
 	/**
-	 * A signed popup URL for one provider.
+	 * A signed popup URL: with the blog token, or on Simple with the Consulate's own key.
 	 *
-	 * A Jetpack or Atomic site proves itself with its blog token. On Simple the
-	 * code is already running inside WordPress.com, so the Consulate signs with
-	 * the key it will verify against.
-	 *
-	 * @param string $provider  One of PROVIDERS.
 	 * @param string $challenge The challenge to sign.
 	 * @return array|WP_Error url, expires, challenge.
 	 */
-	public static function connect_url( $provider, $challenge ) {
-		if ( ! in_array( $provider, self::PROVIDERS, true ) || ! self::is_challenge( $challenge ) ) {
+	public static function connect_url( $challenge ) {
+		if ( ! self::is_challenge( $challenge ) ) {
 			return new WP_Error( 'invalid_request', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
@@ -169,10 +124,11 @@ class Checkpoint {
 
 		$params = array(
 			'blog_id'   => self::blog_id(),
-			'provider'  => $provider,
 			'challenge' => $challenge,
 			'origin'    => $origin,
-			'expires'   => time() + self::SIGNATURE_TTL,
+			// Outlasts a slow WordPress.com login or password reset. WordPress.com rejects
+			// an expiry past an hour out, so ten minutes are left for clock skew.
+			'expires'   => time() + 50 * MINUTE_IN_SECONDS,
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -181,43 +137,25 @@ class Checkpoint {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only; add to stub-defs.php when the wpcom half lands.
 			$signature = \Automattic\Comment_Identity\Consulate::sign( $params );
 		} else {
-			$signature = hash_hmac( 'sha256', self::signing_payload( $params ), ( new Tokens() )->get_access_token()->secret );
+			// Key=value lines sorted by key, exactly as Consulate::signing_payload() on WordPress.com builds them.
+			$signed = $params;
+			ksort( $signed );
+
+			$lines = array();
+			foreach ( $signed as $key => $value ) {
+				$lines[] = $key . '=' . $value;
+			}
+
+			$signature = hash_hmac( 'sha256', implode( "\n", $lines ), ( new Tokens() )->get_access_token()->secret );
 		}
 
 		$query = array_merge( array( 'comment_identity' => 1 ), $params, array( 'signature' => $signature ) );
 
 		return array(
-			'url'       => self::CONNECT_URL . '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ),
+			'url'       => 'https://public-api.wordpress.com/connect/?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ),
 			'expires'   => $params['expires'],
 			'challenge' => $challenge,
 		);
-	}
-
-	/**
-	 * The string a signature is taken over: key=value lines, sorted by key.
-	 *
-	 * Must match Consulate::signing_payload() on WordPress.com.
-	 *
-	 * @param array $params blog_id, challenge, expires, origin, provider.
-	 * @return string
-	 */
-	public static function signing_payload( array $params ) {
-		$signed = array(
-			'blog_id'   => (string) (int) ( $params['blog_id'] ?? 0 ),
-			'challenge' => (string) ( $params['challenge'] ?? '' ),
-			'expires'   => (string) (int) ( $params['expires'] ?? 0 ),
-			'origin'    => (string) ( $params['origin'] ?? '' ),
-			'provider'  => (string) ( $params['provider'] ?? '' ),
-		);
-
-		ksort( $signed );
-
-		$lines = array();
-		foreach ( $signed as $key => $value ) {
-			$lines[] = $key . '=' . $value;
-		}
-
-		return implode( "\n", $lines );
 	}
 
 	/**
@@ -233,7 +171,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, provider, name, email, avatar, expires_at.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar.
 	 */
 	public static function exchange( $code ) {
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -260,14 +198,12 @@ class Checkpoint {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( 200 === $status && is_array( $body ) && ! empty( $body['site_commenter_id'] ) && ! empty( $body['provider'] ) ) {
+		if ( 200 === $status && is_array( $body ) && ! empty( $body['site_commenter_id'] ) ) {
 			return array(
 				'site_commenter_id' => sanitize_text_field( (string) $body['site_commenter_id'] ),
-				'provider'          => sanitize_key( (string) $body['provider'] ),
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
-				'expires_at'        => (int) ( $body['expires_at'] ?? 0 ),
 			);
 		}
 
@@ -393,10 +329,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * Record who left the comment, for the avatar and for moderation.
-	 *
-	 * Reads the identity admitted on this request rather than $_POST, so any
-	 * other producer reaching comment_post writes nothing here.
+	 * Record who left the comment, from the identity admitted on this request rather than $_POST.
 	 *
 	 * @param int $comment_id The comment ID.
 	 * @return void
@@ -407,7 +340,6 @@ class Checkpoint {
 		}
 
 		add_comment_meta( $comment_id, self::META_ID, $this->identity['site_commenter_id'], true );
-		add_comment_meta( $comment_id, self::META_PROVIDER, $this->identity['provider'], true );
 
 		if ( '' !== $this->identity['avatar'] ) {
 			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );

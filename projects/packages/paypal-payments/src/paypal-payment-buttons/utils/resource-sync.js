@@ -25,9 +25,8 @@ export const PAYPAL_SET_ATTRIBUTES = [
 
 /**
  * Attributes the PayPal payment is the source of truth for. Everything else
- * (image, format, colors, button text) belongs to the block. The image is sent
- * to PayPal but never read back: its attachment id has no PayPal counterpart,
- * and PayPal silently drops an image it cannot fetch.
+ * (image, format, colors, button text) belongs to the block. The image stays on
+ * the site.
  */
 export const RESOURCE_ATTRIBUTES = [
 	...PAYPAL_SET_ATTRIBUTES,
@@ -77,7 +76,12 @@ export const GATED_ATTRIBUTES = {
 	taxEnabled: [ 'taxType', 'taxName', 'taxValue' ],
 	handlingEnabled: [ 'handlingValue' ],
 	discountEnabled: [ 'discountType', 'discountValue' ],
-	shippingEnabled: [ 'shippingMode', 'shippingValue', 'shippingAdditionalValue' ],
+	shippingEnabled: [
+		'shippingMode',
+		'shippingValue',
+		'shippingAdditionalValue',
+		'collectShippingAddress',
+	],
 };
 
 /**

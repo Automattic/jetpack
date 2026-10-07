@@ -3,7 +3,6 @@
  */
 import { getDefaultQueryParams, useStatsStreak } from '@jetpack-premium-analytics/data';
 import { PRESET_LAST_12_MONTHS, getDatePart } from '@jetpack-premium-analytics/datetime';
-import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	MonthCalendarHeatmap,
 	MonthCalendarHeatmapSkeleton,
@@ -61,16 +60,8 @@ function PostingActivityInner() {
 
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
 
-	// The endpoint returns only days with posts. Days outside the range are ruled
-	// out so a stale response cannot suppress the empty state.
+	// The endpoint returns only days with posts.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
-	const hasData = useMemo(
-		() =>
-			Object.entries( postsByDay ).some(
-				( [ day, count ] ) => day >= range.start && day <= range.end && Number( count ) > 0
-			),
-		[ postsByDay, range ]
-	);
 
 	return (
 		<WidgetState
@@ -78,8 +69,9 @@ function PostingActivityInner() {
 			isFetching={ isFetching }
 			// The query keeps the previous response via `placeholderData`, so only
 			// surface the error when there is nothing to show.
-			isError={ isError && ! hasData }
-			isEmpty={ ! hasData }
+			isError={ isError && ! data }
+			// A year without posts is still a calendar, drawn with every day empty.
+			isEmpty={ false }
 			error={ describeError( error, {
 				retryDescription: __(
 					"We couldn't load posting activity. Please try again in a moment.",
@@ -87,13 +79,6 @@ function PostingActivityInner() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: calendar,
-				description: __(
-					'No posts published in the last 12 months.',
-					'jetpack-premium-analytics-pkg'
-				),
-			} }
 			renderLoading={ <MonthCalendarHeatmapSkeleton /> }
 		>
 			<MonthCalendarHeatmap

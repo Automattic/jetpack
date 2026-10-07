@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import type { WidgetStateError } from '../components/widget-state';
 
-interface DescribeErrorOptions {
+export interface DescribeErrorOptions {
 	retryDescription: string;
 	onRetry: () => void;
 }

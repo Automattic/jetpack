@@ -1,8 +1,6 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import { useIsomorphicLayoutEffect } from '../../../hooks';
 import { useGlobalChartsContext } from './use-global-charts-context';
-
-// Hide seeded series before paint without triggering React's SSR warning.
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /**
  * Seeds a chart's hidden series once per chart ID, the first time the provider
@@ -39,7 +37,7 @@ export const useDefaultHiddenSeries = (
 	// getHiddenSeries hands out a fresh copy per call, so hold the set still between
 	// visibility changes. Charts derive their rendered series from it, and a new
 	// identity every render invalidates every memo downstream — including the one
-	// the accessible tooltip watches, which closes a tooltip mid-navigation.
+	// `XYChartTooltip` watches, which closes a tooltip mid-navigation.
 	return useMemo(
 		() => ( shouldUseDefaults ? new Set( labelsRef.current ) : getHiddenSeries( chartId ) ),
 		[ shouldUseDefaults, getHiddenSeries, chartId ]

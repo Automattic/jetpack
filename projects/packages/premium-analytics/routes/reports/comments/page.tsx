@@ -4,15 +4,16 @@
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	commentsAuthorsCsvExporter,
+	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,14 +22,16 @@ import { __ } from '@wordpress/i18n';
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	useCommentsReportRecords,
 	type CommentReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -41,8 +44,6 @@ const RECORDS_VIEW = {
 		},
 	},
 };
-
-const sortCommentsCsvRows = ( a: CommentReportRow, b: CommentReportRow ) => b.value - a.value;
 
 /**
  * Get the DataViews row id for a Comments report row.
@@ -63,25 +64,8 @@ function CommentsReport(): JSX.Element {
 	const tabs = useMemo( () => getCommentsReportTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getCommentsFields( activeTab ), [ activeTab ] );
-	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
-		() => [
-			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: `comments-${ activeTab }`,
-		status: records,
-		sort: sortCommentsCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.comments;
@@ -91,24 +75,27 @@ function CommentsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load comments. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<ReportRecordsTable< CommentReportRow >
@@ -117,6 +104,7 @@ function CommentsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getCommentRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 					/>

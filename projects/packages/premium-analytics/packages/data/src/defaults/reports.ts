@@ -10,13 +10,11 @@ import { differenceInCalendarDays, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
-import {
-	getDefaultIntervalForPeriod,
-	computeDateRangeFromPreset,
-	type PresetType,
-	type ReportParams,
-} from '../utils';
+// Leaf modules, not the `../utils` barrel, which loads `@wordpress/core-data`.
+import { getDefaultIntervalForPeriod } from '../utils/interval';
+import { computeDateRangeFromPreset } from '../utils/preset-date-range';
 import { getStoreInfo } from './store-info';
+import type { PresetType, ReportParams } from '../utils/search';
 
 const DEFAULT_PRESET: PresetType = 'last-30-days';
 

@@ -5,14 +5,18 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 ## What this package is
 
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
-registration, the two feature sections (Sharing buttons, Like buttons), the
-shared placement section, the extras section, and the form handling for all of
-them. The Jetpack plugin hooks it up from the `is_admin()` block in
-`load-jetpack.php`, so the screen and every section on it exist whichever
-modules are active. The menu itself only registers where
+registration, the three feature sections (Sharing buttons, Like buttons, Comment
+Likes), the shared placement section, the extras section, and the form handling for all of
+them. It also serves the same settings over REST, under `src/rest/`.
+`Initializer::init()` wires both up on every request, not behind `is_admin()`:
+REST requests are not admin requests, and Calypso's sidebar comes from
+`wpcom/v2/admin-menu`, a REST request that fires `admin_menu` to collect the
+menu. The Jetpack plugin calls it from `load-jetpack.php`, so the
+screen and every section on it exist even with the Sharing, Likes and Comment
+Likes modules off. The menu itself only registers where
 `Environment::settings_screen_supported()` holds (Simple, a connected site, or
-offline mode): anywhere else neither the modules nor their blocks load, so
-the screen would have nothing to offer.
+offline mode): anywhere else neither the modules nor their blocks load, so the
+screen would have nothing to offer.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
@@ -33,15 +37,39 @@ Jetpack dashboard drops its own module toggle on exactly those sites — see
 `moduleAction()` in `_inc/client/sharing/share-buttons.jsx` and `likes.jsx`.
 Adding a way back there reopens a door the dashboard closed on purpose.
 
-`load-jetpack.php` does not run on WordPress.com Simple, so the registration
-above does not happen there. `sharing_admin_init()` in
-`modules/sharedaddy/sharing.php`, the one Sharing file wpcom loads, registers
-the screen and `Post_Handler` under an `is_wpcom_simple()` guard instead. That
-bridge goes once wpcom registers the screen itself (CM-913).
+`load-jetpack.php` does not run on WordPress.com Simple, so the call above does
+not happen there. `sharing_admin_init()` in `modules/sharedaddy/sharing.php`,
+the one Sharing file wpcom loads (public-api included), calls
+`Initializer::init()` under an `is_wpcom_simple()` guard instead. That
+bridge goes once wpcom calls `Initializer::init()` itself (CM-913), since it
+registers the REST routes there as well as the screen.
 
 The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
 plugin.
+
+## Per-post switches
+
+`Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
+the block editor shows on each post. `init()` hooks each on `rest_api_init` and
+`restapi_theme_init`. Every public post type then gets a boolean REST field,
+`jetpack_likes_enabled` or `jetpack_sharing_enabled`, and a post type support,
+`jetpack-post-likes` or `jetpack-sharing-buttons`, which the editor checks before
+offering the switch. The fields read and write the `switch_like_status` and
+`sharing_disabled` post meta.
+
+In the Jetpack plugin, `modules/likes.php` and `modules/comment-likes.php` both
+call `Post_Likes_Switch::init()`, since Comment Likes follow the same per-post
+switch, and `modules/sharedaddy/sharing.php` calls `Post_Sharing_Switch::init()`.
+Simple loads that `sharing.php` too, but neither Likes module, so
+`wp-content/mu-plugins/likes/jetpack-likes.php` calls `Post_Likes_Switch::init()`
+there. The `jetpack_post_likes_*` and `jetpack_post_sharing_*` functions those
+files still define are deprecated wrappers around these classes.
+
+They are namespaced classes rather than a file both environments include because
+WordPress.com Simple defines same-named global Likes functions in
+`wp-content/mu-plugins/likes/jetpack-likes.php`; a shared file of functions would
+redeclare them there.
 
 ## What the package may depend on
 
@@ -74,15 +102,39 @@ unreachable there, and any "module inactive" behaviour you add is Jetpack and
 Atomic only.
 
 The "Switch to the … block" buttons still work on Simple, through settings
-rather than modules: `Post_Handler` empties `sharing-services`, or sets
+rather than modules: `Feature_Actions` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
 button). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
-active Sharing module with every service removed. Without a block route the
-options stay, since they are then the only way back. Simple's Comment Likes
-checkbox survives the switch: comments have no block to move to.
+active Sharing module with every service removed. Like buttons have no such
+settings route off Simple: wpcom's `wpr_can_reblog_post()` refuses every Jetpack
+and Atomic site, so `disabled_reblogs` hides nothing there, and switching turns
+the module off instead. Without a block route the options stay, since they are
+then the only way back.
+
+**Comment Likes are a section of their own, with no variants.** Comments have
+no block to move to, and the module runs without the Likes module, so
+`Comment_Likes_Section` always renders, and the Like buttons section describes
+the Likes module alone. Where `Environment::likes_supported()` fails (offline
+mode), it says a connection is needed rather than offering a switch the module
+could not act on. The two platforms
+disagree on what Comment Likes read:
+
+- Simple stores the switch in `jetpack_comment_likes_enabled`, and wpcom's
+  `comment-likes-capture.php` shows them on single posts and pages whatever the
+  placement says.
+- On Jetpack and Atomic, the switch is the `comment-likes` module, which never
+  reads that option. It only renders where `Jetpack_Likes_Settings::is_likes_visible()`
+  holds, so it follows the sitewide Likes default and the placement.
+
+`Environment::comment_likes_follow_likes_settings()` is that split. Where it
+holds, the section states where Comment Likes appear, placement stays on screen
+with both button features off, and whenever the Like buttons section shows no
+options, the section also carries the sitewide default (`Likes_Section::render_sitewide_default_row()`),
+claiming `Settings_Form::SECTION_LIKES` so the Likes save handles it. That is
+why Comment Likes do not hold back the Like block route.
 
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires
@@ -100,7 +152,10 @@ two-repo change, not a rename.
 `Modules::get_active()` intersects with `get_available()`, which is called with
 no arguments, so nothing is filtered on connection. A site that cannot render a
 Like button will still answer `true` to `is_active( 'likes' )`. That is what
-`Environment::likes_supported()` is for. Sharing needs no connection, but
+`Environment::likes_supported()` is for. Offline mode catches connected sites
+the same way: their tokens survive it, so `is_connected()` still holds, but
+`Jetpack::load_modules()` skips every module that requires a connection, which
+is why `likes_supported()` checks offline mode too. Sharing needs no connection, but
 `Jetpack::load_modules()` includes nothing on a site that is neither connected
 nor offline, so `Environment::legacy_sharing_supported()` applies the same guard
 before `sharing_module_running()` reads the module: an active-but-unloaded module
@@ -153,6 +208,41 @@ silently saves nothing. A consumer that
 verifies nothing, relying on the caller having done it, writes whatever the
 request carries.
 
+## REST API
+
+`src/rest/` serves the same settings under `wpcom/v2/sharing-likes/` for the
+React screen: `settings`, `status`, `services`, the custom services, and
+`<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
+namespace. `Initializer::init()` registers the routes whether or not the
+Sharing, Likes and Comment Likes modules are active. Where the screen itself
+does not exist (`Environment::settings_screen_supported()`), every route
+answers 409.
+
+The routes offer what the PHP screen shows and nothing else. A setting whose
+section does not render it is missing from reads, and a write that includes it
+is refused before anything is saved. Each action is only accepted from the
+section variant that offers it. This is what stops the API from reopening the
+way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
+convenience. `sharing_admin_update` does not fire from REST, because its
+consumers read `$_POST`.
+
+Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
+stores. They are offered wherever `Environment::likes_supported()` holds, like
+their section. A save switches them before anything else, and if the host
+keeps the module the other way, it answers 409 and writes nothing more. Saving
+them can change `comment_likes.follows_likes_settings` and `placement` in
+`status`, and with them whether `settings` offers `likes_enabled` and `show`,
+so the screen reads `status` again afterwards, and sends a setting that only
+then appears in a save of its own.
+
+The routes and `Post_Handler` save through the same writers:
+`Sharing_Options::update()`, `Placement_Section::update()`, the
+`Likes_Options` setters, `Comment_Likes_Section::update()`,
+`Twitter_Site_Tag::update()`, `Sharing_Resources::update()` and
+`Feature_Actions`. Add a setting to the writer, not to one of its two callers,
+and never call `Sharing_Service::set_global_options()` directly (see
+`Sharing_Options::update()`).
+
 ## Placement defaults
 
 `sharing-options['global']['show']` is frequently absent, and every renderer
@@ -171,10 +261,9 @@ data rather than history.
 test classes extend `WorDBless\BaseTestCase`; create users with `wp_insert_user()`
 rather than a factory.
 
-**`is_admin()` is false under WP-CLI**, so the init in `load-jetpack.php` never
-runs there and `wp eval` will report the menu as absent whatever the code does.
-Call `Settings_Page::init()` by hand to test the class; proving the wiring needs a
-real authenticated admin request.
+**WP-CLI never fires `admin_menu`**, so `wp eval` will report the menu as absent
+whatever the code does. Proving the wiring needs a real authenticated admin
+request, or a `wpcom/v2/admin-menu` response.
 
 **wp-admin over SSL needs two cookies**, `SECURE_AUTH_COOKIE` and
 `LOGGED_IN_COOKIE`, generated from the same session token. The logged-in cookie

@@ -7,6 +7,8 @@
  */
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Comments\Block_Editor;
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
@@ -43,7 +45,7 @@ class Jetpack_Redux_State_Helper {
 	/**
 	 * Generate the state for the plugins page: the minimal state plus what the deactivation survey needs.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return array
 	 */
@@ -208,6 +210,8 @@ class Jetpack_Redux_State_Helper {
 					&& $block_availability['sharing-buttons']['available'],
 				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
 					&& $block_availability['like']['available'],
+				// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
+				'isCommentBlocksAvailable'   => class_exists( Block_Editor::class ) && Comments::is_enabled(),
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),

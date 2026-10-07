@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WordAds data: Flag today's day bucket as pending and read its values as null, as WordAds counts nightly; chart tooltips can carry a note for a bucket with no reading.

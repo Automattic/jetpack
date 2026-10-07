@@ -153,8 +153,9 @@ class Jetpack_Slideshow_Shortcode {
 			 * @module shortcodes
 			 *
 			 * @since 2.3.0
+			 * @since $$next-version$$ Captions render as plain text, so markup returned here is discarded.
 			 *
-			 * @param string wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
+			 * @param string wptexturize( wp_strip_all_tags( $attachment->post_excerpt ) ) Post excerpt.
 			 * @param string $attachment ->ID Attachment ID.
 			 */
 			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( wp_strip_all_tags( $attachment->post_excerpt ) ), $attachment->ID );
@@ -278,7 +279,7 @@ class Jetpack_Slideshow_Shortcode {
 			'jetpack-slideshow',
 			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
 			array( 'jquery', 'jetpack-shortcode-deps' ),
-			'20160119.1',
+			'20260915',
 			true
 		);
 		wp_enqueue_style(

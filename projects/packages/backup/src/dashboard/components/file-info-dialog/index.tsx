@@ -65,7 +65,7 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
 			<Dialog.Popup
 				size="large"
-				className="jpb-file-info-dialog__popup"
+				className="jpb-menu-aware-dialog jpb-file-info-dialog__popup"
 				style={ { '--jpb-admin-menu-width': `${ adminMenuWidth }px` } as CSSProperties }
 			>
 				<Dialog.Header>

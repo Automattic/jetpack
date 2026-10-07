@@ -13,10 +13,55 @@ namespace Automattic\Jetpack\Paypal_Payments;
 use WP_Error;
 use WP_REST_Posts_Controller;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
- * Extends WP_REST_Posts_Controller to disable create, update, and delete operations.
+ * Extends WP_REST_Posts_Controller to restrict reads and disable create, update, and delete operations.
  */
 class Order_REST_Controller extends WP_REST_Posts_Controller {
+
+	/**
+	 * Require the capability to read private posts before listing orders.
+	 *
+	 * Orders hold buyer details, so reading them requires an explicit capability.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error
+	 */
+	public function get_items_permissions_check( $request ) {
+		if ( ! $this->current_user_can_read_orders() ) {
+			return new WP_Error(
+				'rest_cannot_view',
+				__( 'Sorry, you are not allowed to view orders.', 'jetpack-paypal-payments' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return parent::get_items_permissions_check( $request );
+	}
+
+	/**
+	 * Gate every single-order read, and every order the collection route would return.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return bool
+	 */
+	public function check_read_permission( $post ) {
+		return $this->current_user_can_read_orders() && parent::check_read_permission( $post );
+	}
+
+	/**
+	 * Whether the current user may read orders.
+	 *
+	 * @return bool
+	 */
+	private function current_user_can_read_orders() {
+		$post_type = get_post_type_object( $this->post_type );
+
+		return $post_type !== null && current_user_can( $post_type->cap->read_private_posts );
+	}
 
 	/**
 	 * Deny order creation via the REST API.

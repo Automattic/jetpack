@@ -102,7 +102,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved without counts: the widget shows its empty state.
+ * Resolved without counts: every tile shows its placeholder.
  */
 export const Empty: Story = {
 	render: renderSubscriberHighlights,

@@ -114,12 +114,6 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 				array(
 					'hasBackupPlan' => true,
 					'hasScan'       => true,
-					// Decided on the site, not upstream — hence its own branch —
-					// and false without the standalone plugin's constant, which
-					// nothing in a package test run defines.
-					'local'         => array(
-						'isStandalonePluginActive' => false,
-					),
 				),
 			),
 			'/jetpack/v4/site/rewindable-activity'   => array(
@@ -230,6 +224,26 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'message'    => 'Restoring uploads',
 				),
 			),
+			'/jetpack/v4/site/backup/schedule'       => array(
+				'POST',
+				'/jetpack/v4/site/backup/schedule',
+				array( 'schedule_hour' => 3 ),
+				array( array( 'body' => '{"ok":true}' ) ),
+				array(
+					'ok'             => true,
+					'scheduled_hour' => 3,
+				),
+			),
+			'/jetpack/v4/site/backup/retention'      => array(
+				'POST',
+				'/jetpack/v4/site/backup/retention',
+				array( 'retention_days' => 30 ),
+				array( array( 'body' => '{"success":true}' ) ),
+				array(
+					'ok'             => true,
+					'retention_days' => 30,
+				),
+			),
 		);
 	}
 
@@ -267,7 +281,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * Every registered bridge route is dispatched by the provider above, so a tenth one
+	 * Every registered bridge route is dispatched by the provider above, so a new one
 	 * lands here as a failure naming itself.
 	 *
 	 * Bridge routes are identified by diffing the route table with the modernization

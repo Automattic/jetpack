@@ -31,6 +31,12 @@
 	text-decoration: none;
 }
 
+/* `@wordpress/ui`'s Link zeroes `border-radius` on hover, outranking
+ * DataViews' media radius; the element selector outranks it back. */
+.root :global(a.dataviews-column-primary__media) {
+	border-radius: var(--wpds-border-radius-md);
+}
+
 .root :global(.dataviews-view-table tbody a:any-link:hover),
 .root :global(.dataviews-view-table tbody a:any-link:focus-visible) {
 	color: var(--wpds-color-foreground-interactive-brand);

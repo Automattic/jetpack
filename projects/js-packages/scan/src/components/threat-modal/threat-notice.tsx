@@ -5,6 +5,7 @@ import { Icon, cautionFilled as warning } from '@wordpress/icons';
 import { useContext } from 'react';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 /**
  * ThreatNotice component

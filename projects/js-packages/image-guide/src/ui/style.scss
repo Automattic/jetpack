@@ -1,0 +1,268 @@
+// :where() keeps nested scopes from adding specificity.
+// Physical properties on purpose: the overlay is positioned
+// in physical coordinates.
+
+div.jb-ig-logo {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.spinner.jb-ig-spinner {
+	animation: ease-in-out 1.25s infinite reverse jb-ig-spinner-pulse;
+}
+
+@keyframes jb-ig-spinner-pulse {
+
+	0% {
+		transform: scale(1) rotate(0deg);
+	}
+
+	70% {
+		transform: scale(1.4) rotate(30deg);
+	}
+
+	100% {
+		transform: scale(0.9) rotate(-190deg);
+	}
+}
+
+svg.jb-ig-checkmark {
+	transform: translateY(2px);
+}
+
+// Enlarge the hover target beyond the visible bubble.
+.interaction-area.jb-ig-bubble {
+	padding: 15px;
+	margin-top: -15px;
+	margin-bottom: -15px;
+	margin-left: -15px;
+}
+
+.bubble.jb-ig-bubble {
+	background-color: #069e08;
+	color: #fff;
+	font-weight: 600;
+	font-family: sans-serif;
+	font-size: 0.8em;
+	position: relative;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	border: 1px solid hsla(0, 0%, 100%, 0.05);
+	text-shadow: 0 0 1px hsla(0, 0%, 0%, 0.15);
+	cursor: default;
+	transition: background-color 300ms ease;
+	text-align: center;
+}
+
+.high.jb-ig-bubble .bubble:where(.jb-ig-bubble) {
+	background-color: #e52e00;
+}
+
+.medium.jb-ig-bubble .bubble:where(.jb-ig-bubble) {
+	background-color: #e98800;
+}
+
+.bubble-inner.jb-ig-bubble {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: auto;
+	left: 0;
+	right: 0;
+}
+
+.jb-ig-main.small .interaction-area.jb-ig-bubble {
+	padding: 15px;
+}
+
+.jb-ig-main.small .bubble.jb-ig-bubble {
+	width: 28px;
+	height: 28px;
+	font-size: 10px;
+}
+
+.jb-ig-main.micro .interaction-area.jb-ig-bubble {
+	padding: 10px;
+	margin-top: -10px;
+	margin-left: -10px;
+}
+
+.jb-ig-main.micro .bubble.jb-ig-bubble {
+	width: 10px;
+	height: 10px;
+	font-size: 0;
+	border: 1px solid hsla(0, 0%, 100%, 0.3);
+}
+
+.jb-ig-main.micro .bubble.jb-ig-bubble svg {
+	display: none;
+}
+
+svg.jb-ig-external {
+	width: 1em;
+	height: 1em;
+	margin: 0;
+	vertical-align: middle;
+	fill: currentColor;
+}
+
+a.jb-ig-popup {
+	color: #3c434a !important;
+	font-weight: 600 !important;
+}
+
+a.documentation.jb-ig-popup {
+	color: #3c434a !important;
+	font-weight: 500 !important;
+}
+
+.preview.jb-ig-popup {
+	display: flex;
+	gap: 15px;
+	margin-bottom: 15px;
+	align-items: flex-start;
+	max-width: 360px;
+	width: 100%;
+}
+
+.preview.jb-ig-popup img:where(.jb-ig-popup) {
+	border-radius: 3px;
+	box-shadow: 0 0 2px 1px hsl(0, 0%, 95%);
+}
+
+.info.jb-ig-popup {
+	margin-top: 15px;
+	font-size: 0.9em;
+}
+
+.jetpack-boost-guide-popup.jb-ig-popup {
+	color: #3c434a;
+	padding: 25px;
+	font-family: sans-serif;
+	background: linear-gradient(159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53%);
+	margin-bottom: 10px;
+	width: fit-content;
+	min-width: 320px;
+	border-radius: 6px;
+	overflow: hidden;
+	position: fixed;
+	z-index: 90000;
+	text-align: left;
+}
+
+.title.jb-ig-popup {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.explanation.jb-ig-popup {
+	margin-top: 5px;
+}
+
+.description.jb-ig-popup {
+	font-size: 0.9em;
+}
+
+.row.jb-ig-popup {
+	display: flex;
+	gap: 10px;
+	justify-content: space-between;
+	margin-bottom: 5px;
+	border-bottom: 1px dotted hsl(0, 0%, 85%);
+	font-size: 14px;
+}
+
+.row.jb-ig-popup:last-child {
+	border-bottom: none;
+}
+
+.logo.jb-ig-popup {
+	position: absolute;
+	bottom: -25px;
+	opacity: 0.04;
+	transform: rotate(15deg);
+	pointer-events: none;
+	right: -50px;
+}
+
+.jb-ig-main.small .preview.jb-ig-popup {
+	gap: 8px;
+}
+
+.jetpack-boost-guide:not(.relative) {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.jetpack-boost-guide.relative {
+	position: relative;
+}
+
+.guide.jb-ig-main {
+	position: absolute;
+	top: 0;
+	z-index: 8000;
+	line-height: 1.55;
+	padding: 20px;
+	left: 0;
+	// Override theme typography.
+	font-size: 15px !important;
+	font-family:
+		Inter,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		"Helvetica Neue",
+		sans-serif !important;
+}
+
+.guide.small.jb-ig-main {
+	font-size: 13px;
+}
+
+.guide.micro.jb-ig-main {
+	font-size: 13px;
+	padding: 10px;
+}
+
+.guide.show.jb-ig-main {
+	z-index: 9000;
+}
+
+.previews.jb-ig-main {
+	width: 100%;
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+	margin-bottom: 15px;
+}
+
+.jetpack-boost-guide__backdrop {
+	transition:
+		opacity 0.2s ease-in-out,
+		filter 0.2s ease-in-out;
+	filter: brightness(0.3);
+}
+
+#jetpack-boost-guide-bar.ab-item.jb-ig-toggle {
+	// Override the admin bar's display rule.
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+#jetpack-boost-guide-bar.ab-item.paused.jb-ig-toggle svg {
+	filter: grayscale(100%) contrast(1.7);
+}

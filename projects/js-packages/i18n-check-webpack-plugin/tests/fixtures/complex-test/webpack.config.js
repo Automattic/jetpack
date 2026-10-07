@@ -9,7 +9,10 @@ module.exports = {
 	},
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
-	output: jetpackWebpackConfig.output,
+	output: {
+		...jetpackWebpackConfig.output,
+		library: 'Test',
+	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 	},

@@ -123,6 +123,9 @@ class WPCOM_Features {
 	private const JETPACK_COMPLETE_BI_YEARLY                  = 'jetpack_complete_bi_yearly'; // 2035
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
+	private const JETPACK_PRO_BI_YEARLY                       = 'jetpack_pro_bi_yearly'; // 2026
+	private const JETPACK_PRO_YEARLY                          = 'jetpack_pro_yearly'; // 2025
+	private const JETPACK_PRO_MONTHLY                         = 'jetpack_pro_monthly'; // 2024
 	private const JETPACK_SECURITY_T0_YEARLY                  = 'jetpack_security_t0_yearly'; // 10237
 	private const JETPACK_SECURITY_T0_MONTHLY                 = 'jetpack_security_t0_monthly'; // 10238
 	private const JETPACK_SECURITY_T1_BI_YEARLY               = 'jetpack_security_t1_bi_yearly'; // 2034
@@ -308,6 +311,7 @@ class WPCOM_Features {
 	private const JETPACK_GROWTH_PLANS   = array( self::JETPACK_GROWTH_BI_YEARLY, self::JETPACK_GROWTH_YEARLY, self::JETPACK_GROWTH_MONTHLY );
 	private const JETPACK_COMPLETE_PLANS = array( self::JETPACK_COMPLETE_BI_YEARLY, self::JETPACK_COMPLETE, self::JETPACK_COMPLETE_MONTHLY, self::A4A_JETPACK_COMPLETE_YEARLY, self::A4A_JETPACK_COMPLETE_MONTHLY );
 	private const JETPACK_STARTER_PLANS  = array( self::JETPACK_STARTER_YEARLY, self::JETPACK_STARTER_MONTHLY );
+	private const JETPACK_PRO_PLANS      = array( self::JETPACK_PRO_BI_YEARLY, self::JETPACK_PRO_YEARLY, self::JETPACK_PRO_MONTHLY );
 
 	private const JETPACK_SECURITY_DAILY_PLANS    = array( self::JETPACK_SECURITY_DAILY, self::JETPACK_SECURITY_DAILY_MONTHLY );
 	private const JETPACK_SECURITY_REALTIME_PLANS = array( self::JETPACK_SECURITY_REALTIME, self::JETPACK_SECURITY_REALTIME_MONTHLY );
@@ -345,6 +349,7 @@ class WPCOM_Features {
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
 		self::JETPACK_COMPLETE_PLANS,
+		self::JETPACK_PRO_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
 		self::JETPACK_SECURITY_T0_PLANS,
@@ -356,6 +361,7 @@ class WPCOM_Features {
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
 		self::JETPACK_COMPLETE_PLANS,
+		self::JETPACK_PRO_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
 		self::JETPACK_SECURITY_T0_PLANS,
@@ -408,6 +414,10 @@ class WPCOM_Features {
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
 	public const AI_ASSISTANT                      = 'ai-assistant';
+	public const AI_CREDITS_WPCOM_BUSINESS         = 'ai-credits-wpcom-business';
+	public const AI_CREDITS_WPCOM_COMMERCE         = 'ai-credits-wpcom-commerce';
+	public const AI_CREDITS_WPCOM_PERSONAL         = 'ai-credits-wpcom-personal';
+	public const AI_CREDITS_WPCOM_PREMIUM          = 'ai-credits-wpcom-premium';
 	public const AI_SEO_ENHANCER                   = 'ai-seo-enhancer';
 	public const AD_CREDIT_VOUCHERS                = 'ad-credit';
 	public const ADVANCED_SEO                      = 'advanced-seo';
@@ -451,6 +461,7 @@ class WPCOM_Features {
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
 	public const FIELD_FILE                        = 'field-file';
+	public const FORM_CONDITIONAL_LOGIC            = 'form-conditional-logic';
 	public const FORM_INTEGRATIONS                 = 'form-integrations';
 	public const FORM_WEBHOOKS                     = 'form-webhooks';
 	public const FREE_BLOG                         = 'free-blog';
@@ -575,11 +586,33 @@ class WPCOM_Features {
 			self::JETPACK_AI_PLANS,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
+		),
+		// AI_CREDITS_WPCOM_* - the WordPress Agent's monthly AI credit allowance tier. Trials get no credits.
+		self::AI_CREDITS_WPCOM_BUSINESS         => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
+		),
+		self::AI_CREDITS_WPCOM_COMMERCE         => array(
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::AI_CREDITS_WPCOM_PERSONAL         => array(
+			self::WPCOM_BLOGGER_PLANS,
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_STARTER_PLANS,
+		),
+		self::AI_CREDITS_WPCOM_PREMIUM          => array(
+			self::WPCOM_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::AI_SEO_ENHANCER                   => array(
 			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -635,6 +668,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
@@ -660,6 +694,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
@@ -714,6 +749,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
@@ -722,10 +758,12 @@ class WPCOM_Features {
 		self::CLOUD_CRITICAL_CSS                => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::CORNERSTONE_TEN_PAGES             => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::CLOUDFLARE_ANALYTICS              => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
@@ -867,6 +905,11 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
+		),
+		self::FORM_CONDITIONAL_LOGIC            => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::FORM_INTEGRATIONS                 => array(
 			array(
@@ -914,20 +957,24 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_SECURITY_REALTIME_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 		),
 		self::IMAGE_CDN_LIAR                    => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::IMAGE_CDN_QUALITY                 => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::IMAGE_SIZE_ANALYSIS               => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::INSTALL_PLUGINS                   => array(
 			self::WPCOM_PRO_PLANS,
@@ -964,6 +1011,7 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::JETPACK_DASHBOARD                 => array(
 			self::WPCOM_PRO_PLANS,
@@ -1124,6 +1172,7 @@ class WPCOM_Features {
 		self::PERFORMANCE_HISTORY               => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::PODCASTING                        => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1165,7 +1214,9 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::PARTNER_THEMES                    => array(
+			// We do not want all paid plans to have the feature, just Personal, Premium, and Business or higher plans.
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -1212,6 +1263,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_SECURITY_REALTIME_PLANS,
 			self::JETPACK_SECURITY_T0_PLANS,
 			self::JETPACK_SECURITY_T1_PLANS,
@@ -1381,6 +1433,7 @@ class WPCOM_Features {
 		self::SOCIAL_ENHANCED_PUBLISHING        => array(
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
@@ -1404,6 +1457,7 @@ class WPCOM_Features {
 		self::SOCIAL_IMAGE_GENERATOR            => array(
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
@@ -1414,6 +1468,7 @@ class WPCOM_Features {
 			// Gated on the paid social plans, matching SOCIAL_ENHANCED_PUBLISHING.
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
@@ -1486,6 +1541,7 @@ class WPCOM_Features {
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 		),
@@ -1497,6 +1553,7 @@ class WPCOM_Features {
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 			// A4A Jetpack Stats plans
@@ -1675,6 +1732,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS                        => array(
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_PERSONAL_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS_PLANS,
@@ -1709,6 +1767,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS_1TB_STORAGE            => array(
 			array(
 				self::JETPACK_COMPLETE_PLANS,
+				self::JETPACK_PRO_PLANS,
 				self::JETPACK_VIDEOPRESS_PLANS,
 				self::JETPACK_PREMIUM_PLANS,
 				self::JETPACK_BUSINESS_PLANS,
