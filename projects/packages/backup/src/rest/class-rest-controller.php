@@ -79,6 +79,7 @@ class Rest_Controller {
 		Download_Bridge::register_routes();
 		Restore_Bridge::register_routes();
 		Schedule_Bridge::register_routes();
+		Retention_Bridge::register_routes();
 	}
 
 	/**

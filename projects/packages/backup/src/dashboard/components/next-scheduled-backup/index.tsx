@@ -81,7 +81,7 @@ export default function NextScheduledBackup() {
 			</span>{ ' ' }
 			<Link
 				render={ <button type="button" /> }
-				className="jpb-next-scheduled-backup__modify"
+				className="jpb-link-button"
 				aria-label={ __( 'Modify daily backup time', 'jetpack-backup-pkg' ) }
 				onClick={ onModifyClick }
 			>

@@ -384,6 +384,98 @@ describe( 'Modify schedule', () => {
 	} );
 } );
 
+describe( 'Change retention', () => {
+	const GB = 2 ** 30;
+
+	/**
+	 * Render the storage section on a site keeping 30 days of 1GB backups on a 100GB limit.
+	 */
+	async function renderStorageSection() {
+		mockApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			const path = options?.path ?? '';
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { ok: true } );
+			}
+			if ( path.includes( '/site/backup/policies' ) ) {
+				return Promise.resolve( { policies: { storage_limit_bytes: 100 * GB } } );
+			}
+			if ( path.includes( '/site/backup/size' ) ) {
+				return Promise.resolve( {
+					ok: true,
+					size: 10 * GB,
+					last_backup_size: GB,
+					retention_days: 30,
+					days_of_backups_saved: 14,
+				} );
+			}
+			if ( path.includes( '/site/backup/addon-offer' ) ) {
+				return Promise.resolve( { slug: 'jetpack_backup_addon_storage_1tb_monthly' } );
+			}
+			return Promise.resolve( {} );
+		} );
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		const StorageSpace = ( await import( '../src/dashboard/components/storage-space' ) ).default;
+
+		render(
+			<QueryClientProvider>
+				<StorageSpace />
+			</QueryClientProvider>
+		);
+	}
+
+	/**
+	 * Open the dialog and pick a period.
+	 *
+	 * @param label - The period's label.
+	 */
+	async function openAndPick( label: string ) {
+		await userEvent.click( await screen.findByRole( 'button', { name: /backups saved/ } ) );
+		await userEvent.click( await screen.findByRole( 'combobox', { name: 'Keep backups for' } ) );
+		await userEvent.click( await screen.findByRole( 'option', { name: label } ) );
+	}
+
+	it( 'records the reader opening the retention dialog', async () => {
+		await renderStorageSection();
+
+		await userEvent.click( await screen.findByRole( 'button', { name: /backups saved/ } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_backup_storage_retention_modify_click'
+		);
+	} );
+
+	it( 'records the new retention once WordPress.com has saved it', async () => {
+		await renderStorageSection();
+		await openAndPick( '7 days' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Confirm change' } ) );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_storage_retention_update', {
+				retention_option: 7,
+			} )
+		);
+	} );
+
+	it( 'records the reader leaving to buy the storage a choice needs', async () => {
+		const cancelNavigation = ( event: MouseEvent ) => event.preventDefault();
+		document.addEventListener( 'click', cancelNavigation );
+		await renderStorageSection();
+		await openAndPick( '1 year' );
+
+		await userEvent.click( await screen.findByRole( 'link', { name: 'Purchase and update' } ) );
+		document.removeEventListener( 'click', cancelNavigation );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_backup_storage_retention_purchase_click',
+			{ retention_option: 365 }
+		);
+	} );
+} );
+
 describe( 'Upgrade from the no-plan gate', () => {
 	const SITE_SUFFIX = 'example.com';
 

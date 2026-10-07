@@ -51,3 +51,13 @@
 		left: calc(50% - var(--jpb-admin-menu-width, 0px) / 2);
 	}
 }
+
+// `Link` styles an anchor; rendered as a `<button>`, the native box shows.
+.jpb-link-button {
+	appearance: none;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+}
