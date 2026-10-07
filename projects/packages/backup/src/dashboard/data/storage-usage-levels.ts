@@ -40,8 +40,9 @@ const THRESHOLD_VALUES = Object.keys( THRESHOLDS )
 /**
  * Derive the storage usage level from usage, limit and retention counts.
  *
- * Presentation only — the meter's colour and the upsell copy. Whether WordPress.com has actually stopped backing the
- * site up is a separate, server-owned flag (`backups_stopped`), read by
+ * Presentation only — the meter's colour and the upsell copy. Whether
+ * WordPress.com has actually stopped backing the site up is a separate,
+ * server-owned flag (`backups_stopped`), read by
  * `use-site-size.ts`. The two can legitimately disagree.
  *
  * @param used                    - Bytes of backup storage in use, from `/site/backup/size`.
