@@ -1,37 +1,42 @@
 <?php
 /**
- * Tests for the Protect dashboard module.
+ * Tests for the Protect dashboard.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-protect
  */
+
+namespace Automattic\Jetpack\Protect_Package;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-
-// The class file, not the module file: that one hooks `admin_menu` for the rest of the suite.
-require_once JETPACK__PLUGIN_DIR . 'modules/protect-dashboard/class-jetpack-protect-dashboard.php';
+use WorDBless\BaseTestCase;
 
 /**
- * @covers \Jetpack_Protect_Dashboard
+ * @covers \Automattic\Jetpack\Protect_Package\Dashboard
  */
-#[CoversClass( Jetpack_Protect_Dashboard::class )]
-class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
-	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+#[CoversClass( Dashboard::class )]
+class Dashboard_Test extends BaseTestCase {
 
 	/**
-	 * Start from an empty menu queue.
+	 * Start from an empty menu queue and no init() options.
 	 */
 	public function set_up() {
 		parent::set_up();
 		Admin_Menu::reset();
+		Dashboard::init();
 	}
 
 	/**
-	 * Leave no queued items behind.
+	 * Leave no queued items or hooks behind.
 	 */
 	public function tear_down() {
 		Admin_Menu::reset();
+		remove_all_actions( 'admin_menu' );
+		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
+			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
+			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
+		}
 		parent::tear_down();
 	}
 
@@ -39,7 +44,7 @@ class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
 	 * Queue an item on the Protect slug, as the Jetpack Protect plugin does.
 	 */
 	private function register_plugin_item() {
-		Admin_Menu::add_menu( 'Protect', 'Protect', 'manage_options', Jetpack_Protect_Dashboard::MENU_SLUG, '__return_null' );
+		Admin_Menu::add_menu( 'Protect', 'Protect', 'manage_options', Dashboard::MENU_SLUG, '__return_null' );
 	}
 
 	/**
@@ -65,12 +70,27 @@ class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
 			$this->register_plugin_item();
 		}
 
-		Jetpack_Protect_Dashboard::add_menu();
+		Dashboard::add_menu();
 
-		$item = Admin_Menu::remove_menu( Jetpack_Protect_Dashboard::MENU_SLUG );
+		$item = Admin_Menu::remove_menu( Dashboard::MENU_SLUG );
 		$this->assertIsArray( $item );
-		$this->assertSame( array( Jetpack_Protect_Dashboard::class, 'render' ), $item['function'] );
-		$this->assertFalse( Admin_Menu::remove_menu( Jetpack_Protect_Dashboard::MENU_SLUG ) );
+		$this->assertSame( array( Dashboard::class, 'render' ), $item['function'] );
+		$this->assertFalse( Admin_Menu::remove_menu( Dashboard::MENU_SLUG ) );
+	}
+
+	public function test_add_menu_runs_before_admin_menu_registers_its_items() {
+		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
+		$this->assertIsInt( $priority );
+		$this->assertLessThan( 1000, $priority );
+	}
+
+	public function test_add_menu_passes_the_init_options_to_the_item() {
+		Dashboard::init( array( 'module' => 'protect-dashboard' ) );
+
+		Dashboard::add_menu();
+
+		$item = Admin_Menu::remove_menu( Dashboard::MENU_SLUG );
+		$this->assertSame( 'protect-dashboard', $item['args']['module'] );
 	}
 
 	/**
@@ -80,8 +100,8 @@ class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_load_hooks() {
 		return array(
-			array( 'load-jetpack_page_' . Jetpack_Protect_Dashboard::MENU_SLUG ),
-			array( 'load-admin_page_' . Jetpack_Protect_Dashboard::MENU_SLUG ),
+			array( 'load-jetpack_page_' . Dashboard::MENU_SLUG ),
+			array( 'load-admin_page_' . Dashboard::MENU_SLUG ),
 		);
 	}
 
@@ -95,7 +115,7 @@ class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
 		$this->register_plugin_item();
 		add_action( $hook, '__return_null' );
 
-		Jetpack_Protect_Dashboard::add_menu();
+		Dashboard::add_menu();
 
 		$this->assertFalse( has_action( $hook, '__return_null' ) );
 		// Admin_Menu::add_menu() puts its own callback back for the new item.
@@ -103,14 +123,14 @@ class Jetpack_Protect_Dashboard_Test extends WP_UnitTestCase {
 	}
 
 	public function test_render_says_so_when_the_build_is_missing() {
-		if ( function_exists( 'jetpack_plugin_jetpack_protect_hub_wp_admin_render_page' ) ) {
+		if ( function_exists( Dashboard::RENDER_FUNCTION ) ) {
 			$this->markTestSkipped( 'Needs the wp-build output not to be loaded.' );
 		}
 
 		ob_start();
-		Jetpack_Protect_Dashboard::render();
+		Dashboard::render();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringContainsString( 'could not be loaded because its assets are missing', $output );
 	}
 }

@@ -6,6 +6,6 @@
 	},
 	"route": {
 		"path": "/",
-		"page": "jetpack-protect-hub"
+		"page": "jetpack-protect-dashboard"
 	}
 }

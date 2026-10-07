@@ -147,7 +147,6 @@
 		"@types/react": "18.3.31",
 		"@types/wordpress__block-editor": "15.0.6",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"@wordpress/admin-ui": "2.10.0",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/blob": "4.55.0",
 		"@wordpress/block-serialization-default-parser": "5.55.0",
@@ -192,12 +191,6 @@
 			},
 			{
 				"id": "jetpack-settings-dashboard",
-				"init": [
-					"@jetpack-plugin/init"
-				]
-			},
-			{
-				"id": "jetpack-protect-hub",
 				"init": [
 					"@jetpack-plugin/init"
 				]

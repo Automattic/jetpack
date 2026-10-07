@@ -1,9 +1,9 @@
 <?php
 /**
- * Module Name: Protect
+ * Module Name: Protect Dashboard
  * Module Description: Security tools that keep your site safe and sound, from posts to plugins.
  * Sort Order: 4
- * First Introduced: 16.4
+ * First Introduced: 16.4-a.1
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Security
@@ -16,6 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-require_once __DIR__ . '/protect-dashboard/class-jetpack-protect-dashboard.php';
-
-Jetpack_Protect_Dashboard::init();
+if ( class_exists( \Automattic\Jetpack\Protect_Package\Dashboard::class ) ) {
+	\Automattic\Jetpack\Protect_Package\Dashboard::init( array( 'module' => Jetpack_Protect_Dashboard_Feature_Flags::MODULE ) );
+}

@@ -32,7 +32,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 			self::DASHBOARD,
 			array(
 				'default'     => false,
-				'description' => 'Make the Protect dashboard module available, which adds a Protect page to the Jetpack sidebar.',
+				'description' => 'Make the Protect dashboard module available, which replaces the Protect page, including the Jetpack Protect plugin\'s. Not for sites using that plugin until the new page matches it.',
 				'owner'       => 'jetpack',
 			)
 		);

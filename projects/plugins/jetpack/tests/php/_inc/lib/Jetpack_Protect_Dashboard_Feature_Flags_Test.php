@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\My_Jetpack\Main_Features;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Jetpack_Protect_Dashboard_Feature_Flags
@@ -49,17 +50,37 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 		$this->assertContains( Jetpack_Protect_Dashboard_Feature_Flags::MODULE, Jetpack::get_available_modules() );
 	}
 
-	public function test_my_jetpack_offers_protect_through_jetpack_while_the_flag_is_on() {
-		$this->enable_flag();
+	/**
+	 * Whether the flag is on, which is also whether My Jetpack should offer Protect through Jetpack.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_flag_states() {
+		return array(
+			'flag on'  => array( true ),
+			'flag off' => array( false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_flag_states
+	 *
+	 * @param bool $flag_on Whether the flag is on.
+	 */
+	#[DataProvider( 'provide_flag_states' )]
+	public function test_my_jetpack_offers_protect_through_jetpack_only_while_the_flag_is_on( $flag_on ) {
+		if ( $flag_on ) {
+			$this->enable_flag();
+		}
 
 		// Main_Features memoizes per locale, so a locale nothing else uses gets a fresh read of the module list.
-		add_filter(
-			'locale',
-			static function () {
-				return 'protect_dashboard_flag_on';
-			}
-		);
+		$locale = static function () use ( $flag_on ) {
+			return $flag_on ? 'protect_dashboard_flag_on' : 'protect_dashboard_flag_off';
+		};
+		add_filter( 'locale', $locale );
+		$delivery = Main_Features::get_feature_definitions()['protect-dashboard']['delivery']['jetpack'];
+		remove_filter( 'locale', $locale );
 
-		$this->assertTrue( Main_Features::get_feature_definitions()['protect-dashboard']['delivery']['jetpack'] );
+		$this->assertSame( $flag_on, $delivery );
 	}
 }
