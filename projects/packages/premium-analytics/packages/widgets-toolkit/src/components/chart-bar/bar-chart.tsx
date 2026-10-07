@@ -8,7 +8,7 @@ import { useCallback, useMemo, useId } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
+import { isEmptyChartData, formatChartName, getEmptyChartDomain } from '../../helpers';
 import { ChartEmptyState } from '../chart-empty-state';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './bar-chart.module.scss';
@@ -48,8 +48,8 @@ export type BarChartProps = {
 
 	className?: string;
 
-	/** Accessible name of the chart; name it after what it shows, such as the widget title. */
-	ariaLabel?: string;
+	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	chartTitle?: string;
 
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
@@ -119,7 +119,7 @@ export function BarChart( {
 	dataFormat,
 	styles: stylesProp,
 	className,
-	ariaLabel,
+	chartTitle,
 	emptyStateIcon,
 	emptyStateText,
 	showZeroValues = true,
@@ -196,7 +196,7 @@ export function BarChart( {
 	return (
 		<BarChartBase
 			chartId={ chartId }
-			ariaLabel={ ariaLabel }
+			ariaLabel={ formatChartName( chartTitle ) }
 			data={ styledChartData }
 			className={ clsx( styles.chart, className ) }
 			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }

@@ -128,7 +128,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					onDatumClick={ openBucket }
-					ariaLabel={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
+					chartTitle={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
 					empty={
 						noPublishedPosts ? (
 							<ChartEmptyState

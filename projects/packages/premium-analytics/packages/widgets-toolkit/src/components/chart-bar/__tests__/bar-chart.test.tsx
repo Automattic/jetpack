@@ -22,17 +22,18 @@ describe( 'BarChart', () => {
 		resetMockCharts();
 	} );
 
-	it( 'names the chart with ariaLabel', () => {
+	it.each( [
+		[ 'Sales by device', 'Sales by device chart' ],
+		[ undefined, undefined ],
+	] )( 'names the chart from chartTitle %s', ( chartTitle, ariaLabel ) => {
 		render(
 			<BarChart
 				chartData={ [ { label: 'Sales', data: [ { label: 'Mobile', value: 3 } ] } ] }
 				dataFormat={ { type: 'number' } }
-				ariaLabel="Sales by device"
+				chartTitle={ chartTitle }
 			/>
 		);
 
-		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { ariaLabel: 'Sales by device' } )
-		);
+		expect( mockBarChartSpy ).toHaveBeenLastCalledWith( expect.objectContaining( { ariaLabel } ) );
 	} );
 } );

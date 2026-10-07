@@ -112,7 +112,7 @@ function StorePerformance() {
 					metrics={ metrics }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-woocommerce-stats-pkg' ) }
-					ariaLabel={ __( 'Store performance', 'jetpack-woocommerce-stats-pkg' ) }
+					chartTitle={ __( 'Store performance', 'jetpack-woocommerce-stats-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
