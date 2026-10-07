@@ -29,7 +29,12 @@ import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-lege
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
-import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries, ComparativeDatePointDate } from './types';
+import type {
+	ComparativeLineChartSeries,
+	SeriesStyle,
+	TooltipExtraSeries,
+	ComparativeDatePointDate,
+} from './types';
 import type { ChartBaseline } from '../../helpers';
 import type { DataFormat } from '../../types';
 
