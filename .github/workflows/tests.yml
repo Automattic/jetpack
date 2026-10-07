@@ -113,22 +113,22 @@ jobs:
             CHANGED=$( jq -c '. += { "plugins/jetpack": true }' <<<"$CHANGED" )
           fi
 
+          # Only keep projects that define the test script.
+          VALIDPROJECTS=$( jq -nc --arg script "$TEST_SCRIPT" '[ inputs | select( .scripts[ $script ] ) | input_filename | if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end ]' composer.json projects/*/*/composer.json )
+          SKIPPED=$( jq -r --argjson valid "$VALIDPROJECTS" 'keys - $valid | .[]' <<<"$CHANGED" )
+          if [[ -n "$SKIPPED" ]]; then
+            echo "::group::Projects skipped, as they have no $TEST_SCRIPT script"
+            echo "$SKIPPED"
+            echo "::endgroup::"
+          fi
+          CHANGED=$( jq -c --argjson valid "$VALIDPROJECTS" 'with_entries( select( .key | IN( $valid[] ) ) )' <<<"$CHANGED" )
+
           # Narrow to this job's split, if any.
           if [[ -n "$SPLIT_PROJECT" ]]; then
             CHANGED=$( jq -c --arg p "$SPLIT_PROJECT" 'with_entries( select( .key == $p ) )' <<<"$CHANGED" )
           elif (( SPLIT_NUM )); then
-            readarray -t FILES < <( jq -r 'keys[] | if . == "monorepo" then "composer.json" else "projects/\( . )/composer.json" end' <<<"$CHANGED" )
-            CHANGED=$( jq -nc --argjson changed "$CHANGED" --arg script "$TEST_SCRIPT" --argjson exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" '
-              # Find the projects that will run: defining the script, and not excluded from generic runs.
-              [ inputs | select( .scripts[ $script ] ) | input_filename
-                # Generate slug from filename.
-                | if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end
-                | select( IN( $exclude[] ) | not )
-              ]
-              # Deal out every nth one, balanced by count.
-              | [ .[ range( $num - 1; length; $total ) ] ] as $split
-              | $changed | with_entries( select( .key | IN( $split[] ) ) )
-            ' "${FILES[@]}" < /dev/null )
+            # Exclude hard-coded projects and deal out every nth remaining, balanced by count.
+            CHANGED=$( jq -c --argjson exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" 'keys - $exclude | with_entries( select( .key % $total == $num - 1 ) | { key: .value, value: true } )' <<<"$CHANGED" )
           fi
 
           echo "::group::Projects to test in this job"
@@ -199,13 +199,14 @@ jobs:
       - name: Prepare test queue
         if: steps.changed.outputs.any == 'true'
         env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
           QUEUEFILE: ${{ runner.temp }}/testqueue
           WORKERTOKENS: ${{ runner.temp }}/workertokens
         run: |
           mkdir artifacts
           [[ "$COVERAGE" == true ]] && mkdir coverage
 
-          printf '%s\n' composer.json projects/*/*/composer.json > "$QUEUEFILE"
+          jq -r 'keys[] | if . == "monorepo" then "composer.json" else "projects/\( . )/composer.json" end' <<<"$CHANGED" > "$QUEUEFILE"
 
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
@@ -228,7 +229,6 @@ jobs:
           if: steps.changed.outputs.any == 'true'
           env:
             FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
-            CHANGED: ${{ steps.changed.outputs.projects }}
             QUEUEFILE: ${{ runner.temp }}/testqueue
             WORKERTOKENS: ${{ runner.temp }}/workertokens
           run: |
@@ -271,11 +271,7 @@ jobs:
                 continue
               fi
 
-              if ! jq --argjson changed "$CHANGED" --arg p "$SLUG" -ne '$changed[$p] // false' > /dev/null; then
-                echo "Skipping $SLUG, no changes in it or its dependencies"
-              elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
-                echo "Skipping $SLUG, no test script is defined in composer.json"
-              elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
+              if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
                 echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
               else
                 if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
