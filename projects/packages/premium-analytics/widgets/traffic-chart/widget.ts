@@ -10,6 +10,11 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import {
+	chartIntervalElements,
+	chartIntervalField,
+	type ChartIntervalFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
+import {
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
 	type CountLabel,
@@ -17,8 +22,7 @@ import {
 import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
- * The bucket sizes this chart draws. The bucket follows the dashboard's interval
- * control, clamped into this set.
+ * The bucket sizes this chart draws, offered by its own interval control.
  */
 export const TRAFFIC_PERIODS = [
 	'hour',
@@ -97,26 +101,34 @@ export const TRAFFIC_CHART_METRICS = [
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartType     - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartInterval - The bucket size. Defaults to the one the date range suggests.
  */
-export type TrafficChartAttributes = {
+export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartGranularity > & {
 	chartType?: TrafficChartType;
+};
+
+const chartIntervalAttribute = {
+	...chartIntervalField,
+	elements: chartIntervalElements( TRAFFIC_PERIODS ),
+};
+
+// The switch must show what the chart draws, and the default depends on Stats v1.
+const chartTypeAttribute = {
+	...chartTypeAttributeField< TrafficChartAttributes >(),
+	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
 };
 
 /**
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
- * range, comparison, and bucket size come from `reportParams`; the plotted
- * metric is the chart's own tab selection, not an attribute.
+ * range and comparison come from `reportParams`; the plotted metric is the
+ * chart's own tab selection, not an attribute.
  */
 export default {
 	icon: trendingUp,
 	attributes: [
-		{
-			...chartTypeAttributeField< TrafficChartAttributes >(),
-			// The switch must show what the chart draws, and the default depends on Stats v1.
-			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
-				item.chartType ?? defaultChartType(),
-		},
+		chartIntervalAttribute,
+		chartTypeAttribute,
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {},

@@ -128,7 +128,7 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
 	}
 
 	// If element is already a React element, clone it and add the fontWeight style
-	if ( React.isValidElement( element ) ) {
+	if ( React.isValidElement< { style?: React.CSSProperties } >( element ) ) {
 		return React.cloneElement( element, {
 			style: { ...( element.props.style || {} ), fontWeight: 600 },
 		} as React.HTMLAttributes< HTMLElement > );

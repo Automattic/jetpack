@@ -3,7 +3,7 @@ import { commands, selectors, type ImageFacts } from './store.ts';
 import { MeasurableImage } from '../MeasurableImage.ts';
 import type { Dimensions, Weight } from '../MeasurableImage.ts';
 
-/** Own per-image measurements, source tracking and the weight cache outside reducer state. */
+/** Keep image nodes, source tracking and the weight cache outside reducer state. */
 export class MeasurableImageStore {
 	readonly fileSize: Writable< Dimensions >;
 	readonly fileWeight: Writable< Weight >;
@@ -22,6 +22,7 @@ export class MeasurableImageStore {
 	private weightMap: Record< string, number > = {};
 
 	private currentSrc = '';
+	private consumers = 0;
 
 	constructor( measurableImage: MeasurableImage ) {
 		this.image = measurableImage;
@@ -40,7 +41,7 @@ export class MeasurableImageStore {
 		this.sizeOnPage = this.fact( 'sizeOnPage' );
 		this.loading = this.fact( 'loading' );
 		// Facade weight and savings subscribers activate fetching; analytics snapshots do not.
-		this.fileWeight = this.fact( 'fileWeight', () => this.activate() );
+		this.fileWeight = this.fact( 'fileWeight', () => this.acquire() );
 		this.potentialSavings = readable(
 			() => selectors.getPotentialSavings( this.id ),
 			() => this.fileWeight.subscribe( () => {} ),
@@ -61,7 +62,7 @@ export class MeasurableImageStore {
 		);
 	}
 
-	private fact< K extends keyof ImageFacts >( key: K, start?: () => void ) {
+	private fact< K extends keyof ImageFacts >( key: K, start?: () => () => void ) {
 		return writable(
 			() => selectors.getImageFacts( this.id )[ key ],
 			value => commands.updateImage( this.id, { [ key ]: value } ),
@@ -81,9 +82,15 @@ export class MeasurableImageStore {
 		};
 	}
 
-	/** Fetch the current source's weight when a measurement consumer becomes active. */
-	public activate() {
-		this.maybeUpdateWeight();
+	/** Acquire weight measurements until the returned idempotent release is called. */
+	public acquire() {
+		if ( this.consumers++ === 0 ) this.maybeUpdateWeight();
+		let active = true;
+		return () => {
+			if ( ! active ) return;
+			active = false;
+			this.consumers--;
+		};
 	}
 
 	public async updateDimensions() {

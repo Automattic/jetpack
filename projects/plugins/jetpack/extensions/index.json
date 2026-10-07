@@ -2,6 +2,7 @@
 	"production": [
 		"ai-assistant",
 		"ai-chat",
+		"subscriptions",
 		"ai-assistant-plugin",
 		"blogging-prompt",
 		"business-hours",
@@ -42,7 +43,6 @@
 		"slideshow",
 		"story",
 		"subscriber-login",
-		"subscriptions",
 		"tiled-gallery",
 		"tock",
 		"videopress",

@@ -56,14 +56,63 @@ export declare const PRESET_LAST_12_MONTHS: string;
 
 // Report queries. Runs a query and its comparison in the dashboard's query client, so a product
 // package builds its own report hooks on it and does not publish them here.
-export declare function useReport( ...args: any[] ): any;
+export type ReportQueryType = 'primary' | 'comparison';
+
+// What a query factory returns: the options the dashboard reads before it runs the query.
+export type ReportQuery< TData > = {
+	queryKey: readonly unknown[];
+	queryFn?: () => Promise< TData >;
+	enabled?: boolean;
+	placeholderData?: ( previousData: TData | undefined ) => TData | undefined;
+};
+
+// One period's query, as the dashboard's query client reports it.
+export type ReportQueryResult< TData > = {
+	data: TData | undefined;
+	error: unknown;
+	isError: boolean;
+	isSuccess: boolean;
+	isPending: boolean;
+	isLoading: boolean;
+	isFetching: boolean;
+	isFetched: boolean;
+	isPlaceholderData: boolean;
+	refetch: () => Promise< unknown >;
+};
+
+export type ReportResult< TData > = {
+	primary: ReportQueryResult< TData >;
+	comparison: ReportQueryResult< TData >;
+	hasComparison: boolean;
+	// The zone both periods were built under.
+	timezone: string;
+	// True while nothing on screen answers the current params; see WidgetState.
+	isLoading: boolean;
+	isFetching: boolean;
+	hasData: boolean;
+	isError: boolean;
+	error: unknown;
+	refetch: () => Promise< void >;
+};
+
+export type UseReportOptions = {
+	enabled?: boolean;
+	// Where the comparison query parks while the params carry no comparison.
+	disabledComparisonKey?: string[];
+};
+
+export declare function useReport< TData, TParams extends ReportParams = ReportParams >(
+	queryFactory: ( params: TParams, queryType: ReportQueryType ) => ReportQuery< TData >,
+	params: TParams,
+	options?: UseReportOptions
+): ReportResult< TData >;
 
 // Bucket bounds. Writes the start or end of a report row as the dashboard's time series read it:
 // the wall time in the report's zone, with no offset.
 export declare function toBucketStamp( raw: string | undefined, zone: string ): string;
 
-// Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
-// generic report hooks they are built on.
+// Data. The WordAds hooks are provisional: they stay until the Ads package reads its endpoints
+// with a client of its own.
 export declare function useStatsWordAdsStats( ...args: any[] ): any;
 export declare function useStatsWordAdsEarnings( ...args: any[] ): any;
 export type StatsWordAdsResponse = any;
@@ -72,6 +121,11 @@ export type StatsWordAdsEarningsResponse = any;
 // The video plays hook is provisional the same way: shared with the dashboard's Videos report until
 // that report moves to the VideoPress package.
 export declare function useStatsVideoPlays( ...args: any[] ): any;
+export declare function getVideoPosterUrl(
+	poster: unknown,
+	width: number,
+	height: number
+): string | undefined;
 export type StatsVideoPlaysComparisonItem = any;
 
 // Ads earnings history, provisional too: shared with the dashboard's Earnings report until that report

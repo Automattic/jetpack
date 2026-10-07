@@ -20,6 +20,7 @@ export {
 	chartTypeAttributeField,
 	describeError,
 	flattenEarningsBreakdown,
+	getVideoPosterUrl,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {

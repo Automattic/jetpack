@@ -31,7 +31,6 @@ export {
 
 export { SemiCircleChart, type SemiCircleChartData } from './chart-semi-circle';
 export { DonutChart, DonutChartSkeleton, type DonutChartData } from './chart-donut';
-export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -111,6 +110,7 @@ export {
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { ExternalLink, type ExternalLinkProps } from './external-link';
 export { InfoTip, type InfoTipProps } from './info-tip';
+export { InternalLink } from './internal-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
 export {
