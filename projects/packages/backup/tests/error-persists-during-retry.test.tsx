@@ -172,18 +172,33 @@ describe( 'useStickyError', () => {
 } );
 
 describe( 'query error', () => {
-	it( 'announces again when a retry fails with the same message', () => {
-		const error = new Error( 'Service unavailable' );
+	it.each( [
+		[ 'the same message', 'Service unavailable' ],
+		[ 'a different message', 'Timed out' ],
+	] )( 'announces a failed retry once with %s', ( _name, next ) => {
 		const { rerender } = render(
-			<QueryError title="Load failed" error={ error } onRetry={ noop } isRetrying />
+			<QueryError
+				title="Load failed"
+				error={ new Error( 'Service unavailable' ) }
+				onRetry={ noop }
+				isRetrying
+			/>
 		);
 		( speak as jest.Mock ).mockClear();
 
 		rerender(
-			<QueryError title="Load failed" error={ error } onRetry={ noop } isRetrying={ false } />
+			<QueryError
+				title="Load failed"
+				error={ new Error( next ) }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
 		);
 
-		expect( speak ).toHaveBeenCalledWith( 'Load failed Service unavailable', 'assertive' );
+		const spoken = ( speak as jest.Mock ).mock.calls.filter(
+			( [ text ] ) => text === `Load failed ${ next }`
+		);
+		expect( spoken ).toHaveLength( 1 );
 	} );
 } );
 

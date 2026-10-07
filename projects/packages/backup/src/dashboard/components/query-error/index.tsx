@@ -63,14 +63,14 @@ export default function QueryError( {
 	className,
 }: Props ) {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
-	const wasRetrying = useRef( isRetrying );
+	const previous = useRef( { isRetrying, message } );
 
 	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
 	useEffect( () => {
-		if ( wasRetrying.current && ! isRetrying ) {
+		if ( previous.current.isRetrying && ! isRetrying && previous.current.message === message ) {
 			speak( message, 'assertive' );
 		}
-		wasRetrying.current = isRetrying;
+		previous.current = { isRetrying, message };
 	}, [ isRetrying, message ] );
 
 	return (
