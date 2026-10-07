@@ -34,6 +34,9 @@ Settings > Sharing has a React version, off by default. To try it:
 
 	add_filter( 'rsm_jetpack_ui_modernization_sharing_likes', '__return_true' );
 
+Add it before `admin_menu` runs, for example from a plugin or mu-plugin: the filter is
+read on `admin_menu` at priority 1, so adding it on `admin_init` silently does nothing.
+
 Build it with `pnpm run build` (or `jp build packages/sharing-likes`).
 
 ## How to install sharing-likes
