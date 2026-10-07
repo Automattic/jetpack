@@ -115,7 +115,7 @@ final class Settings_App {
 
 		// The generated file registers these on `wp_default_scripts`, which has already fired by `admin_menu`.
 		if ( function_exists( self::MODULES_FUNCTION ) ) {
-			call_user_func( self::MODULES_FUNCTION ); // @phan-suppress-current-line PhanUndeclaredFunctionInCallable -- generated into build/, which Phan excludes.
+			call_user_func( self::MODULES_FUNCTION );
 		}
 
 		remove_action( 'admin_init', self::INTERCEPT_FUNCTION );
