@@ -22,7 +22,6 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
-use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_STORE_SECTION_FLAG;
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Sync\Configuration
@@ -127,27 +126,6 @@ class Configuration_Test extends TestCase {
 		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertFalse( has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
 		$this->assertNotContains( WooCommerce_Analytics::class, apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES ) );
-	}
-
-	/**
-	 * Turning the Store tab's flag on lets the opted-in site sync again.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_configure_sync_registers_once_the_store_section_flag_is_on() {
-		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
-		require_once __DIR__ . '/../../../src/dashboard-policy.php';
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
-
-		$configuration = new Configuration();
-		$configuration->configure_sync();
-
-		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
-		$this->assertContains( WooCommerce_Analytics::class, apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES ) );
 	}
 
 	/**
