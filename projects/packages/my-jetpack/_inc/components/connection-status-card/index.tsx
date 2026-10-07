@@ -154,7 +154,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// The card shows the connection itself during Safe Mode; only the header reports Safe Mode.
+	// Show the connection itself during Safe Mode.
 	const state = useConnectionState( { skipSafeMode: true } );
 
 	// Prevent opening dialog for WoA sites when user is connection owner
