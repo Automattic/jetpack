@@ -56,6 +56,7 @@ import {
 	useDashboardSections,
 	useOnboarding,
 	useSectionDateFilter,
+	useSectionLayoutMigrations,
 } from './hooks';
 import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
@@ -71,6 +72,8 @@ import type { JSX } from 'react';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
+	// Before the layout reads the stored map, so a moved widget lands on its new tab.
+	useSectionLayoutMigrations( sections, hasResolvedSections );
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
 		() => buildWidgetTypeRenames( widgetModules ),

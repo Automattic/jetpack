@@ -371,6 +371,7 @@ jest.mock( './hooks', () => ( {
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
 	useSectionDateFilter: jest.fn(),
+	useSectionLayoutMigrations: jest.fn(),
 } ) );
 
 beforeEach( () => {

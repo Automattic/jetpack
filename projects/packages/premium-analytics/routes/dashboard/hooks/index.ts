@@ -6,3 +6,4 @@ export { useDashboardSections } from './use-dashboard-sections';
 export { useFeedbackBanner } from './use-feedback-banner';
 export { useOnboarding } from './use-onboarding';
 export { useSectionDateFilter } from './use-section-date-filter';
+export { useSectionLayoutMigrations } from './use-section-layout-migrations';

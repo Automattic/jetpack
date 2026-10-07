@@ -16,6 +16,9 @@ export {
 	DASHBOARD_SECTION_LAYOUTS_KEY,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
+/** Preferences key holding the ids of the section layout migrations already applied. */
+export const DASHBOARD_LAYOUT_MIGRATIONS_KEY = 'dashboardLayoutMigrations';
+
 /** Preferences key holding the dashboard grid settings. */
 export const DASHBOARD_GRID_SETTINGS_KEY = 'dashboardGridSettings';
 

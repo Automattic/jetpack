@@ -19,6 +19,12 @@ export {
 export { isDashboardSectionLayouts, type DashboardSectionLayouts } from './section-layouts';
 
 export {
+	SECTION_LAYOUT_MIGRATIONS,
+	migrateSectionLayouts,
+	type SectionLayoutMigration,
+} from './section-layout-migrations';
+
+export {
 	NO_WIDGET_TYPE_RENAMES,
 	buildWidgetTypeRenames,
 	resolveLayoutTypes,
