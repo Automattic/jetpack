@@ -10,10 +10,14 @@ import {
 	resetNotices,
 	setScriptData,
 } from './helpers';
-import type { Services } from '../types';
+import type { Services, Settings } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+
+type User = ReturnType< typeof userEvent.setup >;
+
+const withResources: Settings = { ...baseSettings, disable_resources: false };
 
 const services: Services = {
 	visible: [ 'facebook', 'x' ],
@@ -71,25 +75,37 @@ describe( 'SharingButtonsSection', () => {
 		expect( screen.queryByText( /currently appear on/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'saves the button style as soon as it changes', async () => {
+	it.each( [
+		[
+			'the button style',
+			( user: User ) => user.selectOptions( screen.getByLabelText( 'Button style' ), 'icon' ),
+			{ button_style: 'icon' },
+		],
+		[
+			'Disable CSS and JS',
+			( user: User ) => user.click( screen.getByLabelText( 'Disable CSS and JS' ) ),
+			{ disable_resources: true },
+		],
+	] )( 'saves %s as soon as it changes', async ( _name, interact, data ) => {
 		const user = userEvent.setup();
 		servicesRespond( services );
-		renderWithData( <SharingButtonsSection /> );
+		renderWithData( <SharingButtonsSection />, { settings: withResources } );
 
-		await user.selectOptions( screen.getByLabelText( 'Button style' ), 'icon' );
+		await interact( user );
 
 		await waitFor( () =>
 			expect( apiCalls( 'PUT' ) ).toEqual( [
-				{ path: '/wpcom/v2/sharing-likes/settings', method: 'PUT', data: { button_style: 'icon' } },
+				{ path: '/wpcom/v2/sharing-likes/settings', method: 'PUT', data },
 			] )
 		);
 	} );
 
 	it( 'shows no option the settings route did not offer', () => {
 		servicesRespond( services );
-		const rest = { ...baseSettings };
+		const rest = { ...withResources };
 		delete rest.button_style;
 		delete rest.sharing_label;
+		delete rest.disable_resources;
 		renderWithData( <SharingButtonsSection />, { settings: rest } );
 
 		expect( screen.queryByLabelText( 'Button style' ) ).not.toBeInTheDocument();
