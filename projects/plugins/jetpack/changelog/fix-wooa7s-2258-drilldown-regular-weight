@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Reports: show every row of the Referrers, Clicks, Authors and UTM tables at regular weight; the chevron alone marks a row that expands.

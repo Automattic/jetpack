@@ -17,6 +17,12 @@
 	height: auto;
 }
 
+/* DataViews bolds the title column as a row heading; in a drilldown table the
+ * chevron alone marks a parent, so every depth sits at body weight. */
+.root :global(.dataviews-title-field) {
+	font-weight: var(--wpds-typography-font-weight-default);
+}
+
 /* The one optional override: DataViews renders levels as an unstyled em-dash
  * marker span ("— — "). Hiding it keeps its layout box, so the title content
  * stays indented by depth with plain whitespace. */
