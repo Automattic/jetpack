@@ -6,7 +6,7 @@
 }
 
 .selected-ring__contrast {
-	stroke: var(--a8c-charts-color-background);
+	stroke: var(--a8c-charts-color-background, #fff);
 	stroke-width: calc(4 * var(--wpds-border-width-focus));
 }
 
