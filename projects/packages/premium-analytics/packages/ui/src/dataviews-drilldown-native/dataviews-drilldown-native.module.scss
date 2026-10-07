@@ -17,9 +17,9 @@
 	height: auto;
 }
 
-/* DataViews bolds the title column as a row heading; in a drilldown table the
- * chevron alone marks a parent, so every depth sits at body weight. */
-.root :global(.dataviews-title-field) {
+/* DataViews bolds the title column as a row heading; once a chevron marks a
+ * parent, every depth sits at body weight instead. */
+.collapsible :global(.dataviews-title-field) {
 	font-weight: var(--wpds-typography-font-weight-default);
 }
 
