@@ -55,8 +55,8 @@ function useFeaturesParams(): {
 /**
  * The Features content component.
  *
- * Wraps the tab in its tracking, which needs the grid's state to report what a click was
- * made against — so the state is read here and the content below reads it again.
+ * Online tracking needs the grid's state here to report what a click was made against;
+ * offline content omits the tracking provider.
  *
  * @return The rendered component.
  */

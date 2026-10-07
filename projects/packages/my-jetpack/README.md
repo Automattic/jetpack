@@ -22,6 +22,14 @@ add_action( 'init', function() {
 
 To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );`
 
+### Managing features in offline mode
+
+The offline Features entry is off by default. Register `add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );` before My Jetpack initializes, for example in a must-use plugin, and visit `/wp-admin/admin.php?page=my-jetpack#/features` on a site in offline mode. My Jetpack opens Features without connection onboarding; other hash routes redirect there while preserving the query string. Feature filters, search, layout, and an open feature remain in the URL across reloads.
+
+Users need permission to edit posts and activate plugins, plus manage the network on multisite. The Jetpack plugin keeps its Modules and Settings entry for users who cannot access Features. Local modules can be switched and retain their state after reload. The Features controller refuses to activate modules that require a connection; standalone plugins can still be activated and may run their own activation steps, including Social enabling its module.
+
+The offline page skips product, ownership, notification, and history queries. It does not prevent requests elsewhere in shared Jetpack code: the Search plan lookup with copied credentials and connected-user script data on a cold cache can still contact WordPress.com. Online behavior is unchanged.
+
 ## Architecture
 
 ### Core Components

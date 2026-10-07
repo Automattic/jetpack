@@ -43,22 +43,26 @@ export function withoutPluginForcedOverrides(
 /**
  * Custom hook to retrieve all Jetpack modules.
  *
+ * @param state - Current Features state, used for offline plugin status.
  * @return  An object containing all Jetpack modules.
  */
 export function useAllJetpackModules( state: MainFeaturesState ): {
 	modules: Record< JetpackModuleSlug, MyJetpackModule >;
 	isLoading: boolean;
 } {
-	const { modules, isLoading } = useSelect( select => {
-		if ( isOfflineFeatures() && state.jetpack !== 'active' ) {
-			return { modules: {}, isLoading: false };
-		}
-		// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
-		return {
-			modules: select( modulesStore ).getJetpackModules(),
-			isLoading: select( modulesStore ).areModulesLoading(),
-		};
-	}, [ state.jetpack ] );
+	const { modules, isLoading } = useSelect(
+		select => {
+			if ( isOfflineFeatures() && state.jetpack !== 'active' ) {
+				return { modules: {}, isLoading: false };
+			}
+			// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
+			return {
+				modules: select( modulesStore ).getJetpackModules(),
+				isLoading: select( modulesStore ).areModulesLoading(),
+			};
+		},
+		[ state.jetpack ]
+	);
 	const { data: products } = useAllProducts();
 	const localFeatures = isOfflineFeatures() ? state.features : null;
 
