@@ -20,6 +20,18 @@ import { WidgetRoot, WidgetState } from '@automattic/jetpack-premium-analytics-s
 
 With wp-build, add the `automattic` scope to `wpPlugin.externalNamespaces`. wp-build finds the package installed, sees it declared as a script module (`wpScriptModuleExports`), and leaves the import external; the page import map resolves it to the dashboard's module.
 
+## Field types
+
+The dashboard registers field types for widget attributes under `jpa/`, the namespace its widget type names use. A widget names one by `type` and carries data alone; the host renders the control. `DashboardFieldType` names them.
+
+| Name                 | Control                                                                                                  | Base type |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | --------- |
+| `jpa/select`         | A dropdown over `elements`.                                                                              | `text`    |
+| `jpa/toggle-group`   | The `elements` as segments of one row; icon segments when every option carries an `icon` (`IconOption`). | `text`    |
+| `jpa/array-checkbox` | One checkbox per element, writing the checked values as an array.                                        | `array`   |
+
+`chartTypeAttributeField()` declares the line or bar chart type on `jpa/toggle-group`, so every chart widget's control stays identical.
+
 ## What belongs in it
 
 A name enters the SDK when it is a widget kind, such as `Leaderboard`, or a host capability, such as `WidgetRoot`, `describeError`, `useReport` or the attribute fields. The parts a kind is built from stay inside the dashboard, and so does every dashboard policy value: `Leaderboard` caps the rows it shows, and a widget sizes its own request.

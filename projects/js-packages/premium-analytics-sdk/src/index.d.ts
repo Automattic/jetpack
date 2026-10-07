@@ -5,7 +5,7 @@
  * this package external.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars -- PoC: the contract gets precise types before the package is published. */
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 
 type AnyComponent = ComponentType< any >;
 
@@ -44,6 +44,19 @@ export declare function chartTypeAttributeField< Attributes = any >( options?: a
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;
 export type ReportParamsFieldAttributes = any;
 export type ReportGrain = any;
+
+// Field types the dashboard registers for widget attributes, under the namespace its widget type
+// names use. A widget names one by `type` and carries data alone; the host renders the control.
+export type DashboardFieldType = 'jpa/select' | 'jpa/toggle-group' | 'jpa/array-checkbox';
+
+// An option of a `jpa/toggle-group` attribute. The segments render as icons when every option
+// carries one, with the label as the tooltip and the accessible name.
+export type IconOption< Value = string > = {
+	value: Value;
+	label: string;
+	description?: string;
+	icon: ReactElement;
+};
 
 // Report scope and dates.
 export type ReportParams = any;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Declare the field types the dashboard provides for widget attributes.
