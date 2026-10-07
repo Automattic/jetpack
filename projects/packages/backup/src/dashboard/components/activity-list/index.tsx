@@ -13,7 +13,6 @@ import {
 } from '@wordpress/icons';
 import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
-import { useFinishedRunCount } from '../../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
 import { formatRowDate } from './row-date';
@@ -39,6 +38,8 @@ type Props = {
 	onSelect: ( id: string ) => void;
 	view: View;
 	onChangeView: ( next: View ) => void;
+	/** Count of backup runs watched to the end; a change marks the new row. */
+	finishedRuns: number;
 };
 
 /**
@@ -185,9 +186,16 @@ function getActivityLogUrl(): string | null {
  * @param props.onSelect     - Callback invoked with the new selection id when a row is activated.
  * @param props.view         - DataViews view state.
  * @param props.onChangeView - Callback invoked when the view state changes.
+ * @param props.finishedRuns - Count of backup runs watched to the end.
  * @return The rendered list.
  */
-export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
+export default function ActivityList( {
+	selectedId,
+	onSelect,
+	view,
+	onChangeView,
+	finishedRuns,
+}: Props ) {
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
 	const {
 		items,
@@ -208,7 +216,6 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	const onNewestPage = page === 1 && sortOrder === 'desc';
 	const isReady = onNewestPage && ! isLoading && ! isPlaceholderData;
 	const topBackupId = isReady ? ( items.find( isBackupItem )?.rewindId ?? null ) : null;
-	const finishedRuns = useFinishedRunCount();
 	const { newRowId, clearNewRow } = useNewBackupRow( {
 		finishedRuns,
 		topBackupId,
@@ -375,8 +382,8 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 							{ sprintf(
 								/* translators: %d: number of restore points shown on each page of the list. */
 								_n(
-									"Restore points from your site's activity, newest first. %d per page.",
-									"Restore points from your site's activity, newest first. %d per page.",
+									"Restore points from your site's activity. %d per page.",
+									"Restore points from your site's activity. %d per page.",
 									pageSize,
 									'jetpack-backup-pkg'
 								),

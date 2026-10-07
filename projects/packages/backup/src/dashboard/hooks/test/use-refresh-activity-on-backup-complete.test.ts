@@ -27,32 +27,32 @@ const toPair = ( step: Step ): Pair => ( typeof step === 'string' ? [ step, fals
  * invalidation it asked for.
  *
  * @param steps - States to render, in order; a `[ state, isRequested ]` pair sets the request flag.
- * @return The spy on `invalidateQueries`.
+ * @return The spy on `invalidateQueries` and the hook's last finished-run count.
  */
-function walk( steps: Step[] ): jest.SpyInstance {
+function walk( steps: Step[] ) {
 	const { client, wrapper } = makeWrapper();
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	const [ first, ...rest ] = steps.map( toPair );
-	const { rerender } = renderHook(
+	const { rerender, result } = renderHook(
 		( [ state, isRequested ]: Pair ) => useRefreshActivityOnBackupComplete( state, isRequested ),
 		{ wrapper, initialProps: first }
 	);
 	rest.forEach( pair => rerender( pair ) );
-	return invalidate;
+	return { invalidate, result };
 }
 
 const ACTIVITY_LOG_ROOT = { queryKey: [ 'backup', 'activity-log' ] };
 
 describe( 'useRefreshActivityOnBackupComplete', () => {
 	it( 'refreshes the activity log when a running backup completes', () => {
-		const invalidate = walk( [ 'loading', 'in-progress', 'complete' ] );
+		const { invalidate } = walk( [ 'loading', 'in-progress', 'complete' ] );
 
 		expect( invalidate ).toHaveBeenCalledTimes( 1 );
 		expect( invalidate ).toHaveBeenCalledWith( ACTIVITY_LOG_ROOT );
 	} );
 
 	it( 'stays quiet on a screen where no backup was ever running', () => {
-		const invalidate = walk( [ 'loading', 'complete', 'complete' ] );
+		const { invalidate } = walk( [ 'loading', 'complete', 'complete' ] );
 
 		expect( invalidate ).not.toHaveBeenCalled();
 	} );
@@ -62,7 +62,7 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 	// restore point to fetch, and `pollInterval()` deliberately stops
 	// polling rather than hammering an upstream that just failed.
 	it( 'does not refresh when a running backup drops to an error', () => {
-		const invalidate = walk( [ 'in-progress', 'error' ] );
+		const { invalidate } = walk( [ 'in-progress', 'error' ] );
 
 		expect( invalidate ).not.toHaveBeenCalled();
 	} );
@@ -71,7 +71,7 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 	// across the failed poll, so the reader's retry still refreshes the
 	// list. A previous-state comparison would have forgotten it.
 	it( 'still refreshes when the run is only seen to end after a failed poll', () => {
-		const invalidate = walk( [ 'in-progress', 'error', 'complete' ] );
+		const { invalidate } = walk( [ 'in-progress', 'error', 'complete' ] );
 
 		expect( invalidate ).toHaveBeenCalledTimes( 1 );
 		expect( invalidate ).toHaveBeenCalledWith( ACTIVITY_LOG_ROOT );
@@ -82,7 +82,7 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 	it.each( [ 'will-retry', 'no-good-backups' ] as BackupsState[] )(
 		'refreshes when a running backup ends in %s',
 		state => {
-			const invalidate = walk( [ 'in-progress', state ] );
+			const { invalidate } = walk( [ 'in-progress', state ] );
 
 			expect( invalidate ).toHaveBeenCalledTimes( 1 );
 		}
@@ -91,7 +91,7 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 	// Nothing new has run, so the retry that recovers from a failed poll
 	// on an idle screen must not refresh the list a second time.
 	it( 'does not refresh again when a later poll fails and recovers', () => {
-		const invalidate = walk( [ 'in-progress', 'complete', 'error', 'complete' ] );
+		const { invalidate } = walk( [ 'in-progress', 'complete', 'error', 'complete' ] );
 
 		expect( invalidate ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -99,9 +99,10 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 	// Two finished backups in one session — a reader who clicks "Back up
 	// now" twice — must each get their own refresh.
 	it( 'arms again for the next run', () => {
-		const invalidate = walk( [ 'in-progress', 'complete', 'in-progress', 'complete' ] );
+		const { invalidate, result } = walk( [ 'in-progress', 'complete', 'in-progress', 'complete' ] );
 
 		expect( invalidate ).toHaveBeenCalledTimes( 2 );
+		expect( result.current ).toBe( 2 );
 	} );
 
 	// A `complete` -> `complete` run never shows `in-progress`, so the pending
@@ -118,6 +119,6 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 			0,
 		],
 	] as Array< [ string, Step[], number ] > )( '%s', ( _name, steps, calls ) => {
-		expect( walk( steps ) ).toHaveBeenCalledTimes( calls );
+		expect( walk( steps ).invalidate ).toHaveBeenCalledTimes( calls );
 	} );
 } );
