@@ -15,12 +15,13 @@ export declare function useWidgetRootContext(): any;
 export declare const WidgetState: AnyComponent;
 export declare function describeError( ...args: any[] ): any;
 
-// The states a widget kind renders through `WidgetState`.
-export type WidgetStateError = {
+// The states a widget kind takes from its widget. Not exported: no consumer names them, a kind's
+// props carry them.
+type WidgetStateError = {
 	description: string;
 	actions?: Array< { label: string; onClick: () => void } >;
 };
-export type WidgetStateEmpty = {
+type WidgetStateEmpty = {
 	// The host's icon prop, loose until the contract types icons.
 	icon?: any;
 	description?: string;
