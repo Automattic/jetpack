@@ -7,7 +7,18 @@ interface SelectedSegmentRingProps {
 	d: string;
 }
 
-const toSvgId = ( value: string ) => value.replace( /[^\w-]/g, '-' );
+/**
+ * Encodes `value` for an SVG id, losslessly so distinct chart ids never share a clip path.
+ *
+ * @param value - Any string.
+ * @return `value` with each character outside `[A-Za-z0-9-]` written as `_<hex code point>_`.
+ */
+export const toSvgId = ( value: string ) =>
+	Array.from( value, character =>
+		/[A-Za-z0-9-]/.test( character )
+			? character
+			: `_${ character.codePointAt( 0 )?.toString( 16 ) }_`
+	).join( '' );
 
 /**
  * Marks the selected segment with a two-tone ring drawn inside its edge, so the SVG edge cannot cut it off.
