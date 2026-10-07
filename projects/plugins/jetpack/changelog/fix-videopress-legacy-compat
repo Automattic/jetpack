@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Preserve compatibility with cached videos and legacy Flash parameter validation.
