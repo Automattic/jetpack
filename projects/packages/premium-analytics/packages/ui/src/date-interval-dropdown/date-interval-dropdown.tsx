@@ -119,7 +119,6 @@ export function DateIntervalDropdown( {
 				className={ clsx( 'date-interval-dropdown__lone', triggerProps?.className ) }
 				aria-label={ triggerLabel }
 				disabled
-				focusableWhenDisabled={ false }
 			>
 				<span className="date-interval-dropdown__label">{ getIntervalLabel( value ) }</span>
 			</Button>

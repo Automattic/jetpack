@@ -137,7 +137,8 @@ describe( 'DateIntervalDropdown', () => {
 			expect( onChange ).toHaveBeenCalledWith( 'week' );
 		} );
 
-		it( 'shows a lone bucket without a menu that has nothing to choose', () => {
+		it( 'shows a lone bucket without a menu, still in the tab order', async () => {
+			const user = userEvent.setup();
 			render(
 				<DateIntervalDropdown
 					options={ [ 'hour' ] }
@@ -147,7 +148,11 @@ describe( 'DateIntervalDropdown', () => {
 				/>
 			);
 
-			expect( screen.getByRole( 'button', { name: 'Chart interval: By hours' } ) ).toBeDisabled();
+			await user.tab();
+
+			const trigger = screen.getByRole( 'button', { name: 'Chart interval: By hours' } );
+			expect( trigger ).toHaveFocus();
+			expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );
 	} );
 } );
