@@ -78,6 +78,10 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertFalse( Admin_Menu::remove_menu( Dashboard::MENU_SLUG ) );
 	}
 
+	public function test_init_announces_the_dashboard() {
+		$this->assertGreaterThan( 0, did_action( 'jetpack_protect_dashboard_initialized' ) );
+	}
+
 	public function test_add_menu_runs_before_admin_menu_registers_its_items() {
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
 		$this->assertIsInt( $priority );

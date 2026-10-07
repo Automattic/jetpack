@@ -41,22 +41,13 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	}
 
 	/**
-	 * Whether the Protect dashboard flag is on.
-	 *
-	 * @return bool
-	 */
-	public static function is_enabled() {
-		return Feature_Flags::is_enabled( self::DASHBOARD );
-	}
-
-	/**
 	 * Drop the module from the available list while the flag is off, which also keeps it from loading.
 	 *
 	 * @param array $modules Available modules, keyed by slug.
 	 * @return array
 	 */
 	public static function filter_available_modules( $modules ) {
-		if ( ! self::is_enabled() ) {
+		if ( ! Feature_Flags::is_enabled( self::DASHBOARD ) ) {
 			unset( $modules[ self::MODULE ] );
 		}
 		return $modules;

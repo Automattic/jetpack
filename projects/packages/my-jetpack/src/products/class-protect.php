@@ -7,12 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -441,10 +439,8 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		// The Jetpack plugin's `protect-dashboard` module serves the same page as the standalone plugin.
-		// Modules::is_active() reports every module active on WordPress.com Simple, which has no such page.
-		$dashboard_module_active = ! ( new Host() )->is_wpcom_simple() && ( new Modules() )->is_active( 'protect-dashboard' );
-		if ( static::is_standalone_plugin_active() || $dashboard_module_active ) {
+		// The Protect package's dashboard, loaded by the Jetpack plugin's module, serves the same page as the standalone plugin.
+		if ( static::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' ) ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}

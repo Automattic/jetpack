@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -657,5 +658,48 @@ class Main_Features_Test extends TestCase {
 				$this->assertSame( 'complete', end( $plans ), "Feature {$slug} lists a bundle after Complete." );
 			}
 		}
+	}
+
+	/**
+	 * The modules on offer, and whether Protect should then ship in Jetpack.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_dashboard_offers() {
+		return array(
+			'module on offer'  => array( array( 'protect-dashboard' ), true ),
+			'nothing on offer' => array( array(), false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_protect_dashboard_offers
+	 *
+	 * @param string[] $modules  Modules on offer.
+	 * @param bool     $expected Whether Protect ships in Jetpack.
+	 */
+	#[DataProvider( 'provide_protect_dashboard_offers' )]
+	public function test_protect_ships_in_jetpack_only_while_its_module_is_on_offer( $modules, $expected ) {
+		$offer = static function () use ( $modules ) {
+			return $modules;
+		};
+		// Earlier tests may load the mock Jetpack plugin, which moves get_available() off the standalone filter.
+		$jetpack_offer = static function () use ( $modules ) {
+			return array_fill_keys( $modules, '1.0' );
+		};
+		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
+		$locale = static function () use ( $expected ) {
+			return $expected ? 'protect_dashboard_on_offer' : 'protect_dashboard_not_on_offer';
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		add_filter( 'locale', $locale );
+
+		$delivery = Main_Features::get_feature_definitions()['protect-dashboard']['delivery']['jetpack'];
+
+		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		remove_filter( 'locale', $locale );
+		$this->assertSame( $expected, $delivery );
 	}
 }

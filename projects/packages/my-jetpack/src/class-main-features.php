@@ -365,8 +365,9 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// Only while the Jetpack plugin offers its `protect-dashboard` module, which is behind a feature flag.
-					'jetpack'     => ( new Modules() )->is_module( 'protect-dashboard' ),
+					// Only while the Jetpack plugin offers its flag-gated `protect-dashboard` module.
+					// Not is_module(), which passes any slug when no modules are on offer.
+					'jetpack'     => in_array( 'protect-dashboard', (array) ( new Modules() )->get_available(), true ),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',

@@ -75,6 +75,13 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
+
+		/**
+		 * Fires once the Protect dashboard has wired its hooks, so the page exists.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_protect_dashboard_initialized' );
 	}
 
 	/**
