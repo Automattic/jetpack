@@ -823,7 +823,7 @@ describe( 'BarChart', () => {
 					},
 				},
 			} );
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 
 			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
 			expect( chart.querySelector( '.test-hidden-axis' ) ).toBeNull();
