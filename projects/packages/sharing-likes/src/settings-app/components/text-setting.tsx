@@ -1,5 +1,5 @@
 import { TextControl } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import { useSettings } from '../data/queries';
@@ -30,27 +30,24 @@ export function TextSetting( {
 	const settings = useSettings();
 	const save = useSaveSetting();
 	const saved = settings?.[ settingKey ] ?? '';
-	const [ draft, setDraft ] = useState( saved );
+	// Null follows the stored value; a string is the user's own text until a save lands.
+	const [ draft, setDraft ] = useState< string | null >( null );
 	const [ isSaving, setIsSaving ] = useState( false );
-	const lastSaved = useRef( saved );
+	const value = draft ?? saved;
 
-	// Follow the stored value while the user has nothing of their own in the field.
-	useEffect( () => {
-		setDraft( current => ( current === lastSaved.current ? saved : current ) );
-		lastSaved.current = saved;
-	}, [ saved ] );
-
-	const isDirty = draft !== saved;
+	const isDirty = draft !== null && draft !== saved;
 	useUnsavedChangesWarning( isDirty );
 
 	const handleSave = useCallback( async () => {
+		const submitted = value;
 		setIsSaving( true );
-		const result = await save( settingKey, draft );
+		const result = await save( settingKey, submitted );
 		setIsSaving( false );
+		// Show what the server stored, unless the user typed on during the request.
 		if ( result ) {
-			setDraft( result[ settingKey ] ?? '' );
+			setDraft( current => ( current === submitted ? null : current ) );
 		}
-	}, [ draft, save, settingKey ] );
+	}, [ save, settingKey, value ] );
 
 	if ( ! settings || ! ( settingKey in settings ) ) {
 		return null;
@@ -63,7 +60,7 @@ export function TextSetting( {
 				__nextHasNoMarginBottom
 				label={ label }
 				help={ help }
-				value={ draft }
+				value={ value }
 				onChange={ setDraft }
 			/>
 			<Button variant="solid" disabled={ ! isDirty } loading={ isSaving } onClick={ handleSave }>
