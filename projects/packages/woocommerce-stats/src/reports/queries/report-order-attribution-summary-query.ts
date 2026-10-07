@@ -1,4 +1,7 @@
 /**
+ * External dependencies
+ */
+/**
  * Internal dependencies
  */
 import { fetchReportOrderAttributionByProduct } from '../api/report-order-attribution-by-product-fetch';
@@ -11,7 +14,7 @@ import {
 import { hasProductFilters } from '../utils/product-filters';
 import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { FilterCondition } from '../types/filter-condition';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type ReportOrderAttributionSummaryParams = Parameters<
 	typeof fetchReportOrderAttributionSummary

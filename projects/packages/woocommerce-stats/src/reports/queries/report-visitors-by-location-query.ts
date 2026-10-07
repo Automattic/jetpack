@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportVisitorsByLocation } from '../api/report-visitors-by-location-fetch';
 import { sanitizeReportVisitorsByLocationResponse } from '../processing/visitors-by-location';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportVisitorsByLocationParams = Parameters<
 	typeof fetchReportVisitorsByLocation

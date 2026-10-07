@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportOrders } from '../api/report-orders-fetch';
 import { sanitizeReportOrdersResponse } from '../processing/orders';
 import { resolveReportTimeZone } from '../utils/report-timezone';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportOrdersParams = Parameters< typeof fetchReportOrders >[ 0 ];
 

@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportCoupons } from '../api/report-coupons-fetch';
 import { sanitizeReportCouponsResponse } from '../processing/coupons';
 import { FilterCondition } from '../types/filter-condition';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportCouponsParams = Parameters< typeof fetchReportCoupons >[ 0 ] & {
 	filters?: FilterCondition[];

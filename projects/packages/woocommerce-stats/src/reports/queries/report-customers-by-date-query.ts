@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportCustomersByDate } from '../api/report-customers-by-date-fetch';
 import { sanitizeReportCustomersByDateResponse } from '../processing/customers-by-date';
 import { resolveReportTimeZone } from '../utils/report-timezone';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportCustomersByDateParams = Parameters< typeof fetchReportCustomersByDate >[ 0 ];
 

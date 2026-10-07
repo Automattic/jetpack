@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportSessionsByDevice } from '../api/report-sessions-by-device-fetch';
 import { sanitizeReportSessionsByDeviceResponse } from '../processing/sessions-by-device';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportSessionsByDeviceParams = Parameters< typeof fetchReportSessionsByDevice >[ 0 ];
 

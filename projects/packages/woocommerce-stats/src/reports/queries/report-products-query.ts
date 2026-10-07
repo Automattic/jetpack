@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportProducts } from '../api/report-products-fetch';
 import { sanitizeReportProductsResponse } from '../processing/products';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportProductsParams = Parameters< typeof fetchReportProducts >[ 0 ];
 

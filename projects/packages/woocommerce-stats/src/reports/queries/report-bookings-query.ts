@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-
 /**
  * Internal dependencies
  */
 import { fetchReportBookings } from '../api/report-bookings-fetch';
 import { sanitizeReportBookingsResponse } from '../processing/bookings';
 import { resolveReportTimeZone } from '../utils/report-timezone';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportBookingsParams = Parameters< typeof fetchReportBookings >[ 0 ];
 
