@@ -8,8 +8,8 @@
  */
 
 /**
- * The scope and the section-layouts key live in the widgets toolkit, which the feedback
- * modal reads them from without being able to import this route.
+ * Re-exported from the widgets toolkit, which the feedback modal reads them from
+ * without being able to import this route.
  */
 export {
 	DASHBOARD_PREFERENCES_SCOPE,

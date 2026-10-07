@@ -86,6 +86,18 @@ describe( 'default report params', () => {
 			expect( getDefaultPreset() ).toBe( preset );
 		} );
 
+		it( 'opens on the last 7 days when the browser blocks storage', () => {
+			const getItem = jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+				throw new DOMException( 'denied', 'SecurityError' );
+			} );
+
+			try {
+				expect( getDefaultPreset() ).toBe( 'last-7-days' );
+			} finally {
+				getItem.mockRestore();
+			}
+		} );
+
 		it( 'falls back to the v1 key from before it was per site', () => {
 			window.localStorage.setItem( 'jetpack_stats_stored_date_range_shortcut_id', 'today' );
 

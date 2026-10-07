@@ -105,7 +105,7 @@ export function defaultReportParamsForGrain( { presetIds }: ReportGrain = {} ): 
 }
 
 // A widget saved before the field existed carries no params; the picker falls
-// back to the store defaults through `normalizeReportParams`.
+// back to the default preset through `normalizeReportParams`.
 const NO_REPORT_PARAMS: ReportParams = {};
 
 /**

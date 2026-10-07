@@ -41,6 +41,23 @@ describe( 'useRememberAppliedPreset', () => {
 		expect( remembered() ).toBe( 'last-30-days' );
 	} );
 
+	// Every preferences set saves to the server.
+	it( 'does not save again when the reader re-applies the remembered preset', () => {
+		const actions = dispatch( preferencesStore ) as unknown as PreferencesActions;
+		const set = jest.spyOn( actions, 'set' );
+		const { result } = renderHook( () => useRememberAppliedPreset() );
+
+		act( () => {
+			result.current.onChange( RANGE, 'last-30-days' );
+			result.current.onApply();
+			result.current.onChange( RANGE, 'last-30-days' );
+			result.current.onApply();
+		} );
+
+		expect( set ).toHaveBeenCalledTimes( 1 );
+		set.mockRestore();
+	} );
+
 	it.each( [
 		[ 'a custom range', undefined ],
 		[ 'a year', 'year-2024' ],

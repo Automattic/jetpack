@@ -41,6 +41,9 @@ let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
 const mockResetLayout = jest.fn();
+const mockRememberOnChange = jest.fn();
+const mockRememberOnApply = jest.fn();
+let mockDateFiltersPanelProps: { onChange: ( ...args: unknown[] ) => void; onApply: () => void };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
@@ -83,13 +86,21 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: { attentionId?: number; withIntervalControl?: boolean } ) => (
-		<>
-			<MockHeaderScopeProbe />
-			<MockAttentionProbe { ...props } />
-			{ props.withIntervalControl && <span>header interval</span> }
-		</>
-	),
+	DateFiltersPanel: (
+		props: typeof mockDateFiltersPanelProps & {
+			attentionId?: number;
+			withIntervalControl?: boolean;
+		}
+	) => {
+		mockDateFiltersPanelProps = props;
+		return (
+			<>
+				<MockHeaderScopeProbe />
+				<MockAttentionProbe { ...props } />
+				{ props.withIntervalControl && <span>header interval</span> }
+			</>
+		);
+	},
 	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
 		.PeriodChangeStatus,
 	DateIntervalDropdown: () => <span>interval control</span>,
@@ -370,7 +381,10 @@ jest.mock( './hooks', () => ( {
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
-	useRememberAppliedPreset: () => ( { onChange: jest.fn(), onApply: jest.fn() } ),
+	useRememberAppliedPreset: () => ( {
+		onChange: mockRememberOnChange,
+		onApply: mockRememberOnApply,
+	} ),
 	useSectionDateFilter: jest.fn(),
 } ) );
 
@@ -900,6 +914,19 @@ describe( 'Dashboard header date control', () => {
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'header interval' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'remembers a preset applied from the header', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.onChange( JULY_2026, 'last-30-days' );
+			mockDateFiltersPanelProps.onApply();
+		} );
+
+		expect( mockRememberOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-30-days' );
+		expect( mockRememberOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {
