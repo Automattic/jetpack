@@ -59,21 +59,43 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
- * Whether the Store dashboard section should be exposed.
+ * Whether the site shows the Store dashboard section to readers who may see store data.
  *
  * The site's own opt-in needs the Store flag; the blog sticker and the
  * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_store_dashboard_section_enabled_on_site() {
+	// An older copy of the package may have loaded dashboard-policy.php without the flag.
+	$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
+		|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
+
+	return $is_enabled && is_woocommerce_dashboard_section_available();
+}
+
+/**
+ * Whether the Store dashboard section should be exposed.
  *
  * @since 0.10.0
  *
  * @return bool
  */
 function is_store_dashboard_section_available() {
-	// An older copy of the package may have loaded dashboard-policy.php without the flag.
-	$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
-		|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
+	return is_store_dashboard_section_enabled_on_site() && Capabilities::current_user_can_view_store_reports();
+}
 
-	return $is_enabled && is_woocommerce_dashboard_section_available_to_current_user();
+/**
+ * Whether the current user should be shown a section of Stats reports.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_stats_dashboard_section_available() {
+	return Capabilities::current_user_can_view_stats();
 }
 
 /**
@@ -84,9 +106,14 @@ function is_store_dashboard_section_available() {
  *
  * @since 0.3.0
  *
- * @return bool True when the subscriptions module is active.
+ * @return bool True when the subscriptions module is active and the reader may see Stats.
  */
 function is_subscribers_dashboard_section_available() {
+	// Outside the filter, which answers only whether the module is there.
+	if ( ! Capabilities::current_user_can_view_stats() ) {
+		return false;
+	}
+
 	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
 
 	/**
@@ -363,6 +390,7 @@ function register_default_dashboard_sections( $registry = null ) {
 			'label'               => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 10,
+			'is_available'        => __NAMESPACE__ . '\\is_stats_dashboard_section_available',
 			// Only the Traffic summary groups by interval, and it saves its own.
 			'date_filter_options' => array(
 				'with_header_interval_control' => false,
@@ -373,6 +401,7 @@ function register_default_dashboard_sections( $registry = null ) {
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 20,
+			'is_available'        => __NAMESPACE__ . '\\is_stats_dashboard_section_available',
 			// Insights reads whole history: all time and single years, with nothing
 			// to compare them against. Most widgets have fixed periods of their own,
 			// so no header control; Highlights hosts the only year control.

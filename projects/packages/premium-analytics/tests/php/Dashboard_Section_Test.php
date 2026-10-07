@@ -940,6 +940,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Built-in Premium Analytics sections are registered in the expected order.
 	 */
 	public function test_registers_built_in_dashboard_sections() {
+		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		register_default_dashboard_sections();
@@ -1048,6 +1049,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * A site without a local module system keeps the tab.
 	 */
 	public function test_registers_subscribers_dashboard_section_without_a_module_system() {
+		$this->set_admin_user();
 		register_default_dashboard_sections();
 
 		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
@@ -1066,6 +1068,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_omits_subscribers_dashboard_section_when_module_is_inactive() {
+		$this->set_admin_user();
 		$this->fake_jetpack_plugin();
 
 		register_default_dashboard_sections();
@@ -1090,6 +1093,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_registers_subscribers_dashboard_section_when_module_is_active() {
+		$this->set_admin_user();
 		$this->fake_jetpack_plugin();
 		$this->activate_module( 'subscriptions' );
 
@@ -1111,6 +1115,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_wpcom_simple_offers_subscribers_dashboard_section_without_the_module() {
+		$this->set_admin_user();
 		$this->fake_jetpack_plugin();
 		if ( ! defined( 'IS_WPCOM' ) ) {
 			define( 'IS_WPCOM', true );
@@ -1217,7 +1222,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 
 		$this->assertNull( get_available_dashboard_section_slugs() );
-		$this->assertSame( array(), inject_dashboard_sections_script_data( array() ) );
+		$this->assertArrayNotHasKey( 'sections', inject_dashboard_sections_script_data( array() )['premium_analytics'] );
 	}
 
 	/**
@@ -1247,10 +1252,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array(), get_available_dashboard_section_slugs() );
-		$this->assertSame(
-			array( 'sections' => array() ),
-			inject_dashboard_sections_script_data( array() )['premium_analytics']
-		);
+		$this->assertSame( array(), inject_dashboard_sections_script_data( array() )['premium_analytics']['sections'] );
 	}
 
 	/**
@@ -1302,6 +1304,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'has_videopress' => true,
+				'can_view_stats' => true,
 				'sections'       => array( 'traffic', 'insights', 'subscribers' ),
 			),
 			$data['premium_analytics']
@@ -1343,6 +1346,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 200, $response->get_status() );
+	}
+
+	/**
+	 * A shop manager's dashboard holds no Stats tab: every widget on one would answer 403.
+	 */
+	public function test_store_only_reader_gets_no_stats_section() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_dashboard_sections_shop_manager',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		// WorDBless has no shop_manager role, so grant the capability the role would carry.
+		( new \WP_User( $user_id ) )->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $user_id );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array(), $this->available_section_ids() );
 	}
 
 	/**

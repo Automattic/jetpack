@@ -9,10 +9,12 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Capabilities
@@ -34,6 +36,9 @@ class Capabilities_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_analytics_capabilities();
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -204,14 +209,70 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Store access is not dashboard access: the capability that opens the store
-	 * reports says nothing about who may read stats.
+	 * A shop manager reaches the dashboard only where the site shows the store tab, since that
+	 * is all they can read there.
+	 *
+	 * @dataProvider provide_store_section_states
+	 *
+	 * @param bool $has_woocommerce Whether WooCommerce is active.
+	 * @param bool $site_opted_in   Whether the site's own option switched the dashboard on.
+	 * @param bool $expected        Whether the shop manager may view the dashboard.
 	 */
-	public function test_woocommerce_report_viewer_is_not_a_dashboard_reader() {
+	#[DataProvider( 'provide_store_section_states' )]
+	public function test_woocommerce_report_viewer_reads_the_dashboard_only_where_the_store_tab_shows( $has_woocommerce, $site_opted_in, $expected ) {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $has_woocommerce ? '__return_true' : '__return_false' );
+		update_option( Enablement_Setting::ENABLED_OPTION, $site_opted_in ? 1 : 0 );
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
-		$this->assertTrue( Capabilities::current_user_can_view_store_reports() );
-		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+		$this->assertSame( $expected, Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_stats() );
+	}
+
+	/**
+	 * Store tab states, by what decides them.
+	 *
+	 * @return array<string, array{bool, bool, bool}>
+	 */
+	public static function provide_store_section_states() {
+		return array(
+			'store tab shown'             => array( true, false, true ),
+			'no WooCommerce'              => array( false, false, false ),
+			'site opt-in, store flag off' => array( true, true, false ),
+		);
+	}
+
+	/**
+	 * The mapping answers for the user asked about, not whoever is logged in.
+	 */
+	public function test_mapping_checks_the_given_user() {
+		$editor = $this->login_as( 'editor' );
+		$this->login_as( 'administrator' );
+
+		$this->assertFalse( user_can( $editor, Capabilities::VIEW_ANALYTICS ) );
+	}
+
+	/**
+	 * Pins the Stats helper to what the proxy enforces for a Stats prefix, for the same reason
+	 * as the store helper above.
+	 */
+	public function test_stats_helper_matches_the_proxy_capability() {
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/stats/top-posts' );
+		$request->set_param( 'endpoint', 'stats/top-posts' );
+
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+
+		$shop_manager = $this->login_as( 'subscriber' );
+		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+		$this->assertFalse( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+
+		$this->login_as( 'administrator' );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 	}
 }

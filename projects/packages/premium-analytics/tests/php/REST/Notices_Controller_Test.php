@@ -11,6 +11,9 @@ use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_REST_Server;
+use const Automattic\Jetpack\PremiumAnalytics\WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER;
+
+require_once __DIR__ . '/../../../src/default-dashboard-sections.php';
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller
@@ -49,6 +52,7 @@ class Notices_Controller_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Capabilities::unregister();
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
 		parent::tear_down();
 	}
@@ -122,6 +126,25 @@ class Notices_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		$this->assertTrue( $this->controller->check_permission() );
+	}
+
+	/**
+	 * A shop manager reads the dashboard's store tab, but the notices are Stats notices.
+	 */
+	public function test_permission_denied_for_a_store_only_reader() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_notices_shop_manager',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		( new \WP_User( $user_id ) )->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics(), 'The reader must reach the dashboard, or this proves nothing.' );
+		$this->assertFalse( $this->controller->check_permission() );
 	}
 
 	public function test_permission_denied_for_anonymous_user() {

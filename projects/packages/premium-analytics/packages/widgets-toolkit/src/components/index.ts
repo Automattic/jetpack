@@ -181,6 +181,7 @@ export {
 } from './detail-page';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
+	canSendFeedback,
 	FeedbackModal,
 	PageOptionsMenu,
 	type FeedbackSource,

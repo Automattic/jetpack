@@ -228,6 +228,8 @@ class Analytics {
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
 	 * a bool, and one capability check.
 	 *
+	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
 	 */
@@ -235,7 +237,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'can_view'  => Capabilities::current_user_can_view_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 

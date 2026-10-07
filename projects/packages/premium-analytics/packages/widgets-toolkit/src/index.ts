@@ -135,6 +135,7 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	canSendFeedback,
 	FeedbackModal,
 	type FeedbackSource,
 	PageNotice,
