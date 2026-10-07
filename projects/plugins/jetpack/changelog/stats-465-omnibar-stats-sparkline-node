@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Omnibar: Return the Stats chart node from the admin-bar REST endpoint.
+Omnibar: Return the Stats chart node from the admin-bar REST endpoint, and the admin bar to every role on the site rather than administrators only.
