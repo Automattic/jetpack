@@ -29,7 +29,7 @@ export type ConnectionErrorStanding = {
  * Hook to determine the connection state of the site and user.
  *
  * @param {ConnectionErrorStanding} error                      - What the connection package reported, read by the card so the two agree on one rating.
- * @param {boolean}                 shouldAskForUserConnection - Whether to ask for a user connection: a product in use needs one, or that is not known yet.
+ * @param {boolean}                 shouldAskForUserConnection - Whether to ask for a user connection.
  * @return The connection state
  */
 export function useConnectionState(
