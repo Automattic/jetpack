@@ -1,0 +1,82 @@
+name: xz benchmark (all cores)
+on:
+  push:
+    branches:
+      - 'try/ci/xz_testing'
+
+permissions:
+  # Downloading another run's artifact.
+  actions: read
+  contents: read
+
+jobs:
+  source:
+    name: Find source artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      id: ${{ steps.find.outputs.id }}
+    steps:
+      - id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ID=$( gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=jetpack-build.tar.xz&per_page=100" --jq '[ .artifacts[] | select( .expired == false and .workflow_run.head_branch == "trunk" ) ][0].id' )
+          [[ -n "$ID" && "$ID" != null ]] || { echo "::error::No unexpired trunk jetpack-build.tar.xz found."; exit 1; }
+          echo "id=$ID" >> "$GITHUB_OUTPUT"
+
+  bench:
+    name: ${{ matrix.variant }} ${{ matrix.iteration }}
+    runs-on: ubuntu-latest
+    needs: source
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        iteration: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+        variant: [ all-cores ]
+        include:
+          - variant: all-cores
+            xz_opt: -T0
+            tar_flags: -vv
+    env:
+      BUILD_BASE: ${{ github.workspace }}/build
+    steps:
+      - name: Download and extract source build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ID: ${{ needs.source.outputs.id }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ID/zip" > source.tar.xz
+          tar --xz -xf source.tar.xz build
+          rm source.tar.xz
+
+      - name: Create archive
+        env:
+          XZ_OPT: ${{ matrix.xz_opt }}
+          TAR_FLAGS: ${{ matrix.tar_flags }}
+        run: |
+          START=$EPOCHREALTIME
+          # shellcheck disable=SC2086
+          tar --owner=0 --group=0 --xz -c $TAR_FLAGS -f jetpack-build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
+          echo "CREATE=$( awk -v s="$START" -v e="$EPOCHREALTIME" 'BEGIN { printf "%.3f", e - s }' )" >> "$GITHUB_ENV"
+          echo "SIZE=$( stat -c %s jetpack-build.tar.xz )" >> "$GITHUB_ENV"
+
+      - name: Extract archive
+        env:
+          XZ_OPT: ${{ matrix.xz_opt }}
+          TAR_FLAGS: ${{ matrix.tar_flags }}
+        run: |
+          mkdir extracted
+          START=$EPOCHREALTIME
+          # shellcheck disable=SC2086
+          tar --xz -x $TAR_FLAGS -f jetpack-build.tar.xz -C extracted build
+          echo "EXTRACT=$( awk -v s="$START" -v e="$EPOCHREALTIME" 'BEGIN { printf "%.3f", e - s }' )" >> "$GITHUB_ENV"
+
+      - name: Record timing
+        env:
+          VARIANT: ${{ matrix.variant }}
+          ITERATION: ${{ matrix.iteration }}
+        run: |
+          jq -n --arg variant "$VARIANT" --argjson iteration "$ITERATION" --argjson create "$CREATE" --argjson extract "$EXTRACT" --argjson size "$SIZE" \
+            '{ $variant, $iteration, $create, $extract, $size }'
