@@ -11,6 +11,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { SUBSCRIPTIONS_SECTION_ID } from '../anchors';
 import { getNewsletterScriptData } from '../script-data';
 import { PlacementCard } from './placement-card';
 import {
@@ -227,7 +228,7 @@ export function SubscriptionsSection( {
 	}, [ siteType ] );
 
 	return (
-		<Card.Root>
+		<Card.Root id={ SUBSCRIPTIONS_SECTION_ID }>
 			<Card.Header>
 				<Card.Title>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
