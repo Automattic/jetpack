@@ -11,7 +11,6 @@ const { onClickGoBack } = useGoBack( { slug } );
 The `useGoBack()` hooks returns an object with the following properties:
 
 ### onClickGoBack
-
 The handler with analytics call
 
 ```es6
