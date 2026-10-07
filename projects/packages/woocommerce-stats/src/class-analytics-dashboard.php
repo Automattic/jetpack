@@ -105,7 +105,7 @@ class Analytics_Dashboard {
 	 */
 	public static function get_default_layout() {
 		return array(
-			get_dashboard_default_widget_instance( 'default-net-sales-over-time-widget-instance', self::NET_SALES_OVER_TIME_TYPE, 0, 1, 1 ),
+			get_dashboard_default_widget_instance( 'default-net-sales-over-time-widget-instance', self::NET_SALES_OVER_TIME_TYPE, 0, 1, 2 ),
 		);
 	}
 
