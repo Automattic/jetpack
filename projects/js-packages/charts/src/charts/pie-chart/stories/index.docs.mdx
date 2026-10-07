@@ -141,6 +141,31 @@ The chart validates:
 - **Negative values**: Prevents invalid negative values
 - **Single data points**: Handles edge cases gracefully
 
+## Accessibility
+
+### Keyboard Navigation
+
+The chart container is focusable and has `role="application"`, so screen readers pass arrow keys through to the chart.
+
+- **Tab**: Focus the chart
+- **Right and Left Arrow**: Move through the segments in the order they appear, clockwise from 12 o'clock. Selection stops at the first and last segment
+- **Tooltips**: The selected segment is outlined. With `withTooltips`, its tooltip opens at the segment and takes focus. Without `withTooltips`, screen readers announce the segment's label and value
+- **Escape**: Clear the selection
+- **Tab**: Leave the chart
+- **Pointer**: Hovering a segment ends a keyboard selection
+
+### Accessible Name
+
+Set `ariaLabel` to name the chart after what it shows. The default is "Pie chart". Each chart is a landmark, so two charts on one page need different names.
+
+<Source
+	language="jsx"
+	code={ `<PieChart
+		data={ data }
+		ariaLabel="Visitors by operating system"
+	/>` }
+/>
+
 ## Legends
 
 Use the composition API to add a legend by placing `<PieChart.Legend />` as a child:
