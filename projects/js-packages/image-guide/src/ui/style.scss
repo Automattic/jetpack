@@ -1,5 +1,5 @@
 // :where() keeps nested scopes from adding specificity.
-// Physical properties are kept from Svelte because the overlay is positioned
+// Physical properties on purpose: the overlay is positioned
 // in physical coordinates.
 
 div.jb-ig-logo {
@@ -213,6 +213,19 @@ a.documentation.jb-ig-popup {
 	line-height: 1.55;
 	padding: 20px;
 	left: 0;
+	// Override theme typography.
+	font-size: 15px !important;
+	font-family:
+		Inter,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		"Helvetica Neue",
+		sans-serif !important;
 }
 
 .guide.small.jb-ig-main {
@@ -226,22 +239,6 @@ a.documentation.jb-ig-popup {
 
 .guide.show.jb-ig-main {
 	z-index: 9000;
-}
-
-// Override theme typography.
-.guide.jb-ig-main {
-	font-size: 15px !important;
-	font-family:
-		Inter,
-		-apple-system,
-		BlinkMacSystemFont,
-		"Segoe UI",
-		Roboto,
-		Oxygen-Sans,
-		Ubuntu,
-		Cantarell,
-		"Helvetica Neue",
-		sans-serif !important;
 }
 
 .previews.jb-ig-main {
