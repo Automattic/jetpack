@@ -838,17 +838,28 @@ describe( 'PieChart', () => {
 			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 		} );
 
-		test( 'hovering a segment ends the keyboard selection', async () => {
-			const user = userEvent.setup();
-			render( <PieChart data={ data } withTooltips /> );
+		test.each( [
+			[ true, [ 'Linux: 22K' ] ],
+			[ false, [] ],
+		] )(
+			'hovering a segment ends the keyboard selection (withTooltips %p)',
+			async ( withTooltips, tooltips ) => {
+				const user = userEvent.setup();
+				render( <PieChart data={ data } withTooltips={ withTooltips } /> );
 
-			await user.tab();
-			await user.keyboard( '{ArrowRight}' );
-			await user.hover( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+				await user.tab();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'pie-selected-ring' ) ).toBeInTheDocument();
 
-			expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Linux' );
-		} );
+				await user.hover( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+
+				expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.queryAllByRole( 'tooltip' ).map( tooltip => tooltip.textContent ) ).toEqual(
+					tooltips
+				);
+			}
+		);
 	} );
 } );
 
