@@ -156,7 +156,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// Plugins rather than product status, so the plan doesn't decide.
+	// Checks each product's plugin rather than its status, so a product on a free plan still counts.
 	const shouldAskForUserConnection = Object.values(
 		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
 	).some( product => product?.requires_user_connection && product.is_plugin_active );
