@@ -174,6 +174,20 @@ describe( 'ComparativeLineChart', () => {
 		setSettings( originalSettings );
 	} );
 
+	it( 'names the chart with ariaLabel', () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				ariaLabel="Traffic summary"
+			/>
+		);
+
+		expect( mockLineChartSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
+		);
+	} );
+
 	// `useChartMargin` sizes the gutters itself; overriding them here clipped the edge dates.
 	it.each( [
 		[ 'by default', DATA_FORMAT ],

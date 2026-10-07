@@ -180,6 +180,24 @@ describe( 'MetricTabsChart', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'line', mockLineSpy ],
+		[ 'bar', mockBarSpy ],
+	] as const )( 'names the %s chart with ariaLabel', ( type, spy ) => {
+		render(
+			<MetricTabsChart
+				metrics={ [ METRIC ] }
+				dataFormat={ DATA_FORMAT }
+				chartType={ type }
+				ariaLabel="Traffic summary"
+			/>
+		);
+
+		expect( spy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
+		);
+	} );
+
 	it( 'keeps the previous period as a same-group comparison series in both chart types', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );

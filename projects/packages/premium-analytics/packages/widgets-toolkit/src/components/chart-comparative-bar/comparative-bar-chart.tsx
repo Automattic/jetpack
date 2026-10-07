@@ -55,6 +55,9 @@ export type ComparativeBarChartProps = {
 
 	className?: string;
 
+	/** Accessible name of the chart; name it after what it shows, such as the widget title. */
+	ariaLabel?: string;
+
 	/** Format for chart values: y-axis ticks and tooltips. */
 	dataFormat: DataFormat;
 
@@ -124,6 +127,7 @@ export function ComparativeBarChart( {
 	series,
 	className,
 	chartId: providedChartId,
+	ariaLabel,
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
@@ -314,6 +318,7 @@ export function ComparativeBarChart( {
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
+				ariaLabel={ ariaLabel }
 				className={ styles.chartContent }
 				data={ alignedSeries }
 				options={ chartOptions }
