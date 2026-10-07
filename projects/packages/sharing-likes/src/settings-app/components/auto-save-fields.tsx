@@ -2,7 +2,7 @@ import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { useSettings } from '../data/queries';
 import { useSaveSetting } from '../data/use-save-setting';
-import { BoxRow } from './section-box';
+import { SettingGroup } from './section-card';
 import type { SettingKey, Settings } from '../types';
 import type { JSX } from 'react';
 
@@ -34,14 +34,14 @@ export function AutoSaveFields( { fields }: { fields: Field< Settings >[] } ): J
 	return (
 		<>
 			{ offered.map( field => (
-				<BoxRow key={ field.id }>
+				<SettingGroup key={ field.id }>
 					<DataForm< Settings >
 						data={ settings }
 						fields={ [ field ] }
 						form={ { layout: { type: 'regular', labelPosition: 'top' }, fields: [ field.id ] } }
 						onChange={ handleChange }
 					/>
-				</BoxRow>
+				</SettingGroup>
 			) ) }
 		</>
 	);

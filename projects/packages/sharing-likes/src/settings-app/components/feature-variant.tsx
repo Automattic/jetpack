@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, LinkButton, Notice, Text } from '@wordpress/ui';
 import { useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
-import { BoxRow } from './section-box';
+import { SettingGroup } from './section-card';
 import type { Feature, SectionState } from '../types';
 import type { JSX, ReactNode } from 'react';
 
@@ -91,32 +91,32 @@ export function FeatureVariant( {
 	switch ( state ) {
 		case 'block_call_to_action':
 			content = (
-				<BoxRow>
+				<SettingGroup>
 					<Text render={ <p /> }>{ copy.addBlock }</Text>
 					<div>
 						<LinkButton variant="outline" href={ status?.site_editor_url ?? '' }>
 							{ __( 'Open Site Editor', 'jetpack-sharing-likes' ) }
 						</LinkButton>
 					</div>
-				</BoxRow>
+				</SettingGroup>
 			);
 			break;
 		case 'off':
 			content = (
-				<BoxRow>
+				<SettingGroup>
 					<Text render={ <p /> }>{ copy.off }</Text>
 					<div>
 						<Button variant="outline" loading={ isPending } onClick={ activate }>
 							{ copy.turnOn }
 						</Button>
 					</div>
-				</BoxRow>
+				</SettingGroup>
 			);
 			break;
 		case 'configure_with_block_nudge':
 			content = (
 				<>
-					<BoxRow>
+					<SettingGroup>
 						<Notice.Root intent="info">
 							<Notice.Description>{ copy.nudge }</Notice.Description>
 							<Notice.Actions>
@@ -130,7 +130,7 @@ export function FeatureVariant( {
 								</Button>
 							</Notice.Actions>
 						</Notice.Root>
-					</BoxRow>
+					</SettingGroup>
 					{ children }
 				</>
 			);

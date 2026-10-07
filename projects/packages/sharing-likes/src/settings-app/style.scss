@@ -7,53 +7,22 @@
 body.settings_page_sharing {
 
 	@include jetpack-admin-page-layout-wp-build;
+
+	// Newsletter's off-white canvas, so the white cards stand out.
+	// `AdminPage` paints both of these white by default.
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: var(--wpds-color-background-surface-neutral);
+	}
 }
 
-// The content column other Jetpack wp-build pages use.
+// The content column other Jetpack settings pages use.
 .jetpack-sharing-likes {
 	box-sizing: border-box;
 	max-inline-size: 708px;
 	margin-inline: auto;
 	padding: var(--wpds-dimension-padding-2xl);
-}
-
-.jetpack-sharing-likes__box {
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral-strong);
-}
-
-.jetpack-sharing-likes__box-header {
-	padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
-}
-
-.jetpack-sharing-likes__box-icon {
-	flex-shrink: 0;
-	fill: currentColor;
-}
-
-// wp-admin gives every h2 and p its own margins.
-.jetpack-sharing-likes__box-title,
-.jetpack-sharing-likes__box-row p {
-	margin: 0;
-}
-
-.jetpack-sharing-likes__box-badge {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-.jetpack-sharing-likes__box-description {
-	margin: 0;
-	padding: 0 var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
-	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-}
-
-.jetpack-sharing-likes__box-row {
-	padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
-
-	& + & {
-		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	}
 }
 
 // Focused after "Turn on" or "Switch to the … block", never tabbed to.

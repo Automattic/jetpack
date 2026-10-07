@@ -1,10 +1,9 @@
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { layout } from '@wordpress/icons';
 import { PLACEMENT_ANCHOR } from '../anchors';
 import { AutoSaveFields } from '../components/auto-save-fields';
 import { CheckboxGroupEdit } from '../components/controls';
-import { SectionBox } from '../components/section-box';
+import { SectionCard } from '../components/section-card';
 import { useStatus } from '../data/queries';
 import { placementHeading } from '../placement';
 import { getPlacementChoices } from '../script-data';
@@ -38,9 +37,8 @@ export function PlacementSection(): JSX.Element | null {
 	}
 
 	return (
-		<SectionBox
+		<SectionCard
 			id={ PLACEMENT_ANCHOR }
-			icon={ layout }
 			title={ heading }
 			description={ __(
 				'These choices apply to every feature named in the heading.',
@@ -48,6 +46,6 @@ export function PlacementSection(): JSX.Element | null {
 			) }
 		>
 			<AutoSaveFields fields={ fields } />
-		</SectionBox>
+		</SectionCard>
 	);
 }

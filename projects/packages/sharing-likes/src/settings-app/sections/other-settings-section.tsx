@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { cog } from '@wordpress/icons';
-import { SectionBox } from '../components/section-box';
+import { SectionCard } from '../components/section-card';
 import { TextSetting } from '../components/text-setting';
 import { useSettings } from '../data/queries';
 import type { JSX } from 'react';
@@ -17,8 +16,7 @@ export function OtherSettingsSection(): JSX.Element | null {
 	}
 
 	return (
-		<SectionBox
-			icon={ cog }
+		<SectionCard
 			title={ __( 'Other settings', 'jetpack-sharing-likes' ) }
 			description={ __(
 				'Used by Twitter Cards and the Sharing Buttons block.',
@@ -33,6 +31,6 @@ export function OtherSettingsSection(): JSX.Element | null {
 					'jetpack-sharing-likes'
 				) }
 			/>
-		</SectionBox>
+		</SectionCard>
 	);
 }

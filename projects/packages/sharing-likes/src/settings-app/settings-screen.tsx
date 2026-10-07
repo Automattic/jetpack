@@ -90,7 +90,7 @@ export function SettingsScreen(): JSX.Element {
 			apiRoot={ siteData?.rest_root }
 			apiNonce={ siteData?.rest_nonce }
 		>
-			<Stack direction="column" gap="lg" className="jetpack-sharing-likes">
+			<Stack direction="column" gap="xl" className="jetpack-sharing-likes">
 				{ ! scriptData ? (
 					<Notice.Root intent="error">
 						<Notice.Description>

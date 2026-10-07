@@ -1,14 +1,12 @@
 import { useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { starEmpty } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { LIKES_ANCHOR } from '../anchors';
 import { AutoSaveFields } from '../components/auto-save-fields';
 import { booleanRadioEdit } from '../components/controls';
 import { FeatureVariant } from '../components/feature-variant';
 import { PlacementSummary } from '../components/placement-summary';
-import { BoxRow, SectionBox } from '../components/section-box';
-import { featureBadge, onOffBadge } from '../components/status-badge';
+import { SectionCard, SettingGroup } from '../components/section-card';
 import { useStatus } from '../data/queries';
 import { configures, type Settings } from '../types';
 import type { Field } from '@wordpress/dataviews';
@@ -77,35 +75,23 @@ export function LikeButtonsSection(): JSX.Element | null {
 	// The screen needs Simple, a connection or offline mode, so offline mode is the only way here.
 	if ( ! status.likes.supported ) {
 		return (
-			<SectionBox
-				id={ LIKES_ANCHOR }
-				icon={ starEmpty }
-				title={ title }
-				badge={ onOffBadge( false ) }
-				description={ description }
-			>
-				<BoxRow>
+			<SectionCard id={ LIKES_ANCHOR } title={ title } description={ description }>
+				<SettingGroup>
 					<Text render={ <p /> }>
 						{ __(
 							'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.',
 							'jetpack-sharing-likes'
 						) }
 					</Text>
-				</BoxRow>
-			</SectionBox>
+				</SettingGroup>
+			</SectionCard>
 		);
 	}
 
 	const state = status.likes.state;
 
 	return (
-		<SectionBox
-			id={ LIKES_ANCHOR }
-			icon={ starEmpty }
-			title={ title }
-			badge={ featureBadge( state ) }
-			description={ description }
-		>
+		<SectionCard id={ LIKES_ANCHOR } title={ title } description={ description }>
 			<FeatureVariant feature="likes" state={ state }>
 				{ configures( state ) && (
 					<>
@@ -114,6 +100,6 @@ export function LikeButtonsSection(): JSX.Element | null {
 					</>
 				) }
 			</FeatureVariant>
-		</SectionBox>
+		</SectionCard>
 	);
 }
