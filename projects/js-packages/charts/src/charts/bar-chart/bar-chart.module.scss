@@ -7,7 +7,7 @@
 	// The CSS property, not the attribute: an SVG geometry attribute does
 	// not substitute var().
 	:global(.visx-bar),
-	:global(.bar-chart__comparison-bars) rect {
+	:global(.bar-chart__comparison-bar) {
 		rx: var(--a8c-charts-border-radius-bar-chart);
 	}
 
