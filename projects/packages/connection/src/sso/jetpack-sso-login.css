@@ -21,8 +21,7 @@
 }
 
 .jetpack-sso-form-display #jetpack-sso-wrap__action,
-.jetpack-sso-form-display #jetpack-sso-wrap__user,
-.jetpack-sso-two-step #jetpack-sso-wrap__action {
+.jetpack-sso-form-display #jetpack-sso-wrap__user {
 	display: block;
 }
 

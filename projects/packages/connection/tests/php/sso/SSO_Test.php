@@ -328,9 +328,9 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the two-step controls show on a site that defaults to the password form, and that the password form stays visible.
+	 * Test that the two-step screen shows the SSO form on a site that defaults to the password form.
 	 */
-	public function test_login_body_class_shows_two_step_controls_beside_password_form() {
+	public function test_login_body_class_shows_sso_form_on_two_step_screen_when_site_defaults_to_password_form() {
 		global $action;
 		$action = 'login';
 		$this->set_two_step_required( true );
@@ -340,14 +340,27 @@ class SSO_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
 
-		$this->assertContains( 'jetpack-sso-two-step', $classes );
+		$this->assertContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
+	 * Test that the no-JS toggle to the password form still works on the two-step screen.
+	 */
+	public function test_login_body_class_honors_password_form_toggle_on_two_step_screen() {
+		global $action;
+		$action                                = 'login';
+		$_GET['jetpack-sso-show-default-form'] = '1';
+		$this->set_two_step_required( true );
+
+		$classes = $this->sso->login_body_class( array() );
+
 		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
 	}
 
 	/**
-	 * Test that the two-step class is not added to a regular login.
+	 * Test that a regular login keeps the password form on a site that defaults to it.
 	 */
-	public function test_login_body_class_omits_two_step_class_for_regular_login() {
+	public function test_login_body_class_keeps_password_form_for_regular_login_when_site_defaults_to_it() {
 		global $action;
 		$action = 'login';
 		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
@@ -356,7 +369,6 @@ class SSO_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
 
-		$this->assertNotContains( 'jetpack-sso-two-step', $classes );
 		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
 	}
 

@@ -311,13 +311,13 @@ class SSO {
 				}
 			}
 
-			if ( $show_sso_form ) {
-				$classes[] = 'jetpack-sso-form-display';
+			if ( $this->two_step_required && '1' !== $default_form_preference ) {
+				// The two-step screen only follows an SSO attempt, so show the SSO form regardless of the site default.
+				$show_sso_form = true;
 			}
 
-			if ( $this->two_step_required ) {
-				// Shows the SSO controls on a site that defaults to the password form, without hiding that form.
-				$classes[] = 'jetpack-sso-two-step';
+			if ( $show_sso_form ) {
+				$classes[] = 'jetpack-sso-form-display';
 			}
 		}
 
