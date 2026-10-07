@@ -25,7 +25,24 @@ export type ReferrerRecord = {
 	link?: string;
 	icon?: string;
 	hasChildren?: boolean;
+	/** Domain the row can be marked as spam under; absent when it can't be. */
+	spamDomain?: string;
 };
+
+/**
+ * The domain a referrer row can be marked as spam under, from its normalized `spam` action.
+ *
+ * @param item - A referrer row.
+ * @return The domain, or undefined when the row isn't eligible.
+ */
+export function getReferrerSpamDomain(
+	item: Pick< StatsReferrersComparisonItem, 'actions' >
+): string | undefined {
+	const data = item.actions?.find( action => action.type === 'spam' )?.data;
+	const domain = ( data as { domain?: unknown } | undefined )?.domain;
+
+	return typeof domain === 'string' && domain ? domain : undefined;
+}
 
 /**
  * Flatten nested comparison rows into the parent-linked shape consumed by
@@ -52,6 +69,7 @@ export function flattenReferrerRows(
 			const path = [ ...parentPath, itemKey ];
 			const id = JSON.stringify( path );
 			const icon = item.icon ?? inheritedIcon;
+			const spamDomain = getReferrerSpamDomain( item );
 
 			rows.push( {
 				id,
@@ -63,6 +81,7 @@ export function flattenReferrerRows(
 				...( item.link ? { link: item.link } : {} ),
 				...( icon ? { icon } : {} ),
 				...( itemChildren.length ? { hasChildren: true } : {} ),
+				...( spamDomain ? { spamDomain } : {} ),
 			} );
 
 			appendRows( itemChildren, id, item.label, path, icon ?? undefined );
