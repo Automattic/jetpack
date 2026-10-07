@@ -66,15 +66,7 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
  * @return bool
  */
 function is_store_dashboard_section_available() {
-	// An older copy of the package may have loaded dashboard-policy.php without these functions.
-	if ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_offered' ) ) {
-		$is_enabled = is_dashboard_store_section_offered();
-	} else {
-		$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
-			|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
-	}
-
-	return $is_enabled && is_woocommerce_dashboard_section_available_to_current_user();
+	return Store_Section_Policy::is_offered() && is_woocommerce_dashboard_section_available_to_current_user();
 }
 
 /**

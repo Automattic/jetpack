@@ -24,6 +24,12 @@ class Sync_Status_Tracker {
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
 	/**
+	 * Unix ts at which the first full sync covering an analytics module began. Kept once set, so a
+	 * later full sync of other modules cannot hide that analytics data is already on WPCOM.
+	 */
+	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
+
+	/**
 	 * Default sync-module names whose end-of-sync event flips the milestone. Provided by
 	 * WooCommerce Analytics, which registers a custom full-sync module under this key.
 	 *
@@ -54,6 +60,7 @@ class Sync_Status_Tracker {
 	 */
 	public static function configure() {
 		add_action( 'jetpack_sync_processed_actions', array( self::class, 'on_sync_processed_actions' ) );
+		add_action( 'jetpack_full_sync_start', array( self::class, 'on_full_sync_start' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'inject_script_data' ) );
 		add_filter( 'rest_post_dispatch', array( self::class, 'enrich_sync_status_response' ), 10, 3 );
 	}
@@ -140,7 +147,7 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		if ( ! self::includes_analytics_module( $full_status ) ) {
+		if ( ! self::includes_analytics_module( $full_status['config'] ?? array() ) ) {
 			return;
 		}
 
@@ -169,33 +176,36 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Whether an analytics full sync has finished once or is running now.
+	 * Record the start of the first full sync that covers an analytics module.
+	 *
+	 * @param array|mixed $config Sync configuration of the full sync that began.
+	 * @return void
+	 */
+	public static function on_full_sync_start( $config ): void {
+		if ( get_option( self::ANALYTICS_SYNC_STARTED_OPTION ) || ! self::includes_analytics_module( $config ) ) {
+			return;
+		}
+
+		update_option( self::ANALYTICS_SYNC_STARTED_OPTION, time() );
+	}
+
+	/**
+	 * Whether a full sync covering an analytics module has ever started on this site.
 	 *
 	 * @return bool
 	 */
 	public static function has_analytics_full_sync_started(): bool {
-		// Checked first because get_status() reads the database directly on every call.
-		if ( self::milestone_reached() ) {
-			return true;
-		}
-
-		$module = Modules::get_module( 'full-sync' );
-		if ( ! $module ) {
-			return false;
-		}
-		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
-
-		return self::includes_analytics_module( $module->get_status() );
+		return self::milestone_reached() || (int) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, 0 ) > 0;
 	}
 
 	/**
-	 * Whether a full-sync status covers an analytics module.
+	 * Whether a full-sync configuration covers an analytics module.
 	 *
-	 * @param array $full_status Result of Full_Sync_Immediately::get_status().
+	 * @param array|mixed $config Full-sync configuration, keyed by module name.
 	 * @return bool
 	 */
-	private static function includes_analytics_module( array $full_status ): bool {
-		$config = isset( $full_status['config'] ) ? (array) $full_status['config'] : array();
+	private static function includes_analytics_module( $config ): bool {
+		$config = (array) $config;
 		foreach ( self::get_analytics_sync_modules() as $module_name ) {
 			if ( ! empty( $config[ $module_name ] ) ) {
 				return true;

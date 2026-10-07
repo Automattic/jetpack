@@ -17,7 +17,7 @@ const DASHBOARD_COMPOSITION_FLAG = 'premium-analytics-dashboard-composition';
 /**
  * Name of the feature flag that shows the Store section.
  */
-const DASHBOARD_STORE_SECTION_FLAG = 'premium-analytics-store-section';
+const DASHBOARD_STORE_SECTION_FLAG = Store_Section_Policy::FLAG;
 
 /**
  * Registers the dashboard feature flags.
@@ -63,18 +63,6 @@ function is_dashboard_composition_enabled() {
  */
 function is_dashboard_store_section_enabled() {
 	return Feature_Flags::is_enabled( DASHBOARD_STORE_SECTION_FLAG );
-}
-
-/**
- * Whether the site offers the Store section, before any check on the reader.
- *
- * The site's own opt-in needs the Store flag; the blog sticker and the
- * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
- *
- * @return bool
- */
-function is_dashboard_store_section_offered() {
-	return ! get_option( Enablement_Setting::ENABLED_OPTION ) || is_dashboard_store_section_enabled();
 }
 
 /**
