@@ -1,18 +1,8 @@
-import { readable, writable, type Writable, type Readable } from './facade.ts';
-import { commands, selectors, type ImageFacts } from './store.ts';
+import { commands, selectors } from './store.ts';
 import { MeasurableImage } from '../MeasurableImage.ts';
-import type { Dimensions, Weight } from '../MeasurableImage.ts';
 
 /** Keep image nodes, source tracking and the weight cache outside reducer state. */
 export class MeasurableImageStore {
-	readonly fileSize: Writable< Dimensions >;
-	readonly fileWeight: Writable< Weight >;
-	readonly sizeOnPage: Writable< Dimensions >;
-	readonly potentialSavings: Readable< number | null >;
-	readonly expectedSize: Readable< Dimensions >;
-	readonly oversizedRatio: Readable< number >;
-	readonly url: Writable< string >;
-	readonly loading: Writable< boolean >;
 	readonly id: string;
 	private static nextId = 0;
 
@@ -36,40 +26,6 @@ export class MeasurableImageStore {
 			url: measurableImage.getURL(),
 			loading: true,
 		} );
-		this.url = this.fact( 'url' );
-		this.fileSize = this.fact( 'fileSize' );
-		this.sizeOnPage = this.fact( 'sizeOnPage' );
-		this.loading = this.fact( 'loading' );
-		// Facade weight and savings subscribers activate fetching; analytics snapshots do not.
-		this.fileWeight = this.fact( 'fileWeight', () => this.acquire() );
-		this.potentialSavings = readable(
-			() => selectors.getPotentialSavings( this.id ),
-			() => this.fileWeight.subscribe( () => {} ),
-			undefined,
-			this.id
-		);
-		this.oversizedRatio = readable(
-			() => selectors.getOversizedRatio( this.id ),
-			undefined,
-			undefined,
-			this.id
-		);
-		this.expectedSize = readable(
-			() => selectors.getExpectedSize( this.id ),
-			undefined,
-			undefined,
-			this.id
-		);
-	}
-
-	private fact< K extends keyof ImageFacts >( key: K, start?: () => () => void ) {
-		return writable(
-			() => selectors.getImageFacts( this.id )[ key ],
-			value => commands.updateImage( this.id, { [ key ]: value } ),
-			start,
-			() => selectors.getImageRevision( this.id, key ),
-			this.id
-		);
 	}
 
 	/** Read current image facts and derived measurements without activating fetching. */
@@ -95,7 +51,7 @@ export class MeasurableImageStore {
 
 	public async updateDimensions() {
 		const sizeOnPage = this.image.getSizeOnPage();
-		this.sizeOnPage.set( sizeOnPage );
+		commands.updateImage( this.id, { sizeOnPage } );
 		await this.updateFileDimensions();
 	}
 
@@ -117,26 +73,26 @@ export class MeasurableImageStore {
 			};
 		}
 
-		this.url.set( this.currentSrc );
-		this.fileSize.set( fileSize );
+		commands.updateImage( this.id, { url: this.currentSrc } );
+		commands.updateImage( this.id, { fileSize } );
 	}
 
 	private async maybeUpdateWeight() {
 		const url = this.currentSrc;
 
 		if ( this.weightMap[ url ] !== undefined ) {
-			this.fileWeight.set( { weight: this.weightMap[ url ] } );
+			commands.updateImage( this.id, { fileWeight: { weight: this.weightMap[ url ] } } );
 			return;
 		}
 
-		this.loading.set( true );
+		commands.updateImage( this.id, { loading: true } );
 		try {
 			const weight = await this.image.getWeight( url );
 			this.weightMap[ url ] = weight;
-			this.fileWeight.set( { weight } );
+			commands.updateImage( this.id, { fileWeight: { weight } } );
 		} catch {
-			this.fileWeight.set( { weight: -1 } );
+			commands.updateImage( this.id, { fileWeight: { weight: -1 } } );
 		}
-		this.loading.set( false );
+		commands.updateImage( this.id, { loading: false } );
 	}
 }
