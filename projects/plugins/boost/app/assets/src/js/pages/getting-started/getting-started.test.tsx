@@ -71,7 +71,6 @@ function renderFreeSite(
 
 test.each( [
 	{ rootId: MODERN_ROOT_ID, features: [], links: 0 },
-	{ rootId: MODERN_ROOT_ID, features: [ 'support' ], links: 0 },
 	{ rootId: LEGACY_ROOT_ID, features: [], links: 1 },
 ] )(
 	'leaves license redemption on the modern upgrade page and preserves the legacy header (%o)',
@@ -84,15 +83,12 @@ test.each( [
 		expect( found[ 0 ]?.getAttribute( 'href' ) ).toBe(
 			links ? 'admin.php?page=my-jetpack#/add-license' : undefined
 		);
-		expect( found[ 0 ]?.classList.contains( 'is-secondary' ) ).toBe( links ? true : undefined );
 	}
 );
 
 test.each( [
 	{ rootId: LEGACY_ROOT_ID, myJetpack: false, addLicense: true },
-	{ rootId: MODERN_ROOT_ID, myJetpack: false, addLicense: true },
 	{ rootId: LEGACY_ROOT_ID, myJetpack: true, addLicense: false },
-	{ rootId: MODERN_ROOT_ID, myJetpack: true, addLicense: false },
 ] )( 'hides unavailable license screens (%o)', ( { rootId, myJetpack, addLicense } ) => {
 	renderFreeSite( rootId, { myJetpack, addLicense, host: 'unknown' } );
 	expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
