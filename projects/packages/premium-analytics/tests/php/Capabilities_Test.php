@@ -256,25 +256,6 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An older copy of the package may register a Stats section whose callback checks no
-	 * capability; it must still not open the dashboard to a reader without Stats access.
-	 */
-	public function test_a_stats_section_callback_cannot_open_the_dashboard_without_stats_access() {
-		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
-		register_dashboard_section(
-			DASHBOARD_NAME,
-			'analytics/subscribers',
-			array(
-				'label'        => 'Subscribers',
-				'is_available' => '__return_true',
-			)
-		);
-		$this->login_as( 'subscriber' );
-
-		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
-	}
-
-	/**
 	 * Sections answer for the current user, so the mapping refuses to answer for anyone else.
 	 */
 	public function test_mapping_refuses_users_other_than_the_current_one() {

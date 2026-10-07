@@ -15,12 +15,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 final class Dashboard_Section {
 
 	/**
-	 * Present on copies whose is_available() keeps the package's Stats sections to Stats readers.
-	 * An older copy's class can be loaded first, so Capabilities checks for it before trusting sections.
-	 */
-	const GATES_STATS_SECTIONS = true;
-
-	/**
 	 * Date-filter surface offering the rolling date-range picker (today, last 7
 	 * days, a custom range, …) plus the comparison control. The default.
 	 *
@@ -180,12 +174,6 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
-		// The package's own sections read Stats. Checked here, in a class the autoloader serves from
-		// the newest copy, so an older copy's callback cannot open one to a reader without access.
-		if ( 0 === strpos( $this->id, 'analytics/' ) && ! Capabilities::current_user_can_view_stats() ) {
-			return false;
-		}
-
 		// Before sections decided who opens the dashboard, Stats access was the outer gate.
 		if ( null === $this->is_available ) {
 			return Capabilities::current_user_can_view_stats();

@@ -82,11 +82,6 @@ class Capabilities {
 	 * @return bool
 	 */
 	private static function current_user_has_available_section() {
-		// Without the marker, an older copy's sections decide: keep the Stats gate they relied on.
-		if ( ! defined( Dashboard_Section::class . '::GATES_STATS_SECTIONS' ) ) {
-			return self::current_user_can_view_stats();
-		}
-
 		// The registry hydrates only after init; the dashboard name comes with its loaded files.
 		if ( self::$resolving_sections || ! did_action( 'init' ) || ! defined( __NAMESPACE__ . '\\DASHBOARD_NAME' ) ) {
 			return false;
