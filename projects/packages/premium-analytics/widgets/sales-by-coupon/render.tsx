@@ -29,7 +29,9 @@ export default function SalesByCouponRender( {
 }: SalesByCouponWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SalesByCouponWidget ariaLabel={ __( 'Sales by coupon', 'jetpack-premium-analytics-pkg' ) } />
+			<SalesByCouponWidget
+				chartTitle={ __( 'Sales by coupon', 'jetpack-premium-analytics-pkg' ) }
+			/>
 		</WidgetRoot>
 	);
 }

@@ -174,17 +174,17 @@ describe( 'ComparativeLineChart', () => {
 		setSettings( originalSettings );
 	} );
 
-	it( 'names the chart with ariaLabel', () => {
+	it( 'names the chart from chartTitle', () => {
 		render(
 			<ComparativeLineChart
 				series={ SERIES }
 				dataFormat={ DATA_FORMAT }
-				ariaLabel="Traffic summary"
+				chartTitle="Traffic summary"
 			/>
 		);
 
 		expect( mockLineChartSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
+			expect.objectContaining( { ariaLabel: 'Traffic summary chart' } )
 		);
 	} );
 

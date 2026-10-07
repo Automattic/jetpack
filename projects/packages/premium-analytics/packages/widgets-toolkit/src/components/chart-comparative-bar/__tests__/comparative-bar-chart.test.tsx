@@ -186,17 +186,17 @@ describe( 'ComparativeBarChart', () => {
 		setSettings( originalSettings );
 	} );
 
-	it( 'names the chart with ariaLabel', () => {
+	it( 'names the chart from chartTitle', () => {
 		render(
 			<ComparativeBarChart
 				series={ SERIES }
 				dataFormat={ DATA_FORMAT }
-				ariaLabel="Traffic summary"
+				chartTitle="Traffic summary"
 			/>
 		);
 
 		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
+			expect.objectContaining( { ariaLabel: 'Traffic summary chart' } )
 		);
 	} );
 

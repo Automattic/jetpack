@@ -98,7 +98,7 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					ariaLabel={ __( 'Author performance', 'jetpack-premium-analytics-pkg' ) }
+					chartTitle={ __( 'Author performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>

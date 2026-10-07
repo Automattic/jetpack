@@ -187,7 +187,7 @@ describe( 'MetricTabsChart', () => {
 		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
 		[ 'dropdown', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
 		[ 'dropdown', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
-	] as const )( 'names the %s %s chart with ariaLabel', ( layout, type, spy, metrics ) => {
+	] as const )( 'passes chartTitle to the %s %s chart', ( layout, type, spy, metrics ) => {
 		if ( layout === 'dropdown' ) {
 			setMockChartWidth( 100 );
 		}
@@ -197,13 +197,13 @@ describe( 'MetricTabsChart', () => {
 				metrics={ [ ...metrics ] }
 				dataFormat={ DATA_FORMAT }
 				chartType={ type }
-				ariaLabel="Traffic summary"
+				chartTitle="Traffic summary"
 			/>
 		);
 
 		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
 		expect( spy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
+			expect.objectContaining( { chartTitle: 'Traffic summary' } )
 		);
 	} );
 

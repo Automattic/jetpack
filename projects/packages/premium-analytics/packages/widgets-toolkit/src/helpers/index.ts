@@ -103,5 +103,6 @@ export {
 export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
+export { formatChartName } from './format-chart-name';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';

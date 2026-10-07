@@ -26,7 +26,7 @@ type SalesByDeviceWidgetProps = {
 
 	errorText?: string;
 
-	ariaLabel?: string;
+	chartTitle?: string;
 };
 
 /**
@@ -38,7 +38,7 @@ export function SalesByDeviceWidget( {
 	filter,
 	emptyStateText,
 	errorText,
-	ariaLabel = __( 'Sales by device', 'jetpack-premium-analytics-pkg' ),
+	chartTitle = __( 'Sales by device', 'jetpack-premium-analytics-pkg' ),
 }: SalesByDeviceWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -92,7 +92,7 @@ export function SalesByDeviceWidget( {
 					type: 'currency',
 					options: { useMultipliers: true },
 				} }
-				ariaLabel={ ariaLabel }
+				chartTitle={ chartTitle }
 			/>
 		</WidgetState>
 	);

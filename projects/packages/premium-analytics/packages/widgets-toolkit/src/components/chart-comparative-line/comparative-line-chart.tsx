@@ -19,6 +19,7 @@ import { type ComponentProps } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	isEmptyChartData,
+	formatChartName,
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
@@ -102,6 +103,9 @@ export type ComparativeLineChartProps = {
 
 	className?: string;
 
+	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	chartTitle?: string;
+
 	dataFormat: DataFormat;
 
 	/** Named date format for the X-axis ticks. Uses the chart default when omitted. */
@@ -151,6 +155,7 @@ export type ComparativeLineChartProps = {
 	| 'resizeDebounceTime'
 	| 'withTooltips'
 	| 'renderTooltip'
+	| 'ariaLabel'
 >;
 
 export function ComparativeLineChart( {
@@ -158,7 +163,7 @@ export function ComparativeLineChart( {
 	styles: stylesProp,
 	className,
 	chartId,
-	ariaLabel,
+	chartTitle,
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
@@ -305,7 +310,7 @@ export function ComparativeLineChart( {
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
 				chartId={ resolvedChartId }
-				ariaLabel={ ariaLabel }
+				ariaLabel={ formatChartName( chartTitle ) }
 				className={ styles.chartContent }
 				data={ styledSeries }
 				options={ chartOptions }

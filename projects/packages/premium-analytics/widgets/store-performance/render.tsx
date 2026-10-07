@@ -362,7 +362,7 @@ function StorePerformanceContent() {
 					metrics={ metricTabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
-					ariaLabel={ __( 'Store performance', 'jetpack-premium-analytics-pkg' ) }
+					chartTitle={ __( 'Store performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>

@@ -30,7 +30,7 @@ export default function SalesByCouponUsageRender( {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByCouponWidget
-				ariaLabel={ __( 'Sales by coupon usage', 'jetpack-premium-analytics-pkg' ) }
+				chartTitle={ __( 'Sales by coupon usage', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		</WidgetRoot>
 	);

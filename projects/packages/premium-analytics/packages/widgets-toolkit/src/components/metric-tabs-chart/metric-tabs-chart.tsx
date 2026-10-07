@@ -140,8 +140,8 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
-	/** Accessible name of the chart; name it after what it shows, such as the widget title. */
-	ariaLabel?: string;
+	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	chartTitle?: string;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
@@ -224,7 +224,7 @@ function MetricChart( {
 	dataFormat,
 	chartType,
 	chartId,
-	ariaLabel,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	baseline,
@@ -238,7 +238,7 @@ function MetricChart( {
 	chartType: MetricTabsChartType;
 	baseline?: ChartBaseline;
 	chartId: string;
-	ariaLabel?: string;
+	chartTitle?: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 	empty?: ReactNode;
@@ -368,7 +368,7 @@ function MetricChart( {
 	return chartType === 'bar' ? (
 		<ComparativeBarChart
 			chartId={ chartId }
-			ariaLabel={ ariaLabel }
+			chartTitle={ chartTitle }
 			series={ series }
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
@@ -381,7 +381,7 @@ function MetricChart( {
 	) : (
 		<ComparativeLineChart
 			chartId={ chartId }
-			ariaLabel={ ariaLabel }
+			chartTitle={ chartTitle }
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
@@ -468,7 +468,7 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
-	ariaLabel,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
@@ -568,7 +568,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
-						ariaLabel={ ariaLabel }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						empty={ empty }
@@ -642,7 +642,7 @@ export function MetricTabsChart( {
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
-							ariaLabel={ ariaLabel }
+							chartTitle={ chartTitle }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
 							empty={ empty }
@@ -692,7 +692,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
-						ariaLabel={ ariaLabel }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						empty={ empty }
