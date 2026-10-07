@@ -217,21 +217,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		isSeriesVisible,
 	} );
 
-	const {
-		chartRef,
-		svgRef,
-		selectedIndex,
-		getSegmentHandlers,
-		getKeyboardTooltipPosition,
-		outputProps,
-		chartProps,
-	} = usePieKeyboardNavigation( {
-		segmentCount: visibleData.length,
-		withTooltips,
-		tooltipOffsetX,
-		tooltipOffsetY,
-	} );
-
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
@@ -283,6 +268,44 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const effectiveWidth = propWidth || DEFAULT_WIDTH;
 
+	// Map data with index for color assignment
+	// When interactive, we need to find the original index to maintain consistent colors
+	const dataWithIndex = visibleData.map( d => {
+		const originalIndex = data.findIndex( item => item.label === d.label );
+		return {
+			...d,
+			index: originalIndex >= 0 ? originalIndex : 0,
+		};
+	} );
+
+	// Configure pie angles based on clockwise direction
+	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
+	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
+
+	const arcs = pie< PieDatum >( {
+		value: accessors.value,
+		sort: accessors.sort,
+		padAngle: PAD_ANGLE,
+		startAngle,
+		endAngle,
+	} )( dataWithIndex );
+	const navigationArcs = orderArcsForNavigation( arcs );
+
+	const {
+		chartRef,
+		svgRef,
+		selectedIndex,
+		getSegmentHandlers,
+		getKeyboardTooltipPosition,
+		outputProps,
+		chartProps,
+	} = usePieKeyboardNavigation( {
+		segmentLabels: navigationArcs.map( arcDatum => arcDatum.data.label ),
+		withTooltips,
+		tooltipOffsetX,
+		tooltipOffsetY,
+	} );
+
 	if ( ! isValid ) {
 		const errorWidth = propHeight
 			? Math.min( propWidth || propHeight * 2, propHeight * 2 )
@@ -301,20 +324,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			</div>
 		);
 	}
-
-	// Map data with index for color assignment
-	// When interactive, we need to find the original index to maintain consistent colors
-	const dataWithIndex = visibleData.map( d => {
-		const originalIndex = data.findIndex( item => item.label === d.label );
-		return {
-			...d,
-			index: originalIndex >= 0 ? originalIndex : 0,
-		};
-	} );
-
-	// Configure pie angles based on clockwise direction
-	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
-	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
 
 	const legendElement = showLegend && (
 		<Legend
@@ -372,15 +381,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					const path = arc< PieArcDatum >( { innerRadius, outerRadius: radius, cornerRadius: 3 } );
-					const arcs = pie< PieDatum >( {
-						value: accessors.value,
-						sort: accessors.sort,
-						padAngle: PAD_ANGLE,
-						startAngle,
-						endAngle,
-					} )( dataWithIndex );
-
-					const navigationArcs = orderArcsForNavigation( arcs );
 					const selectedArc =
 						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
