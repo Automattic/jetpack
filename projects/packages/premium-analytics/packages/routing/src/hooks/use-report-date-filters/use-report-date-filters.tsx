@@ -225,13 +225,18 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 */
 	const onIntervalChange = useCallback(
 		( nextInterval: IntervalType ) => {
+			// Re-picking the shown bucket would push an identical history entry.
+			if ( nextInterval === interval ) {
+				return;
+			}
+
 			stage( { interval: nextInterval } );
 
 			if ( ! hasPrimaryDraft ) {
 				commit();
 			}
 		},
-		[ stage, commit, hasPrimaryDraft ]
+		[ interval, stage, commit, hasPrimaryDraft ]
 	);
 
 	const onApply = useCallback( () => commit(), [ commit ] );

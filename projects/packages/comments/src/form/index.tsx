@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { render, type TargetedEvent } from 'preact';
 import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
-import { Identity, Options } from '../identity';
+import { Identity } from '../identity';
 import { Dialog, DialogHost } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
@@ -69,10 +69,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		commenter,
 		rememberDetails,
 		isBoxOpen,
-		isOptionsOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl, maxLength, blocks } = JetpackComments;
+	const { mustLogIn, identity, strings, maxLength, blocks } = JetpackComments;
 	const isSubmitting = useRef( false );
 	const boxRef = useRef< HTMLDivElement >( null );
 	const textareaRef = useRef< HTMLTextAreaElement >( null );
@@ -137,7 +136,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		const close = () => {
 			if ( isEmptyComment.peek() ) {
 				isBoxOpen.value = false;
-				isOptionsOpen.value = false;
 			}
 		};
 
@@ -160,7 +158,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			document.removeEventListener( 'pointerdown', onPointerDown );
 			form.removeEventListener( 'focusout', onFocusOut );
 		};
-	}, [ form, isEmptyComment, isBoxOpen, isOptionsOpen ] );
+	}, [ form, isEmptyComment, isBoxOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -229,12 +227,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		};
 	}, [ form, formSettings, isPosting, commentValue, commenter, isDialogOpen ] );
 
-	// Only where the site shows avatars; a commenter it does not know gets its default.
-	const current = commenter.value;
-	const avatar =
-		avatarUrl &&
-		( ( current.kind === 'wordpress' && current.avatar ) ||
-			( current.kind === 'unknown' ? identity.defaultAvatar : avatarUrl ) );
 	const { submit } = formSettings;
 	// The textarea's maxLength holds back typing, not the editor. Counted as PHP counts, in UTF-8 bytes.
 	const isTooLong = utf8.encode( commentValue.value ).length > maxLength;
@@ -311,21 +303,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 							value={ commentParent.value ? strings.reply : submit.label }
 						/>
 					</span>
-					<span className="jetpack-comments__identity">
-						{ avatar && (
-							<img
-								className="jetpack-comments__avatar avatar avatar-40 photo"
-								src={ avatar }
-								alt=""
-								width="40"
-								height="40"
-							/>
-						) }
-						<Identity />
-					</span>
+					<Identity />
 				</div>
 			</div>
-			<Options />
 			{ /* Core clears saved details on any post without this. */ }
 			{ commenter.value.kind === 'guest' && rememberDetails.value && (
 				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />

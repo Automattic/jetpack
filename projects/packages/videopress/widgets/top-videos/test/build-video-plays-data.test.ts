@@ -1,6 +1,12 @@
 import { toVideoPlaysRows } from '../build-video-plays-data';
 import { getVideoKey, getVideoLabel } from '../video-plays';
 
+const mockGetVideoPosterUrl = jest.fn();
+
+jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
+	getVideoPosterUrl: ( ...args: unknown[] ) => mockGetVideoPosterUrl( ...args ),
+} ) );
+
 const video = ( fields: Record< string, unknown > ) => ( {
 	id: undefined,
 	label: '',
@@ -62,6 +68,17 @@ describe( 'toVideoPlaysRows', () => {
 				previousPlays: undefined,
 			},
 		] );
+	} );
+
+	it( 'asks the SDK for a 56 × 56 poster', () => {
+		mockGetVideoPosterUrl.mockReturnValueOnce( 'https://i0.wp.com/v/a.jpg?resize=56%2C56' );
+
+		const [ row ] = toVideoPlaysRows( [
+			video( { id: 101, label: 'Walkthrough', poster: 'https://i0.wp.com/v/a.jpg' } ),
+		] );
+
+		expect( mockGetVideoPosterUrl ).toHaveBeenCalledWith( 'https://i0.wp.com/v/a.jpg', 56, 56 );
+		expect( row.posterUrl ).toBe( 'https://i0.wp.com/v/a.jpg?resize=56%2C56' );
 	} );
 
 	it( 'keys untitled videos without an id by their link so they do not collapse', () => {

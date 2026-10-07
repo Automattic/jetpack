@@ -36,8 +36,7 @@ const STEPS = [
 	},
 	{
 		title: 'A better date picker',
-		description:
-			"Compare any period with the one before it, and change the chart interval to suit the range you're looking at.",
+		description: 'Pick any period and compare it with the one before it.',
 	},
 	{
 		title: 'Rearrange it your way',

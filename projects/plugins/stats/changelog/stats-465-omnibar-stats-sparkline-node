@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Check the admin bar chart hooks the stats-admin package now registers.
+

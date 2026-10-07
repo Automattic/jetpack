@@ -474,7 +474,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// so a patterned shadow gets the same outline as its primary bar.
 			return `
 			.visx-bar[fill="url(#${ patternId })"],
-			.bar-chart__comparison-bars rect[fill="url(#${ patternId })"] {
+			.bar-chart__comparison-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
 				stroke-width: 1;
 				}

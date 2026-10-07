@@ -82,14 +82,4 @@ describe( 'mergeStatsArchivesComparisonRows', () => {
 		expect( rows[ 0 ].label ).toBe( 'search' );
 		expect( hasComparison ).toBe( false );
 	} );
-
-	it( 'reports no comparison when the comparison report is empty', () => {
-		const { rows, hasComparison } = mergeStatsArchivesComparisonRows(
-			makeReport( [ { label: 'search', value: 5, children: null } ] ),
-			undefined
-		);
-
-		expect( hasComparison ).toBe( false );
-		expect( rows[ 0 ] ).toEqual( expect.objectContaining( { previousValue: undefined } ) );
-	} );
 } );

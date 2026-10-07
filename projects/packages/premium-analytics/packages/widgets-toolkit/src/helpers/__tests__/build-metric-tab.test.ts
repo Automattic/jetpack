@@ -56,6 +56,22 @@ describe( 'buildMetricTab', () => {
 		expect( tab.countLabel ).toBe( views );
 	} );
 
+	it( "carries a row's date_end as the point's endDate", () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 10 },
+				data: [ { date_start: '2026-09-21T00:00:00', date_end: '2026-09-27T23:59:59', views: 10 } ],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current[ 0 ].endDate?.toISOString() ).toBe( '2026-09-27T23:59:59.000Z' );
+	} );
+
 	it( 'maps one point per row, oldest first, with a real Date', () => {
 		const tab = buildMetricTab( {
 			primary: {
@@ -97,6 +113,29 @@ describe( 'buildMetricTab', () => {
 		} );
 
 		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
+	} );
+
+	it( 'carries the pending label as the note of a row the report flags pending', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { revenue: 3 },
+				data: [
+					{ date_start: '2026-06-01', revenue: 3 },
+					{ date_start: '2026-06-02', revenue: null, pending: true },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'revenue',
+			label: 'Revenue',
+			zone: 'UTC',
+			pendingLabel: 'Not counted yet.',
+		} );
+
+		expect( tab.current.map( point => [ point.value, point.note ] ) ).toEqual( [
+			[ 3, undefined ],
+			[ null, 'Not counted yet.' ],
+		] );
 	} );
 
 	it( 'includes real previous-period values when comparison is on and has rows', () => {

@@ -2,6 +2,8 @@ import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { dispatch, select } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import PricingUpsell from '../pricing-upsell';
 import type { ReactNode } from 'react';
 
@@ -107,6 +109,27 @@ describe( 'PricingUpsell', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Start for free' } ) );
 		expect( mockRegisterSite ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'shows an error snackbar when checkout fails', () => {
+		dispatch( noticesStore ).removeAllNotices();
+		const { rerender } = render( <PricingUpsell /> );
+		expect( select( noticesStore ).getNotices() ).toHaveLength( 0 );
+
+		mockCheckoutWorkflow.mockReturnValue( {
+			run: mockRun,
+			hasCheckoutStarted: false,
+			checkoutError: 'Registration failed',
+		} );
+		rerender( <PricingUpsell /> );
+
+		expect( select( noticesStore ).getNotices() ).toEqual( [
+			expect.objectContaining( {
+				status: 'error',
+				type: 'snackbar',
+				content: 'Checkout could not start. Please try again.',
+			} ),
+		] );
 	} );
 
 	it( 'renders nothing when pricing data is absent', () => {
