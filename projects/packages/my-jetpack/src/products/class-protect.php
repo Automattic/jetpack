@@ -115,7 +115,7 @@ class Protect extends Hybrid_Product {
 	 *
 	 * @since $$next-version$$
 	 * @param bool|WP_Error $current_result The plugin activation result.
-	 * @param bool         $local          Whether to keep activation local.
+	 * @param bool          $local          Whether to keep activation local.
 	 * @return bool|WP_Error
 	 */
 	public static function do_product_specific_activation( $current_result, $local = false ) {

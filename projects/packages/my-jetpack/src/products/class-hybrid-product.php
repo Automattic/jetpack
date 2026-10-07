@@ -102,7 +102,7 @@ abstract class Hybrid_Product extends Product {
 	 * Activates the product. If the Hybrid product has declared a jetpack module name, let's try to activate it if Jetpack plugin is active
 	 *
 	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
-	 * @param bool         $local              Skip plan reads and activate only modules that work locally.
+	 * @param bool          $local              Skip plan reads and activate only modules that work locally.
 	 * @return bool|WP_Error
 	 */
 	public static function do_product_specific_activation( $product_activation, $local = false ) {
