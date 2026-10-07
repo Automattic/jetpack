@@ -71,7 +71,8 @@ class Stats_Start_Date_Test extends BaseTestCase {
 		delete_transient( WPCOM_REGISTERED_RETRY_TRANSIENT );
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
-		$this->requests = array();
+		$GLOBALS['jpa_test_blog_registered'] = null;
+		$this->requests                      = array();
 
 		parent::tear_down();
 	}
@@ -95,9 +96,10 @@ class Stats_Start_Date_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A date cached for an earlier WPCOM site ID is not reused after reconnecting.
+	 * Neither a date cached nor a retry held off for an earlier WPCOM site ID carries over after reconnecting.
 	 */
 	public function test_refetches_the_registration_for_a_new_site_id() {
+		set_transient( WPCOM_REGISTERED_RETRY_TRANSIENT, 1111, HOUR_IN_SECONDS );
 		update_option(
 			WPCOM_REGISTERED_OPTION,
 			array(
@@ -115,6 +117,25 @@ class Stats_Start_Date_Test extends BaseTestCase {
 
 		$this->assertSame( '2018-07-01', get_stats_start_date() );
 		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
+	 * Simple reads the blog's own UTC registration without asking WPCOM.
+	 */
+	public function test_reads_the_blog_registration_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'timezone_string', 'Asia/Taipei' );
+		$GLOBALS['jpa_test_blog_registered'] = '2012-03-04 22:30:00';
+		$this->answer_wpcom_with(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'options' => array( 'created_at' => '2018-07-01T00:00:00+00:00' ) ), JSON_UNESCAPED_SLASHES ),
+				'headers'  => array(),
+			)
+		);
+
+		$this->assertSame( '2012-03-05', get_stats_start_date() );
+		$this->assertCount( 0, $this->requests );
 	}
 
 	/**

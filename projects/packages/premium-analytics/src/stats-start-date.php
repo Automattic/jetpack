@@ -20,7 +20,7 @@ use Jetpack_Options;
 const WPCOM_REGISTERED_OPTION = 'jetpack_premium_analytics_wpcom_registered';
 
 /**
- * Transient that holds off a failed lookup, so WPCOM being down costs one request an hour.
+ * Transient holding the site ID whose lookup failed, so WPCOM being down costs one request an hour.
  *
  * @var string
  */
@@ -103,7 +103,7 @@ function get_wpcom_registered_date() {
 		return $cached['registered'];
 	}
 
-	if ( false !== get_transient( WPCOM_REGISTERED_RETRY_TRANSIENT ) ) {
+	if ( (int) get_transient( WPCOM_REGISTERED_RETRY_TRANSIENT ) === $site_id ) {
 		return null;
 	}
 
@@ -119,7 +119,7 @@ function get_wpcom_registered_date() {
 	$created_at = $body['options']['created_at'] ?? null;
 
 	if ( null === to_site_day( $created_at ) ) {
-		set_transient( WPCOM_REGISTERED_RETRY_TRANSIENT, 1, HOUR_IN_SECONDS );
+		set_transient( WPCOM_REGISTERED_RETRY_TRANSIENT, $site_id, HOUR_IN_SECONDS );
 		return null;
 	}
 
