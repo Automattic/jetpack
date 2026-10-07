@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report a bundle the site has no plan for as off, rather than as needing a user connection, on sites without a connection owner.

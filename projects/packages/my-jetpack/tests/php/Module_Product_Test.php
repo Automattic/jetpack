@@ -3,7 +3,9 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Security;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -170,5 +172,43 @@ class Module_Product_Test extends TestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'module_forced', $result->get_error_code() );
 		$this->assertStringContainsString( 'disabled by your host or site administrator', $result->get_error_message() );
+	}
+
+	/**
+	 * A bundle the site has no plan for reads as off on a site without a connection owner.
+	 *
+	 * @param array  $purchases The site's purchases.
+	 * @param string $expected  The bundle's expected status.
+	 * @dataProvider provide_bundle_purchases_without_owner
+	 */
+	#[DataProvider( 'provide_bundle_purchases_without_owner' )]
+	public function test_bundle_status_without_connection_owner( $purchases, $expected ) {
+		activate_plugins( 'jetpack/jetpack.php' );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
+
+		$this->assertSame( $expected, Security::get_status() );
+
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Purchases and the status a Security bundle reports with them.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_bundle_purchases_without_owner() {
+		return array(
+			'no plan'    => array( array(), Products::STATUS_MODULE_DISABLED ),
+			'owned plan' => array(
+				array(
+					(object) array(
+						'product_slug'  => 'jetpack_security_t1_yearly',
+						'expiry_status' => 'active',
+						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+					),
+				),
+				Products::STATUS_USER_CONNECTION_ERROR,
+			),
+		);
 	}
 }
