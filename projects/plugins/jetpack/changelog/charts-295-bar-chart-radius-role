@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Charts: Round the corners of bar chart bars in Stats, Podcast and Premium Analytics.
+Premium Analytics: Use a 2px corner radius on chart bars.

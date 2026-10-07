@@ -8,7 +8,7 @@
 	// not substitute var().
 	:global(.visx-bar),
 	:global(.bar-chart__comparison-bars) rect {
-		rx: var(--a8c-charts-border-radius-bar);
+		rx: var(--a8c-charts-border-radius-bar-chart);
 	}
 
 	// Keep the collapsed state in `from` and never on the element: a dropped

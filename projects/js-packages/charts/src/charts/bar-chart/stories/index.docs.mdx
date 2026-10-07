@@ -232,14 +232,14 @@ Add visual accessibility and distinction with pattern fills instead of solid col
 
 ### Bar Radius
 
-Bars have rounded corners from the `--a8c-charts-border-radius-bar` catalog role, which maps to `--wpds-border-radius-md`. Set the role inside the provider tree to change it:
+Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role inside the provider tree to round their corners:
 
 <Canvas of={ BarChartStories.BarRadius } />
 
 <Source
 	language="css"
 	code={ `.a8c-charts-scope {
-		--a8c-charts-border-radius-bar: var(--wpds-border-radius-sm);
+		--a8c-charts-border-radius-bar-chart: var(--wpds-border-radius-sm);
 	}` }
 />
 

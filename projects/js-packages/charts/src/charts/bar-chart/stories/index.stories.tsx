@@ -981,19 +981,19 @@ export const BarRadius: Story = {
 			<div data-testid="bar-radius-default">
 				<h3 style={ { marginBottom: '4px' } }>Default</h3>
 				<p style={ { marginBottom: '12px', color: '#666' } }>
-					<code>--wpds-border-radius-md</code>
+					<code>0</code>
 				</p>
 				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
 			</div>
 			<div
-				data-testid="bar-radius-overridden"
+				data-testid="bar-radius-rounded"
 				style={
 					{
-						'--a8c-charts-border-radius-bar': 'var(--wpds-border-radius-sm)',
+						'--a8c-charts-border-radius-bar-chart': 'var(--wpds-border-radius-sm)',
 					} as React.CSSProperties
 				}
 			>
-				<h3 style={ { marginBottom: '4px' } }>Overridden</h3>
+				<h3 style={ { marginBottom: '4px' } }>Rounded</h3>
 				<p style={ { marginBottom: '12px', color: '#666' } }>
 					<code>--wpds-border-radius-sm</code>
 				</p>
@@ -1003,27 +1003,23 @@ export const BarRadius: Story = {
 	),
 	play: async ( { canvasElement } ) => {
 		const canvas = within( canvasElement );
-		const radii: string[] = [];
+		const square = await findBars( canvas.getByTestId( 'bar-radius-default' ) );
+		const rounded = await findBars( canvas.getByTestId( 'bar-radius-rounded' ) );
+		const radius = getComputedStyle( rounded.primary )
+			.getPropertyValue( '--a8c-charts-border-radius-bar-chart' )
+			.trim();
 
-		for ( const testId of [ 'bar-radius-default', 'bar-radius-overridden' ] ) {
-			const { primary, comparison } = await findBars( canvas.getByTestId( testId ) );
-			const role = getComputedStyle( primary )
-				.getPropertyValue( '--a8c-charts-border-radius-bar' )
-				.trim();
-
-			await expect( getComputedStyle( primary ).rx ).toBe( role );
-			await expect( getComputedStyle( comparison ).rx ).toBe( role );
-			await expect( role ).not.toBe( '0px' );
-			radii.push( role );
-		}
-
-		await expect( radii[ 1 ] ).not.toBe( radii[ 0 ] );
+		await expect( getComputedStyle( square.primary ).rx ).toBe( '0px' );
+		await expect( getComputedStyle( square.comparison ).rx ).toBe( '0px' );
+		await expect( radius ).not.toBe( '0px' );
+		await expect( getComputedStyle( rounded.primary ).rx ).toBe( radius );
+		await expect( getComputedStyle( rounded.comparison ).rx ).toBe( radius );
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bars take their corner radius from the `--a8c-charts-border-radius-bar` catalog role, which maps to the medium WPDS border radius. Set the role anywhere inside the provider tree to change it; `0` gives square bars.',
+					'Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role anywhere inside the provider tree to round their corners.',
 			},
 		},
 	},
