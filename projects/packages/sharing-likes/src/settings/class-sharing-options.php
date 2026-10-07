@@ -50,7 +50,7 @@ final class Sharing_Options {
 	 * `Sharing_Service::set_global_options()` rebuilds the global array from defaults,
 	 * so anything the payload leaves out, placement included, would be reset.
 	 *
-	 * @param array<string, mixed> $changes Options to change, slashed and keyed as `set_global_options()` reads them.
+	 * @param array<string, mixed> $changes Options to change, slashed as in `$_POST` and keyed as `set_global_options()` reads them.
 	 * @return array<string, mixed> The global options as saved.
 	 */
 	public static function update( array $changes ): array {

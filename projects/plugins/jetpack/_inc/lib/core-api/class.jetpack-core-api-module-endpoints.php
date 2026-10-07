@@ -880,7 +880,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					if ( method_exists( Sharing_Options::class, 'update' ) ) {
-						// `Sharing_Options::update()` expects the label slashed, as in `$_POST`.
 						$updated = Sharing_Options::update( array( $option => 'sharing_label' === $option ? wp_slash( $value ) : $value ) );
 						break;
 					}

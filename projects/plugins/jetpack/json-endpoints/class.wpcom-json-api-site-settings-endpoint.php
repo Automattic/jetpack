@@ -1527,7 +1527,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			if ( method_exists( Sharing_Options::class, 'update' ) ) {
 				$changes = $sharing_options;
 				if ( isset( $changes['sharing_label'] ) ) {
-					// `Sharing_Options::update()` expects the label slashed, as in `$_POST`.
 					$changes['sharing_label'] = wp_slash( $changes['sharing_label'] );
 				}
 
