@@ -1067,6 +1067,9 @@ class Jetpack {
 		// Analytics::init() for why, and for why it takes no menu_title here.
 		if ( self::is_premium_analytics_enabled() ) {
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
+			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
+				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
+			}
 		}
 
 		// Outside the check above on purpose — see Enablement_Setting. Deferred like Stats, to keep

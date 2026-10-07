@@ -1,83 +1,98 @@
 /**
  * External dependencies
  */
+import { useStatsComments } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { getNoticeText } from '../../../tests/js/notice-test-utils';
-import { useCommentsReportRecords } from './config';
 import CommentsReportPage from './page';
+import type { StatsCommentsResponse } from '@jetpack-premium-analytics/data';
 
-jest.mock( './config', () => ( {
-	getCommentsFields: () => [
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsEmailSummary: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsInsights: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
+} ) );
+
+// Report pages render tabs without panels, which trips the tabs' dev-only count check.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	ReportPageTabs: () => null,
+} ) );
+
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
+
+const useStatsCommentsMock = jest.mocked( useStatsComments );
+
+const report: StatsCommentsResponse = {
+	summary: {},
+	data: [
 		{
-			id: 'label',
-			label: 'Name',
-			getValue: ( { item }: { item: { label: string } } ) => item.label,
-		},
-		{
-			id: 'comments',
-			label: 'Comments',
-			getValue: ( { item }: { item: { value: number } } ) => item.value,
+			time_interval: '2026-07-01',
+			date_start: '2026-07-01T00:00:00+00:00',
+			date_end: '2026-07-01T23:59:59+00:00',
+			items: [
+				{
+					label: 'authors',
+					value: 12,
+					children: [
+						{
+							label: 'Hello world',
+							value: 12,
+							iconClassName: 'avatar-user',
+							icon: null,
+							link: null,
+							actions: [],
+							children: null,
+						},
+					],
+				},
+			],
 		},
 	],
-	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
-	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
-	useCommentsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
-	useDashboardLink: () => '/',
-	useSectionTab: () => [ 'authors', jest.fn() ],
-} ) );
-
-// `Breadcrumbs` reaches for router context this page-level test has no need to provide.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	...jest.requireActual( '@wordpress/admin-ui' ),
-	Breadcrumbs: () => null,
-} ) );
-
-jest.mock( '@wordpress/route', () => ( {
-	...jest.requireActual( '@wordpress/route' ),
-	useSearch: () => ( {} ),
-} ) );
-
-const useRecordsMock = jest.mocked( useCommentsReportRecords );
-
-/**
- * Build a records-hook return value for the page under test.
- *
- * @param overrides - The fields to override on the successful-empty default.
- * @return The mocked hook result.
- */
-function buildRecords( overrides: Partial< ReturnType< typeof useCommentsReportRecords > > ) {
-	return {
-		rows: [],
-		isLoading: false,
-		isError: false,
-		refetch: jest.fn(),
-		...overrides,
-	} as ReturnType< typeof useCommentsReportRecords >;
-}
+};
 
 describe( 'CommentsReportPage', () => {
-	it( 'surfaces the error and retry instead of stale rows', () => {
-		useRecordsMock.mockReturnValue(
-			buildRecords( {
-				rows: [ { id: 'author-hello', label: 'Hello world', value: 12 } ],
-				isError: true,
-			} )
-		);
+	it( 'replaces stale rows with an error that refetches on Retry', async () => {
+		const refetch = jest.fn();
+		useStatsCommentsMock.mockReturnValue( {
+			data: report,
+			isLoading: false,
+			isFetching: false,
+			isError: true,
+			error: null,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsComments > );
 
 		render( <CommentsReportPage /> );
 
 		expect(
 			getNoticeText( "We couldn't load comments. Please try again in a moment." )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
+
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

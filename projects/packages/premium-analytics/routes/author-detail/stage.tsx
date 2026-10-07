@@ -4,7 +4,6 @@
 import {
 	AnalyticsQueryClientProvider,
 	getApiErrorStatus,
-	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -248,12 +247,10 @@ function AuthorDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
-				<ReportScopeProvider offersComparison={ false }>
-					<AuthorDetail />
-				</ReportScopeProvider>
-			</GlobalErrorProvider>
+			{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<AuthorDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

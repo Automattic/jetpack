@@ -23,11 +23,11 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
+import { useReplayPendingNotice } from '../../utils/pending-notice';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { getModulesListPath, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -171,7 +171,6 @@ export default function MyJetpackScreen() {
 		isSiteConnected,
 		isJetpackPluginActive,
 		isSimpleSite: isSimpleSite(),
-		modulesListPath: getModulesListPath(),
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),

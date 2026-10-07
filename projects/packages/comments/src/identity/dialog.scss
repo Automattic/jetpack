@@ -5,6 +5,7 @@
 // has no say: the dialog renders in a shadow root and inherits nothing.
 $accent: #3858e9;
 $accent-hover: #2145e6;
+$accent-darker: #183ad6;
 
 :host {
 	all: initial;
@@ -126,6 +127,11 @@ $accent-hover: #2145e6;
 		background: colors.$gray-100;
 	}
 
+	// The sign-in a taken email's notice points to.
+	.jetpack-comments__field > .jetpack-comments__notice + * {
+		margin-block-start: variables.$grid-unit-10;
+	}
+
 	// Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
 	// click lands on the control.
 	.jetpack-comments__toggle {
@@ -207,13 +213,29 @@ $accent-hover: #2145e6;
 			background: $accent;
 			color: colors.$white;
 
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, .is-busy) {
 				background: $accent-hover;
 			}
 
-			&:disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
+			&:active:not(:disabled, .is-busy) {
+				background: $accent-darker;
+			}
+
+			// Core's: the fill stays and the label fades.
+			&:disabled:not(.is-busy) {
+				color: rgba(colors.$white, 0.4);
+				cursor: default;
+			}
+
+			// Core's busy button, held until the page reloads with the comment.
+			&.is-busy {
+				background-image: linear-gradient(-45deg, $accent 33%, $accent-darker 33%, $accent-darker 70%, $accent 70%);
+				background-size: 100px 100%;
+				cursor: default;
+
+				@media not (prefers-reduced-motion) {
+					animation: jetpack-comments-busy 2500ms infinite linear;
+				}
 			}
 		}
 
@@ -234,8 +256,13 @@ $accent-hover: #2145e6;
 			color: $accent;
 			text-decoration: underline;
 
-			&:hover {
+			&:hover:not([aria-disabled="true"]) {
 				color: $accent-hover;
+			}
+
+			&[aria-disabled="true"] {
+				color: colors.$gray-700;
+				cursor: default;
 			}
 		}
 
@@ -282,5 +309,12 @@ $accent-hover: #2145e6;
 
 	to {
 		transform: rotate(360deg);
+	}
+}
+
+@keyframes jetpack-comments-busy {
+
+	0% {
+		background-position: 200px 0;
 	}
 }

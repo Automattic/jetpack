@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Icon, Link } from '@jetpack-premium-analytics/externals';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
+import { ExternalLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -27,15 +28,9 @@ function TagLabel( { item }: { item: StatsTagsItem } ) {
 		<span className={ styles.tagLabel }>
 			<Icon icon={ tagRowGlyph( labelIcon ) } size={ 20 } className={ styles.tagIcon } />
 			{ href ? (
-				<Link
-					href={ href }
-					variant="unstyled"
-					openInNewTab
-					title={ item.labelText }
-					className={ styles.tagText }
-				>
+				<ExternalLink href={ href } title={ item.labelText } className={ styles.tagText }>
 					{ item.labelText }
-				</Link>
+				</ExternalLink>
 			) : (
 				<span title={ item.labelText } className={ styles.tagText }>
 					{ item.labelText }

@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.0] - 2026-10-07
+### Security
+- Playback: Strengthen authorization for private videos. [#53240]
+
+### Added
+- Onboarding: Add an introductory video to the first-run welcome modal. [#53208]
+- Show video posters in the Premium Analytics Top videos widget, linked to the video detail page. [#53011]
+
+### Removed
+- Remove the legacy VideoPress dashboard. The Jetpack > VideoPress menu now shows only when the modernized dashboard is available. [#53068]
+
+### Fixed
+- Dashboard: Show an error and stop the Get VideoPress button from staying busy when checkout cannot start. [#53069]
+- Keep the editing preview on retained footage when playback reaches a trim or trailing cut. [#53219]
+- Scroll the timeline while dragging cuts beyond the visible area. [#53218]
+- Start new cuts at the playhead, or end there when it is at the end of the video, and keep a gap from existing cuts. [#53216]
+
+## [0.55.0] - 2026-10-05
+### Added
+- Add a site setting that turns off sharing for every video and stops it from being turned on for individual videos. [#52991]
+- Caption manager: Add a warning when a private video's preview may not play. [#53066]
+- Channel: Give every VideoPress video its own page at `/videopress?v=GUID` for themes that opt in, and add a "Show the video being viewed" option to the video block. [#52666]
+- Library: Add support for editing video details while uploads are in progress. [#53030]
+- Register the Top videos widget of the Premium Analytics dashboard from this package. [#52909]
+- Video Playlist block: Show the playlist title as an editable heading above the playlist, with a setting to turn it off. [#52825]
+
+### Changed
+- Overview: Show the views chart tooltip on the shared chart tooltip surface. [#52850]
+- Update package dependencies. [#52999]
+
+### Fixed
+- Latest Videos Playlist block: List the site's videos on WordPress.com Simple pages. [#53001]
+- Upgrade: Send WordPress.com sites to the Business plan instead of an incompatible VideoPress product. [#52923]
+- Video block: Offer an upgrade action when uploads require a paid plan. [#52983]
+
 ## [0.54.0] - 2026-09-29
 ### Added
 - Playlist blocks: Add a "Show player" setting; when off, clicking a video opens it on VideoPress. [#52808]
@@ -2298,6 +2333,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.56.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.55.0...v0.56.0
+[0.55.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.1...v0.52.0

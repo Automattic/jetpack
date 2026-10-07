@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Decide the dashboard's paywalls from the site's current features rather than from a plan it cached before its last upgrade.

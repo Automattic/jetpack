@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Describes the main Jetpack features: their copy, links and how a site owner gets each one.
@@ -91,7 +93,7 @@ class Main_Features {
 					'plugin'  => '',
 					'free'    => true,
 				),
-				'plans'            => array( 'security', 'complete' ),
+				'plans'            => array( 'backup', 'security', 'complete' ),
 				// The WordPress.com site feature the Activity Log package gates its paid history on.
 				'paid_feature'     => 'full-activity-log',
 			),
@@ -364,7 +366,9 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'jetpack'     => false,
+					// Only while the Jetpack plugin offers its flag-gated `protect-dashboard` module, and never on
+					// WordPress.com Simple, whose partial bootstrap skips the flag. Not is_module(): it passes any slug.
+					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && in_array( 'protect-dashboard', (array) ( new Modules() )->get_available(), true ),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',
@@ -390,7 +394,7 @@ class Main_Features {
 				),
 				'paid_highlights'  => array(
 					__( 'Room for more records and monthly searches as your site grows', 'jetpack-my-jetpack' ),
-					__( 'AI Answers without the free plan’s limits', 'jetpack-my-jetpack' ),
+					__( 'AI Answers', 'jetpack-my-jetpack' ),
 					__( 'No Jetpack branding, plus priority support', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
@@ -497,7 +501,7 @@ class Main_Features {
 	/**
 	 * The paid bundles that include a feature, named for display.
 	 *
-	 * Named by the bundle products themselves, so the Features tab and the Products tab
+	 * Named by the bundle products themselves, so the Features tab and the rest of My Jetpack
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.

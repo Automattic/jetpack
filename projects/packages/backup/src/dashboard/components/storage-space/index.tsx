@@ -75,8 +75,8 @@ function helpForecast(
  * legacy dashboard's own `storageSize !== null && storageLimit > 0` gate.
  *
  * The upsell renders above `Normal` and the help popover only at it, so a site sees one
- * explanation or the other — which is what keeps `/site/backup/addon-offer` to one
- * request per page even though two components can make it.
+ * explanation or the other — which keeps `/site/backup/addon-offer` to one request on
+ * load. The retention dialog asks again only for a choice that needs more storage.
  *
  * @return The storage section, or null when there is nothing to show.
  */
@@ -140,6 +140,8 @@ export default function StorageSpace() {
 				storageUsed={ usage.storageUsed }
 				storageLimit={ usage.storageLimit }
 				daysOfBackupsSaved={ usage.daysOfBackupsSaved }
+				retentionDays={ usage.retentionDays }
+				lastBackupSize={ usage.lastBackupSize }
 				helpForecastInDays={ helpForecast(
 					usage.usageLevel,
 					usage.forecastInDays,

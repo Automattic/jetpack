@@ -218,7 +218,7 @@ export const clicksCsvExporter: ReportCsvExporter< ClickRow, ClickCsvRow > = {
 	toCsvRows: items => items.map( row => ( { ...row, group: getClickCsvGroup( row ) } ) ),
 	getColumns: () => [
 		{
-			label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Link', 'jetpack-premium-analytics-pkg' ),
 			getValue: row => row.clickedUrl,
 		},
 		{ label: __( 'Group', 'jetpack-premium-analytics-pkg' ), getValue: row => row.group },

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: Use a 2px corner radius on chart bars.

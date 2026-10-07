@@ -4,9 +4,11 @@ import {
 	isNeutral,
 	parseColor,
 	readableOn,
+	textFor,
 	MINIMUM_CONTRAST,
 } from '../src/text-color';
 import parseFixture from './data/parse-color.json';
+import elementsFixture from './data/readable-elements.json';
 import readableFixture from './data/readable-on.json';
 import fixture from './data/text-color-derivation.json';
 
@@ -150,6 +152,22 @@ describe( 'readableOn', () => {
 		expect( readableOn( 'var(--accent)', '#ffffff' ) ).toBeNull();
 		expect( readableOn( '#0073aa', 'rgba(0, 0, 0, 0.5)' ) ).toBeNull();
 	} );
+} );
+
+describe( 'textFor', () => {
+	it.each( elementsFixture.text )(
+		'matches the renderer for $color on $background',
+		( { color, background, readable } ) => {
+			expect( textFor( color, background ) ).toBe( readable );
+		}
+	);
+
+	it.each( elementsFixture.button )(
+		'matches the renderer for button $color on $background',
+		( { color, background, readable } ) => {
+			expect( textFor( color, background ) ).toBe( readable );
+		}
+	);
 } );
 
 describe( 'isNeutral', () => {

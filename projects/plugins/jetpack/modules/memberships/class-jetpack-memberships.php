@@ -826,6 +826,29 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post( $post_id = null ) {
+		return self::check_post_access( $post_id, true );
+	}
+
+	/**
+	 * Check the post's subscription requirement without granting access for editing it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $post_id Explicit post ID, or the loop post when omitted.
+	 * @return bool Whether the visitor meets the post's subscription requirement.
+	 */
+	public static function user_has_subscription_access( $post_id = null ) {
+		return self::check_post_access( $post_id, false );
+	}
+
+	/**
+	 * Evaluate and cache post access with or without the editorial exception.
+	 *
+	 * @param int|null $post_id             Post to check.
+	 * @param bool     $allow_editor_access Whether editing the post can grant access.
+	 * @return bool Whether access is granted.
+	 */
+	private static function check_post_access( $post_id, $allow_editor_access ) {
 		$user_id = get_current_user_id();
 		if ( null === $post_id ) {
 			$post_id = get_the_ID();
@@ -835,7 +858,7 @@ class Jetpack_Memberships {
 			$post_id = 0;
 		}
 
-		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
+		$cache_key = sprintf( '%d_%d_%d', $user_id, $post_id, (int) $allow_editor_access );
 		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
@@ -847,7 +870,7 @@ class Jetpack_Memberships {
 		}
 
 		// we are sending the post to subscribers so the user is a subscriber
-		if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS && Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+		if ( $allow_editor_access && defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS && Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
@@ -868,7 +891,14 @@ class Jetpack_Memberships {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
 		}
 
-		$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level );
+		// Pass the post explicitly: callers outside the loop have no get_the_ID() to fall back on.
+		if ( $allow_editor_access ) {
+			// @phan-suppress-next-line PhanParamTooMany -- Concrete services accept the optional $post_id; interface omits it on purpose.
+			$can_view_post = $paywall->visitor_can_view_content( $all_newsletters_plan_ids, $post_access_level, $post_id );
+		} else {
+			$can_view_post = is_callable( array( $paywall, 'visitor_has_subscription_access' ) )
+				&& $paywall->visitor_has_subscription_access( $all_newsletters_plan_ids, $post_access_level, $post_id );
+		}
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -920,10 +950,20 @@ class Jetpack_Memberships {
 			'posts_per_page' => 1,
 		);
 
-		// We want to see if user has any plan marked as a newsletter set up.
+		// Newsletter tiers or legacy mailing list plans.
 		if ( 'newsletter' === $type ) {
-			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
-			$query['meta_value'] = true;
+			$query['meta_query'] = array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				'relation' => 'OR',
+				array(
+					'key'   => 'jetpack_memberships_type',
+					'value' => self::$type_tier,
+				),
+				array(
+					'key'   => 'jetpack_memberships_site_subscriber',
+					'value' => '1',
+				),
+			);
 		}
 
 		$plans = get_posts( $query );

@@ -83,7 +83,7 @@ describe( 'getAnalyticsUrl', () => {
 		[ { view: 'dashboard', section: 'traffic' }, '/?section=traffic' ],
 		[ { view: 'dashboard', section: 'insights' }, '/?section=insights' ],
 		[ { view: 'dashboard', section: 'subscribers' }, '/?section=subscribers' ],
-		[ { view: 'dashboard', section: 'store' }, '/?section=store' ],
+		[ { view: 'dashboard', section: 'woocommerce' }, '/?section=woocommerce' ],
 		// The caller's neutral `traffic` is the route's `post-traffic`.
 		[ { view: 'post', id: 9, section: 'traffic' }, '/post/9?section=post-traffic' ],
 		[ { view: 'post', id: 9, section: 'email-opens' }, '/post/9?section=email-opens' ],

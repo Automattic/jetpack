@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Avoid a fatal error when an older copy of the Newsletter package is loaded during an update.

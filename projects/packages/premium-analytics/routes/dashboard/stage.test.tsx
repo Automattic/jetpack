@@ -53,7 +53,6 @@ jest.mock( '../site-readiness', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
@@ -84,10 +83,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+	DateFiltersPanel: ( props: { attentionId?: number; withIntervalControl?: boolean } ) => (
 		<>
 			<MockHeaderScopeProbe />
 			<MockAttentionProbe { ...props } />
+			{ props.withIntervalControl && <span>header interval</span> }
 		</>
 	),
 	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
@@ -134,6 +134,7 @@ const mockTrackCustomize = {
 
 jest.mock( '@wordpress/route', () => ( {
 	...jest.requireActual( '@wordpress/route' ),
+	useNavigate: () => jest.fn(),
 	useSearch: () => ( {} ),
 } ) );
 
@@ -205,18 +206,22 @@ function MockOriginProbe() {
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
+	const { offersComparison, openPeriod } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
 	const openJuly = useCallback(
 		() => raisePeriodChange( 'traffic', JULY_2026 ),
 		[ raisePeriodChange ]
 	);
+	const setJuly = useCallback( () => openPeriod?.( JULY_2026 ), [ openPeriod ] );
 
 	return (
 		<>
 			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
 			<button type="button" onClick={ openJuly }>
 				Open July from a widget
+			</button>
+			<button type="button" onClick={ setJuly }>
+				Set July from a chart on this section
 			</button>
 		</>
 	);
@@ -563,6 +568,22 @@ describe( 'Dashboard period change signal', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'draws attention to a period a widget set on the section it sits in', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click(
+			screen.getByRole( 'button', { name: 'Set July from a chart on this section' } )
+		);
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+	} );
+
 	it( 'lets a signal go when the reader lands on another section instead', async () => {
 		const user = userEvent.setup();
 		const { rerender } = render( <Dashboard /> );
@@ -865,6 +886,19 @@ describe( 'Dashboard header date control', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header interval' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the range but drops the interval for a section whose charts own it', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_interval_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'header interval' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {

@@ -180,13 +180,48 @@ final class Placement_Section {
 	 * @return string[]
 	 */
 	public static function selected_post_types(): array {
-		$sharing = get_option( 'sharing-options', array() );
-
-		if ( ! is_array( $sharing ) || ! isset( $sharing['global']['show'] ) ) {
+		if ( ! self::is_saved() ) {
 			return self::default_post_types();
 		}
 
-		return self::normalize_show( $sharing['global']['show'] );
+		return self::normalize_show( get_option( 'sharing-options' )['global']['show'] );
+	}
+
+	/**
+	 * Whether a placement is stored, rather than left to each feature's default.
+	 */
+	public static function is_saved(): bool {
+		$sharing = get_option( 'sharing-options', array() );
+
+		return is_array( $sharing ) && isset( $sharing['global']['show'] );
+	}
+
+	/**
+	 * Store where the buttons appear, replacing whatever was stored.
+	 *
+	 * An empty list means "nowhere". Anything that is not a public post type or
+	 * `index` is dropped, so a crafted payload cannot widen where buttons render.
+	 *
+	 * @param array $post_types Post type slugs, plus `index` for the archive pages.
+	 */
+	public static function update( array $post_types ): void {
+		$options = get_option( 'sharing-options' );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+
+		// Sites carry a malformed `global` (see #6121), and writing into it in place
+		// would fatal where the services save, which rebuilds it wholesale, does not.
+		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
+			$options['global'] = array();
+		}
+
+		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
+		$allowed[] = 'index';
+
+		$options['global']['show'] = array_values( array_intersect( array_filter( $post_types, 'is_scalar' ), $allowed ) );
+
+		update_option( 'sharing-options', $options );
 	}
 
 	/**
