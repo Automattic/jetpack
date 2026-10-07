@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { registerBlockType, unregisterBlockType } from '@wordpress/blocks';
 import getUnavailableCause from '../unavailable-blocks-notice/get-unavailable-cause';
 import UnavailableBlockEdit from '../unavailable-blocks-notice/unavailable-block-edit';
 import type {
@@ -6,12 +8,19 @@ import type {
 	UnavailableCause,
 } from '../unavailable-blocks-notice/get-unavailable-cause';
 
+const mockReplaceBlock = jest.fn();
+
 jest.mock( '@wordpress/block-editor', () => {
 	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
 	const store = createReduxStore( 'core/block-editor', {
 		reducer: ( state = {} ) => state,
-		selectors: { canInsertBlockType: () => false, getBlockRootClientId: () => '' },
-		actions: { replaceBlock: () => ( { type: 'REPLACE_BLOCK' } ) },
+		selectors: { canInsertBlockType: () => true, getBlockRootClientId: () => '' },
+		actions: {
+			replaceBlock: ( clientId, block ) => {
+				mockReplaceBlock( clientId, block );
+				return { type: 'REPLACE_BLOCK' };
+			},
+		},
 	} );
 	register( store );
 
@@ -38,13 +47,18 @@ const makeData = ( overrides: Partial< UnavailableBlocksData > = {} ): Unavailab
 	canManageModules: true,
 	modulesUrl: 'https://example.com/wp-admin/admin.php?page=jetpack_modules',
 	independent: [ 'jetpack/contact-form' ],
-	ignored: [ 'jetpack/revue' ],
+	shipped: [ 'jetpack/map', 'jetpack/subscriptions', 'jetpack/contact-form' ],
 	...overrides,
 } );
 
 it.each( [
 	[ 'a block from another plugin', 'acme/thing', { reason: 'blocks_module' }, null ],
-	[ 'a block Jetpack no longer ships', 'jetpack/revue', { reason: 'blocks_module' }, null ],
+	[
+		'a jetpack/ block this site does not ship',
+		'jetpack/layout-grid',
+		{ reason: 'blocks_module' },
+		null,
+	],
 	[ 'no known cause', 'jetpack/map', {}, null ],
 	[ 'Blocks off', 'jetpack/map', { reason: 'blocks_module' }, { type: 'blocks_module' } ],
 	[
@@ -79,16 +93,59 @@ it.each( [
 } );
 
 it.each( [
-	[ 'Blocks off, admin', { type: 'blocks_module' }, {}, 'Turn on Jetpack Blocks' ],
-	[ 'Blocks off, editor', { type: 'blocks_module' }, { canFix: false }, null ],
-	[ 'not connected, admin', { type: 'not_connected' }, {}, 'Connect Jetpack' ],
-	[ 'disabled, admin', { type: 'disabled' }, {}, null ],
-	[ 'feature off, admin', { type: 'feature', ...newsletter }, {}, 'Manage Jetpack features' ],
-	[ 'feature off, editor', { type: 'feature', ...newsletter }, { canManageModules: false }, null ],
-	[ 'feature forced off, admin', { type: 'feature', name: 'Newsletter', forced: true }, {}, null ],
+	[
+		'Blocks off, admin',
+		{ type: 'blocks_module' },
+		{},
+		/Jetpack Blocks is turned off\.$/,
+		'writing',
+	],
+	[
+		'Blocks off, editor',
+		{ type: 'blocks_module' },
+		{ canFix: false },
+		/Jetpack Blocks is turned off\. Ask a site administrator/,
+		null,
+	],
+	[
+		'not connected, admin',
+		{ type: 'not_connected' },
+		{},
+		/Jetpack is not connected\.$/,
+		'writing',
+	],
+	[
+		'not connected, editor',
+		{ type: 'not_connected' },
+		{ canFix: false },
+		/not connected\. Ask a site administrator/,
+		null,
+	],
+	[ 'disabled, admin', { type: 'disabled' }, {}, /Jetpack blocks are disabled on this site/, null ],
+	[
+		'feature off, admin',
+		{ type: 'feature', ...newsletter },
+		{},
+		/the Newsletter feature is turned off\.$/,
+		'jetpack_modules',
+	],
+	[
+		'feature off, editor',
+		{ type: 'feature', ...newsletter },
+		{ canManageModules: false },
+		/Newsletter feature is turned off\. Ask a site administrator/,
+		null,
+	],
+	[
+		'feature forced off, admin',
+		{ type: 'feature', name: 'Newsletter', forced: true },
+		{},
+		/the Newsletter feature is disabled on this site/,
+		null,
+	],
 ] as const )(
-	'offers a fix only to users who can apply it: %s',
-	( _label, cause, overrides, link ) => {
+	'explains the cause and offers a fix only to users who can apply it: %s',
+	( _label, cause, overrides, message, linkTarget ) => {
 		render(
 			<UnavailableBlockEdit
 				attributes={ {} }
@@ -98,7 +155,51 @@ it.each( [
 			/>
 		);
 
-		expect( screen.getByText( /block is unavailable because/ ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' )?.textContent ?? null ).toBe( link );
+		expect( screen.getByText( message ) ).toBeInTheDocument();
+		const link = screen.queryByRole( 'link' );
+		if ( linkTarget ) {
+			// eslint-disable-next-line jest/no-conditional-expect -- The alternative is a duplicated table.
+			expect( link ).toHaveAttribute( 'href', expect.stringContaining( linkTarget ) );
+		} else {
+			// eslint-disable-next-line jest/no-conditional-expect -- The alternative is a duplicated table.
+			expect( link ).not.toBeInTheDocument();
+		}
 	}
 );
+
+describe( 'Keep as HTML', () => {
+	const markup = '<div class="wp-block-jetpack-markdown">hi</div>';
+
+	afterEach( () => {
+		unregisterBlockType( 'core/html' );
+		mockReplaceBlock.mockClear();
+	} );
+
+	it.each( [
+		[ 'WordPress 7.1 inner content', { role: 'local' }, 'innerContent', [ markup ] ],
+		[ 'WordPress 7.0 attribute', { source: 'raw' }, 'attributes', { content: markup } ],
+	] as const )( 'keeps the markup with %s', async ( _label, contentAttribute, key, expected ) => {
+		registerBlockType( 'core/html', {
+			apiVersion: 3,
+			title: 'Custom HTML',
+			category: 'widgets',
+			attributes: { content: { type: 'string', ...contentAttribute } },
+			save: () => null,
+		} );
+		render(
+			<UnavailableBlockEdit
+				attributes={ { originalUndelimitedContent: markup } }
+				clientId="abc"
+				cause={ { type: 'blocks_module' } }
+				data={ makeData() }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Keep as HTML' } ) );
+
+		expect( mockReplaceBlock ).toHaveBeenCalledWith(
+			'abc',
+			expect.objectContaining( { name: 'core/html', [ key ]: expected } )
+		);
+	} );
+} );

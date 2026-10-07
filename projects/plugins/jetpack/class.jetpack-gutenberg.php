@@ -338,17 +338,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Get the names of blocks Jetpack no longer ships.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string[]
-	 */
-	public static function get_deprecated_blocks() {
-		return self::$deprecated_blocks;
-	}
-
-	/**
 	 * Used to initialize the class, no longer in use.
 	 *
 	 * @return void

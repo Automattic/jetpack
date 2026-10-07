@@ -40,9 +40,27 @@ class Unavailable_Blocks {
 	);
 
 	/**
-	 * Blocks registered by their own package, whether or not the Blocks module is active.
+	 * Blocks that stay registered in the editor while the Blocks module is inactive.
 	 */
-	const INDEPENDENT_BLOCKS = array( 'jetpack/contact-form', 'jetpack/podcast-episode' );
+	const INDEPENDENT_BLOCKS = array( 'jetpack/contact-form' );
+
+	/**
+	 * Top-level blocks that packages register, which the plugin's block manifest does not list.
+	 */
+	const PACKAGE_BLOCKS = array(
+		'jetpack/contact-form',
+		'jetpack/podcast-episode',
+		'jetpack/paypal-payment-buttons',
+		'videopress/video',
+		'videopress/all-playlists',
+		'videopress/latest-videos-playlist',
+		'videopress/playlist',
+	);
+
+	/**
+	 * Manifest blocks that a plan or site setting can also keep unregistered.
+	 */
+	const CONDITIONAL_BLOCKS = array( 'jetpack/cookie-consent', 'jetpack/voice-to-content', 'jetpack/wordads' );
 
 	/**
 	 * Hook into the block editor.
@@ -116,7 +134,7 @@ class Unavailable_Blocks {
 			'canManageModules' => current_user_can( 'jetpack_manage_modules' ),
 			'modulesUrl'       => admin_url( 'admin.php?page=jetpack_modules' ),
 			'independent'      => self::INDEPENDENT_BLOCKS,
-			'ignored'          => Jetpack_Gutenberg::get_deprecated_blocks(),
+			'shipped'          => null === $reason ? array() : self::get_shipped_blocks(),
 		);
 	}
 
@@ -181,6 +199,28 @@ class Unavailable_Blocks {
 		}
 
 		return $blocks;
+	}
+
+	/**
+	 * Get the top-level blocks this site would register with nothing turned off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Block names.
+	 */
+	public static function get_shipped_blocks() {
+		$manifest_file = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
+		$manifest      = file_exists( $manifest_file ) ? require $manifest_file : array();
+		$extensions    = Jetpack_Gutenberg::get_available_extensions();
+		$blocks        = self::PACKAGE_BLOCKS;
+
+		foreach ( (array) $manifest as $extension => $metadata ) {
+			if ( in_array( $extension, $extensions, true ) && ! empty( $metadata['name'] ) ) {
+				$blocks[] = $metadata['name'];
+			}
+		}
+
+		return array_values( array_diff( $blocks, self::CONDITIONAL_BLOCKS ) );
 	}
 
 	/**

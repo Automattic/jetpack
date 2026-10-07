@@ -6,14 +6,12 @@ export type UnavailableBlocksData = {
 	canManageModules: boolean;
 	modulesUrl: string;
 	independent: string[];
-	ignored: string[];
+	shipped: string[];
 };
 
 export type UnavailableCause =
 	| { type: 'not_connected' | 'blocks_module' | 'disabled' }
 	| { type: 'feature'; name: string; forced: boolean };
-
-const NAMESPACES = [ 'jetpack/', 'videopress/', 'premium-content/' ];
 
 /**
  * Work out why Jetpack is not registering a block.
@@ -26,11 +24,7 @@ export default function getUnavailableCause(
 	originalName: string | undefined,
 	data: UnavailableBlocksData
 ): UnavailableCause | null {
-	if (
-		! originalName ||
-		! NAMESPACES.some( namespace => originalName.startsWith( namespace ) ) ||
-		data.ignored.includes( originalName )
-	) {
+	if ( ! originalName ) {
 		return null;
 	}
 
@@ -45,5 +39,10 @@ export default function getUnavailableCause(
 		return data.reason && data.reason !== 'blocks_module' ? { type: data.reason } : null;
 	}
 
-	return data.reason ? { type: data.reason } : featureCause;
+	if ( data.reason ) {
+		// Another plugin's block, or one Jetpack has removed, is not ours to explain.
+		return data.shipped.includes( originalName ) ? { type: data.reason } : null;
+	}
+
+	return featureCause;
 }

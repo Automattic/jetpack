@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -37,6 +38,7 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'active_modules' );
 		Jetpack_Modules_Overrides::instance()->clear_cache();
 		\Automattic\Jetpack\Status\Cache::clear();
+		Constants::clear_single_constant( 'REST_REQUEST' );
 		parent::tear_down();
 	}
 
@@ -113,5 +115,69 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 
 		$this->assertSame( array(), Unavailable_Blocks::get_inactive_feature_blocks() );
+	}
+
+	public function test_forced_off_feature_is_flagged() {
+		Jetpack_Options::update_option( 'active_modules', array( 'blocks', 'subscriptions' ) );
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				return array_values( array_diff( $modules, array( 'subscriptions' ) ) );
+			}
+		);
+		Jetpack_Modules_Overrides::instance()->clear_cache();
+
+		$this->assertTrue( Unavailable_Blocks::get_inactive_feature_blocks()['jetpack/subscriptions']['forced'] );
+	}
+
+	/**
+	 * Roles and whether each may turn the Blocks module back on.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'editor'        => array( 'editor', false ),
+		);
+	}
+
+	/**
+	 * @param string $role    User role.
+	 * @param bool   $can_fix Whether the user should be offered the fix.
+	 *
+	 * @dataProvider provide_roles
+	 */
+	#[DataProvider( 'provide_roles' )]
+	public function test_editor_data_offers_the_fix_only_to_users_who_can_apply_it( $role, $can_fix ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		$data = Unavailable_Blocks::get_editor_data();
+
+		$this->assertSame( 'blocks_module', $data['reason'] );
+		$this->assertSame( $can_fix, $data['canFix'] );
+		$this->assertStringEndsWith( 'admin.php?page=jetpack#/writing', $data['fixUrl'] );
+	}
+
+	public function test_editor_data_is_null_when_nothing_is_unavailable() {
+		Jetpack_Options::update_option( 'active_modules', array_merge( array( 'blocks' ), array_keys( Unavailable_Blocks::FEATURE_BLOCKS ) ) );
+
+		$this->assertNull( Unavailable_Blocks::get_editor_data() );
+	}
+
+	public function test_editor_data_is_withheld_from_rest_requests() {
+		Jetpack_Options::update_option( 'active_modules', array() );
+		Constants::set_constant( 'REST_REQUEST', true );
+
+		$this->assertNull( Unavailable_Blocks::get_editor_data() );
+	}
+
+	public function test_shipped_blocks_leave_out_blocks_gated_by_more_than_the_module() {
+		$blocks = Unavailable_Blocks::get_shipped_blocks();
+
+		$this->assertContains( 'videopress/video', $blocks );
+		$this->assertNotContains( 'jetpack/wordads', $blocks );
+		$this->assertNotContains( 'jetpack/revue', $blocks );
 	}
 }
