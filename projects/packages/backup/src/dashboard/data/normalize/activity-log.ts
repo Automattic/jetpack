@@ -55,6 +55,7 @@ export function normalizeEntry( entry: WpcomActivityEntry ): ActivityItem {
 			// stringified JSON blob, not a friendly string — rendering
 			// it verbatim dumps raw JSON into the UI.
 			stats: entry.content?.text ?? '',
+			isDiscarded: entry.is_discarded === true,
 		};
 	}
 

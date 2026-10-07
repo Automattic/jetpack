@@ -11,6 +11,8 @@ export type WpcomActivityEntry = {
 	content?: { text?: string };
 	object?: { backup_stats?: string };
 	is_rewindable?: boolean;
+	/** True once the backup has aged out of the retention window. */
+	is_discarded?: boolean;
 };
 
 export type WpcomActivityLogResponse = {

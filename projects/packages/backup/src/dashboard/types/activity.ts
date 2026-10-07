@@ -29,6 +29,7 @@ export type BackupActivityItem = ActivityItemBase & {
 	kind: 'backup';
 	rewindId: string;
 	stats: string;
+	isDiscarded: boolean;
 };
 
 export type NonBackupActivityItem = ActivityItemBase & {
