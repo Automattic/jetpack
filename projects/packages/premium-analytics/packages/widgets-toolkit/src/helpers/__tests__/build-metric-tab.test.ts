@@ -56,6 +56,22 @@ describe( 'buildMetricTab', () => {
 		expect( tab.countLabel ).toBe( views );
 	} );
 
+	it( "carries a row's date_end as the point's endDate", () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 10 },
+				data: [ { date_start: '2026-09-21T00:00:00', date_end: '2026-09-27T23:59:59', views: 10 } ],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current[ 0 ].endDate?.toISOString() ).toBe( '2026-09-27T23:59:59.000Z' );
+	} );
+
 	it( 'maps one point per row, oldest first, with a real Date', () => {
 		const tab = buildMetricTab( {
 			primary: {

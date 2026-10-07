@@ -5338,6 +5338,43 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.111.1)
 
+  projects/packages/woocommerce-stats:
+    dependencies:
+      '@automattic/jetpack-premium-analytics-sdk':
+        specifier: workspace:*
+        version: link:../../js-packages/premium-analytics-sdk
+      '@wordpress/api-fetch':
+        specifier: 7.55.0
+        version: 7.55.0
+      '@wordpress/date':
+        specifier: 5.55.0
+        version: 5.55.0
+      '@wordpress/i18n':
+        specifier: 6.28.0
+        version: 6.28.0
+      '@wordpress/url':
+        specifier: 4.55.0
+        version: 4.55.0
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      jest:
+        specifier: 30.5.1
+        version: 30.5.1
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   projects/packages/wp-build-polyfills:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':

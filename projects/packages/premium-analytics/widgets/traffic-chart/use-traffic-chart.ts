@@ -16,6 +16,7 @@ import { endOfDay, isEqual, startOfDay } from 'date-fns';
  * Internal dependencies
  */
 import { buildTrafficTooltipExtras } from './tooltip-extras';
+import { comparesYearAgo, withoutLeadingComparisonWeeks } from './year-ago-weeks';
 import {
 	TRAFFIC_CHART_METRICS,
 	type TrafficChartGranularity,
@@ -25,8 +26,7 @@ import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widge
 
 /**
  * Bucket size the chart draws. Sent to the visits endpoint as its `unit`; which
- * one applies comes from the dashboard's interval control, along with the range
- * and comparison.
+ * one applies comes from the widget's own interval control, clamped to the range.
  */
 export type TrafficPeriod = TrafficChartGranularity;
 
@@ -113,13 +113,29 @@ export default function useTrafficChart(
 	} );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
-	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
+	const vvComparisonReport = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
 	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
-	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
+	const lcComparisonReport = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
+
+	const alignsYearAgoWeeks = period === 'week' && comparesYearAgo( reportParams );
+	const vvComparison = useMemo(
+		() =>
+			alignsYearAgoWeeks
+				? withoutLeadingComparisonWeeks( vvPrimary, vvComparisonReport, vvZone )
+				: vvComparisonReport,
+		[ alignsYearAgoWeeks, vvPrimary, vvComparisonReport, vvZone ]
+	);
+	const lcComparison = useMemo(
+		() =>
+			alignsYearAgoWeeks
+				? withoutLeadingComparisonWeeks( lcPrimary, lcComparisonReport, lcZone )
+				: lcComparisonReport,
+		[ alignsYearAgoWeeks, lcPrimary, lcComparisonReport, lcZone ]
+	);
 
 	// Gate the error per query so a failed one surfaces beside the other's populated
 	// tabs instead of rendering empty; placeholder data spares a query that still has rows.

@@ -2,7 +2,7 @@ import { getJetpackAdminPageUrl, getMyJetpackUrl } from '@automattic/jetpack-scr
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { resolveFeatureState } from '../../components/my-jetpack-tab-panel/features/feature-state';
-import { getProductModules } from '../../components/my-jetpack-tab-panel/products/mappings';
+import { getProductModules } from '../../components/my-jetpack-tab-panel/features/mappings';
 import { getMyJetpackSections } from '../../components/my-jetpack-tab-panel/utils';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { prepareProductData } from '../../data/utils/prepare-product-data';

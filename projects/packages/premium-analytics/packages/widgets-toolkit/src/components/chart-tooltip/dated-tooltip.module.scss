@@ -1,0 +1,70 @@
+// A table, so each metric's current and comparison readings share a row and
+// the two dates head their columns.
+.table {
+	// The shared box pads for a one-line tooltip; several rows need more room,
+	// so the table adds its own.
+	margin: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-xs);
+	border-collapse: collapse;
+	font-weight: var(--wpds-typography-font-weight-default);
+	line-height: var(--wpds-typography-line-height-sm);
+	white-space: nowrap;
+}
+
+.table th,
+.table td {
+	padding: 0;
+	font-weight: inherit;
+	text-align: start;
+	vertical-align: middle;
+}
+
+.table thead th {
+	padding-block-end: var(--wpds-dimension-gap-xs);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.table tr + tr th,
+.table tr + tr td {
+	padding-block-start: var(--wpds-dimension-gap-xs);
+}
+
+// The comparison column, set apart by a rule in the text's own colour, so it
+// reads on whatever surface the box draws.
+.table th + th,
+.table th + td {
+	border-inline-start: 1px solid color-mix(in sRGB, currentColor 30%, transparent);
+	padding-inline-start: var(--wpds-dimension-gap-md);
+}
+
+.table th:first-child {
+	padding-inline-end: var(--wpds-dimension-gap-md);
+}
+
+.table th:last-child,
+.table td:last-child {
+	padding-inline-end: 0;
+}
+
+.reading {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+// One width for swatch, icon and blank, so every reading starts flush.
+.indicator {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	inline-size: 16px;
+}
+
+.icon {
+	fill: currentColor;
+}
+
+.value {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	font-variant-numeric: tabular-nums;
+}

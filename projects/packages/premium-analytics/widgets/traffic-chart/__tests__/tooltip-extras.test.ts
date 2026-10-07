@@ -97,10 +97,46 @@ describe( 'buildTrafficTooltipExtras', () => {
 		const [ ratio, posts ] = buildTrafficTooltipExtras( current, ZONE, comparison );
 
 		expect( ratio.previous ).toEqual( [
-			{ date: ratio.data[ 0 ].date, realDate: expect.any( Date ), value: 2 },
+			{
+				date: ratio.data[ 0 ].date,
+				realDate: expect.any( Date ),
+				endDate: expect.any( Date ),
+				value: 2,
+			},
 		] );
 		expect( ratio.previous?.[ 0 ].realDate?.toISOString() ).toBe( '2026-06-01T00:00:00.000Z' );
 		expect( posts.previous?.map( point => point.value ) ).toEqual( [ 2 ] );
+	} );
+
+	// The report lists a bucket without posts as an empty `post_titles`, which is a
+	// 0 worth showing only against a real count; two zeros keep the row out.
+	it.each( [
+		[ 'current', [ { post_titles: [] } ], [ { post_titles: [ 'A', 'B' ] } ], [ 0 ], [ 2 ] ],
+		[ 'comparison', [ { post_titles: [ 'A', 'B' ] } ], [ { post_titles: [] } ], [ 2 ], [ 0 ] ],
+	] )(
+		'reads a bucket without posts as 0 when the %s period has none but the other does',
+		( _side, currentPosts, comparisonPosts, data, previous ) => {
+			const [ posts ] = buildTrafficTooltipExtras(
+				{ views: undefined, posts: report( currentPosts ) },
+				ZONE,
+				{ views: undefined, posts: report( comparisonPosts, '06' ) }
+			);
+
+			expect( posts.data.map( point => point.value ) ).toEqual( data );
+			expect( posts.previous?.map( point => point.value ) ).toEqual( previous );
+		}
+	);
+
+	it( 'keeps a bucket without posts in both periods out of the row', () => {
+		const extras = buildTrafficTooltipExtras(
+			{ views: undefined, posts: report( [ { post_titles: [] }, { post_titles: [ 'A' ] } ] ) },
+			ZONE,
+			{ views: undefined, posts: report( [ { post_titles: [] }, {} ], '06' ) }
+		);
+
+		expect( extras ).toHaveLength( 1 );
+		expect( extras[ 0 ].data.map( point => point.value ) ).toEqual( [ 1 ] );
+		expect( extras[ 0 ].previous ).toBeUndefined();
 	} );
 
 	it( 'leaves `previous` out when the comparison period has no reading', () => {

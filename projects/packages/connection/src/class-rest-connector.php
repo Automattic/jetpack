@@ -24,6 +24,19 @@ use WP_REST_Server;
  * @phan-constructor-used-for-side-effects
  */
 class REST_Connector {
+
+	/**
+	 * Site record options left out of the site data REST response.
+	 *
+	 * @since 9.9.1
+	 *
+	 * @var string[]
+	 */
+	const EXCLUDED_SITE_OPTIONS = array(
+		'frame_nonce',
+		'jetpack_frame_nonce',
+	);
+
 	/**
 	 * The Connection Manager.
 	 *
@@ -1333,6 +1346,8 @@ class REST_Connector {
 		$site_data = ( $connection ?? new Manager() )->get_connected_site_data();
 
 		if ( ! is_wp_error( $site_data ) ) {
+			$site_data = self::exclude_site_options( $site_data );
+
 			/**
 			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
 			 *
@@ -1368,6 +1383,32 @@ class REST_Connector {
 				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
 			)
 		);
+	}
+
+	/**
+	 * Removes EXCLUDED_SITE_OPTIONS from the site record before it is served to a REST caller.
+	 *
+	 * Works on a copy: a listener on 'jetpack_site_data_fetched', or any other internal
+	 * consumer holding the record, keeps seeing it whole.
+	 *
+	 * @since 9.9.1
+	 *
+	 * @param object $site_data The decoded site record.
+	 * @return object The record to serve, with EXCLUDED_SITE_OPTIONS removed.
+	 */
+	private static function exclude_site_options( $site_data ) {
+		if ( ! is_object( $site_data ) || ! isset( $site_data->options ) || ! is_object( $site_data->options ) ) {
+			return $site_data;
+		}
+
+		$site_data          = clone $site_data;
+		$site_data->options = clone $site_data->options;
+
+		foreach ( self::EXCLUDED_SITE_OPTIONS as $option ) {
+			unset( $site_data->options->$option );
+		}
+
+		return $site_data;
 	}
 
 	/**

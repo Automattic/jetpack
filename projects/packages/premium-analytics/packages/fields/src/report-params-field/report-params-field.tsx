@@ -30,13 +30,13 @@ import {
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, type DateControlTriggerProps } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './report-params-field.module.css';
+import { WIDGET_HEADER_TRIGGER_PROPS } from '../helpers/widget-header-trigger';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -54,12 +54,6 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
-};
-
-// The host draws a widget's header fields compact.
-const WIDGET_HEADER_TRIGGER_PROPS: DateControlTriggerProps = {
-	size: 'compact',
-	className: styles.trigger,
 };
 
 /**

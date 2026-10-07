@@ -11,6 +11,7 @@ import { Card, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { SUBSCRIPTIONS_SECTION_ID } from '../anchors';
 import { Toggle, ToggleWithEditorLink } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
@@ -211,7 +212,7 @@ export function LegacySubscriptionsSection( {
 	];
 
 	return (
-		<Card.Root>
+		<Card.Root id={ SUBSCRIPTIONS_SECTION_ID }>
 			<Card.Header>
 				<Card.Title>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>

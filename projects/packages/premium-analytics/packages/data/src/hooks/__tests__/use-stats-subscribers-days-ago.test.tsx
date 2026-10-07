@@ -11,7 +11,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import { useStatsSubscribersDaysAgo } from '../use-stats-subscribers';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 

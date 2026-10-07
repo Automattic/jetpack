@@ -44,10 +44,25 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 	/**
 	 * No subscription service available, no users can see this content.
 	 *
-	 * @param array  $valid_plan_ids .
-	 * @param string $access_level   .
+	 * @param array    $valid_plan_ids .
+	 * @param string   $access_level   .
+	 * @param int|null $post_id Unused; accepted for callers that pass a post id.
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $post_id = null ) {
+		return false;
+	}
+
+	/**
+	 * An unconfigured service cannot establish subscription entitlement.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array    $valid_plan_ids Required subscription plan IDs.
+	 * @param string   $access_level   Required access level.
+	 * @param int|null $post_id        Post to check.
+	 * @return bool Always false.
+	 */
+	public function visitor_has_subscription_access( $valid_plan_ids, $access_level, $post_id = null ) {
 		return false;
 	}
 

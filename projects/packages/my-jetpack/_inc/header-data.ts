@@ -3,7 +3,6 @@
 /// <reference path="../global.d.ts" />
 export {
 	getManageConnection,
-	needsUserConnection,
 	useConnectionState,
 	type ConnectionState,
 	type ConnectionStateId,

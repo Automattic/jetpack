@@ -11,20 +11,17 @@ jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
-beforeEach( () => {
-	mockApiFetch.mockResolvedValue( {
-		view: 'device',
-		order_by: 'net_sales',
-		data: [],
-	} );
-} );
-
-afterEach( () => {
-	jest.clearAllMocks();
-} );
-
 describe( 'reportOrderAttributionSummaryQuery', () => {
-	it( 'uses the by-product endpoint when product filters are present', async () => {
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( {
+			view: 'device',
+			order_by: 'net_sales',
+			data: [],
+		} );
+	} );
+
+	it( 'requests each period from the by-product endpoint when product filters are present', async () => {
 		const query = reportOrderAttributionSummaryQuery( {
 			from: '2026-06-01',
 			to: '2026-06-07',
@@ -44,18 +41,15 @@ describe( 'reportOrderAttributionSummaryQuery', () => {
 		const queryFn = query.queryFn as () => Promise< unknown >;
 		await queryFn();
 
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
-		expect( mockApiFetch ).toHaveBeenNthCalledWith(
-			1,
-			expect.objectContaining( {
-				path: expect.stringContaining( '/order-attribution-by-product/device/summary' ),
-			} )
-		);
-		expect( mockApiFetch ).toHaveBeenNthCalledWith(
-			2,
-			expect.objectContaining( {
-				path: expect.stringContaining( '/order-attribution-by-product/device/summary' ),
-			} )
-		);
+		const requests = mockApiFetch.mock.calls.map( ( [ options ] ) => {
+			const [ path, search ] = String( options.path ).split( '?' );
+			const args = new URLSearchParams( search );
+			return [ path, args.get( 'from' ), args.get( 'to' ) ];
+		} );
+		const byProductPath = expect.stringContaining( '/order-attribution-by-product/device/summary' );
+		expect( requests ).toEqual( [
+			[ byProductPath, '2026-06-01', '2026-06-07' ],
+			[ byProductPath, '2026-05-25', '2026-05-31' ],
+		] );
 	} );
 } );

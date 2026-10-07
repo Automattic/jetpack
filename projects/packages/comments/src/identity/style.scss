@@ -1,51 +1,61 @@
-.jetpack-comments__who {
-	display: inline-flex;
+// Always shares the row with the submit: a zero basis never forces a wrap, and
+// it takes whatever room is left, its link dropping under the name when short.
+.jetpack-comments__identity {
+	display: flex;
 	align-items: center;
-	gap: 0.25em;
+	gap: 0.75em;
+	flex: 1 1 0;
+	min-inline-size: 0;
+	font-size: 0.8125em;
+	// Pinned, so a theme's tall line height cannot stretch the row.
+	line-height: 1.4;
 }
 
-// Three classes deep and pinned, past a theme's `body.winter button:hover`.
-.jetpack-comments .jetpack-comments__who .jetpack-comments__chevron {
-	display: inline-flex;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: none !important;
-	color: inherit;
-	cursor: pointer;
-
-	svg {
-		inline-size: 20px;
-		block-size: 20px;
-		transition: transform 0.25s ease-in-out;
-	}
+.jetpack-comments__profile {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 0.75em;
+	min-inline-size: 0;
 }
 
-.jetpack-comments__who.is-open .jetpack-comments__chevron svg {
-	transform: rotate(180deg);
-}
-
-// The links slide down from under the box as the row opens and back up under
-// it as it closes. The negative margins give focus rings room in the clip.
-.jetpack-comments__options {
+// Ellipsis rather than overflow into the submit, however little room is left.
+.jetpack-comments__name,
+.jetpack-comments__link {
+	max-inline-size: 100%;
 	overflow: hidden;
-	margin-inline: -4px;
-	padding-inline: 4px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
 
-	// Its own height, not the row's, so the slide moves it the whole way and
-	// its bottom edge tracks the row's as both animate.
-	> div {
-		display: flex;
-		flex-wrap: wrap;
-		align-self: start;
-		gap: 0.25em 1em;
-		// Inset by the box's border and padding, to line up with the avatar.
-		padding: 0.5em calc(var(--jetpack-comments-pad) + 2px) 4px;
-		transform: translateY(-100%);
-		transition: transform 0.25s ease-in-out;
-	}
+// Capped, so a long name leaves room for the link.
+.jetpack-comments__name {
+	max-inline-size: min(100%, 10em);
+}
 
-	&.is-open > div {
-		transform: none;
+// Smaller than the name, so it reads as an aside.
+.jetpack-comments__link {
+	font-size: 0.875em;
+}
+
+// Three classes deep, past a theme's link colours and underlines.
+.jetpack-comments .jetpack-comments__identity a.jetpack-comments__name {
+	color: inherit;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
 	}
+}
+
+.jetpack-comments__avatar,
+.jetpack-comments__avatar-link {
+	display: flex;
+	flex-shrink: 0;
+}
+
+// Past a theme's own `.avatar` sizing, so the submit beside it can match.
+.jetpack-comments .jetpack-comments__identity .jetpack-comments__avatar {
+	inline-size: var(--jetpack-comments-avatar-size);
+	block-size: var(--jetpack-comments-avatar-size);
 }

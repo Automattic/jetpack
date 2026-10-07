@@ -23,8 +23,7 @@ type Site = {
 	connectionErrors?: ConnectionErrorMap;
 	connectionOwner?: ConnectionOwner | null;
 	isAdmin?: boolean;
-	// Status of a product that needs an account; none is installed when unset.
-	userProductStatus?: string;
+	shouldAskForUserConnection?: boolean;
 };
 
 const setSite = ( {
@@ -33,19 +32,11 @@ const setSite = ( {
 	connectionErrors = {},
 	connectionOwner = null,
 	isAdmin = true,
-	userProductStatus,
 }: Site ) => {
 	global.JetpackScriptData = {
 		user: { current_user: { capabilities: { manage_options: isAdmin } } },
 		site: { host: 'standard' },
 	} as typeof global.JetpackScriptData;
-	window.myJetpackInitialState = {
-		products: {
-			items: userProductStatus
-				? { search: { requires_user_connection: true, status: userProductStatus } }
-				: { boost: { requires_user_connection: false, status: 'active' } },
-		},
-	} as unknown as typeof window.myJetpackInitialState;
 
 	let storeSelect: StoreSelect;
 	renderHook(
@@ -90,8 +81,10 @@ const siteOnly = { isRegistered: true, isUserConnected: false, hasConnectedOwner
 const everything = { isRegistered: true, isUserConnected: true, hasConnectedOwner: true };
 
 // Only the fields a row names, so a row can assert that a field is absent.
-const renderConnectionState = ( fields: object ) => {
-	const state = renderHook( () => useConnectionState(), { wrapper: Providers } ).result.current;
+const renderConnectionState = ( fields: object, shouldAskForUserConnection = false ) => {
+	const state = renderHook( () => useConnectionState( shouldAskForUserConnection ), {
+		wrapper: Providers,
+	} ).result.current;
 
 	return Object.fromEntries( Object.keys( fields ).map( key => [ key, state[ key ] ] ) );
 };
@@ -134,34 +127,31 @@ describe( 'useConnectionState', () => {
 			{ id: 'connected', status: 'success', action: undefined },
 		],
 		[
-			'site only, when nothing on needs an account',
+			'site only, when nothing in use needs a user connection',
 			{ status: siteOnly },
 			{ id: 'site-connected', status: 'success', action: undefined },
 		],
 		[
-			'site only, when the product needing an account is off',
-			{ status: siteOnly, userProductStatus: 'inactive' },
-			{ id: 'site-connected', status: 'success' },
-		],
-		[
 			'owner missing, for an admin',
-			{ status: siteOnly, userProductStatus: 'user_connection_error' },
+			{ status: siteOnly, shouldAskForUserConnection: true },
 			{ id: 'owner-missing', status: 'warning', action: 'CONNECT_USER' },
 		],
 		[
 			'owner missing, for a non-admin',
-			{ status: siteOnly, userProductStatus: 'user_connection_error', isAdmin: false },
+			{ status: siteOnly, shouldAskForUserConnection: true, isAdmin: false },
 			{ id: 'owner-missing', status: 'warning', action: undefined },
 		],
 		[
 			'account not connected while the owner is',
-			{ userProductStatus: 'active' },
+			{ shouldAskForUserConnection: true },
 			{ id: 'user-not-connected', status: 'warning', action: 'CONNECT_USER' },
 		],
 	] )( 'reports %s', ( _, site, expected ) => {
 		setSite( site );
 
-		expect( renderConnectionState( expected ) ).toEqual( expected );
+		expect( renderConnectionState( expected, site.shouldAskForUserConnection ) ).toEqual(
+			expected
+		);
 	} );
 
 	// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
@@ -171,11 +161,11 @@ describe( 'useConnectionState', () => {
 	] )(
 		'tints the account prompt %s when the error %s',
 		( status, _, connectionErrors, connectionOwner ) => {
-			setSite( { userProductStatus: 'active', connectionErrors, connectionOwner } );
+			setSite( { connectionErrors, connectionOwner } );
 
 			const expected = { id: 'user-not-connected', status };
 
-			expect( renderConnectionState( expected ) ).toEqual( expected );
+			expect( renderConnectionState( expected, true ) ).toEqual( expected );
 		}
 	);
 } );

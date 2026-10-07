@@ -2,10 +2,8 @@ import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpa
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { PRODUCT_STATUSES } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
-import type { StateProducts } from '../../data/types';
 
 /**
  * Which of the header's connection states the site is in (JETPACK-2910).
@@ -45,28 +43,6 @@ type StoreSelector = (
 	storeId: string
 ) => Record< 'getConnectionStatus', () => Record< string, unknown > >;
 
-// Statuses of a product that is switched on, whatever its plan or connection says.
-const SWITCHED_ON_STATUSES: string[] = [
-	PRODUCT_STATUSES.ACTIVE,
-	PRODUCT_STATUSES.CAN_UPGRADE,
-	PRODUCT_STATUSES.USER_CONNECTION_ERROR,
-	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
-	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
-	PRODUCT_STATUSES.EXPIRING_SOON,
-];
-
-/**
- * Whether anything switched on needs a WordPress.com account, not just the site connection.
- *
- * @param products - The products from the page's initial state.
- * @return True when at least one does.
- */
-export function needsUserConnection( products: StateProducts | undefined ): boolean {
-	return Object.values( products ?? {} ).some(
-		product => product?.requires_user_connection && SWITCHED_ON_STATUSES.includes( product.status )
-	);
-}
-
 /**
  * Where "Manage connection" goes on this site.
  *
@@ -83,9 +59,10 @@ export function getManageConnection(): ManageConnection {
  *
  * Reads only what the page was rendered with and the connection store, so it sends no request.
  *
+ * @param shouldAskForUserConnection - Whether to ask for a user connection.
  * @return The connection state
  */
-export function useConnectionState(): ConnectionState {
+export function useConnectionState( shouldAskForUserConnection: boolean ): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner, isOfflineMode } =
 		useMyJetpackConnection();
 	const { isKnown, isSafeMode } = useSelect( select => {
@@ -185,17 +162,14 @@ export function useConnectionState(): ConnectionState {
 		};
 	}
 
-	const needsUser = needsUserConnection( getMyJetpackWindowInitialState( 'products' )?.items );
-
 	// Connecting the account stays the prompt; a live error only tints the line, at
 	// the package's severity.
-	let status: ConnectionState[ 'status' ] = needsUser ? 'warning' : 'success';
+	let status: ConnectionState[ 'status' ] = shouldAskForUserConnection ? 'warning' : 'success';
 	if ( errorNotice.hasConnectionError ) {
 		status = errorNotice.severity ?? 'error';
 	}
 
-	// A site-only connection is healthy until something switched on needs an account.
-	if ( ! needsUser ) {
+	if ( ! shouldAskForUserConnection ) {
 		return {
 			id: 'site-connected',
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),

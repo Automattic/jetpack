@@ -190,6 +190,34 @@ final class Placement_Section {
 	}
 
 	/**
+	 * Store where the buttons appear, replacing whatever was stored.
+	 *
+	 * An empty list means "nowhere". Anything that is not a public post type or
+	 * `index` is dropped, so a crafted payload cannot widen where buttons render.
+	 *
+	 * @param array $post_types Post type slugs, plus `index` for the archive pages.
+	 */
+	public static function update( array $post_types ): void {
+		$options = get_option( 'sharing-options' );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+
+		// Sites carry a malformed `global` (see #6121), and writing into it in place
+		// would fatal where the services save, which rebuilds it wholesale, does not.
+		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
+			$options['global'] = array();
+		}
+
+		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
+		$allowed[] = 'index';
+
+		$options['global']['show'] = array_values( array_intersect( array_filter( $post_types, 'is_scalar' ), $allowed ) );
+
+		update_option( 'sharing-options', $options );
+	}
+
+	/**
 	 * A stored `show` value as a list of post types.
 	 *
 	 * Older sites stored a single keyword rather than a list, and both

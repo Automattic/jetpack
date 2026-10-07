@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets toolkit: Move the remaining report and widget links onto the shared ExternalLink and InternalLink components; the Comments Subscribers and File downloads report links now open in a new tab with the outbound marker.

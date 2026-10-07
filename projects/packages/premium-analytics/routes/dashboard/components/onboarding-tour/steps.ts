@@ -37,7 +37,7 @@ export function onboardingTourSteps( anchors: OnboardingTourAnchors ): Onboardin
 			anchor: anchors.dateControls,
 			title: __( 'A better date picker', 'jetpack-premium-analytics-pkg' ),
 			description: __(
-				"Compare any period with the one before it, and change the chart interval to suit the range you're looking at.",
+				'Pick any period and compare it with the one before it.',
 				'jetpack-premium-analytics-pkg'
 			),
 			side: 'bottom',
