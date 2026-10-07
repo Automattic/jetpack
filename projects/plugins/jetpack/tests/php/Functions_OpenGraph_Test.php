@@ -150,7 +150,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 		$processed_description = jetpack_og_get_description( $description );
 
-		$this->assertEquals(
+		$this->assertEqualHTML(
 			$cleaned_description,
 			$processed_description
 		);

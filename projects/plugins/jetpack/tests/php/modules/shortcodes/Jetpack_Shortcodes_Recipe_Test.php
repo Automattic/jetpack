@@ -109,7 +109,14 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$content = '[recipe preptime="30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( '<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>', $shortcode_content );
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
+		$this->assertThat(
+			$shortcode_content,
+			$this->logicalOr(
+				$this->stringContains( '<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>' ),
+				$this->stringContains( '<time datetime="P0DT0H30M0S" itemprop="prepTime"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>' )
+			)
+		);
 	}
 
 	/**
@@ -121,7 +128,14 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$content = '[recipe cooktime="2 hours 30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( '<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>', $shortcode_content );
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
+		$this->assertThat(
+			$shortcode_content,
+			$this->logicalOr(
+				$this->stringContains( '<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>' ),
+				$this->stringContains( '<time datetime="P0DT2H30M0S" itemprop="cookTime"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>' )
+			)
+		);
 	}
 
 	/**
@@ -189,11 +203,18 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		// We expect a different image markup when Lazy Load is enabled.
 		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
+			$lazy = ' loading="lazy"';
 		} else {
-			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />';
+			$lazy = '';
 		}
-		$this->assertStringContainsString( $expect, $shortcode_content );
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
+		$this->assertThat(
+			$shortcode_content,
+			$this->logicalOr(
+				$this->stringContains( '<img width="256" height="171" src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image"' . $lazy . ' />' ),
+				$this->stringContains( '<img alt="" class="jetpack-recipe-image u-photo photo" height="171" itemprop="image"' . $lazy . ' src="' . $url . '" width="256">' )
+			)
+		);
 	}
 
 	/**
@@ -208,16 +229,18 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		// We expect a different image markup when Lazy Load is enabled.
 		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			$this->assertStringContainsString(
-				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />',
-				$shortcode_content
-			);
+			$lazy = ' loading="lazy"';
 		} else {
-			$this->assertStringContainsString(
-				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />',
-				$shortcode_content
-			);
+			$lazy = '';
 		}
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
+		$this->assertThat(
+			$shortcode_content,
+			$this->logicalOr(
+				$this->stringContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image"' . $lazy . ' src="https://example.com" />' ),
+				$this->stringContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image"' . $lazy . ' src="https://example.com">' )
+			)
+		);
 	}
 
 	/**
@@ -378,15 +401,15 @@ EOT;
 	 */
 	public function test_shortcodes_recipe_kses_content() {
 		$tags = <<<'EOT'
-<ol itemprop="" datetime=""></ol>
-<ul itemprop="" datetime="">
-	<li itemprop="" datetime=""></li>
+<ol datetime="" itemprop=""></ol>
+<ul datetime="" itemprop="">
+	<li datetime="" itemprop=""></li>
 </ul>
-<img itemprop="" datetime="" />
-<p itemprop="" datetime=""></p>
-<h3 itemprop="" datetime=""></h3>
-<time itemprop="" datetime=""></time>
-<span itemprop="" datetime=""></span>
+<img datetime="" itemprop="">
+<p datetime="" itemprop=""></p>
+<h3 datetime="" itemprop=""></h3>
+<time datetime="" itemprop=""></time>
+<span datetime="" itemprop=""></span>
 <div itemscope="" itemtype=""></div>
 EOT;
 
@@ -450,6 +473,6 @@ EOT;
 		$actual = preg_replace( '/\s+/', ' ', $actual );
 		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEqualHTML( $expected, $actual );
 	}
 }
