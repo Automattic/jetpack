@@ -28,7 +28,7 @@ function renderLegacy() {
 async function renderModern() {
 	const slots = await waitForSlots();
 
-	// StrictMode must be the root element to re-run mount effects in development.
+	// StrictMode must be the root element to re-run mount effects in development in React 19.
 	// See https://react.dev/reference/react/StrictMode#enabling-strict-mode-for-a-part-of-the-app
 	WPElement.createRoot( slots.settings ).render(
 		<StrictMode>
