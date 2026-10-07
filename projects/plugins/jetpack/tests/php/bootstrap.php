@@ -222,6 +222,10 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 
+// Keep the legacy wp_kses() parser until tests are updated for the HTML API one (WP 7.2+).
+// @todo: Remove once tests pass with the new parser. See https://core.trac.wordpress.org/ticket/66208
+tests_add_filter( 'wp_kses_force_legacy_parser', '__return_true', 20 );
+
 // Override WP_TESTS_CONFIG_FILE_PATH via environment.
 // Important for monorepo CI, if you don't do this then different test runs might collide!
 if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
