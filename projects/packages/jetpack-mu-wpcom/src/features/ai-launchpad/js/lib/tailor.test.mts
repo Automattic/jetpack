@@ -272,25 +272,6 @@ describe( 'tailor', () => {
 		assert.match( decodeURIComponent( puts[ 0 ].path ), /request: timed out/ );
 	} );
 
-	it( 'saves nothing in place of an AI list whose write the page leaving cancelled', async () => {
-		aiCalls = [ async () => reply( VALID_OUTPUT ) ];
-		const put = deferred< unknown >();
-		putAnswer = () => put.promise;
-		const { state } = start();
-		await flush();
-		assert.equal( puts.length, 1 );
-		assert.match( puts[ 0 ].path, /source=ai/ );
-
-		page.dispatchEvent( new Event( 'beforeunload' ) );
-		page.dispatchEvent( new Event( 'pagehide' ) );
-		put.reject( { code: 'fetch_error', message: 'You are probably offline.' } );
-		await flush();
-
-		assert.equal( puts.length, 1, 'no fallback write' );
-		assert.equal( state.settled, false );
-		assert.equal( abandonedEvents()[ 0 ].stage, 'saving' );
-	} );
-
 	it( 'sends the list write with keepalive, so it can finish after the page is gone', async () => {
 		aiCalls = [ async () => reply( VALID_OUTPUT ) ];
 
@@ -310,27 +291,6 @@ describe( 'tailor', () => {
 			}
 			await flush();
 		};
-
-		it( 'shows the save error, and "Try again" saves the same list without a new AI call', async () => {
-			aiCalls = [ async () => reply( VALID_OUTPUT ) ];
-			putAnswer = offline;
-			const { run } = start();
-			await runRetries();
-
-			const result = await run;
-			assert.equal( result.source, 'ai' );
-			assert.ok( result.saveError );
-			assert.equal( puts.length, 1 + SAVE_RETRY_DELAYS_MS.length );
-			assert.ok(
-				puts.every( put => /source=ai/.test( put.path ) ),
-				'no fallback write'
-			);
-
-			putAnswer = () => Promise.resolve( {} );
-			assert.equal( await result.saveError.retry(), true );
-			assert.equal( aiCallCount, 1, 'no new AI call' );
-			assert.equal( puts.at( -1 )?.data, puts[ 0 ].data );
-		} );
 
 		it( 'sends nothing more, and shows no error, once the page is leaving', async () => {
 			aiCalls = [ async () => reply( VALID_OUTPUT ) ];

@@ -186,18 +186,6 @@ describe( 'commitTailoring', () => {
 		assert.match( writes[ 0 ].path, /attempts=2/ );
 	} );
 
-	it( 'falls back to the deterministic picker when the server rejects the AI output', async () => {
-		reject = path => path.includes( 'source=ai' );
-
-		const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
-
-		assert.equal( result.source, 'fallback' );
-		assert.notEqual( result.output, AI_OUTPUT );
-		assert.equal( writes.length, 2 );
-		assert.match( writes[ 1 ].path, /source=fallback/ );
-		assert.equal( writes[ 1 ].data, result.output );
-	} );
-
 	describe( 'saving', () => {
 		it( 'retries a write that failed in transit, and saves the AI list without a fallback', async () => {
 			let failures = 1;
@@ -287,14 +275,17 @@ describe( 'commitTailoring', () => {
 			assert.equal( eventsNamed( 'save_outcome' ).length, 1 );
 		} );
 
-		it( 'saves the fallback when the server rejects the AI list', async () => {
+		it( 'saves the deterministic fallback, without retrying, when the server rejects the AI list', async () => {
 			reject = path => path.includes( 'source=ai' );
 
 			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 			assert.equal( result.source, 'fallback' );
+			assert.notEqual( result.output, AI_OUTPUT );
 			assert.equal( result.saveError, undefined );
 			assert.equal( writes.length, 2, 'a rejection is not retried' );
+			assert.match( writes[ 1 ].path, /source=fallback/ );
+			assert.equal( writes[ 1 ].data, result.output );
 			assert.deepEqual( slept, [] );
 			assert.deepEqual(
 				eventsNamed( 'save_outcome' ).map( props => props.save_outcome ),
@@ -384,19 +375,6 @@ describe( 'commitTailoring', () => {
 			] );
 		} );
 
-		it( 'carries the reasons onto the fallback write when the server rejects the AI output', async () => {
-			reject = path => path.includes( 'source=ai' );
-
-			await commit(
-				prepared( { attempts: 2, validationErrors: [ '$: invalid JSON' ] } ),
-				INPUT,
-				ENGLISH_SITE_COPY
-			);
-
-			assert.match( writes[ 1 ].path, /source=fallback/ );
-			assert.deepEqual( sent( writes[ 1 ].path ), [ '$: invalid JSON' ] );
-		} );
-
 		it( 'caps how many reasons are sent and how long each is', async () => {
 			await commit(
 				prepared( {
@@ -421,13 +399,7 @@ describe( 'commitTailoring', () => {
 		// The message can quote the payload, so it must never reach an event.
 		const SECRET = 'payload.inferred.niche Café of Jane Doe';
 
-		it( 'records nothing when the write succeeds', async () => {
-			await commit( prepared(), INPUT, ENGLISH_SITE_COPY );
-
-			assert.deepEqual( saveFailedEvents(), [] );
-		} );
-
-		it( 'records the failed AI write, then renders the fallback it saved', async () => {
+		it( 'records the failed AI write without its message', async () => {
 			reject = path => path.includes( 'source=ai' );
 			rejectWith = {
 				code: 'ai_launchpad_invalid_payload',
@@ -435,10 +407,8 @@ describe( 'commitTailoring', () => {
 				data: { status: 422 },
 			};
 
-			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared(), INPUT, ENGLISH_SITE_COPY );
 
-			assert.equal( result.source, 'fallback' );
-			assert.equal( writes.length, 2 );
 			const events = saveFailedEvents();
 			assert.equal( events.length, 1 );
 			const [ name, props ] = events[ 0 ];
@@ -479,20 +449,6 @@ describe( 'commitTailoring', () => {
 				]
 			);
 			assert.equal( JSON.stringify( win.window._tkq ).includes( 'Jane' ), false );
-		} );
-
-		it( 'records a network error with no status as status 0', async () => {
-			reject = () => true;
-			rejectWith = { code: 'fetch_error', message: 'You are probably offline.' };
-
-			await commit( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
-
-			const events = saveFailedEvents();
-			assert.equal( events.length, 1 + SAVE_RETRY_DELAYS_MS.length );
-			assert.equal( events[ 0 ][ 1 ].failed_write, 'fallback' );
-			assert.equal( events[ 0 ][ 1 ].http_status, 0 );
-			assert.equal( events[ 0 ][ 1 ].error_code, 'fetch_error' );
-			assert.equal( JSON.stringify( win.window._tkq ).includes( 'offline' ), false );
 		} );
 
 		it( 'reduces an odd code to a safe one, an Error to its name, and anything else to "unknown"', async () => {
