@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { runFeatureAction, type FeatureAction } from './api';
 import { errorMessage } from './error-message';
-import { MUTATION_SCOPE, SAVE_SETTING_KEY, queryKeys } from './queries';
+import { FEATURE_ACTION_KEY, MUTATION_SCOPE, SAVE_SETTING_KEY, queryKeys } from './queries';
 import type { Feature } from '../types';
 
 export type { FeatureAction };
@@ -20,6 +20,7 @@ export function useFeatureAction() {
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const { mutate, isPending } = useMutation( {
+		mutationKey: FEATURE_ACTION_KEY,
 		scope: MUTATION_SCOPE,
 		mutationFn: ( { feature, action }: { feature: Feature; action: FeatureAction } ) =>
 			runFeatureAction( feature, action ),

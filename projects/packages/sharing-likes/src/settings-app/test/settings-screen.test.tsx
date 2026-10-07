@@ -1,6 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { LIKES_ANCHOR } from '../anchors';
+import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveSetting } from '../data/use-save-setting';
 import { SettingsScreen } from '../settings-screen';
 import { baseStatus, renderWithData, resetNotices, setScriptData } from './helpers';
@@ -14,6 +15,11 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 const scrollIntoView = jest.fn();
+
+interface Writes {
+	save: ReturnType< typeof useSaveSetting >;
+	action: ReturnType< typeof useFeatureAction >[ 'run' ];
+}
 
 /**
  * Whether leaving the page now would prompt.
@@ -79,22 +85,25 @@ describe( 'SettingsScreen', () => {
 		}
 	);
 
-	it( 'warns before leaving while a save is in flight', async () => {
-		let save: ReturnType< typeof useSaveSetting > | undefined;
+	it.each( [
+		[ 'a save', ( write: Writes ) => write.save( 'likes_enabled', false ) ],
+		[ 'a feature action', ( write: Writes ) => write.action( 'sharing', 'switch-to-block' ) ],
+	] )( 'warns before leaving while %s is in flight', async ( _, start ) => {
+		let writes: Writes | undefined;
 		/**
-		 * Renders the screen and exposes a save to the test.
+		 * Renders the screen and exposes its writes to the test.
 		 *
 		 * @return Screen.
 		 */
-		function WithSave() {
-			save = useSaveSetting();
+		function WithWrites() {
+			writes = { save: useSaveSetting(), action: useFeatureAction().run };
 			return <SettingsScreen />;
 		}
-		renderWithData( <WithSave /> );
+		renderWithData( <WithWrites /> );
 
 		expect( leavingPrompts() ).toBe( false );
 		act( () => {
-			save?.( 'likes_enabled', false );
+			start( writes! );
 		} );
 
 		await waitFor( () => expect( leavingPrompts() ).toBe( true ) );

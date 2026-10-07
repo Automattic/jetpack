@@ -4,7 +4,7 @@ import { useIsMutating } from '@tanstack/react-query';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, Stack } from '@wordpress/ui';
-import { SAVE_SETTING_KEY, useSettings, useStatus } from './data/queries';
+import { WRITES_KEY, useSettings, useStatus } from './data/queries';
 import { useScrollToHash } from './hooks/use-scroll-to-hash';
 import { useUnsavedChangesWarning } from './hooks/use-unsaved-changes-warning';
 import { getSharingLikesScriptData } from './script-data';
@@ -80,8 +80,8 @@ function Sections(): JSX.Element | null {
 export function SettingsScreen(): JSX.Element {
 	const scriptData = getSharingLikesScriptData();
 	const siteData = getSiteData();
-	// The browser can abort an auto-save still in flight when the page unloads.
-	useUnsavedChangesWarning( useIsMutating( { mutationKey: SAVE_SETTING_KEY } ) > 0 );
+	// The browser can abort a write still in flight when the page unloads.
+	useUnsavedChangesWarning( useIsMutating( { mutationKey: WRITES_KEY } ) > 0 );
 
 	return (
 		<AdminPage
