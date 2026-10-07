@@ -84,7 +84,6 @@ export function useConnectionState(
 		status = error.severity ?? 'error';
 	}
 
-	// A site-only connection is healthy until something switched on needs a user connection.
 	if ( ! shouldAskForUserConnection ) {
 		return {
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
