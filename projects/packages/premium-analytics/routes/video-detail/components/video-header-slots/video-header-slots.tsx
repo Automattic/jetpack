@@ -14,6 +14,7 @@ import { video } from '@wordpress/icons';
  */
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
+import styles from './video-header-slots.module.scss';
 import type { VideoSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
@@ -36,7 +37,12 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
 	const hidePoster = useCallback( () => setFailedPosterUrl( posterUrl ), [ posterUrl ] );
 
 	return posterUrl && posterUrl !== failedPosterUrl ? (
-		<img src={ posterUrl } alt="" onError={ hidePoster } />
+		<span className={ styles.poster }>
+			<img src={ posterUrl } alt="" onError={ hidePoster } />
+			<span className={ styles.playOverlay }>
+				<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
+			</span>
+		</span>
 	) : (
 		<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
 	);
