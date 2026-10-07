@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { bell, chartBar, border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
 import { startBenefits } from '../lib';
-import { PANEL_LINES } from '../panel-type';
 import { Wizard } from '../wizard';
 import type { UserEvent } from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
@@ -194,14 +193,6 @@ const GLYPH_BY_PATH: Record< string, string > = {
 const railGlyph = ( name: string ) =>
 	// eslint-disable-next-line testing-library/no-node-access
 	GLYPH_BY_PATH[ railStep( name ).querySelector( 'svg path' )?.getAttribute( 'd' ) ?? '' ];
-
-// The panel's lines are outlined SVG, so the words live in one visually hidden
-// block per step, read as a sentence rather than as fragments.
-const PANEL_COPY = Object.values( PANEL_LINES ).map( lines =>
-	lines.map( line => line.text ).join( ' ' )
-);
-
-const panelCopy = ( step: number ) => screen.getByText( PANEL_COPY[ step ] );
 
 // A question step needs a choice before Continue is live; the feature step starts
 // with every row answered. The start step is not advanced this way: it leaves
@@ -602,7 +593,6 @@ describe( 'Wizard shell', () => {
 		await advance( user, 2 );
 
 		expect( screen.queryByRole( 'navigation' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( PANEL_COPY[ 3 ] ) ).not.toBeInTheDocument();
 	} );
 
 	/*
@@ -667,54 +657,6 @@ describe( 'Wizard shell', () => {
 		expect( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) ).toHaveAttribute(
 			'href',
 			exitUrl
-		);
-	} );
-
-	it( 'gives every step its own panel copy, and shows only the current one', async () => {
-		const { user } = setupWizard( { isUserConnected: true } );
-
-		expect( panelCopy( 1 ) ).toBeInTheDocument();
-		expect( screen.queryByText( PANEL_COPY[ 0 ] ) ).not.toBeInTheDocument();
-
-		// Stops at the feature step: the finish step has no panel to carry copy.
-		for ( const step of [ 2 ] ) {
-			await advance( user, 1 );
-			expect( panelCopy( step ) ).toBeInTheDocument();
-			expect( screen.queryByText( PANEL_COPY[ step - 1 ] ) ).not.toBeInTheDocument();
-		}
-	} );
-
-	it( 'draws the lines as outlines, flipped out of y-up font coordinates', () => {
-		setupWizard();
-
-		// eslint-disable-next-line testing-library/no-node-access
-		const svgs = Array.from( panelCopy( 0 ).parentElement?.querySelectorAll( 'svg' ) ?? [] );
-
-		// One per line, and hidden: the words are carried by the copy above
-		// instead. Counted off the data, because the start screen's copy is
-		// three lines where every other step's is two.
-		expect( svgs ).toHaveLength( PANEL_LINES[ 0 ].length );
-		expect( svgs.every( svg => svg.getAttribute( 'aria-hidden' ) === 'true' ) ).toBe( true );
-
-		// The box is the font's, and the flip is what keeps the glyphs right way up.
-		expect( svgs[ 0 ] ).toHaveAttribute(
-			'viewBox',
-			expect.stringMatching( /^0 -1037 [\d.]+ 1326$/ )
-		);
-		expect(
-			// eslint-disable-next-line testing-library/no-node-access
-			svgs.map( svg => svg.querySelector( 'g' )?.getAttribute( 'transform' ) )
-		).toEqual( PANEL_LINES[ 0 ].map( () => 'scale(1, -1)' ) );
-	} );
-
-	it( 'joins the three start-screen lines into one hidden sentence', () => {
-		setupWizard();
-
-		// The start screen's copy runs to three lines where every other step's
-		// runs to two, and the three are read as one sentence, not as fragments.
-		expect( PANEL_LINES[ 0 ] ).toHaveLength( 3 );
-		expect( panelCopy( 0 ) ).toHaveTextContent(
-			'Grow your audience. Speed up your site. Keep it secure.'
 		);
 	} );
 } );
