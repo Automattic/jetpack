@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isAmbiguousFailure } from '../data/api/_helpers';
+import { errorCode, isAmbiguousFailure } from '../data/api/_helpers';
 import {
 	fetchRecentRestores,
 	fetchRestoreStatus,
@@ -16,6 +16,7 @@ import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
 import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatusResponse } from '../data/api/restore';
+import type { ReferenceId } from '../types/failure-reference';
 import type { RestoreItems, RestoreState } from '../types/restore';
 
 type Result = {
@@ -59,7 +60,11 @@ const POLL_INTERVAL_MS = 5000;
 const QUIET_TIMEOUT_MS = 5 * 60 * 1000;
 
 type DeriveInput = {
+	/** What a reference names: the restore once known, else the backup. */
+	referenceId: ReferenceId;
 	errorMessage: string | null;
+	/** The code of the submission's failure, ambiguous or not. */
+	failureCode: string | null;
 	isPending: boolean;
 	isChecking: boolean;
 	unconfirmed: string | null;
@@ -86,7 +91,9 @@ type DeriveInput = {
  */
 function deriveState( input: DeriveInput ): RestoreState {
 	const {
+		referenceId,
 		errorMessage,
+		failureCode,
 		isPending,
 		isChecking,
 		unconfirmed,
@@ -99,7 +106,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 	} = input;
 
 	if ( errorMessage ) {
-		return { phase: 'error', message: errorMessage };
+		return {
+			phase: 'error',
+			message: errorMessage,
+			reference: { code: failureCode, id: referenceId },
+		};
 	}
 	// `startedRewindId` is read before `isPending`: React Query never reattaches a
 	// MutationObserver detached mid-flight, so a remount latches `isPending` true
@@ -126,7 +137,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 		if ( settledOutcome !== null ) {
 			return settledOutcome === 'succeeded'
 				? { phase: 'success' }
-				: { phase: 'error', message: __( 'Restore failed.', 'jetpack-backup-pkg' ) };
+				: {
+						phase: 'error',
+						message: __( 'Restore failed.', 'jetpack-backup-pkg' ),
+						reference: { code: null, id: referenceId },
+					};
 		}
 		if ( lostTrack ) {
 			return {
@@ -135,6 +150,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 					"Your restore didn't start, so nothing on your site has changed.",
 					'jetpack-backup-pkg'
 				),
+				reference: { code: failureCode, id: referenceId },
 			};
 		}
 		return { phase: 'unconfirmed', detail: unconfirmed };
@@ -147,22 +163,30 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// that as an error offers a retry, which upstream refuses as a bare
 	// failure rather than as anything the reader can act on.
 	if ( restoreId !== null && statusError ) {
-		return { phase: 'lost-track', detail: statusError.message || null };
+		return {
+			phase: 'lost-track',
+			detail: statusError.message || null,
+			reference: { code: errorCode( statusError ), id: referenceId },
+		};
 	}
 
 	switch ( data?.status ) {
 		case 'finished':
 			return { phase: 'success' };
 		case 'finished-with-errors':
-			return { phase: 'success-with-errors', message: data.message };
+			return {
+				phase: 'success-with-errors',
+				message: data.message,
+				reference: { code: data.error_code || null, id: referenceId },
+			};
 		case 'failed':
 		case 'aborted':
-			// `error_code` is a machine identifier (e.g.
-			// `checksum_mismatch`) — never surface it; fall through to
-			// the translated generic when `message` is empty.
+			// `error_code` is a machine identifier (e.g. `checksum_mismatch`):
+			// quoted in the reference, never used as the message.
 			return {
 				phase: 'error',
 				message: data.message || __( 'Restore failed.', 'jetpack-backup-pkg' ),
+				reference: { code: data.error_code || null, id: referenceId },
 			};
 		case 'running':
 			return {
@@ -180,7 +204,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 			// concurrent one. The copy lives on the screen, like every
 			// other phase's.
 			if ( lostTrack && ! isSignOfLife( data?.status ) ) {
-				return { phase: 'lost-track', detail: null };
+				return {
+					phase: 'lost-track',
+					detail: null,
+					reference: { code: null, id: referenceId },
+				};
 			}
 			return { phase: 'queued' };
 	}
@@ -229,6 +257,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 export function useRestore( rewindId: string, enabled = true ): Result {
 	const [ submittedId, setSubmittedId ] = useState< number | null >( null );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
+	const [ failureCode, setFailureCode ] = useState< string | null >( null );
 	// Non-null while a submission's outcome is unknown, holding the
 	// transport's own text. Distinct from `errorMessage`, which means
 	// WordPress.com answered and said no.
@@ -281,6 +310,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			return { started: await initiateRestore( rewindId, items ) } as const;
 		},
 		onSuccess: outcome => {
+			setFailureCode( null );
 			if ( 'adopt' in outcome ) {
 				setErrorMessage( null );
 				setAdopted( { id: outcome.adopt.restore_id, rewindId: outcome.adopt.rewind_id } );
@@ -300,6 +330,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			}
 		},
 		onError: ( err: Error ) => {
+			setFailureCode( errorCode( err ) );
 			// We never saw an answer, so the restore may be running. Enter
 			// the same recovery the no-id case uses and let it decide:
 			// finding one adopts it, finding none for the whole silence
@@ -460,6 +491,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		setAdopted( null );
 		setSubmittedId( null );
 		setErrorMessage( null );
+		setFailureCode( null );
 		setUnconfirmed( null );
 		setStartedRewindId( null );
 		setAliveAt( null );
@@ -469,7 +501,12 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	}, [ resetMutation ] );
 
 	const state = deriveState( {
+		referenceId:
+			restoreId !== null
+				? { kind: 'restore', value: restoreId }
+				: { kind: 'backup', value: activeRewindId ?? rewindId },
 		errorMessage,
+		failureCode,
 		isPending,
 		isChecking,
 		unconfirmed,

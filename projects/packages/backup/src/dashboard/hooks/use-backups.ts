@@ -7,6 +7,7 @@ import { useCanQueryWpcom } from './use-connection';
 import { useBackupRequested } from './use-enqueue-backup';
 import { useStickyError } from './use-sticky-error';
 import type { Backup, BackupsState } from '../types/backup';
+import type { FailureReference } from '../types/failure-reference';
 
 /**
  * How often to re-read the backup list while something is expected to
@@ -144,6 +145,26 @@ export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	}
 
 	return { state: 'no-good-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
+}
+
+/**
+ * What the reader quotes to support while backups are failing: the newest attempt.
+ *
+ * Its status is the code, unless it finished: a finished attempt that is still
+ * unusable failed for a reason the status does not name.
+ *
+ * @param backups - Normalized backups, newest first.
+ * @return The reference, or null when there is no attempt to name.
+ */
+export function failedAttemptReference( backups: Backup[] ): FailureReference | null {
+	const newest = backups[ 0 ];
+	if ( ! newest ) {
+		return null;
+	}
+	return {
+		code: newest.status !== 'finished' ? newest.status : null,
+		id: { kind: 'attempt', value: newest.id },
+	};
 }
 
 /**

@@ -1,8 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { errorCode } from '../data/api/_helpers';
 import { fetchDownloadStatus, initiateDownload, initiateFileDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
+import type { FailureReference, ReferenceId } from '../types/failure-reference';
 import type { RestoreItems } from '../types/restore';
 
 type DownloadState =
@@ -10,7 +12,7 @@ type DownloadState =
 	| { phase: 'submitting' }
 	| { phase: 'progress'; percent: number }
 	| { phase: 'success'; downloadUrl: string; validUntil: string }
-	| { phase: 'error'; message: string };
+	| { phase: 'error'; message: string; reference: FailureReference };
 
 // A download is scoped by categories *or* by named files, never both:
 // upstream models `paths` as one of the six categories.
@@ -46,7 +48,7 @@ const POLL_INTERVAL_MS = 1500;
  */
 export function useDownload( rewindId: string, enabled = true ): Result {
 	const [ downloadId, setDownloadId ] = useState< number | null >( null );
-	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
+	const [ submitError, setSubmitError ] = useState< Error | null >( null );
 
 	const {
 		mutate: mutateInitiate,
@@ -59,10 +61,10 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 				: initiateDownload( rewindId, request.items ),
 		onSuccess: result => {
 			setDownloadId( result.id );
-			setErrorMessage( null );
+			setSubmitError( null );
 		},
 		onError: ( err: Error ) => {
-			setErrorMessage( err.message );
+			setSubmitError( err );
 		},
 	} );
 
@@ -84,16 +86,26 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 	);
 	const reset = useCallback( () => {
 		setDownloadId( null );
-		setErrorMessage( null );
+		setSubmitError( null );
 		resetMutation();
 	}, [ resetMutation ] );
+
+	// The download once it exists; before that, the backup it was asked of.
+	const referenceId: ReferenceId =
+		downloadId !== null
+			? { kind: 'download', value: downloadId }
+			: { kind: 'backup', value: rewindId };
 
 	// `downloadId` is read before `isInitiating`: StrictMode's remount detaches
 	// the observer from the in-flight mutation and never reattaches it, so
 	// `isPending` latches true while `onSuccess` still lands the id.
 	let state: DownloadState = { phase: 'idle' };
-	if ( errorMessage ) {
-		state = { phase: 'error', message: errorMessage };
+	if ( submitError?.message ) {
+		state = {
+			phase: 'error',
+			message: submitError.message,
+			reference: { code: errorCode( submitError ), id: referenceId },
+		};
 	} else if ( statusQuery.data?.status === 'finished' && statusQuery.data.url ) {
 		state = {
 			phase: 'success',
@@ -115,6 +127,8 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 						statusQuery.data.error
 					)
 				: __( 'Download failed.', 'jetpack-backup-pkg' ),
+			// Upstream reports this one in prose only, so there is no code to quote.
+			reference: { code: null, id: referenceId },
 		};
 	} else if ( downloadId !== null && statusQuery.error ) {
 		// Network/HTTP failure mid-poll: surface so the UI doesn't sit
@@ -124,6 +138,7 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 			message:
 				statusQuery.error.message ||
 				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
+			reference: { code: errorCode( statusQuery.error ), id: referenceId },
 		};
 	} else if ( downloadId !== null ) {
 		state = {

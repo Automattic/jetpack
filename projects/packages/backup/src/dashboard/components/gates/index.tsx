@@ -40,7 +40,13 @@ export default function Gates( { children }: Props ) {
 	}
 
 	if ( gate.status === 'error' ) {
-		return <CapabilitiesErrorScreen onRetry={ gate.onRetry } isRetrying={ gate.isRetrying } />;
+		return (
+			<CapabilitiesErrorScreen
+				error={ gate.error }
+				onRetry={ gate.onRetry }
+				isRetrying={ gate.isRetrying }
+			/>
+		);
 	}
 
 	if ( gate.status === 'no-plan' ) {
