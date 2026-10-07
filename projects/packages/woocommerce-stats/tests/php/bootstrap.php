@@ -22,12 +22,16 @@ if ( ! function_exists( 'jetpack_woocommerce_stats_get_registered_widget_modules
 	 * Manifest stand-in.
 	 *
 	 * @return array[]
+	 * @throws RuntimeException When a widget manifest does not decode to an array.
 	 */
 	function jetpack_woocommerce_stats_get_registered_widget_modules() {
 		$modules = array();
 
 		foreach ( glob( __DIR__ . '/../../widgets/*/widget.json' ) as $manifest ) {
-			$widget   = json_decode( (string) file_get_contents( $manifest ), true );
+			$widget = json_decode( (string) file_get_contents( $manifest ), true );
+			if ( ! is_array( $widget ) ) {
+				throw new RuntimeException( 'Unreadable widget manifest: ' . $manifest );
+			}
 			$dir_name = basename( dirname( $manifest ) );
 
 			$modules[] = array(
