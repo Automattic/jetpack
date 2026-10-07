@@ -29,8 +29,9 @@
 	padding: var(--jetpack-comments-pad);
 	resize: none;
 
+	// Pinned: themes set display on textarea#comment, and an ID outranks classes.
 	&[hidden] {
-		display: none;
+		display: none !important;
 	}
 
 	// The shade the editor gives its own placeholder, so the handoff keeps it.
