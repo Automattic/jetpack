@@ -4,7 +4,7 @@ const { checkConnectorsCard, SIZE_LIMIT } = require( '../../bin/validate-connect
 
 const validBuild = {
 	asset: {
-		dependencies: [ '@wordpress/connectors', 'wp-polyfill' ],
+		dependencies: [ '@wordpress/connectors', 'JetpackConnection' ],
 		version: 'abc',
 		type: 'module',
 	},
