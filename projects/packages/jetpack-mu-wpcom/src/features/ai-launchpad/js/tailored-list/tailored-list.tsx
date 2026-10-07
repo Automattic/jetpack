@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
@@ -113,6 +113,13 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	const [ siteEditUrl, setSiteEditUrl ] = useState< string | null >(
 		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
 	);
+	// Set when the tailored list could not be saved: an error with "Try again" renders in place of
+	// a list nobody saved, whose progress would vanish on the next visit.
+	const [ saveError, setSaveError ] = useState< TailorResult[ 'saveError' ] | null >( null );
+	// Set once "Try again" has saved the list, so the load below reads it back like any other.
+	const [ savedOnRetry, setSavedOnRetry ] = useState( false );
+	const [ retrying, setRetrying ] = useState( false );
+	const [ retryFailed, setRetryFailed ] = useState( false );
 
 	// One viewed event per screen shown; the launchpad screen includes its
 	// loading skeleton. The host seeds the context before mounting this view.
@@ -138,6 +145,12 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			// Wait for the tailor call to settle so the PUT has persisted before we
 			// read it back. A rejected tailor still gives its in-memory output as a fallback.
 			const result = await Promise.resolve( pendingTailor ).catch( () => undefined );
+			if ( result?.saveError && ! savedOnRetry ) {
+				if ( ! cancelled ) {
+					setSaveError( result.saveError );
+				}
+				return;
+			}
 
 			let data: LaunchpadData | null = null;
 			try {
@@ -185,7 +198,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		return () => {
 			cancelled = true;
 		};
-	}, [ pendingTailor, initialData ] );
+	}, [ pendingTailor, initialData, savedOnRetry ] );
 
 	// Keep the shared Tracks context in step with what is actually rendered, on
 	// both the wizard→list path (fresh tailor) and the returning-user path.
@@ -226,6 +239,64 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 
 	// Prefer the goal from the loaded AI output; fall back to the wizard's.
 	const effectiveGoal = output?.inferred?.goal ?? goal ?? null;
+
+	if ( saveError && ! savedOnRetry ) {
+		const handleRetry = async () => {
+			setRetrying( true );
+			const ok = await saveError.retry();
+			setRetrying( false );
+			if ( ok ) {
+				setSavedOnRetry( true );
+			} else {
+				setRetryFailed( true );
+			}
+		};
+
+		return (
+			<Layout
+				progressLabel={
+					/* translators: status line shown when the generated checklist could not be saved. */
+					__( 'Your checklist is not saved yet', 'jetpack-mu-wpcom' )
+				}
+				goal={ effectiveGoal }
+				siteUrl={ siteUrl }
+				siteTitle={ siteTitle }
+				siteEditUrl={ siteEditUrl }
+			>
+				{ /* Polite: the user is waiting on this result, not interrupted by it. The description
+				changes after a failed retry, which announces it again. */ }
+				<Notice.Root intent="error" politeness="polite">
+					<Notice.Title>
+						{ __( "We couldn't save your checklist.", 'jetpack-mu-wpcom' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ retryFailed
+							? __(
+									"It still didn't save. Check your connection, then try again.",
+									'jetpack-mu-wpcom'
+								)
+							: __(
+									'Your checklist is ready, but saving it failed. Check your connection, then try again.',
+									'jetpack-mu-wpcom'
+								) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton
+							variant="solid"
+							loading={ retrying }
+							loadingAnnouncement={
+								/* translators: announced to screen reader users while the checklist is being saved again. */
+								__( 'Saving your checklist…', 'jetpack-mu-wpcom' )
+							}
+							onClick={ handleRetry }
+						>
+							{ __( 'Try again', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			</Layout>
+		);
+	}
 
 	if ( ! tasks ) {
 		return (
