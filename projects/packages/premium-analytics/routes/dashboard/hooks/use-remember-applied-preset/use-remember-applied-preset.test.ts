@@ -45,7 +45,6 @@ describe( 'useRememberAppliedPreset', () => {
 		expect( remembered() ).toBe( 'last-30-days' );
 	} );
 
-	// Every preferences set saves to the server.
 	it( 'does not save again when the reader re-applies the remembered preset', () => {
 		const actions = dispatch( preferencesStore ) as unknown as PreferencesActions;
 		const set = jest.spyOn( actions, 'set' );

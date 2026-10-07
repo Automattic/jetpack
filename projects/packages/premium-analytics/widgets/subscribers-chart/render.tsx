@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useSubscribersChart, {
@@ -148,7 +148,7 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
-	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+	const reportParams = attributes.reportParams ?? defaultReportParams();
 
 	return (
 		<ReportScopeProvider offersComparison={ false }>

@@ -79,7 +79,7 @@ describe( 'default report params', () => {
 			[ 'last_30_days', 'last-30-days' ],
 			[ 'year_to_date', 'year-to-date' ],
 			[ 'last_3_years', 'last-12-months' ],
-			[ 'constructor', 'last-7-days' ],
+			[ 'not_a_shortcut', 'last-7-days' ],
 		] )( 'maps the v1 shortcut %s to %s', ( shortcutId, preset ) => {
 			window.localStorage.setItem( V1_KEY, shortcutId );
 
@@ -98,10 +98,12 @@ describe( 'default report params', () => {
 			}
 		} );
 
-		it( 'falls back to the v1 key from before it was per site', () => {
+		it( 'reads the v1 key from before it was per site only when this site has none', () => {
 			window.localStorage.setItem( 'jetpack_stats_stored_date_range_shortcut_id', 'today' );
-
 			expect( getDefaultPreset() ).toBe( 'today' );
+
+			window.localStorage.setItem( V1_KEY, 'last_30_days' );
+			expect( getDefaultPreset() ).toBe( 'last-30-days' );
 		} );
 
 		it( 'prefers the preset applied in v2 over the v1 one', () => {

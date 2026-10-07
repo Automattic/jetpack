@@ -44,9 +44,8 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * modules can consume it through this package's script module: the toolkit is
  * bundled-from-source and its scss graph cannot enter the widget metadata build.
  *
- * `getDefaultPreset()` is imported rather than read from context because the control
- * renders as host chrome outside the widget tree, where `WidgetRootContext` is
- * unreachable.
+ * The control renders as host chrome outside the widget tree, where `WidgetRootContext`
+ * is unreachable, so it reads the default preset from `getDefaultPreset()` instead.
  */
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;

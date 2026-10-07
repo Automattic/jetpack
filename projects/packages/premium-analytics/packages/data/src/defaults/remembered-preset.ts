@@ -72,12 +72,12 @@ export function getStatsV1Preset(): PresetType | undefined {
 	const blogId = getScriptData()?.site?.wpcom?.blog_id;
 
 	try {
+		const siteShortcutId = blogId
+			? window.localStorage.getItem( `jetpack_stats_stored_date_range_shortcut_id_${ blogId }` )
+			: null;
+		// v1 still reads its key from before it was per site.
 		const shortcutId =
-			( blogId &&
-				window.localStorage.getItem(
-					`jetpack_stats_stored_date_range_shortcut_id_${ blogId }`
-				) ) ||
-			// v1 still reads its key from before it was per site.
+			siteShortcutId ||
 			window.localStorage.getItem( 'jetpack_stats_stored_date_range_shortcut_id' );
 
 		return shortcutId ? STATS_V1_SHORTCUTS.get( shortcutId ) : undefined;
