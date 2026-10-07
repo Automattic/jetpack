@@ -126,7 +126,10 @@ function recordedProps(): RecordedLineProps {
 	return mockLineChartSpy.mock.calls.at( -1 )[ 0 ];
 }
 
-type Entry = { datum: { date: Date; realDate?: Date; value?: number | null }; key: string };
+type Entry = {
+	datum: { date: Date; realDate?: Date; endDate?: Date; value?: number | null };
+	key: string;
+};
 
 /**
  * The model the chart's tooltip renders for the hovered entries; the first is
@@ -350,30 +353,31 @@ describe( 'ComparativeLineChart', () => {
 
 	// Most widgets declare no resolution, so reading the caller's prop alone left
 	// an hourly series naming all 24 of a day's points with the same date.
-	it( 'adds the hour for an hourly series that declares no resolution', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	it.each( [
+		[ 'Asia/Tokyo', 'July 2, 2026 2:00 pm' ],
+		[ 'America/Los_Angeles', 'July 1, 2026 10:00 pm' ],
+	] )( 'adds the hour for an hourly series that declares no resolution, in %s', ( zone, label ) => {
+		setSettings( siteSettingsIn( zone ) );
 		render( <ComparativeLineChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
 
 		expect( tooltipModelFor( { datum: { date: JULY_2, value: 200 }, key: 'Views' } ).date ).toBe(
-			'July 2, 2026 2:00 pm'
+			label
 		);
 	} );
 
-	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
-		const formatTooltipDate = jest.fn( () => 'the bucket' );
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="hour"
-				formatTooltipDate={ formatTooltipDate }
-			/>
+	it( 'heads the comparison column with the week its point spans', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+
+		const model = tooltipModelFor(
+			{ datum: { date: JULY_1, value: 100 }, key: 'Views' },
+			{
+				datum: { ...COMPARISON_POINT, endDate: new Date( '2026-06-07T12:00:00Z' ) },
+				key: 'Views · previous period',
+			}
 		);
 
-		expect( tooltipModelFor( { datum: { date: JULY_2, value: 200 }, key: 'Views' } ).date ).toBe(
-			'the bucket'
-		);
-		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2, 'dateTime' );
+		expect( model.previousDate ).toBe( 'June 1\u2009\u2013\u20097, 2026' );
 	} );
 
 	it( 'heads the comparison column with its own date, not the axis date it shares', () => {

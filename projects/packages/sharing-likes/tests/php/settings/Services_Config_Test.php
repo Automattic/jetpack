@@ -120,6 +120,14 @@ class Services_Config_Test extends BaseTestCase {
 		$this->assertSame( array( 'page' ), $saved['show'] );
 	}
 
+	public function test_services_save_keeps_the_stored_open_links(): void {
+		update_option( 'sharing-options', array( 'global' => array( 'open_links' => 'new' ) ) );
+
+		$saved = $this->submit_services_form( array( 'button_style' => 'icon' ) );
+
+		$this->assertSame( 'new', $saved['open_links'] );
+	}
+
 	/**
 	 * Print a field, standing in for a third-party consumer.
 	 */

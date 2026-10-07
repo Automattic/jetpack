@@ -1296,9 +1296,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "14869c2123fa4ea218fd755b07df085950e3d456"
+                "reference": "a000d700dccd9f3176f8ba310b334d54d8cfef24"
             },
             "require": {
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "php": ">=7.4"
             },

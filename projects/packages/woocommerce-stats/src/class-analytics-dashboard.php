@@ -33,7 +33,8 @@ class Analytics_Dashboard {
 	const REGISTER_SECTIONS_ACTION = 'jetpack_premium_analytics_register_dashboard_sections';
 
 	/**
-	 * Hook the registrant on the dashboard's section registry.
+	 * Hook the registrant on the dashboard's section registry, and the reports proxy on REST
+	 * requests.
 	 *
 	 * Priority 20, after the dashboard package's own registrant: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -42,6 +43,9 @@ class Analytics_Dashboard {
 	 */
 	public static function init() {
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
+
+		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 	}
 
 	/**

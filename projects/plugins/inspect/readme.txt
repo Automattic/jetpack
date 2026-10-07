@@ -4,7 +4,7 @@ Tags: jetpack, stuff
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 2.0.0-a.11
+Stable tag: 2.0.0-a.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,22 +33,19 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 2.0.0-a.11 - 2026-04-10
+### 2.0.0-a.13 - 2026-10-06
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Remove baseUrl from tsconfig for tsgo migration.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Switch to Native TypeScript compiler based on Go.
-- Update dependencies.
-- Update design of the sidebar upsell.
+- General: Update minimum WordPress version to 7.0.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Remove unneeded development and documentation files from the published plugin.
+- Tested up to WordPress 7.1.
 - Update package dependencies.
 
 #### Removed
-- General: Update minimum WordPress version to 6.8.
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Admin Page: Restore border on header component.
-- Compatibility: Clean up deprecated CSS.
+- Stop registering an admin hook with a null name on admin-ajax requests, which flooded the debug log with a "Using null as an array offset" deprecation on PHP 8.5.
 
 == Arbitrary section ==
 

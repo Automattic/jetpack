@@ -22,7 +22,8 @@ const entry = ( key: string, datum: Record< string, unknown > ): Entry => [
 	key,
 	{ datum, index: 0, key },
 ];
-const formatDate = ( date: Date ) => date.toISOString().slice( 0, 10 );
+const formatDate = ( point: { date: Date; realDate?: Date } ) =>
+	( point.realDate ?? point.date ).toISOString().slice( 0, 10 );
 
 function modelFor(
 	entries: Entry[],

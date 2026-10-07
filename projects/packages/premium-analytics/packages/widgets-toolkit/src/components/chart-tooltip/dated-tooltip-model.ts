@@ -57,7 +57,8 @@ export type DatedTooltipModelOptions = {
 	/** Series read out at the hovered date without being drawn. */
 	extras?: readonly TooltipExtraSeries[];
 	dataFormat: DataFormat;
-	formatDate: ( date: Date ) => string;
+	/** Names a point's bucket: the hovered current point for the header, a comparison point for its column. */
+	formatDate: ( point: ComparativeDatePointDate ) => string;
 };
 
 type Point = Partial< ComparativeDatePointDate >;
@@ -87,20 +88,20 @@ export function buildDatedTooltipModel(
 	// visx reports each line's nearest point however far it sits, so a comparison
 	// point can come from another bucket when its period is shorter. The header
 	// reads a current-period point, which always sits on the hovered bucket.
-	const hoveredDate = (
-		( entries.find( e => ! isComparison( e.key ) ) ?? entries[ 0 ] )?.datum as Point | undefined
-	 )?.date;
+	const hoveredPoint = ( entries.find( e => ! isComparison( e.key ) ) ?? entries[ 0 ] )?.datum as
+		| Point
+		| undefined;
 
-	if ( ! entries.length || ! hoveredDate ) {
+	if ( ! hoveredPoint?.date ) {
 		return null;
 	}
 
-	const hoveredTime = hoveredDate.getTime();
+	const hoveredTime = hoveredPoint.date.getTime();
 	const primaryByGroup = resolvePrimarySeriesByGroup( series );
 	const styleOf = ( label: string ): TooltipStyle =>
 		seriesStyles[ series.findIndex( s => s.label === label ) ] ?? seriesStyles[ 0 ];
 	const rows = new Map< string, DatedTooltipRow >();
-	let previousDate: Date | undefined;
+	let previousPoint: Point | undefined;
 
 	// Current-period rows first, so a comparison always finds its row.
 	for ( const entry of entries ) {
@@ -142,7 +143,7 @@ export function buildDatedTooltipModel(
 			indicator: { kind: 'series', style: styleOf( drawn.label ) },
 		};
 		if ( inBucket ) {
-			previousDate ??= point.realDate ?? point.date;
+			previousPoint ??= point;
 		}
 	}
 
@@ -170,14 +171,12 @@ export function buildDatedTooltipModel(
 			value: readingOf( point ),
 			previous: previous && { value: readingOf( previous ), indicator },
 		} );
-		if ( previous ) {
-			previousDate ??= previous.realDate ?? previous.date;
-		}
+		previousPoint ??= previous;
 	} );
 
 	return {
-		date: formatDate( hoveredDate ),
-		previousDate: previousDate && formatDate( previousDate ),
+		date: formatDate( hoveredPoint as ComparativeDatePointDate ),
+		previousDate: previousPoint && formatDate( previousPoint as ComparativeDatePointDate ),
 		rows: [ ...rows.values() ],
 	};
 }

@@ -23,13 +23,13 @@ import {
 	getPaddedYAxis,
 	getPinnedYTicks,
 	getYTickFormat,
-	dateFormatForResolution,
+	formatBucketTooltipDate,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
-import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries } from './types';
+import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries, ComparativeDatePointDate } from './types';
 import type { ChartBaseline } from '../../helpers';
 import type { DataFormat } from '../../types';
 
@@ -110,12 +110,6 @@ export type ComparativeLineChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to `formatDate`.
-	 */
-	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
-
-	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area is too
 	 * short for readable axis labels.
 	 */
@@ -162,7 +156,6 @@ export function ComparativeLineChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
-	formatTooltipDate = formatDate,
 	maxWidth = Infinity,
 	compactWhenShort = false,
 	defaultHiddenSeries,
@@ -173,9 +166,7 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution(
-		getBucketInfo( series, tickResolution ).displayResolution
-	);
+	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const resolvedChartId = chartId ?? fallbackChartId;
 	const { getHiddenSeries } = useGlobalChartsContext();
@@ -203,8 +194,8 @@ export function ComparativeLineChart( {
 	);
 
 	const formatTooltipBucket = useCallback(
-		( date: Date ) => formatTooltipDate( date, tooltipDateFormat ),
-		[ formatTooltipDate, tooltipDateFormat ]
+		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
+		[ displayResolution ]
 	);
 
 	const renderTooltip = useCallback(

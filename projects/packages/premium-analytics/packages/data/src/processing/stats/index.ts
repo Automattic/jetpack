@@ -1,5 +1,4 @@
 export {
-	combineStatsNormalizedReports,
 	flattenStatsLeaves,
 	getStatsReportItems,
 	mergeStatsComparisonRows,
@@ -44,7 +43,6 @@ export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
-	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';

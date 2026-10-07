@@ -125,7 +125,10 @@ function recordedOptions() {
 	return recordedProps().options;
 }
 
-type Entry = { datum: { date: Date; realDate?: Date; value?: number | null }; key: string };
+type Entry = {
+	datum: { date: Date; realDate?: Date; endDate?: Date; value?: number | null };
+	key: string;
+};
 
 /**
  * The model the chart's tooltip renders for the hovered entries; the first is
@@ -241,21 +244,6 @@ describe( 'ComparativeBarChart', () => {
 		);
 	} );
 
-	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
-		const formatTooltipDate = jest.fn( () => 'the bucket' );
-		render(
-			<ComparativeBarChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tickResolution="hour"
-				formatTooltipDate={ formatTooltipDate }
-			/>
-		);
-
-		expect( tooltipModelFor( hoveredJuly( JULY_2_2PM_TOKYO ) ).date ).toBe( 'the bucket' );
-		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2_2PM_TOKYO, 'dateTime' );
-	} );
-
 	it( 'pairs the previous-period value with its bar when comparing, under its own date', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
@@ -268,6 +256,29 @@ describe( 'ComparativeBarChart', () => {
 		expect( readings( tooltipModelFor( hoveredJuly( JULY_2 ) ) ) ).toEqual( [
 			[ 'July', 100, 120 ],
 		] );
+	} );
+
+	it( 'heads the comparison column with the week its bar spans', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		const weekly: ComparativeBarChartSeries[] = [
+			SERIES[ 0 ],
+			{
+				...SERIES_WITH_COMPARISON[ 1 ],
+				data: [
+					{
+						date: JULY_1,
+						realDate: new Date( '2026-06-01T00:00:00Z' ),
+						endDate: new Date( '2026-06-07T12:00:00Z' ),
+						value: 80,
+					},
+				],
+			},
+		];
+		render( <ComparativeBarChart series={ weekly } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipModelFor( hoveredJuly( JULY_1 ) ).previousDate ).toBe(
+			'June 1\u2009\u2013\u20097, 2026'
+		);
 	} );
 
 	it( 'pairs an ungrouped previous-period value with the first series', () => {

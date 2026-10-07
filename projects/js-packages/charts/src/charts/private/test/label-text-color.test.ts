@@ -5,6 +5,7 @@ import {
 	luminanceContrastRatio,
 	rgbLuminance,
 } from '../../../providers/chart-context/private/perceptual-color';
+import { getHeatmapScale } from '../../heatmap-chart/private/heatmap-scale';
 import {
 	pickLabelTextColor,
 	pickLabelTextColorForFill,
@@ -131,9 +132,9 @@ describe( 'pickLabelTextColorForFill', () => {
 	} );
 
 	describe.each( [
-		[ 'white', '#ffffff' ],
-		[ 'dark', '#1e1e1e' ],
-	] )( 'across a heatmap scale on a %s background', ( _name, background ) => {
+		[ 'white', '#ffffff', '#f0f0f0' ],
+		[ 'dark', '#242424', '#272727' ],
+	] )( 'across a heatmap scale on a %s background', ( _name, background, emptyCell ) => {
 		const painted: Record< LabelTextColor, number > = {
 			label: rgbLuminance( hexToRgb( '#1e1e1e' ) ),
 			'label-inverse': rgbLuminance( hexToRgb( '#f0f0f0' ) ),
@@ -155,12 +156,9 @@ describe( 'pickLabelTextColorForFill', () => {
 		];
 
 		it.each( primaries )( 'reaches AA on every intensity of %s', primary => {
+			const { low, high } = getHeatmapScale( primary, background, emptyCell );
 			for ( let step = 0; step <= 200; step++ ) {
-				const fill = blendRgb(
-					hexToRgb( primary ),
-					hexToRgb( background ),
-					0.15 + 0.85 * ( step / 200 )
-				);
+				const fill = blendRgb( hexToRgb( high ), hexToRgb( low ), step / 200 );
 				const choice = pickLabelTextColorForFill( fill, DEFAULT_ROLES, 'label' );
 				// Checked on the 8-bit channels the browser paints as well as the exact mix.
 				const [ r, g, b ] = fill.map( Math.round );

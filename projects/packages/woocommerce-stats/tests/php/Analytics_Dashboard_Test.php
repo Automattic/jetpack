@@ -36,6 +36,8 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
+		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 
 		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -55,6 +57,19 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ) );
+	}
+
+	/**
+	 * The reports proxy registers with the REST API, and its cache with the Stats cleanup.
+	 */
+	public function test_init_hooks_the_reports_proxy() {
+		Analytics_Dashboard::init();
+
+		$this->assertSame( 10, has_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) ) );
+		$this->assertSame(
+			array( Api_Proxy_Controller::CACHE_PREFIX ),
+			apply_filters( 'jetpack_stats_transient_cleanup_prefixes', array() )
+		);
 	}
 
 	/**

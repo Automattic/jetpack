@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Group more detail route tests and make their fixtures pass in any machine timezone.
+

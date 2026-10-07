@@ -1,5 +1,4 @@
 import {
-	GlobalErrorProvider,
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
@@ -325,7 +324,7 @@ function Dashboard(): JSX.Element {
 	}
 
 	return (
-		<GlobalErrorProvider>
+		<>
 			<PeriodChangeStatus
 				attentionId={ attentionId }
 				appliedPresetId={ dateFilters.appliedPresetId }
@@ -441,7 +440,7 @@ function Dashboard(): JSX.Element {
 					</WidgetDashboard>
 				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
-		</GlobalErrorProvider>
+		</>
 	);
 }
 

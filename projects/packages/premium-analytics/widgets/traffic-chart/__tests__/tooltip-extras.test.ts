@@ -97,7 +97,12 @@ describe( 'buildTrafficTooltipExtras', () => {
 		const [ ratio, posts ] = buildTrafficTooltipExtras( current, ZONE, comparison );
 
 		expect( ratio.previous ).toEqual( [
-			{ date: ratio.data[ 0 ].date, realDate: expect.any( Date ), value: 2 },
+			{
+				date: ratio.data[ 0 ].date,
+				realDate: expect.any( Date ),
+				endDate: expect.any( Date ),
+				value: 2,
+			},
 		] );
 		expect( ratio.previous?.[ 0 ].realDate?.toISOString() ).toBe( '2026-06-01T00:00:00.000Z' );
 		expect( posts.previous?.map( point => point.value ) ).toEqual( [ 2 ] );

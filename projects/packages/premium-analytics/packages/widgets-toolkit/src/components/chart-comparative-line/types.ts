@@ -15,6 +15,8 @@ import type { ReactElement } from 'react';
 export type ComparativeDatePointDate = DataPointDate & {
 	date: Date; // <- date is required by the comparative line chart.
 	realDate?: Date;
+	/** The last instant of the point's own bucket, which `alignSeriesDates` never moves. */
+	endDate?: Date;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
