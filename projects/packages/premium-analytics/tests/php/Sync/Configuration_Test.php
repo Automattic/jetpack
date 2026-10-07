@@ -75,8 +75,8 @@ class Configuration_Test extends TestCase {
 		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
-		$this->assertSame( 10, has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $configuration, 'defer_until_analytics_full_sync' ) ) );
-		$this->assertSame( 10, has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $configuration, 'defer_until_analytics_full_sync' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
 
 		$data_settings = ( new Data_Settings() )->get_data_settings();
 		$this->assertContains( WooCommerce_Analytics::class, $data_settings['jetpack_sync_modules'] );
@@ -222,20 +222,20 @@ class Configuration_Test extends TestCase {
 	/**
 	 * Order changes before the analytics full sync are dropped; that sync sends every order anyway.
 	 */
-	public function test_defer_until_analytics_full_sync_drops_order_changes_before_the_full_sync() {
+	public function test_skip_reports_data_before_analytics_full_sync_drops_order_changes_before_the_full_sync() {
 		\WorDBless\Options::init()->clear_options();
 
-		$this->assertFalse( ( new Configuration() )->defer_until_analytics_full_sync( array( array( 'order_id' => 1 ) ) ) );
+		$this->assertFalse( ( new Configuration() )->skip_reports_data_before_analytics_full_sync( array( array( 'order_id' => 1 ) ) ) );
 	}
 
 	/**
 	 * Order changes sync as usual once the analytics full sync has finished.
 	 */
-	public function test_defer_until_analytics_full_sync_passes_order_changes_after_the_full_sync() {
+	public function test_skip_reports_data_before_analytics_full_sync_passes_order_changes_after_the_full_sync() {
 		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
 		$args = array( array( 'order_id' => 1 ) );
 
-		$this->assertSame( $args, ( new Configuration() )->defer_until_analytics_full_sync( $args ) );
+		$this->assertSame( $args, ( new Configuration() )->skip_reports_data_before_analytics_full_sync( $args ) );
 
 		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
 	}

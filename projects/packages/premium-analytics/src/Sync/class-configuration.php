@@ -107,8 +107,8 @@ class Configuration {
 		add_filter( 'jetpack_sync_modules', array( $this, 'remove_duplicate_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'defer_until_analytics_full_sync' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $this, 'defer_until_analytics_full_sync' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
 	}
@@ -189,16 +189,15 @@ class Configuration {
 	}
 
 	/**
-	 * Drop incremental order changes until an analytics full sync has started.
+	 * Drop per-order analytics reports data until an analytics full sync has started.
 	 *
-	 * That full sync sends every order and overwrites whatever was synced before it, so earlier
-	 * changes only add load. Gated on the start, not the end, so orders that change while it runs
-	 * still sync.
+	 * That full sync sends the reports data of every order and overwrites whatever was synced before
+	 * it. Gated on the start, not the end, so orders that change while it runs still sync.
 	 *
 	 * @param array|mixed $args Sync action arguments.
 	 * @return array|mixed|false The arguments, or false to drop the action.
 	 */
-	public function defer_until_analytics_full_sync( $args ) {
+	public function skip_reports_data_before_analytics_full_sync( $args ) {
 		return Sync_Status_Tracker::has_analytics_full_sync_started() ? $args : false;
 	}
 
