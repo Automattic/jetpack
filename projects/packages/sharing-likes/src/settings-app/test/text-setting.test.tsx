@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { TextSetting } from '../components/text-setting';
 import {
+	apiCalls,
 	baseSettings,
 	baseStatus,
 	renderWithData,
@@ -59,6 +60,24 @@ describe( 'TextSetting', () => {
 
 		await waitFor( () => expect( input ).toHaveValue( 'jetpack' ) );
 		expect( leavingPrompts() ).toBe( false );
+	} );
+
+	it( 'saves once when Enter is pressed in the field', async () => {
+		const user = userEvent.setup();
+		mockApiFetch.mockImplementation( ( { method } ) =>
+			Promise.resolve(
+				method === 'PUT' ? { ...baseSettings, twitter_site_tag: 'jetpack' } : baseStatus
+			)
+		);
+		renderWithData( <TextSetting settingKey="twitter_site_tag" label="Twitter Site Tag" /> );
+		const input = screen.getByLabelText( 'Twitter Site Tag' );
+
+		await user.type( input, '@jetpack{Enter}' );
+
+		await waitFor( () => expect( input ).toHaveValue( 'jetpack' ) );
+		expect( apiCalls( 'PUT' ) ).toEqual( [
+			expect.objectContaining( { data: { twitter_site_tag: '@jetpack' } } ),
+		] );
 	} );
 
 	it( 'keeps what the user typed when the save is refused', async () => {

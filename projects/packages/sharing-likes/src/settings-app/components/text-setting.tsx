@@ -5,7 +5,7 @@ import { Button, Stack } from '@wordpress/ui';
 import { useSettings } from '../data/queries';
 import { useSaveSetting } from '../data/use-save-setting';
 import { useUnsavedChangesWarning } from '../hooks/use-unsaved-changes-warning';
-import type { JSX } from 'react';
+import type { FormEvent, JSX } from 'react';
 
 type TextKey = 'sharing_label' | 'twitter_site_tag';
 
@@ -49,23 +49,35 @@ export function TextSetting( {
 		}
 	}, [ save, settingKey, value ] );
 
+	const handleSubmit = useCallback(
+		( event: FormEvent ) => {
+			event.preventDefault();
+			if ( isDirty && ! isSaving ) {
+				handleSave();
+			}
+		},
+		[ handleSave, isDirty, isSaving ]
+	);
+
 	if ( ! settings || ! ( settingKey in settings ) ) {
 		return null;
 	}
 
 	return (
-		<Stack direction="row" gap="sm" align="end">
-			<TextControl
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
-				label={ label }
-				help={ help }
-				value={ value }
-				onChange={ setDraft }
-			/>
-			<Button variant="solid" disabled={ ! isDirty } loading={ isSaving } onClick={ handleSave }>
-				{ __( 'Save', 'jetpack-sharing-likes' ) }
-			</Button>
-		</Stack>
+		<form onSubmit={ handleSubmit }>
+			<Stack direction="row" gap="sm" align="end">
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ label }
+					help={ help }
+					value={ value }
+					onChange={ setDraft }
+				/>
+				<Button type="submit" variant="solid" disabled={ ! isDirty } loading={ isSaving }>
+					{ __( 'Save', 'jetpack-sharing-likes' ) }
+				</Button>
+			</Stack>
+		</form>
 	);
 }
