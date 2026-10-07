@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: fixed
 
 My Jetpack: Stop showing an empty account avatar on the Overview connection card on sites without a connection owner when nothing in use needs a user connection.
