@@ -29,7 +29,10 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		appliedRange: {
+			from: new Date( Date.UTC( 2026, 5, 1 ) ),
+			to: new Date( Date.UTC( 2026, 5, 16 ) ),
+		},
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
