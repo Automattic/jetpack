@@ -175,9 +175,6 @@ class VideoPress_Shortcode {
 			)
 		);
 
-		// Register VideoPress scripts
-		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery' ), '1.09', false );
-
 		require_once __DIR__ . '/class.videopress-video.php';
 		require_once __DIR__ . '/class.videopress-player.php';
 

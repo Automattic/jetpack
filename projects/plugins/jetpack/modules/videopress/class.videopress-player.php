@@ -37,7 +37,7 @@ class VideoPress_Player {
 	protected $video_id;
 
 	/**
-	 * Array of playback options: freedom
+	 * Array of playback options.
 	 *
 	 * @var array
 	 * @since 1.3
@@ -229,7 +229,6 @@ class VideoPress_Player {
 	 * @return string HTML5 video element and children
 	 */
 	private function html5_static() {
-		wp_enqueue_script( 'videopress' );
 		$thumbnail = esc_url( $this->video->poster_frame_uri );
 		$html      = "<video id=\"{$this->video_id}\" width=\"{$this->video->calculated_width}\" height=\"{$this->video->calculated_height}\" poster=\"$thumbnail\" controls=\"true\"";
 
@@ -286,7 +285,7 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Output for the non-legacy HTML5 player.
+	 * Output for the HTML5 player.
 	 */
 	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;

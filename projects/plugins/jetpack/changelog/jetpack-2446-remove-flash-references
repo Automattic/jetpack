@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: bugfix
 
-VideoPress: Remove the unsupported Flash player option from the classic editor shortcode settings.
+VideoPress: Fix videos using the legacy `flashonly` shortcode option not displaying.
