@@ -21,7 +21,19 @@ function FeaturedImageDuplicate() {
 		return null;
 	}
 
-	const isPage = postType === 'page';
+	// Separate objects, so minification can't merge the __() calls and break string extraction.
+	const copy =
+		postType === 'page'
+			? {
+					notice: __( 'This image is also in your page, so it may appear twice.', 'jetpack' ),
+					label: __( 'Hide featured image on this page', 'jetpack' ),
+					help: __( 'It still shows as the thumbnail and when the page is shared.', 'jetpack' ),
+				}
+			: {
+					notice: __( 'This image is also in your post, so it may appear twice.', 'jetpack' ),
+					label: __( 'Hide featured image on this post', 'jetpack' ),
+					help: __( 'It still shows as the thumbnail and when the post is shared.', 'jetpack' ),
+				};
 
 	return (
 		<div className="jetpack-featured-image-duplicate">
@@ -31,11 +43,8 @@ function FeaturedImageDuplicate() {
 					onRemove={ dismiss }
 					className="jetpack-featured-image-duplicate__notice"
 				>
-					<p>
-						{ isPage
-							? __( 'This image is also in your page, so it may appear twice.', 'jetpack' )
-							: __( 'This image is also in your post, so it may appear twice.', 'jetpack' ) }
-					</p>
+					<p>{ copy.notice }</p>
+					{ /* @ts-expect-error -- Its JSDoc types mark the optional props as required. */ }
 					<PostPreviewButton
 						className="components-button is-link"
 						textContent={ __( 'Preview', 'jetpack' ) }
@@ -45,16 +54,8 @@ function FeaturedImageDuplicate() {
 			{ showCheckbox && (
 				<CheckboxControl
 					__nextHasNoMarginBottom
-					label={
-						isPage
-							? __( 'Hide featured image on this page', 'jetpack' )
-							: __( 'Hide featured image on this post', 'jetpack' )
-					}
-					help={
-						isPage
-							? __( 'It still shows as the thumbnail and when the page is shared.', 'jetpack' )
-							: __( 'It still shows as the thumbnail and when the post is shared.', 'jetpack' )
-					}
+					label={ copy.label }
+					help={ copy.help }
 					checked={ isHidden }
 					onChange={ setHidden }
 				/>
