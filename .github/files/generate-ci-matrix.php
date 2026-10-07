@@ -133,7 +133,7 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 	}
 	for ( $i = 1; $i <= $js_generic_splits; $i++ ) {
 		$matrix[] = array(
-			'name'          => sprintf( $name, "generic $i/$js_generic_splits" ),
+			'name'          => sprintf( $name, "$i of $js_generic_splits" ),
 			'script'        => $script,
 			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
 			'coverage'      => $is_cov,
@@ -221,7 +221,6 @@ foreach ( $matrix as &$m ) {
 			$m['name'],
 			array(
 				': ' => ' - ',
-				'/'  => ' of ',
 			)
 		);
 	}
