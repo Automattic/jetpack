@@ -50,8 +50,10 @@ export const getRegistrationErrorDescription = (
 	) {
 		return undefined;
 	}
+	// The message comes from the site, so bound its length and keep the tag pattern linear-time.
 	const text = message
-		.replace( /<[^>]*>/g, ' ' )
+		.slice( 0, 1000 )
+		.replace( /<[^<>]*>/g, ' ' )
 		.replace( /\s+/g, ' ' )
 		.trim();
 	return text ? text.slice( 0, 250 ) : undefined;

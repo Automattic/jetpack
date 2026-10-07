@@ -154,6 +154,15 @@ describe( 'getRegistrationErrorDescription', () => {
 		const long = getRegistrationErrorDescription( { response: { message: 'x'.repeat( 400 ) } } );
 		expect( long ).toHaveLength( 250 );
 	} );
+
+	it( 'handles pathological markup quickly', () => {
+		const start = Date.now();
+		const description = getRegistrationErrorDescription( {
+			response: { message: '<'.repeat( 50000 ) },
+		} );
+		expect( Date.now() - start ).toBeLessThan( 100 );
+		expect( description?.length ?? 0 ).toBeLessThanOrEqual( 250 );
+	} );
 } );
 
 describe( 'getRegistrationErrorSummary', () => {
