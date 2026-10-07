@@ -62,8 +62,8 @@ export declare function useReport( ...args: any[] ): any;
 // the wall time in the report's zone, with no offset.
 export declare function toBucketStamp( raw: string | undefined, zone: string ): string;
 
-// Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
-// generic report hooks they are built on.
+// Data. The WordAds hooks are provisional: they stay until the Ads package reads its endpoints
+// with a client of its own.
 export declare function useStatsWordAdsStats( ...args: any[] ): any;
 export declare function useStatsWordAdsEarnings( ...args: any[] ): any;
 export type StatsWordAdsResponse = any;
