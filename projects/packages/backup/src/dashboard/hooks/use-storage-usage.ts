@@ -12,7 +12,7 @@ import { useSiteSizeQuery } from './use-site-size';
 const SITE_POLICIES_STALE_MS = 5 * 60_000;
 
 type Figures = {
-	/** Derived level driving the meter's colour and the section heading. */
+	/** Derived level driving the meter's colour. */
 	usageLevel: StorageUsageLevelName | null;
 	/**
 	 * True only while a request is genuinely in flight. React Query v5

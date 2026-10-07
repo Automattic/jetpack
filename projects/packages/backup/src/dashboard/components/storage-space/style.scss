@@ -34,8 +34,8 @@
 		inline-size: 240px;
 	}
 
-	// The trailing slot sits at the row's end.
-	.jpb-next-scheduled-backup {
+	// With a meter, the trailing slot sits at the row's end.
+	.jpb-storage-meter ~ .jpb-next-scheduled-backup {
 		margin-inline-start: auto;
 	}
 

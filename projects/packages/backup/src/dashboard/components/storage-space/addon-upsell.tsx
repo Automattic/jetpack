@@ -74,8 +74,8 @@ function noticeCopy(
 			title: sprintf(
 				/* translators: %d is a number greater than 0 that means a number of days. */
 				_n(
-					'You have reached your storage limit with %d day of backup saved',
-					'You have reached your storage limit with %d days of backup saved',
+					'You have reached your storage limit with %d day of backups saved',
+					'You have reached your storage limit with %d days of backups saved',
 					daysOfBackupsSaved,
 					'jetpack-backup-pkg'
 				),

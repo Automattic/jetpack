@@ -193,15 +193,19 @@ describe( 'the render gate', () => {
 			( options?.path ?? '' ).includes( '/site/backup/' ) ? pending : Promise.resolve( {} )
 		);
 
-		renderWithClient( <StorageSpace /> );
+		renderWithClient( <StorageSpace trailing={ <p>Next backup</p> } /> );
 
 		// The placeholders are `aria-hidden` by design — there is nothing
 		// worth announcing yet — so no role or label reaches them, and the
 		// class is the only handle. Same escape hatch as `barModifiers()`.
 		/* eslint-disable testing-library/no-node-access -- see above. */
 		await waitFor( () => expect( document.querySelector( '.jpb-storage-space' ) ).not.toBeNull() );
-		expect( document.querySelector( '.jpb-storage-meter__placeholder' ) ).not.toBeNull();
+		expect(
+			document.querySelector( '.jpb-storage-meter .jpb-storage-meter__placeholder' )
+		).not.toBeNull();
 		/* eslint-enable testing-library/no-node-access */
+		// The trailing slot must not wait on storage, or its own request would.
+		expect( screen.getByText( 'Next backup' ) ).toBeInTheDocument();
 		// Nothing is claimed while we are still looking.
 		expect( screen.queryByRole( 'region', { name: 'Backup storage' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();

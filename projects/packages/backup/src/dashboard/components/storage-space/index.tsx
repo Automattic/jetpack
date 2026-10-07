@@ -63,13 +63,16 @@ export default function StorageSpace( { trailing }: Props ) {
 	const usage = useStorageUsage();
 
 	// Hold the row's height while the requests are in flight, so the list below does not
-	// jump when they land.
+	// jump. `trailing` renders now so its own request does not wait on storage.
 	if ( usage.isLoading ) {
 		return (
-			<section className="jpb-storage-space" aria-hidden="true">
+			<div className="jpb-storage-space">
 				<Skeleton className="jpb-storage-space__details-placeholder" />
-				<Skeleton className="jpb-storage-meter__placeholder" />
-			</section>
+				<div className="jpb-storage-meter">
+					<Skeleton className="jpb-storage-meter__placeholder" />
+				</div>
+				{ trailing }
+			</div>
 		);
 	}
 

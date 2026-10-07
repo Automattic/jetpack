@@ -1,10 +1,9 @@
-// Tests for the "add more storage" offer under the Overview's storage
-// meter (JETPACK-2331 / H3c), and for the query that prices it.
+// Tests for the "add more storage" offer, shown in a dismissible notice at the top of
+// the page (JETPACK-2331 / H3c), and for the query that prices it.
 //
-// The meter and the readings are covered elsewhere. This file is about the four things
-// the offer can get wrong silently: asking the route for a price before it can answer,
-// quoting the wrong currency, building half a checkout URL, and recording the Tracks
-// event somewhere other than the click.
+// It can fail silently in three ways: asking the route for a price before it can
+// answer, building half a checkout URL, and recording the Tracks event somewhere
+// other than the click.
 
 const mockRecordEvent = jest.fn();
 
@@ -323,7 +322,7 @@ describe( 'what the offer says', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect(
-			warning( /^You have reached your storage limit with 3 days of backup saved$/ )
+			warning( /^You have reached your storage limit with 3 days of backups saved$/ )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -446,7 +445,7 @@ describe( 'a full site that reported no day count', () => {
 		renderWithClient( <StorageSpace /> );
 
 		await expect( offerLink() ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /days? of backup saved/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /days? of backups saved/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'says it even when the offer never arrives', async () => {
