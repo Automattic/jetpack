@@ -49,7 +49,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const [ emailTaken, setEmailTaken ] = useState( false );
 	const [ checkingEmail, setCheckingEmail ] = useState( false );
 	// One request per address, shared by the debounced check and a submit that beats it.
-	const emailCheck = useRef< { email: string; taken: Promise< boolean > } | null >( null );
+	const emailCheck = useRef< { email: string; taken: Promise< boolean | null > } | null >( null );
 	// Straight to the fields when they are the only way through, or a saved guest is changing them.
 	const firstStep = identity.canSignIn && commenter.value.kind !== 'guest' ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< 'choose' | 'guest' | 'subscribe' >( firstStep );
@@ -74,12 +74,20 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
 	const enteredEmail = details.value.email;
 	const isEmail = ( email: string ) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email );
-	const checkEmail = ( email: string ) => {
+	const checkEmail = async ( email: string ) => {
 		if ( emailCheck.current?.email !== email ) {
 			emailCheck.current = { email, taken: emailHasAccount( email ) };
 		}
 
-		return emailCheck.current.taken;
+		const { taken } = emailCheck.current;
+		const answer = await taken;
+
+		// A check that got no answer is asked again next time, not kept as a no.
+		if ( answer === null && emailCheck.current?.taken === taken ) {
+			emailCheck.current = null;
+		}
+
+		return answer === true;
 	};
 
 	useEffect( () => {
@@ -224,10 +232,23 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
 
-		if ( showFields && isEmail( details.value.email ) ) {
+		if ( showFields ) {
 			setCheckingEmail( true );
-			const taken = await checkEmail( details.value.email );
+			let email = '';
+			let taken = false;
+
+			// Checked again if the email changes during the wait, since the new one is what posts.
+			while ( email !== details.peek().email ) {
+				email = details.peek().email;
+				taken = isEmail( email ) && ( await checkEmail( email ) );
+			}
+
 			setCheckingEmail( false );
+
+			// Closed during the wait, which cancels the submit.
+			if ( ! isDialogOpen.peek() ) {
+				return;
+			}
 
 			if ( taken ) {
 				setEmailTaken( true );

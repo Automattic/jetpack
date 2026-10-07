@@ -146,17 +146,21 @@ export const logOut = async (): Promise< boolean > => {
  * Whether an email belongs to a WordPress.com account, which the site would turn a guest comment away for.
  *
  * @param email - The address typed.
- * @return True only when the site says so; unreachable reads as no, and the site's own screen still stands.
+ * @return Whether it does, or null when the site could not answer; the site's own screen still stands.
  */
-export const emailHasAccount = async ( email: string ): Promise< boolean > => {
+export const emailHasAccount = async ( email: string ): Promise< boolean | null > => {
 	const url = new URL( JetpackComments.identity.emailUrl );
 	url.searchParams.set( 'email', email );
 
 	try {
 		const response = await fetch( url.toString(), { credentials: 'omit' } );
 
-		return response.ok && ( ( await response.json() ) as { account?: boolean } ).account === true;
+		if ( ! response.ok ) {
+			return null;
+		}
+
+		return ( ( await response.json() ) as { account?: boolean } ).account === true;
 	} catch {
-		return false;
+		return null;
 	}
 };
