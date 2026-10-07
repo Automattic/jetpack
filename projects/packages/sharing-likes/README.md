@@ -28,6 +28,14 @@ loads (Likes or Comment Likes, and Sharing), outside any `is_admin()` branch:
 
 Calling either more than once is harmless.
 
+## React screen (preview)
+
+Settings > Sharing has a React version, off by default. To try it:
+
+	add_filter( 'rsm_jetpack_ui_modernization_sharing_likes', '__return_true' );
+
+Build it with `pnpm run build` (or `jp build packages/sharing-likes`).
+
 ## How to install sharing-likes
 
 ### Installation From Git Repo
