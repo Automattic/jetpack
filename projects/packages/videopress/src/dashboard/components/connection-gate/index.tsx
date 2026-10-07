@@ -1,7 +1,4 @@
-import {
-	getConnectScreenErrorMessage,
-	getRegistrationErrorCode,
-} from '@automattic/jetpack-connection/connection-error-message';
+import { getRegistrationErrorSummary } from '@automattic/jetpack-connection/connection-error-message';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
@@ -77,8 +74,8 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 			isConnecting={ siteIsRegistering || userIsConnecting }
 			errorMessage={
 				registrationError
-					? getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
-					  __( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' )
+					? getRegistrationErrorSummary( registrationError ) ||
+						__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' )
 					: undefined
 			}
 		/>

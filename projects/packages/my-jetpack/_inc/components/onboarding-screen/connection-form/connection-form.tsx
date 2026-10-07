@@ -2,6 +2,7 @@ import { JetpackLogo, TermsOfService, Text } from '@automattic/jetpack-component
 import {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
+	getRegistrationErrorDescription,
 	useConnection,
 } from '@automattic/jetpack-connection';
 import { Button, Spinner, Notice } from '@wordpress/components';
@@ -28,6 +29,8 @@ const ConnectionForm = () => {
 		if ( registrationError ) {
 			recordEvent( 'jetpack_my_jetpack_onboarding_error', {
 				error: registrationError,
+				error_code: getRegistrationErrorCode( registrationError ) ?? '',
+				error_message: getRegistrationErrorDescription( registrationError ) ?? '',
 			} );
 		}
 	}, [ registrationError, recordEvent ] );
@@ -67,9 +70,13 @@ const ConnectionForm = () => {
 
 			{ registrationError ? (
 				<Notice status="error" isDismissible={ false }>
-					{ getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
-						registrationError.response?.message ||
-						__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
+					<p>
+						{ getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
+							__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
+					</p>
+					{ getRegistrationErrorDescription( registrationError ) && (
+						<p>{ getRegistrationErrorDescription( registrationError ) }</p>
+					) }
 				</Notice>
 			) : null }
 

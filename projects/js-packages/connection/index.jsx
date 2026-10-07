@@ -55,6 +55,8 @@ export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.
 export {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
+	getRegistrationErrorDescription,
+	getRegistrationErrorSummary,
 } from './helpers/get-connect-screen-error-message';
 
 /**
