@@ -11,8 +11,7 @@
 #
 # Optional:
 # - COVINFO: Response from jetpackcodecoverage.atomicsites.blog
-# - PHP_COVERAGE_STATUS: Status of the PHP coverage run.
-# - JS_COVERAGE_STATUS: Status of the JS coverage run.
+# - COVERAGE_STATUS: Overall status of the coverage runs. Looked up if not given.
 
 set -eo pipefail
 
@@ -48,10 +47,9 @@ else
 	echo '::endgroup::'
 fi
 
-# Use per-group statuses passed from the workflow, or query them if not passed.
-if [[ -n "$PHP_COVERAGE_STATUS" && -n "$JS_COVERAGE_STATUS" ]]; then
-	# We only need the conclusion value for finished jobs, as it'll always be non-null.
-	RUNS=$( jq -nc --arg php "$PHP_COVERAGE_STATUS" --arg js "$JS_COVERAGE_STATUS" '[ { conclusion: $php }, { conclusion: $js } ]' )
+# Use the status passed from the workflow, or query the coverage runs if not passed.
+if [[ -n "$COVERAGE_STATUS" ]]; then
+	STATUS=$COVERAGE_STATUS
 else
 	echo "::group::Looking for latest coverage runs"
 	# The `check_name` filter only matches exact names, and JS coverage is split across several jobs, so we have to filter by prefix ourselves.
@@ -69,17 +67,17 @@ else
 		PAGE=$(( PAGE + 1 ))
 	done
 	echo "::endgroup::"
+	# Pick worst status across split coverage jobs: failure beats in-progress beats anything-else beats success.
+	R=$( jq '
+		  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
+		// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
+		// first( .[] | select( .conclusion != "success" ) )
+		// .[0]
+	' <<<"$RUNS" )
+	jq . <<<"$R"
+	STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
 fi
-# Pick worst status across split coverage jobs: failure beats in-progress beats anything-else beats success.
-R=$( jq '
-	  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
-	// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
-	// first( .[] | select( .conclusion != "success" ) )
-	// .[0]
-' <<<"$RUNS" )
-jq . <<<"$R"
-STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
-echo "Worst run status is $STATUS"
+echo "Coverage run status is $STATUS"
 
 echo '::group::Checking labels for PR'
 LABELS=$( curl -v -L --fail \

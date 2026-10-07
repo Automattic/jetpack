@@ -6,8 +6,7 @@
 # - GITHUB_SHA: Commit SHA.
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
-# - PHP_COVERAGE_STATUS: Status of the PHP coverage run.
-# - JS_COVERAGE_STATUS: Status of the JS coverage run.
+# - COVERAGE_FAILED: Status of a failed coverage run, if any.
 # - For non-trunk runs, anything needed by post-message.sh
 
 set -eo pipefail
@@ -17,9 +16,9 @@ if [[ ! -f coverage/summary.tsv ]]; then
 	exit 0
 fi
 
-# Don't update the trunk baseline with partial data if either coverage run failed.
-if [[ "$PR_ID" == "trunk" && ( "$PHP_COVERAGE_STATUS" != "success" || "$JS_COVERAGE_STATUS" != "success" ) ]]; then
-	echo "Not uploading trunk coverage data: PHP status is '$PHP_COVERAGE_STATUS', JS status is '$JS_COVERAGE_STATUS'."
+# Don't update the trunk baseline with partial data if any coverage run failed.
+if [[ "$PR_ID" == "trunk" && -n "$COVERAGE_FAILED" ]]; then
+	echo "Not uploading trunk coverage data: a coverage run's status is '$COVERAGE_FAILED'."
 	exit 0
 fi
 
@@ -113,5 +112,6 @@ TOKEN=
 echo '::endgroup::'
 
 if [[ "$PR_ID" != "trunk" ]]; then
-	PHP_COVERAGE_STATUS=$PHP_COVERAGE_STATUS JS_COVERAGE_STATUS=$JS_COVERAGE_STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+	# If we pass an empty string, post-message.sh will treat it as "unknown" and grab it via the API, so let's save a call.
+	COVERAGE_STATUS=${COVERAGE_FAILED:-success} COVINFO=$JSON .github/files/coverage-munger/post-message.sh
 fi

@@ -67,12 +67,7 @@ jobs:
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
       did-coverage: ${{ case( matrix.coverage && job.status != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
-      php-coverage-status: ${{ case( matrix.script == 'test-php-coverage', job.status, '' ) }}
-      js-tests-status: ${{ case( matrix.script == 'test-js', job.status, '' ) }}
-      js-coverage-status: ${{ case( matrix.script == 'test-js-coverage', job.status, '' ) }}
-      # Only set these on failure, so a later successful split can't hide a failed one.
-      js-tests-failed: ${{ case( matrix.script == 'test-js' && job.status != 'success', job.status, '' ) }}
-      js-coverage-failed: ${{ case( matrix.script == 'test-js-coverage' && job.status != 'success', job.status, '' ) }}
+      coverage-failed: ${{ case( matrix.coverage && job.status != 'success', job.status, '' ) }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -427,8 +422,7 @@ jobs:
         env:
           PR_ID: ${{ case( github.event_name != 'pull_request', 'trunk', github.event.pull_request.number ) }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
-          PHP_COVERAGE_STATUS: ${{ needs.run-tests.outputs.php-coverage-status }}
-          JS_COVERAGE_STATUS: ${{ needs.run-tests.outputs.js-coverage-failed || needs.run-tests.outputs.js-coverage-status }}
+          COVERAGE_FAILED: ${{ needs.run-tests.outputs.coverage-failed }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
           POST_MESSAGE_TOKEN: ${{ steps.get_token.outputs.token }}
         run: .github/files/coverage-munger/upload-coverage.sh
