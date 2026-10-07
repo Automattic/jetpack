@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Document the field types the dashboard provides for widget attributes.
+Comment: Declare the chart type control as the jpa/line-or-bar field type and document the field types the dashboard provides.
 
 

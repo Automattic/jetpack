@@ -1,22 +1,14 @@
 /**
  * Internal dependencies
  */
-import {
-	CHART_DISPLAY_CHART_TYPES,
-	chartTypeAttributeField,
-} from '../chart-display-attribute-fields';
+import { chartTypeAttributeField } from '../chart-display-attribute-fields';
 
 describe( 'chartTypeAttributeField', () => {
-	it( 'offers every chart type the shared list names', () => {
-		expect( chartTypeAttributeField().elements ).toEqual(
-			CHART_DISPLAY_CHART_TYPES.map( ( { id, label, icon } ) => ( { value: id, label, icon } ) )
-		);
-	} );
-
-	it( 'is a high-relevance `chartType` field', () => {
-		expect( chartTypeAttributeField() ).toMatchObject( {
+	it( 'names the dashboard field type and carries no options', () => {
+		expect( chartTypeAttributeField() ).toEqual( {
 			id: 'chartType',
 			label: 'Chart type',
+			type: 'jpa/line-or-bar',
 			relevance: 'high',
 		} );
 	} );

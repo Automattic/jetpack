@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Declare the chart type attribute by its field type name instead of the SDK helper.
+
+

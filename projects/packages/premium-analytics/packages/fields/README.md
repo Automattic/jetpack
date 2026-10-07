@@ -4,7 +4,7 @@ Custom DataForm field controls for Premium Analytics widgets.
 
 ## Why this is a separate package (and a script module)
 
-Widget *metadata* modules (`widgets/<name>/widget.ts`) are built by wp-build's
+Widget _metadata_ modules (`widgets/<name>/widget.ts`) are built by wp-build's
 widget metadata pipeline, which has **no style plugins** — nothing in a metadata
 module's bundled import graph may touch `.scss`/`.module.scss`. Styled field
 editors (date pickers, etc.) therefore cannot be bundled into metadata modules.
@@ -53,6 +53,7 @@ Storybook and tests hand widget types to the dashboard without going through
 | `jpa/select`         | `SelectField`        | `text`    |
 | `jpa/toggle-group`   | `ToggleGroupField`   | `text`    |
 | `jpa/array-checkbox` | `ArrayCheckboxField` | `array`   |
+| `jpa/line-or-bar`    | `LineOrBarField`     | `text`    |
 
 ## Adding a field
 
@@ -67,8 +68,12 @@ the component identity is stable across renders, and the options travel
 through the factory:
 
 ```ts
-attributes: [ reportParamsAttributeField( { withIntervalControl: true, grain: MY_GRAIN } ) ]
+attributes: [ reportParamsAttributeField( { withIntervalControl: true, grain: MY_GRAIN } ) ];
 ```
+
+A control whose options are the dashboard's own policy, like `jpa/line-or-bar`, carries
+them inside the control instead: the attribute names the type and nothing else, so it
+can be declared in `widget.json` once the pipeline carries attributes.
 
 `grain` is how fine the widget's report is. `presetIds` narrows the quick
 presets on offer, as the WordAds chart does for "Last 24 hours"; an instance
@@ -81,7 +86,7 @@ and needs no factory: the buckets are its `elements`, a key dataviews keeps, so
 a widget lists the ones its chart draws:
 
 ```ts
-attributes: [ { ...chartIntervalField, elements: chartIntervalElements( MY_PERIODS ) } ]
+attributes: [ { ...chartIntervalField, elements: chartIntervalElements( MY_PERIODS ) } ];
 ```
 
 A saved bucket the range rules out shows as the nearest one it allows, and is
