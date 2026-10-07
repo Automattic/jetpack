@@ -62,12 +62,9 @@ class Users_Connection_Admin {
 		add_filter( 'manage_users_columns', array( $this, 'add_connection_column' ) );
 		add_filter( 'manage_users_custom_column', array( $this, 'render_connection_column' ), 9, 3 ); // Priority 9 to run before SSO
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		// Registered as static callbacks, not `array( $this, … )`: a slugged Manager builds its
-		// own Plugin, and so its own instance of this class, so a request runs several. WP keys
-		// callbacks by object hash, so instance callbacks would stack up — repeating the count
-		// query and printing the hidden field once per instance. The column callbacks above
-		// stay instance callbacks on purpose: their hook identity is part of the package's
-		// shipped surface, and stacking them is idempotent in effect.
+		// Static callbacks: a request runs several instances of this class, and WP keys
+		// callbacks by object hash, so instance callbacks here would stack up and print the
+		// hidden field once each. The column callbacks above stack harmlessly.
 		add_filter( 'views_users', array( self::class, 'add_connected_view' ) );
 		add_filter( 'users_list_table_query_args', array( self::class, 'filter_query_to_connected_users' ) );
 		add_action( 'restrict_manage_users', array( self::class, 'keep_connected_view_on_submit' ) );
@@ -133,18 +130,10 @@ class Users_Connection_Admin {
 	/**
 	 * Local user IDs holding a valid WordPress.com user token.
 	 *
-	 * Connected users cannot be found with a meta query: the tokens live in the
-	 * `user_tokens` grouped option, keyed by local user ID. Entries are then checked by
-	 * the same rule the column's `is_user_connected()` ends up applying, so a malformed
-	 * token, or one whose embedded user ID disagrees with its key, cannot put a user in
-	 * this view and then render their column empty.
-	 *
-	 * The option is read once and the entries parsed here, rather than calling
-	 * `is_user_connected()` per key, because that re-reads `user_tokens` every time and
-	 * the option is on the external-storage allowlist — on managed hosts each read is a
-	 * direct, uncached database query.
-	 *
-	 * An ID here still need not resolve to a user; see count_connected_users().
+	 * There is no meta to query: the tokens live in the `user_tokens` grouped option,
+	 * keyed by local user ID. Read it once rather than calling `is_user_connected()` per
+	 * key — that re-reads the option, and on managed hosts external storage serves it
+	 * with an uncached query. An ID here need not resolve to a user; see the count.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -167,11 +156,16 @@ class Users_Connection_Admin {
 		$ids = array();
 
 		foreach ( $tokens as $id => $token ) {
-			$id     = absint( $id );
+			// PHP leaves a non-canonical key like "01" a string, and get_access_token() looks
+			// the token up by the integer ID, so normalising here would claim a user it cannot find.
+			if ( ! is_int( $id ) || $id <= 0 ) {
+				continue;
+			}
+
 			$chunks = is_string( $token ) ? explode( '.', $token ) : array();
 
 			// Mirrors Tokens::get_access_token(): three parts, and the token names its own user.
-			if ( $id && ! empty( $chunks[1] ) && ! empty( $chunks[2] ) && (string) $id === $chunks[2] ) {
+			if ( ! empty( $chunks[1] ) && ! empty( $chunks[2] ) && (string) $id === $chunks[2] ) {
 				$ids[] = $id;
 			}
 		}
@@ -254,13 +248,9 @@ class Users_Connection_Admin {
 	/**
 	 * Number of connected users the list will actually show.
 	 *
-	 * Queried rather than counted off the token option because a token can outlive its
-	 * user: accounts deleted while no connection-bearing plugin was active, direct edits
-	 * to the option, and restored token sets can all leave entries whose ID no longer
-	 * resolves. `WP_User_Query` also scopes to the current site.
-	 *
-	 * Ordered by ID so the query does not filesort on `user_login`, which is the default
-	 * and is wasted work for a count.
+	 * Queried, not counted off the option: a token can outlive its user, and the query
+	 * drops those IDs and scopes to the current site. Ordered by ID so it does not
+	 * filesort on `user_login`, the default, which a count never needs.
 	 *
 	 * @since $$next-version$$
 	 *

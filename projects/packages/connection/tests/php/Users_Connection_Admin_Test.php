@@ -379,6 +379,23 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
+	 * A token stored under a non-canonical key is not one `Tokens::get_access_token()` can find.
+	 *
+	 * PHP keeps "01" a string key rather than folding it to 1, so normalising it here would
+	 * list a user whose column then renders empty.
+	 */
+	public function test_get_connected_user_ids_skips_a_non_canonical_key() {
+		$valid = $this->connect_user( 'connected_one' );
+
+		$tokens       = (array) \Jetpack_Options::get_option( 'user_tokens' );
+		$tokens['01'] = 'key.secret.1';
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		$this->assertSame( array( $valid ), Users_Connection_Admin::get_connected_user_ids() );
+		$this->assertFalse( ( new Manager() )->is_user_connected( 1 ), 'The column must agree.' );
+	}
+
+	/**
 	 * A locked site has no usable tokens, and reading the view must not be what wipes them.
 	 */
 	public function test_a_locked_site_has_no_connected_users() {
