@@ -91,6 +91,7 @@ export {
 	type EmailRateSignals,
 } from './format-email-rate';
 export { formatViewCount } from './format-view-count';
+export { HOURS_DATA_FORMAT } from './hours-data-format';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
 	MONTHLY_HEATMAP_METRICS,
@@ -104,4 +105,5 @@ export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipPointLabel } from './format-tooltip-point-label';
+export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
 export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';

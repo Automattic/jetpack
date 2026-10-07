@@ -25,7 +25,7 @@ import {
 	getPaddedYAxis,
 	getPinnedYTicks,
 	getYTickFormat,
-	dateFormatForResolution,
+	formatBucketTooltipDate,
 	resolveTooltipUnits,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
@@ -113,12 +113,6 @@ export type ComparativeLineChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to `formatDate`.
-	 */
-	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
-
-	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area is too
 	 * short for readable axis labels.
 	 */
@@ -165,7 +159,6 @@ export function ComparativeLineChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
-	formatTooltipDate = formatDate,
 	maxWidth = Infinity,
 	compactWhenShort = false,
 	defaultHiddenSeries,
@@ -176,9 +169,7 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution(
-		getBucketInfo( series, tickResolution ).displayResolution
-	);
+	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const resolvedChartId = chartId ?? fallbackChartId;
 	const { getHiddenSeries } = useGlobalChartsContext();
@@ -210,22 +201,19 @@ export function ComparativeLineChart( {
 		[ series, tooltipExtras ]
 	);
 
-	// Comparison points share the primary series' dates, so the tooltip reads back
-	// `realDate`.
 	const getTooltipLabel = useCallback(
 		(
-			datum: { date: Date; realDate?: Date },
+			datum: { date: Date; realDate?: Date; endDate?: Date },
 			_index: number,
 			key: string,
 			value: string | null,
 			rawValue: number | null
 		): string => {
-			const displayDate = datum.realDate ?? datum.date;
-			const date = formatTooltipDate( displayDate, tooltipDateFormat );
+			const date = formatBucketTooltipDate( datum, displayResolution );
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipUnits, displayResolution ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them

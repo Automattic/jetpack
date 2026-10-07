@@ -204,7 +204,7 @@ export const authorsCsvExporter: ReportCsvExporter< AuthorRow, AuthorRow > = {
 	toCsvRows: items => items,
 	getColumns: () => [
 		{
-			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Author', 'jetpack-premium-analytics-pkg' ),
 			getValue: getAuthorCsvLabel,
 		},
 		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
