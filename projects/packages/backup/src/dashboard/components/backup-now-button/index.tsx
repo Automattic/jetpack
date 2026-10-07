@@ -43,7 +43,7 @@ function BackupNow() {
 	const isBackupRunning = backupsState === 'in-progress';
 
 	// Hand over from "enqueued" once WPCOM reports the backup, running or
-	// already finished, which also ends the forced polling above.
+	// already finished, which also ends the polling `useBackups` does while requested.
 	useEffect( () => {
 		if ( ( isBackupRunning || ! isRequested ) && enqueueState === 'enqueued' ) {
 			reset();
@@ -62,7 +62,7 @@ function BackupNow() {
 	}, [ tracks, enqueue ] );
 
 	const isEnqueuing = enqueueState === 'enqueuing';
-	const isEnqueued = enqueueState === 'enqueued';
+	const isEnqueued = enqueueState === 'enqueued' || isRequested;
 
 	// First match wins, mirroring the legacy precedence chain. `__()`
 	// returns a branded string type carrying the literal it was called

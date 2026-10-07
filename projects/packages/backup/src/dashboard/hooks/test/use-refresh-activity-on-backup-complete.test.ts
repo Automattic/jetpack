@@ -18,22 +18,26 @@ function makeWrapper() {
 	return { client, wrapper };
 }
 
+type Pair = [ BackupsState, boolean ];
+type Step = BackupsState | Pair;
+const toPair = ( step: Step ): Pair => ( typeof step === 'string' ? [ step, false ] : step );
+
 /**
  * Drive the hook through a sequence of states and report every
  * invalidation it asked for.
  *
- * @param states - States to render, in order.
+ * @param steps - States to render, in order; a `[ state, isRequested ]` pair sets the request flag.
  * @return The spy on `invalidateQueries`.
  */
-function walk( states: BackupsState[] ): jest.SpyInstance {
+function walk( steps: Step[] ): jest.SpyInstance {
 	const { client, wrapper } = makeWrapper();
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
-	const [ first, ...rest ] = states;
+	const [ first, ...rest ] = steps.map( toPair );
 	const { rerender } = renderHook(
-		( state: BackupsState ) => useRefreshActivityOnBackupComplete( state ),
+		( [ state, isRequested ]: Pair ) => useRefreshActivityOnBackupComplete( state, isRequested ),
 		{ wrapper, initialProps: first }
 	);
-	rest.forEach( state => rerender( state ) );
+	rest.forEach( pair => rerender( pair ) );
 	return invalidate;
 }
 
@@ -98,5 +102,22 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 		const invalidate = walk( [ 'in-progress', 'complete', 'in-progress', 'complete' ] );
 
 		expect( invalidate ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	// A `complete` -> `complete` run never shows `in-progress`, so the pending
+	// request is what marks it. The old backup alone, while pending, must not fire.
+	it.each( [
+		[
+			'fires once when the request ends on a new complete',
+			[ 'complete', [ 'complete', true ], 'complete' ],
+			1,
+		],
+		[
+			'stays quiet while the request is pending on the old complete',
+			[ 'complete', [ 'complete', true ] ],
+			0,
+		],
+	] as Array< [ string, Step[], number ] > )( '%s', ( _name, steps, calls ) => {
+		expect( walk( steps ) ).toHaveBeenCalledTimes( calls );
 	} );
 } );

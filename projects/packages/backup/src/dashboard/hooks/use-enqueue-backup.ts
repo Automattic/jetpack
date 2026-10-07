@@ -110,6 +110,8 @@ export function useEnqueueBackup(): Result {
 			const clickedAt = Date.now();
 			const pending: Requested = { clickedAt, baselineReady: false, baselineId: null };
 			queryClient.setQueryData( keys.enqueueRequested(), pending );
+			// A `null` read overwrites the cache, so take the snapshot first.
+			const cached = queryClient.getQueryData< RawBackupEntry[] | null >( keys.backups() );
 			let fresh: RawBackupEntry[] | null | undefined;
 			try {
 				fresh = await queryClient.fetchQuery( {
@@ -118,12 +120,17 @@ export function useEnqueueBackup(): Result {
 					staleTime: 0,
 				} );
 			} catch {
-				fresh = queryClient.getQueryData( keys.backups() );
+				fresh = undefined;
+			}
+			const baseline = Array.isArray( fresh ) ? fresh : cached;
+			// No usable list: stay pending until the ceiling rather than guess a baseline.
+			if ( ! Array.isArray( baseline ) ) {
+				return;
 			}
 			const ready: Requested = {
 				clickedAt,
 				baselineReady: true,
-				baselineId: newestBackupId( fresh ),
+				baselineId: newestBackupId( baseline ),
 			};
 			queryClient.setQueryData( keys.enqueueRequested(), ready );
 		},

@@ -36,9 +36,13 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
  * its response is discarded. Two observers therefore cost two WPCOM
  * round trips per finished backup per open tab, not one.
  *
- * @param state - The derived backups state, from `useBackups`.
+ * @param state       - The derived backups state, from `useBackups`.
+ * @param isRequested - Whether a "Back up now" request is still pending.
  */
-export function useRefreshActivityOnBackupComplete( state: BackupsState ): void {
+export function useRefreshActivityOnBackupComplete(
+	state: BackupsState,
+	isRequested: boolean
+): void {
 	const queryClient = useQueryClient();
 	// Latched rather than compared against the previous render's state:
 	// a single failed poll mid-backup moves the state to `error` and
@@ -49,7 +53,9 @@ export function useRefreshActivityOnBackupComplete( state: BackupsState ): void 
 	const sawInProgress = useRef( false );
 
 	useEffect( () => {
-		if ( state === 'in-progress' ) {
+		// A pending request counts as a run: a short backup can go from one
+		// `complete` to the next without showing `in-progress`.
+		if ( state === 'in-progress' || isRequested ) {
 			sawInProgress.current = true;
 			return;
 		}
@@ -57,5 +63,5 @@ export function useRefreshActivityOnBackupComplete( state: BackupsState ): void 
 			sawInProgress.current = false;
 			queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 		}
-	}, [ state, queryClient ] );
+	}, [ state, isRequested, queryClient ] );
 }

@@ -215,7 +215,7 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	useRefreshActivityOnBackupComplete( backupsState );
+	useRefreshActivityOnBackupComplete( backupsState, isBackupRequested );
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:

@@ -224,6 +224,33 @@ describe( 'useBackupRequested', () => {
 		expect( result.current.requested ).toBe( true );
 	} );
 
+	// A `null` read (the route's answer to a WPCOM blip) overwrites the cache, so
+	// the baseline must come from before it; with no cache the request stays pending.
+	it.each( [
+		[ 'keeps the cached baseline', [ finished( 1 ) ], true, '1' ],
+		[ 'stays pending with no cache', undefined, false, null ],
+	] )( 'on a null fresh read %s', async ( _name, cached, ready, id ) => {
+		mockedApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.endsWith( '/backups' ) ? null : { success: true } )
+		);
+		const { client, wrapper } = makeWrapper();
+		if ( cached ) {
+			client.setQueryData( keys.backups(), cached );
+		}
+		const { result } = renderHook( useClickFlow, { wrapper } );
+
+		act( () => result.current.enqueue.enqueue() );
+		await waitFor( () => expect( result.current.enqueue.state ).toBe( 'enqueued' ) );
+
+		expect( result.current.requested ).toBe( true );
+		await waitFor( () =>
+			expect( client.getQueryData( keys.enqueueRequested() ) ).toMatchObject( {
+				baselineReady: ready,
+				baselineId: id,
+			} )
+		);
+	} );
+
 	describe( 'without the button', () => {
 		beforeEach( () => jest.useFakeTimers() );
 		afterEach( () => jest.useRealTimers() );
