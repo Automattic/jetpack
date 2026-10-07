@@ -1,0 +1,107 @@
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
+import { SharingButtonsSection } from '../sections/sharing-buttons-section';
+import {
+	apiCalls,
+	baseSettings,
+	baseStatus,
+	renderWithData,
+	resetNotices,
+	setScriptData,
+} from './helpers';
+import type { Services } from '../types';
+
+jest.mock( '@wordpress/api-fetch' );
+const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+
+const services: Services = {
+	visible: [ 'facebook', 'x' ],
+	hidden: [ 'email' ],
+	services: [
+		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
+		{ id: 'x', name: 'X', custom: false, deprecated: false },
+		{ id: 'email', name: 'Email', custom: false, deprecated: false },
+	],
+};
+
+/**
+ * Answer the services route with the given list.
+ *
+ * @param list - Services.
+ */
+function servicesRespond( list: Services ) {
+	mockApiFetch.mockImplementation( ( { path, method } ) => {
+		if ( path?.endsWith( '/services' ) ) {
+			return Promise.resolve( list );
+		}
+		return Promise.resolve( method === 'PUT' ? baseSettings : baseStatus );
+	} );
+}
+
+beforeEach( () => {
+	mockApiFetch.mockReset();
+	resetNotices();
+	setScriptData();
+} );
+
+afterEach( () => {
+	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+} );
+
+describe( 'SharingButtonsSection', () => {
+	it( 'lists the enabled services, the hidden ones apart, under the placement summary', async () => {
+		servicesRespond( services );
+		renderWithData( <SharingButtonsSection /> );
+
+		await expect( screen.findByText( 'Facebook, X' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Email' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( /Sharing buttons currently appear on: Posts, Pages\./ )
+		).toBeInTheDocument();
+	} );
+
+	it( 'drops the placement summary when no service is enabled', async () => {
+		servicesRespond( { visible: [], hidden: [], services: [] } );
+		renderWithData( <SharingButtonsSection /> );
+
+		await expect(
+			screen.findByText( 'No sharing services are turned on.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /currently appear on/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'saves the button style as soon as it changes', async () => {
+		const user = userEvent.setup();
+		servicesRespond( services );
+		renderWithData( <SharingButtonsSection /> );
+
+		await user.selectOptions( screen.getByLabelText( 'Button style' ), 'icon' );
+
+		await waitFor( () =>
+			expect( apiCalls( 'PUT' ) ).toEqual( [
+				{ path: '/wpcom/v2/sharing-likes/settings', method: 'PUT', data: { button_style: 'icon' } },
+			] )
+		);
+	} );
+
+	it( 'shows no option the settings route did not offer', () => {
+		servicesRespond( services );
+		const rest = { ...baseSettings };
+		delete rest.button_style;
+		delete rest.sharing_label;
+		renderWithData( <SharingButtonsSection />, { settings: rest } );
+
+		expect( screen.queryByLabelText( 'Button style' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Sharing label' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Disable CSS and JS' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not ask for services unless the section configures', () => {
+		renderWithData( <SharingButtonsSection />, {
+			status: { ...baseStatus, sharing: { state: 'off' } },
+		} );
+
+		expect( apiCalls() ).toEqual( [] );
+	} );
+} );
