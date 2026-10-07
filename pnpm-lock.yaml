@@ -906,8 +906,8 @@ importers:
         version: 4.4.3
     devDependencies:
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.55.0
-        version: 6.55.0(webpack@5.111.1)
+        specifier: 6.57.0
+        version: 6.57.0(webpack@5.111.1)
       '@wordpress/i18n':
         specifier: 6.28.0
         version: 6.28.0
@@ -1779,8 +1779,8 @@ importers:
         specifier: 6.55.0
         version: 6.55.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.55.0
-        version: 6.55.0(webpack@5.111.1)
+        specifier: 6.57.0
+        version: 6.57.0(webpack@5.111.1)
       babel-loader:
         specifier: 10.0.0
         version: 10.0.0(@babel/core@7.29.7)(webpack@5.111.1)
@@ -4012,8 +4012,8 @@ importers:
         specifier: 5.55.0
         version: 5.55.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.55.0
-        version: 6.55.0(webpack@5.111.1)
+        specifier: 6.57.0
+        version: 6.57.0(webpack@5.111.1)
       '@wordpress/editor':
         specifier: 15.0.0
         version: 15.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4939,8 +4939,8 @@ importers:
         specifier: 0.23.0
         version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)(@wordpress/theme@2.1.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.55.0
-        version: 6.55.0(webpack@5.111.1)
+        specifier: 6.57.0
+        version: 6.57.0(webpack@5.111.1)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -11560,9 +11560,9 @@ packages:
     resolution: {integrity: sha512-Z7Y7vj0MSXO75Inf9m7KXoTgocjmO4HsSSCiqSpBuYjIkQHEuloYZfL9y/PCxMfxhQb/qa4ueRH+XT7csXE68Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/dependency-extraction-webpack-plugin@6.55.0':
-    resolution: {integrity: sha512-vfSIjbH+2MAj4CRwSTPLf6sdcoiTrPrHBwMPlMn2palfngmuZ2BUqWO9p3/sJHz7kOvOUr8P5KNmF7N8lCT2ow==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+  '@wordpress/dependency-extraction-webpack-plugin@6.57.0':
+    resolution: {integrity: sha512-5tX33Zxm2f7RdFMWr1AysScAPT5NGi6v5/iYqGZyYw/kqvH6vYPQLEEK0YO4CnG1p5FO44pu0gu6OQySLRwN1A==}
+    engines: {node: '>=18.12.0'}
     peerDependencies:
       webpack: ^5.0.0
 
@@ -26656,7 +26656,7 @@ snapshots:
       moment: 2.31.0
       moment-timezone: 0.5.48
 
-  '@wordpress/dependency-extraction-webpack-plugin@6.55.0(webpack@5.111.1)':
+  '@wordpress/dependency-extraction-webpack-plugin@6.57.0(webpack@5.111.1)':
     dependencies:
       json2php: 0.0.9
       webpack: 5.111.1(webpack-cli@7.2.1)
