@@ -4,6 +4,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Status\Host;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -78,6 +79,10 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 			$this->markTestSkipped( 'Waiting on the WordPress.com answer for what Atomic shows.' );
 		}
 
+		if ( ( new Host() )->is_woa_site() ) {
+			$this->markTestSkipped( 'The self-hosted rows do not describe the wpcomsh run, which is Atomic.' );
+		}
+
 		$this->set_scan_entitlement( $has_scan );
 
 		if ( $has_protect_plugin ) {
@@ -119,7 +124,7 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	 * Mirrors what Jetpack_Protect::admin_page_init() registers, and the class Jetpack detects it by.
 	 */
 	private function activate_standalone_protect_plugin() {
-		class_alias( stdClass::class, 'Jetpack_Protect' );
+		class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
 
 		add_action(
 			'_admin_menu',
@@ -141,17 +146,16 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Loads a connected site's default modules plus the Protect page, then builds the menu.
+	 * Turns the Protect page on, loads the site's modules, then builds the menu.
 	 *
 	 * @return array[] The Jetpack submenu items, in the order WordPress rendered them.
 	 */
 	private function render_jetpack_menu() {
 		// The Protect page is not a default module: the owner turns it on.
-		$active_modules = array_merge( Jetpack::get_default_modules(), array( 'protect-dashboard' ) );
 		add_filter(
 			'jetpack_active_modules',
-			static function ( $modules ) use ( $active_modules ) {
-				return array_values( array_unique( array_merge( $modules, $active_modules ) ) );
+			static function ( $modules ) {
+				return array_values( array_unique( array_merge( $modules, array( 'protect-dashboard' ) ) ) );
 			}
 		);
 		Jetpack::load_modules();
