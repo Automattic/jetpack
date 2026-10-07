@@ -32,8 +32,7 @@ if [[ "$PR_ID" == "trunk" ]]; then
 	gzip -9 coverage-data/php-combined.cov
 fi
 
-TMP=$( find coverage -name 'js-combined-*.json' )
-if [[ -n "$TMP" ]]; then
+if compgen -G 'coverage/js-combined-*.json' &>/dev/null; then
 	echo '::group::Pnpm install'
 	pnpm install
 	echo '::endgroup::'
