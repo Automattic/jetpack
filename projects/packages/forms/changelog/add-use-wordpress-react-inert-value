@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Use `@wordpress/react-inert-value` to set `inert` properties, for React 19 compatibility. Should be no change to functionality.
+
+

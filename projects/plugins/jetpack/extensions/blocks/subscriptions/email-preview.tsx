@@ -257,12 +257,12 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								<Button
 									type="submit"
 									variant="primary"
+									icon={ SendIcon }
 									isBusy={ isEmailSending }
 									disabled={ shouldPromptForConnection }
 									__next40pxDefaultSize={ true }
 								>
 									{ __( 'Send', 'jetpack' ) }
-									<Icon icon={ SendIcon } />
 								</Button>
 							</Grid>
 						</form>
