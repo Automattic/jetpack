@@ -412,4 +412,55 @@ class VideoPress_Player {
 				. '</div>';
 		}
 	}
+
+	/**
+	 * Validate legacy Flash parameters for backward compatibility.
+	 *
+	 * @since 1.2
+	 * @deprecated $$next-version$$ Flash playback is no longer supported.
+	 * @param array $flash_params Flash parameters expressed in key-value form.
+	 * @return array Validated Flash parameters.
+	 */
+	public static function esc_flash_params( $flash_params ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+
+		$allowed_params = array(
+			'swliveconnect'         => array( 'true', 'false' ),
+			'play'                  => array( 'true', 'false' ),
+			'loop'                  => array( 'true', 'false' ),
+			'menu'                  => array( 'true', 'false' ),
+			'quality'               => array( 'low', 'autolow', 'autohigh', 'medium', 'high', 'best' ),
+			'scale'                 => array( 'default', 'noborder', 'exactfit', 'noscale' ),
+			'align'                 => array( 'l', 'r', 't' ),
+			'salign'                => array( 'l', 'r', 't', 'tl', 'tr', 'bl', 'br' ),
+			'wmode'                 => array( 'window', 'opaque', 'transparent', 'direct', 'gpu' ),
+			'devicefont'            => array( '_sans', '_serif', '_typewriter' ),
+			'allowscriptaccess'     => array( 'always', 'samedomain', 'never' ),
+			'allownetworking'       => array( 'all', 'internal', 'none' ),
+			'seamlesstabbing'       => array( 'true', 'false' ),
+			'allowfullscreen'       => array( 'true', 'false' ),
+			'fullScreenAspectRatio' => array( 'portrait', 'landscape' ),
+		);
+
+		$filtered_params = array();
+		foreach ( $flash_params as $param => $value ) {
+			if ( empty( $param ) || empty( $value ) ) {
+				continue;
+			}
+			$param = strtolower( $param );
+			if ( isset( $allowed_params[ $param ] ) ) {
+				$value = strtolower( $value );
+				if ( in_array( $value, $allowed_params[ $param ], true ) ) {
+					$filtered_params[ $param ] = $value;
+				}
+			}
+		}
+
+		// Flash requires the case-sensitive value sameDomain.
+		if ( isset( $filtered_params['allowscriptaccess'] ) && $filtered_params['allowscriptaccess'] === 'samedomain' ) {
+			$filtered_params['allowscriptaccess'] = 'sameDomain';
+		}
+
+		return $filtered_params;
+	}
 }

@@ -154,6 +154,15 @@ class VideoPress_Video {
 	public $videos;
 
 	/**
+	 * Retained so cached video objects from older releases can be restored without dynamic properties.
+	 *
+	 * @var stdClass|null
+	 * @since 1.3
+	 * @deprecated $$next-version$$ Flash player data is no longer used.
+	 */
+	public $players;
+
+	/**
 	 * Video player skinning preferences including background color and watermark
 	 *
 	 * @var array
