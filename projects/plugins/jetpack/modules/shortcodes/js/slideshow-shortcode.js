@@ -1,5 +1,36 @@
 /* global jetpackSlideshowSettings */
 
+/**
+ * Turn a gallery caption into the plain text it is meant to be.
+ *
+ * A caption is meant to read as text, but wptexturize() leaves HTML entities behind, so it needs
+ * decoding before it can be set as one.
+ *
+ * @param {*} caption - Caption value from the gallery data.
+ * @return {string} The decoded caption, as text.
+ */
+function jetpackSlideshowCaptionText( caption ) {
+	if ( typeof caption !== 'string' || '' === caption ) {
+		return '';
+	}
+
+	var parsed = new DOMParser().parseFromString( caption, 'text/html' );
+
+	// These land in the body when they appear mid-caption, and their source is not caption text.
+	parsed.body
+		.querySelectorAll( 'script, style, noscript, template' )
+		.forEach( function ( element ) {
+			element.remove();
+		} );
+
+	// Without a space in its place, a caption broken over two lines reads as "Ada LovelaceLondon".
+	parsed.body.querySelectorAll( 'br' ).forEach( function ( element ) {
+		element.replaceWith( ' ' );
+	} );
+
+	return parsed.body.textContent;
+}
+
 function JetpackSlideshow( element, transition, autostart ) {
 	this.element = element;
 	this.images = [];
@@ -39,7 +70,7 @@ JetpackSlideshow.prototype.init = function () {
 		var caption = document.createElement( 'div' );
 		caption.className = 'jetpack-slideshow-slide-caption';
 		caption.setAttribute( 'itemprop', 'caption description' );
-		caption.innerHTML = imageInfo.caption;
+		caption.textContent = jetpackSlideshowCaptionText( imageInfo.caption );
 		var container = document.createElement( 'div' );
 		container.className = 'jetpack-slideshow-slide';
 		container.setAttribute( 'itemprop', 'associatedMedia' );

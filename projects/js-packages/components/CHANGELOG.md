@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [4.0.1] - 2026-10-06
+### Changed
+- Jetpack Footer: Link to the My Jetpack Features tab instead of the retired Products tab. [#52778]
+
+## [4.0.0] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Removed
+- Remove the Notice component; use Notice from @wordpress/ui instead. [#52932]
+- Remove the unused ZendeskChat component. [#52074]
+
+## [3.3.0] - 2026-09-28
+### Added
+- Add a `JitmSlot` component that renders the Jetpack in-dashboard message slot and keeps the message across route changes. [#52641]
+- IconTooltip: Add a `label` prop to give the icon trigger an accessible name. [#52800]
+
+### Changed
+- IconTooltip: Keep focus on the trigger when a tooltip opens, and announce its content to screen readers. [#52736]
+- IconTooltip: Show the trigger's focus ring the way other WordPress buttons do. [#52736]
+- Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
+
+### Deprecated
+- Deprecate `GlobalNotices` and `useGlobalNotices`. Use `SnackbarNotices` from `@wordpress/notices` instead. [#52193]
+
+### Fixed
+- IconTooltip: Close a tooltip opened on hover when Escape is pressed, without moving focus. [#52799]
+
 ## [3.2.0] - 2026-09-23
 ### Added
 - IconTooltip: Add a `trigger` prop that renders a text trigger in place of the icon, and a `closeOnClickOutside` prop to keep a tooltip open while the visitor works elsewhere on the page. [#52704]
@@ -1963,6 +1991,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[4.0.1]: https://github.com/Automattic/jetpack-components/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-components/compare/3.3.0...4.0.0
+[3.3.0]: https://github.com/Automattic/jetpack-components/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/Automattic/jetpack-components/compare/3.1.2...3.2.0
 [3.1.2]: https://github.com/Automattic/jetpack-components/compare/3.1.1...3.1.2
 [3.1.1]: https://github.com/Automattic/jetpack-components/compare/3.1.0...3.1.1

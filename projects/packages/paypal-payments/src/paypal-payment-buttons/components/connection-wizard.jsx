@@ -5,10 +5,12 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import PayPalIcon from '../icon';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
-import { wizardLogo } from './wizard-logo';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
@@ -22,14 +24,80 @@ const labelShowSecret = __( 'Show client secret', 'jetpack-paypal-payments' );
  * the sidebar: the sidebar unmounts with the block's selection, and the frame
  * has to outlive that.
  *
- * @param {object}   props                  - Component props.
- * @param {string}   props.signupUrl        - Partner Referrals action URL, empty until fetched.
- * @param {boolean}  props.isOverlayOpen    - Whether the onboarding overlay is up.
- * @param {Function} props.setFrameNode     - Ref callback for the onboarding frame.
- * @param {Function} props.cancelOnboarding - Close the onboarding overlay.
+ * @param {object}   props                        - Component props.
+ * @param {string}   props.signupUrl              - Partner Referrals action URL, empty until fetched.
+ * @param {boolean}  props.isOverlayOpen          - Whether the onboarding overlay is up.
+ * @param {boolean}  props.isCompletingOnboarding - Whether onboarding is being finished.
+ * @param {Function} props.setFrameNode           - Ref callback for the onboarding frame.
+ * @param {Function} props.cancelOnboarding       - Close the onboarding overlay.
  * @return {Element|null} The frame, or null before the referral link is fetched.
  */
-export function OnboardingFrame( { signupUrl, isOverlayOpen, setFrameNode, cancelOnboarding } ) {
+export function OnboardingFrame( {
+	signupUrl,
+	isOverlayOpen,
+	isCompletingOnboarding,
+	setFrameNode,
+	cancelOnboarding,
+} ) {
+	const closeRef = useRef( null );
+	const frameRef = useRef( null );
+	const attachFrame = useCallback(
+		node => {
+			frameRef.current = node;
+			setFrameNode( node );
+		},
+		[ setFrameNode ]
+	);
+
+	// Once the seller is done there is nothing left to close: the overlay comes
+	// down on its own, and a Close shown meanwhile would cancel a finished signup.
+	const showClose = isOverlayOpen && ! isCompletingOnboarding;
+
+	/**
+	 * Keep keyboard focus on the overlay while it is up.
+	 *
+	 * Focus lands on Close when the overlay opens and goes back where it came
+	 * from when it closes. In between, focus that reaches anything else is
+	 * sent back to Close, which is what keeps Tab from wandering behind
+	 * PayPal's window. Two documents, as with Escape: the frame is on the
+	 * canvas, the Connect button is in the sidebar.
+	 */
+	useEffect( () => {
+		const frame = frameRef.current;
+		if ( ! isOverlayOpen || ! frame ) {
+			return;
+		}
+
+		const canvasDocument = frame.ownerDocument;
+		const topDocument = canvasDocument.defaultView?.parent?.document ?? canvasDocument;
+		// From the top document, focus inside the canvas iframe reads as the iframe itself.
+		const topActive = topDocument.activeElement;
+		const origin =
+			topActive?.tagName === 'IFRAME' && canvasDocument !== topDocument
+				? canvasDocument.activeElement
+				: topActive;
+
+		closeRef.current?.focus();
+
+		const keepFocus = event => {
+			const target = event.target;
+			if ( target === closeRef.current || target === frame ) {
+				return;
+			}
+			closeRef.current?.focus();
+		};
+
+		const targets = new Set( [ canvasDocument, topDocument ] );
+		targets.forEach( target => target.addEventListener( 'focusin', keepFocus ) );
+
+		return () => {
+			targets.forEach( target => target.removeEventListener( 'focusin', keepFocus ) );
+			if ( origin?.isConnected && origin !== origin.ownerDocument.body ) {
+				origin.focus();
+			}
+		};
+	}, [ isOverlayOpen ] );
+
 	/*
 	 * No src: the frame keeps its initial document, which the connection hook
 	 * writes the link and SDK into. Pointing src at about:blank navigates over
@@ -40,12 +108,18 @@ export function OnboardingFrame( { signupUrl, isOverlayOpen, setFrameNode, cance
 	}
 
 	return (
-		<>
-			{ /* Only while the overlay is up: the frame is mounted hidden long
-			     before anyone clicks Connect, and a close button in the tab
-			     order then has nothing to close. */ }
-			{ isOverlayOpen && (
+		<div
+			role={ isOverlayOpen ? 'dialog' : undefined }
+			aria-modal={ isOverlayOpen ? 'true' : undefined }
+			aria-label={
+				isOverlayOpen ? __( 'PayPal onboarding', 'jetpack-paypal-payments' ) : undefined
+			}
+		>
+			{ /* Only while there is something to close: the frame is mounted
+			     hidden long before anyone clicks Connect. */ }
+			{ showClose && (
 				<Button
+					ref={ closeRef }
 					className="jetpack-paypal-onboarding-frame__close"
 					variant="secondary"
 					aria-label={ __( 'Close PayPal onboarding', 'jetpack-paypal-payments' ) }
@@ -55,7 +129,7 @@ export function OnboardingFrame( { signupUrl, isOverlayOpen, setFrameNode, cance
 				</Button>
 			) }
 			<iframe
-				ref={ setFrameNode }
+				ref={ attachFrame }
 				title={ __( 'PayPal onboarding', 'jetpack-paypal-payments' ) }
 				sandbox={ ONBOARDING_SANDBOX }
 				className={
@@ -63,7 +137,7 @@ export function OnboardingFrame( { signupUrl, isOverlayOpen, setFrameNode, cance
 					( isOverlayOpen ? ' jetpack-paypal-onboarding-frame--active' : '' )
 				}
 			/>
-		</>
+		</div>
 	);
 }
 
@@ -96,6 +170,7 @@ export function OnboardingFrame( { signupUrl, isOverlayOpen, setFrameNode, cance
  * @param {Function} props.handleClientSecretChange  - Change handler for the Client Secret field.
  * @param {string}   props.clientIdWarning           - Client ID format warning, or null.
  * @param {Function} props.handleConnect             - Submit the manual credentials.
+ * @param {Function} props.recordWizardStarted       - Record the merchant's first click in the wizard.
  * @param {Function} props.fetchSignupLink           - Fetch the Partner Referrals link.
  * @return {Element} The connection wizard.
  */
@@ -125,6 +200,7 @@ export default function ConnectionWizard( {
 	handleClientSecretChange,
 	clientIdWarning,
 	handleConnect,
+	recordWizardStarted,
 	fetchSignupLink,
 } ) {
 	// Pre-compute the "Connect PayPal" button label to avoid nested ternary.
@@ -191,10 +267,10 @@ export default function ConnectionWizard( {
 			{ visibleStep === 'welcome' && (
 				<div className="jetpack-paypal-wizard__welcome">
 					<h3>{ __( 'Connect your PayPal account', 'jetpack-paypal-payments' ) }</h3>
-					{ wizardLogo }
+					<div className="jetpack-paypal-wizard__logo">{ PayPalIcon }</div>
 					<p>
 						{ __(
-							'Create a link or button directly in the editor - no code required',
+							'Create a link or button directly in the editor - no code required.',
 							'jetpack-paypal-payments'
 						) }
 					</p>
@@ -209,6 +285,8 @@ export default function ConnectionWizard( {
 						<Button
 							variant="primary"
 							onClick={ () => {
+								recordWizardStarted();
+
 								// A frame built after the click misses that click's user
 								// activation, so PayPal's window.open inside it is
 								// popup-blocked. Fetch the referral and stop; that
@@ -218,10 +296,18 @@ export default function ConnectionWizard( {
 									return;
 								}
 
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+									environment,
+									method: 'partner_referrals',
+								} );
+								// A notice from the last attempt belongs to that attempt.
+								setConnectError( null );
 								setOnboardingRequested( true );
 							} }
 							isBusy={ isOpeningPayPal || isCompletingOnboarding }
 							disabled={ isOpeningPayPal || isCompletingOnboarding }
+							// Closing the overlay puts focus back here while the next referral is fetched.
+							accessibleWhenDisabled
 						>
 							{ connectWithPayPalLabel }
 						</Button>
@@ -236,7 +322,13 @@ export default function ConnectionWizard( {
 						</Notice>
 					) }
 					<p className="jetpack-paypal-wizard__hint">
-						<Button variant="link" onClick={ () => setWizardStep( 'dashboard' ) }>
+						<Button
+							variant="link"
+							onClick={ () => {
+								recordWizardStarted();
+								setWizardStep( 'dashboard' );
+							} }
+						>
 							{ __( 'Or enter your API credentials manually', 'jetpack-paypal-payments' ) }
 						</Button>
 					</p>
@@ -271,6 +363,7 @@ export default function ConnectionWizard( {
 							}` }
 							target="_blank"
 							rel="noopener noreferrer"
+							onClick={ recordWizardStarted }
 						>
 							{ __( 'Open PayPal Dashboard ↗', 'jetpack-paypal-payments' ) }
 						</Button>
@@ -282,7 +375,16 @@ export default function ConnectionWizard( {
 						) }
 					</p>
 					<div className="jetpack-paypal-wizard__actions">
-						<Button variant="primary" onClick={ () => setWizardStep( 'credentials' ) }>
+						<Button
+							variant="primary"
+							onClick={ () => {
+								recordWizardStarted();
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_wizard_credentials_reached', {
+									environment,
+								} );
+								setWizardStep( 'credentials' );
+							} }
+						>
 							{ __( 'I have my credentials — Next', 'jetpack-paypal-payments' ) }
 						</Button>
 					</div>

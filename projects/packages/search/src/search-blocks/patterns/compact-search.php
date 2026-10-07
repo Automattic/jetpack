@@ -10,6 +10,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 register_block_pattern(
 	'jetpack-search/compact-search',
 	array(

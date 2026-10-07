@@ -806,6 +806,31 @@ describe( 'BarChart', () => {
 		);
 	} );
 
+	describe( 'Axis display', () => {
+		test.each( [
+			[ 'vertical', 'x', 'y' ],
+			[ 'vertical', 'y', 'x' ],
+			[ 'horizontal', 'x', 'y' ],
+			[ 'horizontal', 'y', 'x' ],
+		] )( 'skips a hidden axis (%s, hidden %s)', ( orientation, hidden, shown ) => {
+			renderWithTheme( {
+				orientation,
+				options: {
+					axis: {
+						[ hidden ]: { display: false, axisClassName: 'test-hidden-axis' },
+						[ shown ]: { axisClassName: 'test-shown-axis' },
+					},
+				},
+			} );
+			const chart = screen.getByRole( 'grid' );
+
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			expect( chart.querySelector( '.test-hidden-axis' ) ).toBeNull();
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			expect( chart.querySelector( '.test-shown-axis' ) ).not.toBeNull();
+		} );
+	} );
+
 	describe( 'Grid Visibility', () => {
 		test( 'renders with different grid visibility options', () => {
 			const { rerender } = renderWithTheme( { gridVisibility: 'x' } );

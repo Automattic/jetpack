@@ -4,13 +4,11 @@
 import {
 	AnalyticsQueryClientProvider,
 	getApiErrorStatus,
-	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	buildReportLink,
-	pickReportDateParams,
+	pickReportNavigationParams,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
@@ -18,12 +16,14 @@ import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
+	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
+	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -41,6 +41,7 @@ import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useAuthorSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -82,7 +83,7 @@ function AuthorDetail(): JSX.Element {
 	// Stats credits page and product views to the author too, and those can predate
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( undefined, dateFilters );
+	const { dateControls } = useDetailDateControls( undefined, dateFilters );
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -107,7 +108,7 @@ function AuthorDetail(): JSX.Element {
 	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const reportSearch = pickReportDateParams( search );
+	const reportSearch = pickReportNavigationParams( search );
 
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 
@@ -141,14 +142,15 @@ function AuthorDetail(): JSX.Element {
 		[ search ]
 	);
 
-	let notice: JSX.Element | null = null;
+	let notice: PageNoticeProps | null = null;
 
 	if ( summary.isError ) {
 		// Same split as the widgets, plus a 404: sites that hide the users
 		// endpoint answer with one, and no Retry brings it back.
-		const { description, actions = [] } =
+		notice =
 			getApiErrorStatus( summary.error ) === 404
 				? {
+						intent: 'info',
 						description: __(
 							"This site doesn't share author profiles.",
 							'jetpack-premium-analytics-pkg'
@@ -161,30 +163,21 @@ function AuthorDetail(): JSX.Element {
 						),
 						onRetry: summary.refetch,
 					} );
-
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ description }</Text>
-				{ actions.map( action => (
-					<Button key={ action.label } variant="outline" onClick={ action.onClick }>
-						{ action.label }
-					</Button>
-				) ) }
-			</Stack>
-		);
 	} else if ( summary.isNotFound ) {
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this author.", 'jetpack-premium-analytics-pkg' ) }</Text>
-				<Link
-					to="/reports/$report"
-					params={ { report: 'authors' } as unknown as never }
-					search={ reportSearch as unknown as never }
-				>
-					{ __( 'Back to Authors', 'jetpack-premium-analytics-pkg' ) }
-				</Link>
-			</Stack>
-		);
+		notice = {
+			intent: 'info',
+			description: __( "We couldn't find this author.", 'jetpack-premium-analytics-pkg' ),
+			link: {
+				label: __( 'Back to Authors', 'jetpack-premium-analytics-pkg' ),
+				render: (
+					<Link
+						to="/reports/$report"
+						params={ { report: 'authors' } as unknown as never }
+						search={ reportSearch as unknown as never }
+					/>
+				),
+			},
+		};
 	}
 
 	return (
@@ -234,7 +227,11 @@ function AuthorDetail(): JSX.Element {
 								<WidgetDashboard.Widgets />
 							</DetailPageSection>
 						) : null }
-						{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+						{ notice ? (
+							<DetailPageSection>
+								<PageNotice { ...notice } />
+							</DetailPageSection>
+						) : null }
 					</DetailPageLayout>
 				</DetailPageShell>
 			</WidgetDashboard>
@@ -250,12 +247,10 @@ function AuthorDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
-				<ReportScopeProvider offersComparison={ false }>
-					<AuthorDetail />
-				</ReportScopeProvider>
-			</GlobalErrorProvider>
+			{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<AuthorDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

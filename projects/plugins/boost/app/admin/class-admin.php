@@ -26,7 +26,7 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Filter enabling the modern dashboard.
+	 * Filter controlling the modern dashboard; return false to restore the legacy dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_boost';
 
@@ -97,22 +97,25 @@ class Admin {
 	}
 
 	/**
-	 * Whether this request opts into the modern admin dashboard.
+	 * Whether this admin request uses the modern dashboard.
 	 *
 	 * @return bool Whether modernization is enabled for this admin request.
 	 */
 	private static function is_modern_dashboard() {
 		/**
-		 * Enable the modern Boost dashboard.
+		 * Filters whether to load the modern Boost dashboard.
+		 *
+		 * Hook `__return_false` to restore the legacy dashboard.
 		 *
 		 * @since 4.7.1
-		 * @param bool $enabled Whether to enable the modern dashboard. Default false.
+		 * @since 4.8.0 Defaults to true.
+		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
 		 */
-		return apply_filters( self::MODERNIZATION_FILTER, false ) && is_admin();
+		return apply_filters( self::MODERNIZATION_FILTER, true ) && is_admin();
 	}
 
 	/**
-	 * Load the modern dashboard only on an opted-in Boost admin request.
+	 * Load the modern dashboard only on a Boost admin request that has not filtered it off.
 	 */
 	private function maybe_load_wp_build() {
 		if ( ! self::is_modern_dashboard() ) {
@@ -166,7 +169,7 @@ class Admin {
 	 * Match wp-build's enqueue screen without changing the Boost menu URL.
 	 *
 	 * @since 4.7.1
-	 * @since $$next-version$$ Reads the current screen itself and records the ID it replaces.
+	 * @since 4.8.0 Reads the current screen itself and records the ID it replaces.
 	 */
 	public function alias_screen_id_for_wp_build() {
 		$screen = get_current_screen();
@@ -181,7 +184,7 @@ class Admin {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 */
 	public function restore_screen_id_after_wp_build() {
 		$screen = get_current_screen();
@@ -199,6 +202,13 @@ class Admin {
 	public function admin_init() {
 		// Clear premium features cache when the plugin settings page is loaded.
 		Premium_Features::clear_cache();
+		if ( current_user_can( 'manage_options' ) ) {
+			$already_activated = get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION );
+			Premium_Features::enable_cloud_css_after_upgrade();
+			if ( $this->modern_dashboard_loaded && ! $already_activated && get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) ) {
+				jetpack_boost_ds_set( 'cloud_css_upgrade_notice', true );
+			}
+		}
 
 		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );

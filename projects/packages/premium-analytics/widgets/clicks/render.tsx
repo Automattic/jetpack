@@ -2,11 +2,9 @@
  * External dependencies
  */
 import {
-	mergeStatsClicksComparisonRows,
 	useStatsClicks,
 	type StatsClicksComparisonItem,
 	type StatsClicksItem,
-	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -26,12 +24,13 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	clicksCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -86,7 +85,11 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 	return item.link ?? '';
 }
 
-function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+/**
+ * Maps a merged data-layer row (comparison matching and the row cap happen in
+ * `mergeStatsClicksComparisonRows`) onto the widget's row shape.
+ */
+export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	const href = safeHttpUrl( item.link );
 
 	return {
@@ -98,36 +101,6 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
-}
-
-/**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present. Rows are capped
- * client-side by `max`; `max = 0` keeps all rows.
- */
-export function toClickRowsWithComparison(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
-	const clickRows = rows.map( toClickRow );
-
-	return {
-		rows: clickRows,
-		hasComparison,
-	};
-}
-
-/**
- * `toClickRowsWithComparison` without the `hasComparison` flag.
- */
-export function toClickRows(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): ClickRow[] {
-	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
 /**
@@ -231,10 +204,8 @@ function ClicksInner() {
 		...reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
-		statsParams,
-		{ maxRows: WIDGET_ROW_LIMIT }
-	);
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsClicks( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
@@ -273,35 +244,43 @@ function ClicksInner() {
 	) : null;
 
 	return (
-		<div className={ styles.content }>
-			{ backLink }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// `placeholderData` keeps the prior period's rows on screen while `isError`
-				// flips true, so a transient refetch failure should not replace them.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ activeRows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load clicks. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: link,
-					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
-				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-			>
-				<ClicksLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+		<>
+			<div className={ styles.content }>
+				{ backLink }
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// `placeholderData` keeps the prior period's rows on screen while `isError`
+					// flips true, so a transient refetch failure should not replace them.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ activeRows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load clicks. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<ClicksLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="clicks" />
+				<ExporterCsvDownloadButton
+					exporter={ clicksCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -314,9 +293,6 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ClicksInner />
-				<WidgetFooter>
-					<ReportLink report="clicks" />
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

@@ -1,31 +1,48 @@
 /**
  * External dependencies
  */
+import { useStatsInsights } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { useAnnualInsightsReportRecords } from './config';
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import AnnualInsightsReportPage from './page';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
 
-jest.mock( './config', () => ( {
-	...jest.requireActual( './config' ),
-	useAnnualInsightsReportRecords: jest.fn(),
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsEmailSummary: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsInsights: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
-	useDashboardLink: () => '/',
+// Report pages render tabs without panels, which trips the tabs' dev-only count check.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	ReportPageTabs: () => null,
 } ) );
 
-// `Breadcrumbs` reaches for router context this page-level test has no need to provide.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	...jest.requireActual( '@wordpress/admin-ui' ),
-	Breadcrumbs: () => null,
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../tests/js/route-test-utils' );
 
-const useRecordsMock = jest.mocked( useAnnualInsightsReportRecords );
+	return mockWordPressRoute;
+} );
+
+const useStatsInsightsMock = jest.mocked( useStatsInsights );
 
 const annualInsightRow: StatsInsightsYear = {
 	year: '2026',
@@ -40,35 +57,27 @@ const annualInsightRow: StatsInsightsYear = {
 	avg_images: 1,
 };
 
-/**
- * Build a records-hook return value for the page under test.
- *
- * @param overrides - The fields to override on the successful-empty default.
- * @return The mocked hook result.
- */
-function buildRecords( overrides: Partial< ReturnType< typeof useAnnualInsightsReportRecords > > ) {
-	return {
-		rows: [],
-		isLoading: false,
-		isError: false,
-		refetch: jest.fn(),
-		...overrides,
-	} as ReturnType< typeof useAnnualInsightsReportRecords >;
-}
-
 describe( 'AnnualInsightsReportPage', () => {
-	it( 'surfaces the error and retry instead of stale rows', () => {
-		useRecordsMock.mockReturnValue(
-			buildRecords( {
-				rows: [ annualInsightRow ],
-				isError: true,
-			} )
-		);
+	it( 'replaces stale rows with an error that refetches on Retry', async () => {
+		const refetch = jest.fn();
+		useStatsInsightsMock.mockReturnValue( {
+			data: { years: [ annualInsightRow ] },
+			isLoading: false,
+			isFetching: false,
+			isError: true,
+			error: null,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsInsights > );
 
 		render( <AnnualInsightsReportPage /> );
 
-		expect( screen.getByText( 'Unable to load annual insights' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		expect(
+			getNoticeText( "We couldn't load annual insights. Please try again in a moment." )
+		).toBeInTheDocument();
 		expect( screen.queryByText( '2026' ) ).not.toBeInTheDocument();
+
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

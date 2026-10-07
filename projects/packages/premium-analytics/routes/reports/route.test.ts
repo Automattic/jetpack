@@ -1,5 +1,10 @@
-import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { getReportDefinition } from './registry';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -41,17 +46,43 @@ describe( 'report route.beforeLoad', () => {
 		} );
 	} );
 
-	it.each( [ undefined, 'unknown' ] )(
-		'redirects home for an unknown report (%p)',
-		async report => {
-			await expect( beforeLoad( { report } ) ).rejects.toMatchObject( { to: '/' } );
-		}
-	);
+	it( 'redirects home for an unknown report', async () => {
+		await expect( beforeLoad( { report: 'unknown' } ) ).rejects.toMatchObject( { to: '/' } );
+	} );
 
 	it( 'passes through a settled URL without redirecting', async () => {
 		await expect(
 			beforeLoad( { report: 'authors' }, { from: '2026-06-01', to: '2026-06-16' } )
 		).resolves.toBeUndefined();
+	} );
+
+	describe( 'on a report with sections', () => {
+		beforeEach( () => {
+			( getReportDefinition as jest.Mock ).mockReturnValueOnce( {
+				resolveSection: ( value?: string ) => ( value === 'b' ? 'b' : 'a' ),
+			} );
+		} );
+
+		it( 'replaces a section the report does not own with its default', async () => {
+			await expect(
+				beforeLoad( { report: 'authors' }, { section: 'bogus' } )
+			).rejects.toMatchObject( { search: { section: 'a' }, replace: true } );
+		} );
+
+		it( 'passes through a section the report owns', async () => {
+			await expect(
+				beforeLoad( { report: 'authors' }, { section: 'b' } )
+			).resolves.toBeUndefined();
+		} );
+	} );
+
+	it( 'still seeds the URL when the site settings fail to load', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+		( ensureCoreSettingsReady as jest.Mock ).mockRejectedValueOnce( new Error( 'offline' ) );
+
+		await expect( beforeLoad( { report: 'authors' } ) ).rejects.toMatchObject( {
+			to: '/reports/$report',
+		} );
 	} );
 
 	it( 'drops the detail-page scopes that arrived on the URL while seeding', async () => {
@@ -66,5 +97,17 @@ describe( 'report route.beforeLoad', () => {
 		expect( thrown?.search ).toMatchObject( { from: expect.any( String ) } );
 		expect( thrown?.search ).not.toHaveProperty( 'post_id' );
 		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+	} );
+
+	it( 'keeps the dashboard origin through the seeding redirect', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+		// The real normalizer drops params it does not own, so the seed has to add `ds` back.
+		( normalizeReportParams as jest.Mock ).mockImplementationOnce( () => ( {
+			from: '2026-06-01',
+		} ) );
+
+		await expect( beforeLoad( { report: 'authors' }, { ds: 'insights' } ) ).rejects.toMatchObject( {
+			search: { ds: 'insights' },
+		} );
 	} );
 } );

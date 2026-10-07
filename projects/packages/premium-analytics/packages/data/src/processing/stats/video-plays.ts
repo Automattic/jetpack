@@ -7,6 +7,7 @@ import {
 	getStatsReportItems,
 	getStatsSummaryIntervalFields,
 	getStatsTopLevelDataDate,
+	isStatsNumericSummaryValue,
 	limitStatsRows,
 	mapStatsReportDataPoints,
 	mergeStatsComparisonRows,
@@ -26,8 +27,11 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	plays: number;
 	impressions: number;
 	watch_time: number;
-	retention_rate: number;
+	/** Null when wpcom cannot compute it, e.g. a video without a duration. */
+	retention_rate: number | null;
 	link: string | null;
+	/** Poster-frame URL, absent when the video has none or is private. */
+	poster?: string;
 	actions?: StatsItemAction[];
 	children: null;
 };
@@ -63,8 +67,11 @@ export function sanitizeStatsVideoPlaysResponse(
 		plays: safeParseFloat( item.views ?? item.plays ),
 		impressions: safeParseFloat( item.impressions ),
 		watch_time: safeParseFloat( item.watch_time ),
-		retention_rate: safeParseFloat( item.retention_rate ),
+		retention_rate: isStatsNumericSummaryValue( item.retention_rate )
+			? safeParseFloat( item.retention_rate )
+			: null,
 		link: typeof item.url === 'string' ? item.url : null,
+		...( typeof item.poster === 'string' && item.poster !== '' ? { poster: item.poster } : {} ),
 		actions: typeof item.url === 'string' ? [ { type: 'link', data: item.url } ] : [],
 		children: null,
 	} );

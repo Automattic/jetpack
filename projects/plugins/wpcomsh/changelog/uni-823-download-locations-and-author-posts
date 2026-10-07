@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Premium Analytics: Add a Download CSV action to the Locations widget and the author page's Top viewed posts widget. Each saves every row for the selected dates, scoped to the place or author shown.

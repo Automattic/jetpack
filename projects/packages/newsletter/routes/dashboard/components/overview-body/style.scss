@@ -55,6 +55,20 @@
 		box-sizing: border-box;
 	}
 
+	&__step-spinner {
+		flex: none;
+	}
+
+	&__step--loading {
+		padding: var(--wpds-dimension-padding-sm);
+	}
+
+	&__step-skeleton {
+		inline-size: 100%;
+		min-block-size: 56px;
+		border-radius: var(--wpds-border-radius-sm);
+	}
+
 	&__step-header {
 
 		div[role="button"] {
@@ -67,8 +81,8 @@
 		display: grid;
 		place-items: center;
 		box-sizing: border-box;
-		inline-size: 24px;
-		block-size: 24px;
+		inline-size: 20px;
+		block-size: 20px;
 		border: 2px dashed var(--wpds-color-stroke-surface-neutral-strong);
 		border-radius: 50%;
 		flex: none;
@@ -140,6 +154,26 @@
 		// No font-size token matches 24px; nearest are xl (20px) and 2xl (32px).
 		&__title {
 			font-size: 24px !important;
+		}
+	}
+}
+
+// Names match the steps' and spinners' view-transition-name.
+@each $name in step, step-spinner {
+
+	@each $step in subscribe_form, subscribers, send_newsletter {
+
+		::view-transition-group(jetpack-newsletter-#{$name}-#{$step}) {
+			animation-duration: 0.3s;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			::view-transition-group(jetpack-newsletter-#{$name}-#{$step}),
+			::view-transition-old(jetpack-newsletter-#{$name}-#{$step}),
+			::view-transition-new(jetpack-newsletter-#{$name}-#{$step}) {
+				animation: none;
+			}
 		}
 	}
 }

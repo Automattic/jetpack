@@ -1,5 +1,4 @@
 export {
-	combineStatsNormalizedReports,
 	flattenStatsLeaves,
 	getStatsReportItems,
 	mergeStatsComparisonRows,
@@ -44,7 +43,6 @@ export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
-	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
@@ -100,7 +98,11 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type {
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+	StatsLocationsItem,
+} from './locations';
 export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,

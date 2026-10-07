@@ -7,7 +7,8 @@ import { Meta } from '@storybook/addon-docs/blocks';
 ## HeatmapChart
 
 Main component for rendering a two-dimensional heatmap. Cells are laid out with CSS Grid
-and shaded with CSS `color-mix`, so the scale adapts to the chart background.
+and shaded on a scale derived from the primary color and the chart background, so its
+lowest step keeps 3:1 contrast against that background and the empty cells.
 
 **Props:**
 
@@ -24,10 +25,10 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
-| `primaryColor` | `string` | palette | Color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
+| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
-| `tooltipVariant` | `'light' \| 'dark'` | `'light'` | The tooltip box: the plain white box, or the package's dark tooltip surface (themed through `--a8c-charts-color-tooltip-surface`). |
-| `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the variant's own; tighten the padding of a one-line tooltip, for example. |
+| `tooltipVariant` | `'light' \| 'dark'` | - | **Deprecated.** Every tooltip draws on the package tooltip surface; this prop has no effect. |
+| `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the surface's own; tighten the padding of a one-line tooltip, for example. |
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
 | `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |
@@ -95,7 +96,7 @@ A single cell in the heatmap.
 type HeatmapCell = {
 	/** Per-cell label used in the tooltip / accessible name. */
 	label?: string;
-	/** Numeric value. Use null to mark an empty / missing cell. */
+	/** Numeric value. Use null to mark an empty / missing cell; a zero also paints as empty unless some value is negative. */
 	value: number | null;
 	/**
 	 * Leave the cell's grid slot empty: nothing is painted and the cell is

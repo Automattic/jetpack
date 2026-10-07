@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Draw the chart tooltip stories with the charts TooltipBox, and export it from externals instead of BaseTooltip. No user-facing change.
+
+

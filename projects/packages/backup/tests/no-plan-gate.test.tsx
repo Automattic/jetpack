@@ -37,6 +37,7 @@ import NotConnectedScreen from '../src/dashboard/components/gates/not-connected'
 import SecondaryAdminScreen from '../src/dashboard/components/gates/secondary-admin';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+import type { JSX } from 'react';
 
 const SITE_SUFFIX = 'example.com';
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import './style.scss';
 	import ImageGuideAnalytics, { type TracksCallback } from '../analytics';
 	import { guideLabel, guideState } from '../stores/GuideState';
 	import JetpackLogo from './JetpackLogo.svelte';
@@ -17,21 +18,9 @@
 <a
 	id="jetpack-boost-guide-bar"
 	{href}
-	class="ab-item {$guideState}"
+	class="jb-ig-toggle ab-item {$guideState}"
 	on:click|preventDefault={toggleUI}
 >
 	<JetpackLogo />
 	<span>Image Guide: {$guideLabel}</span>
 </a>
-
-<style lang="scss">
-	#jetpack-boost-guide-bar.ab-item {
-		display: flex; // Overriding #wpadminbar style
-		gap: 10px;
-		align-items: center;
-
-		&.paused :global( svg ) {
-			filter: grayscale( 100% ) contrast( 1.7 );
-		}
-	}
-</style>

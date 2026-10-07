@@ -376,11 +376,13 @@ function wpcomsh_is_wp_rest_request_matching( $path_regex, $request_method = 'GE
 		return false;
 	}
 
-	if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+	// REQUEST_URI can't be trusted here: in `/wp-json/foo?rest_route=/bar`, WP serves `/bar`.
+	$route = $GLOBALS['wp']->query_vars['rest_route'] ?? '';
+	if ( ! is_string( $route ) || $route === '' ) {
 		return false;
 	}
 
-	$rest_path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+	$rest_path = '/' . rest_get_url_prefix() . $route;
 
 	return 1 === preg_match( $path_regex, $rest_path );
 }

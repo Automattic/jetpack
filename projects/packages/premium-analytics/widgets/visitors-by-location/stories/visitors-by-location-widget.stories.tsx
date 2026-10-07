@@ -1,4 +1,4 @@
-import { getDefaultQueryParams, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { SELECTABLE_PRESETS, type SelectablePresetId } from '@jetpack-premium-analytics/datetime';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -38,11 +38,9 @@ interface VisitorsByLocationDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls, VisitorsByLocationStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
-	<GlobalErrorProvider>
-		<WidgetCanvas>
-			<Story />
-		</WidgetCanvas>
-	</GlobalErrorProvider>
+	<WidgetCanvas>
+		<Story />
+	</WidgetCanvas>
 );
 
 function getVisitorsByLocationAttributes(
@@ -105,17 +103,13 @@ function VisitorsByLocationDashboardStory( {
 	...dashboardStoryArgs
 }: VisitorsByLocationDashboardStoryProps ) {
 	return (
-		<GlobalErrorProvider>
-			<WidgetDashboardWithWidgetStory
-				{ ...dashboardStoryArgs }
-				widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
-				renderModule={ VISITORS_BY_LOCATION_RENDER_MODULE }
-				renderComponent={
-					VisitorsByLocationRender as ComponentType< WidgetRenderProps< unknown > >
-				}
-				attributes={ getVisitorsByLocationAttributes( withComparison, preset ) }
-			/>
-		</GlobalErrorProvider>
+		<WidgetDashboardWithWidgetStory
+			{ ...dashboardStoryArgs }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			renderModule={ VISITORS_BY_LOCATION_RENDER_MODULE }
+			renderComponent={ VisitorsByLocationRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ getVisitorsByLocationAttributes( withComparison, preset ) }
+		/>
 	);
 }
 

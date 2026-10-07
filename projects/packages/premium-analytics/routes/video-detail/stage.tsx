@@ -1,23 +1,24 @@
 /**
  * External dependencies
  */
+import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
-	ReportScopeProvider,
-} from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
-import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+	pickReportNavigationParams,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
+	PageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
+	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -35,6 +36,7 @@ import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -65,7 +67,11 @@ function VideoDetail(): JSX.Element {
 
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
+		summary.publishedDate,
+		dateFilters,
+		summary.isLoading || summary.isError
+	);
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -90,7 +96,7 @@ function VideoDetail(): JSX.Element {
 	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const reportSearch = pickReportDateParams( search );
+	const reportSearch = pickReportNavigationParams( search );
 
 	// The stored arrangement, layered over the fixed composition.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
@@ -128,35 +134,31 @@ function VideoDetail(): JSX.Element {
 
 	// The reason a video is missing goes below the header, where the widgets
 	// would have been.
-	let notice: JSX.Element | null = null;
+	let notice: PageNoticeProps | null = null;
 
 	if ( summary.isError ) {
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>
-					{ __(
-						"We couldn't load this video. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					) }
-				</Text>
-				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</Stack>
-		);
+		notice = describeError( summary.error, {
+			retryDescription: __(
+				"We couldn't load this video. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: summary.refetch,
+		} );
 	} else if ( summary.isNotFound ) {
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
-				<Link
-					to="/reports/$report"
-					params={ { report: 'videos' } as unknown as never }
-					search={ reportSearch as unknown as never }
-				>
-					{ __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ) }
-				</Link>
-			</Stack>
-		);
+		notice = {
+			intent: 'info',
+			description: __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ),
+			link: {
+				label: __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ),
+				render: (
+					<Link
+						to="/reports/$report"
+						params={ { report: 'videos' } as unknown as never }
+						search={ reportSearch as unknown as never }
+					/>
+				),
+			},
+		};
 	}
 
 	return (
@@ -204,12 +206,16 @@ function VideoDetail(): JSX.Element {
 							/>
 						}
 					>
-						{ canRenderWidgets ? (
+						{ canRenderWidgets && ! isAnchoringAllTime ? (
 							<DetailPageSection>
 								<WidgetDashboard.Widgets />
 							</DetailPageSection>
 						) : null }
-						{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+						{ notice ? (
+							<DetailPageSection>
+								<PageNotice { ...notice } />
+							</DetailPageSection>
+						) : null }
 					</DetailPageLayout>
 				</DetailPageShell>
 			</WidgetDashboard>
@@ -225,15 +231,13 @@ function VideoDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				{ /*
-				 * The page names no compared period, so nothing below may fetch or draw
-				 * one. The params stay on the URL for the breadcrumb to carry back out.
-				 */ }
-				<ReportScopeProvider offersComparison={ false }>
-					<VideoDetail />
-				</ReportScopeProvider>
-			</GlobalErrorProvider>
+			{ /*
+			 * The page names no compared period, so nothing below may fetch or draw
+			 * one, even when a hand-edited URL carries comparison params.
+			 */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<VideoDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

@@ -23,7 +23,6 @@ definition and lazily renders that report's page component. Adding a report does
    	posts: {
    		id: 'posts',
    		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
-   		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
    		load: () => import( './posts/page' ),
@@ -36,21 +35,17 @@ That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 
 ## Naming a report
 
-`getLabel` names the report from outside itself: its own trailing breadcrumb,
-and the crumb back to it from a detail page. `getTitle` heads its records —
-`All pages report` where the label is `All pages`.
+`getLabel` is the report's one name: its own trailing breadcrumb, the crumb
+back to it from a detail page, and the heading over its records (`All pages`).
+Pages read it from `REPORTS` and declare no strings of their own.
 
-Pages read both from `REPORTS` and declare no strings of their own.
-
-A tabbed report heads each section from its open tab instead, through
-`getTabTitle( activeTab )`, which falls back to that tab's label. Its `getTitle`
-goes unused.
+A tabbed report heads each section with its open tab's label instead, through
+the tab set's `getTabLabel( activeTab )`.
 
 ## Providers the stage mounts for every report
 
 The stage wraps every report page in `AnalyticsQueryClientProvider` (React
-Query), `GlobalErrorProvider`, and `GlobalChartsProvider` with the shared chart
-theme. Report pages therefore call data hooks and compose chart components
+Query) and `GlobalChartsProvider` with the shared chart theme. Report pages therefore call data hooks and compose chart components
 directly (`useSeriesStyles` + `ComparativeLineChart`, exactly like widgets do)
 without mounting any providers of their own.
 

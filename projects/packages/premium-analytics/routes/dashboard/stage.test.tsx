@@ -8,6 +8,7 @@ import {
 	useReportScope,
 } from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
+import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
@@ -17,6 +18,7 @@ import { useCallback } from 'react';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
+	useDashboardPolicy,
 	useDashboardSections,
 	useOnboarding,
 	useSectionDateFilter,
@@ -51,7 +53,6 @@ jest.mock( '../site-readiness', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
@@ -82,10 +83,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+	DateFiltersPanel: ( props: { attentionId?: number; withIntervalControl?: boolean } ) => (
 		<>
 			<MockHeaderScopeProbe />
 			<MockAttentionProbe { ...props } />
+			{ props.withIntervalControl && <span>header interval</span> }
 		</>
 	),
 	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
@@ -130,7 +132,14 @@ const mockTrackCustomize = {
 	reset: jest.fn(),
 };
 
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useNavigate: () => jest.fn(),
+	useSearch: () => ( {} ),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
@@ -182,23 +191,37 @@ function MockHeaderScopeProbe() {
 }
 
 /**
+ * Reads the dashboard origin a widget's links carry, from where the widgets render.
+ *
+ * @return The origin, as text.
+ */
+function MockOriginProbe() {
+	const origin = useDashboardOriginSearch();
+	return <span>origin: { origin.ds ?? 'none' }</span>;
+}
+
+/**
  * Reads the scope the dashboard declares, from where the widgets actually render.
  *
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
+	const { offersComparison, openPeriod } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
 	const openJuly = useCallback(
 		() => raisePeriodChange( 'traffic', JULY_2026 ),
 		[ raisePeriodChange ]
 	);
+	const setJuly = useCallback( () => openPeriod?.( JULY_2026 ), [ openPeriod ] );
 
 	return (
 		<>
 			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
 			<button type="button" onClick={ openJuly }>
 				Open July from a widget
+			</button>
+			<button type="button" onClick={ setJuly }>
+				Set July from a chart on this section
 			</button>
 		</>
 	);
@@ -277,7 +300,12 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	}
 	WidgetDashboard.Actions = Actions;
 	WidgetDashboard.NoWidgetsState = () => null;
-	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Widgets = () => (
+		<>
+			<MockScopeProbe />
+			<MockOriginProbe />
+		</>
+	);
 	WidgetDashboard.Commands = () => null;
 	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 
@@ -322,10 +350,23 @@ jest.mock( '../widget-module-i18n', () => ( {
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 
+jest.mock( './config', () => {
+	const actual = jest.requireActual( './config' );
+
+	return {
+		...actual,
+		// Most section fixtures here carry no default layout.
+		getInsertableWidgetTypeNames: ( sections: Array< Record< string, unknown > > ) =>
+			actual.getInsertableWidgetTypeNames(
+				sections.map( section => ( { default_layout: [], ...section } ) )
+			),
+	};
+} );
+
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
-	useDashboardPolicy: () => () => true,
+	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
@@ -343,6 +384,7 @@ beforeEach( () => {
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
+const useDashboardPolicyMock = jest.mocked( useDashboardPolicy );
 const useOnboardingMock = jest.mocked( useOnboarding );
 
 const closedOnboarding = {
@@ -449,6 +491,31 @@ describe( 'Dashboard report scope', () => {
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
+
+	it( 'names the active tab to the widgets, so their links can return to it', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Site insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		const { rerender } = render( <Dashboard /> );
+
+		expect( screen.getByText( 'origin: traffic' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'origin: insights' ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'Dashboard period change signal', () => {
@@ -499,6 +566,22 @@ describe( 'Dashboard period change signal', () => {
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
 		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 		jest.useRealTimers();
+	} );
+
+	it( 'draws attention to a period a widget set on the section it sits in', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click(
+			screen.getByRole( 'button', { name: 'Set July from a chart on this section' } )
+		);
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
 	} );
 
 	it( 'lets a signal go when the reader lands on another section instead', async () => {
@@ -803,6 +886,19 @@ describe( 'Dashboard header date control', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header interval' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the range but drops the interval for a section whose charts own it', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_interval_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'header interval' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {
@@ -891,6 +987,59 @@ describe( 'Dashboard header date control', () => {
 
 		expect( screen.getByText( 'measuring header' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'measuring body' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard inserter', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					date_filter: DATE_FILTER_YEAR,
+					default_layout: [ { uuid: 'default-latest-post', type: 'jpa/latest-post' } ],
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+	} );
+
+	it( 'offers the widget types the active section places by default', () => {
+		const { rerender } = render( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+		} );
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/latest-post' ] ),
+		} );
+	} );
+
+	it( 'hands the policy the same set while the active section stays', () => {
+		const { rerender } = render( <Dashboard /> );
+		const [ first ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		rerender( <Dashboard /> );
+		const [ second ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		expect( second?.insertableWidgetTypes ).toBe( first?.insertableWidgetTypes );
 	} );
 } );
 

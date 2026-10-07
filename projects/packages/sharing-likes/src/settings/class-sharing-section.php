@@ -95,7 +95,7 @@ final class Sharing_Section {
 	}
 
 	/**
-	 * The way back. See `Post_Handler::activate_module()`.
+	 * The way back. See `Feature_Actions::activate()`.
 	 */
 	private static function render_activate_form(): void {
 		if ( ! Environment::legacy_sharing_supported() ) {

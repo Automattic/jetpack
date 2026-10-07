@@ -20,6 +20,16 @@ import {
 	libraryThumbUrl,
 } from 'wpcom-write/image-format';
 import {
+	createEmptyQuote,
+	insertLeadingParagraph,
+	isCaretAtQuoteStart,
+	isCaretAtStartOfFirstLine,
+	keepSelectionAcross,
+	liftFirstQuoteLine,
+	unwrapQuote,
+	wrapLooseQuoteContent,
+} from 'wpcom-write/quote-editing';
+import {
 	parsePostId,
 	escapeAttr,
 	rgbToHex,
@@ -2496,8 +2506,13 @@ function insertNewBlock( tag ) {
 	const content = getContent();
 	if ( ! content ) return;
 
-	const newEl = document.createElement( tag );
-	newEl.innerHTML = '<br>';
+	let newEl;
+	if ( tag === 'blockquote' ) {
+		newEl = createEmptyQuote( document );
+	} else {
+		newEl = document.createElement( tag );
+		newEl.innerHTML = '<br>';
+	}
 
 	// Find the block containing the slash command by scanning direct children.
 	// Include headings and blockquotes so slash commands work inside them.
@@ -2520,7 +2535,7 @@ function insertNewBlock( tag ) {
 	}
 
 	// Place cursor inside the new element.
-	placeCursorAt( newEl );
+	placeCursorAt( newEl.querySelector( 'p' ) || newEl );
 
 	clearSlashActive();
 	state.showSlashMenu = false;
@@ -2599,11 +2614,10 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
  * @param {HTMLElement} paragraph - The paragraph to convert.
  */
 function applyMarkdownQuoteShortcut( paragraph ) {
-	const blockquote = document.createElement( 'blockquote' );
-	blockquote.innerHTML = '<br>';
+	const blockquote = createEmptyQuote( document );
 	paragraph.after( blockquote );
 	paragraph.remove();
-	placeCursorAt( blockquote );
+	placeCursorAt( blockquote.firstChild );
 	state.formatQuote = true;
 }
 
@@ -3645,8 +3659,13 @@ const { state } = store( 'wpcom-write', {
 				const content = getContent();
 				if ( content ) {
 					content.focus();
-					// Ensure the cursor starts inside a paragraph.
-					if ( ! content.querySelector( 'p' ) ) {
+					// Give a post that opens with a quote or heading a line to write above it.
+					const leading = insertLeadingParagraph( content );
+					if ( leading ) {
+						placeCursorAt( leading );
+						pushToUndoHistory();
+					} else if ( ! content.querySelector( 'p' ) ) {
+						// Ensure the cursor starts inside a paragraph.
 						document.execCommand( 'formatBlock', false, 'p' );
 					}
 				}
@@ -4057,34 +4076,22 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Backspace in an empty blockquote: convert it back to a paragraph.
-			// Must run before the first-block Backspace guard below, otherwise the
-			// guard swallows Backspace when the quote is the editor's first block
-			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
-			// the user with no way to remove the quote.
+			// Backspace at the start of a quote's first line: move that line out,
+			// above the quote, as the block editor does. Writers use this to add text
+			// above a quote that opens the post (e.g. a writing prompt), so it must
+			// run before the first-block Backspace guard below.
 			if ( event.key === 'Backspace' ) {
 				const sel = window.getSelection();
-				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
-					const bq = getActiveBlockquote();
-					if ( bq ) {
-						// Ignore the <cite> placeholder when checking for empty body.
-						const probe = bq.cloneNode( true );
-						const probeCite = probe.querySelector( 'cite' );
-						if ( probeCite ) {
-							probeCite.remove();
-						}
-						if ( probe.textContent.trim() === '' ) {
-							event.preventDefault();
-							flushUndoDebounce();
-							const p = document.createElement( 'p' );
-							p.innerHTML = '<br>';
-							bq.after( p );
-							bq.remove();
-							placeCursorAt( p );
-							state.formatQuote = false;
-							pushToUndoHistory();
-							return;
-						}
+				const bq = sel.rangeCount ? getActiveBlockquote() : null;
+				if ( bq && isCaretAtQuoteStart( bq, sel.getRangeAt( 0 ) ) ) {
+					flushUndoDebounce();
+					const line = liftFirstQuoteLine( bq );
+					if ( line ) {
+						event.preventDefault();
+						placeCursorAt( line );
+						state.formatQuote = false;
+						pushToUndoHistory();
+						return;
 					}
 				}
 			}
@@ -4105,14 +4112,13 @@ const { state } = store( 'wpcom-write', {
 						while ( block && block.parentNode !== content ) {
 							block = block.parentNode;
 						}
-						if ( block && block === content.firstElementChild ) {
-							const beforeRange = document.createRange();
-							beforeRange.setStart( block, 0 );
-							beforeRange.setEnd( range.startContainer, range.startOffset );
-							if ( beforeRange.toString() === '' ) {
-								event.preventDefault();
-								return;
-							}
+						if (
+							block &&
+							block === content.firstElementChild &&
+							isCaretAtStartOfFirstLine( block, range )
+						) {
+							event.preventDefault();
+							return;
 						}
 					}
 				}
@@ -4689,20 +4695,36 @@ const { state } = store( 'wpcom-write', {
 		// --- Block formatting ---
 
 		formatQuote() {
+			flushUndoDebounce();
 			if ( state.formatQuote ) {
 				if ( ! exitListAndApplyBlock( 'p' ) ) {
-					document.execCommand( 'formatBlock', false, 'p' );
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						keepSelectionAcross( window.getSelection(), () => unwrapQuote( bq ) );
+					} else {
+						document.execCommand( 'formatBlock', false, 'p' );
+					}
 				}
 				state.formatQuote = false;
 			} else {
 				if ( ! exitListAndApplyBlock( 'blockquote' ) ) {
 					document.execCommand( 'formatBlock', false, 'blockquote' );
 				}
+				const bq = getActiveBlockquote();
+				if ( bq ) {
+					keepSelectionAcross( window.getSelection(), () => {
+						wrapLooseQuoteContent( bq );
+						return bq.querySelector( 'p' ) || bq;
+					} );
+				}
 				state.formatQuote = true;
 				state.formatHeading = false;
 			}
 			state.formatUList = false;
 			state.formatOList = false;
+			// unwrapQuote fires no input event, and formatBlock's is still debounced.
+			flushUndoDebounce();
+			pushToUndoHistory();
 		},
 
 		// --- Link ---

@@ -7,23 +7,45 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+require_once __DIR__ . '/trait-paypal-tracks-events.php';
 
 /**
  * Class Paypal_Payment_Buttons_Test
  *
  * @coversDefaultClass Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_Payment_Buttons::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class Paypal_Payment_Buttons_Test extends TestCase {
 
 	use PayPal_Resource_Fixtures;
+	use PayPal_Tracks_Events;
+
+	/**
+	 * The `jetpack_stats_extra` calls made so far, as key and value pairs.
+	 *
+	 * @var array[]
+	 */
+	private $stats_extras = array();
+
+	/**
+	 * Give the site the blog id Tracks events carry, and capture the view counter.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		// Constants::set_constant() only fakes IS_WPCOM, so blog_id comes from the Jetpack `id` option.
+		\Jetpack_Options::update_option( 'id', 1234 );
+		add_action( 'jetpack_stats_extra', array( $this, 'capture_stats_extra' ), 10, 2 );
+	}
 
 	/**
 	 * Clean up after each test.
@@ -37,9 +59,34 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
+		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		wp_set_current_user( 0 );
 		PayPal_OAuth::delete_credentials();
 		Feature_Flags::reset();
+
+		// The Tracks cases change the request, the query and the user.
+		unset( $GLOBALS['jetpack_paypal_test_captured_events'], $_GET['theme_preview'] );
+		Constants::clear_constants();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		remove_action( 'jetpack_stats_extra', array( $this, 'capture_stats_extra' ), 10 );
+		set_current_screen( 'front' );
+		// WP_Query::init() leaves is_embed set, so start from a fresh query.
+		$GLOBALS['wp_query']     = new \WP_Query();
+		$GLOBALS['wp_customize'] = null;
+		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
+		\Jetpack_Options::delete_option( 'id' );
+	}
+
+	/**
+	 * Record a `jetpack_stats_extra` call.
+	 *
+	 * @param string $key   The stat group.
+	 * @param string $value The stat.
+	 */
+	public function capture_stats_extra( $key, $value ) {
+		$this->stats_extras[] = array( $key, $value );
 	}
 
 	/**
@@ -506,9 +553,125 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		PayPal_Payment_Buttons::load_editor_scripts();
 
 		$this->assertSame(
-			array( 'window.jetpackPayPalPayments = {"sdkHostUrl":' . wp_json_encode( PayPal_Payment_Buttons::get_sdk_host_url(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '};' ),
+			array(
+				'window.jetpackPayPalPayments = ' . wp_json_encode(
+					array(
+						'sdkHostUrl'          => PayPal_Payment_Buttons::get_sdk_host_url(),
+						'onboardingReturnUrl' => PayPal_Payment_Buttons::get_onboarding_return_url(),
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+				) . ';',
+			),
 			array_values( array_filter( (array) wp_scripts()->get_data( 'jp-paypal-payments-ncps-blocks', 'before' ) ) )
 		);
+	}
+
+	/**
+	 * PayPal reaches the return page from its own popup, which need not carry the
+	 * login cookie, so it has to answer logged-out requests as well.
+	 */
+	public function test_onboarding_return_endpoint_answers_logged_in_and_logged_out_requests() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+		remove_all_actions( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+		$this->assertNotFalse( has_action( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+		remove_all_actions( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+	}
+
+	public function test_onboarding_return_endpoint_waits_for_the_feature_flag() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_onboarding_return_url_points_at_the_admin_post_action() {
+		$this->assertStringContainsString(
+			'action=' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION,
+			PayPal_Payment_Buttons::get_onboarding_return_url()
+		);
+		// PayPal caps return_url at 127 characters.
+		$this->assertLessThanOrEqual( 127, strlen( PayPal_Payment_Buttons::get_onboarding_return_url() ) );
+	}
+
+	/**
+	 * The return page relays PayPal's query string to the editor and nothing else:
+	 * no site data goes on a page that answers logged-out requests.
+	 */
+	public function test_onboarding_return_page_relays_paypal_query_to_a_same_origin_window() {
+		PayPal_OAuth::store_credentials( 'stored-client-id', 'stored-client-secret' );
+
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '"' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '"', $markup );
+		$this->assertStringContainsString( 'merchantIdInPayPal', $markup );
+		$this->assertStringContainsString( 'postMessage( message, window.location.origin )', $markup );
+		// The popup has no opener once it has been through paypal.com, so the
+		// channel is the delivery that counts.
+		$this->assertStringContainsString( 'new BroadcastChannel( "' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '" )', $markup );
+		$this->assertStringNotContainsString( 'stored-client', $markup );
+	}
+
+	/**
+	 * The note is for a popup that cannot close itself; in the editor's frame it
+	 * shows over the post while onboarding is completed.
+	 */
+	public function test_onboarding_return_page_hides_its_note_inside_the_editor_frame() {
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '<p id="note">', $markup );
+		$this->assertMatchesRegularExpression(
+			'/if \( framed \) \{\s*(?:\/\/[^\n]*\n\s*)?document\.getElementById\( "note" \)\.hidden = true;/',
+			$markup
+		);
+	}
+
+	/**
+	 * The return page handler serves the markup covered above.
+	 */
+	public function test_onboarding_return_page_is_served() {
+		/**
+		 * Stop at the first esc_html() in the markup, before the page reaches its exit().
+		 *
+		 * @return never
+		 * @throws \RuntimeException Always.
+		 */
+		$stop_at_the_markup = static function () {
+			throw new \RuntimeException( 'markup' );
+		};
+		$stopped_at         = null;
+
+		add_filter( 'esc_html', $stop_at_the_markup );
+
+		ob_start();
+		try {
+			PayPal_Payment_Buttons::render_onboarding_return();
+		} catch ( \RuntimeException $e ) {
+			$stopped_at = $e->getMessage();
+		} finally {
+			ob_end_clean();
+			remove_filter( 'esc_html', $stop_at_the_markup );
+		}
+
+		$this->assertSame( 'markup', $stopped_at );
 	}
 
 	/**
@@ -993,16 +1156,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that buttonShowPoweredBy draws "Powered by" and the PayPal wordmark.
-	 *
-	 * The word PayPal stays as text for screen readers, and style.scss draws it
-	 * as the wordmark.
 	 */
 	public function test_render_button_shows_the_attribution_when_asked() {
 		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => true ) );
 
-		$this->assertStringContainsString(
-			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>',
+		$this->assertMatchesRegularExpression(
+			'#<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="[^"]+/paypal-payment-buttons/images/paypal-wordmark-color\.svg" alt="PayPal" width="42" height="15" /></p>#',
 			$result
+		);
+	}
+
+	/**
+	 * Test that the bundled wordmark is PayPal's file, unmodified.
+	 *
+	 * The hash is of https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg.
+	 */
+	public function test_bundled_wordmark_is_paypals_file() {
+		$this->assertSame(
+			'f766ba6d9471acc787c0808b8c30f38494d12b287ccfb2ff610fd617cfa2a432',
+			hash_file( 'sha256', dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons/images/paypal-wordmark-color.svg' )
 		);
 	}
 
@@ -2158,6 +2330,72 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		);
 	}
 
+	public function test_get_partner_attribution_id_defaults_to_the_production_code() {
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_is_ignored_in_production() {
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_overrides_the_code_in_sandbox() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$this->assertSame( 'Sandbox_BN', PayPal_Payment_Buttons::get_partner_attribution_id() );
+		$this->assertStringContainsString(
+			'at_code=Sandbox_BN',
+			PayPal_Payment_Buttons::add_partner_attribution( 'https://www.paypal.com/ncp/payment/ABC123' )
+		);
+
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.sandbox.paypal.com/sdk/js"></script>',
+			PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE
+		);
+		$this->assertStringContainsString( 'data-paypal-partner-attribution-id="Sandbox_BN"', $tag );
+	}
+
+	/**
+	 * @dataProvider provide_unusable_sandbox_partner_attribution_values
+	 *
+	 * @param mixed $value What the filter returns.
+	 */
+	#[DataProvider( 'provide_unusable_sandbox_partner_attribution_values' )]
+	public function test_sandbox_partner_attribution_filter_falls_back_on_unusable_values( $value ) {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => $value );
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public static function provide_unusable_sandbox_partner_attribution_values() {
+		return array(
+			'empty string'      => array( '' ),
+			'null'              => array( null ),
+			'array'             => array( array( 'Sandbox_BN' ) ),
+			'only unsafe chars' => array( '"><>& ' ),
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_strips_unsafe_characters() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sand"box <BN>&' );
+
+		$this->assertSame( 'SandboxBN', PayPal_Payment_Buttons::get_partner_attribution_id() );
+	}
+
 	// --- Per-option pricing display ---
 
 	/**
@@ -2591,5 +2829,378 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'unpriced'       => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
 			'id only'        => array( array( 'id' => 'PLB-EMPTY' ), '' ),
 		);
+	}
+
+	// --- Sharing buttons ---
+
+	/**
+	 * A published post, for the sharing filter to look at.
+	 *
+	 * @param string $content The post content.
+	 * @return \WP_Post
+	 */
+	private function published_post( $content ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Sharing',
+				'post_content' => $content,
+				'post_status'  => 'publish',
+			)
+		);
+
+		return get_post( $post_id );
+	}
+
+	public function test_sharing_is_enabled_on_a_post_with_the_block() {
+		$post = $this->published_post( '<!-- wp:jetpack/paypal-payment-buttons /-->' );
+
+		$this->assertTrue( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, $post ) );
+
+		wp_delete_post( $post->ID, true );
+	}
+
+	public function test_sharing_is_left_as_it_was_elsewhere() {
+		$post = $this->published_post( '<!-- wp:paragraph --><p>No buttons here.</p><!-- /wp:paragraph -->' );
+
+		$this->assertFalse( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, $post ) );
+		$this->assertFalse( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, null ) );
+		$this->assertTrue( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( true, $post ) );
+
+		wp_delete_post( $post->ID, true );
+	}
+
+	// --- Tracks events ---
+
+	/**
+	 * Log a viewer in.
+	 *
+	 * @return int The user id.
+	 */
+	private function log_in() {
+		$user_id = username_exists( 'testviewer_payment_buttons' );
+		if ( ! $user_id ) {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'testviewer_payment_buttons',
+					'user_pass'  => wp_generate_password(),
+					'role'       => 'subscriber',
+				)
+			);
+		}
+
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Test that a logged-in view on Simple records one event, as the viewer.
+	 */
+	public function test_render_records_a_logged_in_view_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$user_id = $this->log_in();
+		PayPal_OAuth::set_environment( 'sandbox' );
+
+		$this->render_button_format(
+			array(
+				'format'          => 'LINK',
+				'integrationMode' => 'LINK',
+			)
+		);
+
+		$events = $GLOBALS['jetpack_paypal_test_captured_events'] ?? array();
+		$this->assertCount( 1, $events );
+		$this->assertSame( $user_id, $events[0]['user']->ID );
+		$this->assertSame( 'jetpack_paypal_button_rendered', $events[0]['event_name'] );
+		$this->assertSame(
+			array(
+				'environment'      => 'sandbox',
+				'format'           => 'LINK',
+				'integration_mode' => 'LINK',
+				'blog_id'          => 1234,
+				'platform'         => 'simple',
+			),
+			$events[0]['properties']
+		);
+	}
+
+	/**
+	 * Test that each block on a page records its own event.
+	 *
+	 * On wpcom, identical events from one page can merge into one. The test stub records every call.
+	 */
+	public function test_render_records_each_block() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$this->render_button_format( array() );
+		$this->render_button_format(
+			array(
+				'resourceId'  => 'PLB-BUTTON2',
+				'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-BUTTON2',
+			)
+		);
+
+		$this->assertCount( 2, $this->recorded_events() );
+	}
+
+	/**
+	 * Test that `format` is the allowlisted attribute, even when the block draws another format.
+	 *
+	 * @dataProvider provide_recorded_formats
+	 *
+	 * @param array  $attributes The block's format attributes.
+	 * @param string $expected   The format the event carries.
+	 */
+	#[DataProvider( 'provide_recorded_formats' )]
+	public function test_render_records_the_allowlisted_format( $attributes, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$this->render_button_format( $attributes );
+
+		$properties = $this->recorded_events()[0]['properties'] ?? array();
+		$this->assertArrayHasKey( 'format', $properties, 'Expected an event.' );
+		$this->assertSame( $expected, $properties['format'] );
+	}
+
+	/**
+	 * Format attributes and the format each one records.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_recorded_formats() {
+		$script_src = 'https://www.paypal.com/sdk/js?client-id=abc';
+
+		return array(
+			'stacked'                  => array(
+				array(
+					'format'    => 'STACKED',
+					'scriptSrc' => $script_src,
+				),
+				'STACKED',
+			),
+			// Draws the single button, but the merchant chose STACKED.
+			'stacked without script'   => array( array( 'format' => 'STACKED' ), 'STACKED' ),
+			'unknown, drawn as button' => array( array( 'format' => 'CHECKOUT' ), 'BUTTON' ),
+		);
+	}
+
+	/**
+	 * Test that only the two known integration modes are sent.
+	 *
+	 * @dataProvider provide_integration_modes
+	 *
+	 * @param string      $integration_mode The block's integrationMode.
+	 * @param string|null $expected         The recorded integration_mode, or null when left out.
+	 */
+	#[DataProvider( 'provide_integration_modes' )]
+	public function test_render_allowlists_the_integration_mode( $integration_mode, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$this->render_button_format( array( 'integrationMode' => $integration_mode ) );
+
+		$properties = $this->recorded_events()[0]['properties'] ?? array();
+		$this->assertArrayHasKey( 'format', $properties, 'Expected an event.' );
+		$this->assertSame( $expected, $properties['integration_mode'] ?? null );
+	}
+
+	/**
+	 * Values of integrationMode, and what the event carries for each.
+	 *
+	 * @return array<string, array{0: string, 1: string|null}>
+	 */
+	public static function provide_integration_modes() {
+		return array(
+			'BUTTON'      => array( 'BUTTON', 'BUTTON' ),
+			'the default' => array( '', null ),
+			'a hand-edit' => array( '</script><script>alert(1)</script>', null ),
+		);
+	}
+
+	/**
+	 * Test that each untracked context skips the event, while the block still renders.
+	 *
+	 * @dataProvider provide_untracked_contexts
+	 *
+	 * @param string $context The request context to render in.
+	 */
+	#[DataProvider( 'provide_untracked_contexts' )]
+	public function test_render_skips_the_event_in_an_untracked_context( $context ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+		$this->enter_context( $context );
+
+		$html = $this->render_button_format( array() );
+
+		// Positive control: the block still rendered.
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * Request contexts that skip the event.
+	 *
+	 * The is_frontend() check alone covers REST, feed, AJAX, admin, WP-CLI and wpcom CLI.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_untracked_contexts() {
+		return array(
+			'logged out'     => array( 'logged out' ),
+			'REST'           => array( 'REST_REQUEST' ),
+			'feed'           => array( 'is_feed' ),
+			'AJAX'           => array( 'ajax' ),
+			'admin'          => array( 'admin' ),
+			'WP-CLI'         => array( 'WP_CLI' ),
+			'wpcom CLI'      => array( 'WPCOM_CLI_SCRIPT' ),
+			'preview'        => array( 'is_preview' ),
+			'Customizer'     => array( 'customizer' ),
+			'theme preview'  => array( 'theme_preview' ),
+			'framed preview' => array( 'IFRAME_REQUEST' ),
+			'not found'      => array( 'is_404' ),
+			'embed'          => array( 'is_embed' ),
+		);
+	}
+
+	/**
+	 * Put the request into one of provide_untracked_contexts()'s contexts.
+	 *
+	 * @param string $context The context.
+	 */
+	private function enter_context( $context ) {
+		global $wp_customize;
+
+		switch ( $context ) {
+			case 'logged out':
+				wp_set_current_user( 0 );
+				break;
+			case 'REST_REQUEST':
+			case 'WP_CLI':
+			case 'WPCOM_CLI_SCRIPT':
+			case 'IFRAME_REQUEST':
+				Constants::set_constant( $context, true );
+				break;
+			case 'is_feed':
+			case 'is_preview':
+			case 'is_404':
+			case 'is_embed':
+				$GLOBALS['wp_query']->$context = true;
+				break;
+			case 'ajax':
+				// Infinite Scroll's later pages. A DOING_AJAX constant would leak into later tests.
+				add_filter( 'wp_doing_ajax', '__return_true' );
+				break;
+			case 'admin':
+				set_current_screen( 'dashboard' );
+				break;
+			case 'customizer':
+				require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
+				$wp_customize = new \WP_Customize_Manager();
+				$previewing   = new \ReflectionProperty( $wp_customize, 'previewing' );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$previewing->setAccessible( true );
+				}
+				$previewing->setValue( $wp_customize, true );
+				break;
+			case 'theme_preview':
+				$_GET['theme_preview'] = 'true';
+				break;
+		}
+	}
+
+	/**
+	 * Test that a logged-in view off Simple bumps only the view counter, since the Tracks call would block the page there.
+	 */
+	public function test_render_bumps_only_the_view_counter_off_simple() {
+		$this->log_in();
+
+		$this->render_button_format( array() );
+
+		$this->assertSame( array(), $this->recorded_events() );
+		$this->assertSame( array( array( 'block_view', 'paypal_payment_buttons' ) ), $this->stats_extras );
+	}
+
+	/**
+	 * Test that a logged-out view on Simple bumps the view counter.
+	 */
+	public function test_render_bumps_the_view_counter_logged_out() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->render_button_format( array() );
+
+		$this->assertSame( array( array( 'block_view', 'paypal_payment_buttons' ) ), $this->stats_extras );
+	}
+
+	/**
+	 * Test that the Tracks call stays server-side, out of the block markup.
+	 */
+	public function test_render_keeps_tracking_out_of_the_markup() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$html = $this->render_button_format( array( 'integrationMode' => 'LINK' ) );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertStringNotContainsString( '_tkq', $html );
+		$this->assertStringNotContainsString( 'jetpack_paypal', $html );
+	}
+
+	/**
+	 * Test that a dropped block skips both the event and the view counter.
+	 *
+	 * @dataProvider provide_unrendered_blocks
+	 *
+	 * @param array $attributes Attributes that make the render return early.
+	 */
+	#[DataProvider( 'provide_unrendered_blocks' )]
+	public function test_render_skips_tracking_for_a_dropped_block( $attributes ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+		PayPal_API_Client::remember_deleted_resource( 'PLB-BUTTON-GONE' );
+
+		$this->render_button_format( $attributes );
+
+		$this->assertSame( array(), $this->recorded_events() );
+		$this->assertSame( array(), $this->stats_extras );
+	}
+
+	/**
+	 * Blocks that hit one of the render's early returns.
+	 *
+	 * @return array<string, array{0: array}>
+	 */
+	public static function provide_unrendered_blocks() {
+		return array(
+			'empty link'      => array( array( 'paymentLink' => '' ) ),
+			'deleted link'    => array(
+				array(
+					'resourceId'  => 'PLB-BUTTON-GONE',
+					'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-BUTTON-GONE',
+				),
+			),
+			'off-PayPal link' => array( array( 'paymentLink' => 'https://evil.example.com/pay' ) ),
+		);
+	}
+
+	/**
+	 * Test that a paste-code block skips the event.
+	 */
+	public function test_render_skips_the_event_for_a_paste_code_block() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$html = PayPal_Payment_Buttons::render_block(
+			array(
+				'buttonType'     => 'single',
+				'hostedButtonId' => 'LEGACYTRACKED',
+				'buttonText'     => 'Buy',
+			),
+			''
+		);
+
+		$this->assertStringContainsString( 'LEGACYTRACKED', $html );
+		$this->assertSame( array(), $this->recorded_events() );
 	}
 }

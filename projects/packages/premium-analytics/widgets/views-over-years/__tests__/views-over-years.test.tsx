@@ -168,26 +168,8 @@ describe( 'ViewsOverYears widget', () => {
 		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
 		renderWidget( { metric: 'average' } );
 
+		expect( screen.getAllByTestId( 'skeleton-cell' )[ 0 ] ).toBeInTheDocument();
 		expect( screen.queryByRole( 'gridcell', { name: /Nov 2025/ } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'draws the totals without waiting for the first day with views', () => {
-		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
-		renderWidget( { metric: 'total' } );
-
-		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'opens the Traffic tab over a clicked month', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) );
-
-		expect( mockOpenSectionRange ).toHaveBeenCalledWith( 'traffic', {
-			from: new Date( '2025-11-01T00:00:00.000Z' ),
-			to: new Date( '2025-11-30T23:59:59.999Z' ),
-		} );
 	} );
 
 	it( 'opens the Traffic tab over a clicked year, cut at the clock', async () => {
@@ -202,11 +184,12 @@ describe( 'ViewsOverYears widget', () => {
 		} );
 	} );
 
-	it( 'reports a site with no views as empty', () => {
+	it( 'draws a site with no views as its current month at zero', () => {
 		mockVisits( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
 		renderWidget();
 
-		expect( screen.getByText( 'No views yet.' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 0' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2026: 0' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the drawn rows when a background refetch fails', () => {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+VideoPress: Remove the legacy VideoPress dashboard. Sites that turned off the modern dashboard no longer get a Jetpack > VideoPress menu.

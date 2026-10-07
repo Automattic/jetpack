@@ -8,6 +8,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import SubscribersChartWidget from '../render';
+import type { ReactNode } from 'react';
 
 const mockUseStatsSubscribersReport = jest.fn();
 
@@ -22,6 +23,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	MetricTabsChart: ( {
 		metrics,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -29,6 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			current: { date: Date; value: number | null }[];
 			countLabel?: ( count: number ) => string;
 		}[];
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -39,7 +42,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -63,37 +68,24 @@ describe( 'SubscribersChartWidget', () => {
 		mockUseStatsSubscribersReport.mockReset();
 	} );
 
-	// Pinned west of UTC on purpose: under a UTC runner the site and runner
-	// readings coincide, so this would pass either way.
+	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
 	it( 'builds chart points on the bucket days the site names', async () => {
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		env.TZ = 'America/Los_Angeles';
+		mockUseStatsSubscribersReport.mockReturnValue(
+			reportWith( [
+				{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
+				{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: 0 },
+			] )
+		);
 
-		try {
-			mockUseStatsSubscribersReport.mockReturnValue(
-				reportWith( [
-					{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
-					{ date_start: '2026-07-05T00:00:00', subscribers: 6, subscribers_paid: 0 },
-				] )
-			);
+		render(
+			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+		);
 
-			render(
-				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
-			);
-
-			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// Reading these buckets in the runner's zone would report the previous
-			// day (3,4).
-			expect( chart ).toHaveAttribute( 'data-days', '4,5' );
-			expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
-		} finally {
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		}
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		// Reading these buckets in the runner's zone would report the previous
+		// day (3,4).
+		expect( chart ).toHaveAttribute( 'data-days', '4,5' );
+		expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
 	} );
 
 	it( 'charts a missing count as a gap and a real zero as zero', async () => {
@@ -114,22 +106,45 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-headline', '5' );
 	} );
 
-	it( 'offers the Paid subscribers tab only when the site has paid subscribers', async () => {
-		mockUseStatsSubscribersReport.mockReturnValue(
-			reportWith( [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 2 } ] )
-		);
+	it( 'keeps the chart for a period without rows, handing it the no-results message', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue( reportWith( [] ) );
 
 		render(
 			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
 		);
 
-		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-keys', 'subscribers,paid' );
-		expect( chart ).toHaveAttribute(
-			'data-count-labels',
-			'%s Subscriber|%s Subscribers,%s Paid subscriber|%s Paid subscribers'
-		);
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[
+			'offers',
+			2,
+			'subscribers,paid',
+			'%s Subscriber|%s Subscribers,%s Paid subscriber|%s Paid subscribers',
+		],
+		[ 'withholds', 0, 'subscribers', '%s Subscriber|%s Subscribers' ],
+	] )(
+		'%s the Paid subscribers tab when the site has %i paid subscribers',
+		async ( _verb, paid, metricKeys, countLabels ) => {
+			mockUseStatsSubscribersReport.mockReturnValue(
+				reportWith( [
+					{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: paid },
+				] )
+			);
+
+			render(
+				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+			);
+
+			const chart = await screen.findByTestId( 'metric-tabs-chart' );
+			expect( chart ).toHaveAttribute( 'data-metric-keys', metricKeys );
+			expect( chart ).toHaveAttribute( 'data-count-labels', countLabels );
+		}
+	);
 
 	describe( 'widget-owned date range', () => {
 		beforeEach( () => {

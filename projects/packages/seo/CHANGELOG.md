@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.8] - 2026-10-05
+### Changed
+- Update dependencies. [#52349]
+
+## [0.9.7] - 2026-09-29
+### Changed
+- Use core snackbar notice placement instead of overriding boot styles. [#52193]
+
+## [0.9.6] - 2026-09-28
+### Changed
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Footer: Hide the "Products" and "Help" links when My Jetpack is unavailable. [#52557]
+- Respect excerpt filters in generated `llms.txt` summaries. [#52414]
+- Settings: Fix Sitemap and Canonical URLs status to reflect the active modules. [#52516]
+
 ## [0.9.5] - 2026-09-21
 ### Changed
 - Exclude source map files from the distributed package. [#52304]
@@ -192,6 +209,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.9.8]: https://github.com/Automattic/jetpack-seo/compare/0.9.7...0.9.8
+[0.9.7]: https://github.com/Automattic/jetpack-seo/compare/0.9.6...0.9.7
+[0.9.6]: https://github.com/Automattic/jetpack-seo/compare/0.9.5...0.9.6
 [0.9.5]: https://github.com/Automattic/jetpack-seo/compare/0.9.4...0.9.5
 [0.9.4]: https://github.com/Automattic/jetpack-seo/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/Automattic/jetpack-seo/compare/0.9.2...0.9.3

@@ -1,0 +1,60 @@
+import { render, screen, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
+import apiFetch from '@wordpress/api-fetch';
+import { applyFilters } from '@wordpress/hooks';
+import '../admin';
+
+jest.mock( '@wordpress/a11y' );
+jest.mock( '@wordpress/api-fetch' );
+
+const MailchimpSettings = applyFilters(
+	'jetpack.externalConnections.extraSettings',
+	null,
+	'mailchimp'
+);
+
+describe( 'Mailchimp audience setting', () => {
+	test( 'saves every choice, locks the dropdown while saving, and restores the previous choice on failure', async () => {
+		let rejectSave;
+		apiFetch.mockImplementation( ( { method, data } ) => {
+			if ( method === 'GET' ) {
+				return Promise.resolve( {
+					follower_list_id: 'a',
+					audiences: [
+						{ id: 'a', name: 'Audience A' },
+						{ id: 'b', name: 'Audience B' },
+					],
+				} );
+			}
+			if ( data.follower_list_id === 'none' ) {
+				return Promise.resolve( {} );
+			}
+			return new Promise( ( resolve, reject ) => ( rejectSave = reject ) );
+		} );
+		const user = userEvent.setup();
+		render(
+			<form>
+				<MailchimpSettings isConnected />
+			</form>
+		);
+		const select = await screen.findByRole( 'combobox' );
+		await expect(
+			screen.findByRole( 'option', { name: 'Audience A' } )
+		).resolves.toBeInTheDocument();
+
+		await user.selectOptions( select, 'none' );
+		await expect( screen.findByText( 'Saved.' ) ).resolves.toBeInTheDocument();
+		await user.selectOptions( select, 'b' );
+
+		expect( select ).toBeDisabled();
+		expect( new FormData( select.form ).get( 'jetpack-mailchimp-audience' ) ).toBe( 'b' );
+
+		await act( async () => rejectSave( { message: 'Rejected by Mailchimp.' } ) );
+
+		expect( select ).toHaveValue( 'none' );
+		expect( select ).toBeEnabled();
+		expect( screen.getByText( 'Rejected by Mailchimp.' ) ).toBeInTheDocument();
+		expect( speak ).toHaveBeenCalledWith( 'Rejected by Mailchimp.', 'assertive' );
+	} );
+} );

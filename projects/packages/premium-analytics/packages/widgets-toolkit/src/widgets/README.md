@@ -7,10 +7,8 @@ Dashboard widget components for Jetpack Premium Analytics.
 | Widget                         | Chart Component                                 | Description                                       |
 | ------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
 | `ConversionRateWidget`         | `MetricWithComparison`                          | Funnel conversion rate metric                     |
-| `MetricComparisonWidget`       | `MetricWithComparison` + `ComparativeLineChart` | Generic metric with time series                   |
 | `RevenueByCustomerTypeWidget`  | `BarChart`                                      | Revenue breakdown by customer type                |
 | `NewVsReturningCustomerWidget` | `DonutChart`                                    | Customer counts by new vs returning               |
-| `OrderMetricWidget`            | `ReportMetricWidget`                            | Order-based metrics (revenue, orders, AOV)        |
 | `SalesByCouponWidget`          | `SemiCircleChart`                               | Coupon sales for all product types                |
 | `SalesByDeviceWidget`          | `DonutChart`                                    | Sales breakdown by device type                    |
 | `TotalReturnsWidget`           | `DonutChart`                                    | Returns/refunds for all product types             |
@@ -25,7 +23,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 | `SemiCircleChart`      | Half-pie    | Top N rankings with "Other" segment |
 | `ComparativeLineChart` | Line        | Time series with comparison periods |
 | `MetricWithComparison` | Metric      | Single value with delta indicator   |
-| `ReportMetricWidget`   | Metric      | Report-based metrics with sparkline |
 | `LeaderboardChart`     | Leaderboard | Top N items with bars and labels    |
 
 ## Common Utilities

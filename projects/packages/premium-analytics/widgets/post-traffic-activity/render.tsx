@@ -193,7 +193,6 @@ function PostTrafficActivityInner() {
 									rowLabels={ rowLabels }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
-									tooltipVariant="dark"
 									// The page span is already sized to the card, so width tracks
 									// never need to shrink below the design's 64px.
 									maxCellWidth={ 64 }

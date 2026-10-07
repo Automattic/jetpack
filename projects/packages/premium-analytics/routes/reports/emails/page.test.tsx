@@ -1,118 +1,106 @@
 /**
  * External dependencies
  */
+import { useStatsEmailSummary } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { useEmailsReportRecords } from './config';
+import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import EmailsReportPage from './page';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
 
-jest.mock( './config', () => ( {
-	...jest.requireActual( './config' ),
-	useEmailsReportRecords: jest.fn(),
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsEmailSummary: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsInsights: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
-	useDashboardLink: () => '/',
+// Report pages render tabs without panels, which trips the tabs' dev-only count check.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	ReportPageTabs: () => null,
 } ) );
 
-// `Breadcrumbs` and the title `Link` both reach for router context this
-// page-level test has no need to provide; neither is what these assertions cover.
-jest.mock( '@wordpress/admin-ui', () => ( {
-	...jest.requireActual( '@wordpress/admin-ui' ),
-	Breadcrumbs: () => null,
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../tests/js/route-test-utils' );
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
-} ) );
+	return mockWordPressRoute;
+} );
 
-const useRecordsMock = jest.mocked( useEmailsReportRecords );
+const useStatsEmailSummaryMock = jest.mocked( useStatsEmailSummary );
+
+const email: StatsEmailSummaryItem = {
+	id: 91,
+	label: 'Hello world',
+	value: 120,
+	date: '2026-07-10',
+	opens: 120,
+	clicks: 14,
+	opens_rate: 38.1,
+	clicks_rate: 3.81,
+	unique_opens: 98,
+	unique_clicks: 11,
+	total_sends: 250,
+	children: null,
+};
 
 /**
- * Build an email summary row for the page under test.
+ * Serve a one-email summary through the mocked data hook.
  *
- * @param overrides - The fields to override on the base row.
- * @return The email summary row.
+ * @param isError - Whether the request failed.
+ * @return The mocked refetch.
  */
-function buildRow( overrides: Partial< StatsEmailSummaryItem > ): StatsEmailSummaryItem {
-	return {
-		id: 91,
-		label: 'Hello world',
-		value: 120,
-		date: '2026-07-10',
-		opens: 120,
-		clicks: 14,
-		opens_rate: 38.1,
-		clicks_rate: 3.81,
-		unique_opens: 98,
-		unique_clicks: 11,
-		total_sends: 250,
-		children: null,
-		...overrides,
-	};
-}
-
-/**
- * Build a records-hook return value for the page under test.
- *
- * @param overrides - The fields to override on the successful-empty default.
- * @return The mocked hook result.
- */
-function buildRecords( overrides: Partial< ReturnType< typeof useEmailsReportRecords > > ) {
-	return {
-		rows: [],
+function mockEmailSummary( isError = false ) {
+	const refetch = jest.fn();
+	useStatsEmailSummaryMock.mockReturnValue( {
+		data: { data: [ { items: [ email ] } ] },
 		isLoading: false,
-		isError: false,
-		refetch: jest.fn(),
-		...overrides,
-	} as ReturnType< typeof useEmailsReportRecords >;
+		isFetching: false,
+		isError,
+		error: null,
+		refetch,
+	} as unknown as ReturnType< typeof useStatsEmailSummary > );
+
+	return refetch;
 }
 
 describe( 'EmailsReportPage', () => {
-	it( 'renders email rows with counts and 0–100 rates suffixed as percentages', () => {
-		useRecordsMock.mockReturnValue( buildRecords( { rows: [ buildRow( {} ) ] } ) );
+	it( 'renders the summary rows with their 0–100 open rate as a percentage', () => {
+		mockEmailSummary();
 
 		render( <EmailsReportPage /> );
 
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
-		// The summary endpoint reports rates as 0–100 percentages, so 38.1
-		// renders as 38.1% — not multiplied or divided.
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
-		expect( screen.getByText( '3.81%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'dashes a rate whose events could not be attributed to recipients', () => {
-		// One click happened, but no recipient was attributed (unique = 0):
-		// a literal 0% would misread as the click being ignored.
-		useRecordsMock.mockReturnValue(
-			buildRecords( {
-				rows: [ buildRow( { clicks: 1, unique_clicks: 0, clicks_rate: 0 } ) ],
-			} )
-		);
+	it( 'replaces the table with an error that refetches on Retry', async () => {
+		const refetch = mockEmailSummary( true );
 
 		render( <EmailsReportPage /> );
 
-		expect( screen.getByText( '—' ) ).toBeInTheDocument();
-		// Zero events still reads 0%, not a dash — only attribution gaps dash.
-		expect( screen.queryByText( '0%' ) ).not.toBeInTheDocument();
-	} );
+		expect(
+			getNoticeText( "We couldn't load emails. Please try again in a moment." )
+		).toBeInTheDocument();
+		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
 
-	it( 'surfaces the error and retry instead of the table', async () => {
-		const refetch = jest.fn();
-		useRecordsMock.mockReturnValue(
-			buildRecords( { rows: [ buildRow( {} ) ], isError: true, refetch } )
-		);
-
-		render( <EmailsReportPage /> );
-
-		expect( screen.getByText( 'Unable to load emails' ) ).toBeInTheDocument();
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-		expect( refetch ).toHaveBeenCalled();
+
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

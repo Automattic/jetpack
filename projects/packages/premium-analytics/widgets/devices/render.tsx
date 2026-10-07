@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { device } from '@jetpack-premium-analytics/icons';
 /**
  * WordPress dependencies
  */
@@ -91,10 +90,6 @@ function DevicesInner() {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: device,
-					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <DonutChartSkeleton /> }
 			>
 				<div className={ styles.chartWrap }>

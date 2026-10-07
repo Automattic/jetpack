@@ -261,11 +261,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
-		$instance['title']     = sanitize_text_field( $new_instance['title'] );
+		$instance['title']     = sanitize_text_field( $new_instance['title'] ?? '' );
 		$instance['icon-size'] = $this->defaults['icon-size'];
 		$instance['url-icons'] = array_key_exists( 'url-icons', $new_instance ) ? $new_instance['url-icons'] : array();
 
-		if ( in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ), true ) ) {
+		if ( in_array( $new_instance['icon-size'] ?? '', array( 'small', 'medium', 'large' ), true ) ) {
 			$instance['icon-size'] = $new_instance['icon-size'];
 		}
 

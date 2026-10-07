@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,7 +19,7 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_required_fields() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			foreach ( array( 'name', 'description', 'long_description', 'icon', 'image', 'info_url', 'docs_url', 'delivery' ) as $key ) {
+			foreach ( array( 'name', 'description', 'long_description', 'icon', 'info_url', 'docs_url', 'delivery' ) as $key ) {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
@@ -105,13 +107,42 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * These are rendered as links and images straight into the page, so a typo'd or
+	 * Every feature's artwork ships with the package, under the name its URL points at.
+	 */
+	public function test_every_feature_has_a_bundled_image() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			$path = 'components/my-jetpack-tab-panel/features/images/' . $feature['slug'] . '.webp';
+
+			$this->assertFileExists( dirname( __DIR__, 2 ) . '/_inc/' . $path, "Feature {$feature['slug']} has no image." );
+			$this->assertStringEndsWith( $path, $feature['screenshot'] );
+		}
+	}
+
+	/**
+	 * The band palette lives in TypeScript and is keyed by slug, so only the catalog can
+	 * say whether a key still matches a feature; a stale one falls back to a wrong color.
+	 */
+	public function test_every_feature_has_a_band_palette() {
+		$source = file_get_contents( dirname( __DIR__, 2 ) . '/_inc/components/my-jetpack-tab-panel/features/band-palette.ts' );
+		$body   = substr( $source, (int) strpos( $source, 'PALETTES' ) );
+
+		preg_match_all( "/^\t'?([a-z0-9-]+)'?: \[/m", $body, $matches );
+
+		$keys  = $matches[1];
+		$slugs = array_keys( Main_Features::get_feature_definitions() );
+		sort( $keys );
+		sort( $slugs );
+
+		$this->assertSame( $slugs, $keys );
+	}
+
+	/**
+	 * These are rendered as links straight into the page, so a typo'd or
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
-				'image'      => $feature['image'],
 				'info_url'   => $feature['info_url'],
 				'docs_url'   => $feature['docs_url'],
 				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',
@@ -269,15 +300,15 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Only bundles Jetpack sells today can be listed.
+	 * Only plans Jetpack sells today can be listed.
 	 */
-	public function test_plans_are_known_bundles() {
+	public function test_plans_are_known_plans() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			foreach ( $feature['plans'] ?? array() as $plan ) {
 				$this->assertContains(
 					$plan,
-					array( 'security', 'complete', 'growth' ),
-					"Feature {$slug} lists an unknown bundle: {$plan}"
+					array( 'backup', 'security', 'complete', 'growth' ),
+					"Feature {$slug} lists an unknown plan: {$plan}"
 				);
 			}
 		}
@@ -504,7 +535,49 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame( '', $upgrades['podcast']['path'] );
 		$this->assertSame( '', $upgrades['newsletter']['path'] );
-		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
+		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * Included in plan marks exactly the features the owned bundle covers.
+	 */
+	public function test_included_marks_what_the_owned_bundle_covers() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$included = array_column( Main_Features::get_features(), 'included', 'slug' );
+
+		$this->assertTrue( $included['newsletter'] );
+		$this->assertFalse( $included['activity-log'] );
+		$this->assertFalse( $included['blaze'] );
+	}
+
+	/**
+	 * Marked per plan, not per feature: a site on one bundle still has the others to buy,
+	 * so only the plan it holds stops being a link to its own checkout.
+	 */
+	public function test_plan_badges_mark_only_the_plan_the_site_holds() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$plans = array_column( Main_Features::get_features(), 'plans', 'slug' );
+		$owned = array_column( $plans['newsletter'], 'owned', 'slug' );
+
+		$this->assertTrue( $owned['growth'] );
+		$this->assertFalse( $owned['complete'] );
+	}
+
+	/**
+	 * A site that already pays for a feature is not told to buy a plan before it can use it.
+	 */
+	public function test_setup_note_is_dropped_for_a_site_that_pays() {
+		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
+		$this->assertNotSame( '', $notes['backup'] );
+		$this->assertNotSame( '', $notes['search'] );
+
+		$this->own( array( 'jetpack_complete' ) );
+
+		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
+		$this->assertSame( '', $notes['backup'] );
+		$this->assertSame( '', $notes['search'] );
 	}
 
 	/**
@@ -559,8 +632,8 @@ class Main_Features_Test extends TestCase {
 	public function test_upgrade_falls_back_to_the_cheapest_bundle() {
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
-		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
-		$this->assertSame( 'Jetpack Security', $upgrades['activity-log']['name'] );
+		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
+		$this->assertSame( 'Jetpack VaultPress Backup', $upgrades['activity-log']['name'] );
 		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
 		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
 		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );
@@ -586,5 +659,54 @@ class Main_Features_Test extends TestCase {
 				$this->assertSame( 'complete', end( $plans ), "Feature {$slug} lists a bundle after Complete." );
 			}
 		}
+	}
+
+	/**
+	 * The modules on offer, whether the site is WordPress.com Simple, and whether Protect should then ship in Jetpack.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_dashboard_offers() {
+		return array(
+			'module on offer'                 => array( array( 'protect-dashboard' ), false, true ),
+			'nothing on offer'                => array( array(), false, false ),
+			'module on offer on WPCOM Simple' => array( array( 'protect-dashboard' ), true, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_protect_dashboard_offers
+	 *
+	 * @param string[] $modules   Modules on offer.
+	 * @param bool     $is_simple Whether the site is WordPress.com Simple.
+	 * @param bool     $expected  Whether Protect ships in Jetpack.
+	 */
+	#[DataProvider( 'provide_protect_dashboard_offers' )]
+	public function test_protect_ships_in_jetpack_only_while_its_module_is_on_offer( $modules, $is_simple, $expected ) {
+		if ( $is_simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		$offer = static function () use ( $modules ) {
+			return $modules;
+		};
+		// Earlier tests may load the mock Jetpack plugin, which moves get_available() off the standalone filter.
+		$jetpack_offer = static function () use ( $modules ) {
+			return array_fill_keys( $modules, '1.0' );
+		};
+		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
+		$locale = static function () use ( $modules, $is_simple ) {
+			return 'protect_dashboard_' . count( $modules ) . ( $is_simple ? '_simple' : '' );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		add_filter( 'locale', $locale );
+
+		$delivery = Main_Features::get_feature_definitions()['protect-dashboard']['delivery']['jetpack'];
+
+		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		$this->assertSame( $expected, $delivery );
 	}
 }

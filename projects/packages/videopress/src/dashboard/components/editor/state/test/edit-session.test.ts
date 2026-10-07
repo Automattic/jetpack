@@ -2,7 +2,7 @@ import {
 	createEditSession,
 	editSessionReducer,
 	getOutputDurationMs,
-	DEFAULT_CUT_HALF_SPAN_MS,
+	DEFAULT_CUT_DURATION_MS,
 	MIN_OUTPUT_MS,
 } from '../edit-session';
 import type { EditSession, EditSessionAction } from '../edit-session';
@@ -104,8 +104,8 @@ describe( 'SET_TRIM_START', () => {
 		// Cut [8000, 9500] leaves 8500ms of output.
 		const withCut = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 8750,
-			halfSpanMs: 750,
+			atMs: 8000,
+			durationMs: 1500,
 			id: 'c1',
 		} );
 		expect( withCut.cuts ).toEqual( [ { id: 'c1', startMs: 8000, endMs: 9500 } ] );
@@ -120,8 +120,8 @@ describe( 'SET_TRIM_START', () => {
 	it( 'clips a cut that straddles the new trim start', () => {
 		const withCut = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 3000,
-			halfSpanMs: 1000,
+			atMs: 2000,
+			durationMs: 2000,
 			id: 'c1',
 		} );
 		const s = reduce( withCut, { type: 'SET_TRIM_START', ms: 3000 } );
@@ -132,8 +132,8 @@ describe( 'SET_TRIM_START', () => {
 	it( 'drops a cut left fully outside the window and clears its selection', () => {
 		const withCut = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 3000,
-			halfSpanMs: 1000,
+			atMs: 2000,
+			durationMs: 2000,
 			id: 'c1',
 		} );
 		expect( withCut.selectedCutId ).toBe( 'c1' );
@@ -177,8 +177,8 @@ describe( 'SET_TRIM_END', () => {
 		// Cut [500, 2000].
 		const withCut = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 1250,
-			halfSpanMs: 750,
+			atMs: 500,
+			durationMs: 1500,
 			id: 'c1',
 		} );
 		expect( withCut.cuts ).toEqual( [ { id: 'c1', startMs: 500, endMs: 2000 } ] );
@@ -193,8 +193,8 @@ describe( 'SET_TRIM_END', () => {
 	it( 'drops a cut left fully outside the window', () => {
 		const withCut = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 8000,
-			halfSpanMs: 1000,
+			atMs: 7000,
+			durationMs: 2000,
 			id: 'c1',
 		} );
 		const s = reduce( withCut, { type: 'SET_TRIM_END', ms: 7000 } );
@@ -233,11 +233,11 @@ describe( 'minimum output on sessions loaded below the minimum', () => {
 } );
 
 describe( 'ADD_CUT', () => {
-	it( 'adds a ±2s cut around the playhead by default and selects it', () => {
+	it( 'starts a 4s cut at the playhead by default and selects it', () => {
 		const s = reduce( createEditSession( 20000 ), { type: 'ADD_CUT', atMs: 5000 } );
 		expect( s.cuts ).toHaveLength( 1 );
-		expect( s.cuts[ 0 ].startMs ).toBe( 5000 - DEFAULT_CUT_HALF_SPAN_MS );
-		expect( s.cuts[ 0 ].endMs ).toBe( 5000 + DEFAULT_CUT_HALF_SPAN_MS );
+		expect( s.cuts[ 0 ].startMs ).toBe( 5000 );
+		expect( s.cuts[ 0 ].endMs ).toBe( 5000 + DEFAULT_CUT_DURATION_MS );
 		expect( typeof s.cuts[ 0 ].id ).toBe( 'string' );
 		expect( s.selectedCutId ).toBe( s.cuts[ 0 ].id );
 	} );
@@ -250,17 +250,30 @@ describe( 'ADD_CUT', () => {
 
 	it( 'rounds a fractional playhead', () => {
 		const s = reduce( createEditSession( 20000 ), { type: 'ADD_CUT', atMs: 5000.4 } );
-		expect( s.cuts[ 0 ] ).toMatchObject( { startMs: 3000, endMs: 7000 } );
+		expect( s.cuts[ 0 ] ).toMatchObject( { startMs: 5000, endMs: 9000 } );
 	} );
 
-	it( 'clamps the span to the window start', () => {
+	it( 'starts near the window start without moving the playhead', () => {
 		const s = reduce( createEditSession( 20000 ), { type: 'ADD_CUT', atMs: 500 } );
-		expect( s.cuts[ 0 ] ).toMatchObject( { startMs: 0, endMs: 2500 } );
+		expect( s.cuts[ 0 ] ).toMatchObject( { startMs: 500, endMs: 4500 } );
 	} );
 
 	it( 'clamps the span to the window end', () => {
 		const s = reduce( createEditSession( 20000 ), { type: 'ADD_CUT', atMs: 20000 } );
-		expect( s.cuts[ 0 ] ).toMatchObject( { startMs: 18000, endMs: 20000 } );
+		expect( s.cuts[ 0 ] ).toMatchObject( { startMs: 16000, endMs: 20000 } );
+	} );
+
+	it.each( [
+		[ 2000, 2000, 6000 ],
+		[ 9500, 9500, 10000 ],
+		[ 10000, 6000, 10000 ],
+	] )( 'anchors a cut at %i in a trimmed window', ( atMs, startMs, endMs ) => {
+		const trimmed = reduceAll( createEditSession( 20000 ), [
+			{ type: 'SET_TRIM_START', ms: 2000 },
+			{ type: 'SET_TRIM_END', ms: 10000 },
+		] );
+		const s = reduce( trimmed, { type: 'ADD_CUT', atMs } );
+		expect( s.cuts[ 0 ] ).toMatchObject( { startMs, endMs } );
 	} );
 
 	it( 'is a no-op when the playhead is outside the trim window', () => {
@@ -268,40 +281,78 @@ describe( 'ADD_CUT', () => {
 		expect( reduce( trimmed, { type: 'ADD_CUT', atMs: 15000 } ) ).toBe( trimmed );
 	} );
 
-	it( 'merges into an overlapping cut and keeps the existing id', () => {
-		const s = reduceAll( createEditSession( 20000 ), [
-			{ type: 'ADD_CUT', atMs: 4000, halfSpanMs: 1000, id: 'c1' }, // [3000, 5000]
-			{ type: 'ADD_CUT', atMs: 6000, halfSpanMs: 2000, id: 'c2' }, // [4000, 8000]
-		] );
-		expect( s.cuts ).toEqual( [ { id: 'c1', startMs: 3000, endMs: 8000 } ] );
-		expect( s.selectedCutId ).toBe( 'c1' );
-	} );
-
-	it( 'bridges multiple cuts into one', () => {
-		const s = reduceAll( createEditSession( 20000 ), [
-			{ type: 'ADD_CUT', atMs: 2500, halfSpanMs: 500, id: 'c1' }, // [2000, 3000]
-			{ type: 'ADD_CUT', atMs: 6500, halfSpanMs: 500, id: 'c2' }, // [6000, 7000]
-			{ type: 'ADD_CUT', atMs: 4500, halfSpanMs: 2000, id: 'c3' }, // [2500, 6500]
-		] );
-		expect( s.cuts ).toEqual( [ { id: 'c1', startMs: 2000, endMs: 7000 } ] );
-		expect( s.selectedCutId ).toBe( 'c1' );
-	} );
-
-	it( 'is a structural no-op when the new cut is inside an existing one', () => {
+	it.each( [ 3000, 4000, 4999 ] )( 'is a no-op at %i within an existing cut', atMs => {
 		const withCut = reduce( createEditSession( 20000 ), {
 			type: 'ADD_CUT',
-			atMs: 5000,
-			halfSpanMs: 2000,
+			atMs: 3000,
+			durationMs: 2000,
 			id: 'c1',
 		} );
-		const s = reduce( withCut, { type: 'ADD_CUT', atMs: 5000, halfSpanMs: 1000, id: 'c2' } );
+		const s = reduce( withCut, { type: 'ADD_CUT', atMs, id: 'c2' } );
 		expect( s ).toBe( withCut );
 	} );
 
+	it.each( [
+		[ 1000, 1000, 2900 ],
+		[ 5000, 5100, 9100 ],
+		[ 5050, 5100, 9100 ],
+		[ 5200, 5200, 9200 ],
+	] )( 'leaves a gap when adding a cut at %i beside an existing cut', ( atMs, startMs, endMs ) => {
+		const existing = { id: 'c1', startMs: 3000, endMs: 5000 };
+		const state = { ...createEditSession( 20000 ), cuts: [ existing ] };
+		const s = reduce( state, { type: 'ADD_CUT', atMs, id: 'c2' } );
+		expect( s.cuts ).toHaveLength( 2 );
+		expect( s.cuts ).toContainEqual( existing );
+		expect( s.cuts ).toContainEqual( { id: 'c2', startMs, endMs } );
+		expect( s.selectedCutId ).toBe( 'c2' );
+	} );
+
+	it( 'fits a new cut between its neighbors without merging either one', () => {
+		const state = {
+			...createEditSession( 20000 ),
+			cuts: [
+				{ id: 'a', startMs: 2000, endMs: 3000 },
+				{ id: 'b', startMs: 6000, endMs: 7000 },
+			],
+		};
+		const s = reduce( state, { type: 'ADD_CUT', atMs: 3000, id: 'c' } );
+		expect( s.cuts ).toEqual( [
+			state.cuts[ 0 ],
+			{ id: 'c', startMs: 3100, endMs: 5900 },
+			state.cuts[ 1 ],
+		] );
+	} );
+
+	it( 'leaves a gap before a backward cut at the trim end', () => {
+		const state = {
+			...createEditSession( 20000 ),
+			trimStartMs: 2000,
+			trimEndMs: 10000,
+			cuts: [ { id: 'a', startMs: 5000, endMs: 8000 } ],
+		};
+		const s = reduce( state, { type: 'ADD_CUT', atMs: 10000, id: 'b' } );
+		expect( s.cuts ).toEqual( [ state.cuts[ 0 ], { id: 'b', startMs: 8100, endMs: 10000 } ] );
+	} );
+
+	it.each( [
+		[ 2900, [ { id: 'a', startMs: 3000, endMs: 5000 } ] ],
+		[
+			5050,
+			[
+				{ id: 'a', startMs: 3000, endMs: 5000 },
+				{ id: 'b', startMs: 5200, endMs: 7000 },
+			],
+		],
+		[ 20000, [ { id: 'a', startMs: 18000, endMs: 19900 } ] ],
+		[ 20000, [ { id: 'a', startMs: 18000, endMs: 20000 } ] ],
+	] )( 'does not add a cut at %i when the neighboring gaps leave no room', ( atMs, cuts ) => {
+		const state = { ...createEditSession( 20000 ), cuts };
+		expect( reduce( state, { type: 'ADD_CUT', atMs } ) ).toBe( state );
+	} );
+
 	it( 'shrinks the span to preserve the minimum output', () => {
-		const s = reduce( createEditSession( 4000 ), { type: 'ADD_CUT', atMs: 2500 } );
-		// Full ±2000 span would leave 500ms; ±1500 leaves exactly 1000.
-		expect( s.cuts ).toEqual( [ { id: s.cuts[ 0 ].id, startMs: 1000, endMs: 4000 } ] );
+		const s = reduce( createEditSession( 4000 ), { type: 'ADD_CUT', atMs: 0 } );
+		expect( s.cuts ).toEqual( [ { id: s.cuts[ 0 ].id, startMs: 0, endMs: 3000 } ] );
 		expect( getOutputDurationMs( s ) ).toBe( MIN_OUTPUT_MS );
 	} );
 
@@ -312,20 +363,20 @@ describe( 'ADD_CUT', () => {
 
 	it( 'accounts for existing cuts when enforcing the minimum output', () => {
 		const s = reduceAll( createEditSession( 10000 ), [
-			{ type: 'ADD_CUT', atMs: 2000, halfSpanMs: 2000, id: 'a' }, // [0, 4000]
-			{ type: 'ADD_CUT', atMs: 7500, halfSpanMs: 2500, id: 'b' }, // [5000, 10000], output 1000
+			{ type: 'ADD_CUT', atMs: 0, durationMs: 4000, id: 'a' }, // [0, 4000]
+			{ type: 'ADD_CUT', atMs: 5000, durationMs: 5000, id: 'b' }, // [5000, 10000], output 1000
 		] );
 		expect( getOutputDurationMs( s ) ).toBe( MIN_OUTPUT_MS );
 		// Only 1000ms remain visible; any further cut must be rejected.
-		expect( reduce( s, { type: 'ADD_CUT', atMs: 4500, halfSpanMs: 500, id: 'c' } ) ).toBe( s );
+		expect( reduce( s, { type: 'ADD_CUT', atMs: 4000, durationMs: 1000, id: 'c' } ) ).toBe( s );
 	} );
 } );
 
 describe( 'UPDATE_CUT', () => {
 	const base = reduce( createEditSession( 20000 ), {
 		type: 'ADD_CUT',
-		atMs: 4000,
-		halfSpanMs: 1000,
+		atMs: 3000,
+		durationMs: 2000,
 		id: 'c1',
 	} ); // [3000, 5000]
 
@@ -356,8 +407,8 @@ describe( 'UPDATE_CUT', () => {
 
 	it( 'merges into a neighbor, keeps the dragged id, and moves the selection with it', () => {
 		const two = reduceAll( createEditSession( 20000 ), [
-			{ type: 'ADD_CUT', atMs: 2500, halfSpanMs: 500, id: 'c1' }, // [2000, 3000]
-			{ type: 'ADD_CUT', atMs: 5500, halfSpanMs: 500, id: 'c2' }, // [5000, 6000]
+			{ type: 'ADD_CUT', atMs: 2000, durationMs: 1000, id: 'c1' }, // [2000, 3000]
+			{ type: 'ADD_CUT', atMs: 5000, durationMs: 1000, id: 'c2' }, // [5000, 6000]
 		] );
 		expect( two.selectedCutId ).toBe( 'c2' );
 
@@ -369,8 +420,8 @@ describe( 'UPDATE_CUT', () => {
 	it( 'clamps a growing end edge to preserve the minimum output', () => {
 		const wide = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 4600,
-			halfSpanMs: 4100,
+			atMs: 500,
+			durationMs: 8200,
 			id: 'c1',
 		} ); // [500, 8700], output 1800
 		const s = reduce( wide, { type: 'UPDATE_CUT', id: 'c1', endMs: 9900 } );
@@ -381,8 +432,8 @@ describe( 'UPDATE_CUT', () => {
 	it( 'clamps a growing start edge to preserve the minimum output', () => {
 		const late = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 9450,
-			halfSpanMs: 450,
+			atMs: 9000,
+			durationMs: 900,
 			id: 'c1',
 		} ); // [9000, 9900], output 9100
 		const s = reduce( late, { type: 'UPDATE_CUT', id: 'c1', startMs: 300 } );
@@ -393,8 +444,8 @@ describe( 'UPDATE_CUT', () => {
 	it( 'rejects a two-edge move that violates the minimum output', () => {
 		const small = reduce( createEditSession( 2000 ), {
 			type: 'ADD_CUT',
-			atMs: 950,
-			halfSpanMs: 50,
+			atMs: 900,
+			durationMs: 100,
 			id: 'c1',
 		} ); // [900, 1000], output 1900
 		expect( reduce( small, { type: 'UPDATE_CUT', id: 'c1', startMs: 0, endMs: 2000 } ) ).toBe(
@@ -420,8 +471,8 @@ describe( 'MOVE_CUT', () => {
 	const base = reduceAll( createEditSession( 20000 ), [
 		{ type: 'SET_TRIM_START', ms: 1000 },
 		{ type: 'SET_TRIM_END', ms: 19000 },
-		{ type: 'ADD_CUT', atMs: 5000, halfSpanMs: 1000, id: 'c1' }, // [4000, 6000]
-		{ type: 'ADD_CUT', atMs: 10000, halfSpanMs: 500, id: 'c2' }, // [9500, 10500]
+		{ type: 'ADD_CUT', atMs: 4000, durationMs: 2000, id: 'c1' }, // [4000, 6000]
+		{ type: 'ADD_CUT', atMs: 9500, durationMs: 1000, id: 'c2' }, // [9500, 10500]
 	] );
 
 	it( 'moves the cut to the requested start, preserving its width', () => {
@@ -477,8 +528,8 @@ describe( 'MOVE_CUT', () => {
 	it( 'never violates the minimum output, even from a session already at it', () => {
 		const atMinimum = reduce( createEditSession( 10000 ), {
 			type: 'ADD_CUT',
-			atMs: 5000,
-			halfSpanMs: 4500,
+			atMs: 500,
+			durationMs: 9000,
 			id: 'c1',
 		} ); // [500, 9500], output exactly 1000
 		expect( getOutputDurationMs( atMinimum ) ).toBe( MIN_OUTPUT_MS );
@@ -505,8 +556,8 @@ describe( 'MOVE_CUT', () => {
 
 describe( 'REMOVE_CUT', () => {
 	const withCuts = reduceAll( createEditSession( 20000 ), [
-		{ type: 'ADD_CUT', atMs: 2500, halfSpanMs: 500, id: 'c1' },
-		{ type: 'ADD_CUT', atMs: 5500, halfSpanMs: 500, id: 'c2' },
+		{ type: 'ADD_CUT', atMs: 2000, durationMs: 1000, id: 'c1' },
+		{ type: 'ADD_CUT', atMs: 5000, durationMs: 1000, id: 'c2' },
 	] );
 
 	it( 'removes the cut', () => {
@@ -691,7 +742,7 @@ describe( 'getOutputDurationMs', () => {
 		const s = reduceAll( createEditSession( 20000 ), [
 			{ type: 'SET_TRIM_START', ms: 2000 },
 			{ type: 'SET_TRIM_END', ms: 18000 },
-			{ type: 'ADD_CUT', atMs: 10000, id: 'c1' }, // [8000, 12000]
+			{ type: 'ADD_CUT', atMs: 10000, id: 'c1' }, // [10000, 14000]
 		] );
 		expect( getOutputDurationMs( s ) ).toBe( 16000 - 4000 );
 	} );
@@ -721,7 +772,7 @@ describe( 'invariants under random action sequences', () => {
 				action = {
 					type: 'ADD_CUT',
 					atMs: rand() * duration,
-					halfSpanMs: rand() * 3000,
+					durationMs: rand() * 6000,
 					id: `r${ idCounter }`,
 				};
 			} else if ( roll < 0.75 && s.cuts.length > 0 ) {

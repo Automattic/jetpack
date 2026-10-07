@@ -56,6 +56,7 @@ class Block_Editor_Extensions_Chapters_Editor_Test extends BaseTestCase {
 		wp_deregister_script( self::HANDLE );
 		Block_Editor_Extensions::$script_handle = $this->previous_handle;
 		remove_all_filters( Admin_UI::CHAPTERS_EDITOR_FILTER );
+		remove_all_filters( 'jetpack_videopress_trim_cut' );
 		( new Connection_Manager() )->reset_connection_status();
 
 		parent::tear_down();
@@ -97,5 +98,18 @@ class Block_Editor_Extensions_Chapters_Editor_Test extends BaseTestCase {
 
 		// Not `false`: same string cast. Anything falsy-but-not-'1' reads as disabled.
 		$this->assertSame( '', $state['chaptersEditorEnabled'] );
+	}
+
+	/** Tests that trim and cut is unavailable in the block editor by default. */
+	public function test_trim_cut_is_disabled_by_default() {
+		$state = $this->get_localized_state();
+		$this->assertSame( '', $state['trimCutEnabled'] );
+	}
+
+	/** Tests that the trim and cut filter enables its block toolbar control. */
+	public function test_trim_cut_can_be_enabled() {
+		add_filter( 'jetpack_videopress_trim_cut', '__return_true' );
+		$state = $this->get_localized_state();
+		$this->assertSame( '1', $state['trimCutEnabled'] );
 	}
 }
