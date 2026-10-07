@@ -69,6 +69,14 @@ function rowLink( label: string ) {
 	return screen.getByText( label ).closest( 'a' );
 }
 
+/** The query string of every `stats/tags` request so far. */
+function tagsRequests(): URLSearchParams[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => String( options?.path ?? '' ) )
+		.filter( path => path.includes( 'stats/tags' ) )
+		.map( path => new URLSearchParams( path.split( '?' )[ 1 ] ) );
+}
+
 describe( 'TagsWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -132,19 +140,45 @@ describe( 'TagsWidget', () => {
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.
-	it( 'asks for the row count Jetpack Stats gets by default', async () => {
+	it( 'asks for the row count Jetpack Stats gets by default, over the dashboard window', async () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 
-		const requestedPaths = mockApiFetch.mock.calls
-			.map( ( [ options ] ) => String( options?.path ?? '' ) )
-			.filter( path => path.includes( 'stats/tags' ) );
-
-		expect( requestedPaths ).not.toHaveLength( 0 );
-		requestedPaths.forEach( path => {
-			expect( new URLSearchParams( path.split( '?' )[ 1 ] ).get( 'max' ) ).toBe( '10' );
+		const requested = tagsRequests();
+		expect( requested ).not.toHaveLength( 0 );
+		requested.forEach( params => {
+			expect( params.get( 'max' ) ).toBe( '10' );
+			expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
+			expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
 		} );
+	} );
+
+	it( 'refetches with the new window when the dashboard period changes', async () => {
+		const { rerender } = render(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+		);
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+
+		rerender(
+			<TagsWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams(),
+						preset: undefined,
+						from: '2026-01-01T00:00:00.000+00:00',
+						to: '2026-01-31T23:59:59.999+00:00',
+					},
+				} }
+			/>
+		);
+
+		await waitFor( () =>
+			expect( tagsRequests().map( params => params.get( 'start_date' ) ) ).toContain(
+				'2026-01-01T00:00:00.000+00:00'
+			)
+		);
+		expect( tagsRequests().at( -1 )?.get( 'date' ) ).toBe( '2026-01-31T23:59:59.999+00:00' );
 	} );
 } );
 
@@ -199,6 +233,9 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines[ 0 ] ).toBe( '"Tag or category","Views","URL"' );
 		expect( lines ).toContain( '"Desserts, chocolate","760",""' );
 		expect( lines ).toHaveLength( 13 );
-		expect( downloads.files[ 0 ].filename ).toBe( 'tags-and-categories.csv' );
+		// The window is part of the export now, so the filename names it.
+		expect( downloads.files[ 0 ].filename ).toMatch(
+			/^tags-and-categories-\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}\.csv$/
+		);
 	} );
 } );

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
@@ -17,11 +18,14 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
+
+const ROUTE_FROM = route.path;
 
 /**
  * Initial records-table view: views sort descending, the label column absorbs
@@ -40,17 +44,18 @@ const RECORDS_VIEW = {
 /**
  * Premium Analytics Tags & categories report page component.
  *
- * `stats/tags` returns one flat list over the seven days ending yesterday and ignores
- * date-window params, so this page has no date filters, tabs, or performance chart —
- * just the header and records table.
+ * `stats/tags` returns one flat list ranked over the report window and reports no
+ * comparison, so this page has date filters and the records table, with no tabs or
+ * performance chart.
  *
  * @return The Tags & categories report page.
  */
 function TagsReport(): JSX.Element {
-	const records = useTagsReportRecords();
 	const reportParams = useReportParams();
+	const records = useTagsReportRecords( reportParams );
 	const fields = useMemo( () => getTagsFields(), [] );
 	const retry = useReportRetry( records.refetch );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS.tags;
 
@@ -67,7 +72,7 @@ function TagsReport(): JSX.Element {
 				/>
 			}
 		>
-			<ReportPageLayout title={ getLabel() }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<PageNotice
 						{ ...describeError( records.error, {

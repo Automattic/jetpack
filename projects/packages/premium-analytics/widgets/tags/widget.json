@@ -1,9 +1,9 @@
 {
 	"name": "jpa/tags",
-	"title": "Top tags & categories in the last 7 days",
-	"description": "Your most visited tags and categories, ranked by views.",
+	"title": "Top tags & categories",
+	"description": "The tags and categories of your most viewed posts in the selected period, ranked by views.",
 	"help": {
-		"content": "The tags and categories associated with your most-viewed content, sorted by views.",
+		"content": "The tags and categories of your most viewed posts in the selected period, ranked by views. A post counts toward each of its current tags and categories, so this is a breakdown of popular posts by topic rather than a filter over all traffic.",
 		"links": [
 			{
 				"label": "Learn more",

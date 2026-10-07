@@ -194,6 +194,14 @@ function get_traffic_section_default_layout() {
 			1,
 			2
 		),
+		// Row 6: tags & categories, ranked over the tab's period.
+		get_dashboard_default_widget_instance(
+			'default-tags-widget-instance',
+			'jpa/tags',
+			12,
+			2,
+			2
+		),
 	);
 }
 
@@ -267,33 +275,25 @@ function get_insights_section_default_layout() {
 			3,
 			2
 		),
-		// Row 6: tags + most commented posts.
-		get_dashboard_default_widget_instance(
-			'default-tags-widget-instance',
-			'jpa/tags',
-			8,
-			2,
-			2
-		),
+		// Row 6: most commented posts + shares (Simple only) + most commented authors.
 		get_dashboard_default_widget_instance(
 			'default-most-commented-posts-widget-instance',
 			'jpa/most-commented-posts',
-			9,
+			8,
 			1,
 			2
 		),
-		// Row 7: shares + most commented authors.
 		get_dashboard_default_widget_instance(
 			'default-shares-widget-instance',
 			'jpa/shares',
-			10,
+			9,
 			1,
 			2
 		),
 		get_dashboard_default_widget_instance(
 			'default-most-commented-authors-widget-instance',
 			'jpa/most-commented-authors',
-			11,
+			10,
 			2,
 			2
 		),

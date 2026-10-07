@@ -1,14 +1,20 @@
 /**
  * Internal dependencies
  */
-import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
+import { reportParamsToStatsQueryParams } from '../utils/stats-params';
+import {
+	statsReportQuery,
+	type StatsReportParams,
+	type StatsReportQueryOptions,
+} from './stats-query';
 
 /**
- * `stats/tags` declares `max` as its only query parameter, so WPCOM strips
- * everything else — `date` included — before the handler runs: the window is a
- * hardcoded seven days ending yesterday in site time, and nothing can move it.
+ * Past this many days the endpoint ranks the window's top posts in one pass
+ * instead of day by day, which keeps a long window to a few queries.
  */
-export type StatsTagsParams = {
+const SUMMARIZE_MIN_DAYS = 31;
+
+export type StatsTagsParams = StatsReportParams & {
 	/**
 	 * Rows to request. `max` only truncates an already-ranked list, so a larger one
 	 * adds rows without moving a row's views. `0` is not "all rows" here — anything
@@ -18,11 +24,23 @@ export type StatsTagsParams = {
 	max?: number;
 };
 
-export const statsTagsQuery = ( params: StatsTagsParams = {} ): StatsReportQueryOptions< 'tags' > =>
-	statsProxyQuery( {
-		name: 'tags',
-		version: '1.1',
-		endpoint: 'stats/tags',
-		params: ( params.max ?? 0 ) > 0 ? { max: params.max } : {},
-		sanitizer: 'tags',
-	} );
+/**
+ * `stats/tags` sizes its window from `date` and `start_date` (the days are
+ * derived server-side, so `days` stays off the request) and takes `summarize`
+ * on its own terms: per-day ranking under a month, as classic Stats reads it.
+ */
+export const statsTagsQuery = ( params: StatsTagsParams ): StatsReportQueryOptions< 'tags' > => {
+	const { max, ...reportParams } = params;
+	const { days } = reportParamsToStatsQueryParams( reportParams );
+	const summarize = typeof days === 'number' && days > SUMMARIZE_MIN_DAYS;
+
+	return statsReportQuery(
+		'tags',
+		'stats/tags',
+		reportParams,
+		'tags',
+		'1.1',
+		( max ?? 0 ) > 0 ? { max } : undefined,
+		{ omitParams: summarize ? [ 'days' ] : [ 'days', 'summarize' ] }
+	);
+};

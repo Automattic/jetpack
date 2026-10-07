@@ -307,7 +307,12 @@ describe( 'all-time report fetchers', () => {
 			],
 		} );
 
-		const rows = await fetchStatsTagsRows( { max: 1000 } );
+		const rows = await fetchStatsTagsRows( {
+			from: '2026-01-01',
+			to: '2026-01-31',
+			interval: 'day',
+			max: 1000,
+		} );
 
 		expect( requestedPaths() ).toHaveLength( 1 );
 		expect( requestedPaths()[ 0 ] ).toContain( 'stats/tags' );

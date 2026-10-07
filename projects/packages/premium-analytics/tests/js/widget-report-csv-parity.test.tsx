@@ -508,11 +508,23 @@ describe( 'Widget and report CSV parity', () => {
 		}
 	);
 
+	// Dated like the CASES above, but with no comparison to fail.
+	it( 'downloads the same tags-and-categories CSV from the widget as from the report page', async () => {
+		const reportFile = await download( <TagsReportPage /> );
+		queryClient.clear();
+		const widgetFile = await download(
+			<TagsWidget attributes={ { reportParams: REPORT_PARAMS } } />
+		);
+
+		expect( widgetFile ).toEqual( reportFile );
+		expect( widgetFile.filename ).toBe( 'tags-and-categories-2026-03-01_2026-03-10.csv' );
+		expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
+	} );
+
 	it.each( [
 		[ 'annual-insights.csv', AnnualInsightsReportPage, AnnualHighlightsWidget, undefined ],
 		[ 'comments-authors.csv', CommentsReportPage, MostCommentedAuthorsWidget, 'authors' ],
 		[ 'comments-posts.csv', CommentsReportPage, MostCommentedPostsWidget, 'posts' ],
-		[ 'tags-and-categories.csv', TagsReportPage, TagsWidget, undefined ],
 		[ 'emails.csv', EmailsReportPage, EmailsWidget, undefined ],
 	] as const )(
 		'downloads the same all-time %s from the widget as from the report page',

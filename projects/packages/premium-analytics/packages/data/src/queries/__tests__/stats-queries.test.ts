@@ -591,39 +591,44 @@ describe( 'Stats query factories', () => {
 
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
 	// it as "all rows", so a `0` must not reach it.
-	it( 'leaves a non-positive tags max off the request', () => {
-		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
+	it( 'sends the tags window as date and start_date, with max only when positive', () => {
+		const query = statsTagsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			max: 0,
+		} );
+
+		expect( query.queryKey ).toEqual( [
 			'stats',
 			'tags',
 			'1.1',
 			'stats/tags',
 			'GET',
-			{},
+			{ period: 'day', date: '2026-06-07', start_date: '2026-06-01' },
 			undefined,
 			'tags',
 			'UTC',
 		] );
+		expect(
+			statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', interval: 'day', max: 10 } )
+				.queryKey[ 5 ]
+		).toEqual( { period: 'day', date: '2026-06-07', start_date: '2026-06-01', max: 10 } );
 	} );
 
-	// A date would change the cache key without changing a row. `StatsTagsParams`
-	// already rejects one, so this spreads past the type to cover untyped callers.
-	it( 'never sends a date on the tags query, whatever the selected period', () => {
-		const tagsQueryKey = ( period: Record< string, unknown > ) =>
-			statsTagsQuery( { max: 10, ...period } ).queryKey;
-		const maxOnly = [
-			'stats',
-			'tags',
-			'1.1',
-			'stats/tags',
-			'GET',
-			{ max: 10 },
-			undefined,
-			'tags',
-			'UTC',
-		];
+	// Under a month the endpoint ranks day by day, as classic Stats reads it; past
+	// that it ranks the whole window at once so a year stays a few queries.
+	it.each( [
+		[ '31 days', '2026-06-01', '2026-07-01', undefined ],
+		[ '32 days', '2026-06-01', '2026-07-02', 1 ],
+	] )( 'summarizes the tags query past a month (%s)', ( _label, from, to, summarize ) => {
+		const params = statsTagsQuery( { from, to, interval: 'day' } ).queryKey[ 5 ] as Record<
+			string,
+			unknown
+		>;
 
-		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
-		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
+		expect( params.summarize ).toBe( summarize );
+		expect( params.days ).toBeUndefined();
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {
