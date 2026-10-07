@@ -392,7 +392,10 @@ EOT;
 EOT;
 
 		$shortcode_content = do_shortcode( "[recipe]\n$tags\n[/recipe]" );
-		$this->assertStringContainsString( $tags, $shortcode_content );
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><div class="jetpack-recipe-content">' . "\n$tags\n" . '</div></div>',
+			$shortcode_content
+		);
 	}
 
 	/**
