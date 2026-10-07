@@ -5,12 +5,16 @@ import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { getNewsletterScriptData } from '../script-data';
 import type { JSX } from 'react';
+
+interface EmailDesignSectionProps {
+	isNewsletterEnabled: boolean;
+}
 
 /**
  * Email Design Section Component.
@@ -18,9 +22,13 @@ import type { JSX } from 'react';
  * Links out to the email design screen, which is its own editor rather than
  * settings on this page.
  *
+ * @param {EmailDesignSectionProps} props                     - Component props
+ * @param                           props.isNewsletterEnabled - Whether the Newsletter module is on.
  * @return {JSX.Element | null} The email design section, or null on a site that has no such screen.
  */
-export function EmailDesignSection(): JSX.Element | null {
+export function EmailDesignSection( {
+	isNewsletterEnabled,
+}: EmailDesignSectionProps ): JSX.Element | null {
 	const siteType = getSiteType();
 	const emailDesignUrl = getNewsletterScriptData()?.emailDesignUrl;
 
@@ -33,6 +41,8 @@ export function EmailDesignSection(): JSX.Element | null {
 	if ( ! emailDesignUrl ) {
 		return null;
 	}
+
+	const buttonText = __( 'Edit email design', 'jetpack-newsletter' );
 
 	return (
 		<Card.Root>
@@ -47,9 +57,15 @@ export function EmailDesignSection(): JSX.Element | null {
 							'jetpack-newsletter'
 						) }
 					</Text>
-					<LinkButton variant="solid" href={ emailDesignUrl } onClick={ handleEmailDesignClick }>
-						{ __( 'Edit email design', 'jetpack-newsletter' ) }
-					</LinkButton>
+					{ isNewsletterEnabled ? (
+						<LinkButton variant="solid" href={ emailDesignUrl } onClick={ handleEmailDesignClick }>
+							{ buttonText }
+						</LinkButton>
+					) : (
+						<Button variant="solid" disabled>
+							{ buttonText }
+						</Button>
+					) }
 				</Stack>
 			</Card.Content>
 		</Card.Root>

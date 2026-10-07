@@ -46,7 +46,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	private $wrote_asset = false;
 
 	/**
-	 * A snapshot of the admin menu globals, which add_theme_page() appends to.
+	 * A snapshot of the admin menu globals, which add_theme_page() appends to. `_parent_pages`
+	 * belongs here too: `menu_page_url()` reads it, so without it one test's page is another's.
 	 *
 	 * @var array
 	 */
@@ -73,7 +74,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		$this->asset_path    = JETPACK__PLUGIN_DIR . '_inc/build/email-design-editor.asset.php';
-		$this->menu_snapshot = array( $GLOBALS['menu'] ?? array(), $GLOBALS['submenu'] ?? array() );
+		$this->menu_snapshot = array( $GLOBALS['menu'] ?? array(), $GLOBALS['submenu'] ?? array(), $GLOBALS['_parent_pages'] ?? array() );
 
 		// A development environment may force the flag on for the whole site, which would make
 		// the tests below assert the environment's answer rather than the registered default.
@@ -118,8 +119,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		}
 		$this->registered_blocks = array();
 
-		list( $GLOBALS['menu'], $GLOBALS['submenu'] )         = $this->menu_snapshot;
-		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] ) = $this->asset_registries;
+		list( $GLOBALS['menu'], $GLOBALS['submenu'], $GLOBALS['_parent_pages'] ) = $this->menu_snapshot;
+		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] )                    = $this->asset_registries;
 
 		$this->wrote_asset       = false;
 		$this->asset_backup      = null;
@@ -287,17 +288,41 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * screen has to be told so rather than left to link at a page that will refuse it.
 	 */
 	public function test_the_script_data_withholds_the_link_while_the_flag_is_off() {
+		Jetpack_Email_Design_Editor::add_admin_page();
+
 		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
 
 		$this->assertNull( $data['newsletter']['emailDesignUrl'] );
 	}
 
-	public function test_the_script_data_names_the_screen_once_the_flag_is_on() {
+	public function test_the_script_data_names_the_screen_once_it_is_registered() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+		Jetpack_Email_Design_Editor::add_admin_page();
 
 		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
 
-		$this->assertSame( Jetpack_Email_Design_Editor::get_url(), $data['newsletter']['emailDesignUrl'] );
+		$this->assertSame( menu_page_url( Jetpack_Email_Design_Editor::PAGE_SLUG, false ), $data['newsletter']['emailDesignUrl'] );
+	}
+
+	/**
+	 * The Newsletter settings page asks only for `manage_options`, so its reader can be someone
+	 * `add_theme_page()` registers nothing for -- and a link to an unregistered page is a `wp_die()`.
+	 */
+	public function test_the_script_data_withholds_the_link_without_edit_theme_options() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+		add_filter(
+			'user_has_cap',
+			function ( $allcaps ) {
+				unset( $allcaps['edit_theme_options'] );
+				return $allcaps;
+			}
+		);
+
+		Jetpack_Email_Design_Editor::add_admin_page();
+		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
+
+		$this->assertTrue( current_user_can( 'manage_options' ) );
+		$this->assertNull( $data['newsletter']['emailDesignUrl'] );
 	}
 
 	public function test_the_allowed_iframe_handles_start_from_the_editor_stylesheets() {

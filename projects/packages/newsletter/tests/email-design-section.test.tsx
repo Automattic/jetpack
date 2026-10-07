@@ -1,8 +1,4 @@
-/**
- * Tests for the Email design section, which links out to the email design screen.
- *
- * `@wordpress/ui` is stubbed to plain HTML so we can assert on the rendered link.
- */
+// `@wordpress/ui` is stubbed to plain HTML so the link can be asserted on directly.
 
 jest.mock( '@wordpress/ui', () => ( {
 	__esModule: true,
@@ -13,6 +9,9 @@ jest.mock( '@wordpress/ui', () => ( {
 		Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	},
 	Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+	Button: ( { children, disabled }: { children: React.ReactNode; disabled?: boolean } ) => (
+		<button disabled={ disabled }>{ children }</button>
+	),
 	Text: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
 	LinkButton: ( {
 		children,
@@ -51,6 +50,8 @@ const mockedGetScriptData = getNewsletterScriptData as jest.MockedFunction<
 	typeof getNewsletterScriptData
 >;
 
+const DESIGN_URL = 'https://example.com/wp-admin/themes.php?page=jetpack-email-design';
+
 /**
  * Stub the newsletter script data with a given email design URL.
  *
@@ -66,26 +67,35 @@ describe( 'EmailDesignSection', () => {
 	it( 'renders nothing on a site whose email design screen is off', () => {
 		mockEmailDesignUrl( null );
 
-		const { container } = render( <EmailDesignSection /> );
+		const { container } = render( <EmailDesignSection isNewsletterEnabled /> );
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'links to the email design screen the site reported', () => {
-		mockEmailDesignUrl( 'https://example.com/wp-admin/themes.php?page=jetpack-email-design' );
+		mockEmailDesignUrl( DESIGN_URL );
 
-		render( <EmailDesignSection /> );
+		render( <EmailDesignSection isNewsletterEnabled /> );
 
 		expect( screen.getByRole( 'link', { name: 'Edit email design' } ) ).toHaveAttribute(
 			'href',
-			'https://example.com/wp-admin/themes.php?page=jetpack-email-design'
+			DESIGN_URL
 		);
 	} );
 
-	it( 'records a Tracks event when the link is followed', () => {
-		mockEmailDesignUrl( 'https://example.com/wp-admin/themes.php?page=jetpack-email-design' );
+	it( 'offers a disabled button rather than a live link while the newsletter is off', () => {
+		mockEmailDesignUrl( DESIGN_URL );
 
-		render( <EmailDesignSection /> );
+		render( <EmailDesignSection isNewsletterEnabled={ false } /> );
+
+		expect( screen.queryByRole( 'link', { name: 'Edit email design' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Edit email design' } ) ).toBeDisabled();
+	} );
+
+	it( 'records a Tracks event when the link is followed', () => {
+		mockEmailDesignUrl( DESIGN_URL );
+
+		render( <EmailDesignSection isNewsletterEnabled /> );
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'link', { name: 'Edit email design' } ) );
 

@@ -648,7 +648,7 @@ export function NewsletterSettingsBody( {
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
-								<EmailDesignSection />
+								<EmailDesignSection isNewsletterEnabled={ data.subscriptions } />
 
 								<EmailBylineSection
 									data={ data }
@@ -739,7 +739,7 @@ export function NewsletterSettingsBody( {
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 
-									<EmailDesignSection />
+									<EmailDesignSection isNewsletterEnabled={ data.subscriptions } />
 
 									<EmailBylineSection
 										data={ data }

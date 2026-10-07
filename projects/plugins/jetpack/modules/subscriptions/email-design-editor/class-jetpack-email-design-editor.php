@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Newsletter\Urls as Newsletter_Urls;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -67,25 +68,28 @@ class Jetpack_Email_Design_Editor {
 	/**
 	 * Tell the Newsletter settings page where this screen is, or that there is none.
 	 *
-	 * On Simple the flag is bridged from a blog sticker on `admin_menu`, which core fires from
-	 * `menu.php` before the `load-{$page_suffix}` the Newsletter page builds its script data from.
-	 *
 	 * @param array $data The script data so far.
-	 * @return array The script data, with `newsletter.emailDesignUrl` null when the screen is off.
+	 * @return array The script data, with `newsletter.emailDesignUrl` null when there is no screen.
 	 */
 	public static function add_script_data( $data ) {
-		$data['newsletter']['emailDesignUrl'] = self::is_enabled() ? self::get_url() : null;
+		$url = self::get_url();
+
+		$data['newsletter']['emailDesignUrl'] = '' === $url ? null : $url;
 
 		return $data;
 	}
 
 	/**
-	 * The screen's own URL.
+	 * The screen's own URL, or an empty string when this request has no such screen.
+	 *
+	 * Read back from the registration, not built from the slug, so a link cannot outlive the page:
+	 * `add_theme_page()` registers nothing without `edit_theme_options`, which `manage_options` --
+	 * all the Newsletter settings page asks for -- does not imply.
 	 *
 	 * @return string
 	 */
 	public static function get_url() {
-		return admin_url( 'themes.php?page=' . self::PAGE_SLUG );
+		return function_exists( 'menu_page_url' ) ? (string) menu_page_url( self::PAGE_SLUG, false ) : '';
 	}
 
 	/**
@@ -291,34 +295,21 @@ class Jetpack_Email_Design_Editor {
 	 * @return array
 	 */
 	private static function get_screen_data() {
+		$exit_url = Newsletter_Urls::get_newsletter_settings_url();
+
 		return array(
 			'elementId'      => self::HANDLE,
 			'editorSettings' => self::get_iframe_asset_settings(),
 
 			// The editor assigns these to `window.location.href` from its header buttons. Both
 			// leave the editor, and there is one design rather than a list, so both return to
-			// where the link in lives — Appearance only when the package predates that link.
+			// where the link lives.
 			'urls'           => array(
-				'back'     => self::exit_url(),
-				'listings' => self::exit_url(),
+				'back'     => $exit_url,
+				'listings' => $exit_url,
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
 		);
-	}
-
-	/**
-	 * Where the editor's header buttons leave to: the Newsletter settings page the link lives on.
-	 *
-	 * Guarded because the plugin can run against a bundled package older than the helper.
-	 *
-	 * @return string
-	 */
-	private static function exit_url() {
-		if ( method_exists( \Automattic\Jetpack\Newsletter\Urls::class, 'get_newsletter_settings_url' ) ) {
-			return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
-		}
-
-		return admin_url( 'themes.php' );
 	}
 
 	/**
