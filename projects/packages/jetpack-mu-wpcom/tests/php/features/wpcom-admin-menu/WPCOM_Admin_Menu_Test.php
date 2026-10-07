@@ -393,6 +393,72 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Sets up a Simple site with an admin and the native Activity Log flag on.
+	 *
+	 * Callers run in a separate process, because `wpcom_add_jetpack_submenu()` reads the real `IS_WPCOM` constant.
+	 *
+	 * @param bool $package_supports_simple Whether the bundled package can register the page on Simple.
+	 * @return string The site's domain.
+	 */
+	private function set_up_simple_site_with_native_activity_log( $package_supports_simple ) {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'simple_admin_user',
+					'user_pass'  => 'pass',
+					'user_email' => 'simple_admin@example.com',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
+		\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::$supports_simple = $package_supports_simple;
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_true' );
+
+		return wp_parse_url( home_url(), PHP_URL_HOST );
+	}
+
+	/**
+	 * With the flag on, Simple sites show the native page instead of the Calypso link.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_shows_native_activity_log_on_simple_sites_when_flagged() {
+		$domain = $this->set_up_simple_site_with_native_activity_log( true );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNull( $this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . $domain ) );
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringNotContainsString( 'hide-if-js', $native_item[4] ?? '' );
+	}
+
+	/**
+	 * Jetpack deploys separately, so the flag can be on while the bundled package predates Simple support.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_the_package_cannot_register() {
+		$domain = $this->set_up_simple_site_with_native_activity_log( false );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNotNull( $this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . $domain ) );
+	}
+
+	/**
 	 * The Jetpack plugin's `jetpack-backup` page is hidden from the sidebar but stays registered.
 	 */
 	public function test_jetpack_submenu_hides_the_wp_admin_backup_page() {
