@@ -1,10 +1,15 @@
 .jpb-backup-detail {
+	border-radius: var(--wpds-border-radius-xl);
 
 	&__header {
 		padding-block: var(--wpds-dimension-padding-2xl);
 		// Card.Header doesn't ship its own separator; add one so the
 		// header row and the body content read as distinct sections.
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+
+		@media (min-width: 600px) {
+			padding-inline: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
+		}
 	}
 
 	// Allow the title group and the action group to drop onto separate
@@ -30,7 +35,8 @@
 	// for them side-by-side (deep mobile / zoomed-in widths).
 	&__header-actions {
 		flex-wrap: wrap;
-		flex-shrink: 0;
+		flex-shrink: 1;
+		max-inline-size: 100%;
 	}
 
 	&__body {
@@ -98,23 +104,5 @@
 		display: flex;
 		flex-wrap: wrap;
 		column-gap: var(--wpds-dimension-gap-lg);
-	}
-
-
-	// Doubled selectors: the Card rules would otherwise win.
-	&.jpb-backup-detail {
-		border-radius: var(--wpds-border-radius-xl);
-	}
-
-	.jpb-backup-detail__header {
-
-		@media (min-width: 600px) {
-			padding-inline: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
-		}
-	}
-
-	.jpb-backup-detail__header-actions {
-		flex-shrink: 1;
-		max-inline-size: 100%;
 	}
 }
