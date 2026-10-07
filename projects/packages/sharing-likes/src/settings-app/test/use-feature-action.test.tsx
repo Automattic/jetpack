@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { queryKeys, useSettings } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
+import { useSaveSetting } from '../data/use-save-setting';
 import {
 	apiCalls,
 	baseSettings,
@@ -11,7 +12,7 @@ import {
 	snackbarMessages,
 	wrapperFor,
 } from './helpers';
-import type { Status } from '../types';
+import type { Settings, Status } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -75,5 +76,39 @@ describe( 'useFeatureAction', () => {
 		await waitFor( () =>
 			expect( snackbarMessages() ).toContain( 'The feature could not be turned on.' )
 		);
+	} );
+	it( "keeps a save's value when the action before it reads settings again", async () => {
+		let resolvePut!: ( value: Settings ) => void;
+		const put = new Promise< Settings >( resolve => ( resolvePut = resolve ) );
+		mockApiFetch.mockImplementation( ( { method } ) => {
+			if ( method === 'POST' ) {
+				return Promise.resolve( switched );
+			}
+			return method === 'PUT' ? put : Promise.resolve( baseSettings );
+		} );
+		const queryClient = createTestQueryClient();
+		const { result } = renderHook(
+			() => {
+				useSettings();
+				return { action: useFeatureAction(), save: useSaveSetting() };
+			},
+			{ wrapper: wrapperFor( queryClient ) }
+		);
+
+		let saved: Promise< unknown > = Promise.resolve();
+		act( () => {
+			result.current.action.run( 'sharing', 'switch-to-block' );
+			saved = result.current.save( 'button_style', 'icon' );
+		} );
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
+
+		expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toMatchObject( {
+			button_style: 'icon',
+		} );
+
+		await act( async () => {
+			resolvePut( { ...baseSettings, button_style: 'icon' } );
+			await saved;
+		} );
 	} );
 } );
