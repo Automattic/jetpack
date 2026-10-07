@@ -194,18 +194,12 @@ class VideoPress_Video {
 
 		$data = $this->get_data();
 		if ( is_wp_error( $data ) || empty( $data ) ) {
-			/** This filter is documented in modules/videopress/class.videopress-player.php */
-			if ( ! apply_filters( 'jetpack_videopress_use_legacy_player', false ) ) {
-				// Unlike the Flash player, the new player does it's own error checking, age gate, etc.
-				$data = (object) array(
-					'guid'   => $guid,
-					'width'  => $maxwidth,
-					'height' => $maxwidth / 16 * 9,
-				);
-			} else {
-				$this->error = $data;
-				return;
-			}
+			// The player does its own error checking, age gate, etc.
+			$data = (object) array(
+				'guid'   => $guid,
+				'width'  => $maxwidth,
+				'height' => $maxwidth / 16 * 9,
+			);
 		}
 
 		if ( isset( $data->blog_id ) ) {

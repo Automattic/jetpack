@@ -29,7 +29,7 @@ class VideoPress_Player {
 	protected $video_container_id;
 
 	/**
-	 * DOM identifier of the video element (video, object, embed)
+	 * DOM identifier of the video element
 	 *
 	 * @var string
 	 * @since 1.3
@@ -183,11 +183,15 @@ class VideoPress_Player {
 		} elseif ( is_wp_error( $this->video ) ) {
 			$content = $this->error_message( $this->video );
 
+		} elseif ( isset( $this->video->restricted_embed ) && true === $this->video->restricted_embed ) {
+			// Restricted videos always get the dynamic player, even with `freedom` set.
+			$content = $this->html5_dynamic_next();
+
 		} elseif ( isset( $this->options['freedom'] ) && true === $this->options['freedom'] ) {
 			$content = $this->html5_static();
 
 		} else {
-			$content = $this->html5_dynamic();
+			$content = $this->html5_dynamic_next();
 		}
 
 		return $this->html_wrapper( $content );
@@ -217,100 +221,8 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Rating agencies and industry associations require a potential viewer verify their age before a video or its poster frame are displayed.
-	 * Content rated for audiences 17 years of age or older requires such verification across multiple rating agencies and industry associations
-	 *
-	 * @since 1.3
-	 * @return bool true if video requires the viewer verify they are 17 years of age or older
-	 */
-	private function age_gate_required() {
-		if ( isset( $this->video->age_rating ) && $this->video->age_rating >= 17 ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Select a date of birth using HTML form elements.
-	 *
-	 * @since 1.5
-	 * @return string HTML markup
-	 */
-	private function html_age_gate() {
-		global $wp_locale;
-		$text_align = 'left';
-		if ( $this->video->text_direction === 'rtl' ) {
-			$text_align = 'right';
-		}
-
-		$html         = '<div class="videopress-age-gate" style="margin:0 60px">';
-		$html        .= '<p class="instructions" style="color:rgb(255, 255, 255);font-size:21px;padding-top:60px;padding-bottom:20px;text-align:' . $text_align . '">' . esc_html( __( 'This video is intended for mature audiences.', 'jetpack' ) ) . '<br />' . esc_html( __( 'Please verify your birthday.', 'jetpack' ) ) . '</p>';
-		$html        .= '<fieldset id="birthday" style="border:0 none;text-align:' . $text_align . ';padding:0;">';
-		$inputs_style = 'border:1px solid #444;margin-';
-		if ( $this->video->text_direction === 'rtl' ) {
-			$inputs_style .= 'left';
-		} else {
-			$inputs_style .= 'right';
-		}
-		$inputs_style .= ':10px;background-color:rgb(0, 0, 0);font-size:14px;color:rgb(255,255,255);padding:4px 6px;line-height: 2em;vertical-align: middle';
-
-		/**
-		 * Display a list of months in the Gregorian calendar.
-		 * Set values to 0-based to match JavaScript Date.
-		 *
-		 * @link https://developer.mozilla.org/en/JavaScript/Reference/global_objects/date Mozilla JavaScript Reference: Date
-		 */
-		$html .= '<select name="month" style="' . $inputs_style . '">';
-
-		for ( $i = 0; $i < 12; $i++ ) {
-			$html .= '<option value="' . esc_attr( $i ) . '">' . esc_html( $wp_locale->get_month( $i + 1 ) ) . '</option>';
-		}
-		$html .= '</select>';
-
-		/**
-		 * Todo: numdays variance by month.
-		 */
-		$html .= '<select name="day" style="' . $inputs_style . '">';
-		for ( $i = 1; $i < 32; $i++ ) {
-			$html .= '<option>' . $i . '</option>';
-		}
-		$html .= '</select>';
-
-		/**
-		 * Current record for human life is 122. Go back 130 years and no one is left out.
-		 * Don't ask infants younger than 2 for their birthday
-		 * Default to 13
-		 */
-		$html        .= '<select name="year" style="' . $inputs_style . '">';
-		$start_year   = gmdate( 'Y' ) - 2;
-		$default_year = $start_year - 11;
-		$end_year     = $start_year - 128;
-		for ( $year = $start_year; $year > $end_year; $year-- ) {
-			$html .= '<option';
-			if ( $year === $default_year ) {
-				$html .= ' selected="selected"';
-			}
-			$html .= '>' . $year . '</option>';
-		}
-		unset( $start_year );
-		unset( $default_year );
-		unset( $end_year );
-		$html .= '</select>';
-
-		$html .= '<input type="submit" value="' . __( 'Submit', 'jetpack' ) . '" style="cursor:pointer;border-radius: 1em;border:1px solid #333;background-color:#333;background:-webkit-gradient( linear, left top, left bottom, color-stop(0.0, #444), color-stop(1, #111) );background:-moz-linear-gradient(center top, #444 0%, #111 100%);font-size:13px;padding:4px 10px 5px;line-height:1em;vertical-align:top;color:white;text-decoration:none;margin:0" />';
-
-		$html .= '</fieldset>';
-		$html .= '<p style="padding-top:20px;padding-bottom:60px;text-align:' . $text_align . ';"><a rel="nofollow noopener noreferrer" href="https://videopress.com/" target="_blank" style="color:rgb(128,128,128);text-decoration:underline;font-size:15px">' . __( 'More information', 'jetpack' ) . '</a></p>';
-
-		$html .= '</div>';
-		return $html;
-	}
-
-	/**
 	 * Return HTML5 video static markup for the given video parameters.
 	 * Use default browser player controls.
-	 * No Flash fallback.
 	 *
 	 * @since 1.2
 	 * @link https://html.spec.whatwg.org/multipage/media.html#the-video-element HTML5 video
@@ -371,16 +283,6 @@ class VideoPress_Player {
 		}
 		$html .= '</video>';
 		return $html;
-	}
-
-	/**
-	 * Click to play dynamic HTML5 player.
-	 *
-	 * @since 1.5
-	 * @return string HTML markup
-	 */
-	private function html5_dynamic() {
-		return $this->html5_dynamic_next();
 	}
 
 	/**
@@ -511,5 +413,4 @@ class VideoPress_Player {
 				. '</div>';
 		}
 	}
-
 }

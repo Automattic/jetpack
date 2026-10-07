@@ -26,9 +26,6 @@ window.wp = window.wp || {};
 	 */
 	Uploader = function ( options ) {
 		var self = this,
-			isIE =
-				navigator.userAgent.indexOf( 'Trident/' ) !== -1 ||
-				navigator.userAgent.indexOf( 'MSIE ' ) !== -1,
 			elements = {
 				container: 'container',
 				browser: 'browse_button',
