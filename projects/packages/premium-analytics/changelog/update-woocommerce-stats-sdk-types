@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove formatOrderMetric from the widgets toolkit; nothing used it once the time series widgets moved.
+
+

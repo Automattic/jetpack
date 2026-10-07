@@ -273,7 +273,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	formatOrderMetric,
 	getFormatByMetricKey,
 	buildTimeSeriesChartData,
 	type TimeSeriesData,

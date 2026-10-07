@@ -1,4 +1,4 @@
-export { formatOrderMetric, getFormatByMetricKey } from './format-orders-metrics';
+export { getFormatByMetricKey } from './format-orders-metrics';
 export { buildTimeSeriesChartData, type TimeSeriesData } from './build-time-series-chart-data';
 export { buildSalesByCouponData, type SalesByCouponData } from './build-sales-by-coupon-data';
 export { PHYSICAL_PRODUCTS_FILTER, BOOKINGS_FILTER } from './product-type-filters';
