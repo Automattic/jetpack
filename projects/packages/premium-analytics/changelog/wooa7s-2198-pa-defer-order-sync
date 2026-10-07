@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Skip syncing order changes until the store's first full analytics sync starts.

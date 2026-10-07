@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -38,6 +39,7 @@ class Sync_Status_Tracker_Test extends TestCase {
 		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
 		remove_all_actions( Sync_Status_Tracker::MILESTONE_ACTION );
 		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
+		remove_all_filters( 'jetpack_disabled_raw_options' );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -154,6 +156,69 @@ class Sync_Status_Tracker_Test extends TestCase {
 		);
 
 		$this->assertSame( 1730000000, (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION ) );
+	}
+
+	/**
+	 * Store the full-sync status where Full_Sync_Immediately::get_status() reads it.
+	 *
+	 * @param array $status Full-sync status.
+	 */
+	private function set_full_sync_status( array $status ): void {
+		add_filter(
+			'jetpack_disabled_raw_options',
+			static function ( $options ) {
+				$options['jetpack_sync_full_status'] = true;
+				return $options;
+			}
+		);
+		update_option( 'jetpack_sync_full_status', $status );
+	}
+
+	public static function provide_full_sync_states(): array {
+		return array(
+			'no full sync yet'                    => array( array(), false ),
+			'analytics full sync running'         => array(
+				array(
+					'started' => 1730000000,
+					'config'  => array( 'woocommerce_analytics' => 1 ),
+				),
+				true,
+			),
+			'running full sync without analytics' => array(
+				array(
+					'started' => 1730000000,
+					'config'  => array( 'posts' => 1 ),
+				),
+				false,
+			),
+			'analytics full sync not started'     => array(
+				array(
+					'started' => false,
+					'config'  => array( 'woocommerce_analytics' => 1 ),
+				),
+				false,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_full_sync_states
+	 *
+	 * @param array $status   Full-sync status.
+	 * @param bool  $expected Whether the analytics full sync counts as started.
+	 */
+	#[DataProvider( 'provide_full_sync_states' )]
+	public function test_analytics_full_sync_started_reads_the_full_sync_status( array $status, bool $expected ) {
+		$this->set_full_sync_status( $status );
+
+		$this->assertSame( $expected, Sync_Status_Tracker::has_analytics_full_sync_started() );
+	}
+
+	public function test_analytics_full_sync_counts_as_started_after_the_milestone() {
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		$this->set_full_sync_status( array( 'config' => array( 'posts' => 1 ) ) );
+
+		$this->assertTrue( Sync_Status_Tracker::has_analytics_full_sync_started() );
 	}
 
 	public function test_script_data_reports_zero_before_milestone() {

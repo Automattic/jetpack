@@ -140,14 +140,7 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		$config = isset( $full_status['config'] ) ? (array) $full_status['config'] : array();
-		$active = array_filter(
-			self::get_analytics_sync_modules(),
-			static function ( $module_name ) use ( $config ) {
-				return ! empty( $config[ $module_name ] );
-			}
-		);
-		if ( ! $active ) {
+		if ( ! self::includes_analytics_module( $full_status ) ) {
 			return;
 		}
 
@@ -173,6 +166,43 @@ class Sync_Status_Tracker {
 		 * @param array $full_status Final full-sync status (with `finished` timestamp).
 		 */
 		do_action( self::MILESTONE_ACTION, $full_status );
+	}
+
+	/**
+	 * Whether an analytics full sync has finished once or is running now.
+	 *
+	 * @return bool
+	 */
+	public static function has_analytics_full_sync_started(): bool {
+		// Checked first because get_status() reads the database directly on every call.
+		if ( self::milestone_reached() ) {
+			return true;
+		}
+
+		$module = Modules::get_module( 'full-sync' );
+		if ( ! $module ) {
+			return false;
+		}
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
+
+		$full_status = $module->get_status();
+		return ! empty( $full_status['started'] ) && self::includes_analytics_module( $full_status );
+	}
+
+	/**
+	 * Whether a full-sync status covers an analytics module.
+	 *
+	 * @param array $full_status Result of Full_Sync_Immediately::get_status().
+	 * @return bool
+	 */
+	private static function includes_analytics_module( array $full_status ): bool {
+		$config = isset( $full_status['config'] ) ? (array) $full_status['config'] : array();
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( ! empty( $config[ $module_name ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
