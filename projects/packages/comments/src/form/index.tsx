@@ -115,7 +115,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isBoxOpen.value = true;
 		openEditor();
 	}, [ isBoxOpen, openEditor ] );
-	const onPointerDown = useCallback( () => ( clicked.current = true ), [] );
+	const markClicked = useCallback( () => ( clicked.current = true ), [] );
 	const onEditorFocus = useCallback( () => ( isBoxOpen.value = true ), [ isBoxOpen ] );
 	const onInput = useCallback(
 		( event: TargetedEvent< HTMLTextAreaElement > ) =>
@@ -275,7 +275,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 					aria-busy={ editor === 'loading' }
 					// Its loading copy, below, takes the placeholder's place.
 					placeholder={ editor === 'loading' ? '' : placeholder }
-					onPointerDown={ onPointerDown }
+					onPointerDown={ markClicked }
 					onFocus={ onFocus }
 					onInput={ onInput }
 				/>
