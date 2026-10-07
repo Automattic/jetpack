@@ -1,5 +1,5 @@
 import { Group } from '@visx/group';
-import { Pie } from '@visx/shape';
+import { arc, pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
@@ -138,6 +138,9 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 
 export type ArcData = PieProvidedProps< DataPointPercentageCalculated >[ 'arcs' ][ number ];
 
+type PieDatum = DataPointPercentageCalculated & { index: number };
+type PieArcDatum = PieProvidedProps< PieDatum >[ 'arcs' ][ number ];
+
 /**
  * Validates the semi-circle pie chart data
  * @param data - The data to validate
@@ -196,14 +199,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const containerRef = useRef< HTMLDivElement >( null );
 
 	const handleMouseMove = useCallback(
-		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
+		( event: MouseEvent< SVGElement >, arcDatum: ArcData ) => {
 			const bounds = containerRef.current?.getBoundingClientRect();
 			if ( ! bounds ) {
 				return;
 			}
 
 			showTooltip( {
-				tooltipData: arc.data,
+				tooltipData: arcDatum.data,
 				tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
 				tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
 			} );
@@ -216,8 +219,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: MouseEvent< SVGElement > ) => {
-			handleMouseMove( event, arc );
+		( arcDatum: ArcData ) => ( event: MouseEvent< SVGElement > ) => {
+			handleMouseMove( event, arcDatum );
 		},
 		[ handleMouseMove ]
 	);
@@ -376,6 +379,15 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const radius = height; // For a semi-circle, radius equals the SVG height
 					const innerRadius = radius * ( 1 - thickness );
 
+					const path = arc< PieArcDatum >( { innerRadius, outerRadius: radius, cornerRadius: 3 } );
+					const arcs = pie< PieDatum >( {
+						value: accessors.value,
+						sort: accessors.sort,
+						padAngle: PAD_ANGLE,
+						startAngle,
+						endAngle,
+					} )( dataWithIndex );
+
 					return (
 						<Center ref={ containerRef } className={ styles[ 'pie-semi-circle-chart__plot' ] }>
 							<svg
@@ -409,33 +421,19 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) : (
 										<>
 											{ /* Pie chart */ }
-											<Pie< DataPointPercentageCalculated & { index: number } >
-												data={ dataWithIndex }
-												pieValue={ accessors.value }
-												outerRadius={ radius }
-												innerRadius={ innerRadius }
-												cornerRadius={ 3 }
-												padAngle={ PAD_ANGLE }
-												startAngle={ startAngle }
-												endAngle={ endAngle }
-												pieSort={ accessors.sort }
-											>
-												{ pie => {
-													return pie.arcs.map( arc => (
-														<g
-															key={ arc.data.label }
-															onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
-															onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
-														>
-															<path
-																d={ pie.path( arc ) || '' }
-																fill={ accessors.fill( arc.data ) }
-																data-testid="pie-segment"
-															/>
-														</g>
-													) );
-												} }
-											</Pie>
+											{ arcs.map( arcDatum => (
+												<g
+													key={ arcDatum.data.label }
+													onMouseMove={ withTooltips ? handleArcMouseMove( arcDatum ) : undefined }
+													onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+												>
+													<path
+														d={ path( arcDatum ) || '' }
+														fill={ accessors.fill( arcDatum.data ) }
+														data-testid="pie-segment"
+													/>
+												</g>
+											) ) }
 
 											{ /* Label and note text */ }
 											<Group>
