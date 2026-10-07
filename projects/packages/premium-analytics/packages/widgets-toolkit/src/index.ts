@@ -313,6 +313,7 @@ export {
 	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,
 	getOpensRateSignals,
