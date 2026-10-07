@@ -39,12 +39,11 @@ test.describe( 'Getting started page', () => {
 
 		await jetpackBoostPage.chooseFreePlan();
 		await page.reload();
+		await jetpackBoostPage.expectScoreToBeVisible();
 		await expect(
 			page.getByRole( 'button', { name: 'Start for free', exact: true } ),
 			'Getting started should not return after connecting'
 		).toBeHidden();
-
-		await jetpackBoostPage.expectScoreToBeVisible();
 
 		await boostUtils.unMockSpeedScore();
 	} );

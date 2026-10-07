@@ -137,7 +137,9 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Verify that premium features are detected
 		await expect(
-			page.getByText( 'Add up to 10 Cornerstone Pages' ),
+			page
+				.getByRole( 'region', { name: 'Optimize your speed' } )
+				.getByText( 'Add up to 10 Cornerstone Pages' ),
 			'Upgrade CTA should be hidden when premium features are active'
 		).toBeHidden();
 
@@ -187,7 +189,9 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		await expect(
-			page.getByText( 'Add up to 10 Cornerstone Pages' ),
+			page
+				.getByRole( 'region', { name: 'Optimize your speed' } )
+				.getByText( 'Add up to 10 Cornerstone Pages' ),
 			'Upgrade CTA should be visible on free plan'
 		).toBeVisible();
 	} );

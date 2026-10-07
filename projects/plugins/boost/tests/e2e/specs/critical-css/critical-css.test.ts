@@ -54,11 +54,11 @@ test.describe.serial( 'Critical CSS module', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await boostUtils.activateBoostModule( 'critical_css' );
 		await boostUtils.executeWpCommand(
 			'plugin activate e2e-external-css-enqueue/e2e-external-css-enqueue.php'
 		);
 		await jetpackBoostPage.visit();
+		await jetpackBoostPage.toggleModule( 'critical_css', true );
 		await jetpackBoostPage.generateCriticalCss();
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
