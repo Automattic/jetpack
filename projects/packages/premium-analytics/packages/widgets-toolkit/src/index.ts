@@ -48,6 +48,9 @@ export {
 	type LeaderboardProps,
 	type LeaderboardRowInput,
 	type LeaderboardStatus,
+	Donut,
+	type DonutProps,
+	type DonutSegmentInput,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -389,6 +392,7 @@ export type {
 	OrderMetrics,
 	OrdersSummary,
 	DataFormat,
+	WidgetStatus,
 } from './types';
 
 /**
