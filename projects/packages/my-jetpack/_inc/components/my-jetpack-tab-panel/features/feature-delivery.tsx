@@ -69,7 +69,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 }
 
 /**
- * What the button beside an inactive feature's name will do to turn it on.
+ * The module limitation and the action's setup note in the feature details.
  *
  * @param {FeatureDeliveryProps} props       - The component props.
  * @param {FeatureState}         props.state - Live state for the feature.
@@ -79,7 +79,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature } = state;
 
 	const moduleNote = getModuleUnavailableNote( state );
-	// Forced modules explain themselves in the header; an active plugin can still have a module limitation.
+	// An active plugin does not remove its module's limitation.
 	if ( state.status === 'active' || getForcedReason( state ) ) {
 		return moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null;
 	}

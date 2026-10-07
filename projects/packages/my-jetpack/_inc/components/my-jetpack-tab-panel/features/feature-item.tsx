@@ -75,7 +75,7 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	const reason = getForcedReason( state ) || getModuleUnavailableNote( state );
+	const reason = getModuleUnavailableNote( state ) || getForcedReason( state );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -162,12 +162,11 @@ export function FeatureItem( {
 					{ migration?.notice ?? feature.description }
 				</Text>
 
-				{ ( unavailable || state.moduleUnavailableReason || state.control.kind === 'module' ) &&
-					reason && (
-						<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
-							{ reason }
-						</Text>
-					) }
+				{ ( unavailable || state.moduleUnavailableReason ) && reason && (
+					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
+						{ reason }
+					</Text>
+				) }
 
 				<FeatureInstallNotice state={ state } />
 			</span>

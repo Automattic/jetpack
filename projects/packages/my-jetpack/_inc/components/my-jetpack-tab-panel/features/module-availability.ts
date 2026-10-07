@@ -37,6 +37,7 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 		if ( JETPACK_MODULES_NOT_FOR_MULTISITE.includes( $module.module ) ) {
 			return {
 				isAvailable: false,
+				isMultisiteBlocked: true,
 				reason: __( 'Not available on multisite', 'jetpack-my-jetpack' ),
 			};
 		}
@@ -59,13 +60,13 @@ export function getModuleStatus( $module: MyJetpackModule ) {
  * @return The unavailable reason, or undefined when a plugin or host provides a route.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
-	if ( state.feature.plugin && state.feature.plugin_status !== 'not-installed' ) {
-		return undefined;
-	}
 	if ( state.control.kind === 'module' ) {
 		return state.control.module.override
 			? undefined
 			: getModuleStatus( state.control.module ).reason;
+	}
+	if ( state.feature.plugin && state.feature.plugin_status !== 'not-installed' ) {
+		return undefined;
 	}
 	return state.unavailableReason;
 }

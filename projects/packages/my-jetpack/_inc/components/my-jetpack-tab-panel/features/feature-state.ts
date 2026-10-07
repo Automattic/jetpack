@@ -235,7 +235,13 @@ export function resolveFeatureState(
 		}
 
 		const moduleStatus = $module && getModuleStatus( $module );
-		if ( $module && ( moduleStatus?.isAvailable || $module.override || ! feature.plugin ) ) {
+		if (
+			$module &&
+			( moduleStatus?.isAvailable ||
+				moduleStatus?.isMultisiteBlocked ||
+				$module.override ||
+				! feature.plugin )
+		) {
 			return {
 				feature,
 				product,

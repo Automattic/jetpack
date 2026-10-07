@@ -8,6 +8,7 @@ import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
 import { useFeaturesTracking } from './features-tracking-context';
+import { getModuleStatus } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -65,14 +66,16 @@ function getIncludedIn( count: number ): string {
 }
 
 /**
- * Whether a host forced the feature off, which a purchase cannot change.
+ * Whether host policy or multisite support blocks a purchase route.
  *
  * @param state - Live state for the feature.
- * @return True when the feature is off and the host decides that.
+ * @return True when buying cannot remove the limitation.
  */
-function isForcedOff( state: FeatureState ): boolean {
+function isPurchaseBlocked( state: FeatureState ): boolean {
 	return (
-		( state.control.kind === 'module' && state.control.module.override === 'inactive' ) ||
+		( state.control.kind === 'module' &&
+			( state.control.module.override === 'inactive' ||
+				getModuleStatus( state.control.module ).isMultisiteBlocked ) ) ||
 		( state.control.kind === 'plugin' && state.control.override === 'inactive' )
 	);
 }
@@ -84,7 +87,7 @@ function isForcedOff( state: FeatureState ): boolean {
  * @return The My Jetpack route.
  */
 function getUpgradePath( state: FeatureState ): string {
-	if ( isForcedOff( state ) ) {
+	if ( isPurchaseBlocked( state ) ) {
 		return '';
 	}
 
@@ -168,7 +171,7 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	const showPlans = ! isForcedOff( state ) && plans.length > 0;
+	const showPlans = ! isPurchaseBlocked( state ) && plans.length > 0;
 
 	if ( ! highlights.length && ! showPlans ) {
 		return null;

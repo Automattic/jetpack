@@ -43,7 +43,7 @@ export const PRODUCT_MODULES: {
 /**
  * The product-to-module map to build cards from.
  *
- * The AI pre-release gate suppresses its module control; availability still explains the card.
+ * Remove the AI pre-release gate when its settings page goes public.
  *
  * @return The map, without the AI entry while the gate is on.
  */
