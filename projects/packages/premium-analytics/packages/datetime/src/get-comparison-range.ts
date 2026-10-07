@@ -23,13 +23,7 @@ import { daysInWeek } from 'date-fns/constants';
 /**
  * Internal dependencies
  */
-import {
-	PRESET_LAST_7_DAYS,
-	PRESET_LAST_30_DAYS,
-	PRESET_LAST_90_DAYS,
-	PRESET_LAST_365_DAYS,
-	type PrimaryPresetId,
-} from './presets/types';
+import { DAY_COUNT_PRESETS, type PrimaryPresetId } from './presets/types';
 import { completeToDateRange } from './to-date-range';
 import type { TZDate } from '@date-fns/tz';
 
@@ -148,17 +142,10 @@ function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	return isSameDay( addMonths( subMonths( from, months ), months ), from ) ? months : null;
 }
 
-const DAY_COUNT_PRESETS: readonly PrimaryPresetId[] = [
-	PRESET_LAST_7_DAYS,
-	PRESET_LAST_30_DAYS,
-	PRESET_LAST_90_DAYS,
-	PRESET_LAST_365_DAYS,
-];
-
 /**
- * Whole months the previous period steps back by, or null to step by days; shared
- * by the shift and its label. A "Last N days" window that lands on a whole month
- * (Sep 8 to Oct 7) still steps by days, or it would compare against 31 of them.
+ * Whole months the previous period steps back by, or null to step by days.
+ * A "Last N days" window on a whole month (Sep 8 to Oct 7) still steps by days,
+ * or it would compare against 31 of them.
  *
  * @param from            - Range start.
  * @param to              - Range end.
@@ -185,7 +172,6 @@ export type ComparisonRangeOptions = {
 	 * The preset the reference range came from. A to-date preset is measured
 	 * by the day it is read on, so its previous period steps by the length of
 	 * the completed window: "12 months" moves back twelve months, not 354 days.
-	 * A "Last N days" preset always steps back N days, whatever its month shape.
 	 */
 	primaryPresetId?: PrimaryPresetId;
 };

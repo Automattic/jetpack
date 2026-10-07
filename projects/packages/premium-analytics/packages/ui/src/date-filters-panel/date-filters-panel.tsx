@@ -185,24 +185,24 @@ export function DateFiltersPanel( {
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
-	 * Tracks whether the picker popover is open so the comparison label mirrors
-	 * it: previews the draft range while open, reverts to applied when closed
-	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
+	 * The draft's preset, caught on its way out through `onChange`. Cleared on
+	 * every open and close, so the comparison previews only a draft the picker
+	 * has staged, measured by that draft's own preset.
 	 */
-	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
-	const isDraftingRange =
-		isPrimaryPickerOpen &&
-		( range?.from?.getTime() !== appliedRange?.from?.getTime() ||
-			range?.to?.getTime() !== appliedRange?.to?.getTime() );
-	const comparisonSourceRange = isDraftingRange ? range : ( appliedRange ?? range );
-	// The draft's preset never reaches the panel, so an edited draft is measured
-	// as read; the applied preset decides how a to-date or "Last N days" window is.
-	const comparisonSourcePresetId = isDraftingRange ? undefined : validatedAppliedPresetId;
-
-	// Available comparison presets, derived from whichever primary range the
-	// picker is currently reflecting (draft while open, applied while closed)
-	// and from its preset, which decides how a to-date window is measured.
+	const [ draft, setDraft ] = useState< { presetId?: PrimaryPresetId } | null >( null );
+	const comparisonSourceRange = draft ? range : ( appliedRange ?? range );
+	const comparisonSourcePresetId = draft ? draft.presetId : validatedAppliedPresetId;
 	const presets = useComparisonDatePresets( comparisonSourceRange, comparisonSourcePresetId );
+
+	const stageDraft = useCallback(
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
+			setDraft( { presetId: nextPresetId } );
+			onChange( nextRange, nextPresetId );
+		},
+		[ onChange ]
+	);
+
+	const clearDraft = useCallback( () => setDraft( null ), [] );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
@@ -275,14 +275,14 @@ export function DateFiltersPanel( {
 							onChange( nextRange, nextPresetId );
 							onApply();
 						} }
-						onChange={ onChange }
+						onChange={ stageDraft }
 						onApply={ onApply }
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
 						disabled={ disabled }
 						triggerProps={ triggerProps }
-						onOpenChange={ setIsPrimaryPickerOpen }
+						onOpenChange={ clearDraft }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
 						withCustomRange={ withCustomRange }

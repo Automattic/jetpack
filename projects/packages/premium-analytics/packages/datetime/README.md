@@ -209,7 +209,7 @@ last year (match day of week)") and a trigger `shortLabel`.
 - `reference`: `DateRange` - The applied range with `from` and `to`
 - `options`: `ComparisonRangeOptions` - Optional. `primaryPresetId` names the
   preset the range came from, so a to-date window is measured on its
-  completed month and a "Last N days" window steps back by days
+  completed month
 
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted

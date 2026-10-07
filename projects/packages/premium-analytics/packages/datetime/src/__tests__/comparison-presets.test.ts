@@ -220,7 +220,6 @@ describe( 'comparison options', () => {
 		);
 	} );
 
-	// Each window lands on whole months, but a "Last N days" preset still compares N days.
 	it.each( [
 		[ 'last-30-days', [ 2026, 8, 8 ], [ 2026, 9, 7 ], [ 2026, 7, 9 ], [ 2026, 8, 7 ], 30 ],
 		[ 'last-90-days', [ 2025, 11, 1 ], [ 2026, 1, 28 ], [ 2025, 8, 2 ], [ 2025, 10, 30 ], 90 ],
