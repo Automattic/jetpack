@@ -1,0 +1,14 @@
+.jetpack-featured-image-duplicate {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	.jetpack-featured-image-duplicate__notice {
+		margin: 0;
+
+		p {
+			margin-block: 0 4px;
+			margin-inline: 0;
+		}
+	}
+}
