@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Brute Force Protection: Do not send recovery emails to accounts that have not set a password yet.
