@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widgets toolkit: Leaderboard draws a negative value as an empty bar instead of a negative width.
