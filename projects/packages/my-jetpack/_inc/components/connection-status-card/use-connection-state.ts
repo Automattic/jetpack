@@ -1,9 +1,6 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import { SWITCHED_ON_STATUSES } from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import type { StateProducts } from '../../data/types';
 import type { ConnectionErrorSeverity } from '@automattic/jetpack-connection';
 
 export type ConnectionState = {
@@ -29,24 +26,16 @@ export type ConnectionErrorStanding = {
 };
 
 /**
- * Whether anything switched on needs a user connection, not just the site connection.
- *
- * @param products - The products from the page's initial state.
- * @return True when at least one does.
- */
-export function isUserConnectionNeeded( products: StateProducts | undefined ): boolean {
-	return Object.values( products ?? {} ).some(
-		product => product?.requires_user_connection && SWITCHED_ON_STATUSES.includes( product.status )
-	);
-}
-
-/**
  * Hook to determine the connection state of the site and user.
  *
- * @param {ConnectionErrorStanding} error - What the connection package reported, read by the card so the two agree on one rating.
+ * @param {ConnectionErrorStanding} error                - What the connection package reported, read by the card so the two agree on one rating.
+ * @param {boolean}                 userConnectionNeeded - Whether a product in use needs a user connection, not just the site connection.
  * @return The connection state
  */
-export function useConnectionState( error: ConnectionErrorStanding ): ConnectionState {
+export function useConnectionState(
+	error: ConnectionErrorStanding,
+	userConnectionNeeded: boolean
+): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
 
 	if ( ! isRegistered ) {
@@ -87,10 +76,6 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 			status: 'success',
 		};
 	}
-
-	const userConnectionNeeded = isUserConnectionNeeded(
-		getMyJetpackWindowInitialState( 'products' )?.items
-	);
 
 	// Connecting the account stays the prompt; a live error only tints the line, at
 	// the package's severity.

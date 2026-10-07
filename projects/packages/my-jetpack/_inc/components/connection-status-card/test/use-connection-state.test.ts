@@ -80,36 +80,25 @@ beforeAll( () => {
 } );
 
 /**
- * Put one product that needs an account on the page, at the given status.
- *
- * @param {string|null} status - The product's status, or null for no such product.
- */
-const setAccountProduct = ( status: string | null ) => {
-	window.myJetpackInitialState = {
-		products: {
-			items: status ? { search: { requires_user_connection: true, status } } : {},
-		},
-	} as unknown as typeof window.myJetpackInitialState;
-};
-
-beforeEach( () => setAccountProduct( 'active' ) );
-
-/**
  * Run the card's state hook on the package's own reading of the store, which is
  * what the card passes it.
  *
+ * @param {boolean} userConnectionNeeded - Whether a product in use needs a user connection.
  * @return {object} The rendered hook result.
  */
-const renderConnectionState = () =>
+const renderConnectionState = ( userConnectionNeeded = true ) =>
 	renderHook(
 		() => {
 			const { hasConnectionError, severity } = useConnectionErrorNotice();
 
-			return useConnectionState( {
-				hasConnectionError,
-				severity,
-				errorTitle: 'Jetpack Connection error: Site connection',
-			} );
+			return useConnectionState(
+				{
+					hasConnectionError,
+					severity,
+					errorTitle: 'Jetpack Connection error: Site connection',
+				},
+				userConnectionNeeded
+			);
 		},
 		{ wrapper: Providers }
 	);
@@ -135,14 +124,12 @@ describe( 'useConnectionState — status while the account is still to be connec
 
 describe( 'useConnectionState — a site connected without an account', () => {
 	it.each( [
-		[ 'healthy when nothing needs an account', null, 'success', undefined ],
-		[ 'healthy when what needs one is off', 'inactive', 'success', undefined ],
-		[ 'a prompt when something on needs one', 'active', 'warning', 'CONNECT_USER' ],
-	] )( 'is %s', ( _, productStatus, status, action ) => {
-		setAccountProduct( productStatus );
+		[ 'healthy when nothing in use needs one', false, 'success', undefined ],
+		[ 'a prompt when something in use needs one', true, 'warning', 'CONNECT_USER' ],
+	] )( 'is %s', ( _, userConnectionNeeded, status, action ) => {
 		setConnectionStore();
 
-		const { result } = renderConnectionState();
+		const { result } = renderConnectionState( userConnectionNeeded );
 
 		expect( [ result.current.status, result.current.action ] ).toEqual( [ status, action ] );
 	} );

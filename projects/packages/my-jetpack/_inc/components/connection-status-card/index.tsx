@@ -156,7 +156,12 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	const state = useConnectionState( { hasConnectionError, severity, errorTitle } );
+	// Statuses come from the products request, so keep asking for the account until it answers.
+	const userConnectionNeeded = isLoading || isError || hasProductsThatRequireUserConnection;
+	const state = useConnectionState(
+		{ hasConnectionError, severity, errorTitle },
+		userConnectionNeeded
+	);
 
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
