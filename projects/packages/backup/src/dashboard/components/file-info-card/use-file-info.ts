@@ -99,8 +99,6 @@ function isTableDump( manifestPath: string | undefined ): boolean {
  * Whether the given manifest path matches one of the patterns above.
  *
  * The `5` in `f5:` is a data-type code, not identity, so the prefix goes.
- * The one exception is `dd:`, the code of every database table dump under `sql/`
- * (`dd:wp_users`): those names carry no extension and hold password hashes.
  *
  * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
  * @return True when the preview needs a reveal.
@@ -108,9 +106,6 @@ function isTableDump( manifestPath: string | undefined ): boolean {
 function isSensitivePath( manifestPath: string | undefined ): boolean {
 	if ( ! manifestPath ) {
 		return false;
-	}
-	if ( isTableDump( manifestPath ) ) {
-		return true;
 	}
 	const path = manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase();
 	return SENSITIVE_PATH_PATTERNS.some( pattern => pattern.test( path ) );
