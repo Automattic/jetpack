@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Modules;
+
 /**
  * Renders the Comment Likes section.
  *
@@ -48,6 +50,33 @@ final class Comment_Likes_Section {
 		self::render_fields();
 
 		echo '</div>';
+	}
+
+	/**
+	 * Switch Comment Likes on or off: the option on Simple, the module on Atomic and Jetpack sites.
+	 *
+	 * @param bool $enabled Whether comments can be liked.
+	 * @return bool Whether Comment Likes now match the request.
+	 */
+	public static function update( bool $enabled ): bool {
+		if ( Environment::is_simple_site() ) {
+			Likes_Options::set_comment_likes_enabled( $enabled );
+			return true;
+		}
+
+		// `deactivate()` fires its hooks even when the module was already off.
+		if ( Environment::comment_likes_enabled() === $enabled ) {
+			return true;
+		}
+
+		if ( $enabled ) {
+			( new Modules() )->activate( 'comment-likes', false, false );
+		} else {
+			( new Modules() )->deactivate( 'comment-likes' );
+		}
+
+		// A host can force the module either way, and activation needs a connected owner.
+		return Environment::comment_likes_enabled() === $enabled;
 	}
 
 	/**
