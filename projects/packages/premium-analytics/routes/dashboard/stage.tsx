@@ -1,5 +1,4 @@
 import {
-	GlobalErrorProvider,
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
@@ -209,6 +208,8 @@ function Dashboard(): JSX.Element {
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
+	const showHeaderIntervalControl =
+		activeSectionRecord?.date_filter_options?.with_header_interval_control ?? true;
 
 	// A widget can set the period, here or on another section (WOOA7S-2036); once
 	// the section shows the period control, it draws attention to the new period.
@@ -303,11 +304,13 @@ function Dashboard(): JSX.Element {
 						containerElement={ headerElement }
 					/>
 
-					<DateIntervalDropdown
-						options={ dateFilters.intervalOptions }
-						value={ dateFilters.interval }
-						onChange={ dateFilters.onIntervalChange }
-					/>
+					{ showHeaderIntervalControl && (
+						<DateIntervalDropdown
+							options={ dateFilters.intervalOptions }
+							value={ dateFilters.interval }
+							onChange={ dateFilters.onIntervalChange }
+						/>
+					) }
 				</Stack>
 			) : (
 				/*
@@ -318,14 +321,14 @@ function Dashboard(): JSX.Element {
 					{ ...dateFilters }
 					onChange={ onDateChange }
 					onApply={ onDateApply }
-					withIntervalControl
+					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>
 			);
 	}
 
 	return (
-		<GlobalErrorProvider>
+		<>
 			<PeriodChangeStatus
 				attentionId={ attentionId }
 				appliedPresetId={ dateFilters.appliedPresetId }
@@ -441,7 +444,7 @@ function Dashboard(): JSX.Element {
 					</WidgetDashboard>
 				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
-		</GlobalErrorProvider>
+		</>
 	);
 }
 

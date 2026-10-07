@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Bar Chart: Add the `--a8c-charts-border-radius-bar-chart` role to round bar corners. Bars stay square by default.

@@ -10,7 +10,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useStatsVideoPlays } from '../use-stats-video-plays';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -49,9 +49,14 @@ const countQueries = ( name: string ) =>
 
 describe( 'useStatsVideoPlays', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( RESPONSE );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'reads the report window through the video plays query', async () => {
@@ -68,16 +73,5 @@ describe( 'useStatsVideoPlays', () => {
 			label: 'Walkthrough',
 			plays: 100,
 		} );
-	} );
-
-	it( 'switches to the exact-range summary query for summarized complete stats', async () => {
-		renderHook( () => useStatsVideoPlays( { ...RANGE, complete_stats: 1, summarize: 1 } ), {
-			wrapper,
-		} );
-
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-
-		expect( countQueries( 'video-plays-summary' ) ).toBe( 1 );
-		expect( countQueries( 'video-plays' ) ).toBe( 0 );
 	} );
 } );

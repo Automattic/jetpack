@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview: show the onboarding checklist steps WordPress.com tracks (subscribe form, first subscribers, first newsletter), with their completion, and complete a step when it is skipped.

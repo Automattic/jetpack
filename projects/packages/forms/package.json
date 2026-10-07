@@ -124,7 +124,7 @@
 		"postcss-modules": "^6.0.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"sharp": "0.35.4"
+		"sharp": "0.35.5"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",

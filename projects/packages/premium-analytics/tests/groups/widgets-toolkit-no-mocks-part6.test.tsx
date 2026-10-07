@@ -8,5 +8,4 @@ import '../../packages/widgets-toolkit/src/components/widget-back-link/__tests__
 import '../../packages/widgets-toolkit/src/components/wordads-earnings-history/__tests__/earnings-history-list.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/build-time-series-chart-data.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/compare-optional-numbers.test';
-import '../../packages/widgets-toolkit/src/helpers/__tests__/format-tooltip-point-label.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/format-view-count.test';

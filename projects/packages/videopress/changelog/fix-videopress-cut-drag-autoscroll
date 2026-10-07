@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scroll the timeline while dragging cuts beyond the visible area.

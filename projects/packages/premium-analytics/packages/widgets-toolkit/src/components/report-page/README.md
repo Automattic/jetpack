@@ -105,7 +105,7 @@ These components do not fetch: the page owns the data hooks and the
 results in as props.
 
 They also mount no providers. The `/reports/$report` stage provides the
-surface's context once — React Query, global errors, and the chart theme
+surface's context once — React Query and the chart theme
 (`GlobalChartsProvider`). That is why a page can compose a chart the same way a
 widget does: `useSeriesStyles` plus `ComparativeLineChart`, nothing else.
 Outside the stage (Storybook), mount `GlobalChartsProvider` with

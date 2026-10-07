@@ -1,10 +1,10 @@
-import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
-import { loadMyJetpackHomePage } from '../../my-jetpack-tab-panel/products/reload-page';
+import { setPendingSuccessNotice } from '../../../utils/pending-notice';
+import { loadMyJetpackHomePage } from '../../../utils/reload-page';
 import { reloadIfActivationChangesAdminMenu } from '../reload-after-activation';
 
 // window.location can't be mocked directly, so the navigation lives in mockable wrappers.
-jest.mock( '../../my-jetpack-tab-panel/products/pending-notice' );
-jest.mock( '../../my-jetpack-tab-panel/products/reload-page' );
+jest.mock( '../../../utils/pending-notice' );
+jest.mock( '../../../utils/reload-page' );
 
 describe( 'reloadIfActivationChangesAdminMenu', () => {
 	beforeEach( () => {

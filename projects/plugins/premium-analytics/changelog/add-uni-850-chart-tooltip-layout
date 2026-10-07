@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Chart tooltips: Head the rows with the date once, read each as value then metric, and list the comparison period in a second column.
