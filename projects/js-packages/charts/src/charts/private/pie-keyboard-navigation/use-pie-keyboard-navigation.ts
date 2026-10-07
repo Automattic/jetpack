@@ -107,25 +107,18 @@ export const usePieKeyboardNavigation = ( {
 	} );
 
 	/**
-	 * Places the keyboard tooltip at `point`, an offset from the origin of the group the arcs are drawn in.
+	 * Anchors the keyboard tooltip at `point`, an offset from the origin of the group the arcs are drawn in.
 	 *
 	 * @param originX - The group's x in SVG coordinates.
 	 * @param originY - The group's y in SVG coordinates.
 	 * @param point   - The point relative to the group, such as an arc centroid.
-	 * @return The position inside `chartRef`, or undefined without tooltips or before mount.
+	 * @return The anchor in SVG coordinates, or undefined without tooltips.
 	 */
-	const getKeyboardTooltipPosition = useCallback(
-		( originX: number, originY: number, [ x, y ]: [ number, number ] ) => {
-			const chartBounds = chartRef.current?.getBoundingClientRect();
-			const svgBounds = svgRef.current?.getBoundingClientRect();
-			if ( ! withTooltips || ! chartBounds || ! svgBounds ) {
-				return undefined;
-			}
-			return {
-				left: svgBounds.left - chartBounds.left + originX + x + tooltipOffsetX,
-				top: svgBounds.top - chartBounds.top + originY + y + tooltipOffsetY,
-			};
-		},
+	const getKeyboardTooltipAnchor = useCallback(
+		( originX: number, originY: number, [ x, y ]: [ number, number ] ) =>
+			withTooltips
+				? { left: originX + x + tooltipOffsetX, top: originY + y + tooltipOffsetY }
+				: undefined,
 		[ withTooltips, tooltipOffsetX, tooltipOffsetY ]
 	);
 
@@ -134,10 +127,12 @@ export const usePieKeyboardNavigation = ( {
 		svgRef,
 		selectedIndex,
 		getSegmentHandlers,
-		getKeyboardTooltipPosition,
+		getKeyboardTooltipAnchor,
 		outputProps: {
 			withTooltips,
 			selectedIndex,
+			chartRef,
+			svgRef,
 			tooltipRef,
 			pointerTooltip: tooltipOpen
 				? { data: tooltipData, left: tooltipLeft || 0, top: tooltipTop || 0 }

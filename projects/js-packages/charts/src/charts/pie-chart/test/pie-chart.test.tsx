@@ -944,4 +944,45 @@ describe( 'PieChart tooltip position', () => {
 			transform: 'translate(60px, 65px)',
 		} );
 	} );
+
+	test( 'moves the keyboard tooltip with the segment when the chart resizes', async () => {
+		const rects = mockRects();
+		const rectOf = rects.getMockImplementation();
+		// The plot is centered in the 400x300 container, so its offset follows its committed size.
+		rects.mockImplementation( function ( this: Element ) {
+			const rect = rectOf.call( this );
+			if ( ! ( this instanceof SVGSVGElement && this.hasAttribute( 'viewBox' ) ) ) {
+				return rect;
+			}
+			const size = Number( this.getAttribute( 'width' ) );
+			return { ...rect, left: 100 + ( 400 - size ) / 2, top: 50 + ( 300 - size ) / 2 };
+		} );
+		const user = userEvent.setup();
+		const data = [
+			{ label: 'A', value: 60, valueDisplay: '60' },
+			{ label: 'B', value: 40, valueDisplay: '40' },
+		];
+		const renderAtSize = ( size: number ) => (
+			<GlobalChartsProvider>
+				<PieChart data={ data } width={ 400 } height={ 300 } size={ size } withTooltips />
+			</GlobalChartsProvider>
+		);
+		const selectFirstSegment = async () => {
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+			return screen.getByTestId( 'bounded-tooltip' ).style.transform;
+		};
+
+		const view = render( renderAtSize( 100 ) );
+		const expected = await selectFirstSegment();
+		view.unmount();
+
+		const { rerender } = render( renderAtSize( 200 ) );
+		await expect( selectFirstSegment() ).resolves.not.toBe( expected );
+		rerender( renderAtSize( 100 ) );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { transform: expected } );
+	} );
 } );
