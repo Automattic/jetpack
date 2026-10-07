@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Show a copyable error code and related ID under each error in the modernized dashboard, which is behind a feature flag; forward WordPress.com's error code from the legacy routes.
+
+
