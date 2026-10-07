@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Proxy_Controller, a REST proxy to the WordPress.com API configured by an endpoint table: a capability per entry, a blog-signed forward and a short cache.

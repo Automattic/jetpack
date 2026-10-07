@@ -20,6 +20,7 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 * [Connection health tests](docs/connection-health-tests.md)
 * [Connectors screen card](docs/connectors.md)
 * [Connection Abilities (Abilities API)](docs/abilities.md)
+* [Proxying WordPress.com endpoints to the browser](docs/proxy-controller.md)
 
 ## Tools
 
