@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { getRegistrationErrorCode } from '../../../helpers/get-connect-screen-error-message';
 import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
 import useConnection from '../../use-connection';
 import ConnectScreenRequiredPlanVisual from './visual';
@@ -64,7 +65,7 @@ function ConnectScreenRequiredPlan( {
 	const displayButtonError = Boolean( registrationError || checkoutError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
-	const errorCode = registrationError ? registrationError.response?.code : undefined;
+	const errorCode = getRegistrationErrorCode( registrationError );
 
 	return (
 		<ConnectScreenRequiredPlanVisual

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { getRegistrationErrorCode } from '../../../helpers/get-connect-screen-error-message';
 import useConnection from '../../use-connection';
 import ConnectScreenVisual from './visual';
 import type { ReactNode } from 'react';
@@ -81,7 +82,7 @@ function ConnectScreen( {
 
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
-	const errorCode = registrationError ? registrationError.response?.code : undefined;
+	const errorCode = getRegistrationErrorCode( registrationError );
 
 	return (
 		<ConnectScreenVisual

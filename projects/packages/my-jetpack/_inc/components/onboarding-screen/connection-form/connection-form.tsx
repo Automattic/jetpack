@@ -1,5 +1,9 @@
 import { JetpackLogo, TermsOfService, Text } from '@automattic/jetpack-components';
-import { getConnectScreenErrorMessage, useConnection } from '@automattic/jetpack-connection';
+import {
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
+	useConnection,
+} from '@automattic/jetpack-connection';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
@@ -63,7 +67,7 @@ const ConnectionForm = () => {
 
 			{ registrationError ? (
 				<Notice status="error" isDismissible={ false }>
-					{ getConnectScreenErrorMessage( registrationError.response?.code ) ||
+					{ getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
 						registrationError.response?.message ||
 						__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
 				</Notice>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: Show a clear message when the site's own connection request fails, instead of a generic error.

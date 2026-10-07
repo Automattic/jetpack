@@ -52,7 +52,10 @@ export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-part
 export { default as getCalypsoOrigin } from './helpers/get-calypso-origin';
 export * from './helpers/get-user-connection-url.ts';
 export { getReconnectErrorMessage } from './helpers/get-reconnect-error-message.ts';
-export { getConnectScreenErrorMessage } from './helpers/get-connect-screen-error-message';
+export {
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
+} from './helpers/get-connect-screen-error-message';
 
 /**
  * Store
