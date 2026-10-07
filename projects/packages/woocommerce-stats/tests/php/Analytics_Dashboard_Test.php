@@ -93,7 +93,19 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 40, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
-		$this->assertSame( array( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE ), array_column( $section->get_default_layout(), 'type' ) );
+		$this->assertSame(
+			array(
+				Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE,
+				Analytics_Dashboard::TOTAL_SALES_OVER_TIME_TYPE,
+				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
+				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
+				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
+				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
+				Analytics_Dashboard::BOOKINGS_OVER_TIME_TYPE,
+				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+			),
+			array_column( $section->get_default_layout(), 'type' )
+		);
 	}
 
 	/**
