@@ -2,7 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Icon } from '@wordpress/components';
-import { flushSync, useCallback, useEffect, useState } from '@wordpress/element';
+import { flushSync, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
@@ -21,10 +21,8 @@ import clsx from 'clsx';
 import { SUBSCRIPTIONS_SECTION_ID } from '../../../../src/settings/anchors';
 import {
 	completeOnboardingTask,
-	fetchOnboardingTasks,
-	isStoredListComplete,
-	ONBOARDING_TASK_IDS,
 	ONBOARDING_TASKS_QUERY_KEY,
+	onboardingTasksQueryOptions,
 	type OnboardingTaskId,
 	type OnboardingTaskList,
 } from './task-list-api';
@@ -158,9 +156,8 @@ const STEPS: ChecklistStep[] = [
 /**
  * Render the checklist steps.
  *
- * The cards are uncontrolled, so the step opened by default is decided once, when they mount:
- * steps completed later (by a refresh from WP.com, or by Skip) keep whatever open state the
- * visitor left them in.
+ * The first open step starts expanded. A step that completes later (by a refresh from WP.com,
+ * or by Skip) closes; the others keep whatever open state the visitor left them in.
  *
  * @param props              - Steps props.
  * @param props.completed    - Ids of the completed steps.
@@ -180,7 +177,28 @@ function ChecklistSteps( {
 	skippingStep?: OnboardingTaskId;
 	onSkip: ( stepId: OnboardingTaskId ) => void;
 } ): JSX.Element {
-	const [ firstOpenStep ] = useState( () => STEPS.find( step => ! completed.has( step.id ) )?.id );
+	const [ openSteps, setOpenSteps ] = useState( () => {
+		const firstOpenStep = STEPS.find( step => ! completed.has( step.id ) )?.id;
+		return new Set< OnboardingTaskId >( firstOpenStep ? [ firstOpenStep ] : [] );
+	} );
+	const setStepOpen = useCallback( ( stepId: OnboardingTaskId, isOpen: boolean ) => {
+		setOpenSteps( steps => {
+			const next = new Set( steps );
+			if ( isOpen ) {
+				next.add( stepId );
+			} else {
+				next.delete( stepId );
+			}
+			return next;
+		} );
+	}, [] );
+	const openChangeHandlers = useMemo(
+		() =>
+			Object.fromEntries(
+				STEPS.map( step => [ step.id, ( isOpen: boolean ) => setStepOpen( step.id, isOpen ) ] )
+			) as Record< OnboardingTaskId, ( isOpen: boolean ) => void >,
+		[ setStepOpen ]
+	);
 	const completedKey = STEPS.filter( step => completed.has( step.id ) )
 		.map( step => step.id )
 		.join();
@@ -197,15 +215,21 @@ function ChecklistSteps( {
 			return;
 		}
 		const next = { completedKey, spinnerKey };
-		if ( ! document.startViewTransition ) {
+		const wasCompleted = shown.completedKey.split( ',' );
+		const apply = () => {
 			setShown( next );
+			completedKey
+				.split( ',' )
+				.filter( stepId => ! wasCompleted.includes( stepId ) )
+				.forEach( stepId => setStepOpen( stepId as OnboardingTaskId, false ) );
+		};
+		if ( ! document.startViewTransition ) {
+			apply();
 			return;
 		}
 		// Another view transition (e.g. a route change) aborts this one; that's fine.
-		document
-			.startViewTransition( () => flushSync( () => setShown( next ) ) )
-			.ready.catch( () => {} );
-	}, [ completedKey, spinnerKey, shown ] );
+		document.startViewTransition( () => flushSync( apply ) ).ready.catch( () => {} );
+	}, [ completedKey, spinnerKey, shown, setStepOpen ] );
 	const shownCompleted = new Set( shown.completedKey.split( ',' ) );
 	const shownSpinners = new Set( shown.spinnerKey.split( ',' ) );
 
@@ -229,7 +253,8 @@ function ChecklistSteps( {
 						className={ clsx( 'jetpack-newsletter-overview__step', {
 							'jetpack-newsletter-overview__step--complete': complete,
 						} ) }
-						defaultOpen={ step.id === firstOpenStep }
+						open={ openSteps.has( step.id ) }
+						onOpenChange={ openChangeHandlers[ step.id ] }
 						style={ { viewTransitionName: `jetpack-newsletter-step-${ step.id }` } }
 					>
 						<CollapsibleCard.Header className="jetpack-newsletter-overview__step-header">
@@ -240,7 +265,7 @@ function ChecklistSteps( {
 									} ) }
 									aria-hidden="true"
 								>
-									{ complete ? <Icon icon={ check } size={ 16 } /> : null }
+									{ complete ? <Icon icon={ check } size={ 12 } /> : null }
 								</span>
 								<Card.Title
 									className={ clsx( 'jetpack-newsletter-overview__step-title', {
@@ -319,22 +344,14 @@ function ChecklistSkeleton(): JSX.Element {
  * Render the Newsletter onboarding checklist.
  *
  * Completion comes from WP.com, which checks each step and stores it once done. Every visit asks
- * WP.com again, showing the last list it returned meanwhile; only a fully complete list is kept in
- * localStorage, since it can never reopen. If the task list can't be loaded, the steps read as
- * open and can still be skipped.
+ * WP.com again, showing the last list it returned meanwhile. If the task list can't be loaded, the
+ * steps read as open and can still be skipped.
  *
  * @return The onboarding checklist.
  */
 export default function OnboardingChecklist(): JSX.Element {
 	const queryClient = useQueryClient();
-	const [ storedComplete ] = useState( isStoredListComplete );
-	const tasksQuery = useQuery( {
-		queryKey: ONBOARDING_TASKS_QUERY_KEY,
-		queryFn: fetchOnboardingTasks,
-		enabled: ! storedComplete,
-		// Steps complete outside this screen, so ask again on every visit despite the cached list.
-		refetchOnMount: 'always',
-	} );
+	const tasksQuery = useQuery( onboardingTasksQueryOptions );
 	const skipMutation = useMutation( {
 		mutationFn: completeOnboardingTask,
 		onSuccess: ( taskList: OnboardingTaskList ) => {
@@ -345,13 +362,11 @@ export default function OnboardingChecklist(): JSX.Element {
 	const handleSkip = useCallback( ( stepId: OnboardingTaskId ) => skip( stepId ), [ skip ] );
 
 	// Without a list, wait for WP.com so the first open step is the one opened by default.
-	if ( ! storedComplete && tasksQuery.isPending ) {
+	if ( tasksQuery.isPending ) {
 		return <ChecklistSkeleton />;
 	}
 
-	const completed = new Set< OnboardingTaskId >(
-		storedComplete ? ONBOARDING_TASK_IDS : [ 'start' ]
-	);
+	const completed = new Set< OnboardingTaskId >( [ 'start' ] );
 	tasksQuery.data?.tasks.forEach( task => {
 		if ( task.complete ) {
 			completed.add( task.id );

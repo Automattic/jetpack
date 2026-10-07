@@ -188,6 +188,11 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
+		const settle = () => {
+			isSubmitting.current = false;
+			isPosting.value = false;
+		};
+
 		const onSubmit = ( event: SubmitEvent ) => {
 			if ( commenter.peek().kind === 'unknown' && ! isDialogOpen.peek() ) {
 				event.preventDefault();
@@ -195,7 +200,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				return;
 			}
 
+			// The busy button stays focusable, as core's does, so it is held here instead.
 			if ( isSubmitting.current ) {
+				event.preventDefault();
 				return;
 			}
 
@@ -204,12 +211,14 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			// Kept, not cleared: the server can still turn this away.
 			saveDraft( formSettings.postId, commentValue.peek() );
 			markSubmitted( formSettings.postId );
+
+			// Another script can cancel the submit after this runs, and the page then stays.
+			setTimeout( () => event.defaultPrevented && settle() );
 		};
 
 		const onPageShow = ( event: PageTransitionEvent ) => {
 			if ( event.persisted ) {
-				isSubmitting.current = false;
-				isPosting.value = false;
+				settle();
 			}
 		};
 
@@ -293,13 +302,13 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 							id={ submit.id }
 							name={ submit.name }
 							type="submit"
-							className={ submit.class }
+							className={ clsx( submit.class, { 'is-busy': isPosting.value } ) }
 							disabled={
 								( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
 								isEmptyComment.value ||
-								isTooLong ||
-								isPosting.value
+								isTooLong
 							}
+							aria-disabled={ isPosting.value || undefined }
 							value={ commentParent.value ? strings.reply : submit.label }
 						/>
 					</span>

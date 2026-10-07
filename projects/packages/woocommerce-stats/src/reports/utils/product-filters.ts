@@ -12,3 +12,10 @@ export function hasProductFilters( filters?: FilterCondition[] ): boolean {
 
 	return filters.some( filter => PRODUCT_FILTER_KEYS.includes( filter.key ) );
 }
+
+/** The booking product types, as WooCommerce Bookings sells them. */
+export const BOOKINGS_FILTER: FilterCondition = {
+	key: 'product_type',
+	value: [ 'booking', 'bookable-event', 'bookable-service' ],
+	compare: 'IN',
+};

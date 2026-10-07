@@ -1,6 +1,6 @@
 /**
  * Mock data generator for orders-by-product-type endpoint
- * Used by: BookingOrderMetricWidget, future product-filtered widgets
+ * Used by: the product-filtered report mocks
  *
  * API endpoint: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders-by-product-type/by-date
  * Called when: Product type filters are present (bookings, simple products, etc.)

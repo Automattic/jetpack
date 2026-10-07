@@ -40,6 +40,8 @@ type ReportMetricChartProps = {
 	field: string;
 	/** The metric's name, for the headline and the legend. */
 	label: string;
+	/** Reads a count out for the tooltip and the legend, e.g. '3 Orders'. */
+	countLabel?: ( count: number ) => string;
 	/** How the metric's values are written. */
 	dataFormat: DataFormat;
 	emptyText: string;
@@ -56,6 +58,7 @@ export function ReportMetricChart( {
 	report,
 	field,
 	label,
+	countLabel,
 	dataFormat,
 	emptyText,
 	errorText,
@@ -66,9 +69,17 @@ export function ReportMetricChart( {
 
 	const metrics = useMemo(
 		() => [
-			buildMetricTab( { primary, comparison, hasComparison, field, label, zone: timezone } ),
+			buildMetricTab( {
+				primary,
+				comparison,
+				hasComparison,
+				field,
+				label,
+				countLabel,
+				zone: timezone,
+			} ),
 		],
-		[ primary, comparison, hasComparison, field, label, timezone ]
+		[ primary, comparison, hasComparison, field, label, countLabel, timezone ]
 	);
 
 	return (

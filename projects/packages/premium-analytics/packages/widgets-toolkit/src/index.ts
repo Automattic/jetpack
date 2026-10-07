@@ -23,7 +23,6 @@ export {
 	DonutChart,
 	DonutChartSkeleton,
 	Legend,
-	ReportMetricWidget,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	type MetricTab,
@@ -359,16 +358,13 @@ export {
  * Widget components
  */
 export {
-	BookingOrderMetricWidget,
 	BookingsByAttendanceWidget,
 	BookingsRevenueByCustomerTypeWidget,
 	BookingConversionRateWidget,
 	ConversionRateWidget,
 	CouponUseWidget,
-	MetricComparisonWidget,
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
-	OrderMetricWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,

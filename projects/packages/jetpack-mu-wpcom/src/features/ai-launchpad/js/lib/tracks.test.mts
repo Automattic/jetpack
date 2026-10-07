@@ -34,10 +34,7 @@ const BOOTSTRAP = {
 		site_type: 'simple',
 		agent_name: 'ai_launchpad',
 		agent_version: '6.10.1',
-		// Strings, not booleans: the two recorders' encoders disagree on how a bool
-		// serializes (http_build_query() → "1"/"0", encodeURIComponent() → "true"/"false"), so
-		// the server sends the literal strings both pass through unchanged. See
-		// wpcom_ai_launchpad_standard_props().
+		// Strings, not booleans: see wpcom_ai_launchpad_standard_props().
 		is_test: 'false',
 		is_a11n: 'false',
 		blog_id: 12345,
@@ -72,9 +69,7 @@ describe( 'ai-launchpad tracks', () => {
 		resetTracksContext();
 	} );
 
-	// Each recorder must land on the queue as [ 'recordEvent', name, props ] carrying its own
-	// props plus the standard ones. No shared context is set for these cases, so they also pin
-	// the null-key omission: a leaked context key would show up as a literal "null" string.
+	// The context is all null here, so these also pin that null keys never override the bootstrap.
 	const RECORDERS: Array< [ event: string, fired: () => TrackEventProps ] > = [
 		[ 'viewed', fire( trackViewed, { step: 'goal' } ) ],
 		[ 'wizard_goal_clicked', fire( trackWizardGoalClicked, { goal_clicked: 'sell' } ) ],
@@ -99,19 +94,6 @@ describe( 'ai-launchpad tracks', () => {
 		} );
 	}
 
-	it( "keeps is_test 'false' rather than dropping it", () => {
-		trackWizardCompleted();
-		assert.equal( lastProps().is_test, 'false' );
-		assert.equal( lastProps().blog_id, 12345 );
-	} );
-
-	it( 'reports the tailoring-scoped props as none before a tailor runs', () => {
-		trackViewed( { step: 'goal' } );
-		assert.equal( lastProps().source, 'none' );
-		assert.equal( lastProps().outcome, 'none' );
-		assert.equal( lastProps().ai_session_id, 'none' );
-	} );
-
 	it( 'lets a fresh tailor override the tailoring-scoped props', () => {
 		setTracksContext(
 			contextFromTailorResult( 'fallback', 'a755f9e8-8e0a-45be-81bc-524aaf8e2703' )
@@ -122,30 +104,24 @@ describe( 'ai-launchpad tracks', () => {
 		assert.equal( lastProps().ai_session_id, 'a755f9e8-8e0a-45be-81bc-524aaf8e2703' );
 	} );
 
-	it( 'contextFromTailorResult maps an AI result to a success outcome', () => {
-		assert.deepEqual( contextFromTailorResult( 'ai', 'abc' ), {
-			source: 'ai',
-			outcome: 'success',
-			ai_session_id: 'abc',
-		} );
-	} );
-
-	// An unmintable id must not be recorded as an empty string: the server never persisted it
-	// either, so leaving it null keeps both recorders reporting the bootstrap's 'none'.
-	it( 'contextFromTailorResult nulls an unminted session id', () => {
-		assert.deepEqual( contextFromTailorResult( 'fallback', '' ), {
-			source: 'fallback',
-			outcome: 'error',
-			ai_session_id: null,
-		} );
-	} );
-
-	it( 'records none, not an empty id, when the session id could not be minted', () => {
-		setTracksContext( contextFromTailorResult( 'fallback', '' ) );
-		trackTaskCtaClicked( { task_id: 'site_theme_selected' } );
-		assert.equal( lastProps().ai_session_id, 'none' );
-		assert.equal( lastProps().source, 'fallback' );
-	} );
+	const TAILOR_RESULTS: Array< [ string, Parameters< typeof contextFromTailorResult >, object ] > =
+		[
+			[
+				'maps an AI result to a success outcome',
+				[ 'ai', 'abc' ],
+				{ source: 'ai', outcome: 'success', ai_session_id: 'abc' },
+			],
+			// Null, not '', so the bootstrap's 'none' shows through for an id that was never minted.
+			[
+				'nulls an unminted session id',
+				[ 'fallback', '' ],
+				{ source: 'fallback', outcome: 'error', ai_session_id: null },
+			],
+		];
+	for ( const [ name, args, expected ] of TAILOR_RESULTS ) {
+		it( `contextFromTailorResult ${ name }`, () =>
+			assert.deepEqual( contextFromTailorResult( ...args ), expected ) );
+	}
 
 	it( 'merges the shared context into every event', () => {
 		setTracksContext( { goal: 'write', niche: 'hiking' } );
@@ -193,33 +169,41 @@ describe( 'ai-launchpad tracks', () => {
 		assert.equal( lastProps().vibe, 'warm' );
 	} );
 
-	it( 'contextFromInferred maps fields and coalesces missing ones to null', () => {
-		const inferred = {
-			goal: 'write',
-			niche: 'hiking',
-			theme_category: 'travel-lifestyle',
-			inferred_goal: 'portfolio',
-		} as TailoredInferred;
-		assert.deepEqual( contextFromInferred( inferred ), {
-			goal: 'write',
-			niche: 'hiking',
-			theme_category: 'travel-lifestyle',
-			vibe: null,
-			audience: null,
-			inferred_goal: 'portfolio',
-		} );
-	} );
-
-	it( 'contextFromInferred handles a missing blob (all null)', () => {
-		assert.deepEqual( contextFromInferred( undefined ), {
-			goal: null,
-			niche: null,
-			theme_category: null,
-			vibe: null,
-			audience: null,
-			inferred_goal: null,
-		} );
-	} );
+	const INFERRED: Array< [ string, TailoredInferred | undefined, object ] > = [
+		[
+			'maps fields and coalesces missing ones to null',
+			{
+				goal: 'write',
+				niche: 'hiking',
+				theme_category: 'travel-lifestyle',
+				inferred_goal: 'portfolio',
+			} as TailoredInferred,
+			{
+				goal: 'write',
+				niche: 'hiking',
+				theme_category: 'travel-lifestyle',
+				vibe: null,
+				audience: null,
+				inferred_goal: 'portfolio',
+			},
+		],
+		[
+			'handles a missing blob (all null)',
+			undefined,
+			{
+				goal: null,
+				niche: null,
+				theme_category: null,
+				vibe: null,
+				audience: null,
+				inferred_goal: null,
+			},
+		],
+	];
+	for ( const [ name, inferred, expected ] of INFERRED ) {
+		it( `contextFromInferred ${ name }`, () =>
+			assert.deepEqual( contextFromInferred( inferred ), expected ) );
+	}
 
 	it( 'contextFromTaskIds stringifies the rendered list', () => {
 		assert.deepEqual( contextFromTaskIds( [ 'a', 'b' ] ), { rendered_list: '["a","b"]' } );
