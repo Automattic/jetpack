@@ -63,6 +63,9 @@ async function persist(
 		} ),
 		method: 'PUT',
 		data: output,
+		// Lets the write finish when the user leaves while it is in flight, so a list that is
+		// ready still gets saved. The payload is a few KB, well inside keepalive's 64 KB budget.
+		keepalive: true,
 	} );
 }
 
@@ -116,22 +119,29 @@ function reportSaveFailure( source: TailorSource, error: unknown, aiSessionId: s
  * Write a prepared tailoring: persist it and point the Tracks context at the run
  * that produced it. Call this once, for the one tailoring the user ends up with.
  *
- * @param prepared - The tailoring to write.
- * @param input    - The collected wizard input, for the fallback.
- * @param copy     - The site-language copy the fallback drafts are written from.
- * @return The tailored result, tagged with whether it came from AI or fallback.
+ * @param prepared      - The tailoring to write.
+ * @param input         - The collected wizard input, for the fallback.
+ * @param copy          - The site-language copy the fallback drafts are written from.
+ * @param pageIsLeaving - Whether the page is on its way out; never, when the caller doesn't watch.
+ * @return The tailored result, tagged with whether it came from AI or fallback; null when nothing was saved because the page was leaving.
  */
 export async function commitTailoring(
 	prepared: PreparedTailoring,
 	input: WizardInput,
-	copy: SiteCopy
-): Promise< TailorResult > {
+	copy: SiteCopy,
+	pageIsLeaving: () => Promise< boolean > = () => Promise.resolve( false )
+): Promise< TailorResult | null > {
 	if ( 'ai' === prepared.source ) {
 		try {
 			await persist( prepared.output, 'ai', prepared );
 			setTracksContext( contextFromTailorResult( 'ai', prepared.aiSessionId ) );
 			return { source: 'ai', output: prepared.output };
 		} catch ( error ) {
+			if ( await pageIsLeaving() ) {
+				// Leaving cancelled the write. Saving the fallback in its place would make it the
+				// user's list for good; saving nothing shows them the wizard again next time.
+				return null;
+			}
 			// PUT rejected the AI output; fall through to the deterministic fallback below.
 			reportSaveFailure( 'ai', error, prepared.aiSessionId );
 		}

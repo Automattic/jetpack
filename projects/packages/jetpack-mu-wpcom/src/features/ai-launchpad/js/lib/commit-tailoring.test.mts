@@ -78,6 +78,18 @@ function prepared( overrides: Partial< PreparedTailoring > = {} ): PreparedTailo
 	};
 }
 
+/**
+ * Commit a tailoring that is expected to settle with a result (no page leaving).
+ *
+ * @param args - commitTailoring's arguments.
+ * @return The result.
+ */
+async function committed( ...args: Parameters< typeof commitTailoring > ) {
+	const result = await commitTailoring( ...args );
+	assert.ok( result, 'commitTailoring settled with nothing saved' );
+	return result;
+}
+
 describe( 'commitTailoring', () => {
 	beforeEach( () => {
 		writes = [];
@@ -99,7 +111,7 @@ describe( 'commitTailoring', () => {
 	} );
 
 	it( 'persists an AI tailoring once, with the telemetry measured when it was prepared', async () => {
-		const result = await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+		const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 		assert.equal( result.source, 'ai' );
 		assert.equal( result.output, AI_OUTPUT );
@@ -113,7 +125,7 @@ describe( 'commitTailoring', () => {
 
 	it( 'persists a prepared fallback as it stands, tagged as the fallback', async () => {
 		const fallback = { ...AI_OUTPUT };
-		const result = await commitTailoring(
+		const result = await committed(
 			prepared( { source: 'fallback', output: fallback, attempts: 2 } ),
 			INPUT,
 			ENGLISH_SITE_COPY
@@ -129,7 +141,7 @@ describe( 'commitTailoring', () => {
 	it( 'falls back to the deterministic picker when the server rejects the AI output', async () => {
 		reject = path => path.includes( 'source=ai' );
 
-		const result = await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+		const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 		assert.equal( result.source, 'fallback' );
 		assert.notEqual( result.output, AI_OUTPUT );
@@ -141,11 +153,7 @@ describe( 'commitTailoring', () => {
 	it( 'still returns a list when the write itself fails', async () => {
 		reject = () => true;
 
-		const result = await commitTailoring(
-			prepared( { source: 'fallback' } ),
-			INPUT,
-			ENGLISH_SITE_COPY
-		);
+		const result = await committed( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
 
 		assert.equal( result.source, 'fallback' );
 		assert.ok( result.output.tasks.length > 0 );
@@ -235,7 +243,7 @@ describe( 'commitTailoring', () => {
 				data: { status: 422 },
 			};
 
-			const result = await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 			assert.equal( result.source, 'fallback' );
 			assert.equal( writes.length, 2 );
@@ -263,7 +271,7 @@ describe( 'commitTailoring', () => {
 				data: { status: 403 },
 			};
 
-			const result = await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 			assert.equal( result.source, 'fallback' );
 			assert.ok( result.output.tasks.length > 0 );
