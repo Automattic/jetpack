@@ -2,7 +2,7 @@ import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpa
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
-import { useConnectionState } from '../use-connection-state';
+import { useConnectionState } from '../index';
 import type { ConnectionErrorMap, ConnectionOwner } from '@automattic/jetpack-connection';
 
 /**
