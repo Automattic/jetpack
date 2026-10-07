@@ -29,8 +29,6 @@ import OnboardingChecklist from '../onboarding-checklist';
 
 const LIST_PATH = '/wpcom/v2/newsletter/task-lists/onboarding';
 
-const STORAGE_KEY = 'jetpack-newsletter-onboarding-complete-42';
-
 /**
  * Build a task list response.
  *
@@ -72,7 +70,6 @@ beforeEach( () => {
 	mockNavigate.mockReset();
 	mockRecordEvent.mockReset();
 	mockApiFetch.mockResolvedValue( taskList() );
-	window.localStorage.clear();
 } );
 
 describe( 'OnboardingChecklist', () => {
@@ -192,7 +189,7 @@ describe( 'OnboardingChecklist', () => {
 		);
 	} );
 
-	it( 'Skip shows a spinner, then completes the step on WP.com and shows it as complete', async () => {
+	it( 'Skip shows a spinner, then completes the step on WP.com, shows it as complete and closes it', async () => {
 		let resolveSkip: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
 			method === 'POST'
@@ -226,6 +223,10 @@ describe( 'OnboardingChecklist', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Add a subscribe form' } )
 		).not.toBeInTheDocument();
+		expect( getStep( /add a subscribe form to your site/i ) ).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
 		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
@@ -292,27 +293,5 @@ describe( 'OnboardingChecklist', () => {
 		);
 		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		delete ( document as Partial< Document > ).startViewTransition;
-	} );
-
-	it.each( [
-		[ 'stores', [ 'subscribe_form', 'subscribers', 'send_newsletter' ], '1' ],
-		[ 'does not store', [ 'subscribe_form', 'subscribers' ], null ],
-	] )( '%s the list when WP.com reports %j complete', async ( _, completed, stored ) => {
-		mockApiFetch.mockResolvedValue( taskList( completed ) );
-		renderChecklist();
-
-		await findStep( /start a newsletter/i );
-		expect( window.localStorage.getItem( STORAGE_KEY ) ).toBe( stored );
-	} );
-
-	it( 'does not ask WP.com when the list is stored as complete', async () => {
-		window.localStorage.setItem( STORAGE_KEY, '1' );
-		renderChecklist();
-
-		expect( getStep( /send your first newsletter/i ) ).toHaveAccessibleName(
-			'Send your first newsletterComplete'
-		);
-		expect( screen.queryByRole( 'button', { expanded: true } ) ).not.toBeInTheDocument();
-		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );
