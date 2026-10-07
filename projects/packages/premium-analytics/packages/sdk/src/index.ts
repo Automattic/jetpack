@@ -20,11 +20,13 @@ export {
 	chartTypeAttributeField,
 	describeError,
 	flattenEarningsBreakdown,
+	getVideoPosterUrl,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {
 	ReportScopeProvider,
 	chartInterval,
+	useReport,
 	useStatsVideoPlays,
 	useStatsWordAdsEarnings,
 	useStatsWordAdsStats,
@@ -37,5 +39,6 @@ export {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_7_DAYS,
+	toBucketStamp,
 } from '@jetpack-premium-analytics/datetime';
 export { Badge, Stack } from '@jetpack-premium-analytics/externals';

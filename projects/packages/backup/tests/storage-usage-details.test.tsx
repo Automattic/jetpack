@@ -4,7 +4,7 @@
 // The bar itself, and the gate that decides whether any of this renders,
 // are covered in `storage-meter.test.tsx`. This file is about what the two
 // lines beside it say — the unit the limit is stated in, and the retention
-// link that answers "how much history is that actually buying me".
+// line that answers "how much history is that actually buying me".
 
 const mockApiFetch = jest.fn();
 
@@ -78,16 +78,12 @@ function usageLine(): Promise< HTMLElement > {
 }
 
 /**
- * The retention link, once it has arrived.
+ * The retention line, which opens the retention dialog, once it has arrived.
  *
- * Matched on a fragment of its name rather than the whole of it: `Link`
- * appends an "(opens in a new tab)" image to anything with `openInNewTab`,
- * so the accessible name is never just the copy.
- *
- * @return The anchor.
+ * @return The button.
  */
-function retentionLink(): Promise< HTMLElement > {
-	return screen.findByRole( 'link', { name: /backups saved/ } );
+function retentionButton(): Promise< HTMLElement > {
+	return screen.findByRole( 'button', { name: /backups saved/ } );
 }
 
 beforeEach( () => {
@@ -178,13 +174,13 @@ describe( 'the retention line', () => {
 	it( 'reports the days of history behind the meter', async () => {
 		mockEndpoints( { size: { days_of_backups_saved: 14 } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( retentionLink() ).resolves.toHaveTextContent( /^14 days of backups saved$/ );
+		await expect( retentionButton() ).resolves.toHaveTextContent( /^14 days of backups saved$/ );
 	} );
 
 	it( 'says "1 day" rather than "1 days"', async () => {
 		mockEndpoints( { size: { days_of_backups_saved: 1 } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( retentionLink() ).resolves.toHaveTextContent( /^1 day of backups saved$/ );
+		await expect( retentionButton() ).resolves.toHaveTextContent( /^1 day of backups saved$/ );
 	} );
 
 	it( 'still reports a site that is holding nothing', async () => {
@@ -192,7 +188,7 @@ describe( 'the retention line', () => {
 		// whose backups have all been discarded looks like.
 		mockEndpoints( { size: { days_of_backups_saved: 0 } } );
 		renderWithClient( <StorageSpace /> );
-		await expect( retentionLink() ).resolves.toHaveTextContent( /^0 days of backups saved$/ );
+		await expect( retentionButton() ).resolves.toHaveTextContent( /^0 days of backups saved$/ );
 	} );
 
 	it( 'says nothing when WordPress.com did not report a day count', async () => {
@@ -206,32 +202,7 @@ describe( 'the retention line', () => {
 		await expect( usageLine() ).resolves.toHaveTextContent(
 			/^Using 10\.0GB of 100GB storage space$/
 		);
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'scopes the link to this site and opens it away from the dashboard', async () => {
-		renderWithClient( <StorageSpace /> );
-		const link = await retentionLink();
-		expect( link ).toHaveAttribute(
-			'href',
-			`https://jetpack.com/redirect/?source=backup-plugin-storage-backups-saved&site=${ SITE }`
-		);
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-	} );
-
-	it( 'omits the site entirely when the connection global carries no slug', async () => {
-		// Not merely cosmetic: `getRedirectUrl` walks its args with `for…in`,
-		// so passing the key as undefined encodes the literal string
-		// `undefined` *and* suppresses the helper's own site fallback.
-		window.JP_CONNECTION_INITIAL_STATE = {
-			...window.JP_CONNECTION_INITIAL_STATE,
-			siteSuffix: undefined,
-		} as typeof window.JP_CONNECTION_INITIAL_STATE;
-		renderWithClient( <StorageSpace /> );
-		await expect( retentionLink() ).resolves.toHaveAttribute(
-			'href',
-			'https://jetpack.com/redirect/?source=backup-plugin-storage-backups-saved'
-		);
+		expect( screen.queryByRole( 'button', { name: /backups saved/ } ) ).not.toBeInTheDocument();
 	} );
 } );
 

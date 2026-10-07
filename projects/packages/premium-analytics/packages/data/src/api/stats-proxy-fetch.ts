@@ -129,12 +129,6 @@ function resolveStatsProxyRequest( {
 	};
 }
 
-export function getStatsProxyPath(
-	request: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' | 'global' >
-) {
-	return resolveStatsProxyRequest( request ).path;
-}
-
 const localNoticesPath = '/jetpack-premium-analytics/v1/notices';
 
 // WPCOM Simple has no local notices endpoint: requests use the WPCOM Stats

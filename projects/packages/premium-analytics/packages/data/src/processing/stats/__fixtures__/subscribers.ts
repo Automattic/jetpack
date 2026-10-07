@@ -1,18 +1,4 @@
-import type {
-	StatsSubscribersCountsRawResponse,
-	StatsSubscribersRawResponse,
-} from '../subscribers';
-
-// Newest first, as the live endpoint returns them.
-export const subscribersFixture = {
-	date: '2026-06-25',
-	unit: 'day',
-	fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-	data: [
-		[ '2026-06-25', 12, 3 ],
-		[ '2026-06-24', '10', '2' ],
-	],
-} satisfies StatsSubscribersRawResponse;
+import type { StatsSubscribersCountsRawResponse } from '../subscribers';
 
 export const subscribersCountsFixture = {
 	counts: {

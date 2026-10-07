@@ -332,7 +332,8 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
 		$this->assertNotFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
-		$this->assertNotFalse( has_action( 'wp_head', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertNotFalse( has_action( 'admin_bar_menu', array( Stats_Admin_Bar::class, 'maybe_add_chart_node' ) ) );
+		$this->assertNotFalse( has_action( 'admin_bar_init', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
 		$this->assertNotFalse( has_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) ) );
 		$this->assertTrue( $this->post_list_column_is_registered() );
 	}
@@ -346,7 +347,8 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
 		$this->assertFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
-		$this->assertFalse( has_action( 'wp_head', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertFalse( has_action( 'admin_bar_menu', array( Stats_Admin_Bar::class, 'maybe_add_chart_node' ) ) );
+		$this->assertFalse( has_action( 'admin_bar_init', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
 		$this->assertFalse( $this->post_list_column_is_registered() );
 	}
 

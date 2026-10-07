@@ -1,7 +1,9 @@
+import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
 import { emailHasAccount, signIn } from './checkpoint/checkpoint';
+import type { ComponentChildren } from 'preact';
 import './dialog.scss';
 
 /**
@@ -14,8 +16,8 @@ export class DialogHost extends HTMLElement {
 }
 
 /**
- * Asks a commenter who they are on their way to posting, plus any subscribe options
- * the host offers.
+ * Asks a commenter who they are on their way to posting, or lets a guest change their
+ * details, plus any subscribe options the host offers.
  *
  * A form leaves out fields in a shadow root, so this hands the comment form what
  * to post through its host instead. The save switch adds core's cookies-consent
@@ -34,30 +36,33 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		commenter,
 		rememberDetails,
 		isDialogOpen,
+		isPosting,
 		forget,
 	} = useContext( CommentSignals );
 	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
+	const opener = useRef< Element | null >( null );
 	const [ signInStatus, setSignInStatus ] = useState<
 		'idle' | 'pending' | 'failed' | 'rate_limited'
 	>( 'idle' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
-	// Straight to the fields when they are the only way through.
-	const firstStep = identity.canSignIn ? 'choose' : 'guest';
+	// Straight to the fields when they are the only way through, or a saved guest is changing them.
+	const firstStep = identity.canSignIn && commenter.value.kind !== 'guest' ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< 'choose' | 'guest' | 'subscribe' >( firstStep );
 	const defaultSubscribed = () =>
 		Object.fromEntries(
 			formSettings.subscriptions.map( ( { name, checked } ) => [ name, checked ] )
 		);
 	const [ subscribed, setSubscribed ] = useState< Record< string, boolean > >( defaultSubscribed );
+	// Choices saved without a comment, which post with the next one.
+	const [ saved, setSaved ] = useState< Record< string, boolean > | null >( null );
 	const posting = ! isEmptyComment.value;
 
 	const showFields = step === 'guest';
 	const showToggles =
 		formSettings.subscriptions.length > 0 &&
 		isDialogOpen.value &&
-		posting &&
 		( step === 'guest' || step === 'subscribe' );
 	const chosen = formSettings.subscriptions
 		.filter( ( { name } ) => subscribed[ name ] )
@@ -71,13 +76,25 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		if ( isDialogOpen.value ) {
 			if ( ! element?.open ) {
+				opener.current = element!.ownerDocument.activeElement;
 				element!.showModal();
 			}
-		} else {
-			element?.close();
-			setStep( firstStep );
-			setSubscribed( defaultSubscribed() );
+			return;
 		}
+
+		if ( element?.open ) {
+			element.close();
+
+			// The control that opened it can be gone, as when a sign-in replaces "Add your name".
+			if ( ! opener.current?.isConnected ) {
+				internals.form
+					?.querySelector< HTMLElement >( '.jetpack-comments__identity a:not([tabindex])' )
+					?.focus();
+			}
+		}
+
+		setStep( firstStep );
+		setSubscribed( saved ?? defaultSubscribed() );
 	}, [ isDialogOpen.value ] );
 
 	// The button that turned the page is gone, so focus goes to the new page's first control.
@@ -174,7 +191,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			Object.entries( details.value ).forEach( ( [ name, value ] ) => data.append( name, value ) );
 		}
 
-		if ( showToggles ) {
+		if ( showToggles || saved ) {
 			chosen.forEach( name => data.append( name, 'subscribe' ) );
 		}
 
@@ -190,9 +207,17 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
+		if ( isPosting.peek() ) {
+			return;
+		}
+
 		if ( ! posting ) {
 			// Saved with consent, or cleared without it, as core does after a comment.
 			saveGuest( rememberDetails.peek() ? details.value : null );
+
+			if ( showToggles ) {
+				setSaved( subscribed );
+			}
 
 			isDialogOpen.value = false;
 			commenter.value =
@@ -237,7 +262,12 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 					) }
 					{ /* Only with a comment to post, and where core takes one with no name. */ }
 					{ posting && ! mustLogIn && ! requireNameEmail && (
-						<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
+						<button
+							type="submit"
+							name="anonymous"
+							className="jetpack-comments__button is-link"
+							aria-disabled={ isPosting.value || undefined }
+						>
 							{ strings.postWithoutSaving }
 						</button>
 					) }
@@ -249,7 +279,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 				<p id="intro" className="jetpack-comments__dialog-intro">
 					{ strings.intro }
 				</p>
-				<DetailsFields emailTaken={ emailTaken } introId="intro" />
+				<DetailsFields
+					emailTaken={ emailTaken }
+					introId="intro"
+					logIn={ identity.canSignIn && logInOrWait }
+				/>
 				{ switches }
 			</>
 		),
@@ -301,8 +335,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 						<div className="jetpack-comments__dialog-actions">
 							<button
 								type="submit"
-								className="jetpack-comments__button is-primary"
+								className={ clsx( 'jetpack-comments__button is-primary', {
+									'is-busy': isPosting.value,
+								} ) }
 								disabled={ emailTaken }
+								aria-disabled={ isPosting.value || undefined }
 							>
 								{ ! posting && strings.save }
 								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
@@ -379,9 +416,18 @@ const LogIn = ( {
  * @param props            - Component props.
  * @param props.emailTaken - Whether the email belongs to a WordPress.com account.
  * @param props.introId    - The intro describing the fields, read with the first one.
+ * @param props.logIn      - The sign-in the taken-email notice points to, since a guest's Change opens straight on the fields.
  * @return The fields and the save switch.
  */
-const DetailsFields = ( { emailTaken, introId }: { emailTaken: boolean; introId?: string } ) => {
+const DetailsFields = ( {
+	emailTaken,
+	introId,
+	logIn,
+}: {
+	emailTaken: boolean;
+	introId?: string;
+	logIn?: ComponentChildren;
+} ) => {
 	const { details, rememberDetails } = useContext( CommentSignals );
 	const { strings, requireNameEmail } = JetpackComments;
 	const fields = [
@@ -429,9 +475,12 @@ const DetailsFields = ( { emailTaken, introId }: { emailTaken: boolean; introId?
 						</span>
 					) }
 					{ field === 'email' && emailTaken && (
-						<span className="jetpack-comments__notice" role="alert">
-							{ strings.emailHasAccount }
-						</span>
+						<>
+							<span className="jetpack-comments__notice" role="alert">
+								{ strings.emailHasAccount }
+							</span>
+							{ logIn }
+						</>
 					) }
 				</div>
 			) ) }

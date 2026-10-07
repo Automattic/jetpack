@@ -1,16 +1,11 @@
-import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
-import { useSiteSuffix } from '../../hooks/use-connection';
+import { GIGABYTE, TERABYTE } from '../../data/storage-units';
+import { useAnalytics } from '../../hooks/use-analytics';
+import { useRetentionReturn, type RetentionReturn } from '../../hooks/use-retention-return';
+import BackupRetentionDialog from '../backup-retention-dialog';
 import StorageHelpPopover from './help-popover';
-
-// Binary multiples, as legacy spells them. WordPress.com reports these
-// figures in bytes and sells storage in powers of two, so a 10GB plan is
-// 10 * 2^30 bytes — dividing by 10^9 would advertise it back to the reader
-// as 10.7GB.
-const GIGABYTE = 2 ** 30;
-const TERABYTE = 2 ** 40;
 
 /**
  * The usage reading, as one plain sentence.
@@ -70,6 +65,10 @@ type Props = {
 	storageUsed: number;
 	storageLimit: number;
 	daysOfBackupsSaved: number | null;
+	/** The retention in force, or null when unreported. */
+	retentionDays: number | null;
+	/** Bytes the last full backup took, or null when unreported. */
+	lastBackupSize: number | null;
 	/**
 	 * Days of full backups the limit would hold, or null when that is not worth
 	 * explaining. The section decides — see `helpForecast` in `index.tsx`.
@@ -89,14 +88,15 @@ type Props = {
  * section's `hasUsableFigures` branch, so both byte figures are known
  * numbers by the time they get here and neither needs re-testing.
  *
- * The one exception to "presentational" is the help popover, which sits beside the
- * usage reading because that is where the question it answers is raised. It brings its
- * own data; the prop only says whether to show it.
+ * The exceptions to "presentational" are the help popover and the retention dialog, which
+ * bring their own data and sit beside the readings they explain or change.
  *
  * @param props                    - Component props.
  * @param props.storageUsed        - Bytes of backup storage in use.
  * @param props.storageLimit       - The plan's storage limit in bytes.
  * @param props.daysOfBackupsSaved - Days of history held, or null when unreported.
+ * @param props.retentionDays      - The retention in force, or null when unreported.
+ * @param props.lastBackupSize     - The last backup's size in bytes, or null when unreported.
  * @param props.helpForecastInDays - Days of backups the limit holds, or null for no popover.
  * @return The rendered readings.
  */
@@ -104,18 +104,28 @@ export default function StorageUsageDetails( {
 	storageUsed,
 	storageLimit,
 	daysOfBackupsSaved,
+	retentionDays,
+	lastBackupSize,
 	helpForecastInDays,
 }: Props ) {
-	const site = useSiteSuffix();
+	const { tracks } = useAnalytics();
+	const returned = useRetentionReturn();
+	// Checkout's choice opens the dialog once; the button opens it on the current setting.
+	const [ dialog, setDialog ] = useState< Partial< RetentionReturn > | null >( returned );
+	const [ announcement, setAnnouncement ] = useState( '' );
 
-	// The key is omitted rather than passed as undefined. `getRedirectUrl`
-	// walks its args with `for…in`, so a present-but-undefined `site` is
-	// encoded — the link would carry the literal string `undefined` — and
-	// its mere presence also suppresses the helper's own site fallback.
-	const backupsSavedUrl = getRedirectUrl(
-		'backup-plugin-storage-backups-saved',
-		site ? { site } : {}
-	);
+	const onRetentionClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_storage_retention_modify_click' );
+		setAnnouncement( '' );
+		setDialog( {} );
+	}, [ tracks ] );
+
+	const onDialogClose = useCallback( ( saved: boolean ) => {
+		setDialog( null );
+		if ( saved ) {
+			setAnnouncement( __( 'Backup retention changed.', 'jetpack-backup-pkg' ) );
+		}
+	}, [] );
 
 	const hasExtras = helpForecastInDays !== null || daysOfBackupsSaved !== null;
 
@@ -137,7 +147,15 @@ export default function StorageUsageDetails( {
 					{ daysOfBackupsSaved !== null && (
 						<Text variant="body-sm" className="jpb-storage-space__days">
 							{ createInterpolateElement( daysOfBackupsLabel( daysOfBackupsSaved ), {
-								a: <Link openInNewTab tone="neutral" href={ backupsSavedUrl } />,
+								a: (
+									<Link
+										render={ <button type="button" /> }
+										tone="neutral"
+										className="jpb-link-button"
+										aria-haspopup="dialog"
+										onClick={ onRetentionClick }
+									/>
+								),
 							} ) }
 						</Text>
 					) }
@@ -149,6 +167,19 @@ export default function StorageUsageDetails( {
 						/>
 					) }
 				</Stack>
+			) }
+			<span className="jpb-visually-hidden" role="status" aria-live="polite">
+				{ announcement }
+			</span>
+			{ dialog && (
+				<BackupRetentionDialog
+					currentDays={ retentionDays }
+					storageLimit={ storageLimit }
+					lastBackupSize={ lastBackupSize }
+					initialDays={ dialog.days }
+					storagePurchased={ dialog.storagePurchased }
+					onClose={ onDialogClose }
+				/>
 			) }
 		</Stack>
 	);

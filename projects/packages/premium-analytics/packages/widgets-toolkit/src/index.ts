@@ -23,7 +23,6 @@ export {
 	DonutChart,
 	DonutChartSkeleton,
 	Legend,
-	ReportMetricWidget,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	type MetricTab,
@@ -91,8 +90,11 @@ export {
 	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	ExternalLink,
+	type ExternalLinkProps,
 	InfoTip,
 	type InfoTipProps,
+	InternalLink,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
@@ -219,6 +221,7 @@ export {
 	getArchiveTypeLabel,
 	getAuthorName,
 	getAuthorsReportQueryParams,
+	getLocationColumnLabel,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
 	getLocationsScopeParams,
@@ -270,7 +273,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	formatOrderMetric,
 	getFormatByMetricKey,
 	buildTimeSeriesChartData,
 	type TimeSeriesData,
@@ -293,6 +295,7 @@ export {
 	type CsvDateRange,
 	getCombinedPeriodMax,
 	sharePercentage,
+	getVideoPosterUrl,
 	describeError,
 	summaryCount,
 	toDay,
@@ -308,6 +311,7 @@ export {
 	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,
 	getOpensRateSignals,
@@ -353,16 +357,13 @@ export {
  * Widget components
  */
 export {
-	BookingOrderMetricWidget,
 	BookingsByAttendanceWidget,
 	BookingsRevenueByCustomerTypeWidget,
 	BookingConversionRateWidget,
 	ConversionRateWidget,
 	CouponUseWidget,
-	MetricComparisonWidget,
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
-	OrderMetricWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,

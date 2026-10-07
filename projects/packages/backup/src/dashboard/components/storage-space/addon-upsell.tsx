@@ -1,4 +1,5 @@
-import { useCallback } from '@wordpress/element';
+import { formatCurrency } from '@automattic/number-formatters';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { LinkButton, Notice } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
@@ -7,6 +8,7 @@ import { useSiteSuffix } from '../../hooks/use-connection';
 import { useStorageAddonOffer } from '../../hooks/use-storage-addon-offer';
 import { storageAddonCheckoutUrl } from './checkout-url';
 import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
+import type { ReactNode } from 'react';
 
 /**
  * The notice's title and body for a level, or null when the level has nothing to say.
@@ -97,6 +99,44 @@ function noticeCopy(
 	}
 
 	return null;
+}
+
+/**
+ * The retention dialog's purchase label: how much storage, at what price, on what terms.
+ *
+ * Legacy's msgid, reused so it arrives translated. Its `<Price />` token now carries
+ * the finished string `formatCurrency` returns rather than the split-out symbol,
+ * integer and fraction `PricingCard` wanted.
+ *
+ * Never a written currency symbol: `formatCurrency` places the right one for
+ * `currencyCode`, which WordPress.com chooses from where the site appears to be.
+ *
+ * Returned as one element: the button is a flex container, so an interpolated
+ * price left bare becomes its own flex item, with the button's gap either side.
+ *
+ * @param sizeText     - The add-on's size as WordPress.com words it, e.g. `100GB`.
+ * @param monthlyPrice - One month of the add-on.
+ * @param currencyCode - The currency WordPress.com priced it in.
+ * @return The label.
+ */
+export function offerLabel(
+	sizeText: string,
+	monthlyPrice: number,
+	currencyCode: string
+): ReactNode {
+	/* translators: %1$s: Storage unit, <Price>: Additional charge. */
+	const offer = __(
+		'Add %1$s additional storage for <Price />/month, billed monthly',
+		'jetpack-backup-pkg'
+	);
+
+	return (
+		<span>
+			{ createInterpolateElement( sprintf( offer, sizeText ), {
+				Price: <span>{ formatCurrency( monthlyPrice, currencyCode ) }</span>,
+			} ) }
+		</span>
+	);
 }
 
 type Props = {

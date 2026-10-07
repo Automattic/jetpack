@@ -118,6 +118,13 @@ body.jetpack_page_jetpack-newsletter {
 }
 
 // Core snackbar placement (matches `@wordpress/boot`'s snackbar-container).
+// A section reached from a link (e.g. the Overview checklist). Programmatic
+// focus after a click doesn't match :focus-visible, so ring it on :focus.
+.newsletter-settings__linked-section:focus {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: var(--wpds-border-width-focus);
+}
+
 .jetpack-newsletter-snackbar-notices {
 
 	@include gb.snackbar-container();

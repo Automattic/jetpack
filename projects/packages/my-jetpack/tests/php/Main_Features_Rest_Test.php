@@ -13,8 +13,6 @@ use WP_REST_Server;
 
 class Main_Features_Rest_Test extends TestCase {
 
-	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
-
 	const ROUTE = '/wpcom/v2/my-jetpack/site/features/plugin';
 
 	const BULK_ROUTE = '/wpcom/v2/my-jetpack/site/features/bulk';
@@ -52,8 +50,6 @@ class Main_Features_Rest_Test extends TestCase {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		Jetpack_Options::update_option( 'id', 123 );
 
-		add_filter( self::FLAG_FILTER, '__return_true' );
-
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
@@ -75,7 +71,6 @@ class Main_Features_Rest_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		remove_all_filters( self::FLAG_FILTER );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		$this->withdraw_stats_module();
 		$this->remove_jetpack();

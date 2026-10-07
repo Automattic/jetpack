@@ -347,7 +347,7 @@ Notes:
   (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
   `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
-  `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
+  `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
 - Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
   `link:` for internal packages (e.g.

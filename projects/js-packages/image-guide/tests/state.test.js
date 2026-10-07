@@ -167,28 +167,28 @@ it( 'notifies immediately, invalidates before updates and unsubscribes idempoten
 	stopExpected();
 } );
 
-it( 'restarts weight fetching after double unsubscribe and the last savings unsubscriber', async () => {
+it( 'restarts weight fetching after the last acquire is released idempotently', async () => {
 	const api = await load();
 	const { controller, measurable, source } = image( api );
 	await controller.updateDimensions();
-	const first = controller.fileWeight.subscribe( () => {} );
-	const second = controller.fileWeight.subscribe( () => {} );
+	const first = controller.acquire();
+	const second = controller.acquire();
 	await Promise.resolve();
 	first();
 	first();
 	source( 'https://example.test/two.png' );
 	await controller.updateDimensions();
-	const third = controller.fileWeight.subscribe( () => {} );
+	const third = controller.acquire();
 	expect( measurable.getWeight ).toHaveBeenCalledTimes( 1 );
 	second();
 	third();
-	const savings = controller.potentialSavings.subscribe( () => {} );
+	const savings = controller.acquire();
 	await Promise.resolve();
 	expect( measurable.getWeight ).toHaveBeenCalledTimes( 2 );
 	savings();
 	source( 'https://example.test/three.png' );
 	await controller.updateDimensions();
-	const restarted = controller.fileWeight.subscribe( () => {} );
+	const restarted = controller.acquire();
 	await Promise.resolve();
 	expect( measurable.getWeight ).toHaveBeenCalledTimes( 3 );
 	restarted();
