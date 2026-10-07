@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { registerHooks } from 'node:module';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import apiFetch from '@wordpress/api-fetch';
+import { SAVE_RETRY_DELAYS_MS } from './commit-tailoring.ts';
 import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 import { LEAVING_GRACE_MS } from './tailoring-watch.ts';
 import type { TrackEventProps, WizardInput } from './types.ts';
@@ -296,5 +297,56 @@ describe( 'tailor', () => {
 		await tailor( INPUT, ENGLISH_SITE_COPY );
 
 		assert.equal( ( puts[ 0 ] as unknown as RequestInit ).keepalive, true );
+	} );
+
+	describe( 'when the list write keeps failing in transit', () => {
+		const offline = () => Promise.reject( { code: 'fetch_error', message: 'Offline.' } );
+
+		/** Let the automatic retries run through their waits. */
+		const runRetries = async () => {
+			for ( const delay of SAVE_RETRY_DELAYS_MS ) {
+				await flush();
+				mock.timers.tick( delay );
+			}
+			await flush();
+		};
+
+		it( 'shows the save error, and "Try again" saves the same list without a new AI call', async () => {
+			aiCalls = [ async () => reply( VALID_OUTPUT ) ];
+			putAnswer = offline;
+			const { run } = start();
+			await runRetries();
+
+			const result = await run;
+			assert.equal( result.source, 'ai' );
+			assert.ok( result.saveError );
+			assert.equal( puts.length, 1 + SAVE_RETRY_DELAYS_MS.length );
+			assert.ok(
+				puts.every( put => /source=ai/.test( put.path ) ),
+				'no fallback write'
+			);
+
+			putAnswer = () => Promise.resolve( {} );
+			assert.equal( await result.saveError.retry(), true );
+			assert.equal( aiCallCount, 1, 'no new AI call' );
+			assert.equal( puts.at( -1 )?.data, puts[ 0 ].data );
+		} );
+
+		it( 'sends nothing more, and shows no error, once the page is leaving', async () => {
+			aiCalls = [ async () => reply( VALID_OUTPUT ) ];
+			putAnswer = offline;
+			const { state } = start();
+			await flush();
+			assert.equal( puts.length, 1 );
+
+			// The user leaves during the wait before the first retry.
+			page.dispatchEvent( new Event( 'beforeunload' ) );
+			page.dispatchEvent( new Event( 'pagehide' ) );
+			await runRetries();
+
+			assert.equal( puts.length, 1 );
+			assert.equal( state.settled, false, 'no result for the host to render an error from' );
+			assert.equal( abandonedEvents()[ 0 ].stage, 'saving' );
+		} );
 	} );
 } );

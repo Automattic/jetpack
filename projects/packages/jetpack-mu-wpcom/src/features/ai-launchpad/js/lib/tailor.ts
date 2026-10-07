@@ -261,7 +261,9 @@ export async function tailor( input: WizardInput, copy: SiteCopy ): Promise< Tai
 		const prepared = await prepareTailoring( input, copy, aiSessionId, watch.pageIsLeaving );
 		if ( prepared ) {
 			watch.setStage( 'saving' );
-			const result = await commitTailoring( prepared, input, copy, watch.pageIsLeaving );
+			const result = await commitTailoring( prepared, input, copy, {
+				pageIsLeaving: watch.pageIsLeaving,
+			} );
 			if ( result ) {
 				return result;
 			}

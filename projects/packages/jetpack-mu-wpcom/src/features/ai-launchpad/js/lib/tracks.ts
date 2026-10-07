@@ -300,24 +300,63 @@ export function trackTaskSkipped( props: { task_id: string } ): void {
 }
 
 /**
- * Records a failed `PUT /tailored` write, once per failed write: the AI output's, then the fallback's if
- * that fails too. Without it a site whose writes keep failing just lands back on the wizard, and nothing
- * on the server side says why, since the `tailored` Logstash record is only written on success.
+ * Records a failed `PUT /tailored` write, once per failed attempt: each automatic retry and each
+ * "Try again" click included, for the AI output's write and then the fallback's. Without it a site
+ * whose writes keep failing leaves nothing behind, since the `tailored` Logstash record is only
+ * written on success.
  *
  * @param props               - The event properties.
  * @param props.failed_write  - Which write failed: the AI output or the deterministic fallback. Not
  *                            `source`, which is a standard prop with its own meaning.
+ * @param props.retry         - Which attempt at that write failed, from 0 (the first).
  * @param props.http_status   - The response status, or 0 when there was no response (e.g. offline).
  * @param props.error_code    - The WP error code, or a thrown Error's name, reduced to [a-z0-9_]; else 'unknown'.
  * @param props.ai_session_id - The id of the tailoring run whose write failed, or 'none'.
  */
 export function trackTailoringSaveFailed( props: {
 	failed_write: TailorSource;
+	retry: number;
 	http_status: number;
 	error_code: string;
 	ai_session_id: string;
 } ): void {
 	record( 'jetpack_ai_launchpad_tailoring_save_failed', props );
+}
+
+/** How saving a tailoring run's list ended, before any "Try again". */
+export type SaveOutcome = 'saved' | 'error_shown' | 'fallback_saved';
+
+/**
+ * Records how saving a tailoring run's list ended, once per run: the AI list saved, the fallback
+ * saved in place of an AI list the server rejected (or of an AI call that failed), or neither, so
+ * the save error was shown. Nothing is recorded for a run the user left, which the abandoned event
+ * covers. Not `outcome`: that is a standard prop with its own meaning.
+ *
+ * @param props               - The event properties.
+ * @param props.save_outcome  - How the save ended.
+ * @param props.ai_session_id - The id of the tailoring run, or 'none'.
+ */
+export function trackTailoringSaveOutcome( props: {
+	save_outcome: SaveOutcome;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_outcome', props );
+}
+
+/**
+ * Records a click on the save error's "Try again" button, with whether that attempt saved the list.
+ *
+ * @param props               - The event properties.
+ * @param props.failed_write  - Which list the button re-sent: the AI output or the fallback.
+ * @param props.result        - Whether the re-sent list was saved.
+ * @param props.ai_session_id - The id of the tailoring run, or 'none'.
+ */
+export function trackTailoringSaveRetryClicked( props: {
+	failed_write: TailorSource;
+	result: 'saved' | 'failed';
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_retry_clicked', props );
 }
 
 /**

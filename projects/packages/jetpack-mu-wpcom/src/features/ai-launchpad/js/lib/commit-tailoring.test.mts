@@ -5,6 +5,7 @@ import {
 	commitTailoring,
 	MAX_VALIDATION_ERROR_LENGTH,
 	MAX_VALIDATION_ERRORS,
+	SAVE_RETRY_DELAYS_MS,
 	type PreparedTailoring,
 } from './commit-tailoring.ts';
 import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
@@ -20,7 +21,13 @@ let writes: Write[] = [];
 let reject: ( path: string ) => boolean = () => false;
 // What a rejected write rejects with: apiFetch rejects with the WP error body, or with
 // `{ code: 'fetch_error', message }` when there was no response at all.
-let rejectWith: unknown = new Error( '422' );
+const REJECTED = {
+	code: 'ai_launchpad_invalid_payload',
+	message: 'Rejected.',
+	data: { status: 422 },
+};
+const OFFLINE = { code: 'fetch_error', message: 'You are probably offline.' };
+let rejectWith: unknown = REJECTED;
 
 // A middleware that returns without calling next() short-circuits the request, so
 // nothing reaches the network and every PUT is recorded instead.
@@ -35,6 +42,20 @@ const win = globalThis as unknown as {
 	window: { _tkq?: unknown[]; wpcomAiLaunchpadTracks?: unknown };
 };
 win.window = {};
+
+/**
+ * The props of every event with this name recorded so far.
+ *
+ * @param suffix - The event name, without the `jetpack_ai_launchpad_tailoring_` prefix.
+ * @return The props, in order.
+ */
+const eventsNamed = ( suffix: string ) =>
+	( ( win.window._tkq ?? [] ) as Array< [ string, string, TrackEventProps ] > )
+		.filter(
+			( [ kind, name ] ) =>
+				'recordEvent' === kind && `jetpack_ai_launchpad_tailoring_${ suffix }` === name
+		)
+		.map( ( [ , , props ] ) => props );
 
 /**
  * The save-failed events recorded so far, as [ name, props ] pairs.
@@ -78,14 +99,40 @@ function prepared( overrides: Partial< PreparedTailoring > = {} ): PreparedTailo
 	};
 }
 
+// The waits between automatic retries, recorded instead of waited.
+let slept: number[] = [];
+
+/**
+ * Commit a tailoring without waiting between retries.
+ *
+ * @param tailoring - The tailoring to write.
+ * @param input     - The wizard input.
+ * @param copy      - The site copy.
+ * @param options   - commitTailoring's options; `sleep` is replaced.
+ * @return What commitTailoring returns.
+ */
+function commit(
+	tailoring: PreparedTailoring,
+	input: WizardInput,
+	copy: Parameters< typeof commitTailoring >[ 2 ],
+	options: Parameters< typeof commitTailoring >[ 3 ] = {}
+) {
+	return commitTailoring( tailoring, input, copy, {
+		...options,
+		sleep: async ms => {
+			slept.push( ms );
+		},
+	} );
+}
+
 /**
  * Commit a tailoring that is expected to settle with a result (no page leaving).
  *
- * @param args - commitTailoring's arguments.
+ * @param args - commit's arguments.
  * @return The result.
  */
 async function committed( ...args: Parameters< typeof commitTailoring > ) {
-	const result = await commitTailoring( ...args );
+	const result = await commit( ...args );
 	assert.ok( result, 'commitTailoring settled with nothing saved' );
 	return result;
 }
@@ -94,7 +141,8 @@ describe( 'commitTailoring', () => {
 	beforeEach( () => {
 		writes = [];
 		reject = () => false;
-		rejectWith = new Error( '422' );
+		rejectWith = REJECTED;
+		slept = [];
 		resetTracksContext();
 		win.window = {
 			_tkq: [],
@@ -150,13 +198,157 @@ describe( 'commitTailoring', () => {
 		assert.equal( writes[ 1 ].data, result.output );
 	} );
 
-	it( 'still returns a list when the write itself fails', async () => {
-		reject = () => true;
+	describe( 'saving', () => {
+		it( 'retries a write that failed in transit, and saves the AI list without a fallback', async () => {
+			let failures = 1;
+			reject = () => failures-- > 0;
+			rejectWith = OFFLINE;
 
-		const result = await committed( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
-		assert.equal( result.source, 'fallback' );
-		assert.ok( result.output.tasks.length > 0 );
+			assert.equal( result.source, 'ai' );
+			assert.equal( result.saveError, undefined );
+			assert.deepEqual(
+				writes.map( write => write.data ),
+				[ AI_OUTPUT, AI_OUTPUT ]
+			);
+			assert.deepEqual( slept, [ SAVE_RETRY_DELAYS_MS[ 0 ] ] );
+			assert.deepEqual(
+				saveFailedEvents().map( ( [ , props ] ) => [ props.failed_write, props.retry ] ),
+				[ [ 'ai', 0 ] ]
+			);
+			assert.deepEqual(
+				eventsNamed( 'save_outcome' ).map( props => props.save_outcome ),
+				[ 'saved' ]
+			);
+		} );
+
+		it( 'treats a 5xx as a transport failure', async () => {
+			let failures = 1;
+			reject = () => failures-- > 0;
+			rejectWith = { code: 'internal_server_error', message: 'Oops.', data: { status: 503 } };
+
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
+
+			assert.equal( result.source, 'ai' );
+			assert.equal( writes.length, 2 );
+		} );
+
+		it( 'shows the save error instead of a fallback when the AI list never saves', async () => {
+			reject = () => true;
+			rejectWith = OFFLINE;
+
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
+
+			assert.equal( result.source, 'ai' );
+			assert.equal( result.output, AI_OUTPUT );
+			assert.ok( result.saveError );
+			assert.equal( writes.length, 1 + SAVE_RETRY_DELAYS_MS.length );
+			assert.ok(
+				writes.every( write => /source=ai/.test( write.path ) ),
+				'no fallback write'
+			);
+			assert.deepEqual( slept, [ ...SAVE_RETRY_DELAYS_MS ] );
+			assert.deepEqual(
+				saveFailedEvents().map( ( [ , props ] ) => props.retry ),
+				[ 0, 1, 2 ]
+			);
+			assert.deepEqual(
+				eventsNamed( 'save_outcome' ).map( props => props.save_outcome ),
+				[ 'error_shown' ]
+			);
+		} );
+
+		it( 'lets "Try again" re-send the same list once per click', async () => {
+			reject = () => true;
+			rejectWith = OFFLINE;
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
+			assert.ok( result.saveError );
+			writes = [];
+
+			// Still offline: one write, reported as the next attempt.
+			assert.equal( await result.saveError.retry(), false );
+			assert.equal( writes.length, 1 );
+			assert.equal( saveFailedEvents().at( -1 )?.[ 1 ].retry, 3 );
+
+			reject = () => false;
+			assert.equal( await result.saveError.retry(), true );
+			assert.equal( writes.length, 2 );
+			assert.equal( writes[ 1 ].data, AI_OUTPUT, 'the same output, not a new one' );
+			assert.match( writes[ 1 ].path, /source=ai/ );
+			assert.deepEqual(
+				eventsNamed( 'save_retry_clicked' ).map( props => [ props.failed_write, props.result ] ),
+				[
+					[ 'ai', 'failed' ],
+					[ 'ai', 'saved' ],
+				]
+			);
+			// The automatic phase's outcome stands; the clicks have their own event.
+			assert.equal( eventsNamed( 'save_outcome' ).length, 1 );
+		} );
+
+		it( 'saves the fallback when the server rejects the AI list', async () => {
+			reject = path => path.includes( 'source=ai' );
+
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
+
+			assert.equal( result.source, 'fallback' );
+			assert.equal( result.saveError, undefined );
+			assert.equal( writes.length, 2, 'a rejection is not retried' );
+			assert.deepEqual( slept, [] );
+			assert.deepEqual(
+				eventsNamed( 'save_outcome' ).map( props => props.save_outcome ),
+				[ 'fallback_saved' ]
+			);
+		} );
+
+		it( 'retries a fallback write that fails in transit, then shows the save error', async () => {
+			rejectWith = REJECTED;
+			reject = path => {
+				if ( path.includes( 'source=ai' ) ) {
+					return true;
+				}
+				rejectWith = OFFLINE;
+				return true;
+			};
+
+			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
+
+			assert.equal( result.source, 'fallback' );
+			assert.ok( result.saveError );
+			assert.deepEqual(
+				writes.map( write => /source=(\w+)/.exec( write.path )?.[ 1 ] ),
+				[ 'ai', 'fallback', 'fallback', 'fallback' ]
+			);
+			assert.deepEqual(
+				saveFailedEvents().map( ( [ , props ] ) => [ props.failed_write, props.retry ] ),
+				[
+					[ 'ai', 0 ],
+					[ 'fallback', 0 ],
+					[ 'fallback', 1 ],
+					[ 'fallback', 2 ],
+				]
+			);
+			assert.deepEqual(
+				eventsNamed( 'save_outcome' ).map( props => props.save_outcome ),
+				[ 'error_shown' ]
+			);
+		} );
+
+		it( 'stops retrying, and reports nothing more, once the page is leaving', async () => {
+			reject = () => true;
+			rejectWith = OFFLINE;
+			// Not leaving when the first write fails; leaving by the time the retry is due.
+			let checks = 0;
+			const pageIsLeaving = async () => checks++ > 0;
+
+			const result = await commit( prepared(), INPUT, ENGLISH_SITE_COPY, { pageIsLeaving } );
+
+			assert.equal( result, null );
+			assert.equal( writes.length, 1 );
+			assert.equal( saveFailedEvents().length, 1 );
+			assert.deepEqual( eventsNamed( 'save_outcome' ), [] );
+		} );
 	} );
 
 	describe( 'validation_errors', () => {
@@ -172,13 +364,13 @@ describe( 'commitTailoring', () => {
 				.map( ( [ , value ] ) => value );
 
 		it( 'leaves the param off when every attempt succeeded', async () => {
-			await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 			assert.equal( writes[ 0 ].path.includes( 'validation_errors' ), false );
 		} );
 
 		it( 'sends one reason per failed attempt with the AI write', async () => {
-			await commitTailoring(
+			await commit(
 				prepared( {
 					attempts: 2,
 					validationErrors: [ 'first_post_draft.subtitle: expected string' ],
@@ -195,7 +387,7 @@ describe( 'commitTailoring', () => {
 		it( 'carries the reasons onto the fallback write when the server rejects the AI output', async () => {
 			reject = path => path.includes( 'source=ai' );
 
-			await commitTailoring(
+			await commit(
 				prepared( { attempts: 2, validationErrors: [ '$: invalid JSON' ] } ),
 				INPUT,
 				ENGLISH_SITE_COPY
@@ -206,7 +398,7 @@ describe( 'commitTailoring', () => {
 		} );
 
 		it( 'caps how many reasons are sent and how long each is', async () => {
-			await commitTailoring(
+			await commit(
 				prepared( {
 					source: 'fallback',
 					validationErrors: Array.from( { length: MAX_VALIDATION_ERRORS + 2 }, () =>
@@ -230,7 +422,7 @@ describe( 'commitTailoring', () => {
 		const SECRET = 'payload.inferred.niche Café of Jane Doe';
 
 		it( 'records nothing when the write succeeds', async () => {
-			await commitTailoring( prepared(), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 			assert.deepEqual( saveFailedEvents(), [] );
 		} );
@@ -263,7 +455,7 @@ describe( 'commitTailoring', () => {
 			assert.equal( JSON.stringify( win.window._tkq ).includes( 'Jane' ), false );
 		} );
 
-		it( 'records both writes when the fallback fails too, and still returns a list', async () => {
+		it( 'records both writes when the fallback is rejected too, and shows the save error', async () => {
 			reject = () => true;
 			rejectWith = {
 				code: 'rest_forbidden',
@@ -274,7 +466,7 @@ describe( 'commitTailoring', () => {
 			const result = await committed( prepared(), INPUT, ENGLISH_SITE_COPY );
 
 			assert.equal( result.source, 'fallback' );
-			assert.ok( result.output.tasks.length > 0 );
+			assert.ok( result.saveError, 'a list nobody saved is not shown' );
 			assert.deepEqual(
 				saveFailedEvents().map( ( [ , props ] ) => [
 					props.failed_write,
@@ -293,10 +485,10 @@ describe( 'commitTailoring', () => {
 			reject = () => true;
 			rejectWith = { code: 'fetch_error', message: 'You are probably offline.' };
 
-			await commitTailoring( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
 
 			const events = saveFailedEvents();
-			assert.equal( events.length, 1 );
+			assert.equal( events.length, 1 + SAVE_RETRY_DELAYS_MS.length );
 			assert.equal( events[ 0 ][ 1 ].failed_write, 'fallback' );
 			assert.equal( events[ 0 ][ 1 ].http_status, 0 );
 			assert.equal( events[ 0 ][ 1 ].error_code, 'fetch_error' );
@@ -310,7 +502,7 @@ describe( 'commitTailoring', () => {
 				data: { status: '500' },
 			};
 
-			await commitTailoring( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
 
 			const [ [ , props ] ] = saveFailedEvents();
 			assert.match( String( props.error_code ), /^[a-z0-9_]{1,64}$/ );
@@ -318,11 +510,7 @@ describe( 'commitTailoring', () => {
 
 			win.window._tkq = [];
 			rejectWith = new Error( SECRET );
-			await commitTailoring(
-				prepared( { source: 'fallback', aiSessionId: '' } ),
-				INPUT,
-				ENGLISH_SITE_COPY
-			);
+			await commit( prepared( { source: 'fallback', aiSessionId: '' } ), INPUT, ENGLISH_SITE_COPY );
 
 			const [ [ , errorProps ] ] = saveFailedEvents();
 			assert.equal( errorProps.error_code, 'error' );
@@ -333,12 +521,12 @@ describe( 'commitTailoring', () => {
 			// `rest_cookie_invalid_nonce` throws instead of answering.
 			win.window._tkq = [];
 			rejectWith = new TypeError( SECRET );
-			await commitTailoring( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
 			assert.equal( saveFailedEvents()[ 0 ][ 1 ].error_code, 'typeerror' );
 
 			win.window._tkq = [];
 			rejectWith = SECRET;
-			await commitTailoring( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
+			await commit( prepared( { source: 'fallback' } ), INPUT, ENGLISH_SITE_COPY );
 			assert.equal( saveFailedEvents()[ 0 ][ 1 ].error_code, 'unknown' );
 			assert.equal( JSON.stringify( win.window._tkq ).includes( 'Jane' ), false );
 		} );
