@@ -284,6 +284,19 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A nested allow list entry is rejected without changing the stored list.
+	 */
+	public function test_post_rejects_non_string_protect_allow_list_entry() {
+		update_option( 'jetpack_waf_ip_allow_list', '203.0.113.5' );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'jetpack_protect_whitelist' => array( array( '198.51.100.1' ) ) ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'invalid_input', $response->get_error_code() );
+		$this->assertSame( '203.0.113.5', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
+	/**
 	 * The free tier description is capped to 500 characters to match the
 	 * paid-tier description field.
 	 */
@@ -813,6 +826,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', static::$onboarding_profile_example, static::$onboarding_profile_example ),
 			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'jetpack_protect_whitelist'                 => array(
+				'jetpack_protect_whitelist',
+				array( '203.0.113.5', '198.51.100.1-198.51.100.20' ),
+				array( 'local' => array( '203.0.113.5', '198.51.100.1 - 198.51.100.20' ) ),
+			),
+			'jetpack_protect_whitelist GET shape'       => array(
+				'jetpack_protect_whitelist',
+				array( 'local' => array( '203.0.113.5' ) ),
+				array( 'local' => array( '203.0.113.5' ) ),
+			),
 			'subscription_options html'                 => array(
 				'subscription_options',
 				array(

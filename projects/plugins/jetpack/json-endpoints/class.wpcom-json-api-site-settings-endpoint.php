@@ -867,13 +867,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'jetpack_protect_whitelist':
-					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
-						$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
-						if ( is_wp_error( $result ) ) {
-							return $result;
-						}
-						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
+					// The GET response nests the site's list under `local`, so accept that shape back.
+					if ( isset( $value['local'] ) && is_array( $value['local'] ) ) {
+						$value = $value['local'];
 					}
+					if ( is_array( $value ) && array_filter( $value, 'is_array' ) ) {
+						return new WP_Error( 'invalid_input', __( 'Each allowed IP address must be a string.', 'jetpack' ), 400 );
+					}
+					$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
+					if ( is_wp_error( $result ) ) {
+						return $result;
+					}
+					$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
