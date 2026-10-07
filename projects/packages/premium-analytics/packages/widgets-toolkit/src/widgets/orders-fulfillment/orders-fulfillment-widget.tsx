@@ -2,28 +2,19 @@
  * External dependencies
  */
 import { useReportOrders } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback } from 'react';
-import { DonutChart, DonutChartSkeleton, WidgetState } from '../../components';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { Donut, type DonutSegmentInput } from '../../components';
 import { useWidgetRootContext } from '../../components/widget-root';
-import {
-	buildOrdersFulfillmentData,
-	isEmptyPieChartData,
-	FULFILLED_ORDERS_FILTER,
-	UNFULFILLED_ORDERS_FILTER,
-} from '../../helpers';
-import { useSegmentStyles } from '../common';
-import styles from '../common/donut-widget.module.scss';
+import { FULFILLED_ORDERS_FILTER, UNFULFILLED_ORDERS_FILTER, describeError } from '../../helpers';
 
 /**
- * Donut chart of fulfilled vs unfulfilled order counts. Makes two separate API
- * calls with different fulfillment filters, since fulfillment isn't
- * pre-aggregated in the orders summary.
+ * Fulfilled against unfulfilled order counts. Two reports with different fulfillment filters,
+ * since fulfillment is not pre-aggregated in the orders summary.
  */
 export function OrdersFulfillmentWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -38,37 +29,28 @@ export function OrdersFulfillmentWidget() {
 		filters: [ UNFULFILLED_ORDERS_FILTER ],
 	} );
 
-	const isLoading = fulfilled.isLoading || unfulfilled.isLoading;
-	const isFetching = fulfilled.isFetching || unfulfilled.isFetching;
-	const hasData = fulfilled.hasData && unfulfilled.hasData;
+	const fulfilledSummary = fulfilled.primary.data?.summary;
+	const unfulfilledSummary = unfulfilled.primary.data?.summary;
+	const fulfilledPrevious = fulfilled.comparison.data?.summary;
+	const unfulfilledPrevious = unfulfilled.comparison.data?.summary;
 
-	const { chartData, total, comparisonTotal, legendData } = useMemo(
-		() =>
-			isLoading
-				? {
-						chartData: [],
-						total: 0,
-						comparisonTotal: 0,
-						legendData: [],
-					}
-				: buildOrdersFulfillmentData(
-						fulfilled.primary.data,
-						unfulfilled.primary.data,
-						fulfilled.comparison.data,
-						unfulfilled.comparison.data
-					),
-		[
-			isLoading,
-			fulfilled.primary.data,
-			unfulfilled.primary.data,
-			fulfilled.comparison.data,
-			unfulfilled.comparison.data,
-		]
+	const segments = useMemo< DonutSegmentInput[] >(
+		() => [
+			{
+				label: __( 'Fulfilled', 'jetpack-premium-analytics-pkg' ),
+				value: fulfilledSummary?.orders_no ?? 0,
+				previousValue: fulfilledPrevious?.orders_no,
+			},
+			{
+				label: __( 'Unfulfilled', 'jetpack-premium-analytics-pkg' ),
+				value: unfulfilledSummary?.orders_no ?? 0,
+				previousValue: unfulfilledPrevious?.orders_no,
+			},
+		],
+		[ fulfilledSummary, unfulfilledSummary, fulfilledPrevious, unfulfilledPrevious ]
 	);
 
-	const segmentStyles = useSegmentStyles( chartData );
-	const hasComparison = fulfilled.hasComparison;
-
+	const hasData = fulfilled.hasData && unfulfilled.hasData;
 	const isError = fulfilled.isError || unfulfilled.isError;
 	const fulfilledRefetch = fulfilled.refetch;
 	const unfulfilledRefetch = unfulfilled.refetch;
@@ -78,42 +60,28 @@ export function OrdersFulfillmentWidget() {
 	}, [ fulfilledRefetch, unfulfilledRefetch ] );
 
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			// The report queries keep placeholders from the previous period across
-			// range changes, so only surface the error when nothing is left to show.
-			isError={ isError && ! hasData }
-			isEmpty={ isEmptyPieChartData( chartData ) }
-			error={ {
-				description: __(
+		<Donut
+			segments={ segments }
+			status={ {
+				isLoading: fulfilled.isLoading || unfulfilled.isLoading,
+				isFetching: fulfilled.isFetching || unfulfilled.isFetching,
+				// The report queries keep placeholders from the previous period across
+				// range changes, so only surface the error when nothing is left to show.
+				isError: isError && ! hasData,
+				hasComparison: fulfilled.hasComparison,
+				refetch,
+			} }
+			error={ describeError( fulfilled.error ?? unfulfilled.error, {
+				retryDescription: __(
 					"We couldn't load orders data. Please try again in a moment.",
 					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
+				onRetry: refetch,
+			} ) }
 			empty={ {
 				icon: reports,
 				description: __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
-			renderLoading={ <DonutChartSkeleton /> }
-		>
-			<Stack className={ styles.container } direction="column" align="center" justify="center">
-				<DonutChart
-					chartData={ chartData }
-					value={ total }
-					styles={ segmentStyles }
-					comparisonValue={ hasComparison ? comparisonTotal : null }
-					legendData={ legendData }
-					showLegend={ true }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
-					} }
-					maxSize={ null }
-					withTooltips
-				/>
-			</Stack>
-		</WidgetState>
+		/>
 	);
 }

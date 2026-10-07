@@ -286,8 +286,6 @@ export {
 	FULFILLED_ORDERS_FILTER,
 	UNFULFILLED_ORDERS_FILTER,
 	PAYMENT_STATUS_FILTERS,
-	buildPaymentStatusData,
-	type PaymentStatusData,
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
