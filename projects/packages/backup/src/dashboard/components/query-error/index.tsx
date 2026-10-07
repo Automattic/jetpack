@@ -1,3 +1,5 @@
+import { speak } from '@wordpress/a11y';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import './style.scss';
@@ -19,9 +21,8 @@ type Props = {
 	/** Whether a retry is in flight. */
 	isRetrying?: boolean;
 	/**
-	 * Extra class for the notice. The base rule zeroes its margin because
-	 * its original two slots are boxes that size it themselves; a caller
-	 * that drops it into ordinary flow has to pay for its own spacing.
+	 * Extra class for the notice, which has no margin of its own; a caller
+	 * in ordinary flow adds its own spacing.
 	 */
 	className?: string;
 };
@@ -61,10 +62,21 @@ export default function QueryError( {
 	isRetrying = false,
 	className,
 }: Props ) {
+	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
+	const wasRetrying = useRef( isRetrying );
+
+	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
+	useEffect( () => {
+		if ( wasRetrying.current && ! isRetrying ) {
+			speak( message, 'assertive' );
+		}
+		wasRetrying.current = isRetrying;
+	}, [ isRetrying, message ] );
+
 	return (
 		<Notice.Root
 			intent="error"
-			spokenMessage={ [ title, error?.message ].filter( Boolean ).join( ' ' ) }
+			spokenMessage={ message }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
 			<Notice.Title>{ title }</Notice.Title>

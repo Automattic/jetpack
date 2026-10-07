@@ -23,6 +23,11 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => () => {},
@@ -33,9 +38,11 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import { useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
+import QueryError from '../src/dashboard/components/query-error';
 import { queryClient } from '../src/dashboard/data/query-client';
 import { useBackups } from '../src/dashboard/hooks/use-backups';
 import { useStickyError } from '../src/dashboard/hooks/use-sticky-error';
@@ -161,6 +168,22 @@ describe( 'useStickyError', () => {
 		const { result } = renderHook( () => useStickyError( null, true ) );
 
 		expect( result.current ).toBeNull();
+	} );
+} );
+
+describe( 'query error', () => {
+	it( 'announces again when a retry fails with the same message', () => {
+		const error = new Error( 'Service unavailable' );
+		const { rerender } = render(
+			<QueryError title="Load failed" error={ error } onRetry={ noop } isRetrying />
+		);
+		( speak as jest.Mock ).mockClear();
+
+		rerender(
+			<QueryError title="Load failed" error={ error } onRetry={ noop } isRetrying={ false } />
+		);
+
+		expect( speak ).toHaveBeenCalledWith( 'Load failed Service unavailable', 'assertive' );
 	} );
 } );
 
