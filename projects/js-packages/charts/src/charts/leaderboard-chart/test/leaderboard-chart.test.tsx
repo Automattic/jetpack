@@ -547,6 +547,35 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
 		} );
 
+		it( 'keeps a label link beside the row button, not inside it, when the label is interactive', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <a href="/author/1">Author</a>,
+							onClick,
+							ariaLabel: 'View posts by Author',
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+
+			const button = screen.getByRole( 'button', { name: 'View posts by Author' } );
+			const link = screen.getByRole( 'link', { name: 'Author' } );
+			link.addEventListener( 'click', event => event.preventDefault() );
+			expect( button ).not.toContainElement( link );
+
+			await user.click( button );
+			await user.click( link );
+			// A value tooltip takes pointer events above the button; its click still drills down.
+			await user.click( screen.getByText( '12.5K' ) );
+			expect( onClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
 		it( 'calls onClick when the row is clicked', async () => {
 			const user = userEvent.setup();
 			const onClick = jest.fn();

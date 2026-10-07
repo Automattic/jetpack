@@ -194,7 +194,8 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	}
 
 	&:hover,
-	&:focus-visible {
+	&:focus-visible,
+	&:has(> .rowButton:focus-visible) {
 
 		// Fixed reserve for the chevron — the value slides by it in full, and the
 		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
@@ -215,7 +216,8 @@ $focus-ring-width: var(--wpds-border-width-focus);
 
 	// In RTL the value slides toward the inline start the other way (rightward).
 	[dir="rtl"] &:hover .valueContainer,
-	[dir="rtl"] &:focus-visible .valueContainer {
+	[dir="rtl"] &:focus-visible .valueContainer,
+	[dir="rtl"] &:has(> .rowButton:focus-visible) .valueContainer {
 		transform: translateX(var(--a8c-charts-dimension-leaderboard-bar-hover-inset));
 	}
 
@@ -227,6 +229,39 @@ $focus-ring-width: var(--wpds-border-width-focus);
 		// Inset by its own width so the outer edge hugs the row boundary: the
 		// outline then sits in the shared row padding, clear of the bar, and stays
 		// inside the overflow:auto container that would clip an outset ring.
+		outline-offset: calc(-1 * #{$focus-ring-width});
+	}
+}
+
+// A row whose label holds a link: the button fills the row behind its cells,
+// which let clicks through to it, and only the label's links sit above it.
+.layeredRow {
+
+	> :not(.rowButton) {
+		pointer-events: none;
+	}
+
+	a {
+		position: relative;
+		z-index: 1;
+		pointer-events: auto;
+	}
+}
+
+.rowButton {
+	position: absolute;
+	inset: 0;
+	appearance: none;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+
+	&:focus-visible {
+		border-radius: var(--wpds-border-radius-sm);
+		outline:
+			$focus-ring-width solid
+			var(--wpds-color-stroke-focus);
 		outline-offset: calc(-1 * #{$focus-ring-width});
 	}
 }

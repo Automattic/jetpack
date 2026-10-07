@@ -49,6 +49,7 @@ interface LeaderboardEntry {
 	imageColor?: string;         // Optional color for the entry's image/icon
 	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
 	ariaLabel?: string;          // Optional. Accessible name for the row button when onClick is set; use for image-only JSX labels.
+	hasInteractiveLabel?: boolean; // Optional, with onClick. The label holds its own link; the row button moves behind the row. Needs ariaLabel.
 }
 ```
 

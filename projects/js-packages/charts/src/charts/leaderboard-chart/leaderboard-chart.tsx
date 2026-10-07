@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useMemo, type FC } from 'react';
+import { useContext, useMemo, type FC, type MouseEvent } from 'react';
 import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
@@ -88,6 +88,20 @@ const hasDeltaValue = (
 	previousShare: number;
 	delta: number;
 } => hasPreviousValue( entry ) && entry.delta != null;
+
+/**
+ * A layered row's cell that takes pointer events of its own (a value tooltip)
+ * sits above the row button; pass its clicks on so they still drill down.
+ *
+ * @param event - The click on the row.
+ */
+function forwardCellClickToRowButton( event: MouseEvent< HTMLDivElement > ) {
+	if ( ( event.target as Element ).closest( 'a, button' ) ) {
+		return;
+	}
+
+	event.currentTarget.querySelector< HTMLButtonElement >( ':scope > button' )?.click();
+}
 
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
@@ -448,6 +462,28 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										</Stack>
 									</>
 								);
+
+								if ( entry.onClick && entry.hasInteractiveLabel ) {
+									return (
+										// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Mouse-only fallback; the row button carries keyboard access.
+										<div
+											key={ entry.id }
+											data-row-index={ rowIndex }
+											style={ rowStyle }
+											className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
+											onClick={ forwardCellClickToRowButton }
+										>
+											<button
+												type="button"
+												className={ styles.rowButton }
+												onClick={ entry.onClick }
+												aria-label={ entry.ariaLabel }
+											/>
+											{ rowCells }
+											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+										</div>
+									);
+								}
 
 								if ( entry.onClick ) {
 									return (

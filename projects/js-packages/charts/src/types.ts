@@ -245,9 +245,18 @@ export type LeaderboardEntry = {
 	 * For links or other interactive affordances (external-link icons, info
 	 * tooltips), put them in the `label` render prop instead of using onClick —
 	 * a row is either a button (onClick) or carries interactive label content,
-	 * never both, since interactive elements cannot be nested in HTML.
+	 * never both, since interactive elements cannot be nested in HTML. The
+	 * exception is a row that sets `hasInteractiveLabel`.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Set with `onClick` when the `label` holds its own link. The row's button
+	 * then sits behind the row instead of around it, so the link stays a
+	 * sibling of the button and both remain operable; give it an `ariaLabel`,
+	 * since the button no longer wraps any text.
+	 */
+	hasInteractiveLabel?: boolean;
 
 	/**
 	 * Optional accessible name for the interactive row's `<button>`. Only applies
