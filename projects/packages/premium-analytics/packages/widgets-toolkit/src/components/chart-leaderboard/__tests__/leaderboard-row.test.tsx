@@ -47,6 +47,53 @@ describe( 'LeaderboardLabel', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'swaps a thumbnail that fails to load for the placeholder', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ { kind: 'thumbnail', url: 'https://example.com/private.jpg', alt: '' } }
+			/>
+		);
+
+		const image = screen.getByRole( 'presentation' );
+		fireEvent.error( image );
+
+		expect( image ).toHaveAttribute( 'src', expect.stringMatching( /^data:image\/svg\+xml/ ) );
+	} );
+
+	it( 'draws the fallback icon when a thumbnail has no image', () => {
+		render(
+			<LeaderboardLabel
+				label="No poster"
+				media={ { kind: 'thumbnail', alt: '', fallbackIcon: category } }
+			/>
+		);
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( glyphPath( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ) ).toBe(
+			iconPath( category )
+		);
+	} );
+
+	it( 'swaps a failed thumbnail for its fallback icon', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ {
+					kind: 'thumbnail',
+					url: 'https://example.com/private.jpg',
+					alt: '',
+					fallbackIcon: category,
+				} }
+			/>
+		);
+
+		fireEvent.error( screen.getByRole( 'presentation' ) );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
 	it( 'supports a first-class no-media label', () => {
 		render( <LeaderboardLabel label="Desktop" media={ { kind: 'none' } } /> );
 
@@ -129,6 +176,37 @@ describe( 'buildLeaderboardRow', () => {
 			'https://example.com/pricing/'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it( 'puts a video row thumbnail inside its detail link', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: {
+				kind: 'thumbnail',
+				url: 'https://example.com/p.jpg',
+				alt: '',
+			},
+			action: { kind: 'videoLink', id: 12, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
+			screen.getByRole( 'presentation' )
+		);
+	} );
+
+	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
+			action: { kind: 'postLink', id: 5, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

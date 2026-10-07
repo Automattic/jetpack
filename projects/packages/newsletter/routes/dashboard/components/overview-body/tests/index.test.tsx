@@ -13,6 +13,12 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: () => 'jetpack',
 } ) );
 
+// The checklist loads its own data; its behavior is covered in onboarding-checklist.test.tsx.
+jest.mock( '../onboarding-checklist', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="onboarding-checklist" />,
+} ) );
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import OverviewBody from '..';
 
@@ -51,26 +57,10 @@ describe( 'OverviewBody', () => {
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Welcome' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the onboarding checklist state and actions', () => {
+	it( 'renders the onboarding checklist', () => {
 		render( <OverviewBody /> );
 
-		expect(
-			screen.getByRole( 'button', { name: /start a newsletter\s*complete/i } )
-		).toHaveAttribute( 'aria-expanded', 'false' );
-		expect( screen.getByRole( 'button', { name: /make it your own/i } ) ).toHaveAttribute(
-			'aria-expanded',
-			'true'
-		);
-		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Skip' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /write your first post/i } ) ).toHaveAttribute(
-			'aria-expanded',
-			'false'
-		);
-		expect( screen.getByRole( 'button', { name: /share your newsletter/i } ) ).toHaveAttribute(
-			'aria-expanded',
-			'false'
-		);
+		expect( screen.getByTestId( 'onboarding-checklist' ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -92,39 +82,6 @@ describe( 'OverviewBody', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noreferrer' );
 		expect( link ).toHaveTextContent( duration );
-	} );
-
-	it( 'records a checklist action on click and not on render', () => {
-		const { rerender } = render( <OverviewBody /> );
-
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
-		rerender( <OverviewBody /> );
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
-
-		// This direct callback test does not need user-event's pointer simulation.
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
-
-		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
-			site_type: 'jetpack',
-			step: 'customize',
-			action: 'primary',
-		} );
-	} );
-
-	it( 'records skipping a checklist step', () => {
-		render( <OverviewBody /> );
-
-		// This direct callback test does not need user-event's pointer simulation.
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: 'Skip' } ) );
-
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
-			site_type: 'jetpack',
-			step: 'customize',
-			action: 'skip',
-		} );
 	} );
 
 	it( 'records a guide click by slug', () => {

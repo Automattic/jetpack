@@ -128,15 +128,7 @@ describe( 'flat report exporters', () => {
 			complete_stats: 1,
 		} );
 		expect( toCsvTable( videosCsvExporter, items ) ).toEqual( [
-			[
-				'Video ID',
-				'Video',
-				'Plays',
-				'Impressions',
-				'Watch time (hours)',
-				'Retention rate (%)',
-				'URL',
-			],
+			[ 'Video ID', 'Video', 'Views', 'Impressions', 'Hours watched', 'Retention rate (%)', 'URL' ],
 			[ 2, 'Intro', 5, 9, 2, 60, 'https://example.com/v/' ],
 			[ 1, 'Untitled video', 1, 4, 0.5, 20, '' ],
 		] );

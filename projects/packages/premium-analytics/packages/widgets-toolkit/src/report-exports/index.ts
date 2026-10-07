@@ -32,6 +32,7 @@ export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
 export {
 	LOCATIONS_GEO_MODES,
 	buildLocationRows,
+	getLocationColumnLabel,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
 	getLocationsScopeParams,

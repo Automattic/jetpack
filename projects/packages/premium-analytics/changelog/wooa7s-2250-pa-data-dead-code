@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+Comment: Remove data package code nothing calls or reads, with the tests that only guarded it.
+
