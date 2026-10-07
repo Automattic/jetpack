@@ -156,7 +156,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// A product counts once its plugin is on, whatever its plan, so the page state is enough.
+	// Plugins rather than product status, so the plan doesn't decide.
 	const shouldAskForUserConnection = Object.values(
 		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
 	).some( product => product?.requires_user_connection && product.is_plugin_active );
