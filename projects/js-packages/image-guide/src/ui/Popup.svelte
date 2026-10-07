@@ -87,7 +87,9 @@
 	<div class="jb-ig-popup preview">
 		<div class="jb-ig-popup description">
 			<div class="jb-ig-popup title">
-				<a href={$imageURL} target="_blank" rel="noopener noreferrer" class="jb-ig-popup">{imageName}</a>
+				<a href={$imageURL} target="_blank" rel="noopener noreferrer" class="jb-ig-popup"
+					>{imageName}</a
+				>
 			</div>
 			{#if ratio >= 1.3}
 				<div class="jb-ig-popup explanation">
@@ -181,7 +183,11 @@
 			</div>
 		</div>
 		<div class="jb-ig-popup info">
-			<a class="jb-ig-popup documentation" href={DOCUMENTATION_URL} target="_blank" rel="noopener noreferrer"
+			<a
+				class="jb-ig-popup documentation"
+				href={DOCUMENTATION_URL}
+				target="_blank"
+				rel="noopener noreferrer"
 				>Learn how to improve site speed by optimizing images <External /></a
 			>
 		</div>
