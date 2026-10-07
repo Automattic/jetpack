@@ -13,6 +13,7 @@ import {
 	ReportThumbnail,
 	VideoTitleLink,
 	getVideoPosterUrl,
+	HOURS_DATA_FORMAT,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
@@ -23,11 +24,6 @@ import type { ComponentProps } from 'react';
 const METRIC_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
-} as const;
-
-const HOURS_DATA_FORMAT = {
-	type: 'number',
-	options: { decimals: 1, useMultipliers: false },
 } as const;
 
 const RATE_DATA_FORMAT = {

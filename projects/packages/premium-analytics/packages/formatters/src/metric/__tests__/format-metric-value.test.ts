@@ -379,5 +379,18 @@ describe( 'formatMetricValue', () => {
 				formatMetricValue( 1234, 'number', { useMultipliers: true, signDisplay: 'always' } )
 			).toBe( '+1.2K' );
 		} );
+
+		it.each( [
+			[ 0.04, 1, '< 0.1' ],
+			[ 0.005, 1, '< 0.1' ],
+			[ 0, 1, '0.0' ],
+			[ 0.05, 1, '0.1' ],
+			[ 0.0597, 1, '0.1' ],
+			[ 0.4, 0, '< 1' ],
+		] )( 'marks %d below %d decimals as %s', ( value, decimals, expected ) => {
+			expect( formatMetricValue( value, 'number', { decimals, markBelowPrecision: true } ) ).toBe(
+				expected
+			);
+		} );
 	} );
 } );
