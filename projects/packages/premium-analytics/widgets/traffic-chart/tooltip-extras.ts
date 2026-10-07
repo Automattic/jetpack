@@ -55,8 +55,12 @@ function readRow(
 		if ( ! date || ! ownDate || value === undefined ) {
 			return;
 		}
+		const endDate = resolveBucketStamp( point.date_end, zone );
+		const ownEnd = endDate ? { endDate } : {};
 		// `realDate` is the date the tooltip row reads; `date` only places it.
-		points.push( axisDates ? { date, realDate: ownDate, value } : { date, value } );
+		points.push(
+			axisDates ? { date, realDate: ownDate, ...ownEnd, value } : { date, ...ownEnd, value }
+		);
 	} );
 
 	return { points, dates };

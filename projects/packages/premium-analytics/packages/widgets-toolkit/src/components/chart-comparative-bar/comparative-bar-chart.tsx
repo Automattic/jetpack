@@ -25,7 +25,7 @@ import {
 	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
-	dateFormatForResolution,
+	formatBucketTooltipDate,
 	resolveTooltipUnits,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
@@ -74,12 +74,6 @@ export type ComparativeBarChartProps = {
 	 * single-bucket or DST-shortened series gives it no way to read.
 	 */
 	tickResolution?: TickResolution;
-
-	/**
-	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Defaults to `formatDate`.
-	 */
-	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 
 	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
@@ -140,7 +134,6 @@ export function ComparativeBarChart( {
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
-	formatTooltipDate = formatDate,
 	compactWhenShort = false,
 	maxWidth = Infinity,
 	defaultHiddenSeries,
@@ -150,9 +143,7 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution(
-		getBucketInfo( series, tickResolution ).displayResolution
-	);
+	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -218,22 +209,19 @@ export function ComparativeBarChart( {
 		[ series, tooltipExtras ]
 	);
 
-	// Comparison points carry the primary's date for axis alignment, so read
-	// `realDate`.
 	const getTooltipLabel = useCallback(
 		(
-			datum: { date: Date; realDate?: Date },
+			datum: { date: Date; realDate?: Date; endDate?: Date },
 			_index: number,
 			key: string,
 			value: string | null,
 			rawValue: number | null
 		): string => {
-			const displayDate = datum.realDate ?? datum.date;
-			const date = formatTooltipDate( displayDate, tooltipDateFormat );
+			const date = formatBucketTooltipDate( datum, displayResolution );
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipUnits, displayResolution ]
 	);
 
 	/**

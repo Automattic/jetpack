@@ -8,7 +8,6 @@ import {
 	VisuallyHidden,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
-import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -53,6 +52,8 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
+	/** The last instant of the bucket, for a tooltip that names a week's days. */
+	endDate?: Date;
 	/** Null for a bucket with no reading, which the chart draws as a gap. */
 	value: number | null;
 }
@@ -273,10 +274,6 @@ function MetricChart( {
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
 	}, [ metric, counterpart, chartType ] );
-	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( date, format ),
-		[]
-	);
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -370,7 +367,6 @@ function MetricChart( {
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
@@ -384,7 +380,6 @@ function MetricChart( {
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
 			compactWhenShort
