@@ -22,7 +22,7 @@ export function SectionCard( {
 	return (
 		<Card.Root id={ id }>
 			<Card.Header>
-				<Card.Title>{ title }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ title }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg">

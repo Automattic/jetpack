@@ -59,6 +59,9 @@ describe( 'SharingButtonsSection', () => {
 		renderWithData( <SharingButtonsSection /> );
 
 		await expect( screen.findByText( 'Facebook, X' ) ).resolves.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Sharing buttons' } )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'Email' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( /Sharing buttons currently appear on: Posts, Pages\./ )
