@@ -122,7 +122,7 @@ const renderTooltip = params => {
 		seriesStyles,
 		extras: tooltipExtras,
 		dataFormat,
-		formatDate: date => formatTooltipDate( date, tooltipDateFormat ),
+		formatDate: point => formatBucketTooltipDate( point, displayResolution ),
 	} );
 
 	return model && <DatedTooltip model={ model } indicatorType="line" />;
@@ -131,7 +131,7 @@ const renderTooltip = params => {
 
 ## Model
 
-`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (one with no current series in its group, or no group, joins the first series). A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. Extras are read at the hovered date from their own `data` and `previous` points; an extra with a reading in either period gets a row, and one that names a drawn series keeps that series' row. The header reads the hovered point's axis `date`, so a nearer comparison point cannot swap in its own; the first comparison point's `realDate` heads the comparison column.
+`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (one with no current series in its group, or no group, joins the first series). A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. Extras are read at the hovered date from their own `data` and `previous` points; an extra with a reading in either period gets a row, and one that names a drawn series keeps that series' row. The header reads a current-period point's axis `date`, so a nearer comparison point cannot swap in its own; the `realDate` of a comparison point on the hovered bucket heads the comparison column, named by `formatDate`, which the charts point at `formatBucketTooltipDate` so a week reads as its span.
 
 | Field            | Type                                    | Description                                                                              |
 | ---------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- |

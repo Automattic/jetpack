@@ -341,6 +341,24 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 
+	// A shorter comparison period has no bar for the last buckets; the column stays,
+	// reading a dash, rather than vanishing as the pointer crosses into them.
+	it( 'keeps the comparison column, as no data, on a bucket the comparison lacks', () => {
+		const JULY_3 = new Date( '2026-07-03T00:00:00Z' );
+		const shortComparison: ComparativeBarChartSeries[] = [
+			{ ...SERIES[ 0 ], data: [ ...SERIES[ 0 ].data, { date: JULY_3, value: 300 } ] },
+			SERIES_WITH_COMPARISON[ 1 ],
+		];
+		render( <ComparativeBarChart series={ shortComparison } dataFormat={ DATA_FORMAT } /> );
+
+		const model = tooltipModelFor( hoveredJuly( JULY_3 ) );
+		expect( model.rows[ 0 ].previous ).toEqual( {
+			value: null,
+			indicator: { kind: 'series', style: { stroke: '#3858E9', opacity: 0.5 } },
+		} );
+		expect( model.previousDate ).toBeUndefined();
+	} );
+
 	it( 'leaves a hidden metric out of the tooltip', () => {
 		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
 

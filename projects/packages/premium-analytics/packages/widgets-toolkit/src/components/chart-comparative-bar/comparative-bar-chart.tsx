@@ -238,12 +238,15 @@ export function ComparativeBarChart( {
 				}
 
 				// Comparison dates were aligned onto the primary axis, so the hovered
-				// category matches on `date`, not on `realDate`.
+				// category matches on `date`, not on `realDate`. A bucket the comparison
+				// lacks still gets an entry, so the tooltip keeps its column and reads a dash.
 				const paired = seriesData.data.find( point => point.date?.getTime() === hoveredTime );
 
-				if ( paired?.value != null ) {
-					augmented[ seriesData.label ] = { datum: paired, index, key: seriesData.label };
-				}
+				augmented[ seriesData.label ] = {
+					datum: paired ?? { date: hovered.date, value: null },
+					index,
+					key: seriesData.label,
+				};
 			}
 
 			return { ...tooltipData, datumByKey: augmented };

@@ -89,8 +89,7 @@ export function buildDatedTooltipModel(
 	// point can come from another bucket when its period is shorter. The header
 	// reads a current-period point, which always sits on the hovered bucket.
 	const hoveredPoint = ( entries.find( e => ! isComparison( e.key ) ) ?? entries[ 0 ] )?.datum as
-		| Point
-		| undefined;
+		Point | undefined;
 
 	if ( ! hoveredPoint?.date ) {
 		return null;
@@ -142,7 +141,8 @@ export function buildDatedTooltipModel(
 			value: inBucket ? readingOf( point ) : null,
 			indicator: { kind: 'series', style: styleOf( drawn.label ) },
 		};
-		if ( inBucket ) {
+		// A stand-in for a bucket the comparison lacks carries no own date to head the column.
+		if ( inBucket && ( point.realDate !== undefined || point.value != null ) ) {
 			previousPoint ??= point;
 		}
 	}
