@@ -394,65 +394,66 @@ export default function HistoryChartCard( {
 							/>
 						) }
 
-						{ series.map( ( deviceSeries, index ) => (
-							<section
-								key={ deviceSeries.label }
-								aria-label={
-									index === 0
-										? __( 'Desktop score history', 'jetpack-boost' )
-										: __( 'Mobile score history', 'jetpack-boost' )
-								}
-							>
-								<h3 className="boost-daily-history__device">
-									<Icon icon={ index === 0 ? desktop : mobile } />
-									{ deviceSeries.label }
-								</h3>
-								<div className="boost-daily-history__plot">
-									{ isVisible && (
-										<BarChart
-											key={ `${ range.startDate }-${ range.endDate }` }
-											data={ [ deviceSeries ] }
-											barClassName={ barClassName }
-											tooltipStyle={ tooltipStyle }
-											withTooltips
-											gridVisibility="x"
-											onBandHighlightChange={ selection => updateHighlight( index, selection ) }
-											margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
-											options={ {
-												xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
-												yScale: { domain: [ 0, 100 ], nice: false, zero: true },
-												axis: {
-													y: { tickValues: [ 0, 50, 100 ] },
-													x: {
-														tickValues,
-														tickFormat: value =>
-															dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+						{ series.map( ( deviceSeries, index ) => {
+							const historyLabel =
+								index === 0
+									? __( 'Desktop score history', 'jetpack-boost' )
+									: __( 'Mobile score history', 'jetpack-boost' );
+
+							return (
+								<section key={ deviceSeries.label } aria-label={ historyLabel }>
+									<h3 className="boost-daily-history__device">
+										<Icon icon={ index === 0 ? desktop : mobile } />
+										{ deviceSeries.label }
+									</h3>
+									<div className="boost-daily-history__plot">
+										{ isVisible && (
+											<BarChart
+												key={ `${ range.startDate }-${ range.endDate }` }
+												data={ [ deviceSeries ] }
+												ariaLabel={ historyLabel }
+												barClassName={ barClassName }
+												tooltipStyle={ tooltipStyle }
+												withTooltips
+												gridVisibility="x"
+												onBandHighlightChange={ selection => updateHighlight( index, selection ) }
+												margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
+												options={ {
+													xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
+													yScale: { domain: [ 0, 100 ], nice: false, zero: true },
+													axis: {
+														y: { tickValues: [ 0, 50, 100 ] },
+														x: {
+															tickValues,
+															tickFormat: value =>
+																dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+														},
 													},
-												},
-											} }
-											renderTooltip={ ( { tooltipData } ) => {
-												const day = days.find(
-													slot => slot.date === tooltipData?.nearestDatum?.datum.label
-												);
-												// Keyboard focus lands here; the popover shows the same details.
-												return day ? (
-													<VisuallyHidden>
-														{ day.period ? (
-															<HistoryTooltip period={ day.period } />
-														) : (
-															<EmptyDayTooltip
-																date={ day.date }
-																isBeforeHistory={ isBeforeHistory( day ) }
-															/>
-														) }
-													</VisuallyHidden>
-												) : null;
-											} }
-										/>
-									) }
-								</div>
-							</section>
-						) ) }
+												} }
+												renderTooltip={ ( { tooltipData } ) => {
+													const day = days.find(
+														slot => slot.date === tooltipData?.nearestDatum?.datum.label
+													);
+													// Keyboard focus lands here; the popover shows the same details.
+													return day ? (
+														<VisuallyHidden>
+															{ day.period ? (
+																<HistoryTooltip period={ day.period } />
+															) : (
+																<EmptyDayTooltip
+																	date={ day.date }
+																	isBeforeHistory={ isBeforeHistory( day ) }
+																/>
+															) }
+														</VisuallyHidden>
+													) : null;
+												} }
+											/>
+										) }
+									</div>
+								</section>
+							);
+						} ) }
 					</Popover.Trigger>
 					{ popupDay && (
 						<Popover.Popup
