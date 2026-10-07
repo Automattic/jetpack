@@ -289,6 +289,30 @@ describe( 'Download link carrying the file selection', () => {
 } );
 
 describe( 'Download screen without a file selection', () => {
+	// A live region that arrives together with its text is missed by screen
+	// readers, so the one node must exist first and have its text updated.
+	it( 'announces each phase in the region that was already there', async () => {
+		render( <DownloadStage /> );
+
+		// First `status` is the screen's region; the selection hint comes after it.
+		const region = ( await screen.findAllByRole( 'status' ) )[ 0 ];
+		expect( region ).toBeEmptyDOMElement();
+
+		await userEvent.click( await screen.findByRole( 'button', { name: /Generate download/ } ) );
+		await waitFor( () => expect( region ).toHaveTextContent( /^Preparing download…$/ ) );
+
+		downloadStatus = {
+			id: 4242,
+			status: 'finished',
+			progress: 100,
+			url: 'https://example.com/archive.zip',
+			valid_until: '2026-09-04T00:00:00+00:00',
+			error: '',
+		};
+		await waitFor( () => expect( region ).toHaveTextContent( /^Your download is ready$/ ) );
+		expect( screen.getAllByRole( 'status' ) ).toEqual( [ region ] );
+	} );
+
 	it( 'still offers the category checklist and submits nothing on its own', async () => {
 		render( <DownloadStage /> );
 
@@ -340,7 +364,9 @@ describe( 'Download screen with a file selection', () => {
 		// Sibling witness rather than bare absence: the screen has moved on
 		// to preparing the archive, which is the state that replaces the
 		// checklist. A screen that rendered nothing at all would fail here.
-		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
+		).resolves.toBeInTheDocument();
 
 		for ( const label of ITEM_LABELS ) {
 			expect(
@@ -350,21 +376,12 @@ describe( 'Download screen with a file selection', () => {
 		expect( screen.queryByRole( 'button', { name: /Generate download/ } ) ).not.toBeInTheDocument();
 	} );
 
-	// The bare role query is unambiguous: the checklist branch that carries the
-	// screen's other `role="status"` never renders alongside a file selection.
-	it( 'announces that the archive is being prepared, and only that line', async () => {
-		render( <DownloadStage /> );
-
-		// Exact, for the reason given in `restore-progress-message.test.tsx`.
-		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
-			/^Preparing download…$/
-		);
-	} );
-
 	it( 'asks WordPress.com for the archive once, without being clicked', async () => {
 		render( <DownloadStage /> );
 
-		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
+		).resolves.toBeInTheDocument();
 
 		const posts = postCalls();
 		expect( posts ).toHaveLength( 1 );
@@ -375,7 +392,9 @@ describe( 'Download screen with a file selection', () => {
 	it( 'names the paths type and the entries, and no other category', async () => {
 		render( <DownloadStage /> );
 
-		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
+		).resolves.toBeInTheDocument();
 
 		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
 			types: { paths: true },
@@ -462,9 +481,6 @@ describe( 'Download screen with a file selection', () => {
 		const link = await screen.findByRole( 'link', { name: 'Download file' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
 		expect( link ).toHaveAttribute( 'download' );
-		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
-			/^Your download is ready$/
-		);
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
@@ -509,7 +525,9 @@ describe( 'From the file browser to the request', () => {
 			files: new URLSearchParams( href.slice( href.indexOf( '?' ) ) ).get( 'files' ) ?? '',
 		} );
 		render( <DownloadStage /> );
-		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'Preparing download…', { selector: 'span' } )
+		).resolves.toBeInTheDocument();
 
 		// Three entries for two ticked rows: the folder's id is itself a
 		// comma-joined pair.

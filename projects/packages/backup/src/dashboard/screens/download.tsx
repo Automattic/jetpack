@@ -1,4 +1,4 @@
-import { ProgressBar } from '@wordpress/components';
+import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -114,6 +114,16 @@ export default function DownloadScreen() {
 	}
 
 	const downloadPoint = rewindIdToIso( rewindId );
+	const titles = {
+		preparing: __( 'Preparing download…', 'jetpack-backup-pkg' ),
+		ready: __( 'Your download is ready', 'jetpack-backup-pkg' ),
+	};
+	let announcement = '';
+	if ( isPreparing ) {
+		announcement = titles.preparing;
+	} else if ( state.phase === 'success' ) {
+		announcement = titles.ready;
+	}
 
 	return (
 		<DashboardLayout>
@@ -138,6 +148,8 @@ export default function DownloadScreen() {
 						</Stack>
 					</Card.Header>
 					<Card.Content className="jpb-download__body">
+						{ /* Always mounted, for the reason given at `SELECTION_HINT_ID`. */ }
+						<VisuallyHidden role="status">{ announcement }</VisuallyHidden>
 						{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
 							<>
 								<Text className="jpb-text-muted">
@@ -208,8 +220,8 @@ export default function DownloadScreen() {
 									<Spinner />
 								) }
 								<EmptyState.Title className="jpb-download__status-title">
-									<Text variant="body-xl" role="status" render={ <span /> }>
-										{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ titles.preparing }
 									</Text>
 								</EmptyState.Title>
 							</EmptyState.Root>
@@ -223,8 +235,8 @@ export default function DownloadScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-download__status-title">
-									<Text variant="body-xl" role="status" render={ <span /> }>
-										{ __( 'Your download is ready', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ titles.ready }
 									</Text>
 								</EmptyState.Title>
 								{ /*

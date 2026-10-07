@@ -131,7 +131,10 @@ describe( 'Download screen with nothing selected', () => {
 
 		// Mounted and empty before anything is wrong: a live region that
 		// appears together with its first message is unreliable.
-		const hint = await screen.findByRole( 'status' );
+		await expect(
+			screen.findByRole( 'button', { name: /Generate download/ } )
+		).resolves.toBeVisible();
+		const hint = screen.getAllByRole( 'status' ).find( el => el.id.endsWith( 'selection-hint' ) )!;
 		expect( hint ).toBeEmptyDOMElement();
 		expect( button( /Generate download/ ) ).toHaveAttribute( 'aria-describedby', hint.id );
 
@@ -139,7 +142,7 @@ describe( 'Download screen with nothing selected', () => {
 
 		// The same element, now carrying the message — an update to a
 		// region already in the tree, not an insertion.
-		expect( screen.getByRole( 'status' ) ).toBe( hint );
+		expect( screen.getAllByRole( 'status' ) ).toContain( hint );
 		expect( hint ).toHaveTextContent( 'Select at least one item to download.' );
 	} );
 

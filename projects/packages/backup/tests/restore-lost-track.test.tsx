@@ -37,7 +37,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -138,12 +138,8 @@ describe( 'a restore that has gone out of sight', () => {
 		expect( screen.getByText( 'Could not reach WordPress.com.' ) ).toBeInTheDocument();
 	} );
 
-	// Not an error notice: we have no evidence the restore failed, only
-	// that we cannot see it, and red would assert a failure we cannot
-	// observe. Asserted through the status label `Notice` renders
-	// visually-hidden — what a screen reader is actually told — rather
-	// than through its `is-warning` class, which is that package's
-	// implementation detail rather than a contract.
+	// Not an error: we cannot see the restore, not know it failed. `Notice.Root`
+	// speaks `error` assertively and `warning` politely, so check the live regions.
 	it( 'warns rather than reporting a failure', async () => {
 		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
 		render( <RestoreStage /> );
@@ -151,8 +147,13 @@ describe( 'a restore that has gone out of sight', () => {
 		await startRestore();
 		await findMessage();
 
-		expect( screen.getAllByText( /We've lost track of this restore/ ) ).not.toHaveLength( 0 );
-		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		// The notice plus its @wordpress/a11y live-region copy; tell them apart by `aria-live`.
+		const lives = () =>
+			screen
+				.getAllByText( /We've lost track of this restore/ )
+				.map( el => el.getAttribute( 'aria-live' ) );
+		await waitFor( () => expect( lives() ).toContain( 'polite' ) );
+		expect( lives() ).not.toContain( 'assertive' );
 	} );
 } );
 

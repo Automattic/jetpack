@@ -1,4 +1,4 @@
-import { ProgressBar } from '@wordpress/components';
+import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -79,6 +79,13 @@ export default function RestoreScreen() {
 	}
 
 	const restorePoint = rewindIdToIso( shownRewindId );
+	const titles = {
+		checking: __( 'Checking for a restore in progress…', 'jetpack-backup-pkg' ),
+		progress: __( 'Restoring from backup…', 'jetpack-backup-pkg' ),
+		success: __( 'Restore complete.', 'jetpack-backup-pkg' ),
+		'success-with-errors': __( 'Restore finished with errors', 'jetpack-backup-pkg' ),
+	};
+	const announcement = titles[ state.phase as keyof typeof titles ] ?? '';
 
 	return (
 		<DashboardLayout>
@@ -103,6 +110,8 @@ export default function RestoreScreen() {
 						</Stack>
 					</Card.Header>
 					<Card.Content className="jpb-restore__body">
+						{ /* Always mounted, for the reason given at `SELECTION_HINT_ID`. */ }
+						<VisuallyHidden role="status">{ announcement }</VisuallyHidden>
 						{ /*
 						 * The opening state of every cold load. Neither the form nor a
 						 * progress bar, because we do not yet know which is true — and
@@ -112,17 +121,7 @@ export default function RestoreScreen() {
 						{ state.phase === 'checking' && (
 							<Stack direction="row" gap="sm" align="center">
 								<Spinner />
-								{ /*
-								 * `role="status"` because this is the whole page for as
-								 * long as it lasts, and every other branch announces
-								 * itself through `Notice`'s own live region — leaving
-								 * this one silent means a screen-reader user gets
-								 * nothing on load and then a form that appeared without
-								 * comment.
-								 */ }
-								<Text className="jpb-text-muted" role="status">
-									{ __( 'Checking for a restore in progress…', 'jetpack-backup-pkg' ) }
-								</Text>
+								<Text className="jpb-text-muted">{ titles.checking }</Text>
 							</Stack>
 						) }
 						{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (
@@ -219,8 +218,8 @@ export default function RestoreScreen() {
 								 * below change on every 5s poll and would re-announce with it.
 								 */ }
 								<EmptyState.Title className="jpb-restore__status-title">
-									<Text variant="body-xl" role="status" render={ <span /> }>
-										{ __( 'Restoring from backup…', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ titles.progress }
 									</Text>
 								</EmptyState.Title>
 
@@ -243,9 +242,9 @@ export default function RestoreScreen() {
 						) }
 						{ /*
 						 * Suppressed once we have lost track, where it would sit
-						 * directly below a warning saying the restore may still be
+						 * directly above a warning saying the restore may still be
 						 * running and we can no longer see it — promising an end state
-						 * the notice has just disowned.
+						 * the warning beneath has just disowned.
 						 *
 						 * "from here" because the constraint is this screen's: upstream
 						 * refuses a concurrent restore only as a bare failure, and the
@@ -279,8 +278,8 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									<Text variant="body-xl" role="status" render={ <span /> }>
-										{ __( 'Restore complete.', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ titles.success }
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Actions>
@@ -305,8 +304,8 @@ export default function RestoreScreen() {
 									/>
 								</EmptyState.Visual>
 								<EmptyState.Title className="jpb-restore__status-title">
-									<Text variant="body-xl" role="status" render={ <span /> }>
-										{ __( 'Restore finished with errors', 'jetpack-backup-pkg' ) }
+									<Text variant="body-xl" render={ <span /> }>
+										{ titles[ 'success-with-errors' ] }
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Description>

@@ -1,5 +1,5 @@
 import { CheckboxControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import './style.scss';
@@ -71,18 +71,17 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
 	);
 
 	// As in the design, only a row with a description gets the bold name.
-	const label = item.description ? (
-		<>
-			<strong>{ item.label }</strong>{ ' ' }
-			{ sprintf(
-				/* translators: %s: short note about what the item covers, e.g. "includes pages and posts". */
-				__( '(%s)', 'jetpack-backup-pkg' ),
-				item.description
-			) }
-		</>
-	) : (
-		item.label
-	);
+	const label = item.description
+		? createInterpolateElement(
+				sprintf(
+					/* translators: 1: item name, e.g. "Media uploads". 2: short note about what it covers, e.g. "includes pages and posts". */
+					__( '<strong>%1$s</strong> (%2$s)', 'jetpack-backup-pkg' ),
+					item.label,
+					item.description
+				),
+				{ strong: <strong /> }
+			)
+		: item.label;
 
 	return (
 		<div className="jpb-restore-checklist__row">
