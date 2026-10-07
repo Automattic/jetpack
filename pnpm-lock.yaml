@@ -2845,6 +2845,9 @@ importers:
       '@wordpress/primitives':
         specifier: 4.55.0
         version: 4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/react-inert-value':
+        specifier: 1.0.0
+        version: 1.0.0(@types/react@18.3.31)(react@18.3.1)
       '@wordpress/route':
         specifier: 0.21.0
         version: 0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3163,6 +3166,9 @@ importers:
       '@wordpress/private-apis':
         specifier: ^1.8.1
         version: 1.55.0
+      '@wordpress/react-inert-value':
+        specifier: 1.0.0
+        version: 1.0.0(@types/react@18.3.31)(react@18.3.1)
       '@wordpress/rich-text':
         specifier: 7.55.0
         version: 7.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4237,6 +4243,9 @@ importers:
       '@wordpress/private-apis':
         specifier: 1.55.0
         version: 1.55.0
+      '@wordpress/react-inert-value':
+        specifier: 1.0.0
+        version: 1.0.0(@types/react@18.3.31)(react@18.3.1)
       '@wordpress/route':
         specifier: 0.21.0
         version: 0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4433,6 +4442,9 @@ importers:
       '@wordpress/preferences':
         specifier: 4.55.0
         version: 4.55.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/react-inert-value':
+        specifier: 1.0.0
+        version: 1.0.0(@types/react@18.3.31)(react@18.3.1)
       '@wordpress/route':
         specifier: 0.21.0
         version: 0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -11868,6 +11880,16 @@ packages:
   '@wordpress/private-apis@1.55.0':
     resolution: {integrity: sha512-i3VIoRP7XXOQoNSNFO8yqRIX3ujzUg+qK//Ldz/7hPtY3kRuvGRJhadJuifC9donXe2265am3LSO1lwxvq2uWA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/react-inert-value@1.0.0':
+    resolution: {integrity: sha512-7B8vdjQhqdeyblzL/RldlWpaJuCidRq5TrY0s33brpONmayMLlc4na+o4qckKONxEoZKg3KN1cm81A3WeSnOzw==}
+    engines: {node: '>=20.10.0'}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@wordpress/redux-routine@5.55.0':
     resolution: {integrity: sha512-ui7VqyNSD4JEKmXUbPdxQ18lAGN/ive8bwMZ9eLpBjyEUhUFw/hEZaT/rvCVX3EGlGu1o7FxnFxM2QJfIouKVA==}
@@ -29813,6 +29835,12 @@ snapshots:
       requestidlecallback: 0.3.0
 
   '@wordpress/private-apis@1.55.0': {}
+
+  '@wordpress/react-inert-value@1.0.0(@types/react@18.3.31)(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.31
 
   '@wordpress/redux-routine@5.55.0(redux@5.0.1)':
     dependencies:
