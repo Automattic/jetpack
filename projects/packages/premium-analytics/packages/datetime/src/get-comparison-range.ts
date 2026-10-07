@@ -3,7 +3,6 @@
  */
 import {
 	addDays,
-	addMonths,
 	differenceInCalendarMonths,
 	differenceInDays,
 	differenceInMilliseconds,
@@ -11,7 +10,6 @@ import {
 	endOfMonth,
 	isFirstDayOfMonth,
 	isLastDayOfMonth,
-	isSameDay,
 	startOfDay,
 	subDays,
 	subMilliseconds,
@@ -114,11 +112,9 @@ function getWeekAlignedShiftDays(
 }
 
 /**
- * Whole calendar months a day-aligned range covers, or null when it is not a
- * whole number of months. Detected by round trip against the day after the
- * range ends, and again from the start stepped back by that count: a start a
- * month step cannot undo (31 January two months back clamps to 30 November)
- * measures in days instead. Unlike `getDateRangeSpan`, a single month counts.
+ * Calendar months a day-aligned range covers from the 1st to a month end, or
+ * null. A month from mid-month (Sep 8 to Oct 7) is read as its days, so it
+ * never compares against 31. Unlike `getDateRangeSpan`, a single month counts.
  *
  * @param from - Range start.
  * @param to   - Range end.
@@ -128,24 +124,17 @@ function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	const isDayAligned =
 		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
 
-	if ( ! isDayAligned ) {
+	if ( ! isDayAligned || ! isFirstDayOfMonth( from ) || ! isLastDayOfMonth( to ) ) {
 		return null;
 	}
 
-	const dayAfterTo = startOfDay( addDays( to, 1 ) );
-	const months = differenceInCalendarMonths( dayAfterTo, from );
-
-	if ( months < 1 || ! isSameDay( addMonths( from, months ), dayAfterTo ) ) {
-		return null;
-	}
-
-	return isSameDay( addMonths( subMonths( from, months ), months ), from ) ? months : null;
+	return differenceInCalendarMonths( to, from ) + 1;
 }
 
 /**
  * Whole months the previous period steps back by, or null to step by days.
- * A "Last N days" window on a whole month (Sep 8 to Oct 7) still steps by days,
- * or it would compare against 31 of them.
+ * A "Last N days" window on whole months (Apr 1 to 30) still steps by days, or
+ * it would compare against 31 of them.
  *
  * @param from            - Range start.
  * @param to              - Range end.
@@ -184,8 +173,8 @@ export type ComparisonRangeOptions = {
  * - A range starting on the 1st compares with the same calendar dates a month
  *   or a year earlier (a whole month with the whole month before it); any
  *   other partial-month range keeps its day count.
- * - Whole months are detected from the range shape, so a custom range that
- *   lands on one compares calendar-to-calendar; a "Last N days" preset does not.
+ * - A custom range from the 1st to a month end compares calendar-to-calendar; a
+ *   mid-month range or a "Last N days" preset keeps its day count.
  * - `previous-period` ends the day before the reference starts; a reference
  *   still running its final month stops as many days short, so the two windows
  *   are the same length.

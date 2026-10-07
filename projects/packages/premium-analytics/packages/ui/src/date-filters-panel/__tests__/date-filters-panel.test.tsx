@@ -153,8 +153,8 @@ describe( 'DateFiltersPanel', () => {
 	describe( 'with Last 30 days spanning a whole month', () => {
 		const openPicker = async ( user: ReturnType< typeof userEvent.setup > ) => {
 			const last30Days = {
-				from: new TZDate( '2026-09-08T00:00:00.000Z', 'UTC' ),
-				to: new TZDate( '2026-10-07T23:59:59.999Z', 'UTC' ),
+				from: new TZDate( '2026-04-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2026-04-30T23:59:59.999Z', 'UTC' ),
 			};
 			renderPanel( {
 				appliedPresetId: 'last-30-days',

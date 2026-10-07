@@ -211,19 +211,11 @@ describe( 'comparison options', () => {
 		);
 	} );
 
-	it( 'steps a rolling 12-month window back by its month count', () => {
-		const last12Months = daysRange( [ 2025, 7, 31 ], [ 2026, 7, 30 ] );
-
-		expect( labels( last12Months ) ).toEqual( [ 'Previous 12 months' ] );
-		expect( getComparisonOptions( last12Months )[ 0 ].range ).toEqual(
-			daysRange( [ 2024, 7, 31 ], [ 2025, 7, 30 ] )
-		);
-	} );
-
 	it.each( [
-		[ 'last-30-days', [ 2026, 8, 8 ], [ 2026, 9, 7 ], [ 2026, 7, 9 ], [ 2026, 8, 7 ], 30 ],
+		[ 'custom', [ 2026, 8, 8 ], [ 2026, 9, 7 ], [ 2026, 7, 9 ], [ 2026, 8, 7 ], 30 ],
+		[ 'last-30-days', [ 2026, 3, 1 ], [ 2026, 3, 30 ], [ 2026, 2, 2 ], [ 2026, 2, 31 ], 30 ],
 		[ 'last-90-days', [ 2025, 11, 1 ], [ 2026, 1, 28 ], [ 2025, 8, 2 ], [ 2025, 10, 30 ], 90 ],
-		[ 'last-365-days', [ 2024, 9, 8 ], [ 2025, 9, 7 ], [ 2023, 9, 9 ], [ 2024, 9, 7 ], 365 ],
+		[ 'last-365-days', [ 2024, 2, 1 ], [ 2025, 1, 28 ], [ 2023, 2, 2 ], [ 2024, 1, 29 ], 365 ],
 	] as const )(
 		'steps %s back by its day count',
 		( presetId, from, to, compareFrom, compareTo, days ) => {

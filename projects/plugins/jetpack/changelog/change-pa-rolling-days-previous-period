@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Compare Last 30 days with the 30 days right before it.
+Premium Analytics: Compare Last 30 days and custom ranges starting mid-month with the same number of days right before them.
