@@ -168,23 +168,24 @@ export const useChartMargin = (
 			}
 		}
 
-		// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
-		// This mirrors Y-axis behavior where margin is based on label size and tick length,
-		// but keeps the padding minimal so consumers can control container spacing themselves.
-		const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
-		const { fontSize, tickLength, tickLabelStyle } = getXAxisLabelMetrics( theme, xOrientation );
-		const computedXMargin = fontSize + tickLength;
-
-		if ( xOrientation === 'top' ) {
-			defaultMargin.top = Math.max( defaultMargin.top, computedXMargin );
-			defaultMargin.bottom = DEFAULT_BOTTOM_FOR_TOP_AXIS;
-		} else {
-			defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
-		}
-
-		// An X-axis label is centered on its tick, so the ones at either end of the
-		// scale hang half their width outside the plot area and clip at the SVG edge.
+		// A hidden x axis reserves nothing either, whichever side it sits on.
 		if ( options.axis?.x?.display !== false ) {
+			// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
+			// This mirrors Y-axis behavior where margin is based on label size and tick length,
+			// but keeps the padding minimal so consumers can control container spacing themselves.
+			const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
+			const { fontSize, tickLength, tickLabelStyle } = getXAxisLabelMetrics( theme, xOrientation );
+			const computedXMargin = fontSize + tickLength;
+
+			if ( xOrientation === 'top' ) {
+				defaultMargin.top = Math.max( defaultMargin.top, computedXMargin );
+				defaultMargin.bottom = DEFAULT_BOTTOM_FOR_TOP_AXIS;
+			} else {
+				defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
+			}
+
+			// An X-axis label is centered on its tick, so the ones at either end of the
+			// scale hang half their width outside the plot area and clip at the SVG edge.
 			const { first, last } = getEdgeTickWidths(
 				options.axis?.x?.tickValues ?? [],
 				options.axis?.x?.tickFormat,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line and bar charts: Reserve no margin for a hidden x axis, matching a hidden y axis.
