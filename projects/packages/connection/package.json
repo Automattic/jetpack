@@ -19,6 +19,7 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
 		"test": "node --test 'tests/js/**/*.test.js'",
+		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",
 		"validate": "pnpm exec validate-es dist/",
 		"validate-connectors-card": "node bin/validate-connectors-card.js",
 		"watch": "pnpm run build && pnpm webpack watch"
@@ -39,6 +40,7 @@
 		"@types/react": "18.3.31",
 		"@wordpress/browserslist-config": "6.55.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.55.0",
+		"c8": "^11.0.0",
 		"glob": "13.0.6",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",

@@ -2466,6 +2466,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.55.0
         version: 6.55.0(webpack@5.111.1)
+      c8:
+        specifier: ^11.0.0
+        version: 11.0.0
       glob:
         specifier: 13.0.6
         version: 13.0.6
