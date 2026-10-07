@@ -1,6 +1,6 @@
 # WooCommerce stats
 
-The WooCommerce section of the Premium Analytics dashboard. This package registers the section. It does not place widgets.
+The WooCommerce section of the Premium Analytics dashboard. This package registers the section and its default layout, which is also what the inserter offers on the tab: Net sales over time for now, more as the widgets land here.
 
 It also serves the reports the section's widgets will read. `GET /jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` forwards to the same path under the connected site on WordPress.com, for users who can view store reports, and caches a successful answer for five minutes.
 
