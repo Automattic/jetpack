@@ -192,7 +192,9 @@ class Sharing_Service {
 				'custom'        => array(),
 			);
 
-			update_option( 'sharing-options', array( 'global' => $global ) );
+			$options           = is_array( $options ) ? $options : array();
+			$options['global'] = $global;
+			update_option( 'sharing-options', $options );
 		}
 
 		if ( ! isset( $global['show'] ) ) {
