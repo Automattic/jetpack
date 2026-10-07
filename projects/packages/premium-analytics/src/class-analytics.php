@@ -359,6 +359,12 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
+		// Where the reports' All time range starts.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_start_date' ) ) {
+			require_once __DIR__ . '/stats-start-date.php';
+		}
+		configure_stats_start_date();
+
 		// The composition flag's answer, read by the dashboard policy; the file is
 		// already loaded by boot_shared_services().
 		configure_dashboard_policy();

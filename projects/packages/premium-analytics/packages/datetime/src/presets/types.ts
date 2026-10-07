@@ -38,8 +38,8 @@ export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 
 /**
  * The all-time marker. On the year surface it covers every year the surface
- * lists; on a detail page's quick surface it runs from the resource's own start
- * (its publish date) through today.
+ * lists; on a detail page it runs from the resource's own start (its publish
+ * date), and on a report from the day the site's Stats start, through today.
  */
 export const PRESET_ALL_TIME = 'all-time' as const;
 
@@ -84,6 +84,12 @@ export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
  * time, which such a page anchors on the resource's own publish date.
  */
 export const DETAIL_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
+
+/**
+ * What a report page offers: the whole menu, plus all time, which a report
+ * anchors on the day the site's Stats start.
+ */
+export const REPORT_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.

@@ -1,14 +1,17 @@
 import {
 	ensureCoreSettingsReady,
+	getStatsStartDate,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getReportDefinition } from './registry';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getStatsStartDate: jest.fn( () => undefined ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Carries incoming params through, as the real normalizer keeps the detail scopes.
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
@@ -73,6 +76,40 @@ describe( 'report route.beforeLoad', () => {
 			await expect(
 				beforeLoad( { report: 'authors' }, { section: 'b' } )
 			).resolves.toBeUndefined();
+		} );
+	} );
+
+	describe( 'on an all-time window', () => {
+		beforeEach( () => {
+			( getStatsStartDate as jest.Mock ).mockReturnValue( toLocalTZ( '2012-03-04', 'UTC' ) );
+		} );
+
+		afterEach( () => {
+			( getStatsStartDate as jest.Mock ).mockReturnValue( undefined );
+		} );
+
+		const yearSurfaceLink = {
+			preset: 'all-time',
+			from: '2021-01-01T00:00:00.000+00:00',
+			to: '2026-06-16T00:00:00.000+00:00',
+		};
+
+		it( 'moves a linked start to the day Stats start', async () => {
+			await expect( beforeLoad( { report: 'authors' }, yearSurfaceLink ) ).rejects.toMatchObject( {
+				search: { preset: 'all-time', from: expect.stringMatching( /^2012-03-04T00:00:00/ ) },
+				replace: true,
+			} );
+		} );
+
+		it( 'passes through a start already on that day', async () => {
+			let thrown: { search: Record< string, string > } | undefined;
+			try {
+				await beforeLoad( { report: 'authors' }, yearSurfaceLink );
+			} catch ( error ) {
+				thrown = error as { search: Record< string, string > };
+			}
+
+			await expect( beforeLoad( { report: 'authors' }, thrown?.search ) ).resolves.toBeUndefined();
 		} );
 	} );
 

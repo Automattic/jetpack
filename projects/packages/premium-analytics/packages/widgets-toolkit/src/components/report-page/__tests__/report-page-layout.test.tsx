@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { REPORT_SURFACE_PRESETS, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 /**
@@ -98,6 +98,30 @@ describe( 'ReportPageLayout', () => {
 		);
 
 		expect( screen.getByText( copy ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'offers all time from the day Stats start', '2012-03-04', REPORT_SURFACE_PRESETS ],
+		[ 'leaves all time off without a start to anchor it', undefined, undefined ],
+	] )( '%s', ( _title, statsStartDate, presetIds ) => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { premium_analytics: { stats_start_date: statsStartDate } },
+		} );
+
+		try {
+			render(
+				<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
+					table
+				</ReportPageLayout>
+			);
+		} finally {
+			delete window.JetpackScriptData;
+		}
+
+		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
+		expect( panelProps.presetIds ).toBe( presetIds );
+		expect( panelProps.allTimeStart !== undefined ).toBe( statsStartDate !== undefined );
 	} );
 
 	it( 'mounts no date picker on a report with no date window', () => {

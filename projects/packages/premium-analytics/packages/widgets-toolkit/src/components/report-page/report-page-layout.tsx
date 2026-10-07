@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
+import { getStatsStartDate } from '@jetpack-premium-analytics/data';
+import { REPORT_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -43,11 +45,20 @@ export interface ReportPageLayoutProps {
  * @return The report page scaffold.
  */
 export function ReportPageLayout( { title, dateFilters, tabs, children }: ReportPageLayoutProps ) {
+	const allTimeStart = useMemo( getStatsStartDate, [] );
+
 	return (
 		<div className={ styles.root }>
 			{ tabs }
 			<SectionHeader title={ title } pinned>
-				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
+				{ dateFilters ? (
+					<DateFiltersPanel
+						{ ...dateFilters }
+						// Unanchored, All time would quietly mean a fixed lookback instead.
+						presetIds={ allTimeStart ? REPORT_SURFACE_PRESETS : undefined }
+						allTimeStart={ allTimeStart }
+					/>
+				) : null }
 			</SectionHeader>
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
 				<div className={ styles.sections }>{ children }</div>

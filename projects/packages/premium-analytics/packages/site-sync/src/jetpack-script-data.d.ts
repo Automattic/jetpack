@@ -18,6 +18,8 @@ declare module '@automattic/jetpack-script-data' {
 			dashboard_composition_enabled?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
+			// The site-local `Y-m-d` day Stats counts from. Only on the dashboard page.
+			stats_start_date?: string;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.
