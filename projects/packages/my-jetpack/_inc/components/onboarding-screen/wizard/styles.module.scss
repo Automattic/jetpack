@@ -31,50 +31,11 @@ $row-glyph-gap: 14px;
 $row-min-height: 56px;
 
 /*
- * The panel's display copy. The prototype sizes it off the viewport, at
- * `clamp(26px,2.3vw,40px)` (components/onboarding/brand-panel.tsx:72), and the
- * same rule reads much smaller here: its panel is 44% of a screen with no
- * rail, ours is $panel-width of a grid that carries one.
- *
- * So the size is a share of the panel instead. .brand-panel__inner is the
- * query container, and 1cqw is 1% of its content box, which $panel-copy-inset
- * below makes exactly the copy block's own width. A line renders at `ratio`
- * times the font size, and the widest ratio across the four steps is 7.9208,
- * "Grow your audience." in panel-type.ts, so landing that line on 72% of the
- * block is 72 / 7.9208, or 9.09cqw. At a 1440px viewport the block is 451.2px,
- * the size is 41.0px, and that line is 324.8px wide: 72.0% of the block.
- *
- * 72% and not the 80% this started at, which put the widest line 8px from the
- * inset and read as touching it. The prototype's own widest line is 38% of its
- * panel; 72% is the compromise, because the size was raised deliberately.
- *
- * The clamp only guards the ends. 26px is the prototype's own floor, below a
- * window the panel is hidden at anyway; 72px is reached at 792px of block,
- * which is where $panel-copy-max-width stops it too.
- *
- * The line height is a unitless ratio rather than a token because the size it
- * multiplies is fluid.
- */
-$panel-copy-size-min: 26px;
-$panel-copy-size-fluid: 9.09cqw;
-$panel-copy-size-max: 72px;
-$panel-copy-line-height: 1.16;
-
-/*
- * The copy's inset from the panel's edge, from the prototype's `inset-x-10` on
+ * The panel's own inset, from the prototype's `inset-x-10` on
  * components/onboarding/brand-panel.tsx — Tailwind's 10, so 2.5rem. No WPDS
- * padding token is 40px. It replaces the inner's inline padding rather than
- * nesting inside it, so the container-query box and the copy block are one
- * width and the 72% above is measured against the block itself.
+ * padding token is 40px.
  */
-$panel-copy-inset: 40px;
-
-/*
- * The measure's ceiling, so a very wide panel cannot sprawl the line. It is
- * the width at which the clamp caps out — 72px / 9.09% — so the two limits
- * land together and the widest line stays at 72% past it.
- */
-$panel-copy-max-width: 792px;
+$panel-inset: 40px;
 
 /*
  * The three stops of the shared gradient artwork, read off the linearGradient
@@ -104,32 +65,13 @@ $mesh-period-4: 29s;
 
 /*
  * Blur is what makes four circles read as one field, so it is large next to
- * the blobs. The opacities are set by the mint copy's contrast, measured on
- * the composited background at the worst alignment of all four cycles rather
- * than at one frame: 7.87:1 on a 680px panel, 8.00:1 on a 900px one, against
- * a 7:1 floor. The mask below is what buys the headroom to be this bright.
+ * the blobs. Nothing reads over them now, so the opacities are free.
  */
 $mesh-blur: 64px;
 $mesh-opacity-bright: 0.34;
 $mesh-opacity-mid: 0.8;
 $mesh-opacity-blue: 0.58;
 $mesh-opacity-deep: 0.62;
-
-/*
- * A stencil rather than a colour, and the reason the blobs can be this bright:
- * the field is opaque over the top 62% and drops to $mesh-mask-floor by 77%,
- * which is where the display copy starts on the shortest panel the breakpoint
- * allows. A floor rather than nothing, so the lower third still moves. What
- * the fade uncovers is the same ground the mesh paints, so it has no edge.
- *
- * It is a mask and not a per-blob drift limit because blur() is a fixed radius:
- * a percentage travel limit that clears the copy at 900px fails at 680px, where
- * the same 64px of soft edge covers half as much again of the panel. The mask
- * is in percentages of the panel, so it is the only one of the two that scales.
- */
-$mesh-mask-floor: 0.56;
-$mesh-mask-low: rgba(0, 0, 0, $mesh-mask-floor);
-$mesh-mask: linear-gradient(to bottom, #000 0%, #000 62%, $mesh-mask-low 77%);
 
 /*
  * The panel artwork. Its width is the prototype's own proportion: 560px of art
@@ -457,18 +399,11 @@ $rail-row-min-height: 40px;
 	display: flex;
 	position: relative;
 	flex-direction: column;
-	justify-content: flex-end;
 	block-size: 100%;
-
-	// The query container the display copy is sized against, so the copy tracks
-	// the panel rather than the viewport. Its inline size comes from the grid,
-	// never from its contents, which is what inline-size containment requires.
-	container-type: inline-size;
 	padding: var(--wpds-dimension-padding-3xl);
 
-	// The prototype's own inset, and the width the display copy is measured
-	// against; see $panel-copy-inset.
-	padding-inline: $panel-copy-inset;
+	// The prototype's own inset.
+	padding-inline: $panel-inset;
 	border-radius: var(--wpds-border-radius-lg);
 	background: var(--jp-green-90);
 	overflow: hidden;
@@ -485,7 +420,6 @@ $rail-row-min-height: 40px;
 	isolation: isolate;
 	background: var(--jp-green-90);
 
-	mask-image: $mesh-mask;
 	pointer-events: none;
 }
 
@@ -538,9 +472,8 @@ $rail-row-min-height: 40px;
 
 /*
  * The fourth, low and to the trailing edge, so the field has a centre to move
- * around rather than reading as three discs stacked at the top. This is the
- * one the mask only ever damps, never hides, so it takes the mid green: the
- * bright green would cost the copy its contrast from here.
+ * around rather than reading as three discs stacked at the top. Mid green,
+ * because the bright green this low reads as a second light source.
  */
 .brand-panel__blob--4 {
 	inset-block-start: 44%;
@@ -579,10 +512,6 @@ $rail-row-min-height: 40px;
 	pointer-events: none;
 }
 
-/*
- * The artwork sits in the panel's upper area and takes the free space, which
- * is what keeps it off the copy anchored at the foot.
- */
 .brand-panel__art {
 	display: flex;
 	position: relative;
@@ -633,64 +562,6 @@ $rail-row-min-height: 40px;
 		animation-duration: var(--wpds-motion-duration-xl);
 		animation-timing-function: var(--wpds-motion-easing-subtle);
 		animation-fill-mode: both;
-	}
-}
-
-/*
- * The lines are outlines sized in em, so this font-size is what scales them:
- * a share of the panel's own width, which no token can express.
- */
-.brand-panel__copy {
-	position: relative;
-	z-index: 3;
-	margin: 0;
-	max-inline-size: $panel-copy-max-width;
-	color: var(--jp-green-mint);
-	font-size: clamp($panel-copy-size-min, $panel-copy-size-fluid, $panel-copy-size-max);
-	line-height: $panel-copy-line-height;
-}
-
-.brand-panel__line {
-	display: block;
-	opacity: 0;
-	animation-name: panel-line;
-	animation-duration: var(--wpds-motion-duration-xl);
-	animation-timing-function: var(--wpds-motion-easing-expressive);
-	animation-fill-mode: forwards;
-
-	// Sibling-counted rather than nth-child: the visually hidden copy shares the
-	// parent and would otherwise take the first line's place in the stagger.
-	& + & {
-		animation-delay: var(--wpds-motion-duration-sm);
-	}
-
-	// The start screen's copy runs to three lines, so the stagger has to keep
-	// climbing; one selector per line, because a sibling combinator cannot
-	// count. The multiplier is the line's position, not a duration of its own.
-	& + & + & {
-		animation-delay: calc(2 * var(--wpds-motion-duration-sm));
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-	}
-
-	// Block, or the inline SVG sits on a baseline and leaves a descender gap.
-	svg {
-		display: block;
-	}
-}
-
-@keyframes panel-line {
-
-	from {
-		opacity: 0;
-		transform: translateY(var(--wpds-dimension-gap-lg));
-	}
-
-	to {
-		opacity: 1;
-		transform: none;
 	}
 }
 
