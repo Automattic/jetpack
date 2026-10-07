@@ -56,7 +56,56 @@ export declare const PRESET_LAST_12_MONTHS: string;
 
 // Report queries. Runs a query and its comparison in the dashboard's query client, so a product
 // package builds its own report hooks on it and does not publish them here.
-export declare function useReport( ...args: any[] ): any;
+export type ReportQueryType = 'primary' | 'comparison';
+
+// What a query factory returns: the options the dashboard reads before it runs the query.
+export type ReportQuery< TData > = {
+	queryKey: readonly unknown[];
+	queryFn?: () => Promise< TData >;
+	enabled?: boolean;
+	placeholderData?: ( previousData: TData | undefined ) => TData | undefined;
+};
+
+// One period's query, as the dashboard's query client reports it.
+export type ReportQueryResult< TData > = {
+	data: TData | undefined;
+	error: unknown;
+	isError: boolean;
+	isSuccess: boolean;
+	isPending: boolean;
+	isLoading: boolean;
+	isFetching: boolean;
+	isFetched: boolean;
+	isPlaceholderData: boolean;
+	refetch: () => Promise< unknown >;
+};
+
+export type ReportResult< TData > = {
+	primary: ReportQueryResult< TData >;
+	comparison: ReportQueryResult< TData >;
+	hasComparison: boolean;
+	// The zone both periods were built under.
+	timezone: string;
+	// True while nothing on screen answers the current params; see WidgetState.
+	isLoading: boolean;
+	isFetching: boolean;
+	hasData: boolean;
+	isError: boolean;
+	error: unknown;
+	refetch: () => Promise< void >;
+};
+
+export type UseReportOptions = {
+	enabled?: boolean;
+	// Where the comparison query parks while the params carry no comparison.
+	disabledComparisonKey?: string[];
+};
+
+export declare function useReport< TData, TParams extends ReportParams = ReportParams >(
+	queryFactory: ( params: TParams, queryType: ReportQueryType ) => ReportQuery< TData >,
+	params: TParams,
+	options?: UseReportOptions
+): ReportResult< TData >;
 
 // Bucket bounds. Writes the start or end of a report row as the dashboard's time series read it:
 // the wall time in the report's zone, with no offset.
