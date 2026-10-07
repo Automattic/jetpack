@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { queryKeys, useStatus } from '../data/queries';
+import { queryKeys, useSettings, useStatus } from '../data/queries';
 import { useSaveSetting } from '../data/use-save-setting';
 import {
 	apiCalls,
@@ -17,7 +17,7 @@ jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 /**
- * Render the save hook alongside an active status query, which is what gets refetched.
+ * Render the save hook alongside active status and settings queries, as the screen does.
  *
  * @return Hook result and query client.
  */
@@ -26,6 +26,7 @@ function renderSave() {
 	const { result } = renderHook(
 		() => {
 			useStatus();
+			useSettings();
 			return useSaveSetting();
 		},
 		{ wrapper: wrapperFor( queryClient ) }
@@ -34,14 +35,18 @@ function renderSave() {
 }
 
 /**
- * A promise and the function that settles it.
+ * A promise and the functions that settle it.
  *
  * @return Deferred.
  */
 function deferred< T >() {
 	let resolve!: ( value: T ) => void;
-	const promise = new Promise< T >( r => ( resolve = r ) );
-	return { promise, resolve };
+	let reject!: ( reason: unknown ) => void;
+	const promise = new Promise< T >( ( res, rej ) => {
+		resolve = res;
+		reject = rej;
+	} );
+	return { promise, resolve, reject };
 }
 
 beforeEach( () => {
@@ -67,6 +72,19 @@ describe( 'useSaveSetting', () => {
 		expect( snackbarMessages() ).toContain( 'Settings have been saved' );
 	} );
 
+	it( 'replaces the cached settings with the response', async () => {
+		// Saving can change which settings are offered, so keys come and go.
+		const saved: Settings = { likes_enabled: true, reblogs_enabled: true, button_style: 'icon' };
+		mockApiFetch.mockImplementation( ( { method } ) =>
+			Promise.resolve( method === 'PUT' ? saved : baseStatus )
+		);
+		const { result, queryClient } = renderSave();
+
+		await act( () => result.current( 'button_style', 'icon' ) );
+
+		expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toEqual( saved );
+	} );
+
 	it( 'rolls back and shows the server message when a save fails', async () => {
 		mockApiFetch.mockImplementation( ( { method, path } ) => {
 			if ( method === 'PUT' ) {
@@ -75,7 +93,8 @@ describe( 'useSaveSetting', () => {
 					message: 'Comment Likes could not be switched on or off on this site.',
 				} );
 			}
-			return Promise.resolve( path?.endsWith( '/status' ) ? baseStatus : baseSettings );
+			// A settings read that never lands, so only the rollback can restore the value.
+			return path?.endsWith( '/status' ) ? Promise.resolve( baseStatus ) : new Promise( () => {} );
 		} );
 		const { result, queryClient } = renderSave();
 
@@ -89,41 +108,57 @@ describe( 'useSaveSetting', () => {
 		);
 	} );
 
-	it( "keeps a queued save's value when an earlier response lands", async () => {
-		const first = deferred< Settings >();
-		const second = deferred< Settings >();
-		mockApiFetch.mockImplementation( ( { method, data } ) => {
-			if ( method !== 'PUT' ) {
-				return Promise.resolve( baseStatus );
-			}
-			return 'likes_enabled' in ( data as object ) ? first.promise : second.promise;
-		} );
-		const { result, queryClient } = renderSave();
+	it.each( [
+		{
+			outcome: 'lands',
+			settle: ( first: ReturnType< typeof deferred< Settings > > ) =>
+				first.resolve( { ...baseSettings, likes_enabled: false } ),
+			likesEnabled: false,
+		},
+		{
+			outcome: 'is refused',
+			settle: ( first: ReturnType< typeof deferred< Settings > > ) =>
+				first.reject( { message: 'Nope.' } ),
+			likesEnabled: true,
+		},
+	] )(
+		"keeps a queued save's value when an earlier save $outcome",
+		async ( { settle, likesEnabled } ) => {
+			const first = deferred< Settings >();
+			const second = deferred< Settings >();
+			mockApiFetch.mockImplementation( ( { method, data, path } ) => {
+				if ( method !== 'PUT' ) {
+					return Promise.resolve( path?.endsWith( '/status' ) ? baseStatus : baseSettings );
+				}
+				return 'likes_enabled' in ( data as object ) ? first.promise : second.promise;
+			} );
+			const { result, queryClient } = renderSave();
 
-		let saves: Promise< unknown >[] = [];
-		act( () => {
-			saves = [
-				result.current( 'likes_enabled', false ),
-				result.current( 'button_style', 'icon' ),
-			];
-		} );
-		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
+			let saves: Promise< unknown >[] = [];
+			act( () => {
+				saves = [
+					result.current( 'likes_enabled', false ),
+					result.current( 'button_style', 'icon' ),
+				];
+			} );
+			await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
 
-		await act( async () => {
-			first.resolve( { ...baseSettings, likes_enabled: false } );
-			await saves[ 0 ];
-		} );
+			await act( async () => {
+				settle( first );
+				await saves[ 0 ];
+			} );
+			await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 2 ) );
 
-		expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toMatchObject( {
-			likes_enabled: false,
-			button_style: 'icon',
-		} );
-		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 2 ) );
-		expect( apiCalls( 'PUT' )[ 1 ].data ).toEqual( { button_style: 'icon' } );
+			expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toMatchObject( {
+				likes_enabled: likesEnabled,
+				button_style: 'icon',
+			} );
+			expect( apiCalls( 'PUT' )[ 1 ].data ).toEqual( { button_style: 'icon' } );
 
-		await act( async () => {
-			second.resolve( { ...baseSettings, likes_enabled: false, button_style: 'icon' } );
-			await saves[ 1 ];
-		} );
-	} );
+			await act( async () => {
+				second.resolve( { ...baseSettings, likes_enabled: likesEnabled, button_style: 'icon' } );
+				await saves[ 1 ];
+			} );
+		}
+	);
 } );

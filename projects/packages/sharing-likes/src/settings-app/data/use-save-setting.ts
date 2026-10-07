@@ -27,6 +27,7 @@ export type SaveSetting = < K extends SettingKey >(
 export function useSaveSetting(): SaveSetting {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const isLastSave = () => queryClient.isMutating( { mutationKey: SAVE_SETTING_KEY } ) <= 1;
 
 	const { mutateAsync } = useMutation( {
 		mutationKey: SAVE_SETTING_KEY,
@@ -34,7 +35,8 @@ export function useSaveSetting(): SaveSetting {
 		mutationFn: ( { key, value }: SettingChange ) => saveSetting( key, value ),
 		onSuccess: saved => {
 			// Each response carries every setting, so one landing while another save waits would undo that save's value.
-			if ( queryClient.isMutating( { mutationKey: SAVE_SETTING_KEY } ) <= 1 ) {
+			if ( isLastSave() ) {
+				queryClient.cancelQueries( { queryKey: queryKeys.settings } );
 				queryClient.setQueryData( queryKeys.settings, saved );
 			}
 			createSuccessNotice( __( 'Settings have been saved', 'jetpack-sharing-likes' ), {
@@ -51,7 +53,10 @@ export function useSaveSetting(): SaveSetting {
 				{ type: 'snackbar' }
 			);
 			// A refused save usually means the screen is out of date: another tab, or a host forcing a module.
-			queryClient.invalidateQueries( { queryKey: queryKeys.settings } );
+			// A queued save's response refreshes the cache instead, without racing its optimistic value.
+			if ( isLastSave() ) {
+				queryClient.invalidateQueries( { queryKey: queryKeys.settings } );
+			}
 		},
 		// Saving Comment Likes can change which sections configure, and so which settings are offered.
 		onSettled: () => queryClient.invalidateQueries( { queryKey: queryKeys.status } ),
@@ -59,6 +64,8 @@ export function useSaveSetting(): SaveSetting {
 
 	return useCallback(
 		( key: SettingKey, value: Settings[ SettingKey ] ) => {
+			// An in-flight read would land on top of the optimistic value.
+			queryClient.cancelQueries( { queryKey: queryKeys.settings } );
 			const previous = queryClient.getQueryData< Settings >( queryKeys.settings )?.[ key ];
 			queryClient.setQueryData< Settings >( queryKeys.settings, current => ( {
 				...current,

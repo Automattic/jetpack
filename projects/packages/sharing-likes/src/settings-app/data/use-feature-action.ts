@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { runFeatureAction, type FeatureAction } from './api';
 import { errorMessage } from './error-message';
-import { MUTATION_SCOPE, queryKeys } from './queries';
+import { MUTATION_SCOPE, SAVE_SETTING_KEY, queryKeys } from './queries';
 import type { Feature } from '../types';
 
 export type { FeatureAction };
@@ -34,11 +34,15 @@ export function useFeatureAction() {
 			);
 			queryClient.invalidateQueries( { queryKey: queryKeys.status } );
 		},
-		// Which settings are offered follows the section variants.
-		onSettled: () => {
-			queryClient.invalidateQueries( { queryKey: queryKeys.settings } );
-			queryClient.invalidateQueries( { queryKey: queryKeys.services } );
-		},
+		// Which settings are offered follows the section variants; returned so the reads finish inside the scope.
+		onSettled: () =>
+			Promise.all( [
+				// A pending save's response brings fresh settings, and this read could land after it.
+				queryClient.isMutating( { mutationKey: SAVE_SETTING_KEY } ) > 0
+					? undefined
+					: queryClient.invalidateQueries( { queryKey: queryKeys.settings } ),
+				queryClient.invalidateQueries( { queryKey: queryKeys.services } ),
+			] ),
 	} );
 
 	const run = useCallback(
