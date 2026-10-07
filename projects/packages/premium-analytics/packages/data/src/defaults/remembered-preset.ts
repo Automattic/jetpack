@@ -40,7 +40,7 @@ type PreferencesActions = { set: ( scope: string, name: string, value: unknown )
  * The preset the reader last applied in the dashboard header.
  */
 export function getRememberedPreset(): PresetType | undefined {
-	const preferences = select( PREFERENCES_STORE ) as PreferencesSelectors | undefined;
+	const preferences = select( PREFERENCES_STORE ) as unknown as PreferencesSelectors | undefined;
 	const value = preferences?.get( DASHBOARD_PREFERENCES_SCOPE, DATE_PRESET_KEY );
 
 	return isSelectablePreset( value ) ? value : undefined;

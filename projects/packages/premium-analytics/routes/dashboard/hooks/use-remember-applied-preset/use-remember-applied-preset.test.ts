@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
 import { act, renderHook } from '@testing-library/react';
 import { dispatch, select } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -19,7 +20,10 @@ const remembered = () =>
 		'datePreset'
 	);
 
-const RANGE = { from: new Date( '2026-01-01' ), to: new Date( '2026-01-15' ) };
+const RANGE = {
+	from: createTZDateFromParts( [ 2026, 0, 1 ], 'UTC' ),
+	to: createTZDateFromParts( [ 2026, 0, 15 ], 'UTC' ),
+};
 
 describe( 'useRememberAppliedPreset', () => {
 	afterEach( () => {
