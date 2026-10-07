@@ -53,7 +53,7 @@ describe( 'AreaChart', () => {
 	};
 
 	test.each( [ [ 'Escape', '{Escape}' ] ] )(
-		'returns focus to the grid after %s',
+		'returns focus to the chart after %s',
 		async ( _name, keys ) => {
 			jest.useFakeTimers();
 			try {

@@ -401,7 +401,7 @@ export const useKeyboardNavigation = ( {
 				pointerIndex.current = undefined;
 			}
 
-			// WAI-ARIA grid: arrows stop at the first and last cell.
+			// Arrows stop at the first and last point.
 			if ( event.key === 'ArrowRight' ) {
 				event.preventDefault();
 				setIsNavigating( true );
