@@ -265,7 +265,7 @@ function ChecklistSteps( {
 									} ) }
 									aria-hidden="true"
 								>
-									{ complete ? <Icon icon={ check } size={ 16 } /> : null }
+									{ complete ? <Icon icon={ check } size={ 12 } /> : null }
 								</span>
 								<Card.Title
 									className={ clsx( 'jetpack-newsletter-overview__step-title', {
