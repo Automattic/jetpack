@@ -109,7 +109,12 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$content = '[recipe preptime="30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( '<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>', $shortcode_content );
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><ul class="jetpack-recipe-meta"><li class="jetpack-recipe-preptime">
+				<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>
+			</li><li class="jetpack-recipe-print"><a href="#">Print</a></li></ul><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
+		);
 	}
 
 	/**
@@ -121,7 +126,12 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$content = '[recipe cooktime="2 hours 30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( '<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>', $shortcode_content );
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><ul class="jetpack-recipe-meta"><li class="jetpack-recipe-cooktime">
+				<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>
+			</li><li class="jetpack-recipe-print"><a href="#">Print</a></li></ul><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
+		);
 	}
 
 	/**
@@ -187,13 +197,11 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup when Lazy Load is enabled.
-		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
-		} else {
-			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />';
-		}
-		$this->assertStringContainsString( $expect, $shortcode_content );
+		$lazy = wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ? ' loading="lazy"' : '';
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><img width="256" height="171" src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image"' . $lazy . ' /><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
+		);
 	}
 
 	/**
@@ -206,18 +214,11 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup when Lazy Load is enabled.
-		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			$this->assertStringContainsString(
-				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />',
-				$shortcode_content
-			);
-		} else {
-			$this->assertStringContainsString(
-				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />',
-				$shortcode_content
-			);
-		}
+		$lazy = wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ? ' loading="lazy"' : '';
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><img class="jetpack-recipe-image u-photo photo" itemprop="image"' . $lazy . ' src="https://example.com" /><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
+		);
 	}
 
 	/**
