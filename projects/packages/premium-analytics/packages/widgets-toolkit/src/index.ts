@@ -222,6 +222,7 @@ export {
 	getArchiveTypeLabel,
 	getAuthorName,
 	getAuthorsReportQueryParams,
+	getLocationColumnLabel,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
 	getLocationsScopeParams,
