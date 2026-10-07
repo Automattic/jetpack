@@ -77,7 +77,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 		target.searchParams.set( 'url', url );
 		fetch( target.toString(), { credentials: 'omit' } )
 			.then( ( response ): Promise< Lookup > | Lookup => {
-				if ( response.status === 404 ) {
+				if ( response.status >= 400 && response.status < 500 && response.status !== 429 ) {
 					return 'unsupported';
 				}
 				return response.ok ? ( response.json() as Promise< Preview > ) : null;
