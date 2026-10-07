@@ -120,6 +120,8 @@
 	// Sized here, as tall as the avatar beside it; the theme keeps its look:
 	// font family, weight, colours, border and radius.
 	input {
+		// Pinned: Twenty Eleven nudges its submit 30px right with a relative offset.
+		position: static !important;
 		box-sizing: border-box;
 		block-size: var(--jetpack-comments-avatar-size) !important;
 		min-block-size: 0 !important;
