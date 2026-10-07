@@ -27,6 +27,8 @@ type OwnProps = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
+	// The site's own explanation of the error
+	errorDescription?: string;
 	// Whether the button is loading or not
 	buttonIsLoading?: boolean;
 	// Whether the site is in offline mode
@@ -51,6 +53,7 @@ function ConnectScreenVisual( {
 	handleButtonClick,
 	displayButtonError,
 	errorCode,
+	errorDescription,
 	buttonIsLoading,
 	loadingLabel,
 	footer,
@@ -80,6 +83,7 @@ function ConnectScreenVisual( {
 					buttonIsLoading={ buttonIsLoading }
 					displayButtonError={ displayButtonError }
 					errorCode={ errorCode }
+					errorDescription={ errorDescription }
 					isOfflineMode={ isOfflineMode }
 				/>
 				<span className="jp-connection__connect-screen__loading-message" role="status">

@@ -1,6 +1,8 @@
 import {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
+	getRegistrationErrorDescription,
+	getRegistrationErrorSummary,
 } from '../get-connect-screen-error-message';
 
 describe( 'getConnectScreenErrorMessage', () => {
@@ -12,15 +14,25 @@ describe( 'getConnectScreenErrorMessage', () => {
 
 	it( 'maps a registration HTTP failure to a message about reaching WordPress.com', () => {
 		expect( getConnectScreenErrorMessage( 'register_http_request_failed' ) ).toBe(
-			'Your site could not reach WordPress.com. This is usually temporary — try again in a minute. If it keeps happening, ask your hosting provider to allow connections to jetpack.wordpress.com.'
+			'Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.'
 		);
 	} );
 
-	it( 'maps WordPress.com server errors, timeouts, and bad responses to a message', () => {
+	it( 'maps WordPress.com server errors and timeouts to a message', () => {
 		const message = 'WordPress.com is temporarily unavailable. Please try again in a minute.';
 		expect( getConnectScreenErrorMessage( 'wpcom_5??' ) ).toBe( message );
 		expect( getConnectScreenErrorMessage( 'wpcom_408' ) ).toBe( message );
-		expect( getConnectScreenErrorMessage( 'wpcom_bad_response' ) ).toBe( message );
+	} );
+
+	it( 'does not call an unexpected WordPress.com response an outage', () => {
+		expect( getConnectScreenErrorMessage( 'wpcom_bad_response' ) ).toContain(
+			'unexpected response from WordPress.com'
+		);
+		expect( getConnectScreenErrorMessage( 'wpcom_bad_response' ) ).not.toContain( 'temporarily' );
+	} );
+
+	it( 'maps offline mode registration errors to a message', () => {
+		expect( getConnectScreenErrorMessage( 'offline_mode' ) ).toContain( 'Offline Mode' );
 	} );
 
 	it( 'maps an invalid Jetpack ID response to a message', () => {
@@ -107,5 +119,57 @@ describe( 'getRegistrationErrorCode', () => {
 
 	it( 'returns undefined without an error', () => {
 		expect( getRegistrationErrorCode( undefined ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'getRegistrationErrorDescription', () => {
+	it( 'returns the site’s own message', () => {
+		expect(
+			getRegistrationErrorDescription( {
+				response: { code: 'cannot_save_secrets', message: 'Please contact your host.' },
+			} )
+		).toBe( 'Please contact your host.' );
+	} );
+
+	it( 'drops messages that are only an HTTP status, and jetpack_id bodies', () => {
+		expect(
+			getRegistrationErrorDescription( { response: { code: 'wpcom_5??', message: '503' } } )
+		).toBeUndefined();
+		expect(
+			getRegistrationErrorDescription( {
+				response: { code: 'jetpack_id', message: 'Do not publicly post this error message! {…}' },
+			} )
+		).toBeUndefined();
+	} );
+
+	it( 'strips markup and caps the length', () => {
+		expect(
+			getRegistrationErrorDescription( {
+				response: {
+					code: 'internal_server_error',
+					message: '<p>There has been a critical error.</p>',
+				},
+			} )
+		).toBe( 'There has been a critical error.' );
+		const long = getRegistrationErrorDescription( { response: { message: 'x'.repeat( 400 ) } } );
+		expect( long ).toHaveLength( 250 );
+	} );
+} );
+
+describe( 'getRegistrationErrorSummary', () => {
+	it( 'prefers the mapped message', () => {
+		expect(
+			getRegistrationErrorSummary( {
+				response: { code: 'request_cancelled', message: 'Server text.' },
+			} )
+		).toContain( 'too many connection attempts' );
+	} );
+
+	it( 'falls back to the site’s own message for unmapped codes', () => {
+		expect(
+			getRegistrationErrorSummary( {
+				response: { code: 'cannot_save_secrets', message: 'Server text.' },
+			} )
+		).toBe( 'Server text.' );
 	} );
 } );

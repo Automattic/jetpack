@@ -6,11 +6,7 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 } from '@automattic/jetpack-components';
-import {
-	getConnectScreenErrorMessage,
-	getRegistrationErrorCode,
-	useConnection,
-} from '@automattic/jetpack-connection';
+import { getRegistrationErrorSummary, useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -157,8 +153,8 @@ const ConnectedPricingTable = () => {
 							disabled={ isPlanLoading || hasConnectionStarted }
 							error={
 								registrationError
-									? getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
-									  __( 'An error occurred. Please try again.', 'jetpack-protect' )
+									? getRegistrationErrorSummary( registrationError ) ||
+										__( 'An error occurred. Please try again.', 'jetpack-protect' )
 									: null
 							}
 						>

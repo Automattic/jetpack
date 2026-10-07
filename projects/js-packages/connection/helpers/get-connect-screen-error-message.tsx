@@ -27,6 +27,50 @@ export const getRegistrationErrorCode = (
 	return typeof registrationError.name === 'string' ? registrationError.name : undefined;
 };
 
+/**
+ * The site's own explanation of a registration error, safe to show under the mapped message.
+ *
+ * Mirrors `Jetpack::get_registration_error_description()`: drops messages that are only an HTTP
+ * status and `jetpack_id` (which carries the raw response body), strips markup, and caps the length.
+ *
+ * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
+ * @return {string|undefined} The description, or undefined when there's nothing worth showing.
+ */
+export const getRegistrationErrorDescription = (
+	registrationError?: RegistrationError | false
+): string | undefined => {
+	if ( ! registrationError ) {
+		return undefined;
+	}
+	const message = registrationError.response?.message;
+	if (
+		typeof message !== 'string' ||
+		'jetpack_id' === registrationError.response?.code ||
+		/^\s*\d+\s*$/.test( message )
+	) {
+		return undefined;
+	}
+	const text = message
+		.replace( /<[^>]*>/g, ' ' )
+		.replace( /\s+/g, ' ' )
+		.trim();
+	return text ? text.slice( 0, 250 ) : undefined;
+};
+
+/**
+ * One-line message for a registration error: the mapped message, else the site's own description.
+ *
+ * For surfaces with room for a single line. Callers add their own generic fallback.
+ *
+ * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
+ * @return {import('react').ReactNode} The message, or undefined if there isn't one.
+ */
+export const getRegistrationErrorSummary = (
+	registrationError?: RegistrationError | false
+): ReactNode =>
+	getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
+	getRegistrationErrorDescription( registrationError );
+
 const unreachableMessage = () =>
 	__(
 		'WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.',
@@ -107,6 +151,11 @@ export const getConnectScreenErrorMessage = (
 			);
 		case 'connection_disabled':
 			return __( 'This site has been suspended.', 'jetpack-connection-js' );
+		case 'offline_mode':
+			return __(
+				'This site is in Offline Mode (for example a local development site), so it can’t connect to WordPress.com.',
+				'jetpack-connection-js'
+			);
 		case 'request_cancelled':
 			return __(
 				'There have been too many connection attempts from this site. Please wait an hour and try again.',
@@ -198,14 +247,18 @@ export const getConnectScreenErrorMessage = (
 		// The site couldn't reach WordPress.com.
 		case 'register_http_request_failed':
 			return __(
-				'Your site could not reach WordPress.com. This is usually temporary — try again in a minute. If it keeps happening, ask your hosting provider to allow connections to jetpack.wordpress.com.',
+				'Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.',
 				'jetpack-connection-js'
 			);
 		case 'wpcom_408':
 		case 'wpcom_5??':
-		case 'wpcom_bad_response':
 			return __(
 				'WordPress.com is temporarily unavailable. Please try again in a minute.',
+				'jetpack-connection-js'
+			);
+		case 'wpcom_bad_response':
+			return __(
+				'Your site got an unexpected response from WordPress.com. If your hosting provider filters outgoing connections, ask them to allow jetpack.wordpress.com.',
 				'jetpack-connection-js'
 			);
 		case 'jetpack_id':

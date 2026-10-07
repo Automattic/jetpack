@@ -17,6 +17,6 @@ describe( 'ConnectScreenAction', () => {
 				errorCode="register_http_request_failed"
 			/>
 		);
-		expect( screen.getByText( /Your site could not reach WordPress\.com/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Your site couldn’t reach WordPress\.com/ ) ).toBeInTheDocument();
 	} );
 } );

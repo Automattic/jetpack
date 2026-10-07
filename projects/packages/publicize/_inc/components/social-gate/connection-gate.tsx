@@ -1,8 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import {
-	getConnectScreenErrorMessage,
-	getRegistrationErrorCode,
-} from '@automattic/jetpack-connection/connection-error-message';
+import { getRegistrationErrorSummary } from '@automattic/jetpack-connection/connection-error-message';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -54,7 +51,7 @@ export default function ConnectionGate(): JSX.Element {
 					</p>
 					{ registrationError && (
 						<p className="jetpack-social-gate__error" role="alert">
-							{ getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
+							{ getRegistrationErrorSummary( registrationError ) ||
 								__( 'An error occurred. Please try again.', 'jetpack-publicize-pkg' ) }
 						</p>
 					) }

@@ -1,7 +1,6 @@
 import { ActionButton, getRedirectUrl } from '@automattic/jetpack-components';
 import {
-	getConnectScreenErrorMessage,
-	getRegistrationErrorCode,
+	getRegistrationErrorSummary,
 	useProductCheckoutWorkflow,
 	useConnection,
 } from '@automattic/jetpack-connection';
@@ -43,7 +42,7 @@ const BackupVideoSection = ( {
 					/>
 				),
 			} )
-		: getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) );
+		: getRegistrationErrorSummary( registrationError );
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const displayButtonError = Boolean( registrationError );

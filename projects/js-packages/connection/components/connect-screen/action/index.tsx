@@ -16,6 +16,8 @@ export type Props = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
+	// The site's own explanation of the error, shown under the message
+	errorDescription?: string;
 	// Whether the site is in offline mode
 	isOfflineMode?: boolean;
 };
@@ -34,6 +36,7 @@ function ConnectScreenAction( {
 	buttonIsLoading,
 	displayButtonError,
 	errorCode,
+	errorDescription,
 	isOfflineMode,
 }: Props ) {
 	return (
@@ -47,10 +50,15 @@ function ConnectScreenAction( {
 				{ buttonLabel }
 			</Button>
 			{ ( displayButtonError || isOfflineMode ) && (
-				<p className="jp-connection__connect-screen__error">
-					{ getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
-						__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
-				</p>
+				<div className="jp-connection__connect-screen__error">
+					<p>
+						{ getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
+							__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+					</p>
+					{ displayButtonError && errorDescription && (
+						<p className="jp-connection__connect-screen__error-description">{ errorDescription }</p>
+					) }
+				</div>
 			) }
 		</>
 	);

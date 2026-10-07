@@ -35,6 +35,8 @@ type OwnProps = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
+	// The site's own explanation of the error
+	errorDescription?: string;
 	// Whether the button loading state is active or not
 	buttonIsLoading?: boolean;
 	// Whether the site is in offline mode
@@ -63,6 +65,7 @@ function ConnectScreenRequiredPlanVisual( props: Props ) {
 		handleButtonClick = () => {},
 		displayButtonError = false,
 		errorCode,
+		errorDescription,
 		buttonIsLoading = false,
 		logo,
 		isOfflineMode,
@@ -117,6 +120,7 @@ function ConnectScreenRequiredPlanVisual( props: Props ) {
 							buttonIsLoading={ buttonIsLoading }
 							displayButtonError={ displayButtonError }
 							errorCode={ errorCode }
+							errorDescription={ errorDescription }
 							isOfflineMode={ isOfflineMode }
 						/>
 					</PricingCard>

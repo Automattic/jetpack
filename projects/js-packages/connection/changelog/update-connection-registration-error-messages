@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Connect screen: Show clear messages for every registration failure: when WordPress.com rejects or can't verify the site, when the site's own REST request fails, and when the site can't reach WordPress.com. Add the getRegistrationErrorCode helper and a connection-error-message entry point.
+Connect screen: Show clear messages for every registration failure (WordPress.com rejected or couldn't verify the site, the site's own REST request failed, or the site couldn't reach WordPress.com), with the site's own explanation underneath. Add getRegistrationErrorCode, getRegistrationErrorDescription and getRegistrationErrorSummary helpers and a connection-error-message entry point.
