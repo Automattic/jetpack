@@ -773,6 +773,77 @@ describe( 'PieChart', () => {
 			expect( screen.queryByText( /Click legend items to show data/i ) ).not.toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Keyboard navigation', () => {
+		const data = [
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+		];
+
+		test.each( [
+			[ undefined, 'Pie chart' ],
+			[ 'Devices', 'Devices' ],
+		] )( 'names the focusable chart from ariaLabel %p', ( ariaLabel, name ) => {
+			render( <PieChart data={ data } ariaLabel={ ariaLabel } /> );
+			expect( screen.getByRole( 'application', { name } ) ).toHaveAttribute( 'tabindex', '0' );
+		} );
+
+		test( 'arrow keys move the focused tooltip and highlight across segments', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+			const [ macos, linux ] = screen.getAllByTestId( 'pie-segment' );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+				'MacOS'
+			);
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( macos ).toHaveClass( 'pie-segment--selected' );
+
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveTextContent(
+				'Linux'
+			);
+			expect( linux ).toHaveClass( 'pie-segment--selected' );
+			expect( macos ).not.toHaveClass( 'pie-segment--selected' );
+		} );
+
+		test( 'announces and highlights a segment without a tooltip when withTooltips is false', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } /> );
+			const status = screen.getByRole( 'status' );
+			expect( status ).toBeEmptyDOMElement();
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			expect( screen.getAllByTestId( 'pie-segment' )[ 0 ] ).toHaveClass( 'pie-segment--selected' );
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			expect( status ).toHaveTextContent( 'MacOS: 30K' );
+		} );
+
+		test( 'leaves the announcement to the focused tooltip when withTooltips is true', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		} );
+
+		test( 'hovering a segment ends the keyboard selection', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await user.hover( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+
+			expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Linux' );
+		} );
+	} );
 } );
 
 // Chart container at (100, 50); the tooltip box measures 120x40. Everything

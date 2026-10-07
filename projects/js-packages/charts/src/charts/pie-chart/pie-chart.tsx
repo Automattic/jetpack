@@ -2,11 +2,11 @@ import { Group } from '@visx/group';
 import { arc, pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import { color as d3Color } from '@visx/vendor/d3-color';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
 	useDataWithPercentages,
@@ -22,7 +22,6 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
-import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents, createCssVariableResolver, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
@@ -30,6 +29,13 @@ import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composit
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-color';
+import {
+	orderArcsForNavigation,
+	PieSelectionAnnouncement,
+	PieTooltip,
+	selectedSegmentClassName,
+	usePieKeyboardNavigation,
+} from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -134,6 +140,11 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * When provided, replaces the default `label: value` tooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieChartRenderTooltipParams ) => ReactNode;
+
+	/**
+	 * Accessible name of the chart. Defaults to a localized "Pie chart".
+	 */
+	ariaLabel?: string;
 }
 
 // Base props type with optional responsive properties
@@ -205,6 +216,7 @@ const PieChartInternal = ( {
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
 	renderTooltip = renderDefaultPieTooltip,
+	ariaLabel,
 	gap = 'md',
 }: PieChartProps ) => {
 	const legendInteractive = legend.interactive ?? false;
@@ -214,10 +226,7 @@ const PieChartInternal = ( {
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
-	const standaloneScopeClass = useStandaloneScopeClass();
-
-	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
-	const containerRef = useRef< HTMLDivElement >( null );
+	const svgRef = useRef< SVGSVGElement >( null );
 
 	// The element the chart's own `className` lands on, so an override set there reaches this
 	// decision the same way it reaches CSS.
@@ -296,6 +305,16 @@ const PieChartInternal = ( {
 	} );
 
 	const prefersReducedMotion = usePrefersReducedMotion();
+
+	// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
+	const {
+		chartRef,
+		selectedIndex,
+		tooltipRef,
+		getPositionInChart,
+		onSegmentPointerMove,
+		chartProps,
+	} = usePieKeyboardNavigation( { segmentCount: visibleData.length } );
 
 	if ( ! isValid ) {
 		return (
@@ -389,10 +408,33 @@ const PieChartInternal = ( {
 
 					const path = arc< PieArcDatum >( { innerRadius, outerRadius, cornerRadius } );
 					const arcs = pie< PieDatum >( { value: accessors.value, padAngle } )( dataWithIndex );
+					const navigationArcs = orderArcsForNavigation( arcs );
+					const selectedArc =
+						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
+
+					const renderKeyboardTooltip = ( arcDatum: PieArcDatum ) => {
+						const [ x, y ] = path.centroid( arcDatum );
+						const position = getPositionInChart(
+							svgRef.current,
+							centerX + x + tooltipOffsetX,
+							centerY + y + tooltipOffsetY
+						);
+						return position ? (
+							<PieTooltip { ...position } selectedIndex={ selectedIndex } tooltipRef={ tooltipRef }>
+								{ renderTooltip( { tooltipData: arcDatum.data } ) }
+							</PieTooltip>
+						) : null;
+					};
 
 					return (
-						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
+						<Center
+							ref={ chartRef }
+							className={ styles[ 'pie-chart__plot' ] }
+							{ ...chartProps }
+							aria-label={ ariaLabel ?? __( 'Pie chart', 'jetpack-charts' ) }
+						>
 							<svg
+								ref={ svgRef }
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
 								width={ width }
@@ -422,11 +464,12 @@ const PieChartInternal = ( {
 											const [ centroidX, centroidY ] = path.centroid( arcDatum );
 											const hasSpaceForLabel = arcDatum.endAngle - arcDatum.startAngle >= 0.25;
 											const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
+												onSegmentPointerMove( navigationArcs.indexOf( arcDatum ) );
 												if ( ! withTooltips ) {
 													return;
 												}
 
-												const bounds = containerRef.current?.getBoundingClientRect();
+												const bounds = chartRef.current?.getBoundingClientRect();
 												if ( ! bounds ) {
 													return;
 												}
@@ -444,12 +487,12 @@ const PieChartInternal = ( {
 											} = {
 												d: path( arcDatum ) || '',
 												fill,
+												className: arcDatum === selectedArc ? selectedSegmentClassName : undefined,
 												'data-testid': 'pie-segment',
 											};
 
-											const groupProps: SVGProps< SVGGElement > = {};
+											const groupProps: SVGProps< SVGGElement > = { onMouseMove: handleMouseMove };
 											if ( withTooltips ) {
-												groupProps.onMouseMove = handleMouseMove;
 												groupProps.onMouseLeave = onMouseLeave;
 											}
 
@@ -507,12 +550,12 @@ const PieChartInternal = ( {
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
-							{ withTooltips && tooltipOpen && tooltipData && (
-								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-									<div className={ standaloneScopeClass } role="tooltip">
-										{ renderTooltip( { tooltipData } ) }
-									</div>
-								</BoundedTooltip>
+							<PieSelectionAnnouncement data={ withTooltips ? undefined : selectedArc?.data } />
+							{ withTooltips && selectedArc && renderKeyboardTooltip( selectedArc ) }
+							{ withTooltips && ! selectedArc && tooltipOpen && tooltipData && (
+								<PieTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+									{ renderTooltip( { tooltipData } ) }
+								</PieTooltip>
 							) }
 						</Center>
 					);
