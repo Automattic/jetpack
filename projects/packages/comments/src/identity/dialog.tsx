@@ -47,6 +47,9 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		'idle' | 'pending' | 'failed' | 'rate_limited'
 	>( 'idle' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
+	const [ checkingEmail, setCheckingEmail ] = useState( false );
+	// One request per address, shared by the debounced check and a submit that beats it.
+	const emailCheck = useRef< { email: string; taken: Promise< boolean > } | null >( null );
 	// Straight to the fields when they are the only way through, or a saved guest is changing them.
 	const firstStep = identity.canSignIn && commenter.value.kind !== 'guest' ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< 'choose' | 'guest' | 'subscribe' >( firstStep );
@@ -70,6 +73,14 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const guest =
 		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
 	const enteredEmail = details.value.email;
+	const isEmail = ( email: string ) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email );
+	const checkEmail = ( email: string ) => {
+		if ( emailCheck.current?.email !== email ) {
+			emailCheck.current = { email, taken: emailHasAccount( email ) };
+		}
+
+		return emailCheck.current.taken;
+	};
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -109,13 +120,13 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	useEffect( () => {
 		setEmailTaken( false );
 
-		if ( ! showFields || ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( enteredEmail ) ) {
+		if ( ! showFields || ! isEmail( enteredEmail ) ) {
 			return;
 		}
 
 		let current = true;
 		const timer = window.setTimeout( async () => {
-			const taken = await emailHasAccount( enteredEmail );
+			const taken = await checkEmail( enteredEmail );
 
 			if ( current ) {
 				setEmailTaken( taken );
@@ -204,11 +215,26 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	useEffect( () => internals.setFormValue( formValue( false ) ) );
 
-	const submit = ( event: Event ) => {
+	const submit = async ( event: Event ) => {
 		event.preventDefault();
 
-		if ( isPosting.peek() ) {
+		if ( isPosting.peek() || checkingEmail ) {
 			return;
+		}
+
+		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
+
+		if ( showFields && isEmail( details.value.email ) ) {
+			setCheckingEmail( true );
+			const taken = await checkEmail( details.value.email );
+			setCheckingEmail( false );
+
+			if ( taken ) {
+				setEmailTaken( true );
+				// The submit button turns disabled under the focus, which would drop it to the body.
+				dialog.current?.querySelector< HTMLInputElement >( '#email' )?.focus();
+				return;
+			}
 		}
 
 		if ( ! posting ) {
@@ -226,8 +252,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 					: { kind: 'unknown' };
 			return;
 		}
-
-		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
 
 		// Read as the comment form submits, then dropped, so a blocked submit leaves no consent behind.
 		internals.setFormValue( formValue( showFields && rememberDetails.peek(), anonymous ) );
@@ -336,10 +360,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							<button
 								type="submit"
 								className={ clsx( 'jetpack-comments__button is-primary', {
-									'is-busy': isPosting.value,
+									'is-busy': isPosting.value || checkingEmail,
 								} ) }
 								disabled={ emailTaken }
-								aria-disabled={ isPosting.value || undefined }
+								aria-disabled={ isPosting.value || checkingEmail || undefined }
 							>
 								{ ! posting && strings.save }
 								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
