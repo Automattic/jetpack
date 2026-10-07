@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getStatsStartDate } from '@jetpack-premium-analytics/data';
-import { REPORT_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { ANCHORED_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 import { createContext, useContext, useMemo } from 'react';
@@ -55,7 +55,7 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 					<DateFiltersPanel
 						{ ...dateFilters }
 						// Unanchored, All time would quietly mean a fixed lookback instead.
-						presetIds={ allTimeStart ? REPORT_SURFACE_PRESETS : undefined }
+						presetIds={ allTimeStart ? ANCHORED_SURFACE_PRESETS : undefined }
 						allTimeStart={ allTimeStart }
 					/>
 				) : null }

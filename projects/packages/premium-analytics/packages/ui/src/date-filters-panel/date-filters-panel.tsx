@@ -51,8 +51,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * The periods the menu offers. Defaults to every selectable preset; a detail
-	 * page adds all time (`DETAIL_SURFACE_PRESETS`). The menu keeps its own
-	 * order whatever order they arrive in, so its grouping by scale holds.
+	 * or report page adds all time (`ANCHORED_SURFACE_PRESETS`). The menu keeps
+	 * its own order whatever order they arrive in, so its grouping by scale holds.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 

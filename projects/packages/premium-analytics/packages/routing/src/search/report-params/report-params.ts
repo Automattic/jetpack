@@ -80,12 +80,14 @@ export function toReportOriginWindowParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
 	const linked = pickReportDateParams( search ) as NormalizeInput;
-	let origin: Record< string, unknown > = { from: linked.from, to: linked.to };
-	if ( linked.preset === PRESET_ALL_TIME ) {
-		origin = { ...origin, preset: linked.preset };
-	} else if ( isSelectablePreset( linked.preset ) || isYearPresetId( linked.preset ) ) {
-		origin = { preset: linked.preset };
-	}
+	const origin: Record< string, unknown > =
+		isSelectablePreset( linked.preset ) || isYearPresetId( linked.preset )
+			? { preset: linked.preset }
+			: {
+					from: linked.from,
+					to: linked.to,
+					...( linked.preset === PRESET_ALL_TIME ? { preset: PRESET_ALL_TIME } : {} ),
+				};
 
 	const rebuilt = normalizeReportParams( origin as NormalizeInput );
 	for ( const key of [ 'interval', 'date_type' ] as const ) {

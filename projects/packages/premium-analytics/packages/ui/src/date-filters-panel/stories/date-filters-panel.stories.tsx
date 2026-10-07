@@ -1,6 +1,6 @@
 import {
 	computePrimaryRange,
-	DETAIL_SURFACE_PRESETS,
+	ANCHORED_SURFACE_PRESETS,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
@@ -184,7 +184,7 @@ function DateFiltersPanelStory( {
 				comparisonPresetId={ comparisonPresetId }
 				{ ...( detailSurface
 					? {
-							presetIds: DETAIL_SURFACE_PRESETS,
+							presetIds: ANCHORED_SURFACE_PRESETS,
 							allTimeStart: STORY_PUBLISHED_DATE,
 						}
 					: {} ) }

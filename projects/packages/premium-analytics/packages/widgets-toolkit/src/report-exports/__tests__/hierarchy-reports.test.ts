@@ -101,6 +101,12 @@ describe( 'hierarchy report exporters', () => {
 		);
 		expect( getAuthorsReportQueryParams( REPORT_PARAMS ) ).toEqual( { ...REPORT_PARAMS, max: 0 } );
 	} );
+
+	it( 'leaves an all-time Authors window to the WPCOM cap classic Stats shows', () => {
+		expect( getAuthorsReportQueryParams( { ...REPORT_PARAMS, preset: 'all-time' } ) ).toMatchObject(
+			{ num: -1 }
+		);
+	} );
 } );
 
 describe( 'hierarchy report exporters on a raw Stats payload', () => {

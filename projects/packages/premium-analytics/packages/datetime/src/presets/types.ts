@@ -80,16 +80,10 @@ export const MENU_SURFACE_PRESET_GROUPS = [
 export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
 
 /**
- * What a resource detail page (post, video) offers: the whole menu, plus all
- * time, which such a page anchors on the resource's own publish date.
+ * What a surface with a start date offers: the whole menu, plus all time
+ * anchored on that date, a resource's publish date or the day the site's Stats start.
  */
-export const DETAIL_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
-
-/**
- * What a report page offers: the whole menu, plus all time, which a report
- * anchors on the day the site's Stats start.
- */
-export const REPORT_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
+export const ANCHORED_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.

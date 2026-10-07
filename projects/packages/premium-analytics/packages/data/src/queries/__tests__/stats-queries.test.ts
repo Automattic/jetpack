@@ -590,23 +590,16 @@ describe( 'Stats query factories', () => {
 	);
 
 	it.each( [
-		[ 'caps a daily all-time window at three years', { preset: 'all-time' }, '2023-10-09' ],
-		[
-			'keeps a bucketed all-time window whole',
-			{ preset: 'all-time', period: 'month' },
-			'2015-01-01',
-		],
-		[ 'keeps a custom window of any length whole', {}, '2015-01-01' ],
-	] )( 'top-authors %s', ( _title, window, startDay ) => {
+		[ 'sends the start date of a dated window', {}, '2015-01-01T00:00:00.000+00:00' ],
+		[ 'leaves the window of a negative num to WPCOM', { num: -1 }, undefined ],
+	] )( 'top-authors %s', ( _title, extra, startDate ) => {
 		const query = statsTopAuthorsQuery( {
 			from: '2015-01-01T00:00:00.000+00:00',
 			to: '2026-10-07T23:59:59.999+00:00',
-			...window,
+			...extra,
 		} as StatsReportParams );
 
-		expect( query.queryKey[ 5 ] ).toMatchObject( {
-			start_date: `${ startDay }T00:00:00.000+00:00`,
-		} );
+		expect( ( query.queryKey[ 5 ] as Record< string, unknown > ).start_date ).toBe( startDate );
 	} );
 
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading

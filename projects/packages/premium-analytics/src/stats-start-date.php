@@ -77,8 +77,8 @@ function get_stats_start_date() {
 		return to_site_day( $registered );
 	}
 
-	// The earliest admin or post predates the registration on any site that kept its early content,
-	// and the endpoints clamp an earlier start to the registration anyway.
+	// Approximate the registration with the earliest admin or post. Erring early is harmless,
+	// since the endpoints clamp an earlier start to the registration.
 	$manager = new Connection_Manager();
 
 	return method_exists( $manager, 'get_assumed_site_creation_date' )

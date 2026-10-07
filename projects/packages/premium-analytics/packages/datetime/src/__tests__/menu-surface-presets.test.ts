@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { getMenuSurfacePresetGroups } from '../presets';
-import { DETAIL_SURFACE_PRESETS } from '../presets/types';
+import { ANCHORED_SURFACE_PRESETS } from '../presets/types';
 
 const TIME_ZONE = 'America/New_York';
 
@@ -25,7 +25,7 @@ describe( 'getMenuSurfacePresetGroups', () => {
 
 	it( 'offers a detail surface every period the menu lists, all time last', () => {
 		const groups = getMenuSurfacePresetGroups( TIME_ZONE, {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: ANCHORED_SURFACE_PRESETS,
 			startDate: new Date( '2024-03-01T00:00:00.000Z' ),
 		} );
 

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-start-date.php';
@@ -118,19 +119,37 @@ class Stats_Start_Date_Test extends BaseTestCase {
 
 	/**
 	 * A failed lookup falls back to the assumed creation date and holds off retrying.
+	 *
+	 * @dataProvider provide_failed_lookups
+	 *
+	 * @param int    $code The response code.
+	 * @param string $body The response body.
 	 */
-	public function test_falls_back_to_the_assumed_creation_date_without_retrying() {
+	#[DataProvider( 'provide_failed_lookups' )]
+	public function test_falls_back_to_the_assumed_creation_date_without_retrying( $code, $body ) {
 		set_transient( 'jetpack_assumed_site_creation_date', '2015-06-01 10:00:00' );
 		$this->answer_wpcom_with(
 			array(
-				'response' => array( 'code' => 500 ),
-				'body'     => '{"error":"unknown_error"}',
+				'response' => array( 'code' => $code ),
+				'body'     => $body,
 				'headers'  => array(),
 			)
 		);
 
 		$this->assertSame( array( '2015-06-01', '2015-06-01' ), array( get_stats_start_date(), get_stats_start_date() ) );
 		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
+	 * WPCOM errors, and the zero date it sends for a site it has no registration for.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failed_lookups() {
+		return array(
+			'error'     => array( 500, '{"error":"unknown_error"}' ),
+			'zero date' => array( 200, '{"options":{"created_at":"0000-00-00T00:00:00+00:00"}}' ),
+		);
 	}
 
 	/**

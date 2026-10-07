@@ -80,36 +80,35 @@ describe( 'report route.beforeLoad', () => {
 	} );
 
 	describe( 'on an all-time window', () => {
-		beforeEach( () => {
-			( getStatsStartDate as jest.Mock ).mockReturnValue( toLocalTZ( '2012-03-04', 'UTC' ) );
+		const statsStart = toLocalTZ( '2012-03-04', 'UTC' );
+		const allTime = ( from: string ) => ( {
+			preset: 'all-time',
+			from,
+			to: '2026-06-16T00:00:00.000+00:00',
 		} );
 
 		afterEach( () => {
 			( getStatsStartDate as jest.Mock ).mockReturnValue( undefined );
 		} );
 
-		const yearSurfaceLink = {
-			preset: 'all-time',
-			from: '2021-01-01T00:00:00.000+00:00',
-			to: '2026-06-16T00:00:00.000+00:00',
-		};
-
 		it( 'moves a linked start to the day Stats start', async () => {
-			await expect( beforeLoad( { report: 'authors' }, yearSurfaceLink ) ).rejects.toMatchObject( {
+			( getStatsStartDate as jest.Mock ).mockReturnValue( statsStart );
+
+			await expect(
+				beforeLoad( { report: 'authors' }, allTime( '2021-01-01T00:00:00.000+00:00' ) )
+			).rejects.toMatchObject( {
 				search: { preset: 'all-time', from: expect.stringMatching( /^2012-03-04T00:00:00/ ) },
 				replace: true,
 			} );
 		} );
 
-		it( 'passes through a start already on that day', async () => {
-			let thrown: { search: Record< string, string > } | undefined;
-			try {
-				await beforeLoad( { report: 'authors' }, yearSurfaceLink );
-			} catch ( error ) {
-				thrown = error as { search: Record< string, string > };
-			}
+		it.each( [
+			[ 'a start already on the day Stats start', statsStart, '2012-03-04T00:00:00.000+00:00' ],
+			[ 'any start while that day is unknown', undefined, '2019-05-05T00:00:00.000+00:00' ],
+		] )( 'passes through %s', async ( _title, start, from ) => {
+			( getStatsStartDate as jest.Mock ).mockReturnValue( start );
 
-			await expect( beforeLoad( { report: 'authors' }, thrown?.search ) ).resolves.toBeUndefined();
+			await expect( beforeLoad( { report: 'authors' }, allTime( from ) ) ).resolves.toBeUndefined();
 		} );
 	} );
 

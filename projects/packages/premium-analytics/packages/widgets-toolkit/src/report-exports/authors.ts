@@ -16,6 +16,7 @@ import {
 	type StatsTopAuthorsPostComparisonItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
 /**
@@ -167,9 +168,16 @@ export function getAuthorName( name: string ): string {
 	return name;
 }
 
-/** The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does. */
+/**
+ * The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does,
+ * and all time sends `num: -1`, which WPCOM caps at the three years classic Stats shows.
+ */
 export function getAuthorsReportQueryParams( reportParams: ReportParams ): StatsReportParams {
-	return { ...reportParams, max: 0 };
+	return {
+		...reportParams,
+		max: 0,
+		...( reportParams.preset === PRESET_ALL_TIME ? { num: -1 } : {} ),
+	};
 }
 
 /**

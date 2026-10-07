@@ -4,7 +4,7 @@
 import { renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 import {
-	DETAIL_SURFACE_PRESETS,
+	ANCHORED_SURFACE_PRESETS,
 	PRESET_ALL_TIME,
 	computePrimaryRange,
 	dateToISOStringWithTZ,
@@ -53,7 +53,7 @@ describe( 'useDetailDateControls', () => {
 		);
 
 		expect( result.current.dateControls ).toMatchObject( {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: ANCHORED_SURFACE_PRESETS,
 			withIntervalControl: false,
 		} );
 		// Unset, not false: the panel's own default is what offers Custom range.

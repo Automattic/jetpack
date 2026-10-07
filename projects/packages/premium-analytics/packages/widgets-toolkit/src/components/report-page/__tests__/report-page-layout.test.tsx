@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { REPORT_SURFACE_PRESETS, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { ANCHORED_SURFACE_PRESETS, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 /**
@@ -101,9 +101,14 @@ describe( 'ReportPageLayout', () => {
 	} );
 
 	it.each( [
-		[ 'offers all time from the day Stats start', '2012-03-04', REPORT_SURFACE_PRESETS ],
-		[ 'leaves all time off without a start to anchor it', undefined, undefined ],
-	] )( '%s', ( _title, statsStartDate, presetIds ) => {
+		[
+			'offers all time from the day Stats start',
+			'2012-03-04',
+			ANCHORED_SURFACE_PRESETS,
+			toLocalTZ( '2012-03-04', 'UTC' ),
+		],
+		[ 'leaves all time off without a start to anchor it', undefined, undefined, undefined ],
+	] )( '%s', ( _title, statsStartDate, presetIds, allTimeStart ) => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
 			value: { premium_analytics: { stats_start_date: statsStartDate } },
@@ -121,7 +126,7 @@ describe( 'ReportPageLayout', () => {
 
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
 		expect( panelProps.presetIds ).toBe( presetIds );
-		expect( panelProps.allTimeStart !== undefined ).toBe( statsStartDate !== undefined );
+		expect( panelProps.allTimeStart ).toEqual( allTimeStart );
 	} );
 
 	it( 'mounts no date picker on a report with no date window', () => {
