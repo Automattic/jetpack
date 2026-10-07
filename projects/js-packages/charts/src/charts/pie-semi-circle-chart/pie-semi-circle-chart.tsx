@@ -1,10 +1,9 @@
 import { Group } from '@visx/group';
 import { arc, pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
@@ -26,9 +25,8 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import {
 	orderArcsForNavigation,
-	PieSelectionAnnouncement,
-	PieTooltip,
-	selectedSegmentClassName,
+	PieSelectionOutput,
+	SelectedSegmentRing,
 	usePieKeyboardNavigation,
 } from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
@@ -45,7 +43,7 @@ import type {
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieProvidedProps } from '@visx/shape';
-import type { FC, MouseEvent, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Parameters passed to the renderTooltip function for semi-circle charts.
@@ -203,10 +201,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendPosition = legend.position ?? 'bottom';
 
 	const chartId = useChartId( providedChartId );
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentageCalculated >();
-
-	const svgRef = useRef< SVGSVGElement >( null );
 
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
@@ -225,43 +219,18 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const {
 		chartRef,
+		svgRef,
 		selectedIndex,
-		tooltipRef,
-		getPositionInChart,
-		onSegmentPointerMove,
+		getSegmentHandlers,
+		getKeyboardTooltipPosition,
+		outputProps,
 		chartProps,
-	} = usePieKeyboardNavigation( { segmentCount: visibleData.length } );
-
-	const handleMouseMove = useCallback(
-		( event: MouseEvent< SVGElement >, arcDatum: ArcData ) => {
-			// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
-			const bounds = chartRef.current?.getBoundingClientRect();
-			if ( ! bounds ) {
-				return;
-			}
-
-			showTooltip( {
-				tooltipData: arcDatum.data,
-				tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
-				tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
-			} );
-		},
-		[ chartRef, showTooltip, tooltipOffsetX, tooltipOffsetY ]
-	);
-
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
-
-	const handleArcMouseMove = useCallback(
-		( arcDatum: ArcData, navigationIndex: number ) => ( event: MouseEvent< SVGElement > ) => {
-			onSegmentPointerMove( navigationIndex );
-			if ( withTooltips ) {
-				handleMouseMove( event, arcDatum );
-			}
-		},
-		[ handleMouseMove, onSegmentPointerMove, withTooltips ]
-	);
+	} = usePieKeyboardNavigation( {
+		segmentCount: visibleData.length,
+		withTooltips,
+		tooltipOffsetX,
+		tooltipOffsetY,
+	} );
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
@@ -415,20 +384,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const selectedArc =
 						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
-					const renderKeyboardTooltip = ( arcDatum: PieArcDatum ) => {
-						const [ x, y ] = path.centroid( arcDatum );
-						const position = getPositionInChart(
-							svgRef.current,
-							width / 2 + x + tooltipOffsetX,
-							height + y + tooltipOffsetY
-						);
-						return position ? (
-							<PieTooltip { ...position } selectedIndex={ selectedIndex } tooltipRef={ tooltipRef }>
-								{ renderTooltip( { tooltipData: arcDatum.data } ) }
-							</PieTooltip>
-						) : null;
-					};
-
 					return (
 						<Center
 							ref={ chartRef }
@@ -471,22 +426,21 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 											{ arcs.map( arcDatum => (
 												<g
 													key={ arcDatum.data.label }
-													onMouseMove={ handleArcMouseMove(
-														arcDatum,
+													{ ...getSegmentHandlers(
+														arcDatum.data,
 														navigationArcs.indexOf( arcDatum )
 													) }
-													onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
 												>
 													<path
 														d={ path( arcDatum ) || '' }
 														fill={ accessors.fill( arcDatum.data ) }
-														className={
-															arcDatum === selectedArc ? selectedSegmentClassName : undefined
-														}
 														data-testid="pie-segment"
 													/>
 												</g>
 											) ) }
+											{ selectedArc && (
+												<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+											) }
 
 											{ /* Label and note text */ }
 											<Group>
@@ -514,13 +468,15 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) }
 								</Group>
 							</svg>
-							<PieSelectionAnnouncement data={ withTooltips ? undefined : selectedArc?.data } />
-							{ withTooltips && selectedArc && renderKeyboardTooltip( selectedArc ) }
-							{ withTooltips && ! selectedArc && tooltipOpen && tooltipData && (
-								<PieTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-									{ renderTooltip( { tooltipData } ) }
-								</PieTooltip>
-							) }
+							<PieSelectionOutput
+								{ ...outputProps }
+								selectedData={ selectedArc?.data }
+								keyboardTooltipPosition={
+									selectedArc &&
+									getKeyboardTooltipPosition( width / 2, height, path.centroid( selectedArc ) )
+								}
+								renderTooltip={ renderTooltip }
+							/>
 						</Center>
 					);
 				} }

@@ -1,8 +1,4 @@
-import styles from './pie-keyboard-navigation.module.scss';
-
 export { orderArcsForNavigation } from './order-arcs-for-navigation';
-export { PieSelectionAnnouncement } from './pie-selection-announcement';
-export { PieTooltip } from './pie-tooltip';
+export { PieSelectionOutput } from './pie-selection-output';
+export { SelectedSegmentRing } from './selected-segment-ring';
 export { usePieKeyboardNavigation } from './use-pie-keyboard-navigation';
-
-export const selectedSegmentClassName = styles[ 'pie-segment--selected' ];

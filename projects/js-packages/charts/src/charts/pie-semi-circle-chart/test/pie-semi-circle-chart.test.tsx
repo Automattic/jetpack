@@ -382,7 +382,10 @@ describe( 'PieSemiCircleChart keyboard navigation', () => {
 		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
 			'Category B'
 		);
-		expect( screen.getAllByTestId( 'pie-segment' )[ 1 ] ).toHaveClass( 'pie-segment--selected' );
+		expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+			'd',
+			screen.getAllByTestId( 'pie-segment' )[ 1 ].getAttribute( 'd' )
+		);
 	} );
 } );
 

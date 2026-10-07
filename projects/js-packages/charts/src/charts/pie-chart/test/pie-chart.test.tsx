@@ -788,10 +788,17 @@ describe( 'PieChart', () => {
 			expect( screen.getByRole( 'application', { name } ) ).toHaveAttribute( 'tabindex', '0' );
 		} );
 
+		const expectRingOn = ( segment: HTMLElement ) =>
+			expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+				'd',
+				segment.getAttribute( 'd' )
+			);
+
 		test( 'arrow keys move the focused tooltip and highlight across segments', async () => {
 			const user = userEvent.setup();
 			render( <PieChart data={ data } withTooltips /> );
 			const [ macos, linux ] = screen.getAllByTestId( 'pie-segment' );
+			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
 
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
@@ -799,14 +806,13 @@ describe( 'PieChart', () => {
 				'MacOS'
 			);
 			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-			expect( macos ).toHaveClass( 'pie-segment--selected' );
+			expectRingOn( macos );
 
 			await user.keyboard( '{ArrowRight}' );
 			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveTextContent(
 				'Linux'
 			);
-			expect( linux ).toHaveClass( 'pie-segment--selected' );
-			expect( macos ).not.toHaveClass( 'pie-segment--selected' );
+			expectRingOn( linux );
 		} );
 
 		test( 'announces and highlights a segment without a tooltip when withTooltips is false', async () => {
@@ -817,7 +823,7 @@ describe( 'PieChart', () => {
 
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
-			expect( screen.getAllByTestId( 'pie-segment' )[ 0 ] ).toHaveClass( 'pie-segment--selected' );
+			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 0 ] );
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 			expect( status ).toHaveTextContent( 'MacOS: 30K' );
 		} );

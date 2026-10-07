@@ -1,11 +1,10 @@
 import { Group } from '@visx/group';
 import { arc, pie } from '@visx/shape';
-import { useTooltip } from '@visx/tooltip';
 import { color as d3Color } from '@visx/vendor/d3-color';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
-import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
@@ -31,9 +30,8 @@ import { ChartLayout } from '../private/chart-layout';
 import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-color';
 import {
 	orderArcsForNavigation,
-	PieSelectionAnnouncement,
-	PieTooltip,
-	selectedSegmentClassName,
+	PieSelectionOutput,
+	SelectedSegmentRing,
 	usePieKeyboardNavigation,
 } from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
@@ -50,7 +48,7 @@ import type {
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
 import type { PieProvidedProps } from '@visx/shape';
-import type { JSX, SVGProps, MouseEvent, ReactNode, FC } from 'react';
+import type { JSX, ReactNode, FC } from 'react';
 
 type PieDatum = DataPointPercentageCalculated & { index: number };
 type PieArcDatum = PieProvidedProps< PieDatum >[ 'arcs' ][ number ];
@@ -224,22 +222,12 @@ const PieChartInternal = ( {
 
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentageCalculated >();
-	const svgRef = useRef< SVGSVGElement >( null );
 
 	// The element the chart's own `className` lands on, so an override set there reaches this
 	// decision the same way it reaches CSS.
 	const rootRef = useRef< HTMLDivElement >( null );
 	// Null until read, and while a label plate is set: text on the plate keeps the inverse role.
 	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
-
-	const onMouseLeave = useCallback( () => {
-		if ( ! withTooltips ) {
-			return;
-		}
-		hideTooltip();
-	}, [ withTooltips, hideTooltip ] );
 
 	const { getElementStyles, isSeriesVisible, isColorPaletteResolved } = useGlobalChartsContext();
 	const { isValid, message } = validateData( data );
@@ -308,12 +296,18 @@ const PieChartInternal = ( {
 
 	const {
 		chartRef,
+		svgRef,
 		selectedIndex,
-		tooltipRef,
-		getPositionInChart,
-		onSegmentPointerMove,
+		getSegmentHandlers,
+		getKeyboardTooltipPosition,
+		outputProps,
 		chartProps,
-	} = usePieKeyboardNavigation( { segmentCount: visibleData.length } );
+	} = usePieKeyboardNavigation( {
+		segmentCount: visibleData.length,
+		withTooltips,
+		tooltipOffsetX,
+		tooltipOffsetY,
+	} );
 
 	if ( ! isValid ) {
 		return (
@@ -411,18 +405,59 @@ const PieChartInternal = ( {
 					const selectedArc =
 						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
-					const renderKeyboardTooltip = ( arcDatum: PieArcDatum ) => {
-						const [ x, y ] = path.centroid( arcDatum );
-						const position = getPositionInChart(
-							svgRef.current,
-							centerX + x + tooltipOffsetX,
-							centerY + y + tooltipOffsetY
+					const svgLabelSmall = providerTheme.svgLabelSmall;
+					const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
+
+					const renderLabel = ( arcDatum: PieArcDatum, index: number ) => {
+						if ( arcDatum.endAngle - arcDatum.startAngle < 0.25 ) {
+							return null;
+						}
+
+						const [ centroidX, centroidY ] = path.centroid( arcDatum );
+						const estimatedTextWidth = getStringWidth( arcDatum.data.label, {
+							fontSize,
+							fontFamily: svgLabelSmall?.fontFamily,
+							fontWeight: svgLabelSmall?.fontWeight,
+						} );
+						const labelPadding = 6;
+						const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+						const backgroundHeight = fontSize + labelPadding * 2;
+
+						return (
+							<g key={ `label-${ index }` }>
+								<rect
+									className={ styles[ 'pie-chart__label-plate' ] }
+									x={ centroidX - backgroundWidth / 2 }
+									y={ centroidY - backgroundHeight / 2 }
+									width={ backgroundWidth }
+									height={ backgroundHeight }
+									rx={ 4 }
+									ry={ 4 }
+									pointerEvents="none"
+								/>
+								<text
+									className={ clsx(
+										styles[ 'pie-chart__label-text' ],
+										LABEL_TEXT_MODIFIER[
+											pickLabelTextColor(
+												accessors.fill( arcDatum.data ),
+												labelRoles,
+												'label-inverse'
+											)
+										]
+									) }
+									data-testid="pie-label"
+									x={ centroidX }
+									y={ centroidY }
+									dy=".33em"
+									fontSize={ fontSize }
+									textAnchor="middle"
+									pointerEvents="none"
+								>
+									{ arcDatum.data.label }
+								</text>
+							</g>
 						);
-						return position ? (
-							<PieTooltip { ...position } selectedIndex={ selectedIndex } tooltipRef={ tooltipRef }>
-								{ renderTooltip( { tooltipData: arcDatum.data } ) }
-							</PieTooltip>
-						) : null;
 					};
 
 					return (
@@ -459,104 +494,42 @@ const PieChartInternal = ( {
 											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
-										arcs.map( ( arcDatum, index ) => {
-											const [ centroidX, centroidY ] = path.centroid( arcDatum );
-											const hasSpaceForLabel = arcDatum.endAngle - arcDatum.startAngle >= 0.25;
-											const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
-												onSegmentPointerMove( navigationArcs.indexOf( arcDatum ) );
-												if ( ! withTooltips ) {
-													return;
-												}
-
-												// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
-												const bounds = chartRef.current?.getBoundingClientRect();
-												if ( ! bounds ) {
-													return;
-												}
-
-												showTooltip( {
-													tooltipData: arcDatum.data,
-													tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
-													tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
-												} );
-											};
-
-											const fill = accessors.fill( arcDatum.data );
-											const pathProps: SVGProps< SVGPathElement > & {
-												'data-testid'?: string;
-											} = {
-												d: path( arcDatum ) || '',
-												fill,
-												className: arcDatum === selectedArc ? selectedSegmentClassName : undefined,
-												'data-testid': 'pie-segment',
-											};
-
-											const groupProps: SVGProps< SVGGElement > = { onMouseMove: handleMouseMove };
-											if ( withTooltips ) {
-												groupProps.onMouseLeave = onMouseLeave;
-											}
-
-											const svgLabelSmall = providerTheme.svgLabelSmall;
-											const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
-											const estimatedTextWidth = getStringWidth( arcDatum.data.label, {
-												fontSize,
-												fontFamily: svgLabelSmall?.fontFamily,
-												fontWeight: svgLabelSmall?.fontWeight,
-											} );
-											const labelPadding = 6;
-											const backgroundWidth = estimatedTextWidth + labelPadding * 2;
-											const backgroundHeight = fontSize + labelPadding * 2;
-
-											return (
-												<g key={ `arc-${ index }` } { ...groupProps }>
-													<path { ...pathProps } />
-													{ showLabels && hasSpaceForLabel && (
-														<g>
-															<rect
-																className={ styles[ 'pie-chart__label-plate' ] }
-																x={ centroidX - backgroundWidth / 2 }
-																y={ centroidY - backgroundHeight / 2 }
-																width={ backgroundWidth }
-																height={ backgroundHeight }
-																rx={ 4 }
-																ry={ 4 }
-																pointerEvents="none"
-															/>
-															<text
-																className={ clsx(
-																	styles[ 'pie-chart__label-text' ],
-																	LABEL_TEXT_MODIFIER[
-																		pickLabelTextColor( fill, labelRoles, 'label-inverse' )
-																	]
-																) }
-																data-testid="pie-label"
-																x={ centroidX }
-																y={ centroidY }
-																dy=".33em"
-																fontSize={ fontSize }
-																textAnchor="middle"
-																pointerEvents="none"
-															>
-																{ arcDatum.data.label }
-															</text>
-														</g>
+										<>
+											{ arcs.map( ( arcDatum, index ) => (
+												<g
+													key={ `arc-${ index }` }
+													{ ...getSegmentHandlers(
+														arcDatum.data,
+														navigationArcs.indexOf( arcDatum )
 													) }
+												>
+													<path
+														d={ path( arcDatum ) || '' }
+														fill={ accessors.fill( arcDatum.data ) }
+														data-testid="pie-segment"
+													/>
 												</g>
-											);
-										} )
+											) ) }
+											{ selectedArc && (
+												<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+											) }
+											{ showLabels && arcs.map( renderLabel ) }
+										</>
 									) }
 
 									{ /* Render SVG children (like Group, Text) inside the SVG */ }
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
-							<PieSelectionAnnouncement data={ withTooltips ? undefined : selectedArc?.data } />
-							{ withTooltips && selectedArc && renderKeyboardTooltip( selectedArc ) }
-							{ withTooltips && ! selectedArc && tooltipOpen && tooltipData && (
-								<PieTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-									{ renderTooltip( { tooltipData } ) }
-								</PieTooltip>
-							) }
+							<PieSelectionOutput
+								{ ...outputProps }
+								selectedData={ selectedArc?.data }
+								keyboardTooltipPosition={
+									selectedArc &&
+									getKeyboardTooltipPosition( centerX, centerY, path.centroid( selectedArc ) )
+								}
+								renderTooltip={ renderTooltip }
+							/>
 						</Center>
 					);
 				} }
