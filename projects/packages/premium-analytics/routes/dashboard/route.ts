@@ -11,7 +11,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { seedReportDateParams } from '../report-date-seed';
+import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type DashboardSearch = Record< string, string | undefined >;
@@ -39,7 +39,7 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
-			const normalized = seedReportDateParams( params );
+			const normalized = seedSiteDateParams( params );
 
 			/*
 			 * Overlay the seeded params onto `params`, not replace them, so

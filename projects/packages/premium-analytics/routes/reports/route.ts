@@ -10,7 +10,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { seedReportDateParams } from '../report-date-seed';
+import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getReportDefinition } from './registry';
 
@@ -71,7 +71,7 @@ export const route = {
 			// Allowlist the params this page owns rather than spreading `currentSearch`
 			// wholesale, so foreign params a link carried in aren't persisted.
 			const seeded: Record< string, unknown > = {
-				...seedReportDateParams( currentSearch ),
+				...seedSiteDateParams( currentSearch ),
 				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};

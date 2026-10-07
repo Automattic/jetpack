@@ -16,7 +16,7 @@ import {
  * @param search - The current route search params.
  * @return The normalized report params.
  */
-export function seedReportDateParams( search: Record< string, unknown > ): ReportParams {
+export function seedSiteDateParams( search: Record< string, unknown > ): ReportParams {
 	const normalized = normalizeReportParams(
 		search as Parameters< typeof normalizeReportParams >[ 0 ]
 	);
