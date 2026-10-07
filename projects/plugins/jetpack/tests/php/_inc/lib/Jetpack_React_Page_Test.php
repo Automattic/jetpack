@@ -26,8 +26,9 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// Test the self-hosted path: wpcomsh hides My Jetpack on non-classic WoA sites.
+		// Test self-hosted permissions independently of wpcomsh's host and plan gates.
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		remove_filter( 'map_meta_cap', 'wpcomsh_map_feature_cap', 10 );
 
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
