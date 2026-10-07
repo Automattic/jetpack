@@ -145,12 +145,11 @@ export default function StorageUsageDetails( {
 				>
 					{ /* Omitted, not "0 days", when WordPress.com sends no count. */ }
 					{ daysOfBackupsSaved !== null && (
-						<Text variant="body-sm" className="jpb-storage-space__days">
+						<Text variant="body-sm">
 							{ createInterpolateElement( daysOfBackupsLabel( daysOfBackupsSaved ), {
 								a: (
 									<Link
 										render={ <button type="button" /> }
-										tone="neutral"
 										className="jpb-link-button"
 										aria-haspopup="dialog"
 										onClick={ onRetentionClick }

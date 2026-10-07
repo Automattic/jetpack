@@ -21,14 +21,6 @@
 		margin-block-start: 6px;
 	}
 
-	// Small and muted, not the link blue.
-	&__days {
-
-		a {
-			color: var(--wpds-color-foreground-content-neutral-weak);
-		}
-	}
-
 	&__details-placeholder {
 		block-size: 20px;
 		inline-size: 240px;
