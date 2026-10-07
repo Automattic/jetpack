@@ -300,7 +300,11 @@ describe( 'buildTailorPrompt', () => {
 		// of its task selection.
 		[
 			'asks for a diagnostic inferred_goal that must not influence the output',
-			[ '"inferred_goal"', /must NOT influence/ ],
+			[
+				'"inferred_goal"',
+				/must NOT influence/,
+				/"inferred_goal".*exactly one of: write, build, sell, newsletter, educate, portfolio - never/,
+			],
 		],
 		// The full slug menu must be in the prompt, and the instruction must steer the model
 		// toward the specific subject over the generic goal bucket.
@@ -361,30 +365,27 @@ describe( 'buildTailorPrompt', () => {
 describe( 'buildTailorPrompt output language', () => {
 	const LANGUAGE_HEADER = '============ output language ============';
 
-	it( 'sends an all-English site and account the same prompt, with no language block', () => {
-		// The A/B's English cohort must see zero prompt change: the block is only ever added for other
-		// languages, and a missing locale counts as English.
-		const baseline = buildTailorPrompt( { ...INPUT, locale: 'en' } );
-		assert.ok( ! baseline.includes( LANGUAGE_HEADER ) );
-		for ( const locale of [ 'en_US', 'en-gb', 'EN_AU', '' ] ) {
-			assert.equal(
-				buildTailorPrompt( { ...INPUT, locale, ui_locale: locale } ),
-				baseline,
-				`locale "${ locale }"`
-			);
-		}
-		// Two DIFFERENT Englishes too. They are not the "same language" by the regional test, so the
-		// subtitle reminder would otherwise be appended pointing at a section that was never written.
+	it( 'tells an English site to write in English even when the description is not', () => {
+		const prompt = buildTailorPrompt( {
+			...INPUT,
+			description: "Un'azienda di creativi!",
+			locale: 'en_US',
+			ui_locale: 'en_US',
+		} );
+		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+
+		assert.match( block, /The site's language is [^.]*English \(locale "en_US"\)/ );
+		assert.match( block, /even when the site name or description is written in another language/ );
+		assert.ok( ! block.includes( 'do not fall back to English' ) );
+	} );
+
+	it( 'does not split the subtitles between two different Englishes', () => {
 		for ( const [ locale, ui ] of [
 			[ 'en_US', 'en_GB' ],
-			[ 'en_GB', 'en_US' ],
 			[ 'en', 'en_AU' ],
 		] ) {
-			assert.equal(
-				buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } ),
-				baseline,
-				`${ locale } / ${ ui }`
-			);
+			const prompt = buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } );
+			assert.ok( ! prompt.includes( 'Two languages are in play' ), `${ locale } / ${ ui }` );
 		}
 	} );
 
@@ -394,6 +395,7 @@ describe( 'buildTailorPrompt output language', () => {
 
 		assert.match( block, /Italian/ );
 		assert.ok( block.includes( '(locale "it_IT")' ) );
+		assert.ok( block.includes( 'do not fall back to English' ) );
 		// Every field that is meant to be translated is listed, so a new one cannot silently ship in
 		// English.
 		for ( const field of [ 'subtitles', 'first_post_draft', 'about_page_draft', 'page_intros' ] ) {
@@ -444,20 +446,28 @@ describe( 'buildTailorPrompt output language', () => {
 		}
 	} );
 
-	it( 'repeats the subtitle language in STEP 2, where the field is defined', () => {
-		// The top-of-prompt block alone did not hold: STEP 2 talks about subtitles at length without
-		// naming a language, and the model followed the nearer instruction and wrote them in the site's.
-		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
-		const step2 = prompt.slice( prompt.indexOf( 'STEP 2' ), prompt.indexOf( 'STEP 3' ) );
+	const stepText = ( prompt: string, step: string ) => {
+		const start = prompt.indexOf( `============ ${ step }` );
+		return prompt.slice( start, prompt.indexOf( '\n============ ', start + 1 ) );
+	};
+	const STEP_LANGUAGES: Array< [ string, RegExp ] > = [
+		[ 'STEP 2', /Write every subtitle in Italian/ ],
+		[ 'STEP 3', /Write it in French[^,]*, NOT in Italian/ ],
+		[ 'STEP 4', /Write it in French[^,]*, NOT in Italian/ ],
+		[ 'STEP 5', /Write it in French[^,]*, NOT in Italian/ ],
+	];
+	for ( const [ step, expected ] of STEP_LANGUAGES ) {
+		it( `repeats the split language in ${ step }`, () => {
+			const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
+			assert.match( stepText( prompt, step ), expected );
+		} );
+	}
 
-		assert.match( step2, /Write every subtitle in Italian/ );
-	} );
-
-	it( 'leaves STEP 2 alone when both languages match', () => {
+	it( 'leaves the steps alone when both languages match', () => {
 		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } );
-		const step2 = prompt.slice( prompt.indexOf( 'STEP 2' ), prompt.indexOf( 'STEP 3' ) );
-
-		assert.ok( ! step2.includes( 'Write every subtitle in' ) );
+		for ( const step of [ 'STEP 2', 'STEP 3', 'STEP 4', 'STEP 5' ] ) {
+			assert.ok( ! /Write (every subtitle|it) in /.test( stepText( prompt, step ) ), step );
+		}
 	} );
 
 	it( 'keeps the analytics fields in English, whatever the site speaks', () => {
@@ -492,6 +502,10 @@ describe( 'buildTailorPrompt output language', () => {
 
 		const englishAdmin = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'en_US' } );
 		assert.match( englishAdmin, /"subtitle" values in [^"]*English/ );
+
+		for ( const prompt of [ englishSite, englishAdmin ] ) {
+			assert.ok( ! prompt.includes( 'do not fall back to English' ) );
+		}
 	} );
 
 	it( 'treats a short WordPress.com locale and its regional form as one language', () => {

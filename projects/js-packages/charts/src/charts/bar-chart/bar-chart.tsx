@@ -474,7 +474,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// so a patterned shadow gets the same outline as its primary bar.
 			return `
 			.visx-bar[fill="url(#${ patternId })"],
-			.bar-chart__comparison-bars rect[fill="url(#${ patternId })"] {
+			.bar-chart__comparison-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
 				stroke-width: 1;
 				}
@@ -767,16 +767,22 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											<WholeNumberTicks { ...wholeNumberTicksProps }>
 												{ valueTicks => (
 													<>
-														<Axis
-															{ ...chartOptions.axis.x }
-															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
-														/>
-														<Axis
-															{ ...chartOptions.axis.y }
-															{ ...( ! horizontal && valueTicks
-																? { tickValues: valueTicks }
-																: {} ) }
-														/>
+														{ chartOptions.axis.x.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.x }
+																{ ...( horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
+														{ chartOptions.axis.y.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( ! horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
 													</>
 												) }
 											</WholeNumberTicks>

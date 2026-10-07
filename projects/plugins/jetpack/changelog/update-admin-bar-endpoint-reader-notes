@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Omnibar: Return the Reader, Notifications, and Launch site nodes from the admin-bar endpoint.

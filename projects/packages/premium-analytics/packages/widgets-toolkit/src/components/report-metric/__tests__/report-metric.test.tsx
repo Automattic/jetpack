@@ -6,38 +6,37 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { resetMockCharts, setMockElementStyles } from '../../../../../../tests/js/chart-test-utils';
+import * as metricComparison from '../../../widgets/metric-comparison/metric-comparison-widget';
 import { ReportMetricWidget } from '../report-metric';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { ReportMetricWidgetProps } from '../report-metric';
+
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
+
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 // The chart underneath draws SVG through a provider jsdom cannot lay out, so stand
 // it in for a prop recorder.
 const mockMetricComparisonSpy = jest.fn();
 
-jest.mock( '../../../widgets/metric-comparison', () => ( {
-	MetricComparisonWidget: ( props: MetricComparisonProps ) => {
-		mockMetricComparisonSpy( props );
-		return <div data-testid="metric-comparison" />;
-	},
-} ) );
-
 // Mirrors the real theme closely enough to tell the two series apart: a colour
 // per index, and dashes on the comparison.
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
-	useGlobalChartsContext: () => ( {
-		getElementStyles: ( {
-			data,
-			index,
-		}: {
-			data: ComparativeLineChartSeries;
-			index: number;
-		} ) => ( {
-			color: index === 0 ? '#3858E9' : '#69A2FF',
-			lineStyles: data.options?.type === 'comparison' ? { strokeDasharray: '4 4' } : {},
-		} ),
-	} ),
-} ) );
+const elementStyles = ( {
+	data,
+	index,
+}: {
+	data: ComparativeLineChartSeries;
+	index: number;
+} ) => ( {
+	color: index === 0 ? '#3858E9' : '#69A2FF',
+	lineStyles: data.options?.type === 'comparison' ? { strokeDasharray: '4 4' } : {},
+} );
 
 type MetricComparisonProps = {
 	value: number;
@@ -102,8 +101,22 @@ const views = ( count: number ) =>
 	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'ReportMetricWidget', () => {
+	let metricComparisonWidget: jest.SpyInstance;
+
 	beforeEach( () => {
+		resetMockCharts();
+		setMockElementStyles( elementStyles );
 		mockMetricComparisonSpy.mockClear();
+		metricComparisonWidget = jest
+			.spyOn( metricComparison, 'MetricComparisonWidget' )
+			.mockImplementation( props => {
+				mockMetricComparisonSpy( props );
+				return <div data-testid="metric-comparison" />;
+			} );
+	} );
+
+	afterEach( () => {
+		metricComparisonWidget.mockRestore();
 	} );
 
 	it( 'names both periods after the metric and counts the current one in its unit', () => {

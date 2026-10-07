@@ -6,32 +6,55 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
+import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
+import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
+
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
+
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 // The charts render SVG through a provider jsdom cannot lay out, so stand them in
 // for prop recorders.
 const mockLineSpy = jest.fn();
 const mockBarSpy = jest.fn();
 
-jest.mock( '../../chart-comparative-line', () => ( {
-	ComparativeLineChart: ( props: ChartProps ) => {
-		mockLineSpy( props );
-		return <div data-testid="line-chart" />;
-	},
-} ) );
+/** Stand the comparative charts in for prop recorders, restoring them after each test. */
+function recordChartProps() {
+	let lineChart: jest.SpyInstance;
+	let barChart: jest.SpyInstance;
 
-jest.mock( '../../chart-comparative-bar', () => ( {
-	ComparativeBarChart: ( props: ChartProps ) => {
-		mockBarSpy( props );
-		return <div data-testid="bar-chart" />;
-	},
-} ) );
+	beforeEach( () => {
+		resetMockCharts();
+		mockLineSpy.mockClear();
+		mockBarSpy.mockClear();
+		lineChart = jest
+			.spyOn( comparativeLineChart, 'ComparativeLineChart' )
+			.mockImplementation( props => {
+				mockLineSpy( props );
+				return <div data-testid="line-chart" />;
+			} );
+		barChart = jest
+			.spyOn( comparativeBarChart, 'ComparativeBarChart' )
+			.mockImplementation( props => {
+				mockBarSpy( props );
+				return <div data-testid="bar-chart" />;
+			} );
+	} );
 
-jest.mock( '../../../hooks', () => ( {
-	useSeriesStyles: () => [],
-} ) );
+	afterEach( () => {
+		lineChart.mockRestore();
+		barChart.mockRestore();
+	} );
+}
 
 type ChartProps = {
 	series: ComparativeLineChartSeries[];
@@ -119,10 +142,7 @@ function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 }
 
 describe( 'MetricTabsChart', () => {
-	beforeEach( () => {
-		mockLineSpy.mockClear();
-		mockBarSpy.mockClear();
-	} );
+	recordChartProps();
 
 	it( 'draws a line chart by default', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
@@ -656,10 +676,7 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 		return ( recordedProps( spy ) as ChartProps & { tooltipExtras?: unknown } ).tooltipExtras;
 	}
 
-	beforeEach( () => {
-		mockLineSpy.mockClear();
-		mockBarSpy.mockClear();
-	} );
+	recordChartProps();
 
 	it( 'reads only the drawn metric out by default', () => {
 		render( <MetricTabsChart metrics={ [ METRIC, CPM ] } dataFormat={ DATA_FORMAT } /> );

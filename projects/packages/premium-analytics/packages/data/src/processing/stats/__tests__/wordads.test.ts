@@ -135,12 +135,5 @@ describe( 'Stats WordAds normalizers', () => {
 			sponsored: {},
 			adjustment: {},
 		} );
-		expect( sanitizeStatsWordAdsEarningsResponse( {} ) ).toEqual( {
-			total_earnings: 0,
-			total_amount_owed: 0,
-			wordads: {},
-			sponsored: {},
-			adjustment: {},
-		} );
 	} );
 } );

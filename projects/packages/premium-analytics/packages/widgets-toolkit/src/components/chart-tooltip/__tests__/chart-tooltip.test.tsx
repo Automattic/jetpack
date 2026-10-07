@@ -7,13 +7,16 @@ import { render, screen } from '@testing-library/react';
  */
 import { ChartTooltip } from '../chart-tooltip';
 
-// The library's shape components need a provider jsdom cannot lay out, so stand
-// them in for elements that expose the style they were handed.
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	LineShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,
-	RectShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,
-	Stack: ( { children }: { children?: React.ReactNode } ) => <div>{ children }</div>,
-} ) );
+// The library's shape components need a provider jsdom cannot lay out; the shared
+// stand-ins expose the fill they were handed.
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
+
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 

@@ -2,75 +2,30 @@
  * External dependencies
  */
 import { render } from '@testing-library/react';
-import { setSettings } from '@wordpress/date';
+import { getSettings, setSettings } from '@wordpress/date';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import {
+	mockLineChartLegendSpy,
+	mockLineChartSpy,
+	resetMockCharts,
+	setMockChartHeight,
+	setMockHiddenSeries,
+} from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeLineChart } from '../comparative-line-chart';
 import type { ComparativeLineChartSeries } from '../types';
 
-// The real chart renders SVG through a provider jsdom cannot lay out, so record
-// the props instead: the tooltip renderer and visibility settings are the subject.
-const mockLineSpy = jest.fn();
-const mockLegendSpy = jest.fn();
-// What the provider reports hidden for the chart under test.
-let mockHiddenSeries = new Set< string >();
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
 
-jest.mock( '@jetpack-premium-analytics/externals', () => {
-	const { forwardRef } = jest.requireActual( 'react' );
-
-	const LineChart = ( props: { children?: React.ReactNode } ) => {
-		mockLineSpy( props );
-		return <div data-testid="line-chart">{ props.children }</div>;
-	};
-	LineChart.Legend = ( props: Record< string, unknown > ) => {
-		mockLegendSpy( props );
-		return <div data-testid="line-chart-legend" />;
-	};
-
-	return {
-		LineChart,
-		// The real classifier: this is what the tooltip format now follows.
-		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
-		// One item per non-comparison series, as `collapseGroups` would produce.
-		useChartLegendItems: ( data: { label: string; options?: { type?: string } }[] ) =>
-			data
-				.filter( series => series.options?.type !== 'comparison' )
-				.map( series => ( { label: series.label, color: '#3858E9' } ) ),
-		LineShape: () => null,
-		RectShape: () => null,
-		scaleLinear: jest.requireActual( '@visx/scale' ).scaleLinear,
-		useGlobalChartsContext: () => ( { getHiddenSeries: () => new Set( mockHiddenSeries ) } ),
-		// The wrapper measures this element, so the stand-in must take the ref.
-		Stack: forwardRef(
-			(
-				{ children }: { children?: React.ReactNode },
-				ref: React.ForwardedRef< HTMLDivElement >
-			) => <div ref={ ref }>{ children }</div>
-		),
-	};
-} );
-
-// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never fires
-// and the chart measures as infinitely tall, leaving `compactWhenShort` unreachable.
-let mockChartHeight = Infinity;
-
-jest.mock( '@wordpress/compose', () => ( {
-	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver:
-		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
-		( element: HTMLElement | null ) => {
-			if ( element ) {
-				onResize( [ { contentRect: { height: mockChartHeight } } ] );
-			}
-		},
-} ) );
-
-jest.mock( '../../../hooks', () => ( {
-	useSeriesStyles: () => [],
-} ) );
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
@@ -177,8 +132,8 @@ type RecordedLineProps = {
  * @return The recorded props.
  */
 function recordedProps(): RecordedLineProps {
-	expect( mockLineSpy ).toHaveBeenCalled();
-	return mockLineSpy.mock.calls.at( -1 )[ 0 ];
+	expect( mockLineChartSpy ).toHaveBeenCalled();
+	return mockLineChartSpy.mock.calls.at( -1 )[ 0 ];
 }
 
 /**
@@ -214,10 +169,14 @@ function tooltipLabelFor(
 }
 
 describe( 'ComparativeLineChart', () => {
+	const originalSettings = getSettings();
+
 	beforeEach( () => {
-		mockLineSpy.mockClear();
-		mockLegendSpy.mockClear();
-		mockChartHeight = Infinity;
+		resetMockCharts();
+	} );
+
+	afterEach( () => {
+		setSettings( originalSettings );
 	} );
 
 	// `useChartMargin` sizes the gutters itself; overriding them here clipped the edge dates.
@@ -226,7 +185,7 @@ describe( 'ComparativeLineChart', () => {
 		[ 'on a pinned domain', { type: 'percentage' as const, options: { decimals: 0 } }, false ],
 		[ 'on a sparkline, which hides the y axis', DATA_FORMAT, true ],
 	] )( 'never overrides the gutters the chart measured %s', ( _case, dataFormat, isSparkline ) => {
-		mockChartHeight = isSparkline ? 80 : Infinity;
+		setMockChartHeight( isSparkline ? 80 : Infinity );
 
 		render(
 			<ComparativeLineChart
@@ -241,10 +200,6 @@ describe( 'ComparativeLineChart', () => {
 	} );
 
 	describe( 'value axis baseline', () => {
-		afterEach( () => {
-			mockHiddenSeries = new Set();
-		} );
-
 		const STEADY: ComparativeLineChartSeries[] = [
 			{
 				label: 'Subscribers',
@@ -283,7 +238,7 @@ describe( 'ComparativeLineChart', () => {
 		} );
 
 		it( 'leaves a series the legend hid out of the padded domain', () => {
-			mockHiddenSeries = new Set( [ 'Views' ] );
+			setMockHiddenSeries( [ 'Views' ] );
 			render(
 				<ComparativeLineChart
 					series={ [ ...STEADY, ...SERIES ] }
@@ -360,7 +315,7 @@ describe( 'ComparativeLineChart', () => {
 			defaultHiddenSeries: [ 'Visitors', 'Visitors · previous period' ],
 			legend: { collapseGroups: true, comparisonItem: true, interactive: true },
 		} );
-		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
+		expect( mockLineChartLegendSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
 				interactive: true,
 				items: [
@@ -548,9 +503,15 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 		return tooltipNode;
 	}
 
+	const originalSettings = getSettings();
+
 	beforeEach( () => {
-		mockLineSpy.mockClear();
+		resetMockCharts();
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	} );
+
+	afterEach( () => {
+		setSettings( originalSettings );
 	} );
 
 	it( "lists each extra's point for the hovered date as a supplementary row", () => {

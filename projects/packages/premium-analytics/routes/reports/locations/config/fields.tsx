@@ -3,8 +3,10 @@
  */
 import {
 	flagUrl,
+	getLocationColumnLabel,
 	MetricWithComparison,
 	type LocationRow,
+	type LocationsReportSection,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
@@ -40,11 +42,13 @@ export interface LocationsCountryOption {
  *
  * @param countries      - Selectable countries, ordered by views.
  * @param withComparison - Whether to render available period-over-period deltas.
+ * @param section        - The active tab, which names the location column.
  * @return The field config.
  */
 export function getLocationFields(
 	countries?: LocationsCountryOption[],
-	withComparison = false
+	withComparison = false,
+	section: LocationsReportSection = 'countries'
 ): Field< LocationRow >[] {
 	const countryField: Field< LocationRow >[] = countries
 		? [
@@ -66,7 +70,7 @@ export function getLocationFields(
 		...countryField,
 		{
 			id: 'location',
-			label: __( 'Location', 'jetpack-premium-analytics-pkg' ),
+			label: getLocationColumnLabel( section ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,

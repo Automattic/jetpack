@@ -127,6 +127,7 @@ export const ComparisonBars: FC< {
 			rects.push(
 				<rect
 					key={ `${ index }-${ i }` }
+					className="bar-chart__comparison-bar"
 					data-testid={ `bar-chart-comparison-${ index }-${ i }` }
 					x={ rect.x }
 					y={ rect.y }

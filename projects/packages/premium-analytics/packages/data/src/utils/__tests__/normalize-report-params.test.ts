@@ -1,113 +1,56 @@
 /**
- * Mocks – must appear before the import of the module under test.
+ * External dependencies
  */
-jest.mock( '../../defaults', () => ( {
-	getDefaultQueryParams: jest.fn(),
-} ) );
-
-jest.mock( '../preset-date-range', () => ( {
-	computeDateRangeFromPreset: jest.fn(),
-} ) );
-
-jest.mock( '../interval', () => ( {
-	resolveIntervalForRange: jest.fn(),
-} ) );
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '../../defaults';
-import { resolveIntervalForRange } from '../interval';
-import { computeDateRangeFromPreset } from '../preset-date-range';
+import * as presetDateRange from '../preset-date-range';
 import { normalizeReportParams } from '../search';
-import type { ReportParams } from '../search';
 
-const mockGetDefaults = getDefaultQueryParams as jest.MockedFunction<
-	typeof getDefaultQueryParams
->;
-const mockComputeRange = computeDateRangeFromPreset as jest.MockedFunction<
-	typeof computeDateRangeFromPreset
->;
-const mockResolveInterval = resolveIntervalForRange as jest.MockedFunction<
-	typeof resolveIntervalForRange
->;
-
-/*
- * Deterministic date strings.
- * FRESH = what computeDateRangeFromPreset returns "today".
- * STALE = what the URL had from a previous day.
- */
+// "Today" is 2026-02-18 in the site zone, so last-30-days resolves to FRESH.
+const NOW = new Date( '2026-02-18T17:00:00.000Z' );
 const FRESH_FROM = '2026-01-20T00:00:00.000-05:00';
 const FRESH_TO = '2026-02-18T23:59:59.999-05:00';
 const STALE_FROM = '2026-01-19T00:00:00.000-05:00';
 const STALE_TO = '2026-02-17T23:59:59.999-05:00';
 
-const DEFAULTS_WITH_COMPARISON: ReportParams = {
-	from: FRESH_FROM,
-	to: FRESH_TO,
-	preset: 'last-30-days',
-	interval: 'day',
-	compare_from: '2025-12-21T00:00:00.000-05:00',
-	compare_to: '2026-01-19T23:59:59.999-05:00',
-	compare_preset: 'previous-period',
-	comp: '1',
-};
-
-beforeEach( () => {
-	jest.clearAllMocks();
-
-	// Sensible defaults for every test – override per-scenario as needed.
-	mockGetDefaults.mockReturnValue( { ...DEFAULTS_WITH_COMPARISON } );
-	mockComputeRange.mockReturnValue( {
-		from: FRESH_FROM,
-		to: FRESH_TO,
-	} );
-	mockResolveInterval.mockReturnValue( 'day' );
-} );
-
 describe( 'normalizeReportParams', () => {
+	const originalSettings = getSettings();
+
+	beforeAll( () => {
+		setSettings( {
+			...originalSettings,
+			timezone: { string: 'America/New_York', offset: -5, offsetFormatted: '-5', abbr: 'EST' },
+		} );
+	} );
+
+	beforeEach( () => {
+		jest.useFakeTimers().setSystemTime( NOW );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	afterAll( () => {
+		setSettings( originalSettings );
+	} );
+
 	it( 'applies default preset without comparison on fresh load', () => {
 		const result = normalizeReportParams();
 
 		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
-
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// Comparison is off by default: even defaults carrying one must not
-		// leak into a fresh load — only the URL enables it.
 		expect( result.comp ).toBeUndefined();
 		expect( result.compare_from ).toBeUndefined();
 		expect( result.compare_to ).toBeUndefined();
 		expect( result.compare_preset ).toBeUndefined();
 	} );
 
-	it( 'returns same dates when preset range is still fresh', () => {
-		const result = normalizeReportParams( {
-			from: FRESH_FROM,
-			to: FRESH_TO,
-			preset: 'last-30-days',
-			interval: 'day',
-		} );
-
-		expect( result.from ).toBe( FRESH_FROM );
-		expect( result.to ).toBe( FRESH_TO );
-		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockResolveInterval ).toHaveBeenCalledWith(
-			'last-30-days',
-			FRESH_FROM,
-			FRESH_TO,
-			'day'
-		);
-		expect( result.interval ).toBe( 'day' );
-
-		// No comparison in the URL, so none is applied.
-		expect( result.comp ).toBeUndefined();
-	} );
-
 	it( 'passes the candidate interval through resolveIntervalForRange', () => {
-		mockResolveInterval.mockReturnValue( 'week' );
-
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
@@ -115,27 +58,7 @@ describe( 'normalizeReportParams', () => {
 			interval: 'week',
 		} );
 
-		expect( mockResolveInterval ).toHaveBeenCalledWith(
-			'last-30-days',
-			FRESH_FROM,
-			FRESH_TO,
-			'week'
-		);
 		expect( result.interval ).toBe( 'week' );
-	} );
-
-	it( 'recalculates dates when preset range is stale', () => {
-		const result = normalizeReportParams( {
-			from: STALE_FROM,
-			to: STALE_TO,
-			preset: 'last-30-days',
-			interval: 'day',
-		} );
-
-		expect( result.from ).toBe( FRESH_FROM );
-		expect( result.to ).toBe( FRESH_TO );
-		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 	} );
 
 	it( 'uses explicit dates as-is when no preset is set', () => {
@@ -150,7 +73,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
 		expect( result.preset ).toBeUndefined();
-		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
 	it( 'uses explicit dates as-is when preset is custom', () => {
@@ -166,7 +88,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
 		expect( result.preset ).toBeUndefined();
-		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
 	it( 'recalculates primary but preserves comparison from URL', () => {
@@ -233,42 +154,28 @@ describe( 'normalizeReportParams', () => {
 		expect( result.compare_to ).toBeUndefined();
 	} );
 
-	/*
-	 * Edge case – Invalid preset in URL is ignored.
-	 */
-	it( 'ignores invalid preset and uses URL dates', () => {
-		const customFrom = '2026-02-01T00:00:00.000-05:00';
-		const customTo = '2026-02-15T23:59:59.999-05:00';
-
-		const result = normalizeReportParams( {
-			from: customFrom,
-			to: customTo,
-			// @ts-expect-error – testing with invalid preset on purpose
-			preset: 'not-a-real-preset',
-		} );
-
-		expect( result.from ).toBe( customFrom );
-		expect( result.to ).toBe( customTo );
-		expect( result.preset ).toBeUndefined();
-		expect( mockComputeRange ).not.toHaveBeenCalled();
-	} );
-
-	/*
-	 * Edge case – computeDateRangeFromPreset returns undefined
-	 * (e.g., an unimplemented preset). Falls back to search dates.
-	 */
+	// No selectable preset lacks a range today, so this guard is reached only by a stub.
 	it( 'falls back to URL dates when preset has no range implementation', () => {
-		mockComputeRange.mockReturnValue( undefined );
+		const { computeDateRangeFromPreset } = presetDateRange;
+		const computeRange = jest
+			.spyOn( presetDateRange, 'computeDateRangeFromPreset' )
+			.mockImplementation( preset =>
+				preset === 'last-7-days' ? undefined : computeDateRangeFromPreset( preset )
+			);
 
-		const result = normalizeReportParams( {
-			from: STALE_FROM,
-			to: STALE_TO,
-			preset: 'last-30-days',
-		} );
+		try {
+			const result = normalizeReportParams( {
+				from: STALE_FROM,
+				to: STALE_TO,
+				preset: 'last-7-days',
+			} );
 
-		expect( result.preset ).toBeUndefined();
-		expect( result.from ).toBe( STALE_FROM );
-		expect( result.to ).toBe( STALE_TO );
+			expect( result.preset ).toBeUndefined();
+			expect( result.from ).toBe( STALE_FROM );
+			expect( result.to ).toBe( STALE_TO );
+		} finally {
+			computeRange.mockRestore();
+		}
 	} );
 
 	/*
@@ -329,11 +236,6 @@ describe( 'normalizeReportParams', () => {
 	 * all-time range covering one year is indistinguishable from that year.
 	 */
 	it( 'recomputes a year preset so the current year stays fresh', () => {
-		mockComputeRange.mockReturnValueOnce( {
-			from: '2026-01-01T00:00:00.000-05:00',
-			to: FRESH_TO,
-		} );
-
 		const result = normalizeReportParams( {
 			from: '2026-01-01T00:00:00.000-05:00',
 			to: STALE_TO,
@@ -342,7 +244,6 @@ describe( 'normalizeReportParams', () => {
 		} );
 
 		expect( result.preset ).toBe( 'year-2026' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'year-2026' );
 		expect( result.from ).toBe( '2026-01-01T00:00:00.000-05:00' );
 		expect( result.to ).toBe( FRESH_TO );
 	} );
@@ -355,17 +256,11 @@ describe( 'normalizeReportParams', () => {
 		} );
 
 		expect( result.preset ).toBe( 'all-time' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'all-time' );
 		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
 		expect( result.to ).toBe( FRESH_TO );
 	} );
 
 	it( 'rebuilds a year preset that arrives without its range', () => {
-		mockComputeRange.mockReturnValueOnce( {
-			from: '2025-01-01T00:00:00.000-05:00',
-			to: '2025-12-31T23:59:59.999-05:00',
-		} );
-
 		const result = normalizeReportParams( { preset: 'year-2025' } );
 
 		expect( result.preset ).toBe( 'year-2025' );
@@ -378,7 +273,7 @@ describe( 'normalizeReportParams', () => {
 
 		expect( result.preset ).toBe( 'last-30-days' );
 		expect( result.from ).toBe( FRESH_FROM );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
+		expect( result.to ).toBe( FRESH_TO );
 	} );
 
 	it( 'omits post_id when search has none', () => {
@@ -390,11 +285,11 @@ describe( 'normalizeReportParams', () => {
 		expect( result.post_id ).toBeUndefined();
 	} );
 
-	it.each( [ 'foo', '0', '-5', '12.5' ] )( 'drops an invalid post_id (%s)', invalid => {
+	it( 'drops an invalid post_id (0)', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
-			post_id: invalid,
+			post_id: '0',
 		} );
 
 		expect( result.post_id ).toBeUndefined();

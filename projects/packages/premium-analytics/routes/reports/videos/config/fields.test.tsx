@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import { getVideosFields } from './fields';
+import { getVideosFields, isVideoRowClickable, renderVideoRowLink } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 // The router is built dynamically, so a field-level test has no router to mount; render `Link`
@@ -50,7 +50,7 @@ function renderVideosField( fieldId: 'label' | 'poster', item: StatsVideoPlaysCo
  * @return The RTL render result.
  */
 function renderMetricField(
-	fieldId: 'plays' | 'impressions',
+	fieldId: 'plays' | 'impressions' | 'retention_rate',
 	item: StatsVideoPlaysComparisonItem,
 	withComparison = false
 ) {
@@ -78,7 +78,7 @@ describe( 'videos fields', () => {
 	it( 'renders the poster resized for a table row', () => {
 		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
 
-		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toHaveAttribute(
 			'src',
 			'https://i0.wp.com/v/launch.jpg?resize=64%2C64'
 		);
@@ -87,12 +87,26 @@ describe( 'videos fields', () => {
 	it( 'renders the placeholder for an unsafe poster URL', () => {
 		renderVideosField( 'poster', { ...video, poster: 'javascript:alert(1)' } );
 
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
-	it( 'links a video title to its internal detail page, carrying the date window', () => {
+	it( 'renders the title as text on a row DataViews links', () => {
 		renderVideosField( 'label', video );
+
+		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links a row with an ID to its detail page, carrying the date window', () => {
+		render(
+			renderVideoRowLink( {
+				item: video,
+				className: 'dataviews-column-primary__media',
+				'aria-label': 'Launch video',
+				children: <span>poster</span>,
+			} )
+		);
 
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
 		// Only the shared report-window params travel; page-owned params
@@ -105,7 +119,19 @@ describe( 'videos fields', () => {
 			interval: 'day',
 			ref: 'videos',
 		} );
+		expect( link ).toHaveClass( 'dataviews-column-primary__media' );
 		expect( link ).not.toHaveAttribute( 'target' );
+	} );
+
+	it.each( [
+		[ 12, true ],
+		[ undefined, false ],
+		[ 0, false ],
+		[ -3, false ],
+		[ 1.5, false ],
+		[ 'abc', false ],
+	] )( 'treats a row with ID %p as clickable: %p', ( id, expected ) => {
+		expect( isVideoRowClickable( { ...video, id: id as never } ) ).toBe( expected );
 	} );
 
 	it( 'keeps the external page link as the fallback for a row without an ID', () => {
@@ -151,6 +177,18 @@ describe( 'videos fields', () => {
 		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
 		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the endpoint percent retention as a percentage', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: 67.6 } );
+
+		expect( screen.getByText( '67.6%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a retention rate wpcom could not compute', () => {
+		renderMetricField( 'retention_rate', { ...video, retention_rate: null } );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides comparison deltas when comparison is disabled', () => {

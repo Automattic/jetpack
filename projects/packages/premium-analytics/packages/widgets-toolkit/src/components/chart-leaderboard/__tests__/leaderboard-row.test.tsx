@@ -8,42 +8,14 @@ import { category, tag } from '@wordpress/icons';
  */
 import { LeaderboardLabel } from '../leaderboard-label';
 import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
-import type { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
-// `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-	return {
-		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, search, children, ...props }, ref ) => {
-				const path = Object.entries( params ?? {} ).reduce(
-					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-					to
-				);
-				const query = new URLSearchParams();
-				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-					if ( value !== undefined && value !== null ) {
-						query.set( key, String( value ) );
-					}
-				} );
-				const queryString = query.toString();
-
-				return (
-					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-						{ children }
-					</a>
-				);
-			}
-		),
-	};
+	return mockWordPressRoute;
 } );
 
 function glyphPath( root: Element | null | undefined ) {
@@ -73,6 +45,53 @@ describe( 'LeaderboardLabel', () => {
 		expect( screen.getByAltText( 'Flag of France' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'swaps a thumbnail that fails to load for the placeholder', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ { kind: 'thumbnail', url: 'https://example.com/private.jpg', alt: '' } }
+			/>
+		);
+
+		const image = screen.getByRole( 'presentation' );
+		fireEvent.error( image );
+
+		expect( image ).toHaveAttribute( 'src', expect.stringMatching( /^data:image\/svg\+xml/ ) );
+	} );
+
+	it( 'draws the fallback icon when a thumbnail has no image', () => {
+		render(
+			<LeaderboardLabel
+				label="No poster"
+				media={ { kind: 'thumbnail', alt: '', fallbackIcon: category } }
+			/>
+		);
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( glyphPath( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ) ).toBe(
+			iconPath( category )
+		);
+	} );
+
+	it( 'swaps a failed thumbnail for its fallback icon', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ {
+					kind: 'thumbnail',
+					url: 'https://example.com/private.jpg',
+					alt: '',
+					fallbackIcon: category,
+				} }
+			/>
+		);
+
+		fireEvent.error( screen.getByRole( 'presentation' ) );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'supports a first-class no-media label', () => {
@@ -157,6 +176,37 @@ describe( 'buildLeaderboardRow', () => {
 			'https://example.com/pricing/'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it( 'puts a video row thumbnail inside its detail link', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: {
+				kind: 'thumbnail',
+				url: 'https://example.com/p.jpg',
+				alt: '',
+			},
+			action: { kind: 'videoLink', id: 12, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
+			screen.getByRole( 'presentation' )
+		);
+	} );
+
+	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
+			action: { kind: 'postLink', id: 5, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

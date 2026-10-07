@@ -30,28 +30,6 @@ export const tagsFixture = {
 	],
 };
 
-export const tagsByDateFixture = {
-	date: '2026-06-22',
-	period: 'day',
-	days: {
-		'2026-06-16': {
-			tags: [
-				{
-					tags: [
-						{
-							type: 'category',
-							name: 'By date',
-							link: 'https://example.com/category/by-date/',
-						},
-					],
-					views: 0,
-				},
-			],
-			total_views: 0,
-		},
-	},
-};
-
 export const tagsSummaryFixture = {
 	date: '2026-06-22',
 	period: 'day',

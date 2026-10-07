@@ -66,8 +66,8 @@ async function fetchAiOutput(
 			body: JSON.stringify( {
 				messages: [ { role: 'user', content: buildTailorPrompt( input, availableTaskIds ) } ],
 				feature: 'ai-launchpad',
-				model: 'gpt-4o',
-				max_tokens: 1800,
+				model: 'gpt-6-luna',
+				max_tokens: 6000,
 				response_format: 'json_object',
 				stream: false,
 			} ),
