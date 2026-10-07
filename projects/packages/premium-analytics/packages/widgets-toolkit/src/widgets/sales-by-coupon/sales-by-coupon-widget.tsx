@@ -22,7 +22,7 @@ const TOP_COUPON_SEGMENTS = 3;
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  */
-export function SalesByCouponWidget( { ariaLabel }: { ariaLabel?: string } = {} ) {
+export function SalesByCouponWidget( { ariaLabel }: { ariaLabel?: string } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =

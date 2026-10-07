@@ -181,12 +181,14 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'line', mockLineSpy ],
-		[ 'bar', mockBarSpy ],
-	] as const )( 'names the %s chart with ariaLabel', ( type, spy ) => {
+		[ 'single-metric', 'line', mockLineSpy, [ METRIC ] ],
+		[ 'single-metric', 'bar', mockBarSpy, [ METRIC ] ],
+		[ 'tabbed', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+	] as const )( 'names the %s %s chart with ariaLabel', ( _layout, type, spy, metrics ) => {
 		render(
 			<MetricTabsChart
-				metrics={ [ METRIC ] }
+				metrics={ [ ...metrics ] }
 				dataFormat={ DATA_FORMAT }
 				chartType={ type }
 				ariaLabel="Traffic summary"
