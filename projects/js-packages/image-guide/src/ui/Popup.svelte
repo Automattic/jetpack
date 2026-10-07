@@ -87,7 +87,7 @@
 	<div class="preview">
 		<div class="description">
 			<div class="title">
-				<a href={$imageURL} target="_blank noreferrer">{imageName}</a>
+				<a href={$imageURL} target="_blank" rel="noopener noreferrer">{imageName}</a>
 			</div>
 			{#if ratio >= 1.3}
 				<div class="explanation">
@@ -178,7 +178,7 @@
 			</div>
 		</div>
 		<div class="info">
-			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
+			<a class="documentation" href={DOCUMENTATION_URL} target="_blank" rel="noopener noreferrer"
 				>Learn how to improve site speed by optimizing images <External /></a
 			>
 		</div>
