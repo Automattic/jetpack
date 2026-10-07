@@ -97,9 +97,18 @@ class Dashboard {
 			return;
 		}
 
-		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+	}
+
+	/**
+	 * Load a wp-build index and, if it can render the page, its scripts and polyfills.
+	 *
+	 * @param string $build_index Path to the generated build.php.
+	 * @return bool Whether the build can render the page.
+	 */
+	public static function load_wp_build( $build_index ) {
 		if ( ! file_exists( $build_index ) ) {
-			return;
+			return false;
 		}
 
 		$load_wp_build = static function () use ( $build_index ) {
@@ -121,7 +130,7 @@ class Dashboard {
 
 		// A stale or partial build can't render the page, so don't swap core's scripts for it.
 		if ( ! function_exists( self::RENDER_FUNCTION ) ) {
-			return;
+			return false;
 		}
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
@@ -136,6 +145,8 @@ class Dashboard {
 			'jetpack-protect',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+
+		return true;
 	}
 
 	/**

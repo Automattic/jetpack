@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -661,25 +662,30 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The modules on offer, and whether Protect should then ship in Jetpack.
+	 * The modules on offer, whether the site is WordPress.com Simple, and whether Protect should then ship in Jetpack.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_protect_dashboard_offers() {
 		return array(
-			'module on offer'  => array( array( 'protect-dashboard' ), true ),
-			'nothing on offer' => array( array(), false ),
+			'module on offer'                 => array( array( 'protect-dashboard' ), false, true ),
+			'nothing on offer'                => array( array(), false, false ),
+			'module on offer on WPCOM Simple' => array( array( 'protect-dashboard' ), true, false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_protect_dashboard_offers
 	 *
-	 * @param string[] $modules  Modules on offer.
-	 * @param bool     $expected Whether Protect ships in Jetpack.
+	 * @param string[] $modules   Modules on offer.
+	 * @param bool     $is_simple Whether the site is WordPress.com Simple.
+	 * @param bool     $expected  Whether Protect ships in Jetpack.
 	 */
 	#[DataProvider( 'provide_protect_dashboard_offers' )]
-	public function test_protect_ships_in_jetpack_only_while_its_module_is_on_offer( $modules, $expected ) {
+	public function test_protect_ships_in_jetpack_only_while_its_module_is_on_offer( $modules, $is_simple, $expected ) {
+		if ( $is_simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
 		$offer = static function () use ( $modules ) {
 			return $modules;
 		};
@@ -688,8 +694,8 @@ class Main_Features_Test extends TestCase {
 			return array_fill_keys( $modules, '1.0' );
 		};
 		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
-		$locale = static function () use ( $expected ) {
-			return $expected ? 'protect_dashboard_on_offer' : 'protect_dashboard_not_on_offer';
+		$locale = static function () use ( $modules, $is_simple ) {
+			return 'protect_dashboard_' . count( $modules ) . ( $is_simple ? '_simple' : '' );
 		};
 		add_filter( 'jetpack_get_available_standalone_modules', $offer );
 		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
@@ -700,6 +706,7 @@ class Main_Features_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
 		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
 		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		$this->assertSame( $expected, $delivery );
 	}
 }

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -33,6 +34,7 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		Admin_Menu::reset();
 		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'admin_enqueue_scripts' );
 		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
@@ -136,5 +138,41 @@ class Dashboard_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'could not be loaded because its assets are missing', $output );
+	}
+
+	/**
+	 * Build indexes that can't render the page.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_unusable_builds() {
+		return array(
+			'no build'    => array( __DIR__ . '/fixtures/missing-build.php' ),
+			'stale build' => array( __DIR__ . '/fixtures/stale-build.php' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_unusable_builds
+	 *
+	 * @param string $build_index Path to the build index.
+	 */
+	#[DataProvider( 'provide_unusable_builds' )]
+	public function test_load_wp_build_leaves_core_scripts_alone_without_a_usable_build( $build_index ) {
+		$this->assertFalse( Dashboard::load_wp_build( $build_index ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Dashboard::class, 'enqueue_i18n_loader' ) ) );
+		$this->assertNotContains( 'jetpack-protect', array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
+	}
+
+	public function test_restore_screen_id_undoes_the_alias() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'jetpack_page_jetpack-protect' );
+
+		Dashboard::alias_screen_id();
+		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, get_current_screen()->id );
+
+		Dashboard::restore_screen_id();
+		$this->assertSame( 'jetpack_page_jetpack-protect', get_current_screen()->id );
 	}
 }
