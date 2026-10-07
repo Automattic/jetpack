@@ -42,6 +42,11 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	const MENU_TITLE = 'Backup';
 
 	/**
+	 * Self-serve backups.
+	 */
+	const FEATURE = 'BACKUPS_SELF_SERVE';
+
+	/**
 	 * Keep the Jetpack plugin's Backup dashboard off a WoA site whose plan lacks backups.
 	 *
 	 * Otherwise it claims the slug first and this page's upgrade prompt steps aside.
@@ -51,22 +56,6 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	 */
 	public static function filter_jetpack_backup_dashboard( $enabled ) {
 		return $enabled && self::has_feature();
-	}
-
-	/**
-	 * Whether the site's plan includes self-serve backups.
-	 *
-	 * @return bool
-	 */
-	public static function has_feature() {
-		if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS_SELF_SERVE' ) ) {
-			return false;
-		}
-
-		// Called without a blog ID.
-		// WoA sites would pass the local blog ID, which is not the WordPress.com blog ID.
-		// wpcom resolves the current site.
-		return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
 	}
 }
 

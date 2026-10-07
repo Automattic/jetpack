@@ -14,7 +14,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 /**
  * Registers a hosting feature's admin page and its wp-build assets.
  *
- * Each page subclasses this, overriding the page constants and has_feature().
+ * Each page subclasses this, overriding the page constants.
  */
 abstract class WPCOM_Hosting_Feature_Page {
 
@@ -46,6 +46,11 @@ abstract class WPCOM_Hosting_Feature_Page {
 	 * Menu entry label. A product name, so not translated.
 	 */
 	const MENU_TITLE = '';
+
+	/**
+	 * Name of the `WPCOM_Features` constant the site's plan must include.
+	 */
+	const FEATURE = '';
 
 	/**
 	 * `admin_menu` priority for register_page().
@@ -97,13 +102,20 @@ abstract class WPCOM_Hosting_Feature_Page {
 	private static $displaced_screen_id = array();
 
 	/**
-	 * Whether the site's plan includes the feature. Each page overrides this; the default
-	 * offers the upgrade, the one prompt that is never wrong for a site of unknown plan.
+	 * Whether the site's plan includes FEATURE. Without one it offers the upgrade, the one
+	 * prompt that is never wrong for a site of unknown plan.
 	 *
 	 * @return bool
 	 */
 	public static function has_feature() {
-		return false;
+		$feature = '\WPCOM_Features::' . static::FEATURE;
+
+		if ( '' === static::FEATURE || ! function_exists( 'wpcom_site_has_feature' ) || ! defined( $feature ) ) {
+			return false;
+		}
+
+		// Called without a blog ID: on WoA the local ID is not the WordPress.com one, so wpcom resolves the current site.
+		return (bool) wpcom_site_has_feature( constant( $feature ) );
 	}
 
 	/**
@@ -204,6 +216,29 @@ abstract class WPCOM_Hosting_Feature_Page {
 			static::MENU_SLUG,
 			$callback
 		);
+
+		self::hide_menu_entry();
+	}
+
+	/**
+	 * Keep this page's entry out of the sidebar, since Calypso owns the nav; hidden rather
+	 * than removed, so the page stays reachable.
+	 *
+	 * Done here rather than in wpcom-admin-menu.php, which not every admin loads.
+	 *
+	 * @return void
+	 */
+	private static function hide_menu_entry() {
+		global $submenu;
+
+		foreach ( $submenu['jetpack'] ?? array() as $i => $item ) {
+			if ( static::MENU_SLUG !== ( $item[2] ?? null ) || str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
+		}
 	}
 
 	/**

@@ -465,6 +465,28 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			array_values( array_filter( $slugs, static fn ( $slug ) => WPCOM_Backup::MENU_SLUG === $slug ) ),
 			'The existing entry should be left exactly as it was found.'
 		);
+		$this->assertArrayNotHasKey( 4, $submenu['jetpack'][0], 'The existing entry should stay visible.' );
+	}
+
+	/**
+	 * Hidden by the page itself, since admins without a linked WordPress.com account never
+	 * load the WordPress.com menu that hides the rest of the Jetpack entries.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
+	 */
+	#[DataProvider( 'provide_pages' )]
+	public function test_registered_page_is_hidden_from_the_sidebar( $page ) {
+		global $submenu;
+
+		$this->set_up_admin_menu();
+
+		$page::register_page();
+
+		$items = array_values( array_filter( $submenu['jetpack'], static fn ( $item ) => $page::MENU_SLUG === $item[2] ) );
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'hide-if-js', $items[0][4] ?? '' );
 	}
 
 	/**

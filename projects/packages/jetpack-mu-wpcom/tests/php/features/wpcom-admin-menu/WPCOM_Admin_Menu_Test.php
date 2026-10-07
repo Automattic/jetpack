@@ -7,14 +7,12 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 
 /**
  * Class WPCOM_Admin_Menu_Test
@@ -81,7 +79,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
 		delete_option( 'wpcom_ai_launchpad_enabled' );
 		delete_option( 'wpcom_ai_launchpad_dismissed' );
-		WPCOM_Scan::reset();
 
 		parent::tear_down();
 	}
@@ -410,44 +407,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotNull( $item );
 		$this->assertStringContainsString( 'hide-if-js', $item[4] ?? '' );
-	}
-
-	/**
-	 * Who serves `jetpack-protect`, and whether its entry should be hidden.
-	 *
-	 * @return array
-	 */
-	public static function provide_protect_page_owners() {
-		return array(
-			'the Scan upsell page'          => array( false, true ),
-			'the standalone Protect plugin' => array( true, false ),
-		);
-	}
-
-	/**
-	 * Only the Scan upsell page is hidden; the Protect plugin's own entry stays reachable.
-	 *
-	 * @param bool $plugin_owns_slug Whether the Protect plugin registered the slug first.
-	 * @param bool $expect_hidden    Whether the entry should be hidden.
-	 *
-	 * @dataProvider provide_protect_page_owners
-	 */
-	#[DataProvider( 'provide_protect_page_owners' )]
-	public function test_jetpack_submenu_hides_the_protect_page_only_when_wpcom_serves_it( $plugin_owns_slug, $expect_hidden ) {
-		global $submenu;
-
-		\Jetpack_Options::update_option( 'id', 200 );
-		if ( $plugin_owns_slug ) {
-			$submenu['jetpack'][] = array( 'Protect', 'manage_options', WPCOM_Scan::MENU_SLUG, 'Jetpack Protect' );
-		}
-
-		WPCOM_Scan::register_page();
-		wpcom_add_jetpack_submenu();
-
-		$item = $this->get_jetpack_submenu_item( WPCOM_Scan::MENU_SLUG );
-
-		$this->assertNotNull( $item );
-		$this->assertSame( $expect_hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
 	}
 
 	/**

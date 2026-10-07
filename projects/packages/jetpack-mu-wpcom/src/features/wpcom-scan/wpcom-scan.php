@@ -41,6 +41,12 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	const MENU_TITLE = 'Protect';
 
 	/**
+	 * SCAN_SELF_SERVE, not SCAN: SCAN also covers Personal and Premium plans, which run scans
+	 * without exposing Scan's UI. It is also what the dashboard's Scan page gates on.
+	 */
+	const FEATURE = 'SCAN_SELF_SERVE';
+
+	/**
 	 * Calypso's Scan page, since nothing serves this slug on WoA once Scan is live.
 	 *
 	 * Drop this override to land back on `jetpack-protect` once the Jetpack plugin serves it.
@@ -52,25 +58,6 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 		$host = $new_host ?? wp_parse_url( home_url(), PHP_URL_HOST );
 
 		return 'https://wordpress.com/scan/' . rawurlencode( (string) $host );
-	}
-
-	/**
-	 * Whether the site's plan gives it access to Scan.
-	 *
-	 * SCAN_SELF_SERVE, not SCAN: SCAN also covers Personal and Premium plans, which run scans
-	 * without exposing Scan's UI. It is also what the dashboard's Scan page gates on.
-	 *
-	 * @return bool
-	 */
-	public static function has_feature() {
-		if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::SCAN_SELF_SERVE' ) ) {
-			return false;
-		}
-
-		// Called without a blog ID.
-		// WoA sites would pass the local blog ID, which is not the WordPress.com blog ID.
-		// wpcom resolves the current site.
-		return (bool) wpcom_site_has_feature( \WPCOM_Features::SCAN_SELF_SERVE );
 	}
 }
 
