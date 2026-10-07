@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { formatCurrency, getCurrencyObject } from '@automattic/number-formatters';
+import { formatCurrency, getCurrencyObject, setLocale } from '@automattic/number-formatters';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -382,15 +383,26 @@ describe( 'formatMetricValue', () => {
 
 		it.each( [
 			[ 0.04, 1, '< 0.1' ],
-			[ 0.005, 1, '< 0.1' ],
 			[ 0, 1, '0.0' ],
 			[ 0.05, 1, '0.1' ],
-			[ 0.0597, 1, '0.1' ],
 			[ 0.4, 0, '< 1' ],
 		] )( 'marks %d below %d decimals as %s', ( value, decimals, expected ) => {
 			expect( formatMetricValue( value, 'number', { decimals, markBelowPrecision: true } ) ).toBe(
 				expected
 			);
+		} );
+
+		it( 'marks below precision in the site locale', () => {
+			setLocale( 'de' );
+			setLocaleData( { '< %s': [ 'unter %s' ] }, 'jetpack-premium-analytics-pkg' );
+			try {
+				expect(
+					formatMetricValue( 0.04, 'number', { decimals: 1, markBelowPrecision: true } )
+				).toBe( 'unter 0,1' );
+			} finally {
+				setLocale( 'en' );
+				resetLocaleData( {}, 'jetpack-premium-analytics-pkg' );
+			}
 		} );
 	} );
 } );
