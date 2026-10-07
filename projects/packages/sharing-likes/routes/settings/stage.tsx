@@ -1,5 +1,17 @@
-import AdminPage from '@automattic/jetpack-components/admin-page';
-import { __ } from '@wordpress/i18n';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { seedQueryClient } from '../../src/settings-app/data/queries';
+import { getSharingLikesScriptData } from '../../src/settings-app/script-data';
+import { SettingsScreen } from '../../src/settings-app/settings-screen';
+import '../../src/settings-app/style.scss';
+
+const queryClient = new QueryClient( {
+	defaultOptions: { queries: { refetchOnWindowFocus: false } },
+} );
+
+const scriptData = getSharingLikesScriptData();
+if ( scriptData ) {
+	seedQueryClient( queryClient, scriptData );
+}
 
 /**
  * wp-build stage for Settings > Sharing.
@@ -7,7 +19,9 @@ import { __ } from '@wordpress/i18n';
  * @return The settings screen.
  */
 const Stage = () => (
-	<AdminPage title={ __( 'Sharing Settings', 'jetpack-sharing-likes' ) }>{ null }</AdminPage>
+	<QueryClientProvider client={ queryClient }>
+		<SettingsScreen />
+	</QueryClientProvider>
 );
 
 export { Stage as stage };
