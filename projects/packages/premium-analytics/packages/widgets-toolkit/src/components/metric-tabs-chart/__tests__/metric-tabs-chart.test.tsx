@@ -205,7 +205,13 @@ describe( 'MetricTabsChart', () => {
 		[ 'single-metric', 'bar', mockBarSpy, [ METRIC ] ],
 		[ 'tabbed', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
 		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
-	] as const )( 'names the %s %s chart with ariaLabel', ( _layout, type, spy, metrics ) => {
+		[ 'dropdown', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+	] as const )( 'names the %s %s chart with ariaLabel', ( layout, type, spy, metrics ) => {
+		if ( layout === 'dropdown' ) {
+			setMockChartWidth( 100 );
+		}
+
 		render(
 			<MetricTabsChart
 				metrics={ [ ...metrics ] }
@@ -215,6 +221,7 @@ describe( 'MetricTabsChart', () => {
 			/>
 		);
 
+		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
 		expect( spy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
 		);
