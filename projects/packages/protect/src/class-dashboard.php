@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -64,6 +66,13 @@ class Dashboard {
 	private static $original_screen_id = null;
 
 	/**
+	 * Registered sections, keyed by section key.
+	 *
+	 * @var Dashboard_Section[]
+	 */
+	private static $sections = array();
+
+	/**
 	 * Wire the hooks.
 	 *
 	 * @param array $menu_options Admin_Menu item options merged over the defaults, e.g. `module`.
@@ -75,6 +84,13 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+
+		// Each feature lives in its own file and registers itself, so features can land independently.
+		$section_files = glob( __DIR__ . '/sections/class-*.php' );
+		foreach ( is_array( $section_files ) ? $section_files : array() as $section_file ) {
+			require_once $section_file;
+		}
 
 		/**
 		 * Fires once the Protect dashboard has wired its hooks, so the page exists.
@@ -82,6 +98,80 @@ class Dashboard {
 		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Add a section to the dashboard.
+	 *
+	 * @param Dashboard_Section $section The section.
+	 * @return void
+	 */
+	public static function register_section( Dashboard_Section $section ) {
+		$key = $section->get_key();
+		if ( isset( self::$sections[ $key ] ) ) {
+			/* translators: %s is a dashboard section key. */
+			$message = sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack-protect-pkg' ), $key );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			return;
+		}
+		self::$sections[ $key ] = $section;
+	}
+
+	/**
+	 * Register every section's REST routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		foreach ( self::$sections as $section ) {
+			$section->register_routes();
+		}
+	}
+
+	/**
+	 * Each section's state, keyed by section key.
+	 *
+	 * @return array
+	 */
+	public static function get_initial_state() {
+		$state = array();
+		foreach ( self::$sections as $key => $section ) {
+			$state[ $key ] = $section->get_state();
+		}
+		return $state;
+	}
+
+	/**
+	 * Whether the current user may see and use the dashboard's REST routes.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Whether the site has a plan that includes Scan.
+	 *
+	 * @return bool
+	 */
+	public static function has_scan_plan() {
+		return class_exists( Plan::class ) && Plan::has_required_plan();
+	}
+
+	/**
+	 * Whether a module can run on this site, and whether it is on.
+	 *
+	 * @param string $module Module slug.
+	 * @return array
+	 */
+	public static function get_module_state( $module ) {
+		$modules = new Modules();
+
+		return array(
+			'available' => $modules->is_module( $module ),
+			'active'    => $modules->is_active( $module ),
+		);
 	}
 
 	/**
@@ -233,6 +323,8 @@ class Dashboard {
 	public static function render() {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
+			$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+			wp_print_inline_script_tag( 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;
