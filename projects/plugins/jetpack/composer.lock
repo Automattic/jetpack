@@ -349,10 +349,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ads",
-                "reference": "076b033ad32f06a08e15ce365b74a6243ed08c4c"
+                "reference": "83fb0c0d20a236b7aed8dfb3ece73a5eadc75f1a"
             },
             "require": {
                 "automattic/jetpack-premium-analytics": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wpcom-proxy": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {

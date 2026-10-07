@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST API: Add a cached proxy route for the WordAds earnings and stats endpoints of WordPress.com.
