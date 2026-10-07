@@ -268,6 +268,10 @@ class Admin_Post_List_Column {
 				)
 			);
 
+			if ( is_wp_error( $post_views ) && in_array( $post_views->get_error_code(), array( 'site_not_connected', 'http_request_failed' ), true ) ) {
+				break;
+			}
+
 			if ( is_wp_error( $post_views ) || empty( $post_views['posts'] ) ) {
 				continue;
 			}
