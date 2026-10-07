@@ -1584,7 +1584,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		createElement( 'hr', { className: 'jetpack-connector__divider' } ),
 		createElement(
 			HStack,
-			{ spacing: 3, alignment: 'center' },
+			{ spacing: 3, alignment: 'center', className: 'jetpack-connector__footer' },
 			// Grouped so the links stay together on one side, leaving the HStack's
 			// space-between to separate them from the destructive action.
 			createElement(
