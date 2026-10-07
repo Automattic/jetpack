@@ -10,7 +10,7 @@ interface SelectedSegmentRingProps {
 const toSvgId = ( value: string ) => value.replace( /[^\w-]/g, '-' );
 
 /**
- * Marks the selected segment with a two-tone ring drawn inside its edge, so neither the SVG edge nor the radial-wipe mask can cut it off.
+ * Marks the selected segment with a two-tone ring drawn inside its edge, so the SVG edge cannot cut it off.
  *
  * @param {SelectedSegmentRingProps} props - Component props
  * @return {JSX.Element} The ring

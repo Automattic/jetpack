@@ -293,6 +293,7 @@ const PieChartInternal = ( {
 	} );
 
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const wipeMask = animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null;
 
 	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -483,44 +484,43 @@ const PieChartInternal = ( {
 									/>
 								</defs>
 
-								<Group
-									top={ centerY }
-									left={ centerX }
-									mask={
-										animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null
-									}
-								>
+								<Group top={ centerY } left={ centerX } mask={ wipeMask }>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
 											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
-										<>
-											{ arcs.map( ( arcDatum, index ) => (
-												<g
-													key={ `arc-${ index }` }
-													{ ...getSegmentHandlers(
-														arcDatum.data,
-														navigationArcs.indexOf( arcDatum )
-													) }
-												>
-													<path
-														d={ path( arcDatum ) || '' }
-														fill={ accessors.fill( arcDatum.data ) }
-														data-testid="pie-segment"
-													/>
-												</g>
-											) ) }
-											{ selectedArc && (
-												<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
-											) }
-											{ showLabels && arcs.map( renderLabel ) }
-										</>
+										arcs.map( ( arcDatum, index ) => (
+											<g
+												key={ `arc-${ index }` }
+												{ ...getSegmentHandlers(
+													arcDatum.data,
+													navigationArcs.indexOf( arcDatum )
+												) }
+											>
+												<path
+													d={ path( arcDatum ) || '' }
+													fill={ accessors.fill( arcDatum.data ) }
+													data-testid="pie-segment"
+												/>
+											</g>
+										) )
 									) }
-
-									{ /* Render SVG children (like Group, Text) inside the SVG */ }
-									{ ! allSegmentsHidden && svgChildren }
 								</Group>
+								{ /* Unmasked so the entry wipe cannot hide the focus indicator. */ }
+								{ selectedArc && (
+									<Group top={ centerY } left={ centerX }>
+										<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+									</Group>
+								) }
+								{ ! allSegmentsHidden && (
+									<Group top={ centerY } left={ centerX } mask={ wipeMask }>
+										{ showLabels && arcs.map( renderLabel ) }
+
+										{ /* Render SVG children (like Group, Text) inside the SVG */ }
+										{ svgChildren }
+									</Group>
+								) }
 							</svg>
 							<PieSelectionOutput
 								{ ...outputProps }
