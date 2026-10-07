@@ -19,11 +19,14 @@ const SettingsPage = () => {
 	/**
 	 * Toggle Account Protect Module
 	 *
-	 * Flips the switch on the Account Protection module, and then refreshes the data.
+	 * Sets the Account Protection module to the wanted state, and then refreshes the data.
 	 */
-	const toggleAccountProtection = useCallback( async () => {
-		toggleAccountProtectionMutation.mutate();
-	}, [ toggleAccountProtectionMutation ] );
+	const toggleAccountProtection = useCallback(
+		async enabled => {
+			toggleAccountProtectionMutation.mutate( enabled );
+		},
+		[ toggleAccountProtectionMutation ]
+	);
 
 	// Track view for Protect Account Protection page.
 	useAnalyticsTracks( {

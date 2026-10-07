@@ -128,6 +128,12 @@ class REST_Controller {
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
+				'args'                => array(
+					'enabled' => array(
+						'description' => __( 'Whether account protection should be on. Omit to flip the current state.', 'jetpack-protect' ),
+						'type'        => 'boolean',
+					),
+				),
 			)
 		);
 
@@ -152,6 +158,12 @@ class REST_Controller {
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
+				'args'                => array(
+					'enabled' => array(
+						'description' => __( 'Whether the firewall should be on. Omit to flip the current state.', 'jetpack-protect' ),
+						'type'        => 'boolean',
+					),
+				),
 			)
 		);
 
@@ -343,13 +355,17 @@ class REST_Controller {
 	}
 
 	/**
-	 * Toggles the Account Protection module on or off for the API endpoint
+	 * Turns the Account Protection module on or off for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public static function api_toggle_account_protection() {
+	public static function api_toggle_account_protection( $request ) {
 		$account_protection = Account_Protection::instance();
-		if ( $account_protection->is_enabled() ) {
+		$enable             = $request['enabled'] ?? ! $account_protection->is_enabled();
+
+		if ( ! $enable ) {
 			$disabled = $account_protection->disable();
 			if ( ! $disabled ) {
 				return new WP_Error(
@@ -384,12 +400,21 @@ class REST_Controller {
 	}
 
 	/**
-	 * Toggles the WAF module on or off for the API endpoint
+	 * Turns the WAF module on or off for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public static function api_toggle_waf() {
-		if ( Waf_Runner::is_enabled() ) {
+	public static function api_toggle_waf( $request ) {
+		$is_enabled = Waf_Runner::is_enabled();
+		$enable     = $request['enabled'] ?? ! $is_enabled;
+
+		if ( $enable === $is_enabled ) {
+			return rest_ensure_response( true );
+		}
+
+		if ( ! $enable ) {
 			$disabled = Waf_Runner::disable();
 			if ( ! $disabled ) {
 				return new WP_Error(

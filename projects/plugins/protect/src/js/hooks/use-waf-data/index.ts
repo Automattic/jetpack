@@ -16,12 +16,12 @@ const useWafData = () => {
 	const toggleWafMutation = useToggleWafMutation();
 
 	/**
-	 * Toggle WAF Module
+	 * Enable WAF Module
 	 *
-	 * Flips the switch on the WAF module, and then refreshes the data.
+	 * Turns the WAF module on, and then refreshes the data.
 	 */
-	const toggleWaf = useCallback( async () => {
-		toggleWafMutation.mutate( undefined );
+	const enableWaf = useCallback( async () => {
+		toggleWafMutation.mutate( true );
 	}, [ toggleWafMutation ] );
 
 	/**
@@ -29,11 +29,11 @@ const useWafData = () => {
 	 */
 	const ensureModuleIsEnabled = useCallback( async () => {
 		if ( ! waf.isEnabled ) {
-			return await toggleWaf();
+			return await enableWaf();
 		}
 
 		return true;
-	}, [ toggleWaf, waf.isEnabled ] );
+	}, [ enableWaf, waf.isEnabled ] );
 
 	/**
 	 * Toggle Automatic Rules
@@ -170,7 +170,7 @@ const useWafData = () => {
 		...waf,
 		isUpdating: wafMutation.isPending,
 		isToggling: toggleWafMutation.isPending,
-		toggleWaf,
+		enableWaf,
 		toggleAutomaticRules,
 		toggleIpAllowList,
 		saveIpAllowList,

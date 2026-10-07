@@ -47,7 +47,7 @@ const FirewallPage = () => {
 		toggleIpBlockList,
 		saveIpBlockList,
 		toggleBruteForceProtection,
-		toggleWaf,
+		enableWaf,
 	} = useWafData();
 	const { hasPlan } = usePlan();
 	const { upgradePlan } = usePlan( { redirectUrl: `${ ADMIN_URL }#/firewall` } );
@@ -223,7 +223,7 @@ const FirewallPage = () => {
 				<Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text>
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton onClick={ toggleWaf } loading={ isToggling } disabled={ isToggling }>
+				<Notice.ActionButton onClick={ enableWaf } loading={ isToggling } disabled={ isToggling }>
 					{ __( 'Enable Firewall', 'jetpack-protect' ) }
 				</Notice.ActionButton>
 			</Notice.Actions>
