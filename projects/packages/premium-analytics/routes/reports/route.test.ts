@@ -16,6 +16,18 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 		to: '2026-06-16T23:59:59',
 		...search,
 	} ) ),
+	hasComparisonEnabled: ( params: {
+		comp?: unknown;
+		compare_from?: string;
+		compare_to?: string;
+	} ) => String( params.comp ) === '1' && !! params.compare_from && !! params.compare_to,
+	withDefaultComparison: jest.fn( ( params: Record< string, unknown > ) => ( {
+		...params,
+		comp: '1',
+		compare_from: '2026-05-16T00:00:00',
+		compare_to: '2026-05-31T23:59:59',
+		compare_preset: 'previous-period',
+	} ) ),
 } ) );
 
 jest.mock( '../site-readiness', () => ( {
