@@ -2,7 +2,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
-		"@wordpress/admin-ui": "2.10.0"
+		"@wordpress/admin-ui": "2.12.0"
 	},
 	"route": {
 		"path": "/",
