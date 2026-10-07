@@ -22,15 +22,22 @@ With wp-build, add the `automattic` scope to `wpPlugin.externalNamespaces`. wp-b
 
 ## Field types
 
-The dashboard registers field types for widget attributes under `jpa/`, the namespace its widget type names use. A widget names one by `type` and carries data alone; the host renders the control. `DashboardFieldType` names them.
+The dashboard registers field types for widget attributes under `jpa/`, the namespace its widget type names use. A widget names one by `type` and carries data alone; the host renders the control.
 
-| Name                 | Control                                                                                                  | Base type |
-| -------------------- | -------------------------------------------------------------------------------------------------------- | --------- |
-| `jpa/select`         | A dropdown over `elements`.                                                                              | `text`    |
-| `jpa/toggle-group`   | The `elements` as segments of one row; icon segments when every option carries an `icon` (`IconOption`). | `text`    |
-| `jpa/array-checkbox` | One checkbox per element, writing the checked values as an array.                                        | `array`   |
+| Name                 | Control                                                                                     | Base type |
+| -------------------- | ------------------------------------------------------------------------------------------- | --------- |
+| `jpa/select`         | A dropdown over `elements`.                                                                 | `text`    |
+| `jpa/toggle-group`   | The `elements` as segments of one row; icon segments when every option carries an `icon`.   | `text`    |
+| `jpa/array-checkbox` | One checkbox per element, writing the checked values as an array.                           | `array`   |
+| `jpa/line-or-bar`    | A line or bar segment pair. The options are the dashboard's, so the attribute carries none. | `text`    |
 
-`chartTypeAttributeField()` declares the line or bar chart type on `jpa/toggle-group`, so every chart widget's control stays identical.
+The chart type of a time series widget is one attribute, with the widget's own label:
+
+```ts
+attributes: [
+	{ id: 'chartType', label: __( 'Chart type', 'my-plugin' ), type: 'jpa/line-or-bar', relevance: 'high' },
+],
+```
 
 ## What belongs in it
 

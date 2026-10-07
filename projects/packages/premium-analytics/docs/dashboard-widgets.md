@@ -167,7 +167,7 @@ wp-build finds it installed under that name, leaves the import external (`wpPlug
 
 `packages/fields/src/field-types.ts` registers the dashboard's field types with `registerFieldType()` from `@wordpress/widget-primitives`, from the boot init module, before any route renders. `useWidgetTypes` resolves an attribute that names one into a plain DataViews field: the registered `Edit` control on top of the definition's base type. A name nothing registered passes through, and the form skips the attribute.
 
-The names live under `jpa/`, the dashboard's namespace, whichever plugin's widget writes them; the SDK README lists them and `DashboardFieldType` declares the union. They never reach the database: a layout stores the widget type and the attribute values. Renaming one is a second registration of the same definition under the new name, a minor of the contract while both answer and a major when the old one goes.
+The names live under `jpa/`, the dashboard's namespace, whichever plugin's widget writes them; the SDK README lists them. They never reach the database: a layout stores the widget type and the attribute values. Renaming one is a second registration of the same definition under the new name, a minor of the contract while both answer and a major when the old one goes.
 
 ### Translations on the client
 

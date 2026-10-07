@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
 
-Declare the field types the dashboard provides for widget attributes.
+Document the field types the dashboard registers for widget attributes, and mark the chart type helper provisional.
