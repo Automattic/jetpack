@@ -911,7 +911,8 @@ abstract class Product {
 				$status = Products::STATUS_CAN_UPGRADE;
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
-		} elseif ( static::$module_name && ! static::is_module_active() ) {
+			// Bundles have no module of their own, so they fall through to the plan checks below.
+		} elseif ( static::$module_name && ! static::is_bundle_product() && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues

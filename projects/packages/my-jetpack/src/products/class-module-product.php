@@ -135,10 +135,6 @@ abstract class Module_Product extends Product {
 		if ( Products::STATUS_INACTIVE === $status && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;
 		}
-		// A bundle the site has no plan for is off, not waiting on a connection owner.
-		if ( Products::STATUS_USER_CONNECTION_ERROR === $status && static::is_bundle_product() && ! static::has_any_plan_for_product() ) {
-			$status = Products::STATUS_MODULE_DISABLED;
-		}
 		return $status;
 	}
 

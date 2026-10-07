@@ -175,16 +175,20 @@ class Module_Product_Test extends TestCase {
 	}
 
 	/**
-	 * A bundle the site has no plan for reads as off on a site without a connection owner.
+	 * A bundle has no module of its own, so without a plan it needs one, whatever the connection.
 	 *
 	 * @param array  $purchases The site's purchases.
-	 * @param string $expected  The bundle's expected status.
-	 * @dataProvider provide_bundle_purchases_without_owner
+	 * @param bool   $has_owner Whether the site has a connection owner.
+	 * @param string $expected  The Security bundle's expected status.
+	 * @dataProvider provide_bundle_status_cases
 	 */
-	#[DataProvider( 'provide_bundle_purchases_without_owner' )]
-	public function test_bundle_status_without_connection_owner( $purchases, $expected ) {
+	#[DataProvider( 'provide_bundle_status_cases' )]
+	public function test_bundle_status( $purchases, $has_owner, $expected ) {
 		activate_plugins( 'jetpack/jetpack.php' );
 		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
+		if ( $has_owner ) {
+			( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		}
 
 		$this->assertSame( $expected, Security::get_status() );
 
@@ -192,14 +196,15 @@ class Module_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Purchases and the status a Security bundle reports with them.
+	 * Purchases, connection owner, and the status a Security bundle reports with them.
 	 *
 	 * @return array[]
 	 */
-	public static function provide_bundle_purchases_without_owner() {
+	public static function provide_bundle_status_cases() {
 		return array(
-			'no plan'    => array( array(), Products::STATUS_MODULE_DISABLED ),
-			'owned plan' => array(
+			'no plan, no owner'             => array( array(), false, Products::STATUS_NEEDS_PLAN ),
+			'no plan, owner connected'      => array( array(), true, Products::STATUS_NEEDS_PLAN ),
+			'own plan, no owner'            => array(
 				array(
 					(object) array(
 						'product_slug'  => 'jetpack_security_t1_yearly',
@@ -207,6 +212,18 @@ class Module_Product_Test extends TestCase {
 						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
 					),
 				),
+				false,
+				Products::STATUS_USER_CONNECTION_ERROR,
+			),
+			'covered by Complete, no owner' => array(
+				array(
+					(object) array(
+						'product_slug'  => 'jetpack_complete_yearly',
+						'expiry_status' => 'active',
+						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+					),
+				),
+				false,
 				Products::STATUS_USER_CONNECTION_ERROR,
 			),
 		);
