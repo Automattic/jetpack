@@ -104,7 +104,8 @@ export function buildMetricTab< TReport extends MetricReport >(
 		zone,
 		pendingLabel,
 	} = options;
-	const previous = hasComparison ? toPoints( comparison, field, zone, pendingLabel ) : undefined;
+	// The comparison period ends before today, so it has no uncounted day.
+	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
 
 	return {

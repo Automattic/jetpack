@@ -98,11 +98,25 @@ function CurrentReading( { row }: { row: DatedTooltipRow } ) {
 /**
  * The hovered bucket's rows under one date header: a swatch or icon, the value
  * in emphasis, then the unit. With a comparison, a second column lists the
- * comparison bucket's values under its own date, each beside its row.
+ * comparison bucket's values under its own date, each beside its row. A bucket
+ * with a note and no reading in any row shows the date and the note alone.
  */
 export function DatedTooltip( { model, indicatorType }: DatedTooltipProps ) {
 	const hasPrevious =
 		model.previousDate !== undefined || model.rows.some( row => row.previous !== undefined );
+	// Rows of dashes would only repeat what the note says.
+	const noteOnly =
+		model.note !== undefined &&
+		model.rows.every( row => row.value === null && row.previous?.value == null );
+
+	if ( noteOnly ) {
+		return (
+			<div className={ styles.table }>
+				<div className={ styles.header }>{ model.date }</div>
+				<div className={ styles.note }>{ model.note }</div>
+			</div>
+		);
+	}
 
 	return (
 		<table className={ styles.table }>

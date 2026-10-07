@@ -72,8 +72,9 @@ describe( 'Stats WordAds normalizers', () => {
 		);
 	} );
 
-	// WordAds counts nightly, so today's day bucket is zeros until the run: not readings.
-	describe( "today's bucket", () => {
+	// A day's numbers arrive once it ends in UTC, so the current UTC day is zeros
+	// that are not readings; east of UTC that is still the site's yesterday.
+	describe( 'uncounted days', () => {
 		beforeEach( () => {
 			jest.useFakeTimers().setSystemTime( new Date( '2026-06-02T15:00:00Z' ) );
 		} );
@@ -82,7 +83,7 @@ describe( 'Stats WordAds normalizers', () => {
 			jest.useRealTimers();
 		} );
 
-		it( 'nulls all three fields of a day range ending today, flags it pending, and totals the rest', () => {
+		it( 'nulls all three fields from the current UTC day on, flags them pending, and totals the rest', () => {
 			const result = sanitizeStatsWordAdsStatsResponse(
 				{
 					unit: 'day',
@@ -90,22 +91,24 @@ describe( 'Stats WordAds normalizers', () => {
 					data: [
 						[ '2026-06-01', 800, 3.25, 4.06 ],
 						[ '2026-06-02', 0, 0, 0 ],
+						// The site's today, east of UTC.
+						[ '2026-06-03', 0, 0, 0 ],
 					],
 				},
-				{ period: 'day', date: '2026-06-02' }
+				{ period: 'day', date: '2026-06-03' }
 			);
 
+			expect( result.data.map( row => row.pending ) ).toEqual( [ undefined, true, true ] );
 			expect( result.data[ 1 ] ).toEqual(
-				expect.objectContaining( { impressions: null, revenue: null, cpm: null, pending: true } )
+				expect.objectContaining( { impressions: null, revenue: null, cpm: null } )
 			);
-			expect( result.data[ 0 ].pending ).toBeUndefined();
 			expect( result.summary ).toEqual(
 				expect.objectContaining( { impressions: 800, revenue: 3.25, cpm: 4.0625 } )
 			);
 		} );
 
 		it.each( [
-			[ 'a day range ending before today', 'day', '2026-06-01' ],
+			[ 'a day range ending before the current UTC day', 'day', '2026-06-01' ],
 			[
 				'a month bucket that includes today, which is partial rather than empty',
 				'month',

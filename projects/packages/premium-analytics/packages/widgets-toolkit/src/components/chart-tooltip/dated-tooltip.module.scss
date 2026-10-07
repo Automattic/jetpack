@@ -18,7 +18,8 @@
 	vertical-align: middle;
 }
 
-.table thead th {
+.table thead th,
+.header {
 	padding-block-end: var(--wpds-dimension-gap-xs);
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }

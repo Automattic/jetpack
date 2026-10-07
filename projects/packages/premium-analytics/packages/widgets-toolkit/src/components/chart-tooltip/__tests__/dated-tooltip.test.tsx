@@ -86,12 +86,25 @@ describe( 'DatedTooltip', () => {
 		expect( screen.getByRole( 'rowheader' ) ).toHaveTextContent( '— ViewsNo data for Views' );
 	} );
 
-	it( 'reads the note under the rows when the bucket has not been counted', () => {
+	it( 'shows the date and the note alone when no row has a reading', () => {
 		renderTooltip( { rows: [ row( { value: null } ) ], note: 'Not counted yet.' } );
+
+		expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'September 18, 2026' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Not counted yet.' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Views', { exact: false } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'reads the note under the rows when some row still has a reading', () => {
+		renderTooltip( {
+			rows: [ row( { value: null } ), row( { key: 'Visitors', name: 'Visitors', value: 5 } ) ],
+			note: 'Not counted yet.',
+		} );
 
 		expect( cells() ).toEqual( [
 			[ 'September 18, 2026' ],
 			[ '— ViewsNo data for Views' ],
+			[ '5 Visitors' ],
 			[ 'Not counted yet.' ],
 		] );
 	} );

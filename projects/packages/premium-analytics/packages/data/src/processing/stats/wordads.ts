@@ -20,7 +20,7 @@ export type StatsWordAdsDataPoint = StatsTimeSeriesDataPoint & {
 	revenue?: number | null;
 	/** Null when no ads were served (CPM is undefined there, not zero), or for today's bucket. */
 	cpm?: number | null;
-	/** Set on today's day bucket: WordAds counts nightly, so its zeros are not readings. */
+	/** Set on a day bucket WordAds has not counted yet (the current UTC day onward): its zeros are not readings. */
 	pending?: true;
 };
 
@@ -108,31 +108,31 @@ function withoutUnservedCpm( row: StatsWordAdsDataPoint ): StatsWordAdsDataPoint
 }
 
 /**
- * Mark today's day bucket as pending: the endpoint serves it as zeros until the
- * nightly run, and nothing in the payload tells those from real zeros.
+ * Mark the day buckets WordAds has not counted yet as pending. A day's numbers
+ * arrive once that day ends in UTC, so the endpoint serves the current UTC day
+ * (and, east of UTC, the site's today) as zeros that nothing in the payload tells
+ * from real zeros.
  *
  * @param data   - The normalized rows, oldest first.
  * @param period - The query's bucket size.
- * @return The rows, with today's values nulled and the row flagged.
+ * @return The rows, with the uncounted days' values nulled and the rows flagged.
  */
-function withPendingToday(
+function withPendingDays(
 	data: StatsWordAdsDataPoint[],
 	period: string | undefined
 ): StatsWordAdsDataPoint[] {
-	const last = data[ data.length - 1 ];
 	// A week or month bucket that includes today is partial, not empty, so it stands.
-	if ( ! last || ( period ?? 'day' ) !== 'day' ) {
+	if ( ( period ?? 'day' ) !== 'day' ) {
 		return data;
 	}
 
-	if ( last.time_interval !== format( localTZDate(), 'yyyy-MM-dd' ) ) {
-		return data;
-	}
+	const todayInUtc = format( localTZDate( Date.now(), 'UTC' ), 'yyyy-MM-dd' );
 
-	return [
-		...data.slice( 0, -1 ),
-		{ ...last, impressions: null, revenue: null, cpm: null, pending: true },
-	];
+	return data.map( row =>
+		row.time_interval >= todayInUtc
+			? { ...row, impressions: null, revenue: null, cpm: null, pending: true }
+			: row
+	);
 }
 
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
@@ -167,7 +167,7 @@ export function sanitizeStatsWordAdsStatsResponse(
 ): StatsWordAdsResponse {
 	const report = sanitizeStatsTimeSeriesResponse( response, query ) as StatsWordAdsResponse;
 
-	const data = withPendingToday( report.data.map( withoutUnservedCpm ), query?.period );
+	const data = withPendingDays( report.data.map( withoutUnservedCpm ), query?.period );
 
 	return {
 		...report,
