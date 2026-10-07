@@ -136,7 +136,7 @@ describe( 'hierarchy report exporters on a raw Stats payload', () => {
 		} );
 
 		await expect( exportCsvTable( clicksCsvExporter ) ).resolves.toEqual( [
-			[ 'Clicked URL', 'Group', 'Clicks' ],
+			[ 'Link', 'Group', 'Clicks' ],
 			[ 'wordpress.org', '', 5 ],
 			[ 'https://wordpress.org/a', 'wordpress.org', 3 ],
 			[ 'https://wordpress.org/b', 'wordpress.org', 2 ],

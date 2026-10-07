@@ -38,6 +38,23 @@ export function getLocationsReportSection( geoMode: LocationsGeoMode ): Location
 	return SECTIONS_BY_GEO_MODE[ geoMode ];
 }
 
+/**
+ * Name the location column after the section's place type, in the table and the CSV alike.
+ *
+ * @param section - The Locations section.
+ * @return The column label.
+ */
+export function getLocationColumnLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Region', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'City', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Country', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
 /** Countries is already the full country list, so only the other sections take a country. */
 export function supportsLocationsCountryFilter( section: LocationsReportSection ): boolean {
 	return section !== 'countries';
@@ -131,7 +148,7 @@ export function locationsCsvExporter(
 		// Match the table's own default order, so the file reads like the screen.
 		toCsvRows: items => [ ...items ].sort( byViewsDescending ),
 		getColumns: () => [
-			{ label: __( 'Location', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: getLocationColumnLabel( section ), getValue: row => row.label },
 			// Region and city names repeat across countries. On screen the flag tells
 			// them apart; a CSV needs its own column.
 			...( supportsLocationsCountryFilter( section )
