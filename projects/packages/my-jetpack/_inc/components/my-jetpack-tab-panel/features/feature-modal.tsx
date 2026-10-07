@@ -224,7 +224,7 @@ export function FeatureModal( {
 			>
 				{ /* Close renders before the artwork so a keyboard user reaches it in one Tab. */ }
 				<div className={ styles[ 'modal-band' ] } style={ getBandStyle( feature.slug ) }>
-					<Dialog.CloseIcon className={ styles[ 'modal-band__close' ] } />
+					<Dialog.CloseIconButton className={ styles[ 'modal-band__close' ] } />
 					<div className={ styles[ 'modal-band__art' ] }>
 						<FeatureBand key={ feature.slug } feature={ feature } />
 					</div>

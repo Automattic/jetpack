@@ -56,8 +56,8 @@ jest.mock( '@wordpress/ui', () => {
 				? react.cloneElement( renderProp, props, children )
 				: react.createElement( 'button', props, children );
 		},
+		ButtonLink: Anchor,
 		Link: Anchor,
-		LinkButton: Anchor,
 	};
 } );
 

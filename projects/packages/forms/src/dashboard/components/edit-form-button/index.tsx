@@ -4,7 +4,7 @@
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -47,7 +47,7 @@ export default function EditFormButton( {
 	 * `adminUrl` arrives asynchronously from the config store, and an href built
 	 * without it would be relative — resolving against the wrong base in external
 	 * admin contexts. A disabled control isn't navigable, so hold the slot with a
-	 * real Button while we wait, then let LinkButton own the href.
+	 * real Button while we wait, then let ButtonLink own the href.
 	 *
 	 * If the config request failed outright there is nothing left to wait for, so
 	 * fall through to the relative URL rather than disable the action forever. It
@@ -62,13 +62,13 @@ export default function EditFormButton( {
 	}
 
 	return (
-		<LinkButton
+		<ButtonLink
 			size="compact"
 			variant="outline"
 			href={ getFormEditUrl( formId, adminUrl ) }
 			onClick={ onClick }
 		>
 			{ label }
-		</LinkButton>
+		</ButtonLink>
 	);
 }

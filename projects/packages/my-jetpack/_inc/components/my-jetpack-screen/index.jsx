@@ -65,7 +65,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 				{ actionButtons && actionButtons.length > 0 && (
 					<Notice.Actions>{ actionButtons }</Notice.Actions>
 				) }
-				{ ! hideCloseButton && <Notice.CloseIcon onClick={ options.onClose } /> }
+				{ ! hideCloseButton && <Notice.CloseIconButton onClick={ options.onClose } /> }
 			</Notice.Root>
 		</div>
 	);

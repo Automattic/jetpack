@@ -208,7 +208,7 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 							getSubscriberLabel( subscriber )
 						) }
 					</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="md" className="jetpack-newsletter__comp-modal-body">

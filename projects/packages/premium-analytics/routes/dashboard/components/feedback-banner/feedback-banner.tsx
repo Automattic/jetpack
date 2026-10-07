@@ -49,7 +49,7 @@ export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element 
 						</Notice.ActionButton>
 					</Notice.Actions>
 
-					<Notice.CloseIcon
+					<Notice.CloseIconButton
 						label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
 						onClick={ dismiss }
 					/>

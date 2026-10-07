@@ -30,7 +30,7 @@ const CloudCssUpgradeNotice = () => {
 					{ strong: <strong /> }
 				) }
 			</Notice.Description>
-			<Notice.CloseIcon
+			<Notice.CloseIconButton
 				onClick={ () => setPending( false ) }
 				label={ __( 'Dismiss', 'jetpack-boost' ) }
 			/>

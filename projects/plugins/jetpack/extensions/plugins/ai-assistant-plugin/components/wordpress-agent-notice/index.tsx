@@ -10,7 +10,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { Button, Icon, LinkButton, Notice, VisuallyHidden } from '@wordpress/ui';
+import { Button, Icon, ButtonLink, Notice, VisuallyHidden } from '@wordpress/ui';
 import { useId } from 'react';
 /**
  * Internal dependencies
@@ -231,7 +231,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 				) }
 
 				{ ! isAgentOn && (
-					<LinkButton
+					<ButtonLink
 						variant="outline"
 						style={ ACTION_BUTTON_STYLE }
 						// Same tab: the editor's unsaved-changes prompt guards the draft.
@@ -240,7 +240,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 					>
 						{ /* translators: Button that leads to the settings page where the WordPress Agent is turned on. "WordPress Agent" is a product name. */ }
 						{ __( 'Enable WordPress Agent', 'jetpack' ) }
-					</LinkButton>
+					</ButtonLink>
 				) }
 
 				<Notice.ActionLink href={ DOCS_URL } openInNewTab>
@@ -248,7 +248,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 				</Notice.ActionLink>
 			</Notice.Actions>
 
-			{ isAgentOn && <Notice.CloseIcon onClick={ dismiss } /> }
+			{ isAgentOn && <Notice.CloseIconButton onClick={ dismiss } /> }
 		</Notice.Root>
 	);
 }

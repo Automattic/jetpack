@@ -65,7 +65,7 @@ const Notice = ( {
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (
-				<WPNotice.CloseIcon
+				<WPNotice.CloseIconButton
 					label={ __( 'Dismiss notice.', 'jetpack-protect' ) }
 					onClick={ onClose }
 				/>

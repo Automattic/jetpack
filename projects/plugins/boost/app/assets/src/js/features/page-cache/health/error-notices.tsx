@@ -33,7 +33,7 @@ export const FailedSettingsWriteNotice = ( { onClose }: NoticeProps ) => {
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -66,7 +66,7 @@ export const WPContentNotWritableNotice = ( { onClose }: NoticeProps ) => {
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -88,7 +88,7 @@ export const NotUsingPermalinksNotice = ( { onClose }: NoticeProps ) => {
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -110,7 +110,7 @@ export const AdvancedCacheIncompatibleNotice = ( { onClose }: NoticeProps ) => {
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -143,7 +143,7 @@ export const AdvancedCacheForSuperCacheNotice = ( {
 				</p>
 			</Notice.Description>
 			{ actions && actions.length > 0 && <Notice.Actions>{ actions }</Notice.Actions> }
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -170,7 +170,7 @@ export const UnableToWriteToAdvancedCacheNotice = ( { onClose }: NoticeProps ) =
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -200,7 +200,7 @@ export const WPCacheDefinedNotTrueNotice = ( { onClose }: NoticeProps ) => {
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -228,7 +228,7 @@ export const PageCacheRootDirNotWritableNotice = ( { onClose }: NoticeProps ) =>
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -257,7 +257,7 @@ export const WPConfigNotWritableNotice = ( { onClose }: NoticeProps ) => {
 					) }
 				</p>
 			</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };
@@ -276,7 +276,7 @@ export const GenericErrorNotice = ( { error, onClose }: GenericErrorNoticeProps 
 		<Notice.Root intent="error">
 			<Notice.Title>{ title }</Notice.Title>
 			<Notice.Description>{ error.message }</Notice.Description>
-			<Notice.CloseIcon onClick={ onClose } label={ dismissLabel() } />
+			<Notice.CloseIconButton onClick={ onClose } label={ dismissLabel() } />
 		</Notice.Root>
 	);
 };

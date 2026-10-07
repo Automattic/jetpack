@@ -1,7 +1,7 @@
 import { formatCurrency } from '@automattic/number-formatters';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { LinkButton, Notice } from '@wordpress/ui';
+import { ButtonLink, Notice } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
@@ -215,12 +215,12 @@ export default function StorageAddonUpsell( {
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (
 				<Notice.Actions>
-					<LinkButton variant="solid" size="compact" href={ href } onClick={ recordClick }>
+					<ButtonLink variant="solid" size="compact" href={ href } onClick={ recordClick }>
 						{ __( 'Upgrade now', 'jetpack-backup-pkg' ) }
-					</LinkButton>
+					</ButtonLink>
 				</Notice.Actions>
 			) }
-			{ onDismiss && <Notice.CloseIcon onClick={ onDismiss } /> }
+			{ onDismiss && <Notice.CloseIconButton onClick={ onDismiss } /> }
 		</Notice.Root>
 	);
 }

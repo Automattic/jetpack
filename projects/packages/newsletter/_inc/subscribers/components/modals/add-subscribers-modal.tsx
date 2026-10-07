@@ -780,7 +780,7 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Add subscribers', 'jetpack-newsletter' ) }</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">

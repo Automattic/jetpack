@@ -12,7 +12,7 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, ButtonLink, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
@@ -283,9 +283,9 @@ export default function RestoreScreen() {
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -313,9 +313,9 @@ export default function RestoreScreen() {
 										__( 'Some items could not be restored.', 'jetpack-backup-pkg' ) }
 								</EmptyState.Description>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }

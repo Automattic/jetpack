@@ -120,7 +120,7 @@ const ConnectionFlowDialog = () => {
 							/>
 						) }
 						<Dialog.Title>{ getStepTitle( step, serviceLabel ) }</Dialog.Title>
-						<Dialog.CloseIcon />
+						<Dialog.CloseIconButton />
 					</Dialog.Header>
 					<Dialog.Content>{ renderStep( step ) }</Dialog.Content>
 				</Dialog.Popup>

@@ -59,7 +59,7 @@ export default function HistoryUpsell( { range, dayCount, isVisible = true }: Pr
 				{ __( 'Learn more about your site performance over time.', 'jetpack-boost' ) }{ ' ' }
 				<UpgradeCTA />
 			</Notice.Description>
-			<Notice.CloseIcon
+			<Notice.CloseIconButton
 				icon={ isExpanded ? chevronUp : chevronDown }
 				label={
 					isExpanded

@@ -94,7 +94,9 @@ export default class SimpleNotice extends Component {
 					<Notice.Description render={ <div /> }>{ body }</Notice.Description>
 				) }
 				{ actions ? <Notice.Actions>{ actions }</Notice.Actions> : null }
-				{ showDismiss && <Notice.CloseIcon label={ dismissText } onClick={ onDismissClick } /> }
+				{ showDismiss && (
+					<Notice.CloseIconButton label={ dismissText } onClick={ onDismissClick } />
+				) }
 			</Notice.Root>
 		);
 	}

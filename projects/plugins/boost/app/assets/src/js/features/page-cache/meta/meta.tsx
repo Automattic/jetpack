@@ -311,7 +311,7 @@ const BypassPatterns = ( {
 					<Notice.Description>
 						{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 					</Notice.Description>
-					<Notice.CloseIcon
+					<Notice.CloseIconButton
 						onClick={ () => setShowNotice( false ) }
 						label={ __( 'Dismiss', 'jetpack-boost' ) }
 					/>

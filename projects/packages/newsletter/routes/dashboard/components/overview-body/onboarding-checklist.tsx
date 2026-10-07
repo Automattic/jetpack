@@ -10,7 +10,7 @@ import {
 	Button,
 	Card,
 	CollapsibleCard,
-	LinkButton,
+	ButtonLink,
 	Skeleton,
 	Spinner,
 	Stack,
@@ -99,12 +99,12 @@ function ChecklistActions( {
 	return (
 		<Stack direction="row" gap="md">
 			{ stepId === 'send_newsletter' ? (
-				<LinkButton
+				<ButtonLink
 					href={ `${ getSiteData()?.admin_url ?? '' }post-new.php` }
 					onClick={ handlePrimary }
 				>
 					{ primaryAction }
-				</LinkButton>
+				</ButtonLink>
 			) : (
 				<Button onClick={ handlePrimary }>{ primaryAction }</Button>
 			) }

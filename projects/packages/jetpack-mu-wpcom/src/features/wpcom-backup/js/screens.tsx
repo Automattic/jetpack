@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
-import { Button, LinkButton, Text } from '@wordpress/ui';
+import { Button, ButtonLink, Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
@@ -41,15 +41,15 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 			actions={
 				<>
 					<ViewTracker eventName="calypso_dashboard_upsell_impression" properties={ upsellProps } />
-					<LinkButton
+					<ButtonLink
 						variant="solid"
 						size="compact"
 						href={ state.upgradeUrl }
 						onClick={ () => recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps ) }
 					>
-						<LinkButton.Icon icon={ upsell } />
+						<ButtonLink.Icon icon={ upsell } />
 						{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
-					</LinkButton>
+					</ButtonLink>
 				</>
 			}
 		/>
@@ -110,14 +110,14 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) : (
-						<LinkButton
+						<ButtonLink
 							variant="solid"
 							size="compact"
 							href={ state.activateUrl }
 							onClick={ handleClick }
 						>
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
-						</LinkButton>
+						</ButtonLink>
 					)
 				}
 			/>

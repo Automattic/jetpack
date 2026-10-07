@@ -10,7 +10,7 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Spinner, Stack, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, ButtonLink, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
@@ -254,9 +254,9 @@ export default function DownloadScreen() {
 									</EmptyState.Description>
 								) }
 								<EmptyState.Actions>
-									<LinkButton variant="solid" href={ state.downloadUrl } download rel="noreferrer">
+									<ButtonLink variant="solid" href={ state.downloadUrl } download rel="noreferrer">
 										{ __( 'Download file', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }

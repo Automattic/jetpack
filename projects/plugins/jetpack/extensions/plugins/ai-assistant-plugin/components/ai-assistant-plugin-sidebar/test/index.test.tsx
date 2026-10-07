@@ -183,10 +183,10 @@ jest.mock( '@wordpress/ui', () => ( {
 		),
 		{ Icon: () => <span data-testid="button-icon" /> }
 	),
-	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
+	ButtonLink: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
 	),
-	LinkButton: ( { children, href }: { children: React.ReactNode; href: string } ) => (
+	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
 	),
 	Notice: {

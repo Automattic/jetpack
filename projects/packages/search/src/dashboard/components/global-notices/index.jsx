@@ -25,7 +25,7 @@ const NoticeItem = ( { notice, onDismissNotice } ) => {
 	return (
 		<Notice.Root intent={ STATUS_TO_INTENT[ status ] ?? 'neutral' } spokenMessage={ text }>
 			{ text && <Notice.Description>{ text }</Notice.Description> }
-			{ showDismiss && <Notice.CloseIcon onClick={ handleDismiss } /> }
+			{ showDismiss && <Notice.CloseIconButton onClick={ handleDismiss } /> }
 		</Notice.Root>
 	);
 };
