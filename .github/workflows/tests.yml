@@ -58,7 +58,7 @@ jobs:
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
       SPLIT_PROJECT: ${{ matrix.split-project }}
-      SPLIT_EXCLUDE: ${{ join( matrix.split-exclude, ' ' ) }}
+      SPLIT_EXCLUDE: ${{ toJSON( matrix.split-exclude ) }}
     strategy:
       fail-fast: false
       matrix:
@@ -118,12 +118,12 @@ jobs:
             CHANGED=$( jq -c --arg p "$SPLIT_PROJECT" 'with_entries( select( .key == $p ) )' <<<"$CHANGED" )
           elif (( SPLIT_NUM )); then
             readarray -t FILES < <( jq -r 'keys[] | if . == "monorepo" then "composer.json" else "projects/\( . )/composer.json" end' <<<"$CHANGED" )
-            CHANGED=$( jq -nc --argjson changed "$CHANGED" --arg script "$TEST_SCRIPT" --arg exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" '
+            CHANGED=$( jq -nc --argjson changed "$CHANGED" --arg script "$TEST_SCRIPT" --argjson exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" '
               # Find the projects that will run: defining the script, and not excluded from generic runs.
               [ inputs | select( .scripts[ $script ] ) | input_filename
                 # Generate slug from filename.
                 | if . == "composer.json" then "monorepo" else ltrimstr( "projects/" ) | rtrimstr( "/composer.json" ) end
-                | select( IN( $exclude | split( " " )[] ) | not )
+                | select( IN( $exclude[] ) | not )
               ]
               # Deal out every nth one, balanced by count.
               | [ .[ range( $num - 1; length; $total ) ] ] as $split
