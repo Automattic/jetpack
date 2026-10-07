@@ -182,13 +182,13 @@ final class Dashboard_Section {
 	public function is_available() {
 		// The package's own sections read Stats. Checked here, in a class the autoloader serves from
 		// the newest copy, so an older copy's callback cannot open one to a reader without access.
-		if ( 0 === strpos( $this->id, 'analytics/' ) && ! Stats_Access::current_user_can_view() ) {
+		if ( 0 === strpos( $this->id, 'analytics/' ) && ! Capabilities::current_user_can_view_stats() ) {
 			return false;
 		}
 
 		// Before sections decided who opens the dashboard, Stats access was the outer gate.
 		if ( null === $this->is_available ) {
-			return Stats_Access::current_user_can_view();
+			return Capabilities::current_user_can_view_stats();
 		}
 
 		if ( is_callable( $this->is_available ) ) {

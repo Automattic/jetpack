@@ -302,16 +302,16 @@ class Capabilities_Test extends BaseTestCase {
 
 		$reader = $this->login_as( 'editor' );
 		$this->grant_view_stats_to( $reader );
-		$this->assertTrue( Stats_Access::current_user_can_view() );
-		$this->assertSame( $controller->check_data_permission( $request ), Stats_Access::current_user_can_view() );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
-		$this->assertFalse( Stats_Access::current_user_can_view() );
-		$this->assertSame( $controller->check_data_permission( $request ), Stats_Access::current_user_can_view() );
+		$this->assertFalse( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 
 		$this->login_as( 'administrator' );
-		$this->assertTrue( Stats_Access::current_user_can_view() );
-		$this->assertSame( $controller->check_data_permission( $request ), Stats_Access::current_user_can_view() );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 	}
 }

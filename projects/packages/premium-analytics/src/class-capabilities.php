@@ -84,7 +84,7 @@ class Capabilities {
 	private static function current_user_has_available_section() {
 		// Without the marker, an older copy's sections decide: keep the Stats gate they relied on.
 		if ( ! defined( Dashboard_Section::class . '::GATES_STATS_SECTIONS' ) ) {
-			return Stats_Access::current_user_can_view();
+			return self::current_user_can_view_stats();
 		}
 
 		// The registry hydrates only after init; the dashboard name comes with its loaded files.
@@ -107,6 +107,22 @@ class Capabilities {
 	 */
 	public static function current_user_can_view_analytics() {
 		return current_user_can( self::VIEW_ANALYTICS );
+	}
+
+	/**
+	 * Whether the current user may read the Stats reports.
+	 *
+	 * "Stats reports" is everything the proxy serves under `view_stats`, mirroring what
+	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces there (pinned by Capabilities_Test).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_view_stats() {
+		// `view_stats` alone would track Stats more closely, but it only works once Stats hooks its own
+		// `map_meta_cap` — which Analytics::init_wpcom_simple() never does, locking out administrators too.
+		return current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
 	}
 
 	/**

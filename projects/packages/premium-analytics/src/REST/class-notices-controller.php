@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use Automattic\Jetpack\PremiumAnalytics\Notices;
-use Automattic\Jetpack\PremiumAnalytics\Stats_Access;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -100,7 +100,7 @@ class Notices_Controller {
 	 * @return bool
 	 */
 	public function check_permission(): bool {
-		return Stats_Access::current_user_can_view();
+		return Capabilities::current_user_can_view_stats();
 	}
 
 	/**

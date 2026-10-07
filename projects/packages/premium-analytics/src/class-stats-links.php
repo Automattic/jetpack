@@ -76,7 +76,7 @@ class Stats_Links {
 	 * @return string
 	 */
 	private static function route_url( $url, $path ) {
-		if ( ! Stats_Access::current_user_can_view() ) {
+		if ( ! Capabilities::current_user_can_view_stats() ) {
 			return $url;
 		}
 
