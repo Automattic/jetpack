@@ -5,29 +5,21 @@ import { QUERY_WAF_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
 
 /**
- * Toggle WAF Mutatation
+ * Enable WAF Mutation
  *
  * @return {UseMutationResult} useMutation result.
  */
-export default function useToggleWafMutation(): UseMutationResult< unknown, Error, boolean > {
+export default function useToggleWafMutation(): UseMutationResult< unknown, Error, void > {
 	const queryClient = useQueryClient();
 	const { showSuccessNotice, showErrorNotice } = useNotices();
 
 	return useMutation( {
-		mutationFn: API.toggleWaf,
-		onSuccess: ( _data, enabled ) => {
-			showSuccessNotice(
-				enabled
-					? __( 'WAF module enabled.', 'jetpack-protect' )
-					: __( 'WAF module disabled.', 'jetpack-protect' )
-			);
+		mutationFn: () => API.toggleWaf( true ),
+		onSuccess: () => {
+			showSuccessNotice( __( 'WAF module enabled.', 'jetpack-protect' ) );
 		},
-		onError: ( _error, enabled ) => {
-			showErrorNotice(
-				enabled
-					? __( 'An error occurred enabling the WAF module.', 'jetpack-protect' )
-					: __( 'An error occurred disabling the WAF module.', 'jetpack-protect' )
-			);
+		onError: () => {
+			showErrorNotice( __( 'An error occurred enabling the WAF module.', 'jetpack-protect' ) );
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );

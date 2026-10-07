@@ -21,7 +21,7 @@ const useWafData = () => {
 	 * Turns the WAF module on, and then refreshes the data.
 	 */
 	const enableWaf = useCallback( async () => {
-		toggleWafMutation.mutate( true );
+		toggleWafMutation.mutate();
 	}, [ toggleWafMutation ] );
 
 	/**
