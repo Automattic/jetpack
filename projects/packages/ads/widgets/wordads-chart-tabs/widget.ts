@@ -3,13 +3,13 @@
  */
 import {
 	type ChartDisplayChartType,
-	chartTypeAttributeField,
 	reportParamsAttributeField,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { megaphone } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -41,7 +41,12 @@ export default {
 			grain: WORDADS_GRAIN,
 			offersComparison: false,
 		} ),
-		chartTypeAttributeField(),
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-ads-pkg' ),
+			type: 'jpa/line-or-bar',
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
 		attributes: {

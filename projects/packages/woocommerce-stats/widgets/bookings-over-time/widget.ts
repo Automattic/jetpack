@@ -1,11 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-} from '@automattic/jetpack-premium-analytics-sdk';
+import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
+import type { ChartDisplayChartType } from '@automattic/jetpack-premium-analytics-sdk';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -17,5 +15,12 @@ export type BookingsOverTimeAttributes = {
 
 export default {
 	icon: chartBar,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< BookingsOverTimeAttributes >[],
+	attributes: [
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-woocommerce-stats-pkg' ),
+			type: 'jpa/line-or-bar',
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< BookingsOverTimeAttributes >[],
 };
