@@ -17,6 +17,9 @@ echo '::endgroup::'
 TMP_DIR=$( mktemp -d )
 trap 'rm -rf "$TMP_DIR"' exit
 
+# Name the summary per artifact so downloading with `merge-multiple` doesn't clobber summaries from other jobs. The publish job merges them.
+SUMMARY="artifacts/summary-$ARTIFACT.tsv"
+
 TMP=$( find "$PWD/coverage" -name '*.cov' )
 if [[ -n "$TMP" ]]; then
 	echo "::group::Combining PHP coverage"
@@ -26,11 +29,8 @@ if [[ -n "$TMP" ]]; then
 	echo '::endgroup::'
 
 	echo "::group::Creating PHP coverage summary"
-	"$BASE"/extract-php-summary-data.php artifacts/php-combined.cov > "$TMP_DIR/php-summary.tsv"
+	"$BASE"/extract-php-summary-data.php artifacts/php-combined.cov > "$SUMMARY"
 	echo '::endgroup::'
-else
-	echo "No PHP coverage files found!"
-	touch "$TMP_DIR/php-summary.tsv"
 fi
 
 TMP=$( find "$PWD/coverage" -name '*.json' )
@@ -54,14 +54,6 @@ if [[ -n "$TMP" ]]; then
 	mkdir "$TMP_DIR/js"
 	cp -v "$JS_COMBINED" "$TMP_DIR/js"
 	pnpm --filter=./.github/files/coverage-munger/ exec nyc report --no-exclude-after-remap --report-dir="$TMP_DIR" --temp-dir="$TMP_DIR/js" --reporter=json-summary
-	jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$TMP_DIR/js-summary.tsv"
+	jq -r 'to_entries[] | select( .key != "total" ) | [ .key, .value.lines.total, .value.lines.covered ] | @tsv' "$TMP_DIR/coverage-summary.json" > "$SUMMARY"
 	echo '::endgroup::'
-else
-	echo "No JS coverage files found!"
-	touch "$TMP_DIR/js-summary.tsv"
 fi
-
-echo "::group::Saving coverage summary"
-# Name the summary per artifact so downloading with `merge-multiple` doesn't clobber summaries from other jobs. The publish job merges them.
-cp -v "$TMP_DIR/$COVERAGE_GROUP-summary.tsv" "artifacts/summary-$ARTIFACT.tsv"
-echo '::endgroup::'
