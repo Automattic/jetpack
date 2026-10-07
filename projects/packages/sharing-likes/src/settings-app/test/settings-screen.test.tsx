@@ -68,12 +68,16 @@ describe( 'SettingsScreen', () => {
 		expect( scrollIntoView.mock.contexts[ 0 ] ).toHaveProperty( 'id', LIKES_ANCHOR );
 	} );
 
-	it( 'ignores a hash with no matching element', () => {
-		window.location.hash = '#jetpack-sharing-placement';
-		renderWithData( <SettingsScreen />, { status: { ...baseStatus, placement: false } } );
+	it.each( [ '#jetpack-sharing-placement', '#100%' ] )(
+		'ignores a hash with no matching element: %s',
+		hash => {
+			window.location.hash = hash;
+			renderWithData( <SettingsScreen />, { status: { ...baseStatus, placement: false } } );
 
-		expect( scrollIntoView ).not.toHaveBeenCalled();
-	} );
+			expect( scrollIntoView ).not.toHaveBeenCalled();
+			expect( screen.getByText( 'Other settings' ) ).toBeInTheDocument();
+		}
+	);
 
 	it( 'warns before leaving while a save is in flight', async () => {
 		let save: ReturnType< typeof useSaveSetting > | undefined;
