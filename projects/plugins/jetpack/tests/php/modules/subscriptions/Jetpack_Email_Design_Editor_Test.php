@@ -275,10 +275,29 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	public function test_the_screen_data_describes_this_installation() {
 		$user = wp_get_current_user();
 		$data = $this->call_private( 'get_screen_data' );
+		$exit = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
 
-		$this->assertSame( admin_url( 'themes.php' ), $data['urls']['back'] );
-		$this->assertSame( admin_url( 'themes.php' ), $data['urls']['listings'] );
+		$this->assertSame( $exit, $data['urls']['back'] );
+		$this->assertSame( $exit, $data['urls']['listings'] );
 		$this->assertSame( $user->user_email, $data['userEmail'] );
+	}
+
+	/**
+	 * The Newsletter settings page renders its link from this value alone, so a site without the
+	 * screen has to be told so rather than left to link at a page that will refuse it.
+	 */
+	public function test_the_script_data_withholds_the_link_while_the_flag_is_off() {
+		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
+
+		$this->assertNull( $data['newsletter']['emailDesignUrl'] );
+	}
+
+	public function test_the_script_data_names_the_screen_once_the_flag_is_on() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
+
+		$this->assertSame( Jetpack_Email_Design_Editor::get_url(), $data['newsletter']['emailDesignUrl'] );
 	}
 
 	public function test_the_allowed_iframe_handles_start_from_the_editor_stylesheets() {

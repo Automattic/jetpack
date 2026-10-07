@@ -58,6 +58,34 @@ class Jetpack_Email_Design_Editor {
 		self::register_feature_flags();
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
+
+		// Priority 20, because `Newsletter\Settings::add_script_data()` replaces the whole
+		// `newsletter` key at the default priority on the page this link appears on.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ), 20 );
+	}
+
+	/**
+	 * Tell the Newsletter settings page where this screen is, or that there is none.
+	 *
+	 * On Simple the flag is bridged from a blog sticker on `admin_menu`, which core fires from
+	 * `menu.php` before the `load-{$page_suffix}` the Newsletter page builds its script data from.
+	 *
+	 * @param array $data The script data so far.
+	 * @return array The script data, with `newsletter.emailDesignUrl` null when the screen is off.
+	 */
+	public static function add_script_data( $data ) {
+		$data['newsletter']['emailDesignUrl'] = self::is_enabled() ? self::get_url() : null;
+
+		return $data;
+	}
+
+	/**
+	 * The screen's own URL.
+	 *
+	 * @return string
+	 */
+	public static function get_url() {
+		return admin_url( 'themes.php?page=' . self::PAGE_SLUG );
 	}
 
 	/**
@@ -267,14 +295,30 @@ class Jetpack_Email_Design_Editor {
 			'elementId'      => self::HANDLE,
 			'editorSettings' => self::get_iframe_asset_settings(),
 
-			// The editor assigns these to `window.location.href` from its header buttons.
-			// Both point at Appearance until the screen has a real entry point (NL-844).
+			// The editor assigns these to `window.location.href` from its header buttons. Both
+			// leave the editor, and there is one design rather than a list, so both return to
+			// where the link in lives — Appearance only when the package predates that link.
 			'urls'           => array(
-				'back'     => admin_url( 'themes.php' ),
-				'listings' => admin_url( 'themes.php' ),
+				'back'     => self::exit_url(),
+				'listings' => self::exit_url(),
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
 		);
+	}
+
+	/**
+	 * Where the editor's header buttons leave to: the Newsletter settings page the link lives on.
+	 *
+	 * Guarded because the plugin can run against a bundled package older than the helper.
+	 *
+	 * @return string
+	 */
+	private static function exit_url() {
+		if ( method_exists( \Automattic\Jetpack\Newsletter\Urls::class, 'get_newsletter_settings_url' ) ) {
+			return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
+		}
+
+		return admin_url( 'themes.php' );
 	}
 
 	/**
