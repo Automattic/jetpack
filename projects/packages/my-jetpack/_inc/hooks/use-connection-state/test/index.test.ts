@@ -25,6 +25,7 @@ type Site = {
 	isAdmin?: boolean;
 	// Whether a plugin is active whose product needs a user connection.
 	userConnectionPluginActive?: boolean;
+	skipSafeMode?: boolean;
 };
 
 const setSite = ( {
@@ -91,8 +92,9 @@ const siteOnly = { isRegistered: true, isUserConnected: false, hasConnectedOwner
 const everything = { isRegistered: true, isUserConnected: true, hasConnectedOwner: true };
 
 // Only the fields a row names, so a row can assert that a field is absent.
-const renderConnectionState = ( fields: object ) => {
-	const state = renderHook( () => useConnectionState(), { wrapper: Providers } ).result.current;
+const renderConnectionState = ( fields: object, skipSafeMode?: boolean ) => {
+	const state = renderHook( () => useConnectionState( { skipSafeMode } ), { wrapper: Providers } )
+		.result.current;
 
 	return Object.fromEntries( Object.keys( fields ).map( key => [ key, state[ key ] ] ) );
 };
@@ -113,6 +115,11 @@ describe( 'useConnectionState', () => {
 			'Safe Mode',
 			{ status: { ...everything, isStaging: true } },
 			{ id: 'safe-mode', status: 'warning', action: 'RESOLVE_SAFE_MODE' },
+		],
+		[
+			'the connection itself during Safe Mode, for a caller that skips it',
+			{ status: { ...everything, isStaging: true }, skipSafeMode: true },
+			{ id: 'connected', status: 'success' },
 		],
 		[
 			'not connected, for an admin',
@@ -162,7 +169,7 @@ describe( 'useConnectionState', () => {
 	] )( 'reports %s', ( _, site, expected ) => {
 		setSite( site );
 
-		expect( renderConnectionState( expected ) ).toEqual( expected );
+		expect( renderConnectionState( expected, site.skipSafeMode ) ).toEqual( expected );
 	} );
 
 	// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.

@@ -59,9 +59,13 @@ export function getManageConnection(): ManageConnection {
  *
  * Reads only what the page was rendered with and the connection store, so it sends no request.
  *
+ * @param options              - Options.
+ * @param options.skipSafeMode - Report the connection itself during Safe Mode instead of Safe Mode.
  * @return The connection state
  */
-export function useConnectionState(): ConnectionState {
+export function useConnectionState( {
+	skipSafeMode = false,
+}: { skipSafeMode?: boolean } = {} ): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner, isOfflineMode } =
 		useMyJetpackConnection();
 	const { isKnown, isSafeMode } = useSelect( select => {
@@ -101,7 +105,7 @@ export function useConnectionState(): ConnectionState {
 
 	const manageConnection = getManageConnection();
 
-	if ( isSafeMode ) {
+	if ( isSafeMode && ! skipSafeMode ) {
 		return {
 			id: 'safe-mode',
 			label: __( 'Safe Mode', 'jetpack-my-jetpack' ),
