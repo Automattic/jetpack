@@ -1,5 +1,5 @@
 {
 	"reporter": [ "json" ],
 	"all": true,
-	"include": [ "bin" ]
+	"include": [ "bin", "src" ]
 }
