@@ -13,6 +13,10 @@ const SESSION_PATH = '/wpcom/v2/external-media/session/google_photos';
 const isExpired = session =>
 	!! session.expireTime && new Date( session.expireTime ).getTime() < Date.now();
 
+// `data` carries Google's status; on Atomic the proxy drops the HTTP status, so don't rely on it.
+const isGrantRevoked = error =>
+	error?.data?.status === 401 || error?.data?.google_status === 'UNAUTHENTICATED';
+
 /**
  * Owns the Google Photos Picker session: reuses the cached one, creates, polls, and clears it.
  *
@@ -28,7 +32,7 @@ export default function useGooglePhotosPickerSession( {
 	noticeOperations,
 } ) {
 	const pickerSession = useSelect( select => select( mediaStore ).mediaPhotosPickerSession(), [] );
-	const [ status, setStatus ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed'
+	const [ status, setStatus ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed' | 'reconnect'
 
 	// Session requests only update state while their controller is current; replacing it cancels them.
 	const controller = useRef( new window.AbortController() );
@@ -39,21 +43,33 @@ export default function useGooglePhotosPickerSession( {
 		return controller.current.signal;
 	}, [] );
 
-	const fetchPickerSession = useCallback( sessionId => {
-		const { signal } = controller.current;
+	const fetchPickerSession = useCallback(
+		sessionId => {
+			const { signal } = controller.current;
 
-		return apiFetch( { path: `${ SESSION_PATH }/${ sessionId }`, signal } )
-			.then( session => {
-				if ( signal.aborted || 'code' in session ) {
+			return apiFetch( { path: `${ SESSION_PATH }/${ sessionId }`, signal } )
+				.then( session => {
+					if ( 'code' in session ) {
+						throw session;
+					}
+					if ( signal.aborted ) {
+						return null;
+					}
+					setGooglePhotosPickerSession( session );
+					return session;
+				} )
+				.catch( error => {
+					if ( ! signal.aborted && isGrantRevoked( error ) ) {
+						supersedeRequests();
+						setStatus( 'reconnect' );
+					}
 					return null;
-				}
-				setGooglePhotosPickerSession( session );
-				return session;
-			} )
-			.catch( () => null );
-	}, [] );
+				} );
+		},
+		[ supersedeRequests ]
+	);
 
-	// Resolves null on failure, after showing an error notice.
+	// Resolves null on failure, after showing an error notice or the reconnect screen.
 	const requestPickerSession = useCallback( () => {
 		const signal = supersedeRequests();
 		setStatus( 'pending' );
@@ -73,15 +89,24 @@ export default function useGooglePhotosPickerSession( {
 				setStatus( 'idle' );
 				return session;
 			} )
-			.catch( () => {
+			.catch( error => {
 				if ( signal.aborted ) {
 					return null;
 				}
+				if ( isGrantRevoked( error ) ) {
+					setStatus( 'reconnect' );
+					return null;
+				}
 				noticeOperations.createErrorNotice(
-					__(
-						'Couldn’t connect to Google Photos. Try again, or disconnect and reconnect your Google account.',
-						'jetpack-external-media'
-					)
+					error?.data?.reason === 'PENDING_USER_ACTION'
+						? __(
+								'This Google account doesn’t have Google Photos set up yet. Set it up at photos.google.com, then try again.',
+								'jetpack-external-media'
+							)
+						: __(
+								'Couldn’t connect to Google Photos. Try again, or disconnect and reconnect your Google account.',
+								'jetpack-external-media'
+							)
 				);
 				setStatus( 'failed' );
 				return null;
@@ -151,6 +176,7 @@ export default function useGooglePhotosPickerSession( {
 		pickerSession,
 		isSessionPending: status === 'pending',
 		isSessionFailed: status === 'failed',
+		isReconnectRequired: status === 'reconnect',
 		requestPickerSession,
 		deletePickerSession,
 	};

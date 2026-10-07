@@ -16,7 +16,7 @@ export default function GooglePhotosAuthUpgrade( props ) {
 
 			<p>
 				{ __(
-					"We've updated our Google Photos service. You will need to disconnect and reconnect to continue accessing your photos.",
+					'Reconnect your Google account to keep using Google Photos.',
 					'jetpack-external-media'
 				) }
 			</p>

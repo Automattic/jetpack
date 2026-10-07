@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Google Photos: Show a reconnect prompt when the Google connection has expired, and explain when the Google account has no Google Photos set up.

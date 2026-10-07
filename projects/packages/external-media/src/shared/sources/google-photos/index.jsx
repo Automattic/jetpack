@@ -28,6 +28,7 @@ function GooglePhotos( props ) {
 		pickerSession,
 		isSessionPending,
 		isSessionFailed,
+		isReconnectRequired,
 		requestPickerSession,
 		deletePickerSession,
 	} = useGooglePhotosPickerSession( {
@@ -50,6 +51,8 @@ function GooglePhotos( props ) {
 					break;
 
 				case 'invalid':
+				case 'broken':
+				case 'refresh-failed':
 					setAuthenticated( true );
 					setIsAuthUpgradeRequired( true );
 					break;
@@ -70,7 +73,7 @@ function GooglePhotos( props ) {
 		return <GooglePhotosAuth { ...props } />;
 	}
 
-	if ( isAuthUpgradeRequired ) {
+	if ( isAuthUpgradeRequired || isReconnectRequired ) {
 		return <GooglePhotosAuthUpgrade { ...props } />;
 	}
 
