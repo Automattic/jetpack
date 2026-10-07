@@ -702,6 +702,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 					}
 				}
 
+				// A leftover legacy allow list is merged into every read, so entries already saved come back twice.
+				$allow = array_unique( $allow );
+
 				/*
 				 * List the allowed IPs.
 				 * Done here because it's easier to read the $allow array after it's been rebuilt.
