@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Every kind of site gets exactly one security entry in the Jetpack menu, and it is Protect.
+ * With the Protect page turned on, every kind of site has one security entry in the Jetpack menu: Protect.
  *
  * Each row runs in its own process: the module loader includes a module file once, and the
  * standalone Protect plugin is detected by a class that cannot be undefined afterwards.
@@ -141,16 +141,17 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Loads the modules a connected site has without its owner turning anything on, then builds the menu.
+	 * Loads a connected site's default modules plus the Protect page, then builds the menu.
 	 *
 	 * @return array[] The Jetpack submenu items, in the order WordPress rendered them.
 	 */
 	private function render_jetpack_menu() {
-		$default_modules = Jetpack::get_default_modules();
+		// The Protect page is not a default module: the owner turns it on.
+		$active_modules = array_merge( Jetpack::get_default_modules(), array( 'protect-dashboard' ) );
 		add_filter(
 			'jetpack_active_modules',
-			static function ( $modules ) use ( $default_modules ) {
-				return array_values( array_unique( array_merge( $modules, $default_modules ) ) );
+			static function ( $modules ) use ( $active_modules ) {
+				return array_values( array_unique( array_merge( $modules, $active_modules ) ) );
 			}
 		);
 		Jetpack::load_modules();
