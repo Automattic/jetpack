@@ -15,6 +15,30 @@ export declare function useWidgetRootContext(): any;
 export declare const WidgetState: AnyComponent;
 export declare function describeError( ...args: any[] ): any;
 
+// The states a widget kind renders through `WidgetState`.
+export type WidgetStateError = {
+	description: string;
+	actions?: Array< { label: string; onClick: () => void } >;
+};
+export type WidgetStateEmpty = {
+	// The host's icon prop, loose until the contract types icons.
+	icon?: any;
+	description?: string;
+};
+
+// What a widget kind knows about its request, in the data layer's terms. Every kind takes it.
+export type WidgetStatus = {
+	// Nothing on screen answers the current params.
+	isLoading: boolean;
+	// Unchanged params being revalidated.
+	isFetching?: boolean;
+	isError?: boolean;
+	// The comparison period is on and the data carries values for it.
+	hasComparison?: boolean;
+	// Re-runs the request; the default error state offers it as Retry.
+	refetch?: () => unknown;
+};
+
 // Footer chrome, until widgets declare their footer as actions the host renders.
 export declare const WidgetFooter: AnyComponent;
 export declare const ReportLink: AnyComponent;
@@ -35,8 +59,30 @@ export type ChartDisplayChartType = any;
 export declare const Leaderboard: AnyComponent;
 export type LeaderboardProps = any;
 export type LeaderboardRowInput = any;
-export type LeaderboardStatus = any;
+export type LeaderboardStatus = WidgetStatus;
 export type LeaderboardDrillDown = any;
+
+// Breakdowns: segments in, with their states, total, legend and deltas handled.
+export declare const Donut: ComponentType< DonutProps >;
+export type DonutSegmentInput = {
+	// Unique within the breakdown: the chart identifies a segment by its label.
+	label: string;
+	value: number;
+	// Undefined when the segment has no match in the comparison period.
+	previousValue?: number;
+	// Drawn in the neutral tone instead of a palette color, e.g. a cancelled status.
+	muted?: boolean;
+};
+export type DonutProps = {
+	segments: readonly DonutSegmentInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Defaults to compact integers.
+	format?: DataFormat;
+};
 
 // Widget attributes.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
