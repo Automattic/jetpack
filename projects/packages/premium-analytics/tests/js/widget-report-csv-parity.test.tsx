@@ -5,11 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, type ComponentType, type ReactElement, type ReactNode } from 'react';
-import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
-	queryClient,
-} from '@jetpack-premium-analytics/data';
+import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
@@ -422,11 +418,7 @@ function respond( path: string ) {
  * @return The wrapped element.
  */
 function withProviders( ui: ReactElement ) {
-	return (
-		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>{ ui }</GlobalErrorProvider>
-		</AnalyticsQueryClientProvider>
-	);
+	return <AnalyticsQueryClientProvider>{ ui }</AnalyticsQueryClientProvider>;
 }
 
 describe( 'Widget and report CSV parity', () => {
