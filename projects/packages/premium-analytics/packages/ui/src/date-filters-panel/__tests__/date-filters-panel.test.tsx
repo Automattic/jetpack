@@ -150,6 +150,25 @@ describe( 'DateFiltersPanel', () => {
 		);
 	} );
 
+	it( 'keeps naming the applied comparison while the period picker opens', async () => {
+		const user = userEvent.setup();
+		// A whole month, which Last 30 days must still compare by days.
+		const last30Days = {
+			from: new TZDate( '2026-09-08T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-10-07T23:59:59.999Z', 'UTC' ),
+		};
+		renderPanel( {
+			appliedPresetId: 'last-30-days',
+			range: last30Days,
+			appliedRange: last30Days,
+			comparisonPresetId: 'previous-period',
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,

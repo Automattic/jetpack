@@ -237,6 +237,35 @@ describe( 'comparison options', () => {
 		}
 	);
 
+	it.each( [
+		[
+			'last-month',
+			[ 2026, 8, 1 ],
+			[ 2026, 8, 30 ],
+			[ 2026, 7, 1 ],
+			[ 2026, 7, 31 ],
+			'Previous month',
+		],
+		[
+			'last-year',
+			[ 2025, 0, 1 ],
+			[ 2025, 11, 31 ],
+			[ 2024, 0, 1 ],
+			[ 2024, 11, 31 ],
+			'Previous 12 months',
+		],
+	] as const )(
+		'keeps %s stepping by whole months',
+		( presetId, from, to, compareFrom, compareTo, label ) => {
+			const [ previous ] = getComparisonOptions( daysRange( [ ...from ], [ ...to ] ), {
+				primaryPresetId: presetId,
+			} );
+
+			expect( previous.label ).toBe( label );
+			expect( previous.range ).toEqual( daysRange( [ ...compareFrom ], [ ...compareTo ] ) );
+		}
+	);
+
 	/*
 	 * Labels name the comparison target, not today: a range set in 2025 offers
 	 * the same period in 2024.

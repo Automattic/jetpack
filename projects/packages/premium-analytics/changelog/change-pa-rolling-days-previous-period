@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: Compare Last 30, 90 and 365 days with the same number of days right before them.

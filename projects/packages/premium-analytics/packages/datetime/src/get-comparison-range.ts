@@ -185,6 +185,7 @@ export type ComparisonRangeOptions = {
 	 * The preset the reference range came from. A to-date preset is measured
 	 * by the day it is read on, so its previous period steps by the length of
 	 * the completed window: "12 months" moves back twelve months, not 354 days.
+	 * A "Last N days" preset always steps back N days, whatever its month shape.
 	 */
 	primaryPresetId?: PrimaryPresetId;
 };
@@ -197,8 +198,8 @@ export type ComparisonRangeOptions = {
  * - A range starting on the 1st compares with the same calendar dates a month
  *   or a year earlier (a whole month with the whole month before it); any
  *   other partial-month range keeps its day count.
- * - Whole months are detected from the range shape alone, so a rolling window
- *   that happens to land on one also compares calendar-to-calendar.
+ * - Whole months are detected from the range shape, so a custom range that
+ *   lands on one compares calendar-to-calendar; a "Last N days" preset does not.
  * - `previous-period` ends the day before the reference starts; a reference
  *   still running its final month stops as many days short, so the two windows
  *   are the same length.
