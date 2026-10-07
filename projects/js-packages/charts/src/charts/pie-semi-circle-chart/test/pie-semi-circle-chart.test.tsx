@@ -363,6 +363,29 @@ describe( 'PieSemiCircleChart', () => {
 	} );
 } );
 
+describe( 'PieSemiCircleChart keyboard navigation', () => {
+	it( 'names the focusable chart', () => {
+		renderPieChart( { data: mockData } );
+		expect( screen.getByRole( 'application', { name: 'Semi-circle chart' } ) ).toHaveAttribute(
+			'tabindex',
+			'0'
+		);
+	} );
+
+	it( 'starts at the leftmost segment, which is the largest value', async () => {
+		const user = userEvent.setup();
+		renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+		expect( screen.getAllByTestId( 'pie-segment' )[ 1 ] ).toHaveClass( 'pie-segment--selected' );
+	} );
+} );
+
 // Chart container at (100, 50); the tooltip box measures 120x40. Everything
 // else the charts measure (wrapper, clipping lookups) reports the container.
 const mockRects = () =>
