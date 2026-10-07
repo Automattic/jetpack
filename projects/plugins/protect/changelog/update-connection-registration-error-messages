@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Explain why connecting the site failed instead of always showing a generic error.

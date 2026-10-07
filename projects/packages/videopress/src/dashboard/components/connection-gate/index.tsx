@@ -1,5 +1,10 @@
+import {
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
+} from '@automattic/jetpack-connection/connection-error-message';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import ConnectScreen from './connect-screen';
 import PricingUpsell from './pricing-upsell';
@@ -34,6 +39,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		siteIsRegistering,
 		userIsConnecting,
 		handleRegisterSite,
+		registrationError,
 	} = useConnection( {
 		from: 'jetpack-videopress',
 		redirectUri: VIDEOPRESS_ADMIN_PAGE,
@@ -69,6 +75,12 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		<ConnectScreen
 			onConnect={ () => handleRegisterSite() }
 			isConnecting={ siteIsRegistering || userIsConnecting }
+			errorMessage={
+				registrationError
+					? getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
+					  __( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' )
+					: undefined
+			}
 		/>
 	);
 }
