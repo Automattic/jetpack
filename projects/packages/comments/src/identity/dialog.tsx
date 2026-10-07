@@ -445,7 +445,14 @@ const DetailsFields = ( {
 			label: strings.email,
 			describedBy: 'email-notes',
 		},
-		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
+		// Text, like Verbum and unlike core's type="url", so a bare domain passes. Core adds the protocol on save.
+		{
+			field: 'url' as const,
+			type: 'text',
+			autoComplete: 'url',
+			label: strings.website,
+			maxLength: 200,
+		},
 	];
 
 	return (
@@ -460,6 +467,9 @@ const DetailsFields = ( {
 						name={ field }
 						type={ input.type }
 						autoComplete={ input.autoComplete }
+						maxLength={ input.maxLength }
+						spellcheck={ field === 'url' ? false : undefined }
+						autoCorrect={ field === 'url' ? 'off' : undefined }
 						className="jetpack-comments__input"
 						aria-describedby={ input.describedBy }
 						aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }

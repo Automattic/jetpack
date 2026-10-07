@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Accept a website without "https://" in the guest comment form.
