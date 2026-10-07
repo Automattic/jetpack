@@ -38,6 +38,7 @@
 		"@wordpress/lazy-editor": "^1.6.1",
 		"@wordpress/notices": "^5.40.0",
 		"@wordpress/private-apis": "2.0.0",
+		"@wordpress/react-inert-value": "^1.0.0",
 		"@wordpress/rich-text": "7.57.0",
 		"@wordpress/route": "^0.23.0",
 		"@wordpress/theme": "^2.0.0",
