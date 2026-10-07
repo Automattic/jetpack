@@ -54,8 +54,8 @@ $default_matrix_vars = array(
 	// {bool} Whether to install WooCommerce.
 	'with-woocommerce'    => false,
 
-	// {string} For coverage jobs, which group is being run: 'php' or 'js'.
-	'coverage-group'      => '',
+	// {bool} Whether this is a coverage run.
+	'coverage'            => false,
 
 	// {int|null} Which numbered split this job is, starting at 1, with each worker pinned to one CPU.
 	'split-num'           => null,
@@ -124,33 +124,33 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 	$name   = $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)';
 	foreach ( $js_project_splits as $slug ) {
 		$matrix[] = array(
-			'name'           => sprintf( $name, basename( $slug ) ),
-			'script'         => $script,
-			'timeout'        => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
-			'coverage-group' => $is_cov ? 'js' : '',
-			'split-project'  => $slug,
+			'name'          => sprintf( $name, basename( $slug ) ),
+			'script'        => $script,
+			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
+			'coverage'      => $is_cov,
+			'split-project' => $slug,
 		);
 	}
 	for ( $i = 1; $i <= $js_generic_splits; $i++ ) {
 		$matrix[] = array(
-			'name'           => sprintf( $name, "generic $i/$js_generic_splits" ),
-			'script'         => $script,
-			'timeout'        => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
-			'coverage-group' => $is_cov ? 'js' : '',
-			'split-num'      => $i,
-			'split-total'    => $js_generic_splits,
-			'split-exclude'  => $js_project_splits,
+			'name'          => sprintf( $name, "generic $i/$js_generic_splits" ),
+			'script'        => $script,
+			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
+			'coverage'      => $is_cov,
+			'split-num'     => $i,
+			'split-total'   => $js_generic_splits,
+			'split-exclude' => $js_project_splits,
 		);
 	}
 }
 
 // Add PHP coverage.
 $matrix[] = array(
-	'name'           => 'Code coverage (PHP)',
-	'script'         => 'test-php-coverage',
-	'wp'             => 'latest',
-	'timeout'        => 30, // 2026-09-14: Runs are at around 15 minutes each.
-	'coverage-group' => 'php',
+	'name'     => 'Code coverage (PHP)',
+	'script'   => 'test-php-coverage',
+	'wp'       => 'latest',
+	'timeout'  => 30, // 2026-09-14: Runs are at around 15 minutes each.
+	'coverage' => true,
 );
 
 // END matrix definitions.
@@ -276,27 +276,6 @@ foreach ( $matrix as &$m ) {
 			)
 		);
 		error( "Key `wp` must be %s\n%s", $valid_wp, $orig );
-	}
-
-	// Coverage runs must set a proper `coverage-group` to match the script; other runs must leave it empty.
-	if ( preg_match( '/^test-(\w+)-coverage$/', $m['script'], $match ) ) {
-		if ( $m['coverage-group'] !== $match[1] ) {
-			error( "Key `coverage-group` must be '%s' for script `%s`!\n%s", $match[1], $m['script'], $orig );
-		}
-		$valid_groups = array( 'php', 'js' );
-		if ( ! in_array( $m['coverage-group'], $valid_groups, true ) ) {
-			$valid_groups = join_or(
-				array_map(
-					function ( $v ) {
-						return "'$v'";
-					},
-					$valid_groups
-				)
-			);
-			error( "For coverage runs, key `coverage_group` must be %s!\n%s", $valid_groups, $orig );
-		}
-	} elseif ( $m['coverage-group'] !== '' ) {
-		error( "Key `coverage-group` must be empty for a non-coverage run!\n%s", $orig );
 	}
 
 	if ( ( $m['split-num'] === null ) !== ( $m['split-total'] === null ) ) {

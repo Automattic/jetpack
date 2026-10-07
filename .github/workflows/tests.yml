@@ -54,7 +54,7 @@ jobs:
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
       WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
-      COVERAGE_GROUP: ${{ matrix.coverage-group }}
+      COVERAGE: ${{ matrix.coverage }}
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
       SPLIT_PROJECT: ${{ matrix.split-project }}
@@ -66,13 +66,13 @@ jobs:
 
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
-      did-coverage: ${{ case( matrix.coverage-group != '' && job.status != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
-      php-coverage-status: ${{ case( matrix.coverage-group == 'php', job.status, '' ) }}
+      did-coverage: ${{ case( matrix.coverage && job.status != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
+      php-coverage-status: ${{ case( matrix.script == 'test-php-coverage', job.status, '' ) }}
       js-tests-status: ${{ case( matrix.script == 'test-js', job.status, '' ) }}
-      js-coverage-status: ${{ case( matrix.coverage-group == 'js', job.status, '' ) }}
+      js-coverage-status: ${{ case( matrix.script == 'test-js-coverage', job.status, '' ) }}
       # Only set these on failure, so a later successful split can't hide a failed one.
       js-tests-failed: ${{ case( matrix.script == 'test-js' && job.status != 'success', job.status, '' ) }}
-      js-coverage-failed: ${{ case( matrix.coverage-group == 'js' && job.status != 'success', job.status, '' ) }}
+      js-coverage-failed: ${{ case( matrix.script == 'test-js-coverage' && job.status != 'success', job.status, '' ) }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -92,7 +92,7 @@ jobs:
         uses: $/.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
-          coverage: ${{ case( matrix.coverage-group == 'php', 'pcov', 'none' ) }}
+          coverage: ${{ case( matrix.script == 'test-php-coverage', 'pcov', 'none' ) }}
           node: ${{ matrix.node }}
 
       - name: Monorepo install
@@ -208,7 +208,7 @@ jobs:
           WORKERTOKENS: ${{ runner.temp }}/workertokens
         run: |
           mkdir artifacts
-          [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
+          [[ "$COVERAGE" == true ]] && mkdir coverage
 
           printf '%s\n' composer.json projects/*/*/composer.json > "$QUEUEFILE"
 
@@ -326,7 +326,7 @@ jobs:
 
                   mkdir -p "artifacts/$SLUG"
                   export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
-                  if [[ -n "$COVERAGE_GROUP" ]]; then
+                  if [[ "$COVERAGE" == true ]]; then
                     mkdir -p "coverage/$SLUG"
                     export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
                   fi
@@ -364,7 +364,7 @@ jobs:
         env:
           ARTIFACT: ${{ matrix.artifact }}
           CHANGED: ${{ steps.changed.outputs.projects }}
-        if: matrix.coverage-group != '' && always()
+        if: matrix.coverage && always()
         run: |
           .github/files/coverage-munger/process-coverage.sh
 
