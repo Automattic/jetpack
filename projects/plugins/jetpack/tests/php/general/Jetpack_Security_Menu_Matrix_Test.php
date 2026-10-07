@@ -4,7 +4,6 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Status\Host;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -77,10 +76,6 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	public function test_jetpack_menu_has_one_security_entry( $has_scan, $has_protect_plugin, $is_atomic ) {
 		if ( $is_atomic ) {
 			$this->markTestSkipped( 'Waiting on the WordPress.com answer for what Atomic shows.' );
-		}
-
-		if ( ( new Host() )->is_woa_site() ) {
-			$this->markTestSkipped( 'The self-hosted rows do not describe the wpcomsh run, which is Atomic.' );
 		}
 
 		$this->set_scan_entitlement( $has_scan );
