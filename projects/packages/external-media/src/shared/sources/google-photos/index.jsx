@@ -30,6 +30,7 @@ function GooglePhotos( props ) {
 		isSessionFailed,
 		isReconnectRequired,
 		requestPickerSession,
+		retryAfterAuthFailure,
 		deletePickerSession,
 	} = useGooglePhotosPickerSession( {
 		isAuthenticated,
@@ -75,7 +76,7 @@ function GooglePhotos( props ) {
 		return (
 			<GooglePhotosAuthUpgrade
 				{ ...props }
-				onRetry={ isReconnectRequired ? requestPickerSession : undefined }
+				onRetry={ isReconnectRequired ? retryAfterAuthFailure : undefined }
 			/>
 		);
 	}

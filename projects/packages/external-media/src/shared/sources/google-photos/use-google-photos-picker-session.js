@@ -172,12 +172,21 @@ export default function useGooglePhotosPickerSession( {
 		return () => clearInterval( interval );
 	}, [ pollSessionId, fetchPickerSession ] );
 
+	// Resume the open session rather than replace it: the user may still be picking in Google's window.
+	const retryAfterAuthFailure = useCallback( () => {
+		setStatus( 'idle' );
+		if ( ! needsNewSession && ! pickerSession.mediaItemsSet ) {
+			fetchPickerSession( pickerSession.id );
+		}
+	}, [ needsNewSession, pickerSession, fetchPickerSession ] );
+
 	return {
 		pickerSession,
 		isSessionPending: status === 'pending',
 		isSessionFailed: status === 'failed',
 		isReconnectRequired: status === 'reconnect',
 		requestPickerSession,
+		retryAfterAuthFailure,
 		deletePickerSession,
 	};
 }
