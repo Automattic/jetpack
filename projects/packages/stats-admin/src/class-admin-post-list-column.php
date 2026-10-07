@@ -142,7 +142,7 @@ class Admin_Post_List_Column {
 				static $post_views = null;
 
 				/**
-				 * Jetpack_stats_get_post_page_views_for_current_list requests all post ids in the current $wp_query, 100 per request.
+				 * get_post_page_views_for_current_list() requests all post ids in the current $wp_query, 100 per request.
 				 * This way, we avoid making one API request for each post.
 				 *
 				 * For this reason, we'll cache the result with the static $post_views variable.
