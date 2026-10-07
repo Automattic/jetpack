@@ -73,7 +73,10 @@ describe( 'chartIntervalField', () => {
 
 		renderControl();
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'shows a saved bucket the range rules out as the nearest one, without rewriting it', () => {
@@ -81,13 +84,19 @@ describe( 'chartIntervalField', () => {
 
 		const { onChange } = renderControl( { chartInterval: 'week' } );
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		expect( onChange ).not.toHaveBeenCalled();
 	} );
 
 	it( "reads a widget's own range before the page's", () => {
 		renderControl( { reportParams: MULTI_YEAR } as Attributes );
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Chart interval: By months' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 } );
