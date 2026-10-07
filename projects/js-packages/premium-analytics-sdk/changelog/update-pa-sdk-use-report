@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Declare `useReport`, which runs a report query and its comparison in the dashboard query client, and `toBucketStamp`, which writes the bounds of a report row as the dashboard time series read them.

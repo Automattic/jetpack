@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: Let users without admin access reconnect their own broken account from the connection error notice.
