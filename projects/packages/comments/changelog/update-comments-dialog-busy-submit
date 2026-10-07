@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Show a busy state on the submit button while a comment posts, and keep theme button styles off the editor toolbar.
+Match core's busy and disabled button states on the submit buttons, and keep theme button styles off the editor toolbar.

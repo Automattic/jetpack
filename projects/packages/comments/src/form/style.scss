@@ -138,23 +138,29 @@
 			margin-block-end: 0 !important;
 		}
 
-		// Outlined in the post's text colour rather than faded, since a fill
-		// seen through the page behind it turns muddy. Pinned past a theme's own.
-		&:disabled {
-			border-color: transparent !important;
-			background: transparent !important;
-			box-shadow: inset 0 0 0 1px currentColor !important;
-			color: inherit !important;
+		// Pointer events off, so a theme's hover and press can't restyle them.
+		&:disabled,
+		&.is-busy {
 			opacity: 1 !important;
-			cursor: default;
+			pointer-events: none;
 		}
 
-		// The dialog's busy stripes, in the post's text colour.
-		// Its keyframes are in dialog.scss, built into this same file.
+		// Core's: the fill stays and the label fades. Text-fill, since
+		// `currentColor` in `color` would read the parent's colour.
+		&:disabled:not(.is-busy) {
+			-webkit-text-fill-color: color-mix(in sRGB, currentColor 40%, transparent);
+
+			@supports not (color: color-mix(in sRGB, red, red)) {
+				opacity: 0.5 !important;
+			}
+		}
+
+		// Core's busy button: the theme's fill, with darker bands sliding over it.
+		// The keyframes are in dialog.scss, built into this same file.
 		&.is-busy {
-			$stripe: color-mix(in sRGB, currentColor 15%, transparent);
-			background-image: linear-gradient(-45deg, transparent 33%, $stripe 33%, $stripe 70%, transparent 70%) !important;
-			background-size: 100px 100% !important;
+			$band: rgb(0 0 0 / 15%);
+			background-image: linear-gradient(-45deg, transparent 33%, $band 33%, $band 70%, transparent 70%) !important;
+			background-size: 100px 100%;
 
 			@media not (prefers-reduced-motion) {
 				animation: jetpack-comments-busy 2500ms infinite linear;

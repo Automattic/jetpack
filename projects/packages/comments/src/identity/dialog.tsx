@@ -207,6 +207,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
+		if ( isPosting.peek() ) {
+			return;
+		}
+
 		if ( ! posting ) {
 			// Saved with consent, or cleared without it, as core does after a comment.
 			saveGuest( rememberDetails.peek() ? details.value : null );
@@ -262,7 +266,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							type="submit"
 							name="anonymous"
 							className="jetpack-comments__button is-link"
-							disabled={ isPosting.value }
+							aria-disabled={ isPosting.value || undefined }
 						>
 							{ strings.postWithoutSaving }
 						</button>
@@ -334,7 +338,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 								className={ clsx( 'jetpack-comments__button is-primary', {
 									'is-busy': isPosting.value,
 								} ) }
-								disabled={ emailTaken || isPosting.value }
+								disabled={ emailTaken }
+								aria-disabled={ isPosting.value || undefined }
 							>
 								{ ! posting && strings.save }
 								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
