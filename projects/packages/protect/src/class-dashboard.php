@@ -5,7 +5,7 @@
  * @package automattic/jetpack-protect
  */
 
-namespace Automattic\Jetpack\Protect_Package;
+namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -19,6 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers the Protect sidebar item and renders its wp-build route.
  */
 class Dashboard {
+
+	/**
+	 * Package version, bumped at release through composer.json `version-constants`.
+	 *
+	 * @var string
+	 */
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.

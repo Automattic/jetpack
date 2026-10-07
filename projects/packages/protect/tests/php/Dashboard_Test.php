@@ -5,7 +5,7 @@
  * @package automattic/jetpack-protect
  */
 
-namespace Automattic\Jetpack\Protect_Package;
+namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
- * @covers \Automattic\Jetpack\Protect_Package\Dashboard
+ * @covers \Automattic\Jetpack\Protect\Dashboard
  */
 #[CoversClass( Dashboard::class )]
 class Dashboard_Test extends BaseTestCase {

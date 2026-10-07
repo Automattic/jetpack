@@ -16,6 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-if ( class_exists( \Automattic\Jetpack\Protect_Package\Dashboard::class ) ) {
-	\Automattic\Jetpack\Protect_Package\Dashboard::init( array( 'module' => Jetpack_Protect_Dashboard_Feature_Flags::MODULE ) );
+if ( class_exists( \Automattic\Jetpack\Protect\Dashboard::class ) ) {
+	\Automattic\Jetpack\Protect\Dashboard::init( array( 'module' => Jetpack_Protect_Dashboard_Feature_Flags::MODULE ) );
 }

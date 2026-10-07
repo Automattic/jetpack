@@ -3228,7 +3228,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "c286a06f8c4a077b0e6c434be6b2f990a23f0ea8"
+                "reference": "470393278e76c8dbadc1600c9b4d5d0ea2138324"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3256,7 +3256,7 @@
                 "mirror-repo": "Automattic/jetpack-protect",
                 "textdomain": "jetpack-protect-pkg",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-package.php"
+                    "::PACKAGE_VERSION": "src/class-dashboard.php"
                 }
             },
             "autoload": {
