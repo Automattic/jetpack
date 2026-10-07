@@ -83,10 +83,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+	DateFiltersPanel: ( props: { attentionId?: number; withIntervalControl?: boolean } ) => (
 		<>
 			<MockHeaderScopeProbe />
 			<MockAttentionProbe { ...props } />
+			{ props.withIntervalControl && <span>header interval</span> }
 		</>
 	),
 	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
@@ -885,6 +886,19 @@ describe( 'Dashboard header date control', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header interval' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the range but drops the interval for a section whose charts own it', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_interval_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'header interval' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {

@@ -18,7 +18,8 @@
 	vertical-align: middle;
 }
 
-.table thead th {
+.table thead th,
+.header {
 	padding-block-end: var(--wpds-dimension-gap-xs);
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
@@ -43,6 +44,11 @@
 .table th:last-child,
 .table td:last-child {
 	padding-inline-end: 0;
+}
+
+.note {
+	padding-block-start: var(--wpds-dimension-gap-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .reading {

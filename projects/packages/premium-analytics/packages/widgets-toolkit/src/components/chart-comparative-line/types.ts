@@ -17,6 +17,8 @@ export type ComparativeDatePointDate = DataPointDate & {
 	realDate?: Date;
 	/** The last instant of the point's own bucket, which `alignSeriesDates` never moves. */
 	endDate?: Date;
+	/** Read out by the tooltip for a bucket with no reading, e.g. why it is missing. */
+	note?: string;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
