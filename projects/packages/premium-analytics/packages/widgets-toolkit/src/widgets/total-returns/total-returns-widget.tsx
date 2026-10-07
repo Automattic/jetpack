@@ -60,6 +60,7 @@ export function TotalReturnsWidget() {
 					type: 'currency',
 					options: { useMultipliers: true },
 				} }
+				ariaLabel={ __( 'Total returns', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		</WidgetState>
 	);

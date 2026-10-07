@@ -33,6 +33,7 @@ function BookingsByDeviceWidget() {
 				"We couldn't load booking data by device. Please try again in a moment.",
 				'jetpack-premium-analytics-pkg'
 			) }
+			ariaLabel={ __( 'Bookings by device', 'jetpack-premium-analytics-pkg' ) }
 		/>
 	);
 }

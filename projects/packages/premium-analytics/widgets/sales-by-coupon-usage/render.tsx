@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -28,7 +29,9 @@ export default function SalesByCouponUsageRender( {
 }: SalesByCouponUsageWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SalesByCouponWidget />
+			<SalesByCouponWidget
+				ariaLabel={ __( 'Sales by coupon usage', 'jetpack-premium-analytics-pkg' ) }
+			/>
 		</WidgetRoot>
 	);
 }
