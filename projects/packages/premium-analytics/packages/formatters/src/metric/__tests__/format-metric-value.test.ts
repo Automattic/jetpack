@@ -392,6 +392,10 @@ describe( 'formatMetricValue', () => {
 			);
 		} );
 
+		it( 'leaves values below precision unmarked without the option', () => {
+			expect( formatMetricValue( 0.04, 'number', { decimals: 1 } ) ).toBe( '0.0' );
+		} );
+
 		it( 'marks below precision in the site locale', () => {
 			setLocale( 'de' );
 			setLocaleData( { '< %s': [ 'unter %s' ] }, 'jetpack-premium-analytics-pkg' );
