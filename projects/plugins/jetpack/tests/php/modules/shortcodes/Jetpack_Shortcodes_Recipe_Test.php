@@ -450,6 +450,6 @@ EOT;
 		$actual = preg_replace( '/\s+/', ' ', $actual );
 		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
 
-		$this->assertEquals( $expected, $actual );
+		$this->assertEqualHTML( $expected, $actual );
 	}
 }
