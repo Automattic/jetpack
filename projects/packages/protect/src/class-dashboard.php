@@ -92,12 +92,21 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function maybe_load_wp_build() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
-		if ( ! isset( $_GET['page'] ) || self::MENU_SLUG !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+		if ( ! self::is_dashboard_request() ) {
 			return;
 		}
 
 		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+	}
+
+	/**
+	 * Whether the request is for the dashboard's page.
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
+		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
 	}
 
 	/**
