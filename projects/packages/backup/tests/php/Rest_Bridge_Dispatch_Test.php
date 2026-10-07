@@ -245,7 +245,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'message'    => 'Restoring uploads',
 				),
 			),
-			'/jetpack/v4/site/backup/schedule'       => array(
+			'/jetpack/v4/site/backup/schedule'            => array(
 				'POST',
 				'/jetpack/v4/site/backup/schedule',
 				array( 'schedule_hour' => 3 ),
@@ -255,7 +255,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'scheduled_hour' => 3,
 				),
 			),
-			'/jetpack/v4/site/backup/retention'      => array(
+			'/jetpack/v4/site/backup/retention'           => array(
 				'POST',
 				'/jetpack/v4/site/backup/retention',
 				array( 'retention_days' => 30 ),
