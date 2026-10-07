@@ -83,10 +83,10 @@ beforeAll( () => {
  * Run the card's state hook on the package's own reading of the store, which is
  * what the card passes it.
  *
- * @param {boolean} userConnectionNeeded - Whether a product in use needs a user connection.
+ * @param {boolean} shouldAskForUserConnection - Whether to ask for a user connection.
  * @return {object} The rendered hook result.
  */
-const renderConnectionState = ( userConnectionNeeded = true ) =>
+const renderConnectionState = ( shouldAskForUserConnection = true ) =>
 	renderHook(
 		() => {
 			const { hasConnectionError, severity } = useConnectionErrorNotice();
@@ -97,7 +97,7 @@ const renderConnectionState = ( userConnectionNeeded = true ) =>
 					severity,
 					errorTitle: 'Jetpack Connection error: Site connection',
 				},
-				userConnectionNeeded
+				shouldAskForUserConnection
 			);
 		},
 		{ wrapper: Providers }
@@ -126,10 +126,10 @@ describe( 'useConnectionState — a site connected without an account', () => {
 	it.each( [
 		[ 'healthy when nothing in use needs one', false, 'success', undefined ],
 		[ 'a prompt when something in use needs one', true, 'warning', 'CONNECT_USER' ],
-	] )( 'is %s', ( _, userConnectionNeeded, status, action ) => {
+	] )( 'is %s', ( _, shouldAskForUserConnection, status, action ) => {
 		setConnectionStore();
 
-		const { result } = renderConnectionState( userConnectionNeeded );
+		const { result } = renderConnectionState( shouldAskForUserConnection );
 
 		expect( [ result.current.status, result.current.action ] ).toEqual( [ status, action ] );
 	} );

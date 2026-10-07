@@ -28,13 +28,13 @@ export type ConnectionErrorStanding = {
 /**
  * Hook to determine the connection state of the site and user.
  *
- * @param {ConnectionErrorStanding} error                - What the connection package reported, read by the card so the two agree on one rating.
- * @param {boolean}                 userConnectionNeeded - Whether a product in use needs a user connection, not just the site connection.
+ * @param {ConnectionErrorStanding} error                      - What the connection package reported, read by the card so the two agree on one rating.
+ * @param {boolean}                 shouldAskForUserConnection - Whether to ask for a user connection: a product in use needs one, or that is not known yet.
  * @return The connection state
  */
 export function useConnectionState(
 	error: ConnectionErrorStanding,
-	userConnectionNeeded: boolean
+	shouldAskForUserConnection: boolean
 ): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
 
@@ -79,13 +79,13 @@ export function useConnectionState(
 
 	// Connecting the account stays the prompt; a live error only tints the line, at
 	// the package's severity.
-	let status: ConnectionState[ 'status' ] = userConnectionNeeded ? 'warning' : 'success';
+	let status: ConnectionState[ 'status' ] = shouldAskForUserConnection ? 'warning' : 'success';
 	if ( error.hasConnectionError ) {
 		status = error.severity ?? 'error';
 	}
 
 	// A site-only connection is healthy until something switched on needs a user connection.
-	if ( ! userConnectionNeeded ) {
+	if ( ! shouldAskForUserConnection ) {
 		return {
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
