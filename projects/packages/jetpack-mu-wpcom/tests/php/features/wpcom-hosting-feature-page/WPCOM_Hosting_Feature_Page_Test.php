@@ -38,7 +38,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Stand in for wpcom's plan lookup, with a plan that includes nothing.
+	 * Stand in for wpcom's plan lookup, with a plan that includes nothing, and its
+	 * transfer checks, on a Simple site with no transfer underway.
 	 *
 	 * @return void
 	 */
@@ -48,6 +49,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		\Brain\Monkey\tearDown();
 		\Brain\Monkey\setUp();
 		$this->grant_feature( '' );
+		Functions\when( 'A8C\Atomic\has_site_pending_automated_transfer' )->justReturn( false );
+		Functions\when( 'A8C\Atomic\is_wpcom_atomic' )->justReturn( false );
+		Functions\when( 'A8C\Atomic\Eligibility\get_status_for_site' )->justReturn( null );
 	}
 
 	/**
@@ -108,6 +112,33 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$this->grant_feature( $feature );
 
 		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_ACTIVATE, $page::get_state( 1 ) );
+	}
+
+	/**
+	 * Starting a second transfer on top of a running one is what this state prevents.
+	 *
+	 * @param string $check The wpcom check that reports the transfer.
+	 *
+	 * @dataProvider provide_transfer_checks
+	 */
+	#[DataProvider( 'provide_transfer_checks' )]
+	public function test_simple_site_with_a_transfer_underway_is_told_to_wait( $check ) {
+		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		Functions\when( $check )->justReturn( true );
+
+		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_IN_PROGRESS, WPCOM_Backup::get_state( 1 ) );
+	}
+
+	/**
+	 * Each wpcom check that reports a transfer already underway.
+	 *
+	 * @return array
+	 */
+	public static function provide_transfer_checks() {
+		return array(
+			'Queued'                         => array( 'A8C\Atomic\has_site_pending_automated_transfer' ),
+			'Pending, active or provisioned' => array( 'A8C\Atomic\is_wpcom_atomic' ),
+		);
 	}
 
 	/**
@@ -209,16 +240,55 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Checkout is a detour, not a destination: a buyer who lands anywhere else has
 	 * to find their way back to finish activating what they just paid for.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_upgrade_url_returns_the_buyer_to_this_page() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_upgrade_url_returns_the_buyer_to_this_page( $page ) {
 		parse_str(
-			(string) wp_parse_url( WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' ), PHP_URL_QUERY ),
+			(string) wp_parse_url( $page::get_upgrade_url( 'example.wordpress.com' ), PHP_URL_QUERY ),
 			$args
 		);
 
-		$this->assertStringContainsString(
-			'page=' . WPCOM_Backup::MENU_SLUG,
-			rawurldecode( $args['redirect_to'] )
+		$this->assertSame( $page::get_page_url(), rawurldecode( $args['redirect_to'] ) );
+	}
+
+	/**
+	 * On WoA the purchase makes the feature live and this page steps aside, so the
+	 * buyer has to land wherever the feature is served instead.
+	 *
+	 * @param string      $page     Page class.
+	 * @param string|null $expected Where the buyer lands, or null for this page.
+	 *
+	 * @dataProvider provide_upgrade_landings
+	 */
+	#[DataProvider( 'provide_upgrade_landings' )]
+	public function test_upgrade_url_on_woa_lands_where_the_feature_is_served( $page, $expected ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+
+		parse_str(
+			(string) wp_parse_url( $page::get_upgrade_url( 'example.org' ), PHP_URL_QUERY ),
+			$args
+		);
+
+		$expected = null === $expected
+			? $page::get_page_url()
+			: str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected );
+
+		$this->assertSame( $expected, rawurldecode( $args['redirect_to'] ) );
+	}
+
+	/**
+	 * Each page, with where a WoA buyer lands, as a template over the site's `%host%`.
+	 *
+	 * @return array
+	 */
+	public static function provide_upgrade_landings() {
+		return array(
+			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
+			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
 		);
 	}
 
@@ -536,8 +606,14 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * The old address may not redirect yet when the flow sends the reader back.
+	 *
+	 * @param string $page     Page class.
+	 * @param string $expected Where the reader lands.
+	 *
+	 * @dataProvider provide_transfer_landings
 	 */
-	public function test_activate_url_returns_to_the_new_address_when_the_transfer_changes_it() {
+	#[DataProvider( 'provide_transfer_landings' )]
+	public function test_activate_url_lands_on_the_new_address_when_the_transfer_changes_it( $page, $expected ) {
 		$warnings = array(
 			array( 'domain_names' => null ),
 			array(
@@ -548,18 +624,28 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		parse_str( (string) wp_parse_url( WPCOM_Backup::get_activate_url( $warnings ), PHP_URL_QUERY ), $args );
+		parse_str( (string) wp_parse_url( $page::get_activate_url( $warnings ), PHP_URL_QUERY ), $args );
 
-		$this->assertSame(
-			'https://example.wpcomstaging.com/wp-admin/admin.php?page=' . WPCOM_Backup::MENU_SLUG,
-			rawurldecode( $args['redirect_to'] )
+		$this->assertSame( $expected, rawurldecode( $args['redirect_to'] ) );
+	}
+
+	/**
+	 * Each page, with where a transferred site lands.
+	 *
+	 * @return array
+	 */
+	public static function provide_transfer_landings() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-backup' ),
+			// Calypso's Scan page until the Jetpack plugin serves jetpack-protect on WoA.
+			'Protect' => array( WPCOM_Scan::class, 'https://wordpress.com/scan/example.wpcomstaging.com' ),
 		);
 	}
 
 	/**
 	 * Only a bare hostname is swapped in, so the payload cannot redirect elsewhere.
 	 */
-	public function test_post_transfer_url_ignores_a_new_address_that_is_not_a_hostname() {
+	public function test_post_transfer_host_ignores_a_new_address_that_is_not_a_hostname() {
 		$warnings = array(
 			array(
 				'domain_names' => array(
@@ -569,7 +655,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		$this->assertSame( WPCOM_Backup::get_page_url(), WPCOM_Backup::get_post_transfer_page_url( $warnings ) );
+		$this->assertNull( WPCOM_Backup::get_post_transfer_host( $warnings ) );
 	}
 
 	/**
@@ -694,6 +780,60 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );
 		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $payload['domain'] );
 		// wp_localize_script() stringifies scalars, so the page reads "1" and "" for the flag.
+		$this->assertSame( '1', $payload['isEligible'] );
+	}
+
+	/**
+	 * The activation prompt explains blockers and confirms warnings from this
+	 * payload alone, so they have to arrive in the shape it reads.
+	 */
+	public function test_activation_state_carries_the_transfer_eligibility() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		Functions\when( 'A8C\Atomic\Eligibility\get_status_for_site' )->justReturn(
+			array(
+				'is_eligible' => false,
+				'errors'      => array(
+					array(
+						'code'    => 'email_unverified',
+						'message' => 'Confirm your email address.',
+					),
+				),
+				'warnings'    => array(
+					'plugins' => array(
+						array(
+							'id'          => 'plugin_warning',
+							'description' => 'Some plugins will be deactivated.',
+							'support_url' => 'javascript:alert(1)',
+						),
+					),
+				),
+			)
+		);
+		WPCOM_Backup::register_page();
+
+		$payload = (array) $this->localized_initial_state();
+
+		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
+		$this->assertSame( '', $payload['isEligible'] );
+		$this->assertSame( 'email_unverified', $payload['errors'][0]['code'] );
+		$this->assertSame( 'plugin_warning', $payload['warnings'][0]['id'] );
+		$this->assertSame( '', $payload['warnings'][0]['support_url'], 'Only a web URL may become a link.' );
+	}
+
+	/**
+	 * A missing library is not a failed check; the transfer flow rejects the site if it must.
+	 */
+	public function test_activation_state_assumes_eligible_when_eligibility_is_unknown() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		WPCOM_Backup::register_page();
+
+		$payload = (array) $this->localized_initial_state();
+
+		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
 		$this->assertSame( '1', $payload['isEligible'] );
 	}
 

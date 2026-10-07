@@ -1,10 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
-import {
-	findFirstBlockingError,
-	findHoldingErrors,
-	isAtomicSiteWithoutBusinessPlan,
-} from './eligibility.ts';
+import { findFirstBlockingError, findHoldingErrors } from './eligibility.ts';
 import { useFeature } from './feature-context.ts';
 import { ViewTracker } from './tracks.ts';
 import type { TransferError } from './types.ts';
@@ -41,7 +37,7 @@ function LearnMore( { supportUrl }: { supportUrl: string } ): ReactNode {
  */
 export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
 	const { modal } = useFeature();
-	const blocking = ! isAtomicSiteWithoutBusinessPlan( errors ) && findFirstBlockingError( errors );
+	const blocking = findFirstBlockingError( errors );
 	const holds = findHoldingErrors( errors );
 
 	return (

@@ -16,7 +16,7 @@ require_once __DIR__ . '/../wpcom-hosting-feature-page/class-wpcom-hosting-featu
 class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 
 	/**
-	 * The slug a WoA site's Protect page is expected to take over once Scan is live.
+	 * The slug the Jetpack plugin is expected to serve Protect from on WoA once Scan is live.
 	 */
 	const MENU_SLUG = 'jetpack-protect';
 
@@ -39,6 +39,20 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 * Product name, do not translate.
 	 */
 	const MENU_TITLE = 'Protect';
+
+	/**
+	 * Calypso's Scan page, since nothing serves this slug on WoA once Scan is live.
+	 *
+	 * Drop this override to land back on `jetpack-protect` once the Jetpack plugin serves it.
+	 *
+	 * @param string|null $new_host The site's address after a transfer, when it changes.
+	 * @return string
+	 */
+	public static function get_live_feature_url( $new_host = null ) {
+		$host = $new_host ?? wp_parse_url( home_url(), PHP_URL_HOST );
+
+		return 'https://wordpress.com/scan/' . rawurlencode( (string) $host );
+	}
 
 	/**
 	 * Whether the site's plan gives it access to Scan.

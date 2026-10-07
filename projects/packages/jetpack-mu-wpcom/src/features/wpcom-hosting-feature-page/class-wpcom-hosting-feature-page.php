@@ -363,22 +363,32 @@ abstract class WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
+	 * Load wpcom's Atomic library for the transfer checks, which callers still guard with function_exists().
+	 *
+	 * @return bool False on WoA, where there is nothing left to transfer.
+	 */
+	private static function load_atomic_lib() {
+		if ( self::is_atomic() ) {
+			return false;
+		}
+
+		if ( function_exists( 'require_lib' ) ) {
+			require_lib( 'atomic' );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Whether a transfer to WoA is already underway.
 	 *
 	 * @param int $blog_id Blog ID.
 	 * @return bool
 	 */
 	public static function is_transfer_in_progress( $blog_id ) {
-		if ( ! function_exists( 'require_lib' ) ) {
+		if ( ! self::load_atomic_lib() ) {
 			return false;
 		}
-
-		// These checks are only relevant for simple sites.
-		if ( self::is_atomic() ) {
-			return false;
-		}
-
-		require_lib( 'atomic' );
 
 		if ( function_exists( '\A8C\Atomic\has_site_pending_automated_transfer' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
@@ -407,16 +417,9 @@ abstract class WPCOM_Hosting_Feature_Page {
 	 * @return array|null { is_eligible: bool, errors: array, warnings: array }
 	 */
 	public static function get_eligibility( $blog_id, $user_id ) {
-		if ( ! function_exists( 'require_lib' ) ) {
+		if ( ! self::load_atomic_lib() ) {
 			return null;
 		}
-
-		// These checks are only relevant for simple sites.
-		if ( self::is_atomic() ) {
-			return null;
-		}
-
-		require_lib( 'atomic' );
 
 		if ( ! function_exists( '\A8C\Atomic\Eligibility\get_status_for_site' ) ) {
 			return null;
@@ -509,7 +512,8 @@ abstract class WPCOM_Hosting_Feature_Page {
 								'new'     => (string) $warning['domain_names']['new'],
 							)
 							: null,
-						'support_url'  => isset( $warning['support_url'] ) ? (string) $warning['support_url'] : '',
+						// Rendered as a link, so only a web URL gets through.
+						'support_url'  => isset( $warning['support_url'] ) ? esc_url_raw( (string) $warning['support_url'], array( 'http', 'https' ) ) : '',
 					);
 				}
 			}
@@ -521,7 +525,7 @@ abstract class WPCOM_Hosting_Feature_Page {
 	/**
 	 * Checkout, with the Business plan already in the cart.
 	 *
-	 * `redirect_to` returns a buyer here to activate what they just bought, and
+	 * `redirect_to` returns a buyer to activate or use what they just bought, and
 	 * `checkoutBackUrl` returns someone who backs out; without it checkout falls back to /plans.
 	 * Checkout's "Empty cart" reads only `checkoutBackUrlDomains`, so it gets the same URL.
 	 *
@@ -530,10 +534,12 @@ abstract class WPCOM_Hosting_Feature_Page {
 	 */
 	public static function get_upgrade_url( $domain ) {
 		$page_url = rawurlencode( static::get_page_url() );
+		// On Simple the buyer comes back here to activate; on WoA the purchase makes the feature live.
+		$return_url = self::is_atomic() ? rawurlencode( static::get_live_feature_url() ) : $page_url;
 
 		return add_query_arg(
 			array(
-				'redirect_to'            => $page_url,
+				'redirect_to'            => $return_url,
 				'checkoutBackUrl'        => $page_url,
 				'checkoutBackUrlDomains' => $page_url,
 			),
@@ -551,29 +557,45 @@ abstract class WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * Where this page will live once the transfer lands.
+	 * Where a site lands once its plan makes the feature live and this page steps aside.
 	 *
-	 * Uses the new address from the address-change warning rather than trusting the old
-	 * one to redirect, which may not have propagated when the flow sends the reader back.
+	 * By default the slug's next owner serves the feature at this page's own address.
 	 *
-	 * @param array[] $warnings Result of get_transfer_warnings().
+	 * @param string|null $new_host The site's address after a transfer, when it changes.
 	 * @return string
 	 */
-	public static function get_post_transfer_page_url( array $warnings ) {
+	public static function get_live_feature_url( $new_host = null ) {
 		$page_url = static::get_page_url();
 
+		if ( null === $new_host ) {
+			return $page_url;
+		}
+
+		$parts = wp_parse_url( $page_url );
+
+		return 'https://' . $new_host . ( $parts['path'] ?? '' ) . ( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
+	}
+
+	/**
+	 * The site's new address from the address-change warning, if the transfer changes it.
+	 *
+	 * Used rather than trusting the old address to redirect, which may not have propagated
+	 * when the flow sends the reader back.
+	 *
+	 * @param array[] $warnings Result of get_transfer_warnings().
+	 * @return string|null
+	 */
+	public static function get_post_transfer_host( array $warnings ) {
 		foreach ( $warnings as $warning ) {
 			$new_host = $warning['domain_names']['new'] ?? '';
 
 			// A bare hostname only, so nothing in the payload can steer the scheme or path.
 			if ( is_string( $new_host ) && filter_var( $new_host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) ) {
-				$parts = wp_parse_url( $page_url );
-
-				return 'https://' . strtolower( $new_host ) . ( $parts['path'] ?? '' ) . ( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
+				return strtolower( $new_host );
 			}
 		}
 
-		return $page_url;
+		return null;
 	}
 
 	/**
@@ -587,9 +609,10 @@ abstract class WPCOM_Hosting_Feature_Page {
 	public static function get_activate_url( array $warnings = array() ) {
 		return add_query_arg(
 			array(
+				// Only Simple sites reach activation, and their local blog ID is the WordPress.com one; WoA's is not.
 				'siteId'                    => get_current_blog_id(),
 				'initiate_transfer_context' => self::TRANSFER_CONTEXT,
-				'redirect_to'               => rawurlencode( static::get_post_transfer_page_url( $warnings ) ),
+				'redirect_to'               => rawurlencode( static::get_live_feature_url( self::get_post_transfer_host( $warnings ) ) ),
 			),
 			self::TRANSFER_FLOW_URL
 		);

@@ -181,20 +181,6 @@ function lookUp< T >( messages: MessageMap< T >, code: string ): T | undefined {
 }
 
 /**
- * An Atomic site below the Business plan reports both `transfer_already_exists`
- * and `no_business_plan`. The first would render a "setup in progress" notice
- * for a transfer that is not running, so suppress it and prompt to upgrade.
- *
- * @param errors - Eligibility errors.
- * @return Whether both codes are present.
- */
-export function isAtomicSiteWithoutBusinessPlan( errors: TransferError[] ) {
-	return [ EligibilityErrors.TRANSFER_ALREADY_EXISTS, EligibilityErrors.NO_BUSINESS_PLAN ].every(
-		code => errors.some( error => error.code === code )
-	);
-}
-
-/**
  * The first error that stops the transfer outright, if any.
  *
  * A code with no copy here still has to explain itself, so it falls back to the
