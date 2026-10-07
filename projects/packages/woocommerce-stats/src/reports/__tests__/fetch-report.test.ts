@@ -53,6 +53,16 @@ describe( 'fetchReport', () => {
 		await expect( fetchReport( 'orders/by-date' ) ).resolves.toEqual( { orders: 42 } );
 	} );
 
+	it( 'returns null for a 204 response, without reading its body', async () => {
+		mockApiFetch.mockResolvedValue(
+			response( 204, async () => {
+				throw new SyntaxError( 'Unexpected end of JSON input' );
+			} )
+		);
+
+		await expect( fetchReport( 'orders/by-date' ) ).resolves.toBeNull();
+	} );
+
 	it( 'keeps the status of an error WordPress.com passed through', async () => {
 		mockApiFetch.mockRejectedValue(
 			response( 400, async () => ( { error: 'invalid_interval', message: 'Bad interval.' } ) )
@@ -62,6 +72,17 @@ describe( 'fetchReport', () => {
 			error: 'invalid_interval',
 			message: 'Bad interval.',
 			status: 400,
+		} );
+	} );
+
+	it( 'keeps a status the error body already carries', async () => {
+		mockApiFetch.mockRejectedValue(
+			response( 500, async () => ( { code: 'rest_forbidden', status: 403 } ) )
+		);
+
+		await expect( fetchReport( 'orders/by-date' ) ).rejects.toEqual( {
+			code: 'rest_forbidden',
+			status: 403,
 		} );
 	} );
 
