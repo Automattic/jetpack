@@ -29,12 +29,12 @@ describe( 'TextSetting', () => {
 		renderWithData( <TextSetting settingKey="twitter_site_tag" label="Twitter Site Tag" /> );
 		const save = screen.getByRole( 'button', { name: 'Save' } );
 
-		expect( save ).toBeDisabled();
+		expect( save ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( leavingPrompts() ).toBe( false );
 
 		await user.type( screen.getByLabelText( 'Twitter Site Tag' ), '@jetpack' );
 
-		expect( save ).toBeEnabled();
+		expect( save ).not.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( leavingPrompts() ).toBe( true );
 	} );
 

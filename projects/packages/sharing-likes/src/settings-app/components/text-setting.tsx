@@ -66,13 +66,7 @@ export function TextSetting( {
 				value={ draft }
 				onChange={ setDraft }
 			/>
-			<Button
-				variant="solid"
-				disabled={ ! isDirty }
-				focusableWhenDisabled={ false }
-				loading={ isSaving }
-				onClick={ handleSave }
-			>
+			<Button variant="solid" disabled={ ! isDirty } loading={ isSaving } onClick={ handleSave }>
 				{ __( 'Save', 'jetpack-sharing-likes' ) }
 			</Button>
 		</Stack>
