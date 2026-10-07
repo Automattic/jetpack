@@ -1,13 +1,17 @@
 /**
  * Internal dependencies
  */
+import { fetchProductImages, type ProductImage } from '../api/product-images-fetch';
 import { fetchReportProducts } from '../api/report-products-fetch';
 import { sanitizeReportProductsResponse } from '../processing/products';
-import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
+import type { ReportQuery, ReportQueryType } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportProductsParams = Parameters< typeof fetchReportProducts >[ 0 ];
 
-type SanitizedProductsResponse = ReturnType< typeof sanitizeReportProductsResponse >;
+export type ProductsReport = ReturnType< typeof sanitizeReportProductsResponse > & {
+	/** The first image of each product of the selected period, by product id. */
+	images: Record< number, ProductImage >;
+};
 
 const getReportProductsQueryKey = ( p: RequestReportProductsParams ) =>
 	[
@@ -22,14 +26,28 @@ const getReportProductsQueryKey = ( p: RequestReportProductsParams ) =>
 		p.filters,
 	] as const;
 
+/**
+ * The products report with the images of its products. Only the selected period carries images:
+ * the comparison period lends its values to the same rows.
+ *
+ * @param params    - The report request.
+ * @param queryType - Which period the query answers.
+ * @return The query the dashboard runs.
+ */
 export function reportProductsQuery(
-	params: RequestReportProductsParams
-): ReportQuery< SanitizedProductsResponse > {
+	params: RequestReportProductsParams,
+	queryType: ReportQueryType = 'primary'
+): ReportQuery< ProductsReport > {
 	return {
-		queryKey: getReportProductsQueryKey( params ),
+		queryKey: [ ...getReportProductsQueryKey( params ), queryType ],
 		queryFn: async () => {
-			const response = await fetchReportProducts( params );
-			return sanitizeReportProductsResponse( response );
+			const report = sanitizeReportProductsResponse( await fetchReportProducts( params ) );
+			const images =
+				queryType === 'primary'
+					? await fetchProductImages( report.data.map( item => item.product_id ) )
+					: {};
+
+			return { ...report, images };
 		},
 
 		enabled: !! ( params.from && params.to ),

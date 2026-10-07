@@ -45,6 +45,11 @@ class Analytics_Dashboard {
 	const ORDERS_FULFILLMENT_TYPE        = 'woocommerce-analytics/orders-fulfillment';
 	const COUPON_USAGE_OVER_TIME_TYPE    = 'woocommerce-analytics/coupon-usage-over-time';
 	const BOOKINGS_BY_STATUS_TYPE        = 'woocommerce-analytics/bookings-by-status';
+	const TOP_PERFORMING_PRODUCTS_TYPE   = 'woocommerce-analytics/top-performing-products';
+	const TOP_PERFORMING_BOOKINGS_TYPE   = 'woocommerce-analytics/top-performing-bookings';
+	const SALES_BY_UTM_SOURCE_TYPE       = 'woocommerce-analytics/sales-by-utm-source';
+	const SALES_BY_UTM_CHANNEL_TYPE      = 'woocommerce-analytics/sales-by-utm-channel';
+	const SALES_BY_UTM_CAMPAIGN_TYPE     = 'woocommerce-analytics/sales-by-utm-campaign';
 
 	/**
 	 * Registry actions of the dashboard package.
@@ -130,6 +135,11 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 10, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 11, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-bookings-by-status-widget-instance', self::BOOKINGS_BY_STATUS_TYPE, 12, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 13, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-top-performing-bookings-widget-instance', self::TOP_PERFORMING_BOOKINGS_TYPE, 14, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 15, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 16, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 17, 1, 2 ),
 		);
 	}
 

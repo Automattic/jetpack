@@ -108,6 +108,11 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
 				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
 				Analytics_Dashboard::BOOKINGS_BY_STATUS_TYPE,
+				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
+				Analytics_Dashboard::TOP_PERFORMING_BOOKINGS_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);
