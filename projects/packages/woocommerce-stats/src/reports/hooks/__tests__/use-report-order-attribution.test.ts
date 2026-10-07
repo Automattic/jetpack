@@ -22,6 +22,7 @@ const PARAMS: ReportParams = { ...PERIOD, view: 'device' };
 
 // Run the hook and call the query factory it hands to `useReport`, as the dashboard would.
 const buildQuery = ( params: ReportParams, queryType: 'primary' | 'comparison' = 'primary' ) => {
+	// eslint-disable-next-line react-hooks/rules-of-hooks -- `useReport` is mocked, so this runs as a plain function.
 	useReportOrderAttribution( params );
 
 	return mockUseReport.mock.calls.at( -1 )[ 0 ]( PERIOD, queryType );

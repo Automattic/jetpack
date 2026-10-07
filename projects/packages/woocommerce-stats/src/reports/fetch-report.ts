@@ -49,11 +49,10 @@ async function parseJson( response: Response ): Promise< unknown > {
 	try {
 		return await response.json();
 	} catch {
-		// The shape and the string are apiFetch's own, so the message stays on core's domain.
+		// The shape apiFetch throws for the same failure.
 		throw {
 			code: 'invalid_json',
-			// eslint-disable-next-line @wordpress/i18n-text-domain
-			message: __( 'The response is not a valid JSON response.', 'default' ),
+			message: __( 'The response is not a valid JSON response.', 'jetpack-woocommerce-stats-pkg' ),
 		};
 	}
 }
