@@ -29,6 +29,7 @@ export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
 let elementStyles = defaultElementStyles;
 let hiddenSeries = new Set< string >();
 let chartHeight: number | undefined;
+let chartWidth: number | undefined;
 
 /**
  * Set the theme styles the charts context hands out.
@@ -59,6 +60,15 @@ export function setMockChartHeight( height?: number ): void {
 	chartHeight = height;
 }
 
+/**
+ * Set the width the mocked resize observer reports; omit it to report none.
+ *
+ * @param width - Measured width in px.
+ */
+export function setMockChartWidth( width?: number ): void {
+	chartWidth = width;
+}
+
 /** Clear the chart spies and restore the default theme, visibility and size. */
 export function resetMockCharts(): void {
 	[ mockBarChartSpy, mockBarChartLegendSpy, mockLineChartSpy, mockLineChartLegendSpy ].forEach(
@@ -67,6 +77,7 @@ export function resetMockCharts(): void {
 	setMockElementStyles();
 	setMockHiddenSeries();
 	setMockChartHeight();
+	setMockChartWidth();
 }
 
 const BarChart = ( props: { children?: ReactNode } ) => {
@@ -123,10 +134,10 @@ export const mockWordPressCompose = {
 	// `@wordpress/data` needs the rest of the real module.
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver:
-		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
+		( onResize: ( entries: { contentRect: { height?: number; width?: number } }[] ) => void ) =>
 		( element: HTMLElement | null ) => {
-			if ( element && chartHeight !== undefined ) {
-				onResize( [ { contentRect: { height: chartHeight } } ] );
+			if ( element && ( chartHeight !== undefined || chartWidth !== undefined ) ) {
+				onResize( [ { contentRect: { height: chartHeight, width: chartWidth } } ] );
 			}
 		},
 };

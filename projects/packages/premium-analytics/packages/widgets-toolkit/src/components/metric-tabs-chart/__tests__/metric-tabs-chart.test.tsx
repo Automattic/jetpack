@@ -6,7 +6,7 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
+import { resetMockCharts, setMockChartWidth } from '../../../../../../tests/js/chart-test-utils';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
 import { MetricTabsChart } from '../metric-tabs-chart';
@@ -185,7 +185,13 @@ describe( 'MetricTabsChart', () => {
 		[ 'single-metric', 'bar', mockBarSpy, [ METRIC ] ],
 		[ 'tabbed', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
 		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
-	] as const )( 'names the %s %s chart with ariaLabel', ( _layout, type, spy, metrics ) => {
+		[ 'dropdown', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+	] as const )( 'names the %s %s chart with ariaLabel', ( layout, type, spy, metrics ) => {
+		if ( layout === 'dropdown' ) {
+			setMockChartWidth( 100 );
+		}
+
 		render(
 			<MetricTabsChart
 				metrics={ [ ...metrics ] }
@@ -195,6 +201,7 @@ describe( 'MetricTabsChart', () => {
 			/>
 		);
 
+		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
 		expect( spy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { ariaLabel: 'Traffic summary' } )
 		);
