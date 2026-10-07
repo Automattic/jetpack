@@ -36,7 +36,10 @@ function explain( cause: UnavailableCause, data: UnavailableBlocksData ): Explan
 	if ( cause.type === 'not_connected' ) {
 		return data.canFix
 			? {
-					message: __( 'This block is unavailable because Jetpack is not connected.', 'jetpack' ),
+					message: __(
+						'This block is unavailable because Jetpack is not connected. Reload this page after connecting it.',
+						'jetpack'
+					),
 					fixLabel: __( 'Connect Jetpack', 'jetpack' ),
 					fixUrl: data.fixUrl,
 				}
@@ -67,7 +70,7 @@ function explain( cause: UnavailableCause, data: UnavailableBlocksData ): Explan
 					message: sprintf(
 						/* translators: %s: name of a Jetpack feature, such as "Newsletter". */
 						__(
-							'This Jetpack block is unavailable because the %s feature is turned off.',
+							'This Jetpack block is unavailable because the %s feature is turned off. Reload this page after turning it on.',
 							'jetpack'
 						),
 						cause.name
@@ -89,7 +92,10 @@ function explain( cause: UnavailableCause, data: UnavailableBlocksData ): Explan
 
 	return data.canFix
 		? {
-				message: __( 'This block is unavailable because Jetpack Blocks is turned off.', 'jetpack' ),
+				message: __(
+					'This block is unavailable because Jetpack Blocks is turned off. Reload this page after turning it on.',
+					'jetpack'
+				),
 				fixLabel: __( 'Turn on Jetpack Blocks', 'jetpack' ),
 				fixUrl: data.fixUrl,
 			}

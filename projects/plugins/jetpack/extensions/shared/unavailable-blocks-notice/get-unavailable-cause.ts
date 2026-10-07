@@ -28,21 +28,14 @@ export default function getUnavailableCause(
 		return null;
 	}
 
+	// A form stays registered without the Blocks module, so only the other site-wide causes apply.
+	const isExempt = data.reason === 'blocks_module' && data.independent.includes( originalName );
+
+	// Another plugin's block, or one Jetpack has removed, is not ours to explain.
+	if ( data.reason && ! isExempt && data.shipped.includes( originalName ) ) {
+		return { type: data.reason };
+	}
+
 	const feature = data.features[ originalName ];
-	const featureCause: UnavailableCause | null = feature ? { type: 'feature', ...feature } : null;
-
-	// Their own packages register these, so the Blocks module being off does not explain them.
-	if ( data.independent.includes( originalName ) ) {
-		if ( featureCause ) {
-			return featureCause;
-		}
-		return data.reason && data.reason !== 'blocks_module' ? { type: data.reason } : null;
-	}
-
-	if ( data.reason ) {
-		// Another plugin's block, or one Jetpack has removed, is not ours to explain.
-		return data.shipped.includes( originalName ) ? { type: data.reason } : null;
-	}
-
-	return featureCause;
+	return feature ? { type: 'feature', ...feature } : null;
 }

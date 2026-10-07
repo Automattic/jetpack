@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Abilities: Report whether a filter or the host forces a module on or off in the modules list.

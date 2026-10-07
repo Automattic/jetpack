@@ -81,9 +81,9 @@ it.each( [
 		{ type: 'feature', ...forms },
 	],
 	[
-		'a form on a disconnected site',
+		'a form on a disconnected site, even with Forms off',
 		'jetpack/contact-form',
-		{ reason: 'not_connected' },
+		{ reason: 'not_connected', features: { 'jetpack/contact-form': forms } },
 		{ type: 'not_connected' },
 	],
 ] as const )( 'resolves the cause for %s', ( _label, name, overrides, expected ) => {
@@ -97,7 +97,7 @@ it.each( [
 		'Blocks off, admin',
 		{ type: 'blocks_module' },
 		{},
-		/Jetpack Blocks is turned off\.$/,
+		/Jetpack Blocks is turned off\. Reload this page after turning it on\.$/,
 		'writing',
 	],
 	[
@@ -111,7 +111,7 @@ it.each( [
 		'not connected, admin',
 		{ type: 'not_connected' },
 		{},
-		/Jetpack is not connected\.$/,
+		/Jetpack is not connected\. Reload this page after connecting it\.$/,
 		'writing',
 	],
 	[
@@ -126,7 +126,7 @@ it.each( [
 		'feature off, admin',
 		{ type: 'feature', ...newsletter },
 		{},
-		/the Newsletter feature is turned off\.$/,
+		/the Newsletter feature is turned off\. Reload this page after turning it on\.$/,
 		'jetpack_modules',
 	],
 	[
