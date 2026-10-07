@@ -88,6 +88,14 @@ describe( 'report route.beforeLoad', () => {
 		} );
 	} );
 
+	it( 'seeds the previous-period comparison on a fresh load', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+		await expect( beforeLoad( { report: 'authors' }, {} ) ).rejects.toMatchObject( {
+			search: { comp: '1', compare_preset: 'previous-period' },
+		} );
+	} );
+
 	it( 'still seeds the URL when the site settings fail to load', async () => {
 		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
 		( ensureCoreSettingsReady as jest.Mock ).mockRejectedValueOnce( new Error( 'offline' ) );

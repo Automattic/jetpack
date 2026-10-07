@@ -38,13 +38,12 @@ describe( 'seedReportDateParams', () => {
 		} );
 	} );
 
-	// A URL that already names its range is a deep link or a reload after
-	// "No comparison", and must stay uncompared.
-	it( 'leaves a URL with its own range uncompared', () => {
-		const seeded = seedReportDateParams( {
-			from: '2026-02-01T00:00:00.000-05:00',
-			to: '2026-02-07T23:59:59.999-05:00',
-		} );
+	// A reload after "No comparison" carries dates; a detail page's way back, a preset alone.
+	it.each( [
+		[ 'dates', { from: '2026-02-01T00:00:00.000-05:00', to: '2026-02-07T23:59:59.999-05:00' } ],
+		[ 'a preset', { preset: 'last-7-days' } ],
+	] )( 'leaves a URL naming its window by %s uncompared', ( _label, search ) => {
+		const seeded = seedReportDateParams( search );
 
 		expect( seeded.comp ).toBeUndefined();
 		expect( seeded.compare_from ).toBeUndefined();
