@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Search: Avoid requesting the Search plan in offline mode.
+Search: Avoid requesting the Search plan offline and keep the dashboard available when a plan is stored. Report an unavailable plan when none is stored.
