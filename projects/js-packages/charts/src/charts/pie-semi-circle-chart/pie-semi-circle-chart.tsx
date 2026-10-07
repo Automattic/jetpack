@@ -265,6 +265,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	} );
 
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const wipeMask = animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null;
 
 	const effectiveWidth = propWidth || DEFAULT_WIDTH;
 
@@ -409,64 +410,61 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								</defs>
 
 								{ /* Main chart group centered horizontally and positioned at bottom */ }
-								<Group
-									top={ height }
-									left={ width / 2 }
-									mask={
-										animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null
-									}
-								>
+								<Group top={ height } left={ width / 2 } mask={ wipeMask }>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
 											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
-										<>
-											{ /* Pie chart */ }
-											{ arcs.map( arcDatum => (
-												<g
-													key={ arcDatum.data.label }
-													{ ...getSegmentHandlers(
-														arcDatum.data,
-														navigationArcs.indexOf( arcDatum )
-													) }
-												>
-													<path
-														d={ path( arcDatum ) || '' }
-														fill={ accessors.fill( arcDatum.data ) }
-														data-testid="pie-segment"
-													/>
-												</g>
-											) ) }
-											{ selectedArc && (
-												<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
-											) }
-
-											{ /* Label and note text */ }
-											<Group>
-												<Text
-													textAnchor="middle"
-													verticalAnchor="start"
-													y={ -40 } // Position above the chart with space for note
-													className={ styles.label }
-												>
-													{ label }
-												</Text>
-												<Text
-													textAnchor="middle"
-													verticalAnchor="start"
-													y={ -20 } // Position between label and chart
-													className={ styles.note }
-												>
-													{ note }
-												</Text>
-											</Group>
-
-											{ /* Render SVG children from composition API */ }
-											{ ! allSegmentsHidden && svgChildren }
-										</>
+										arcs.map( arcDatum => (
+											<g
+												key={ arcDatum.data.label }
+												{ ...getSegmentHandlers(
+													arcDatum.data,
+													navigationArcs.indexOf( arcDatum )
+												) }
+											>
+												<path
+													d={ path( arcDatum ) || '' }
+													fill={ accessors.fill( arcDatum.data ) }
+													data-testid="pie-segment"
+												/>
+											</g>
+										) )
 									) }
 								</Group>
+								{ /* Unmasked so the entry wipe cannot hide the focus indicator. */ }
+								{ selectedArc && (
+									<Group top={ height } left={ width / 2 }>
+										<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+									</Group>
+								) }
+								{ ! allSegmentsHidden && (
+									<Group top={ height } left={ width / 2 } mask={ wipeMask }>
+										{ /* Label and note text */ }
+										<Group>
+											<Text
+												textAnchor="middle"
+												verticalAnchor="start"
+												y={ -40 } // Position above the chart with space for note
+												className={ styles.label }
+											>
+												{ label }
+											</Text>
+											<Text
+												textAnchor="middle"
+												verticalAnchor="start"
+												y={ -20 } // Position between label and chart
+												className={ styles.note }
+											>
+												{ note }
+											</Text>
+										</Group>
+
+										{ /* Render SVG children from composition API */ }
+										{ svgChildren }
+									</Group>
+								) }
 							</svg>
 							<PieSelectionOutput
 								{ ...outputProps }
