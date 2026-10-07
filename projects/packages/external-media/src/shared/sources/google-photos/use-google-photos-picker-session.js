@@ -17,6 +17,8 @@ const isExpired = session =>
 const isAuthenticationFailure = error =>
 	error?.data?.status === 401 || error?.data?.google_status === 'UNAUTHENTICATED';
 
+const isSessionGone = error => error?.data?.status === 404;
+
 /**
  * Owns the Google Photos Picker session: reuses the cached one, creates, polls, and clears it.
  *
@@ -59,9 +61,15 @@ export default function useGooglePhotosPickerSession( {
 					return session;
 				} )
 				.catch( error => {
-					if ( ! signal.aborted && isAuthenticationFailure( error ) ) {
+					if ( signal.aborted ) {
+						return null;
+					}
+					if ( isAuthenticationFailure( error ) ) {
 						supersedeRequests();
 						setStatus( 'reconnect' );
+					} else if ( isSessionGone( error ) ) {
+						// Forgetting it lets the session effect create a replacement.
+						setGooglePhotosPickerSession( null );
 					}
 					return null;
 				} );
@@ -113,10 +121,11 @@ export default function useGooglePhotosPickerSession( {
 			} );
 	}, [ supersedeRequests, noticeOperations ] );
 
-	const deletePickerSession = useCallback(
-		sessionId => apiFetch( { path: `${ SESSION_PATH }/${ sessionId }`, method: 'DELETE' } ),
-		[]
-	);
+	// Forget the session up front so a failed replacement can't leave the deleted one in use.
+	const deletePickerSession = useCallback( sessionId => {
+		setGooglePhotosPickerSession( null );
+		return apiFetch( { path: `${ SESSION_PATH }/${ sessionId }`, method: 'DELETE' } );
+	}, [] );
 
 	// Forget the previous account's session so a reconnect starts fresh.
 	useEffect( () => {
