@@ -276,11 +276,50 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	public function test_the_screen_data_describes_this_installation() {
 		$user = wp_get_current_user();
 		$data = $this->call_private( 'get_screen_data' );
-		$exit = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
 
-		$this->assertSame( $exit, $data['urls']['back'] );
-		$this->assertSame( $exit, $data['urls']['listings'] );
+		$this->assertSame( admin_url( '/' ), $data['urls']['back'] );
+		$this->assertSame( admin_url( '/' ), $data['urls']['listings'] );
 		$this->assertSame( $user->user_email, $data['userEmail'] );
+	}
+
+	/**
+	 * The screen has two entry points, so the button goes back to the one that was used.
+	 */
+	public function test_the_editor_returns_to_the_page_that_sent_the_reader() {
+		$settings       = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
+		$_GET['return'] = $settings;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( $settings, $data['urls']['back'] );
+		$this->assertSame( $settings, $data['urls']['listings'] );
+	}
+
+	/**
+	 * A `return` nobody can be sent to safely leaves the dashboard, never a half-applied redirect.
+	 *
+	 * @param string $return What the query arg carries.
+	 *
+	 * @dataProvider provide_unusable_returns
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_unusable_returns' )]
+	public function test_an_unusable_return_falls_back_to_the_dashboard( $return ) {
+		$_GET['return'] = $return;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( admin_url( '/' ), $data['urls']['back'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_unusable_returns() {
+		return array(
+			'another host'         => array( 'https://example.net/wp-admin/' ),
+			'this site, not admin' => array( home_url( '/some-post/' ) ),
+			'empty'                => array( '' ),
+		);
 	}
 
 	/**
@@ -301,7 +340,14 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
 
-		$this->assertSame( menu_page_url( Jetpack_Email_Design_Editor::PAGE_SLUG, false ), $data['newsletter']['emailDesignUrl'] );
+		$this->assertSame(
+			add_query_arg(
+				'return',
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url(),
+				menu_page_url( Jetpack_Email_Design_Editor::PAGE_SLUG, false )
+			),
+			$data['newsletter']['emailDesignUrl']
+		);
 	}
 
 	/**

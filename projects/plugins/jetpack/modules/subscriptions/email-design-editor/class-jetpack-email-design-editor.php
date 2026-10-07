@@ -74,7 +74,11 @@ class Jetpack_Email_Design_Editor {
 	public static function add_script_data( $data ) {
 		$url = self::get_url();
 
-		$data['newsletter']['emailDesignUrl'] = '' === $url ? null : $url;
+		// The `return` arg is what sends the editor's back button here rather than to the
+		// dashboard; {@see self::exit_url()} is where it is read and validated.
+		$data['newsletter']['emailDesignUrl'] = '' === $url
+			? null
+			: add_query_arg( 'return', Newsletter_Urls::get_newsletter_settings_url(), $url );
 
 		return $data;
 	}
@@ -295,21 +299,44 @@ class Jetpack_Email_Design_Editor {
 	 * @return array
 	 */
 	private static function get_screen_data() {
-		$exit_url = Newsletter_Urls::get_newsletter_settings_url();
+		$exit_url = self::exit_url();
 
 		return array(
 			'elementId'      => self::HANDLE,
 			'editorSettings' => self::get_iframe_asset_settings(),
 
 			// The editor assigns these to `window.location.href` from its header buttons. Both
-			// leave the editor, and there is one design rather than a list, so both return to
-			// where the link lives.
+			// leave the editor, and there is one design rather than a list, so both go to the
+			// same place.
 			'urls'           => array(
 				'back'     => $exit_url,
 				'listings' => $exit_url,
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
 		);
+	}
+
+	/**
+	 * Where the editor's header buttons leave to.
+	 *
+	 * The `return` arg the Newsletter settings link carries, so the editor goes back to whichever
+	 * of its two entry points was used. Validated like core's Customizer validates its own
+	 * (`wp-admin/customize.php`), and narrowed to wp-admin so the button cannot be aimed off it.
+	 *
+	 * Without a usable one -- entered from Appearance, a bookmark, a reload -- the dashboard, as
+	 * the site editor does from the same menu (`__experimentalDashboardLink`).
+	 *
+	 * @return string
+	 */
+	private static function exit_url() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read as a navigation target only, and validated below.
+		$return = isset( $_GET['return'] ) ? wp_validate_redirect( esc_url_raw( wp_unslash( $_GET['return'] ) ), '' ) : '';
+
+		if ( '' !== $return && 0 === strpos( $return, admin_url() ) ) {
+			return $return;
+		}
+
+		return admin_url( '/' );
 	}
 
 	/**
