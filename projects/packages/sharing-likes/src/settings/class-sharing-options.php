@@ -54,10 +54,10 @@ final class Sharing_Options {
 	 * @return array<string, mixed> The global options as saved.
 	 */
 	public static function update( array $changes ): array {
-		// Before `get()`, whose first read on a site that never saved stores the posts-and-pages default.
-		$show                     = Placement_Section::selected_post_types();
-		$current                  = self::get();
-		$current['show']          = $show;
+		$current = self::get();
+		if ( Placement_Section::is_saved() ) {
+			$current['show'] = Placement_Section::selected_post_types();
+		}
 		$current['sharing_label'] = wp_slash( $current['sharing_label'] );
 		$sharer                   = new \Sharing_Service();
 		$options                  = array_merge( $current, $changes );

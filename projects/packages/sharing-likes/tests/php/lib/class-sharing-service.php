@@ -174,7 +174,7 @@ class Sharing_Service {
 	/**
 	 * The stored global options, or the real class's defaults when none are stored.
 	 *
-	 * The real class also saves those defaults on that first read.
+	 * The real class also saves those defaults on that first read, leaving `show` unset.
 	 *
 	 * @return array
 	 */
@@ -188,7 +188,6 @@ class Sharing_Service {
 				'button_style'  => 'icon-text',
 				'sharing_label' => false,
 				'open_links'    => 'same',
-				'show'          => array( 'post', 'page' ),
 				'custom'        => array(),
 			);
 

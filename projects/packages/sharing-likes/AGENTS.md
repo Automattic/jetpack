@@ -255,12 +255,6 @@ off. `Placement_Section::selected_post_types()` is the one way in; it also maps
 the older scalar form (`posts`, `index`, `posts-index`), which is still live
 data rather than history.
 
-`get_global_options()` also saves its defaults, posts and pages included, the
-first time it finds no global options. Call `selected_post_types()` before
-anything that reads through it (`Sharing_Options::get()` included), or it reads
-back the default that call just stored. The package's `Sharing_Service` test
-stub does the same, so tests catch the wrong order.
-
 ## Testing
 
 `composer phpunit` from the package directory. The suite runs on WorDBless, so

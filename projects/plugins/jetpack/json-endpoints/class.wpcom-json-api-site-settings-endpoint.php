@@ -1556,7 +1556,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$updated['sharing_label'] = (string) $sharing_options['sharing_label'];
 			}
 			if ( isset( $input['sharing_show'] ) ) {
-				$updated['sharing_show'] = (array) $updated_social_options['show'];
+				$updated['sharing_show'] = (array) ( $updated_social_options['show'] ?? array() );
 			}
 			if ( isset( $input['sharing_open_links'] ) ) {
 				$updated['sharing_open_links'] = (string) $updated_social_options['open_links'];

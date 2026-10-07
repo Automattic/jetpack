@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Return the saved options from Sharing_Options::update().
+Settings: Save no placement along with other sharing options until one is chosen, and return the saved options from Sharing_Options::update().
