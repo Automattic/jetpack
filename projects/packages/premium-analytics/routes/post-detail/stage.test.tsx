@@ -39,7 +39,10 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		appliedRange: {
+			from: new Date( Date.UTC( 2026, 5, 1 ) ),
+			to: new Date( Date.UTC( 2026, 5, 16 ) ),
+		},
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
@@ -395,27 +398,30 @@ describe( 'post detail stage', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	it( 'draws attention to a period a card set, and lets it go once shown', async () => {
-		jest.useFakeTimers();
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		mockSummary();
+	describe( 'once a card sets the period', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		render( stage() );
-		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		it( 'draws attention to a period a card set, and lets it go once shown', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			mockSummary();
 
-		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+			render( stage() );
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 
-		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
-		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
-			/Date range updated to/
-		);
+			await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
 
-		act( () => {
-			jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+			expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+			await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+				/Date range updated to/
+			);
+
+			act( () => {
+				jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+			} );
+			expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 		} );
-		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
-		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
-		jest.useRealTimers();
 	} );
 
 	it( 'returns to the top and parks focus on the heading when a card sets the period', async () => {
@@ -443,7 +449,7 @@ describe( 'post detail stage', () => {
 
 		expect( screen.getByTestId( 'header-variant' ) ).toHaveTextContent( 'post' );
 		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
-			new Date( 2026, 5, 1 ).toISOString()
+			'2026-06-01T00:00:00.000Z'
 		);
 	} );
 
