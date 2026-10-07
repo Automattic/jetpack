@@ -284,15 +284,33 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A nested allow list entry is rejected without changing the stored list.
+	 * Data provider for allow lists the endpoint must reject.
+	 *
+	 * @return array<string,array{array,string}> [ $allow_list, $expected_error_code ]
 	 */
-	public function test_post_rejects_non_string_protect_allow_list_entry() {
+	public static function invalid_protect_allow_lists() {
+		return array(
+			'nested entry'    => array( array( array( '198.51.100.1' ) ), 'invalid_input' ),
+			'invalid address' => array( array( '198.51.100.1', 'not-an-ip' ), 'invalid_ip' ),
+		);
+	}
+
+	/**
+	 * An invalid allow list is rejected without changing the stored list.
+	 *
+	 * @dataProvider invalid_protect_allow_lists
+	 *
+	 * @param array  $allow_list          The posted allow list.
+	 * @param string $expected_error_code The expected error code.
+	 */
+	#[DataProvider( 'invalid_protect_allow_lists' )]
+	public function test_post_rejects_invalid_protect_allow_list( $allow_list, $expected_error_code ) {
 		update_option( 'jetpack_waf_ip_allow_list', '203.0.113.5' );
 
-		$response = $this->make_post_request( wp_json_encode( array( 'jetpack_protect_whitelist' => array( array( '198.51.100.1' ) ) ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->make_post_request( wp_json_encode( array( 'jetpack_protect_whitelist' => $allow_list ), JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertWPError( $response );
-		$this->assertSame( 'invalid_input', $response->get_error_code() );
+		$this->assertSame( $expected_error_code, $response->get_error_code() );
 		$this->assertSame( '203.0.113.5', get_option( 'jetpack_waf_ip_allow_list' ) );
 	}
 
