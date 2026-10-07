@@ -306,7 +306,6 @@ const PieChartInternal = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
-	// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
 	const {
 		chartRef,
 		selectedIndex,
@@ -469,6 +468,7 @@ const PieChartInternal = ( {
 													return;
 												}
 
+												// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
 												const bounds = chartRef.current?.getBoundingClientRect();
 												if ( ! bounds ) {
 													return;

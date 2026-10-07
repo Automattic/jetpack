@@ -223,7 +223,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		isSeriesVisible,
 	} );
 
-	// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
 	const {
 		chartRef,
 		selectedIndex,
@@ -235,6 +234,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const handleMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, arcDatum: ArcData ) => {
+			// The tooltip renders inside `chartRef`, so pointer coordinates are taken relative to it.
 			const bounds = chartRef.current?.getBoundingClientRect();
 			if ( ! bounds ) {
 				return;
