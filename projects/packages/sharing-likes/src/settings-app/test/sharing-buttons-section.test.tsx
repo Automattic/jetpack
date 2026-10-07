@@ -62,6 +62,7 @@ describe( 'SharingButtonsSection', () => {
 		expect(
 			screen.getByRole( 'heading', { level: 2, name: 'Sharing buttons' } )
 		).toBeInTheDocument();
+		expect( screen.getByText( 'Behind the More button:' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Email' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( /Sharing buttons currently appear on: Posts, Pages\./ )

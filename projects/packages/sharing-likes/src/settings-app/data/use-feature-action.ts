@@ -17,14 +17,19 @@ export type { FeatureAction };
  */
 export function useFeatureAction() {
 	const queryClient = useQueryClient();
-	const { createErrorNotice } = useDispatch( noticesStore );
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const { mutate, isPending } = useMutation( {
 		mutationKey: FEATURE_ACTION_KEY,
 		scope: MUTATION_SCOPE,
 		mutationFn: ( { feature, action }: { feature: Feature; action: FeatureAction } ) =>
 			runFeatureAction( feature, action ),
-		onSuccess: status => queryClient.setQueryData( queryKeys.status, status ),
+		onSuccess: status => {
+			queryClient.setQueryData( queryKeys.status, status );
+			createSuccessNotice( __( 'Settings have been saved', 'jetpack-sharing-likes' ), {
+				type: 'snackbar',
+			} );
+		},
 		onError: error => {
 			createErrorNotice(
 				errorMessage(

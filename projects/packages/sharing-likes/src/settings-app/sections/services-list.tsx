@@ -54,7 +54,10 @@ export function ServicesList( { query }: { query: UseQueryResult< Services > } )
 			{ hidden.length > 0 && (
 				<>
 					<Text render={ <p /> }>
-						{ __( 'Behind the Share button:', 'jetpack-sharing-likes' ) }
+						{ /* Sharing_Service labels the button "More" beside visible services, "Share" when it stands alone. */ }
+						{ visible.length > 0
+							? __( 'Behind the More button:', 'jetpack-sharing-likes' )
+							: __( 'Behind the Share button:', 'jetpack-sharing-likes' ) }
 					</Text>
 					<Text render={ <p /> }>{ namesOf( hidden, services ) }</Text>
 				</>

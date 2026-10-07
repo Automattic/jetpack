@@ -10,6 +10,7 @@ import {
 	renderWithData,
 	resetNotices,
 	setScriptData,
+	snackbarMessages,
 } from './helpers';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -63,5 +64,22 @@ describe( 'LikeButtonsSection', () => {
 		expect(
 			screen.getByRole( 'radio', { name: 'Show the Reblog button on posts' } )
 		).toBeChecked();
+	} );
+
+	it( 'confirms "Turn on" and moves focus to the options that replace the button', async () => {
+		mockApiFetch.mockImplementation( ( { path } ) =>
+			Promise.resolve( path?.endsWith( '/settings' ) ? baseSettings : baseStatus )
+		);
+		renderWithData( <LikeButtonsSection />, {
+			status: { ...baseStatus, likes: { state: 'off', supported: true } },
+		} );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on Like buttons' } ) );
+
+		await waitFor( () => expect( snackbarMessages() ).toContain( 'Settings have been saved' ) );
+		const radio = await screen.findByRole( 'radio', { name: 'On for all posts' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The focus target is a plain container no query can reach.
+		const variant = radio.closest( '.jetpack-sharing-likes__variant' );
+		await waitFor( () => expect( variant ).toHaveFocus() );
 	} );
 } );

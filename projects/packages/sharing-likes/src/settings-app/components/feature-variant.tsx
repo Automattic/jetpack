@@ -1,4 +1,4 @@
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import { useStatus } from '../data/queries';
@@ -62,13 +62,34 @@ export function FeatureVariant( {
 	const status = useStatus();
 	const { run, isPending } = useFeatureAction();
 	const copy = copyFor( feature );
+	const containerRef = useRef< HTMLDivElement >( null );
+	const stateAtAction = useRef< SectionState | null >( null );
 
-	const switchToBlock = useCallback( () => run( feature, 'switch-to-block' ), [ run, feature ] );
-	const activate = useCallback( () => run( feature, 'activate' ), [ run, feature ] );
+	const switchToBlock = useCallback( () => {
+		stateAtAction.current = state;
+		run( feature, 'switch-to-block' );
+	}, [ run, feature, state ] );
+	const activate = useCallback( () => {
+		stateAtAction.current = state;
+		run( feature, 'activate' );
+	}, [ run, feature, state ] );
+
+	// The clicked button disappears with the old variant, so keyboard focus moves to what replaced it.
+	useEffect( () => {
+		if ( isPending || null === stateAtAction.current ) {
+			return;
+		}
+		if ( stateAtAction.current !== state ) {
+			containerRef.current?.focus();
+		}
+		stateAtAction.current = null;
+	}, [ isPending, state ] );
+
+	let content: ReactNode;
 
 	switch ( state ) {
 		case 'block_call_to_action':
-			return (
+			content = (
 				<Stack direction="column" gap="md">
 					<Text render={ <p /> }>{ copy.addBlock }</Text>
 					<div>
@@ -78,8 +99,9 @@ export function FeatureVariant( {
 					</div>
 				</Stack>
 			);
+			break;
 		case 'off':
-			return (
+			content = (
 				<Stack direction="column" gap="md">
 					<Text render={ <p /> }>{ copy.off }</Text>
 					<div>
@@ -89,8 +111,9 @@ export function FeatureVariant( {
 					</div>
 				</Stack>
 			);
+			break;
 		case 'configure_with_block_nudge':
-			return (
+			content = (
 				<Stack direction="column" gap="lg">
 					<Notice.Root intent="info">
 						<Notice.Description>{ copy.nudge }</Notice.Description>
@@ -108,7 +131,14 @@ export function FeatureVariant( {
 					{ children }
 				</Stack>
 			);
+			break;
 		default:
-			return <>{ children }</>;
+			content = children;
 	}
+
+	return (
+		<div ref={ containerRef } tabIndex={ -1 } className="jetpack-sharing-likes__variant">
+			{ content }
+		</div>
+	);
 }
