@@ -12,6 +12,8 @@ export type OnboardingTaskId = ( typeof ONBOARDING_TASK_IDS )[ number ];
 
 export type OnboardingTaskList = {
 	id: string;
+	// Whether onboarding is done, so the Overview shows Stats.
+	complete?: boolean;
 	tasks: Array< { id: OnboardingTaskId; complete: boolean } >;
 };
 
@@ -32,12 +34,22 @@ function getStorageKey(): string | null {
 }
 
 /**
- * Whether this browser has already seen every task complete. Completion is final on WP.com, so a
- * complete list never needs asking about again.
+ * Whether WP.com marks onboarding as done, which switches the Overview tab to Stats.
  *
- * @return Whether the whole checklist is stored as complete.
+ * @param taskList - Task list from WP.com.
+ * @return Whether onboarding is done.
  */
-export function isStoredListComplete(): boolean {
+export function isOnboardingDone( taskList: OnboardingTaskList ): boolean {
+	return taskList.complete === true;
+}
+
+/**
+ * Whether this browser has already seen onboarding done. Completion is final on WP.com, so a done
+ * onboarding never needs asking about again.
+ *
+ * @return Whether onboarding is stored as done.
+ */
+export function isStoredOnboardingDone(): boolean {
 	const key = getStorageKey();
 	if ( ! key ) {
 		return false;
@@ -50,37 +62,37 @@ export function isStoredListComplete(): boolean {
 }
 
 /**
- * Remember the checklist once WP.com reports every task complete. Individual tasks are not stored,
- * so open checklists always show WP.com's current answer.
+ * Remember onboarding once WP.com reports it done. Individual tasks are not stored, so an open
+ * checklist always shows WP.com's current answer.
  *
  * @param taskList - Task list from WP.com.
  */
-function storeIfListComplete( taskList: OnboardingTaskList ): void {
+function storeIfOnboardingDone( taskList: OnboardingTaskList ): void {
 	const key = getStorageKey();
-	if ( ! key || ! taskList.tasks.every( task => task.complete ) ) {
+	if ( ! key || ! isOnboardingDone( taskList ) ) {
 		return;
 	}
 	try {
 		window.localStorage.setItem( key, '1' );
 	} catch {
-		// No-op: the checklist still works from WP.com, it is just asked again next time.
+		// No-op: the Overview still works from WP.com, it is just asked again next time.
 	}
 }
 
 /**
- * Fetch the onboarding task list, remembering it once complete. WP.com decides each task's
+ * Fetch the onboarding task list, remembering when onboarding is done. WP.com decides each task's
  * completion; on Jetpack sites the request is proxied there.
  *
  * @return The onboarding task list.
  */
 export async function fetchOnboardingTasks(): Promise< OnboardingTaskList > {
 	const taskList = await apiFetch< OnboardingTaskList >( { path: ONBOARDING_PATH } );
-	storeIfListComplete( taskList );
+	storeIfOnboardingDone( taskList );
 	return taskList;
 }
 
 /**
- * Mark an onboarding task complete by hand, remembering the list once complete. Completion is final.
+ * Mark an onboarding task complete by hand, remembering when onboarding is done. Completion is final.
  *
  * @param taskId - Task to complete.
  * @return The updated onboarding task list.
@@ -92,6 +104,13 @@ export async function completeOnboardingTask(
 		path: `${ ONBOARDING_PATH }/tasks/${ taskId }/complete`,
 		method: 'POST',
 	} );
-	storeIfListComplete( taskList );
+	storeIfOnboardingDone( taskList );
 	return taskList;
 }
+
+// Steps complete outside the dashboard, so every visit asks WP.com again despite a cached list.
+export const onboardingTasksQueryOptions = {
+	queryKey: ONBOARDING_TASKS_QUERY_KEY,
+	queryFn: fetchOnboardingTasks,
+	refetchOnMount: 'always',
+} as const;
