@@ -224,6 +224,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Without a back URL, checkout's back button falls back to the plans page.
+	 * Its "Save cart" and "Empty cart" choices each read their own parameter.
 	 */
 	public function test_upgrade_url_returns_a_reader_who_backs_out_to_this_page() {
 		parse_str(
@@ -232,6 +233,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( WPCOM_Backup::get_page_url(), rawurldecode( $args['checkoutBackUrl'] ) );
+		$this->assertSame( WPCOM_Backup::get_page_url(), rawurldecode( $args['checkoutBackUrlDomains'] ) );
 	}
 
 	/**
