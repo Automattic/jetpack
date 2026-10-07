@@ -164,6 +164,7 @@ export function ComparativeLineChart( {
 	styles: stylesProp,
 	className,
 	chartId,
+	ariaLabel,
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
@@ -310,6 +311,7 @@ export function ComparativeLineChart( {
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
 				chartId={ resolvedChartId }
+				ariaLabel={ ariaLabel }
 				className={ styles.chartContent }
 				data={ styledSeries }
 				options={ chartOptions }

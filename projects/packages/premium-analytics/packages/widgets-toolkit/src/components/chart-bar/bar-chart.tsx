@@ -48,6 +48,9 @@ export type BarChartProps = {
 
 	className?: string;
 
+	/** Accessible name of the chart; name it after what it shows, such as the widget title. */
+	ariaLabel?: string;
+
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
 	emptyStateText?: string;
@@ -116,6 +119,7 @@ export function BarChart( {
 	dataFormat,
 	styles: stylesProp,
 	className,
+	ariaLabel,
 	emptyStateIcon,
 	emptyStateText,
 	showZeroValues = true,
@@ -192,6 +196,7 @@ export function BarChart( {
 	return (
 		<BarChartBase
 			chartId={ chartId }
+			ariaLabel={ ariaLabel }
 			data={ styledChartData }
 			className={ clsx( styles.chart, className ) }
 			resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
