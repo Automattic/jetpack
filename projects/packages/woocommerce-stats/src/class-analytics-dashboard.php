@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
@@ -27,6 +28,11 @@ class Analytics_Dashboard {
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
 	 */
 	const SECTION_ID = 'woocommerce-analytics/woocommerce';
+
+	/**
+	 * Widget type names the package builds, from `widgets/*\/widget.json`.
+	 */
+	const NET_SALES_OVER_TIME_TYPE = 'woocommerce-analytics/net-sales-over-time';
 
 	/**
 	 * Registry actions of the dashboard package.
@@ -80,12 +86,26 @@ class Analytics_Dashboard {
 			DASHBOARD_NAME,
 			self::SECTION_ID,
 			array(
-				'label'         => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'         => 40,
-				'is_available'  => $is_available,
+				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
+				'order'          => 40,
+				'is_available'   => $is_available,
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
-				'requires_sync' => true,
+				'requires_sync'  => true,
+				'default_layout' => array( __CLASS__, 'get_default_layout' ),
 			)
+		);
+	}
+
+	/**
+	 * The default layout of the WooCommerce tab, which is also what the inserter offers there.
+	 *
+	 * A new composition, built up as the widgets land in the package.
+	 *
+	 * @return array[] Widget instances, as `get_dashboard_default_widget_instance()` builds them.
+	 */
+	public static function get_default_layout() {
+		return array(
+			get_dashboard_default_widget_instance( 'default-net-sales-over-time-widget-instance', self::NET_SALES_OVER_TIME_TYPE, 0, 1, 1 ),
 		);
 	}
 

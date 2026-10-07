@@ -79,7 +79,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The section carries the WooCommerce label and the woocommerce slug, and places no widgets.
+	 * The section carries the WooCommerce label, the woocommerce slug and the package's layout.
 	 */
 	public function test_registers_the_woocommerce_section() {
 		$this->enable_store();
@@ -93,7 +93,18 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 40, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
-		$this->assertSame( array(), $section->get_default_layout() );
+		$this->assertSame( array( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE ), array_column( $section->get_default_layout(), 'type' ) );
+	}
+
+	/**
+	 * A layout type the package does not build is dropped before it reaches the tab, so a typo empties it.
+	 */
+	public function test_the_default_layout_places_only_types_the_package_builds() {
+		$built = array_column( jetpack_woocommerce_stats_get_registered_widget_modules(), 'name' );
+
+		foreach ( Analytics_Dashboard::get_default_layout() as $instance ) {
+			$this->assertContains( $instance['type'], $built );
+		}
 	}
 
 	/**
