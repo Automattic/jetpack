@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsVisits } from '@jetpack-premium-analytics/data';
+import {
+	ReportScopeProvider,
+	useStatsAuthor,
+	useStatsVisits,
+} from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -21,6 +25,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsVisits: jest.fn(),
+	useStatsAuthor: jest.fn(),
 } ) );
 
 // The site zone decides where a month starts and ends; pin it so the ranges are literal.
@@ -37,6 +42,7 @@ class ResizeObserverStub {
 }
 
 const mockUseStatsVisits = jest.mocked( useStatsVisits );
+const mockUseStatsAuthor = jest.mocked( useStatsAuthor );
 
 function visitsResult(
 	rows: [ string, number ][] | undefined,
@@ -80,7 +86,10 @@ function mockVisits(
 
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
-function renderWidget( attributes: Record< string, unknown > = {} ) {
+function renderWidget(
+	attributes: Record< string, unknown > = {},
+	scope: Record< string, unknown > = {}
+) {
 	return render(
 		<ViewsOverYearsRender
 			attributes={ {
@@ -89,6 +98,7 @@ function renderWidget( attributes: Record< string, unknown > = {} ) {
 					from: '2026-01-01T00:00:00.000+00:00',
 					to: '2026-12-31T23:59:59.999+00:00',
 					preset: 'year-2026',
+					...scope,
 				},
 			} }
 		/>
@@ -104,6 +114,14 @@ describe( 'ViewsOverYears widget', () => {
 		mockOpenSectionRange.mockReset();
 		mockUseStatsVisits.mockReset();
 		mockVisits( visitsResult( ROWS ) );
+		mockUseStatsAuthor.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			error: null,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsAuthor > );
 		jest.useFakeTimers();
 		jest.setSystemTime( NOW );
 	} );
@@ -162,6 +180,66 @@ describe( 'ViewsOverYears widget', () => {
 			from: new Date( '2025-11-24T00:00:00.000Z' ),
 			to: new Date( '2025-12-31T23:59:59.999Z' ),
 		} );
+	} );
+
+	it( 'reads one author’s history, opens its first month on the first content day, and opens a month as the page’s period', async () => {
+		mockUseStatsAuthor.mockReturnValue( {
+			data: {
+				startDate: '2025-11-24',
+				data: ROWS.map( ( [ period, views ] ) => ( { period, views } ) ),
+			},
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			error: null,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsAuthor > );
+		const openPeriod = jest.fn();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<ViewsOverYearsRender
+					attributes={ {
+						metric: 'average',
+						authorScoped: true,
+						reportParams: {
+							from: '2026-01-01T00:00:00.000+00:00',
+							to: '2026-03-15T23:59:59.999+00:00',
+							author_id: '7',
+						} as never,
+					} }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( mockUseStatsAuthor ).toHaveBeenLastCalledWith(
+			7,
+			{ period: 'month', num: -1 },
+			{ enabled: true }
+		);
+		expect( mockUseStatsVisits ).toHaveBeenCalledWith( expect.anything(), { enabled: false } );
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) );
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2025-11-24T00:00:00.000Z' ),
+			to: new Date( '2025-11-30T23:59:59.999Z' ),
+		} );
+		expect( mockOpenSectionRange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'prompts for an author and reads nothing when the author-scoped table has none', () => {
+		renderWidget( { authorScoped: true } );
+
+		expect(
+			screen.getByText( 'Open an author to see their all-time traffic here.' )
+		).toBeInTheDocument();
+		expect( mockUseStatsAuthor ).toHaveBeenLastCalledWith( 0, expect.anything(), {
+			enabled: false,
+		} );
+		for ( const [ , options ] of mockUseStatsVisits.mock.calls ) {
+			expect( options?.enabled ).toBe( false );
+		}
 	} );
 
 	it( 'shows the skeleton until the first day with views is known', () => {

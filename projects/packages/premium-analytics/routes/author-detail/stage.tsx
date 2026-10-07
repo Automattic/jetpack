@@ -4,14 +4,22 @@
 import {
 	AnalyticsQueryClientProvider,
 	getApiErrorStatus,
+	PeriodChangeSignalProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import {
 	buildReportLink,
 	pickReportNavigationParams,
+	usePeriodHost,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import {
+	DateFiltersPanel,
+	PeriodChangeStatus,
+	StatsBreadcrumbs,
+	StatsPageIcon,
+} from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
@@ -39,14 +47,17 @@ import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-modul
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { useAuthorSummary } from './hooks';
+import { useAuthorAllTimeStart, useAuthorSummary } from './hooks';
 import { route } from './package.json';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
 const PREFERENCES_SCOPE = 'jetpack-premium-analytics/author-detail';
 const LAYOUT_ID = 'author';
+
+const NO_WIDGETS: DashboardWidget[] = [];
 
 /**
  * Premium Analytics author detail page shell: a fixed composition the reader can
@@ -56,18 +67,33 @@ const LAYOUT_ID = 'author';
  */
 function AuthorDetail(): JSX.Element {
 	const { authorId: authorIdParam } = useParams( { from: ROUTE_FROM } ) as { authorId?: string };
-	const summary = useAuthorSummary( Number( authorIdParam ) );
+	const authorId = Number( authorIdParam );
+	const summary = useAuthorSummary( authorId );
+
+	const anchor = useAuthorAllTimeStart( authorId );
+
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const { dateControls, isAnchoringAllTime: isAnchoringProvisional } = useDetailDateControls(
+		anchor.allTimeStart,
+		dateFilters,
+		anchor.isPending
+	);
+	// A start carried over from another author is not this one's, so hold it too.
+	const isAnchoringAllTime =
+		isAnchoringProvisional ||
+		( dateFilters.appliedPresetId === PRESET_ALL_TIME && anchor.isPending );
 
 	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
+	// Range-reading cards wait for all time to anchor, as on the post page.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
 		PREFERENCES_SCOPE,
 		LAYOUT_ID,
-		AUTHOR_DETAIL_LAYOUT
+		isAnchoringAllTime ? NO_WIDGETS : AUTHOR_DETAIL_LAYOUT
 	);
 
-	// A fixed composition with no picker only ever needs its own four types resolved.
+	// A fixed composition with no picker only ever needs its own types resolved.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
 		visibleNames: toWidgetTypeBaseNames(
 			layout.map( widget => widget.type ),
@@ -79,11 +105,6 @@ function AuthorDetail(): JSX.Element {
 		[ widgetTypes ]
 	);
 
-	// All time stays on the dashboard's default window, not the author's first post:
-	// Stats credits page and product views to the author too, and those can predate
-	// it. WOOA7S-2137 anchors it on the author's first published content instead.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { dateControls } = useDetailDateControls( undefined, dateFilters );
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -111,6 +132,13 @@ function AuthorDetail(): JSX.Element {
 	const reportSearch = pickReportNavigationParams( search );
 
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+
+	// The All-time traffic card opens a month as this page's period.
+	const { openPeriod, attentionId } = usePeriodHost(
+		`author:${ authorId }`,
+		dateFilters.appliedRange,
+		true
+	);
 
 	// Without cards there is nothing to arrange, and a refetch that fails
 	// mid-customize would otherwise hide Cancel and Done along with the grid.
@@ -163,6 +191,15 @@ function AuthorDetail(): JSX.Element {
 						),
 						onRetry: summary.refetch,
 					} );
+	} else if ( isAnchoringAllTime && anchor.isError ) {
+		// Without the first content date, all time has no start to report from.
+		notice = describeError( anchor.error, {
+			retryDescription: __(
+				"We couldn't load this author's stats. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: anchor.refetch,
+		} );
 	} else if ( summary.isNotFound ) {
 		notice = {
 			intent: 'info',
@@ -181,61 +218,72 @@ function AuthorDetail(): JSX.Element {
 	}
 
 	return (
-		<WidgetDashboard.Policy canPerform={ canPerform }>
-			<WidgetDashboard
-				widgetTypes={ pageWidgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModule }
-				layout={ layout }
-				onLayoutChange={ onLayoutChange }
-				onLayoutReset={ resetLayout }
-				gridSettings={ DETAIL_GRID }
-				editMode={ isCustomizing }
-				onEditChange={ onEditChange }
-			>
-				<DetailPageShell
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={
-						<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
-							<StatsBreadcrumbs items={ breadcrumbs } />
-						</DetailPageBreadcrumbs>
-					}
-					actions={
-						<DetailPageActions
-							isCustomizing={ isCustomizing }
-							onCustomize={ canCustomize ? startCustomizing : undefined }
-							onReset={ resetToDefault }
-							editingActions={ <WidgetDashboard.Actions /> }
-						/>
-					}
-				>
-					<DetailPageLayout
-						header={ authorHeaderSlots( { summary } ) }
-						// The presets render in every summary state, so the range stays
-						// adjustable while the author loads or errors.
-						controls={
-							<DateFiltersPanel
-								{ ...dateFilters }
-								{ ...dateControls }
-								onChange={ onDateChange }
-								onApply={ onDateApply }
-							/>
-						}
+		<>
+			<PeriodChangeStatus
+				attentionId={ attentionId }
+				appliedPresetId={ dateFilters.appliedPresetId }
+				appliedRange={ dateFilters.appliedRange }
+			/>
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<WidgetDashboard.Policy canPerform={ canPerform }>
+					<WidgetDashboard
+						widgetTypes={ pageWidgetTypes }
+						isResolvingWidgetTypes={ isResolvingWidgetTypes }
+						resolveWidgetModule={ resolveWidgetModule }
+						layout={ layout }
+						onLayoutChange={ onLayoutChange }
+						onLayoutReset={ resetLayout }
+						gridSettings={ DETAIL_GRID }
+						editMode={ isCustomizing }
+						onEditChange={ onEditChange }
 					>
-						{ canRenderWidgets ? (
-							<DetailPageSection>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
-						) : null }
-						{ notice ? (
-							<DetailPageSection>
-								<PageNotice { ...notice } />
-							</DetailPageSection>
-						) : null }
-					</DetailPageLayout>
-				</DetailPageShell>
-			</WidgetDashboard>
-		</WidgetDashboard.Policy>
+						<DetailPageShell
+							visual={ <StatsPageIcon /> }
+							breadcrumbs={
+								<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+									<StatsBreadcrumbs items={ breadcrumbs } />
+								</DetailPageBreadcrumbs>
+							}
+							actions={
+								<DetailPageActions
+									isCustomizing={ isCustomizing }
+									onCustomize={ canCustomize ? startCustomizing : undefined }
+									onReset={ resetToDefault }
+									editingActions={ <WidgetDashboard.Actions /> }
+								/>
+							}
+						>
+							<DetailPageLayout
+								header={ authorHeaderSlots( { summary } ) }
+								// The presets render in every summary state, so the range stays
+								// adjustable while the author loads or errors.
+								controls={
+									<DateFiltersPanel
+										{ ...dateFilters }
+										{ ...dateControls }
+										onChange={ onDateChange }
+										onApply={ onDateApply }
+										attentionId={ attentionId }
+									/>
+								}
+								returnToTopKey={ attentionId }
+							>
+								{ canRenderWidgets ? (
+									<DetailPageSection>
+										<WidgetDashboard.Widgets />
+									</DetailPageSection>
+								) : null }
+								{ notice ? (
+									<DetailPageSection>
+										<PageNotice { ...notice } />
+									</DetailPageSection>
+								) : null }
+							</DetailPageLayout>
+						</DetailPageShell>
+					</WidgetDashboard>
+				</WidgetDashboard.Policy>
+			</ReportScopeProvider>
+		</>
 	);
 }
 
@@ -249,7 +297,9 @@ export function stage(): JSX.Element {
 		<AnalyticsQueryClientProvider>
 			{ /* No compared period on this page; the params stay on the URL for the breadcrumb. */ }
 			<ReportScopeProvider offersComparison={ false }>
-				<AuthorDetail />
+				<PeriodChangeSignalProvider>
+					<AuthorDetail />
+				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);

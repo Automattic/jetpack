@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsVisits, type StatsVisitsParams } from '@jetpack-premium-analytics/data';
+import {
+	useStatsAuthor,
+	useStatsVisits,
+	type StatsVisitsParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	localTZDate,
 	parseSiteDateTime,
@@ -24,6 +28,9 @@ import { buildViewsOverYearsRows, type DayKey, type MonthBucket } from './build-
 const EARLIEST_STATS_DATE = '2005-01-01';
 
 const DATE_FORMAT = 'yyyy-MM-dd';
+
+// `num: -1` asks `stats/author` for every month since the author's first content.
+const AUTHOR_ALL_TIME_PARAMS = { period: 'month', num: -1 } as const;
 
 export interface ViewsOverYearsState {
 	rows: MonthlyHeatmapRow[];
@@ -48,10 +55,20 @@ function readMonthKey( label: string ): MonthKey | null {
  * the section's year filter: one `stats/visits` request at `unit=month` over
  * the site's whole history, then one at `unit=day` over the first month with views.
  *
- * @param metric - Which number each cell reports.
+ * With an author, one `stats/author` request at `period=month` over the author's
+ * whole history instead, whose first day opens the first month.
+ *
+ * @param metric   - Which number each cell reports.
+ * @param authorId - Scopes the table to one author, reading nothing while it is `0`;
+ *                 omitted, the table reads the whole site.
  * @return The rows and the requests' state.
  */
-export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): ViewsOverYearsState {
+export default function useViewsOverYears(
+	metric: MonthlyHeatmapMetric,
+	authorId?: number
+): ViewsOverYearsState {
+	const isAuthorScoped = authorId !== undefined;
+
 	// Read in the site timezone so the months fall on the site's own calendar;
 	// one reading, so a render across midnight cannot split the window and the rows.
 	const today = format( localTZDate(), DATE_FORMAT );
@@ -67,17 +84,28 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		[ today ]
 	);
 
-	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
+	const site = useStatsVisits( params, { enabled: ! isAuthorScoped } );
+	const author = useStatsAuthor( authorId ?? 0, AUTHOR_ALL_TIME_PARAMS, {
+		enabled: isAuthorScoped && ( authorId ?? 0 ) > 0,
+	} );
+	const { isLoading, isFetching, isError, error, refetch } = isAuthorScoped ? author : site;
+	const response = isAuthorScoped ? author.data : site.primary.data;
 
-	const buckets = useMemo(
-		() =>
-			( primary.data?.data ?? [] ).flatMap( ( row ): MonthBucket[] => {
-				const month = readMonthKey( row.time_interval );
+	const buckets = useMemo( () => {
+		if ( author.data && isAuthorScoped ) {
+			return author.data.data.flatMap( ( row ): MonthBucket[] => {
+				const month = readMonthKey( row.period );
 
-				return month ? [ { month, views: Number( row.views ?? 0 ) } ] : [];
-			} ),
-		[ primary.data ]
-	);
+				return month ? [ { month, views: row.views } ] : [];
+			} );
+		}
+
+		return ( site.primary.data?.data ?? [] ).flatMap( ( row ): MonthBucket[] => {
+			const month = readMonthKey( row.time_interval );
+
+			return month ? [ { month, views: Number( row.views ?? 0 ) } ] : [];
+		} );
+	}, [ author.data, isAuthorScoped, site.primary.data ] );
 
 	// The sanitizer sorts buckets oldest first.
 	const firstMonth = useMemo(
@@ -100,19 +128,25 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		};
 	}, [ firstMonth, today ] );
 
-	const firstMonthDays = useStatsVisits( firstMonthParams, { enabled: !! firstMonth } );
+	const firstMonthDays = useStatsVisits( firstMonthParams, {
+		enabled: ! isAuthorScoped && !! firstMonth,
+	} );
 
 	const opensAt = useMemo( () => {
+		if ( isAuthorScoped ) {
+			return parseSiteDateTime( author.data?.startDate ?? undefined );
+		}
+
 		const firstDay = ( firstMonthDays.primary.data?.data ?? [] ).find(
 			row => Number( row.views ?? 0 ) > 0
 		);
 
 		return parseSiteDateTime( firstDay?.time_interval );
-	}, [ firstMonthDays.primary.data ] );
+	}, [ isAuthorScoped, author.data, firstMonthDays.primary.data ] );
 
 	const { rows, lifeStartsAt } = useMemo( () => {
 		// Without a response there is no row to draw, not a site without views.
-		if ( ! primary.data ) {
+		if ( ! response ) {
 			return { rows: [], lifeStartsAt: undefined };
 		}
 
@@ -128,11 +162,12 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 			rows: built,
 			lifeStartsAt: monthlyHeatmapLifeStart( built, opensAt, reportingTimeZone() ),
 		};
-	}, [ primary.data, buckets, metric, today, opensAt ] );
+	}, [ response, buckets, metric, today, opensAt ] );
 
 	// Only the averages wait for the first day, and only until that request first settles:
 	// a failed one refetches on focus with no data, which would pull the rows back into the skeleton.
 	const awaitingFirstDay =
+		! isAuthorScoped &&
 		metric === 'average' &&
 		!! firstMonth &&
 		firstMonthDays.isLoading &&
