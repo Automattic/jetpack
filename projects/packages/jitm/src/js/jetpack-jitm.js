@@ -16,10 +16,11 @@ domReady( function() {
      */
     const JITM_FALLBACK_ENDPOINT_URL = `/jetpack/v4/jitm`;
 
+    // Only an explicit "no" skips the wpcom route; a config without the flag keeps the old default.
+    const hasWpcomEndpoint = window.jitm_config?.has_wpcom_endpoint ?? true;
+
     // The route in use, reused for dismissals and later fetches. A 404 still demotes it to the fallback.
-    let jitmEndpointUrl = window.jitm_config?.has_wpcom_endpoint
-        ? JITM_ENDPOINT_URL
-        : JITM_FALLBACK_ENDPOINT_URL;
+    let jitmEndpointUrl = hasWpcomEndpoint ? JITM_ENDPOINT_URL : JITM_FALLBACK_ENDPOINT_URL;
 
     const isMissingRoute = function(error) {
         return !!error && ('rest_no_route' === error.code || 404 === error?.data?.status);
