@@ -5154,10 +5154,16 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
       '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
       '@testing-library/dom':
