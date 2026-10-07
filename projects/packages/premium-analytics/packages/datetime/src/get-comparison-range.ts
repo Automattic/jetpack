@@ -23,8 +23,14 @@ import { daysInWeek } from 'date-fns/constants';
 /**
  * Internal dependencies
  */
+import {
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_365_DAYS,
+	type PrimaryPresetId,
+} from './presets/types';
 import { completeToDateRange } from './to-date-range';
-import type { PrimaryPresetId } from './presets/types';
 import type { TZDate } from '@date-fns/tz';
 
 /**
@@ -118,15 +124,13 @@ function getWeekAlignedShiftDays(
  * whole number of months. Detected by round trip against the day after the
  * range ends, and again from the start stepped back by that count: a start a
  * month step cannot undo (31 January two months back clamps to 30 November)
- * measures in days instead. Shared by the previous-period shift and its
- * label, so both take the same branch; unlike
- * `getDateRangeSpan`, a single month counts.
+ * measures in days instead. Unlike `getDateRangeSpan`, a single month counts.
  *
  * @param from - Range start.
  * @param to   - Range end.
  * @return The month count, or null.
  */
-export function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
+function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	const isDayAligned =
 		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
 
@@ -142,6 +146,35 @@ export function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	}
 
 	return isSameDay( addMonths( subMonths( from, months ), months ), from ) ? months : null;
+}
+
+const DAY_COUNT_PRESETS: readonly PrimaryPresetId[] = [
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_365_DAYS,
+];
+
+/**
+ * Whole months the previous period steps back by, or null to step by days; shared
+ * by the shift and its label. A "Last N days" window that lands on a whole month
+ * (Sep 8 to Oct 7) still steps by days, or it would compare against 31 of them.
+ *
+ * @param from            - Range start.
+ * @param to              - Range end.
+ * @param primaryPresetId - The preset the range came from.
+ * @return The month count, or null.
+ */
+export function getPreviousPeriodMonthCount(
+	from: TZDate,
+	to: TZDate,
+	primaryPresetId?: PrimaryPresetId
+): number | null {
+	if ( primaryPresetId && DAY_COUNT_PRESETS.includes( primaryPresetId ) ) {
+		return null;
+	}
+
+	return getWholeMonthCount( from, to );
 }
 
 /**
@@ -259,7 +292,11 @@ export function getComparisonRangeFromPreset(
 		// on the previous calendar month, Last year on the previous calendar
 		// year — where a day-count shift would skew across unequal month and
 		// year lengths (365-day 2025 against 366-day 2024).
-		const wholeMonths = getWholeMonthCount( refFrom, completedTo );
+		const wholeMonths = getPreviousPeriodMonthCount(
+			refFrom,
+			completedTo,
+			options.primaryPresetId
+		);
 		if ( wholeMonths ) {
 			const dayAfterTo = startOfDay( addDays( completedTo, 1 ) );
 			return {

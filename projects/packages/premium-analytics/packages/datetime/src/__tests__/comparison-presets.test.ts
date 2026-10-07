@@ -220,6 +220,23 @@ describe( 'comparison options', () => {
 		);
 	} );
 
+	// Each window lands on whole months, but a "Last N days" preset still compares N days.
+	it.each( [
+		[ 'last-30-days', [ 2026, 8, 8 ], [ 2026, 9, 7 ], [ 2026, 7, 9 ], [ 2026, 8, 7 ], 30 ],
+		[ 'last-90-days', [ 2025, 11, 1 ], [ 2026, 1, 28 ], [ 2025, 8, 2 ], [ 2025, 10, 30 ], 90 ],
+		[ 'last-365-days', [ 2024, 9, 8 ], [ 2025, 9, 7 ], [ 2023, 9, 9 ], [ 2024, 9, 7 ], 365 ],
+	] as const )(
+		'steps %s back by its day count',
+		( presetId, from, to, compareFrom, compareTo, days ) => {
+			const [ previous ] = getComparisonOptions( daysRange( [ ...from ], [ ...to ] ), {
+				primaryPresetId: presetId,
+			} );
+
+			expect( previous.label ).toBe( `Previous ${ days } days` );
+			expect( previous.range ).toEqual( daysRange( [ ...compareFrom ], [ ...compareTo ] ) );
+		}
+	);
+
 	/*
 	 * Labels name the comparison target, not today: a range set in 2025 offers
 	 * the same period in 2024.
