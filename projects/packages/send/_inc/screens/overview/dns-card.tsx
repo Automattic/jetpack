@@ -92,12 +92,20 @@ type RecordRowProps = {
 
 const RecordRow = ( { record, value, verdict, hint, compact }: RecordRowProps ) => {
 	const label = purposeLabel( record.purpose );
+	const optional = !! record.optional;
 
 	return (
 		<div className={ `jetpack-send-dns__record${ compact ? ' is-compact' : '' }` }>
 			<div className="jetpack-send-dns__record-header">
-				<Text variant="heading-sm">{ label }</Text>
-				<VerdictBadge verdict={ verdict } />
+				<span className="jetpack-send-dns__record-title">
+					<Text variant="heading-sm">{ label }</Text>
+					<span className="jetpack-send-dns__type">{ record.type }</span>
+				</span>
+				{ optional && verdict !== 'passed' ? (
+					<Badge intent="draft">{ __( 'Optional', 'jetpack-send-pkg' ) }</Badge>
+				) : (
+					<VerdictBadge verdict={ verdict } />
+				) }
 			</div>
 			{ ! compact && (
 				<>
@@ -114,7 +122,11 @@ const RecordRow = ( { record, value, verdict, hint, compact }: RecordRowProps ) 
 							</dd>
 						</div>
 						<div className="jetpack-send-dns__field">
-							<dt>{ __( 'Value', 'jetpack-send-pkg' ) }</dt>
+							<dt>
+								{ record.type === 'CNAME'
+									? __( 'Points to', 'jetpack-send-pkg' )
+									: __( 'Value', 'jetpack-send-pkg' ) }
+							</dt>
 							<dd>
 								<code className="jetpack-send-dns__value">{ value }</code>
 								<CopyButton
@@ -126,7 +138,7 @@ const RecordRow = ( { record, value, verdict, hint, compact }: RecordRowProps ) 
 						</div>
 					</dl>
 					{ hint && <Text variant="body-sm">{ hint }</Text> }
-					{ verdict && verdict !== 'passed' && verdict !== 'unknown' && (
+					{ ! optional && verdict && verdict !== 'passed' && verdict !== 'unknown' && (
 						<Text variant="body-sm" className="jetpack-send-dns__problem">
 							{ __(
 								'Not found yet. If you just added it, wait a few minutes and check again.',
@@ -149,11 +161,31 @@ const DnsCard = ( {
 } ) => {
 	const { run, busy, error } = useSendAction();
 	const check = account.dns_check;
-	const records = account.dns_records;
 	const verdictOf = ( record: DnsRecord ) => check?.[ CHECK_KEY[ record.purpose ] ];
-	const passedCount = records.filter( record => verdictOf( record ) === 'passed' ).length;
-	const complete = records.length > 0 && passedCount === records.length;
-	const hasDkim = records.some( record => record.purpose === 'dkim' );
+	const hasDkim = account.dns_records.some( record => record.purpose === 'dkim' );
+	// Mirrors the server gate: SPF is only optional while a DKIM record can carry DMARC.
+	const records = account.dns_records.map( record =>
+		record.purpose === 'spf' && ! hasDkim ? { ...record, optional: false } : record
+	);
+	const required = records.filter( record => ! record.optional );
+	const optional = records.filter( record => record.optional );
+	const passedCount = required.filter( record => verdictOf( record ) === 'passed' ).length;
+	const complete = required.length > 0 && passedCount === required.length;
+
+	const renderRow = ( record: DnsRecord ) => {
+		const suggestion = record.purpose === 'spf' ? spfSuggestion : null;
+		const verdict = verdictOf( record );
+		return (
+			<RecordRow
+				key={ `${ record.purpose }-${ record.name }` }
+				record={ record }
+				value={ suggestion?.value ?? record.value }
+				verdict={ verdict }
+				hint={ suggestion ? spfHint( suggestion.state ) : '' }
+				compact={ ! complete && verdict === 'passed' }
+			/>
+		);
+	};
 
 	// Collapse once everything passes, including right after a successful check.
 	const [ open, setOpen ] = useState( ! complete );
@@ -174,7 +206,7 @@ const DnsCard = ( {
 										/* translators: 1: records that passed, 2: total records. */
 										__( '%1$d of %2$d records passed', 'jetpack-send-pkg' ),
 										passedCount,
-										records.length
+										required.length
 									) }
 								</Text>
 							) }
@@ -190,7 +222,7 @@ const DnsCard = ( {
 							? sprintf(
 									/* translators: %s: sending domain. */
 									__(
-										'These TXT records are verified for %s. Keep them at your DNS provider so Send can keep delivering.',
+										'These records are verified for %s. Keep them at your DNS provider so Send can keep delivering.',
 										'jetpack-send-pkg'
 									),
 									account.domain
@@ -198,35 +230,32 @@ const DnsCard = ( {
 							: sprintf(
 									/* translators: %s: sending domain. */
 									__(
-										'Add these TXT records at your DNS provider for %s, then check them. Changes can take a few minutes to appear.',
+										'Add these records at your DNS provider for %s, then check them. Changes can take a few minutes to appear.',
 										'jetpack-send-pkg'
 									),
 									account.domain
 								) }
 					</Text>
-					<div className="jetpack-send-dns__records">
-						{ records.map( record => {
-							const suggestion = record.purpose === 'spf' ? spfSuggestion : null;
-							const verdict = verdictOf( record );
-							return (
-								<RecordRow
-									key={ `${ record.purpose }-${ record.name }` }
-									record={ record }
-									value={ suggestion?.value ?? record.value }
-									verdict={ verdict }
-									hint={ suggestion ? spfHint( suggestion.state ) : '' }
-									compact={ ! complete && verdict === 'passed' }
-								/>
-							);
-						} ) }
-					</div>
+					<div className="jetpack-send-dns__records">{ required.map( renderRow ) }</div>
 					{ ! hasDkim && (
 						<Text variant="body-sm" render={ <p /> }>
 							{ __(
-								'DKIM is not available for this domain yet. Mail still sends, but signing helps it reach the inbox.',
+								'DKIM isn’t available for this domain yet, so the SPF record is required instead.',
 								'jetpack-send-pkg'
 							) }
 						</Text>
+					) }
+					{ optional.length > 0 && (
+						<Stack direction="column" gap="xs">
+							<Text variant="heading-sm">{ __( 'Optional', 'jetpack-send-pkg' ) }</Text>
+							<Text variant="body-sm" render={ <p /> } className="jetpack-send-dns__optional-intro">
+								{ __(
+									'Send’s DKIM signature already proves your emails are legitimate. Add SPF too if you send more than 5,000 emails a day to Gmail addresses.',
+									'jetpack-send-pkg'
+								) }
+							</Text>
+							<div className="jetpack-send-dns__records">{ optional.map( renderRow ) }</div>
+						</Stack>
 					) }
 					{ error && <ErrorNotice message={ error } /> }
 					<div className="jetpack-send-dns__actions">

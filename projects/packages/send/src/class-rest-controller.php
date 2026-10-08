@@ -175,11 +175,9 @@ class REST_Controller {
 			return array( 'dns_not_checked' );
 		}
 
-		// Every record in the checklist must pass, matching the DNS card's Verified state; DKIM only when the domain has a key.
-		$required = array( 'domain_lockdown', 'sender_domain', 'spf' );
-		if ( in_array( 'dkim', array_column( (array) ( $account['dns_records'] ?? array() ), 'purpose' ), true ) ) {
-			$required[] = 'dkim';
-		}
+		// DMARC needs one aligned record: DKIM when the domain has a key, otherwise SPF, which is optional only then.
+		$has_dkim = in_array( 'dkim', array_column( (array) ( $account['dns_records'] ?? array() ), 'purpose' ), true );
+		$required = array( 'domain_lockdown', 'sender_domain', $has_dkim ? 'dkim' : 'spf' );
 
 		$blockers = array();
 		foreach ( $required as $key ) {

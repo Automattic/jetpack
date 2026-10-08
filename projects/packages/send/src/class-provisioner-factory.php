@@ -20,6 +20,7 @@ class Provisioner_Factory {
 
 	const PARENT_KEY_CONSTANT = 'JETPACK_SEND_MAILCHANNELS_PARENT_API_KEY';
 	const SEND_LIMIT_CONSTANT = 'JETPACK_SEND_MAILCHANNELS_SEND_LIMIT';
+	const DNS_ZONE_CONSTANT   = 'JETPACK_SEND_MAILCHANNELS_DNS_ZONE';
 
 	/**
 	 * The provisioner to use, or null when the site can't provision.
@@ -30,7 +31,8 @@ class Provisioner_Factory {
 		$provisioner = null;
 		if ( defined( self::PARENT_KEY_CONSTANT ) && '' !== (string) constant( self::PARENT_KEY_CONSTANT ) ) {
 			$limit       = defined( self::SEND_LIMIT_CONSTANT ) ? (int) constant( self::SEND_LIMIT_CONSTANT ) : null;
-			$provisioner = new Local_Provisioner( new MailChannels_Client( (string) constant( self::PARENT_KEY_CONSTANT ) ), $limit );
+			$zone        = defined( self::DNS_ZONE_CONSTANT ) ? (string) constant( self::DNS_ZONE_CONSTANT ) : '';
+			$provisioner = new Local_Provisioner( new MailChannels_Client( (string) constant( self::PARENT_KEY_CONSTANT ) ), $limit, $zone );
 		} elseif ( ( new Connection_Manager() )->is_connected() ) {
 			$provisioner = new Wpcom_Provisioner();
 		}

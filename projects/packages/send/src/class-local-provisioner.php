@@ -40,14 +40,23 @@ class Local_Provisioner implements Provisioner {
 	private $send_limit;
 
 	/**
+	 * DNS zone that holds the real Lockdown and DKIM values, or '' to give customers the values directly.
+	 *
+	 * @var string
+	 */
+	private $dns_zone;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param MailChannels_Client $parent_client Parent-key client.
 	 * @param int|null            $send_limit    Sub-account send limit.
+	 * @param string              $dns_zone      Zone customers' CNAMEs point into, or ''.
 	 */
-	public function __construct( MailChannels_Client $parent_client, $send_limit = null ) {
+	public function __construct( MailChannels_Client $parent_client, $send_limit = null, $dns_zone = '' ) {
 		$this->parent_client = $parent_client;
 		$this->send_limit    = null === $send_limit ? null : (int) $send_limit;
+		$this->dns_zone      = strtolower( trim( (string) $dns_zone, " .\t\n" ) );
 	}
 
 	/**
@@ -97,31 +106,67 @@ class Local_Provisioner implements Provisioner {
 			}
 		}
 
-		$records = array(
-			array(
-				'type'    => 'TXT',
-				'name'    => '_mailchannels.' . $domain,
-				'value'   => 'v=mc1 auth=' . $handle,
-				'purpose' => 'lockdown',
-			),
-			array(
-				'type'    => 'TXT',
-				'name'    => $domain,
-				'value'   => 'v=spf1 include:relay.mailchannels.net ~all',
-				'purpose' => 'spf',
-			),
+		$required = array(
+			self::txt_record( '_mailchannels.' . $domain, 'v=mc1 auth=' . $handle, 'lockdown' ),
 		);
-		$dkim    = $this->dkim_record( $domain, new MailChannels_Client( $api_key ) );
+		$dkim     = $this->dkim_record( $domain, new MailChannels_Client( $api_key ) );
 		if ( $dkim ) {
-			$records[] = $dkim;
+			$required[] = $dkim;
 		}
 
-		return array(
+		// With a zone, customers add short CNAMEs and the zone holds the values, so they can change without customer edits.
+		$records      = $required;
+		$zone_records = array();
+		if ( '' !== $this->dns_zone ) {
+			$records = array();
+			foreach ( $required as $record ) {
+				$target         = $handle . '.' . $record['purpose'] . '.' . $this->dns_zone;
+				$records[]      = array_merge(
+					$record,
+					array(
+						'type'  => 'CNAME',
+						'value' => $target,
+					)
+				);
+				$zone_records[] = array_merge( $record, array( 'name' => $target ) );
+			}
+		}
+
+		// SPF is optional because DMARC passes on aligned DKIM; it sits after Lockdown to keep the checklist order.
+		$spf = array_merge(
+			self::txt_record( $domain, 'v=spf1 include:relay.mailchannels.net ~all', 'spf' ),
+			array( 'optional' => true )
+		);
+		array_splice( $records, 1, 0, array( $spf ) );
+
+		$result = array(
 			'handle'           => $handle,
 			'api_key'          => $api_key,
 			'lockdown_auth_id' => $handle,
 			'monthly_limit'    => null === $this->send_limit ? -1 : $this->send_limit,
 			'dns_records'      => $records,
+		);
+		if ( $zone_records ) {
+			$result['zone_records'] = $zone_records;
+		}
+		return $result;
+	}
+
+	/**
+	 * A required TXT record.
+	 *
+	 * @param string $name    Host name.
+	 * @param string $value   Value.
+	 * @param string $purpose `lockdown`, `spf`, or `dkim`.
+	 * @return array
+	 */
+	private static function txt_record( $name, $value, $purpose ) {
+		return array(
+			'type'     => 'TXT',
+			'name'     => $name,
+			'value'    => $value,
+			'purpose'  => $purpose,
+			'optional' => false,
 		);
 	}
 
@@ -183,12 +228,7 @@ class Local_Provisioner implements Provisioner {
 			return null;
 		}
 
-		return array(
-			'type'    => 'TXT',
-			'name'    => self::DKIM_SELECTOR . '._domainkey.' . $domain,
-			'value'   => (string) $record['value'],
-			'purpose' => 'dkim',
-		);
+		return self::txt_record( self::DKIM_SELECTOR . '._domainkey.' . $domain, (string) $record['value'], 'dkim' );
 	}
 
 	/**

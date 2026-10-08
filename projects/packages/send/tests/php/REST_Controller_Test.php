@@ -218,13 +218,14 @@ class REST_Controller_Test extends BaseTestCase {
 		);
 
 		return array(
-			'not checked yet'                          => array( null, array(), 400 ),
-			'lockdown failing'                         => array( array_merge( $passing, array( 'domain_lockdown' => 'failed' ) ), array(), 400 ),
-			'sender domain failing'                    => array( array_merge( $passing, array( 'sender_domain' => 'failed' ) ), array(), 400 ),
-			'SPF failing'                              => array( array_merge( $passing, array( 'spf' => 'soft failed' ) ), array(), 400 ),
-			'DKIM failing on a domain with a DKIM key' => array( array_merge( $passing, array( 'dkim' => 'failed' ) ), $dkim_record, 400 ),
-			'DKIM unchecked on a domain without a key' => array( array_merge( $passing, array( 'dkim' => 'unknown' ) ), array(), 200 ),
-			'every record passing'                     => array( $passing, $dkim_record, 200 ),
+			'not checked yet'                            => array( null, array(), 400 ),
+			'lockdown failing'                           => array( array_merge( $passing, array( 'domain_lockdown' => 'failed' ) ), array(), 400 ),
+			'sender domain failing'                      => array( array_merge( $passing, array( 'sender_domain' => 'failed' ) ), array(), 400 ),
+			'SPF failing on a domain with a DKIM key'    => array( array_merge( $passing, array( 'spf' => 'soft failed' ) ), $dkim_record, 200 ),
+			'SPF failing on a domain without a DKIM key' => array( array_merge( $passing, array( 'spf' => 'soft failed' ) ), array(), 400 ),
+			'DKIM failing on a domain with a DKIM key'   => array( array_merge( $passing, array( 'dkim' => 'failed' ) ), $dkim_record, 400 ),
+			'DKIM unchecked on a domain without a key'   => array( array_merge( $passing, array( 'dkim' => 'unknown' ) ), array(), 200 ),
+			'every record passing'                       => array( $passing, $dkim_record, 200 ),
 		);
 	}
 
@@ -236,7 +237,7 @@ class REST_Controller_Test extends BaseTestCase {
 	 * @param int        $status      Expected HTTP status.
 	 */
 	#[DataProvider( 'provide_enable_states' )]
-	public function test_enabling_requires_every_dns_record_to_pass( $dns_check, array $dns_records, $status ) {
+	public function test_enabling_requires_lockdown_and_a_dmarc_aligned_record( $dns_check, array $dns_records, $status ) {
 		$this->login( 'administrator' );
 		Account::save(
 			self::account(

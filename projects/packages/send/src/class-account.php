@@ -96,18 +96,9 @@ class Account {
 			}
 		}
 
-		$records       = array();
+		$records       = self::clean_records( $result['dns_records'] ?? array() );
 		$dkim_selector = '';
-		foreach ( (array) ( $result['dns_records'] ?? array() ) as $record ) {
-			if ( ! is_array( $record ) || ! isset( $record['type'] ) || ! isset( $record['name'] ) || ! isset( $record['value'] ) || ! isset( $record['purpose'] ) ) {
-				continue;
-			}
-			$records[] = array(
-				'type'    => (string) $record['type'],
-				'name'    => (string) $record['name'],
-				'value'   => (string) $record['value'],
-				'purpose' => (string) $record['purpose'],
-			);
+		foreach ( $records as $record ) {
 			if ( 'dkim' === $record['purpose'] && false !== strpos( $record['name'], '._domainkey.' ) ) {
 				$dkim_selector = (string) strstr( $record['name'], '._domainkey.', true );
 			}
@@ -121,9 +112,33 @@ class Account {
 			'dkim_selector'    => $dkim_selector,
 			'monthly_limit'    => isset( $result['monthly_limit'] ) ? (int) $result['monthly_limit'] : -1,
 			'dns_records'      => $records,
+			'zone_records'     => self::clean_records( $result['zone_records'] ?? array() ),
 			'provider'         => $provider,
 			'provisioned_at'   => gmdate( 'c' ),
 			'dns_check'        => null,
 		);
+	}
+
+	/**
+	 * Keep well-formed DNS records, cast to strings.
+	 *
+	 * @param mixed $records Records from a provisioner.
+	 * @return array[] `{type, name, value, purpose, optional}`.
+	 */
+	private static function clean_records( $records ) {
+		$clean = array();
+		foreach ( (array) $records as $record ) {
+			if ( ! is_array( $record ) || ! isset( $record['type'] ) || ! isset( $record['name'] ) || ! isset( $record['value'] ) || ! isset( $record['purpose'] ) ) {
+				continue;
+			}
+			$clean[] = array(
+				'type'     => (string) $record['type'],
+				'name'     => (string) $record['name'],
+				'value'    => (string) $record['value'],
+				'purpose'  => (string) $record['purpose'],
+				'optional' => ! empty( $record['optional'] ),
+			);
+		}
+		return $clean;
 	}
 }

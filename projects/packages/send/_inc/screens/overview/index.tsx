@@ -35,6 +35,24 @@ const OverviewScreen = ( { status }: { status: SendStatus } ) => {
 							'jetpack-send-pkg'
 						) }
 					</Notice.Description>
+					{ !! account?.zone_records?.length && (
+						<details className="jetpack-send-zone-records">
+							<summary>
+								{ __(
+									'TXT records the Jetpack DNS zone must publish for these CNAMEs to resolve',
+									'jetpack-send-pkg'
+								) }
+							</summary>
+							<ul>
+								{ account.zone_records.map( record => (
+									<li key={ record.name }>
+										<code>{ record.name }</code>
+										<code>{ record.value }</code>
+									</li>
+								) ) }
+							</ul>
+						</details>
+					) }
 				</Notice.Root>
 			) }
 			{ ! account && ! status.provisioner && <ConnectCard connectUrl={ status.connect_url } /> }

@@ -78,6 +78,52 @@ body.toplevel_page_jetpack-send {
 	gap: 12px;
 }
 
+.jetpack-send-dns__record-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-send-dns__type {
+	padding: 1px 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	color: #757575;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 11px;
+}
+
+.jetpack-send-dns__optional-intro {
+	margin: 0;
+	color: #757575;
+}
+
+.jetpack-send-zone-records {
+	margin-block-start: 8px;
+
+	summary {
+		cursor: pointer;
+	}
+
+	ul {
+		margin: 8px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	li {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		margin-block-end: 8px;
+	}
+
+	code {
+		overflow-wrap: anywhere;
+		font-size: 11px;
+	}
+}
+
 .jetpack-send-dns__fields {
 	display: flex;
 	flex-direction: column;
@@ -87,7 +133,7 @@ body.toplevel_page_jetpack-send {
 
 .jetpack-send-dns__field {
 	display: grid;
-	grid-template-columns: 48px minmax(0, 1fr);
+	grid-template-columns: 64px minmax(0, 1fr);
 	align-items: start;
 	gap: 12px;
 

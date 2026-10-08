@@ -67,6 +67,38 @@ class Local_Provisioner_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_provision_points_lockdown_and_dkim_at_the_jetpack_zone() {
+		$handle     = Local_Provisioner::handle_for_site();
+		$this->http = new Http_Mock(
+			array(
+				array( 201, array( 'handle' => $handle ) ),
+				array( 201, array( 'key' => 'sub-key' ) ),
+				array( 201, self::dkim_key() ),
+			)
+		);
+
+		$result = ( new Local_Provisioner( new MailChannels_Client( 'parent-key' ), null, 'send-dns.example.net' ) )->provision( 'example.com' );
+
+		$this->assertSame(
+			array(
+				array( 'CNAME', '_mailchannels.example.com', "{$handle}.lockdown.send-dns.example.net", 'lockdown', false ),
+				array( 'TXT', 'example.com', 'v=spf1 include:relay.mailchannels.net ~all', 'spf', true ),
+				array( 'CNAME', 'jpsend._domainkey.example.com', "{$handle}.dkim.send-dns.example.net", 'dkim', false ),
+			),
+			array_map(
+				fn( $record ) => array( $record['type'], $record['name'], $record['value'], $record['purpose'], $record['optional'] ),
+				$result['dns_records']
+			)
+		);
+		$this->assertSame(
+			array(
+				array( "{$handle}.lockdown.send-dns.example.net", 'v=mc1 auth=' . $handle ),
+				array( "{$handle}.dkim.send-dns.example.net", 'v=DKIM1; k=rsa; p=ABC' ),
+			),
+			array_map( fn( $record ) => array( $record['name'], $record['value'] ), $result['zone_records'] )
+		);
+	}
+
 	public function test_provision_creates_a_sub_account_key_and_dkim_key() {
 		$handle     = Local_Provisioner::handle_for_site();
 		$this->http = new Http_Mock(

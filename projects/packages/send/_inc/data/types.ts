@@ -5,6 +5,7 @@ export type DnsRecord = {
 	name: string;
 	value: string;
 	purpose: DnsPurpose;
+	optional?: boolean;
 };
 
 export type DnsCheck = {
@@ -23,6 +24,8 @@ export type Account = {
 	dkim_selector: string;
 	monthly_limit: number;
 	dns_records: DnsRecord[];
+	/** Records the DNS zone behind the customer's CNAMEs must publish; set by the dev provisioner. */
+	zone_records?: DnsRecord[];
 	provider: 'wpcom' | 'local';
 	provisioned_at: string;
 	dns_check: DnsCheck | null;
