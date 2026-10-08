@@ -1,15 +1,5 @@
 import { serialize, type Block } from '@wordpress/blocks';
-
-type Step = { blocks: Block[]; markup: string };
-type History = {
-	past: Step[];
-	present: Step;
-	future: Step[];
-	/** When the present step last changed; 0 after an undo or redo. */
-	editedAt: number;
-};
-type HistoryAction =
-	{ type: 'edit'; blocks: Block[]; at: number } | { type: 'undo' } | { type: 'redo' };
+import type { History, HistoryAction } from './types';
 
 /**
  * Which blocks there are, at every depth: typing keeps it, a new or removed block does not.

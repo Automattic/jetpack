@@ -1,8 +1,7 @@
 import { useContext } from 'preact/hooks';
+import { logOut } from '../shared/checkpoint';
 import { CommentSignals } from '../shared/state';
-import { logOut } from './checkpoint/checkpoint';
-
-import './style.scss';
+import type { TargetedMouseEvent } from 'preact';
 
 /**
  * Who the comment will be attributed to, in the footer: a link to the dialog until
@@ -55,8 +54,7 @@ export const Identity = () => {
 
 	// A site user's own profile, as core links it. Subscriptions only for a guest: their email
 	// is the one the comment posts under, where anyone else's details are leftover cookies.
-	// The manage URL is empty where the Newsletter is off, and on a page cached before it existed.
-	const manageUrl = JetpackComments.manageSubscriptionsUrl ?? '';
+	const manageUrl = JetpackComments.manageSubscriptionsUrl;
 	let profile = { url: '', label: '' };
 
 	if ( current.kind === 'user' && user?.editProfileUrl ) {
@@ -67,6 +65,27 @@ export const Identity = () => {
 			label: strings.manageSubscriptions,
 		};
 	}
+
+	const onLogOut = async ( event: TargetedMouseEvent< HTMLAnchorElement > ) => {
+		event.preventDefault();
+
+		// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
+		if ( current.kind === 'user' ) {
+			await logOut();
+			window.location.href = formSettings.logoutUrl;
+			return;
+		}
+
+		// Read before the await: currentTarget is gone once the click is dispatched.
+		const root = event.currentTarget.closest( '.jetpack-comments' );
+
+		await logOut();
+		forget();
+		// This link unmounts; a timeout lets "Add your name" render to take focus.
+		window.setTimeout( () =>
+			root?.querySelector< HTMLElement >( '.jetpack-comments__identity a' )?.focus()
+		);
+	};
 
 	// Subscriptions open beside the post; a profile replaces it, as core's link does.
 	const opens = current.kind === 'user' ? {} : { target: '_blank', rel: 'noopener' };
@@ -122,26 +141,7 @@ export const Identity = () => {
 					<a
 						className="jetpack-comments__link"
 						href={ formSettings.logoutUrl || '#' }
-						onClick={ async event => {
-							event.preventDefault();
-
-							// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
-							if ( current.kind === 'user' ) {
-								await logOut();
-								window.location.href = formSettings.logoutUrl;
-								return;
-							}
-
-							// Read before the await: currentTarget is gone once the click is dispatched.
-							const root = event.currentTarget.closest( '.jetpack-comments' );
-
-							await logOut();
-							forget();
-							// This link unmounts; a timeout lets "Add your name" render to take focus.
-							window.setTimeout( () =>
-								root?.querySelector< HTMLElement >( '.jetpack-comments__identity a' )?.focus()
-							);
-						} }
+						onClick={ onLogOut }
 					>
 						{ strings.logOut }
 					</a>

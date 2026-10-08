@@ -17,6 +17,9 @@ export type Passport = {
 	avatar: string;
 };
 
+export type CheckpointResult =
+	( Passport & { code: string } ) | { error: string } | { cancelled: true };
+
 /**
  * Who is commenting. A popup sign-in's `code` is set until the comment posts and
  * the passport takes over; a guest's details are in `details`.
