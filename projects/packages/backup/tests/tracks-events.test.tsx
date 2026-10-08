@@ -38,7 +38,7 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { queryClient } from '../src/dashboard/data/query-client';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { resetAnalyticsForTesting, useAnalytics } from '../src/dashboard/hooks/use-analytics';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 
@@ -290,6 +290,28 @@ describe( 'Back up now', () => {
 			screen.findByRole( 'button', { name: /back up now/i } )
 		).resolves.toBeInTheDocument();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'Back up now after a remount', () => {
+	it( 'stays disabled while a requested backup is still pending', async () => {
+		mockEndpointsForButton();
+		queryClient.setQueryData( keys.enqueueRequested(), {
+			clickedAt: Date.now(),
+			baselineReady: true,
+			baselineId: '1',
+		} );
+		const BackupNowButton = ( await import( '../src/dashboard/components/backup-now-button' ) )
+			.default;
+
+		render(
+			<QueryClientProvider>
+				<BackupNowButton />
+			</QueryClientProvider>
+		);
+
+		const button = await screen.findByRole( 'button', { name: /backup enqueued/i } );
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );
 
