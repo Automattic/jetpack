@@ -115,7 +115,8 @@ function requestPluginSwitch(
 		.then( state => {
 			queryClient.setQueryData( QUERY_KEY, state );
 			const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-			setPageStateProductItems( markPluginsActive( items, getProductsWithActivePlugin( state ) ) );
+			const updatedItems = markPluginsActive( items, getProductsWithActivePlugin( state ) );
+			setPageStateProductItems( updatedItems );
 			return state;
 		} )
 		.finally( () => {

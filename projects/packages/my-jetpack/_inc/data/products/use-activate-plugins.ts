@@ -55,7 +55,8 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 		options: {
 			onSuccess: () => {
 				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-				setPageStateProductItems( markPluginsActive( items, productIds ) );
+				const updatedItems = markPluginsActive( items, productIds );
+				setPageStateProductItems( updatedItems );
 				products?.forEach( product => {
 					if ( ! getIsPluginAlreadyActive( product ) ) {
 						recordEvent( 'jetpack_myjetpack_product_activated', {

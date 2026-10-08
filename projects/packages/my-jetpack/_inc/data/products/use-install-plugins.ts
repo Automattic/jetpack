@@ -31,7 +31,8 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 		options: {
 			onSuccess: () => {
 				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-				setPageStateProductItems( markPluginsActive( items, productIds ) );
+				const updatedItems = markPluginsActive( items, productIds );
+				setPageStateProductItems( updatedItems );
 				refetch().then( () => {
 					createSuccessNotice( successMessage, { type: 'snackbar' } );
 				} );
