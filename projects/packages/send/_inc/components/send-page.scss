@@ -134,14 +134,93 @@ body.toplevel_page_jetpack-send {
 }
 
 .jetpack-send-dns__actions,
-.jetpack-send-from {
+.jetpack-send-form-actions {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 }
 
-.jetpack-send-from__domain {
-	padding-block-start: 22px;
+.jetpack-send-saved {
+	color: #008a20;
+}
+
+.jetpack-send-sender-preview {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background: #f6f7f7;
+}
+
+.jetpack-send-sender-preview__avatar {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: 36px;
+	block-size: 36px;
+	border-radius: 50%;
+	background: var(--jp-green-40, #069e08);
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.jetpack-send-sender-preview__text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.jetpack-send-sender-preview__name {
+	font-weight: 600;
+}
+
+.jetpack-send-sender-preview__address,
+.jetpack-send-sender-preview__hint {
+	color: #757575;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-sender-preview__hint {
+	flex-shrink: 0;
+	text-align: end;
+}
+
+.jetpack-send-account {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	gap: 10px 32px;
+	margin: 0;
+
+	dt {
+		color: #757575;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+
+	code {
+		padding: 0;
+		background: none;
+		font-size: 12px;
+	}
+}
+
+.jetpack-send-danger {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-block-start: 20px;
+	border-block-start: 1px solid #f0f0f0;
+
+	p {
+		margin: 0;
+	}
 }
 
 .jetpack-send-usage__bar {
