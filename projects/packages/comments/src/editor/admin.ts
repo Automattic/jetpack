@@ -28,6 +28,7 @@ if ( textarea && labels ) {
 				initialContent: window.jetpackCommentsEditorContent ?? textarea.value,
 				labels,
 				placeholder: '',
+				previewEmbeds: false,
 				onChange: content => ( textarea.value = content ),
 				onError: fallBack,
 			} )
