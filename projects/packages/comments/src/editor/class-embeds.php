@@ -209,7 +209,8 @@ class Embeds extends WP_REST_Controller {
 		}
 
 		// Whole, so a script's body does not survive as text once kses drops its tags.
-		$html = (string) preg_replace( '#<script\b[^>]*>.*?(?:</script\s*>|$)#is', '', $html );
+		$scripts = '#<script\b[^>]*>.*?(?:</script\s*>|$)#is';
+		$html    = (string) preg_replace( $scripts, '', $html );
 
 		$allowed = wp_kses_allowed_html( 'post' );
 		unset( $allowed['object'] );
@@ -230,18 +231,15 @@ class Embeds extends WP_REST_Controller {
 			'name'            => true,
 		);
 
-		$tags_in = static function ( $text ) {
-			preg_match_all( '@\[([^<>&/\[\]\x00-\x20=]++)@', $text, $matches );
-			return array_filter( array_unique( $matches[1] ), 'shortcode_exists' );
-		};
-		$sent    = $tags_in( $html );
-		$html    = wp_kses( $html, $allowed );
+		$sent = str_contains( $html, '[youtube' );
+		$html = wp_kses( $html, $allowed );
 
-		// The host's pre_kses reversals turn known players into shortcodes, such as "[youtube …]" on WordPress.com.
-		// Expand those as post content would, and leave any the provider sent as text.
-		$added = array_diff( $tags_in( $html ), $sent );
-		if ( $added ) {
-			$html = (string) preg_replace_callback( '/' . get_shortcode_regex( $added ) . '/', 'do_shortcode_tag', $html );
+		// WordPress.com's pre_kses reversals turn a YouTube player into "[youtube …]". Expand only that, only when
+		// kses added it, then apply the same rules through kses's own steps, minus the hook that would reverse it.
+		if ( ! $sent && str_contains( $html, '[youtube' ) && shortcode_exists( 'youtube' ) ) {
+			$html = (string) preg_replace_callback( '/' . get_shortcode_regex( array( 'youtube' ) ) . '/', 'do_shortcode_tag', $html );
+			$html = (string) preg_replace( $scripts, '', $html );
+			$html = wp_kses_split( wp_kses_normalize_entities( wp_kses_no_null( $html, array( 'slash_zero' => 'keep' ) ) ), $allowed, wp_allowed_protocols() );
 		}
 
 		if ( ! preg_match( '#<(iframe|img|video|audio)\b#i', $html ) && '' === trim( wp_strip_all_tags( $html ) ) ) {
