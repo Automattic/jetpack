@@ -54,12 +54,13 @@ function register_meta_keys() {
 			$post_type,
 			HIDE_META_KEY,
 			array(
-				'type'          => 'boolean',
-				'description'   => __( 'Whether to hide the featured image on this post’s own page.', 'jetpack' ),
-				'single'        => true,
-				'default'       => false,
-				'show_in_rest'  => true,
-				'auth_callback' => __NAMESPACE__ . '\can_edit_post_meta',
+				'type'              => 'boolean',
+				'description'       => __( 'Whether to hide the featured image on this post’s own page.', 'jetpack' ),
+				'single'            => true,
+				'default'           => false,
+				'show_in_rest'      => true,
+				'revisions_enabled' => true, // Saved with autosaves, so Preview of a published post matches the checkbox.
+				'auth_callback'     => __NAMESPACE__ . '\can_edit_post_meta',
 			)
 		);
 		register_post_meta(
@@ -198,12 +199,13 @@ add_filter( 'jetpack_block_editor_feature_flags', __NAMESPACE__ . '\add_editor_f
  * @return void
  */
 function maybe_filter_thumbnail_id() {
-	if ( should_hide_for_post( get_queried_object_id() ) ) {
+	// Block themes hide the Featured Image block instead; see hide_featured_image_block().
+	if ( ! wp_is_block_theme() && should_hide_for_post( get_queried_object_id() ) ) {
 		// Late, since core overrides the thumbnail ID in _wp_preview_post_thumbnail_filter.
 		add_filter( 'get_post_metadata', __NAMESPACE__ . '\filter_thumbnail_id', PHP_INT_MAX, 3 );
 	}
 }
-add_action( 'template_redirect', __NAMESPACE__ . '\maybe_filter_thumbnail_id' ); // Fires on every front-end page load. Effect classic themes only.
+add_action( 'template_redirect', __NAMESPACE__ . '\maybe_filter_thumbnail_id' ); // Fires on every front-end page load.
 
 /**
  * Whether we're on this post's own page and the writer chose to hide its featured image there.
