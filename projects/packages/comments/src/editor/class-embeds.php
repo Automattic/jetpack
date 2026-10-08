@@ -284,19 +284,7 @@ class Embeds extends WP_REST_Controller {
 			$link = esc_url_raw( $raw, array( 'http', 'https' ) );
 			$text = $link ? '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' : esc_html( $raw );
 
-			if ( '' === $text ) {
-				return null;
-			}
-
-			$html = "\n<p>$text</p>\n";
-
-			return array(
-				'blockName'    => 'core/paragraph',
-				'attrs'        => array(),
-				'innerBlocks'  => array(),
-				'innerHTML'    => $html,
-				'innerContent' => array( $html ),
-			);
+			return '' === $text ? null : Block_Editor::paragraph( $text );
 		}
 
 		if ( null === $render ) {

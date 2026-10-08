@@ -195,7 +195,12 @@ class Block_Editor {
 				),
 				'pre'        => array( 'class' => array( 'values' => array( 'wp-block-code' ) ) ),
 				'ul'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
-				'ol'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
+				// Verbum's lists could also start elsewhere, or count down.
+				'ol'         => array(
+					'class'    => array( 'values' => array( 'wp-block-list' ) ),
+					'start'    => true,
+					'reversed' => true,
+				),
 				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed' ) ) ),
 				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 			)
@@ -222,22 +227,21 @@ class Block_Editor {
 	}
 
 	/**
-	 * Whether the edit-comment screen is open on a comment that holds blocks, and the
-	 * block editor is on.
+	 * The comment the edit-comment screen is open on, where it holds blocks and the block editor is on.
 	 *
-	 * @return bool
+	 * @return \WP_Comment|null
 	 */
-	private static function is_editing_blocks() {
+	private static function comment_to_edit() {
 		global $pagenow;
 
 		if ( ! self::is_enabled() ) {
-			return false;
+			return null;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- which comment the screen shows, read only.
 		$comment = 'comment.php' === $pagenow && isset( $_GET['c'] ) ? get_comment( absint( $_GET['c'] ) ) : null;
 
-		return $comment instanceof \WP_Comment && has_blocks( $comment->comment_content );
+		return $comment instanceof \WP_Comment && has_blocks( $comment->comment_content ) ? $comment : null;
 	}
 
 	/**
@@ -246,7 +250,12 @@ class Block_Editor {
 	 * @return void
 	 */
 	public static function enqueue_admin() {
-		if ( ! self::is_editing_blocks() ) {
+		$comment = self::comment_to_edit();
+		// The comment as this editor writes it, so blocks from Verbum's editor open as blocks it knows.
+		$content = $comment ? serialize_blocks( self::allowed( parse_blocks( $comment->comment_content ) ) ) : '';
+
+		// With nothing left, the editor would save the comment empty; the raw markup is safer to edit.
+		if ( ! has_blocks( $content ) ) {
 			return;
 		}
 
@@ -264,7 +273,8 @@ class Block_Editor {
 		wp_add_inline_script(
 			'jetpack-comments-admin',
 			'window.jetpackCommentsEditorLocale = ' . wp_json_encode( self::locale_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
-				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( self::labels(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( self::labels(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+				. 'window.jetpackCommentsEditorContent = ' . wp_json_encode( $content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
 	}
@@ -293,10 +303,33 @@ class Block_Editor {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
-			if ( 'core/embed' === $block['blockName'] ) {
-				$block = Embeds::block( $block, $render );
-				if ( $block ) {
-					$kept[] = $block;
+			// Verbum's editor also offered images, and captions on both; this one keeps their links and text.
+			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
+				$embed = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : null;
+
+				if ( $embed ) {
+					$kept[] = $embed;
+				} elseif ( 'core/image' === $block['blockName'] ) {
+					$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
+					$src  = $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null;
+					$link = is_string( $src ) ? esc_url_raw( $src, array( 'http', 'https' ) ) : '';
+
+					if ( $link ) {
+						$kept[] = self::paragraph( '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' );
+					}
+				}
+
+				if ( preg_match( '#<figcaption[^>]*>(.*?)</figcaption>#s', $block['innerHTML'], $caption ) && '' !== trim( $caption[1] ) ) {
+					$kept[] = self::paragraph( trim( $caption[1] ) );
+				}
+
+				continue;
+			}
+
+			// Verbum kept headings where the site's comment tags allowed them; this editor has none.
+			if ( 'core/heading' === $block['blockName'] ) {
+				if ( preg_match( '#<h([1-6])[^>]*>(.*?)</h\1>#s', $block['innerHTML'], $heading ) && '' !== trim( $heading[2] ) ) {
+					$kept[] = self::paragraph( '<strong>' . trim( $heading[2] ) . '</strong>' );
 				}
 				continue;
 			}
@@ -306,8 +339,9 @@ class Block_Editor {
 				continue;
 			}
 
-			// The markup carries everything these blocks draw; attributes only matter to the editor.
-			$block['attrs'] = array();
+			// The markup carries everything these blocks draw, but the editor reads a list's kind, start, and
+			// direction from its attributes alone. Rendering strips delimiters that carry none.
+			$block['attrs'] = null === $render && 'core/list' === $block['blockName'] ? array_intersect_key( $block['attrs'], array_flip( array( 'ordered', 'start', 'reversed' ) ) ) : array();
 
 			$inner                 = $block['innerBlocks'];
 			$content               = $block['innerContent'];
@@ -321,9 +355,9 @@ class Block_Editor {
 					continue;
 				}
 
-				$child = self::allowed( array( array_shift( $inner ) ), $render );
-				if ( $child ) {
-					$block['innerBlocks'][]  = $child[0];
+				// An image or embed in a quote can come back as more than one block.
+				foreach ( self::allowed( array( array_shift( $inner ) ), $render ) as $child ) {
+					$block['innerBlocks'][]  = $child;
 					$block['innerContent'][] = null;
 				}
 			}
@@ -332,5 +366,23 @@ class Block_Editor {
 		}
 
 		return $kept;
+	}
+
+	/**
+	 * A paragraph block holding the given HTML.
+	 *
+	 * @param string $html Inline HTML.
+	 * @return array
+	 */
+	public static function paragraph( $html ) {
+		$html = "\n<p>$html</p>\n";
+
+		return array(
+			'blockName'    => 'core/paragraph',
+			'attrs'        => array(),
+			'innerBlocks'  => array(),
+			'innerHTML'    => $html,
+			'innerContent' => array( $html ),
+		);
 	}
 }
