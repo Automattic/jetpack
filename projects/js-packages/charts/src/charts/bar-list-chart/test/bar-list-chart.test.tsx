@@ -72,7 +72,9 @@ describe( 'BarListChart', () => {
 		/* eslint-disable testing-library/no-node-access */
 		const barFills = () =>
 			Array.from(
-				screen.getByRole( 'grid' ).querySelectorAll< SVGRectElement >( '.visx-bar-group rect' )
+				screen
+					.getByRole( 'application' )
+					.querySelectorAll< SVGRectElement >( '.visx-bar-group rect' )
 			).map( bar => bar.getAttribute( 'fill' ) );
 		/* eslint-enable testing-library/no-node-access */
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Match core's busy and disabled button states on the submit buttons, and keep theme button styles off the editor toolbar.

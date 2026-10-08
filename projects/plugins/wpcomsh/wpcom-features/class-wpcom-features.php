@@ -349,6 +349,7 @@ class WPCOM_Features {
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
 		self::JETPACK_COMPLETE_PLANS,
+		self::JETPACK_PRO_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
 		self::JETPACK_SECURITY_T0_PLANS,
@@ -360,6 +361,7 @@ class WPCOM_Features {
 		self::JETPACK_PREMIUM_PLANS,
 		self::JETPACK_BUSINESS_PLANS,
 		self::JETPACK_COMPLETE_PLANS,
+		self::JETPACK_PRO_PLANS,
 		self::JETPACK_SECURITY_DAILY_PLANS,
 		self::JETPACK_SECURITY_REALTIME_PLANS,
 		self::JETPACK_SECURITY_T0_PLANS,
@@ -412,6 +414,10 @@ class WPCOM_Features {
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
 	public const AI_ASSISTANT                      = 'ai-assistant';
+	public const AI_CREDITS_WPCOM_BUSINESS         = 'ai-credits-wpcom-business';
+	public const AI_CREDITS_WPCOM_COMMERCE         = 'ai-credits-wpcom-commerce';
+	public const AI_CREDITS_WPCOM_PERSONAL         = 'ai-credits-wpcom-personal';
+	public const AI_CREDITS_WPCOM_PREMIUM          = 'ai-credits-wpcom-premium';
 	public const AI_SEO_ENHANCER                   = 'ai-seo-enhancer';
 	public const AD_CREDIT_VOUCHERS                = 'ad-credit';
 	public const ADVANCED_SEO                      = 'advanced-seo';
@@ -580,11 +586,33 @@ class WPCOM_Features {
 			self::JETPACK_AI_PLANS,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
+		),
+		// AI_CREDITS_WPCOM_* - the WordPress Agent's monthly AI credit allowance tier. Trials get no credits.
+		self::AI_CREDITS_WPCOM_BUSINESS         => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
+		),
+		self::AI_CREDITS_WPCOM_COMMERCE         => array(
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::AI_CREDITS_WPCOM_PERSONAL         => array(
+			self::WPCOM_BLOGGER_PLANS,
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_STARTER_PLANS,
+		),
+		self::AI_CREDITS_WPCOM_PREMIUM          => array(
+			self::WPCOM_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::AI_SEO_ENHANCER                   => array(
 			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -721,6 +749,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
@@ -729,10 +758,12 @@ class WPCOM_Features {
 		self::CLOUD_CRITICAL_CSS                => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::CORNERSTONE_TEN_PAGES             => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::CLOUDFLARE_ANALYTICS              => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
@@ -874,6 +905,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::FORM_CONDITIONAL_LOGIC            => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -925,20 +957,24 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_SECURITY_REALTIME_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 		),
 		self::IMAGE_CDN_LIAR                    => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::IMAGE_CDN_QUALITY                 => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::IMAGE_SIZE_ANALYSIS               => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::INSTALL_PLUGINS                   => array(
 			self::WPCOM_PRO_PLANS,
@@ -975,6 +1011,7 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::JETPACK_DASHBOARD                 => array(
 			self::WPCOM_PRO_PLANS,
@@ -1135,6 +1172,7 @@ class WPCOM_Features {
 		self::PERFORMANCE_HISTORY               => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 		),
 		self::PODCASTING                        => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1395,6 +1433,7 @@ class WPCOM_Features {
 		self::SOCIAL_ENHANCED_PUBLISHING        => array(
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
@@ -1418,6 +1457,7 @@ class WPCOM_Features {
 		self::SOCIAL_IMAGE_GENERATOR            => array(
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
@@ -1428,6 +1468,7 @@ class WPCOM_Features {
 			// Gated on the paid social plans, matching SOCIAL_ENHANCED_PUBLISHING.
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
 			self::JETPACK_SOCIAL_PLANS,
@@ -1500,6 +1541,7 @@ class WPCOM_Features {
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 		),
@@ -1511,6 +1553,7 @@ class WPCOM_Features {
 			self::JETPACK_STATS_BI_YEARLY,
 			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 			// A4A Jetpack Stats plans
@@ -1689,6 +1732,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS                        => array(
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PRO_PLANS,
 			self::JETPACK_PERSONAL_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS_PLANS,
@@ -1723,6 +1767,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS_1TB_STORAGE            => array(
 			array(
 				self::JETPACK_COMPLETE_PLANS,
+				self::JETPACK_PRO_PLANS,
 				self::JETPACK_VIDEOPRESS_PLANS,
 				self::JETPACK_PREMIUM_PLANS,
 				self::JETPACK_BUSINESS_PLANS,

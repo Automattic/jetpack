@@ -1,13 +1,9 @@
 /**
- * External dependencies
- */
-
-/**
  * Internal dependencies
  */
 import { fetchReportCustomers } from '../api/report-customers-fetch';
 import { sanitizeReportCustomersResponse } from '../processing/customers';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportCustomersParams = Parameters< typeof fetchReportCustomers >[ 0 ];
 

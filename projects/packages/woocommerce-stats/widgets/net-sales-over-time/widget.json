@@ -1,0 +1,11 @@
+{
+	"name": "woocommerce-analytics/net-sales-over-time",
+	"title": "Net sales over time",
+	"description": "Monitor your total revenue after discounts, returns, or adjustments over a set period of time.",
+	"help": {
+		"content": "Monitor your total revenue — after any discounts, returns, or adjustments — over a set period of time."
+	},
+	"category": "orders",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

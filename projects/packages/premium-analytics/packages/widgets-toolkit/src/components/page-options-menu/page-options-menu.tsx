@@ -10,6 +10,7 @@ import { useCallback, useState } from 'react';
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
+import { canSendFeedback } from './can-send-feedback';
 import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
@@ -37,6 +38,7 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 
 	// The opt-in is a site setting, so switching it off takes the same capability.
 	const canSwitchOff = currentUserCan( 'manage_options' );
+	const canGiveFeedback = canSendFeedback();
 
 	const openFeedback = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_feedback_open', { source: 'menu' } );
@@ -46,6 +48,10 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const closeFeedback = useCallback( () => setIsFeedbackOpen( false ), [] );
 	const openSwitchOff = useCallback( () => setIsSwitchOffOpen( true ), [] );
 	const closeSwitchOff = useCallback( () => setIsSwitchOffOpen( false ), [] );
+
+	if ( ! onCustomize && ! canGiveFeedback && ! canSwitchOff ) {
+		return null;
+	}
 
 	return (
 		<>
@@ -69,14 +75,16 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 									{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
 								</Menu.ItemLabel>
 							</Menu.Item>
-							<Menu.Separator />
+							{ ( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
 						</>
 					) }
-					<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
-						<Menu.ItemLabel>
-							{ __( 'Any feedback?', 'jetpack-premium-analytics-pkg' ) }
-						</Menu.ItemLabel>
-					</Menu.Item>
+					{ canGiveFeedback && (
+						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
+							<Menu.ItemLabel>
+								{ __( 'Any feedback?', 'jetpack-premium-analytics-pkg' ) }
+							</Menu.ItemLabel>
+						</Menu.Item>
+					) }
 					{ canSwitchOff && (
 						<Menu.Item prefix={ <Icon icon={ cancelCircleFilled } /> } onClick={ openSwitchOff }>
 							<Menu.ItemLabel>

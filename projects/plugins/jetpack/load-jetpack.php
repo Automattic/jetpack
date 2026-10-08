@@ -64,6 +64,7 @@ Jetpack_Application_Password_Extras::init();
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-protect-dashboard-feature-flags.php';
 
 // Another plugin may have loaded an older version of this class, so only call the method if it exists.
 if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_feature_flags' ) ) {

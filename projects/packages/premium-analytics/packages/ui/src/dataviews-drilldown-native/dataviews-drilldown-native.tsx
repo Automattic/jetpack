@@ -14,6 +14,7 @@ import styles from './dataviews-drilldown-native.module.scss';
 import { DrilldownToggle } from './drilldown-toggle';
 import { processHierarchyLevels, withHierarchyContext } from './process-hierarchy-levels';
 import type {
+	Action,
 	DataViewRenderFieldProps,
 	Field,
 	SupportedLayouts,
@@ -60,6 +61,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	data: Item[];
 	getItemId: GetItemIdBaseProps< Item >;
 	getItemLevel?: GetItemLevelBaseProps< Item >;
+	actions?: Action< Item >[];
 	isLoading?: boolean;
 	paginationInfo: PaginationInfo;
 	defaultLayouts?: SupportedLayouts;
@@ -124,6 +126,8 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	getItemParentId: ( item: Item ) => string | number | null | undefined;
 	/** Initial view overrides (default sort, visible fields, page size, ...). */
 	initialView?: Partial< View >;
+	/** Row actions; each one's `isEligible` decides which rows offer it. */
+	actions?: Action< Item >[];
 	/**
 	 * Hide the native em-dash level markers, leaving whitespace indentation.
 	 * This is the one CSS override the native rendering leaves room for — the
@@ -155,6 +159,7 @@ export function DataViewsDrilldownNative< Item >( {
 	getItemId,
 	getItemParentId,
 	initialView,
+	actions,
 	hideLevelMarkers = false,
 	collapsible = false,
 	defaultExpanded = 'all',
@@ -333,6 +338,7 @@ export function DataViewsDrilldownNative< Item >( {
 					data={ pageData }
 					getItemId={ getItemId }
 					getItemLevel={ getItemLevel }
+					actions={ actions }
 					isLoading={ isLoading }
 					paginationInfo={ paginationInfo }
 					defaultLayouts={ { table: {} } }

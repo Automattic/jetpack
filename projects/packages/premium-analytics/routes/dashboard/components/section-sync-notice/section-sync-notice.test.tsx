@@ -61,6 +61,23 @@ describe( 'SectionSyncNotice', () => {
 		);
 	} );
 
+	it( 'tells a reader who cannot run the sync who can, with no progress or retry', () => {
+		const { container } = render(
+			<SectionSyncNotice
+				canRunSync={ false }
+				percentage={ 0 }
+				hasError
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+
+		expect( container ).toHaveTextContent(
+			"Your store data hasn't finished syncing, so the numbers below are incomplete. It finishes once a site administrator opens this page."
+		);
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'offers a retry once the sync fails', async () => {
 		const onRetry = jest.fn();
 		const { container } = render(

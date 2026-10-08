@@ -161,7 +161,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -347,7 +347,7 @@ Notes:
   (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
   `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
-  `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
+  `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
 - Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
   `link:` for internal packages (e.g.

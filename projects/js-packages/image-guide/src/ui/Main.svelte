@@ -82,12 +82,12 @@
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<!-- eslint-disable-next-line svelte/valid-compile -->
 	<div
-		class="guide {size}"
+		class="jb-ig-main guide {size}"
 		class:show={show !== false}
 		class:keep-guide-open={show !== false}
 		on:mouseleave={closeDetails}
 	>
-		<div class="previews">
+		<div class="jb-ig-main previews">
 			<!-- eslint-disable-next-line svelte/require-each-key -- What's a good key here? -->
 			{#each stores as store, index}
 				<Bubble {index} {store} on:hover={hover} />
@@ -102,65 +102,3 @@
 		{/if}
 	</div>
 {/if}
-
-<style lang="scss">
-	:global( .jetpack-boost-guide ) {
-		&:not( .relative ) {
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-	}
-	:global( .jetpack-boost-guide.relative ) {
-		position: relative;
-	}
-	.guide {
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 8000;
-		line-height: 1.55;
-		padding: 20px;
-		&.small {
-			font-size: 13px;
-		}
-
-		&.micro {
-			font-size: 13px;
-			padding: 10px;
-		}
-
-		&.show {
-			z-index: 9000;
-		}
-
-		// !important statements override theme styles
-		font-size: 15px !important;
-		font-family:
-			'Inter',
-			-apple-system,
-			BlinkMacSystemFont,
-			'Segoe UI',
-			'Roboto',
-			'Oxygen-Sans',
-			'Ubuntu',
-			'Cantarell',
-			'Helvetica Neue',
-			sans-serif !important;
-	}
-
-	.previews {
-		width: 100%;
-		display: flex;
-		gap: 15px;
-		flex-wrap: wrap;
-		margin-bottom: 15px;
-	}
-
-	:global( .jetpack-boost-guide__backdrop ) {
-		transition:
-			opacity 0.2s ease-in-out,
-			filter 0.2s ease-in-out;
-		filter: brightness( 0.3 );
-	}
-</style>

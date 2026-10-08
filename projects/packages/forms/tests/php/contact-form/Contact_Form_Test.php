@@ -505,7 +505,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Test value with brackets (should be escaped)
 		$bracket_value = 'This is a [test] with brackets';
 		$result        = Contact_Form::escape_and_sanitize_field_value( $bracket_value );
-		$this->assertEquals( 'This is a &#091;test&#093; with brackets', $result );
+		$this->assertEquals( 'This is a &#91;test&#93; with brackets', $result );
 
 		// Test value with HTML (should be stripped)
 		$html_value = 'This has <strong>HTML</strong> tags';

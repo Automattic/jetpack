@@ -314,17 +314,18 @@ class Comment_Form {
 				$fields    = array(
 					'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
 					'email'  => array( __( 'Email', 'jetpack-comments' ), 'email', $commenter['comment_author_email'], $required ),
-					'url'    => array( __( 'Website', 'jetpack-comments' ), 'url', $commenter['comment_author_url'], false ),
+					'url'    => array( __( 'Website', 'jetpack-comments' ), 'text', $commenter['comment_author_url'], false ),
 				);
 
 				foreach ( $fields as $name => list( $label, $type, $value, $is_required ) ) {
 					$plain .= sprintf(
-						'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s /></p>',
+						'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s%6$s /></p>',
 						$name,
 						esc_html( $label ),
 						$type,
 						esc_attr( $value ),
-						$is_required ? ' required' : ''
+						$is_required ? ' required' : '',
+						'url' === $name ? ' maxlength="200"' : ''
 					);
 				}
 			}

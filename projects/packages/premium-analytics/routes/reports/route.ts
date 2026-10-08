@@ -4,13 +4,13 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
-	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
 import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getReportDefinition } from './registry';
 
@@ -71,9 +71,7 @@ export const route = {
 			// Allowlist the params this page owns rather than spreading `currentSearch`
 			// wholesale, so foreign params a link carried in aren't persisted.
 			const seeded: Record< string, unknown > = {
-				...normalizeReportParams(
-					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-				),
+				...seedSiteDateParams( currentSearch ),
 				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};

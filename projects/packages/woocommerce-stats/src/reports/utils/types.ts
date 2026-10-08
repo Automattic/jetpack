@@ -37,11 +37,3 @@ export type ReportParams = BaseReportParams & {
 	view?: OrderAttributionView;
 	filters?: FilterCondition[];
 };
-
-/** What a report query hands to the dashboard's `useReport`. */
-export type ReportQuery< TData > = {
-	queryKey: readonly unknown[];
-	queryFn?: () => Promise< TData >;
-	enabled?: boolean;
-	placeholderData?: ( previousData: TData | undefined ) => TData | undefined;
-};

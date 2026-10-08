@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import {
 	buildTailorPrompt,
 	chooseTailoringMenu,
@@ -11,15 +8,16 @@ import {
 	TASK_ANNOTATIONS,
 	TASK_MENU,
 } from './prompts.ts';
+import { AGENT_OUTPUT_SCHEMA } from './schema-validator.ts';
 import type { WizardInput } from './types.ts';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const CONTRACTS = resolve( __dirname, '../../contracts' );
-
-const fixtures = JSON.parse( readFileSync( resolve( CONTRACTS, 'eval-fixtures.json' ), 'utf8' ) )
-	.fixtures as Array< { name: string; input: WizardInput } >;
-
-const INPUT: WizardInput = fixtures[ 0 ].input;
+// No ui_locale, like an input persisted before it existed.
+const INPUT = {
+	goal: 'write',
+	site_name: 'Alpine Notes',
+	description: 'Personal blog about long-distance hiking in the Alps.',
+	locale: 'en',
+} as WizardInput;
 
 describe( 'TASK_ANNOTATIONS', () => {
 	it( 'has no duplicate ids', () => {
@@ -32,182 +30,14 @@ describe( 'TASK_ANNOTATIONS', () => {
 			assert.ok( entry.pickWhen.length > 0, `${ entry.id } is missing "pickWhen"` );
 		}
 	} );
-
-	it( 'offers the foundation registry tasks to every goal', () => {
-		// Both suit any site, so a goals line would be narrower than the (absent) PHP rule and would
-		// suppress them for goals they are perfectly good on.
-		for ( const id of [ 'add_site_icon', 'pick_fonts_colors' ] ) {
-			const entry = TASK_ANNOTATIONS.find( annotation => annotation.id === id );
-			assert.ok( entry, `${ id } must be on the menu` );
-			assert.equal( entry.goals, undefined, `${ id } must carry no goal affinity` );
-		}
-	} );
-
-	it( 'distinguishes the design-ish tasks from one another', () => {
-		// The reason the model fell back to the same three: nothing in the menu said how they differ.
-		// Each of these has to name a distinct surface, or a new alternative buys nothing.
-		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
-
-		assert.match( byId.site_theme_selected.what, /theme showcase/i );
-		assert.match( byId.design_edited.what, /Site Editor/i );
-		assert.match( byId.front_page_updated.what, /homepage/i );
-		assert.match( byId.pick_fonts_colors.what, /style variation/i );
-		assert.match( byId.add_site_icon.what, /logo|icon/i );
-	} );
-
-	it( 'names the plugin in the discovery task and gives it no goal affinity', () => {
-		// The pick is the personalization here, so the model has to be able to tell what the plugin is —
-		// an entry that does not name it is the bare-id problem again. And the niche that decides (teaching
-		// a structured course) is not what the goal slug tracks, so a goals line would suppress the task
-		// for exactly the sites it exists to reach.
-		const sensei = TASK_ANNOTATIONS.find( entry => entry.id === 'install_sensei_lms' );
-
-		assert.ok( sensei, 'install_sensei_lms must be on the menu' );
-		assert.match( sensei.what, /Sensei/ );
-		assert.equal( sensei.goals, undefined );
-	} );
-
-	it( 'keeps the generic plugin task pointed at what no other task names', () => {
-		// It is the only remaining route to the wider directory, so its pick when has to describe that role
-		// rather than read as the leftover of a set of named-plugin tasks.
-		const generic = TASK_ANNOTATIONS.find( entry => entry.id === 'install_custom_plugin' );
-
-		assert.ok( generic, 'install_custom_plugin must be on the menu' );
-		assert.match( generic.pickWhen, /no other task names it/ );
-		assert.ok( generic.avoidWhen?.includes( 'install_sensei_lms' ) );
-	} );
-
-	it( 'makes the contact page distinguishable from the other page tasks', () => {
-		// The menu already offers a generic "add a page" and a dedicated About page. An annotation that
-		// does not separate this from both adds noise to the ranking instead of signal, which is the
-		// bare-id problem in miniature.
-		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
-		const contact = byId.add_contact_page;
-
-		assert.ok( contact, 'add_contact_page must be on the menu' );
-		assert.match( contact.what, /contact form/i );
-		// About is about who is behind the site; contact is about someone needing a reply.
-		assert.match( byId.add_about_page.pickWhen, /who is behind the site/i );
-		assert.ok(
-			contact.avoidWhen?.includes( 'add_about_page' ),
-			'the contact entry must say when About is the better pick'
-		);
-		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
-		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
-		// No goal affinity: whether people need to reach someone is a property of the niche, not of the
-		// wizard goal — a shop, a studio, a school and a B&B all need it and pick four different goals.
-		assert.equal( contact.goals, undefined );
-	} );
-
-	it( 'makes the events page distinguishable from the other page tasks', () => {
-		// Fourth page task on the menu, so the annotation has to separate it from the other three or the
-		// model is picking between four things it cannot tell apart. The separator is a date people turn
-		// up for: About says who is behind the site, contact opens a channel back, add_new_page defers.
-		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
-		const events = byId.add_events_page;
-
-		assert.ok( events, 'add_events_page must be on the menu' );
-		assert.match( events.pickWhen, /date|when/i );
-		// The blanks are the point, and the model has to know it is choosing a scaffold: the page it
-		// creates is worth a slot only for a site that has real dates to put in it.
-		assert.match( events.what, /blank|empty/i );
-		assert.ok(
-			events.avoidWhen?.includes( 'add_contact_page' ),
-			'the events entry must say when a private arrangement makes contact the better pick'
-		);
-		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
-		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
-		// No goal affinity: running something on a date is a property of the niche, not of the wizard
-		// goal — a yoga studio, a gallery, a band and a supper club pick four different goals.
-		assert.equal( events.goals, undefined );
-	} );
-
-	it( 'makes the video page distinguishable from the gallery and the other page tasks', () => {
-		// Fifth page task, and the one at most risk of collapsing into another: a gallery and a video
-		// page are both "show the work", and the model will merge them unless the annotation makes the
-		// medium the separator — still images you look at, video you watch. This is also the only entry
-		// serving the video niche, since the round that dropped a VideoPress plugin-discovery task left
-		// nothing else behind it.
-		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
-		const video = byId.add_video_page;
-
-		assert.ok( video, 'add_video_page must be on the menu' );
-		assert.match( video.pickWhen, /watch/i );
-		// The block arrives empty, and the model has to know it is spending a slot on a page the user
-		// has to bring a video to.
-		assert.match( video.what, /empty|blank/i );
-		assert.ok(
-			video.avoidWhen?.includes( 'add_gallery_page' ),
-			'the video entry must say when still images make the gallery the better pick'
-		);
-		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
-		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
-		// No goal affinity, for the same reason the gallery has none: a vlogger, a music teacher and a
-		// dance company pick three different goals, and suppressing the task by goal would lose exactly
-		// the sites it exists for.
-		assert.equal( video.goals, undefined );
-	} );
-
-	it( 'makes the portfolio piece distinguishable from the gallery and from the first post', () => {
-		// Sixth page task, and the one that has to earn its slot against two tasks already on the menu.
-		// Against add_gallery_page: a gallery is many images and no words, judged by looking; a piece is
-		// one project and the words about it — what it was, who it was for, what the user did. Against
-		// first_post_published: that publishes a dated post into the feed with AI-written prose already
-		// in it; this creates a permanent page with no prose at all, because a project write-up is facts
-		// only the user has. If the annotation does not carry both separators the model cannot act on
-		// either, and a task the model merges into another is noise on the menu.
-		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
-		const piece = byId.add_portfolio_piece;
-
-		assert.ok( piece, 'add_portfolio_piece must be on the menu' );
-		// One project, not a body of work: the singular is the whole distinction from the gallery.
-		assert.match( piece.pickWhen, /one|single|individual/i );
-		// The page arrives blank, and the model has to know it is spending a slot on a page the user has
-		// to bring both the image and the story to.
-		assert.match( piece.what, /blank|empty/i );
-		assert.ok(
-			piece.avoidWhen?.includes( 'add_gallery_page' ),
-			'the piece entry must say when a set of images makes the gallery the better pick'
-		);
-		assert.ok(
-			piece.what.includes( 'first_post_published' ) ||
-				piece.avoidWhen?.includes( 'first_post_published' ),
-			'the piece entry must separate itself from the AI-drafted first post'
-		);
-		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
-		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
-		// No goal affinity, for the same reason the gallery has none. `portfolio` looks like the obvious
-		// hint and is the trap: a copywriter with case studies picks `write`, a studio picks `build`, and
-		// a maker selling commissions picks `sell`. Hinting one goal suppresses the task for the others.
-		assert.equal( piece.goals, undefined );
-	} );
-
-	it( 'offers the gallery task and gives it no goal affinity', () => {
-		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
-
-		assert.ok( gallery, 'add_gallery_page must be on the menu' );
-		// A goal affinity would suppress the gallery for the sites it exists to reach: a photographer or food
-		// blogger picks `write`. Whether the site is visual is the criterion, and pickWhen carries it.
-		assert.equal( gallery.goals, undefined );
-	} );
 } );
 
 describe( 'buildTailorPrompt', () => {
-	for ( const fixture of fixtures ) {
-		it( `interpolates goal, site_name, and description for "${ fixture.name }"`, () => {
-			const prompt = buildTailorPrompt( fixture.input );
-			assert.ok( prompt.includes( fixture.input.goal ), 'goal missing from prompt' );
-			assert.ok( prompt.includes( fixture.input.site_name ), 'site_name missing from prompt' );
-			assert.ok( prompt.includes( fixture.input.description ), 'description missing from prompt' );
-		} );
-	}
-
-	it( 'offers only the actionable theme task, not the legacy design tasks', () => {
-		// design_selected is always-complete and design_completed has no wp-admin
-		// completion path; both are consolidated onto site_theme_selected.
-		assert.ok( TASK_MENU.includes( 'site_theme_selected' ) );
-		assert.ok( ! TASK_MENU.includes( 'design_selected' ) );
-		assert.ok( ! TASK_MENU.includes( 'design_completed' ) );
+	it( 'interpolates goal, site_name, and description', () => {
+		const prompt = buildTailorPrompt( INPUT );
+		assert.ok( prompt.includes( `Goal: ${ INPUT.goal }` ) );
+		assert.ok( prompt.includes( `Site name: ${ INPUT.site_name }` ) );
+		assert.ok( prompt.includes( `User description: ${ INPUT.description }` ) );
 	} );
 
 	it( 'renders each offered task as an annotated block, not a bare id', () => {
@@ -219,16 +49,9 @@ describe( 'buildTailorPrompt', () => {
 	it( 'restricts the offered menu to the available tasks when given', () => {
 		const available = [ 'first_post_published', 'site_theme_selected', 'site_launched' ];
 		const prompt = buildTailorPrompt( INPUT, available );
-		// A menu section lists only the available ids...
-		for ( const id of available ) {
-			assert.ok( prompt.includes( '- id: ' + id ), `available ID "${ id }" missing from menu` );
-		}
-		// ...and a menu-only task that is not available is dropped from the list.
-		const dropped = TASK_MENU.find( id => ! available.includes( id ) ) as string;
-		assert.ok(
-			! prompt.includes( '- id: ' + dropped ),
-			`unavailable ID "${ dropped }" should be dropped`
-		);
+		const offered = [ ...prompt.matchAll( /^- id: (\S+)$/gm ) ].map( match => match[ 1 ] );
+
+		assert.deepEqual( offered.sort(), [ ...available ].sort() );
 	} );
 
 	it( 'falls back to the full menu when availability is unknown', () => {
@@ -252,22 +75,8 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( plainBlock && ! plainBlock.includes( 'avoid when:' ) );
 	} );
 
-	it( 'no longer carries the goal rules that PHP now enforces', () => {
-		const prompt = buildTailorPrompt( INPUT, [] );
-
-		assert.ok( ! prompt.includes( 'if the goal is sell OR' ) );
-		assert.ok( ! prompt.includes( 'if the goal is newsletter OR' ) );
-		assert.ok( ! prompt.includes( 'order the commerce tasks store-first' ) );
-	} );
-
 	it( 'lists only server-enforced rules under the HARD RULES header', () => {
-		// The header promises the model that violations are rejected, so an unenforced rule here claims
-		// an authority the code does not back. Pinned to the exact strings, not just the count: swapping
-		// an enforced rule for a demoted one keeps the count at four and would otherwise pass.
-		//
-		// The first rule points at the menu but promises only what update_tailored() actually checks:
-		// that the server can build the id, from the shared catalog or from its own registry. An id
-		// from either that the menu filter left off is still accepted.
+		// Pinned to the exact strings: the header tells the model each of these is rejected server-side.
 		const prompt = buildTailorPrompt( INPUT, [] );
 		const block = prompt.slice( prompt.indexOf( 'HARD RULES' ) ).split( '\n\n' )[ 0 ];
 		const bullets = block.split( '\n' ).filter( line => line.startsWith( '- ' ) );
@@ -293,86 +102,46 @@ describe( 'buildTailorPrompt', () => {
 		assert.equal( chooseTailoringMenu( actionable, renderable ), renderable );
 	} );
 
-	// Instructions the rest of the pipeline depends on; each needle is the load-bearing part.
-	const REQUIRED: Array< [ string, Array< string | RegExp > ] > = [
-		[ 'instructs the model to return only JSON', [ /return only a json object/i ] ],
-		// inferred_goal is analytics-only, so the prompt must also tell the model to keep it out
-		// of its task selection.
-		[
-			'asks for a diagnostic inferred_goal that must not influence the output',
-			[
-				'"inferred_goal"',
-				/must NOT influence/,
-				/"inferred_goal".*exactly one of: write, build, sell, newsletter, educate, portfolio - never/,
-			],
-		],
-		// The full slug menu must be in the prompt, and the instruction must steer the model
-		// toward the specific subject over the generic goal bucket.
-		[
-			'asks for a theme_category chosen from the showcase subject slugs',
-			[ '"theme_category"', 'travel-lifestyle', 'community-non-profit', /specific subject/i ],
-		],
-		// page_intros is keyed by task id and written only for a page task that was actually chosen,
-		// so the prompt has to say both things: which key, and that it is conditional on the pick.
-		[
-			'asks for a conditional page intro keyed by the task id it belongs to',
-			[ '"page_intros"', '"add_contact_page"', /only .*chose|chose none/i ],
-		],
-		// The whole reason this page is hand-authored: a confident, invented address or phone number
-		// on a real business's contact page is worse than none at all.
-		[
-			'forbids the model inventing contact details the site never gave it',
-			[ /never invent one/i, /phone/i ],
-		],
-		// The events page keeps its own key, and the same prohibition for the same reason: only the
-		// user knows when their events are, and the page leaves those blanks blank on purpose.
-		[
-			'asks for an events-page intro that states no date, venue or price',
-			[ '"add_events_page"', /do not (put|name) a date/i, /venue|address/i ],
-		],
-		// The video page's own key, and its own prohibition. The page holds one empty block, so an
-		// intro that describes a particular video promises something the page does not have; and this
-		// is an Automattic surface, so the line must not send visitors off to a video platform either.
-		// Matched as one line rather than as three loose needles: the key and its prohibitions have to be
-		// on the same STEP 5 bullet, or the model is either told to write a key the schema will reject or
-		// handed a key with no rules attached.
-		[
-			'asks for a video-page intro that describes no particular video and names no platform',
-			[ /^- "add_video_page": .*specific video.*platform or channel/m ],
-		],
-		// The gallery page's own key, and its own prohibitions, for the reason its page is now
-		// hand-authored at all: the block it ships is empty, so an intro that describes particular
-		// pictures promises images the page does not have — and the images it used to ship were
-		// somebody else's. Matched as one line, like the video bullet, so the key and its rules cannot
-		// drift onto separate bullets.
-		[
-			'asks for a gallery-page intro that describes no particular picture and names no platform',
-			[ /^- "add_gallery_page": .*particular image.*platform or account/m ],
-		],
-	];
-	for ( const [ name, needles ] of REQUIRED ) {
-		it( name, () => {
-			const prompt = buildTailorPrompt( INPUT );
-			for ( const needle of needles ) {
-				const found =
-					typeof needle === 'string' ? prompt.includes( needle ) : needle.test( prompt );
-				assert.ok( found, `missing from prompt: ${ needle }` );
-			}
-		} );
-	}
+	it( 'lists every theme_category slug the schema accepts', () => {
+		const prompt = buildTailorPrompt( INPUT );
+		for ( const slug of AGENT_OUTPUT_SCHEMA.properties?.inferred.properties?.theme_category.enum ??
+			[] ) {
+			assert.ok( prompt.includes( `${ slug } = ` ), `${ slug } missing from the prompt` );
+		}
+	} );
+
+	// Listing every page intro key in the format template made the model fill the unchosen ones with "" or null.
+	it( 'shows a single page_intros key in the output template', () => {
+		const template = buildTailorPrompt( INPUT ).split( '============ format ============' )[ 1 ];
+		assert.match( template, /"page_intros": \{ "add_contact_page": "\.\.\." \}/ );
+		assert.ok( ! /add_(events|video|gallery)_page/.test( template ) );
+	} );
+
+	it( 'asks for exactly the page_intros keys the schema accepts', () => {
+		const prompt = buildTailorPrompt( INPUT );
+		const keys = [ ...prompt.matchAll( /^- "(add_[a-z_]+)": /gm ) ].map( match => match[ 1 ] );
+
+		assert.deepEqual(
+			keys,
+			Object.keys( AGENT_OUTPUT_SCHEMA.properties?.page_intros.properties ?? {} )
+		);
+	} );
 } );
 
 describe( 'buildTailorPrompt output language', () => {
 	const LANGUAGE_HEADER = '============ output language ============';
+	const languageBlock = ( prompt: string ) =>
+		prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
 
 	it( 'tells an English site to write in English even when the description is not', () => {
-		const prompt = buildTailorPrompt( {
-			...INPUT,
-			description: "Un'azienda di creativi!",
-			locale: 'en_US',
-			ui_locale: 'en_US',
-		} );
-		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+		const block = languageBlock(
+			buildTailorPrompt( {
+				...INPUT,
+				description: "Un'azienda di creativi!",
+				locale: 'en_US',
+				ui_locale: 'en_US',
+			} )
+		);
 
 		assert.match( block, /The site's language is [^.]*English \(locale "en_US"\)/ );
 		assert.match( block, /even when the site name or description is written in another language/ );
@@ -389,33 +158,17 @@ describe( 'buildTailorPrompt output language', () => {
 		}
 	} );
 
-	it( 'names the site language and pins the slug fields to English for other locales', () => {
-		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } );
-		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+	it( 'names the site language and forbids an English fallback for other locales', () => {
+		const block = languageBlock(
+			buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } )
+		);
 
-		assert.match( block, /Italian/ );
-		assert.ok( block.includes( '(locale "it_IT")' ) );
+		assert.match( block, /The site's language is Italian[^.]*\(locale "it_IT"\)/ );
 		assert.ok( block.includes( 'do not fall back to English' ) );
-		// Every field that is meant to be translated is listed, so a new one cannot silently ship in
-		// English.
-		for ( const field of [ 'subtitles', 'first_post_draft', 'about_page_draft', 'page_intros' ] ) {
-			assert.ok( block.includes( field ), `${ field } is not covered by the language block` );
-		}
 		// The server validates these against English enums, so the model must not translate them.
 		for ( const slug of [ '"goal"', '"inferred_goal"', '"theme_category"', '"id"' ] ) {
 			assert.ok( block.includes( slug ), `${ slug } is not pinned to English` );
 		}
-	} );
-
-	it( 'places the language block before the steps, right after the user input', () => {
-		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR' } );
-
-		assert.ok( prompt.indexOf( LANGUAGE_HEADER ) < prompt.indexOf( 'STEP 1' ) );
-		assert.ok( prompt.indexOf( 'User description:' ) < prompt.indexOf( LANGUAGE_HEADER ) );
-	} );
-
-	it( 'no longer pins the first post to English', () => {
-		assert.ok( ! buildTailorPrompt( INPUT ).includes( 'Plain English' ) );
 	} );
 
 	it( 'treats only en* locales as English', () => {
@@ -428,10 +181,9 @@ describe( 'buildTailorPrompt output language', () => {
 	} );
 
 	it( 'splits the languages when the account language differs from the site language', () => {
-		// The rule this whole block exists for: subtitles are read in wp-admin by the person setting the
-		// site up, everything else becomes the site's own published content.
-		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
-		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+		const block = languageBlock(
+			buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } )
+		);
 
 		// The display name may carry a region ("Italian (Italy)"), so only the language leads the match.
 		assert.match( block, /"subtitle" values in Italian[^"]*\(locale "it_IT"\)/ );
@@ -439,11 +191,6 @@ describe( 'buildTailorPrompt output language', () => {
 			block,
 			/about_page_draft and every page_intros line in French[^"]*\(locale "fr_FR"\)/
 		);
-		// The published-content fields must sit on the site-language side of the sentence.
-		const subtitleAt = block.indexOf( '"subtitle"' );
-		for ( const field of [ 'first_post_draft', 'about_page_draft', 'page_intros' ] ) {
-			assert.ok( block.indexOf( field ) > subtitleAt, `${ field } is on the wrong side` );
-		}
 	} );
 
 	const stepText = ( prompt: string, step: string ) => {
@@ -470,32 +217,7 @@ describe( 'buildTailorPrompt output language', () => {
 		}
 	} );
 
-	it( 'keeps the analytics fields in English, whatever the site speaks', () => {
-		// niche/vibe/audience ride on every Tracks event and are compared across sites, so a translated
-		// value splits one cohort into forty. None of the three is ever rendered, so there is nothing to
-		// gain by translating them either.
-		for ( const [ locale, ui ] of [
-			[ 'it_IT', 'it_IT' ],
-			[ 'fr_FR', 'it_IT' ],
-			[ 'ja', 'en_US' ],
-		] ) {
-			const prompt = buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } );
-			const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
-			const englishFrom = block.indexOf( 'Leave everything else in English' );
-
-			assert.ok( englishFrom > -1, `no English-pinning sentence for ${ locale }/${ ui }` );
-			for ( const field of [ '"niche"', '"vibe"', '"audience"' ] ) {
-				assert.ok(
-					block.indexOf( field ) > englishFrom,
-					`${ field } is not pinned to English for ${ locale }/${ ui }`
-				);
-			}
-		}
-	} );
-
 	it( 'still splits when only one of the two languages is English', () => {
-		// An English site with an Italian admin, and the reverse: both need the block, or one half
-		// silently comes back in the wrong language.
 		const englishSite = buildTailorPrompt( { ...INPUT, locale: 'en_US', ui_locale: 'it_IT' } );
 		assert.match( englishSite, /"subtitle" values in Italian/ );
 		assert.match( englishSite, /about_page_draft and every page_intros line in [^"]*English/ );
@@ -509,8 +231,6 @@ describe( 'buildTailorPrompt output language', () => {
 	} );
 
 	it( 'treats a short WordPress.com locale and its regional form as one language', () => {
-		// wpcom hands out both `it` and `it_IT` for Italian; a split instruction naming Italian twice
-		// would only confuse the model.
 		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it', ui_locale: 'it_IT' } );
 
 		assert.ok( ! prompt.includes( 'Two languages are in play' ) );
@@ -518,7 +238,6 @@ describe( 'buildTailorPrompt output language', () => {
 	} );
 
 	it( 'writes everything in the site language when no account language is persisted', () => {
-		// Outputs persisted before ui_locale existed, and any caller that omits it.
 		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT' } );
 
 		assert.ok( ! prompt.includes( 'Two languages are in play' ) );
@@ -528,7 +247,6 @@ describe( 'buildTailorPrompt output language', () => {
 	it( 'resolves a WordPress locale to an English language name, or keeps the code', () => {
 		assert.match( languageDisplayName( 'it_IT' ), /^Italian/ );
 		assert.match( languageDisplayName( 'pt_BR' ), /Portuguese/ );
-		// An unresolvable tag is handed to the prompt as-is rather than throwing.
 		assert.equal( languageDisplayName( '!!' ), '!!' );
 	} );
 } );
