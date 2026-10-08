@@ -1,0 +1,11 @@
+{
+	"name": "woocommerce-analytics/total-sales-over-time",
+	"title": "Total sales over time",
+	"description": "Track total sales including all orders and transactions.",
+	"help": {
+		"content": "Track total sales including all orders and transactions."
+	},
+	"category": "store",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

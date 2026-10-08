@@ -1,12 +1,6 @@
 import { safeParseFloat } from '../../utils/parsing';
 import { decodeHtmlText } from '../../utils/text';
-import {
-	coerceStatsArray,
-	coerceStatsRecord,
-	createStatsListDataPoint,
-	mapStatsReportDataPoints,
-	normalizeStatsReportSummary,
-} from './utils';
+import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -27,8 +21,6 @@ export type StatsTagsRawResponse = {
 	date?: string;
 	period?: string;
 	tags?: StatsTagsRawItem[];
-	days?: Record< string, { tags?: StatsTagsRawItem[]; [ key: string ]: unknown } >;
-	summary?: { tags?: StatsTagsRawItem[]; [ key: string ]: unknown };
 	[ key: string ]: unknown;
 };
 
@@ -96,18 +88,13 @@ export function sanitizeStatsTagsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsTagsItem > {
-	const data = mapStatsReportDataPoints( response, query, [ 'tags' ], normalizeStatsTagsItem );
-	const topLevelTags = coerceStatsArray< StatsRecord >( coerceStatsRecord( response ).tags ).map(
+	// `stats/tags` takes only `max`, so it never returns `days` or a `summary`.
+	const tags = coerceStatsArray< StatsRecord >( coerceStatsRecord( response ).tags ).map(
 		normalizeStatsTagsItem
 	);
-	const normalizedData = [ ...data ];
-
-	if ( ! normalizedData.length && topLevelTags.length ) {
-		normalizedData.push( createStatsListDataPoint( response, query, topLevelTags ) );
-	}
 
 	return {
-		summary: normalizeStatsReportSummary( response, query, [ 'tags' ] ),
-		data: normalizedData,
+		summary: {},
+		data: tags.length ? [ createStatsListDataPoint( response, query, tags ) ] : [],
 	};
 }

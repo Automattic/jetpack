@@ -125,7 +125,7 @@ final class Likes_Section {
 	}
 
 	/**
-	 * The way back. See `Post_Handler::activate_module()`.
+	 * The way back. See `Feature_Actions::activate()`.
 	 */
 	private static function render_activate_form(): void {
 		Post_Handler::render_action_form(

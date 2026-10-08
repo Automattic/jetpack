@@ -5,6 +5,9 @@ import { useAllProducts } from '../../../data/products/use-all-products';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 import { getProductModules } from './mappings';
+import { useMainFeatures } from './use-main-features';
+
+const NO_MODULES: Record< string, MyJetpackModule > = {};
 
 /**
  * Drop the forced-on override that a product's own standalone plugin causes.
@@ -43,25 +46,27 @@ export function withoutPluginForcedOverrides(
 /**
  * Custom hook to retrieve all Jetpack modules.
  *
- * @param state - Current Features state, used for offline plugin status.
  * @return  An object containing all Jetpack modules.
  */
-export function useAllJetpackModules( state: MainFeaturesState ): {
+export function useAllJetpackModules(): {
 	modules: Record< JetpackModuleSlug, MyJetpackModule >;
 	isLoading: boolean;
 } {
+	// The gate the callers use, so both agree on whether modules are coming.
+	const state = useMainFeatures();
+	const isJetpackActive = state.jetpack === 'active';
 	const { modules, isLoading } = useSelect(
 		select => {
-			if ( isOfflineFeatures() && state.jetpack !== 'active' ) {
-				return { modules: {}, isLoading: false };
+			if ( ! isJetpackActive ) {
+				return { modules: NO_MODULES, isLoading: false };
 			}
-			// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
+
 			return {
 				modules: select( modulesStore ).getJetpackModules(),
 				isLoading: select( modulesStore ).areModulesLoading(),
 			};
 		},
-		[ state.jetpack ]
+		[ isJetpackActive ]
 	);
 	const { data: products } = useAllProducts();
 	const localFeatures = isOfflineFeatures() ? state.features : null;

@@ -259,7 +259,7 @@ describe( 'ClicksWidget CSV export', () => {
 		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
 
 		const lines = await downloads.lines();
-		expect( lines[ 0 ] ).toBe( '"Clicked URL","Group","Clicks"' );
+		expect( lines[ 0 ] ).toBe( '"Link","Group","Clicks"' );
 		expect( lines ).toContain( '"https://jetpack.com/","jetpack.com","18"' );
 		expect( lines ).toHaveLength( 15 );
 		expect( downloads.files[ 0 ].filename ).toBe( 'clicks-2026-03-01_2026-03-10.csv' );

@@ -56,7 +56,7 @@ That is what makes the role read **at the painted element** rather than snapshot
 
 There is no stylesheet and no class involved. In particular the axes need neither: visx takes a separate style object per axis, so each one is handed its own roles and nothing has to distinguish them after the fact.
 
-What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`; the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's contrast math and `GeoChart` each consume as a concrete string; and, for the pie chart and the heatmap, `label` and `label-inverse` against the resolved fill, to pick which one contrasts more (or black or white, when neither reaches AA) before painting the label.
+What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`; the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's fill scale and contrast math (with `track`, the empty-cell color), and `GeoChart` each consume as a concrete string; and, for the pie chart and the heatmap, `label` and `label-inverse` against the resolved fill, to pick which one contrasts more (or black or white, when neither reaches AA) before painting the label.
 
 **The tooltip used to be the one painted exception, because visx painted it outside the scope.** `@visx/tooltip` appends each portal container straight to `document.body`, where the catalog is not declared, so a chain handed to one reached only its own hardcoded fallback — never the role, never a consumer's override. Charts no longer take that route: the box renders into the chart's own wrapper and the crosshairs and glyphs are drawn into the chart SVG, both inside the scope, so a chain handed to either resolves there natively.
 
@@ -147,6 +147,7 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-motion-duration-entrance` | `--wpds-motion-duration-xl` | `400ms` |
 | `--a8c-charts-motion-easing-entrance` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
+| `--a8c-charts-border-radius-bar-chart` | _(none — square bars by default)_ | `0` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
 | `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
@@ -155,6 +156,8 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
+
+`--a8c-charts-border-radius-bar` rounds the conversion funnel's bars. `--a8c-charts-border-radius-bar-chart` rounds the bars of the bar chart and bar list chart; set it to a radius such as `var(--wpds-border-radius-sm)` to opt in. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar. It resolves in CSS at the bar, so an override set anywhere inside the provider tree applies, the chart's own class included; see [Precedence](#precedence) for overrides above the provider.
 
 The elevation fallbacks hold the values their removed `--wpds-elevation-*` tokens used to resolve to, until a replacement exists.
 

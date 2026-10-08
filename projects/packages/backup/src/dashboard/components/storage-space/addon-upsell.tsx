@@ -101,7 +101,11 @@ function statusText(
  * @param currencyCode - The currency WordPress.com priced it in.
  * @return The label.
  */
-function offerLabel( sizeText: string, monthlyPrice: number, currencyCode: string ): ReactNode {
+export function offerLabel(
+	sizeText: string,
+	monthlyPrice: number,
+	currencyCode: string
+): ReactNode {
 	/* translators: %1$s: Storage unit, <Price>: Additional charge. */
 	const offer = __(
 		'Add %1$s additional storage for <Price />/month, billed monthly',

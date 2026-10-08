@@ -242,19 +242,18 @@ describe( 'NewsletterPage tab navigation', () => {
 	} );
 } );
 
-describe( 'NewsletterPage Stats tab gating', () => {
-	// Stats exposes real subscriber/email data over REST, so it must stay
-	// unreachable — not just hidden from nav — while the shared Overview flag
-	// that also gates it is off. Stats is a temporary standalone page that
-	// shares Overview's flag rather than getting its own.
-	it( 'hides the Stats tab when overviewEnabled is false', () => {
+describe( 'NewsletterPage without a Stats tab', () => {
+	// Stats now shows inside the Overview tab once onboarding is done.
+	beforeEach( () => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: false,
+			overviewEnabled: true,
 		} );
+	} );
 
+	it( 'does not render a Stats tab', () => {
 		render(
-			<NewsletterPage activeTab="subscribers">
+			<NewsletterPage activeTab="overview">
 				<div>panel body</div>
 			</NewsletterPage>
 		);
@@ -264,33 +263,7 @@ describe( 'NewsletterPage Stats tab gating', () => {
 		).toBeUndefined();
 	} );
 
-	it( 'shows the Stats tab and navigates to it when overviewEnabled is true', () => {
-		mockGetNewsletterScriptData.mockReturnValue( {
-			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-		} );
-
-		render(
-			<NewsletterPage activeTab="overview">
-				<div>panel body</div>
-			</NewsletterPage>
-		);
-
-		screen
-			.getAllByRole( 'tab' )
-			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'stats' )
-			?.click();
-
-		const navArg = mockNavigate.mock.calls[ 0 ][ 0 ] as { search: Record< string, unknown > };
-		expect( navArg.search.tab ).toBe( 'stats' );
-	} );
-
-	it( 'ignores a direct onValueChange("stats") call when overviewEnabled is false', () => {
-		mockGetNewsletterScriptData.mockReturnValue( {
-			subscriberManagementEnabled: true,
-			overviewEnabled: false,
-		} );
-
+	it( 'ignores a direct onValueChange("stats") call', () => {
 		render(
 			<NewsletterPage activeTab="overview">
 				<div>panel body</div>

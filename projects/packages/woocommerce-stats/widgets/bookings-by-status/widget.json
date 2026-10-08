@@ -1,0 +1,11 @@
+{
+	"name": "woocommerce-analytics/bookings-by-status",
+	"title": "Bookings by status",
+	"description": "Number of bookings by status over the selected time period.",
+	"help": {
+		"content": "Number of bookings by status over the selected time period."
+	},
+	"category": "bookings",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

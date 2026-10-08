@@ -72,8 +72,8 @@ const ORIGIN_WINDOW_PREFIX = 'ref_';
  * Store the linking page's window under the origin-window params, keeping only
  * what `expandOriginWindow()` cannot rebuild: a named range is its preset alone.
  *
- * An all-time window is dropped: the dashboard's range tabs and the reports
- * cannot name it, so the way back falls to the destination's default instead.
+ * An all-time window keeps its preset alone: the destination falls back to its
+ * default range, but the way back still names a window and keeps its comparison.
  *
  * @param search - The search params the detail page was linked with.
  * @return The origin-window params.
@@ -82,19 +82,19 @@ export function toReportOriginWindowParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
 	const linked = pickReportDateParams( search ) as NormalizeInput;
-	if ( linked.preset === PRESET_ALL_TIME ) {
-		return {};
-	}
+	const isAllTime = linked.preset === PRESET_ALL_TIME;
 
 	const origin: Record< string, unknown > =
-		isSelectablePreset( linked.preset ) || isYearPresetId( linked.preset )
+		isAllTime || isSelectablePreset( linked.preset ) || isYearPresetId( linked.preset )
 			? { preset: linked.preset }
 			: { from: linked.from, to: linked.to };
 
-	const rebuilt = normalizeReportParams( origin as NormalizeInput );
-	for ( const key of [ 'interval', 'date_type' ] as const ) {
-		if ( linked[ key ] !== undefined && linked[ key ] !== rebuilt[ key ] ) {
-			origin[ key ] = linked[ key ];
+	if ( ! isAllTime ) {
+		const rebuilt = normalizeReportParams( origin as NormalizeInput );
+		for ( const key of [ 'interval', 'date_type' ] as const ) {
+			if ( linked[ key ] !== undefined && linked[ key ] !== rebuilt[ key ] ) {
+				origin[ key ] = linked[ key ];
+			}
 		}
 	}
 

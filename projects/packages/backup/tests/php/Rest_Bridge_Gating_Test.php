@@ -28,7 +28,7 @@ use function wp_json_encode;
 
 /**
  * Tests that the modernization filter is the only thing standing between
- * the legacy plugin and the nine new bridge routes.
+ * the legacy plugin and the new bridge routes.
  *
  * The rest of the suite exercises each bridge with the filter forced on,
  * so nothing there would notice if the gate stopped working. These two
@@ -54,6 +54,8 @@ class Rest_Bridge_Gating_Test extends TestCase {
 		'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)/status',
 		'/jetpack/v4/rewind/to/(?P<rewind_id>[A-Za-z0-9.\-]+)',
 		'/jetpack/v4/rewind/restore/(?P<restore_id>\d+)/status',
+		'/jetpack/v4/site/backup/schedule',
+		'/jetpack/v4/site/backup/retention',
 	);
 
 	/**

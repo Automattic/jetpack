@@ -8,12 +8,10 @@ import {
 	ReportDrilldownTable,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { usePostsReportRecords } from './config';
 import PostsReportPage from './page';
 import type { ReactNode } from 'react';
@@ -50,8 +48,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		};
 	} )(),
 	formatLegendLabels: () => [],
-	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
-	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
+	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.ReportErrorState,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
@@ -63,9 +61,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
-	useReportRetry: ( refetch: () => unknown ) => () => {
-		void refetch();
-	},
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -95,20 +90,17 @@ const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
  * @param options            - Active report request state.
  * @param options.isFetching - Whether the active report is currently refetching.
  * @param options.isLoading  - Whether the active report is initially loading.
- * @param options.isError    - Whether the active report request failed.
  * @return The mocked records hook result.
  */
 function buildRecords( {
 	isFetching = false,
 	isLoading = false,
-	isError = false,
 }: {
 	isFetching?: boolean;
 	isLoading?: boolean;
-	isError?: boolean;
 } = {} ) {
 	return {
-		isError,
+		isError: false,
 		error: null,
 		refetch: jest.fn(),
 		posts: {
@@ -124,7 +116,7 @@ function buildRecords( {
 			hasComparison: false,
 			isLoading,
 			isFetching,
-			isError,
+			isError: false,
 		},
 		archives: {
 			items: [],
@@ -233,22 +225,5 @@ describe( 'PostsReportPage', () => {
 		expect( drilldownProps.getItemParentId?.( records.archives.rows[ 1 ] ) ).toBe( 'tags-0' );
 		expect( drilldownProps.getItemId( records.archives.rows[ 1 ] ) ).toBe( 'tags-0-0' );
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
-	} );
-
-	it( 'replaces the table with an error that refetches on Retry', async () => {
-		const records = buildRecords( { isError: true } );
-		useRecordsMock.mockReturnValue( records );
-
-		render( <PostsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load posts. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
-		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
-
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

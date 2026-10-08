@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.8.0';
+	const PACKAGE_VERSION = '6.9.0';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -817,6 +817,7 @@ class Initializer {
 		if (
 			self::is_my_jetpack_admin_request()
 			&& self::is_offline_features_enabled()
+			// Honor an explicit host veto without enabling offline entry.
 			&& self::should_initialize()
 			&& REST_Main_Features::permissions_callback()
 		) {

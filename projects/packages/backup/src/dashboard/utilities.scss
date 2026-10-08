@@ -39,3 +39,25 @@
 	clip-path: inset(50%);
 	white-space: nowrap;
 }
+
+// `Dialog` centres on the viewport and knows nothing about wp-admin's sidebar.
+// Pair with `--jpb-admin-menu-width` from `useAdminMenuWidth()`. Unlayered,
+// which is what beats `@layer wp-ui` — specificity would not.
+.jpb-menu-aware-dialog {
+	// Physical, because it overrides `Dialog`'s own `left` + `translate(-50%)`.
+	left: calc(50% + var(--jpb-admin-menu-width, 0px) / 2);
+
+	&:dir(rtl) {
+		left: calc(50% - var(--jpb-admin-menu-width, 0px) / 2);
+	}
+}
+
+// `Link` styles an anchor; rendered as a `<button>`, the native box shows.
+.jpb-link-button {
+	appearance: none;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+}

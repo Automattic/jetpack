@@ -27,7 +27,6 @@ if ( textarea && labels ) {
 			mountEditor( container, {
 				initialContent: textarea.value,
 				labels,
-				focus: false,
 				placeholder: '',
 				onChange: content => ( textarea.value = content ),
 				onError: fallBack,

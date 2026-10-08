@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Premium Analytics: Add likes, comments and an all-time traffic table to the author detail page, and count an author's views even when they rank below the top 20 authors.

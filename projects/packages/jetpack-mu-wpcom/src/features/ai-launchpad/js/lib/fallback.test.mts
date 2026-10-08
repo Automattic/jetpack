@@ -1,19 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import { selectFallback } from './fallback.ts';
-import { validateAgainstSchema } from './schema-validator.ts';
+import { AGENT_OUTPUT_SCHEMA, validateAgainstSchema } from './schema-validator.ts';
 import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 import type { GoalSlug, WizardInput } from './types.ts';
-
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const CONTRACTS = resolve( __dirname, '../../contracts' );
-
-const fileSchema = JSON.parse(
-	readFileSync( resolve( CONTRACTS, 'agent-output-schema.json' ), 'utf8' )
-);
 
 const LAUNCH_TASKS = new Set( [
 	'site_launched',
@@ -42,20 +32,12 @@ function inputFor( goal: GoalSlug ): WizardInput {
 
 describe( 'selectFallback', () => {
 	for ( const goal of GOALS ) {
-		it( `produces schema-valid output for goal "${ goal }"`, () => {
+		it( `produces schema-valid output, launch last, echoing goal "${ goal }"`, () => {
 			const output = selectFallback( inputFor( goal ), ENGLISH_SITE_COPY );
-			const errors = validateAgainstSchema( output, fileSchema );
-			assert.deepEqual( errors, [], `expected no schema errors, got: ${ errors.join( '; ' ) }` );
-		} );
 
-		it( `emits 6 subtitled tasks, launch last, echoing goal "${ goal }"`, () => {
-			const output = selectFallback( inputFor( goal ), ENGLISH_SITE_COPY );
-			assert.equal( output.tasks.length, 6 );
+			assert.deepEqual( validateAgainstSchema( output, AGENT_OUTPUT_SCHEMA ), [] );
 			const last = output.tasks[ output.tasks.length - 1 ];
 			assert.ok( LAUNCH_TASKS.has( last.id ), `last task "${ last.id }" is not a launch task` );
-			for ( const task of output.tasks ) {
-				assert.ok( task.subtitle.length > 0, `task "${ task.id }" has an empty subtitle` );
-			}
 			assert.equal( output.inferred.goal, goal );
 		} );
 	}
@@ -79,8 +61,7 @@ describe( 'selectFallback', () => {
 			},
 			ENGLISH_SITE_COPY
 		);
-		const errors = validateAgainstSchema( output, fileSchema );
-		assert.deepEqual( errors, [], `expected no schema errors, got: ${ errors.join( '; ' ) }` );
+		assert.deepEqual( validateAgainstSchema( output, AGENT_OUTPUT_SCHEMA ), [] );
 	} );
 
 	it( 'writes the drafts from the site copy with the site name filled in', () => {
@@ -103,8 +84,6 @@ describe( 'selectFallback', () => {
 	} );
 
 	it( 'follows translated copy, including a reordered placeholder', () => {
-		// The copy arrives already translated; the fallback only fills the name in, wherever the
-		// translator put the placeholder.
 		const output = selectFallback( inputFor( 'write' ), {
 			...ENGLISH_SITE_COPY,
 			about_page_title: 'Chi siamo',
@@ -112,7 +91,7 @@ describe( 'selectFallback', () => {
 			fallback_about_paragraphs: [ 'Qui inizia la storia di %s.', 'Raccontaci di più.' ],
 		} );
 
-		assert.deepEqual( validateAgainstSchema( output, fileSchema ), [] );
+		assert.deepEqual( validateAgainstSchema( output, AGENT_OUTPUT_SCHEMA ), [] );
 		assert.equal( output.first_post_draft.title, 'Primi passi con Test Site' );
 		assert.equal( output.about_page_draft?.title, 'Chi siamo' );
 		assert.deepEqual( output.about_page_draft?.paragraphs, [

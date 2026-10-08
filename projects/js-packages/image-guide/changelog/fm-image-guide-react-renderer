@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Prepare the React Image Guide renderer with staggered bubble entrances and loading label fades. Correct popup link attributes so both links open in a new tab.

@@ -350,10 +350,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$request->set_body_params(
 			array(
 				'subscription_options' => array(
-					// The free tier description stores plain markdown source, so all
-					// HTML tags are stripped via `wp_kses( ..., array() )`. kses removes
-					// the tags themselves but keeps their text content, so the `<script>`
-					// wrapper is gone while the inner `alert(1)` text remains.
+					// The free tier description stores plain markdown source, so `wp_kses( ..., array() )` strips all tags.
 					'free_tier_description' => '<script>alert(1)</script>Just the **markdown** text',
 				),
 			)
@@ -364,7 +361,9 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 200, $result->get_status() );
 		$stored = get_option( 'subscription_options' );
 		$this->assertStringNotContainsString( '<script', $stored['free_tier_description'] );
-		$this->assertSame( 'alert(1)Just the **markdown** text', $stored['free_tier_description'] );
+		// Legacy wp_kses keeps `<script>` contents as text; the HTML API wp_kses drops them.
+		// @todo: Change this to `assertSame()` once the HTML API version is the only one we care about (WP 7.2+).
+		$this->assertStringEndsWith( 'Just the **markdown** text', $stored['free_tier_description'] );
 	}
 
 	/**

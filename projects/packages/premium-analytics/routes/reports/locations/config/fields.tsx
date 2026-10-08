@@ -3,6 +3,7 @@
  */
 import {
 	flagUrl,
+	getLocationColumnLabel,
 	MetricWithComparison,
 	type LocationRow,
 	type LocationsReportSection,
@@ -25,23 +26,6 @@ const VIEWS_DATA_FORMAT = {
 export interface LocationsCountryOption {
 	code: string;
 	label: string;
-}
-
-/**
- * Name the location column after the active tab's place type.
- *
- * @param section - The active Locations tab.
- * @return The column label.
- */
-function getLocationColumnLabel( section: LocationsReportSection ): string {
-	switch ( section ) {
-		case 'regions':
-			return __( 'Region', 'jetpack-premium-analytics-pkg' );
-		case 'cities':
-			return __( 'City', 'jetpack-premium-analytics-pkg' );
-		default:
-			return __( 'Country', 'jetpack-premium-analytics-pkg' );
-	}
 }
 
 /**
