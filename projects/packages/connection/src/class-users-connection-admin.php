@@ -234,12 +234,24 @@ class Users_Connection_Admin {
 			$views['all'] = str_replace( ' class="current" aria-current="page"', '', $views['all'] );
 		}
 
+		// Count inside the translated string, as core's own views do, so the word order and
+		// plural form are the translator's to choose.
+		$label = sprintf(
+			/* translators: %s: number of users with a linked WordPress.com account. */
+			_n(
+				'Connected to WordPress.com <span class="count">(%s)</span>',
+				'Connected to WordPress.com <span class="count">(%s)</span>',
+				$count,
+				'jetpack-connection'
+			),
+			esc_html( number_format_i18n( $count ) )
+		);
+
 		$views[ self::VIEW_CONNECTED ] = sprintf(
-			'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
+			'<a href="%1$s"%2$s>%3$s</a>',
 			esc_url( self::get_connected_view_url() ),
 			$is_current ? ' class="current" aria-current="page"' : '',
-			esc_html__( 'Connected', 'jetpack-connection' ),
-			esc_html( number_format_i18n( $count ) )
+			$label
 		);
 
 		return $views;

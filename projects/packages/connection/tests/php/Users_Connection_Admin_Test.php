@@ -449,8 +449,10 @@ class Users_Connection_Admin_Test extends TestCase {
 		$views = $this->views_counting( array( $first, $second ), array( 'all' => '<a href="users.php">All</a>' ) );
 
 		$this->assertArrayHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
-		$this->assertStringContainsString( 'Connected', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
-		$this->assertStringContainsString( '<span class="count">(2)</span>', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
+		$this->assertStringContainsString(
+			'Connected to WordPress.com <span class="count">(2)</span>',
+			$views[ Users_Connection_Admin::VIEW_CONNECTED ]
+		);
 		$this->assertStringContainsString( Users_Connection_Admin::VIEW_QUERY_ARG, $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
 	}
 

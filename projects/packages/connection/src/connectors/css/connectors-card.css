@@ -46,11 +46,6 @@
 	flex-wrap: wrap;
 }
 
-/* Two links plus the destructive action do not fit a narrow card on one row. */
-.jetpack-connector__footer {
-	flex-wrap: wrap;
-}
-
 .jetpack-connector__idc-option {
 	flex: 1 1 200px;
 	min-inline-size: 200px;
