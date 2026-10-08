@@ -562,7 +562,6 @@ abstract class WPCOM_Hosting_Feature_Page {
 	 *
 	 * `redirect_to` returns a buyer to activate or use what they just bought, and
 	 * `checkoutBackUrl` returns someone who backs out; without it checkout falls back to /plans.
-	 * Checkout's "Empty cart" reads only `checkoutBackUrlDomains`, so it gets the same URL.
 	 *
 	 * @param string $domain Site domain.
 	 * @return string
@@ -574,9 +573,8 @@ abstract class WPCOM_Hosting_Feature_Page {
 
 		return add_query_arg(
 			array(
-				'redirect_to'            => $return_url,
-				'checkoutBackUrl'        => $page_url,
-				'checkoutBackUrlDomains' => $page_url,
+				'redirect_to'     => $return_url,
+				'checkoutBackUrl' => $page_url,
 			),
 			'https://wordpress.com/checkout/' . rawurlencode( (string) $domain ) . '/business'
 		);

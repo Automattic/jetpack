@@ -34,7 +34,11 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 						variant="solid"
 						size="compact"
 						href={ state.upgradeUrl }
-						onClick={ () => recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps ) }
+						onClick={ () => {
+							recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps );
+							// Checkout treats any tab with an opener as its popup and won't navigate back.
+							window.opener = null;
+						} }
 					>
 						<LinkButton.Icon icon={ upsell } />
 						{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
