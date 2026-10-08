@@ -2,12 +2,12 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const {
 	defaultRequestToExternal,
+	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const { glob } = require( 'glob' );
 
-// Module-only packages, imported statically through the import map. Any the card imports must also be
-// in Jetpack_Connector::MODULE_DEPENDENCIES, or the import map won't contain it at runtime.
-// The plugin's default knows only a few module-only packages and throws on the rest (an upstream gap).
+// Module-only packages, loaded through the import map rather than as classic script globals.
+// defaultRequestToExternal() would map them to a `wp.*` global that core never defines.
 const AS_MODULE = new Set( [
 	'@wordpress/connectors',
 	'@wordpress/interactivity',
@@ -18,24 +18,31 @@ const AS_MODULE = new Set( [
 	'@wordpress/widget-primitives',
 ] );
 
+// Shared scripts the wrapper's requestMap externalizes but connectorsCardExternal() doesn't; bundling one loads a second copy.
+const UNMAPPED_SHARED_SCRIPTS = new Set( [
+	'@automattic/jetpack-script-data',
+	'@automattic/jetpack-shared-stores',
+] );
+
 /**
- * Externals for the Connectors card script module.
+ * External for a request from the Connectors card, with the classic script handle it needs.
  *
- * Module builds ignore `requestToExternal`, which the wrapper's `requestMap` feeds, so the shared mapping is repeated here.
+ * Mirrors the jetpack-connection entry of the wrapper's `requestMap`, which this entry can't use without DependencyExtractionPlugin.
  *
- * @see https://github.com/WordPress/gutenberg/blob/485f42ae8a1c58ceea18371a507fd4acfa86fbd8/packages/dependency-extraction-webpack-plugin/README.md#requesttoexternal
+ * @see projects/js-packages/webpack-config/src/webpack.js
  * @see https://github.com/WordPress/gutenberg/blob/485f42ae8a1c58ceea18371a507fd4acfa86fbd8/packages/dependency-extraction-webpack-plugin/lib/util.js#L86-L109
  *
  * @param {string} request - Module request.
- * @return {string|false} External with its type prefix, or false to bundle the request.
+ * @return {{external: string, handle?: string}|undefined} External with its type prefix, or undefined to bundle the request.
  */
-const connectorsCardRequestToExternalModule = request => {
+const connectorsCardExternal = request => {
+	// module-import: webpack picks `module` for a static import and `import` for an import() call.
 	if ( AS_MODULE.has( request ) ) {
-		return `module ${ request }`;
+		return { external: `module-import ${ request }` };
 	}
 	// Resolves to the shared jetpack-connection script, so js-packages/connection imports add nothing here.
 	if ( request === '@automattic/jetpack-connection' ) {
-		return 'var JetpackConnection';
+		return { external: 'var JetpackConnection', handle: 'jetpack-connection' };
 	}
 	// A subpath would be bundled instead, since only the package root maps to the shared script.
 	if ( request.startsWith( '@automattic/jetpack-connection/' ) ) {
@@ -43,14 +50,122 @@ const connectorsCardRequestToExternalModule = request => {
 			`Import ${ request } from '@automattic/jetpack-connection' instead, so it comes from the shared jetpack-connection script.`
 		);
 	}
-	// Classic scripts and React become globals, because the plugin's module default throws on them.
+	if ( UNMAPPED_SHARED_SCRIPTS.has( request ) ) {
+		throw new Error(
+			`Map ${ request } to its shared script in connectorsCardExternal() before the Connectors card imports it.`
+		);
+	}
 	// defaultRequestToExternal() returns undefined for packages meant to be bundled.
 	const global = defaultRequestToExternal( request );
 	if ( ! global ) {
-		return false;
+		return undefined;
 	}
-	return `var ${ Array.isArray( global ) ? global.join( '.' ) : global }`;
+	return {
+		external: `var ${ [].concat( global ).join( '.' ) }`,
+		handle: defaultRequestToHandle( request ) ?? request,
+	};
 };
+
+/**
+ * Externalizes the Connectors card's imports and writes its asset file, in place of DependencyExtractionPlugin.
+ *
+ * Core needs classic script handles and script module IDs apart, which the plugin's module mode lists together.
+ * Adapted from PolyfillModulePlugin in packages/wp-build-polyfills/webpack.config.js.
+ */
+class ConnectorsCardAssetPlugin {
+	/**
+	 * Apply the plugin.
+	 *
+	 * @param {import('webpack').Compiler} compiler - Webpack compiler.
+	 */
+	apply( compiler ) {
+		const { webpack } = compiler;
+		const name = 'ConnectorsCardAssetPlugin';
+
+		// 1. Keep each import out of the bundle; the external's type prefix (module-import or var) says how it loads.
+		new webpack.ExternalsPlugin( 'import', ( { request }, callback ) => {
+			let external;
+			try {
+				external = connectorsCardExternal( request )?.external;
+			} catch ( error ) {
+				return callback( error );
+			}
+			callback( null, external );
+		} ).apply( compiler );
+
+		// 2. Once the bundle is minified, write the asset file beside each entry's JS.
+		compiler.hooks.thisCompilation.tap( name, compilation => {
+			compilation.hooks.processAssets.tap(
+				{ name, stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ANALYSE },
+				() => {
+					for ( const [ , entrypoint ] of compilation.entrypoints ) {
+						const chunk = entrypoint.getEntrypointChunk();
+						const jsFile = Array.from( chunk.files ).find( file => /\.m?js$/i.test( file ) );
+						if ( ! jsFile ) {
+							continue;
+						}
+						compilation.emitAsset(
+							jsFile.replace( /\.m?js$/i, '.asset.php' ),
+							new webpack.sources.RawSource( this.assetFile( compilation, chunk, jsFile ) )
+						);
+					}
+				}
+			);
+		} );
+	}
+
+	/**
+	 * Build the asset file for an entry chunk from the external modules it uses.
+	 *
+	 * @param {import('webpack').Compilation} compilation - Webpack compilation.
+	 * @param {import('webpack').Chunk}       chunk       - Entry chunk.
+	 * @param {string}                        jsFile      - Emitted JS file of the chunk.
+	 * @return {string} PHP source of the asset file.
+	 */
+	assetFile( compilation, chunk, jsFile ) {
+		const { webpack } = compilation.compiler;
+		const handles = new Set();
+		const modules = new Map();
+
+		for ( const module of compilation.chunkGraph.getChunkModulesIterable( chunk ) ) {
+			if ( ! ( module instanceof webpack.ExternalModule ) ) {
+				continue;
+			}
+			const { userRequest: request, externalType, dependencyMeta } = module;
+			// module-import externals are script modules; var externals are classic scripts.
+			if ( externalType === 'module-import' ) {
+				const kind = dependencyMeta?.externalType === 'import' ? 'dynamic' : 'static';
+				// A static import wins when the card imports the same module both ways.
+				if ( kind === 'static' || ! modules.has( request ) ) {
+					modules.set( request, kind );
+				}
+				continue;
+			}
+			const handle = connectorsCardExternal( request )?.handle;
+			if ( handle ) {
+				handles.add( handle );
+			}
+		}
+
+		const php = value => `'${ String( value ).replace( /[\\']/g, '\\$&' ) }'`;
+		const dependencies = [ ...handles ].sort().map( php );
+		const moduleDependencies = [ ...modules ]
+			.sort( ( [ a ], [ b ] ) => a.localeCompare( b ) )
+			.map( ( [ id, kind ] ) => `array('id' => ${ php( id ) }, 'import' => ${ php( kind ) })` );
+		const version = webpack.util
+			.createHash( 'xxhash64' )
+			.update( compilation.getAsset( jsFile ).source.buffer() )
+			.digest( 'hex' )
+			.slice( 0, 16 );
+
+		// Read by Jetpack_Connector::get_module_asset().
+		return `<?php return array('dependencies' => array(${ dependencies.join(
+			', '
+		) }), 'module_dependencies' => array(${ moduleDependencies.join(
+			', '
+		) }), 'version' => ${ php( version ) }, 'type' => 'module');\n`;
+	}
+}
 
 const ssoEntries = {};
 // Add all js files in the src/sso directory.
@@ -178,12 +293,11 @@ module.exports = [
 		},
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: {
-					requestToExternalModule: connectorsCardRequestToExternalModule,
-				},
+				DependencyExtractionPlugin: false,
 				// It only handles lazy-loaded chunks, and this entry has none.
 				I18nLoaderPlugin: false,
 			} ),
+			new ConnectorsCardAssetPlugin(),
 		],
 	},
 ];

@@ -45,34 +45,30 @@ function readAsset( assetFile ) {
 }
 
 /**
- * Read the constants the PHP loads the card with.
+ * Read where the PHP loads the card from.
  *
  * @param {string} classFile - Path to class-jetpack-connector.php.
- * @return {{ moduleFile: string, moduleDependencyIds: string[] }} Module path without extension, and module IDs.
+ * @return {string} Module path without extension.
  */
-function readConnectorConstants( classFile ) {
-	const constants = readPhpJson(
-		'require $argv[1]; $c = Automattic\\Jetpack\\Connection\\Jetpack_Connector::class; echo json_encode( array( $c::MODULE_FILE, array_column( $c::MODULE_DEPENDENCIES, "id" ) ) );',
+function readModuleFile( classFile ) {
+	const moduleFile = readPhpJson(
+		'require $argv[1]; echo json_encode( Automattic\\Jetpack\\Connection\\Jetpack_Connector::MODULE_FILE );',
 		classFile
 	);
-	return {
-		moduleFile: path.resolve( path.dirname( classFile ), constants[ 0 ] ),
-		moduleDependencyIds: constants[ 1 ],
-	};
+	return path.resolve( path.dirname( classFile ), moduleFile );
 }
 
 /**
  * Check the card's build output.
  *
- * @param {object}   build                     - Build output to check.
- * @param {object}   build.asset               - Asset data.
- * @param {string[]} build.moduleDependencyIds - Module IDs the PHP declares.
- * @param {string[]} build.jsFiles             - JS files emitted for the entry.
- * @param {string}   build.bundle              - Contents of the emitted JS.
- * @param {number}   build.size                - Size of the emitted JS in bytes.
+ * @param {object}   build         - Build output to check.
+ * @param {object}   build.asset   - Asset data.
+ * @param {string[]} build.jsFiles - JS files emitted for the entry.
+ * @param {string}   build.bundle  - Contents of the emitted JS.
+ * @param {number}   build.size    - Size of the emitted JS in bytes.
  * @return {string[]} Problems found; empty when the build is valid.
  */
-function checkConnectorsCard( { asset, moduleDependencyIds, jsFiles, bundle, size } ) {
+function checkConnectorsCard( { asset, jsFiles, bundle, size } ) {
 	if ( ! asset || typeof asset !== 'object' || Array.isArray( asset ) ) {
 		return [
 			`The asset file returned ${ JSON.stringify( asset ) }, expected an associative array.`,
@@ -80,23 +76,20 @@ function checkConnectorsCard( { asset, moduleDependencyIds, jsFiles, bundle, siz
 	}
 
 	const errors = [];
-	const dependencies = Array.isArray( asset.dependencies ) ? asset.dependencies : [];
+	const moduleDependencies = Array.isArray( asset.module_dependencies )
+		? asset.module_dependencies
+		: [];
 
 	if ( asset.type !== 'module' ) {
 		errors.push( `Asset type is ${ JSON.stringify( asset.type ) }, expected "module".` );
 	}
 
-	if ( ! dependencies.includes( '@wordpress/connectors' ) ) {
-		errors.push( '@wordpress/connectors is not a static dependency.' );
-	}
-
-	for ( const dependency of dependencies ) {
-		const id = typeof dependency === 'string' ? dependency : dependency?.id;
-		if ( typeof id === 'string' && id.startsWith( '@' ) && ! moduleDependencyIds.includes( id ) ) {
-			errors.push(
-				`The bundle imports the script module ${ id }, which Jetpack_Connector::MODULE_DEPENDENCIES does not declare.`
-			);
-		}
+	if (
+		! moduleDependencies.some(
+			dependency => dependency?.id === '@wordpress/connectors' && dependency.import === 'static'
+		)
+	) {
+		errors.push( '@wordpress/connectors is not a static module dependency.' );
 	}
 
 	if ( jsFiles.length !== 1 ) {
@@ -123,7 +116,7 @@ function checkConnectorsCard( { asset, moduleDependencyIds, jsFiles, bundle, siz
  * @return {string[]} Problems found; empty when the build is valid.
  */
 function validateConnectorsCard( classFile = CONNECTOR_CLASS_FILE ) {
-	const { moduleFile, moduleDependencyIds } = readConnectorConstants( classFile );
+	const moduleFile = readModuleFile( classFile );
 	const jsFile = `${ moduleFile }.js`;
 	const assetFile = `${ moduleFile }.asset.php`;
 
@@ -135,7 +128,6 @@ function validateConnectorsCard( classFile = CONNECTOR_CLASS_FILE ) {
 
 	return checkConnectorsCard( {
 		asset: readAsset( assetFile ),
-		moduleDependencyIds,
 		jsFiles: readdirSync( path.dirname( jsFile ) ).filter( file => /\.m?js$/.test( file ) ),
 		bundle: readFileSync( jsFile, 'utf8' ),
 		size: statSync( jsFile ).size,

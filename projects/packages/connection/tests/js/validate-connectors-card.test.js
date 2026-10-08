@@ -4,11 +4,11 @@ const { checkConnectorsCard, SIZE_LIMIT } = require( '../../bin/validate-connect
 
 const validBuild = {
 	asset: {
-		dependencies: [ '@wordpress/connectors', 'JetpackConnection' ],
+		dependencies: [ 'jetpack-connection' ],
+		module_dependencies: [ { id: '@wordpress/connectors', import: 'static' } ],
 		version: 'abc',
 		type: 'module',
 	},
-	moduleDependencyIds: [ '@wordpress/connectors' ],
 	jsFiles: [ 'connectors-card.js' ],
 	bundle: 'import*as e from"@wordpress/connectors";',
 	size: 1000,
@@ -23,20 +23,10 @@ describe( 'checkConnectorsCard', () => {
 			{
 				asset: {
 					...validBuild.asset,
-					dependencies: [ { id: '@wordpress/connectors', import: 'dynamic' } ],
+					module_dependencies: [ { id: '@wordpress/connectors', import: 'dynamic' } ],
 				},
 			},
-			/not a static dependency/,
-		],
-		[
-			'a module dependency the PHP does not declare',
-			{
-				asset: {
-					...validBuild.asset,
-					dependencies: [ '@wordpress/connectors', { id: '@wordpress/a11y', import: 'dynamic' } ],
-				},
-			},
-			/@wordpress\/a11y/,
+			/not a static module dependency/,
 		],
 		[ 'a split chunk', { jsFiles: [ 'connectors-card.js', '123.js' ] }, /one JS file/ ],
 		[ 'a bundled React', { bundle: 'react-stack-bottom-frame' }, /bundled React/ ],
