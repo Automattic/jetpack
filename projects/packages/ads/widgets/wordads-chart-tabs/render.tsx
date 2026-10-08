@@ -50,8 +50,6 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
-				// A window without rows reaches the chart as tabs with no points, which it answers in the plot while the tabs keep showing their zeros.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load WordAds data. Please try again in a moment.",
