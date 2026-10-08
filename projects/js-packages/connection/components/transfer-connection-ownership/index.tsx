@@ -101,6 +101,12 @@ const TransferConnectionOwnership = ( {
 		);
 	}
 
+	// Separate statements, not a ternary — see the note in candidate-list.tsx.
+	let dismissLabel: string = __( 'Close', 'jetpack-connection-js' );
+	if ( hasCandidates ) {
+		dismissLabel = __( 'Cancel', 'jetpack-connection-js' );
+	}
+
 	return (
 		<div className="jp-connection__transfer-ownership-form">
 			<OwnerCandidateList
@@ -114,9 +120,7 @@ const TransferConnectionOwnership = ( {
 				{ onDismiss && (
 					// Close is the only action left when nobody can take over, so it carries a border.
 					<Button variant={ hasCandidates ? 'minimal' : 'outline' } onClick={ onDismiss }>
-						{ hasCandidates
-							? __( 'Cancel', 'jetpack-connection-js' )
-							: __( 'Close', 'jetpack-connection-js' ) }
+						{ dismissLabel }
 					</Button>
 				) }
 				{ hasCandidates && (
