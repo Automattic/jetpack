@@ -14,40 +14,24 @@ import { LeaderboardChart, type LegendLabels } from '../chart-leaderboard/leader
 import { LeaderboardSkeleton } from '../chart-leaderboard/leaderboard-skeleton';
 import { WidgetBackLink } from '../widget-back-link';
 import { WidgetFooter } from '../widget-footer';
-import { WidgetState, type WidgetStateEmpty, type WidgetStateError } from '../widget-state';
+import {
+	WidgetState,
+	resolveWidgetStateError,
+	type WidgetStateEmpty,
+	type WidgetStateError,
+} from '../widget-state';
 import {
 	buildLeaderboardChartData,
 	type LeaderboardRowInput,
 } from './build-leaderboard-chart-data';
 import { resolveDrillDownTrail } from './drill-down-trail';
 import styles from './leaderboard.module.scss';
-import type { DataFormat } from '../../types';
+import type { DataFormat, WidgetStatus } from '../../types';
 
 /**
- * What the widget knows about its request, in the data layer's terms.
+ * The request status, as every widget kind takes it.
  */
-export type LeaderboardStatus = {
-	/**
-	 * Nothing on screen answers the current params.
-	 */
-	isLoading: boolean;
-	/**
-	 * Unchanged params being revalidated.
-	 */
-	isFetching?: boolean;
-	/**
-	 * The request failed.
-	 */
-	isError?: boolean;
-	/**
-	 * The comparison period is on and at least one row has a match there.
-	 */
-	hasComparison?: boolean;
-	/**
-	 * Re-runs the request; the default error state offers it as Retry.
-	 */
-	refetch?: () => unknown;
-};
+export type LeaderboardStatus = WidgetStatus;
 
 /**
  * The copy a drill-down needs. Rows with `children` become buttons that show them, under a
@@ -196,27 +180,7 @@ export function Leaderboard( {
 		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select ]
 	);
 
-	const errorState = useMemo< WidgetStateError | undefined >( () => {
-		// A widget's own error already says whether a retry can help: only the default offers one.
-		if ( error || ! refetch ) {
-			return error;
-		}
-
-		return {
-			description: __(
-				"We couldn't load this data. Please try again in a moment.",
-				'jetpack-premium-analytics-pkg'
-			),
-			actions: [
-				{
-					label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-					onClick: () => {
-						void refetch();
-					},
-				},
-			],
-		};
-	}, [ error, refetch ] );
+	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
 
 	// Labelled after the list it returns to: the parent row, or the top level.
 	const grandparent = trail.length > 1 ? trail[ trail.length - 2 ] : null;
