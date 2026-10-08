@@ -1,10 +1,10 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { useReducedMotion } from '@wordpress/compose';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, lineSolid } from '@wordpress/icons';
 import { Icon, LinkButton, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from '../styles.module.scss';
-import { useReducedMotion } from '../use-reduced-motion';
 import type { SetupModuleResult } from '../use-setup-modules';
 import type { MouseEvent } from 'react';
 
@@ -16,7 +16,7 @@ type FinishStepProps = {
 	// Where the two ways out lead.
 	dashboardUrl: string;
 	exitUrl: string;
-	// Records that setup is finished, then follows the link.
+	// Records that setup is finished.
 	onLeave: ( event: MouseEvent< HTMLElement > ) => void;
 };
 
@@ -64,15 +64,31 @@ function summarise( results: SetupModuleResult[] ) {
 }
 
 /**
+ * A number of features, with the word for them.
+ *
+ * Its own string so that each number in the tally agrees with its own noun: one
+ * `_n()` over the whole sentence can only decline on one of the two.
+ *
+ * @param count - How many features.
+ * @return The count and its noun.
+ */
+function featureCount( count: number ): string {
+	return sprintf(
+		/* translators: %d: a number of Jetpack features. */
+		_n( '%d feature', '%d features', count, 'jetpack-my-jetpack' ),
+		count
+	);
+}
+
+/**
  * What this run actually did, as a sentence.
  *
- * Only what changed. Five of the six ship on, so most runs send no request at
- * all, and the line used to say "6 of 6 switched on in this session" for a run
- * that touched nothing — and "4 of 6 switched on" for one whose only two
- * requests were switching things off.
+ * Only what changed: five of the six ship on, so most runs send no request at
+ * all. Each line names setup, because the rows show end state and a bare count
+ * reads as their total.
  *
  * @param results - What became of each module.
- * @return The line under the list.
+ * @return The line above the list.
  */
 function sessionTally( results: SetupModuleResult[] ): string {
 	const on = results.filter( result => result.changed && result.wanted && result.ok ).length;
@@ -84,25 +100,25 @@ function sessionTally( results: SetupModuleResult[] ): string {
 
 	if ( on && off ) {
 		return sprintf(
-			/* translators: 1: how many features were switched on. 2: how many were switched off. */
-			__( '%1$d switched on and %2$d switched off.', 'jetpack-my-jetpack' ),
-			on,
-			off
+			/* translators: 1: a number of features switched on, e.g. "2 features". 2: a number switched off, e.g. "1 feature". */
+			__( 'Setup switched on %1$s and switched off %2$s.', 'jetpack-my-jetpack' ),
+			featureCount( on ),
+			featureCount( off )
 		);
 	}
 
 	if ( on ) {
 		return sprintf(
-			/* translators: %d: how many features were switched on. */
-			_n( '%d switched on.', '%d switched on.', on, 'jetpack-my-jetpack' ),
-			on
+			/* translators: %s: a number of features switched on, e.g. "2 features". */
+			__( 'Setup switched on %s.', 'jetpack-my-jetpack' ),
+			featureCount( on )
 		);
 	}
 
 	return sprintf(
-		/* translators: %d: how many features were switched off. */
-		_n( '%d switched off.', '%d switched off.', off, 'jetpack-my-jetpack' ),
-		off
+		/* translators: %s: a number of features switched off, e.g. "2 features". */
+		__( 'Setup switched off %s.', 'jetpack-my-jetpack' ),
+		featureCount( off )
 	);
 }
 
@@ -156,14 +172,12 @@ export function FinishStep( {
 			 */ }
 			<div className={ styles[ 'finish-column' ] }>
 				{ /*
-				 * The mark springs in over three discs washing outward. The scales are
-				 * 12, 15 and 13, not the reference's 28, 34 and 30: at 28x a 64px badge
-				 * is a 1792px disc, which is not a bloom, it is the whole window turning
-				 * green.
+				 * The mark springs in over three discs washing outward, each sized in the
+				 * stylesheet as a share of the window's long side so the wash clears the
+				 * page edge at any size.
 				 *
-				 * Under reduced motion the discs are not rendered at all. That is a
-				 * different render rather than a shorter animation, which is why this
-				 * step is the one place in the wizard that has to ask in JavaScript.
+				 * Under reduced motion the discs are not rendered at all; see
+				 * `.finish-wash` in the stylesheet.
 				 */ }
 				<div className={ styles[ 'finish-badge' ] }>
 					{ ! reduced && (
@@ -206,6 +220,14 @@ export function FinishStep( {
 
 				{ rows.length > 0 && (
 					<div className={ styles[ 'finish-summary' ] }>
+						<Text
+							variant="body-md"
+							render={ <p /> }
+							className={ clsx( styles[ 'finish-note' ], styles.wave, styles[ 'wave-3' ] ) }
+						>
+							{ tally }
+						</Text>
+
 						{ /* Safari drops the list role off a `list-style: none` list, so the count goes unsaid. */ }
 						<ul
 							role="list"
@@ -231,35 +253,27 @@ export function FinishStep( {
 								</li>
 							) ) }
 						</ul>
-
-						<Text
-							variant="body-md"
-							render={ <p /> }
-							className={ clsx( styles[ 'finish-note' ], styles.wave, styles[ 'wave-3' ] ) }
-						>
-							{ tally }
-						</Text>
 					</div>
 				) }
 
 				<div className={ clsx( styles[ 'finish-actions' ], styles.wave, styles[ 'wave-4' ] ) }>
 					<LinkButton
 						variant="solid"
-						href={ dashboardUrl }
+						href={ exitUrl }
 						onClick={ onLeave }
 						className={ clsx( styles[ 'primary-green' ], styles[ 'finish-primary' ] ) }
 					>
-						{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+						{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
 					</LinkButton>
 
 					<LinkButton
 						variant="minimal"
 						tone="neutral"
-						href={ exitUrl }
+						href={ dashboardUrl }
 						onClick={ onLeave }
 						className={ styles[ 'finish-secondary' ] }
 					>
-						{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
+						{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 					</LinkButton>
 				</div>
 			</div>

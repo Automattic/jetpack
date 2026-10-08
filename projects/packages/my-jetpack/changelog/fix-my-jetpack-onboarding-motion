@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: stop the sheet blanking between steps and the panel artwork redrawing itself on each one.

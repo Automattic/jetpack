@@ -10,12 +10,8 @@ import type { MyJetpackModule } from '../../../types';
  * What the wizard offers, in order.
  *
  * Jetpack modules rather than My Jetpack's feature cards, which is not a detail:
- * the Protect card installs the standalone Protect plugin, while what Devin's list
- * means by Brute Force Protection is the `protect` module inside Jetpack. Two of
- * the others have no card at all. Going through modules keeps one control for all
- * six and never installs anything.
- *
- * A plain array, so swapping one out by site type stays a one-line change.
+ * the Protect card installs the standalone Protect plugin, and two of the six
+ * have no card at all. Modules keep one control for all six and install nothing.
  */
 export const SETUP_MODULES = [
 	'stats',
@@ -30,14 +26,8 @@ export type SetupModuleSlug = ( typeof SETUP_MODULES )[ number ];
 
 /*
  * The order the six are read in, by what the site is for. Every site is still
- * offered all six and every one still starts on: this changes what is at the
- * top of the list, not what is in it, which is the most the answer can honestly
- * buy until there is a decision to show different modules to different sites.
- *
- * The reasoning, in one line each: a publication lives on readers, so the
- * numbers and the mailing list lead. A store that is down is losing money, and
- * it takes payments, so uptime and the lock lead. A portfolio exists to be
- * contacted through. A brochure site exists to be found and to be up.
+ * offered all six and every one still starts on: the answer changes what is at
+ * the top of the list, not what is in it.
  */
 const SETUP_MODULE_ORDER: Record< string, readonly SetupModuleSlug[] > = {
 	blog: [ 'stats', 'subscriptions', 'contact-form', 'protect', 'activity-log', 'monitor' ],

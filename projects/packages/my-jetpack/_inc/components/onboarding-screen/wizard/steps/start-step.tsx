@@ -26,17 +26,10 @@ type StartStepProps = {
 /**
  * The start screen: what Jetpack does for the site, and the way in.
  *
- * "Get started" registers the site and then hands the browser to WordPress.com to
- * create or sign in to an account, because the features this wizard turns on need
- * an owner: Newsletter keeps its subscribers behind a user token, and Activity
- * Log's permission callback requires one outright. `redirectUri` brings them back
- * to the wizard, which resumes past this step from the connection itself.
- *
- * `skipPricingPage` is what makes that return actually happen. Without it
- * WordPress.com shows its plans page after the authorization, and that page does
- * not carry `redirect_after_auth`, so the user lands on My Jetpack and the wizard
- * is over. Every one of the six features this wizard offers is free, so there is
- * nothing to choose there anyway.
+ * "Get started" registers the site and hands the browser to WordPress.com for an
+ * account, which the features need an owner for. `skipPricingPage` is what makes
+ * the return happen: the plans page does not carry `redirect_after_auth`, so
+ * without it the user lands on My Jetpack and the wizard is over.
  *
  * @param props             - The component props.
  * @param props.titleId     - The id the panel region is labelled by.

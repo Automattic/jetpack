@@ -10,21 +10,26 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { border, chevronLeft, chevronRight, drafts, published, wordpress } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, LinkButton, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState, useMemo } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
 import { assignLocation } from './assign-location';
 import { ConnectedNotice } from './connected-notice';
+import { DataInArt } from './data-in';
+import { EverywhereArt } from './everywhere';
 import {
 	canContinue,
-	isLastStep,
 	featuresDescription,
 	openingStep,
 	siteTypeAnswer,
 	settleOnboarding,
 	TOTAL_STEPS,
 	wizardSteps,
+	type SettleOutcome,
+	type WizardState,
+	type WizardStep,
+	type WizardStepKind,
 } from './lib';
 import { PanelArt } from './panel-art';
 import { ChoiceStep } from './steps/choice-step';
@@ -35,7 +40,6 @@ import styles from './styles.module.scss';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
-import type { SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
 import type { MouseEvent } from 'react';
 
@@ -57,13 +61,9 @@ const SHELL_BACKGROUND = '#1e1e1e';
 const CONTENT_BACKGROUND = '#fcfcfc';
 
 /**
- * WordPress's own post-status icons: done = published (the ring with a tick),
- * current = drafts (the half-filled ring), upcoming = border (the dashed ring).
- * The glyph reports where the user is, not what the step is about.
- *
- * Read off the current step, never off the furthest one reached: a step the user
- * reached and then stepped back from is ahead of them again, so it is upcoming,
- * and a step never visited can never take the tick.
+ * WordPress's own post-status icons: done = published, current = drafts,
+ * upcoming = border. Read off the current step, never the furthest one reached,
+ * so a step stepped back from is ahead of the user again.
  *
  * @param index   - The step the row stands for.
  * @param current - The step the user is on.
@@ -77,6 +77,29 @@ function stepGlyph( index: number, current: number ) {
 	return index === current ? drafts : border;
 }
 
+/**
+ * The artwork that belongs beside a step.
+ *
+ * The panel takes the subject of the step it is next to: a site being run on the
+ * step that asks what the site is for, the plugins feeding the screen on the step
+ * that asks which to switch on, and the mark everywhere else.
+ *
+ * @param props      - The component props.
+ * @param props.kind - The kind of step the panel is beside.
+ * @return The artwork for that step.
+ */
+function PanelArtwork( { kind }: { kind: WizardStepKind } ) {
+	if ( kind === 'question' ) {
+		return <EverywhereArt />;
+	}
+
+	if ( kind === 'features' ) {
+		return <DataInArt />;
+	}
+
+	return <PanelArt animate />;
+}
+
 type WizardProps = {
 	// Where skipping the wizard lands. The admin menu is hidden here, so leaving is never
 	// more than one click.
@@ -87,8 +110,6 @@ type WizardProps = {
 
 /**
  * The onboarding wizard's shell: the step rail, the questions, and the brand panel.
- *
- * Stage 1 owns the frame and the step machine only — no connection, and placeholder steps.
  *
  * The rail is built from the components the Site Editor's own sidebar uses:
  * `NavigableRegion`, `ItemGroup`/`Item`, `Stack`, `Icon`, and `FlexBlock`, inside
@@ -198,20 +219,39 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	/*
 	 * Leaving is recorded before it happens, so the takeover does not interrupt this
-	 * person again. The navigation is in `finally`: a failed write only costs them
-	 * being offered setup once more, and holding them on a screen they asked to
-	 * leave would cost a great deal more.
+	 * person again. A failed write records nothing and My Jetpack sends a
+	 * disconnected user straight back in, so only that case leaves by wp-admin.
 	 */
 	const handleExit = useCallback(
 		( outcome: SettleOutcome ) => ( event: MouseEvent< HTMLElement > ) => {
+			/*
+			 * A modified click opens the link somewhere else and leaves this tab on
+			 * the wizard, so nothing is recorded and the run is kept. A middle click
+			 * and the context menu fire no `click` at all, so they arrive here never.
+			 */
+			if (
+				event.button !== 0 ||
+				event.metaKey ||
+				event.ctrlKey ||
+				event.shiftKey ||
+				event.altKey
+			) {
+				return;
+			}
+
 			event.preventDefault();
-			// The run is over either way, so it must not be waiting on the next visit.
+
+			const destination = event.currentTarget.getAttribute( 'href' ) || exitUrl;
+
+			// The run is over, so it must not be waiting on the next visit.
 			forgetRun();
-			settleOnboarding( outcome )
-				.catch( () => {} )
-				.finally( () => assignLocation( exitUrl ) );
+
+			settleOnboarding( outcome ).then(
+				() => assignLocation( destination ),
+				() => assignLocation( isUserConnected ? destination : dashboardUrl )
+			);
 		},
-		[ exitUrl, forgetRun ]
+		[ exitUrl, dashboardUrl, forgetRun, isUserConnected ]
 	);
 
 	const handleBack = useCallback(
@@ -279,12 +319,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const isFinish = meta.kind === 'finish';
 
 	/*
-	 * Continue is in the same place on every step, so the second half of a double
-	 * click landed on the NEXT step's Continue and the step between them was never
-	 * seen: double-clicking on the site question applied all six modules without
-	 * ever showing them. `detail` is the click count within the browser's own
-	 * double-click window, so this refuses exactly that second press and nothing
-	 * else — a deliberate second click comes back as 1, and Enter as 0.
+	 * Continue sits in the same place on every step, so the second half of a
+	 * double click landed on the NEXT step's and skipped the one between. `detail`
+	 * is the count inside the browser's own double-click window, so this refuses
+	 * that press alone: a deliberate second click is 1, and Enter is 0.
 	 */
 	const handleContinue = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
@@ -361,7 +399,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	return (
 		<ThemeProvider color={ { background: SHELL_BACKGROUND } }>
-			<div className={ clsx( styles.layout, isFinish && styles[ 'layout--finish' ] ) }>
+			<div
+				className={ clsx(
+					styles.layout,
+					isStart && styles[ 'layout--start' ],
+					isFinish && styles[ 'layout--finish' ]
+				) }
+			>
 				{ /*
 				 * The sidebar region, as the Site Editor builds it: a NavigableRegion
 				 * holding the screen's exit control, title, and navigation.
@@ -370,35 +414,22 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
 						<div className={ styles[ 'rail-head' ] }>
 							{ /*
-							 * Icon plus tooltip, as the Site Editor's own back control does it:
-							 * the aria-label is what a screen reader reads, and the popup is the
-							 * only thing a mouse user gets, since the mark alone says nothing.
-							 * Rendered AS the link rather than around it, or the trigger would
-							 * wrap one control in another.
+							 * The words are on the control rather than in a tooltip. The mark
+							 * alone says nothing, and a tooltip is the one affordance a touch
+							 * user never gets — on the screen that takes over their admin, the
+							 * way back has to be readable without hovering it.
 							 */ }
-							<Tooltip.Root>
-								<Tooltip.Trigger
-									render={
-										<LinkButton
-											variant="minimal"
-											tone="neutral"
-											size="compact"
-											href={ dashboardUrl }
-											aria-label={ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
-											className={ styles.exit }
-										>
-											<LinkButton.Icon icon={ wordpress } />
-										</LinkButton>
-									}
-								/>
-								{ /*
-								 * Beside the mark, not under it: the rail title sits directly
-								 * below and a popup on that side lands on top of the words.
-								 */ }
-								<Tooltip.Popup positioner={ <Tooltip.Positioner side="right" sideOffset={ 4 } /> }>
-									{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
-								</Tooltip.Popup>
-							</Tooltip.Root>
+							<LinkButton
+								variant="minimal"
+								tone="neutral"
+								size="compact"
+								href={ dashboardUrl }
+								onClick={ handleExit( 'skipped' ) }
+								className={ styles.exit }
+							>
+								<LinkButton.Icon icon={ wordpress } />
+								{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
+							</LinkButton>
 
 							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
 								{ wizardTitle }
@@ -409,7 +440,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 						</div>
 
 						{ /*
-						 * The <nav> itself is hidden below the panel breakpoint, so the collapsed
+						 * The <nav> itself is hidden below the rail breakpoint, so the collapsed
 						 * rail leaves no empty landmark behind, only its header.
 						 */ }
 						<nav
@@ -465,24 +496,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 									gap="md"
 									wrap="wrap"
 								>
-									{ /*
-									 * Gone on the last step, where the work is already done and Finish
-									 * is the way out. Skipping there would record this person as having
-									 * declined setup and never write the site-wide completion, so the
-									 * next admin would be offered it again on a configured site.
-									 */ }
-									{ isLastStep( step ) ? (
-										<span />
-									) : (
-										<LinkButton
-											variant="minimal"
-											tone="neutral"
-											href={ exitUrl }
-											onClick={ handleExit( 'skipped' ) }
-										>
-											{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-										</LinkButton>
-									) }
+									<LinkButton
+										variant="minimal"
+										tone="neutral"
+										href={ exitUrl }
+										onClick={ handleExit( 'skipped' ) }
+									>
+										{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+									</LinkButton>
 
 									{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
 									{ ! isStart && (
@@ -498,33 +519,17 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 													{ __( 'Back', 'jetpack-my-jetpack' ) }
 												</Button>
 											) }
-											{ isLastStep( step ) ? (
-												// Nothing else is saved yet, so finishing records that it
-												// happened and leaves.
-												<LinkButton
-													variant="solid"
-													className={ styles[ 'primary-green' ] }
-													href={ exitUrl }
-													onClick={ handleExit( 'completed' ) }
-												>
-													{ __( 'Finish', 'jetpack-my-jetpack' ) }
-												</LinkButton>
-											) : (
-												<Button
-													variant="solid"
-													className={ styles[ 'primary-green' ] }
-													onClick={ handleContinue }
-													disabled={ ! canContinue( step, state ) || isApplying }
-													loading={ isApplying }
-													loadingAnnouncement={ __(
-														'Setting up your site…',
-														'jetpack-my-jetpack'
-													) }
-												>
-													{ __( 'Continue', 'jetpack-my-jetpack' ) }
-													<Button.Icon icon={ chevronRight } />
-												</Button>
-											) }
+											<Button
+												variant="solid"
+												className={ styles[ 'primary-green' ] }
+												onClick={ handleContinue }
+												disabled={ ! canContinue( step, state ) || isApplying }
+												loading={ isApplying }
+												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
+											>
+												{ __( 'Continue', 'jetpack-my-jetpack' ) }
+												<Button.Icon icon={ chevronRight } />
+											</Button>
 										</Stack>
 									) }
 								</Stack>
@@ -575,13 +580,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								/>
 
 								{ /*
-								 * Drawn in on every step, and keyed so it draws again on each one:
-								 * the animation is CSS, so replaying it means a fresh element. The
-								 * prototype keeps this to its start screen because its other panels
-								 * carry a stage the art would compete with. Ours carry the art, so
-								 * there is nothing for it to compete with.
+								 * Deliberately NOT keyed by step. The mark is the same object on the
+								 * start and finish steps, and keying would remount it on every
+								 * Continue and replay its draw, saying something changed when
+								 * nothing had. The two compositions do still mount and unmount as
+								 * their own step comes and goes, so returning to a step replays it,
+								 * which is what returning to a step should look like.
 								 */ }
-								<PanelArt key={ `art-${ meta.id }` } animate />
+								<PanelArtwork kind={ meta.kind } />
 							</div>
 						</div>
 					</ThemeProvider>

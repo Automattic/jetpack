@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: drop a stale stylesheet block whose animation blocked the finish card's own.

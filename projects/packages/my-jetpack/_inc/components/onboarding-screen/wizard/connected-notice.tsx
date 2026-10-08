@@ -1,18 +1,15 @@
+import { useReducedMotion } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { Icon, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
-import { useReducedMotion } from './use-reduced-motion';
 
 /**
  * The arrival moment, on the step the user lands on after connecting.
  *
- * Connecting is the hardest thing in the flow and the likeliest to fail, and
- * the ones who get through it used to land back here with nothing to say it
- * worked. The mark blooms once, in the finish screen's own language at a
- * smaller scale, and the line stays rather than fading: a confirmation that
- * disappears on a timer is not a confirmation.
+ * The mark blooms once, in the finish screen's own language at a smaller scale.
+ * The line stays rather than fading: a confirmation on a timer is not one.
  *
  * @return The rendered notice.
  */
@@ -23,9 +20,8 @@ export function ConnectedNotice() {
 		<div className={ styles.connected } role="status">
 			<span className={ styles.connected__mark }>
 				{ /*
-				 * Not rendered at all under reduced motion, which is a different
-				 * render rather than a shorter animation; same call as the finish
-				 * screen's, and the same reason it has to ask in JavaScript.
+				 * Not rendered at all under reduced motion; see `.finish-wash` in
+				 * the stylesheet.
 				 */ }
 				{ ! reduced && (
 					<>
@@ -43,7 +39,7 @@ export function ConnectedNotice() {
 			</span>
 
 			<Text variant="body-md" render={ <p /> } className={ styles.connected__text }>
-				{ __( 'Connected to WordPress.com', 'jetpack-my-jetpack' ) }
+				{ __( 'Your site is connected', 'jetpack-my-jetpack' ) }
 			</Text>
 		</div>
 	);

@@ -38,13 +38,10 @@ const HORIZONTAL_STEP_BY_KEY: Record< string, number > = {
 /**
  * The field an option opens, and the only thing that mounts with it.
  *
- * Focus is moved here on mount rather than by `autoFocus`, and only when the row
- * was activated deliberately. Arrowing onto the row merely previews it, and
- * taking focus then is a trap: the arrow keys belong to the radio group, so once
- * they land in a text field there is no way back up the list.
- *
- * The ref sits on the wrapper and the input is found inside it, because the
- * control owns its own markup and forwarding is not part of its contract.
+ * Focus moves here on mount only when the row was activated deliberately:
+ * arrowing onto it merely previews it, and the arrow keys belong to the radio
+ * group, so a field that takes focus then is a trap. The ref sits on the
+ * wrapper because the control owns its own markup.
  *
  * @param props           - The component props.
  * @param props.value     - What has been typed so far.
@@ -183,7 +180,7 @@ export function ChoiceStep( {
 	const tabStop = chosen?.value ?? options[ 0 ]?.value;
 
 	return (
-		<Stack direction="column" gap="2xl">
+		<Stack direction="column" gap="2xl" className={ styles[ 'step-body' ] }>
 			<Stack direction="column" gap="sm">
 				<Text
 					variant="heading-2xl"
@@ -203,7 +200,7 @@ export function ChoiceStep( {
 			</Stack>
 
 			{ options.length > 0 && (
-				<div>
+				<div className={ styles[ 'step-answer' ] }>
 					<div
 						ref={ groupRef }
 						role="radiogroup"
@@ -234,9 +231,8 @@ export function ChoiceStep( {
 									<Icon icon={ option.icon } />
 								</span>
 								{ /*
-								 * The line under the label was written and translated and then
-								 * never rendered. It is what tells someone whose site is two of
-								 * these which one we mean.
+								 * The line under the label is what tells someone whose site is
+								 * two of these which one we mean.
 								 */ }
 								<span aria-hidden="true" className={ styles[ 'step-option__copy' ] }>
 									<Text
