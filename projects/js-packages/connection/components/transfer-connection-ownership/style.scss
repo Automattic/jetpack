@@ -17,30 +17,6 @@
 	text-align: start;
 }
 
-.jp-connection__transfer-ownership__list {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.jp-connection__transfer-ownership__option {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 12px 14px;
-	border: 1px solid var(--jp-gray-10, #dcdcde);
-	border-radius: 6px;
-	cursor: pointer;
-
-	&.is-selected {
-		border-color: var(--jp-black, #3858e9);
-		background-color: #f1f4fe;
-	}
-}
-
 .jp-connection__transfer-ownership__avatar {
 	display: flex;
 	align-items: center;
@@ -49,10 +25,17 @@
 	inline-size: 38px;
 	block-size: 38px;
 	border-radius: 50%;
-	background-color: var(--jp-black, #101517);
+	background-color: var(--jp-black, #000);
 	color: var(--jp-white, #fff);
 	font-size: 13px;
 	font-weight: 600;
+
+	// The badge colour says which side of the handover someone is on, so the one
+	// colour that is not already spoken for: red is an error, yellow a warning,
+	// green a success.
+	&.is-incoming {
+		background-color: var(--jp-pink, #c9356e);
+	}
 }
 
 .jp-connection__transfer-ownership__who {
