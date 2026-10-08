@@ -397,6 +397,7 @@ jest.mock( './hooks', () => ( {
 	useRememberAppliedPreset: jest.requireActual( './hooks/use-remember-applied-preset' )
 		.useRememberAppliedPreset,
 	useSectionDateFilter: jest.fn(),
+	useSectionLayoutMigrations: jest.fn(),
 } ) );
 
 beforeEach( () => {

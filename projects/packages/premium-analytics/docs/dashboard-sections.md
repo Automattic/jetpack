@@ -165,6 +165,8 @@ The same callback drops an instance whose type the widget type registry has not 
 
 The client stores customized layouts in the `dashboardSectionLayouts` preference, keyed by slug. `useDashboardSectionLayout()` renders the stored layout when there is one and the section's `default_layout` otherwise.
 
+A change to the defaults does not reach a stored layout on its own. When one should, such as a widget moving to another tab, `routes/dashboard/config/section-layout-migrations.ts` lists a migration for it: a one-off rewrite of the stored map, run by `useSectionLayoutMigrations()` once the sections have resolved and recorded by id in the `dashboardLayoutMigrations` preference, so a widget the reader removes afterwards stays removed.
+
 Reset deletes the stored entry rather than copying the default into it, so a section that was reset follows later changes to the default.
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
