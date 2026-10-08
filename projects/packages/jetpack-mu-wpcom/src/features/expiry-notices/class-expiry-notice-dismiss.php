@@ -98,16 +98,13 @@ class Expiry_Notice_Dismiss {
 	/**
 	 * Whether the banner for this state can be dismissed at all.
 	 *
-	 * Once the plan has expired, except on Atomic before the revert: there the site still has plugins and themes to lose.
+	 * Once the plan has expired, except on Atomic, where the revert ahead would break plugins and themes.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 */
 	public static function is_dismissible( array $expiry_state ): bool {
-		$state = $expiry_state['state'] ?? '';
-		if ( Expiry_Data::STATE_EXPIRED_GRACE === $state ) {
-			return ! Constants::is_true( 'IS_ATOMIC' );
-		}
-		return Expiry_Data::STATE_EXPIRED === $state;
+		$has_expired = in_array( $expiry_state['state'] ?? '', array( Expiry_Data::STATE_EXPIRED_GRACE, Expiry_Data::STATE_EXPIRED ), true );
+		return $has_expired && ! Constants::is_true( 'IS_ATOMIC' );
 	}
 
 	/**
