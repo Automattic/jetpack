@@ -1,2 +1,2 @@
 export * from './library';
-export { ICON_COLLECTION, resolveWidgetIcon } from './resolve';
+export { ICON_COLLECTION, lookupWidgetIcon, resolveWidgetIcon } from './resolve';

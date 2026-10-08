@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /** Which count and rate each row shows. Rows stay in newest-first order either way. */
@@ -23,7 +22,6 @@ export type EmailsAttributes = {
  * comparison period.
  */
 export default {
-	icon: envelope,
 	attributes: [
 		{
 			id: 'metric',

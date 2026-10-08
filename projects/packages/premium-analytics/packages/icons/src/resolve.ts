@@ -27,13 +27,13 @@ function toExportName( name: string ): string {
 }
 
 /**
- * Resolves a `jpa/<name>` reference to a renderable icon: the dashboard's own icons first, then
- * `@wordpress/icons` under the same kebab-case name. Anything else resolves to `null`.
+ * Looks a `jpa/<name>` reference up: the dashboard's own icons first, then `@wordpress/icons`
+ * under the same kebab-case name. Anything else is `null`.
  *
  * @param reference - The icon name a widget record carries.
- * @return The icon element, or `null` when the name resolves to nothing.
+ * @return The icon element, or `null` when the name matches nothing.
  */
-export async function resolveWidgetIcon( reference: string ): Promise< ReactElement | null > {
+export function lookupWidgetIcon( reference: string ): ReactElement | null {
 	const match = REFERENCE.exec( reference );
 	if ( ! match ) {
 		return null;
@@ -48,4 +48,14 @@ export async function resolveWidgetIcon( reference: string ): Promise< ReactElem
 	}
 
 	return null;
+}
+
+/**
+ * The lookup in the shape `registerIconResolver()` takes.
+ *
+ * @param reference - The icon name a widget record carries.
+ * @return The icon element, or `null` when the name matches nothing.
+ */
+export async function resolveWidgetIcon( reference: string ): Promise< ReactElement | null > {
+	return lookupWidgetIcon( reference );
 }

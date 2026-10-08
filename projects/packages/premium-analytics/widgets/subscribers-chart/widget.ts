@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __, _n } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -73,7 +72,6 @@ export type SubscribersChartAttributes = Partial< ReportParamsFieldAttributes > 
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: people,
 	attributes: [
 		reportParamsAttributeField< SubscribersChartAttributes >( {
 			grain: SUBSCRIBERS_GRAIN,

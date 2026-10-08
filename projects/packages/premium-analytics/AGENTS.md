@@ -336,7 +336,7 @@ Each new widget MUST ship as a self-contained folder with these files:
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
 ├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (attributes, example; icon only when widget.json names none)
+├── widget.ts                               # runtime-only definition (attributes, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -346,6 +346,9 @@ Notes:
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
   (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
   `widget.ts` no longer declares it.
+- `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves:
+  its own icons first, then `@wordpress/icons` under the kebab-case name (`jpa/chart-bar`).
+  A widget with nothing live keeps `widget.ts` for its attribute type and exports `{}`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -629,8 +632,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   real `WidgetDashboard` through the shared story helper instead.
 - Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
   `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
-  `widget.ts` default export carries only `icon`, `attributes`, and `example`. Stories read
-  those declarative fields from `widget.json` via `createStoryWidgetType()`.
+  `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
+  `widget.json` reference. Stories read the declarative fields from `widget.json` via
+  `createStoryWidgetType()`, which resolves the icon the way the host does.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
   and imported in `render.tsx`; render-only types may compose that imported shape with host
   fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
