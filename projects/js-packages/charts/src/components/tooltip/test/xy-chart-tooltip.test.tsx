@@ -42,7 +42,7 @@ const renderChart = ( scope?: HTMLElement, tooltipPlacement?: 'auto' | 'below-ax
 const openTooltip = async () => {
 	const user = userEvent.setup();
 
-	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+	screen.getByRole( 'application', { name: /line chart/i } ).focus();
 	await user.keyboard( '{ArrowRight}' );
 
 	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
@@ -99,7 +99,7 @@ describe( 'XYChartTooltip', () => {
 		const user = userEvent.setup();
 		renderChart( undefined, 'below-axis' );
 		await openTooltip();
-		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		const focus = jest.spyOn( screen.getByRole( 'application' ), 'focus' );
 		try {
 			await user.keyboard( keys );
 			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
@@ -115,7 +115,7 @@ describe( 'XYChartTooltip', () => {
 		const user = userEvent.setup();
 		renderChart();
 		await openTooltip();
-		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		const focus = jest.spyOn( screen.getByRole( 'application' ), 'focus' );
 		try {
 			await user.keyboard( keys );
 			expect( focus ).toHaveBeenCalledWith();
@@ -131,7 +131,7 @@ describe( 'XYChartTooltip', () => {
 	} );
 } );
 
-// Mirrors the charts' markup: the focusable grid wraps the element `chartRef` points at.
+// Mirrors the charts' markup: the focusable chart container wraps the element `chartRef` points at.
 const NavigationHarness = ( {
 	totalPoints,
 	trackBlur = false,
@@ -155,8 +155,9 @@ const NavigationHarness = ( {
 
 	return (
 		<>
+			{ /* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- mirrors the charts' container. */ }
 			<div
-				role="grid"
+				role="application"
 				aria-label="Harness"
 				tabIndex={ 0 }
 				onKeyDown={ onChartKeyDown }
@@ -179,7 +180,7 @@ describe( 'useKeyboardNavigation', () => {
 		const user = userEvent.setup();
 		const view = render( <NavigationHarness totalPoints={ 6 } /> );
 
-		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		screen.getByRole( 'application', { name: 'Harness' } ).focus();
 		for ( let i = 0; i < presses; i++ ) {
 			await user.keyboard( '{ArrowRight}' );
 		}
@@ -188,13 +189,13 @@ describe( 'useKeyboardNavigation', () => {
 		return { user, view };
 	};
 
-	it( 'moves the selection to the last point when the count shrinks while the grid has focus', async () => {
+	it( 'moves the selection to the last point when the count shrinks while the chart has focus', async () => {
 		const { view } = await navigate( 6 );
 
 		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
 	// In range rather than past the end: the effect reconciles on any count change, not only an overflow.
@@ -207,24 +208,24 @@ describe( 'useKeyboardNavigation', () => {
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
 	} );
 
-	it( 'returns focus to the grid on Escape when there are no points', async () => {
+	it( 'returns focus to the chart on Escape when there are no points', async () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 0 } /> );
 
 		screen.getByRole( 'button', { name: 'Inside' } ).focus();
 		await user.keyboard( '{Escape}' );
 
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
-	it( 'returns focus to the grid when the count drops to zero while focus is in the chart', async () => {
+	it( 'returns focus to the chart when the count drops to zero while focus is in the chart', async () => {
 		const { view } = await navigate( 2 );
 
 		screen.getByRole( 'button', { name: 'Inside' } ).focus();
 		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
 	it( 'hands a keyboard selection to the pointer and continues from where the pointer is', async () => {
@@ -234,7 +235,7 @@ describe( 'useKeyboardNavigation', () => {
 		await user.hover( screen.getByTestId( 'point-4' ) );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 
 		await user.keyboard( '{ArrowRight}' );
 
@@ -254,13 +255,13 @@ describe( 'useKeyboardNavigation', () => {
 	it( 'restarts from the first point once focus leaves after the pointer took over', async () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 6 } trackBlur /> );
-		const grid = screen.getByRole( 'grid', { name: 'Harness' } );
+		const chart = screen.getByRole( 'application', { name: 'Harness' } );
 
-		act( () => grid.focus() );
+		act( () => chart.focus() );
 		await user.keyboard( '{ArrowRight}{ArrowRight}' );
 		await user.hover( screen.getByTestId( 'point-4' ) );
 		act( () => screen.getByRole( 'button', { name: 'Outside' } ).focus() );
-		act( () => grid.focus() );
+		act( () => chart.focus() );
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '0' );
@@ -281,7 +282,7 @@ describe( 'useKeyboardNavigation', () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 6 } /> );
 
-		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		screen.getByRole( 'application', { name: 'Harness' } ).focus();
 		await user.hover( screen.getByTestId( 'point-4' ) );
 		await user.keyboard( '{ArrowRight}' );
 
@@ -301,7 +302,7 @@ describe( 'useKeyboardNavigation', () => {
 		const { onKeyDown, stop } = recordPageKeyDown();
 
 		try {
-			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			screen.getByRole( 'application', { name: 'Harness' } ).focus();
 			await user.keyboard( '{ArrowDown}{PageDown}[Space]' );
 
 			expect( onKeyDown ).toHaveBeenCalledTimes( 3 );
@@ -320,7 +321,7 @@ describe( 'useKeyboardNavigation', () => {
 		const { onKeyDown, stop } = recordPageKeyDown();
 
 		try {
-			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			screen.getByRole( 'application', { name: 'Harness' } ).focus();
 			await user.keyboard( '{Escape}' );
 
 			expect( onKeyDown.mock.calls[ 0 ][ 0 ].defaultPrevented ).toBe( false );
