@@ -74,7 +74,7 @@ describe( 'StorePerformanceRender', () => {
 		).toEqual( {
 			orders: [ '%s Order', '%s Orders' ],
 			bookings: [ '%s Booking', '%s Bookings' ],
-			visitors: [ '%s Visitor', '%s Visitors' ],
+			visitors: [ '%s Store Visitor', '%s Store Visitors' ],
 			customers: [ '%s Customer', '%s Customers' ],
 		} );
 	} );

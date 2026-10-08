@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Label store visitor counts as Store visitors in the Store performance widget, the location map, and CSV exports, so they aren't confused with Jetpack Stats visitors.

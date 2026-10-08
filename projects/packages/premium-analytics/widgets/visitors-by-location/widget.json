@@ -1,6 +1,6 @@
 {
 	"name": "jpa/visitors-by-location",
-	"title": "Visitors by location",
+	"title": "Store visitors by location",
 	"description": "See where your store visitors are located geographically.",
 	"help": {
 		"content": "See where your store visitors are located geographically."

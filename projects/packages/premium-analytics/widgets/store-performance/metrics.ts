@@ -68,16 +68,16 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	},
 	{
 		id: 'visitors',
-		label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+		label: __( 'Store visitors', 'jetpack-premium-analytics-pkg' ),
 		description: __(
-			'Track website visitor trends and monitor traffic patterns over time.',
+			'Store visitors recorded through WooCommerce sessions. Jetpack Stats measures visitors separately, so totals may differ.',
 			'jetpack-premium-analytics-pkg'
 		),
 		metricType: 'visitors',
 		metricKey: 'visitors',
 		countLabel: count =>
-			/* translators: %s: number of visitors. */
-			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
+			/* translators: %s: number of store visitors. */
+			_n( '%s Store Visitor', '%s Store Visitors', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'conversion-rate',
