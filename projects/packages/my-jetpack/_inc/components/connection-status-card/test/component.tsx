@@ -229,7 +229,8 @@ describe( 'ConnectionStatusCard', () => {
 	describe( 'When the user has not connected their WordPress.com account and there are no broken modules', () => {
 		describe( 'There are no products that require user connection', () => {
 			const setup = () => {
-				setConnectionStore( { isRegistered: true } );
+				asAdmin();
+				setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
 				return render(
 					<Providers>
 						<ConnectionStatusCard { ...testProps } />
