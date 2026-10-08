@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comments: Keep the rebuilt Jetpack Comments form off jetpack.wordpress.com, which serves the Verbum comment iframe to Atomic and self-hosted sites.

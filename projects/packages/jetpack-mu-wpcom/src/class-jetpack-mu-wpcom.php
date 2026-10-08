@@ -19,6 +19,9 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// jetpack.wordpress.com, which serves the comment form iframe to Atomic and self-hosted sites.
+	const JETPACK_SERVER_BLOG_ID = 522232;
+
 	// Gutenberg plugin releases known to break with React 19.
 	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
 
@@ -870,7 +873,8 @@ class Jetpack_Mu_Wpcom {
 
 	/**
 	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
-	 * carrying the rollout sticker.
+	 * carrying the rollout sticker. Never on jetpack.wordpress.com, so the
+	 * Verbum iframe it serves to Atomic and self-hosted sites stays as is.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -878,11 +882,15 @@ class Jetpack_Mu_Wpcom {
 	 * @return bool
 	 */
 	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+		$blog_id = (int) get_wpcom_blog_id();
+
+		if ( self::JETPACK_SERVER_BLOG_ID === $blog_id ) {
+			return false;
+		}
+
 		if ( $enabled ) {
 			return true;
 		}
-
-		$blog_id = (int) get_wpcom_blog_id();
 
 		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
 	}
