@@ -4,6 +4,21 @@ import { Card, Spinner, Stack, Text } from '@wordpress/ui';
 import { errorMessage, fetchUsage } from '../../data/api';
 import type { Usage } from '../../data/types';
 
+/**
+ * A reset date in the viewer's locale.
+ *
+ * @param value - An API date or datetime.
+ * @return The formatted date, or the raw value when it can't be parsed.
+ */
+function formatResetDate( value: string ): string {
+	// A date-only string would parse as UTC midnight and show the previous day west of UTC.
+	const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec( value );
+	const date = dateOnly
+		? new Date( Number( dateOnly[ 1 ] ), Number( dateOnly[ 2 ] ) - 1, Number( dateOnly[ 3 ] ) )
+		: new Date( value );
+	return isNaN( date.getTime() ) ? value : date.toLocaleDateString();
+}
+
 const UsageCard = () => {
 	const [ usage, setUsage ] = useState< Usage | null >( null );
 	const [ error, setError ] = useState< string | null >( null );
@@ -59,7 +74,7 @@ const UsageCard = () => {
 						{ sprintf(
 							/* translators: %s: date. */
 							__( 'Resets %s', 'jetpack-send-pkg' ),
-							new Date( usage.period_end ).toLocaleDateString()
+							formatResetDate( usage.period_end )
 						) }
 					</Text>
 				) }
