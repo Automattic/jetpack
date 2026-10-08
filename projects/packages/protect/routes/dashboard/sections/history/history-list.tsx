@@ -132,9 +132,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				label: __( 'Actions', 'jetpack-protect-pkg' ),
 				enableHiding: false,
 				enableSorting: false,
-				render: ( { item } ) => (
-					<ActionsCell item={ item } onOpen={ open } canAct={ item.status === 'ignored' } />
-				),
+				render: ( { item } ) => <ActionsCell item={ item } onOpen={ open } canAct={ false } />,
 			},
 		],
 		[ open, status ]

@@ -3,11 +3,10 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { chevronRight, moreVertical } from '@wordpress/icons';
-import { Button, IconButton, Menu, Stack } from '@wordpress/ui';
-import { getSoftwareActionLabels, getThreatLabel } from './labels';
+import { Button, Stack } from '@wordpress/ui';
+import { getThreatLabel } from './labels';
 import { useThreatParam } from './store';
-import { ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
+import { useThreatAction } from './threat-actions';
 import ThreatMedia from './threat-media';
 import type { ScanThreat } from './types';
 import type { ReactNode } from 'react';
@@ -59,82 +58,12 @@ export function ThreatCell( { item, onOpen }: RowProps ) {
 }
 
 /**
- * More actions for a threat: update, deactivate or look up the affected software, and ignore.
+ * The actions column: Auto-fix when a fix exists, then View; both open the details.
  *
  * @param props        - Component props.
  * @param props.item   - The threat.
  * @param props.onOpen - Opens the threat in the inspector.
- * @param props.canAct - Whether the site can ignore threats.
- * @return The menu.
- */
-function ThreatMenu( { item, onOpen, canAct }: ActionProps ) {
-	const actions = item.extension?.actions ?? {};
-	const isIgnored = item.status === 'ignored';
-	const onView = useCallback( () => onOpen( item ), [ item, onOpen ] );
-	const onToggleIgnore = useCallback(
-		() => ( isIgnored ? unignoreThreat( item ) : ignoreThreat( item ) ),
-		[ isIgnored, item ]
-	);
-	const labels = getSoftwareActionLabels( item );
-
-	return (
-		<Menu.Root>
-			<Menu.Trigger
-				render={
-					<IconButton
-						icon={ moreVertical }
-						label={ __( 'More actions', 'jetpack-protect-pkg' ) }
-						variant="minimal"
-						tone="neutral"
-						size="compact"
-					/>
-				}
-			/>
-			<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-				<Menu.Item onClick={ onView }>
-					<Menu.ItemLabel>{ __( 'View details', 'jetpack-protect-pkg' ) }</Menu.ItemLabel>
-				</Menu.Item>
-				{ actions.update && (
-					<Menu.LinkItem href={ actions.update }>
-						<Menu.ItemLabel>{ labels.update }</Menu.ItemLabel>
-					</Menu.LinkItem>
-				) }
-				{ actions.deactivate && (
-					<Menu.LinkItem href={ actions.deactivate }>
-						<Menu.ItemLabel>{ labels.deactivate }</Menu.ItemLabel>
-					</Menu.LinkItem>
-				) }
-				{ actions.details && (
-					<Menu.LinkItem href={ actions.details } openInNewTab>
-						<Menu.ItemLabel>
-							{ __( 'View on WordPress.org', 'jetpack-protect-pkg' ) }
-						</Menu.ItemLabel>
-					</Menu.LinkItem>
-				) }
-				{ canAct && (
-					<>
-						<Menu.Separator />
-						<Menu.Item onClick={ onToggleIgnore }>
-							<Menu.ItemLabel>
-								{ isIgnored
-									? __( 'Unignore threat', 'jetpack-protect-pkg' )
-									: __( 'Ignore threat', 'jetpack-protect-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					</>
-				) }
-			</Menu.Popup>
-		</Menu.Root>
-	);
-}
-
-/**
- * The actions column: Auto-fix when a fix exists, the menu, then a chevron to the details.
- *
- * @param props        - Component props.
- * @param props.item   - The threat.
- * @param props.onOpen - Opens the threat in the inspector.
- * @param props.canAct - Whether the site can fix and ignore threats.
+ * @param props.canAct - Whether the site can fix threats.
  * @return The cell.
  */
 export function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
@@ -148,15 +77,9 @@ export function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
 					{ __( 'Auto-fix', 'jetpack-protect-pkg' ) }
 				</Button>
 			) }
-			<ThreatMenu item={ item } onOpen={ onOpen } canAct={ canAct } />
-			<IconButton
-				icon={ chevronRight }
-				label={ __( 'View details', 'jetpack-protect-pkg' ) }
-				variant="minimal"
-				tone="neutral"
-				size="compact"
-				onClick={ onClick }
-			/>
+			<Button variant="outline" tone="neutral" size="compact" onClick={ onClick }>
+				{ __( 'View', 'jetpack-protect-pkg' ) }
+			</Button>
 		</Stack>
 	);
 }
@@ -175,7 +98,7 @@ type ThreatsListProps = {
  * @param props         - Component props.
  * @param props.threats - The active threats.
  * @param props.empty   - Shown when there are no active threats.
- * @param props.canAct  - Whether the site can fix and ignore threats.
+ * @param props.canAct  - Whether the site can fix threats.
  * @return The table.
  */
 export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
