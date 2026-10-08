@@ -76,6 +76,19 @@ export const WithMutedSegment: Story = {
 	},
 };
 
+// Booked 5 and Cancelled 5 before, Booked 10 now: the total holds at 10, so the center reads 0%
+// and the empty status keeps its row with its own −100%.
+export const WithAnEmptySegment: Story = {
+	args: {
+		segments: [
+			{ label: 'Booked', value: 10, previousValue: 5 },
+			{ label: 'Cancelled', value: 0, previousValue: 5, muted: true },
+		],
+		status: { ...READY, hasComparison: true },
+		format: { type: 'number', options: { useMultipliers: false, decimals: 0 } },
+	},
+};
+
 export const Loading: Story = {
 	args: { status: { isLoading: true } },
 };
