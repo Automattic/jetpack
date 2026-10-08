@@ -22,7 +22,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getReferrerFields, useReferrersReportRecords } from './config';
+import { getReferrerFields, useMarkAsSpamAction, useReferrersReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -68,7 +68,9 @@ const RECORDS_VIEW = {
 function ReferrersReport(): JSX.Element {
 	const reportParams = useReportParams();
 
-	const records = useReferrersReportRecords( reportParams );
+	const { action: markAsSpamAction, spammedDomains } = useMarkAsSpamAction();
+	const actions = useMemo( () => [ markAsSpamAction ], [ markAsSpamAction ] );
+	const records = useReferrersReportRecords( reportParams, spammedDomains );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
 
@@ -111,6 +113,7 @@ function ReferrersReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getReferrerRowId }
 						getItemParentId={ getReferrerParentId }
+						actions={ actions }
 						hideLevelMarkers
 						collapsible
 						defaultExpanded="none"
