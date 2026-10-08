@@ -18,11 +18,6 @@ class Comments {
 	const PACKAGE_VERSION = '0.4.0';
 
 	/**
-	 * Blog ID of jetpack.wordpress.com, which serves the Verbum comment iframe to Atomic and self-hosted sites.
-	 */
-	const JETPACK_SERVER_BLOG_ID = 522232;
-
-	/**
 	 * Whether Jetpack Comments should load.
 	 *
 	 * @since 0.1.0
@@ -30,8 +25,8 @@ class Comments {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// jetpack.wordpress.com must keep serving the Verbum iframe, so no filter can turn this on there.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && self::JETPACK_SERVER_BLOG_ID === get_current_blog_id() ) {
+		// Blog 522232 is jetpack.wordpress.com. It serves the Verbum iframe to Atomic and self-hosted sites, so no filter can turn this on there.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && 522232 === get_current_blog_id() ) {
 			return false;
 		}
 
