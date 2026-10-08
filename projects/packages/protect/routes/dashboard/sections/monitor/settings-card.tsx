@@ -16,25 +16,31 @@ import type { MonitorContext } from './types';
 export default function MonitorSettingsCard( { state, settings }: MonitorContext ) {
 	const available = Boolean( state?.available );
 	return (
-		<ProtectCard icon={ seen } title={ __( 'Monitor', 'jetpack' ) }>
+		<ProtectCard icon={ seen } title={ __( 'Monitor', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<SettingToggle
 						data={ settings }
 						name="monitor"
-						label={ __( 'Monitor your site for downtime', 'jetpack' ) }
+						label={ __( 'Monitor your site for downtime', 'jetpack-protect-pkg' ) }
 						help={
 							available
-								? __( 'Jetpack checks your site every five minutes.', 'jetpack' )
-								: __( 'Downtime monitoring isn’t available on this site.', 'jetpack' )
+								? __( 'Jetpack checks your site every five minutes.', 'jetpack-protect-pkg' )
+								: __( 'Downtime monitoring isn’t available on this site.', 'jetpack-protect-pkg' )
 						}
 						disabled={ ! available }
 					/>
 					<SettingToggle
 						data={ settings }
 						name="monitor_receive_notifications"
-						label={ __( 'Email me when my site goes down and comes back up', 'jetpack' ) }
-						help={ __( 'Emails go to your WordPress.com account’s address.', 'jetpack' ) }
+						label={ __(
+							'Email me when my site goes down and comes back up',
+							'jetpack-protect-pkg'
+						) }
+						help={ __(
+							'Emails go to your WordPress.com account’s address.',
+							'jetpack-protect-pkg'
+						) }
 						disabled={ ! available || ! settings.settings?.monitor }
 					/>
 				</Stack>

@@ -2,11 +2,18 @@
 /**
  * Protect dashboard: the Monitor section, for downtime monitoring.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-protect
  */
+
+namespace Automattic\Jetpack\Protect\Sections;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect\Dashboard;
+use Automattic\Jetpack\Protect\Dashboard_Section;
+use Jetpack_Options;
+use WP_Error;
+use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -17,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since $$next-version$$
  */
-class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Section {
+class Monitor implements Dashboard_Section {
 
 	/**
 	 * Days of uptime the section shows.
@@ -49,7 +56,7 @@ class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Sec
 	 */
 	public function get_state() {
 		return array_merge(
-			Jetpack_Protect_Dashboard::get_module_state( 'monitor' ),
+			Dashboard::get_module_state( 'monitor' ),
 			array( 'uptimeDays' => self::UPTIME_DAYS )
 		);
 	}
@@ -66,7 +73,7 @@ class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Sec
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_uptime' ),
-				'permission_callback' => array( 'Jetpack_Protect_Dashboard', 'can_manage' ),
+				'permission_callback' => array( Dashboard::class, 'can_manage' ),
 			)
 		);
 	}
@@ -79,7 +86,7 @@ class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Sec
 	public function get_uptime() {
 		// The endpoints check `manage_options` for the requesting user, so a blog token is refused.
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return new WP_Error( 'not_connected', __( 'Connect your WordPress.com account to see uptime.', 'jetpack' ), array( 'status' => 403 ) );
+			return new WP_Error( 'not_connected', __( 'Connect your WordPress.com account to see uptime.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
 		$cached = get_transient( self::UPTIME_TRANSIENT );
@@ -174,8 +181,6 @@ class Jetpack_Protect_Dashboard_Monitor implements Jetpack_Protect_Dashboard_Sec
 	 * @return WP_Error
 	 */
 	private function unavailable_error() {
-		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack' ), array( 'status' => 502 ) );
+		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 	}
 }
-
-Jetpack_Protect_Dashboard::register_section( new Jetpack_Protect_Dashboard_Monitor() );

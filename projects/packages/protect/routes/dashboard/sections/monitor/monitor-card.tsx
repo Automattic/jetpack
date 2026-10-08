@@ -22,7 +22,7 @@ function describeDay( day: UptimeDay ): string {
 	const date = gmdateI18n( getSettings().formats.date, `${ day.date }T00:00:00Z` );
 	if ( day.status === 'up' ) {
 		/* translators: %s is a date. */
-		return sprintf( __( '%s: 100%% uptime', 'jetpack' ), date );
+		return sprintf( __( '%s: 100%% uptime', 'jetpack-protect-pkg' ), date );
 	}
 	if ( day.status === 'down' ) {
 		return sprintf(
@@ -31,14 +31,14 @@ function describeDay( day: UptimeDay ): string {
 				'%1$s: down for %2$d minute',
 				'%1$s: down for %2$d minutes',
 				day.downtimeInMinutes,
-				'jetpack'
+				'jetpack-protect-pkg'
 			),
 			date,
 			day.downtimeInMinutes
 		);
 	}
 	/* translators: %s is a date. */
-	return sprintf( __( '%s: no data', 'jetpack' ), date );
+	return sprintf( __( '%s: no data', 'jetpack-protect-pkg' ), date );
 }
 
 /**
@@ -57,19 +57,19 @@ function getStatus(
 	failed: boolean
 ): CardStatus | undefined {
 	if ( ! available ) {
-		return { label: __( 'Unavailable', 'jetpack' ), intent: 'draft' };
+		return { label: __( 'Unavailable', 'jetpack-protect-pkg' ), intent: 'draft' };
 	}
 	if ( ! active ) {
-		return { label: __( 'Off', 'jetpack' ), intent: 'draft' };
+		return { label: __( 'Off', 'jetpack-protect-pkg' ), intent: 'draft' };
 	}
 	if ( uptime?.isUp === true ) {
-		return { label: __( 'Operational', 'jetpack' ), intent: 'stable' };
+		return { label: __( 'Operational', 'jetpack-protect-pkg' ), intent: 'stable' };
 	}
 	if ( uptime?.isUp === false ) {
-		return { label: __( 'Down', 'jetpack' ), intent: 'high' };
+		return { label: __( 'Down', 'jetpack-protect-pkg' ), intent: 'high' };
 	}
 	if ( uptime || failed ) {
-		return { label: __( 'Status unknown', 'jetpack' ), intent: 'none' };
+		return { label: __( 'Status unknown', 'jetpack-protect-pkg' ), intent: 'none' };
 	}
 	return undefined;
 }
@@ -110,24 +110,35 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 		days?.filter( day => day.status === status ).length ?? 0;
 	const summary = [
 		/* translators: %d is a number of days. */
-		sprintf( _n( '%d day up', '%d days up', count( 'up' ), 'jetpack' ), count( 'up' ) ),
-		/* translators: %d is a number of days. */
-		sprintf( _n( '%d day down', '%d days down', count( 'down' ), 'jetpack' ), count( 'down' ) ),
+		sprintf( _n( '%d day up', '%d days up', count( 'up' ), 'jetpack-protect-pkg' ), count( 'up' ) ),
 		sprintf(
 			/* translators: %d is a number of days. */
-			_n( '%d day with no data', '%d days with no data', count( 'monitor_inactive' ), 'jetpack' ),
+			_n( '%d day down', '%d days down', count( 'down' ), 'jetpack-protect-pkg' ),
+			count( 'down' )
+		),
+		sprintf(
+			/* translators: %d is a number of days. */
+			_n(
+				'%d day with no data',
+				'%d days with no data',
+				count( 'monitor_inactive' ),
+				'jetpack-protect-pkg'
+			),
 			count( 'monitor_inactive' )
 		),
 	].join( ', ' );
 
 	const body = available
-		? __( 'Turn on downtime monitoring to get an email the moment your site goes down.', 'jetpack' )
-		: __( 'Downtime monitoring isn’t available on this site.', 'jetpack' );
+		? __(
+				'Turn on downtime monitoring to get an email the moment your site goes down.',
+				'jetpack-protect-pkg'
+			)
+		: __( 'Downtime monitoring isn’t available on this site.', 'jetpack-protect-pkg' );
 
 	return (
 		<ProtectCard
 			icon={ seen }
-			title={ __( 'Monitor', 'jetpack' ) }
+			title={ __( 'Monitor', 'jetpack-protect-pkg' ) }
 			status={ getStatus( available, active, uptime, failed ) }
 		>
 			<CardRow>
@@ -137,13 +148,13 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 						<Text variant="body-md">
 							{ sprintf(
 								/* translators: %d is a number of days. */
-								__( 'Uptime, last %d days (UTC)', 'jetpack' ),
+								__( 'Uptime, last %d days (UTC)', 'jetpack-protect-pkg' ),
 								monitor?.uptimeDays ?? 0
 							) }
 						</Text>
 						{ failed && (
 							<Text variant="body-md">
-								{ __( 'Uptime history is unavailable right now.', 'jetpack' ) }
+								{ __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ) }
 							</Text>
 						) }
 						{ ! failed && ! days && <Skeleton className="jp-protect-uptime__skeleton" /> }
@@ -177,8 +188,8 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 				<CardRow>
 					<SettingsLink onOpen={ openSettings }>
 						{ active
-							? __( 'Configure Downtime Monitoring', 'jetpack' )
-							: __( 'Turn on in Settings', 'jetpack' ) }
+							? __( 'Configure Downtime Monitoring', 'jetpack-protect-pkg' )
+							: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
 					</SettingsLink>
 				</CardRow>
 			) }
