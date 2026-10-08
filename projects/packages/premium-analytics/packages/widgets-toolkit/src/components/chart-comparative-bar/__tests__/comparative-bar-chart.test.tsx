@@ -186,6 +186,20 @@ describe( 'ComparativeBarChart', () => {
 		setSettings( originalSettings );
 	} );
 
+	it( 'names the chart from chartTitle', () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				chartTitle="Traffic summary"
+			/>
+		);
+
+		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { ariaLabel: 'Traffic summary chart' } )
+		);
+	} );
+
 	it( 'passes no x tickFormat when no tick format is requested', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 

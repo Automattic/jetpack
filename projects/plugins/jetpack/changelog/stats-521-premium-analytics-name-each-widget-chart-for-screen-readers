@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Name each widget chart after its widget, so screen readers can tell the charts on a dashboard apart.

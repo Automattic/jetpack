@@ -40,6 +40,7 @@ second current-period series keeps its own dates.
 | `compactWhenShort` | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area              |
 | `maxWidth`         | `number`                      | No       | Maximum chart width                                           |
 | `className`        | `string`                      | No       | CSS class for the chart container                             |
+| `chartTitle`       | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "<title> chart" |
 | `chartId`          | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`        | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
 | `legendInteractive` | `boolean`                    | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false` |

@@ -22,7 +22,7 @@ const TOP_COUPON_SEGMENTS = 3;
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  */
-export function SalesByCouponWidget() {
+export function SalesByCouponWidget( { chartTitle }: { chartTitle?: string } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
@@ -64,6 +64,7 @@ export function SalesByCouponWidget() {
 					type: 'currency',
 					options: { useMultipliers: true },
 				} }
+				chartTitle={ chartTitle }
 			/>
 		</WidgetState>
 	);

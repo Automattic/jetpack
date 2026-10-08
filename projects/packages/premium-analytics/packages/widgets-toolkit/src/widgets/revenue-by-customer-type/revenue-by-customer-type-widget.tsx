@@ -22,6 +22,7 @@ type CustomerTypeRevenueWidgetProps = {
 	 * @see BOOKINGS_FILTER for booking products (booking, bookable-event, bookable-service)
 	 */
 	filter?: FilterCondition;
+	chartTitle: string;
 };
 
 /**
@@ -30,7 +31,7 @@ type CustomerTypeRevenueWidgetProps = {
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  */
-function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps ) {
+function CustomerTypeRevenueWidget( { filter, chartTitle }: CustomerTypeRevenueWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
@@ -74,6 +75,7 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 					type: 'currency',
 					options: { useMultipliers: true },
 				} }
+				chartTitle={ chartTitle }
 			/>
 		</WidgetState>
 	);
@@ -84,7 +86,11 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
  * No product type filtering applied.
  */
 export function RevenueByCustomerTypeWidget() {
-	return <CustomerTypeRevenueWidget />;
+	return (
+		<CustomerTypeRevenueWidget
+			chartTitle={ __( 'Revenue by customer type', 'jetpack-premium-analytics-pkg' ) }
+		/>
+	);
 }
 
 /**
@@ -92,5 +98,10 @@ export function RevenueByCustomerTypeWidget() {
  * Filters to: booking, bookable-event, and bookable-service product types.
  */
 export function BookingsRevenueByCustomerTypeWidget() {
-	return <CustomerTypeRevenueWidget filter={ BOOKINGS_FILTER } />;
+	return (
+		<CustomerTypeRevenueWidget
+			chartTitle={ __( 'Bookings revenue by customer type', 'jetpack-premium-analytics-pkg' ) }
+			filter={ BOOKINGS_FILTER }
+		/>
+	);
 }
