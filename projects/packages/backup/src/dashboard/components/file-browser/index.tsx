@@ -499,6 +499,7 @@ export default function FileBrowser( {
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
+					referenceId={ { kind: 'backup', value: rewindId } }
 					onRetry={ refetchRoots }
 					isRetrying={ rootsFetching }
 				/>

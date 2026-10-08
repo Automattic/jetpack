@@ -1,11 +1,8 @@
 /**
- * The browser side of the checkpoint: the popup, and what the site answers about an email.
+ * The browser side of the checkpoint: the popup, the passport, and what the site answers about an email.
  */
 
-import type { ConnectUrl } from '../../shared/types';
-
-export type CheckpointResult =
-	{ code: string; name: string; avatar: string } | { error: string } | { cancelled: true };
+import type { CheckpointResult, ConnectUrl, Passport } from './types';
 
 /**
  * Sign in through the popup.
@@ -164,6 +161,45 @@ export const emailHasAccount = async ( email: string ): Promise< boolean | null 
 		}
 
 		return ( ( await response.json() ) as { account?: boolean } ).account === true;
+	} catch {
+		return null;
+	}
+};
+
+/**
+ * Who the display cookie says is back, if anyone. The HTML is cached and shared,
+ * so this is the only place a returning commenter's identity can come from.
+ *
+ * @return The passport, or null.
+ */
+export const readPassport = (): Passport | null => {
+	const { displayCookie: name, blogId, defaultAvatar } = JetpackComments.identity;
+
+	if ( ! name ) {
+		return null;
+	}
+
+	const raw = document.cookie
+		.split( '; ' )
+		.find( row => row.startsWith( `${ name }=` ) )
+		?.slice( name.length + 1 );
+
+	if ( ! raw ) {
+		return null;
+	}
+
+	try {
+		const data = JSON.parse( decodeURIComponent( raw ) ) as Record< string, unknown >;
+
+		// A network shares one cookie domain, so another site's sign-in can land here.
+		if ( ! data || data.blog_id !== blogId || typeof data.name !== 'string' ) {
+			return null;
+		}
+
+		return {
+			name: data.name,
+			avatar: ( typeof data.avatar === 'string' && data.avatar ) || defaultAvatar,
+		};
 	} catch {
 		return null;
 	}
