@@ -22,22 +22,32 @@ With wp-build, add the `automattic` scope to `wpPlugin.externalNamespaces`. wp-b
 
 ## Field types
 
-The dashboard registers field types for widget attributes under `jpa/`, the namespace its widget type names use. A widget names one by `type` and carries data alone; the host renders the control.
+The dashboard registers field types for widget attributes under `jpa/`, the namespace its widget type names use. A name stands for a DataViews type plus the control that edits it, what `type` and `Edit` say on a DataViews field; the widget manifest keeps `type` and drops `Edit`, so the registered name is how a widget picks a control. The widget declares the rest of the field as data, `elements` included.
 
-| Name                 | Control                                                                                     | Base type |
-| -------------------- | ------------------------------------------------------------------------------------------- | --------- |
-| `jpa/select`         | A dropdown over `elements`.                                                                 | `text`    |
-| `jpa/toggle-group`   | The `elements` as segments of one row; icon segments when every option carries an `icon`.   | `text`    |
-| `jpa/array-checkbox` | One checkbox per element, writing the checked values as an array.                           | `array`   |
-| `jpa/line-or-bar`    | A line or bar segment pair. The options are the dashboard's, so the attribute carries none. | `text`    |
+| Name                 | Type    | Control                                                                                    |
+| -------------------- | ------- | ------------------------------------------------------------------------------------------ |
+| `jpa/select`         | `text`  | A dropdown over `elements`.                                                                |
+| `jpa/toggle-group`   | `text`  | The `elements` as segments of one row; icon segments when every element carries an `icon`. |
+| `jpa/array-checkbox` | `array` | One checkbox per element, writing the checked values as an array.                          |
 
-The chart type of a time series widget is one attribute, with the widget's own label:
+The chart type of a time series widget, as the dashboard's own widgets declare it:
 
 ```ts
-attributes: [
-	{ id: 'chartType', label: __( 'Chart type', 'my-plugin' ), type: 'jpa/line-or-bar', relevance: 'high' },
-],
+const CHART_TYPES = [
+	{ value: 'line', label: __( 'Line chart', 'my-plugin' ), icon: chartLine },
+	{ value: 'bar', label: __( 'Bar chart', 'my-plugin' ), icon: chartBar },
+];
+
+{
+	id: 'chartType',
+	label: __( 'Chart type', 'my-plugin' ),
+	type: 'jpa/toggle-group',
+	elements: CHART_TYPES,
+	relevance: 'high',
+}
 ```
+
+`icon` is a React element for now, so a widget brings its own: `chartBar` is in `@wordpress/icons`, `chartLine` is not. Declaring icons by name, resolved by the host, is an open issue for the dashboard as a whole, not one the SDK settles.
 
 ## What belongs in it
 

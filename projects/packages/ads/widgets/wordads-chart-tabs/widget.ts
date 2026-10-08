@@ -10,10 +10,11 @@ import {
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { megaphone } from '@wordpress/icons';
+import { chartBar, megaphone } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { chartLine } from './chart-line';
 import { DEFAULT_REPORT_PARAMS } from './default-report-params';
 import { WORDADS_GRAIN } from './grain';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
@@ -34,6 +35,11 @@ export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > 
  * chart above the WordAds page); the tab labels and order match it. The bucket
  * size follows the selected window, so the date field offers the window alone.
  */
+const CHART_TYPES = [
+	{ value: 'line', label: __( 'Line chart', 'jetpack-ads-pkg' ), icon: chartLine },
+	{ value: 'bar', label: __( 'Bar chart', 'jetpack-ads-pkg' ), icon: chartBar },
+];
+
 export default {
 	icon: megaphone,
 	attributes: [
@@ -44,7 +50,8 @@ export default {
 		{
 			id: 'chartType',
 			label: __( 'Chart type', 'jetpack-ads-pkg' ),
-			type: 'jpa/line-or-bar',
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPES,
 			relevance: 'high',
 		},
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
