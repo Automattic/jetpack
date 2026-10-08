@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Embeds: show a provider's content without its script, and the URL rather than a preview on the edit-comment screen.

@@ -1,3 +1,4 @@
+import { currentUserCan } from '@automattic/jetpack-script-data';
 import {
 	PeriodChangeSignalProvider,
 	queryClient,
@@ -18,6 +19,7 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
+	canSendFeedback,
 	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
@@ -55,6 +57,7 @@ import {
 	useDashboardSectionLayout,
 	useDashboardSections,
 	useOnboarding,
+	useRememberAppliedPreset,
 	useSectionDateFilter,
 	useSectionLayoutMigrations,
 } from './hooks';
@@ -107,12 +110,14 @@ function Dashboard(): JSX.Element {
 	const sectionsAwaitSync = sections.some( section =>
 		isSectionAwaitingSync( section, isSyncFinished )
 	);
+	// The sync routes take manage_options; anyone else would only collect 403s.
+	const canRunSync = currentUserCan( 'manage_options' );
 	const {
 		data: syncStatus,
 		error: syncError,
 		isComplete: isSyncComplete,
 		triggerSync,
-	} = useSyncStatus( { enabled: sectionsAwaitSync, autoStart: true } );
+	} = useSyncStatus( { enabled: sectionsAwaitSync && canRunSync, autoStart: true } );
 
 	const [ isRetryingSync, setIsRetryingSync ] = useState( false );
 	const retrySync = useCallback( async () => {
@@ -167,12 +172,15 @@ function Dashboard(): JSX.Element {
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
 	// A step without its anchor is left out, so the counter counts what is on the page.
-	const tourSteps = onboardingTourSteps( {
-		// Every tile is a section; the grid draws them in layout order.
-		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
-		dateControls: controlsAnchor,
-		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
-	} ).filter( step => step.anchor );
+	const tourSteps = onboardingTourSteps(
+		{
+			// Every tile is a section; the grid draws them in layout order.
+			firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+			dateControls: controlsAnchor,
+			optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+		},
+		{ withFeedback: canSendFeedback() }
+	).filter( step => step.anchor );
 
 	const defaultSection = resolveSectionId( undefined, sections );
 
@@ -235,17 +243,20 @@ function Dashboard(): JSX.Element {
 		},
 		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
 	);
+	const { onChange: rememberOnChange, onApply: rememberOnApply } = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
 			changeDateRange( ...args );
 			trackedOnChange( ...args );
+			rememberOnChange( ...args );
 		},
-		[ changeDateRange, trackedOnChange ]
+		[ changeDateRange, trackedOnChange, rememberOnChange ]
 	);
 	const onDateApply = useCallback( () => {
 		applyDateRange();
 		trackedOnApply();
-	}, [ applyDateRange, trackedOnApply ] );
+		rememberOnApply();
+	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -297,8 +308,8 @@ function Dashboard(): JSX.Element {
 				 */
 				<Stack direction="row" align="center" gap="sm">
 					{ /*
-					 * `startYear` is omitted: `getStoreInfo()` is still a stub, so nothing here
-					 * knows how far back data goes; the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT`.
+					 * `startYear` is omitted: nothing here knows how far back data goes, so the
+					 * surface falls back to `DEFAULT_YEAR_SURFACE_COUNT`.
 					 */ }
 					<DateYearFilter
 						value={ dateFilters.appliedPresetId }
@@ -401,6 +412,7 @@ function Dashboard(): JSX.Element {
 												     the banner asks about. */ }
 												<FeedbackBanner
 													enabled={
+														canSendFeedback() &&
 														! editMode &&
 														section.slug === defaultSection &&
 														onboarding.phase === 'closed'
@@ -409,6 +421,7 @@ function Dashboard(): JSX.Element {
 
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 													<SectionSyncNotice
+														canRunSync={ canRunSync }
 														percentage={ syncStatus?.percentage ?? 0 }
 														hasError={ !! syncError }
 														onRetry={ retrySync }

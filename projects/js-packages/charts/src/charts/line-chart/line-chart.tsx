@@ -232,6 +232,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -624,10 +625,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 						return (
+							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 							<div
 								ref={ chartRef }
-								role="grid"
-								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
+								role="application"
+								aria-label={ ariaLabel ?? __( 'Line chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
@@ -637,6 +639,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }

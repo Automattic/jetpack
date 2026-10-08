@@ -5,6 +5,7 @@
  */
 export {
 	ChartEmptyState,
+	Donut,
 	EarningsHistoryList,
 	ExporterCsvDownloadButton,
 	Leaderboard,
@@ -17,7 +18,6 @@ export {
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
-	chartTypeAttributeField,
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,

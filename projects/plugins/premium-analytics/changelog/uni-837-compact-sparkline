@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Let one-row summary charts, such as the default Store performance tile, show their tooltip by drawing them as sparklines without axes.

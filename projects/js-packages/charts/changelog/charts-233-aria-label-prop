@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Line, Area and Bar charts: Add an `ariaLabel` prop to name each chart for screen readers.

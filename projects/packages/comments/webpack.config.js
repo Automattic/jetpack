@@ -41,9 +41,12 @@ export default {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		// Off by default to keep i18n calls extractable; this package ships no strings of its own to extract.
+		concatenateModules: true,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: { 'framer-motion$': path.join( __dirname, 'tools/framer-motion.js' ) },
 	},
 	node: false,
 	module: {
@@ -97,8 +100,9 @@ export default {
 		...jetpackWebpackConfig.StandardPlugins( {
 			// Bundled, not core's wp-* scripts: the editor chunk pins its own versions.
 			DependencyExtractionPlugin: { requestToExternal: () => false },
-			// Its strings come from PHP; the editor chunk carries none of its own.
+			// The editor speaks core's strings, in the default domain, which PHP hands over translated.
 			I18nLoaderPlugin: false,
+			I18nCheckPlugin: { expectDomain: 'default' },
 		} ),
 		editorStubs,
 		new webpack.ProvidePlugin( {

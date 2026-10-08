@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Deprecate `AccessibleTooltip` in favor of `XYChartTooltip`, and `BaseTooltip`'s `data`, `component`, `renderContainer`, `top` and `left` props in favor of `TooltipBox`.
