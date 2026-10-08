@@ -161,4 +161,23 @@ describe( 'useSaveSetting', () => {
 			} );
 		}
 	);
+
+	it( 'sends a queued save without waiting on retries of a failed status read', async () => {
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method === 'PUT' ) {
+				return Promise.resolve( baseSettings );
+			}
+			return path?.endsWith( '/status' )
+				? Promise.reject( { message: 'Offline.' } )
+				: Promise.resolve( baseSettings );
+		} );
+		const { result } = renderSave();
+
+		act( () => {
+			result.current( 'likes_enabled', false );
+			result.current( 'button_style', 'icon' );
+		} );
+
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 2 ) );
+	} );
 } );

@@ -1,4 +1,4 @@
-import { useQuery, type QueryClient } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { fetchServices, fetchSettings, fetchStatus } from './api';
 import type { Settings, SharingLikesScriptData, Status } from '../types';
 
@@ -17,6 +17,20 @@ export const FEATURE_ACTION_KEY = [ 'sharing-likes', 'feature-action' ] as const
 
 // Matches every write by prefix, saves and feature actions alike.
 export const WRITES_KEY = [ 'sharing-likes' ] as const;
+
+/**
+ * The screen's query client.
+ *
+ * @return Query client.
+ */
+export function createQueryClient(): QueryClient {
+	return new QueryClient( {
+		defaultOptions: {
+			// Writes wait on their rereads, and a paused read only resumes once every queued write has finished.
+			queries: { refetchOnWindowFocus: false, retry: false, networkMode: 'always' },
+		},
+	} );
+}
 
 /**
  * Start the cache from the script data, so the first render waits on no request.

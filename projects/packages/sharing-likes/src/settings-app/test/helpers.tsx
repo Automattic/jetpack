@@ -1,9 +1,9 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
-import { queryKeys } from '../data/queries';
+import { createQueryClient, queryKeys } from '../data/queries';
 import type { PlacementChoice, Settings, SharingLikesScriptData, Status } from '../types';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
@@ -61,9 +61,7 @@ export function createTestQueryClient( {
 	status = baseStatus,
 	settings = baseSettings,
 }: { status?: Status; settings?: Settings } = {} ) {
-	const queryClient = new QueryClient( {
-		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-	} );
+	const queryClient = createQueryClient();
 	queryClient.setQueryData( queryKeys.status, status );
 	queryClient.setQueryData( queryKeys.settings, settings );
 	return queryClient;
