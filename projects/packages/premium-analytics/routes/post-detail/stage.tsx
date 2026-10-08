@@ -17,7 +17,7 @@ import {
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
-	DetailPageEmptyState,
+	PageEmptyState,
 	DetailPageLayout,
 	PageNotice,
 	DetailPageSection,
@@ -272,7 +272,7 @@ function PostDetail(): JSX.Element {
 								returnToTopKey={ attentionId }
 							>
 								{ showNotSent ? (
-									<DetailPageEmptyState
+									<PageEmptyState
 										title={ __(
 											'This post hasn’t been sent as a newsletter',
 											'jetpack-premium-analytics-pkg'

@@ -166,7 +166,6 @@ export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DETAIL_HEADER_GLYPH_SIZE,
-	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -179,6 +178,7 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
+export { PageEmptyState } from './page-empty-state';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	canSendFeedback,
