@@ -948,6 +948,7 @@ describe( 'PieChart tooltip position', () => {
 	test( 'moves the keyboard tooltip with the segment when the chart resizes', async () => {
 		const rects = mockRects();
 		const rectOf = rects.getMockImplementation();
+		let svgShift = 0;
 		// The plot is centered in the 400x300 container, so its offset follows its committed size.
 		rects.mockImplementation( function ( this: Element ) {
 			const rect = rectOf.call( this );
@@ -955,7 +956,11 @@ describe( 'PieChart tooltip position', () => {
 				return rect;
 			}
 			const size = Number( this.getAttribute( 'width' ) );
-			return { ...rect, left: 100 + ( 400 - size ) / 2, top: 50 + ( 300 - size ) / 2 };
+			return {
+				...rect,
+				left: 100 + ( 400 - size ) / 2 + svgShift,
+				top: 50 + ( 300 - size ) / 2 + svgShift,
+			};
 		} );
 		const user = userEvent.setup();
 		const data = [
@@ -974,9 +979,19 @@ describe( 'PieChart tooltip position', () => {
 			return screen.getByTestId( 'bounded-tooltip' ).style.transform;
 		};
 
+		const translation = ( transform: string ) => transform.match( /-?[\d.]+/g )?.map( Number );
+
 		const view = render( renderAtSize( 100 ) );
 		const expected = await selectFirstSegment();
 		view.unmount();
+
+		svgShift = 7;
+		const { unmount } = render( renderAtSize( 100 ) );
+		expect( translation( await selectFirstSegment() ) ).toEqual(
+			translation( expected )?.map( value => value + 7 )
+		);
+		unmount();
+		svgShift = 0;
 
 		const { rerender } = render( renderAtSize( 200 ) );
 		await expect( selectFirstSegment() ).resolves.not.toBe( expected );
