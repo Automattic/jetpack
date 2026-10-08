@@ -97,6 +97,15 @@ class Admin {
 	}
 
 	/**
+	 * Whether this admin request uses the modern dashboard.
+	 *
+	 * @return bool Whether modernization is enabled for this admin request.
+	 */
+	private static function is_modern_dashboard() {
+		return self::is_modernization_enabled() && is_admin();
+	}
+
+	/**
 	 * Whether the modern dashboard is enabled.
 	 *
 	 * @return bool Whether modernization is enabled.
@@ -119,15 +128,6 @@ class Admin {
 			'',
 			__( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' )
 		);
-	}
-
-	/**
-	 * Whether this admin request uses the modern dashboard.
-	 *
-	 * @return bool Whether modernization is enabled for this admin request.
-	 */
-	private static function is_modern_dashboard() {
-		return self::is_modernization_enabled() && is_admin();
 	}
 
 	/**
