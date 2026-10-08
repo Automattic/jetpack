@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
-use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -110,15 +109,19 @@ class Analytics_Dashboard {
 	const BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
-	 * requests, and the store currency on the script data.
+	 * Register the section flag and sync, the dashboard registrants, the reports proxy, and store currency.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
 	 *
+	 * Call it before plugins_loaded completes, for the sync opt-in ({@see Sync_Configuration::register()}).
+	 *
 	 * @return void
 	 */
 	public static function init() {
+		Store_Section_Policy::register_flag();
+		Sync_Configuration::register();
+
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
 
@@ -276,12 +279,12 @@ class Analytics_Dashboard {
 
 	/**
 	 * Whether the WooCommerce tab is available: WooCommerce is active, the reader may see store
-	 * reports, and a site that opted in on its own carries the dashboard's store flag.
+	 * reports, and a site that opted in on its own carries the store flag.
 	 *
 	 * @return bool
 	 */
 	public static function is_section_available() {
-		return self::is_store_section_enabled() && self::is_woocommerce_available() && self::current_user_can_view_store_reports();
+		return Store_Section_Policy::is_offered() && self::is_woocommerce_available() && self::current_user_can_view_store_reports();
 	}
 
 	/**
@@ -310,23 +313,6 @@ class Analytics_Dashboard {
 	public static function current_user_can_view_store_reports() {
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
 		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
-	}
-
-	/**
-	 * The dashboard's soft-launch policy: a site that opted in through the option needs the store
-	 * flag; the blog sticker and the enabled filter leave the option off and keep every section.
-	 *
-	 * @return bool
-	 */
-	private static function is_store_section_enabled() {
-		if ( ! get_option( Enablement_Setting::ENABLED_OPTION ) ) {
-			return true;
-		}
-
-		// An older dashboard package may have loaded dashboard-policy.php without the flag.
-		$is_flag_enabled = 'Automattic\\Jetpack\\PremiumAnalytics\\is_dashboard_store_section_enabled';
-
-		return function_exists( $is_flag_enabled ) && $is_flag_enabled();
 	}
 
 	/**

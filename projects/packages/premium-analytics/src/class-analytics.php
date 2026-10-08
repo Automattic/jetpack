@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
-use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -286,9 +285,6 @@ class Analytics {
 		Connection_Configuration::configure();
 
 		Sync_Status_Tracker::configure();
-
-		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
-		Sync_Configuration::register();
 	}
 
 	/**
