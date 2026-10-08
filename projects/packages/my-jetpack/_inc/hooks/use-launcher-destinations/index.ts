@@ -64,7 +64,9 @@ function getFeatureDestinations(): LauncherDestination[] {
 		const product = prepareProductData( items[ slug ] );
 
 		// Mark a product active when the sidebar's test says it's on, since the page state has no statuses.
-		return activated.has( slug ) ? { ...product, status: PRODUCT_STATUSES.ACTIVE } : product;
+		return activated.has( slug )
+			? { ...product, status: PRODUCT_STATUSES.ACTIVE as ProductStatus }
+			: product;
 	};
 
 	return mainFeatures.features
