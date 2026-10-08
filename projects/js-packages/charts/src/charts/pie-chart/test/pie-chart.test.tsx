@@ -866,13 +866,13 @@ describe( 'PieChart', () => {
 			const { rerender } = render( <PieChart data={ data } withTooltips /> );
 
 			await user.tab();
-			await user.keyboard( '{ArrowRight}' );
-			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveFocus();
 
 			rerender( <PieChart data={ data } withTooltips={ false } /> );
 
 			expect( screen.getByRole( 'application' ) ).toHaveFocus();
-			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 0 ] );
+			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
 		} );
 
 		test( 'keeps focus in the chart when an update removes the selected segment', async () => {
