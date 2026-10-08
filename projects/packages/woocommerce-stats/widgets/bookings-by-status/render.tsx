@@ -81,15 +81,12 @@ function BookingsByStatus() {
 			},
 		];
 
-		// A status with no bookings in the period has no segment.
-		return statuses
-			.filter( status => ( summary[ status.key ] || 0 ) > 0 )
-			.map( status => ( {
-				label: status.label,
-				value: summary[ status.key ] || 0,
-				previousValue: previous?.[ status.key ],
-				muted: status.muted,
-			} ) );
+		return statuses.map( status => ( {
+			label: status.label,
+			value: summary[ status.key ] || 0,
+			previousValue: previous?.[ status.key ],
+			muted: status.muted,
+		} ) );
 	}, [ summary, previous ] );
 
 	return (
