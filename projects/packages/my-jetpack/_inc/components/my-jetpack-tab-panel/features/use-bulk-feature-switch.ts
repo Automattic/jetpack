@@ -16,9 +16,9 @@ import {
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import {
 	getProductSlugsWithActivePlugin,
-	markPluginsActive,
+	withPluginsActive,
 	setPageStateProductItems,
-} from '../../../data/utils/mark-plugins-active';
+} from '../../../data/utils/page-state-products';
 import { getModuleStatus } from './module-availability';
 import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
@@ -121,7 +121,7 @@ export function useBulkFeatureSwitch() {
 
 				queryClient.setQueryData( QUERY_KEY, state );
 				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-				const updatedItems = markPluginsActive( items, getProductSlugsWithActivePlugin( state ) );
+				const updatedItems = withPluginsActive( items, getProductSlugsWithActivePlugin( state ) );
 				setPageStateProductItems( updatedItems );
 				// Modules are read from their own store, which has to catch up before the rows
 				// let go of the asked-for value, or they flicker back to the old one first.

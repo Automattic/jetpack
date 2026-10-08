@@ -1,13 +1,13 @@
-import { getProductSlugsWithActivePlugin, markPluginsActive } from '../mark-plugins-active';
+import { getProductSlugsWithActivePlugin, withPluginsActive } from '../page-state-products';
 
-describe( 'markPluginsActive', () => {
+describe( 'withPluginsActive', () => {
 	it( 'marks the listed products in a copy, leaving the given items untouched', () => {
 		const items = {
 			videopress: { is_plugin_active: false },
 			social: { is_plugin_active: false },
-		} as unknown as Parameters< typeof markPluginsActive >[ 0 ];
+		} as unknown as Parameters< typeof withPluginsActive >[ 0 ];
 
-		expect( markPluginsActive( items, [ 'videopress', 'unknown' ] ) ).toEqual( {
+		expect( withPluginsActive( items, [ 'videopress', 'unknown' ] ) ).toEqual( {
 			videopress: { is_plugin_active: true },
 			social: { is_plugin_active: false },
 		} );

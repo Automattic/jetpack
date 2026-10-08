@@ -4,7 +4,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import { markPluginsActive, setPageStateProductItems } from '../utils/mark-plugins-active';
+import { withPluginsActive, setPageStateProductItems } from '../utils/page-state-products';
 import useProducts from './use-products';
 
 const useInstallPlugins = ( productSlugs: string | string[] ) => {
@@ -31,7 +31,7 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 		options: {
 			onSuccess: () => {
 				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-				const updatedItems = markPluginsActive( items, productIds );
+				const updatedItems = withPluginsActive( items, productIds );
 				setPageStateProductItems( updatedItems );
 				refetch().then( () => {
 					createSuccessNotice( successMessage, { type: 'snackbar' } );

@@ -1,18 +1,18 @@
 type ProductItems = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
 
 /**
- * The page state's products with these products' plugins marked as active.
+ * The page state's products, with these products' plugins active.
  *
  * @param items        - The page state's products.
  * @param productSlugs - The products whose plugin was switched on.
  * @return The updated products, leaving `items` untouched.
  */
-export function markPluginsActive( items: ProductItems, productSlugs: string[] ): ProductItems {
+export function withPluginsActive( items: ProductItems, productSlugs: string[] ): ProductItems {
 	return productSlugs.reduce(
-		( marked, slug ) =>
-			marked[ slug ]
-				? { ...marked, [ slug ]: { ...marked[ slug ], is_plugin_active: true } }
-				: marked,
+		( updated, slug ) =>
+			updated[ slug ]
+				? { ...updated, [ slug ]: { ...updated[ slug ], is_plugin_active: true } }
+				: updated,
 		items
 	);
 }
