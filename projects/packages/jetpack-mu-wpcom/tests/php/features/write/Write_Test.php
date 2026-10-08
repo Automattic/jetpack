@@ -703,7 +703,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		// The panel and the first-visit note share one sentence, so they share one
 		// translation — which only holds while both link "Write" to the guide.
 		$this->assertMatchesRegularExpression(
-			'#You’re using <a class="bw-help-note-guide" data-target="wpcom-help-center" href="https://wordpress\.com/support/editors/write-editor/"[^>]*>Write</a>, a simple editor for writing\.#',
+			'#You’re using <a (?=[^>]*target="_blank")(?=[^>]*rel="noopener noreferrer")class="bw-help-note-guide" data-target="wpcom-help-center" href="https://wordpress\.com/support/editors/write-editor/"[^>]*>Write</a>, a simple editor for writing\.#',
 			$output
 		);
 	}
