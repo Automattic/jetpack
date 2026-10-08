@@ -35,7 +35,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 	return (
 		<Stack direction="row" gap="xs" align="center">
 			<Text
-				variant="body-md"
+				variant="body-sm"
 				className={ styles[ 'heatmap-chart__legend-label' ] }
 				style={ labelStyle }
 			>
@@ -66,7 +66,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 				} ) }
 			</Stack>
 			<Text
-				variant="body-md"
+				variant="body-sm"
 				className={ styles[ 'heatmap-chart__legend-label' ] }
 				style={ labelStyle }
 			>
