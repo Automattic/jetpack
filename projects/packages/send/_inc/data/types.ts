@@ -36,7 +36,8 @@ export type Settings = {
 	fallback: boolean;
 };
 
-export type EnableBlocker = 'not_set_up' | 'dns_not_checked' | 'domain_lockdown' | 'sender_domain';
+export type EnableBlocker =
+	'not_set_up' | 'dns_not_checked' | 'domain_lockdown' | 'sender_domain' | 'spf' | 'dkim';
 
 export type SpfSuggestion = {
 	value: string;

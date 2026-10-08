@@ -202,44 +202,50 @@ class REST_Controller_Test extends BaseTestCase {
 	 * @return array[]
 	 */
 	public static function provide_enable_states() {
+		$passing     = array(
+			'domain_lockdown' => 'passed',
+			'sender_domain'   => 'passed',
+			'spf'             => 'passed',
+			'dkim'            => 'passed',
+		);
+		$dkim_record = array(
+			array(
+				'type'    => 'TXT',
+				'name'    => 'jpsend._domainkey.example.com',
+				'value'   => 'v=DKIM1; p=ABC',
+				'purpose' => 'dkim',
+			),
+		);
+
 		return array(
-			'not checked yet'                    => array( null, 400 ),
-			'lockdown failing'                   => array(
-				array(
-					'domain_lockdown' => 'failed',
-					'sender_domain'   => 'passed',
-				),
-				400,
-			),
-			'sender domain failing'              => array(
-				array(
-					'domain_lockdown' => 'passed',
-					'sender_domain'   => 'failed',
-				),
-				400,
-			),
-			'lockdown and sender domain passing' => array(
-				array(
-					'domain_lockdown' => 'passed',
-					'sender_domain'   => 'passed',
-					'spf'             => 'failed',
-					'dkim'            => 'unknown',
-				),
-				200,
-			),
+			'not checked yet'                          => array( null, array(), 400 ),
+			'lockdown failing'                         => array( array_merge( $passing, array( 'domain_lockdown' => 'failed' ) ), array(), 400 ),
+			'sender domain failing'                    => array( array_merge( $passing, array( 'sender_domain' => 'failed' ) ), array(), 400 ),
+			'SPF failing'                              => array( array_merge( $passing, array( 'spf' => 'soft failed' ) ), array(), 400 ),
+			'DKIM failing on a domain with a DKIM key' => array( array_merge( $passing, array( 'dkim' => 'failed' ) ), $dkim_record, 400 ),
+			'DKIM unchecked on a domain without a key' => array( array_merge( $passing, array( 'dkim' => 'unknown' ) ), array(), 200 ),
+			'every record passing'                     => array( $passing, $dkim_record, 200 ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_enable_states
 	 *
-	 * @param array|null $dns_check Stored DNS check.
-	 * @param int        $status    Expected HTTP status.
+	 * @param array|null $dns_check   Stored DNS check.
+	 * @param array      $dns_records Stored DNS records.
+	 * @param int        $status      Expected HTTP status.
 	 */
 	#[DataProvider( 'provide_enable_states' )]
-	public function test_enabling_requires_lockdown_and_sender_domain( $dns_check, $status ) {
+	public function test_enabling_requires_every_dns_record_to_pass( $dns_check, array $dns_records, $status ) {
 		$this->login( 'administrator' );
-		Account::save( self::account( array( 'dns_check' => $dns_check ) ) );
+		Account::save(
+			self::account(
+				array(
+					'dns_check'   => $dns_check,
+					'dns_records' => $dns_records,
+				)
+			)
+		);
 
 		$response = $this->request( 'POST', '/settings', array( 'enabled' => true ) );
 

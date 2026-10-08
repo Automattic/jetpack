@@ -175,13 +175,17 @@ class REST_Controller {
 			return array( 'dns_not_checked' );
 		}
 
-		// MailChannels enforces Domain Lockdown and an A/MX record; SPF and DKIM only affect inbox placement.
-		$blockers = array();
-		if ( 'passed' !== ( $check['domain_lockdown'] ?? '' ) ) {
-			$blockers[] = 'domain_lockdown';
+		// Every record in the checklist must pass, matching the DNS card's Verified state; DKIM only when the domain has a key.
+		$required = array( 'domain_lockdown', 'sender_domain', 'spf' );
+		if ( in_array( 'dkim', array_column( (array) ( $account['dns_records'] ?? array() ), 'purpose' ), true ) ) {
+			$required[] = 'dkim';
 		}
-		if ( 'passed' !== ( $check['sender_domain'] ?? '' ) ) {
-			$blockers[] = 'sender_domain';
+
+		$blockers = array();
+		foreach ( $required as $key ) {
+			if ( 'passed' !== ( $check[ $key ] ?? '' ) ) {
+				$blockers[] = $key;
+			}
 		}
 		return $blockers;
 	}
