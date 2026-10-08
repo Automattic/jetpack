@@ -6,8 +6,6 @@ export type DashboardContext< S = unknown > = {
 	state: S;
 	/** Jetpack settings and modules, shared by every Settings card. */
 	settings: ProtectSettingsData;
-	/** Switches to the Settings tab. */
-	openSettings: () => void;
 	/** Switches to a tab by its value, such as a section tab, optionally setting more search params. */
 	openTab: ( tab: string, params?: Record< string, string > ) => void;
 };

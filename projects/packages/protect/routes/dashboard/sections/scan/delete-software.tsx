@@ -77,7 +77,7 @@ export function DeleteSoftwareButton( { threat }: { threat: ScanThreat } ) {
 export function DeleteThemeModal( { items, closeModal }: RenderModalProps< ScanThreat > ) {
 	const [ threat ] = items;
 	const url = threat?.extension?.actions?.delete;
-	const onDelete = useCallback( () => url && window.location.assign( url ), [ url ] );
+	const onDelete = useCallback( () => url && goToDelete( url ), [ url ] );
 	if ( ! threat || ! url ) {
 		return null;
 	}

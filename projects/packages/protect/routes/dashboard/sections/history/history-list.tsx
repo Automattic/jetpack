@@ -1,14 +1,11 @@
-import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
-import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
-import { getThreatLabel } from '../scan/labels';
-import { THREAT_PARAM, useScan, useThreatParam } from '../scan/store';
-import { loadIgnored } from '../scan/threat-actions';
+import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
 import { getThreatRowActions } from '../scan/threat-row-actions';
-import { ThreatCell, formatDetected } from '../scan/threats-list';
+import { createThreatView, getThreatFields } from '../scan/threats-list';
 import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
 import type { ScanThreat } from '../scan/types';
 
@@ -37,28 +34,10 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const fixed = useMemo( () => threats.filter( item => item.status === 'fixed' ), [ threats ] );
 	// Ignore and unignore update this list in place, so it is current right after either.
 	const ignored = useScan()?.ignored ?? NO_THREATS;
-	const [ statusParam, setStatusParam ] = useThreatParam( HISTORY_STATUS_PARAM );
+	const [ statusParam, setStatusParam ] = useSearchParam( HISTORY_STATUS_PARAM );
 	const status = statusParam === 'ignored' ? 'ignored' : 'fixed';
 
-	useEffect( () => {
-		loadIgnored();
-	}, [] );
-
-	const [ view, setView ] = useState< View >( {
-		type: 'table',
-		search: '',
-		page: 1,
-		perPage: 20,
-		sort: { field: 'date', direction: 'desc' },
-		fields: [ 'severity', 'threat', 'date' ],
-		layout: {
-			styles: {
-				severity: { width: '1%', align: 'start' },
-				threat: { width: '100%' },
-				date: { width: '1%' },
-			},
-		},
-	} );
+	const [ view, setView ] = useState< View >( () => createThreatView( 'date' ) );
 
 	const onStatusChange = useCallback(
 		( value: unknown ) => {
@@ -67,8 +46,8 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		},
 		[ setStatusParam ]
 	);
-	const [ selectedFixed ] = useThreatParam( HISTORY_THREAT_PARAM );
-	const [ selectedIgnored ] = useThreatParam( THREAT_PARAM );
+	const [ selectedFixed ] = useSearchParam( HISTORY_THREAT_PARAM );
+	const [ selectedIgnored ] = useSearchParam( THREAT_PARAM );
 	const selected = status === 'fixed' ? selectedFixed : selectedIgnored;
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
 	const navigate = useNavigate();
@@ -89,48 +68,19 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	);
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
-	const fields = useMemo< Field< ScanThreat >[] >(
-		() => [
-			{
-				id: 'severity',
-				label: __( 'Severity', 'jetpack-protect-pkg' ),
-				type: 'integer',
-				enableHiding: false,
-				getValue: ( { item } ) => item.severity ?? 0,
-				render: ( { item } ) => <ThreatSeverityBadge severity={ item.severity } />,
-			},
-			{
-				id: 'threat',
-				label:
+	const fields = useMemo(
+		() =>
+			getThreatFields( open, {
+				threatLabel:
 					status === 'fixed'
 						? __( 'Fixed threats', 'jetpack-protect-pkg' )
 						: __( 'Ignored threats', 'jetpack-protect-pkg' ),
-				enableHiding: false,
-				enableSorting: false,
-				enableGlobalSearch: true,
-				getValue: ( { item } ) => {
-					const { kind, subject } = getThreatLabel( item );
-					return kind ? `${ kind }: ${ subject }` : subject;
-				},
-				render: ( { item } ) => <ThreatCell item={ item } onOpen={ open } />,
-			},
-			{
-				id: 'date',
-				label:
+				dateLabel:
 					status === 'fixed'
 						? __( 'Fixed on', 'jetpack-protect-pkg' )
 						: __( 'Detected on', 'jetpack-protect-pkg' ),
-				type: 'datetime',
-				enableHiding: false,
-				getValue: ( { item } ) => getDate( item ),
-				render: ( { item } ) =>
-					getDate( item ) ? (
-						<span className="jp-protect-card__muted jp-protect-threats__nowrap">
-							{ formatDetected( getDate( item ) ) }
-						</span>
-					) : null,
-			},
-		],
+				getDate,
+			} ),
 		[ open, status ]
 	);
 	// History only shows with a Scan plan, so ignored threats can always be unignored.

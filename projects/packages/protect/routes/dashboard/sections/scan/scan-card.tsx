@@ -12,6 +12,7 @@ import ScanningState from './scanning-state';
 import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
 import ThreatsList from './threats-list';
+import type { DashboardContext } from '../types';
 import type { ScanState } from './types';
 import './style.scss';
 
@@ -67,7 +68,7 @@ function useIsDocumentHidden(): boolean {
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
  * @return The card.
  */
-export default function ScanCard( { openTab }: { openTab: ( tab: string ) => void } ) {
+export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab' > ) {
 	// The section only renders this card once PHP has printed the Scan state.
 	const scan = useScan() as ScanState;
 	const [ isStarting, setIsStarting ] = useState( false );

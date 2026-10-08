@@ -7,11 +7,8 @@
 
 namespace Automattic\Jetpack\Protect\Sections;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
-use Automattic\Jetpack\Protect\Dashboard_Threats;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
 
@@ -25,20 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since $$next-version$$
  */
 class History implements Dashboard_Section {
-
-	/**
-	 * Transient caching the Scan history.
-	 *
-	 * @var string
-	 */
-	const TRANSIENT = 'jetpack_protect_dashboard_scan_history';
-
-	/**
-	 * Clear the cached history whenever the dashboard starts a scan.
-	 */
-	public function __construct() {
-		add_action( 'jetpack_protect_dashboard_scan_started', array( __CLASS__, 'clear_cache' ) );
-	}
 
 	/**
 	 * The key the section's state is printed under.
@@ -76,16 +59,7 @@ class History implements Dashboard_Section {
 	}
 
 	/**
-	 * Drop the cached history so a new scan's results show up.
-	 *
-	 * @return void
-	 */
-	public static function clear_cache() {
-		delete_transient( self::TRANSIENT );
-	}
-
-	/**
-	 * Threats Scan has fixed or ignored, cached for five minutes.
+	 * Threats Scan has fixed or ignored.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -94,26 +68,6 @@ class History implements Dashboard_Section {
 			return new WP_Error( 'no_scan_plan', __( 'Scan history needs a Jetpack Scan plan.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
-		$cached = get_transient( self::TRANSIENT );
-		if ( is_array( $cached ) ) {
-			return $cached;
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/scan/history', Jetpack_Options::get_option( 'id' ) ),
-			'2',
-			array(),
-			null,
-			'wpcom'
-		);
-		$body     = json_decode( wp_remote_retrieve_body( $response ) );
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) || ! is_object( $body ) ) {
-			return new WP_Error( 'history_unavailable', __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
-		}
-
-		$threats = Dashboard_Threats::format_all( (array) ( $body->threats ?? array() ) );
-
-		set_transient( self::TRANSIENT, $threats, 5 * MINUTE_IN_SECONDS );
-		return $threats;
+		return Scan::get_history_threats();
 	}
 }

@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { DeleteThemeModal } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
-import { fixThreat, ignoreThreat, isThreatBusy, unignoreThreat } from './threat-actions';
+import { fixThreat, ignoreThreat, unignoreThreat } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -26,6 +26,10 @@ export function getThreatRowActions(
 				window.open( url, key === 'details' ? '_blank' : '_self', 'noopener' );
 			}
 		};
+	const softwareLabel =
+		( key: 'update' | 'deactivate' | 'delete' ) =>
+		( [ item ]: ScanThreat[] ) =>
+			item ? getSoftwareActionLabels( item )[ key ] : '';
 	const hasLink = ( key: LinkKey ) => ( item: ScanThreat ) => !! item.extension?.actions?.[ key ];
 
 	return [
@@ -41,37 +45,37 @@ export function getThreatRowActions(
 			isPrimary: true,
 			isEligible: item =>
 				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && ! isThreatBusy( item.id ) && fixThreat( item ),
+			callback: ( [ item ] ) => item && fixThreat( item ),
 		},
 		{
 			id: 'unignore',
 			label: __( 'Unignore', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			isEligible: item => canAct && item.status === 'ignored',
-			callback: ( [ item ] ) => item && ! isThreatBusy( item.id ) && unignoreThreat( item ),
+			callback: ( [ item ] ) => item && unignoreThreat( item ),
 		},
 		{
 			id: 'update',
-			label: ( [ item ] ) => ( item ? getSoftwareActionLabels( item ).update : '' ),
+			label: softwareLabel( 'update' ),
 			isEligible: hasLink( 'update' ),
 			callback: link( 'update' ),
 		},
 		{
 			id: 'deactivate',
-			label: ( [ item ] ) => ( item ? getSoftwareActionLabels( item ).deactivate : '' ),
+			label: softwareLabel( 'deactivate' ),
 			isEligible: hasLink( 'deactivate' ),
 			callback: link( 'deactivate' ),
 		},
 		{
 			id: 'delete-plugin',
-			label: __( 'Delete plugin', 'jetpack-protect-pkg' ),
+			label: softwareLabel( 'delete' ),
 			isEligible: item => item.extension?.type === 'plugins' && hasLink( 'delete' )( item ),
 			// WordPress asks to confirm on the page this opens.
 			callback: link( 'delete' ),
 		},
 		{
 			id: 'delete-theme',
-			label: __( 'Delete theme', 'jetpack-protect-pkg' ),
+			label: softwareLabel( 'delete' ),
 			modalHeader: __( 'Delete theme?', 'jetpack-protect-pkg' ),
 			isEligible: item => item.extension?.type === 'themes' && hasLink( 'delete' )( item ),
 			RenderModal: DeleteThemeModal,
@@ -86,7 +90,7 @@ export function getThreatRowActions(
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
 			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && ! isThreatBusy( item.id ) && ignoreThreat( item ),
+			callback: ( [ item ] ) => item && ignoreThreat( item ),
 		},
 	];
 }

@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useSyncExternalStore } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { createStore } from '../scan/store';
+import { createStore, setScan } from '../scan/store';
 import type { ScanThreat } from '../scan/types';
 
 /** The search param naming the history threat open in the inspector. */
@@ -28,7 +28,15 @@ export function loadHistory(): Promise< void > {
 	}
 	isLoading = true;
 	return apiFetch< ScanThreat[] >( { path: '/jetpack/v4/protect-dashboard/history' } )
-		.then( threats => historyStore.set( () => ( { threats, error: null } ) ) )
+		.then( threats => {
+			historyStore.set( () => ( { threats, error: null } ) );
+			// The same response has the ignored threats; a list Scan already holds may have newer edits.
+			setScan( scan =>
+				scan.ignored
+					? scan
+					: { ...scan, ignored: threats.filter( item => item.status === 'ignored' ) }
+			);
+		} )
 		.catch( ( e: { message?: string } ) =>
 			historyStore.set( () => ( {
 				threats: null,
