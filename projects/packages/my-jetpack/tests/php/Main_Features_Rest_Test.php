@@ -238,6 +238,57 @@ class Main_Features_Rest_Test extends TestCase {
 		}
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_videopress_deactivation_returns_inactive_state() {
+		$this->activate_jetpack();
+		require_once WP_PLUGIN_DIR . '/jetpack/jetpack.php';
+		$folder      = WP_PLUGIN_DIR . '/jetpack-videopress';
+		$created_dir = ! is_dir( $folder );
+		if ( $created_dir ) {
+			mkdir( $folder );
+		}
+		$file     = $folder . '/jetpack-videopress.php';
+		$original = file_exists( $file ) ? file_get_contents( $file ) : null;
+		copy( __DIR__ . '/assets/videopress-mock-plugin.txt', $file );
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugins( 'jetpack-videopress/jetpack-videopress.php' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
+		add_filter( 'jetpack_active_modules', $force_active );
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		try {
+			$this->assertTrue( Initializer::is_offline_features_enabled() );
+			$this->assertTrue( ( new \Automattic\Jetpack\Modules() )->is_active( 'videopress' ) );
+			$response = $this->send( 'jetpack-videopress', 'deactivate' );
+			$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
+			$features = array_column( $response->get_data()['features'], null, 'slug' );
+			$this->assertSame( Main_Features::PLUGIN_INACTIVE, $features['videopress']['plugin_status'] );
+			$this->assertFalse( is_plugin_active( 'jetpack-videopress/jetpack-videopress.php' ) );
+			$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules' ) );
+		} finally {
+			remove_filter( 'jetpack_active_modules', $force_active );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			\Automattic\Jetpack\Status\Cache::clear();
+			if ( null !== $original ) {
+				file_put_contents( $file, $original );
+			} else {
+				unlink( $file );
+			}
+			if ( $created_dir ) {
+				rmdir( $folder );
+			}
+		}
+	}
+
 	/** @return array Offline plugin/route cases. */
 	public static function offline_plugin_switches() {
 		return array(

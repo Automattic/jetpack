@@ -160,6 +160,13 @@ abstract class Hybrid_Product extends Product {
 		$modules = new Modules();
 
 		if ( ! empty( static::$module_name ) && $modules->is_active( static::$module_name ) ) {
+			// Standalone filters can keep an unsaved module active for the rest of this request.
+			if ( Initializer::is_offline_features_enabled()
+				&& ! in_array( static::$module_name, (array) \Jetpack_Options::get_option( 'active_modules', array() ), true )
+			) {
+				return $result;
+			}
+
 			if ( ! $modules->deactivate( static::$module_name ) ) {
 				return new WP_Error(
 					'module_deactivation_failed',
