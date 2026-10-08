@@ -57,12 +57,12 @@ export function setPluginsActiveInPageState( productSlugs: string[] ) {
 }
 
 /**
- * Make the page state's plugins follow the Features tab's state, as a switch returns it.
+ * Make the page state's plugins match the Features tab's state, as a feature toggle's response returns it.
  *
  * @param state - The Features tab's state.
  */
 export function syncPageStateWithFeatures( state: MainFeaturesState ) {
-	setPluginActiveStateInPageState( getProductSlugsWithActivePlugin( state ), true );
+	setPluginsActiveInPageState( getProductSlugsWithActivePlugin( state ) );
 
 	// With Jetpack active, products it also provides keep `is_plugin_active` whatever their own plugin does.
 	if ( state.jetpack !== 'active' ) {
@@ -73,7 +73,7 @@ export function syncPageStateWithFeatures( state: MainFeaturesState ) {
 /**
  * The slugs of the products whose plugin the Features tab's state reports as active.
  *
- * @param state          - The Features tab's state, as a switch returns it.
+ * @param state          - The Features tab's state.
  * @param state.features - Its features, each with its product and plugin status.
  * @return The product slugs.
  */
@@ -86,7 +86,7 @@ function getProductSlugsWithActivePlugin( { features }: MainFeaturesState ): str
 /**
  * The slugs of the products whose plugin the Features tab's state reports as inactive or not installed.
  *
- * @param state          - The Features tab's state, as a switch returns it.
+ * @param state          - The Features tab's state.
  * @param state.features - Its features, each with its product and plugin status.
  * @return The product slugs.
  */
