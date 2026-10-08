@@ -7,6 +7,7 @@ import { useSaveServices, type ServiceLists } from '../data/use-save-services';
 import { isPrivateSite } from '../script-data';
 import { AddServicesDialog } from './add-services-dialog';
 import { ConfirmRemovalDialog } from './confirm-removal-dialog';
+import { EditCustomServiceDialog } from './edit-custom-service-dialog';
 import { ServiceRow } from './service-row';
 import type { CustomServiceFields, Service, ServiceRow as Row, Services, Status } from '../types';
 import type { JSX } from 'react';
@@ -58,7 +59,7 @@ export function ServicesManager(): JSX.Element {
 	const custom = useCustomService();
 	const [ selectedId, setSelectedId ] = useState< string | null >( null );
 	const [ adding, setAdding ] = useState< Row | null >( null );
-	const [ , setEditing ] = useState< Service | null >( null );
+	const [ editing, setEditing ] = useState< Service | null >( null );
 	const [ confirming, setConfirming ] = useState< Confirmation | null >( null );
 	const data = query.data;
 
@@ -119,6 +120,11 @@ export function ServicesManager(): JSX.Element {
 		[ adding, custom ]
 	);
 
+	const closeEdit = useCallback( () => setEditing( null ), [] );
+	const onSaveEdit = useCallback(
+		async ( fields: CustomServiceFields ) => !! editing && custom.update( editing.id, fields ),
+		[ custom, editing ]
+	);
 	const closeConfirmation = useCallback( () => setConfirming( null ), [] );
 	const confirm = useCallback( async () => {
 		if ( ! confirming ) {
@@ -223,6 +229,9 @@ export function ServicesManager(): JSX.Element {
 					onCreate={ onCreate }
 					onClose={ closeAdd }
 				/>
+			) }
+			{ editing && (
+				<EditCustomServiceDialog service={ editing } onSave={ onSaveEdit } onClose={ closeEdit } />
 			) }
 			{ confirming && (
 				<ConfirmRemovalDialog

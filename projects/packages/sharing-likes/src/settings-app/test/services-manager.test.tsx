@@ -30,6 +30,21 @@ const services: Services = {
 	],
 };
 
+const lobsters = {
+	id: 'custom-1',
+	name: 'Lobsters',
+	custom: true,
+	deprecated: false,
+	url: 'https://l.example/?u=%post_url%',
+	icon: 'https://l.example/i.png',
+};
+
+const withLobsters: Services = {
+	...services,
+	visible: [ 'facebook', lobsters.id ],
+	services: [ ...services.services, lobsters ],
+};
+
 /**
  * Answer the services routes with the given list, and echo saved lists back.
  *
@@ -37,6 +52,13 @@ const services: Services = {
  */
 function respond( list: Services = services ) {
 	mockApiFetch.mockImplementation( ( { path, method, data } ) => {
+		if ( path?.includes( '/services/custom/' ) ) {
+			return Promise.resolve(
+				method === 'DELETE'
+					? { deleted: true, id: path.split( '/' ).pop() }
+					: { ...lobsters, ...( data as object ) }
+			);
+		}
 		if ( path?.endsWith( '/services/custom' ) ) {
 			return Promise.resolve( {
 				id: 'custom-1',
@@ -266,6 +288,42 @@ describe( 'ServicesManager', () => {
 						icon: 'https://l.example/i.png',
 					},
 				},
+			] )
+		);
+	} );
+	it( 'edits a custom service', async () => {
+		respond( withLobsters );
+		const user = userEvent.setup();
+		await renderManager();
+
+		await runToolbarAction( user, 'Lobsters', 'Edit custom service' );
+		const name = await screen.findByLabelText( 'Service name' );
+		await user.clear( name );
+		await user.type( name, 'Lobste.rs' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( apiCalls( 'PUT' ) ).toContainEqual( {
+				path: '/wpcom/v2/sharing-likes/services/custom/custom-1',
+				method: 'PUT',
+				data: { name: 'Lobste.rs', url: lobsters.url, icon: lobsters.icon },
+			} )
+		);
+	} );
+
+	it( 'deletes a custom service only once confirmed', async () => {
+		respond( withLobsters );
+		const user = userEvent.setup();
+		await renderManager();
+
+		await runToolbarAction( user, 'Lobsters', 'Delete custom service' );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		expect( apiCalls( 'DELETE' ) ).toEqual( [] );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Delete' } ) );
+
+		await waitFor( () =>
+			expect( apiCalls( 'DELETE' ) ).toEqual( [
+				{ path: '/wpcom/v2/sharing-likes/services/custom/custom-1', method: 'DELETE' },
 			] )
 		);
 	} );
