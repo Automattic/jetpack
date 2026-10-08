@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Scan: Skip the toolbar notice and its remote request in offline mode.
