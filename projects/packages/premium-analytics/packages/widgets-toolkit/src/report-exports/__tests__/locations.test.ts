@@ -85,9 +85,9 @@ describe( 'locationsCsvExporter', () => {
 	} );
 
 	it.each( [
-		[ 'countries', 'country', [ 'Location', 'Views' ] ],
-		[ 'regions', 'region', [ 'Location', 'Country', 'Views' ] ],
-		[ 'cities', 'city', [ 'Location', 'Country', 'Views' ] ],
+		[ 'countries', 'country', [ 'Country', 'Views' ] ],
+		[ 'regions', 'region', [ 'Region', 'Country', 'Views' ] ],
+		[ 'cities', 'city', [ 'City', 'Country', 'Views' ] ],
 	] as const )( 'exports every %s row', async ( section, geoMode, columns ) => {
 		const exporter = locationsCsvExporter( section );
 		const rows = exporter.toCsvRows( await exporter.fetchItems( REPORT_PARAMS ) );

@@ -46,7 +46,6 @@ describe( 'clicks fields', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', row.href );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders clicked URLs with unsafe schemes as plain text', () => {

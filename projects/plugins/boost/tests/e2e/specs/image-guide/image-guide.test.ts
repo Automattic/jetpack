@@ -46,11 +46,12 @@ test.describe( 'Image Guide', () => {
 		).toBeVisible();
 
 		await expect(
-			page.locator( '.jetpack-boost-guide > .guide' ),
+			page.locator( '.jetpack-boost-guide .guide' ),
 			'Image Guide UI item should be present'
 		).toBeVisible();
 
 		const toggle = page.locator( '#jetpack-boost-guide-bar' );
+		const initialBubbles = await page.locator( '.interaction-area' ).count();
 		await expect( toggle ).toHaveText( 'Image Guide: Active' );
 		await page.locator( '.interaction-area' ).first().hover();
 		await expect( page.locator( '.jetpack-boost-guide-popup' ) ).toContainText(
@@ -58,16 +59,19 @@ test.describe( 'Image Guide', () => {
 		);
 		await toggle.click();
 		await expect( toggle ).toHaveText( 'Image Guide: Paused' );
-		await expect( page.locator( '.jetpack-boost-guide > .guide' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.jetpack-boost-guide .guide' ) ).toHaveCount( 0 );
 		await expect
 			.poll( () => page.evaluate( () => localStorage.getItem( 'jetpack-boost-guide' ) ) )
 			.toBe( 'paused' );
+		await toggle.click();
+		await expect( page.locator( '.interaction-area' ) ).toHaveCount( initialBubbles );
+		await toggle.click();
 		await page.reload();
 		await expect( toggle ).toHaveText( 'Image Guide: Paused' );
-		await expect( page.locator( '.jetpack-boost-guide > .guide' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.jetpack-boost-guide .guide' ) ).toHaveCount( 0 );
 		await toggle.click();
 		await page.reload();
 		await expect( toggle ).toHaveText( 'Image Guide: Active' );
-		await expect( page.locator( '.jetpack-boost-guide > .guide' ) ).toBeVisible();
+		await expect( page.locator( '.jetpack-boost-guide .guide' ) ).toBeVisible();
 	} );
 } );

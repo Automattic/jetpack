@@ -84,9 +84,14 @@ function is_store_dashboard_section_available() {
  *
  * @since 0.3.0
  *
- * @return bool True when the subscriptions module is active.
+ * @return bool True when the subscriptions module is active and the reader may see Stats.
  */
 function is_subscribers_dashboard_section_available() {
+	// Outside the filter, which answers only whether the module is there.
+	if ( ! Capabilities::current_user_can_view_stats() ) {
+		return false;
+	}
+
 	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
 
 	/**
@@ -360,10 +365,14 @@ function register_default_dashboard_sections( $registry = null ) {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 10,
-			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
+			'label'               => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 10,
+			// Only the Traffic summary groups by interval, and it saves its own.
+			'date_filter_options' => array(
+				'with_header_interval_control' => false,
+			),
+			'default_layout'      => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),

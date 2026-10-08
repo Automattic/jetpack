@@ -32,23 +32,12 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 			self::DASHBOARD,
 			array(
 				'default'     => false,
-				'description' => 'Make the Protect dashboard module available, which adds a Protect page to the Jetpack sidebar.',
+				'description' => 'Make the Protect dashboard module available, which replaces the Protect page, including the Jetpack Protect plugin\'s. Not for sites using that plugin until the new page matches it.',
 				'owner'       => 'jetpack',
 			)
 		);
 
 		add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'filter_available_modules' ) );
-		// My Jetpack offers Protect through Jetpack only while the module can be switched on.
-		add_filter( 'jetpack_my_jetpack_protect_in_jetpack', array( __CLASS__, 'is_enabled' ) );
-	}
-
-	/**
-	 * Whether the Protect dashboard flag is on.
-	 *
-	 * @return bool
-	 */
-	public static function is_enabled() {
-		return Feature_Flags::is_enabled( self::DASHBOARD );
 	}
 
 	/**
@@ -58,7 +47,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	 * @return array
 	 */
 	public static function filter_available_modules( $modules ) {
-		if ( ! self::is_enabled() ) {
+		if ( ! Feature_Flags::is_enabled( self::DASHBOARD ) ) {
 			unset( $modules[ self::MODULE ] );
 		}
 		return $modules;

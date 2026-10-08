@@ -13,7 +13,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -21,7 +21,7 @@ import {
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 
 /**
@@ -79,12 +79,18 @@ export default {
 			grain: SUBSCRIBERS_GRAIN,
 			offersComparison: false,
 		} ),
-		chartTypeAttributeField(),
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
-		attributes: {
-			reportParams: DEFAULT_REPORT_PARAMS,
-			chartType: 'line',
+		// A getter: the host reads it on every render, and the default can change after load.
+		get attributes() {
+			return { reportParams: defaultReportParams(), chartType: 'line' };
 		},
 	},
 };

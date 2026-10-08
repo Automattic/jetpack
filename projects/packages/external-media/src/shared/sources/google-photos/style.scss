@@ -171,6 +171,10 @@ $grid-size: 8px;
 	p {
 		margin: 0 0 2em 0;
 	}
+
+	.components-button + .components-button {
+		margin-inline-start: 8px;
+	}
 }
 
 .jetpack-external-media__google-photos-loading {

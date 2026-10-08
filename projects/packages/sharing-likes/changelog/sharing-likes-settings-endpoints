@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add REST endpoints to read and save every setting on Settings > Sharing, and to switch each feature to its block or turn it back on.

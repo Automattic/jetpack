@@ -134,6 +134,32 @@ describe( 'page-options-menu', () => {
 			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		} );
 
+		it( 'offers feedback only to those who may read Stats, where it is sent', async () => {
+			jest.mocked( getScriptData ).mockReturnValue( {
+				premium_analytics: { can_view_stats: false },
+			} as ReturnType< typeof getScriptData > );
+			const user = setupUser();
+			render( <PageOptionsMenu onCustomize={ jest.fn() } /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+			const items = await screen.findAllByRole( 'menuitem' );
+
+			expect( items.map( item => item.textContent ) ).toEqual( [
+				'Customize',
+				'Switch off the preview',
+			] );
+		} );
+
+		it( 'renders no trigger when it has nothing to offer', () => {
+			jest.mocked( getScriptData ).mockReturnValue( {
+				premium_analytics: { can_view_stats: false },
+			} as ReturnType< typeof getScriptData > );
+			jest.mocked( currentUserCan ).mockReturnValue( false );
+			render( <PageOptionsMenu /> );
+
+			expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'leaves Customize out where there is nothing to arrange', async () => {
 			const user = setupUser();
 			render( <PageOptionsMenu /> );

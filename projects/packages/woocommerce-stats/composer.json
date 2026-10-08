@@ -22,6 +22,12 @@
 		]
 	},
 	"scripts": {
+		"build-development": "pnpm run build",
+		"build-production": "pnpm run build-production",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
@@ -30,6 +36,12 @@
 		],
 		"test-php-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

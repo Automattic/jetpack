@@ -1,6 +1,7 @@
-import { Button, Notice } from '@wordpress/components';
+import { speak } from '@wordpress/a11y';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Button, Notice } from '@wordpress/ui';
 import './style.scss';
 
 type Props = {
@@ -20,9 +21,8 @@ type Props = {
 	/** Whether a retry is in flight. */
 	isRetrying?: boolean;
 	/**
-	 * Extra class for the notice. The base rule zeroes its margin because
-	 * its original two slots are boxes that size it themselves; a caller
-	 * that drops it into ordinary flow has to pay for its own spacing.
+	 * Extra class for the notice, which has no margin of its own; a caller
+	 * in ordinary flow adds its own spacing.
 	 */
 	className?: string;
 };
@@ -62,32 +62,39 @@ export default function QueryError( {
 	isRetrying = false,
 	className,
 }: Props ) {
+	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
+	const previous = useRef( { isRetrying, message } );
+
+	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
+	useEffect( () => {
+		if ( previous.current.isRetrying && ! isRetrying && previous.current.message === message ) {
+			speak( message, 'assertive' );
+		}
+		previous.current = { isRetrying, message };
+	}, [ isRetrying, message ] );
+
 	return (
-		<Notice
-			status="error"
-			isDismissible={ false }
+		<Notice.Root
+			intent="error"
+			spokenMessage={ message }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
-			<Stack direction="column" gap="sm" align="flex-start">
-				<Text>{ title }</Text>
-				{ error?.message && (
-					<Text variant="body-sm" className="jpb-text-muted">
-						{ error.message }
-					</Text>
-				) }
-				{ onRetry && (
+			<Notice.Title>{ title }</Notice.Title>
+			{ error?.message && <Notice.Description>{ error.message }</Notice.Description> }
+			{ onRetry && (
+				<Notice.Actions>
 					<Button
-						variant="secondary"
+						variant="solid"
+						tone="brand"
 						size="compact"
 						onClick={ onRetry }
-						isBusy={ isRetrying }
-						disabled={ isRetrying }
-						accessibleWhenDisabled
+						loading={ isRetrying }
+						loadingAnnouncement={ __( 'Retrying', 'jetpack-backup-pkg' ) }
 					>
 						{ __( 'Try again', 'jetpack-backup-pkg' ) }
 					</Button>
-				) }
-			</Stack>
-		</Notice>
+				</Notice.Actions>
+			) }
+		</Notice.Root>
 	);
 }

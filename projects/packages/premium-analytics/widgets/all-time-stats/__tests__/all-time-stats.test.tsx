@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultQueryParams,
-	GlobalErrorProvider,
-	queryClient,
-} from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -28,9 +24,7 @@ const SITE_PAYLOAD = {
 
 const renderWidget = ( attributes: Record< string, unknown > = {} ) =>
 	render(
-		<GlobalErrorProvider>
-			<AllTimeStatsWidget attributes={ { ...attributes, reportParams: getDefaultQueryParams() } } />
-		</GlobalErrorProvider>
+		<AllTimeStatsWidget attributes={ { ...attributes, reportParams: getDefaultQueryParams() } } />
 	);
 
 describe( 'AllTimeStatsWidget', () => {

@@ -162,6 +162,40 @@ describe( 'GoogleCalendarEdit', () => {
 		).toBeInTheDocument();
 	} );
 
+	describe( 'does not build a frame for stored urls that are not allowed', () => {
+		test.each( [
+			[ 'javascript scheme', 'javascript:void(0)' ],
+			[ 'data scheme', 'data:text/html,hello' ],
+			[ 'non-Google https host', 'https://other.example.com/calendar/embed?src=x' ],
+			[
+				'longer host with the same prefix',
+				'https://calendar.google.com.other.example.com/calendar/embed?src=x',
+			],
+			[ 'not HTTPS', 'http://calendar.google.com/calendar/embed?src=x' ],
+		] )( 'falls back to the placeholder for %s', ( _label, url ) => {
+			const props = { ...defaultProps, attributes: { ...defaultAttributes, url } };
+			const { container } = render( <GoogleCalendarEdit { ...props } /> );
+
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			expect( container.querySelector( 'iframe' ) ).not.toBeInTheDocument();
+			expect(
+				screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	test( 'percent-encodes a quote in an allowed url', () => {
+		const url = 'https://calendar.google.com/calendar/embed?src=x"y="z';
+		const props = { ...defaultProps, attributes: { ...defaultAttributes, url } };
+		const { container } = render( <GoogleCalendarEdit { ...props } /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		const html = container.querySelector( 'iframe' ).getAttribute( 'html' );
+
+		expect( html ).not.toContain( '"y=' );
+		expect( html ).toContain( '%22y=%22z' );
+	} );
+
 	test( 'omits overlay once clicked', async () => {
 		const user = userEvent.setup();
 		const deselectedProps = { ...defaultProps, isSelected: false };

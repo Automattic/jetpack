@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { render, type TargetedEvent } from 'preact';
 import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
-import { Identity, Options } from '../identity';
+import { Identity } from '../identity';
 import { Dialog, DialogHost } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
@@ -69,14 +69,15 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		commenter,
 		rememberDetails,
 		isBoxOpen,
-		isOptionsOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl, maxLength, blocks } = JetpackComments;
+	const { mustLogIn, identity, strings, maxLength, blocks, editor: labels } = JetpackComments;
 	const isSubmitting = useRef( false );
 	const boxRef = useRef< HTMLDivElement >( null );
 	const textareaRef = useRef< HTMLTextAreaElement >( null );
 	const editorRef = useRef< HTMLDivElement >( null );
+	// Set by a click, so the editor's caret lands where it did; a keyboard arrival goes to the end.
+	const clicked = useRef( false );
 	// Downloaded on first focus; the textarea stays if it never arrives.
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
 	const prompt = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
@@ -94,8 +95,16 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						labels: { blockTools: strings.blockTools, addBlock: strings.addBlock },
-						focus,
+						// A page cached before this bundle shipped keeps the accessible names among the strings.
+						labels: labels ?? {
+							blockTools: ( strings as { blockTools?: string } ).blockTools ?? '',
+							addBlock: ( strings as { addBlock?: string } ).addBlock ?? '',
+							embedUrl: '',
+						},
+						// Read once the editor renders, after the click has placed the textarea's caret.
+						focus: focus
+							? () => ( clicked.current ? textareaRef.current!.selectionStart : -1 )
+							: undefined,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),
 						onError: () => setEditor( 'failed' ),
@@ -104,13 +113,14 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				} )
 				.catch( () => setEditor( 'failed' ) );
 		},
-		[ blocks, editor, placeholder, strings, commentValue ]
+		[ blocks, editor, placeholder, labels, commentValue ]
 	);
 
 	const onFocus = useCallback( () => {
 		isBoxOpen.value = true;
 		openEditor();
 	}, [ isBoxOpen, openEditor ] );
+	const markClicked = useCallback( () => ( clicked.current = true ), [] );
 	const onEditorFocus = useCallback( () => ( isBoxOpen.value = true ), [ isBoxOpen ] );
 	const onInput = useCallback(
 		( event: TargetedEvent< HTMLTextAreaElement > ) =>
@@ -137,7 +147,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		const close = () => {
 			if ( isEmptyComment.peek() ) {
 				isBoxOpen.value = false;
-				isOptionsOpen.value = false;
 			}
 		};
 
@@ -160,7 +169,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			document.removeEventListener( 'pointerdown', onPointerDown );
 			form.removeEventListener( 'focusout', onFocusOut );
 		};
-	}, [ form, isEmptyComment, isBoxOpen, isOptionsOpen ] );
+	}, [ form, isEmptyComment, isBoxOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -190,6 +199,11 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
+		const settle = () => {
+			isSubmitting.current = false;
+			isPosting.value = false;
+		};
+
 		const onSubmit = ( event: SubmitEvent ) => {
 			if ( commenter.peek().kind === 'unknown' && ! isDialogOpen.peek() ) {
 				event.preventDefault();
@@ -197,7 +211,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				return;
 			}
 
+			// The busy button stays focusable, as core's does, so it is held here instead.
 			if ( isSubmitting.current ) {
+				event.preventDefault();
 				return;
 			}
 
@@ -206,12 +222,14 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			// Kept, not cleared: the server can still turn this away.
 			saveDraft( formSettings.postId, commentValue.peek() );
 			markSubmitted( formSettings.postId );
+
+			// Another script can cancel the submit after this runs, and the page then stays.
+			setTimeout( () => event.defaultPrevented && settle() );
 		};
 
 		const onPageShow = ( event: PageTransitionEvent ) => {
 			if ( event.persisted ) {
-				isSubmitting.current = false;
-				isPosting.value = false;
+				settle();
 			}
 		};
 
@@ -229,12 +247,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		};
 	}, [ form, formSettings, isPosting, commentValue, commenter, isDialogOpen ] );
 
-	// Only where the site shows avatars; a commenter it does not know gets its default.
-	const current = commenter.value;
-	const avatar =
-		avatarUrl &&
-		( ( current.kind === 'wordpress' && current.avatar ) ||
-			( current.kind === 'unknown' ? identity.defaultAvatar : avatarUrl ) );
 	const { submit } = formSettings;
 	// The textarea's maxLength holds back typing, not the editor. Counted as PHP counts, in UTF-8 bytes.
 	const isTooLong = utf8.encode( commentValue.value ).length > maxLength;
@@ -268,6 +280,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 					aria-busy={ editor === 'loading' }
 					// Its loading copy, below, takes the placeholder's place.
 					placeholder={ editor === 'loading' ? '' : placeholder }
+					onPointerDown={ markClicked }
 					onFocus={ onFocus }
 					onInput={ onInput }
 				/>
@@ -301,31 +314,19 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 							id={ submit.id }
 							name={ submit.name }
 							type="submit"
-							className={ submit.class }
+							className={ clsx( submit.class, { 'is-busy': isPosting.value } ) }
 							disabled={
 								( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
 								isEmptyComment.value ||
-								isTooLong ||
-								isPosting.value
+								isTooLong
 							}
+							aria-disabled={ isPosting.value || undefined }
 							value={ commentParent.value ? strings.reply : submit.label }
 						/>
 					</span>
-					<span className="jetpack-comments__identity">
-						{ avatar && (
-							<img
-								className="jetpack-comments__avatar avatar avatar-40 photo"
-								src={ avatar }
-								alt=""
-								width="40"
-								height="40"
-							/>
-						) }
-						<Identity />
-					</span>
+					<Identity />
 				</div>
 			</div>
-			<Options />
 			{ /* Core clears saved details on any post without this. */ }
 			{ commenter.value.kind === 'guest' && rememberDetails.value && (
 				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />
