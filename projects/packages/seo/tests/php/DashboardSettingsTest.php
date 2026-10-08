@@ -573,6 +573,22 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
+	 * WordPress.com's site-prefixed settings route also clears an unchanged legacy fallback.
+	 */
+	public function test_clearing_an_unchanged_description_through_the_centralized_settings_route() {
+		$this->act_as( 'administrator' );
+		add_option( Dashboard_Data::FRONT_PAGE_META_OPTION, '' );
+		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/sites/123/settings' );
+		$request->set_param( Dashboard_Data::FRONT_PAGE_META_OPTION, '' );
+		$response = new \WP_REST_Response( array(), 200 );
+
+		$this->assertSame( $response, Dashboard_Data::after_settings_request( $response, array(), $request ) );
+		$this->assertFalse( get_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION ) );
+	}
+
+	/**
 	 * Rejected clears and unrelated requests leave the legacy description intact.
 	 */
 	public function test_legacy_description_survives_requests_that_do_not_save_it() {

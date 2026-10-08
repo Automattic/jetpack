@@ -581,7 +581,7 @@ class Dashboard_Data {
 	 */
 	public static function after_settings_request( $response, $handler, WP_REST_Request $request ) {
 		if ( is_wp_error( $response ) || rest_ensure_response( $response )->get_status() >= 400
-			|| '/wp/v2/settings' !== $request->get_route()
+			|| ! preg_match( '#^/wp/v2/(?:sites/[^/]+/)?settings$#', $request->get_route() )
 			|| ! in_array( $request->get_method(), array( 'POST', 'PUT', 'PATCH' ), true )
 			|| '' !== $request->get_param( self::FRONT_PAGE_META_OPTION ) ) {
 			return $response;

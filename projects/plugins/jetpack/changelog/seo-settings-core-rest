@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-SEO: Fix saving settings, clearing front-page descriptions, and switching sitemaps off on private sites.
+SEO: Fix saving settings, clearing front-page descriptions, and switching sitemaps off on private sites. Preserve unsaved title structure edits when saving another row.

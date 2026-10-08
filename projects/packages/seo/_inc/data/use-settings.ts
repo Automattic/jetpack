@@ -107,7 +107,7 @@ export function useSettingsForm(): SettingsForm {
 	// save can fail after its first request already committed. `sitemap_url` comes
 	// along because it's read-only and recomputed by the sitemap toggle.
 	const adoptServerState = useCallback(
-		( touched: Array< keyof SettingsResponse > ) =>
+		( touched: Array< keyof SettingsResponse >, savedTitlePage?: string ) =>
 			new Promise< void >( resolve => {
 				// Always settles: on the response, on an error, or on the timeout that
 				// aborts a request which never came back.
@@ -133,7 +133,23 @@ export function useSettingsForm(): SettingsForm {
 							}
 						} );
 
-						localRef.current = { ...current, ...patch };
+						const localPatch = { ...patch };
+						if ( savedTitlePage && patch.title_formats ) {
+							const titleFormats = { ...patch.title_formats };
+							Object.keys( current.title_formats ).forEach( pageType => {
+								if (
+									pageType !== savedTitlePage &&
+									JSON.stringify( current.title_formats[ pageType ] ?? [] ) !==
+										JSON.stringify( baseline.title_formats[ pageType ] ?? [] )
+								) {
+									// Refresh the saved row without discarding another row's pending edit.
+									titleFormats[ pageType ] = current.title_formats[ pageType ];
+								}
+							} );
+							localPatch.title_formats = titleFormats;
+						}
+
+						localRef.current = { ...current, ...localPatch };
 						baselineRef.current = { ...baseline, ...patch };
 						setLocal( localRef.current );
 						setSettings( baselineRef.current );
@@ -151,7 +167,7 @@ export function useSettingsForm(): SettingsForm {
 	);
 
 	const saveValues = useCallback(
-		( values: SettingsResponse ) => {
+		( values: SettingsResponse, savedTitlePage?: string ) => {
 			const baseline = baselineRef.current;
 			if ( ! baseline ) {
 				return;
@@ -208,7 +224,7 @@ export function useSettingsForm(): SettingsForm {
 				// Either way — including a save that failed with its first request already
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
-				.then( () => adoptServerState( touched ) )
+				.then( () => adoptServerState( touched, savedTitlePage ) )
 				.finally( () => setIsSaving( false ) );
 		},
 		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
@@ -315,7 +331,7 @@ export function useSettingsForm(): SettingsForm {
 					[ pageType ]: current.title_formats[ pageType ] ?? [],
 				},
 			};
-			saveValues( values );
+			saveValues( values, pageType );
 		},
 		[ saveValues ]
 	);

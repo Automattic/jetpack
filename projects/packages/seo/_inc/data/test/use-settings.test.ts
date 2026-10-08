@@ -133,6 +133,14 @@ describe( 'useSettingsForm', () => {
 		expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( true );
 		expect( result.current.isTitleFormatDirty( 'pages' ) ).toBe( true );
 
+		mockApiFetch.mockResolvedValueOnce( {} ).mockResolvedValueOnce( {
+			...SEED,
+			title_formats: {
+				posts: [ { type: 'string', value: 'Hello' } ],
+				pages: [],
+			},
+		} );
+
 		// Save only the Posts row.
 		act( () => result.current.commitTitleFormat( 'posts' ) );
 
@@ -146,6 +154,9 @@ describe( 'useSettingsForm', () => {
 		// Posts is now clean; Pages is still pending.
 		await waitFor( () => expect( result.current.isTitleFormatDirty( 'posts' ) ).toBe( false ) );
 		expect( result.current.isTitleFormatDirty( 'pages' ) ).toBe( true );
+		expect( result.current.local?.title_formats.pages ).toEqual( [
+			{ type: 'token', value: 'site_name' },
+		] );
 	} );
 
 	it( 'per-section saves are no-ops when nothing changed', () => {
