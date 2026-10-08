@@ -13,13 +13,13 @@ export interface ServiceLists {
 	hidden: string[];
 }
 
-export interface SaveServicesOptions {
+interface SaveServicesOptions {
 	message?: string;
 	// Where a removed service sat, so Undo can put it back without reverting anything saved since.
 	undo?: { id: string; row: ServiceRow; index: number };
 }
 
-export type SaveServices = (
+type SaveServices = (
 	lists: ServiceLists,
 	options?: SaveServicesOptions
 ) => Promise< Services | undefined >;

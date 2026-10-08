@@ -4,6 +4,8 @@ import type { JSX } from 'react';
 
 const ICON_SIZE = 20;
 
+type LogoName = ( typeof SocialLogoData )[ number ][ 'name' ];
+
 // Service IDs whose social logo goes by another name.
 const LOGO_NAMES: Record< string, string > = {
 	email: 'mail',
@@ -18,9 +20,9 @@ const LOGO_NAMES: Record< string, string > = {
  * @param id - Service ID.
  * @return Logo name.
  */
-export function logoFor( id: string ): string {
+export function logoFor( id: string ): LogoName {
 	const name = LOGO_NAMES[ id ] ?? id;
-	return SocialLogoData.some( logo => logo.name === name ) ? name : 'share';
+	return SocialLogoData.find( logo => logo.name === name )?.name ?? 'share';
 }
 
 /**
@@ -35,5 +37,5 @@ export function ServiceIcon( { service }: { service: Service } ): JSX.Element {
 		return <img src={ service.icon } width={ ICON_SIZE } height={ ICON_SIZE } alt="" />;
 	}
 
-	return <SocialLogo icon={ logoFor( service.id ) as never } size={ ICON_SIZE } />;
+	return <SocialLogo icon={ logoFor( service.id ) } size={ ICON_SIZE } />;
 }

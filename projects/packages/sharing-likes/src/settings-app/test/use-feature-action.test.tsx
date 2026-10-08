@@ -183,6 +183,7 @@ describe( 'useFeatureAction', () => {
 			await saved;
 		} );
 	} );
+
 	it( 'keeps a queued order when the action before it reads services again', async () => {
 		const services: Services = {
 			visible: [ 'facebook', 'x' ],

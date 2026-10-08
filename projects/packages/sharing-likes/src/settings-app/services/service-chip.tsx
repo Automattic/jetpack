@@ -13,7 +13,7 @@ export interface ChipActions {
 	onDelete: ( service: Service ) => void;
 }
 
-export interface ChipProps extends ChipActions {
+interface ChipProps extends ChipActions {
 	service: Service;
 	row: ServiceRow;
 	index: number;

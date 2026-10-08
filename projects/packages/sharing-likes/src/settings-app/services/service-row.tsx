@@ -6,7 +6,7 @@ import { ServiceChip, type ChipActions } from './service-chip';
 import type { ButtonStyle, Service, ServiceRow as Row } from '../types';
 import type { Dispatch, JSX, SetStateAction } from 'react';
 
-export interface RowProps extends ChipActions {
+interface RowProps extends ChipActions {
 	row: Row;
 	title: string;
 	addLabel: string;

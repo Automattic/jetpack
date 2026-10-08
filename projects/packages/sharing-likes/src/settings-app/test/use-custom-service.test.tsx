@@ -119,7 +119,6 @@ describe( 'useCustomService', () => {
 	} );
 
 	it( 'deletes an enabled service, then saves the lists without it', async () => {
-		// `delete_service()` leaves the ID in the stored lists; a site whose last button it was would stay "on".
 		respond();
 		const { result } = renderCustom();
 
@@ -136,6 +135,7 @@ describe( 'useCustomService', () => {
 			},
 		] );
 	} );
+
 	it( 'says the service could not be deleted when the delete fails', async () => {
 		mockApiFetch.mockImplementation( ( { method } ) =>
 			method === 'DELETE' ? Promise.reject( {} ) : Promise.resolve( services )
