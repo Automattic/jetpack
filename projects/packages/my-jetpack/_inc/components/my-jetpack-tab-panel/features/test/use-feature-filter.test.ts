@@ -15,13 +15,23 @@ describe( 'matchesFilter', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
 
-	it( 'keeps host-forced modules in Available even when their module is unsupported', () => {
+	it( 'keeps host-forced-on modules in Available even when their module is unsupported', () => {
 		const state = buildState( {} );
 		state.control = { kind: 'module', module: { available: true, override: 'active' } as never };
 		expect( matchesFilter( state, 'available' ) ).toBe( true );
 		state.control.module.available = false;
 		expect( matchesFilter( state, 'available' ) ).toBe( true );
 		state.control.module.override = false;
+		expect( matchesFilter( state, 'available' ) ).toBe( false );
+		expect( matchesFilter( state, 'all' ) ).toBe( true );
+	} );
+
+	it.each< [ string, FeatureState[ 'control' ] ] >( [
+		[ 'module', { kind: 'module', module: { available: true, override: 'inactive' } as never } ],
+		[ 'installed plugin', { kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' } ],
+	] )( 'excludes a host-forced-off %s from Available but keeps it under All', ( _, control ) => {
+		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
+		state.control = control;
 		expect( matchesFilter( state, 'available' ) ).toBe( false );
 		expect( matchesFilter( state, 'all' ) ).toBe( true );
 	} );

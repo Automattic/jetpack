@@ -70,3 +70,19 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 	}
 	return state.unavailableReason;
 }
+
+/**
+ * Whether the feature can run here without changing the host's policy.
+ *
+ * @param state - The feature's live state.
+ * @return Whether it belongs in the Available filter.
+ */
+export function isFeatureAvailable( state: FeatureState ): boolean {
+	const { control } = state;
+	return (
+		! state.pending &&
+		( control.kind !== 'module' || control.module.override !== 'inactive' ) &&
+		( control.kind !== 'plugin' || control.override !== 'inactive' ) &&
+		! getFeatureUnavailableReason( state )
+	);
+}

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureUnavailableReason, isFeatureAvailable } from './module-availability';
 import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
@@ -60,7 +60,7 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 	}
 
 	if ( filter === 'available' ) {
-		return ! state.pending && ! getFeatureUnavailableReason( state );
+		return isFeatureAvailable( state );
 	}
 
 	if ( filter === 'active' ) {
