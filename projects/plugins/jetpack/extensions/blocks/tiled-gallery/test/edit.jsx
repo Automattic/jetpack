@@ -41,6 +41,10 @@ test( 'renders images if present', () => {
 
 const clientId = 'tiled-gallery';
 
+// jsdom implements neither.
+window.URL.createObjectURL = file => `blob:placeholder-${ file.name }`;
+window.URL.revokeObjectURL = () => {};
+
 /**
  * Renders the block backed by the block editor store, uploads `files`, and returns each upload call.
  *
@@ -81,20 +85,28 @@ const makeFiles = ( names, FileClass = File ) =>
 
 test( 'keeps every image when uploads report one file at a time', async () => {
 	const [ a, b, c, d ] = await uploadFiles( images, makeFiles( [ 'a', 'b', 'c', 'd' ] ) );
+	const getImages = () => select( blockEditorStore ).getBlockAttributes( clientId ).images;
 
-	// Interleaved like the client-side queue; c and d fail the two ways uploaders report it.
+	// Interleaved like the client-side queue. a sends no preview and finishes last; c and d fail
+	// the two ways uploaders report it; b keeps processing after the user links it.
 	act( () => {
-		a.onFileChange( [ { url: 'blob:a' } ] );
 		b.onFileChange( [ { url: 'blob:b' } ] );
 		c.onFileChange( [ { url: 'blob:c' } ] );
 		d.onFileChange( [ { url: 'blob:d' } ] );
 		b.onFileChange( [ { id: 4, url: 'http://example.com/b.jpg' } ] );
+		dispatch( blockEditorStore ).updateBlockAttributes( clientId, {
+			images: getImages().map( img =>
+				img.id === 4 ? { ...img, customLink: 'http://example.com/b' } : img
+			),
+		} );
+		b.onFileChange( [ { id: 4, url: 'http://example.com/b-scaled.jpg' } ] );
 		c.onFileChange( [] );
-		a.onFileChange( [ { id: 3, url: 'http://example.com/a.jpg' } ] );
 		d.onError( 'Upload failed.' );
+		a.onFileChange( [ { id: 3, url: 'http://example.com/a.jpg' } ] );
 	} );
 
 	expect( select( blockEditorStore ).getBlockAttributes( clientId ).ids ).toEqual( [ 1, 2, 3, 4 ] );
+	expect( getImages()[ 3 ].customLink ).toBe( 'http://example.com/b' );
 } );
 
 test( 'uploads files picked in the editor iframe into an empty gallery', async () => {
@@ -104,4 +116,5 @@ test( 'uploads files picked in the editor iframe into an empty gallery', async (
 	const uploads = await uploadFiles( [], makeFiles( [ 'a', 'b' ], iframe.contentWindow.File ) );
 
 	expect( uploads ).toHaveLength( 2 );
+	expect( select( blockEditorStore ).getBlockAttributes( clientId ).columns ).toBe( 2 );
 } );

@@ -1,4 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { createBlobURL, revokeBlobURL } from '@wordpress/blob';
 import {
 	MediaPlaceholder,
 	store as blockEditorStore,
@@ -68,38 +69,40 @@ const TiledGalleryEdit = ( {
 		} );
 	};
 
-	// One upload per file: client-side media processing reports each file separately rather than
-	// the whole batch, so each callback swaps in its own image against the latest attributes.
+	// One upload per file, each into a slot reserved up front: client-side media processing reports
+	// each file separately rather than the whole batch, so each callback updates only its own image.
 	const addFiles = files => {
 		if ( ! mediaUpload ) {
 			return;
 		}
-		Array.from( files ).forEach( file => {
-			let previousUrl;
-			// Without media, the upload failed: drop its preview.
+		const uploads = Array.from( files ).map( file => ( {
+			file,
+			placeholderUrl: createBlobURL( file ),
+		} ) );
+		setImages( [
+			...images,
+			...uploads.map( ( { placeholderUrl } ) => ( { url: placeholderUrl } ) ),
+		] );
+
+		uploads.forEach( ( { file, placeholderUrl } ) => {
+			let currentUrl = placeholderUrl;
+			// Without media, the upload failed: drop its image.
 			const updateUpload = media => {
+				revokeBlobURL( placeholderUrl );
 				const currentImages = getBlockAttributes( clientId )?.images || [];
-				const index = previousUrl
-					? currentImages.findIndex( ( { url } ) => url === previousUrl )
-					: -1;
+				const index = currentImages.findIndex( ( { url } ) => url === currentUrl );
 				// The user removed this image while it was still uploading.
-				if ( previousUrl && index === -1 ) {
+				if ( index === -1 ) {
 					return;
 				}
 				if ( ! media ) {
-					previousUrl = undefined;
-					if ( index !== -1 ) {
-						setImages( currentImages.filter( ( img, i ) => i !== index ) );
-					}
+					setImages( currentImages.filter( ( img, i ) => i !== index ) );
 					return;
 				}
-				const image = pickRelevantMediaFiles( media );
-				previousUrl = image.url;
-				setImages(
-					index === -1
-						? [ ...currentImages, image ]
-						: currentImages.map( ( img, i ) => ( i === index ? image : img ) )
-				);
+				// Keep fields set while processing continues, such as a custom link.
+				const image = { ...currentImages[ index ], ...pickRelevantMediaFiles( media ) };
+				currentUrl = image.url;
+				setImages( currentImages.map( ( img, i ) => ( i === index ? image : img ) ) );
 			};
 			mediaUpload( {
 				allowedTypes: ALLOWED_MEDIA_TYPES,
@@ -135,24 +138,23 @@ const TiledGalleryEdit = ( {
 		// Not `instanceof File`: files picked in the editor iframe come from that window's File.
 		if ( Object.prototype.toString.call( files[ 0 ] ) === '[object File]' ) {
 			addFiles( files );
-			return;
+		} else {
+			const newImages = files.map( file => {
+				const existingImage = images.find(
+					img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
+				);
+
+				if ( existingImage?.customLink ) {
+					return {
+						...pickRelevantMediaFiles( file ),
+						customLink: existingImage.customLink,
+					};
+				}
+				return pickRelevantMediaFiles( file );
+			} );
+
+			setImages( newImages );
 		}
-
-		const newImages = files.map( file => {
-			const existingImage = images.find(
-				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
-			);
-
-			if ( existingImage?.customLink ) {
-				return {
-					...pickRelevantMediaFiles( file ),
-					customLink: existingImage.customLink,
-				};
-			}
-			return pickRelevantMediaFiles( file );
-		} );
-
-		setImages( newImages );
 		setAttributes( { columns: columns ? Math.min( files.length, columns ) : columns } );
 
 		setChanged( true );
