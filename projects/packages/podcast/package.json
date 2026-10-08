@@ -16,9 +16,10 @@
 	"author": "Automattic",
 	"type": "module",
 	"scripts": {
-		"build": "pnpm run clean && concurrently 'pnpm:build:blocks' 'pnpm:build:wp-build' && pnpm run build:boot-asset",
+		"build": "pnpm run clean && concurrently 'pnpm:build:blocks' 'pnpm:build:wp-build' && pnpm run build:stamp-textdomains && pnpm run build:boot-asset",
 		"build:blocks": "webpack --config ./webpack.config.blocks.js",
 		"build:boot-asset": "provide-boot-asset-file",
+		"build:stamp-textdomains": "stamp-textdomains",
 		"build:strip-unminified-prod": "strip-unminified-prod",
 		"build:wp-build": "wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod",
@@ -38,6 +39,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
+		"@jetpack-podcast/init": "link:packages/init",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/block-editor": "17.1.0",
 		"@wordpress/blocks": "16.0.0",
@@ -91,7 +93,12 @@
 		"packageNamespace": "jetpack-podcast",
 		"handlePrefix": "jetpack-podcast",
 		"pages": [
-			"jetpack-podcast-dashboard"
+			{
+				"id": "jetpack-podcast-dashboard",
+				"init": [
+					"@jetpack-podcast/init"
+				]
+			}
 		]
 	}
 }
