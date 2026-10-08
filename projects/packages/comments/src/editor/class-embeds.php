@@ -230,7 +230,15 @@ class Embeds extends WP_REST_Controller {
 			'name'            => true,
 		);
 
+		// Without pre_kses: its embed-to-shortcode reversals, like the shortcodes module's for YouTube,
+		// would turn the player into text such as "[youtube …]" that nothing here expands.
+		global $wp_filter;
+		$pre_kses = $wp_filter['pre_kses'] ?? null;
+		unset( $wp_filter['pre_kses'] );
 		$html = wp_kses( $html, $allowed );
+		if ( null !== $pre_kses ) {
+			$wp_filter['pre_kses'] = $pre_kses; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restoring what was set aside above.
+		}
 
 		if ( ! preg_match( '#<(iframe|img|video|audio)\b#i', $html ) && '' === trim( wp_strip_all_tags( $html ) ) ) {
 			return '';
