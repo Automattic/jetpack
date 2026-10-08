@@ -1,3 +1,4 @@
+import { render, screen } from '@testing-library/react';
 import {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
@@ -31,8 +32,12 @@ describe( 'getConnectScreenErrorMessage', () => {
 		expect( getConnectScreenErrorMessage( 'wpcom_bad_response' ) ).not.toContain( 'temporarily' );
 	} );
 
-	it( 'maps offline mode registration errors to a message', () => {
-		expect( getConnectScreenErrorMessage( 'offline_mode' ) ).toContain( 'Offline Mode' );
+	it( 'maps the offline mode registration error to the same message as the offline mode flag', () => {
+		render( <>{ getConnectScreenErrorMessage( 'offline_mode' ) }</> );
+		expect( screen.getByRole( 'link', { name: 'Offline Mode' } ) ).toBeInTheDocument();
+		expect( getConnectScreenErrorMessage( 'offline_mode' ) ).toEqual(
+			getConnectScreenErrorMessage( undefined, true )
+		);
 	} );
 
 	it( 'maps an invalid Jetpack ID response to a message', () => {

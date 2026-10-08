@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: Show a clearer error message when the site cannot reach WordPress.com while connecting.
