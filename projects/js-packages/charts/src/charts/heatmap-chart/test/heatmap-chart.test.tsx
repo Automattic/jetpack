@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
@@ -962,7 +962,6 @@ describe( 'HeatmapChart fitCells', () => {
 		);
 	} );
 
-	// Not restoreAllMocks: that also undoes jest-console's spies the warning checks rely on.
 	afterEach( () => {
 		boxSpies.splice( 0 ).forEach( spy => spy.mockRestore() );
 	} );
@@ -981,6 +980,49 @@ describe( 'HeatmapChart fitCells', () => {
 			.getAllByTestId( 'heatmap-cell' )
 			.find( element => element.dataset.column === '4' && element.dataset.row === '0' );
 		expect( marchCell ).toHaveStyle( { gridColumn: '2', gridRow: '5' } );
+	} );
+
+	test( 'keeps the theme size, with a warning, when a column is a summary', () => {
+		renderChart( {
+			data: [
+				...threeMonths,
+				{ label: 'Total', summary: true, data: [ { value: 1 }, { value: 2 } ] },
+			],
+			columnGroups,
+			compact: true,
+			fitCells: true,
+		} );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'11px'
+		);
+		expect( console ).toHaveWarned();
+	} );
+
+	test( 'refits when the box resizes', () => {
+		const observers: ResizeObserverCallback[] = [];
+		const original = window.ResizeObserver;
+		window.ResizeObserver = class {
+			constructor( private callback: ResizeObserverCallback ) {}
+			observe() {
+				observers.push( this.callback );
+			}
+			unobserve() {}
+			disconnect() {}
+		} as unknown as typeof ResizeObserver;
+		try {
+			renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
+			boxSpies[ 1 ].mockReturnValue( 100 );
+			act( () => observers.forEach( callback => callback( [], {} as ResizeObserver ) ) );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+				'48px'
+			);
+			const [ , , mar ] = screen.getAllByTestId( 'heatmap-group-label' );
+			expect( mar ).toHaveStyle( { gridRow: '3' } );
+		} finally {
+			window.ResizeObserver = original;
+		}
 	} );
 } );
 

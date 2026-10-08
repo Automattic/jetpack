@@ -267,15 +267,15 @@ Use `useMonthCalendarHeatmapData` to draw a day-keyed map as one calendar per mo
 - **`weekStartsOn`** (`0 | 1`, default `1`) and **`locale`** as for the contribution layout. Month labels carry the year once the range passes twelve months. `buildMonthCalendarHeatmapData` is the same function without the provider.
 - **`keyboardNavigation="calendar"`** on the chart, so arrow keys follow the calendar (see Accessibility below). Without it the grid stepping can strand days on one side of a month boundary in a short range.
 
+The two layouts take different inputs on purpose. The contribution layout buckets a series of instants into days, so it takes `timeZone` and an optional `gridSpan` that only widens the grid. This layout is for data that already arrives per day, such as posts per day, so it takes the day map directly and a `range` that decides what is drawn. There is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
+
+Without `fitCells`, in a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
+
 ### Fitting the cells to the box
 
 Add `fitCells` to a compact chart to grow its cells with its box instead of keeping `compactCellSize`. The months wrap onto as many bands as give the largest cells, so a taller box takes two rows of six months and a narrow one four rows of three. All bands share one scale, and keyboard navigation and the accessibility tree still follow the data, not the bands. When no band count reaches `compactCellSize`, the chart draws one band at that size and overflows as before, so put it in an `overflow-x: auto` container.
 
 <Canvas of={ HeatmapStories.MonthCalendarFitCells } />
-
-The two layouts take different inputs on purpose. The contribution layout buckets a series of instants into days, so it takes `timeZone` and an optional `gridSpan` that only widens the grid. This layout is for data that already arrives per day, such as posts per day, so it takes the day map directly and a `range` that decides what is drawn. There is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
-
-In a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
 
 ## Fixed Dimensions
 

@@ -23,6 +23,7 @@ import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { createCssVariableResolver } from '../../utils/resolve-css-var';
+import { warnOnce } from '../../utils/warn-once';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
@@ -215,15 +216,18 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const drawValues = showValues ?? ! compact;
 	const hasColumnLabels = data.some( column => Boolean( column.label ) );
 	const hasGroups = groupLayout.groups.length > 0;
-	const canWrap = hasGroups && ! data.some( column => column.summary );
 
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ fit, setFit ] = useState< CompactCellFit | null >( null );
-	const fitting = compact && fitCells;
-	const groupSpans = useMemo(
-		() => groupLayout.groups.map( group => group.span ),
-		[ groupLayout ]
-	);
+	// A summary track is as wide as its figure, which the fit cannot size as a cell.
+	const hasSummary = data.some( column => column.summary );
+	const fitting = compact && fitCells && ! hasSummary;
+	if ( fitCells && ! fitting ) {
+		warnOnce(
+			'heatmap:fitCells',
+			'fitCells applies only in compact mode without summary columns, so the cells keep their size.'
+		);
+	}
 	useIsomorphicLayoutEffect( () => {
 		const chart = chartRef.current;
 		const grid = containerRef.current;
@@ -234,10 +238,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		const measure = () => {
 			const next = fitCompactCells( {
 				...gridBox( chart, grid ),
-				groupSpans,
-				columns,
+				layout: groupLayout,
 				rows,
-				canWrap,
 				cellGap: compactCellGap,
 				groupGap,
 				rowLabelWidth: largest( grid, `.${ styles[ 'heatmap-chart__row-label' ] }`, 'offsetWidth' ),
@@ -260,10 +262,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		return () => observer.disconnect();
 	}, [
 		fitting,
-		groupSpans,
-		columns,
+		groupLayout,
 		rows,
-		canWrap,
 		hasColumnLabels,
 		hasGroups,
 		compactCellGap,
@@ -271,8 +271,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		groupGap,
 	] );
 	const wrapped = useMemo(
-		() => ( fit && canWrap ? wrapColumnGroups( groupLayout, fit.bands, 2 ) : null ),
-		[ fit, canWrap, groupLayout ]
+		() => ( fit ? wrapColumnGroups( groupLayout, fit.bands, 2 ) : null ),
+		[ fit, groupLayout ]
 	);
 
 	const buildTooltipData = useCallback(

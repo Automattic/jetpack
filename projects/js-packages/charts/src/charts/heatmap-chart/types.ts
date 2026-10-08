@@ -83,7 +83,8 @@ export interface HeatmapChartProps extends Omit<
 	 * the theme's `compactCellSize`, wrapping the column groups onto more bands
 	 * when that gives larger cells. The theme size is the floor: when no band
 	 * count reaches it, the grid keeps one band at that size and overflows, as
-	 * without this prop. Needs a box with a definite height. Default false.
+	 * without this prop. Needs a box with a definite height. Ignored, with a
+	 * warning, when a column is a summary. Default false.
 	 */
 	fitCells?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
