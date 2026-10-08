@@ -3,8 +3,9 @@ import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __ } from '@wordpress/i18n';
-import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { useSendBounceConfirmationMutation } from '../../data/use-send-bounce-confirmation-mutation';
 import {
 	useSubscribedNewsletterCategories,
 	useSubscriberDetails,
@@ -14,7 +15,7 @@ import { formatMetric, formatRate } from '../../lib/format-metric';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
-import type { Subscriber } from '../../data/types';
+import type { BounceRetry, Subscriber } from '../../data/types';
 import type { JSX } from 'react';
 
 type Props = {
@@ -143,6 +144,70 @@ function DetailRow( {
 			<Text variant="body-md" render={ <span /> }>
 				{ value }
 			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Bounce explanation and "Send confirmation email" button for a bounced subscriber.
+ *
+ * @param props                     - Component props.
+ * @param props.emailSubscriptionId - Email subscription id; the button is hidden without one.
+ * @param props.bounceRetry         - Bounce retry state from the API.
+ * @return Bounce retry block.
+ */
+function BounceRetryNotice( {
+	emailSubscriptionId,
+	bounceRetry,
+}: {
+	emailSubscriptionId?: number;
+	bounceRetry?: BounceRetry | null;
+} ): JSX.Element {
+	const { mutate, isPending } = useSendBounceConfirmationMutation();
+	const canRetry = !! bounceRetry?.can_retry;
+
+	const send = useCallback( () => {
+		if ( emailSubscriptionId ) {
+			mutate( emailSubscriptionId );
+		}
+	}, [ emailSubscriptionId, mutate ] );
+
+	let note = '';
+	if ( bounceRetry?.sent_on ) {
+		note = sprintf(
+			// translators: %s: date the confirmation email was sent.
+			__( 'Confirmation email sent on %s.', 'jetpack-newsletter' ),
+			formatDate( bounceRetry.sent_on )
+		);
+	} else if ( bounceRetry?.available_on && ! canRetry ) {
+		note = sprintf(
+			// translators: %s: date after which a confirmation email can be sent.
+			__( 'You can send a confirmation email after %s.', 'jetpack-newsletter' ),
+			formatDate( bounceRetry.available_on )
+		);
+	}
+
+	return (
+		<Stack direction="column" gap="sm" align="start">
+			<Text variant="body-sm">
+				{ __(
+					"We stopped sending emails to this subscriber after their address bounced. If you're sure their address is correct, you can send one confirmation email to ask to restart their subscription.",
+					'jetpack-newsletter'
+				) }
+			</Text>
+			{ emailSubscriptionId ? (
+				<Button
+					variant="outline"
+					tone="neutral"
+					size="compact"
+					loading={ isPending }
+					disabled={ isPending || ! canRetry }
+					onClick={ send }
+				>
+					{ __( 'Send confirmation email', 'jetpack-newsletter' ) }
+				</Button>
+			) : null }
+			{ note ? <Text variant="body-sm">{ note }</Text> : null }
 		</Stack>
 	);
 }
@@ -292,6 +357,12 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 							) : null
 						}
 					/>
+					{ subscriber.subscription_status_reason === 'bounced' ? (
+						<BounceRetryNotice
+							emailSubscriptionId={ subscriber.email_subscription_id }
+							bounceRetry={ subscriber.bounce_retry }
+						/>
+					) : null }
 					<DetailRow
 						label={ __( 'Subscription type', 'jetpack-newsletter' ) }
 						value={ <SubscriptionTypeCell subscriber={ subscriber as Subscriber } /> }

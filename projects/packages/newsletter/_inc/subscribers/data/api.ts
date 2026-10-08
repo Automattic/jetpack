@@ -6,6 +6,7 @@ import type {
 	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
+	SendBounceConfirmationResponse,
 	SubscribedNewsletterCategories,
 	SubscriberDetails,
 	SubscriberStats,
@@ -65,6 +66,22 @@ export function removeSubscriber(
 			email_subscription_id: payload.email_subscription_id ?? 0,
 			paid_subscription_ids: payload.paid_subscription_ids ?? [],
 		},
+	} );
+}
+
+/**
+ * Send one confirmation email to a bounced subscriber asking them to restart their subscription.
+ *
+ * @param emailSubscriptionId - Email subscription id of the bounced subscriber.
+ * @return Success flag plus the updated bounce retry state.
+ */
+export function sendBounceConfirmation(
+	emailSubscriptionId: number
+): Promise< SendBounceConfirmationResponse > {
+	return apiFetch< SendBounceConfirmationResponse >( {
+		path: '/wpcom/v2/subscribers/send-bounce-confirmation',
+		method: 'POST',
+		data: { email_subscription_id: emailSubscriptionId },
 	} );
 }
 

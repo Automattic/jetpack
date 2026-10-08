@@ -32,6 +32,13 @@ export type SubscriptionPlan = {
 	end_date?: string | null;
 };
 
+// Bounce retry state, present when `subscription_status_reason` is `bounced`. Dates are ISO 8601 UTC.
+export type BounceRetry = {
+	can_retry: boolean;
+	available_on: string | null;
+	sent_on: string | null;
+};
+
 export type Subscriber = {
 	user_id: number;
 	display_name: string;
@@ -50,6 +57,8 @@ export type Subscriber = {
 
 	// Paid / comp subscriptions, only present when `use_new_helper=true`.
 	plans?: SubscriptionPlan[];
+
+	bounce_retry?: BounceRetry | null;
 };
 
 export type SubscribersResponse = {
@@ -182,4 +191,9 @@ export type SubscriberStats = {
 	emails_sent: number;
 	unique_opens: number;
 	unique_clicks: number;
+};
+
+export type SendBounceConfirmationResponse = {
+	success: boolean;
+	bounce_retry?: BounceRetry | null;
 };
