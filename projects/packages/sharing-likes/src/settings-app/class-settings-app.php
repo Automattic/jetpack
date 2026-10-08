@@ -113,6 +113,13 @@ final class Settings_App {
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
 		}
 
+		// A stale or partial build can't render the page, so don't swap core's scripts for it.
+		if ( ! function_exists( self::RENDER_FUNCTION ) ) {
+			remove_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
+			remove_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
+			return;
+		}
+
 		// The generated file registers these on `wp_default_scripts`, which has already fired by `admin_menu`.
 		if ( function_exists( self::MODULES_FUNCTION ) ) {
 			call_user_func( self::MODULES_FUNCTION );

@@ -16,6 +16,8 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
@@ -161,6 +163,25 @@ class Settings_App_Test extends BaseTestCase {
 
 		$this->assertNull( Settings_App::render_callback() );
 		$this->assertSame( array(), WP_Build_Polyfills::get_consumers() );
+		$this->assertFalse( has_filter( 'jetpack_admin_js_script_data', array( Settings_App::class, 'add_script_data' ) ) );
+	}
+
+	/**
+	 * A build that lacks the page's render function keeps the PHP screen and leaves core's scripts alone.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_partial_build_changes_nothing(): void {
+		$this->assertFalse( function_exists( self::RENDER_FUNCTION ), 'Another test already loaded the full fixture.' );
+
+		Settings_App::load( __DIR__ . '/../fixtures/wp-build-partial/build.php' );
+
+		$this->assertNull( Settings_App::render_callback() );
+		$this->assertSame( array(), WP_Build_Polyfills::get_consumers() );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Settings_App::class, 'alias_screen_id' ) ) );
 		$this->assertFalse( has_filter( 'jetpack_admin_js_script_data', array( Settings_App::class, 'add_script_data' ) ) );
 	}
 
