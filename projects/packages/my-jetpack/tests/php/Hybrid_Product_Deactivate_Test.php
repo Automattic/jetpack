@@ -220,6 +220,23 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 		);
 	}
 
+	public function test_deactivate_succeeds_when_a_filter_forces_the_module_on_without_saving_it() {
+		$force = static function ( $modules ) {
+			return array_merge( $modules, array( 'videopress' ) );
+		};
+		add_filter( 'jetpack_active_modules', $force );
+
+		try {
+			$this->assertTrue( ( new Modules() )->is_active( 'videopress' ) );
+			$result = Videopress::deactivate();
+		} finally {
+			remove_filter( 'jetpack_active_modules', $force );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertArrayNotHasKey( 'videopress', $this->pre_deactivate_calls );
+	}
+
 	/**
 	 * Parent deactivate() is still invoked — the standalone plugin gets
 	 * deactivated as a side effect, not just the Jetpack module.
