@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcast Episode block: serve a sized cover art rendition with srcset for the visible poster instead of the full-size image, and keep the poster square when width/height attributes are present.
