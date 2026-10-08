@@ -160,7 +160,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__run">
 					{ [
 						run.siteSize !== null && formatStorageSize( run.siteSize ),
-						formatDuration( run.duration, 'short' ),
+						run.duration !== null && formatDuration( run.duration, 'short' ),
 					]
 						.filter( Boolean )
 						.join( ' · ' ) }

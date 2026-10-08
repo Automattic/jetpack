@@ -47,19 +47,25 @@ function downloadLabel( count: number ): string {
  * @return Localized text.
  */
 function runText( run: BackupRun ): string {
-	const duration = formatDuration( run.duration, 'long' );
 	if ( run.siteSize === null ) {
 		return sprintf(
 			/* translators: %s: how long a backup ran, e.g. "28 minutes" */
 			__( 'Took %s', 'jetpack-backup-pkg' ),
-			duration
+			formatDuration( run.duration, 'long' )
+		);
+	}
+	if ( run.duration === null ) {
+		return sprintf(
+			/* translators: %s: the site's size when it was backed up, e.g. "4.2GB" */
+			__( 'Site size at backup: %s', 'jetpack-backup-pkg' ),
+			formatStorageSize( run.siteSize )
 		);
 	}
 	return sprintf(
 		/* translators: %1$s: the site's size when it was backed up, e.g. "4.2GB". %2$s: how long the backup ran, e.g. "28 minutes". */
 		__( 'Site size at backup: %1$s · Took %2$s', 'jetpack-backup-pkg' ),
 		formatStorageSize( run.siteSize ),
-		duration
+		formatDuration( run.duration, 'long' )
 	);
 }
 

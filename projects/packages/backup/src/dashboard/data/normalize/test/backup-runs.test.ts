@@ -33,12 +33,20 @@ describe( 'matchBackupRun', () => {
 		} );
 	} );
 
+	it( 'leaves out the duration when the rewind id is the start', () => {
+		expect( matchBackupRun( row( '1791312007', 1791312007 ), RECORDS ) ).toEqual( {
+			siteSize: 4456295019,
+			duration: null,
+		} );
+	} );
+
 	it.each( [
 		[
 			'its record is missing, though the backup before it has one',
 			row( '1791313657.958', 1791311000 ),
 		],
 		[ 'WordPress.com sent no start for it', row( '1791313657.958', null ) ],
+		[ 'it knows neither a size nor a duration', row( '1791225607', 1791225607 ) ],
 	] )( 'answers null when %s', ( _, item ) => {
 		expect( matchBackupRun( item, RECORDS ) ).toBeNull();
 	} );
