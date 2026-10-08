@@ -62,7 +62,7 @@ export function buildVisitorsByLocationData( {
 			: __( 'Country', 'jetpack-premium-analytics-pkg' );
 
 	const geoData: GeoData = [
-		[ headerLabel, 'Visitors' ],
+		[ headerLabel, __( 'Store visitors', 'jetpack-premium-analytics-pkg' ) ],
 		...primaryData.map( item => [ item.label, item.value ] as [ string, number ] ),
 	];
 

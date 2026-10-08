@@ -551,12 +551,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "9e6a4bd00c879119a9b512bf5745ecbc546ad574"
+                "reference": "c9eeaf06c08c1100f7842c4e32ccad3a380977dc"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "php": ">=7.4"
             },
             "suggest": {

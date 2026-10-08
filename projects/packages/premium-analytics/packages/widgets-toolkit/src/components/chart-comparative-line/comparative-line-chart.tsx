@@ -63,7 +63,7 @@ function resolveSeriesStyles(
 
 /**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
- * a sparkline (no y-axis, grid, or legend).
+ * a sparkline (no axes, grid, or legend).
  */
 const COMPACT_CHART_HEIGHT = 140;
 
@@ -115,7 +115,7 @@ export type ComparativeLineChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area is too
+	 * Degrade to a sparkline (no axes, grid, or legend) when the chart area is too
 	 * short for readable axis labels.
 	 */
 	compactWhenShort?: boolean;
@@ -174,7 +174,7 @@ export function ComparativeLineChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const resolvedChartId = chartId ?? fallbackChartId;
-	const { getHiddenSeries } = useGlobalChartsContext();
+	const { getHiddenSeries, theme } = useGlobalChartsContext();
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
@@ -266,6 +266,7 @@ export function ComparativeLineChart( {
 	);
 
 	const chartOptions = useMemo( () => {
+		const hiddenWhenCompact = isCompact ? { display: false } : {};
 		const baseOptions = {
 			axis: {
 				x: {
@@ -273,12 +274,12 @@ export function ComparativeLineChart( {
 					// `xTickFormat` unconditionally puts full dates on every tick.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
 					tickResolution,
+					...hiddenWhenCompact,
 				},
 				y: {
 					tickFormat: yTickFormat,
 					...( yTicks ? { tickValues: yTicks } : {} ),
-					// Hide the y-axis on short tiles; its labels would otherwise overlap.
-					...( isCompact ? { display: false } : {} ),
+					...hiddenWhenCompact,
 				},
 			},
 		};
@@ -310,6 +311,7 @@ export function ComparativeLineChart( {
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
+				margin={ isCompact ? theme.sparkline.margin : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				withLegendGlyph={ false }
 				showLegend={ false }

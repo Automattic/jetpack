@@ -109,13 +109,11 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$content = '[recipe preptime="30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
-		$this->assertThat(
-			$shortcode_content,
-			$this->logicalOr(
-				$this->stringContains( '<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>' ),
-				$this->stringContains( '<time datetime="P0DT0H30M0S" itemprop="prepTime"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>' )
-			)
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><ul class="jetpack-recipe-meta"><li class="jetpack-recipe-preptime">
+				<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>
+			</li><li class="jetpack-recipe-print"><a href="#">Print</a></li></ul><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
 		);
 	}
 
@@ -128,13 +126,11 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$content = '[recipe cooktime="2 hours 30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
-		$this->assertThat(
-			$shortcode_content,
-			$this->logicalOr(
-				$this->stringContains( '<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>' ),
-				$this->stringContains( '<time datetime="P0DT2H30M0S" itemprop="cookTime"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>' )
-			)
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><ul class="jetpack-recipe-meta"><li class="jetpack-recipe-cooktime">
+				<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>
+			</li><li class="jetpack-recipe-print"><a href="#">Print</a></li></ul><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
 		);
 	}
 
@@ -201,19 +197,10 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup when Lazy Load is enabled.
-		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			$lazy = ' loading="lazy"';
-		} else {
-			$lazy = '';
-		}
-		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
-		$this->assertThat(
-			$shortcode_content,
-			$this->logicalOr(
-				$this->stringContains( '<img width="256" height="171" src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image"' . $lazy . ' />' ),
-				$this->stringContains( '<img alt="" class="jetpack-recipe-image u-photo photo" height="171" itemprop="image"' . $lazy . ' src="' . $url . '" width="256">' )
-			)
+		$lazy = wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ? ' loading="lazy"' : '';
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><img width="256" height="171" src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image"' . $lazy . ' /><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
 		);
 	}
 
@@ -227,19 +214,10 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup when Lazy Load is enabled.
-		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
-			$lazy = ' loading="lazy"';
-		} else {
-			$lazy = '';
-		}
-		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
-		$this->assertThat(
-			$shortcode_content,
-			$this->logicalOr(
-				$this->stringContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image"' . $lazy . ' src="https://example.com" />' ),
-				$this->stringContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image"' . $lazy . ' src="https://example.com">' )
-			)
+		$lazy = wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ? ' loading="lazy"' : '';
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><img class="jetpack-recipe-image u-photo photo" itemprop="image"' . $lazy . ' src="https://example.com" /><div class="jetpack-recipe-content"></div></div>',
+			$shortcode_content
 		);
 	}
 
@@ -401,20 +379,23 @@ EOT;
 	 */
 	public function test_shortcodes_recipe_kses_content() {
 		$tags = <<<'EOT'
-<ol datetime="" itemprop=""></ol>
-<ul datetime="" itemprop="">
-	<li datetime="" itemprop=""></li>
+<ol itemprop="" datetime=""></ol>
+<ul itemprop="" datetime="">
+	<li itemprop="" datetime=""></li>
 </ul>
-<img datetime="" itemprop="">
-<p datetime="" itemprop=""></p>
-<h3 datetime="" itemprop=""></h3>
-<time datetime="" itemprop=""></time>
-<span datetime="" itemprop=""></span>
+<img itemprop="" datetime="" />
+<p itemprop="" datetime=""></p>
+<h3 itemprop="" datetime=""></h3>
+<time itemprop="" datetime=""></time>
+<span itemprop="" datetime=""></span>
 <div itemscope="" itemtype=""></div>
 EOT;
 
 		$shortcode_content = do_shortcode( "[recipe]\n$tags\n[/recipe]" );
-		$this->assertStringContainsString( $tags, $shortcode_content );
+		$this->assertEqualHTML(
+			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><div class="jetpack-recipe-content">' . "\n$tags\n" . '</div></div>',
+			$shortcode_content
+		);
 	}
 
 	/**

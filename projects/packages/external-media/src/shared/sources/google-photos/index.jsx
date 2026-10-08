@@ -28,7 +28,9 @@ function GooglePhotos( props ) {
 		pickerSession,
 		isSessionPending,
 		isSessionFailed,
+		isReconnectRequired,
 		requestPickerSession,
+		retryAfterAuthFailure,
 		deletePickerSession,
 	} = useGooglePhotosPickerSession( {
 		isAuthenticated,
@@ -70,8 +72,13 @@ function GooglePhotos( props ) {
 		return <GooglePhotosAuth { ...props } />;
 	}
 
-	if ( isAuthUpgradeRequired ) {
-		return <GooglePhotosAuthUpgrade { ...props } />;
+	if ( isAuthUpgradeRequired || isReconnectRequired ) {
+		return (
+			<GooglePhotosAuthUpgrade
+				{ ...props }
+				onRetry={ isReconnectRequired ? retryAfterAuthFailure : undefined }
+			/>
+		);
 	}
 
 	if ( pickerFeatureEnabled && ! pickerSession?.mediaItemsSet ) {

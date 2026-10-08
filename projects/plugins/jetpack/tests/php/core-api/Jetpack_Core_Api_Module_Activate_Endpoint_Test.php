@@ -350,10 +350,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$request->set_body_params(
 			array(
 				'subscription_options' => array(
-					// The free tier description stores plain markdown source, so all
-					// HTML tags are stripped via `wp_kses( ..., array() )`. kses removes
-					// the tags themselves but keeps their text content, so the `<script>`
-					// wrapper is gone while the inner `alert(1)` text remains.
+					// The free tier description stores plain markdown source, so `wp_kses( ..., array() )` strips all tags.
 					'free_tier_description' => '<script>alert(1)</script>Just the **markdown** text',
 				),
 			)

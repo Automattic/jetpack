@@ -77,7 +77,7 @@ add_action(
 			array(
 				'label'          => __( 'Videos', 'jetpack-videopress-pkg' ),
 				'order'          => 45,
-				'is_available'   => array( Capabilities::class, 'current_user_can_view_analytics' ),
+				'is_available'   => array( Capabilities::class, 'current_user_can_view_stats' ),
 				'default_layout' => static function () {
 					return array(
 						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
@@ -173,9 +173,9 @@ A section that declares no layout opens in customize mode on the empty state, si
 
 `is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.
 
-The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. WooCommerce checks that WooCommerce is active and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
+The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. WooCommerce checks that WooCommerce is active and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks `Capabilities::current_user_can_view_stats()` and the subscriptions module. Traffic and Insights declare no rule, so they take the default below. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
-A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.
+A section that declares no rule is visible to readers who can view Stats (`Capabilities::current_user_can_view_stats()`). The dashboard itself, its menu and the sections route, opens for anyone with at least one available section, so a section's rule is also who it lets in: a shop manager reaches the dashboard through the WooCommerce tab alone.
 
 WooCommerce and Subscribers each have a filter of their own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
 

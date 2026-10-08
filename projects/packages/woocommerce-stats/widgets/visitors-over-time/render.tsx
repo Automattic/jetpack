@@ -19,8 +19,8 @@ type VisitorsOverTimeRenderAttributes = VisitorsOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 const countLabel = ( count: number ) =>
-	/* translators: %s: number of visitors. */
-	_n( '%s Visitor', '%s Visitors', count, 'jetpack-woocommerce-stats-pkg' );
+	/* translators: %s: number of store visitors. */
+	_n( '%s Store visitor', '%s Store visitors', count, 'jetpack-woocommerce-stats-pkg' );
 
 /**
  * Visitors of the visitors report, read under the widget root for its report params.
@@ -34,12 +34,12 @@ function VisitorsOverTime() {
 		<ReportMetricChart
 			report={ useReportVisitors( reportParams ) }
 			field="visitors"
-			label={ __( 'Visitors', 'jetpack-woocommerce-stats-pkg' ) }
+			label={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }
 			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
-			emptyText={ __( 'No visitors in this period.', 'jetpack-woocommerce-stats-pkg' ) }
+			emptyText={ __( 'No store visitors in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
-				"We couldn't load visitors. Please try again in a moment.",
+				"We couldn't load store visitors. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'
 			) }
 		/>
@@ -47,7 +47,7 @@ function VisitorsOverTime() {
 }
 
 /**
- * The Visitors over time widget.
+ * The Store visitors over time widget.
  *
  * @param {WidgetRenderProps< VisitorsOverTimeRenderAttributes >} props - The props the host passes.
  * @return {JSX.Element} The widget.

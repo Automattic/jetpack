@@ -45,7 +45,7 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  *
  * @since 0.9.0
  */
-const WIDGET_API_VERSION = '1.4.0';
+const WIDGET_API_VERSION = '1.5.0';
 
 /**
  * Returns the i18n schema describing which widget metadata fields are

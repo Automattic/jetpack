@@ -202,7 +202,7 @@ Two filters, both problem-agnostic, plus a policy on default layouts.
 
 `jetpack_premium_analytics_registrable_widget_types` runs over the manifest candidates in `register_widget_types()`. A dropped candidate never registers: gone from the REST list, the import map and every registry reader. For hard availability.
 
-The package's own policy hooks it, in `src/widget-availability.php`: developer-only widgets off production, the store and bookings categories without WooCommerce or Bookings, the store report categories without the capability.
+The package's own policy hooks it, in `src/widget-availability.php`: developer-only widgets off production, the store and bookings categories without WooCommerce or Bookings, the store report categories without `view_woocommerce_reports`, and the Stats report categories without `view_stats`.
 
 A plugin's manifest goes through the same filter when it registers through `register_widget_types_from_manifest()`. A type registered one by one with `register_widget_type()` does not. Either way, a plugin decides in its callback whether to register at all, as the section owners do.
 
@@ -220,7 +220,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id. 1.4.0 added `useReport`, which runs a report query and its comparison in the dashboard's query client, and `toBucketStamp`, which writes the bounds of a report row the way the dashboard's time series read them.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id. 1.4.0 added `useReport`, which runs a report query and its comparison in the dashboard's query client, and `toBucketStamp`, which writes the bounds of a report row the way the dashboard's time series read them. 1.5.0 added `Donut`, the breakdown kind, and `WidgetStatus`, the request status every kind takes.
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 

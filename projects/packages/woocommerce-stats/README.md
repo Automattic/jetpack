@@ -6,7 +6,7 @@ It also serves the reports the section's widgets will read. `GET /jetpack/v4/woo
 
 The widgets read those reports with the client in `src/reports/`: one hook per report, built on `useReport` from the dashboard SDK, so every query runs in the dashboard's query client.
 
-The widget types live in `widgets/`. wp-build builds them, and the package registers them from the build manifest when the dashboard's widget contract is 1.4 or newer. They draw with the kinds the dashboard SDK exports, so the charts are the dashboard's own. The time series family is here: net, total and gross sales, orders, average order value, average items per order, bookings and visitors over time.
+The widget types live in `widgets/`. wp-build builds them, and the package registers them from the build manifest when the dashboard's widget contract is 1.5 or newer. They draw with the kinds the dashboard SDK exports, so the charts are the dashboard's own. The time series family is here: net, total and gross sales, orders, average order value, average items per order, bookings and visitors over time. So are the breakdowns: new vs returning customer, payment status, orders fulfillment, coupon usage over time and bookings by status.
 
 The package decides nothing about who gets the section. The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. Availability stays on the section itself: WooCommerce active, the store-reports capability, and the store-section flag.
 

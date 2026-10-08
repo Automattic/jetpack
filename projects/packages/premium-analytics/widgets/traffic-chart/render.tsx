@@ -102,8 +102,6 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				// `stats/visits` zero-fills every bucket of an idle window, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
