@@ -50,7 +50,16 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		if ( subscriptionData.homeUrl !== event.origin ) {
+		// `homeUrl` is a bare host, while `event.origin` always carries the scheme, so
+		// compare hosts rather than the two directly.
+		let originHost;
+		try {
+			originHost = new URL( event.origin ).host;
+		} catch {
+			return;
+		}
+
+		if ( subscriptionData.homeUrl !== originHost ) {
 			return;
 		}
 
