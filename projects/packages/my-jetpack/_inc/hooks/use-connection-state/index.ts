@@ -110,7 +110,7 @@ export function useConnectionState( {
 			id: 'safe-mode',
 			label: __( 'Safe Mode', 'jetpack-my-jetpack' ),
 			description: __(
-				'This site looks like a copy of another one, so Jetpack has paused some features.',
+				'This site appears to be a copy of another Jetpack site, so Jetpack is in Safe Mode and some features are paused.',
 				'jetpack-my-jetpack'
 			),
 			action: 'RESOLVE_SAFE_MODE',
