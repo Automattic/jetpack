@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a component for transferring connection ownership, and offer it from the manage connection dialog instead of linking out to WordPress.com.
