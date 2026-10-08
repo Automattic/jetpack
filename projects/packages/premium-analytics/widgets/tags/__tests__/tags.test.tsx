@@ -151,6 +151,7 @@ describe( 'TagsWidget', () => {
 			expect( params.get( 'max' ) ).toBe( '10' );
 			expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
 			expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
+			expect( params.get( 'summarize' ) ).toBe( '1' );
 		} );
 	} );
 

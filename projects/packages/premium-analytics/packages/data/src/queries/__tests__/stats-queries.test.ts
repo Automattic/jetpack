@@ -605,7 +605,7 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/tags',
 			'GET',
-			{ period: 'day', date: '2026-06-07', start_date: '2026-06-01' },
+			{ period: 'day', date: '2026-06-07', start_date: '2026-06-01', summarize: 1 },
 			undefined,
 			'tags',
 			'UTC',
@@ -613,21 +613,29 @@ describe( 'Stats query factories', () => {
 		expect(
 			statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', interval: 'day', max: 10 } )
 				.queryKey[ 5 ]
-		).toEqual( { period: 'day', date: '2026-06-07', start_date: '2026-06-01', max: 10 } );
+		).toEqual( {
+			period: 'day',
+			date: '2026-06-07',
+			start_date: '2026-06-01',
+			max: 10,
+			summarize: 1,
+		} );
 	} );
 
-	// Under a month the endpoint ranks day by day, as classic Stats reads it; past
-	// that it ranks the whole window at once so a year stays a few queries.
+	// One ranking pass whatever the length: per-day keeps 50 posts a day and one
+	// pass keeps 50 for the window, so switching by length would make a longer
+	// range count fewer posts than a shorter one.
 	it.each( [
-		[ '31 days', '2026-06-01', '2026-07-01', undefined ],
-		[ '32 days', '2026-06-01', '2026-07-02', 1 ],
-	] )( 'summarizes the tags query past a month (%s)', ( _label, from, to, summarize ) => {
+		[ '1 day', '2026-06-01', '2026-06-01' ],
+		[ '31 days', '2026-06-01', '2026-07-01' ],
+		[ '365 days', '2025-07-02', '2026-07-01' ],
+	] )( 'summarizes the tags query at every length (%s)', ( _label, from, to ) => {
 		const params = statsTagsQuery( { from, to, interval: 'day' } ).queryKey[ 5 ] as Record<
 			string,
 			unknown
 		>;
 
-		expect( params.summarize ).toBe( summarize );
+		expect( params.summarize ).toBe( 1 );
 		expect( params.days ).toBeUndefined();
 	} );
 

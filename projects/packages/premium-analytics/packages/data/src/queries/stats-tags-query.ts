@@ -1,18 +1,11 @@
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams } from '../utils/stats-params';
 import {
 	statsReportQuery,
 	type StatsReportParams,
 	type StatsReportQueryOptions,
 } from './stats-query';
-
-/**
- * Past this many days the endpoint ranks the window's top posts in one pass
- * instead of day by day, which keeps a long window to a few queries.
- */
-const SUMMARIZE_MIN_DAYS = 31;
 
 export type StatsTagsParams = StatsReportParams & {
 	/**
@@ -26,13 +19,13 @@ export type StatsTagsParams = StatsReportParams & {
 
 /**
  * `stats/tags` sizes its window from `date` and `start_date` (the days are
- * derived server-side, so `days` stays off the request) and takes `summarize`
- * on its own terms: per-day ranking under a month, as classic Stats reads it.
+ * derived server-side, so `days` stays off the request) and always ranks the
+ * window's top posts in one pass. Per-day ranking keeps 50 posts a day while
+ * one pass keeps 50 for the window, so mixing the two by window length would
+ * let a longer range count fewer posts than a shorter one.
  */
 export const statsTagsQuery = ( params: StatsTagsParams ): StatsReportQueryOptions< 'tags' > => {
 	const { max, ...reportParams } = params;
-	const { days } = reportParamsToStatsQueryParams( reportParams );
-	const summarize = typeof days === 'number' && days > SUMMARIZE_MIN_DAYS;
 
 	return statsReportQuery(
 		'tags',
@@ -40,7 +33,8 @@ export const statsTagsQuery = ( params: StatsTagsParams ): StatsReportQueryOptio
 		reportParams,
 		'tags',
 		'1.1',
-		( max ?? 0 ) > 0 ? { max } : undefined,
-		{ omitParams: summarize ? [ 'days' ] : [ 'days', 'summarize' ] }
+		// Explicit: the shared derivation adds `summarize` only past one day.
+		{ ...( ( max ?? 0 ) > 0 ? { max } : {} ), summarize: 1 },
+		{ omitParams: [ 'days' ] }
 	);
 };
