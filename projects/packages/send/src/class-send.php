@@ -42,6 +42,8 @@ class Send {
 		self::$initialized = true;
 
 		Admin_Page::init();
+		Email_Log::init();
+		add_filter( 'pre_wp_mail', array( Mailer::class, 'pre_wp_mail' ), 10, 2 );
 	}
 
 	/**
@@ -50,5 +52,8 @@ class Send {
 	 * @return void
 	 */
 	public static function uninstall() {
+		Email_Log::drop_table();
+		Settings::delete();
+		Account::delete();
 	}
 }
