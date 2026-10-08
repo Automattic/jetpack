@@ -5,13 +5,11 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ExporterCsvAction,
 	referrersCsvExporter,
-	useReportRetry,
 	type ReferrerRecord,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -71,27 +69,10 @@ function ReferrersReport(): JSX.Element {
 	const { action: markAsSpamAction, spammedDomains } = useMarkAsSpamAction();
 	const actions = useMemo( () => [ markAsSpamAction ], [ markAsSpamAction ] );
 	const records = useReferrersReportRecords( reportParams, spammedDomains );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.referrers;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load referrers. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -107,7 +88,13 @@ function ReferrersReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }
 						fields={ fields }
@@ -122,7 +109,7 @@ function ReferrersReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
