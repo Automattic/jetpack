@@ -76,30 +76,39 @@ const TiledGalleryEdit = ( {
 		}
 		Array.from( files ).forEach( file => {
 			let previousUrl;
+			// Without media, the upload failed: drop its preview.
+			const updateUpload = media => {
+				const currentImages = getBlockAttributes( clientId )?.images || [];
+				const index = previousUrl
+					? currentImages.findIndex( ( { url } ) => url === previousUrl )
+					: -1;
+				// The user removed this image while it was still uploading.
+				if ( previousUrl && index === -1 ) {
+					return;
+				}
+				if ( ! media ) {
+					previousUrl = undefined;
+					if ( index !== -1 ) {
+						setImages( currentImages.filter( ( img, i ) => i !== index ) );
+					}
+					return;
+				}
+				const image = pickRelevantMediaFiles( media );
+				previousUrl = image.url;
+				setImages(
+					index === -1
+						? [ ...currentImages, image ]
+						: currentImages.map( ( img, i ) => ( i === index ? image : img ) )
+				);
+			};
 			mediaUpload( {
 				allowedTypes: ALLOWED_MEDIA_TYPES,
 				filesList: [ file ],
-				onFileChange: ( [ media ] ) => {
-					if ( ! media ) {
-						return;
-					}
-					const currentImages = getBlockAttributes( clientId )?.images || [];
-					const index = previousUrl
-						? currentImages.findIndex( ( { url } ) => url === previousUrl )
-						: -1;
-					// The user removed this image while it was still uploading.
-					if ( previousUrl && index === -1 ) {
-						return;
-					}
-					const image = pickRelevantMediaFiles( media );
-					previousUrl = image.url;
-					setImages(
-						index === -1
-							? [ ...currentImages, image ]
-							: currentImages.map( ( img, i ) => ( i === index ? image : img ) )
-					);
+				onFileChange: ( [ media ] ) => updateUpload( media ),
+				onError: message => {
+					updateUpload();
+					noticeOperations.createErrorNotice( message );
 				},
-				onError: noticeOperations.createErrorNotice,
 			} );
 		} );
 
@@ -123,7 +132,8 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onSelectImages = files => {
-		if ( files[ 0 ] instanceof File ) {
+		// Not `instanceof File`: files picked in the editor iframe come from that window's File.
+		if ( Object.prototype.toString.call( files[ 0 ] ) === '[object File]' ) {
 			addFiles( files );
 			return;
 		}

@@ -39,38 +39,69 @@ test( 'renders images if present', () => {
 	expect( screen.getByAltText( 'Gallery Image 2' ) ).toBeInTheDocument();
 } );
 
-test( 'keeps every image when uploads report one file at a time', async () => {
-	const user = userEvent.setup();
-	const clientId = 'tiled-gallery';
-	const callbacks = [];
+const clientId = 'tiled-gallery';
+
+/**
+ * Renders the block backed by the block editor store, uploads `files`, and returns each upload call.
+ *
+ * @param {Array}  initialImages - The gallery's images before the upload.
+ * @param {File[]} files         - The files to upload.
+ * @return {Promise<Array>} The options passed to each `mediaUpload` call.
+ */
+async function uploadFiles( initialImages, files ) {
+	const uploads = [];
 	const { resetBlocks, updateBlockAttributes, updateSettings } = dispatch( blockEditorStore );
-	updateSettings( { mediaUpload: ( { onFileChange } ) => callbacks.push( onFileChange ) } );
+	updateSettings( { mediaUpload: options => uploads.push( options ) } );
 	resetBlocks( [
-		{ clientId, name: 'jetpack/tiled-gallery', attributes: { images }, innerBlocks: [] },
+		{
+			clientId,
+			name: 'jetpack/tiled-gallery',
+			attributes: { images: initialImages },
+			innerBlocks: [],
+		},
 	] );
 
 	const { container } = render(
 		<Edit
 			{ ...defaultProps }
-			attributes={ { images } }
+			attributes={ { images: initialImages } }
 			clientId={ clientId }
 			isSelected
+			noticeOperations={ { createErrorNotice: jest.fn() } }
 			setAttributes={ attrs => updateBlockAttributes( clientId, attrs ) }
 		/>
 	);
 	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-	await user.upload( container.querySelector( 'input[type="file"]' ), [
-		new File( [ 'a' ], 'a.jpg', { type: 'image/jpeg' } ),
-		new File( [ 'b' ], 'b.jpg', { type: 'image/jpeg' } ),
-	] );
+	await userEvent.setup().upload( container.querySelector( 'input[type="file"]' ), files );
+	return uploads;
+}
 
-	// Interleaved like the client-side queue: both previews, then both finished uploads.
+const makeFiles = ( names, FileClass = File ) =>
+	names.map( name => new FileClass( [ name ], `${ name }.jpg`, { type: 'image/jpeg' } ) );
+
+test( 'keeps every image when uploads report one file at a time', async () => {
+	const [ a, b, c, d ] = await uploadFiles( images, makeFiles( [ 'a', 'b', 'c', 'd' ] ) );
+
+	// Interleaved like the client-side queue; c and d fail the two ways uploaders report it.
 	act( () => {
-		callbacks[ 0 ]( [ { url: 'blob:a' } ] );
-		callbacks[ 1 ]( [ { url: 'blob:b' } ] );
-		callbacks[ 1 ]( [ { id: 4, url: 'http://example.com/b.jpg' } ] );
-		callbacks[ 0 ]( [ { id: 3, url: 'http://example.com/a.jpg' } ] );
+		a.onFileChange( [ { url: 'blob:a' } ] );
+		b.onFileChange( [ { url: 'blob:b' } ] );
+		c.onFileChange( [ { url: 'blob:c' } ] );
+		d.onFileChange( [ { url: 'blob:d' } ] );
+		b.onFileChange( [ { id: 4, url: 'http://example.com/b.jpg' } ] );
+		c.onFileChange( [] );
+		a.onFileChange( [ { id: 3, url: 'http://example.com/a.jpg' } ] );
+		d.onError( 'Upload failed.' );
 	} );
 
 	expect( select( blockEditorStore ).getBlockAttributes( clientId ).ids ).toEqual( [ 1, 2, 3, 4 ] );
+} );
+
+test( 'uploads files picked in the editor iframe into an empty gallery', async () => {
+	const iframe = document.createElement( 'iframe' );
+	document.body.appendChild( iframe );
+
+	const uploads = await uploadFiles( [], makeFiles( [ 'a', 'b' ], iframe.contentWindow.File ) );
+
+	expect( uploads ).toHaveLength( 2 );
 } );
