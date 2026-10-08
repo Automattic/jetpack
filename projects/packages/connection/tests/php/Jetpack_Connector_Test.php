@@ -533,14 +533,21 @@ class Jetpack_Connector_Test extends TestCase {
 	/* ── enqueue_script_module() ────────────────────────────────── */
 
 	/**
-	 * Test that the card is registered from the build, versioned by its asset file.
+	 * Test that the card is registered from the build, with the dependencies and version from its asset file.
 	 */
-	public function test_enqueue_registers_the_built_module_with_the_asset_version() {
+	public function test_enqueue_registers_the_built_module_from_its_asset_file() {
+		wp_register_script( 'test-card-global', 'https://example.com/global.js', array(), '1', true );
 		$restore = $this->stub_module_build(
 			array(
-				'dependencies' => array( '@wordpress/connectors' ),
-				'version'      => 'test-card-version',
-				'type'         => 'module',
+				'dependencies'        => array( 'test-card-global' ),
+				'module_dependencies' => array(
+					array(
+						'id'     => '@wordpress/connectors',
+						'import' => 'static',
+					),
+				),
+				'version'             => 'test-card-version',
+				'type'                => 'module',
 			)
 		);
 
@@ -555,6 +562,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $module['src'] );
 		$this->assertSame( 'test-card-version', $module['version'] );
 		$this->assertSame( array( '@wordpress/connectors' ), array_column( $module['dependencies'], 'id' ) );
+		$this->assertTrue( wp_script_is( 'test-card-global', 'enqueued' ) );
 		$this->assertFalse( wp_script_is( 'jetpack-connector-card-missing', 'enqueued' ) );
 	}
 

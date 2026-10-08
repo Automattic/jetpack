@@ -39,21 +39,6 @@ class Jetpack_Connector {
 	const MODULE_ID = '@automattic/jetpack-connection-connectors';
 
 	/**
-	 * Script module dependencies of the card, declared by hand because the asset file also lists the classic globals it imports, such as `JetpackConnection`.
-	 * Must list every AS_MODULE package (webpack.config.js) the card imports; the build check fails if one is missing.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @var array[]
-	 */
-	const MODULE_DEPENDENCIES = array(
-		array(
-			'id'     => '@wordpress/connectors',
-			'import' => 'static',
-		),
-	);
-
-	/**
 	 * Path of the card's built script module relative to this file, without the extension.
 	 *
 	 * @since $$next-version$$
@@ -121,7 +106,7 @@ class Jetpack_Connector {
 	 * Skips the card when its built files are missing, and shows an error snackbar instead.
 	 *
 	 * @since 8.2.0
-	 * @since $$next-version$$ Loads the webpack build from dist/ and versions it from the asset file.
+	 * @since $$next-version$$ Loads the webpack build from dist/, with its dependencies and version from the asset file.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -154,14 +139,22 @@ class Jetpack_Connector {
 			static::MODULE_ID,
 			// Resolve the '..' so core finds translations under the file's real path, as Assets::register_script() does.
 			Assets::normalize_path( plugins_url( static::MODULE_FILE . '.js', __FILE__ ) ),
-			static::MODULE_DEPENDENCIES,
+			$asset['module_dependencies'] ?? array(),
 			$asset['version'] ?? false
 		);
-		wp_set_script_module_translations( static::MODULE_ID, 'jetpack-connection' );
+		// WP 7.0+; the Gutenberg plugin's Connectors screen can run on older cores.
+		if ( function_exists( 'wp_set_script_module_translations' ) ) {
+			wp_set_script_module_translations( static::MODULE_ID, 'jetpack-connection' );
+		}
 		wp_enqueue_script_module( static::MODULE_ID );
 
+		// A script module can't depend on classic scripts, so the card's globals are enqueued beside it.
 		// Assets::enqueue_script also loads the stylesheet registered with the handle.
-		// Conditional only while the card imports nothing from @automattic/jetpack-connection.
+		foreach ( $asset['dependencies'] ?? array() as $handle ) {
+			Assets::enqueue_script( $handle );
+		}
+
+		// The card reads these dialogs from window.JetpackConnection, so the asset file does not list the script.
 		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
 			Assets::enqueue_script( 'jetpack-connection' );
 		}
