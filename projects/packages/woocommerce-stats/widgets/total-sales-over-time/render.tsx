@@ -4,6 +4,7 @@
 import {
 	useWidgetRootContext,
 	WidgetRoot,
+	type ChartDisplayChartType,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
@@ -21,14 +22,17 @@ type TotalSalesOverTimeRenderAttributes = TotalSalesOverTimeAttributes &
 /**
  * Total sales of the orders report, read under the widget root for its report params.
  *
+ * @param {object}                props             - The component props.
+ * @param {ChartDisplayChartType} [props.chartType] - How the series is drawn.
  * @return {JSX.Element} The chart.
  */
-function TotalSalesOverTime() {
+function TotalSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	return (
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
+			chartType={ chartType }
 			field="total_sales"
 			label={ __( 'Total sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
@@ -52,7 +56,7 @@ export default function TotalSalesOverTimeRender( {
 }: WidgetRenderProps< TotalSalesOverTimeRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<TotalSalesOverTime />
+			<TotalSalesOverTime chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

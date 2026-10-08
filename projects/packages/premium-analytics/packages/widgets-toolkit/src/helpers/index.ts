@@ -2,8 +2,6 @@ export { getFormatByMetricKey } from './format-orders-metrics';
 export { buildTimeSeriesChartData, type TimeSeriesData } from './build-time-series-chart-data';
 export { buildSalesByCouponData, type SalesByCouponData } from './build-sales-by-coupon-data';
 export { PHYSICAL_PRODUCTS_FILTER, BOOKINGS_FILTER } from './product-type-filters';
-export { FULFILLED_ORDERS_FILTER, UNFULFILLED_ORDERS_FILTER } from './fulfillment-filters';
-export { PAYMENT_STATUS_FILTERS } from './payment-status-filters';
 export {
 	buildRevenueByCustomerTypeData,
 	type RevenueByCustomerTypeData,
@@ -56,11 +54,7 @@ export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { dateFormatForResolution } from './tick-resolution-date-format';
-export {
-	CHART_DISPLAY_CHART_TYPES,
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-} from './chart-display-attribute-fields';
+export { CHART_TYPE_ELEMENTS, type ChartDisplayChartType } from './chart-display-attribute-fields';
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
