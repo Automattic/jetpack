@@ -37,7 +37,7 @@ test( 'Site only connection', async ( { page, admin } ) => {
 
 		await expect( connectionBlock, {
 			message: 'Should have the missing user connection text.',
-		} ).toContainText( 'Connect your account to unlock all the features.' );
+		} ).toContainText( 'Some Jetpack features need your WordPress.com account.' );
 
 		await expect( connectionBlock.getByRole( 'button', { name: 'Connect my account' } ), {
 			message: 'Should have the user connection button.',

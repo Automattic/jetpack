@@ -40,7 +40,7 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 			return {
 				label: __( 'Site not connected', 'jetpack-my-jetpack' ),
 				description: __(
-					'A site admin will need to connect this site to Jetpack.',
+					'A site admin will need to connect this site to WordPress.com.',
 					'jetpack-my-jetpack'
 				),
 				status: 'error',
@@ -49,7 +49,10 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 
 		return {
 			label: __( 'Site not connected', 'jetpack-my-jetpack' ),
-			description: __( 'Connect your site with one click.', 'jetpack-my-jetpack' ),
+			description: __(
+				'To use Jetpack, connect this site and your account to WordPress.com.',
+				'jetpack-my-jetpack'
+			),
 			action: 'CONNECT_SITE',
 			status: 'error',
 		};
@@ -91,7 +94,10 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 
 	return {
 		label: __( 'Site connected', 'jetpack-my-jetpack' ),
-		description: __( 'Connect your account to unlock all the features.', 'jetpack-my-jetpack' ),
+		description: __(
+			'Some Jetpack features need your WordPress.com account.',
+			'jetpack-my-jetpack'
+		),
 		action: 'CONNECT_USER',
 		status,
 	};

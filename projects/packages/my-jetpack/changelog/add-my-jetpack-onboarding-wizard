@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Onboarding: Add a full-screen setup wizard behind a feature flag, off by default. It connects the site, asks what the site is for, and records that setup was finished or skipped.

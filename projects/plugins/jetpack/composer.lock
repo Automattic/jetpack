@@ -2488,7 +2488,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d4d3a7b038bcd91951185fabe07b428f516bd0ae"
+                "reference": "89c08d2275ae908a81b49ec144f6ff541a8a7395"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2497,6 +2497,7 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-explat": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
