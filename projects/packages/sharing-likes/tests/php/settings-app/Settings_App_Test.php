@@ -285,6 +285,16 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The services list notes the restriction on private sites, as the PHP screen does.
+	 */
+	public function test_script_data_says_whether_the_site_is_private(): void {
+		add_filter( 'jetpack_is_private_site', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$this->assertTrue( Settings_App::add_script_data( array() )['sharing_likes']['private_site'] );
+	}
+
+	/**
 	 * The data is for the screen's own users only.
 	 */
 	public function test_script_data_is_not_added_for_users_who_cannot_manage_options(): void {
