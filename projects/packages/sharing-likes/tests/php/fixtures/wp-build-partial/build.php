@@ -8,6 +8,6 @@
 declare( strict_types = 1 );
 
 /**
- * Stand-in for the generated script module registration.
+ * Stand-in for the render function a build generated under an earlier page ID.
  */
-function jetpack_sharing_likes_register_script_modules() {}
+function jetpack_sharing_likes_jetpack_sharing_dashboard_wp_admin_render_page() {}
