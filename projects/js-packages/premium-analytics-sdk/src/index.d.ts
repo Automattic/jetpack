@@ -75,6 +75,8 @@ export type DonutSegmentInput = {
 	muted?: boolean;
 };
 export type DonutProps = {
+	// The whole breakdown: a segment with no value draws no slice but keeps its legend row and its
+	// comparison value.
 	segments: readonly DonutSegmentInput[];
 	status: WidgetStatus;
 	// Omit for the generic message with a Retry bound to `status.refetch`.
