@@ -255,9 +255,10 @@ export function ComparativeLineChart( {
 		() => ( pinnedYAxis ? getPinnedYTicks( pinnedYAxis.domain ) : undefined ),
 		[ pinnedYAxis ]
 	);
+	const currencyCode = dataFormat.options?.currencyCode;
 	const yTickFormat = useMemo(
-		() => getYTickFormat( dataFormat.type, yTicks ),
-		[ dataFormat.type, yTicks ]
+		() => getYTickFormat( dataFormat.type, yTicks, currencyCode ),
+		[ dataFormat.type, yTicks, currencyCode ]
 	);
 
 	const xTickFormat = useCallback(

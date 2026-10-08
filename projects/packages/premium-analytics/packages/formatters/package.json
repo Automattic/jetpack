@@ -7,6 +7,7 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@wordpress/date": "5.55.0",

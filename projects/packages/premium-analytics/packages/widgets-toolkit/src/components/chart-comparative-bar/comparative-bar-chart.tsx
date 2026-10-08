@@ -177,7 +177,10 @@ export function ComparativeBarChart( {
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
+			formatMetricValue( value, dataFormat.type, {
+				useMultipliers: true,
+				currencyCode: dataFormat.options?.currencyCode,
+			} ),
 		[ dataFormat ]
 	);
 

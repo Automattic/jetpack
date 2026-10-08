@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import {
-	formatNumber,
-	formatNumberCompact,
-	formatCurrency,
-	getCurrencyObject,
-} from '@automattic/number-formatters';
+import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { storeCurrencyFormatters } from './store-currency';
 
 /**
  * Metric type that determines the formatting strategy.
@@ -48,8 +47,8 @@ export type FormatMetricValueOptions = {
 	signDisplay?: Intl.NumberFormatOptions[ 'signDisplay' ];
 
 	/**
-	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`).
-	 * @default 'USD'
+	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`). Defaults to the WooCommerce store
+	 * currency, or USD on a site without a store.
 	 */
 	currencyCode?: string;
 };
@@ -88,7 +87,7 @@ export function formatMetricValue(
 		decimals,
 		useMultipliers = false,
 		signDisplay,
-		currencyCode = 'USD',
+		currencyCode,
 		markBelowPrecision = false,
 	}: FormatMetricValueOptions = {}
 ): string {
@@ -107,8 +106,12 @@ export function formatMetricValue(
 
 	switch ( type ) {
 		case 'currency': {
+			const store = storeCurrencyFormatters();
+			const { formatCurrency, getCurrencyObject } = store;
+			const code = currencyCode ?? store.code;
+
 			if ( compact ) {
-				const { symbol, symbolPosition } = getCurrencyObject( 0, currencyCode );
+				const { symbol, symbolPosition } = getCurrencyObject( 0, code );
 
 				// Detect if the locale places a space between symbol
 				// and number (e.g. BRL "R$ 1.5K", EUR "1.5K €").
@@ -116,7 +119,7 @@ export function formatMetricValue(
 				// must preserve it.
 				// TODO(WOOA7S-1214): upstream formatCurrencyCompact()
 				// in @automattic/number-formatters would remove this.
-				const probe = formatCurrency( 0, currencyCode );
+				const probe = formatCurrency( 0, code );
 				const charIndex =
 					symbolPosition === 'before'
 						? probe.indexOf( symbol ) + symbol.length
@@ -144,7 +147,7 @@ export function formatMetricValue(
 					: `${ sign }${ compactFormatted }${ separator }${ symbol }`;
 			}
 
-			const baseFormatted = formatCurrency( numericValue, currencyCode );
+			const baseFormatted = formatCurrency( numericValue, code );
 
 			if (
 				numericValue > 0 &&

@@ -141,6 +141,16 @@ export function formatEarningsPeriod( period: string ): string {
 }
 
 /**
+ * Format an earnings amount. WordAds pays out in USD, whatever the store currency.
+ *
+ * @param amount - The amount in USD.
+ * @return The formatted amount.
+ */
+export function formatEarningsAmount( amount: number ): string {
+	return formatMetricValue( amount, 'currency', { currencyCode: 'USD' } );
+}
+
+/**
  * A payment status as a badge. A pending status puts its reason in an info icon
  * beside the badge; any other status keeps its explanation on the badge itself.
  *
@@ -199,7 +209,7 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'amount',
 			label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ),
-			render: ( { item } ) => <>{ formatMetricValue( item.amount, 'currency' ) }</>,
+			render: ( { item } ) => <>{ formatEarningsAmount( item.amount ) }</>,
 		},
 		{
 			id: 'pageviews',
