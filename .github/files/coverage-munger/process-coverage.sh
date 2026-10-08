@@ -11,7 +11,8 @@ if [[ ! -d coverage ]]; then
 fi
 
 echo '::group::Copy coverage into artifacts'
-tar --owner=0 --group=0 --xz -cvvf "artifacts/coverage-$ARTIFACT.tar.xz" coverage
+# Trade some archive size for much faster compression.
+XZ_OPT="-3 -T0" tar --owner=0 --group=0 --xz -cvvf "artifacts/coverage-$ARTIFACT.tar.xz" coverage
 echo '::endgroup::'
 
 TMP_DIR=$( mktemp -d )
