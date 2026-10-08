@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Sharing_Likes\Settings_App\Settings_App;
+
 /**
  * Registers Settings > Sharing and renders its sections.
  *
@@ -34,6 +36,7 @@ final class Settings_Page {
 	 */
 	public static function init(): void {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		Settings_App::init();
 	}
 
 	/**
@@ -50,7 +53,7 @@ final class Settings_Page {
 			__( 'Sharing', 'jetpack-sharing-likes' ),
 			'manage_options',
 			self::SLUG,
-			array( __CLASS__, 'render' )
+			Settings_App::render_callback() ?? array( __CLASS__, 'render' )
 		);
 	}
 
