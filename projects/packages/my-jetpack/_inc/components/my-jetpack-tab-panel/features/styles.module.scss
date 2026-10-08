@@ -440,10 +440,10 @@ $band-ground: #f8f8f8;
 .search,
 .skeleton-search {
 	// Gives up width, down to its floor, before anything wraps onto a second row.
-	flex: 1 1 12rem;
+	flex: 1 1 8rem;
 	margin-inline-start: auto;
 	max-inline-size: 16rem;
-	min-inline-size: 12rem;
+	min-inline-size: 8rem;
 }
 
 // A segmented control: one soft track, the active layout a tile inside it. The
@@ -509,9 +509,9 @@ $view-group-padding: 4px;
 }
 
 
-// Eight filter pills, the search at its minimum width and the layout buttons
-// need this much container width to stay on one row.
-@container features-toolbar (max-width: 70rem) {
+// Seven usual pills, minimum-width search and layout buttons need this room;
+// the connected column caps the toolbar's content width at 918px.
+@container features-toolbar (max-width: 57rem) {
 
 	.pills {
 		display: none;
@@ -523,8 +523,10 @@ $view-group-padding: 4px;
 	}
 
 	.search {
+		flex-basis: 12rem;
 		margin-inline-start: 0;
 		max-inline-size: none;
+		min-inline-size: 12rem;
 	}
 }
 
