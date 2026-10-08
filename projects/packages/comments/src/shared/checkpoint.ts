@@ -146,6 +146,10 @@ export const logOut = async (): Promise< boolean > => {
  * @return Whether it does, or null when the site could not answer; the site's own screen still stands.
  */
 export const emailHasAccount = async ( email: string ): Promise< boolean | null > => {
+	if ( ! JetpackComments.identity.emailUrl ) {
+		return false;
+	}
+
 	const url = new URL( JetpackComments.identity.emailUrl );
 	url.searchParams.set( 'email', email );
 
