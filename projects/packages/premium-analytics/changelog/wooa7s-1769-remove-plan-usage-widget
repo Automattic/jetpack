@@ -1,4 +1,4 @@
 Significance: patch
 Type: removed
+Comment: Remove the plan usage widget, which no site showed. Plan usage is on the dashboard's Settings tab.
 
-Remove the plan usage widget, which no site showed. Plan usage is on the dashboard's Settings tab.
