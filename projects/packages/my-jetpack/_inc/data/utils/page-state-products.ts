@@ -64,7 +64,7 @@ export function setPluginsActiveInPageState( productSlugs: string[] ) {
 export function syncPageStateWithFeatures( state: MainFeaturesState ) {
 	setPluginsActiveInPageState( getProductSlugsWithActivePlugin( state ) );
 
-	// With Jetpack active, products it also provides keep `is_plugin_active` whatever their own plugin does.
+	// Only without Jetpack: when it is active, the products it also provides stay active whatever their own plugin does.
 	if ( state.jetpack !== 'active' ) {
 		setPluginActiveStateInPageState( getProductSlugsWithInactivePlugin( state ), false );
 	}
