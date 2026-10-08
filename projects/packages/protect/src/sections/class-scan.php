@@ -286,7 +286,11 @@ class Scan implements Dashboard_Section {
 		}
 
 		Scan_Status::delete_option();
-		return self::get_threat_fix_status( $response, $id );
+		$status = self::get_threat_fix_status( $response, $id );
+		if ( 'fixed' === $status['status'] ) {
+			delete_transient( self::HISTORY_CACHE );
+		}
+		return $status;
 	}
 
 	/**
@@ -304,6 +308,10 @@ class Scan implements Dashboard_Section {
 
 		$status = self::get_threat_fix_status( $response, $id );
 		if ( in_array( $status['status'], self::FIX_DONE_STATUSES, true ) ) {
+			// A fixed threat moves into Scan history.
+			if ( 'fixed' === $status['status'] ) {
+				delete_transient( self::HISTORY_CACHE );
+			}
 			$status['scan'] = self::get_scan_report( true, true );
 		}
 		return $status;

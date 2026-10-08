@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Protect: Add a Scan history tab to the Protect dashboard for sites with Jetpack Scan.
+Protect: Add a Scan history tab to the Protect dashboard for sites with Jetpack Scan, show threat actions on row hover, and offer to delete unused plugins and themes that have threats.

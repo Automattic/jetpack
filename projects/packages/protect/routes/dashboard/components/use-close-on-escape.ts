@@ -5,7 +5,7 @@ const POPUP_SELECTOR = '[role="menu"], [role="listbox"], [role="dialog"], [role=
 /**
  * Call `onClose` when Escape is pressed anywhere on the page.
  *
- * Skips presses a menu, listbox or dialog handled or had focus for, so Escape closes those first.
+ * Ignores Escape inside a menu, listbox or dialog, or when one already handled it, so that closes first.
  *
  * @param onClose - Closes the inspector.
  */

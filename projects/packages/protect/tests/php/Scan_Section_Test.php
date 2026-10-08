@@ -23,6 +23,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( Scan::REQUEST_LOCK );
+		delete_transient( Scan::HISTORY_CACHE );
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -41,6 +42,27 @@ class Scan_Section_Test extends BaseTestCase {
 			$reflection->setAccessible( true );
 		}
 		return $reflection->invoke( null, ...$args );
+	}
+
+	/**
+	 * Test that the ignored list keeps only ignored threats from the history it shares with the History tab.
+	 */
+	public function test_ignored_threats_come_from_the_shared_history() {
+		set_transient(
+			Scan::HISTORY_CACHE,
+			array(
+				array(
+					'id'     => 1,
+					'status' => 'fixed',
+				),
+				array(
+					'id'     => 2,
+					'status' => 'ignored',
+				),
+			)
+		);
+
+		$this->assertSame( array( 2 ), array_column( Scan::get_ignored_threats(), 'id' ) );
 	}
 
 	/**

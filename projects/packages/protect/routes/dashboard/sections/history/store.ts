@@ -18,12 +18,13 @@ const historyStore = createStore< HistoryData >( () => INITIAL );
 let isLoading = false;
 
 /**
- * Fetch the fixed and ignored threats once per page load; the stage and inspector share the result.
+ * Fetch the fixed and ignored threats; the stage and inspector share the result.
  *
+ * @param refresh - Fetch again even when a list is loaded, as a fix may have added to it.
  * @return Resolves once the list or the error is in the store.
  */
-export function loadHistory(): Promise< void > {
-	if ( isLoading || historyStore.get().threats ) {
+export function loadHistory( refresh = false ): Promise< void > {
+	if ( isLoading || ( ! refresh && historyStore.get().threats ) ) {
 		return Promise.resolve();
 	}
 	isLoading = true;
@@ -38,8 +39,8 @@ export function loadHistory(): Promise< void > {
 			);
 		} )
 		.catch( ( e: { message?: string } ) =>
-			historyStore.set( () => ( {
-				threats: null,
+			historyStore.set( current => ( {
+				threats: current.threats,
 				error: e?.message || __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' ),
 			} ) )
 		)

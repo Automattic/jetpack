@@ -202,8 +202,8 @@ class Dashboard_Threats {
 				self_admin_url( 'plugins.php?action=deactivate&plugin=' . rawurlencode( $file ) )
 			);
 		}
-		// Core asks "Are you sure?" on this link before deleting anything.
-		if ( current_user_can( 'delete_plugins' ) && ! is_plugin_active( $file ) ) {
+		// Core asks "Are you sure?" on this link. On multisite, another site may still use the plugin.
+		if ( ! is_multisite() && current_user_can( 'delete_plugins' ) && ! is_plugin_active( $file ) ) {
 			$actions['delete'] = add_query_arg(
 				'_wpnonce',
 				wp_create_nonce( 'bulk-plugins' ),

@@ -15,11 +15,11 @@ export default function HistoryPanel() {
 	const { threats, error } = useHistory();
 
 	useEffect( () => {
-		loadHistory();
+		loadHistory( true );
 	}, [] );
 
 	let body;
-	if ( error ) {
+	if ( error && ! threats ) {
 		body = (
 			<CardRow>
 				<Notice.Root intent="error">
