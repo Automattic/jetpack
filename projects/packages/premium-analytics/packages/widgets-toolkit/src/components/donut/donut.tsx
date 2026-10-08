@@ -21,7 +21,8 @@ import type { DataFormat, WidgetStatus } from '../../types';
 
 export type DonutProps = {
 	/**
-	 * Segments of the breakdown, in display order.
+	 * The whole breakdown, in display order. A segment with no value in the period draws no
+	 * slice but keeps its legend row and its comparison value.
 	 */
 	segments: readonly DonutSegmentInput[];
 	/**

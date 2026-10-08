@@ -33,6 +33,17 @@ describe( 'buildDonutChartData', () => {
 		expect( legendData.map( item => item.comparison ) ).toEqual( [ undefined, undefined ] );
 	} );
 
+	it( 'keeps a segment with no value in the period for the legend and the previous total', () => {
+		const { chartData, legendData, previousTotal } = buildDonutChartData(
+			[ SEGMENTS[ 0 ], { label: 'Cancelled', value: 0, previousValue: 500 } ],
+			OPTIONS
+		);
+
+		expect( chartData.map( item => item.value ) ).toEqual( [ 3820, 0 ] );
+		expect( legendData.map( item => item.label ) ).toEqual( [ 'Returning', 'Cancelled' ] );
+		expect( previousTotal ).toBe( 3500 );
+	} );
+
 	it( 'writes the legend values in the given format', () => {
 		const { legendData } = buildDonutChartData( SEGMENTS, {
 			...OPTIONS,
