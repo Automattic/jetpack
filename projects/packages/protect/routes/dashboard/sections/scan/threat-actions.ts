@@ -172,6 +172,16 @@ export async function fixThreat( threat: ScanThreat ): Promise< void > {
 }
 
 /**
+ * Whether an action is already running on a threat, for callers outside React.
+ *
+ * @param id - The threat id.
+ * @return True while fixing, ignoring or unignoring.
+ */
+export function isThreatBusy( id: string | number ): boolean {
+	return !! actionStore.get()[ String( id ) ]?.busy;
+}
+
+/**
  * What is happening to a threat, re-rendering when it changes.
  *
  * @param id - The threat id.

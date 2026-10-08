@@ -7,7 +7,8 @@ import { Tabs } from '@wordpress/ui';
 import { getThreatLabel } from '../scan/labels';
 import { THREAT_PARAM, useScan, useThreatParam } from '../scan/store';
 import { loadIgnored } from '../scan/threat-actions';
-import { ActionsCell, ThreatCell, formatDetected } from '../scan/threats-list';
+import { getThreatRowActions } from '../scan/threat-row-actions';
+import { ThreatCell, formatDetected } from '../scan/threats-list';
 import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
 import type { ScanThreat } from '../scan/types';
 
@@ -49,13 +50,12 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		page: 1,
 		perPage: 20,
 		sort: { field: 'date', direction: 'desc' },
-		fields: [ 'severity', 'threat', 'date', 'actions' ],
+		fields: [ 'severity', 'threat', 'date' ],
 		layout: {
 			styles: {
 				severity: { width: '1%', align: 'start' },
 				threat: { width: '100%' },
 				date: { width: '1%' },
-				actions: { width: '1%', align: 'end' },
 			},
 		},
 	} );
@@ -127,16 +127,11 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 						</span>
 					) : null,
 			},
-			{
-				id: 'actions',
-				label: __( 'Actions', 'jetpack-protect-pkg' ),
-				enableHiding: false,
-				enableSorting: false,
-				render: ( { item } ) => <ActionsCell item={ item } onOpen={ open } canAct={ false } />,
-			},
 		],
 		[ open, status ]
 	);
+	// History only shows with a Scan plan, so ignored threats can always be unignored.
+	const actions = useMemo( () => getThreatRowActions( open, true ), [ open ] );
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
@@ -173,6 +168,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				}
 				data={ data }
 				fields={ fields }
+				actions={ actions }
 				view={ view }
 				onChangeView={ setView }
 				paginationInfo={ paginationInfo }

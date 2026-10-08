@@ -3,11 +3,10 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
 import { getThreatLabel } from './labels';
 import { useThreatParam } from './store';
-import { useThreatAction } from './threat-actions';
 import ThreatMedia from './threat-media';
+import { getThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
 import type { ReactNode } from 'react';
 
@@ -32,8 +31,6 @@ export function formatDetected( date: string ): string {
 }
 
 export type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
-/** Whether the site's plan can fix and ignore threats; the free vulnerability check can't. */
-type ActionProps = RowProps & { canAct: boolean };
 
 /**
  * The threat column: the icon and title, as one button that opens the details.
@@ -54,33 +51,6 @@ export function ThreatCell( { item, onOpen }: RowProps ) {
 				{ subject }
 			</span>
 		</button>
-	);
-}
-
-/**
- * The actions column: Auto-fix when a fix exists, then View; both open the details.
- *
- * @param props        - Component props.
- * @param props.item   - The threat.
- * @param props.onOpen - Opens the threat in the inspector.
- * @param props.canAct - Whether the site can fix threats.
- * @return The cell.
- */
-export function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
-	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
-	const { busy } = useThreatAction( item.id );
-	return (
-		<Stack direction="row" gap="xs" align="center" justify="end">
-			{ /* While a fix runs, a snackbar reports it; hiding Auto-fix stops a second request. */ }
-			{ canAct && item.fixable && item.status !== 'ignored' && busy !== 'fixing' && (
-				<Button variant="outline" size="compact" onClick={ onClick }>
-					{ __( 'Auto-fix', 'jetpack-protect-pkg' ) }
-				</Button>
-			) }
-			<Button variant="outline" tone="neutral" size="compact" onClick={ onClick }>
-				{ __( 'View', 'jetpack-protect-pkg' ) }
-			</Button>
-		</Stack>
 	);
 }
 
@@ -108,13 +78,12 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 		page: 1,
 		perPage: 20,
 		sort: { field: 'severity', direction: 'desc' },
-		fields: [ 'severity', 'threat', 'firstDetected', 'actions' ],
+		fields: [ 'severity', 'threat', 'firstDetected' ],
 		layout: {
 			styles: {
 				severity: { width: '1%', align: 'start' },
 				threat: { width: '100%' },
 				firstDetected: { width: '1%' },
-				actions: { width: '1%', align: 'end' },
 			},
 		},
 	} );
@@ -159,16 +128,10 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 						</span>
 					) : null,
 			},
-			{
-				id: 'actions',
-				label: __( 'Actions', 'jetpack-protect-pkg' ),
-				enableHiding: false,
-				enableSorting: false,
-				render: ( { item } ) => <ActionsCell item={ item } onOpen={ open } canAct={ canAct } />,
-			},
 		],
-		[ open, canAct ]
+		[ open ]
 	);
+	const actions = useMemo( () => getThreatRowActions( open, canAct ), [ open, canAct ] );
 
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
@@ -181,6 +144,7 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 				empty={ empty }
 				data={ data }
 				fields={ fields }
+				actions={ actions }
 				view={ view }
 				onChangeView={ setView }
 				paginationInfo={ paginationInfo }
