@@ -6,6 +6,8 @@
 
 .jetpack-comments.is-mounted {
 	--jetpack-comments-pad: 1em;
+	// The avatar's, which the submit's height matches.
+	--jetpack-comments-avatar-size: 40px;
 }
 
 // One box around the textarea and the submit row, in the post's own colours.
@@ -27,8 +29,9 @@
 	padding: var(--jetpack-comments-pad);
 	resize: none;
 
+	// Pinned: themes set display on textarea#comment, and an ID outranks classes.
 	&[hidden] {
-		display: none;
+		display: none !important;
 	}
 
 	// The shade the editor gives its own placeholder, so the handoff keeps it.
@@ -91,28 +94,8 @@
 	}
 }
 
-// The options below the box slide open and closed. Hidden, not just collapsed,
-// so nothing inside a closed one takes focus.
-.jetpack-comments__options {
-	display: grid;
-	grid-template-rows: 0fr;
-	visibility: hidden;
-	transition:
-		grid-template-rows 0.25s ease-in-out,
-		visibility 0s linear 0.25s;
-
-	&.is-open {
-		grid-template-rows: 1fr;
-		visibility: visible;
-		transition:
-			grid-template-rows 0.25s ease-in-out,
-			visibility 0s;
-	}
-}
-
 // Reversed so the submit precedes the identity line in the DOM, and Tab
-// reaches it straight from the textarea; wrapped in reverse too, so the
-// identity line stacks above the submit.
+// reaches it straight from the textarea. Wraps only for the too-long notice.
 .jetpack-comments__actions {
 	display: flex;
 	flex-flow: row-reverse wrap-reverse;
@@ -127,14 +110,6 @@
 	margin: 0;
 }
 
-// Shares the row with the submit down to 10em; below that it wraps above it.
-.jetpack-comments__identity {
-	display: flex;
-	align-items: center;
-	gap: 0.75em;
-	flex: 1 1 10em;
-}
-
 // A flex item, so the button sits on no text baseline and centres with
 // the avatar. Pinned against a theme's spacing around its own submit.
 .jetpack-comments .jetpack-comments__submit {
@@ -142,7 +117,18 @@
 	margin: 0 !important;
 	padding: 0 !important;
 
+	// Sized here, as tall as the avatar beside it; the theme keeps its look:
+	// font family, weight, colours, border and radius.
 	input {
+		// Pinned: Twenty Eleven nudges its submit 30px right with a relative offset.
+		position: static !important;
+		box-sizing: border-box;
+		block-size: var(--jetpack-comments-avatar-size) !important;
+		min-block-size: 0 !important;
+		padding: 0 1.25em !important;
+		font-size: 0.875em !important;
+		line-height: 1 !important;
+		cursor: pointer;
 
 		&:not(:focus, :active) {
 			margin: 0 !important;
@@ -155,8 +141,29 @@
 			margin-block-end: 0 !important;
 		}
 
-		&:disabled {
-			cursor: not-allowed;
+		// Pointer events off, so a theme's hover and press can't restyle them.
+		&:disabled,
+		&.is-busy {
+			opacity: 1 !important;
+			pointer-events: none;
+		}
+
+		// Core's: the fill stays and the label fades. Text-fill, since
+		// `currentColor` in `color` would read the parent's colour.
+		&:disabled:not(.is-busy) {
+			-webkit-text-fill-color: color-mix(in sRGB, currentColor 40%, transparent);
+		}
+
+		// Core's busy button: the theme's fill, with darker bands sliding over it.
+		// The keyframes are in dialog.scss, built into this same file.
+		&.is-busy {
+			$band: rgb(0 0 0 / 15%);
+			background-image: linear-gradient(-45deg, transparent 33%, $band 33%, $band 70%, transparent 70%) !important;
+			background-size: 100px 100%;
+
+			@media not (prefers-reduced-motion) {
+				animation: jetpack-comments-busy 2500ms infinite linear;
+			}
 		}
 	}
 }

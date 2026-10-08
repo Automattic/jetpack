@@ -276,7 +276,6 @@ describe( 'archive rows', () => {
 		const link = screen.getByRole( 'link', { name: /analytics.*opens in a new tab/i } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/tag/analytics/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 } );

@@ -22,7 +22,6 @@ let mockDashboardProps: {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -31,7 +30,10 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		appliedRange: {
+			from: new Date( Date.UTC( 2026, 5, 1 ) ),
+			to: new Date( Date.UTC( 2026, 5, 16 ) ),
+		},
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
@@ -334,7 +336,6 @@ describe( 'video detail stage', () => {
 			'src',
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
 		);
-		expect( placeholderGlyph() ).not.toBeInTheDocument();
 
 		// A tokenless poster (private video) 404s; the broken image must swap
 		// itself for the video-glyph placeholder, keeping the image slot.

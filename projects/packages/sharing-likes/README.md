@@ -3,27 +3,30 @@
 Sharing buttons and Like buttons for your posts.
 
 Today the package ships the wp-admin **Settings > Sharing** screen, under
-`src/settings/`. A host plugin registers it:
+`src/settings/`, and the same settings over REST, under `wpcom/v2/sharing-likes/`,
+for the React version of the screen. A host plugin sets both up with one call,
+on every request rather than in an `is_admin()` branch, since REST requests are
+not admin requests, and Calypso's sidebar is built in one:
 
 ```php
-\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
-\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
+\Automattic\Jetpack\Sharing_Likes\Initializer::init();
 ```
 
-Both calls belong in an `is_admin()` branch, and neither depends on a module
-being active: the screen and every section on it exist whatever the site is
-running.
+Neither depends on a module being active: the screen and every section on it
+exist whichever modules are on, on any site that is Simple, connected, or in
+offline mode.
 
 It also ships the per-post Likes and Sharing switches the block editor shows, as
-REST fields on every public post type:
+REST fields on every public post type. `Initializer::init()` leaves these out:
+each belongs to the feature that reads it, so call it wherever that feature
+loads (Likes or Comment Likes, and Sharing), outside any `is_admin()` branch:
 
 ```php
 \Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::init();
 \Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::init();
 ```
 
-Keep these out of any `is_admin()` branch, since REST requests are not admin
-requests. Calling either more than once is harmless.
+Calling either more than once is harmless.
 
 ## How to install sharing-likes
 

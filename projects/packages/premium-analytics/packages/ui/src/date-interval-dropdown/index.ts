@@ -1,1 +1,1 @@
-export { DateIntervalDropdown } from './date-interval-dropdown';
+export { DateIntervalDropdown, getIntervalLabel } from './date-interval-dropdown';

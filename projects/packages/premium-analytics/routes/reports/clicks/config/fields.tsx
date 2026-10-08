@@ -1,9 +1,12 @@
 /**
  * External dependencies
  */
-import { Link } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison, type ClickRow } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	ExternalLink,
+	MetricWithComparison,
+	type ClickRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -41,9 +44,9 @@ export function getClicksFields( withComparison = false ): Field< ClickRow >[] {
 					// visually.
 					<DrilldownLeafCell groupLabel={ item.parentId }>
 						{ safeUrl ? (
-							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
+							<ExternalLink href={ safeUrl } variant="default">
 								{ item.clickedUrl }
-							</Link>
+							</ExternalLink>
 						) : (
 							item.clickedUrl
 						) }

@@ -2,11 +2,16 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Page_Cache;
 
+use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Rebuild_File;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Path_Actions\Simple_Delete;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Request;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage\File_Storage;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 class Filesystem_Utils_Test extends TestCase {
@@ -15,10 +20,20 @@ class Filesystem_Utils_Test extends TestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		\Brain\Monkey\setUp();
+		Functions\when( 'apply_filters_deprecated' )->alias(
+			function ( $tag, $args ) {
+				return $args[0];
+			}
+		);
 
 		if ( ! defined( 'WP_CONTENT_DIR' ) ) {
 			define( 'WP_CONTENT_DIR', '/tmp/wordpress/wp-content' );
 		}
+		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+			define( 'HOUR_IN_SECONDS', 3600 );
+		}
+		require_once __DIR__ . '/../../../../../app/modules/optimizations/page-cache/pre-wordpress/class-boost-cache.php';
 
 		// Create a temporary test directory
 		$this->test_dir        = sys_get_temp_dir() . '/boost-test-' . uniqid();
@@ -30,6 +45,7 @@ class Filesystem_Utils_Test extends TestCase {
 	}
 
 	public function tearDown(): void {
+		\Brain\Monkey\tearDown();
 		parent::tearDown();
 
 		// Clean up test directories
@@ -65,9 +81,512 @@ class Filesystem_Utils_Test extends TestCase {
 			'get'     => array( 'param' => 'value' ),
 		);
 
-		$filename = Filesystem_Utils::get_request_filename( $parameters );
+		$filename = Filesystem_Utils::get_request_filename( '/', $parameters );
 		$this->assertIsString( $filename );
 		$this->assertStringEndsWith( '.html', $filename );
+	}
+
+	public function test_non_encodable_get_parameters_are_not_cached() {
+		$parameters = array(
+			'cookies' => array( 'test' => 'value' ),
+			'get'     => array( 'param' => "\xFF" ),
+		);
+		$storage    = new File_Storage( 'example.com' );
+
+		$this->assertFalse( Filesystem_Utils::get_request_filename( '/page/', $parameters ) );
+		$this->assertInstanceOf( Boost_Cache_Error::class, $storage->write( '/page/', $parameters, 'Test content' ) );
+		$this->assertFalse( is_dir( $this->boost_cache_dir . '/cache/example.com/page' ) );
+		$this->assertFalse( $storage->read( '/page/', $parameters ) );
+		$this->assertFalse( $storage->reset_rebuild_file( '/page/', $parameters ) );
+	}
+
+	public function test_non_array_key_filter_results_are_not_cached() {
+		foreach ( array( 'invalid', 1, true, false, null, new \stdClass(), new \ArrayObject() ) as $components ) {
+			Functions\when( 'apply_filters_deprecated' )->justReturn( $components );
+			$this->assertFalse( Filesystem_Utils::get_request_filename( '/first/', array() ) );
+			$this->assertFalse( Filesystem_Utils::get_request_filename( '/second/', array() ) );
+		}
+	}
+
+	public function test_request_filename_includes_normalized_uri() {
+		$parameters = array(
+			'cookies' => array( 'test' => 'value' ),
+			'get'     => array( 'param' => 'value' ),
+		);
+
+		$filename = Filesystem_Utils::get_request_filename( '/first/', $parameters );
+		$this->assertNotSame( $filename, Filesystem_Utils::get_request_filename( '/second/', $parameters ) );
+		$this->assertSame( $filename, Filesystem_Utils::get_request_filename( '/first?param=value', $parameters ) );
+	}
+
+	public function test_unparseable_request_paths_are_not_cached() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+
+		foreach ( array( '/x:0', '/x:0?a=1', '/section:99999/' ) as $uri ) {
+			$normalized_uri = Boost_Cache_Utils::normalize_request_uri( $uri );
+			$request        = new Request( $normalized_uri, $parameters );
+
+			$this->assertFalse( $normalized_uri );
+			$this->assertFalse( Filesystem_Utils::get_request_filename( $uri, $parameters ) );
+			$this->assertFalse( $request->is_cacheable() );
+			$this->assertInstanceOf( Boost_Cache_Error::class, $storage->write( $uri, $parameters, 'invalid' ) );
+			$this->assertFalse( $storage->read( $uri, $parameters ) );
+			$this->assertFalse( $storage->reset_rebuild_file( $uri, $parameters ) );
+		}
+		$this->assertFalse( is_dir( $this->boost_cache_dir . '/cache/example.com' ) );
+	}
+
+	public function test_normalize_request_uri_collapses_leading_slashes() {
+		$uri = Boost_Cache_Utils::normalize_request_uri( '/page/child?param=value' );
+
+		$this->assertSame( '/page/child/', $uri );
+		$this->assertSame( $uri, Boost_Cache_Utils::normalize_request_uri( '//page/child?param=value' ) );
+		$this->assertSame( $uri, Boost_Cache_Utils::normalize_request_uri( '///page/child?param=value' ) );
+	}
+
+	public function test_leading_slash_normalization_does_not_depend_on_regex_limits() {
+		$limit = ini_get( 'pcre.backtrack_limit' );
+		try {
+			ini_set( 'pcre.backtrack_limit', '0' );
+			$first  = Boost_Cache_Utils::normalize_request_uri( '///first/?q=1' );
+			$second = Boost_Cache_Utils::normalize_request_uri( '//second/?q=1' );
+		} finally {
+			ini_set( 'pcre.backtrack_limit', $limit );
+		}
+		$this->assertSame( '/first/', $first );
+		$this->assertSame( '/second/', $second );
+	}
+
+	public function test_non_string_request_uris_are_not_cached() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+
+		foreach ( array( false, null, 0, true, array(), new \stdClass() ) as $uri ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgument -- Deliberately passing a non-string value.
+			$this->assertFalse( Boost_Cache_Utils::normalize_request_uri( $uri ) );
+			// @phan-suppress-next-line PhanTypeMismatchArgument -- Deliberately passing a non-string value.
+			$this->assertFalse( Filesystem_Utils::get_request_filename( $uri, $parameters ) );
+		}
+		$storage->write( '/', $parameters, 'root' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- Deliberately passing a non-string value.
+		$this->assertFalse( $storage->read( false, $parameters ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- Deliberately passing a non-string value.
+		$this->assertInstanceOf( Boost_Cache_Error::class, $storage->write( false, $parameters, 'invalid' ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+		$storage->clear( '/' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- Deliberately passing a non-string value.
+		$this->assertFalse( $storage->reset_rebuild_file( false, $parameters ) );
+		$this->assertFalse( $storage->read( '/', $parameters ) );
+		$this->assertTrue( $storage->reset_rebuild_file( '/', $parameters ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+	}
+
+	public function test_zero_path_does_not_use_homepage_cache() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+
+		$this->assertSame( '0/', Boost_Cache_Utils::normalize_request_uri( '0' ) );
+		$this->assertSame( '0/', Boost_Cache_Utils::normalize_request_uri( '0?q=value' ) );
+		$this->assertNotSame( Filesystem_Utils::get_request_filename( '/', $parameters ), Filesystem_Utils::get_request_filename( '0', $parameters ) );
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '0/', $parameters, 'zero' );
+		$this->assertSame( 'zero', $storage->read( '0', $parameters ) );
+		$storage->clear(
+			'0',
+			array(
+				'parameters' => $parameters,
+				'rebuild'    => false,
+			)
+		);
+		$this->assertFalse( $storage->read( '0/', $parameters ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+		$storage->write( '0/child/', $parameters, 'child' );
+		$storage->clear(
+			'0',
+			array(
+				'recursive' => true,
+				'rebuild'   => false,
+			)
+		);
+		$this->assertFalse( $storage->read( '0/child/', $parameters ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+	}
+
+	public function test_request_fragments_are_not_cached() {
+		Functions\expect( 'apply_filters' )->never();
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/section/', $parameters, 'section' );
+
+		foreach ( array( '/#x', '/section#anything', '/section#', '/?q=value#x' ) as $uri ) {
+			$normalized_uri = Boost_Cache_Utils::normalize_request_uri( $uri );
+			$request        = new Request( $normalized_uri, $parameters );
+
+			$this->assertFalse( $normalized_uri );
+			$this->assertFalse( Filesystem_Utils::get_request_filename( $uri, $parameters ) );
+			$this->assertFalse( $request->is_cacheable() );
+			$this->assertInstanceOf( Boost_Cache_Error::class, $storage->write( $uri, $parameters, 'invalid' ) );
+			$this->assertFalse( $storage->read( $uri, $parameters ) );
+			$this->assertFalse( $storage->reset_rebuild_file( $uri, $parameters ) );
+		}
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+		$this->assertSame( 'section', $storage->read( '/section/', $parameters ) );
+	}
+
+	public function test_request_paths_changed_by_url_parsing_are_not_cached() {
+		Functions\expect( 'apply_filters' )->never();
+		foreach ( array( "/a\x00b/", "/a\x01b/", "/a\x7Fb/", 'http://example.com/page', 'http://example.com' ) as $uri ) {
+			$normalized_uri = Boost_Cache_Utils::normalize_request_uri( $uri );
+			$request        = new Request( $normalized_uri, array() );
+
+			$this->assertFalse( $normalized_uri );
+			$this->assertFalse( Filesystem_Utils::get_request_filename( $uri, array() ) );
+			$this->assertFalse( $request->is_cacheable() );
+		}
+	}
+
+	public function test_encoded_fragment_characters_keep_their_own_cache_key() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$filename   = Filesystem_Utils::get_request_filename( '/%23x', $parameters );
+
+		$this->assertSame( '/%23x/', Boost_Cache_Utils::normalize_request_uri( '/%23x' ) );
+		$this->assertIsString( $filename );
+		$this->assertNotSame( Filesystem_Utils::get_request_filename( '/', $parameters ), $filename );
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/%23x/', $parameters, 'encoded' );
+		$this->assertSame( 'encoded', $storage->read( '/%23x/', $parameters ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+	}
+
+	public function test_url_fragments_do_not_change_purge_scope() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/section/', $parameters, 'section' );
+		$cache->delete_page( 'https://example.com/section/?q=value#anything', $parameters );
+		$this->assertFalse( $storage->read( '/section/', $parameters ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+		$storage->write( '/section/child/', $parameters, 'child' );
+		$cache->delete_recursive( 'https://example.com/section/#anything' );
+		$this->assertFalse( $storage->read( '/section/child/', $parameters ) );
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+	}
+
+	public function test_targeted_url_invalidation_normalizes_leading_path_slashes() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/page/child/', $parameters, 'cached' );
+		$cache->delete_page( 'https://example.com//page/child/', $parameters );
+		$this->assertFalse( $storage->read( '/page/child/', $parameters ) );
+
+		$storage->write( '/page/child/', $parameters, 'cached' );
+		$cache->rebuild_page( 'https://example.com//page/child/', $parameters );
+		$this->assertFalse( $storage->read( '/page/child/', $parameters ) );
+		$this->assertTrue( $storage->reset_rebuild_file( '/page/child/', $parameters ) );
+		$this->assertSame( 'cached', $storage->read( '/page/child/', $parameters ) );
+	}
+
+	public function test_public_url_purge_accepts_scheme_relative_urls() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$host       = $_SERVER['HTTP_HOST'] ?? null;
+
+		try {
+			$_SERVER['HTTP_HOST'] = 'example.com';
+			require_once __DIR__ . '/../../../../../app/modules/optimizations/page-cache/pre-wordpress/boost-cache-actions.php';
+			$storage->write( '/page/', $parameters, 'cached' );
+			jetpack_boost_delete_cache_for_url( '//example.com/page/' );
+			$this->assertFalse( $storage->read( '/page/', $parameters ) );
+		} finally {
+			if ( null === $host ) {
+				unset( $_SERVER['HTTP_HOST'] );
+			} else {
+				$_SERVER['HTTP_HOST'] = $host;
+			}
+		}
+	}
+
+	public function test_distinct_request_uris_share_a_directory_without_sharing_cached_content() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+
+		$this->assertTrue( $storage->write( '/a<b/', $parameters, 'first page' ) );
+		$this->assertTrue( $storage->write( '/ab/', $parameters, 'second page' ) );
+		$this->assertSame( 'first page', $storage->read( '/a<b/', $parameters ) );
+		$this->assertSame( 'second page', $storage->read( '/ab/', $parameters ) );
+	}
+
+	public function test_targeted_clear_with_non_encodable_parameters_preserves_existing_directory() {
+		$invalid   = array(
+			'cookies' => array(),
+			'get'     => array( 'param' => "\xFF" ),
+		);
+		$storage   = new File_Storage( 'example.com' );
+		$directory = $this->boost_cache_dir . '/cache/example.com/page';
+
+		$this->assertTrue( Filesystem_Utils::create_directory( $directory ) );
+		foreach ( array( false, true ) as $rebuild ) {
+			$storage->clear(
+				'/page/',
+				array(
+					'parameters' => $invalid,
+					'rebuild'    => $rebuild,
+				)
+			);
+			$this->assertDirectoryExists( $directory );
+			$this->assertFileExists( $directory . '/index.html' );
+		}
+	}
+
+	public function test_pathless_url_purges_homepage_and_recursive_cache() {
+		$parameters = array();
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/child/', $parameters, 'child' );
+		$cache->delete_page( 'https://example.com', $parameters );
+		$this->assertFalse( $storage->read( '/', $parameters ) );
+		$this->assertSame( 'child', $storage->read( '/child/', $parameters ) );
+		$storage->write( '/', $parameters, 'root' );
+		$cache->delete_recursive( 'https://example.com' );
+		$this->assertFalse( $storage->read( '/', $parameters ) );
+		$this->assertFalse( $storage->read( '/child/', $parameters ) );
+	}
+
+	public function test_padded_url_purges_its_page() {
+		$storage = new File_Storage( 'example.com' );
+		$cache   = new Boost_Cache( $storage );
+		$storage->write( '/', array(), 'root' );
+
+		foreach ( array( ' https://example.com/page/', "\thttps://example.com/page/", "https://example.com/page/\r\n" ) as $url ) {
+			$storage->write( '/page/', array(), 'page' );
+			$cache->delete_page( $url, array() );
+			$this->assertFalse( $storage->read( '/page/', array() ) );
+			$this->assertSame( 'root', $storage->read( '/', array() ) );
+		}
+	}
+
+	public function test_control_characters_in_purge_paths_preserve_existing_pages() {
+		$storage = new File_Storage( 'example.com' );
+		$cache   = new Boost_Cache( $storage );
+		$storage->write( '/a_b/', array(), 'underscore' );
+		$storage->write( '/ab/', array(), 'plain' );
+
+		foreach ( array( "\x00", "\x01", "\t", "\r", "\n", "\x7F" ) as $character ) {
+			foreach ( array( '/a' . $character . 'b/', 'https://example.com/a' . $character . 'b/' ) as $path ) {
+				$cache->delete_page( $path, array() );
+				$cache->delete_recursive( $path );
+				$this->assertSame( 'underscore', $storage->read( '/a_b/', array() ) );
+				$this->assertSame( 'plain', $storage->read( '/ab/', array() ) );
+			}
+		}
+	}
+
+	public function test_version_change_clears_old_cache_without_a_request_host() {
+		Functions\when( 'delete_site_option' )->justReturn( true );
+		Functions\when( 'jetpack_boost_ds_get' )->justReturn( false );
+		Functions\when( 'jetpack_boost_minify_is_enabled' )->justReturn( false );
+		Functions\when( 'home_url' )->justReturn( 'https://example.com:8080' );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+		$options = array( 'jetpack_boost_page_cache_uri_keys' => false );
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default = false ) use ( &$options ) {
+				return $options[ $name ] ?? $default;
+			}
+		);
+		Functions\expect( 'update_option' )->once()->with( 'jetpack_boost_page_cache_uri_keys', 1, false )->andReturnUsing(
+			function ( $name, $value ) use ( &$options ) {
+				$options[ $name ] = $value;
+				return true;
+			}
+		);
+		Functions\when( 'wp_next_scheduled' )->justReturn( true );
+		$storage = new File_Storage( 'example.com:8080' );
+		$other   = new File_Storage( 'other.example.com' );
+		$storage->write( '/', array(), 'root' );
+		$storage->write( '/page/', array(), 'page' );
+		$other->write( '/', array(), 'other' );
+		$old_file = $this->boost_cache_dir . '/cache/example.com:8080/page/' . md5( '' ) . '.html';
+		file_put_contents( $old_file, 'old' );
+		$plugin = ( new \ReflectionClass( Jetpack_Boost::class ) )->newInstanceWithoutConstructor();
+		$host   = $_SERVER['HTTP_HOST'] ?? null;
+		try {
+			unset( $_SERVER['HTTP_HOST'] );
+			$plugin->handle_version_change();
+		} finally {
+			if ( null === $host ) {
+				unset( $_SERVER['HTTP_HOST'] );
+			} else {
+				$_SERVER['HTTP_HOST'] = $host;
+			}
+		}
+		$this->assertFileDoesNotExist( $old_file );
+		$this->assertFalse( $storage->read( '/', array() ) );
+		$this->assertFalse( $storage->read( '/page/', array() ) );
+		$this->assertSame( 'other', $other->read( '/', array() ) );
+		$this->assertSame( 1, $options['jetpack_boost_page_cache_uri_keys'] );
+
+		$storage->write( '/', array(), 'new root' );
+		$storage->write( '/page/', array(), 'new page' );
+		$plugin->handle_version_change();
+		$this->assertSame( 'new root', $storage->read( '/', array() ) );
+		$this->assertSame( 'new page', $storage->read( '/page/', array() ) );
+
+		if ( ! defined( 'JETPACK_BOOST_VERSION' ) ) {
+			define( 'JETPACK_BOOST_VERSION', '1.0.0' );
+		}
+		$options['jetpack_boost_version'] = JETPACK_BOOST_VERSION;
+		$storage->write( '/', array(), 'new' );
+		$plugin->schedule_version_change();
+		$this->assertSame( 'new', $storage->read( '/', array() ) );
+	}
+
+	public function test_targeted_path_purge_preserves_unrelated_pages_with_repeated_leading_slashes() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/section/', $parameters, 'section' );
+		$storage->write( '/keep/', $parameters, 'keep' );
+		$cache->delete_page( '///section/?x=1', $parameters );
+
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+		$this->assertFalse( $storage->read( '/section/', $parameters ) );
+		$this->assertSame( 'keep', $storage->read( '/keep/', $parameters ) );
+	}
+
+	public function test_recursive_path_purge_preserves_unrelated_pages_with_repeated_leading_slashes() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/section/', $parameters, 'section' );
+		$storage->write( '/section/child/', $parameters, 'child' );
+		$storage->write( '/keep/', $parameters, 'keep' );
+		$cache->delete_recursive( '////section/' );
+
+		$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+		$this->assertFalse( $storage->read( '/section/', $parameters ) );
+		$this->assertFalse( $storage->read( '/section/child/', $parameters ) );
+		$this->assertSame( 'keep', $storage->read( '/keep/', $parameters ) );
+	}
+
+	public function test_unparseable_urls_do_not_purge_existing_pages() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/section/', $parameters, 'section' );
+		foreach ( array( 'https://example.com:99999/section/', '//example.com:99999/section/' ) as $url ) {
+			$cache->delete_page( $url, $parameters );
+			$cache->delete_recursive( $url );
+			$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+			$this->assertSame( 'section', $storage->read( '/section/', $parameters ) );
+		}
+	}
+
+	public function test_empty_or_non_string_purge_inputs_preserve_existing_pages() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$pages      = array(
+			'/'               => 'root',
+			'/section/'       => 'section',
+			'/section/child/' => 'child',
+		);
+		foreach ( $pages as $uri => $content ) {
+			$storage->write( $uri, $parameters, $content );
+		}
+
+		foreach ( array( '', ' ', false, null, 0, true, array(), new \stdClass() ) as $path ) {
+			foreach ( array( false, true ) as $rebuild ) {
+				$storage->clear(
+					$path,
+					array(
+						'parameters' => $parameters,
+						'rebuild'    => $rebuild,
+					)
+				);
+				$storage->clear(
+					$path,
+					array(
+						'recursive' => true,
+						'rebuild'   => $rebuild,
+					)
+				);
+				foreach ( $pages as $uri => $content ) {
+					$this->assertSame( $content, $storage->read( $uri, $parameters ) );
+				}
+			}
+		}
+	}
+
+	public function test_urls_with_unparseable_paths_do_not_purge_existing_pages() {
+		$parameters = array(
+			'cookies' => array(),
+			'get'     => array(),
+		);
+		$storage    = new File_Storage( 'example.com' );
+		$cache      = new Boost_Cache( $storage );
+
+		$storage->write( '/', $parameters, 'root' );
+		$storage->write( '/section/', $parameters, 'section' );
+		foreach ( array( 'https://example.com/x:0', 'https://example.com/section:99999/' ) as $url ) {
+			$cache->delete_page( $url, $parameters );
+			$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+			$cache->delete_recursive( $url );
+			$this->assertSame( 'root', $storage->read( '/', $parameters ) );
+			$this->assertSame( 'section', $storage->read( '/section/', $parameters ) );
+		}
 	}
 
 	public function test_is_rebuild_file() {

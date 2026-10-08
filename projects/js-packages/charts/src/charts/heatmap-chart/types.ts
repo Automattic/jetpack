@@ -1,7 +1,7 @@
 import type { BaseChartProps } from '../../types';
 import type { CSSProperties, ReactNode } from 'react';
 
-/** A single heatmap cell. `value: null` marks an empty cell. */
+/** A single heatmap cell. `value: null` marks an empty cell, as does a zero when no value is negative. */
 export type HeatmapCell = {
 	/** Per-cell label used in the tooltip / accessible name. */
 	label?: string;
@@ -102,8 +102,9 @@ export interface HeatmapChartProps extends Omit<
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale interpolates toward at the highest value. Defaults to the
-	 * first series palette slot, `--a8c-charts-color-series-1`.
+	 * Color the cell scale is built from, deepened at the highest value toward 9:1
+	 * against the background. Defaults to the first series palette slot,
+	 * `--a8c-charts-color-series-1`.
 	 */
 	primaryColor?: string;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
