@@ -26,6 +26,7 @@ export type Account = {
 	provider: 'wpcom' | 'local';
 	provisioned_at: string;
 	dns_check: DnsCheck | null;
+	existing_spf?: string;
 };
 
 export type Settings = {
@@ -37,6 +38,11 @@ export type Settings = {
 
 export type EnableBlocker = 'not_set_up' | 'dns_not_checked' | 'domain_lockdown' | 'sender_domain';
 
+export type SpfSuggestion = {
+	value: string;
+	state: 'new' | 'merge' | 'present';
+};
+
 export type SendStatus = {
 	provisioner: 'wpcom' | 'local' | null;
 	account: Account | null;
@@ -47,6 +53,7 @@ export type SendStatus = {
 	site_title: string;
 	admin_email: string;
 	connect_url: string;
+	spf_suggestion: SpfSuggestion | null;
 	reset_warning?: string;
 };
 

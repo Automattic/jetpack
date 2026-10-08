@@ -4,9 +4,7 @@ import { Badge, Button, Card, Stack, Text } from '@wordpress/ui';
 import CopyButton from '../../components/copy-button';
 import ErrorNotice from '../../components/error-notice';
 import { useSendAction } from '../../data/store';
-import type { Account, DnsCheck, DnsPurpose, DnsRecord } from '../../data/types';
-
-const RELAY_INCLUDE = 'include:relay.mailchannels.net';
+import type { Account, DnsCheck, DnsPurpose, SpfSuggestion } from '../../data/types';
 
 const CHECK_KEY: Record< DnsPurpose, keyof DnsCheck > = {
 	lockdown: 'domain_lockdown',
@@ -48,35 +46,30 @@ function VerdictBadge( { verdict }: { verdict?: string } ) {
 }
 
 /**
- * The SPF value to publish: a domain may only have one SPF record, so merge into an existing one.
+ * Hint under the SPF record for the suggestion's state.
  *
- * @param record   - The SPF record Send suggests.
- * @param existing - The domain's current SPF record, or ''.
- * @return The value and a hint.
+ * @param state - Suggestion state.
+ * @return The hint, or '' when none applies.
  */
-function spfValue( record: DnsRecord, existing: string ): { value: string; hint: string } {
-	if ( ! existing ) {
-		return { value: record.value, hint: '' };
-	}
-	if ( existing.includes( RELAY_INCLUDE ) ) {
-		return {
-			value: existing,
-			hint: __( 'Your SPF record already includes MailChannels.', 'jetpack-send-pkg' ),
-		};
-	}
-	const merged = /\s[~?+-]?all\s*$/.test( existing )
-		? existing.replace( /\s([~?+-]?all)\s*$/, ` ${ RELAY_INCLUDE } $1` )
-		: `${ existing } ${ RELAY_INCLUDE }`;
-	return {
-		value: merged,
-		hint: __(
+function spfHint( state: SpfSuggestion[ 'state' ] ): string {
+	if ( state === 'merge' ) {
+		return __(
 			'Your domain already has an SPF record. Replace it with this version, which adds MailChannels.',
 			'jetpack-send-pkg'
-		),
-	};
+		);
+	}
+	return state === 'present'
+		? __( 'Your SPF record already includes MailChannels.', 'jetpack-send-pkg' )
+		: '';
 }
 
-const DnsCard = ( { account }: { account: Account } ) => {
+const DnsCard = ( {
+	account,
+	spfSuggestion,
+}: {
+	account: Account;
+	spfSuggestion: SpfSuggestion | null;
+} ) => {
 	const { run, busy, error } = useSendAction();
 	const check = account.dns_check;
 	const hasDkim = account.dns_records.some( record => record.purpose === 'dkim' );
@@ -100,10 +93,9 @@ const DnsCard = ( { account }: { account: Account } ) => {
 						) }
 					</Text>
 					{ account.dns_records.map( record => {
-						const { value, hint } =
-							record.purpose === 'spf'
-								? spfValue( record, check?.existing_spf ?? '' )
-								: { value: record.value, hint: '' };
+						const suggestion = record.purpose === 'spf' ? spfSuggestion : null;
+						const value = suggestion?.value ?? record.value;
+						const hint = suggestion ? spfHint( suggestion.state ) : '';
 						return (
 							<div
 								className="jetpack-send-dns__record"

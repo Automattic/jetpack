@@ -142,7 +142,22 @@ class REST_Controller {
 			'site_title'       => wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES ),
 			'admin_email'      => (string) get_option( 'admin_email' ),
 			'connect_url'      => class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ? admin_url( 'admin.php?page=my-jetpack#/connection' ) : '',
+			'spf_suggestion'   => $account ? Dns_Check::spf_suggestion( self::known_spf( $account ) ) : null,
 		);
+	}
+
+	/**
+	 * The domain's SPF record as last seen: by the latest DNS check, else at setup.
+	 *
+	 * @param array $account Stored account.
+	 * @return string
+	 */
+	private static function known_spf( array $account ) {
+		$check = $account['dns_check'] ?? null;
+		if ( is_array( $check ) && isset( $check['existing_spf'] ) ) {
+			return (string) $check['existing_spf'];
+		}
+		return (string) ( $account['existing_spf'] ?? '' );
 	}
 
 	/**
@@ -194,6 +209,7 @@ class REST_Controller {
 			return self::error_response( $account );
 		}
 
+		$account['existing_spf'] = Dns_Check::existing_spf( $domain );
 		Account::save( $account );
 		Settings::update( array( 'enabled' => false ) );
 		return rest_ensure_response( self::status_data() );

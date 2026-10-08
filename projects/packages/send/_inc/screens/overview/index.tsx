@@ -44,7 +44,7 @@ const OverviewScreen = ( { status }: { status: SendStatus } ) => {
 			{ account && (
 				<>
 					<StatusCard status={ status } account={ account } />
-					<DnsCard account={ account } />
+					<DnsCard account={ account } spfSuggestion={ status.spf_suggestion } />
 					<UsageCard />
 					<TestEmailCard defaultTo={ status.admin_email } />
 				</>

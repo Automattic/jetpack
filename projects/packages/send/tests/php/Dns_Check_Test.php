@@ -86,4 +86,38 @@ class Dns_Check_Test extends BaseTestCase {
 		}
 		$this->assertSame( 'v=spf1 -all', $check['existing_spf'] );
 	}
+
+	/**
+	 * Existing SPF records and the single record to publish.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_spf_records() {
+		return array(
+			'no record'                      => array( '', 'v=spf1 include:relay.mailchannels.net ~all', 'new' ),
+			'bare all'                       => array( 'v=spf1 ~all', 'v=spf1 include:relay.mailchannels.net ~all', 'merge' ),
+			'merges before a hard fail'      => array( 'v=spf1 include:_spf.google.com -all', 'v=spf1 include:_spf.google.com include:relay.mailchannels.net -all', 'merge' ),
+			'merges before an uppercase all' => array( 'v=spf1 include:_spf.google.com ~ALL', 'v=spf1 include:_spf.google.com include:relay.mailchannels.net ~ALL', 'merge' ),
+			'appends when there is no all'   => array( 'v=spf1 include:_spf.google.com', 'v=spf1 include:_spf.google.com include:relay.mailchannels.net', 'merge' ),
+			'already includes the relay'     => array( 'v=spf1 INCLUDE:relay.mailchannels.net ~all', 'v=spf1 INCLUDE:relay.mailchannels.net ~all', 'present' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_spf_records
+	 *
+	 * @param string $existing The domain's current SPF record.
+	 * @param string $value    Expected record to publish.
+	 * @param string $state    Expected state.
+	 */
+	#[DataProvider( 'provide_spf_records' )]
+	public function test_spf_suggestion_never_produces_a_second_or_misordered_record( $existing, $value, $state ) {
+		$this->assertSame(
+			array(
+				'value' => $value,
+				'state' => $state,
+			),
+			Dns_Check::spf_suggestion( $existing )
+		);
+	}
 }

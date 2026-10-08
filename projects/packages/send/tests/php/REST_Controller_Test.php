@@ -36,6 +36,7 @@ class REST_Controller_Test extends BaseTestCase {
 		$this->server   = $wp_rest_server;
 		add_action( 'rest_api_init', array( REST_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init', $this->server );
+		add_filter( 'jetpack_send_pre_existing_spf', '__return_empty_string' );
 	}
 
 	/**
@@ -46,6 +47,7 @@ class REST_Controller_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		remove_all_actions( 'rest_api_init' );
 		remove_all_filters( 'jetpack_send_provisioner' );
+		remove_all_filters( 'jetpack_send_pre_existing_spf' );
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -270,6 +272,65 @@ class REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'fake-key', $account['api_key'] );
 		$this->assertSame( 'jpsend', $account['dkim_selector'] );
 		$this->assertFalse( Settings::get()['enabled'] );
+		$this->assertSame( '', $account['existing_spf'] );
+		$this->assertSame(
+			array(
+				'value' => 'v=spf1 include:relay.mailchannels.net ~all',
+				'state' => 'new',
+			),
+			$response->get_data()['spf_suggestion']
+		);
+	}
+
+	public function test_setup_records_the_domains_existing_spf_record() {
+		$this->login( 'administrator' );
+		add_filter( 'jetpack_send_provisioner', fn() => new Fake_Provisioner() );
+		add_filter( 'jetpack_send_pre_existing_spf', fn( $pre, $domain ) => 'example.com' === $domain ? 'v=spf1 -all' : '', 10, 2 );
+
+		$response = $this->request( 'POST', '/setup', array( 'domain' => 'example.com' ) );
+
+		$account = Account::get();
+		$this->assertIsArray( $account );
+		$this->assertSame( 'v=spf1 -all', $account['existing_spf'] );
+		$this->assertSame( 'v=spf1 include:relay.mailchannels.net -all', $response->get_data()['spf_suggestion']['value'] );
+	}
+
+	/**
+	 * Where status finds the SPF record: the latest DNS check, then the one seen at setup.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_spf_sources() {
+		return array(
+			'no account'                      => array( null, null ),
+			'account from before SPF capture' => array( array(), 'new' ),
+			'setup-time record'               => array( array( 'existing_spf' => 'v=spf1 -all' ), 'merge' ),
+			'a later DNS check wins'          => array(
+				array(
+					'existing_spf' => 'v=spf1 -all',
+					'dns_check'    => array( 'existing_spf' => 'v=spf1 include:relay.mailchannels.net -all' ),
+				),
+				'present',
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_spf_sources
+	 *
+	 * @param array|null  $overrides Account keys to replace, or null for no account.
+	 * @param string|null $state     Expected suggestion state, or null for no suggestion.
+	 */
+	#[DataProvider( 'provide_spf_sources' )]
+	public function test_status_suggests_spf_from_the_latest_known_record( $overrides, $state ) {
+		$this->login( 'administrator' );
+		if ( null !== $overrides ) {
+			Account::save( self::account( $overrides ) );
+		}
+
+		$suggestion = $this->request( 'GET', '/status' )->get_data()['spf_suggestion'];
+
+		$this->assertSame( $state, null === $suggestion ? null : $suggestion['state'] );
 	}
 
 	public function test_setup_failure_leaves_the_account_and_settings_unchanged() {

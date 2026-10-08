@@ -17,6 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Dns_Check {
 
 	/**
+	 * The include mechanism MailChannels requires in the domain's SPF record.
+	 *
+	 * @var string
+	 */
+	const RELAY_INCLUDE = 'include:relay.mailchannels.net';
+
+	/**
 	 * Normalize a check-domain response.
 	 *
 	 * @param array  $response     MailChannels response.
@@ -43,6 +50,18 @@ class Dns_Check {
 	 * @return string
 	 */
 	public static function existing_spf( $domain ) {
+		/**
+		 * Short-circuits the DNS lookup for a domain's SPF record.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string|null $pre    The record, '' for none, or null to look it up.
+		 * @param string      $domain Domain.
+		 */
+		$pre = apply_filters( 'jetpack_send_pre_existing_spf', null, $domain );
+		if ( null !== $pre ) {
+			return (string) $pre;
+		}
 		if ( ! function_exists( 'dns_get_record' ) ) {
 			return '';
 		}
@@ -54,6 +73,35 @@ class Dns_Check {
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * The one SPF record to publish: a domain may only have one, so merge into any existing record.
+	 *
+	 * @param string $existing The domain's current SPF record, or ''.
+	 * @return array{value: string, state: string} State is `new`, `merge` or `present`.
+	 */
+	public static function spf_suggestion( $existing ) {
+		$existing = trim( (string) $existing );
+		if ( '' === $existing ) {
+			return array(
+				'value' => 'v=spf1 ' . self::RELAY_INCLUDE . ' ~all',
+				'state' => 'new',
+			);
+		}
+		if ( false !== stripos( $existing, self::RELAY_INCLUDE ) ) {
+			return array(
+				'value' => $existing,
+				'state' => 'present',
+			);
+		}
+
+		$all    = '/\s([~?+-]?all)\s*$/i';
+		$merged = preg_match( $all, $existing ) ? preg_replace( $all, ' ' . self::RELAY_INCLUDE . ' $1', $existing ) : $existing . ' ' . self::RELAY_INCLUDE;
+		return array(
+			'value' => (string) $merged,
+			'state' => 'merge',
+		);
 	}
 
 	/**
