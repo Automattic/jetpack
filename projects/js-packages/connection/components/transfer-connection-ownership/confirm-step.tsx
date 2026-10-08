@@ -33,7 +33,6 @@ const TransferConfirmStep = ( {
 	isProtectedOwner,
 	error,
 }: TransferConfirmStepProps ) => {
-	// Script data carries no avatar for the current owner, so that badge is always initials.
 	const currentOwnerName = getScriptData()?.user?.current_user?.display_name ?? '';
 
 	return (
@@ -47,7 +46,7 @@ const TransferConfirmStep = ( {
 						</span>
 					</>
 				) }
-				<AvatarBadge avatar={ candidate.avatar } name={ candidate.displayName } />
+				<AvatarBadge name={ candidate.displayName } />
 				<Text>
 					{ createInterpolateElement(
 						sprintf(

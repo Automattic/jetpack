@@ -38,14 +38,12 @@ describe( 'TransferConnectionOwnership', () => {
 			login: 'kazz',
 			displayName: 'Kazz',
 			email: 'kazz@example.com',
-			avatar: 'https://example.org/kazz.png',
 		},
 		{
 			id: 9,
 			login: 'alexm',
 			displayName: 'Alex Moreno',
 			email: 'alex@example.com',
-			avatar: '',
 		},
 	];
 

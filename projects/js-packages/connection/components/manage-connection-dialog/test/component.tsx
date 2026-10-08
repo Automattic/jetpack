@@ -24,7 +24,6 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 					login: 'kazz',
 					displayName: 'Kazz',
 					email: 'kazz@example.com',
-					avatar: '',
 				},
 			] ),
 		disconnectSite: mockDisconnectSite,
