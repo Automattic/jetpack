@@ -138,5 +138,7 @@ declare global {
 		jetpackCommentsEditorLocale?: LocaleData;
 		/** The editor's strings on the edit-comment screen, translated in PHP. */
 		jetpackCommentsEditorLabels?: EditorLabels;
+		/** The comment on the edit-comment screen, as the editor writes it. */
+		jetpackCommentsEditorContent?: string;
 	}
 }
