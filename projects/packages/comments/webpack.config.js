@@ -41,9 +41,12 @@ export default {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		// Off by default to keep i18n calls extractable; this package ships no strings of its own to extract.
+		concatenateModules: true,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: { 'framer-motion$': path.join( __dirname, 'tools/framer-motion.js' ) },
 	},
 	node: false,
 	module: {
