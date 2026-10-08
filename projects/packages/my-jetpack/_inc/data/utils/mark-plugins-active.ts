@@ -31,13 +31,13 @@ export function setPageStateProductItems( items: ProductItems ) {
 }
 
 /**
- * The products whose plugin the Features tab's state reports as active.
+ * The slugs of the products whose plugin the Features tab's state reports as active.
  *
  * @param state          - The Features tab's state, as a switch returns it.
  * @param state.features - Its features, each with its product and plugin status.
  * @return The product slugs.
  */
-export function getProductsWithActivePlugin( { features }: MainFeaturesState ): string[] {
+export function getProductSlugsWithActivePlugin( { features }: MainFeaturesState ): string[] {
 	return features
 		.filter( ( { product, plugin_status } ) => product && plugin_status === 'active' )
 		.map( ( { product } ) => product );

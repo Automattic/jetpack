@@ -20,7 +20,7 @@ import {
 } from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import {
-	getProductsWithActivePlugin,
+	getProductSlugsWithActivePlugin,
 	markPluginsActive,
 	setPageStateProductItems,
 } from '../../../data/utils/mark-plugins-active';
@@ -115,7 +115,7 @@ function requestPluginSwitch(
 		.then( state => {
 			queryClient.setQueryData( QUERY_KEY, state );
 			const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-			const updatedItems = markPluginsActive( items, getProductsWithActivePlugin( state ) );
+			const updatedItems = markPluginsActive( items, getProductSlugsWithActivePlugin( state ) );
 			setPageStateProductItems( updatedItems );
 			return state;
 		} )

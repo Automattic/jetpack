@@ -1,4 +1,4 @@
-import { getProductsWithActivePlugin, markPluginsActive } from '../mark-plugins-active';
+import { getProductSlugsWithActivePlugin, markPluginsActive } from '../mark-plugins-active';
 
 describe( 'markPluginsActive', () => {
 	it( 'marks the listed products in a copy, leaving the given items untouched', () => {
@@ -15,7 +15,7 @@ describe( 'markPluginsActive', () => {
 	} );
 } );
 
-describe( 'getProductsWithActivePlugin', () => {
+describe( 'getProductSlugsWithActivePlugin', () => {
 	it.each( [
 		[ 'a product whose plugin is active', 'videopress', 'active', [ 'videopress' ] ],
 		[ 'not one whose plugin is off', 'videopress', 'inactive', [] ],
@@ -26,6 +26,6 @@ describe( 'getProductsWithActivePlugin', () => {
 			features: [ { product, plugin_status: pluginStatus } ],
 		} as unknown as MainFeaturesState;
 
-		expect( getProductsWithActivePlugin( state ) ).toEqual( slugs );
+		expect( getProductSlugsWithActivePlugin( state ) ).toEqual( slugs );
 	} );
 } );
