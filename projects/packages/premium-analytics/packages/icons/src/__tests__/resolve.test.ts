@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { chartBar } from '@wordpress/icons';
+import { calendar, chartBar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { calendar, chartLine } from '../library';
+import { chartLine } from '../library';
 import { lookupWidgetIcon, resolveWidgetIcon } from '../resolve';
 
 describe( 'lookupWidgetIcon', () => {
@@ -19,14 +19,14 @@ describe( 'lookupWidgetIcon', () => {
 		{
 			reference: 'jpa/calendar',
 			icon: calendar,
-			source: "the dashboard's icon over the library's namesake",
+			source: "the WordPress glyph, not the dashboard's namesake",
 		},
 	] )( 'finds $reference: $source', ( { reference, icon } ) => {
 		expect( lookupWidgetIcon( reference ) ).toBe( icon );
 	} );
 
 	it.each( [
-		[ 'jpa/no-such-icon', 'an unknown name' ],
+		[ 'jpa/no-such-icon', 'a name outside the collection' ],
 		[ 'jpa/constructor', 'a prototype key, not an icon' ],
 		[ 'core/chart-bar', 'a foreign collection' ],
 		[ 'chart-bar', 'a name with no collection' ],

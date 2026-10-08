@@ -1,53 +1,130 @@
 /**
  * External dependencies
  */
-import * as wordpressIcons from '@wordpress/icons';
-import { isValidElement } from 'react';
+import {
+	backup,
+	bug,
+	calendar,
+	category,
+	chartBar,
+	comment,
+	desktop,
+	download,
+	envelope,
+	globe,
+	link,
+	mapMarker,
+	megaphone,
+	mobile,
+	page,
+	pages,
+	payment,
+	people,
+	percent,
+	post,
+	postAuthor,
+	postList,
+	receipt,
+	scheduled,
+	search,
+	seen,
+	share,
+	starEmpty,
+	store,
+	trendingUp,
+	verse,
+	video,
+	wordpress,
+} from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import * as dashboardIcons from './library';
+import {
+	channel,
+	chartLine,
+	coupon,
+	customer,
+	device,
+	goal,
+	jetpack,
+	location,
+	paymentReturn,
+	productBlouse,
+	reports,
+	tag,
+} from './library';
 import type { ReactElement } from 'react';
 
+const COLLECTION = 'jpa';
+
 /**
- * The collection a `widget.json` names an icon under: `jpa/<name>`.
+ * What a widget may name as `jpa/<name>`: the WordPress glyphs the widgets use, and the
+ * dashboard's own where no widget names a WordPress one. Explicit, so a consumer bundles only
+ * these; `calendar`, `megaphone`, `payment` and `search` are the WordPress glyphs here, and the
+ * dashboard's own stay reachable by import.
  */
-export const ICON_COLLECTION = 'jpa';
-
-const REFERENCE = /^jpa\/([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+const ICONS: Record< string, ReactElement > = {
+	backup,
+	bug,
+	calendar,
+	category,
+	'chart-bar': chartBar,
+	comment,
+	desktop,
+	download,
+	envelope,
+	globe,
+	link,
+	'map-marker': mapMarker,
+	megaphone,
+	mobile,
+	page,
+	pages,
+	payment,
+	people,
+	percent,
+	post,
+	'post-author': postAuthor,
+	'post-list': postList,
+	receipt,
+	scheduled,
+	search,
+	seen,
+	share,
+	'star-empty': starEmpty,
+	store,
+	'trending-up': trendingUp,
+	verse,
+	video,
+	wordpress,
+	channel,
+	'chart-line': chartLine,
+	coupon,
+	customer,
+	device,
+	goal,
+	jetpack,
+	location,
+	'payment-return': paymentReturn,
+	'product-blouse': productBlouse,
+	reports,
+	tag,
+};
 
 /**
- * The export name of a kebab-case icon name: `chart-bar` to `chartBar`.
- *
- * @param name - The kebab-case name.
- * @return The camelCase export name.
- */
-function toExportName( name: string ): string {
-	return name.replace( /-([a-z0-9])/g, ( _, letter: string ) => letter.toUpperCase() );
-}
-
-/**
- * Looks a `jpa/<name>` reference up: the dashboard's own icons first, then `@wordpress/icons`
- * under the same kebab-case name. Anything else is `null`.
+ * Looks a `jpa/<name>` reference up in the collection. Anything else is `null`.
  *
  * @param reference - The icon name a widget record carries.
  * @return The icon element, or `null` when the name matches nothing.
  */
 export function lookupWidgetIcon( reference: string ): ReactElement | null {
-	const match = REFERENCE.exec( reference );
-	if ( ! match ) {
+	const prefix = `${ COLLECTION }/`;
+	if ( ! reference.startsWith( prefix ) ) {
 		return null;
 	}
 
-	const exportName = toExportName( match[ 1 ] );
-	for ( const library of [ dashboardIcons, wordpressIcons ] as Record< string, unknown >[] ) {
-		const icon = library[ exportName ];
-		if ( isValidElement( icon ) ) {
-			return icon;
-		}
-	}
-
-	return null;
+	const name = reference.slice( prefix.length );
+	return Object.prototype.hasOwnProperty.call( ICONS, name ) ? ICONS[ name ] : null;
 }
 
 /**

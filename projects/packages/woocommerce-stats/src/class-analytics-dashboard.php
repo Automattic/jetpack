@@ -58,9 +58,9 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Oldest widget contract the widgets run on: the one whose SDK added `Donut`.
+	 * Oldest widget contract the widgets run on: the one whose dashboard resolves the icons they name.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.5.0';
+	const MIN_WIDGET_API_VERSION = '1.6.0';
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, and the reports proxy on REST
