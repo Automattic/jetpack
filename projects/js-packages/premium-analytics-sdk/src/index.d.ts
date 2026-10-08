@@ -38,10 +38,8 @@ export type LeaderboardRowInput = any;
 export type LeaderboardStatus = any;
 export type LeaderboardDrillDown = any;
 
-// Widget attributes. `chartTypeAttributeField` is provisional: a widget declares the attribute
-// itself, `type: 'jpa/toggle-group'` with its `elements`, and the helper leaves at the next major.
+// Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
-export declare function chartTypeAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;
 export type ReportParamsFieldAttributes = any;
 export type ReportGrain = any;

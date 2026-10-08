@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Document the field types the dashboard provides for widget attributes.
+Comment: Document the field types the dashboard provides, and declare the chart type attribute in each widget instead of through a helper.
 
 

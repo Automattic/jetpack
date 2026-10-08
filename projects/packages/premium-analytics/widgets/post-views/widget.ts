@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -8,7 +9,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -33,7 +34,15 @@ export type PostViewsAttributes = {
  */
 export default {
 	icon: seen,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< PostViewsAttributes >[],
+	attributes: [
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< PostViewsAttributes >[],
 	example: {
 		attributes: {
 			chartType: 'bar',

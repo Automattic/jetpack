@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: removed
 
-Document the field types the dashboard registers for widget attributes, and mark the chart type helper provisional.
+Remove `chartTypeAttributeField`: a widget declares the chart type attribute as a `jpa/toggle-group` field, and the README lists the field types the dashboard registers.
