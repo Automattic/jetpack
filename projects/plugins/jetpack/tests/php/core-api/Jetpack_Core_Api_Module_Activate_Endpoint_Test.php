@@ -361,7 +361,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 200, $result->get_status() );
 		$stored = get_option( 'subscription_options' );
 		$this->assertStringNotContainsString( '<script', $stored['free_tier_description'] );
-		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertStringContainsString()` when we drop support for WP 7.1.
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertSame()` when we drop support for WP 7.1.
 		$this->assertThat(
 			$stored['free_tier_description'],
 			$this->logicalOr(
