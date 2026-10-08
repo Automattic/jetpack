@@ -10,7 +10,6 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from '../constants';
 import {
-	getAccessDescription,
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessRadioButtons,
@@ -119,47 +118,6 @@ describe( 'getReachForAccessLevelKey', () => {
 	} );
 } );
 
-describe( 'getAccessDescription', () => {
-	test( 'describes open access for everybody', () => {
-		expect( getAccessDescription( 'everybody' ) ).toBe(
-			'Anyone can read this post. Subscribers receive it by email.'
-		);
-	} );
-
-	test( 'describes the subscriber preview for subscribers', () => {
-		expect( getAccessDescription( 'subscribers' ) ).toBe(
-			'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.'
-		);
-	} );
-
-	test( 'says only paid subscribers are emailed when there is no paywall block', () => {
-		expect( getAccessDescription( 'paid_subscribers' ) ).toBe(
-			'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.'
-		);
-	} );
-
-	// With a paywall block the email goes to every subscriber, because free subscribers
-	// still receive the portion above the paywall. The copy has to say so explicitly,
-	// otherwise it reads as though only paid subscribers are emailed.
-	test( 'says all subscribers are emailed when a paywall block is present', () => {
-		expect( getAccessDescription( 'paid_subscribers', true ) ).toBe(
-			'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.'
-		);
-	} );
-
-	test( 'scopes the subscribers description to the paywall when one is present', () => {
-		expect( getAccessDescription( 'subscribers', true ) ).toBe(
-			'Only subscribers can read the content below the paywall. Subscribers receive it by email.'
-		);
-	} );
-
-	test( 'falls back to the open description for an unknown access level', () => {
-		expect( getAccessDescription( undefined ) ).toBe(
-			'Anyone can read this post. Subscribers receive it by email.'
-		);
-	} );
-} );
-
 describe( 'NewsletterAccessRadioButtons', () => {
 	const mockSetPostMeta = jest.fn();
 
@@ -207,7 +165,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 	test( 'labels the radio group with the question it answers', () => {
 		renderPanel();
 		expect(
-			screen.getByRole( 'radiogroup', { name: /who can read this post\?/i } )
+			screen.getByRole( 'radiogroup', { name: /who can read this on your site\?/i } )
 		).toBeInTheDocument();
 	} );
 
@@ -229,7 +187,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		renderPanel( { accessLevel: 'subscribers' } );
 		expect(
 			screen.getByText(
-				'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.'
+				'Only subscribers can read it on your site. Others see a preview and can subscribe.'
 			)
 		).toBeInTheDocument();
 	} );

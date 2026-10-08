@@ -4,12 +4,10 @@
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
-	useReportRetry,
 	tagsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -50,7 +48,6 @@ function TagsReport(): JSX.Element {
 	const records = useTagsReportRecords();
 	const reportParams = useReportParams();
 	const fields = useMemo( () => getTagsFields(), [] );
-	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.tags;
 
@@ -68,17 +65,13 @@ function TagsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
-				{ records.isError ? (
-					<PageNotice
-						{ ...describeError( records.error, {
-							retryDescription: __(
-								"We couldn't load tags and categories. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							onRetry: retry,
-						} ) }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load tags and categories. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< StatsTagsItem >
 						data={ records.rows }
 						fields={ fields }
@@ -88,7 +81,7 @@ function TagsReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
