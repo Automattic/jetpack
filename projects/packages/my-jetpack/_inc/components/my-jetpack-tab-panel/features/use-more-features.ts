@@ -100,6 +100,7 @@ export function groupMoreFeatures(
 	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
 		if (
 			$module.module === 'vaultpress' ||
+			$module.module === 'custom-content-types' ||
 			covered.has( $module.module ) ||
 			hidden.has( $module.module )
 		) {
