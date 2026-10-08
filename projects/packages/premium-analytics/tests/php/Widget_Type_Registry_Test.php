@@ -380,7 +380,7 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 			array(
 				array(
 					'name' => 'plugin/first',
-					'help' => array( 'content' => 'Read <em onclick="alert(1)">this</em> <u>carefully</u>.' ),
+					'help' => array( 'content' => 'Read <em onclick="alert(1)">this</em> <u>carefully</u>.<script src="https://example.com/x.js"></script>' ),
 					'icon' => 'Not/Valid',
 				),
 			),

@@ -134,7 +134,7 @@ class Widget_Metadata_Test extends BaseTestCase {
 				'title'         => 'Hydration sentinel',
 				'description'   => 'Carries metadata through hydration.',
 				'help'          => array(
-					'content' => 'Read <em onclick="alert(1)">this</em> <u>carefully</u>.',
+					'content' => 'Read <em onclick="alert(1)">this</em> <u>carefully</u>.<script src="https://example.com/x.js"></script>',
 					'links'   => array(
 						array(
 							'label' => 'Docs',
