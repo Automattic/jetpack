@@ -45,7 +45,7 @@ export type IdentitySettings = {
 	logoutAction: string;
 };
 
-/** The toolbar's name, translated in PHP, and the embed preview route: empty where embeds are off. */
+/** The editor's accessible names, translated in PHP, and the embed preview route: empty where embeds are off. */
 export type EditorLabels = {
 	blockTools: string;
 	addBlock: string;

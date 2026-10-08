@@ -270,7 +270,7 @@ class Block_Editor {
 	}
 
 	/**
-	 * What the editor needs from PHP: its one string of its own, and the embed route.
+	 * What the editor needs from PHP: its own accessible names, and the embed route.
 	 *
 	 * @return array
 	 */
