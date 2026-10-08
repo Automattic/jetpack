@@ -397,6 +397,77 @@ export const MixedInteractivity: Story = {
 	},
 };
 
+const onLeaderboardLabelLinkClick = action( 'label-link-click' );
+
+// The story's links log instead of navigating, so the canvas stays put.
+const handleDemoLabelLinkClick = ( event: React.MouseEvent< HTMLAnchorElement > ) => {
+	event.preventDefault();
+	onLeaderboardLabelLinkClick( event.currentTarget.dataset.entryId );
+};
+
+type InteractiveLabelStoryArgs = StoryArgs & { hasInteractiveLabel: boolean };
+
+export const InteractiveLabel: StoryObj< InteractiveLabelStoryArgs > = {
+	args: {
+		...sharedThemeArgs,
+		data: sampleData.map( entry => ( {
+			...entry,
+			// The span fills the label cell, so only the name itself is the link.
+			label: (
+				<span>
+					<a
+						href={ `#${ entry.id }` }
+						data-entry-id={ entry.id }
+						onClick={ handleDemoLabelLinkClick }
+					>
+						{ entry.label }
+					</a>
+				</span>
+			),
+			onClick: () => onLeaderboardItemClick( entry.id ),
+			ariaLabel: `View details for ${ entry.label }`,
+		} ) ),
+		hasInteractiveLabel: true,
+		withComparison: true,
+		withOverlayLabel: true,
+	},
+	argTypes: {
+		hasInteractiveLabel: {
+			control: 'boolean',
+			description:
+				'Set on every row. On: the row button sits behind the row and the name link beside it. Off: the link is nested inside the row button.',
+		},
+	},
+	render: ( { hasInteractiveLabel, data, ...args } ) => (
+		<LeaderboardChartWithOverlayLabel
+			{ ...args }
+			data={ data.map( entry => ( { ...entry, hasInteractiveLabel } ) ) }
+		/>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A row that drills down and also links its label. With `hasInteractiveLabel`, clicking the name fires only `label-link-click` and clicking anywhere else on the row fires only `leaderboard-item-click`; Tab reaches the row button, then the link. Turn it off to see the link nested in the button, where clicking the name fires both.',
+			},
+		},
+	},
+	play: async ( { canvasElement, args } ) => {
+		if ( ! args.hasInteractiveLabel ) {
+			return;
+		}
+
+		const canvas = within( canvasElement );
+		const button = canvas.getByRole( 'button', {
+			name: `View details for ${ sampleData[ 0 ].label }`,
+		} );
+
+		expect( button ).not.toContainElement(
+			canvas.getByRole( 'link', { name: String( sampleData[ 0 ].label ) } )
+		);
+	},
+};
+
 export const Animation: Story = {
 	args: {
 		...Default.args,
