@@ -47,5 +47,6 @@ class Comments {
 		Checkpoint::init();
 		Avatars::init();
 		Block_Editor::init();
+		Embeds::init();
 	}
 }

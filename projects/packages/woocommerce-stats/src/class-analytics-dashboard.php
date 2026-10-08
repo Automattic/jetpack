@@ -32,14 +32,19 @@ class Analytics_Dashboard {
 	/**
 	 * Widget type names the package builds, from `widgets/*\/widget.json`.
 	 */
-	const NET_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/net-sales-over-time';
-	const TOTAL_SALES_OVER_TIME_TYPE   = 'woocommerce-analytics/total-sales-over-time';
-	const GROSS_SALES_OVER_TIME_TYPE   = 'woocommerce-analytics/gross-sales-over-time';
-	const ORDERS_OVER_TIME_TYPE        = 'woocommerce-analytics/orders-over-time';
-	const AVERAGE_ORDER_VALUE_TYPE     = 'woocommerce-analytics/average-order-value';
-	const AVERAGE_ITEMS_PER_ORDER_TYPE = 'woocommerce-analytics/average-items-per-order';
-	const BOOKINGS_OVER_TIME_TYPE      = 'woocommerce-analytics/bookings-over-time';
-	const VISITORS_OVER_TIME_TYPE      = 'woocommerce-analytics/visitors-over-time';
+	const NET_SALES_OVER_TIME_TYPE       = 'woocommerce-analytics/net-sales-over-time';
+	const TOTAL_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/total-sales-over-time';
+	const GROSS_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/gross-sales-over-time';
+	const ORDERS_OVER_TIME_TYPE          = 'woocommerce-analytics/orders-over-time';
+	const AVERAGE_ORDER_VALUE_TYPE       = 'woocommerce-analytics/average-order-value';
+	const AVERAGE_ITEMS_PER_ORDER_TYPE   = 'woocommerce-analytics/average-items-per-order';
+	const BOOKINGS_OVER_TIME_TYPE        = 'woocommerce-analytics/bookings-over-time';
+	const VISITORS_OVER_TIME_TYPE        = 'woocommerce-analytics/visitors-over-time';
+	const NEW_VS_RETURNING_CUSTOMER_TYPE = 'woocommerce-analytics/new-vs-returning-customer';
+	const PAYMENT_STATUS_TYPE            = 'woocommerce-analytics/payment-status';
+	const ORDERS_FULFILLMENT_TYPE        = 'woocommerce-analytics/orders-fulfillment';
+	const COUPON_USAGE_OVER_TIME_TYPE    = 'woocommerce-analytics/coupon-usage-over-time';
+	const BOOKINGS_BY_STATUS_TYPE        = 'woocommerce-analytics/bookings-by-status';
 
 	/**
 	 * Registry actions of the dashboard package.
@@ -53,9 +58,9 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Oldest widget contract the widgets run on: the one whose SDK added `useReport`.
+	 * Oldest widget contract the widgets run on: the one whose SDK added `Donut`.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.4.0';
+	const MIN_WIDGET_API_VERSION = '1.5.0';
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, and the reports proxy on REST
@@ -120,6 +125,11 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 5, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-bookings-over-time-widget-instance', self::BOOKINGS_OVER_TIME_TYPE, 6, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 7, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 8, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 9, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 10, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 11, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-bookings-by-status-widget-instance', self::BOOKINGS_BY_STATUS_TYPE, 12, 1, 2 ),
 		);
 	}
 

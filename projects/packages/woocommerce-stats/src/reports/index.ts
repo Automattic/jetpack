@@ -16,4 +16,9 @@ export {
 } from './api/report-order-attribution-summary-fetch';
 export type { FilterCondition } from './types/filter-condition';
 export { BOOKINGS_FILTER } from './utils/product-filters';
+export {
+	FULFILLED_ORDERS_FILTER,
+	PAYMENT_STATUS_FILTERS,
+	UNFULFILLED_ORDERS_FILTER,
+} from './utils/order-filters';
 export type { DateType, ReportParams } from './utils/types';

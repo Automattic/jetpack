@@ -83,18 +83,22 @@ beforeAll( () => {
  * Run the card's state hook on the package's own reading of the store, which is
  * what the card passes it.
  *
+ * @param {boolean} shouldAskForUserConnection - Whether to ask for a user connection.
  * @return {object} The rendered hook result.
  */
-const renderConnectionState = () =>
+const renderConnectionState = ( shouldAskForUserConnection = true ) =>
 	renderHook(
 		() => {
 			const { hasConnectionError, severity } = useConnectionErrorNotice();
 
-			return useConnectionState( {
-				hasConnectionError,
-				severity,
-				errorTitle: 'Jetpack Connection error: Site connection',
-			} );
+			return useConnectionState(
+				{
+					hasConnectionError,
+					severity,
+					errorTitle: 'Jetpack Connection error: Site connection',
+				},
+				shouldAskForUserConnection
+			);
 		},
 		{ wrapper: Providers }
 	);
@@ -118,16 +122,35 @@ describe( 'useConnectionState — status while the account is still to be connec
 	} );
 } );
 
-describe( 'useConnectionState — a live error on a connected account', () => {
-	it( 'takes the package title as its label and leaves the copy to the package', () => {
-		setConnectionStore( { isUserConnected: true, connectionErrors: siteTokenBroken } );
+describe( 'useConnectionState — a site connected without an account', () => {
+	it.each( [
+		[ 'healthy when nothing in use needs one', false, 'success', undefined ],
+		[ 'a prompt when something in use needs one', true, 'warning', 'CONNECT_USER' ],
+	] )( 'is %s', ( _, shouldAskForUserConnection, status, action ) => {
+		setConnectionStore();
 
-		const { result } = renderConnectionState();
+		const { result } = renderConnectionState( shouldAskForUserConnection );
 
-		expect( result.current ).toEqual( {
-			label: 'Jetpack Connection error: Site connection',
-			status: 'error',
-			isDiagnosis: true,
-		} );
+		expect( [ result.current.status, result.current.action ] ).toEqual( [ status, action ] );
 	} );
+} );
+
+describe( 'useConnectionState — a live error with no account prompt to keep', () => {
+	it.each( [
+		[ 'on a connected account', true, true ],
+		[ 'on a site connection when nothing in use needs an account', false, false ],
+	] )(
+		'takes the package title as its label and leaves the copy to the package %s',
+		( _, isUserConnected, shouldAskForUserConnection ) => {
+			setConnectionStore( { isUserConnected, connectionErrors: siteTokenBroken } );
+
+			const { result } = renderConnectionState( shouldAskForUserConnection );
+
+			expect( result.current ).toEqual( {
+				label: 'Jetpack Connection error: Site connection',
+				status: 'error',
+				isDiagnosis: true,
+			} );
+		}
+	);
 } );
