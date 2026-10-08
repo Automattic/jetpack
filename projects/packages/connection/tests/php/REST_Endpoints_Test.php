@@ -1004,7 +1004,6 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertArrayHasKey( 'login', $candidates[0] );
 		$this->assertArrayHasKey( 'displayName', $candidates[0] );
 		$this->assertArrayHasKey( 'email', $candidates[0] );
-		$this->assertArrayHasKey( 'avatar', $candidates[0] );
 	}
 
 	/**

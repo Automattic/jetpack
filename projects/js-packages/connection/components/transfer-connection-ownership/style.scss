@@ -42,8 +42,17 @@
 }
 
 .jp-connection__transfer-ownership__avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	flex-shrink: 0;
+	inline-size: 38px;
+	block-size: 38px;
 	border-radius: 50%;
+	background-color: var(--jp-black, #101517);
+	color: var(--jp-white, #fff);
+	font-size: 13px;
+	font-weight: 600;
 }
 
 .jp-connection__transfer-ownership__who {
@@ -81,16 +90,4 @@
 
 .jp-connection__transfer-ownership__arrow {
 	color: var(--jp-gray-50, #646970);
-}
-
-.jp-connection__transfer-ownership__avatar.is-initials {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	inline-size: 38px;
-	block-size: 38px;
-	background-color: var(--jp-black, #101517);
-	color: var(--jp-white, #fff);
-	font-size: 13px;
-	font-weight: 600;
 }

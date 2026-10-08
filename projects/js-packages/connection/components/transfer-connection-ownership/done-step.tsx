@@ -24,7 +24,6 @@ export interface TransferDoneStepProps {
 const TransferDoneStep = ( { candidate }: TransferDoneStepProps ) => (
 	<div className="jp-connection__transfer-ownership">
 		<CandidateIdentity
-			avatar={ candidate.avatar }
 			displayName={ candidate.displayName }
 			login={ candidate.login }
 			email={ candidate.email }

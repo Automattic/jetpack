@@ -1128,7 +1128,8 @@ class REST_Connector {
 	 * filter here would offer candidates the change then refuses. The current owner is left
 	 * out for the same reason.
 	 *
-	 * Local user data only: resolving WordPress.com profiles would cost a request per user.
+	 * Local user data only: resolving WordPress.com profiles would cost a request per user,
+	 * and the UI identifies people by initials rather than fetching avatars from Gravatar.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1154,13 +1155,6 @@ class REST_Connector {
 				'login'       => $user->user_login,
 				'displayName' => $user->display_name,
 				'email'       => $user->user_email,
-				'avatar'      => get_avatar_url(
-					$user->ID,
-					array(
-						'size'    => 48,
-						'default' => 'mysteryman',
-					)
-				),
 			);
 		}
 

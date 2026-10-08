@@ -8,31 +8,20 @@ import { __, sprintf } from '@wordpress/i18n';
 import './style.scss';
 
 export interface AvatarBadgeProps {
-	/** Avatar URL. Falls back to initials when empty. */
-	avatar?: string;
 	/** Name the badge stands for. */
 	name: string;
 }
 
 /**
- * Round avatar for one person, falling back to their initials.
+ * Round initials badge for one person.
+ *
+ * Initials rather than a Gravatar: the outgoing owner has no avatar to show — script data
+ * carries their name alone — so fetching one for the other side would only mismatch it.
  *
  * @param {AvatarBadgeProps} props - Component props.
  * @return {import('react').ReactNode} The AvatarBadge component.
  */
-export const AvatarBadge = ( { avatar, name }: AvatarBadgeProps ) => {
-	if ( avatar ) {
-		return (
-			<img
-				className="jp-connection__transfer-ownership__avatar"
-				src={ avatar }
-				alt=""
-				width={ 38 }
-				height={ 38 }
-			/>
-		);
-	}
-
+export const AvatarBadge = ( { name }: AvatarBadgeProps ) => {
 	const initials = name
 		.split( /\s+/ )
 		.slice( 0, 2 )
@@ -41,15 +30,13 @@ export const AvatarBadge = ( { avatar, name }: AvatarBadgeProps ) => {
 		.toUpperCase();
 
 	return (
-		<span className="jp-connection__transfer-ownership__avatar is-initials" aria-hidden="true">
+		<span className="jp-connection__transfer-ownership__avatar" aria-hidden="true">
 			{ initials }
 		</span>
 	);
 };
 
 export interface CandidateIdentityProps {
-	/** Avatar URL for the person named. */
-	avatar?: string;
 	/** Display name. */
 	displayName: string;
 	/** Login, shown under the name. */
@@ -64,9 +51,9 @@ export interface CandidateIdentityProps {
  * @param {CandidateIdentityProps} props - Component props.
  * @return {import('react').ReactNode} The CandidateIdentity component.
  */
-const CandidateIdentity = ( { avatar, displayName, login, email }: CandidateIdentityProps ) => (
+const CandidateIdentity = ( { displayName, login, email }: CandidateIdentityProps ) => (
 	<div className="jp-connection__transfer-ownership__identity">
-		<AvatarBadge avatar={ avatar } name={ displayName } />
+		<AvatarBadge name={ displayName } />
 		<span className="jp-connection__transfer-ownership__who">
 			<strong>{ displayName }</strong>
 			<span className="jp-connection__transfer-ownership__meta">
