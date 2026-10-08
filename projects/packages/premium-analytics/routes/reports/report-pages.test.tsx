@@ -110,7 +110,6 @@ type PageCase = {
 	records: ( state: RecordsState ) => unknown;
 	row: unknown;
 	tableProps: Record< string, unknown >;
-	retryCopy: string;
 };
 
 const folded = { collapsible: true, defaultExpanded: 'none' };
@@ -123,7 +122,6 @@ const clicks: PageCase = {
 	records: state => state,
 	row: { id: 'wordpress.org', clickedUrl: 'wordpress.org', isGroup: true, clicks: 42 },
 	tableProps: folded,
-	retryCopy: "We couldn't load clicks. Please try again in a moment.",
 };
 
 const searchTerms: PageCase = {
@@ -134,7 +132,6 @@ const searchTerms: PageCase = {
 	records: ( { isError, refetch, ...table } ) => ( { isError, refetch, table } ),
 	row: { id: 'jetpack search', term: 'jetpack search', views: 42 },
 	tableProps: {},
-	retryCopy: "We couldn't load search terms. Please try again in a moment.",
 };
 
 const downloads: PageCase = {
@@ -151,7 +148,6 @@ const downloads: PageCase = {
 		children: null,
 	},
 	tableProps: {},
-	retryCopy: "We couldn't load file downloads. Please try again in a moment.",
 };
 
 const utm: PageCase = {
@@ -162,7 +158,6 @@ const utm: PageCase = {
 	records: state => state,
 	row: { id: 'utm_source=newsletter', label: 'newsletter', isGroup: true, views: 42 },
 	tableProps: folded,
-	retryCopy: "We couldn't load UTM data. Please try again in a moment.",
 };
 
 /**

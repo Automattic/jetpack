@@ -184,27 +184,25 @@ export default function LocationsReportPage(): JSX.Element {
 						'jetpack-premium-analytics-pkg'
 					) }
 				>
-					<>
-						{ showMap && (
-							<ReportLocationsMap
-								rows={ geoRows }
-								mode={ LOCATIONS_GEO_MODES[ activeTab ] }
-								focusCountry={ focusCountry }
-								isLoading={ tableIsLoading }
-							/>
-						) }
-						<ReportRecordsTable< LocationRow >
-							key={ activeTab }
-							data={ records.table.rows }
-							fields={ fields }
-							getItemId={ getLocationRowId }
-							isLoading={ records.table.isLoading }
-							isFetching={ records.table.isFetching }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-							onChangeView={ handleChangeView }
+					{ showMap && (
+						<ReportLocationsMap
+							rows={ geoRows }
+							mode={ LOCATIONS_GEO_MODES[ activeTab ] }
+							focusCountry={ focusCountry }
+							isLoading={ tableIsLoading }
 						/>
-					</>
+					) }
+					<ReportRecordsTable< LocationRow >
+						key={ activeTab }
+						data={ records.table.rows }
+						fields={ fields }
+						getItemId={ getLocationRowId }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+						onChangeView={ handleChangeView }
+					/>
 				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>

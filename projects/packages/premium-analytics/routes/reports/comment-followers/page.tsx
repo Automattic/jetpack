@@ -106,30 +106,28 @@ function CommentFollowersReport(): JSX.Element {
 						'jetpack-premium-analytics-pkg'
 					) }
 				>
-					<>
-						{ ( hasAllPostsFollowers || hasPostRows ) && (
-							<ReportPageSection className={ styles.summary }>
-								<Text variant="heading-md" render={ <h3 /> }>
-									{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
-								</Text>
-								<MetricValue
-									value={ records.allPostsFollowers ?? 0 }
-									dataFormat={ { type: 'number' } }
-								/>
-							</ReportPageSection>
-						) }
-						{ ( hasPostRows || ! hasAllPostsFollowers ) && (
-							<ReportRecordsTable< StatsCommentFollowersItem >
-								data={ records.rows }
-								fields={ fields }
-								getItemId={ getCommentFollowerRowId }
-								isLoading={ records.isLoading }
-								isFetching={ records.isFetching }
-								initialView={ RECORDS_VIEW }
-								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+					{ ( hasAllPostsFollowers || hasPostRows ) && (
+						<ReportPageSection className={ styles.summary }>
+							<Text variant="heading-md" render={ <h3 /> }>
+								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
+							</Text>
+							<MetricValue
+								value={ records.allPostsFollowers ?? 0 }
+								dataFormat={ { type: 'number' } }
 							/>
-						) }
-					</>
+						</ReportPageSection>
+					) }
+					{ ( hasPostRows || ! hasAllPostsFollowers ) && (
+						<ReportRecordsTable< StatsCommentFollowersItem >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getCommentFollowerRowId }
+							isLoading={ records.isLoading }
+							isFetching={ records.isFetching }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+						/>
+					) }
 				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
