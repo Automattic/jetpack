@@ -316,10 +316,10 @@ class Embeds extends WP_REST_Controller {
 				// Providers size the frame to the post's content width, wider than a nested comment.
 				$tags = new \WP_HTML_Tag_Processor( $content );
 				while ( $tags->next_tag( 'iframe' ) ) {
+					// Pixels only: Spotify sends width="100%", which is no ratio.
 					$width  = (string) $tags->get_attribute( 'width' );
 					$height = (string) $tags->get_attribute( 'height' );
-					// Pixels only: Spotify sends width="100%", which is no ratio.
-					$ratio = ctype_digit( $width ) && ctype_digit( $height ) && (int) $width && (int) $height ? "aspect-ratio:$width/$height;height:auto;" : '';
+					$ratio  = ctype_digit( $width ) && ctype_digit( $height ) && (int) $width && (int) $height ? "aspect-ratio:$width/$height;height:auto;" : '';
 					$style  = $tags->get_attribute( 'style' );
 					$tags->set_attribute( 'style', "max-width:100%;$ratio" . ( is_string( $style ) ? $style : '' ) );
 				}
