@@ -277,6 +277,12 @@ foreach ( $matrix as &$m ) {
 		error( "Key `wp` must be %s\n%s", $valid_wp, $orig );
 	}
 
+	// Coverage runs must set the `coverage` flag accordingly.
+	$is_cov_script = preg_match( '/^test-\w+-coverage$/', $m['script'] ) === 1;
+	if ( $m['coverage'] !== $is_cov_script ) {
+		error( "Key `coverage` must be %s for script `%s`!\n%s", $is_cov_script ? 'true' : 'false', $m['script'], $orig );
+	}
+
 	if ( ( $m['split-num'] === null ) !== ( $m['split-total'] === null ) ) {
 		error( "Keys `split-num` and `split-total` must both be set or both be null!\n%s", $orig );
 	} elseif ( $m['split-num'] !== null ) {
