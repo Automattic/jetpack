@@ -8,13 +8,13 @@ type ProductItems = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
  * @return The updated products, leaving `items` untouched.
  */
 export function withPluginsActive( items: ProductItems, productSlugs: string[] ): ProductItems {
-	return productSlugs.reduce(
-		( updated, slug ) =>
-			updated[ slug ]
-				? { ...updated, [ slug ]: { ...updated[ slug ], is_plugin_active: true } }
-				: updated,
-		items
-	);
+	return productSlugs.reduce( ( updated, slug ) => {
+		if ( ! updated[ slug ] ) {
+			return updated;
+		}
+
+		return { ...updated, [ slug ]: { ...updated[ slug ], is_plugin_active: true } };
+	}, items );
 }
 
 /**
