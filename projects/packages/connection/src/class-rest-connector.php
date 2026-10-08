@@ -1123,13 +1123,8 @@ class REST_Connector {
 	/**
 	 * Users this connection's ownership could be handed to.
 	 *
-	 * Filtered by the administrator capability rather than by `jetpack_disconnect`, because
-	 * that is what `Manager::update_connection_owner()` requires of a new owner — a looser
-	 * filter here would offer candidates the change then refuses. The current owner is left
-	 * out for the same reason.
-	 *
-	 * Local user data only: resolving WordPress.com profiles would cost a request per user,
-	 * and the UI identifies people by initials rather than fetching avatars from Gravatar.
+	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
+	 * list cannot offer someone the change would then refuse.
 	 *
 	 * @since $$next-version$$
 	 *

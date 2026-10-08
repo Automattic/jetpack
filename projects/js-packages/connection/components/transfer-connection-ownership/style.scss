@@ -1,7 +1,5 @@
-// The actions sit outside the list's own column, so give the pair a column of
-// their own. `flex-shrink: 0` because the dialogs lay this out inside a
-// `height: 100%` box that sits beside a footer: without it the box is squeezed
-// and the button rides up over the list's trailing hint.
+// Keep `flex-shrink: 0`: the dialogs lay this out in a `height: 100%` box
+// beside a footer, and without it the button rides up over the text above.
 .jp-connection__transfer-ownership-form {
 	display: flex;
 	flex-direction: column;
@@ -30,9 +28,7 @@
 	font-size: 13px;
 	font-weight: 600;
 
-	// The badge colour says which side of the handover someone is on, so the one
-	// colour that is not already spoken for: red is an error, yellow a warning,
-	// green a success.
+	// Not a status colour: red, yellow and green mean something else here.
 	&.is-incoming {
 		background-color: var(--jp-pink, #c9356e);
 	}

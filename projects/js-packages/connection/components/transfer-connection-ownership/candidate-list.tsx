@@ -32,9 +32,6 @@ export interface OwnerCandidateListProps {
 /**
  * Choose which administrator takes over the connection.
  *
- * A select rather than a list of radios: a site can have far more connected
- * administrators than a dialog can show at once.
- *
  * @param {OwnerCandidateListProps} props - Component props.
  * @return {import('react').ReactNode} The OwnerCandidateList component.
  */
