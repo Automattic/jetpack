@@ -241,10 +241,14 @@ class Main_Features_Rest_Test extends TestCase {
 	/**
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 * @dataProvider videopress_module_states
+	 * @param bool $saved       Whether the module was saved as active.
+	 * @param bool $host_forced Whether a host also forces the module active.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_offline_videopress_deactivation_returns_inactive_state() {
+	#[DataProvider( 'videopress_module_states' )]
+	public function test_offline_videopress_deactivation_returns_inactive_state( $saved, $host_forced ) {
 		$this->activate_jetpack();
 		require_once WP_PLUGIN_DIR . '/jetpack/jetpack.php';
 		$folder      = WP_PLUGIN_DIR . '/jetpack-videopress';
@@ -262,10 +266,16 @@ class Main_Features_Rest_Test extends TestCase {
 		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
 		add_filter( 'jetpack_active_modules', $force_active );
-		Jetpack_Options::update_option( 'active_modules', array() );
+		Jetpack_Options::update_option( 'active_modules', $saved ? array( 'videopress' ) : array() );
+		$host_override = static function ( $modules ) use ( $host_forced ) {
+			return $host_forced ? array_merge( $modules, array( 'videopress' ) ) : $modules;
+		};
+		add_filter( 'jetpack_active_modules', $host_override );
 
 		try {
 			$this->assertTrue( Initializer::is_offline_features_enabled() );
+			$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/all' );
+			Initializer::use_local_module_options( null, array(), $request );
 			$this->assertTrue( ( new \Automattic\Jetpack\Modules() )->is_active( 'videopress' ) );
 			$response = $this->send( 'jetpack-videopress', 'deactivate' );
 			$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
@@ -273,7 +283,11 @@ class Main_Features_Rest_Test extends TestCase {
 			$this->assertSame( Main_Features::PLUGIN_INACTIVE, $features['videopress']['plugin_status'] );
 			$this->assertFalse( is_plugin_active( 'jetpack-videopress/jetpack-videopress.php' ) );
 			$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules' ) );
+			Initializer::use_local_module_options( null, array(), $request );
+			$this->assertSame( $host_forced, ( new \Automattic\Jetpack\Modules() )->is_active( 'videopress' ) );
 		} finally {
+			Initializer::restore_module_options( null, array(), $request );
+			remove_filter( 'jetpack_active_modules', $host_override );
 			remove_filter( 'jetpack_active_modules', $force_active );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
@@ -287,6 +301,16 @@ class Main_Features_Rest_Test extends TestCase {
 				rmdir( $folder );
 			}
 		}
+	}
+
+	/** @return array Saved module and host override cases. */
+	public static function videopress_module_states() {
+		return array(
+			'unsaved'             => array( false, false ),
+			'saved'               => array( true, false ),
+			'host forced unsaved' => array( false, true ),
+			'host forced saved'   => array( true, true ),
+		);
 	}
 
 	/** @return array Offline plugin/route cases. */

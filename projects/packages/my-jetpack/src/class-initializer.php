@@ -182,6 +182,13 @@ class Initializer {
 	 */
 	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
 		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			// The autoloader can retain a deactivated plugin for another request.
+			if ( ! Products\Videopress::is_standalone_plugin_active()
+				&& remove_filter( 'jetpack_active_modules', array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' ) )
+				&& class_exists( 'Jetpack_Modules_Overrides', false )
+			) {
+				\Jetpack_Modules_Overrides::instance()->clear_cache();
+			}
 			add_filter( 'default_option_monitor_receive_notifications', '__return_false' );
 			add_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
 		}
