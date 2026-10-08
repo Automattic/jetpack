@@ -2,12 +2,16 @@
 /**
  * Protect dashboard: the Login protection section.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-protect
  */
+
+namespace Automattic\Jetpack\Protect\Sections;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\SSO\Helpers as SSO_Helpers;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Protect\Dashboard;
+use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since $$next-version$$
  */
-class Jetpack_Protect_Dashboard_Login_Protection implements Jetpack_Protect_Dashboard_Section {
+class Login_Protection implements Dashboard_Section {
 
 	/**
 	 * The key the section's state is printed under.
@@ -37,12 +41,12 @@ class Jetpack_Protect_Dashboard_Login_Protection implements Jetpack_Protect_Dash
 	 */
 	public function get_state() {
 		return array(
-			'bruteForce'        => Jetpack_Protect_Dashboard::get_module_state( 'protect' ),
-			'accountProtection' => Jetpack_Protect_Dashboard::get_module_state( 'account-protection' ),
-			'sso'               => Jetpack_Protect_Dashboard::get_module_state( 'sso' ),
+			'bruteForce'        => Dashboard::get_module_state( 'protect' ),
+			'accountProtection' => Dashboard::get_module_state( 'account-protection' ),
+			'sso'               => Dashboard::get_module_state( 'sso' ),
 			'blockedCount'      => number_format_i18n( (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ),
 			// WordPress.com login needs a connected owner and doesn't work in offline mode.
-			'ssoUsable'         => ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode(),
+			'ssoUsable'         => ( new Connection_Manager( 'jetpack-protect-pkg' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode(),
 			// A filter or constant can force these, and Jetpack Settings then locks the toggle.
 			'ssoLocks'          => array(
 				'matchByEmail' => method_exists( SSO_Helpers::class, 'is_match_by_email_checkbox_disabled' ) && SSO_Helpers::is_match_by_email_checkbox_disabled(),
@@ -63,5 +67,3 @@ class Jetpack_Protect_Dashboard_Login_Protection implements Jetpack_Protect_Dash
 	 */
 	public function register_routes() {}
 }
-
-Jetpack_Protect_Dashboard::register_section( new Jetpack_Protect_Dashboard_Login_Protection() );

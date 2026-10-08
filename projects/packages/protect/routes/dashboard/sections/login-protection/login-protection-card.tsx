@@ -25,11 +25,11 @@ function Method( {
 	description: string;
 	state: ModuleState;
 } ) {
-	let badge = <Badge intent="draft">{ __( 'Off', 'jetpack' ) }</Badge>;
+	let badge = <Badge intent="draft">{ __( 'Off', 'jetpack-protect-pkg' ) }</Badge>;
 	if ( ! state.available ) {
-		badge = <Badge intent="none">{ __( 'Unavailable', 'jetpack' ) }</Badge>;
+		badge = <Badge intent="none">{ __( 'Unavailable', 'jetpack-protect-pkg' ) }</Badge>;
 	} else if ( state.active ) {
-		badge = <Badge intent="stable">{ __( 'On', 'jetpack' ) }</Badge>;
+		badge = <Badge intent="stable">{ __( 'On', 'jetpack-protect-pkg' ) }</Badge>;
 	}
 
 	return (
@@ -94,11 +94,11 @@ export default function LoginProtectionCard( {
 	return (
 		<ProtectCard
 			icon={ lock }
-			title={ __( 'Login protection', 'jetpack' ) }
+			title={ __( 'Login protection', 'jetpack-protect-pkg' ) }
 			status={ {
 				label: sprintf(
 					/* translators: %1$d is how many login protections are on, %2$d how many there are. */
-					__( '%1$d of %2$d on', 'jetpack' ),
+					__( '%1$d of %2$d on', 'jetpack-protect-pkg' ),
 					on,
 					available
 				),
@@ -108,35 +108,38 @@ export default function LoginProtectionCard( {
 			{ bruteForce.active && (
 				<CardRow>
 					<Stat
-						label={ __( 'All-time blocked login attempts', 'jetpack' ) }
+						label={ __( 'All-time blocked login attempts', 'jetpack-protect-pkg' ) }
 						value={ login.blockedCount }
 					/>
 				</CardRow>
 			) }
 			<Method
-				name={ __( 'Brute force protection', 'jetpack' ) }
-				description={ __( 'Blocks IP addresses that keep failing to log in.', 'jetpack' ) }
+				name={ __( 'Brute force protection', 'jetpack-protect-pkg' ) }
+				description={ __(
+					'Blocks IP addresses that keep failing to log in.',
+					'jetpack-protect-pkg'
+				) }
 				state={ bruteForce }
 			/>
 			<Method
-				name={ __( 'Account protection', 'jetpack' ) }
+				name={ __( 'Account protection', 'jetpack-protect-pkg' ) }
 				description={ __(
 					'Asks users with a weak or leaked password to verify their identity and choose a new one.',
-					'jetpack'
+					'jetpack-protect-pkg'
 				) }
 				state={ accountProtection }
 			/>
 			<Method
-				name={ __( 'WordPress.com login', 'jetpack' ) }
+				name={ __( 'WordPress.com login', 'jetpack-protect-pkg' ) }
 				description={ __(
 					'Lets users log in with their WordPress.com account, with optional two-step authentication.',
-					'jetpack'
+					'jetpack-protect-pkg'
 				) }
 				state={ sso }
 			/>
 			<CardRow>
 				<SettingsLink onOpen={ openSettings }>
-					{ __( 'Configure login protection', 'jetpack' ) }
+					{ __( 'Configure login protection', 'jetpack-protect-pkg' ) }
 				</SettingsLink>
 			</CardRow>
 		</ProtectCard>

@@ -85,37 +85,37 @@ export default function LoginProtectionSettingsCard( {
 	const disableSso = useCallback( () => save( { sso: false } ), [ save ] );
 
 	return (
-		<ProtectCard icon={ lock } title={ __( 'Login protection', 'jetpack' ) }>
+		<ProtectCard icon={ lock } title={ __( 'Login protection', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
-						{ __( 'Brute force protection', 'jetpack' ) }
+						{ __( 'Brute force protection', 'jetpack-protect-pkg' ) }
 					</Text>
 					<SettingToggle
 						data={ data }
 						name="protect"
 						disabled={ ! login?.bruteForce.available }
-						label={ __( 'Block repeated failed login attempts', 'jetpack' ) }
+						label={ __( 'Block repeated failed login attempts', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Stops brute force attacks by blocking IP addresses that keep failing to log in.',
-							'jetpack'
+							'jetpack-protect-pkg'
 						) }
 					/>
 					<SettingToggle
 						data={ data }
 						name="jetpack_waf_ip_allow_list_enabled"
-						label={ __( 'Always allow specific IP addresses', 'jetpack' ) }
+						label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Allowed addresses are never blocked by the firewall or brute force protection.',
-							'jetpack'
+							'jetpack-protect-pkg'
 						) }
 					/>
 					{ Boolean( settings.jetpack_waf_ip_allow_list_enabled ) && (
 						<IpListField
 							data={ data }
 							name="jetpack_waf_ip_allow_list"
-							label={ __( 'Always allowed IP addresses', 'jetpack' ) }
-							description={ __( 'One address or range per line.', 'jetpack' ) }
+							label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+							description={ __( 'One address or range per line.', 'jetpack-protect-pkg' ) }
 							currentIp={ login?.currentIp }
 						/>
 					) }
@@ -124,16 +124,16 @@ export default function LoginProtectionSettingsCard( {
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
-						{ __( 'Account protection', 'jetpack' ) }
+						{ __( 'Account protection', 'jetpack-protect-pkg' ) }
 					</Text>
 					<SettingToggle
 						data={ data }
 						name="account-protection"
 						disabled={ ! login?.accountProtection.available }
-						label={ __( 'Protect accounts with weak or leaked passwords', 'jetpack' ) }
+						label={ __( 'Protect accounts with weak or leaked passwords', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Asks users with a compromised password to verify their identity and choose a new one.',
-							'jetpack'
+							'jetpack-protect-pkg'
 						) }
 					/>
 				</Stack>
@@ -141,18 +141,24 @@ export default function LoginProtectionSettingsCard( {
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
-						{ __( 'WordPress.com login', 'jetpack' ) }
+						{ __( 'WordPress.com login', 'jetpack-protect-pkg' ) }
 					</Text>
 					<ToggleControl
 						__nextHasNoMarginBottom
-						label={ __( 'Allow users to log in with their WordPress.com account', 'jetpack' ) }
+						label={ __(
+							'Allow users to log in with their WordPress.com account',
+							'jetpack-protect-pkg'
+						) }
 						help={
 							ssoUsable
 								? __(
 										'If you have several sites with this on, you can log in to all of them with the same credentials.',
-										'jetpack'
+										'jetpack-protect-pkg'
 									)
-								: __( 'Needs the site owner’s WordPress.com account to be connected.', 'jetpack' )
+								: __(
+										'Needs the site owner’s WordPress.com account to be connected.',
+										'jetpack-protect-pkg'
+									)
 						}
 						checked={ ssoOn }
 						// Mirrors Jetpack Settings, which locks the toggle without a connected owner.
@@ -162,8 +168,8 @@ export default function LoginProtectionSettingsCard( {
 					<SsoOptionToggle
 						data={ data }
 						name="jetpack_sso_match_by_email"
-						label={ __( 'Match accounts using email addresses', 'jetpack' ) }
-						lockedHelp={ __( 'This is set by your site’s configuration.', 'jetpack' ) }
+						label={ __( 'Match accounts using email addresses', 'jetpack-protect-pkg' ) }
+						lockedHelp={ __( 'This is set by your site’s configuration.', 'jetpack-protect-pkg' ) }
 						locked={ ssoLocks.matchByEmail }
 						effective={ ssoEffective.matchByEmail }
 						ssoOn={ ssoOn }
@@ -173,11 +179,11 @@ export default function LoginProtectionSettingsCard( {
 						name="jetpack_sso_require_two_step"
 						label={ __(
 							'Require accounts to use WordPress.com Two-Step Authentication',
-							'jetpack'
+							'jetpack-protect-pkg'
 						) }
 						lockedHelp={ __(
 							'Two-Step Authentication is enforced by your site’s configuration.',
-							'jetpack'
+							'jetpack-protect-pkg'
 						) }
 						locked={ ssoLocks.twoStep }
 						effective={ ssoEffective.twoStep }
@@ -191,12 +197,12 @@ export default function LoginProtectionSettingsCard( {
 				onConfirm={ disableSso }
 			>
 				<AlertDialog.Popup
-					title={ __( 'Turn off WordPress.com login?', 'jetpack' ) }
+					title={ __( 'Turn off WordPress.com login?', 'jetpack-protect-pkg' ) }
 					description={ __(
 						'Users will have to log in with their username and password on this site instead.',
-						'jetpack'
+						'jetpack-protect-pkg'
 					) }
-					confirmButtonText={ __( 'Turn off', 'jetpack' ) }
+					confirmButtonText={ __( 'Turn off', 'jetpack-protect-pkg' ) }
 				/>
 			</AlertDialog.Root>
 		</ProtectCard>
