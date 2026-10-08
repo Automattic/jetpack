@@ -69,6 +69,22 @@ describe( 'SharingButtonsSection', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'warns that an enabled service has shut down', async () => {
+		servicesRespond( {
+			...services,
+			services: [
+				...services.services.slice( 0, 2 ),
+				{ id: 'email', name: 'Email', custom: false, deprecated: true },
+			],
+		} );
+		renderWithData( <SharingButtonsSection /> );
+
+		await expect(
+			screen.findByText( /The Email sharing service has shut down/ )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /The Facebook sharing service/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'drops the placement summary when no service is enabled', async () => {
 		servicesRespond( { visible: [], hidden: [], services: [] } );
 		renderWithData( <SharingButtonsSection /> );

@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Spinner, Stack, Text } from '@wordpress/ui';
 import type { Services } from '../types';
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -36,6 +36,10 @@ export function ServicesList( { query }: { query: UseQueryResult< Services > } )
 	}
 
 	const { visible, hidden, services } = query.data;
+	const shutDown = services.filter(
+		service =>
+			service.deprecated && ( visible.includes( service.id ) || hidden.includes( service.id ) )
+	);
 
 	if ( visible.length === 0 && hidden.length === 0 ) {
 		return (
@@ -62,6 +66,18 @@ export function ServicesList( { query }: { query: UseQueryResult< Services > } )
 					<Text render={ <p /> }>{ namesOf( hidden, services ) }</Text>
 				</>
 			) }
+			{ shutDown.map( service => (
+				<Text key={ service.id } render={ <p /> }>
+					{ sprintf(
+						/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
+						__(
+							'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.',
+							'jetpack-sharing-likes'
+						),
+						service.name
+					) }
+				</Text>
+			) ) }
 		</Stack>
 	);
 }
