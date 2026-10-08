@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import { useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
-import { SettingGroup } from './section-card';
+import { SECTION_GAP, SettingGroup } from './section-card';
 import type { Feature, SectionState } from '../types';
 import type { JSX, ReactNode } from 'react';
 
@@ -144,7 +144,7 @@ export function FeatureVariant( {
 			ref={ containerRef }
 			tabIndex={ -1 }
 			direction="column"
-			gap="lg"
+			gap={ SECTION_GAP }
 			className="jetpack-sharing-likes__variant"
 		>
 			{ content }

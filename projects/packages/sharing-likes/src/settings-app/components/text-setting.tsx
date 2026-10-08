@@ -65,7 +65,7 @@ export function TextSetting( {
 
 	return (
 		<form onSubmit={ handleSubmit }>
-			<Stack direction="column" gap="md">
+			<Stack direction="column" gap="lg">
 				<TextControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom

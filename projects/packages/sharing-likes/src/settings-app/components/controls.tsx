@@ -193,7 +193,7 @@ export function CheckboxGroupEdit( { data, field, onChange }: EditProps ): JSX.E
 	);
 
 	return (
-		<Stack render={ <fieldset /> } direction="column" gap="sm">
+		<Stack render={ <fieldset /> } direction="column" gap="md">
 			<legend className="screen-reader-text">{ field.label }</legend>
 			{ ( field.elements ?? [] ).map( ( { value, label } ) => (
 				<GroupCheckbox

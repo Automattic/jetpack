@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { FeatureVariant } from '../components/feature-variant';
+import { SECTION_GAP } from '../components/section-card';
 import { apiCalls, baseStatus, renderWithData, resetNotices } from './helpers';
 import type { Feature, SectionState } from '../types';
 
@@ -97,6 +98,6 @@ describe( 'FeatureVariant', () => {
 
 		// eslint-disable-next-line testing-library/no-node-access -- The spacing lives on an unlabelled container.
 		const variant = screen.getByText( 'options' ).parentElement;
-		expect( variant?.style.gap ).toContain( 'dimension-gap-lg' );
+		expect( variant?.style.gap ).toContain( `dimension-gap-${ SECTION_GAP }` );
 	} );
 } );

@@ -1,6 +1,9 @@
 import { Card, Stack, Text } from '@wordpress/ui';
 import type { JSX, ReactNode } from 'react';
 
+// Between every top-level block in a card, nested containers included, so the rhythm stays even.
+export const SECTION_GAP = 'xl';
+
 /**
  * One section of the screen, as Newsletter's settings cards: a title, an optional description, then its settings.
  *
@@ -28,7 +31,7 @@ export function SectionCard( {
 				<Card.Title render={ <h2 /> }>{ title }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<Stack direction="column" gap="lg">
+				<Stack direction="column" gap={ SECTION_GAP }>
 					{ description && <Text render={ <p /> }>{ description }</Text> }
 					{ children }
 				</Stack>
