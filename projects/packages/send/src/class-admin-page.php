@@ -257,7 +257,7 @@ class Admin_Page {
 	 * @return string[]
 	 */
 	public static function preload_paths() {
-		return array();
+		return array( REST_Controller::STATUS_PATH );
 	}
 
 	/**

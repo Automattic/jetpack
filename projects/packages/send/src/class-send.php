@@ -43,6 +43,7 @@ class Send {
 
 		Admin_Page::init();
 		Email_Log::init();
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register_routes' ) );
 		add_filter( 'pre_wp_mail', array( Mailer::class, 'pre_wp_mail' ), 10, 2 );
 	}
 

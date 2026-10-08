@@ -14,3 +14,4 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 \Automattic\Jetpack\Test_Environment::init();
 
 require_once __DIR__ . '/Http_Mock.php';
+require_once __DIR__ . '/Fake_Provisioner.php';
