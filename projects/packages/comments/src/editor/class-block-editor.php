@@ -305,9 +305,11 @@ class Block_Editor {
 		foreach ( $blocks as $block ) {
 			// Verbum's editor also offered images, and captions on both; this one keeps their links and text.
 			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
-				if ( 'core/embed' === $block['blockName'] ) {
-					$kept[] = Embeds::block( $block, $render );
-				} else {
+				$embed = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : null;
+
+				if ( $embed ) {
+					$kept[] = $embed;
+				} elseif ( 'core/image' === $block['blockName'] ) {
 					$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
 					$src  = $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null;
 					$link = is_string( $src ) ? esc_url_raw( $src, array( 'http', 'https' ) ) : '';
@@ -321,7 +323,6 @@ class Block_Editor {
 					$kept[] = self::paragraph( trim( $caption[1] ) );
 				}
 
-				$kept = array_values( array_filter( $kept ) );
 				continue;
 			}
 
