@@ -14,8 +14,11 @@ const isExpired = session =>
 	!! session.expireTime && new Date( session.expireTime ).getTime() < Date.now();
 
 // `data` carries Google's status; on Atomic the proxy drops the HTTP status, so don't rely on it.
-const isAuthenticationFailure = error =>
-	error?.data?.status === 401 || error?.data?.google_status === 'UNAUTHENTICATED';
+// A missing Photos Picker scope persists until the user reconnects and grants it.
+const needsReconnectPrompt = error =>
+	error?.data?.status === 401 ||
+	error?.data?.google_status === 'UNAUTHENTICATED' ||
+	error?.data?.reason === 'ACCESS_TOKEN_SCOPE_INSUFFICIENT';
 
 const isSessionGone = error => error?.data?.status === 404;
 
@@ -64,7 +67,7 @@ export default function useGooglePhotosPickerSession( {
 					if ( signal.aborted ) {
 						return null;
 					}
-					if ( isAuthenticationFailure( error ) ) {
+					if ( needsReconnectPrompt( error ) ) {
 						supersedeRequests();
 						setStatus( 'reconnect' );
 					} else if ( isSessionGone( error ) ) {
@@ -101,7 +104,7 @@ export default function useGooglePhotosPickerSession( {
 				if ( signal.aborted ) {
 					return null;
 				}
-				if ( isAuthenticationFailure( error ) ) {
+				if ( needsReconnectPrompt( error ) ) {
 					setStatus( 'reconnect' );
 					return null;
 				}
