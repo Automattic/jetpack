@@ -2,7 +2,6 @@
 // record without a module resolves its own `attributes` inside `useWidgetTypes`
 // (WordPress/gutenberg#82485). Move the story helper onto that and stop exporting it.
 export { registerFieldTypes, resolveFieldTypes } from './field-types';
-export type { LineOrBar } from './field-line-or-bar';
 
 export {
 	chartIntervalElements,

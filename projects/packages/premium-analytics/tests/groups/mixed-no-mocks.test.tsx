@@ -3,7 +3,6 @@
 import '../../packages/fields/src/__tests__/field-types.test';
 import '../../packages/fields/src/field-select/__tests__/select-field.test';
 import '../../packages/fields/src/field-toggle-group/__tests__/toggle-group-field.test';
-import '../../packages/fields/src/field-line-or-bar/__tests__/line-or-bar-field.test';
 import '../../packages/routing/src/search/date-range/date-range.test';
 import '../../packages/routing/src/search/report-origin/report-origin.test';
 import '../../packages/routing/src/search/report-params/report-params.test';

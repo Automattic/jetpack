@@ -303,6 +303,7 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	siteChartFormatting,
+	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
 	CALENDAR_HEATMAP_CELL_GAP,

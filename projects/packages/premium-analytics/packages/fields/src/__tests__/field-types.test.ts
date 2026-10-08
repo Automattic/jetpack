@@ -50,7 +50,6 @@ describe( 'registerFieldTypes', () => {
 			[ 'jpa/select', 'text' ],
 			[ 'jpa/toggle-group', 'text' ],
 			[ 'jpa/array-checkbox', 'array' ],
-			[ 'jpa/line-or-bar', 'text' ],
 		] );
 	} );
 } );

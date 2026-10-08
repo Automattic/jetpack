@@ -71,6 +71,7 @@ export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { dateFormatForResolution } from './tick-resolution-date-format';
 export {
+	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
 } from './chart-display-attribute-fields';
