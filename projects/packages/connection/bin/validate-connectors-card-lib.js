@@ -73,6 +73,12 @@ function readConnectorConstants( classFile ) {
  * @return {string[]} Problems found; empty when the build is valid.
  */
 function checkConnectorsCard( { asset, moduleDependencyIds, jsFiles, bundle, size } ) {
+	if ( ! asset || typeof asset !== 'object' || Array.isArray( asset ) ) {
+		return [
+			`The asset file returned ${ JSON.stringify( asset ) }, expected an associative array.`,
+		];
+	}
+
 	const errors = [];
 	const dependencies = Array.isArray( asset.dependencies ) ? asset.dependencies : [];
 

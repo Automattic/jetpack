@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Connectors: Build the Connectors card with webpack as a script module, so it can import shared connection components.
+Connectors: Translate the Connectors card's text on sites that don't use English.

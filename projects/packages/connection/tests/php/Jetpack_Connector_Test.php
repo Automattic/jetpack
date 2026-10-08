@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -535,7 +536,7 @@ class Jetpack_Connector_Test extends TestCase {
 	 * Test that the card is registered from the build, versioned by its asset file.
 	 */
 	public function test_enqueue_registers_the_built_module_with_the_asset_version() {
-		$restore = $this->stub_module_asset_file(
+		$restore = $this->stub_module_build(
 			array(
 				'dependencies' => array( '@wordpress/connectors' ),
 				'version'      => 'test-card-version',
@@ -561,9 +562,11 @@ class Jetpack_Connector_Test extends TestCase {
 	 * Test that core looks up the card's translations under the package domain and the file's real path.
 	 */
 	public function test_card_translations_are_looked_up_under_the_package_domain_and_real_path() {
-		$restore = $this->stub_module_asset_file( array( 'version' => 'test-card-version' ) );
+		$restore = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
+		/** @var array<int,array{0:string,1:string}> $lookups */
 		$lookups = array();
-		$paths   = array();
+		/** @var string[] $paths */
+		$paths = array();
 
 		$record_lookup = static function ( $file, $handle, $domain ) use ( &$lookups ) {
 			if ( Jetpack_Connector::MODULE_ID === $handle ) {
@@ -601,9 +604,14 @@ class Jetpack_Connector_Test extends TestCase {
 
 	/**
 	 * Test that a missing build skips the card with an error snackbar, instead of fataling on the asset file.
+	 *
+	 * @param array|null $asset   Asset data, or null for no asset file.
+	 * @param bool       $with_js Whether the module's JS file exists.
+	 * @dataProvider provide_incomplete_builds
 	 */
-	public function test_enqueue_skips_the_card_when_the_build_is_missing() {
-		$restore = $this->stub_module_asset_file( null );
+	#[DataProvider( 'provide_incomplete_builds' )]
+	public function test_enqueue_skips_the_card_when_the_build_is_missing( $asset, $with_js ) {
+		$restore = $this->stub_module_build( $asset, $with_js );
 
 		try {
 			$this->enqueue_on_connectors_screen();
@@ -616,6 +624,18 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertTrue( wp_script_is( 'jetpack-connector-card-missing', 'enqueued' ) );
 		$this->assertStringContainsString( 'because a file is missing', implode( '', wp_scripts()->get_data( 'jetpack-connector-card-missing', 'after' ) ) );
+	}
+
+	/**
+	 * Builds missing a file, as in a checkout that hasn't run the build or mid-deploy.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_incomplete_builds() {
+		return array(
+			'no asset file' => array( null, true ),
+			'no JS file'    => array( array( 'version' => 'test-card-version' ), false ),
+		);
 	}
 
 	/* ── get_plugin_logo_url() ─────────────────────────────────── */
@@ -1161,35 +1181,49 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Put a fixture asset file where the card's build goes, or remove it, restoring any real build afterwards.
+	 * Put fixture build files where the card's build goes, or remove them, restoring any real build afterwards.
 	 *
-	 * @param array|null $asset Asset data to write, or null for no asset file.
+	 * @param array|null $asset   Asset data to write, or null for no asset file.
+	 * @param bool       $with_js Whether to write a module JS file, or remove it.
 	 * @return callable Restores the previous state.
 	 */
-	private function stub_module_asset_file( $asset ) {
+	private function stub_module_build( $asset, $with_js = true ) {
 		$class_dir = dirname( ( new \ReflectionClass( Jetpack_Connector::class ) )->getFileName() );
-		$file      = $class_dir . '/' . Jetpack_Connector::MODULE_FILE . '.asset.php';
-		$dir       = dirname( $file );
-		$original  = file_exists( $file ) ? file_get_contents( $file ) : null; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$base      = $class_dir . '/' . Jetpack_Connector::MODULE_FILE;
+		$dir       = dirname( $base );
+		$files     = array(
+			$base . '.asset.php' => null === $asset ? null : '<?php return ' . var_export( $asset, true ) . ';', // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			$base . '.js'        => $with_js ? '' : null,
+		);
 
-		$created_dirs = array();
-		if ( null !== $asset ) {
-			foreach ( array( dirname( $dir ), $dir ) as $d ) {
-				if ( ! is_dir( $d ) ) {
-					mkdir( $d );
-					$created_dirs[] = $d;
-				}
-			}
-			file_put_contents( $file, '<?php return ' . var_export( $asset, true ) . ';' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.DevelopmentFunctions.error_log_var_export
-		} elseif ( null !== $original ) {
-			unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		$originals = array();
+		foreach ( array_keys( $files ) as $file ) {
+			$originals[ $file ] = file_exists( $file ) ? file_get_contents( $file ) : null; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		}
 
-		return static function () use ( $file, $original, $created_dirs ) {
-			if ( null !== $original ) {
-				file_put_contents( $file, $original ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$created_dirs = array();
+		foreach ( array( dirname( $dir ), $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		foreach ( $files as $file => $contents ) {
+			if ( null !== $contents ) {
+				file_put_contents( $file, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			} elseif ( file_exists( $file ) ) {
 				unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
+		}
+
+		return static function () use ( $originals, $created_dirs ) {
+			foreach ( $originals as $file => $original ) {
+				if ( null !== $original ) {
+					file_put_contents( $file, $original ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				} elseif ( file_exists( $file ) ) {
+					unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+				}
 			}
 			// Only directories this fixture created, and only while empty.
 			foreach ( array_reverse( $created_dirs ) as $d ) {

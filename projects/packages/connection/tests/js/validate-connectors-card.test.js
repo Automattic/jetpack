@@ -16,6 +16,7 @@ const validBuild = {
 
 describe( 'checkConnectorsCard', () => {
 	const broken = [
+		[ 'an asset file that returns no array', { asset: null }, /associative array/ ],
 		[ 'a classic asset', { asset: { ...validBuild.asset, type: undefined } }, /type/ ],
 		[
 			'a dynamic @wordpress/connectors import',
