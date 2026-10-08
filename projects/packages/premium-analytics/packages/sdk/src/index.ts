@@ -5,6 +5,7 @@
  */
 export {
 	ChartEmptyState,
+	Donut,
 	EarningsHistoryList,
 	ExporterCsvDownloadButton,
 	Leaderboard,
@@ -20,6 +21,7 @@ export {
 	chartTypeAttributeField,
 	describeError,
 	flattenEarningsBreakdown,
+	getVideoPosterUrl,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {

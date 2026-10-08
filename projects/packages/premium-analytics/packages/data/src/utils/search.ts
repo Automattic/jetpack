@@ -142,8 +142,8 @@ export function normalizeReportParams(
 		...( authorId > 0 ? { author_id: authorId } : {} ),
 	};
 
-	// Comparison only ever comes from the URL. A fresh load carries none: the
-	// dashboard compares nothing until the user picks a comparison.
+	// Comparison only ever comes from the URL; a fresh load gets its default
+	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;

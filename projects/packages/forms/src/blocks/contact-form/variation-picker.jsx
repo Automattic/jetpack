@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { inertValue } from '@wordpress/react-inert-value';
 import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
 import './util/form-styles.js';
@@ -219,7 +220,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				className={ clsx( 'form-placeholder__body', {
 					'is-creating-form': isCreatingForm,
 				} ) }
-				inert={ isCreatingForm ? '' : undefined }
+				inert={ inertValue( isCreatingForm ) }
 			>
 				<BlockVariationPicker
 					icon={ blockType?.icon?.src }

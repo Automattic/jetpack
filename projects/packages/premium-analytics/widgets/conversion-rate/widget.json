@@ -3,7 +3,7 @@
 	"title": "Store conversion rate",
 	"description": "Store conversion rate over the selected time period.",
 	"help": {
-		"content": "Conversion funnel from visitors to completed purchases over the selected time period."
+		"content": "The percentage of store sessions that completed a purchase over the selected time period."
 	},
 	"category": "store",
 	"presentation": "framed"

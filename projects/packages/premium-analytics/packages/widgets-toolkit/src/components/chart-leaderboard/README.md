@@ -181,8 +181,7 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
-detail route instead of the post one. Same constraints: no media, never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
@@ -216,6 +215,8 @@ fallback, and default alt-text policy:
 | `thumbnail` | 28 × 28px | Placeholder                      |
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
+
+Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', fallbackIcon: video }`.
 
 `icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Author detail page: Add likes, comments and an all-time traffic table, and count an author's views even when they rank below the top 20 authors.

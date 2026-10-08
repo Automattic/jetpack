@@ -26,6 +26,7 @@ return make_phan_config(
 		'exclude_file_list' => array(
 			'tests/php/lib/class-jetpack-likes-settings.php',
 			'tests/php/lib/class-sharing-service.php',
+			'tests/php/lib/class-sharing-sources.php',
 		),
 	)
 );

@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
@@ -33,7 +33,7 @@ import {
 	type SiteData,
 } from './model.ts';
 import { TailoredListSkeleton } from './skeleton.tsx';
-import { TaskCard } from './task-card.tsx';
+import { TaskCard, type BusyAction } from './task-card.tsx';
 import type { GoalSlug, SiteCopy, TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
@@ -91,7 +91,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		() => initialData?.ai_output?.payload ?? null
 	);
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
-	const [ busyId, setBusyId ] = useState< string | null >( null );
+	// Carries both which task and which of its actions is in flight, so each button
+	// shows its own spinner instead of the task's primary CTA spinning for every action.
+	const [ busy, setBusy ] = useState< { id: string; action: BusyAction } | null >( null );
 	// The single expanded card (accordion: only one open at a time). `null` means
 	// every card is collapsed — a state the user can reach by toggling the open card
 	// shut, which must not auto-reopen.
@@ -113,6 +115,13 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	const [ siteEditUrl, setSiteEditUrl ] = useState< string | null >(
 		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
 	);
+	// Set when the tailored list could not be saved: an error with "Try again" renders in place of
+	// a list nobody saved, whose progress would vanish on the next visit.
+	const [ saveError, setSaveError ] = useState< TailorResult[ 'saveError' ] | null >( null );
+	// Set once "Try again" has saved the list, so the load below reads it back like any other.
+	const [ savedOnRetry, setSavedOnRetry ] = useState( false );
+	const [ retrying, setRetrying ] = useState( false );
+	const [ retryFailed, setRetryFailed ] = useState( false );
 
 	// One viewed event per screen shown; the launchpad screen includes its
 	// loading skeleton. The host seeds the context before mounting this view.
@@ -138,6 +147,12 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			// Wait for the tailor call to settle so the PUT has persisted before we
 			// read it back. A rejected tailor still gives its in-memory output as a fallback.
 			const result = await Promise.resolve( pendingTailor ).catch( () => undefined );
+			if ( result?.saveError && ! savedOnRetry ) {
+				if ( ! cancelled ) {
+					setSaveError( result.saveError );
+				}
+				return;
+			}
 
 			let data: LaunchpadData | null = null;
 			try {
@@ -185,7 +200,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		return () => {
 			cancelled = true;
 		};
-	}, [ pendingTailor, initialData ] );
+	}, [ pendingTailor, initialData, savedOnRetry ] );
 
 	// Keep the shared Tracks context in step with what is actually rendered, on
 	// both the wizard→list path (fresh tailor) and the returning-user path.
@@ -227,6 +242,64 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	// Prefer the goal from the loaded AI output; fall back to the wizard's.
 	const effectiveGoal = output?.inferred?.goal ?? goal ?? null;
 
+	if ( saveError && ! savedOnRetry ) {
+		const handleRetry = async () => {
+			setRetrying( true );
+			const ok = await saveError.retry();
+			setRetrying( false );
+			if ( ok ) {
+				setSavedOnRetry( true );
+			} else {
+				setRetryFailed( true );
+			}
+		};
+
+		return (
+			<Layout
+				progressLabel={
+					/* translators: status line shown when the generated checklist could not be saved. */
+					__( 'Your checklist is not saved yet', 'jetpack-mu-wpcom' )
+				}
+				goal={ effectiveGoal }
+				siteUrl={ siteUrl }
+				siteTitle={ siteTitle }
+				siteEditUrl={ siteEditUrl }
+			>
+				{ /* Polite: the user is waiting on this result, not interrupted by it. The description
+				changes after a failed retry, which announces it again. */ }
+				<Notice.Root intent="error" politeness="polite">
+					<Notice.Title>
+						{ __( "We couldn't save your checklist.", 'jetpack-mu-wpcom' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ retryFailed
+							? __(
+									"It still didn't save. Check your connection, then try again.",
+									'jetpack-mu-wpcom'
+								)
+							: __(
+									'Your checklist is ready, but saving it failed. Check your connection, then try again.',
+									'jetpack-mu-wpcom'
+								) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton
+							variant="solid"
+							loading={ retrying }
+							loadingAnnouncement={
+								/* translators: announced to screen reader users while the checklist is being saved again. */
+								__( 'Saving your checklist…', 'jetpack-mu-wpcom' )
+							}
+							onClick={ handleRetry }
+						>
+							{ __( 'Try again', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			</Layout>
+		);
+	}
+
 	if ( ! tasks ) {
 		return (
 			<Layout
@@ -253,7 +326,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	);
 
 	const handleGetStarted = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			const url = await resolveCtaUrl(
 				task,
@@ -289,14 +362,14 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		} catch {
 			// Fall through to clear busy so a thrown CTA can't leave the card disabled.
 		}
-		setBusyId( null );
+		setBusy( null );
 	};
 
 	// Complete-on-click tasks with no CTA destination offer "Mark as complete":
 	// persist the completion and flip the card to done in place. Only flips on a
 	// successful write so a failed POST doesn't show a completion that reverts on reload.
 	const handleMarkComplete = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			trackTaskCtaClicked( { task_id: task.id } );
 			await apiFetch( {
@@ -316,7 +389,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		} catch {
 			// Leave the task incomplete on failure.
 		} finally {
-			setBusyId( null );
+			setBusy( null );
 		}
 	};
 
@@ -324,14 +397,14 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	// completion), then marks the task complete and expands the next incomplete
 	// task. Compute the next id from the post-skip list so it's never re-opened.
 	const handleSkip = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'skip' } );
 		trackTaskSkipped( { task_id: task.id } );
 		await apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/skip-task',
 			method: 'POST',
 			data: { task_id: task.id },
 		} ).catch( () => {} );
-		setBusyId( null );
+		setBusy( null );
 		const nextSkipped = new Set( skippedIds ).add( task.id );
 		setSkippedIds( nextSkipped );
 		const afterSkip = ( tasks ?? [] ).map( t =>
@@ -353,8 +426,8 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 					<TaskCard
 						key={ task.id }
 						task={ task }
-						isBusy={ busyId === task.id }
-						isLocked={ busyId !== null }
+						busyAction={ busy?.id === task.id ? busy.action : null }
+						isLocked={ busy !== null }
 						canStart={ isTaskActionable( task, output, siteUrl ) }
 						canMarkComplete={
 							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Draw today's WordAds bucket as not yet counted for Ads Served and Revenue, as for CPM, and say so in the tooltip.

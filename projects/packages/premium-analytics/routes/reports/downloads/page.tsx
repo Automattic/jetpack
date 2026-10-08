@@ -5,14 +5,12 @@ import { type StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytic
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
 	ExporterCsvAction,
 	fileDownloadsCsvExporter,
-	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -55,7 +53,6 @@ const RECORDS_VIEW = {
 function DownloadsReport(): JSX.Element {
 	const reportParams = useReportParams();
 	const records = useDownloadsReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() => getDownloadsFields( records.hasComparison ),
 		[ records.hasComparison ]
@@ -63,22 +60,6 @@ function DownloadsReport(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.downloads;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load file downloads. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -94,7 +75,13 @@ function DownloadsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load file downloads. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
 						data={ records.rows }
 						fields={ fields }
@@ -104,7 +91,7 @@ function DownloadsReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

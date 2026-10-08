@@ -5,13 +5,11 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	useReportRetry,
 	commentsAuthorsCsvExporter,
 	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -66,7 +64,6 @@ function CommentsReport(): JSX.Element {
 	const records = useCommentsReportRecords( activeTab );
 	const reportParams = useReportParams();
 	const fields = useMemo( () => getCommentsFields( activeTab ), [ activeTab ] );
-	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.comments;
 
@@ -87,17 +84,13 @@ function CommentsReport(): JSX.Element {
 				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
-				{ records.isError ? (
-					<PageNotice
-						{ ...describeError( records.error, {
-							retryDescription: __(
-								"We couldn't load comments. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							onRetry: retry,
-						} ) }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load comments. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< CommentReportRow >
 						key={ activeTab }
 						data={ records.rows }
@@ -108,7 +101,7 @@ function CommentsReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

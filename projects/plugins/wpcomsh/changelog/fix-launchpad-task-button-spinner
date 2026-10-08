@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Site Setup: Show the loading spinner on the task button that was clicked (such as Skip) rather than always on the primary action.

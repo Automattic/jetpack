@@ -7,6 +7,7 @@ import {
 	formatCurrency,
 	getCurrencyObject,
 } from '@automattic/number-formatters';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Metric type that determines the formatting strategy.
@@ -25,6 +26,12 @@ export type FormatMetricValueOptions = {
 	 * and prints its own minor units.
 	 */
 	decimals?: number;
+
+	/**
+	 * For `number`, show a positive value that rounds to zero as "< 0.1" (at one
+	 * decimal) rather than "0.0", so a tiny amount does not read as none.
+	 */
+	markBelowPrecision?: boolean;
 
 	/**
 	 * Use compact notation with K/M suffixes above 999: one decimal while the
@@ -82,6 +89,7 @@ export function formatMetricValue(
 		useMultipliers = false,
 		signDisplay,
 		currencyCode = 'USD',
+		markBelowPrecision = false,
 	}: FormatMetricValueOptions = {}
 ): string {
 	if ( value === null || value === undefined ) {
@@ -172,6 +180,16 @@ export function formatMetricValue(
 
 		case 'number':
 		default: {
+			const smallestShown = 10 ** -( decimals ?? 0 );
+			// Below half the smallest step is exactly what rounds to zero.
+			if ( markBelowPrecision && numericValue > 0 && numericValue < smallestShown / 2 ) {
+				return sprintf(
+					/* translators: %s: the smallest value shown at this precision, e.g. "0.1". */
+					__( '< %s', 'jetpack-premium-analytics-pkg' ),
+					formatNumber( smallestShown, { decimals: decimals ?? 0 } )
+				);
+			}
+
 			return compact
 				? formatNumberCompact( numericValue, {
 						numberFormatOptions: {

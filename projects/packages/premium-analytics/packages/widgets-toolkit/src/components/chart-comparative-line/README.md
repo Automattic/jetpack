@@ -1,10 +1,10 @@
 # ComparativeLineChart
 
-A **pure** line chart component for comparing time series data across different periods. Built on top of `@automattic/charts` with automatic date alignment for comparison series.
+A line chart component for comparing time series data across different periods. Built on top of `@automattic/charts` with automatic date alignment for comparison series.
 
-## Pure Component Design
+## Series Styles from Props
 
-This component is **pure** in its styling: it receives all styling via props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides.
+This component takes its series styles from props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides and, with `compactWhenShort`, the sparkline margin (`sparkline.margin`) a short chart takes.
 
 ```tsx
 import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -156,7 +156,8 @@ The component aligns previous-period series onto the axis dates for X-axis displ
 1. The first series (`series[0]`) sets the axis dates
 2. Only series marked `options.type: 'comparison'` are shifted onto those dates — a second
    current-period metric keeps its own
-3. The original date is preserved in `realDate` for tooltip display
+3. The original date is preserved in `realDate` for tooltip display; a point with an `endDate`
+   on a later day is named by its span, such as a week
 
 **Example**: A comparison series with Dec 25-31 dates will visually align to Jan 1-7 on the X-axis, but tooltips show the real Dec 25-31 dates.
 
