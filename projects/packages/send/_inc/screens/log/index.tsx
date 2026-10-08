@@ -82,8 +82,12 @@ const LogScreen = () => {
 	const getItemId = useCallback( ( item: LogRow ) => item.id, [] );
 
 	return (
-		<>
-			{ error && <ErrorNotice message={ error } /> }
+		<div className="jetpack-send-log">
+			{ error && (
+				<div className="jetpack-send-log__notice">
+					<ErrorNotice message={ error } />
+				</div>
+			) }
 			<DataViews
 				data={ data.items }
 				fields={ fields }
@@ -99,7 +103,7 @@ const LogScreen = () => {
 				defaultLayouts={ { table: {} } }
 				empty={ <p>{ __( 'No emails sent through Send yet.', 'jetpack-send-pkg' ) }</p> }
 			/>
-		</>
+		</div>
 	);
 };
 

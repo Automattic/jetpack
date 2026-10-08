@@ -16,7 +16,7 @@ body.toplevel_page_jetpack-send {
 	flex-direction: column;
 }
 
-// Centered column like Social and Podcast; the Log's table gets more room.
+// Centered column like Social and Podcast.
 .jetpack-send-page__content {
 	display: flex;
 	flex-direction: column;
@@ -28,8 +28,31 @@ body.toplevel_page_jetpack-send {
 	padding: var(--wpds-dimension-padding-2xl);
 }
 
-.jetpack-send-page__content--wide {
-	max-inline-size: 1024px;
+// DataViews tabs fill the page and own their spacing, like SEO and Forms.
+.jetpack-send-tabs:has(.jetpack-send-page__content--flush) {
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+.jetpack-send-page__content--flush,
+.jetpack-send-log,
+.jetpack-send-log .dataviews-wrapper {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+.jetpack-send-page__content--flush {
+	gap: 0;
+	max-inline-size: none;
+	margin-inline: 0;
+	padding: 0;
+}
+
+.jetpack-send-log__notice {
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .jetpack-send-dns__records {

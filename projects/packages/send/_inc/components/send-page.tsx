@@ -20,19 +20,25 @@ type Props = {
 	active: SendTab;
 	/** Log and Settings only exist once the site is set up. */
 	showTabs: boolean;
+	/** Whether to render the Jetpack footer; DataViews tabs hide it. Defaults to true. */
+	showFooter?: boolean;
+	/** Full-width, full-height content with no padding, for DataViews tabs. */
+	flush?: boolean;
 	children: ReactNode;
 };
 
 /**
  * Shared chrome for every Send route: the Jetpack header and footer plus tab navigation.
  *
- * @param props          - Component props.
- * @param props.active   - The active tab.
- * @param props.showTabs - Whether to show the tab strip.
- * @param props.children - The route's screen.
+ * @param props            - Component props.
+ * @param props.active     - The active tab.
+ * @param props.showTabs   - Whether to show the tab strip.
+ * @param props.showFooter - Whether to render the Jetpack footer.
+ * @param props.flush      - Render the content full-bleed.
+ * @param props.children   - The route's screen.
  * @return The Send page.
  */
-const SendPage = ( { active, showTabs, children }: Props ) => {
+const SendPage = ( { active, showTabs, showFooter = true, flush = false, children }: Props ) => {
 	const navigate = useNavigate();
 	const site = getSiteData();
 	const onTabChange = useCallback(
@@ -44,10 +50,9 @@ const SendPage = ( { active, showTabs, children }: Props ) => {
 		[ navigate ]
 	);
 
-	const contentClass =
-		active === 'log'
-			? 'jetpack-send-page__content jetpack-send-page__content--wide'
-			: 'jetpack-send-page__content';
+	const contentClass = flush
+		? 'jetpack-send-page__content jetpack-send-page__content--flush'
+		: 'jetpack-send-page__content';
 	const content = <div className={ contentClass }>{ children }</div>;
 
 	return (
@@ -56,6 +61,7 @@ const SendPage = ( { active, showTabs, children }: Props ) => {
 			subTitle={ __( 'Reliable delivery for the emails your site sends.', 'jetpack-send-pkg' ) }
 			apiRoot={ site?.rest_root }
 			apiNonce={ site?.rest_nonce }
+			showFooter={ showFooter }
 		>
 			{ showTabs ? (
 				<Tabs.Root className="jetpack-send-tabs" value={ active } onValueChange={ onTabChange }>
