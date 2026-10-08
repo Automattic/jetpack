@@ -33,13 +33,17 @@ describe( 'useSchemaSettings', () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( result.current.siteRepresents ).toBe( 'organization' );
 		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( result.current.organization ).toEqual( RESPONSE.organization );
 		expect( result.current.localBusiness ).toEqual( RESPONSE.localBusiness );
+		expect( result.current.person ).toEqual( RESPONSE.person );
 		expect( result.current.defaults ).toEqual( RESPONSE.defaults.organization );
 		expect( result.current.localBusinessDefaults ).toEqual( RESPONSE.defaults.localBusiness );
+		expect( result.current.personDefaults ).toEqual( RESPONSE.defaults.person );
 		expect( result.current.isOrganizationDirty ).toBe( false );
 		expect( result.current.isLocalBusinessDirty ).toBe( false );
+		expect( result.current.isPersonDirty ).toBe( false );
 	} );
 
 	it( 'saves the Organization entity — organization and local business — in one request', async () => {
@@ -108,6 +112,61 @@ describe( 'useSchemaSettings', () => {
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 	} );
 
+	it( 'auto-saves the site-entity choice without dragging in pending edits', async () => {
+		const onSave = jest.fn();
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
+
+		// A pending Person edit must stay local (and dirty) across the entity save.
+		act( () => result.current.setPersonField( { name: 'Pending person' } ) );
+
+		const saved: SchemaSettings = { ...RESPONSE, siteRepresents: 'person' };
+		mockApiFetch.mockResolvedValueOnce( saved );
+
+		act( () => result.current.commitSiteRepresents( 'person' ) );
+		expect( result.current.siteRepresents ).toBe( 'person' );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving schema settings…', expect.anything() );
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack/v4/seo/schema-settings',
+			method: 'POST',
+			data: { siteRepresents: 'person' },
+		} );
+		expect( result.current.person.name ).toBe( 'Pending person' );
+		expect( result.current.isPersonDirty ).toBe( true );
+		expect( onSave ).toHaveBeenCalledWith( saved );
+	} );
+
+	it( 'saves only Person and preserves pending Organization edits', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		act( () => {
+			result.current.setOrganizationField( { name: 'Pending organization' } );
+			result.current.setPersonField( { sameAs: [ 'https://linkedin.com/in/jane' ] } );
+		} );
+		expect( result.current.isPersonDirty ).toBe( true );
+
+		const saved: SchemaSettings = {
+			...RESPONSE,
+			person: { ...RESPONSE.person, sameAs: [ 'https://linkedin.com/in/jane' ] },
+		};
+		mockApiFetch.mockResolvedValueOnce( saved );
+
+		act( () => result.current.savePerson() );
+		await waitFor( () => expect( result.current.isPersonDirty ).toBe( false ) );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving schema settings…', expect.anything() );
+
+		const post = mockApiFetch.mock.calls.find(
+			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
+		);
+		const options = post![ 0 ] as { data: Pick< SchemaSettings, 'person' > };
+		expect( Object.keys( options.data ) ).toEqual( [ 'person' ] );
+		expect( options.data.person.sameAs ).toEqual( [ 'https://linkedin.com/in/jane' ] );
+		expect( result.current.organization.name ).toBe( 'Pending organization' );
+		expect( result.current.isOrganizationDirty ).toBe( true );
+	} );
+
 	it( 'auto-saves the BreadcrumbList toggle without dragging in pending edits', async () => {
 		const onSave = jest.fn();
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
@@ -153,6 +212,22 @@ describe( 'useSchemaSettings', () => {
 
 		// …then reverts to the last-saved value when the save fails.
 		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
+		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
+	} );
+
+	it( 'rolls the site-entity choice back when its auto-save fails', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+		expect( result.current.siteRepresents ).toBe( 'organization' );
+
+		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+
+		act( () => result.current.commitSiteRepresents( 'person' ) );
+		// Optimistically switches the visible entity immediately…
+		expect( result.current.siteRepresents ).toBe( 'person' );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		// …then reverts so the card can't keep showing an unpersisted entity.
+		expect( result.current.siteRepresents ).toBe( 'organization' );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
 	} );
 

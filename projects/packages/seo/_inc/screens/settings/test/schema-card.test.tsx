@@ -14,26 +14,36 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
 const commitBreadcrumbList = jest.fn();
+const commitSiteRepresents = jest.fn();
 const setLocalBusinessField = jest.fn();
+const setPersonField = jest.fn();
 const saveOrganizationEntity = jest.fn();
+const savePerson = jest.fn();
 
 // Resettable per test so each can vary the configured state the card reflects.
 let mockForm: SchemaSettingsForm;
 
 const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettingsForm => ( {
 	// No stored override; the Site Title / Tagline come through as placeholder defaults.
+	siteRepresents: 'organization',
 	breadcrumbList: { enabled: true },
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	defaults: { name: 'Acme Co', description: 'We make things' },
 	localBusiness: EMPTY_LOCAL_BUSINESS,
 	localBusinessDefaults: EMPTY_LOCAL_BUSINESS_DEFAULTS,
+	person: { name: '', description: '', sameAs: [] },
+	personDefaults: { name: 'Acme Co', description: 'We make things' },
 	isSaving: false,
 	isOrganizationDirty: false,
 	isLocalBusinessDirty: false,
+	isPersonDirty: false,
 	commitBreadcrumbList,
+	commitSiteRepresents,
 	setOrganizationField,
 	setLocalBusinessField,
+	setPersonField,
 	saveOrganizationEntity,
+	savePerson,
 	...overrides,
 } );
 
@@ -216,6 +226,90 @@ describe( 'SchemaCard', () => {
 		renderCard();
 
 		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
+	it( 'computes the status from the Person entity when the site represents a person', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			person: { name: '', description: '', sameAs: [ 'https://linkedin.com/in/jane' ] },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Complete' );
+	} );
+
+	it( 'does not count an empty Person profile row toward completion', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			person: { name: '', description: '', sameAs: [ '' ] },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+	} );
+
+	it( 'offers an Organization/Person choice with Organization selected by default', () => {
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'radio', { name: /An organization/ } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: /A person/ } ) ).not.toBeChecked();
+	} );
+
+	it( 'switches the site entity through the hook', () => {
+		renderCard();
+		expandCard();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'radio', { name: /A person/ } ) );
+		expect( commitSiteRepresents ).toHaveBeenCalledWith( 'person' );
+	} );
+
+	it( 'shows the Person fields (and no Organization branch) when Person is selected', () => {
+		mockForm = makeForm( { siteRepresents: 'person' } );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'textbox', { name: 'Short bio' } ) ).toBeInTheDocument();
+		// No local-business affordance, and no Organization fieldset, on this branch.
+		expect( screen.queryByRole( 'checkbox', { name: /local business/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'group', { name: 'Organization details' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'edits and saves Person fields through the hook', () => {
+		mockForm = makeForm( { siteRepresents: 'person', isPersonDirty: true } );
+		renderCard();
+		expandCard();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single controlled change; see note above.
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'Name' } ), {
+			target: { value: 'Jane Rivera' },
+		} );
+		expect( setPersonField ).toHaveBeenCalledWith( { name: 'Jane Rivera' } );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save person' } ) );
+		expect( savePerson ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'disables saving a Person with an invalid social profile URL', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			isPersonDirty: true,
+			person: { name: '', description: '', sameAs: [ 'not a url' ] },
+		} );
+		renderCard();
+		expandCard();
+
+		expect(
+			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Save person' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'renders the Breadcrumbs toggle on and turns it off through the hook', () => {
