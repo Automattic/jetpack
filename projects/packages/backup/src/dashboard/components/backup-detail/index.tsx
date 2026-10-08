@@ -4,8 +4,12 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
+import { formatDuration } from '../../data/durations';
+import { formatStorageSize } from '../../data/storage-units';
+import { useBackupRuns } from '../../hooks/use-backup-runs';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../file-browser';
 import './style.scss';
+import type { BackupRun } from '../../data/normalize/backup-runs';
 import type { BackupActivityItem } from '../../types/activity';
 import type { FileSelection } from '../file-browser';
 
@@ -37,6 +41,35 @@ function downloadLabel( count: number ): string {
 }
 
 /**
+ * The site's size when a backup ran and how long it took, spelled out.
+ *
+ * @param run - The backup's run.
+ * @return Localized text.
+ */
+function runText( run: BackupRun ): string {
+	if ( run.siteSize === null ) {
+		return sprintf(
+			/* translators: %s: how long a backup ran, e.g. "28 minutes" */
+			__( 'Took %s', 'jetpack-backup-pkg' ),
+			formatDuration( run.duration, 'long' )
+		);
+	}
+	if ( run.duration === null ) {
+		return sprintf(
+			/* translators: %s: the site's size when it was backed up, e.g. "4.2GB" */
+			__( 'Site size at backup: %s', 'jetpack-backup-pkg' ),
+			formatStorageSize( run.siteSize )
+		);
+	}
+	return sprintf(
+		/* translators: %1$s: the site's size when it was backed up, e.g. "4.2GB". %2$s: how long the backup ran, e.g. "28 minutes". */
+		__( 'Site size at backup: %1$s · Took %2$s', 'jetpack-backup-pkg' ),
+		formatStorageSize( run.siteSize ),
+		formatDuration( run.duration, 'long' )
+	);
+}
+
+/**
  * Right-pane detail card for a selected backup activity item.
  *
  * Shows the item's title header with Download / Restore actions linking to the
@@ -59,6 +92,7 @@ export default function BackupDetail( { item }: Props ) {
 	// tree can hold a selected entry upstream gave no `id`, so counting the tree
 	// would promise a scoped download over a link carrying nothing.
 	const [ selectedIds, setSelectedIds ] = useState< string[] >( [] );
+	const run = useBackupRuns( [ item ] )( item );
 
 	// FileBrowser rebuilds the array on every recompute, so a plain
 	// setter would re-render this subtree on selections that changed
@@ -155,6 +189,11 @@ export default function BackupDetail( { item }: Props ) {
 						) }
 					</span>
 				</Text>
+				{ run && (
+					<Text variant="body-sm" className="jpb-text-muted jpb-backup-detail__run">
+						{ runText( run ) }
+					</Text>
+				) }
 				<FileBrowser
 					rewindId={ item.rewindId }
 					selection={ selection }
