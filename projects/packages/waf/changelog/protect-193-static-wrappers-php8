@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Brute_Force_Protection: fix fatal Error on PHP 8 in deprecated static wrappers ip_is_whitelisted() and is_current_ip_whitelisted() by routing calls through the singleton instance.
