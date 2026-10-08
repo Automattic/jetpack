@@ -32,7 +32,7 @@ export function ProtectCard( { icon, title, status, actions, children }: CardPro
 					<Icon icon={ icon } size={ 24 } />
 					<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
 				</Stack>
-				<Stack direction="row" gap="sm" align="center">
+				<Stack className="jp-protect-card__header-end" direction="row" gap="sm" align="center">
 					{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
 					{ actions }
 				</Stack>
