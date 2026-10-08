@@ -46,8 +46,8 @@ export function isOnboardingDone( taskList: OnboardingTaskList ): boolean {
 }
 
 /**
- * Whether this browser has already seen onboarding done. Completion is final on WP.com, so a done
- * onboarding never needs asking about again.
+ * Whether this browser has already seen onboarding done. Completion from its tasks is final on
+ * WP.com, so a done onboarding never needs asking about again.
  *
  * @return Whether onboarding is stored as done.
  */
