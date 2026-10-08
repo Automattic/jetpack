@@ -121,6 +121,38 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Check the Scan sidebar refresh's offline policy.
+	 *
+	 * @dataProvider scan_toolbar_offline_modes
+	 * @param bool $offline Whether the site is offline.
+	 */
+	#[DataProvider( 'scan_toolbar_offline_modes' )]
+	public function test_scan_sidebar_refresh_respects_offline_mode( $offline ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+		$offline_filter = $offline ? '__return_true' : '__return_false';
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+		delete_transient( 'jetpack_rewind_state' );
+		wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+
+		$refresh = new ReflectionMethod( Admin_Sidebar_Link::class, 'maybe_refresh_transient_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$refresh->setAccessible( true );
+		}
+		try {
+			$this->assertTrue( Jetpack::is_connection_ready() );
+			$refresh->invoke( new Admin_Sidebar_Link() );
+			$this->assertSame( ! $offline, false !== wp_next_scheduled( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK ) );
+		} finally {
+			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+			StatusCache::clear();
+		}
+	}
+
+	/**
 	 * Clears Admin_Menu's static state and the menu globals between renders.
 	 */
 	private function reset_admin_menu() {
