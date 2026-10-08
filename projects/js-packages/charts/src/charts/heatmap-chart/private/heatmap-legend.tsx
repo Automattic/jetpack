@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
 import styles from '../heatmap-chart.module.scss';
 import { HeatmapContext } from './heatmap-context';
+import { isEmptyValue } from './use-heatmap-colors';
 import type { CSSProperties, FC } from 'react';
 
 export interface HeatmapLegendProps {
@@ -32,8 +33,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 	}
 	const { extent, fillVars } = context;
 	const labelStyle = legend.labelStyles;
-	// With negative values a zero is a filled step, so "Less" is the lowest value, not an empty cell.
-	const showsEmptyCell = extent[ 0 ] >= 0;
+	const showsEmptyCell = isEmptyValue( 0, extent );
 
 	return (
 		<Stack direction="row" gap="xs" align="center">

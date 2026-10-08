@@ -3,6 +3,8 @@
 // module, so it needs no runtime cascade and never lands on the DOM.
 $focus-ring-width: var(--wpds-border-width-focus);
 
+$heatmap-empty-fill: var(--a8c-charts-color-track);
+
 // JS sets the ends (getHeatmapScale): 3:1 against background and empty cell at
 // the low end. Unresolved, the floor is 15% of the primary.
 $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c-charts-color-heatmap-primary)) calc(var(--a8c-charts-heatmap-cell-intensity) * 100%), var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff))));
@@ -119,7 +121,7 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 	min-height: 0;
 	border-radius: var(--a8c-charts-border-radius-cell);
 	// Empty (no-data) default; cells with a value override it below.
-	background: var(--a8c-charts-color-track);
+	background: $heatmap-empty-fill;
 }
 
 // An empty grid slot (calendar ragged edges): keeps its track but paints and
@@ -210,7 +212,7 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 }
 
 .heatmap-chart__legend-swatch--empty {
-	background: var(--a8c-charts-color-track);
+	background: $heatmap-empty-fill;
 }
 
 // One band: the steps butt against each other and only the band's ends round.
