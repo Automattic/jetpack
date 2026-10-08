@@ -210,13 +210,16 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 		<ProtectCard
 			icon={ shield }
 			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
-			status={
+			description={
 				scan.hasPlan
-					? undefined
-					: {
-							label: __( 'Vulnerability checks only', 'jetpack-protect-pkg' ),
-							intent: 'informational',
-						}
+					? __(
+							'Daily malware and vulnerability checks for your files, WordPress, plugins and themes.',
+							'jetpack-protect-pkg'
+						)
+					: __(
+							'Daily vulnerability checks for WordPress, plugins and themes.',
+							'jetpack-protect-pkg'
+						)
 			}
 			actions={
 				hasThreats &&

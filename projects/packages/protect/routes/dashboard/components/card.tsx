@@ -6,6 +6,7 @@ export type CardStatus = { label: string; intent: ComponentProps< typeof Badge >
 type CardProps = {
 	icon: ReactElement;
 	title: string;
+	description?: string;
 	status?: CardStatus;
 	actions?: ReactNode;
 	children: ReactNode;
@@ -14,23 +15,31 @@ type CardProps = {
 /**
  * A Protect dashboard card: a titled header, then rows divided by rules.
  *
- * @param props          - Component props.
- * @param props.icon     - The feature's icon.
- * @param props.title    - The feature's name.
- * @param props.status   - Optional status badge.
- * @param props.actions  - Optional controls beside the badge.
- * @param props.children - The card's rows.
+ * @param props             - Component props.
+ * @param props.icon        - The feature's icon.
+ * @param props.title       - The feature's name.
+ * @param props.description - Optional line under the title.
+ * @param props.status      - Optional status badge.
+ * @param props.actions     - Optional controls beside the badge.
+ * @param props.children    - The card's rows.
  * @return The card.
  */
-export function ProtectCard( { icon, title, status, actions, children }: CardProps ) {
+export function ProtectCard( { icon, title, description, status, actions, children }: CardProps ) {
 	return (
 		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
 			<Card.Header
 				render={ <Stack direction="row" gap="sm" align="center" justify="space-between" /> }
 			>
-				<Stack direction="row" gap="sm" align="center">
+				<Stack direction="row" gap="sm" align={ description ? 'start' : 'center' }>
 					<Icon icon={ icon } size={ 24 } />
-					<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
+					<Stack direction="column" gap="xs">
+						<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
+						{ description && (
+							<Text variant="body-sm" className="jp-protect-card__muted">
+								{ description }
+							</Text>
+						) }
+					</Stack>
 				</Stack>
 				<Stack className="jp-protect-card__header-end" direction="row" gap="sm" align="center">
 					{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
