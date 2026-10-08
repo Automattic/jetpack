@@ -5,11 +5,10 @@ import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
 import { DetailsFields } from './details-fields';
 import { Header } from './header';
+import { guestValue } from './host';
 import { LogIn } from './log-in';
 import { SubscribeSwitches } from './subscribe-switches';
 import type { SignInStatus, Step, Subscribed } from './types';
-
-import './style.scss';
 
 const isEmail = ( email: string ) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email );
 
@@ -42,6 +41,9 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const popup = useRef< Window | null >( null );
 	const opener = useRef< Element | null >( null );
 	const [ signInStatus, setSignInStatus ] = useState< SignInStatus >( 'idle' );
+	// The shadow root's stylesheet, which a dialog opened before it loads would show without.
+	// No URL fires no load, so there is nothing to wait for.
+	const [ styled, setStyled ] = useState( ! JetpackComments.styleUrl );
 	const [ emailTaken, setEmailTaken ] = useState( false );
 	const [ checkingEmail, setCheckingEmail ] = useState( false );
 	// One request per address, shared by the debounced check and a submit that beats it.
@@ -66,8 +68,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const chosen = formSettings.subscriptions
 		.filter( ( { name } ) => subscribed[ name ] )
 		.map( ( { name } ) => name );
-	const guest =
-		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
 	const enteredEmail = details.value.email;
 	const checkEmail = async ( email: string ) => {
 		if ( emailCheck.current?.email !== email ) {
@@ -87,6 +87,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	useEffect( () => {
 		const element = dialog.current;
+
+		if ( ! styled ) {
+			return;
+		}
 
 		if ( isDialogOpen.value ) {
 			if ( ! element?.open ) {
@@ -109,7 +113,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		setStep( firstStep );
 		setSubscribed( saved ?? defaultSubscribed() );
-	}, [ isDialogOpen.value ] );
+	}, [ isDialogOpen.value, styled ] );
 
 	// The button that turned the page is gone, so focus goes to the new page's first control.
 	useEffect( () => {
@@ -195,15 +199,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	// Posting with "No, thanks" sends nothing of theirs: no details, no subscriptions.
 	const formValue = ( consent: boolean, anonymous = false ) => {
-		const data = new FormData();
-
 		if ( anonymous ) {
-			return data;
+			return new FormData();
 		}
 
-		if ( guest ) {
-			Object.entries( details.value ).forEach( ( [ name, value ] ) => data.append( name, value ) );
-		}
+		const data = guestValue( { commenter, details } );
 
 		if ( showToggles || saved ) {
 			chosen.forEach( name => data.append( name, 'subscribe' ) );
@@ -332,7 +332,13 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	return (
 		<>
-			<link rel="stylesheet" href={ JetpackComments.styleUrl } />
+			{ /* An error opens it too: unstyled beats never. */ }
+			<link
+				rel="stylesheet"
+				href={ JetpackComments.styleUrl }
+				onLoad={ () => setStyled( true ) }
+				onError={ () => setStyled( true ) }
+			/>
 			<dialog
 				ref={ dialog }
 				className="jetpack-comments__dialog"

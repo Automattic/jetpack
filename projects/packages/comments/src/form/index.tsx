@@ -1,12 +1,13 @@
 import { render } from 'preact';
-import { Dialog } from '../modal';
-import { DialogHost } from '../modal/host';
+import { DialogHost, mountDialog } from '../modal/host';
 import { resolveSubmitted } from '../shared/draft';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentForm } from './comment-form';
 import type { FormSettings } from '../shared/types';
 
 import './style.scss';
+// Here, not with the dialog: its shadow root links this page's stylesheet.
+import '../modal/style.scss';
 
 // A page cache can pair settings from an older release with this bundle. The
 // mount holds a plain form for that case, for a browser without form-associated
@@ -52,17 +53,6 @@ if (
 			</CommentSignals.Provider>,
 			element
 		);
-
-		// Inside the form, so what it hands over posts with it. A page can hold two
-		// comment forms, both with core's id, so nothing here may find the form by id.
-		const host = form.appendChild(
-			document.createElement( 'jetpack-comments-dialog' ) as DialogHost
-		);
-		render(
-			<CommentSignals.Provider value={ signals }>
-				<Dialog internals={ host.internals } />
-			</CommentSignals.Provider>,
-			host.attachShadow( { mode: 'open' } )
-		);
+		mountDialog( form, signals );
 	} );
 }
