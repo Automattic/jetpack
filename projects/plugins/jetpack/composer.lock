@@ -3229,10 +3229,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "470393278e76c8dbadc1600c9b4d5d0ea2138324"
+                "reference": "3a8c2090533df980dc334554ca364bc1ac471ca0"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-protect-models": "@dev",
+                "automattic/jetpack-protect-status": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
@@ -3284,6 +3287,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [

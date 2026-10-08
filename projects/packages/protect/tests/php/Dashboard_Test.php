@@ -20,11 +20,12 @@ use WorDBless\BaseTestCase;
 class Dashboard_Test extends BaseTestCase {
 
 	/**
-	 * Start from an empty menu queue and no init() options.
+	 * Start from an empty menu queue, no sections and no init() options.
 	 */
 	public function set_up() {
 		parent::set_up();
 		Admin_Menu::reset();
+		self::reset_sections();
 		Dashboard::init();
 	}
 
@@ -33,14 +34,67 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Admin_Menu::reset();
+		self::reset_sections();
 		unset( $_GET['page'] );
 		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'rest_api_init' );
+		remove_all_actions( 'doing_it_wrong_run' );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
 		}
 		parent::tear_down();
+	}
+
+	/**
+	 * Empty the private section registry.
+	 */
+	private static function reset_sections() {
+		$sections = new \ReflectionProperty( Dashboard::class, 'sections' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sections->setAccessible( true );
+		}
+		$sections->setValue( null, array() );
+	}
+
+	/**
+	 * Record _doing_it_wrong() calls instead of raising them.
+	 *
+	 * @return \ArrayObject The names of the functions called wrongly, filled as calls happen.
+	 */
+	private function capture_doing_it_wrong() {
+		$calls = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $calls ) {
+				$calls[] = $function_name;
+			}
+		);
+		return $calls;
+	}
+
+	/**
+	 * Build a section double.
+	 *
+	 * @param string $key            Section key.
+	 * @param array  $state          Section state.
+	 * @param bool   $expects_routes Whether the section must be asked for its routes once.
+	 * @return Dashboard_Section
+	 */
+	private function make_section( $key, $state, $expects_routes = false ) {
+		$section = $expects_routes
+			? $this->createMock( Dashboard_Section::class )
+			: $this->createStub( Dashboard_Section::class );
+		$section->method( 'get_key' )->willReturn( $key );
+		$section->method( 'get_state' )->willReturn( $state );
+		if ( $expects_routes ) {
+			$section->expects( $this->once() )->method( 'register_routes' );
+		}
+		return $section;
 	}
 
 	/**
@@ -203,5 +257,84 @@ class Dashboard_Test extends BaseTestCase {
 
 		Dashboard::restore_screen_id();
 		$this->assertSame( 'jetpack_page_jetpack-protect', get_current_screen()->id );
+	}
+
+	/**
+	 * Test that a second section with a registered key is refused.
+	 */
+	public function test_register_section_keeps_the_first_section_for_a_key() {
+		$doing_it_wrong = $this->capture_doing_it_wrong();
+
+		Dashboard::register_section( $this->make_section( 'scan', array( 'order' => 'first' ) ) );
+		Dashboard::register_section( $this->make_section( 'scan', array( 'order' => 'second' ) ) );
+
+		$this->assertSame( array( 'scan' => array( 'order' => 'first' ) ), Dashboard::get_initial_state() );
+		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong->getArrayCopy() );
+	}
+
+	/**
+	 * Test that every section contributes its state and its REST routes.
+	 */
+	public function test_sections_provide_state_by_key_and_register_routes() {
+		$scan    = $this->make_section( 'scan', array( 'threats' => 2 ), true );
+		$monitor = $this->make_section( 'monitor', array( 'active' => true ), true );
+
+		Dashboard::register_section( $scan );
+		Dashboard::register_section( $monitor );
+		Dashboard::register_rest_routes();
+
+		$this->assertSame(
+			array(
+				'scan'    => array( 'threats' => 2 ),
+				'monitor' => array( 'active' => true ),
+			),
+			Dashboard::get_initial_state()
+		);
+	}
+
+	/**
+	 * Test that a section file's class is found by its file name, and registered once however often init() runs.
+	 */
+	public function test_load_sections_registers_each_file_class_once() {
+		$dir            = __DIR__ . '/fixtures/sections';
+		$doing_it_wrong = $this->capture_doing_it_wrong();
+
+		Dashboard::load_sections( $dir );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Loading twice is the behavior under test.
+		Dashboard::load_sections( $dir );
+
+		$this->assertSame( array( 'example' => array( 'loaded' => true ) ), Dashboard::get_initial_state() );
+		$this->assertCount( 0, $doing_it_wrong );
+	}
+
+	/**
+	 * Section states, and the script that prints them.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_initial_states() {
+		return array(
+			'no sections'            => array( null, 'window.jetpackProtectDashboard = {};' ),
+			'state closing a script' => array( array( 'title' => '</script>' ), 'window.jetpackProtectDashboard = {"scan":{"title":"\\u003C/script\\u003E"}};' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_initial_states
+	 *
+	 * @param array|null $state    The scan section's state, or null for no section.
+	 * @param string     $expected The printed script.
+	 */
+	#[DataProvider( 'provide_initial_states' )]
+	public function test_print_initial_state_prints_an_escaped_object( $state, $expected ) {
+		if ( null !== $state ) {
+			Dashboard::register_section( $this->make_section( 'scan', $state ) );
+		}
+
+		ob_start();
+		Dashboard::print_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( $expected, $output );
 	}
 }
