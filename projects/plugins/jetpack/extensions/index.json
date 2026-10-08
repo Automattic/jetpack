@@ -13,6 +13,7 @@
 		"contact-info",
 		"donations",
 		"eventbrite",
+		"featured-image-duplicate",
 		"field-file",
 		"gif",
 		"google-calendar",
@@ -89,8 +90,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform",
-		"featured-image-duplicate"
+		"ai-list-to-table-transform"
 	],
 	"experimental": [],
 	"no-post-editor": [
