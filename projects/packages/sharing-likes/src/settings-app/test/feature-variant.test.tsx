@@ -63,8 +63,8 @@ describe( 'FeatureVariant', () => {
 			expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) !== null ).toBe(
 				state === 'block_call_to_action'
 			);
-			( button ? [ button ] : [] ).forEach( name =>
-				expect( screen.getByRole( 'button', { name } ) ).toBeInTheDocument()
+			expect( screen.queryAllByRole( 'button' ).map( node => node.textContent ) ).toEqual(
+				button ? [ button ] : []
 			);
 		}
 	);

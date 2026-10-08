@@ -12,6 +12,7 @@ import {
 	setScriptData,
 	snackbarMessages,
 } from './helpers';
+import type { Settings } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -56,15 +57,19 @@ describe( 'LikeButtonsSection', () => {
 		);
 	} );
 
-	it( 'offers the Reblog button only where settings carries it', () => {
-		renderWithData( <LikeButtonsSection />, {
-			settings: { ...baseSettings, reblogs_enabled: true },
-		} );
+	it.each( [
+		[ 'offers', { ...baseSettings, reblogs_enabled: true }, true ],
+		[ 'withholds', baseSettings, false ],
+	] as [ string, Settings, boolean ][] )(
+		'%s the Reblog button as settings carries it or not',
+		( _verb, settings, offered ) => {
+			renderWithData( <LikeButtonsSection />, { settings } );
 
-		expect(
-			screen.getByRole( 'radio', { name: 'Show the Reblog button on posts' } )
-		).toBeChecked();
-	} );
+			expect(
+				screen.queryByRole( 'radio', { name: 'Show the Reblog button on posts' } ) !== null
+			).toBe( offered );
+		}
+	);
 
 	it( 'confirms "Turn on" and moves focus to the options that replace the button', async () => {
 		mockApiFetch.mockImplementation( ( { path } ) =>
