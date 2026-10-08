@@ -18,12 +18,10 @@ test.describe( 'Getting started page', () => {
 	} );
 
 	test( 'User should be able to purchase the premium plan', async ( { page } ) => {
-		const expectedUrlPattern = /https:\/\/wordpress.com\/.*checkout.*/;
-
 		await page.getByRole( 'button', { name: 'Get Boost' } ).click();
 
-		await expect( page, 'User should be redirected to checkout page' ).toHaveURL(
-			expectedUrlPattern,
+		await expect( page, 'User should be sent to the My Jetpack upgrade page' ).toHaveURL(
+			/page=my-jetpack#\/add-boost$/,
 			{
 				timeout: 60000,
 			}
