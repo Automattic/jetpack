@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connectors: Build the Connectors card with webpack as a script module, so it can import shared connection components.

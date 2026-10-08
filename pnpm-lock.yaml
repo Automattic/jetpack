@@ -2463,6 +2463,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.55.0
         version: 6.55.0
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 6.55.0
+        version: 6.55.0(webpack@5.111.1)
       glob:
         specifier: 13.0.6
         version: 13.0.6

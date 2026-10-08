@@ -108,6 +108,12 @@ class Jetpack_Connector_Test extends TestCase {
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
+		remove_all_filters( 'script_module_data_' . Jetpack_Connector::MODULE_ID );
+
+		unset( $GLOBALS['current_screen'] );
+		wp_deregister_script_module( Jetpack_Connector::MODULE_ID );
+		$GLOBALS['wp_scripts'] = null;
+		$GLOBALS['wp_styles']  = null;
 		if ( null !== $this->caps_manager ) {
 			remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
 			$this->caps_manager = null;
@@ -521,6 +527,95 @@ class Jetpack_Connector_Test extends TestCase {
 	public function test_is_connectors_screen_rejects_other() {
 		$this->assertFalse( $this->call_is_connectors_screen( 'dashboard' ) );
 		$this->assertFalse( $this->call_is_connectors_screen( 'options-general' ) );
+	}
+
+	/* ── enqueue_script_module() ────────────────────────────────── */
+
+	/**
+	 * Test that the card is registered from the build, versioned by its asset file.
+	 */
+	public function test_enqueue_registers_the_built_module_with_the_asset_version() {
+		$restore = $this->stub_module_asset_file(
+			array(
+				'dependencies' => array( '@wordpress/connectors' ),
+				'version'      => 'test-card-version',
+				'type'         => 'module',
+			)
+		);
+
+		try {
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
+
+		$module = wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID );
+		$this->assertNotNull( $module );
+		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $module['src'] );
+		$this->assertSame( 'test-card-version', $module['version'] );
+		$this->assertSame( array( '@wordpress/connectors' ), array_column( $module['dependencies'], 'id' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-connector-card-missing', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that core looks up the card's translations under the package domain and the file's real path.
+	 */
+	public function test_card_translations_are_looked_up_under_the_package_domain_and_real_path() {
+		$restore = $this->stub_module_asset_file( array( 'version' => 'test-card-version' ) );
+		$lookups = array();
+		$paths   = array();
+
+		$record_lookup = static function ( $file, $handle, $domain ) use ( &$lookups ) {
+			if ( Jetpack_Connector::MODULE_ID === $handle ) {
+				$lookups[] = array( basename( (string) $file ), $domain );
+			}
+			return $file;
+		};
+		$record_path   = static function ( $relative, $src ) use ( &$paths ) {
+			if ( str_contains( $src, 'connectors-card.js' ) ) {
+				$paths[] = $relative;
+			}
+			return $relative;
+		};
+		add_filter( 'load_script_translation_file', $record_lookup, 10, 3 );
+		add_filter( 'load_script_textdomain_relative_path', $record_path, 10, 2 );
+
+		try {
+			$this->enqueue_on_connectors_screen();
+			ob_start();
+			wp_script_modules()->print_script_module_translations();
+			ob_end_clean();
+		} finally {
+			$restore();
+			remove_filter( 'load_script_translation_file', $record_lookup );
+			remove_filter( 'load_script_textdomain_relative_path', $record_path );
+		}
+
+		$this->assertNotEmpty( $lookups );
+		$this->assertSame( 'jetpack-connection', $lookups[0][1] );
+		$this->assertStringStartsWith( 'jetpack-connection-', $lookups[0][0] );
+		$this->assertNotEmpty( $paths );
+		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $paths[0] );
+		$this->assertStringNotContainsString( '..', $paths[0] );
+	}
+
+	/**
+	 * Test that a missing build skips the card with an error snackbar, instead of fataling on the asset file.
+	 */
+	public function test_enqueue_skips_the_card_when_the_build_is_missing() {
+		$restore = $this->stub_module_asset_file( null );
+
+		try {
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
+
+		$this->assertNull( wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID ) );
+		$this->assertFalse( wp_style_is( 'jetpack-connector-card', 'enqueued' ) );
+
+		$this->assertTrue( wp_script_is( 'jetpack-connector-card-missing', 'enqueued' ) );
+		$this->assertStringContainsString( 'because a file is missing', implode( '', wp_scripts()->get_data( 'jetpack-connector-card-missing', 'after' ) ) );
 	}
 
 	/* ── get_plugin_logo_url() ─────────────────────────────────── */
@@ -1056,6 +1151,54 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/* ── Helpers ───────────────────────────────────────────────── */
+
+	/**
+	 * Enqueue the card as WordPress does on the core Connectors screen.
+	 */
+	private function enqueue_on_connectors_screen() {
+		set_current_screen( 'options-connectors' );
+		Jetpack_Connector::enqueue_script_module();
+	}
+
+	/**
+	 * Put a fixture asset file where the card's build goes, or remove it, restoring any real build afterwards.
+	 *
+	 * @param array|null $asset Asset data to write, or null for no asset file.
+	 * @return callable Restores the previous state.
+	 */
+	private function stub_module_asset_file( $asset ) {
+		$class_dir = dirname( ( new \ReflectionClass( Jetpack_Connector::class ) )->getFileName() );
+		$file      = $class_dir . '/' . Jetpack_Connector::MODULE_FILE . '.asset.php';
+		$dir       = dirname( $file );
+		$original  = file_exists( $file ) ? file_get_contents( $file ) : null; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+		$created_dirs = array();
+		if ( null !== $asset ) {
+			foreach ( array( dirname( $dir ), $dir ) as $d ) {
+				if ( ! is_dir( $d ) ) {
+					mkdir( $d );
+					$created_dirs[] = $d;
+				}
+			}
+			file_put_contents( $file, '<?php return ' . var_export( $asset, true ) . ';' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.DevelopmentFunctions.error_log_var_export
+		} elseif ( null !== $original ) {
+			unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+		}
+
+		return static function () use ( $file, $original, $created_dirs ) {
+			if ( null !== $original ) {
+				file_put_contents( $file, $original ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
+			// Only directories this fixture created, and only while empty.
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				if ( 2 === count( scandir( $d ) ) ) {
+					rmdir( $d ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+				}
+			}
+		};
+	}
 
 	/**
 	 * Call the private is_connectors_screen() method via reflection.

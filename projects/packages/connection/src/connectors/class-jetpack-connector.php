@@ -39,6 +39,30 @@ class Jetpack_Connector {
 	const MODULE_ID = '@automattic/jetpack-connection-connectors';
 
 	/**
+	 * Script module dependencies of the card, declared by hand because the asset file mixes them with classic globals.
+	 * Must list every AS_MODULE package (webpack.config.js) the card imports; the build check fails if one is missing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array[]
+	 */
+	const MODULE_DEPENDENCIES = array(
+		array(
+			'id'     => '@wordpress/connectors',
+			'import' => 'static',
+		),
+	);
+
+	/**
+	 * Path of the card's built script module relative to this file, without the extension.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const MODULE_FILE = '../../dist/connectors/connectors-card';
+
+	/**
 	 * Screen ID assigned by WordPress to the Gutenberg plugin's connectors submenu page.
 	 *
 	 * @var string
@@ -94,7 +118,10 @@ class Jetpack_Connector {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
+	 * Skips the card when its built file is missing, and shows an error snackbar instead.
+	 *
 	 * @since 8.2.0
+	 * @since $$next-version$$ Loads the webpack build from dist/ and versions it from the asset file.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -107,6 +134,14 @@ class Jetpack_Connector {
 			return;
 		}
 
+		// The built file is missing in a checkout that hasn't run the build, or mid-deploy.
+		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE . '.asset.php' );
+		if ( null === $asset ) {
+			// Without the card, core shows no Jetpack entry at all, so say why.
+			static::enqueue_missing_build_notice();
+			return;
+		}
+
 		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
 			'jetpack-connector-card',
@@ -115,18 +150,14 @@ class Jetpack_Connector {
 			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 
-		$js_path = __DIR__ . '/js/connectors-card.js';
 		wp_register_script_module(
 			static::MODULE_ID,
-			plugins_url( 'js/connectors-card.js', __FILE__ ),
-			array(
-				array(
-					'id'     => '@wordpress/connectors',
-					'import' => 'static',
-				),
-			),
-			(string) @filemtime( $js_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
+			// Resolve the '..' so core finds translations under the file's real path, as Assets::register_script() does.
+			Assets::normalize_path( plugins_url( static::MODULE_FILE . '.js', __FILE__ ) ),
+			static::MODULE_DEPENDENCIES,
+			$asset['version'] ?? false
 		);
+		wp_set_script_module_translations( static::MODULE_ID, 'jetpack-connection' );
 		wp_enqueue_script_module( static::MODULE_ID );
 
 		// Assets::enqueue_script also loads the stylesheet registered with the handle.
@@ -138,6 +169,45 @@ class Jetpack_Connector {
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
 		);
+	}
+
+	/**
+	 * Explain on the Connectors screen that the card's built file is missing.
+	 *
+	 * The screen hides legacy admin notices, so this posts a snackbar to the notices store it renders.
+	 *
+	 * @since $$next-version$$
+	 */
+	private static function enqueue_missing_build_notice() {
+		$message = __( 'Jetpack couldn’t load its Connectors card because a file is missing. Reinstall or update the plugin to restore it.', 'jetpack-connection' );
+
+		wp_register_script( 'jetpack-connector-card-missing', false, array( 'wp-data', 'wp-notices' ), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- inline-only handle.
+		wp_add_inline_script(
+			'jetpack-connector-card-missing',
+			sprintf(
+				'wp.data.dispatch( "core/notices" ).createErrorNotice( %s, { type: "snackbar", explicitDismiss: true } );',
+				wp_json_encode( $message, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES )
+			)
+		);
+		wp_enqueue_script( 'jetpack-connector-card-missing' );
+	}
+
+	/**
+	 * Read the asset file the build emits beside the card's script module.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $asset_path Path of the asset file.
+	 * @return array|null Asset data, or null if the file is missing or invalid.
+	 */
+	private static function get_module_asset( $asset_path ) {
+		if ( ! file_exists( $asset_path ) ) {
+			return null;
+		}
+
+		$asset = require $asset_path;
+
+		return is_array( $asset ) ? $asset : null;
 	}
 
 	/**
