@@ -477,6 +477,7 @@ class Comment_Form {
 						'iconUrl' => (string) get_site_icon_url( 64 ),
 					),
 					'manageSubscriptionsUrl' => $manage,
+					'tracks'                 => Tracks::is_enabled() ? array( 'platform' => Tracks::platform() ) : null,
 					'strings'                => $strings,
 				),
 				Identity::settings()
@@ -535,6 +536,11 @@ class Comment_Form {
 			if ( $valid ) {
 				return;
 			}
+		}
+
+		// A stale nonce from this site's own page is what a page cache costs real readers; anything else is a bot.
+		if ( '' !== $nonce && ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+			Tracks::record( 'jetpack_comments_comment_refused', array( 'reason' => 'nonce' ) );
 		}
 
 		wp_die(

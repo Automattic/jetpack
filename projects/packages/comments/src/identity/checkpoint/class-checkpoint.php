@@ -318,6 +318,8 @@ class Checkpoint {
 		$data   = (array) $error->get_error_data();
 		$status = (int) ( $data['status'] ?? 500 );
 
+		Tracks::record( 'jetpack_comments_comment_refused', array( 'reason' => $error->get_error_code() ) );
+
 		switch ( $error->get_error_code() ) {
 			case 'code_expired':
 			case 'code_used':

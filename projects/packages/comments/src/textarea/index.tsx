@@ -1,6 +1,7 @@
 import { type TargetedEvent } from 'preact';
 import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
+import { recordEvent } from '../shared/tracks';
 import { loadEditor, matchTheme } from './load-editor';
 
 import './style.scss';
@@ -30,6 +31,10 @@ export const Textarea = () => {
 			}
 
 			const textarea = textareaRef.current!;
+			const fail = ( stage: string ) => {
+				setEditor( 'failed' );
+				recordEvent( 'jetpack_comments_editor_error', { stage } );
+			};
 			matchTheme( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
 			setEditor( 'loading' );
 			loadEditor()
@@ -41,11 +46,11 @@ export const Textarea = () => {
 						focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),
-						onError: () => setEditor( 'failed' ),
+						onError: () => fail( 'render' ),
 					} );
 					setEditor( 'ready' );
 				} )
-				.catch( () => setEditor( 'failed' ) );
+				.catch( () => fail( 'load' ) );
 		},
 		[ blocks, editor, placeholder, labels, commentValue ]
 	);
