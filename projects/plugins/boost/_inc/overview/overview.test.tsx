@@ -1350,8 +1350,8 @@ test.each( [
 					},
 				} )
 			);
-			const chart = await screen.findByRole( 'application', { name: 'Desktop score history' } );
-			fireEvent.keyDown( chart, { key: 'ArrowRight' } );
+			const charts = await screen.findAllByRole( 'application', { name: 'Bar chart' } );
+			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
 			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( copy );
 			expect(
 				screen
@@ -1418,8 +1418,8 @@ test( 'labels empty days as locked only after older history absence is confirmed
 	try {
 		renderOverview();
 		await waitFor( () => expect( completeOlderHistory ).toBeDefined() );
-		const chart = await screen.findByRole( 'application', { name: 'Desktop score history' } );
-		fireEvent.keyDown( chart, { key: 'ArrowRight' } );
+		const charts = await screen.findAllByRole( 'application', { name: 'Bar chart' } );
+		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
 			'No scores recorded for this day.'
 		);

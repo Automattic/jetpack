@@ -114,10 +114,7 @@ test( 'renders thirty daily bars for each device using score band colours and em
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'heading', { name: 'Last 30 days', level: 2 } ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'heading', { name: 'Desktop', level: 3 } ) ).toBeInTheDocument();
-	expect(
-		screen.getByRole( 'application', { name: 'Desktop score history' } )
-	).toBeInTheDocument();
-	expect( screen.getByRole( 'application', { name: 'Mobile score history' } ) ).toBeInTheDocument();
+	expect( screen.getAllByRole( 'application', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
 	for ( const [ device, tiers ] of [
 		[ 'Desktop', [ 'good', 'medium', 'poor' ] ],
@@ -652,7 +649,7 @@ test( 'transitions from an error to paid history', () => {
 	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
-	expect( screen.getAllByRole( 'application', { name: /score history/ } ) ).toHaveLength( 2 );
+	expect( screen.getAllByRole( 'application', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 } );
 
 test( 'announces history errors in the assertive live region', () => {
