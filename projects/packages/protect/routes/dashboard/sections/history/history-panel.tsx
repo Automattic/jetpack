@@ -1,12 +1,10 @@
-import { ThreatsDataViews } from '@automattic/jetpack-scan';
-import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
 import { Notice, Spinner, Stack, Text } from '@wordpress/ui';
-import { CardRow, ProtectCard } from '../../components/card';
-import './style.scss';
-import type { Threat } from '@automattic/jetpack-scan';
+import { CardRow, ProtectCard, Stat } from '../../components/card';
+import HistoryList from './history-list';
+import { loadHistory, useHistory } from './store';
 
 /**
  * The History tab: threats Scan has fixed, and ones that were ignored.
@@ -14,17 +12,10 @@ import type { Threat } from '@automattic/jetpack-scan';
  * @return The tab.
  */
 export default function HistoryPanel() {
-	const [ threats, setThreats ] = useState< Threat[] | null >( null );
-	const [ error, setError ] = useState< string | null >( null );
+	const { threats, error } = useHistory();
 
 	useEffect( () => {
-		apiFetch< Threat[] >( { path: '/jetpack/v4/protect-dashboard/history' } )
-			.then( setThreats )
-			.catch( ( e: { message?: string } ) =>
-				setError(
-					e?.message || __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' )
-				)
-			);
+		loadHistory();
 	}, [] );
 
 	let body;
@@ -57,13 +48,25 @@ export default function HistoryPanel() {
 		);
 	} else {
 		body = (
-			<CardRow className="jp-protect-history__threats">
-				<ThreatsDataViews
-					data={ threats }
-					showStatusFilter={ false }
-					persistKey="jetpack-protect-dashboard:history:view"
-				/>
-			</CardRow>
+			<>
+				<CardRow className="jp-protect-card__stats">
+					<Stat
+						label={ __( 'Threats fixed', 'jetpack-protect-pkg' ) }
+						value={ threats.filter( item => item.status === 'fixed' ).length }
+					/>
+					<Stat
+						label={ __( 'Threats ignored', 'jetpack-protect-pkg' ) }
+						value={ threats.filter( item => item.status === 'ignored' ).length }
+					/>
+					<Stat
+						label={ __( 'All threats in history', 'jetpack-protect-pkg' ) }
+						value={ threats.length }
+					/>
+				</CardRow>
+				<CardRow className="jp-protect-card__threats">
+					<HistoryList threats={ threats } />
+				</CardRow>
+			</>
 		);
 	}
 

@@ -20,7 +20,7 @@ const DEFAULT_LAYOUTS = { table: {} };
  * @param date - The ISO date.
  * @return The formatted date.
  */
-function formatDetected( date: string ): string {
+export function formatDetected( date: string ): string {
 	const time = dateI18n( 'g:i A', date, undefined );
 	if ( dateI18n( 'Y-m-d', date, undefined ) === dateI18n( 'Y-m-d', new Date(), undefined ) ) {
 		return sprintf(
@@ -32,7 +32,7 @@ function formatDetected( date: string ): string {
 	return dateI18n( 'M j, g:i A', date, undefined );
 }
 
-type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
+export type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
 /** Whether the site's plan can fix and ignore threats; the free vulnerability check can't. */
 type ActionProps = RowProps & { canAct: boolean };
 
@@ -44,7 +44,7 @@ type ActionProps = RowProps & { canAct: boolean };
  * @param props.onOpen - Opens the threat in the inspector.
  * @return The cell.
  */
-function ThreatCell( { item, onOpen }: RowProps ) {
+export function ThreatCell( { item, onOpen }: RowProps ) {
 	const { kind, subject } = getThreatLabel( item );
 	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
 	return (
@@ -137,7 +137,7 @@ function ThreatMenu( { item, onOpen, canAct }: ActionProps ) {
  * @param props.canAct - Whether the site can fix and ignore threats.
  * @return The cell.
  */
-function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
+export function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
 	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
 	const { busy } = useThreatAction( item.id );
 	return (

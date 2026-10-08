@@ -69,9 +69,12 @@ export function useScan(): ScanState | undefined {
 /**
  * The threat open in the inspector, and a way to open or close one.
  *
+ * @param param - The search param holding the threat id.
  * @return The open threat's id, if any, and a setter that takes an id or undefined to close.
  */
-export function useThreatParam(): [ string | undefined, ( id?: string | number ) => void ] {
+export function useThreatParam(
+	param: string = THREAT_PARAM
+): [ string | undefined, ( id?: string | number ) => void ] {
 	// `@wordpress/route` types no route tree, so `from` and the navigate argument need a cast.
 	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
 	const navigate = useNavigate();
@@ -80,11 +83,11 @@ export function useThreatParam(): [ string | undefined, ( id?: string | number )
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
-					[ THREAT_PARAM ]: id === undefined ? undefined : String( id ),
+					[ param ]: id === undefined ? undefined : String( id ),
 				} ),
 			} as Parameters< typeof navigate >[ 0 ] ),
-		[ navigate ]
+		[ navigate, param ]
 	);
-	const selected = search[ THREAT_PARAM ];
+	const selected = search[ param ];
 	return [ selected ? String( selected ) : undefined, setThreat ];
 }

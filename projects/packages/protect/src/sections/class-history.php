@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Protect\Dashboard_Threats;
-use Automattic\Jetpack\Protect_Models\Threat_Model;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -112,10 +111,7 @@ class History implements Dashboard_Section {
 			return new WP_Error( 'history_unavailable', __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 		}
 
-		$threats = array();
-		foreach ( (array) ( $body->threats ?? array() ) as $threat ) {
-			$threats[] = Dashboard_Threats::format( new Threat_Model( $threat ) );
-		}
+		$threats = Dashboard_Threats::format_all( (array) ( $body->threats ?? array() ) );
 
 		set_transient( self::TRANSIENT, $threats, 5 * MINUTE_IN_SECONDS );
 		return $threats;
