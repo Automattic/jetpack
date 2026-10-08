@@ -97,11 +97,11 @@ class Admin {
 	}
 
 	/**
-	 * Whether this admin request uses the modern dashboard.
+	 * Whether the modern dashboard is enabled.
 	 *
-	 * @return bool Whether modernization is enabled for this admin request.
+	 * @return bool Whether modernization is enabled.
 	 */
-	private static function is_modern_dashboard() {
+	public static function is_modernization_enabled() {
 		/**
 		 * Filters whether to load the modern Boost dashboard.
 		 *
@@ -109,9 +109,25 @@ class Admin {
 		 *
 		 * @since 4.7.1
 		 * @since 4.8.0 Defaults to true.
+		 * @deprecated $$next-version$$ The legacy dashboard will be removed in a future release.
 		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
 		 */
-		return apply_filters( self::MODERNIZATION_FILTER, true ) && is_admin();
+		return (bool) apply_filters_deprecated(
+			self::MODERNIZATION_FILTER,
+			array( true ),
+			'$$next-version$$',
+			'',
+			__( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' )
+		);
+	}
+
+	/**
+	 * Whether this admin request uses the modern dashboard.
+	 *
+	 * @return bool Whether modernization is enabled for this admin request.
+	 */
+	private static function is_modern_dashboard() {
+		return self::is_modernization_enabled() && is_admin();
 	}
 
 	/**

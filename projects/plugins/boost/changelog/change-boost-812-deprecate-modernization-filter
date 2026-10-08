@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Dashboard: Deprecate the filter that restores the legacy dashboard, which will be removed in a future release.

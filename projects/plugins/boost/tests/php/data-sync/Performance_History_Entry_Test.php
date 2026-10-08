@@ -7,7 +7,6 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Brain\Monkey;
-use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -62,6 +61,15 @@ class Performance_History_Entry_Test extends TestCase {
 		return $entry;
 	}
 
+	private function modernization_filter_returns( bool $enabled ) {
+		Functions\when( '__' )->returnArg();
+		Functions\when( 'apply_filters_deprecated' )->alias(
+			function ( $hook, $args ) use ( $enabled ) {
+				return Admin::MODERNIZATION_FILTER === $hook ? $enabled : $args[0];
+			}
+		);
+	}
+
 	private function upstream_error() {
 		$error = Mockery::mock( 'WP_Error' );
 		$error->shouldReceive( 'get_error_message' )->andReturn( 'History service unavailable' );
@@ -69,7 +77,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_off_preserves_empty_error_fallback_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( false );
+		$this->modernization_filter_returns( false );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -82,7 +90,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_on_surfaces_upstream_error_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
+		$this->modernization_filter_returns( true );
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'History service unavailable' );
@@ -90,7 +98,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_on_preserves_empty_error_fallback_without_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
+		$this->modernization_filter_returns( true );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -103,7 +111,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_on_preserves_empty_error_fallback_after_surface_errors_reset() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
+		$this->modernization_filter_returns( true );
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$entry->set(
 			array(
@@ -123,7 +131,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_empty_history_remains_successful_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
+		$this->modernization_filter_returns( true );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,

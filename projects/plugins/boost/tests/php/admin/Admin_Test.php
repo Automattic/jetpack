@@ -46,6 +46,11 @@ class Admin_Test extends Base_TestCase {
 		}
 
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'apply_filters_deprecated' )->alias(
+			function ( $hook, $args ) {
+				return $args[0];
+			}
+		);
 
 		// Boost only reports its count to users who can reach the menu; default the
 		// capability to true so the registration path runs. Overridden per-test below.
@@ -113,9 +118,9 @@ class Admin_Test extends Base_TestCase {
 	}
 
 	public function test_modern_dashboard_can_be_filtered_off() {
-		Functions\when( 'apply_filters' )->alias(
-			function ( $hook, $value = null ) {
-				return 'rsm_jetpack_ui_modernization_boost' === $hook ? false : $value;
+		Functions\when( 'apply_filters_deprecated' )->alias(
+			function ( $hook, $args ) {
+				return Admin::MODERNIZATION_FILTER === $hook ? false : $args[0];
 			}
 		);
 		$_GET['page'] = JETPACK_BOOST_SLUG;
@@ -642,9 +647,9 @@ class Admin_Test extends Base_TestCase {
 	}
 
 	private function enable_modern_dashboard() {
-		Functions\when( 'apply_filters' )->alias(
-			function ( $hook, $value = null ) {
-				return 'rsm_jetpack_ui_modernization_boost' === $hook ? true : $value;
+		Functions\when( 'apply_filters_deprecated' )->alias(
+			function ( $hook, $args ) {
+				return Admin::MODERNIZATION_FILTER === $hook ? true : $args[0];
 			}
 		);
 		Functions\when( 'sanitize_text_field' )->returnArg();
