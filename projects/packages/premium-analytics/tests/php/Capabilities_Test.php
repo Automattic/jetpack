@@ -252,11 +252,10 @@ class Capabilities_Test extends BaseTestCase {
 				},
 			)
 		);
-		$this->login_as( 'subscriber' );
+		$user_id = $this->login_as( 'subscriber' );
 
-		Capabilities::current_user_can_view_analytics();
-		Capabilities::current_user_can_view_analytics();
-
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertTrue( user_can( $user_id, Capabilities::VIEW_ANALYTICS ) );
 		$this->assertSame( 1, $checks );
 	}
 
