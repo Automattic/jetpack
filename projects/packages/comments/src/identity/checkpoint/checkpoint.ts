@@ -7,10 +7,6 @@ import type { ConnectUrl } from '../../shared/types';
 export type CheckpointResult =
 	{ code: string; name: string; avatar: string } | { error: string } | { cancelled: true };
 
-// Set by a log-out for the rest of this page load, so the next popup goes back through
-// the provider rather than WordPress.com's own cookie signing the previous person in.
-let reauth = false;
-
 /**
  * Sign in through the popup.
  *
@@ -66,8 +62,7 @@ export const signIn = async (
 		}
 	}
 
-	// Outside the signature, so it can be added here.
-	popup.location.href = reauth ? `${ connect.url }&reauth=1` : connect.url;
+	popup.location.href = connect.url;
 
 	return new Promise< CheckpointResult >( resolve => {
 		let timer = 0;
@@ -97,8 +92,6 @@ export const signIn = async (
 			if ( typeof data.error === 'string' ) {
 				finish( data.error === 'access_denied' ? { cancelled: true } : { error: data.error } );
 			} else if ( typeof data.code === 'string' && data.code !== '' ) {
-				reauth = false;
-
 				finish( {
 					code: data.code,
 					name: typeof data.name === 'string' ? data.name : '',
@@ -135,7 +128,6 @@ export const logOut = async (): Promise< boolean > => {
 	document.cookie = `${ displayCookie }=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${
 		cookiePath || '/'
 	}${ cookieDomain ? `; domain=${ cookieDomain }` : '' }; SameSite=Lax`;
-	reauth = true;
 
 	try {
 		const response = await fetch( logoutUrl, {
@@ -154,17 +146,21 @@ export const logOut = async (): Promise< boolean > => {
  * Whether an email belongs to a WordPress.com account, which the site would turn a guest comment away for.
  *
  * @param email - The address typed.
- * @return True only when the site says so; unreachable reads as no, and the site's own screen still stands.
+ * @return Whether it does, or null when the site could not answer; the site's own screen still stands.
  */
-export const emailHasAccount = async ( email: string ): Promise< boolean > => {
+export const emailHasAccount = async ( email: string ): Promise< boolean | null > => {
 	const url = new URL( JetpackComments.identity.emailUrl );
 	url.searchParams.set( 'email', email );
 
 	try {
 		const response = await fetch( url.toString(), { credentials: 'omit' } );
 
-		return response.ok && ( ( await response.json() ) as { account?: boolean } ).account === true;
+		if ( ! response.ok ) {
+			return null;
+		}
+
+		return ( ( await response.json() ) as { account?: boolean } ).account === true;
 	} catch {
-		return false;
+		return null;
 	}
 };

@@ -78,7 +78,7 @@ describe( 'DateRangePopoverContent selection', () => {
 
 		expect( onChange ).toHaveBeenCalledTimes( 1 );
 		expect( onChange ).toHaveBeenCalledWith(
-			{ from: new Date( 2026, 6, 5 ), to: new Date( 2026, 6, 10 ) },
+			{ from: new TZDate( 2026, 6, 5, 'UTC' ), to: new TZDate( 2026, 6, 10, 'UTC' ) },
 			'custom'
 		);
 		expect( isSelected( 5 ) && isSelected( 7 ) && isSelected( 10 ) ).toBe( true );
@@ -127,7 +127,7 @@ describe( 'DateRangePopoverContent selection', () => {
 		await user.click( day( 10 ) );
 
 		expect( onChange ).toHaveBeenCalledWith(
-			{ from: new Date( 2026, 6, 10 ), to: new Date( 2026, 6, 10 ) },
+			{ from: new TZDate( 2026, 6, 10, 'UTC' ), to: new TZDate( 2026, 6, 10, 'UTC' ) },
 			'custom'
 		);
 	} );

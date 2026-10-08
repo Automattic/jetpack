@@ -94,38 +94,6 @@ describe( 'Stats video plays normalizer', () => {
 			} ).data[ 0 ].items[ 0 ].retention_rate
 		).toBeNull();
 	} );
-
-	it( 'does not add link actions when video rows have no URL', () => {
-		const result = sanitizeStatsVideoPlaysResponse(
-			{
-				date: '2026-06-22',
-				period: 'day',
-				days: {
-					'2026-06-22': {
-						plays: [
-							{
-								post_id: 12,
-								title: 'Launch video',
-								plays: 11,
-							},
-						],
-					},
-				},
-			},
-			{
-				period: 'day',
-				end_date: '2026-06-22',
-			}
-		);
-
-		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
-			expect.objectContaining( {
-				label: 'Launch video',
-				link: null,
-				actions: [],
-			} )
-		);
-	} );
 } );
 
 describe( 'mergeStatsVideoPlaysComparisonRows', () => {

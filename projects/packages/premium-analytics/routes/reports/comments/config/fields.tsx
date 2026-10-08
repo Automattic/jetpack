@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ExternalLink, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -48,15 +47,9 @@ function CommentLabel( {
 		);
 	} else if ( row.link ) {
 		content = (
-			<UiLink
-				href={ row.link }
-				variant="unstyled"
-				openInNewTab
-				title={ row.label }
-				className={ styles.text }
-			>
+			<ExternalLink href={ row.link } title={ row.label } className={ styles.text }>
 				{ row.label }
-			</UiLink>
+			</ExternalLink>
 		);
 	}
 

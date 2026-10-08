@@ -1,17 +1,19 @@
 import { renderHook } from '@testing-library/react';
 import { useAllJetpackModules, withoutPluginForcedOverrides } from '../use-all-jetpack-modules';
+import { useMainFeatures } from '../use-main-features';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
 const mockModules: { current: Record< string, MyJetpackModule > } = { current: {} };
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
+const mockGetJetpackModules = jest.fn( () => mockModules.current );
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( selector: ( select: unknown ) => unknown ) =>
 		selector( () => ( {
-			getJetpackModules: () => mockModules.current,
+			getJetpackModules: mockGetJetpackModules,
 			areModulesLoading: () => false,
 		} ) ),
 } ) );
@@ -19,6 +21,13 @@ jest.mock( '@wordpress/data', () => ( {
 jest.mock( '../../../../data/products/use-all-products', () => ( {
 	useAllProducts: () => ( { data: mockProducts.current } ),
 } ) );
+
+jest.mock( '../use-main-features', () => ( { useMainFeatures: jest.fn() } ) );
+
+const jetpackIs = ( jetpack: MainFeaturesState[ 'jetpack' ] ) =>
+	jest
+		.mocked( useMainFeatures )
+		.mockReturnValue( { jetpack, features: [], isPlaceholderData: false } );
 
 const mod = ( module: string, override: MyJetpackModule[ 'override' ] ) =>
 	( { module, available: true, activated: override !== 'inactive', override } ) as MyJetpackModule;
@@ -81,6 +90,8 @@ describe( 'withoutPluginForcedOverrides', () => {
 describe( 'useAllJetpackModules', () => {
 	beforeEach( () => {
 		window.myJetpackInitialState = { myJetpackFlags: {} } as typeof window.myJetpackInitialState;
+		jetpackIs( 'active' );
+		mockGetJetpackModules.mockClear();
 	} );
 
 	it( 'hands back the store modules without the override a standalone plugin causes', () => {
@@ -96,4 +107,16 @@ describe( 'useAllJetpackModules', () => {
 		expect( result.current.modules.videopress.override ).toBe( false );
 		expect( result.current.modules.stats.override ).toBe( 'active' );
 	} );
+
+	it.each( [ 'inactive', 'not-installed' ] as const )(
+		'does not ask for the modules while the Jetpack plugin is %s',
+		status => {
+			jetpackIs( status );
+
+			const { result } = renderHook( () => useAllJetpackModules() );
+
+			expect( mockGetJetpackModules ).not.toHaveBeenCalled();
+			expect( result.current ).toEqual( { modules: {}, isLoading: false } );
+		}
+	);
 } );

@@ -4,6 +4,7 @@
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
+	htmlspecialcharsDecode,
 	isFieldsCollection,
 	isFileUploadField,
 	isImageSelectField,
@@ -60,7 +61,9 @@ const ResponseFieldsIterator = ( {
 			return <Link href={ `tel:${ value }` }>{ String( value ) }</Link>;
 		}
 
-		return value as import( 'react' ).ReactNode;
+		return (
+			typeof value === 'string' ? htmlspecialcharsDecode( value ) : value
+		) as import( 'react' ).ReactNode;
 	};
 
 	return (

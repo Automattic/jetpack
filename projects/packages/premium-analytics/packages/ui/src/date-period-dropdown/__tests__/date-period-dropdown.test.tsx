@@ -197,20 +197,21 @@ describe( 'DatePeriodDropdown', () => {
 		);
 	} );
 
-	it( 'spells the exact dates out in the trigger tooltip', async () => {
-		const user = userEvent.setup();
-		renderDropdown();
+	describe( 'tooltip', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		it( 'spells the exact dates out in the trigger tooltip', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
 
-		// Skip the always-mounted description mirror; only the popup proves the hover.
-		await expect(
-			screen.findByText(
-				/July 1.+31, 2026/,
-				{ ignore: '[data-visually-hidden]' },
-				{ timeout: 3000 }
-			)
-		).resolves.toBeVisible();
+			await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+			// Skip the always-mounted description mirror; only the popup proves the hover.
+			await expect(
+				screen.findByText( /July 1.+31, 2026/, { ignore: '[data-visually-hidden]' } )
+			).resolves.toBeVisible();
+		} );
 	} );
 
 	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {

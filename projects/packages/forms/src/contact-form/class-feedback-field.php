@@ -218,6 +218,16 @@ class Feedback_Field {
 	 * @return string
 	 */
 	private function get_render_csv_value() {
+		// A CSV cell is plain text, so it can hold the text as typed.
+		return Feedback::decode_special_chars( $this->get_render_csv_text() );
+	}
+
+	/**
+	 * Get the stored text of the field for the CSV.
+	 *
+	 * @return string
+	 */
+	private function get_render_csv_text() {
 		if ( $this->is_of_type( 'image-select' ) ) {
 			return implode(
 				', ',

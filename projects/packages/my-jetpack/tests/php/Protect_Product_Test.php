@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,25 +20,35 @@ class Protect_Product_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		remove_filter( 'jetpack_active_modules', array( $this, 'activate_protect_dashboard' ) );
+		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
 	}
 
 	/**
-	 * Report the `protect-dashboard` module as active.
+	 * Whether the Protect package's dashboard has loaded.
 	 *
-	 * @return string[]
+	 * @return array[]
 	 */
-	public function activate_protect_dashboard() {
-		return array( 'protect-dashboard' );
+	public static function provide_dashboard_states() {
+		return array(
+			'dashboard loaded'     => array( true ),
+			'dashboard not loaded' => array( false ),
+		);
 	}
 
 	/**
-	 * Tests Protect Manage URL with the Jetpack plugin's module and no standalone plugin.
+	 * Tests Protect Manage URL with the Protect package's dashboard and no standalone plugin.
+	 *
+	 * @dataProvider provide_dashboard_states
+	 *
+	 * @param bool $loaded Whether the dashboard has loaded.
 	 */
-	public function test_protect_manage_url_with_the_dashboard_module() {
-		add_filter( 'jetpack_active_modules', array( $this, 'activate_protect_dashboard' ) );
+	#[DataProvider( 'provide_dashboard_states' )]
+	public function test_protect_manage_url_with_the_dashboard( $loaded ) {
+		if ( $loaded ) {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
 
 		$this->assertFalse( Protect::is_standalone_plugin_active() );
-		$this->assertSame( admin_url( 'admin.php?page=jetpack-protect' ), Protect::get_manage_url() );
+		$this->assertSame( $loaded, admin_url( 'admin.php?page=jetpack-protect' ) === Protect::get_manage_url() );
 	}
 }
