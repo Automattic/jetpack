@@ -209,17 +209,24 @@ class Message_Builder_Test extends BaseTestCase {
 
 	public function test_build_applies_wp_mail_filters_before_enforcing_the_domain() {
 		add_filter( 'wp_mail_content_type', fn() => 'text/html' );
-		add_filter( 'wp_mail_from', fn() => 'woo@example.com' );
+		add_filter( 'wp_mail_from', fn() => 'woo@gmail.com' );
 		add_filter( 'wp_mail_from_name', fn() => 'Woo' );
 
 		$payload = $this->build( array( 'message' => 'Hi<br>there' ) );
 
 		$this->assertSame(
 			array(
-				'email' => 'woo@example.com',
+				'email' => 'hello@example.com',
 				'name'  => 'Woo',
 			),
 			$payload['from']
+		);
+		$this->assertSame(
+			array(
+				'email' => 'woo@gmail.com',
+				'name'  => 'Woo',
+			),
+			$payload['reply_to']
 		);
 		$this->assertSame(
 			array(
