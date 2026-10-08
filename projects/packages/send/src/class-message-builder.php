@@ -51,7 +51,7 @@ class Message_Builder {
 	 * Applies `wp_mail_content_type`, `wp_mail_from` and `wp_mail_from_name` itself, because
 	 * short-circuiting `pre_wp_mail` skips the point where core applies them.
 	 *
-	 * @param array $atts     wp_mail() attributes: to, subject, message, headers, attachments.
+	 * @param array $atts     wp_mail() attributes: to, subject, message, headers, attachments, embeds.
 	 * @param array $settings Send settings, as returned by Settings::get().
 	 * @param array $account  The provisioned account; only `domain` is read.
 	 * @return array|WP_Error The payload, or why MailChannels can't send this message.
@@ -61,13 +61,22 @@ class Message_Builder {
 
 		$to = self::parse_address_list( $atts['to'] ?? array() );
 		if ( empty( $to ) ) {
+			// Core can send Cc- or Bcc-only mail; MailChannels requires a To.
+			if ( $headers['cc'] || $headers['bcc'] ) {
+				return self::unsupported();
+			}
 			return new WP_Error( 'jetpack_send_no_recipients', __( 'The email has no valid recipient.', 'jetpack-send-pkg' ) );
 		}
 
 		/** This filter is documented in wp-includes/pluggable.php */
 		$content_type = (string) apply_filters( 'wp_mail_content_type', '' !== $headers['content_type'] ? $headers['content_type'] : 'text/plain' );
-		if ( '' !== $headers['boundary'] || 0 === stripos( $content_type, 'multipart/' ) ) {
-			return new WP_Error( 'jetpack_send_unsupported', __( 'Multipart emails with a custom boundary are sent with default mail.', 'jetpack-send-pkg' ) );
+		if (
+			! empty( $atts['embeds'] )
+			|| '' !== $headers['boundary']
+			|| 0 === stripos( $content_type, 'multipart/' )
+			|| ( '' !== $headers['charset'] && ! in_array( strtolower( $headers['charset'] ), array( 'utf-8', 'utf8' ), true ) )
+		) {
+			return self::unsupported();
 		}
 
 		$attachments = self::encode_attachments( $atts['attachments'] ?? array() );
@@ -120,6 +129,15 @@ class Message_Builder {
 	}
 
 	/**
+	 * The error for a message Send can't represent faithfully, which Mailer hands to core.
+	 *
+	 * @return WP_Error
+	 */
+	private static function unsupported() {
+		return new WP_Error( 'jetpack_send_unsupported', __( 'This email uses features Send does not support.', 'jetpack-send-pkg' ) );
+	}
+
+	/**
 	 * Parse wp_mail() headers the way core does.
 	 *
 	 * @param string|array $headers Raw headers.
@@ -135,6 +153,7 @@ class Message_Builder {
 			'bcc'          => array(),
 			'reply_to'     => array(),
 			'content_type' => '',
+			'charset'      => '',
 			'boundary'     => '',
 			'custom'       => array(),
 		);
@@ -187,6 +206,9 @@ class Message_Builder {
 					$parsed['content_type'] = strtolower( trim( $parts[0] ) );
 					if ( isset( $parts[1] ) && false !== stripos( $parts[1], 'boundary=' ) ) {
 						$parsed['boundary'] = trim( str_ireplace( array( 'boundary=', '"' ), '', $parts[1] ) );
+					}
+					if ( isset( $parts[1] ) && preg_match( '/charset\s*=\s*["\']?([^"\';\s]+)/i', $parts[1], $charset ) ) {
+						$parsed['charset'] = $charset[1];
 					}
 					break;
 				default:
@@ -353,7 +375,8 @@ class Message_Builder {
 			if ( '' === $path ) {
 				continue;
 			}
-			if ( ! is_file( $path ) || ! is_readable( $path ) ) {
+			// Stream wrappers such as phar:// can trigger deserialization; core's PHPMailer refuses them too.
+			if ( preg_match( '#^[a-z][a-z\d+.-]*://#i', $path ) || ! is_file( $path ) || ! is_readable( $path ) ) {
 				return new WP_Error(
 					'jetpack_send_attachment_unreadable',
 					/* translators: %s: attachment file name. */

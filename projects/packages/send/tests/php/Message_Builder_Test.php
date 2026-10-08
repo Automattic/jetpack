@@ -283,6 +283,16 @@ class Message_Builder_Test extends BaseTestCase {
 			'no valid recipient'        => array( array( 'to' => 'not-an-email' ), 'jetpack_send_no_recipients' ),
 			'custom multipart boundary' => array( array( 'headers' => 'Content-Type: multipart/alternative; boundary="abc"' ), 'jetpack_send_unsupported' ),
 			'unreadable attachment'     => array( array( 'attachments' => array( '/nonexistent/file.pdf' ) ), 'jetpack_send_attachment_unreadable' ),
+			'stream wrapper path'       => array( array( 'attachments' => array( 'phar:///tmp/x.phar/file.txt' ) ), 'jetpack_send_attachment_unreadable' ),
+			'inline embeds'             => array( array( 'embeds' => array( '/tmp/logo.png' ) ), 'jetpack_send_unsupported' ),
+			'non-UTF-8 charset'         => array( array( 'headers' => 'Content-Type: text/plain; charset=ISO-8859-1' ), 'jetpack_send_unsupported' ),
+			'only a Bcc recipient'      => array(
+				array(
+					'to'      => '',
+					'headers' => 'Bcc: hidden@example.org',
+				),
+				'jetpack_send_unsupported',
+			),
 		);
 	}
 

@@ -190,12 +190,29 @@ class Mailer_Test extends BaseTestCase {
 		$this->assertSame( $before + 1, did_action( 'wp_mail_failed' ) );
 	}
 
-	public function test_unsupported_messages_go_to_default_mail_even_with_fallback_off() {
+	/**
+	 * Messages Send can't represent, which go to core whatever the fallback setting.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_unsupported_messages() {
+		return array(
+			'custom multipart boundary' => array( array( 'headers' => 'Content-Type: multipart/alternative; boundary="abc"' ) ),
+			'inline embeds'             => array( array( 'embeds' => array( '/tmp/logo.png' ) ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_unsupported_messages
+	 *
+	 * @param array $overrides wp_mail() attributes to replace.
+	 */
+	#[DataProvider( 'provide_unsupported_messages' )]
+	public function test_unsupported_messages_go_to_default_mail_even_with_fallback_off( array $overrides ) {
 		Settings::update( array( 'fallback' => false ) );
 		$this->http = new Http_Mock( array() );
-		$atts       = array_merge( self::atts(), array( 'headers' => 'Content-Type: multipart/alternative; boundary="abc"' ) );
 
-		$this->assertNull( Mailer::pre_wp_mail( null, $atts ) );
+		$this->assertNull( Mailer::pre_wp_mail( null, array_merge( self::atts(), $overrides ) ) );
 		$this->assertSame( array(), $this->http->requests );
 	}
 }
