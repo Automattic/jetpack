@@ -111,6 +111,9 @@ class Admin {
 	 * @return bool Whether modernization is enabled.
 	 */
 	public static function is_modernization_enabled() {
+		// Keep the call below on one line: replace-next-version-tag.sh only rewrites the version there.
+		$message = __( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' );
+
 		/**
 		 * Filters whether to load the modern Boost dashboard.
 		 *
@@ -121,13 +124,7 @@ class Admin {
 		 * @deprecated $$next-version$$ The legacy dashboard will be removed in a future release.
 		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
 		 */
-		return (bool) apply_filters_deprecated(
-			self::MODERNIZATION_FILTER,
-			array( true ),
-			'$$next-version$$',
-			'',
-			__( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' )
-		);
+		return (bool) apply_filters_deprecated( self::MODERNIZATION_FILTER, array( true ), '$$next-version$$', '', $message );
 	}
 
 	/**
