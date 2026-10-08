@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Tell the Monitor card's failures apart on the Protect dashboard, with a link to connect a WordPress.com account and a way to retry.
