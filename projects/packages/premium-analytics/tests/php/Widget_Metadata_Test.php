@@ -171,9 +171,14 @@ class Widget_Metadata_Test extends BaseTestCase {
 			$this->assertSame( 'Hydration sentinel', $widget_type->title, 'The title is mapped.' );
 			$this->assertSame( 'Carries metadata through hydration.', $widget_type->description, 'The description is mapped.' );
 			$this->assertSame( array( 'sentinel' ), $widget_type->keywords, 'The keywords are mapped.' );
+			// Legacy wp_kses keeps `<script>` contents as text; the HTML API wp_kses drops them.
+			// @todo: Expect only 'Read <em>this</em> .' once the HTML API version is the only one we care about (WP 7.2+).
+			$help    = $widget_type->help ?? array();
+			$content = $help['content'] ?? null;
+			$this->assertContains( $content, array( 'Read <em>this</em> carefully.', 'Read <em>this</em> .' ) );
 			$this->assertSame(
 				array(
-					'content' => 'Read <em>this</em> carefully.',
+					'content' => $content,
 					'links'   => array(
 						array(
 							'label' => 'Docs',
@@ -181,7 +186,7 @@ class Widget_Metadata_Test extends BaseTestCase {
 						),
 					),
 				),
-				$widget_type->help,
+				$help,
 				'The help note is sanitized during hydration.'
 			);
 			$this->assertSame( 'core/chart-bar', $widget_type->icon, 'The icon reference is mapped.' );
