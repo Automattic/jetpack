@@ -285,9 +285,6 @@ export {
 	flagUrl,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
-	FULFILLED_ORDERS_FILTER,
-	UNFULFILLED_ORDERS_FILTER,
-	PAYMENT_STATUS_FILTERS,
 	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
@@ -360,14 +357,10 @@ export {
  * Widget components
  */
 export {
-	BookingsByAttendanceWidget,
 	BookingsRevenueByCustomerTypeWidget,
 	BookingConversionRateWidget,
 	ConversionRateWidget,
-	CouponUseWidget,
 	RevenueByCustomerTypeWidget,
-	NewVsReturningCustomerWidget,
-	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,

@@ -28,8 +28,10 @@ import {
 } from '@wordpress/element';
 import '@wordpress/format-library';
 import { unregisterFormatType } from '@wordpress/rich-text';
+import { registerEmbedBlock } from './embed';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
+import type { EditorLabels } from '../shared/types';
 import type { KeyboardEvent, ReactNode } from 'react';
 
 import './style.scss';
@@ -58,8 +60,8 @@ const settings = {
 
 type EditorProps = {
 	initialContent: string;
-	/** Accessible names, translated in PHP. */
-	labels: { blockTools: string; addBlock: string };
+	/** The editor's own strings, translated in PHP. */
+	labels: EditorLabels;
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
 	placeholder: string;
@@ -224,6 +226,7 @@ const Editor = ( {
  * @param props     - Editor props.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
+	registerEmbedBlock( props.labels );
 	createRoot( container ).render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />

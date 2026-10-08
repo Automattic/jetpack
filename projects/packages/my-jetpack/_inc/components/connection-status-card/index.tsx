@@ -156,7 +156,14 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	const state = useConnectionState( { hasConnectionError, severity, errorTitle } );
+	// Ask for a user connection when a product that needs one has its plugin active.
+	const shouldAskForUserConnection = Object.values(
+		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
+	).some( product => product?.requires_user_connection && product.is_plugin_active );
+	const state = useConnectionState(
+		{ hasConnectionError, severity, errorTitle },
+		shouldAskForUserConnection
+	);
 
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
