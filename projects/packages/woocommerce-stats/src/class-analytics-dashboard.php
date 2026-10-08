@@ -68,15 +68,19 @@ class Analytics_Dashboard {
 	const MIN_WIDGET_API_VERSION = '1.6.0';
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
-	 * requests, and the store currency on the script data.
+	 * Register the section flag and sync, the dashboard registrants, the reports proxy, and store currency.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
 	 *
+	 * Call it before plugins_loaded completes, for the sync opt-in ({@see Sync_Configuration::register()}).
+	 *
 	 * @return void
 	 */
 	public static function init() {
+		Store_Section_Policy::register_flag();
+		Sync_Configuration::register();
+
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
 
@@ -97,17 +101,13 @@ class Analytics_Dashboard {
 			return;
 		}
 
-		$is_available = function_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\is_store_dashboard_section_available' )
-			? 'Automattic\\Jetpack\\PremiumAnalytics\\is_store_dashboard_section_available'
-			: '__return_false';
-
 		register_dashboard_section(
 			DASHBOARD_NAME,
 			self::SECTION_ID,
 			array(
 				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
 				'order'          => 40,
-				'is_available'   => $is_available,
+				'is_available'   => array( Store_Section_Policy::class, 'is_available' ),
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'  => true,
 				'default_layout' => array( __CLASS__, 'get_default_layout' ),

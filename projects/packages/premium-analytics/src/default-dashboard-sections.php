@@ -59,17 +59,6 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
- * Whether the Store dashboard section should be exposed.
- *
- * @since 0.10.0
- *
- * @return bool
- */
-function is_store_dashboard_section_available() {
-	return Store_Section_Policy::is_offered() && is_woocommerce_dashboard_section_available_to_current_user();
-}
-
-/**
  * Whether the Subscribers dashboard section should be exposed.
  *
  * Sites without Jetpack have no module state to check, so the section remains

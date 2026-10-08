@@ -1,14 +1,14 @@
 <?php
 /**
- * Premium Analytics glue for the shared WooCommerce Analytics sync module.
+ * Opt-in to the shared WooCommerce Analytics sync module.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics\Sync;
+namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Config;
-use Automattic\Jetpack\PremiumAnalytics\Store_Section_Policy;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Modules\Meta as Meta_Module;
 use Automattic\Jetpack\Sync\Modules\Posts as Posts_Module;
@@ -19,10 +19,10 @@ use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics as WooCommerce_Analyti
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Opts in to the shared WooCommerce Analytics sync module and registers the
- * Premium Analytics-specific sync configuration.
+ * Opts in to the shared WooCommerce Analytics sync module and registers the sync configuration
+ * the WooCommerce section reads.
  */
-class Configuration {
+class Sync_Configuration {
 
 	/**
 	 * FQCN of the Analytics module shipped by the standalone WooCommerce Analytics plugin.
@@ -31,7 +31,7 @@ class Configuration {
 	 * name and every analytics event syncs twice. Moot once that plugin consumes the
 	 * shared module, since the class strings then match.
 	 *
-	 * @since 0.9.0
+	 * @since $$next-version$$
 	 * @var string
 	 */
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
@@ -63,7 +63,7 @@ class Configuration {
 	);
 
 	/**
-	 * Entry point called from Analytics::init(). Schedules the Sync hookups on
+	 * Entry point called from Analytics_Dashboard::init(). Schedules the Sync hookups on
 	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
 	 * (see {@see configure_sync()}).
 	 *
@@ -95,7 +95,7 @@ class Configuration {
 
 	/**
 	 * Register the Jetpack Sync filters and ensure the Sync feature when WooCommerce
-	 * is active and the site offers the Store section.
+	 * is active and the site offers the WooCommerce section.
 	 *
 	 * @return void
 	 */
@@ -199,6 +199,11 @@ class Configuration {
 	 * @return array|mixed|false The arguments, or false to drop the action.
 	 */
 	public function skip_reports_data_before_analytics_full_sync( $args ) {
+		// An older copy of the dashboard package cannot tell, so order changes sync as they did before the gate.
+		if ( ! method_exists( Sync_Status_Tracker::class, 'has_analytics_full_sync_started' ) ) {
+			return $args;
+		}
+
 		return Sync_Status_Tracker::has_analytics_full_sync_started() ? $args : false;
 	}
 

@@ -15,11 +15,6 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 const DASHBOARD_COMPOSITION_FLAG = 'premium-analytics-dashboard-composition';
 
 /**
- * Name of the feature flag that shows the Store section.
- */
-const DASHBOARD_STORE_SECTION_FLAG = Store_Section_Policy::FLAG;
-
-/**
  * Registers the dashboard feature flags.
  *
  * Runs on every request so the flag stays discoverable wherever flags are read or
@@ -36,15 +31,6 @@ function register_dashboard_feature_flags() {
 			'owner'       => 'jetpack-premium-analytics',
 		)
 	);
-
-	Feature_Flags::register(
-		DASHBOARD_STORE_SECTION_FLAG,
-		array(
-			'default'     => false,
-			'description' => 'Show the Store tab on the analytics dashboard of sites running WooCommerce.',
-			'owner'       => 'jetpack-premium-analytics',
-		)
-	);
 }
 
 /**
@@ -54,15 +40,6 @@ function register_dashboard_feature_flags() {
  */
 function is_dashboard_composition_enabled() {
 	return Feature_Flags::is_enabled( DASHBOARD_COMPOSITION_FLAG );
-}
-
-/**
- * Whether the dashboard shows the Store section.
- *
- * @return bool
- */
-function is_dashboard_store_section_enabled() {
-	return Feature_Flags::is_enabled( DASHBOARD_STORE_SECTION_FLAG );
 }
 
 /**

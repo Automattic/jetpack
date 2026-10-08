@@ -2,19 +2,20 @@
 /**
  * Tests for Store_Section_Policy.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics;
+namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Automattic\Jetpack\PremiumAnalytics\Store_Section_Policy
+ * @covers \Automattic\Jetpack\WooCommerceStats\Store_Section_Policy
  */
 #[CoversClass( Store_Section_Policy::class )]
 class Store_Section_Policy_Test extends TestCase {
@@ -26,7 +27,6 @@ class Store_Section_Policy_Test extends TestCase {
 	public function tear_down() {
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 		\WorDBless\Options::init()->clear_options();
-		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Store_Section_Policy::FLAG );
 		Feature_Flags::reset();
 	}
@@ -59,25 +59,14 @@ class Store_Section_Policy_Test extends TestCase {
 	}
 
 	/**
-	 * Jetpack reads this before the dashboard registers its flags; an unregistered flag ignores its default.
+	 * The flag stays off until something switches it on.
 	 */
-	public function test_store_flag_is_read_with_its_registered_definition_before_the_dashboard_registers_it() {
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		$owner = null;
-		add_filter(
-			'jetpack_feature_flag_enabled',
-			static function ( $enabled, $name, $definition ) use ( &$owner ) {
-				if ( Store_Section_Policy::FLAG === $name ) {
-					$owner = $definition['owner'];
-				}
-				return $enabled;
-			},
-			10,
-			3
-		);
+	public function test_flag_registers_off_by_default() {
+		Store_Section_Policy::register_flag();
 
-		Store_Section_Policy::is_offered();
+		$flag = Feature_Flags::get( Store_Section_Policy::FLAG );
 
-		$this->assertSame( 'jetpack-premium-analytics', $owner );
+		$this->assertIsArray( $flag );
+		$this->assertFalse( $flag['default'] );
 	}
 }
