@@ -87,4 +87,16 @@ describe( 'FeatureVariant', () => {
 			await waitFor( () => expect( apiCalls( 'POST' ) ).toEqual( [ { path, method: 'POST' } ] ) );
 		}
 	);
+
+	it( 'spaces the notice and the options the way the card spaces its other content', () => {
+		renderWithData(
+			<FeatureVariant feature="sharing" state="configure_with_block_nudge">
+				<p>options</p>
+			</FeatureVariant>
+		);
+
+		// eslint-disable-next-line testing-library/no-node-access -- The spacing lives on an unlabelled container.
+		const variant = screen.getByText( 'options' ).parentElement;
+		expect( variant?.style.gap ).toContain( 'dimension-gap-lg' );
+	} );
 } );

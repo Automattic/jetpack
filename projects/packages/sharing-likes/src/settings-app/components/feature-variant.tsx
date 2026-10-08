@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton, Notice, Text } from '@wordpress/ui';
+import { Button, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
 import { useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
 import { SettingGroup } from './section-card';
@@ -140,8 +140,14 @@ export function FeatureVariant( {
 	}
 
 	return (
-		<div ref={ containerRef } tabIndex={ -1 } className="jetpack-sharing-likes__variant">
+		<Stack
+			ref={ containerRef }
+			tabIndex={ -1 }
+			direction="column"
+			gap="lg"
+			className="jetpack-sharing-likes__variant"
+		>
 			{ content }
-		</div>
+		</Stack>
 	);
 }
