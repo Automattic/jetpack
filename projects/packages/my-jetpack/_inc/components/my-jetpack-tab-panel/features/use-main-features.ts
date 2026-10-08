@@ -21,8 +21,7 @@ import {
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import {
 	getProductSlugsWithActivePlugin,
-	withPluginsActive,
-	setPageStateProductItems,
+	setPluginsActiveInPageState,
 } from '../../../data/utils/page-state-products';
 import { setPendingSuccessNotice } from '../../../utils/pending-notice';
 import { reloadPage } from '../../../utils/reload-page';
@@ -114,9 +113,7 @@ function requestPluginSwitch(
 	)
 		.then( state => {
 			queryClient.setQueryData( QUERY_KEY, state );
-			const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-			const updatedItems = withPluginsActive( items, getProductSlugsWithActivePlugin( state ) );
-			setPageStateProductItems( updatedItems );
+			setPluginsActiveInPageState( getProductSlugsWithActivePlugin( state ) );
 			return state;
 		} )
 		.finally( () => {

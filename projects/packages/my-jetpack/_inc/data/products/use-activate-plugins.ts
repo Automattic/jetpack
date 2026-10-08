@@ -5,7 +5,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_ACTIVATE_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import { withPluginsActive, setPageStateProductItems } from '../utils/page-state-products';
+import { setPluginsActiveInPageState } from '../utils/page-state-products';
 import useProducts from './use-products';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
@@ -54,9 +54,7 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 		},
 		options: {
 			onSuccess: () => {
-				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
-				const updatedItems = withPluginsActive( items, productIds );
-				setPageStateProductItems( updatedItems );
+				setPluginsActiveInPageState( productIds );
 				products?.forEach( product => {
 					if ( ! getIsPluginAlreadyActive( product ) ) {
 						recordEvent( 'jetpack_myjetpack_product_activated', {

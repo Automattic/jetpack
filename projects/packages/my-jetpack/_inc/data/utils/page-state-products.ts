@@ -1,3 +1,5 @@
+import { getMyJetpackWindowInitialState } from './get-my-jetpack-window-state';
+
 type ProductItems = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
 
 /**
@@ -22,10 +24,21 @@ export function withPluginsActive( items: ProductItems, productSlugs: string[] )
  *
  * @param items - The products to store.
  */
-export function setPageStateProductItems( items: ProductItems ) {
+function setPageStateProductItems( items: ProductItems ) {
 	if ( window.myJetpackInitialState?.products ) {
 		window.myJetpackInitialState.products.items = items;
 	}
+}
+
+/**
+ * Record in the page state that these products' plugins are now active.
+ *
+ * @param productSlugs - The products whose plugin was switched on.
+ */
+export function setPluginsActiveInPageState( productSlugs: string[] ) {
+	const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
+	const updatedItems = withPluginsActive( items, productSlugs );
+	setPageStateProductItems( updatedItems );
 }
 
 /**
