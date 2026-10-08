@@ -1,4 +1,4 @@
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useServices, useSettings, useStatus } from '../data/queries';
@@ -15,20 +15,19 @@ import type { JSX } from 'react';
 interface Confirmation {
 	kind: 'last' | 'delete';
 	service: Service;
-	next: ServiceLists;
 }
 
 /**
- * Both lists without one service.
+ * Both lists without some services.
  *
  * @param data - Services.
- * @param id   - Service to leave out.
+ * @param ids  - Services to leave out.
  * @return Lists.
  */
-function without( data: Services | undefined, id: string ): ServiceLists {
+function without( data: Services | undefined, ids: string[] ): ServiceLists {
 	return {
-		visible: ( data?.visible ?? [] ).filter( other => other !== id ),
-		hidden: ( data?.hidden ?? [] ).filter( other => other !== id ),
+		visible: ( data?.visible ?? [] ).filter( other => ! ids.includes( other ) ),
+		hidden: ( data?.hidden ?? [] ).filter( other => ! ids.includes( other ) ),
 	};
 }
 
@@ -66,6 +65,8 @@ export function ServicesManager(): JSX.Element {
 		id: string;
 		index: number;
 	} | null >( null );
+	// Custom services whose delete is in flight: still in the lists, but gone once the save after it lands.
+	const deleting = useRef( new Set< string >() );
 	const data = query.data;
 
 	const onMove = useCallback(
@@ -86,9 +87,9 @@ export function ServicesManager(): JSX.Element {
 	const onRemove = useCallback(
 		( service: Service, row: Row ) => {
 			setSelectedId( null );
-			const next = without( data, service.id );
+			const next = without( data, [ service.id, ...deleting.current ] );
 			if ( handsOver( status, next ) ) {
-				setConfirming( { kind: 'last', service, next } );
+				setConfirming( { kind: 'last', service } );
 				return;
 			}
 			const index = data?.[ row ].indexOf( service.id ) ?? 0;
@@ -102,13 +103,10 @@ export function ServicesManager(): JSX.Element {
 		[ data, saveLists, status ]
 	);
 
-	const onDelete = useCallback(
-		( service: Service ) => {
-			setSelectedId( null );
-			setConfirming( { kind: 'delete', service, next: without( data, service.id ) } );
-		},
-		[ data ]
-	);
+	const onDelete = useCallback( ( service: Service ) => {
+		setSelectedId( null );
+		setConfirming( { kind: 'delete', service } );
+	}, [] );
 
 	const closeAdd = useCallback( () => setAdding( null ), [] );
 	const onAdd = useCallback(
@@ -147,17 +145,30 @@ export function ServicesManager(): JSX.Element {
 			if ( index >= 0 ) {
 				setFocusTarget( { row, id: confirming.service.id, index } );
 			}
+			deleting.current.add( confirming.service.id );
 			await custom.remove( confirming.service.id );
+			deleting.current.delete( confirming.service.id );
 		} else {
-			await saveLists( confirming.next );
+			await saveLists( without( data, [ confirming.service.id, ...deleting.current ] ) );
 		}
 	}, [ confirming, custom, data, saveLists ] );
+
+	// A save that fails while the dialog is open can put a button back, so this one is no longer the last.
+	useEffect( () => {
+		if (
+			confirming?.kind === 'last' &&
+			! handsOver( status, without( data, [ confirming.service.id, ...deleting.current ] ) )
+		) {
+			setConfirming( null );
+		}
+	}, [ confirming, data, status ] );
 
 	if ( query.isPending ) {
 		return <Spinner />;
 	}
 
-	if ( query.isError ) {
+	// A failed reread keeps the lists it had, so only a failed first load has nothing to show.
+	if ( ! data ) {
 		return (
 			<Text render={ <p /> }>
 				{ __( 'The list of sharing services could not be loaded.', 'jetpack-sharing-likes' ) }
@@ -165,7 +176,7 @@ export function ServicesManager(): JSX.Element {
 		);
 	}
 
-	const { visible, hidden, services } = query.data;
+	const { visible, hidden, services } = data;
 	const byId = new Map( services.map( service => [ service.id, service ] ) );
 	// Sharing_Service labels the button "More" beside visible services, "Share" when it stands alone.
 	const hasVisible = visible.length > 0;
@@ -265,7 +276,10 @@ export function ServicesManager(): JSX.Element {
 				<ConfirmRemovalDialog
 					kind={ confirming.kind }
 					serviceName={ confirming.service.name }
-					handsOver={ handsOver( status, confirming.next ) }
+					handsOver={
+						confirming.kind === 'last' ||
+						handsOver( status, without( data, [ confirming.service.id ] ) )
+					}
 					onConfirm={ confirm }
 					onCancel={ closeConfirmation }
 				/>

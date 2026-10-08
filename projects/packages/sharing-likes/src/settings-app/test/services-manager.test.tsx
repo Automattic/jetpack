@@ -133,13 +133,21 @@ afterEach( () => {
 } );
 
 describe( 'ServicesManager', () => {
-	it.each( [ 'icon-text', 'icon', 'text' ] as const )(
+	it.each( [
+		[ 'icon-text', true, /^Facebook$/ ],
+		[ 'icon', true, /^$/ ],
+		[ 'text', false, /^Facebook$/ ],
+	] as const )(
 		'shows each row in order, with the %s button style',
-		async buttonStyle => {
+		async ( buttonStyle, hasIcon, text ) => {
 			await renderManager( { settings: { ...baseSettings, button_style: buttonStyle } } );
 
 			expect( rowNames( 'Shown as buttons' ) ).toEqual( [ 'Facebook', 'X' ] );
 			expect( rowNames( 'Behind the More button' ) ).toEqual( [ 'Email' ] );
+			const facebook = screen.getByRole( 'button', { name: 'Facebook' } );
+			expect( facebook ).toHaveTextContent( text );
+			// eslint-disable-next-line testing-library/no-node-access -- The logo has no role to query by.
+			expect( !! facebook.querySelector( 'svg' ) ).toBe( hasIcon );
 		}
 	);
 
@@ -204,9 +212,71 @@ describe( 'ServicesManager', () => {
 
 		await runToolbarAction( user, 'X', 'Remove' );
 		const dialog = await screen.findByRole( 'alertdialog' );
+		expect( dialog ).toHaveTextContent( 'With no buttons left, sharing buttons turn off.' );
 		await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
 
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'X' } ) ).toHaveFocus() );
 		expect( apiCalls( 'PUT' ) ).toEqual( [] );
+	} );
+
+	it( 'stops asking about the last button once a failed removal puts another back', async () => {
+		respond( { ...services, visible: [ 'facebook', 'x' ], hidden: [] } );
+		const echo = mockApiFetch.getMockImplementation()!;
+		let failFirstSave: ( error: Error ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options =>
+			options.method === 'PUT' && apiCalls( 'PUT' ).length === 1
+				? new Promise( ( _resolve, reject ) => ( failFirstSave = reject ) )
+				: echo( options )
+		);
+		const user = userEvent.setup();
+		await renderManager( {
+			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
+		} );
+
+		await runToolbarAction( user, 'Facebook', 'Remove' );
+		await runToolbarAction( user, 'X', 'Remove' );
+		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toBeInTheDocument();
+		await act( async () => failFirstSave( new Error( 'Nope' ) ) );
+
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+		expect( rowNames( 'Shown as buttons' ) ).toEqual( [ 'Facebook', 'X' ] );
+		expect( apiCalls( 'PUT' ) ).toHaveLength( 1 );
+	} );
+
+	it( 'asks before removing the last button while a custom service it leaves is being deleted', async () => {
+		respond( { ...withLobsters, hidden: [] } );
+		const echo = mockApiFetch.getMockImplementation()!;
+		mockApiFetch.mockImplementation( options =>
+			options.method === 'DELETE' ? new Promise( () => undefined ) : echo( options )
+		);
+		const user = userEvent.setup();
+		await renderManager( {
+			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
+		} );
+
+		await runToolbarAction( user, 'Lobsters', 'Delete custom service' );
+		await user.click(
+			within( await screen.findByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Delete' } )
+		);
+		await waitFor( () => expect( apiCalls( 'DELETE' ) ).toHaveLength( 1 ) );
+		await runToolbarAction( user, 'Facebook', 'Remove' );
+
+		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toHaveTextContent(
+			'Remove your last sharing button?'
+		);
+	} );
+
+	it( 'keeps showing the buttons when a failed save cannot reread them', async () => {
+		const user = userEvent.setup();
+		await renderManager();
+		mockApiFetch.mockRejectedValue( new Error( 'Offline' ) );
+
+		await runToolbarAction( user, 'X', 'Move left' );
+
+		await waitFor( () =>
+			expect( apiCalls().filter( call => call.path?.endsWith( '/services' ) ) ).toHaveLength( 2 )
+		);
+		expect( rowNames( 'Shown as buttons' ) ).toEqual( [ 'Facebook', 'X' ] );
 	} );
 
 	it( 'notes the restriction on a private site', async () => {
@@ -221,6 +291,7 @@ describe( 'ServicesManager', () => {
 			)
 		).toBeInTheDocument();
 	} );
+
 	it.each( [
 		[ 'Add sharing buttons', { visible: [ 'facebook', 'x', 'mastodon' ], hidden: [ 'email' ] } ],
 		[ 'Add to the More button', { visible: [ 'facebook', 'x' ], hidden: [ 'email', 'mastodon' ] } ],
@@ -295,6 +366,7 @@ describe( 'ServicesManager', () => {
 			] )
 		);
 	} );
+
 	it( 'edits a custom service', async () => {
 		respond( withLobsters );
 		const user = userEvent.setup();
@@ -313,6 +385,9 @@ describe( 'ServicesManager', () => {
 				data: { name: 'Lobste.rs', url: lobsters.url, icon: lobsters.icon },
 			} )
 		);
+		await expect(
+			screen.findByRole( 'button', { name: 'Lobste.rs' } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'deletes a custom service only once confirmed', async () => {
@@ -331,26 +406,12 @@ describe( 'ServicesManager', () => {
 			] )
 		);
 	} );
+
 	it( 'keeps keyboard focus in the row after removing a button', async () => {
 		const user = userEvent.setup();
 		await renderManager();
 
 		await runToolbarAction( user, 'Facebook', 'Remove' );
-
-		await waitFor( () => expect( screen.getByRole( 'button', { name: 'X' } ) ).toHaveFocus() );
-	} );
-
-	it( 'returns focus to the button when removing the last one is cancelled', async () => {
-		respond( { ...services, visible: [ 'x' ], hidden: [] } );
-		const user = userEvent.setup();
-		await renderManager( {
-			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
-		} );
-
-		await runToolbarAction( user, 'X', 'Remove' );
-		await user.click(
-			within( await screen.findByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel' } )
-		);
 
 		await waitFor( () => expect( screen.getByRole( 'button', { name: 'X' } ) ).toHaveFocus() );
 	} );
@@ -367,8 +428,23 @@ describe( 'ServicesManager', () => {
 			expect( within( dialog ).getByRole( 'button', { name: 'Acme' } ) ).toHaveFocus()
 		);
 	} );
+
+	it( 'keeps focus in the Add dialog when moving between its steps', async () => {
+		const user = userEvent.setup();
+		await renderManager();
+
+		await user.click( screen.getByRole( 'button', { name: 'Add sharing buttons' } ) );
+		const dialog = await screen.findByRole( 'dialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Custom service' } ) );
+		await waitFor( () => expect( screen.getByLabelText( 'Service name' ) ).toHaveFocus() );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Back' } ) );
+
+		await waitFor( () =>
+			expect( within( dialog ).getByRole( 'button', { name: 'Custom service' } ) ).toHaveFocus()
+		);
+	} );
+
 	it( 'moves a button among the services the site still has', async () => {
-		// A deleted service's ID can sit in the cached lists until they are saved again.
 		respond( { ...services, visible: [ 'gone', 'facebook', 'x' ] } );
 		const user = userEvent.setup();
 		await renderManager();

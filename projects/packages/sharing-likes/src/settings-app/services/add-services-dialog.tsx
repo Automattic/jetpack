@@ -69,6 +69,9 @@ export function AddServicesDialog( {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ focusAfter, setFocusAfter ] = useState< { id: string; index: number } | null >( null );
 	const optionsRef = useRef< HTMLDivElement >( null );
+	const formRef = useRef< HTMLFormElement >( null );
+	const customButtonRef = useRef< HTMLButtonElement >( null );
+	const switchedStep = useRef( false );
 
 	const addOption = useCallback(
 		( id: string, index: number ) => {
@@ -98,8 +101,27 @@ export function AddServicesDialog( {
 		},
 		[ onClose ]
 	);
-	const showCustom = useCallback( () => setStep( 'custom' ), [] );
-	const showPick = useCallback( () => setStep( 'pick' ), [] );
+	const showCustom = useCallback( () => {
+		switchedStep.current = true;
+		setStep( 'custom' );
+	}, [] );
+	const showPick = useCallback( () => {
+		switchedStep.current = true;
+		setStep( 'pick' );
+	}, [] );
+
+	// The button that switched steps goes away with its step: focus the start of the new one.
+	useEffect( () => {
+		if ( ! switchedStep.current ) {
+			return;
+		}
+		switchedStep.current = false;
+		if ( step === 'custom' ) {
+			formRef.current?.querySelector( 'input' )?.focus();
+		} else {
+			customButtonRef.current?.focus();
+		}
+	}, [ step ] );
 	const handleSubmit = useCallback(
 		async ( event: FormEvent ) => {
 			event.preventDefault();
@@ -149,14 +171,19 @@ export function AddServicesDialog( {
 										onAdd={ addOption }
 									/>
 								) ) }
-								<Button variant="outline" tone="brand" onClick={ showCustom }>
+								<Button
+									ref={ customButtonRef }
+									variant="outline"
+									tone="brand"
+									onClick={ showCustom }
+								>
 									<Button.Icon icon={ plus } />
 									{ __( 'Custom service', 'jetpack-sharing-likes' ) }
 								</Button>
 							</Stack>
 						</Stack>
 					) : (
-						<form id={ FORM_ID } onSubmit={ handleSubmit }>
+						<form id={ FORM_ID } ref={ formRef } onSubmit={ handleSubmit }>
 							<CustomServiceFields values={ fields } onChange={ setFields } />
 						</form>
 					) }
