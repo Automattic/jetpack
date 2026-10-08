@@ -18,7 +18,8 @@ import './style.scss';
 // Like the Protect plugin: quick checks first, then back off.
 const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
 
-// Opens Scan history on its Ignored list.
+// Open Scan history on a given list, not whichever was open last.
+const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 // About ten minutes of polling before asking the user to check again.
@@ -242,7 +243,7 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 			<CardRow>
 				{ scan.hasPlan ? (
 					<Stack direction="row" gap="lg" wrap="wrap">
-						<TabLink tab="history" onOpen={ openTab }>
+						<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
 							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
 						</TabLink>
 						{ !! ignored?.length && (
