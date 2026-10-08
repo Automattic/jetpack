@@ -246,7 +246,8 @@ class Boost_Cache {
 			}
 		} else {
 			$this->rebuild_page( home_url() );
-			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( home_url() ) );
+			$home_path = parse_url( home_url(), PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+			Logger::debug( 'delete front page cache ' . Boost_Cache_Utils::normalize_request_uri( $home_path ? $home_path : '/' ) );
 		}
 	}
 

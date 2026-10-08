@@ -128,8 +128,6 @@ function SiteOverviewReport( {
 				isLoading={ isLoading || primary.isPending }
 				isFetching={ isFetching }
 				isError={ ! summary && isError }
-				// Highlights have no empty state: an idle period shows its zeros.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load the site overview. Please try again in a moment.",

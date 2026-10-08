@@ -70,8 +70,6 @@ function PostingActivityInner() {
 			// The query keeps the previous response via `placeholderData`, so only
 			// surface the error when there is nothing to show.
 			isError={ isError && ! data }
-			// A year without posts is still a calendar, drawn with every day empty.
-			isEmpty={ false }
 			error={ describeError( error, {
 				retryDescription: __(
 					"We couldn't load posting activity. Please try again in a moment.",

@@ -1,4 +1,4 @@
-// Temporary Svelte-compatible subscriptions until the React renderer slice.
+// Temporary controller subscriptions retained until the store cleanup.
 import { subscribeToFacts } from './store.ts';
 
 export type Readable< T > = {

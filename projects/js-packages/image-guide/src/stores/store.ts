@@ -22,7 +22,7 @@ type State = {
 	guideState: GuideState;
 	images: Record< string, ImageFacts >;
 	imageChange: { id?: string; revision: number };
-	// Same-object writes must still notify the temporary Svelte facade.
+	// Same-object writes must still notify the retained controller facade.
 	revisions: Record< string, Partial< Record< keyof ImageFacts, number > > >;
 };
 const stored = localStorage.getItem( LS_KEY ) as GuideState;

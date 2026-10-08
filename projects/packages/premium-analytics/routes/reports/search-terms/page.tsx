@@ -4,14 +4,12 @@
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
 	ExporterCsvAction,
 	searchTermsCsvExporter,
-	useReportRetry,
 	type SearchTermRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -55,7 +53,6 @@ const RECORDS_VIEW = {
 export default function SearchTermsReportPage(): JSX.Element {
 	const reportParams = useReportParams();
 	const records = useSearchTermsReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() => getSearchTermsFields( records.table.hasComparison ),
 		[ records.table.hasComparison ]
@@ -63,22 +60,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS[ 'search-terms' ];
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load search terms. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -94,7 +75,13 @@ export default function SearchTermsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load search terms. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< SearchTermRow >
 						data={ records.table.rows }
 						fields={ fields }
@@ -104,7 +91,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
