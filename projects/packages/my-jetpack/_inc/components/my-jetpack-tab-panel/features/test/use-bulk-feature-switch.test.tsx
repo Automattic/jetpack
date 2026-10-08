@@ -56,7 +56,8 @@ const renderBulk = () => {
 	);
 };
 
-const settled = ( failed: unknown[] = [] ) => Promise.resolve( { state: {}, failed } );
+const settled = ( failed: unknown[] = [] ) =>
+	Promise.resolve( { state: { features: [] }, failed } );
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -149,7 +150,7 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( result.current.bulk.isRunning ).toBe( true );
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-		await act( async () => answer( { state: {}, failed: [] } ) );
+		await act( async () => answer( { state: { features: [] }, failed: [] } ) );
 
 		// The response is in, but the modules store has not caught up yet.
 		expect( result.current.requested ).toEqual( bothHeld );
