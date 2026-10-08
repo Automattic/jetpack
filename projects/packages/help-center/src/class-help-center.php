@@ -681,14 +681,6 @@ class Help_Center {
 	}
 
 	/**
-	 * Returns true if the current screen is the woo commerce admin home page.
-	 */
-	private function is_wc_admin_home_page() {
-		global $current_screen;
-		return $current_screen && $current_screen->id === 'woocommerce_page_wc-admin';
-	}
-
-	/**
 	 * Returns true if the current user is connected through Jetpack
 	 */
 	public function is_jetpack_disconnected() {
@@ -803,10 +795,6 @@ class Help_Center {
 	 * @return string|null 'wp-admin', 'wp-admin-disconnected', 'gutenberg', 'gutenberg-disconnected', 'logged-out', or null.
 	 */
 	private function get_active_variant() {
-		if ( $this->is_wc_admin_home_page() ) {
-			return null;
-		}
-
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
