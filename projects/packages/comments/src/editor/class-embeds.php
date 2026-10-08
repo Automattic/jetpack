@@ -216,16 +216,16 @@ class Embeds extends WP_REST_Controller {
 		while ( $sent->next_tag() ) {
 			$name = $sent->get_tag();
 			$src  = $sent->get_attribute( 'src' );
-			$src  = is_string( $src ) && str_starts_with( $src, '//' ) ? 'https:' . $src : $src;
+			$src  = is_string( $src ) ? esc_url_raw( str_starts_with( $src, '//' ) ? 'https:' . $src : $src ) : '';
 
-			if ( ! isset( $kept[ $name ] ) || ! is_string( $src ) || 'https' !== wp_parse_url( $src, PHP_URL_SCHEME ) ) {
+			if ( ! isset( $kept[ $name ] ) || 'https' !== wp_parse_url( $src, PHP_URL_SCHEME ) ) {
 				continue;
 			}
 
 			// A tag of our own, so only the attributes listed above come along.
 			$tag = new \WP_HTML_Tag_Processor( 'IFRAME' === $name ? '<iframe></iframe>' : '<img>' );
 			$tag->next_tag();
-			$tag->set_attribute( 'src', esc_url_raw( $src ) );
+			$tag->set_attribute( 'src', $src );
 			foreach ( $kept[ $name ] as $attribute ) {
 				$value = $sent->get_attribute( $attribute );
 				if ( null !== $value ) {
