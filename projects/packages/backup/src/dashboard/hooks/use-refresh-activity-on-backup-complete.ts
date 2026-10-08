@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { keys } from '../data/query-client';
 import type { BackupsState } from '../types/backup';
 
@@ -38,11 +38,12 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
  *
  * @param state       - The derived backups state, from `useBackups`.
  * @param isRequested - Whether a "Back up now" request is still pending.
+ * @return How many runs this screen has watched end, for the list's "new" marker.
  */
 export function useRefreshActivityOnBackupComplete(
 	state: BackupsState,
 	isRequested: boolean
-): void {
+): number {
 	const queryClient = useQueryClient();
 	// Latched rather than compared against the previous render's state:
 	// a single failed poll mid-backup moves the state to `error` and
@@ -51,6 +52,7 @@ export function useRefreshActivityOnBackupComplete(
 	// comparison would have forgotten the run by then and left the list
 	// stale, which is the bug this hook exists to fix.
 	const sawInProgress = useRef( false );
+	const [ finishedRuns, setFinishedRuns ] = useState( 0 );
 
 	useEffect( () => {
 		// A pending request counts as a run: a short backup can go from one
@@ -61,7 +63,10 @@ export function useRefreshActivityOnBackupComplete(
 		}
 		if ( sawInProgress.current && RUN_ENDED_STATES.includes( state ) ) {
 			sawInProgress.current = false;
+			setFinishedRuns( count => count + 1 );
 			queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 		}
 	}, [ state, isRequested, queryClient ] );
+
+	return finishedRuns;
 }
