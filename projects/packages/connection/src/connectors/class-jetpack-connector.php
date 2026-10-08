@@ -118,7 +118,7 @@ class Jetpack_Connector {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
-	 * Skips the card when its built file is missing, and shows an error snackbar instead.
+	 * Skips the card when its built files are missing, and shows an error snackbar instead.
 	 *
 	 * @since 8.2.0
 	 * @since $$next-version$$ Loads the webpack build from dist/ and versions it from the asset file.
@@ -134,8 +134,8 @@ class Jetpack_Connector {
 			return;
 		}
 
-		// The built file is missing in a checkout that hasn't run the build, or mid-deploy.
-		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE . '.asset.php' );
+		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
+		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
 		if ( null === $asset ) {
 			// Without the card, core shows no Jetpack entry at all, so say why.
 			static::enqueue_missing_build_notice();
@@ -161,6 +161,7 @@ class Jetpack_Connector {
 		wp_enqueue_script_module( static::MODULE_ID );
 
 		// Assets::enqueue_script also loads the stylesheet registered with the handle.
+		// Conditional only while the card imports nothing from @automattic/jetpack-connection.
 		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
 			Assets::enqueue_script( 'jetpack-connection' );
 		}
@@ -172,7 +173,7 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Explain on the Connectors screen that the card's built file is missing.
+	 * Explain on the Connectors screen that one of the card's built files is missing.
 	 *
 	 * The screen hides legacy admin notices, so this posts a snackbar to the notices store it renders.
 	 *
@@ -197,11 +198,12 @@ class Jetpack_Connector {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $asset_path Path of the asset file.
-	 * @return array|null Asset data, or null if the file is missing or invalid.
+	 * @param string $module_path Path of the built module, without the extension.
+	 * @return array|null Asset data, or null if the module or its asset file is missing, or the asset is invalid.
 	 */
-	private static function get_module_asset( $asset_path ) {
-		if ( ! file_exists( $asset_path ) ) {
+	private static function get_module_asset( $module_path ) {
+		$asset_path = $module_path . '.asset.php';
+		if ( ! file_exists( $module_path . '.js' ) || ! file_exists( $asset_path ) ) {
 			return null;
 		}
 
