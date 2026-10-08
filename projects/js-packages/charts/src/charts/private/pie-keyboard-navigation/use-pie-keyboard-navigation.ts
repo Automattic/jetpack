@@ -2,7 +2,7 @@ import { useTooltip } from '@visx/tooltip';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useKeyboardNavigation } from '../../../components/tooltip';
 import type { DataPointPercentageCalculated } from '../../../types';
-import type { FocusEvent, MouseEvent } from 'react';
+import type { MouseEvent } from 'react';
 
 interface UsePieKeyboardNavigationProps {
 	/** Labels of the visible segments in `orderArcsForNavigation` order, which indexes run over. */
@@ -43,7 +43,6 @@ export const usePieKeyboardNavigation = ( {
 
 	const keyboardTooltip = useRef< HTMLDivElement | null >( null );
 	const tooltipLostFocus = useRef( false );
-	const isRestoringFocus = useRef( false );
 
 	// React detaches the ref before removing the node, so the tooltip still holds focus here.
 	const tooltipRef = useCallback(
@@ -68,21 +67,9 @@ export const usePieKeyboardNavigation = ( {
 		tooltipLostFocus.current = false;
 		const { activeElement, body } = chartRef.current?.ownerDocument ?? document;
 		if ( activeElement === null || activeElement === body ) {
-			isRestoringFocus.current = true;
 			chartRef.current?.focus();
-			isRestoringFocus.current = false;
 		}
 	} );
-
-	// A browser that blurs a removed element has ended navigation, which would make this focus restart the selection at 0.
-	const onFocus = useCallback(
-		( event: FocusEvent< HTMLDivElement > ) => {
-			if ( ! isRestoringFocus.current ) {
-				onChartFocus( event );
-			}
-		},
-		[ onChartFocus ]
-	);
 
 	const getSegmentHandlers = ( data: DataPointPercentageCalculated, navigationIndex: number ) => ( {
 		onMouseMove: ( event: MouseEvent< SVGElement > ) => {
@@ -142,7 +129,7 @@ export const usePieKeyboardNavigation = ( {
 			role: 'application',
 			tabIndex: 0,
 			onKeyDown: onChartKeyDown,
-			onFocus,
+			onFocus: onChartFocus,
 			onBlur: onChartBlur,
 		} as const,
 	};
