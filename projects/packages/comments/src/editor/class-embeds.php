@@ -230,14 +230,18 @@ class Embeds extends WP_REST_Controller {
 			'name'            => true,
 		);
 
-		// Without pre_kses: its embed-to-shortcode reversals, like the shortcodes module's for YouTube,
-		// would turn the player into text such as "[youtube …]" that nothing here expands.
-		global $wp_filter;
-		$pre_kses = $wp_filter['pre_kses'] ?? null;
-		unset( $wp_filter['pre_kses'] );
-		$html = wp_kses( $html, $allowed );
-		if ( null !== $pre_kses ) {
-			$wp_filter['pre_kses'] = $pre_kses; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restoring what was set aside above.
+		$tags_in = static function ( $text ) {
+			preg_match_all( '@\[([^<>&/\[\]\x00-\x20=]++)@', $text, $matches );
+			return array_filter( array_unique( $matches[1] ), 'shortcode_exists' );
+		};
+		$sent    = $tags_in( $html );
+		$html    = wp_kses( $html, $allowed );
+
+		// The host's pre_kses reversals turn known players into shortcodes, such as "[youtube …]" on WordPress.com.
+		// Expand those as post content would, and leave any the provider sent as text.
+		$added = array_diff( $tags_in( $html ), $sent );
+		if ( $added ) {
+			$html = (string) preg_replace_callback( '/' . get_shortcode_regex( $added ) . '/', 'do_shortcode_tag', $html );
 		}
 
 		if ( ! preg_match( '#<(iframe|img|video|audio)\b#i', $html ) && '' === trim( wp_strip_all_tags( $html ) ) ) {
