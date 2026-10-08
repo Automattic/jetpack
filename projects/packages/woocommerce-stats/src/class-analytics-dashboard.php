@@ -63,8 +63,8 @@ class Analytics_Dashboard {
 	const MIN_WIDGET_API_VERSION = '1.6.0';
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions, and the reports proxy on REST
-	 * requests.
+	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
+	 * requests, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -77,6 +77,8 @@ class Analytics_Dashboard {
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
+
+		Store_Currency::init();
 	}
 
 	/**
