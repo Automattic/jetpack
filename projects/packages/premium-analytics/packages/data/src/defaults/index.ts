@@ -1,2 +1,7 @@
-export { getDefaultPreset, getDefaultQueryParams, getDefaultReportParams } from './reports';
+export {
+	getDefaultPreset,
+	getDefaultQueryParams,
+	getDefaultReportParams,
+	withDefaultComparison,
+} from './reports';
 export { getStoreInfo, type StoreInfo } from './store-info';

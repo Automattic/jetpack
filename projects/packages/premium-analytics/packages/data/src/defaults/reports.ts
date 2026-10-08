@@ -52,6 +52,32 @@ export function getDefaultReportParams(): { preset: PresetType } {
 }
 
 /**
+ * Add the previous-period comparison a fresh load starts on.
+ *
+ * @param params - Report params for the primary range.
+ * @return The params with the comparison, or unchanged when none resolves.
+ */
+export function withDefaultComparison( params: ReportParams ): ReportParams {
+	const comparison = getComparisonRangeFromPreset(
+		{ from: localTZDate( params.from ), to: localTZDate( params.to ) },
+		'previous-period',
+		{ primaryPresetId: params.preset }
+	);
+
+	if ( ! comparison?.from || ! comparison.to ) {
+		return params;
+	}
+
+	return {
+		...params,
+		compare_from: dateToISOStringWithLocalTZ( comparison.from ),
+		compare_to: dateToISOStringWithLocalTZ( comparison.to ),
+		compare_preset: 'previous-period',
+		comp: '1',
+	};
+}
+
+/**
  * Build report query parameters for the given preset, optionally with the
  * previous-period comparison range.
  */
@@ -65,38 +91,12 @@ export const getDefaultQueryParams = (
 		throw new Error( `Unknown preset: ${ preset }` );
 	}
 
-	const { from: fromString, to: toString } = range;
-
-	const interval = getDefaultIntervalForPeriod( preset, fromString, toString );
-
-	if ( ! withComparison ) {
-		return {
-			from: fromString,
-			to: toString,
-			preset,
-			interval,
-		};
-	}
-
-	const from = localTZDate( fromString );
-	const to = localTZDate( toString );
-
-	const comparisonParams = getComparisonRangeFromPreset( { from, to }, 'previous-period', {
-		primaryPresetId: preset,
-	} );
-
-	return {
-		from: fromString,
-		to: toString,
+	const params: ReportParams = {
+		from: range.from,
+		to: range.to,
 		preset,
-		interval,
-		compare_from: comparisonParams?.from
-			? dateToISOStringWithLocalTZ( comparisonParams?.from )
-			: undefined,
-		compare_to: comparisonParams?.to
-			? dateToISOStringWithLocalTZ( comparisonParams?.to )
-			: undefined,
-		compare_preset: 'previous-period',
-		comp: '1',
+		interval: getDefaultIntervalForPeriod( preset, range.from, range.to ),
 	};
+
+	return withComparison ? withDefaultComparison( params ) : params;
 };

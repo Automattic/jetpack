@@ -102,6 +102,7 @@ export {
 	getDefaultReportParams,
 	getStoreInfo,
 	type StoreInfo,
+	withDefaultComparison,
 } from './defaults';
 export { downloadReport, fetchStatsProxy } from './api';
 export { disableDashboard } from './api';
