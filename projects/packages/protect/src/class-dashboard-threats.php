@@ -21,32 +21,202 @@ class Dashboard_Threats {
 	/**
 	 * Shape one threat.
 	 *
-	 * @param object $threat A Threat_Model, or a raw threat with the same properties.
+	 * @param object     $threat A Threat_Model, or a raw threat with the same properties.
+	 * @param array|null $site   The site's plugins and updates, from get_site_extensions(); read now when null.
 	 * @return array
 	 */
-	public static function format( $threat ) {
+	public static function format( $threat, $site = null ) {
+		$site    ??= self::get_site_extensions();
 		$extension = $threat->extension ?? null;
+		// History names extension types in the singular; the threat list reads the plural.
+		$type  = in_array( $extension->type ?? '', array( 'plugin', 'theme' ), true ) ? $extension->type . 's' : ( $extension->type ?? null );
+		$slug  = $extension->slug ?? null;
+		$file  = 'plugins' === $type && $slug ? ( $site['files'][ $slug ] ?? null ) : null;
+		$theme = 'themes' === $type && $slug ? wp_get_theme( $slug ) : null;
+		$theme = $theme && $theme->exists() ? $theme : null;
 
 		return array(
-			'id'            => $threat->id ?? null,
-			'signature'     => $threat->signature ?? null,
-			'title'         => $threat->title ?? null,
-			'description'   => $threat->description ?? null,
-			'status'        => $threat->status ?? null,
-			'severity'      => $threat->severity ?? null,
-			'firstDetected' => $threat->first_detected ?? null,
-			'fixedIn'       => $threat->fixed_in ?? null,
-			'fixedOn'       => $threat->fixed_on ?? null,
-			'fixable'       => empty( $threat->fixable ) ? false : $threat->fixable,
-			'filename'      => $threat->filename ?? null,
-			'extension'     => $extension ? array(
-				'slug'    => $extension->slug ?? null,
-				'name'    => $extension->name ?? null,
+			'id'              => $threat->id ?? null,
+			'signature'       => $threat->signature ?? null,
+			'title'           => $threat->title ?? null,
+			'description'     => $threat->description ?? null,
+			'status'          => $threat->status ?? null,
+			'severity'        => $threat->severity ?? null,
+			'firstDetected'   => $threat->first_detected ?? null,
+			'fixedIn'         => $threat->fixed_in ?? null,
+			'fixedOn'         => $threat->fixed_on ?? null,
+			'fixable'         => empty( $threat->fixable ) ? false : $threat->fixable,
+			'filename'        => $threat->filename ?? null,
+			'source'          => $threat->source ?? null,
+			'context'         => self::format_context( $threat->context ?? null ),
+			'vulnerabilities' => self::format_vulnerabilities( $threat->vulnerabilities ?? null ),
+			'extension'       => $extension ? array(
+				'slug'    => $slug,
+				// Scan reports may name a plugin by its slug; the installed copy has its real name.
+				'name'    => ( $file ? $site['plugins'][ $file ]['Name'] : ( $theme ? $theme->get( 'Name' ) : null ) ) ?? $extension->name ?? null,
 				'version' => $extension->version ?? null,
-				// History names extension types in the singular; the threat list reads the plural.
-				'type'    => in_array( $extension->type ?? '', array( 'plugin', 'theme' ), true ) ? $extension->type . 's' : ( $extension->type ?? null ),
+				'type'    => $type,
+				'icon'    => 'plugins' === $type ? self::get_plugin_icon( $site, $slug ) : ( $theme && $theme->get_screenshot() ? $theme->get_screenshot() : null ),
+				'actions' => self::get_actions( $site, $type, $slug, $file ),
 			) : null,
 		);
+	}
+
+	/**
+	 * What threat shaping reads about installed plugins, read once per list.
+	 *
+	 * @return array Plugins and plugin updates by file, plugin files and WordPress.org entries by slug, and theme updates by slug.
+	 */
+	private static function get_site_extensions() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$plugins = get_plugins();
+		$files   = array();
+		foreach ( array_keys( $plugins ) as $file ) {
+			$files[ '.' === dirname( $file ) ? basename( $file, '.php' ) : dirname( $file ) ] = $file;
+		}
+
+		$plugin_updates = get_site_transient( 'update_plugins' );
+		$theme_updates  = get_site_transient( 'update_themes' );
+		$directory      = array();
+		foreach ( array_merge( (array) ( $plugin_updates->no_update ?? array() ), (array) ( $plugin_updates->response ?? array() ) ) as $entry ) {
+			$entry = (object) $entry;
+			if ( ! empty( $entry->slug ) ) {
+				$directory[ $entry->slug ] = $entry;
+			}
+		}
+
+		return array(
+			'plugins'        => $plugins,
+			'files'          => $files,
+			'plugin_updates' => (array) ( $plugin_updates->response ?? array() ),
+			'directory'      => $directory,
+			'theme_updates'  => (array) ( $theme_updates->response ?? array() ),
+		);
+	}
+
+	/**
+	 * The lines of code around a file threat, as line number and code pairs.
+	 *
+	 * @param mixed $context Scan's context: code keyed by line number, plus a `marks` entry.
+	 * @return array
+	 */
+	private static function format_context( $context ) {
+		if ( ! is_array( $context ) && ! is_object( $context ) ) {
+			return array();
+		}
+
+		$lines = array();
+		foreach ( (array) $context as $line => $code ) {
+			if ( is_numeric( $line ) && is_string( $code ) ) {
+				$lines[] = array(
+					'line' => (int) $line,
+					'code' => $code,
+				);
+			}
+		}
+		return $lines;
+	}
+
+	/**
+	 * Shape the vulnerabilities behind a vulnerable-extension threat.
+	 *
+	 * @param mixed $vulnerabilities Vulnerability_Model objects, or raw objects with the same properties.
+	 * @return array
+	 */
+	private static function format_vulnerabilities( $vulnerabilities ) {
+		if ( ! is_array( $vulnerabilities ) ) {
+			return array();
+		}
+
+		$formatted = array();
+		foreach ( $vulnerabilities as $vulnerability ) {
+			$formatted[] = array(
+				'id'     => $vulnerability->id ?? null,
+				'title'  => $vulnerability->title ?? null,
+				'source' => method_exists( $vulnerability, 'get_source' ) ? $vulnerability->get_source() : ( $vulnerability->source ?? null ),
+			);
+		}
+		return $formatted;
+	}
+
+	/**
+	 * Admin links that act on the affected plugin, theme or core, for the current user.
+	 *
+	 * @param array       $site The site's plugins and updates.
+	 * @param string|null $type The plural extension type.
+	 * @param string|null $slug The extension slug.
+	 * @param string|null $file The installed plugin's file, for a plugin.
+	 * @return array Links keyed `update`, `deactivate` and `details`, each only when it applies.
+	 */
+	private static function get_actions( $site, $type, $slug, $file ) {
+		$actions = array();
+
+		if ( 'core' === $type ) {
+			if ( current_user_can( 'update_core' ) ) {
+				$actions['update'] = self_admin_url( 'update-core.php' );
+			}
+			return $actions;
+		}
+
+		if ( 'themes' === $type && $slug ) {
+			if ( current_user_can( 'update_themes' ) && isset( $site['theme_updates'][ $slug ] ) ) {
+				$actions['update'] = add_query_arg(
+					'_wpnonce',
+					wp_create_nonce( 'upgrade-theme_' . $slug ),
+					self_admin_url( 'update.php?action=upgrade-theme&theme=' . rawurlencode( $slug ) )
+				);
+			}
+			if ( current_user_can( 'switch_themes' ) && get_stylesheet() === $slug ) {
+				$actions['deactivate'] = self_admin_url( 'themes.php' );
+			}
+			return $actions;
+		}
+
+		if ( ! $file ) {
+			return $actions;
+		}
+
+		if ( current_user_can( 'update_plugins' ) && isset( $site['plugin_updates'][ $file ] ) ) {
+			$actions['update'] = add_query_arg(
+				'_wpnonce',
+				wp_create_nonce( 'upgrade-plugin_' . $file ),
+				self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . rawurlencode( $file ) )
+			);
+		}
+		if ( current_user_can( 'activate_plugins' ) && is_plugin_active( $file ) ) {
+			$actions['deactivate'] = add_query_arg(
+				'_wpnonce',
+				wp_create_nonce( 'deactivate-plugin_' . $file ),
+				self_admin_url( 'plugins.php?action=deactivate&plugin=' . rawurlencode( $file ) )
+			);
+		}
+		if ( isset( $site['directory'][ $slug ] ) ) {
+			$actions['details'] = 'https://wordpress.org/plugins/' . rawurlencode( $slug ) . '/';
+		}
+		return $actions;
+	}
+
+	/**
+	 * The plugin's WordPress.org directory icon, from the update check.
+	 *
+	 * @param array       $site The site's plugins and updates.
+	 * @param string|null $slug The plugin slug.
+	 * @return string|null
+	 */
+	private static function get_plugin_icon( $site, $slug ) {
+		if ( ! $slug ) {
+			return null;
+		}
+		$icons = (array) ( $site['directory'][ $slug ]->icons ?? array() );
+		foreach ( array( 'svg', '2x', '1x', 'default' ) as $size ) {
+			if ( ! empty( $icons[ $size ] ) ) {
+				return $icons[ $size ];
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -60,8 +230,9 @@ class Dashboard_Threats {
 		if ( ! is_iterable( $threats ) ) {
 			return $formatted;
 		}
+		$site = self::get_site_extensions();
 		foreach ( $threats as $threat ) {
-			$formatted[] = self::format( $threat );
+			$formatted[] = self::format( $threat, $site );
 		}
 		return $formatted;
 	}
