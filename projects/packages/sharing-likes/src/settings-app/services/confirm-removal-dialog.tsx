@@ -52,7 +52,7 @@ export function ConfirmRemovalDialog( {
 				description={
 					handsOver
 						? __(
-								'With no buttons left, sharing buttons turn off, and this screen will suggest the Sharing Buttons block instead. You won’t be able to turn them back on here.',
+								'With no buttons left, sharing buttons turn off. Since you use a block-based theme, you can add the buttons anywhere on your site via the Site Editor.',
 								'jetpack-sharing-likes'
 							)
 						: __(
