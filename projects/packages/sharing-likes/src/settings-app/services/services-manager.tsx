@@ -61,6 +61,11 @@ export function ServicesManager(): JSX.Element {
 	const [ adding, setAdding ] = useState< Row | null >( null );
 	const [ editing, setEditing ] = useState< Service | null >( null );
 	const [ confirming, setConfirming ] = useState< Confirmation | null >( null );
+	const [ focusTarget, setFocusTarget ] = useState< {
+		row: Row;
+		id: string;
+		index: number;
+	} | null >( null );
 	const data = query.data;
 
 	const onMove = useCallback(
@@ -77,17 +82,19 @@ export function ServicesManager(): JSX.Element {
 	);
 
 	const onRemove = useCallback(
-		( service: Service ) => {
+		( service: Service, row: Row ) => {
 			setSelectedId( null );
 			const next = without( data, service.id );
 			if ( handsOver( status, next ) ) {
 				setConfirming( { kind: 'last', service, next } );
 				return;
 			}
+			const index = data?.[ row ].indexOf( service.id ) ?? 0;
+			setFocusTarget( { row, id: service.id, index } );
 			saveLists( next, {
 				/* translators: %s: sharing service name, such as "Facebook". */
 				message: sprintf( __( '%s removed.', 'jetpack-sharing-likes' ), service.name ),
-				undoable: true,
+				undo: { id: service.id, row, index },
 			} );
 		},
 		[ data, saveLists, status ]
@@ -125,6 +132,7 @@ export function ServicesManager(): JSX.Element {
 		async ( fields: CustomServiceFields ) => !! editing && custom.update( editing.id, fields ),
 		[ custom, editing ]
 	);
+	const clearFocusTarget = useCallback( () => setFocusTarget( null ), [] );
 	const closeConfirmation = useCallback( () => setConfirming( null ), [] );
 	const confirm = useCallback( async () => {
 		if ( ! confirming ) {
@@ -132,11 +140,16 @@ export function ServicesManager(): JSX.Element {
 		}
 		setConfirming( null );
 		if ( confirming.kind === 'delete' ) {
+			const row = data?.hidden.includes( confirming.service.id ) ? 'hidden' : 'visible';
+			const index = data?.[ row ].indexOf( confirming.service.id ) ?? -1;
+			if ( index >= 0 ) {
+				setFocusTarget( { row, id: confirming.service.id, index } );
+			}
 			await custom.remove( confirming.service.id );
 		} else {
 			await saveLists( confirming.next );
 		}
-	}, [ confirming, custom, saveLists ] );
+	}, [ confirming, custom, data, saveLists ] );
 
 	if ( query.isPending ) {
 		return <Spinner />;
@@ -176,7 +189,9 @@ export function ServicesManager(): JSX.Element {
 		onRemove,
 		onEdit: setEditing,
 		onDelete,
+		onFocused: clearFocusTarget,
 	};
+	const focusAfterFor = ( row: Row ) => ( focusTarget?.row === row ? focusTarget : null );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -195,6 +210,7 @@ export function ServicesManager(): JSX.Element {
 				title={ __( 'Shown as buttons', 'jetpack-sharing-likes' ) }
 				addLabel={ addVisibleLabel }
 				ids={ visible }
+				focusAfter={ focusAfterFor( 'visible' ) }
 				{ ...rowProps }
 			/>
 			<ServiceRow
@@ -206,6 +222,7 @@ export function ServicesManager(): JSX.Element {
 				}
 				addLabel={ addHiddenLabel }
 				ids={ hidden }
+				focusAfter={ focusAfterFor( 'hidden' ) }
 				{ ...rowProps }
 			/>
 			{ shutDown.map( service => (

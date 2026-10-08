@@ -166,7 +166,7 @@ describe( 'useSaveServices', () => {
 		expect( apiCalls() ).toContainEqual( { path: '/wpcom/v2/sharing-likes/settings' } );
 	} );
 
-	it( 'offers an Undo that saves the lists as they were', async () => {
+	it( 'puts back only the removed service on Undo, keeping changes made since', async () => {
 		mockApiFetch.mockImplementation( ( { method, data } ) =>
 			Promise.resolve( method === 'PUT' ? { ...services, ...( data as object ) } : services )
 		);
@@ -175,18 +175,38 @@ describe( 'useSaveServices', () => {
 		await act( () =>
 			result.current(
 				{ visible: [ 'facebook' ], hidden: [ 'email' ] },
-				{ message: 'X removed.', undoable: true }
+				{ message: 'X removed.', undo: { id: 'x', row: 'visible', index: 1 } }
 			)
 		);
 		const notice = select( noticesStore )
 			.getNotices()
 			.find( ( { content } ) => content === 'X removed.' );
+		await act( () => result.current( { visible: [ 'facebook', 'email' ], hidden: [] } ) );
 		await act( async () => notice?.actions?.[ 0 ]?.onClick?.() );
 
 		await waitFor( () =>
 			expect( apiCalls( 'PUT' ).at( -1 ) ).toMatchObject( {
-				data: { visible: [ 'facebook', 'x' ], hidden: [ 'email' ] },
+				data: { visible: [ 'facebook', 'x', 'email' ], hidden: [] },
 			} )
 		);
+	} );
+
+	it( 'dismisses the previous Undo once another change is saved', async () => {
+		mockApiFetch.mockImplementation( ( { method, data } ) =>
+			Promise.resolve( method === 'PUT' ? { ...services, ...( data as object ) } : services )
+		);
+		const { result } = renderSave();
+
+		await act( () =>
+			result.current(
+				{ visible: [ 'facebook' ], hidden: [ 'email' ] },
+				{ message: 'X removed.', undo: { id: 'x', row: 'visible', index: 1 } }
+			)
+		);
+		act( () => {
+			result.current( { visible: [ 'facebook', 'email' ], hidden: [] } );
+		} );
+
+		expect( snackbarMessages() ).not.toContain( 'X removed.' );
 	} );
 } );

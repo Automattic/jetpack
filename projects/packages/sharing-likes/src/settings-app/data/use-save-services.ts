@@ -6,7 +6,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { saveServices } from './api';
 import { errorMessage } from './error-message';
 import { MUTATION_SCOPE, SAVE_SERVICES_KEY, SAVE_SETTING_KEY, queryKeys } from './queries';
-import type { Services } from '../types';
+import type { ServiceRow, Services } from '../types';
 
 export interface ServiceLists {
 	visible: string[];
@@ -15,7 +15,8 @@ export interface ServiceLists {
 
 export interface SaveServicesOptions {
 	message?: string;
-	undoable?: boolean;
+	// Where a removed service sat, so Undo can put it back without reverting anything saved since.
+	undo?: { id: string; row: ServiceRow; index: number };
 }
 
 export type SaveServices = (
@@ -48,7 +49,7 @@ function sameLists( a: ServiceLists, b: ServiceLists ): boolean {
  */
 export function useSaveServices(): SaveServices {
 	const queryClient = useQueryClient();
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { createSuccessNotice, createErrorNotice, removeNotice } = useDispatch( noticesStore );
 	const isLastSave = () => queryClient.isMutating( { mutationKey: SAVE_SERVICES_KEY } ) <= 1;
 
 	const { mutateAsync } = useMutation( {
@@ -91,7 +92,9 @@ export function useSaveServices(): SaveServices {
 	} );
 
 	return useCallback(
-		async function save( lists: ServiceLists, { message, undoable }: SaveServicesOptions = {} ) {
+		async function save( lists: ServiceLists, { message, undo }: SaveServicesOptions = {} ) {
+			// An Undo offered before this change would now revert it.
+			removeNotice( SAVED_NOTICE_ID );
 			// An in-flight read would land on top of the optimistic lists.
 			queryClient.cancelQueries( { queryKey: queryKeys.services } );
 			const current = queryClient.getQueryData< Services >( queryKeys.services );
@@ -101,18 +104,23 @@ export function useSaveServices(): SaveServices {
 				data => data && { ...data, ...lists }
 			);
 
+			const restore = () => {
+				const latest = queryClient.getQueryData< Services >( queryKeys.services );
+				if ( ! undo || ! latest || [ ...latest.visible, ...latest.hidden ].includes( undo.id ) ) {
+					return;
+				}
+				const ids = [ ...latest[ undo.row ] ];
+				ids.splice( Math.min( undo.index, ids.length ), 0, undo.id );
+				save( { visible: latest.visible, hidden: latest.hidden, [ undo.row ]: ids } );
+			};
+
 			try {
 				const saved = await mutateAsync( { ...lists, previous } );
 				createSuccessNotice( message ?? __( 'Settings have been saved', 'jetpack-sharing-likes' ), {
 					id: SAVED_NOTICE_ID,
 					type: 'snackbar',
-					actions: undoable
-						? [
-								{
-									label: __( 'Undo', 'jetpack-sharing-likes' ),
-									onClick: () => save( previous ),
-								},
-							]
+					actions: undo
+						? [ { label: __( 'Undo', 'jetpack-sharing-likes' ), onClick: restore } ]
 						: undefined,
 				} );
 				return saved;
@@ -120,6 +128,6 @@ export function useSaveServices(): SaveServices {
 				return undefined;
 			}
 		},
-		[ createSuccessNotice, mutateAsync, queryClient ]
+		[ createSuccessNotice, mutateAsync, queryClient, removeNotice ]
 	);
 }

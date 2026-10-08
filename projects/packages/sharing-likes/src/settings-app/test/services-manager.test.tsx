@@ -160,12 +160,16 @@ describe( 'ServicesManager', () => {
 		);
 	} );
 
-	it( 'moves left visually in a right-to-left language', async () => {
+	it( 'mirrors the movers in a right-to-left language, as the block editor does', async () => {
 		setLocaleData( { 'text direction\u0004ltr': [ 'rtl' ] } );
 		const user = userEvent.setup();
 		await renderManager();
 
-		await runToolbarAction( user, 'Facebook', 'Move left' );
+		await user.click( screen.getByRole( 'button', { name: 'Facebook' } ) );
+		const toolbar = await screen.findByRole( 'toolbar', { name: 'Facebook options' } );
+		// The row is mirrored, so the first button sits on the right.
+		expect( within( toolbar ).getAllByRole( 'button' )[ 0 ] ).toHaveAccessibleName( 'Move right' );
+		await user.click( within( toolbar ).getByRole( 'button', { name: 'Move left' } ) );
 
 		await waitFor( () =>
 			expect( apiCalls( 'PUT' )[ 0 ] ).toMatchObject( { data: { visible: [ 'x', 'facebook' ] } } )
@@ -325,6 +329,42 @@ describe( 'ServicesManager', () => {
 			expect( apiCalls( 'DELETE' ) ).toEqual( [
 				{ path: '/wpcom/v2/sharing-likes/services/custom/custom-1', method: 'DELETE' },
 			] )
+		);
+	} );
+	it( 'keeps keyboard focus in the row after removing a button', async () => {
+		const user = userEvent.setup();
+		await renderManager();
+
+		await runToolbarAction( user, 'Facebook', 'Remove' );
+
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'X' } ) ).toHaveFocus() );
+	} );
+
+	it( 'returns focus to the button when removing the last one is cancelled', async () => {
+		respond( { ...services, visible: [ 'x' ], hidden: [] } );
+		const user = userEvent.setup();
+		await renderManager( {
+			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
+		} );
+
+		await runToolbarAction( user, 'X', 'Remove' );
+		await user.click(
+			within( await screen.findByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel' } )
+		);
+
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'X' } ) ).toHaveFocus() );
+	} );
+
+	it( 'moves focus to the next service after adding one from the dialog', async () => {
+		const user = userEvent.setup();
+		await renderManager();
+
+		await user.click( screen.getByRole( 'button', { name: 'Add sharing buttons' } ) );
+		const dialog = await screen.findByRole( 'dialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Mastodon' } ) );
+
+		await waitFor( () =>
+			expect( within( dialog ).getByRole( 'button', { name: 'Acme' } ) ).toHaveFocus()
 		);
 	} );
 } );

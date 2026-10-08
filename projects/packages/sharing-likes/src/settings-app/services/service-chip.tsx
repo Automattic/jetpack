@@ -55,10 +55,8 @@ export function ServiceChip( {
 }: ChipProps ): JSX.Element {
 	const showIcon = buttonStyle !== 'text';
 	const showName = buttonStyle !== 'icon';
-	// In a right-to-left language the earlier button sits on the right.
-	const left = isRTL() ? 1 : -1;
-	const right = -left as -1 | 1;
-	const canMove = ( delta: number ) => index + delta >= 0 && index + delta < count;
+	// The toolbar mirrors in a right-to-left language, so the earlier button then sits on the right and points right.
+	const rtl = isRTL();
 
 	// Selecting another button opens its toolbar before this one hears the outside click.
 	const handleOpenChange = useCallback(
@@ -71,8 +69,8 @@ export function ServiceChip( {
 			} ),
 		[ onSelect, service.id ]
 	);
-	const moveLeft = useCallback( () => onMove( row, index, left ), [ index, left, onMove, row ] );
-	const moveRight = useCallback( () => onMove( row, index, right ), [ index, onMove, right, row ] );
+	const moveEarlier = useCallback( () => onMove( row, index, -1 ), [ index, onMove, row ] );
+	const moveLater = useCallback( () => onMove( row, index, 1 ), [ index, onMove, row ] );
 	const remove = useCallback( () => onRemove( service, row ), [ onRemove, row, service ] );
 	const edit = useCallback( () => onEdit( service ), [ onEdit, service ] );
 	const deleteService = useCallback( () => onDelete( service ), [ onDelete, service ] );
@@ -105,22 +103,30 @@ export function ServiceChip( {
 					) }
 				>
 					<IconButton
-						icon={ chevronLeft }
-						label={ __( 'Move left', 'jetpack-sharing-likes' ) }
+						icon={ rtl ? chevronRight : chevronLeft }
+						label={
+							rtl
+								? __( 'Move right', 'jetpack-sharing-likes' )
+								: __( 'Move left', 'jetpack-sharing-likes' )
+						}
 						variant="minimal"
 						tone="neutral"
-						disabled={ ! canMove( left ) }
+						disabled={ index === 0 }
 						focusableWhenDisabled
-						onClick={ moveLeft }
+						onClick={ moveEarlier }
 					/>
 					<IconButton
-						icon={ chevronRight }
-						label={ __( 'Move right', 'jetpack-sharing-likes' ) }
+						icon={ rtl ? chevronLeft : chevronRight }
+						label={
+							rtl
+								? __( 'Move left', 'jetpack-sharing-likes' )
+								: __( 'Move right', 'jetpack-sharing-likes' )
+						}
 						variant="minimal"
 						tone="neutral"
-						disabled={ ! canMove( right ) }
+						disabled={ index === count - 1 }
 						focusableWhenDisabled
-						onClick={ moveRight }
+						onClick={ moveLater }
 					/>
 					<IconButton
 						icon={ closeSmall }

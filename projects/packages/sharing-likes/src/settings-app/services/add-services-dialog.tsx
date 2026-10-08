@@ -1,4 +1,4 @@
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, plus } from '@wordpress/icons';
 import { Button, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
@@ -14,17 +14,20 @@ const FORM_ID = 'jetpack-sharing-likes-custom-service';
  *
  * @param props         - Props.
  * @param props.service - Service.
+ * @param props.index   - Position among the options.
  * @param props.onAdd   - Adds it.
  * @return Button.
  */
 function ServiceOption( {
 	service,
+	index,
 	onAdd,
 }: {
 	service: Service;
-	onAdd: ( id: string ) => void;
+	index: number;
+	onAdd: ( id: string, index: number ) => void;
 } ): JSX.Element {
-	const add = useCallback( () => onAdd( service.id ), [ onAdd, service.id ] );
+	const add = useCallback( () => onAdd( service.id, index ), [ index, onAdd, service.id ] );
 
 	return (
 		<Button variant="outline" tone="neutral" onClick={ add }>
@@ -64,6 +67,28 @@ export function AddServicesDialog( {
 	const [ step, setStep ] = useState< 'pick' | 'custom' >( 'pick' );
 	const [ fields, setFields ] = useState< Fields >( EMPTY_CUSTOM_SERVICE );
 	const [ isSaving, setIsSaving ] = useState( false );
+	const [ focusAfter, setFocusAfter ] = useState< { id: string; index: number } | null >( null );
+	const optionsRef = useRef< HTMLDivElement >( null );
+
+	const addOption = useCallback(
+		( id: string, index: number ) => {
+			setFocusAfter( { id, index } );
+			onAdd( id );
+		},
+		[ onAdd ]
+	);
+
+	// The added service's button goes away with it: focus the one now in its place.
+	useEffect( () => {
+		if ( ! focusAfter || available.some( service => service.id === focusAfter.id ) ) {
+			return;
+		}
+		const buttons = optionsRef.current?.querySelectorAll< HTMLButtonElement >( ':scope > button' );
+		if ( buttons?.length ) {
+			buttons[ Math.min( focusAfter.index, buttons.length - 1 ) ].focus();
+		}
+		setFocusAfter( null );
+	}, [ available, focusAfter ] );
 
 	const handleOpenChange = useCallback(
 		( open: boolean ) => {
@@ -125,9 +150,14 @@ export function AddServicesDialog( {
 											'jetpack-sharing-likes'
 										) }
 							</Text>
-							<Stack direction="row" gap="sm" wrap="wrap">
-								{ available.map( service => (
-									<ServiceOption key={ service.id } service={ service } onAdd={ onAdd } />
+							<Stack direction="row" gap="sm" wrap="wrap" ref={ optionsRef }>
+								{ available.map( ( service, index ) => (
+									<ServiceOption
+										key={ service.id }
+										service={ service }
+										index={ index }
+										onAdd={ addOption }
+									/>
 								) ) }
 								<Button variant="outline" tone="brand" onClick={ showCustom }>
 									<Button.Icon icon={ plus } />

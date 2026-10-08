@@ -76,6 +76,8 @@ class Settings_App_Test extends BaseTestCase {
 
 		remove_all_filters( Settings_App::FILTER );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( 'jetpack_is_private_site' );
+		\Automattic\Jetpack\Status\Cache::clear();
 		remove_all_filters( 'jetpack_disable_twitter_cards' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_actions( 'admin_init' );
