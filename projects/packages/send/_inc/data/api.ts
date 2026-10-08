@@ -2,7 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import type { LogPage, SendStatus, TestResult, Usage } from './types';
+import type { LogEntry, LogPage, SendStatus, TestResult, Usage } from './types';
 
 export const STATUS_PATH = '/jetpack-send/v1/status';
 
@@ -31,6 +31,9 @@ export const fetchLog = ( page: number, perPage: number, status: string ) =>
 	apiFetch< LogPage >( {
 		path: addQueryArgs( '/jetpack-send/v1/log', { page, per_page: perPage, status } ),
 	} );
+
+export const fetchLogEntry = ( id: string ) =>
+	apiFetch< LogEntry >( { path: `/jetpack-send/v1/log/${ encodeURIComponent( id ) }` } );
 
 /**
  * A readable message from an apiFetch rejection.

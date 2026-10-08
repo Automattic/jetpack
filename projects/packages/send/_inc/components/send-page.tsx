@@ -3,7 +3,7 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
+import { Tabs, useEnableWpCompatOverlaySlot } from '@wordpress/ui';
 import './send-page.scss';
 import type { ReactNode } from 'react';
 
@@ -39,6 +39,8 @@ type Props = {
  * @return The Send page.
  */
 const SendPage = ( { active, showTabs, showFooter = true, flush = false, children }: Props ) => {
+	// Stacks @wordpress/ui overlays above the wp-admin menu, which otherwise covers wide dialogs.
+	useEnableWpCompatOverlaySlot();
 	const navigate = useNavigate();
 	const site = getSiteData();
 	const onTabChange = useCallback(

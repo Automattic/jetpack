@@ -79,6 +79,25 @@ export type LogRow = {
 	source: 'wp_mail' | 'test';
 };
 
+export type LogAddress = {
+	email: string;
+	name?: string;
+};
+
+export type LogMessage = {
+	/** Null when core sent the email from its default address. */
+	from: LogAddress | null;
+	reply_to: LogAddress | null;
+	cc: LogAddress[];
+	bcc: LogAddress[];
+	content_type: 'text/plain' | 'text/html';
+	body: string;
+	attachments: string[];
+};
+
+/** A log row with the content kept for previewing, which is null when none was kept. */
+export type LogEntry = LogRow & { message: LogMessage | null };
+
 export type LogPage = {
 	items: LogRow[];
 	total: number;

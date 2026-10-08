@@ -30,8 +30,8 @@ class REST_Controller {
 	 */
 	public static function register_routes() {
 		$routes = array(
-			'/status'    => array( WP_REST_Server::READABLE, 'get_status', array() ),
-			'/setup'     => array(
+			'/status'          => array( WP_REST_Server::READABLE, 'get_status', array() ),
+			'/setup'           => array(
 				WP_REST_Server::CREATABLE,
 				'setup',
 				array(
@@ -41,8 +41,8 @@ class REST_Controller {
 					),
 				),
 			),
-			'/check-dns' => array( WP_REST_Server::CREATABLE, 'check_dns', array() ),
-			'/settings'  => array(
+			'/check-dns'       => array( WP_REST_Server::CREATABLE, 'check_dns', array() ),
+			'/settings'        => array(
 				WP_REST_Server::CREATABLE,
 				'update_settings',
 				array(
@@ -52,7 +52,7 @@ class REST_Controller {
 					'from_local_part' => array( 'type' => 'string' ),
 				),
 			),
-			'/test'      => array(
+			'/test'            => array(
 				WP_REST_Server::CREATABLE,
 				'send_test',
 				array(
@@ -63,8 +63,8 @@ class REST_Controller {
 					),
 				),
 			),
-			'/usage'     => array( WP_REST_Server::READABLE, 'get_usage', array() ),
-			'/log'       => array(
+			'/usage'           => array( WP_REST_Server::READABLE, 'get_usage', array() ),
+			'/log'             => array(
 				WP_REST_Server::READABLE,
 				'get_log',
 				array(
@@ -86,7 +86,17 @@ class REST_Controller {
 					),
 				),
 			),
-			'/reset'     => array( WP_REST_Server::CREATABLE, 'reset', array() ),
+			'/log/(?P<id>\d+)' => array(
+				WP_REST_Server::READABLE,
+				'get_log_entry',
+				array(
+					'id' => array(
+						'type'    => 'integer',
+						'minimum' => 1,
+					),
+				),
+			),
+			'/reset'           => array( WP_REST_Server::CREATABLE, 'reset', array() ),
 		);
 
 		foreach ( $routes as $route => $definition ) {
@@ -327,6 +337,20 @@ class REST_Controller {
 		return rest_ensure_response(
 			Email_Log::query( (int) $request->get_param( 'page' ), (int) $request->get_param( 'per_page' ), (string) $request->get_param( 'status' ) )
 		);
+	}
+
+	/**
+	 * GET /log/{id}: one row with the content kept for previewing.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_log_entry( WP_REST_Request $request ) {
+		$entry = Email_Log::get( (int) $request->get_param( 'id' ) );
+		if ( ! $entry ) {
+			return new WP_Error( 'jetpack_send_log_entry_not_found', __( 'This email is no longer in the log.', 'jetpack-send-pkg' ), array( 'status' => 404 ) );
+		}
+		return rest_ensure_response( $entry );
 	}
 
 	/**

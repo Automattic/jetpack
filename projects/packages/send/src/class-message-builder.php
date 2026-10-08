@@ -143,7 +143,7 @@ class Message_Builder {
 	 * @param string|array $headers Raw headers.
 	 * @return array
 	 */
-	private static function parse_headers( $headers ) {
+	public static function parse_headers( $headers ) {
 		$parsed = array(
 			'from'         => array(
 				'email' => '',
@@ -355,12 +355,12 @@ class Message_Builder {
 	}
 
 	/**
-	 * Read and encode attachments.
+	 * Attachment paths with the file name each is sent as.
 	 *
 	 * @param string|array $attachments Newline-separated paths, a list of paths, or `name => path`.
-	 * @return array[]|WP_Error
+	 * @return array[] `{filename, path}` pairs.
 	 */
-	private static function encode_attachments( $attachments ) {
+	public static function attachment_files( $attachments ) {
 		if ( empty( $attachments ) ) {
 			return array();
 		}
@@ -368,13 +368,30 @@ class Message_Builder {
 			$attachments = explode( "\n", str_replace( "\r\n", "\n", (string) $attachments ) );
 		}
 
-		$encoded = array();
-		$total   = 0;
+		$files = array();
 		foreach ( $attachments as $name => $path ) {
 			$path = trim( (string) $path );
-			if ( '' === $path ) {
-				continue;
+			if ( '' !== $path ) {
+				$files[] = array(
+					'filename' => is_string( $name ) ? $name : wp_basename( $path ),
+					'path'     => $path,
+				);
 			}
+		}
+		return $files;
+	}
+
+	/**
+	 * Read and encode attachments.
+	 *
+	 * @param string|array $attachments Newline-separated paths, a list of paths, or `name => path`.
+	 * @return array[]|WP_Error
+	 */
+	private static function encode_attachments( $attachments ) {
+		$encoded = array();
+		$total   = 0;
+		foreach ( self::attachment_files( $attachments ) as $file ) {
+			$path = $file['path'];
 			// Stream wrappers such as phar:// can trigger deserialization; core's PHPMailer refuses them too.
 			if ( preg_match( '#^[a-z][a-z\d+.-]*://#i', $path ) || ! is_file( $path ) || ! is_readable( $path ) ) {
 				return new WP_Error(
@@ -389,11 +406,10 @@ class Message_Builder {
 				return new WP_Error( 'jetpack_send_attachment_too_large', __( 'The attachments are larger than 20 MB.', 'jetpack-send-pkg' ) );
 			}
 
-			$filename  = is_string( $name ) ? $name : wp_basename( $path );
-			$type      = wp_check_filetype( $filename );
+			$type      = wp_check_filetype( $file['filename'] );
 			$encoded[] = array(
 				'content'  => base64_encode( (string) file_get_contents( $path ) ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- MailChannels requires base64; local file.
-				'filename' => $filename,
+				'filename' => $file['filename'],
 				'type'     => $type['type'] ? $type['type'] : 'application/octet-stream',
 			);
 		}

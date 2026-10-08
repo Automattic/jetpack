@@ -178,6 +178,7 @@ class REST_Controller_Test extends BaseTestCase {
 			'test'      => array( 'POST', '/test', array( 'to' => 'someone@example.com' ) ),
 			'usage'     => array( 'GET', '/usage', array() ),
 			'log'       => array( 'GET', '/log', array() ),
+			'log entry' => array( 'GET', '/log/1', array() ),
 			'reset'     => array( 'POST', '/reset', array() ),
 		);
 	}

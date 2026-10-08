@@ -39,10 +39,11 @@ class Mailer {
 			return null;
 		}
 
-		$atts   = (array) $atts;
-		$result = self::deliver( $atts, $settings, $account );
+		$atts    = (array) $atts;
+		$payload = Message_Builder::build( $atts, $settings, $account );
+		$result  = is_wp_error( $payload ) ? $payload : self::deliver( $payload, $account );
 		if ( ! is_wp_error( $result ) ) {
-			self::log( $atts, Email_Log::STATUS_SENT, $result['request_id'], '', 'wp_mail' );
+			self::log( $atts, $payload, Email_Log::STATUS_SENT, $result['request_id'], '', 'wp_mail' );
 			/** This action is documented in wp-includes/pluggable.php */
 			do_action( 'wp_mail_succeeded', $atts );
 			return true;
@@ -50,30 +51,24 @@ class Mailer {
 
 		// A message MailChannels can't represent always goes to core, whatever the fallback setting.
 		if ( ! empty( $settings['fallback'] ) || 'jetpack_send_unsupported' === $result->get_error_code() ) {
-			self::log( $atts, Email_Log::STATUS_FALLBACK, '', $result->get_error_message(), 'wp_mail' );
+			self::log( $atts, $payload, Email_Log::STATUS_FALLBACK, '', $result->get_error_message(), 'wp_mail' );
 			return null;
 		}
 
-		self::log( $atts, Email_Log::STATUS_FAILED, '', $result->get_error_message(), 'wp_mail' );
+		self::log( $atts, $payload, Email_Log::STATUS_FAILED, '', $result->get_error_message(), 'wp_mail' );
 		/** This action is documented in wp-includes/pluggable.php */
 		do_action( 'wp_mail_failed', new WP_Error( 'wp_mail_failed', $result->get_error_message(), $atts ) );
 		return false;
 	}
 
 	/**
-	 * Build and send one message.
+	 * Send one built message.
 	 *
-	 * @param array $atts     wp_mail() attributes.
-	 * @param array $settings Send settings.
-	 * @param array $account  Provisioned account.
+	 * @param array $payload MailChannels payload.
+	 * @param array $account Provisioned account.
 	 * @return array{request_id: string}|WP_Error
 	 */
-	public static function deliver( array $atts, array $settings, array $account ) {
-		$payload = Message_Builder::build( $atts, $settings, $account );
-		if ( is_wp_error( $payload ) ) {
-			return $payload;
-		}
-
+	private static function deliver( array $payload, array $account ) {
 		$response = ( new MailChannels_Client( $account['api_key'] ) )->send( $payload );
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -112,11 +107,12 @@ class Mailer {
 			'attachments' => array(),
 		);
 
-		$result = self::deliver( $atts, Settings::get(), $account );
+		$payload = Message_Builder::build( $atts, Settings::get(), $account );
+		$result  = is_wp_error( $payload ) ? $payload : self::deliver( $payload, $account );
 		if ( is_wp_error( $result ) ) {
-			self::log( $atts, Email_Log::STATUS_FAILED, '', $result->get_error_message(), 'test' );
+			self::log( $atts, $payload, Email_Log::STATUS_FAILED, '', $result->get_error_message(), 'test' );
 		} else {
-			self::log( $atts, Email_Log::STATUS_SENT, $result['request_id'], '', 'test' );
+			self::log( $atts, $payload, Email_Log::STATUS_SENT, $result['request_id'], '', 'test' );
 		}
 
 		return $result;
@@ -125,14 +121,15 @@ class Mailer {
 	/**
 	 * Write a log row.
 	 *
-	 * @param array  $atts       wp_mail() attributes.
-	 * @param string $status     Email_Log status.
-	 * @param string $request_id MailChannels request ID.
-	 * @param string $error      Error message.
-	 * @param string $source     `wp_mail` or `test`.
+	 * @param array          $atts       wp_mail() attributes.
+	 * @param array|WP_Error $payload    MailChannels payload, or why it wasn't built.
+	 * @param string         $status     Email_Log status.
+	 * @param string         $request_id MailChannels request ID.
+	 * @param string         $error      Error message.
+	 * @param string         $source     `wp_mail` or `test`.
 	 * @return void
 	 */
-	private static function log( array $atts, $status, $request_id, $error, $source ) {
+	private static function log( array $atts, $payload, $status, $request_id, $error, $source ) {
 		$to = $atts['to'] ?? '';
 		Email_Log::insert(
 			array(
@@ -142,7 +139,59 @@ class Mailer {
 				'error'      => $error,
 				'request_id' => $request_id,
 				'source'     => $source,
+				'message'    => self::log_message( $atts, $payload ),
 			)
 		);
+	}
+
+	/**
+	 * The content the log keeps for previewing: the message as sent, or as wp_mail() received it.
+	 *
+	 * @param array          $atts    wp_mail() attributes.
+	 * @param array|WP_Error $payload MailChannels payload, or why it wasn't built.
+	 * @return array|null Null when the content isn't kept.
+	 */
+	public static function log_message( array $atts, $payload ) {
+		/**
+		 * Whether Send keeps an email's content in its log so it can be previewed.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool  $keep Default true.
+		 * @param array $atts wp_mail() attributes.
+		 */
+		if ( ! apply_filters( 'jetpack_send_log_email_content', true, $atts ) ) {
+			return null;
+		}
+
+		if ( is_array( $payload ) ) {
+			$personalization = $payload['personalizations'][0];
+			// The HTML part comes last when there is one.
+			$part    = end( $payload['content'] );
+			$message = array(
+				'from'         => $payload['from'],
+				'reply_to'     => $payload['reply_to'] ?? null,
+				'cc'           => $personalization['cc'] ?? array(),
+				'bcc'          => $personalization['bcc'] ?? array(),
+				'content_type' => $part['type'],
+				'body'         => $part['value'],
+				'attachments'  => array_column( $payload['attachments'] ?? array(), 'filename' ),
+			);
+		} else {
+			$headers = Message_Builder::parse_headers( $atts['headers'] ?? '' );
+			/** This filter is documented in wp-includes/pluggable.php */
+			$content_type = (string) apply_filters( 'wp_mail_content_type', '' !== $headers['content_type'] ? $headers['content_type'] : 'text/plain' );
+			$message      = array(
+				'from'         => '' !== $headers['from']['email'] ? $headers['from'] : null,
+				'reply_to'     => $headers['reply_to'][0] ?? null,
+				'cc'           => $headers['cc'],
+				'bcc'          => $headers['bcc'],
+				'content_type' => 'text/html' === strtolower( $content_type ) ? 'text/html' : 'text/plain',
+				'body'         => (string) ( $atts['message'] ?? '' ),
+				'attachments'  => array_column( Message_Builder::attachment_files( $atts['attachments'] ?? array() ), 'filename' ),
+			);
+		}
+
+		return strlen( $message['body'] ) > Email_Log::MAX_BODY_BYTES ? null : $message;
 	}
 }

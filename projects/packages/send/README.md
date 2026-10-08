@@ -34,6 +34,7 @@ Send delivers mail through the MailChannels API instead of PHPMailer, so some `w
 
 - `jetpack_send_provisioner`: filters the provisioner Send uses to create the sending account.
 - `jetpack_send_log_retention_days`: filters how many days Send keeps email log rows (default 30).
+- `jetpack_send_log_email_content`: return false to keep an email's content out of the log, so it can't be previewed. Receives the `wp_mail()` arguments.
 - `jetpack_send_pre_existing_spf`: short-circuits the DNS lookup of a domain's existing SPF record; return the record, or an empty string for none.
 
 ## Security

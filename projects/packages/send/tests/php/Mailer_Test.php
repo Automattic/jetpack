@@ -239,4 +239,89 @@ class Mailer_Test extends BaseTestCase {
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'MailChannels returned HTTP 401.', $result->get_error_message() );
 	}
+
+	public function test_log_message_keeps_the_message_as_sent() {
+		$attachment = wp_tempnam( 'invoice' );
+		file_put_contents( $attachment, '%PDF' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$atts    = array(
+			'headers'     => array( 'From: Shop <shop@other.org>', 'Content-Type: text/html', 'Cc: boss@example.org' ),
+			'message'     => '<p>Thanks</p>',
+			'attachments' => array( 'invoice.pdf' => $attachment ),
+		) + self::atts();
+		$payload = Message_Builder::build( $atts, Settings::get(), Account::get() );
+		wp_delete_file( $attachment );
+
+		$this->assertSame(
+			array(
+				'from'         => array(
+					'email' => 'wordpress@example.com',
+					'name'  => 'Shop',
+				),
+				'reply_to'     => array(
+					'email' => 'shop@other.org',
+					'name'  => 'Shop',
+				),
+				'cc'           => array( array( 'email' => 'boss@example.org' ) ),
+				'bcc'          => array(),
+				'content_type' => 'text/html',
+				'body'         => '<p>Thanks</p>',
+				'attachments'  => array( 'invoice.pdf' ),
+			),
+			Mailer::log_message( $atts, $payload )
+		);
+	}
+
+	public function test_log_message_reads_wp_mail_arguments_when_no_payload_was_built() {
+		$atts = array(
+			'headers'     => "From: Shop <shop@other.org>\r\nContent-Type: text/html; charset=UTF-8\r\nBcc: audit@example.org",
+			'message'     => '<p>Hi</p>',
+			'attachments' => '/tmp/receipt.pdf',
+		) + self::atts();
+
+		$this->assertSame(
+			array(
+				'from'         => array(
+					'email' => 'shop@other.org',
+					'name'  => 'Shop',
+				),
+				'reply_to'     => null,
+				'cc'           => array(),
+				'bcc'          => array( array( 'email' => 'audit@example.org' ) ),
+				'content_type' => 'text/html',
+				'body'         => '<p>Hi</p>',
+				'attachments'  => array( 'receipt.pdf' ),
+			),
+			Mailer::log_message( $atts, new WP_Error( 'jetpack_send_unsupported', 'Unsupported.' ) )
+		);
+	}
+
+	/**
+	 * Bodies the log keeps no content for.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_unkept_bodies() {
+		return array(
+			'filtered out' => array( 'Body', true ),
+			'too large'    => array( str_repeat( 'a', Email_Log::MAX_BODY_BYTES + 1 ), false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_unkept_bodies
+	 *
+	 * @param string $body     Message body.
+	 * @param bool   $filtered Whether a site filters content out.
+	 */
+	#[DataProvider( 'provide_unkept_bodies' )]
+	public function test_log_message_keeps_no_content( $body, $filtered ) {
+		if ( $filtered ) {
+			add_filter( 'jetpack_send_log_email_content', '__return_false' );
+		}
+
+		$message = Mailer::log_message( array( 'message' => $body ) + self::atts(), new WP_Error( 'jetpack_send_rejected', 'Rejected.' ) );
+		remove_filter( 'jetpack_send_log_email_content', '__return_false' );
+
+		$this->assertNull( $message );
+	}
 }

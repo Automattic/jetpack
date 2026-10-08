@@ -283,3 +283,124 @@ body.toplevel_page_jetpack-send {
 	block-size: 100%;
 	background: var(--jp-green-40, #069e08);
 }
+
+// A bare button so the tooltip trigger shows only the badge.
+.jetpack-send-status-trigger {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+}
+
+// Keeps the badge by the subject; the close icon's auto margin centers it.
+.jetpack-send-email__heading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-inline-size: 0;
+}
+
+.jetpack-send-email__content {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.jetpack-send-email__message {
+	border: 1px solid #f0f0f0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.jetpack-send-email__envelope {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 16px 20px;
+	border-block-end: 1px solid #f0f0f0;
+}
+
+.jetpack-send-email__meta {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 4px;
+	min-inline-size: 0;
+}
+
+.jetpack-send-email__name {
+	font-weight: 600;
+}
+
+.jetpack-send-email__address {
+	margin-inline-start: 4px;
+	color: #757575;
+}
+
+.jetpack-send-email__recipients {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	gap: 2px 8px;
+	margin: 0;
+	font-size: 12px;
+
+	div {
+		display: contents;
+	}
+
+	dt {
+		color: #757575;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.jetpack-send-email__date {
+	flex-shrink: 0;
+	color: #757575;
+	font-size: 12px;
+}
+
+.jetpack-send-email__frame {
+	display: block;
+	inline-size: 100%;
+	block-size: min(60vh, 640px);
+	border: 0;
+	background: #fff;
+}
+
+.jetpack-send-email__text {
+	padding: 24px;
+	font-size: 14px;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-email__empty {
+	margin: 0;
+	padding: 24px;
+	color: #757575;
+}
+
+.jetpack-send-email__attachments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0;
+	padding: 12px 20px 16px;
+	border-block-start: 1px solid #f0f0f0;
+	list-style: none;
+
+	li {
+		margin: 0;
+		padding: 4px 10px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		font-size: 12px;
+	}
+}

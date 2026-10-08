@@ -14,16 +14,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom log table; nothing to cache.
 
 /**
- * Stores one row per email Send handled; never the body.
+ * Stores one row per email Send handled, with its content for previewing unless filtered out.
  */
 class Email_Log {
 
-	const DB_VERSION        = '1';
+	const DB_VERSION        = '2';
 	const DB_VERSION_OPTION = 'jetpack_send_db_version';
 	const PRUNE_HOOK        = 'jetpack_send_prune_log';
 	const STATUS_SENT       = 'sent';
 	const STATUS_FALLBACK   = 'fallback';
 	const STATUS_FAILED     = 'failed';
+
+	/**
+	 * Larger bodies are logged without content, keeping the table small.
+	 *
+	 * @var int
+	 */
+	const MAX_BODY_BYTES = 524288;
 
 	/**
 	 * Wire the hooks.
@@ -87,6 +94,7 @@ class Email_Log {
 				error text NULL,
 				request_id varchar(64) NOT NULL DEFAULT '',
 				source varchar(20) NOT NULL DEFAULT 'wp_mail',
+				message longtext NULL,
 				PRIMARY KEY  (id),
 				KEY created_at (created_at)
 			) {$charset};"
@@ -101,7 +109,7 @@ class Email_Log {
 	/**
 	 * Insert a row; a no-op until the table is installed.
 	 *
-	 * @param array $row status, recipients, subject, error, request_id, source.
+	 * @param array $row status, recipients, subject, error, request_id, source, and message (array|null).
 	 * @return bool
 	 */
 	public static function insert( array $row ) {
@@ -111,7 +119,8 @@ class Email_Log {
 		}
 
 		// Invalid UTF-8 makes wpdb refuse the whole row, losing the log entry.
-		$text = fn( $key, $default = '' ) => (string) wp_check_invalid_utf8( (string) ( $row[ $key ] ?? $default ), true );
+		$text    = fn( $key, $default = '' ) => (string) wp_check_invalid_utf8( (string) ( $row[ $key ] ?? $default ), true );
+		$message = empty( $row['message'] ) ? false : wp_json_encode( $row['message'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 		return (bool) $wpdb->insert(
 			self::table_name(),
@@ -123,13 +132,14 @@ class Email_Log {
 				'error'      => $text( 'error' ),
 				'request_id' => substr( $text( 'request_id' ), 0, 64 ),
 				'source'     => $text( 'source', 'wp_mail' ),
+				'message'    => false === $message ? null : $message,
 			),
-			array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 	}
 
 	/**
-	 * A page of rows, newest first.
+	 * A page of rows without their message, newest first.
 	 *
 	 * @param int    $page     1-based page.
 	 * @param int    $per_page Rows per page.
@@ -148,10 +158,10 @@ class Email_Log {
 		$table  = self::table_name();
 		$offset = max( 0, ( $page - 1 ) * $per_page );
 		if ( '' !== $status ) {
-			$items = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status = %s ORDER BY id DESC LIMIT %d OFFSET %d', $table, $status, $per_page, $offset ), ARRAY_A );
+			$items = $wpdb->get_results( $wpdb->prepare( 'SELECT id, created_at, recipients, subject, status, error, request_id, source FROM %i WHERE status = %s ORDER BY id DESC LIMIT %d OFFSET %d', $table, $status, $per_page, $offset ), ARRAY_A );
 			$total = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE status = %s', $table, $status ) );
 		} else {
-			$items = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY id DESC LIMIT %d OFFSET %d', $table, $per_page, $offset ), ARRAY_A );
+			$items = $wpdb->get_results( $wpdb->prepare( 'SELECT id, created_at, recipients, subject, status, error, request_id, source FROM %i ORDER BY id DESC LIMIT %d OFFSET %d', $table, $per_page, $offset ), ARRAY_A );
 			$total = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 		}
 
@@ -159,6 +169,28 @@ class Email_Log {
 			'items' => is_array( $items ) ? $items : array(),
 			'total' => (int) $total,
 		);
+	}
+
+	/**
+	 * One row with its decoded message, which is null when none was kept.
+	 *
+	 * @param int $id Row ID.
+	 * @return array|null Null when the row doesn't exist.
+	 */
+	public static function get( $id ) {
+		global $wpdb;
+		if ( ! self::is_installed() ) {
+			return null;
+		}
+
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', self::table_name(), $id ), ARRAY_A );
+		if ( ! is_array( $row ) ) {
+			return null;
+		}
+
+		$message        = is_string( $row['message'] ) ? json_decode( $row['message'], true ) : null;
+		$row['message'] = is_array( $message ) ? $message : null;
+		return $row;
 	}
 
 	/**
