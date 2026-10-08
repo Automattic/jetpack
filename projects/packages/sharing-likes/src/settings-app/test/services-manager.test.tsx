@@ -37,6 +37,14 @@ const services: Services = {
  */
 function respond( list: Services = services ) {
 	mockApiFetch.mockImplementation( ( { path, method, data } ) => {
+		if ( path?.endsWith( '/services/custom' ) ) {
+			return Promise.resolve( {
+				id: 'custom-1',
+				custom: true,
+				deprecated: false,
+				...( data as object ),
+			} );
+		}
 		if ( path?.endsWith( '/services' ) ) {
 			return Promise.resolve( method === 'PUT' ? { ...list, ...( data as object ) } : list );
 		}
@@ -186,5 +194,79 @@ describe( 'ServicesManager', () => {
 				{ ignore: 'script, style, .a11y-speak-region' }
 			)
 		).toBeInTheDocument();
+	} );
+	it.each( [
+		[ 'Add sharing buttons', { visible: [ 'facebook', 'x', 'mastodon' ], hidden: [ 'email' ] } ],
+		[ 'Add to the More button', { visible: [ 'facebook', 'x' ], hidden: [ 'email', 'mastodon' ] } ],
+	] )( '"%s" adds a service at the end of its row', async ( label, data ) => {
+		const user = userEvent.setup();
+		await renderManager();
+
+		await user.click( screen.getByRole( 'button', { name: label } ) );
+		await user.click(
+			within( await screen.findByRole( 'dialog' ) ).getByRole( 'button', { name: 'Mastodon' } )
+		);
+
+		await waitFor( () =>
+			expect( apiCalls( 'PUT' ) ).toEqual( [
+				{ path: '/wpcom/v2/sharing-likes/services', method: 'PUT', data },
+			] )
+		);
+	} );
+
+	it( 'offers only services the site does not use, and none that shut down', async () => {
+		respond( {
+			...services,
+			services: [
+				...services.services,
+				{ id: 'pocket', name: 'Pocket', custom: false, deprecated: true },
+			],
+		} );
+		const user = userEvent.setup();
+		await renderManager();
+
+		await user.click( screen.getByRole( 'button', { name: 'Add sharing buttons' } ) );
+		const dialog = await screen.findByRole( 'dialog' );
+
+		expect( within( dialog ).getByRole( 'button', { name: 'Mastodon' } ) ).toBeInTheDocument();
+		expect( within( dialog ).getByRole( 'button', { name: 'Acme' } ) ).toBeInTheDocument();
+		expect(
+			within( dialog ).queryByRole( 'button', { name: 'Facebook' } )
+		).not.toBeInTheDocument();
+		expect( within( dialog ).queryByRole( 'button', { name: 'Pocket' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'creates a custom service once every field is filled in', async () => {
+		const user = userEvent.setup();
+		await renderManager();
+
+		await user.click( screen.getByRole( 'button', { name: 'Add sharing buttons' } ) );
+		await user.click(
+			within( await screen.findByRole( 'dialog' ) ).getByRole( 'button', {
+				name: 'Custom service',
+			} )
+		);
+		await user.type( screen.getByLabelText( 'Service name' ), 'Lobsters' );
+		await user.type( screen.getByLabelText( 'Sharing URL' ), 'https://l.example/?u=%post_url%' );
+		expect( screen.getByRole( 'button', { name: 'Create and add' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		await user.type( screen.getByLabelText( 'Icon URL' ), 'https://l.example/i.png' );
+		await user.click( screen.getByRole( 'button', { name: 'Create and add' } ) );
+
+		await waitFor( () =>
+			expect( apiCalls( 'POST' ) ).toEqual( [
+				{
+					path: '/wpcom/v2/sharing-likes/services/custom',
+					method: 'POST',
+					data: {
+						name: 'Lobsters',
+						url: 'https://l.example/?u=%post_url%',
+						icon: 'https://l.example/i.png',
+					},
+				},
+			] )
+		);
 	} );
 } );

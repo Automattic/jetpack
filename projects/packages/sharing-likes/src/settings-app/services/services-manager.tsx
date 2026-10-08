@@ -5,9 +5,10 @@ import { useServices, useSettings, useStatus } from '../data/queries';
 import { useCustomService } from '../data/use-custom-service';
 import { useSaveServices, type ServiceLists } from '../data/use-save-services';
 import { isPrivateSite } from '../script-data';
+import { AddServicesDialog } from './add-services-dialog';
 import { ConfirmRemovalDialog } from './confirm-removal-dialog';
 import { ServiceRow } from './service-row';
-import type { Service, ServiceRow as Row, Services, Status } from '../types';
+import type { CustomServiceFields, Service, ServiceRow as Row, Services, Status } from '../types';
 import type { JSX } from 'react';
 
 interface Confirmation {
@@ -56,7 +57,7 @@ export function ServicesManager(): JSX.Element {
 	const saveLists = useSaveServices();
 	const custom = useCustomService();
 	const [ selectedId, setSelectedId ] = useState< string | null >( null );
-	const [ , setAdding ] = useState< Row | null >( null );
+	const [ adding, setAdding ] = useState< Row | null >( null );
 	const [ , setEditing ] = useState< Service | null >( null );
 	const [ confirming, setConfirming ] = useState< Confirmation | null >( null );
 	const data = query.data;
@@ -99,6 +100,25 @@ export function ServicesManager(): JSX.Element {
 		[ data ]
 	);
 
+	const closeAdd = useCallback( () => setAdding( null ), [] );
+	const onAdd = useCallback(
+		( id: string ) => {
+			if ( ! data || ! adding ) {
+				return;
+			}
+			saveLists( {
+				visible: data.visible,
+				hidden: data.hidden,
+				[ adding ]: [ ...data[ adding ], id ],
+			} );
+		},
+		[ adding, data, saveLists ]
+	);
+	const onCreate = useCallback(
+		( fields: CustomServiceFields ) => custom.create( fields, adding ?? 'visible' ),
+		[ adding, custom ]
+	);
+
 	const closeConfirmation = useCallback( () => setConfirming( null ), [] );
 	const confirm = useCallback( async () => {
 		if ( ! confirming ) {
@@ -128,6 +148,14 @@ export function ServicesManager(): JSX.Element {
 	const byId = new Map( services.map( service => [ service.id, service ] ) );
 	// Sharing_Service labels the button "More" beside visible services, "Share" when it stands alone.
 	const hasVisible = visible.length > 0;
+	const addVisibleLabel = __( 'Add sharing buttons', 'jetpack-sharing-likes' );
+	const addHiddenLabel = hasVisible
+		? __( 'Add to the More button', 'jetpack-sharing-likes' )
+		: __( 'Add to the Share button', 'jetpack-sharing-likes' );
+	const available = services.filter(
+		service =>
+			! service.deprecated && ! visible.includes( service.id ) && ! hidden.includes( service.id )
+	);
 	const shutDown = services.filter(
 		service =>
 			service.deprecated && ( visible.includes( service.id ) || hidden.includes( service.id ) )
@@ -159,7 +187,7 @@ export function ServicesManager(): JSX.Element {
 			<ServiceRow
 				row="visible"
 				title={ __( 'Shown as buttons', 'jetpack-sharing-likes' ) }
-				addLabel={ __( 'Add sharing buttons', 'jetpack-sharing-likes' ) }
+				addLabel={ addVisibleLabel }
 				ids={ visible }
 				{ ...rowProps }
 			/>
@@ -170,11 +198,7 @@ export function ServicesManager(): JSX.Element {
 						? __( 'Behind the More button', 'jetpack-sharing-likes' )
 						: __( 'Behind the Share button', 'jetpack-sharing-likes' )
 				}
-				addLabel={
-					hasVisible
-						? __( 'Add to the More button', 'jetpack-sharing-likes' )
-						: __( 'Add to the Share button', 'jetpack-sharing-likes' )
-				}
+				addLabel={ addHiddenLabel }
 				ids={ hidden }
 				{ ...rowProps }
 			/>
@@ -190,6 +214,16 @@ export function ServicesManager(): JSX.Element {
 					) }
 				</Text>
 			) ) }
+			{ adding && (
+				<AddServicesDialog
+					row={ adding }
+					title={ adding === 'visible' ? addVisibleLabel : addHiddenLabel }
+					available={ available }
+					onAdd={ onAdd }
+					onCreate={ onCreate }
+					onClose={ closeAdd }
+				/>
+			) }
 			{ confirming && (
 				<ConfirmRemovalDialog
 					kind={ confirming.kind }
