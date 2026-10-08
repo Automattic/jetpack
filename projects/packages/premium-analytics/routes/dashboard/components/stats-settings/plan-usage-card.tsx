@@ -68,6 +68,7 @@ function UsageMeter( {
 					</Text>
 				) }
 			</Stack>
+			{ /* Until the @wordpress/ui update (Automattic/jetpack#53004) ships `Meter`, which fits usage against a limit; switch to it then. */ }
 			<ProgressBar
 				className={ styles.usageBar }
 				value={ Math.min( 100, ( usage / limit ) * 100 ) }
