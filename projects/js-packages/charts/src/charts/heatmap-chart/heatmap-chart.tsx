@@ -136,16 +136,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		useTooltip< HeatmapTooltipData >();
 	const standaloneScopeClass = useStandaloneScopeClass();
 	const containerRef = useRef< HTMLDivElement >( null );
+	const chartRef = useRef< HTMLDivElement >( null );
 	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
-	// The chart root positions the tooltip, so pointer and cell coordinates are
-	// measured against it — found by its id rather than by walking up, so
-	// whatever ChartLayout wraps the grid in cannot shift the origin.
 	const getTooltipOrigin = useCallback(
-		() =>
-			containerRef.current
-				?.closest( `[data-chart-id="heatmap-chart-${ chartId }"]` )
-				?.getBoundingClientRect() ?? null,
-		[ chartId ]
+		() => chartRef.current?.getBoundingClientRect() ?? null,
+		[]
 	);
 
 	const { color: primaryColorHex } = getElementStyles( {
@@ -218,7 +213,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const hasColumnLabels = data.some( column => Boolean( column.label ) );
 	const hasGroups = groupLayout.groups.length > 0;
 
-	const chartRef = useRef< HTMLDivElement >( null );
 	const [ fit, setFit ] = useState< CompactCellFit | null >( null );
 	// A summary track is as wide as its figure, which the fit cannot size as a cell.
 	const hasSummary = data.some( column => column.summary );

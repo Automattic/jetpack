@@ -41,8 +41,6 @@ export type MonthCalendarHeatmapProps = {
 
 /**
  * One mini calendar per month on a shared scale, named beneath, weeks starting on Monday.
- * The days grow with the tile, wrapping the months onto more rows when that makes them
- * larger; otherwise one row of months scrolls, and a one-row tile drops the legend.
  */
 export function MonthCalendarHeatmap( {
 	valueByDay,

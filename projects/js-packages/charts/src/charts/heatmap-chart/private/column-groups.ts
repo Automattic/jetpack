@@ -102,9 +102,11 @@ export const wrapColumnGroups = (
 	}
 
 	const perBand = Math.ceil( groups.length / bands );
-	const slotSpans = Array.from( { length: perBand }, ( _, slot ) =>
-		Math.max( ...groups.filter( ( _group, index ) => index % perBand === slot ).map( g => g.span ) )
-	);
+	const slotSpans: number[] = Array( perBand ).fill( 0 );
+	groups.forEach( ( group, index ) => {
+		const slot = index % perBand;
+		slotSpans[ slot ] = Math.max( slotSpans[ slot ], group.span );
+	} );
 	const slotLines: number[] = [];
 	let line = columns[ 0 ].line;
 	slotSpans.forEach( ( span, slot ) => {

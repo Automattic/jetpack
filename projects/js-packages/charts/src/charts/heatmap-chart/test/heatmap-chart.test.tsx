@@ -953,17 +953,17 @@ describe( 'HeatmapChart fitCells', () => {
 		{ label: 'Mar', span: 2 },
 	];
 
-	const boxSpies: jest.SpyInstance[] = [];
+	let widthSpy: jest.SpyInstance;
+	let heightSpy: jest.SpyInstance;
 
 	beforeEach( () => {
-		boxSpies.push(
-			jest.spyOn( Element.prototype, 'clientWidth', 'get' ).mockReturnValue( 400 ),
-			jest.spyOn( Element.prototype, 'clientHeight', 'get' ).mockReturnValue( 400 )
-		);
+		widthSpy = jest.spyOn( Element.prototype, 'clientWidth', 'get' ).mockReturnValue( 400 );
+		heightSpy = jest.spyOn( Element.prototype, 'clientHeight', 'get' ).mockReturnValue( 400 );
 	} );
 
 	afterEach( () => {
-		boxSpies.splice( 0 ).forEach( spy => spy.mockRestore() );
+		widthSpy.mockRestore();
+		heightSpy.mockRestore();
 	} );
 
 	test( 'wraps the groups that fit better on a second band below the first, cells grown to match', () => {
@@ -1036,7 +1036,7 @@ describe( 'HeatmapChart fitCells', () => {
 		try {
 			renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
 			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-			boxSpies[ 1 ].mockReturnValue( 100 );
+			heightSpy.mockReturnValue( 100 );
 			let cellSize = '';
 			act( () => {
 				observers.forEach( callback => callback( [], {} as ResizeObserver ) );
