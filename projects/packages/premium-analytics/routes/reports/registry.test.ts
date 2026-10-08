@@ -123,11 +123,12 @@ describe( 'REPORTS', () => {
 				'locations',
 				'posts',
 				'search-terms',
+				'tags',
 				'videos',
 				'utm',
 				'referrers',
 			],
-			insights: [ 'annual-insights', 'comments', 'tags' ],
+			insights: [ 'annual-insights', 'comments' ],
 			subscribers: [ 'comment-followers', 'emails' ],
 			ads: [ 'earnings' ],
 		} );

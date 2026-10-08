@@ -10,7 +10,7 @@ import type { ReportCsvExporter } from './types';
 
 /**
  * `stats/tags` has no "all rows" value (see `StatsTagsParams`), so the report names a ceiling
- * past what a real site produces (the endpoint ranks at most ~50 posts a day).
+ * past what a real site produces.
  */
 export const TAGS_REPORT_ROW_LIMIT = 1000;
 

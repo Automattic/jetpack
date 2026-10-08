@@ -30,10 +30,6 @@ const sections: DashboardSection[] = [
 ];
 
 /**
- *
- * @param key
- */
-/**
  * Read a dashboard preference.
  *
  * @param key - The preference key.
