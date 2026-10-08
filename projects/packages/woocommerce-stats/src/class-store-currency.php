@@ -45,7 +45,7 @@ class Store_Currency {
 		// Decoded the way WooCommerce's own `wc_currency_settings` does, since symbols are stored as entities.
 		$data['premium_analytics']['store_currency'] = array(
 			'code'   => $code,
-			'symbol' => html_entity_decode( get_woocommerce_currency_symbol( $code ), ENT_QUOTES ),
+			'symbol' => html_entity_decode( get_woocommerce_currency_symbol( $code ), ENT_QUOTES, 'UTF-8' ),
 		);
 
 		return $data;
