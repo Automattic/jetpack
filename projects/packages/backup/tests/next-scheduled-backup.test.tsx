@@ -895,7 +895,7 @@ describe( 'on the Overview', () => {
 
 		// The running backup is reported…
 		await expect(
-			screen.findByText( 'Your backup will be ready soon' )
+			screen.findByText( 'Generating backup… (42% progress)' )
 		).resolves.toBeInTheDocument();
 		// …and so is the next one.
 		await expect( screen.findByText( /^Next full backup/ ) ).resolves.toHaveTextContent(
@@ -916,7 +916,9 @@ describe( 'on the Overview', () => {
 		// Synchronized on the failure being reported *and* the schedule being
 		// available, neither of which the mutation under test removes.
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status." )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region',
+			} )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -953,9 +955,7 @@ describe( 'on the Overview', () => {
 
 		renderStageWithProbe();
 
-		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 	} );

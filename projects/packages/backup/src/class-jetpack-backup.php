@@ -39,6 +39,7 @@ use function do_action;
 use function esc_url_raw;
 use function get_option;
 use function is_wp_error;
+use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
 use function wp_add_inline_script;
@@ -1194,6 +1195,23 @@ class Jetpack_Backup {
 		echo '<script id="jetpack-backup-connection-initial-state">'
 			. Connection_Initial_State::render() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render() returns pre-escaped JSON.
 			. '</script>';
+
+		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
+			. wp_json_encode( array( 'activityLogUrl' => self::get_activity_log_url() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. ';</script>';
+	}
+
+	/**
+	 * The Activity Log admin page URL, or null when that page is not registered.
+	 *
+	 * Asks the admin menu rather than building the URL, so a site where the
+	 * Activity Log module is off or unavailable gets no link.
+	 *
+	 * @return string|null
+	 */
+	public static function get_activity_log_url() {
+		$url = menu_page_url( 'jetpack-activity-log', false );
+		return $url ? $url : null;
 	}
 
 	/**

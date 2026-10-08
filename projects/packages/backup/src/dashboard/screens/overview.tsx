@@ -1,8 +1,7 @@
-import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
@@ -26,6 +25,7 @@ import {
 } from '../hooks/use-activity-log';
 import { useAnalytics } from '../hooks/use-analytics';
 import { useBackups } from '../hooks/use-backups';
+import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
 import type { ActivitySortOrder } from '../data/api/activity-log';
@@ -209,11 +209,12 @@ function OverviewBody() {
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
+	const isBackupRequested = useBackupRequested();
 	// Owned here, and only here. `BackupNowButton` reads the same query
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	useRefreshActivityOnBackupComplete( backupsState );
+	const finishedRuns = useRefreshActivityOnBackupComplete( backupsState, isBackupRequested );
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -271,7 +272,13 @@ function OverviewBody() {
 			restorePointsLoading || restorePointsError || restorePointsPaused || hasRestorePoints
 		)
 	) {
-		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
+		return (
+			<BackupStatusPanel
+				state={ backupsState }
+				progress={ progress }
+				isStarting={ isBackupRequested && backupsState !== 'in-progress' }
+			/>
+		);
 	}
 
 	return (
@@ -283,7 +290,9 @@ function OverviewBody() {
 			 * that element is a two-column grid above 960px, and a third
 			 * child would be auto-placed into it.
 			 */ }
-			{ backupsState === 'in-progress' && <BackupStatusBanner progress={ progress } /> }
+			{ ( backupsState === 'in-progress' || isBackupRequested ) && (
+				<BackupStatusBanner progress={ backupsState === 'in-progress' ? progress : undefined } />
+			) }
 			{ /*
 			 * The backup-state read failed. Reported here rather than as a
 			 * takeover for the same reason as the banner: whatever the
@@ -374,6 +383,7 @@ function OverviewBody() {
 					onSelect={ setSelected }
 					view={ view }
 					onChangeView={ rememberView }
+					finishedRuns={ finishedRuns }
 				/>
 				<RightPane
 					selectedId={ selectedId }
@@ -418,8 +428,30 @@ function RightPane( {
 	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
+	const { item, hasAnswered, error, isFetching } = useActivityById(
+		selectedId,
+		page,
+		pageSize,
+		sortOrder
+	);
+	// Paused (offline) or disabled queries never answer, and the list cannot load either.
+	if ( ! selectedId && ! error && ! hasAnswered && ! isFetching ) {
+		return null;
+	}
+	if ( ! item && ! error && ! hasAnswered ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</div>
+		);
+	}
 	if ( ! selectedId ) {
+		// The list beside this pane already reports a failed log.
+		if ( error ) {
+			return null;
+		}
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Text>{ __( 'Select an item from the list to see details.', 'jetpack-backup-pkg' ) }</Text>
@@ -435,15 +467,6 @@ function RightPane( {
 				 * each is two error notices and two buttons for one thing to fix.
 				 */ }
 				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
-			</div>
-		);
-	}
-	if ( ! item && ! hasAnswered ) {
-		return (
-			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
-				<Spinner />
-				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
 			</div>
 		);
 	}

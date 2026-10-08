@@ -4,6 +4,7 @@ import { fetchBackups, type RawBackupEntry } from '../data/api/backups';
 import { normalizeBackups } from '../data/normalize/backups';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useBackupRequested } from './use-enqueue-backup';
 import { useStickyError } from './use-sticky-error';
 import type { Backup, BackupsState } from '../types/backup';
 
@@ -168,15 +169,6 @@ function pollInterval(
 	return state === 'no-backups' || state === 'in-progress' ? BACKUPS_POLL_INTERVAL_MS : false;
 }
 
-type Args = {
-	/**
-	 * Keep polling regardless of the derived state. Used between
-	 * enqueuing a backup and WPCOM publishing a record for it, a window
-	 * in which nothing in the response says "something is coming".
-	 */
-	forcePoll?: boolean;
-};
-
 type Result = BackupsSummary & {
 	backups: Backup[];
 	/**
@@ -207,17 +199,17 @@ type Result = BackupsSummary & {
  * Every consumer mounts only behind a `ready` gate verdict, so this never fetches — or
  * polls — for a site that cannot use the answer; `useCanQueryWpcom` is the backstop.
  *
- * @param args           - Hook args.
- * @param args.forcePoll - Poll regardless of derived state.
  * @return The derived state plus the normalized list.
  */
-export function useBackups( { forcePoll = false }: Args = {} ): Result {
+export function useBackups(): Result {
 	const enabled = useCanQueryWpcom();
+	// Polls while a requested backup is not yet reported, wherever this hook is mounted.
+	const isRequested = useBackupRequested();
 	const query = useQuery( {
 		queryKey: keys.backups(),
 		queryFn: fetchBackups,
 		enabled,
-		refetchInterval: ( { state } ) => pollInterval( state.data, forcePoll ),
+		refetchInterval: ( { state } ) => pollInterval( state.data, isRequested ),
 	} );
 
 	const { data, refetch } = query;
