@@ -131,8 +131,6 @@ describe( 'addComp', () => {
 	} );
 
 	it( 'POSTs an email and no user id for an email-only subscriber', async () => {
-		// A `user_id` of 0 would read upstream as "comp user 0" rather than "no user id given",
-		// which is how email-only readers stopped being comp-able (NL-1033).
 		await addComp( { email: 'reader@example.com', plan_id: 51 } );
 
 		expect( requestedOptions().data ).toEqual( { email: 'reader@example.com', plan_id: 51 } );

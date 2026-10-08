@@ -37,9 +37,6 @@ describe( 'canCompSubscriber', () => {
 	it.each< SubscriptionStatus >( [ 'Not confirmed', 'Unconfirmed', 'Not subscribed' ] )(
 		'hides the action for an email-only subscriber whose status is %s',
 		status => {
-			// WP.com can only resolve an email to an account when the reader has an active email
-			// subscription; these statuses mean they don't, so the comp would fail with
-			// subscriber_not_confirmed.
 			expect(
 				canCompSubscriber(
 					makeSubscriber( { email_address: 'pending@example.com', subscription_status: status } )
@@ -48,17 +45,22 @@ describe( 'canCompSubscriber', () => {
 		}
 	);
 
-	it( 'allows a blocked email-only subscriber, whose subscription may still be active', () => {
-		expect(
-			canCompSubscriber(
-				makeSubscriber( {
-					email_address: 'bounced@example.com',
-					subscription_status: 'Not sending',
-					subscription_status_reason: 'bounced',
-				} )
-			)
-		).toBe( true );
-	} );
+	// `Not sending` is what the list sends today and `Blocked` the legacy spelling of the same
+	// state, so both must stay allowed — the subscription row underneath may still be active.
+	it.each< SubscriptionStatus >( [ 'Not sending', 'Blocked' ] )(
+		'allows an email-only subscriber whose status is %s',
+		status => {
+			expect(
+				canCompSubscriber(
+					makeSubscriber( {
+						email_address: 'bounced@example.com',
+						subscription_status: status,
+						subscription_status_reason: 'bounced',
+					} )
+				)
+			).toBe( true );
+		}
+	);
 
 	it( 'hides the action when there is neither a user id nor an email address', () => {
 		expect( canCompSubscriber( makeSubscriber( {} ) ) ).toBe( false );

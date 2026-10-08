@@ -57,7 +57,6 @@ describe( 'useCompMutation', () => {
 	} );
 
 	it( 'sends the email instead of a zero user id for an email-only subscriber', async () => {
-		// `user_id: 0` would read upstream as "comp user 0" rather than "no user id given".
 		const { result } = renderMutation();
 
 		await act( async () => {

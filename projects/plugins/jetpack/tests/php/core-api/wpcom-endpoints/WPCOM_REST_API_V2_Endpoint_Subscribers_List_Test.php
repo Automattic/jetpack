@@ -556,8 +556,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 
 	/**
 	 * Comping an email-only subscriber puts the percent-encoded address in the identifier segment
-	 * of the upstream comps path. Building that segment with `%d` is what flattened an email to
-	 * user 0 and made these subscribers un-comp-able (NL-1033).
+	 * of the upstream comps path.
 	 */
 	public function test_comp_forwards_encoded_email_as_upstream_identifier() {
 		$captured = '';
