@@ -72,7 +72,7 @@ export function useConnectionState( {
 		const status = ( select as unknown as StoreSelector )(
 			CONNECTION_STORE_ID
 		).getConnectionStatus();
-		// The store answers {} until the page's connection state lands in it.
+		// getConnectionStatus() returns {} until the page's connection state is loaded into the store.
 		return {
 			isKnown: typeof status.isRegistered === 'boolean',
 			// `isStaging` is Status::in_safe_mode(), true while an identity crisis is unresolved.
