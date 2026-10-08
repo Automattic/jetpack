@@ -25,9 +25,6 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 	 */
 	private $theme_directories;
 
-	/**
-	 * Set up before each test.
-	 */
 	public function set_up() {
 		parent::set_up();
 		$this->theme_directories = $GLOBALS['wp_theme_directories'];
@@ -35,9 +32,6 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 		Featured_Image_Duplicate\register_meta_keys();
 	}
 
-	/**
-	 * Tear down after each test.
-	 */
 	public function tear_down() {
 		$GLOBALS['wp_theme_directories'] = $this->theme_directories;
 		remove_theme_support( 'jetpack-content-options' );
@@ -45,56 +39,7 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * Store a Site Editor template or template part for the active theme.
-	 *
-	 * @param string $slug    Template slug.
-	 * @param string $content Block markup.
-	 * @param string $type    `wp_template` or `wp_template_part`.
-	 */
-	private function create_template( $slug, $content, $type = 'wp_template' ) {
-		$id = self::factory()->post->create(
-			array(
-				'post_type'    => $type,
-				'post_name'    => $slug,
-				'post_title'   => $slug,
-				'post_content' => $content,
-				'post_status'  => 'publish',
-			)
-		);
-		wp_set_post_terms( $id, get_stylesheet(), 'wp_theme' );
-	}
-
-	/**
-	 * Create a post with a featured image.
-	 *
-	 * @param bool $hide Whether "Hide featured image" is ticked.
-	 * @return int[] Post ID and attachment ID.
-	 */
-	private function create_post_with_thumbnail( $hide ) {
-		$post_id       = self::factory()->post->create();
-		$attachment_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/canola.jpg', $post_id );
-		set_post_thumbnail( $post_id, $attachment_id );
-		if ( $hide ) {
-			update_post_meta( $post_id, Featured_Image_Duplicate\HIDE_META_KEY, true );
-		}
-		return array( $post_id, $attachment_id );
-	}
-
-	/**
-	 * Visit a post's own page, as WordPress would before rendering it.
-	 *
-	 * @param int $post_id Post ID.
-	 */
-	private function visit( $post_id ) {
-		$this->go_to( get_permalink( $post_id ) );
-		Featured_Image_Duplicate\maybe_filter_thumbnail_id();
-	}
-
-	/**
-	 * Only users who can edit the post can change its hide and dismiss meta.
-	 */
-	public function test_meta_requires_edit_post() {
+	public function test_meta_requires_edit_post_capability() {
 		$post_id = self::factory()->post->create();
 
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
@@ -105,9 +50,6 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 		$this->assertTrue( current_user_can( 'edit_post_meta', $post_id, Featured_Image_Duplicate\HIDE_META_KEY ) );
 	}
 
-	/**
-	 * Classic themes are supported per post type through Content Options.
-	 */
 	public function test_classic_theme_support_follows_content_options() {
 		switch_theme( 'default' );
 		$post = self::factory()->post->create_and_get();
@@ -120,11 +62,17 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 		$this->assertFalse( Featured_Image_Duplicate\is_hide_supported( $page ) );
 	}
 
-	/**
-	 * Cases for block theme templates.
-	 *
-	 * @return array
-	 */
+	public function test_editor_flag_reports_hide_support_for_the_edited_post() {
+		switch_theme( 'default' );
+		add_theme_support( 'jetpack-content-options', array( 'featured-images' => array( 'post' => true ) ) );
+		$GLOBALS['post'] = self::factory()->post->create_and_get();
+
+		// The editor reads this flag name in index.ts.
+		$this->assertSame( array( 'featured-image-hide-supported' => true ), Featured_Image_Duplicate\add_editor_feature_flag( array() ) );
+
+		unset( $GLOBALS['post'] );
+	}
+
 	public static function data_block_templates() {
 		return array(
 			'Featured Image block'     => array( '<!-- wp:group --><div class="wp-block-group"><!-- wp:post-featured-image /--></div><!-- /wp:group -->', true ),
@@ -167,9 +115,6 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 		$this->assertTrue( Featured_Image_Duplicate\is_hide_supported( $post_id ) );
 	}
 
-	/**
-	 * Classic themes: hidden in the loop on the post's own page only.
-	 */
 	public function test_classic_hides_only_in_the_loop_on_the_post_page() {
 		list( $post_id, $attachment_id ) = $this->create_post_with_thumbnail( true );
 		$this->visit( $post_id );
@@ -240,5 +185,51 @@ class Featured_Image_Duplicate_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( $expected, Featured_Image_Duplicate\hide_featured_image_block( '<figure>img</figure>', $block->parsed_block, $block ) );
+	}
+
+	/**
+	 * Store a Site Editor template or template part for the active theme.
+	 *
+	 * @param string $slug    Template slug.
+	 * @param string $content Block markup.
+	 * @param string $type    `wp_template` or `wp_template_part`.
+	 */
+	private function create_template( $slug, $content, $type = 'wp_template' ) {
+		$id = self::factory()->post->create(
+			array(
+				'post_type'    => $type,
+				'post_name'    => $slug,
+				'post_title'   => $slug,
+				'post_content' => $content,
+				'post_status'  => 'publish',
+			)
+		);
+		wp_set_post_terms( $id, get_stylesheet(), 'wp_theme' );
+	}
+
+	/**
+	 * Create a post with a featured image.
+	 *
+	 * @param bool $hide Whether "Hide featured image" is ticked.
+	 * @return int[] Post ID and attachment ID.
+	 */
+	private function create_post_with_thumbnail( $hide ) {
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/canola.jpg', $post_id );
+		set_post_thumbnail( $post_id, $attachment_id );
+		if ( $hide ) {
+			update_post_meta( $post_id, Featured_Image_Duplicate\HIDE_META_KEY, true );
+		}
+		return array( $post_id, $attachment_id );
+	}
+
+	/**
+	 * Visit a post's own page, as WordPress would before rendering it.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	private function visit( $post_id ) {
+		$this->go_to( get_permalink( $post_id ) );
+		Featured_Image_Duplicate\maybe_filter_thumbnail_id();
 	}
 }

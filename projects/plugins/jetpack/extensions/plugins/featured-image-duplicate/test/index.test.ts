@@ -15,7 +15,8 @@ let mockPost: {
 const mockEditPost = jest.fn();
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
-	hasFeatureFlag: () => mockPost.flag,
+	// Must match the flag PHP sets in add_editor_feature_flag().
+	hasFeatureFlag: name => name === 'featured-image-hide-supported' && mockPost.flag,
 } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 jest.mock( '@wordpress/core-data', () => ( { store: 'core' } ) );
@@ -58,7 +59,7 @@ const render = ( post: Partial< typeof mockPost > = {} ) => {
 		meta: {},
 		blocks: [ image( { id: FEATURED_ID } ) ],
 		mediaResolved: true,
-		flag: true,
+		flag: true, // Assume the theme supports hiding the featured image by default.
 		...post,
 	};
 	return renderHook( () => useFeaturedImageDuplicate() ).result.current;
@@ -69,7 +70,11 @@ describe( 'useFeaturedImageDuplicate', () => {
 
 	it.each( [
 		[ 'same attachment ID', [ image( { id: FEATURED_ID } ) ], true ],
-		[ 'resized copy without an ID', [ image( { url: `${ UPLOADS }/onion-300x200.jpg` } ) ], true ],
+		[
+			'resized copy url without an ID',
+			[ image( { url: `${ UPLOADS }/onion-300x200.jpg` } ) ],
+			true,
+		],
 		[
 			'Photon URL without an ID',
 			[
@@ -80,9 +85,14 @@ describe( 'useFeaturedImageDuplicate', () => {
 			true,
 		],
 		[
+			'image nested in a group',
+			[ { name: 'core/group', attributes: {}, innerBlocks: [ image( { id: FEATURED_ID } ) ] } ],
+			true,
+		],
+		[
 			'image nested in a gallery',
 			[ { name: 'core/gallery', attributes: {}, innerBlocks: [ image( { id: FEATURED_ID } ) ] } ],
-			true,
+			false,
 		],
 		[
 			'different attachment with the same file name',

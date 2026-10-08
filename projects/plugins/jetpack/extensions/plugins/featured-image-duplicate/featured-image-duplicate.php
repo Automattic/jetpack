@@ -80,13 +80,43 @@ function register_meta_keys() {
 add_action( 'init', __NAMESPACE__ . '\register_meta_keys' );
 
 /**
+ * Whether hiding the featured image on this post's own page is known to work on the active theme.
+ *
+ * @param WP_Post|int $post Post or post ID.
+ * @return bool
+ */
+function is_hide_supported( $post ) {
+	$post = get_post( $post );
+	if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, POST_TYPES, true ) ) {
+		return false;
+	}
+
+	if ( ! wp_is_block_theme() ) {
+		return classic_theme_supports_hiding( $post->post_type );
+	}
+
+	// Block themes: check the template hierarchy to see if the Featured Image block is present in the template WordPress renders for this post.
+	$hierarchy = get_template_hierarchy_for_post( $post );
+	$contents  = wp_list_pluck( get_block_templates( array( 'slug__in' => $hierarchy ), 'wp_template' ), 'content', 'slug' ); // Slug => content.
+
+	// Several templates may match; walk the hierarchy in priority order to find the one WordPress renders.
+	foreach ( $hierarchy as $slug ) {
+		if ( isset( $contents[ $slug ] ) ) {
+			return blocks_contain_featured_image( parse_blocks( $contents[ $slug ] ) );
+		}
+	}
+
+	return false;
+}
+
+/**
  * Whether the classic theme declares Content Options featured image support for this post type.
  *
  * @param string $post_type Post type.
  * @return bool
  */
 function classic_theme_supports_hiding( $post_type ) {
-	$options = get_theme_support( 'jetpack-content-options' );
+	$options = get_theme_support( 'jetpack-content-options' ); // Declared by the theme or Jetpack's compat file; no site owner action needed.
 	return ! empty( $options[0]['featured-images'][ $post_type ] );
 }
 
@@ -96,7 +126,7 @@ function classic_theme_supports_hiding( $post_type ) {
  * @param WP_Post $post Post.
  * @return string[]
  */
-function get_template_hierarchy_for_post( WP_Post $post ) {
+function get_template_hierarchy_for_post( WP_Post $post ): array {
 	if ( 'page' === $post->post_type ) {
 		$hierarchy = array( "page-{$post->post_name}", "page-{$post->ID}", 'page', 'singular', 'index' );
 	} else {
@@ -120,8 +150,8 @@ function get_template_hierarchy_for_post( WP_Post $post ) {
  * @param int   $depth  Recursion depth.
  * @return bool
  */
-function blocks_contain_featured_image( array $blocks, $depth = 0 ) {
-	if ( $depth > 10 ) {
+function blocks_contain_featured_image( array $blocks, $depth = 0 ): bool {
+	if ( $depth > 5 ) {
 		return false;
 	}
 
@@ -151,82 +181,16 @@ function blocks_contain_featured_image( array $blocks, $depth = 0 ) {
 }
 
 /**
- * Whether hiding the featured image on this post's own page is known to work on the active theme.
- *
- * @param WP_Post|int $post Post or post ID.
- * @return bool
- */
-function is_hide_supported( $post ) {
-	$post = get_post( $post );
-	if ( ! $post instanceof WP_Post || ! in_array( $post->post_type, POST_TYPES, true ) ) {
-		return false;
-	}
-
-	if ( ! wp_is_block_theme() ) {
-		return classic_theme_supports_hiding( $post->post_type );
-	}
-
-	// Block themes: check the template hierarchy for a Featured Image block.
-	$hierarchy = get_template_hierarchy_for_post( $post );
-	$contents  = wp_list_pluck( get_block_templates( array( 'slug__in' => $hierarchy ), 'wp_template' ), 'content', 'slug' );
-
-	// Only the first match in the hierarchy is the template WordPress renders.
-	foreach ( $hierarchy as $slug ) {
-		if ( isset( $contents[ $slug ] ) ) {
-			return blocks_contain_featured_image( parse_blocks( $contents[ $slug ] ) );
-		}
-	}
-
-	return false;
-}
-
-/**
  * Tell the editor whether hiding works for the post being edited.
  *
  * @param array $flags Editor feature flags.
  * @return array
  */
-function add_editor_feature_flag( $flags ) {
-	$flags['featured-image-hide'] = is_hide_supported( get_post() );
+function add_editor_feature_flag( $flags ): array {
+	$flags['featured-image-hide-supported'] = is_hide_supported( get_post() );
 	return $flags;
 }
 add_filter( 'jetpack_block_editor_feature_flags', __NAMESPACE__ . '\add_editor_feature_flag' );
-
-/**
- * Whether we're on this post's own page and the writer chose to hide its featured image there.
- *
- * @param int $post_id Post ID.
- * @return bool
- */
-function should_hide_for_post( $post_id ) {
-	return ! is_admin()
-		&& is_singular( POST_TYPES )
-		&& get_queried_object_id() === $post_id
-		&& (bool) get_post_meta( $post_id, HIDE_META_KEY, true );
-}
-
-/**
- * Classic themes: no featured image inside the loop on the post's own page.
- *
- * Outside the loop (Open Graph, schema) and inside blocks (Latest Posts) it's still returned.
- *
- * @param mixed  $value     Short-circuit value.
- * @param int    $object_id Post ID.
- * @param string $meta_key  Meta key.
- * @return mixed
- */
-function filter_thumbnail_id( $value, $object_id, $meta_key ) {
-	if (
-		'_thumbnail_id' !== $meta_key
-		|| get_queried_object_id() !== (int) $object_id
-		|| ! in_the_loop()
-		|| null !== WP_Block_Supports::$block_to_render
-	) {
-		return $value;
-	}
-
-	return false;
-}
 
 /**
  * Only filter thumbnail reads on pages that hide the featured image.
@@ -239,7 +203,42 @@ function maybe_filter_thumbnail_id() {
 		add_filter( 'get_post_metadata', __NAMESPACE__ . '\filter_thumbnail_id', PHP_INT_MAX, 3 );
 	}
 }
-add_action( 'template_redirect', __NAMESPACE__ . '\maybe_filter_thumbnail_id' );
+add_action( 'template_redirect', __NAMESPACE__ . '\maybe_filter_thumbnail_id' ); // Fires on every front-end page load. Effect classic themes only.
+
+/**
+ * Whether we're on this post's own page and the writer chose to hide its featured image there.
+ *
+ * @param int $post_id Post ID.
+ * @return bool
+ */
+function should_hide_for_post( $post_id ): bool {
+	return is_singular( POST_TYPES )
+		&& get_queried_object_id() === $post_id
+		&& (bool) get_post_meta( $post_id, HIDE_META_KEY, true );
+}
+
+/**
+ * Filter the post thumbnail ID to hide the featured image on post's own page.
+ *
+ * Outside the loop (Open Graph, schema) and inside blocks (Latest Posts) it's still returned.
+ *
+ * @param mixed  $value     Short-circuit value.
+ * @param int    $object_id Post ID.
+ * @param string $meta_key  Meta key.
+ * @return mixed
+ */
+function filter_thumbnail_id( $value, $object_id, $meta_key ) {
+	if (
+		'_thumbnail_id' !== $meta_key
+		|| get_queried_object_id() !== (int) $object_id
+		|| ! in_the_loop() // Not in the main loop.
+		|| null !== WP_Block_Supports::$block_to_render // Inside a block, don't hide the thumbnail.
+	) {
+		return $value;
+	}
+
+	return false;
+}
 
 /**
  * Block themes: skip the template's Featured Image block on the post's own page.
@@ -249,7 +248,7 @@ add_action( 'template_redirect', __NAMESPACE__ . '\maybe_filter_thumbnail_id' );
  * @param WP_Block $instance      Block instance.
  * @return string
  */
-function hide_featured_image_block( $block_content, $block, $instance ) {
+function hide_featured_image_block( $block_content, $block, $instance ): string {
 	$context = $instance->context; // Set from the template and parent blocks.
 
 	// Inside a Query Loop it's a list of posts, not this post's header.

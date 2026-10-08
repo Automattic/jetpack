@@ -78,7 +78,7 @@ function getImageUrls( media?: MediaRecord ): Set< string > {
 }
 
 /**
- * Whether an Image block anywhere in the content shows the featured image, by ID or URL.
+ * Whether an Image block in the content (outside galleries) shows the featured image, by ID or URL.
  *
  * @param blocks  - Editor blocks.
  * @param id      - Featured image ID.
@@ -101,7 +101,8 @@ function blocksContainImage(
 			return true;
 		}
 
-		if ( blocksContainImage( innerBlocks, id, getUrls ) ) {
+		// Galleries are a deliberate choice, so an image in one isn't treated as a duplicate.
+		if ( blockName !== 'core/gallery' && blocksContainImage( innerBlocks, id, getUrls ) ) {
 			return true;
 		}
 	}
@@ -144,7 +145,7 @@ export function useFeaturedImageDuplicate() {
 			isResolved:
 				! urls || select( coreStore ).hasFinishedResolution( 'getMedia', [ featuredId, query ] ),
 			showNotice: isDuplicate && ! isHidden && ! isDismissed,
-			showCheckbox: hasFeatureFlag( 'featured-image-hide' ) && isDuplicate,
+			showCheckbox: hasFeatureFlag( 'featured-image-hide-supported' ) && isDuplicate,
 		};
 	}, [] );
 

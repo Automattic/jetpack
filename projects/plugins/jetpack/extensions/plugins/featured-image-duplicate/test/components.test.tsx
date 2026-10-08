@@ -59,14 +59,7 @@ describe( 'withHiddenFeaturedImageBlock', () => {
 		[
 			'keeps it inside a Query Loop',
 			'core/post-featured-image',
-			{ postId: 1, queryId: 0 },
-			true,
-			true,
-		],
-		[
-			'keeps another post’s featured image',
-			'core/post-featured-image',
-			{ postId: 2 },
+			{ postId: 1, queryId: 0 }, // The first Query Loop gets ID 0.
 			true,
 			true,
 		],

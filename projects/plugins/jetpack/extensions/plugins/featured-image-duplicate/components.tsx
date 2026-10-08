@@ -74,7 +74,7 @@ export const withDuplicateNotice = createHigherOrderComponent(
 			<FeaturedImageDuplicate />
 		</>
 	),
-	'withDuplicateNotice'
+	'withDuplicateNotice' // Name for React DevTools.
 );
 
 /**
