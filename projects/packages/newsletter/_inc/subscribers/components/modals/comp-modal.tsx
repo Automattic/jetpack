@@ -157,7 +157,9 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 	const handleSubmit = useCallback( () => {
 		const numericPlanId = Number( planId );
 		const userId = subscriber?.user_id ?? 0;
-		if ( ! userId || ! Number.isFinite( numericPlanId ) || numericPlanId <= 0 ) {
+		// Email-only readers have no wpcom account; WP.com resolves one from the address instead.
+		const email = userId ? '' : ( subscriber?.email_address ?? '' );
+		if ( ( ! userId && ! email ) || ! Number.isFinite( numericPlanId ) || numericPlanId <= 0 ) {
 			return;
 		}
 		recordTracksEvent( 'jetpack_subscribers_comp_modal_confirm', {
@@ -167,7 +169,7 @@ export default function CompModal( { subscriber, onClose }: Props ): JSX.Element
 		} );
 		mutation.mutate(
 			{
-				user_id: userId,
+				...( userId ? { user_id: userId } : { email } ),
 				plan_id: numericPlanId,
 				no_expiration: noExpiration,
 				planTitle: selectedProduct?.title,
