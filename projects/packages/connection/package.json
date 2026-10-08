@@ -39,7 +39,7 @@
 		"@babel/runtime": "7.29.7",
 		"@types/react": "18.3.31",
 		"@wordpress/browserslist-config": "6.55.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.55.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
 		"c8": "^11.0.0",
 		"glob": "13.0.6",
 		"react": "18.3.1",
