@@ -184,7 +184,7 @@ class Embeds extends WP_REST_Controller {
 		unset( $data->scripts );
 		$data->html = self::sanitize_html( $data->html ?? '' );
 
-		// Nothing to show without the script, so the comment will hold the link. Say so now.
+		// No player or photo to show, so the comment will hold the link. Say so now.
 		if ( '' === $data->html ) {
 			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
@@ -196,9 +196,8 @@ class Embeds extends WP_REST_Controller {
 	}
 
 	/**
-	 * A provider's HTML as markup alone, or '' when nothing visible is left. Its script would run
-	 * first-party for every reader on a commenter's say-so, and so would an inline handler, so the
-	 * HTML goes through kses with core's post rules plus the iframe the players need.
+	 * A provider's player or photo, rebuilt as a bare iframe or img, or '' when it sent neither. Nothing else of
+	 * its HTML is kept, so no script or inline handler runs first-party for every reader on a commenter's say-so.
 	 *
 	 * @param mixed $html What the provider sent.
 	 * @return string
@@ -208,45 +207,36 @@ class Embeds extends WP_REST_Controller {
 			return '';
 		}
 
-		// Whole, so a script's body does not survive as text once kses drops its tags.
-		$scripts = '#<script\b[^>]*>.*?(?:</script\s*>|$)#is';
-		$html    = (string) preg_replace( $scripts, '', $html );
-
-		$allowed = wp_kses_allowed_html( 'post' );
-		unset( $allowed['object'] );
-		$allowed['iframe'] = array(
-			'src'             => true,
-			'width'           => true,
-			'height'          => true,
-			'title'           => true,
-			'allow'           => true,
-			'allowfullscreen' => true,
-			'frameborder'     => true,
-			'scrolling'       => true,
-			'loading'         => true,
-			'referrerpolicy'  => true,
-			'sandbox'         => true,
-			'style'           => true,
-			'class'           => true,
-			'name'            => true,
+		$kept = array(
+			'IFRAME' => array( 'width', 'height', 'title', 'allow', 'allowfullscreen', 'frameborder', 'loading', 'referrerpolicy', 'sandbox' ),
+			'IMG'    => array( 'width', 'height', 'alt' ),
 		);
 
-		$sent = str_contains( $html, '[youtube' );
-		$html = wp_kses( $html, $allowed );
+		$sent = new \WP_HTML_Tag_Processor( $html );
+		while ( $sent->next_tag() ) {
+			$name = $sent->get_tag();
+			$src  = $sent->get_attribute( 'src' );
+			$src  = is_string( $src ) && str_starts_with( $src, '//' ) ? 'https:' . $src : $src;
 
-		// WordPress.com's pre_kses reversals turn a YouTube player into "[youtube …]". Expand only that, only when
-		// kses added it, then apply the same rules through kses's own steps, minus the hook that would reverse it.
-		if ( ! $sent && str_contains( $html, '[youtube' ) && shortcode_exists( 'youtube' ) ) {
-			$html = (string) preg_replace_callback( '/' . get_shortcode_regex( array( 'youtube' ) ) . '/', 'do_shortcode_tag', $html );
-			$html = (string) preg_replace( $scripts, '', $html );
-			$html = wp_kses_split( wp_kses_normalize_entities( wp_kses_no_null( $html, array( 'slash_zero' => 'keep' ) ) ), $allowed, wp_allowed_protocols() );
+			if ( ! isset( $kept[ $name ] ) || ! is_string( $src ) || 'https' !== wp_parse_url( $src, PHP_URL_SCHEME ) ) {
+				continue;
+			}
+
+			// A tag of our own, so only the attributes listed above come along.
+			$tag = new \WP_HTML_Tag_Processor( 'IFRAME' === $name ? '<iframe></iframe>' : '<img>' );
+			$tag->next_tag();
+			$tag->set_attribute( 'src', esc_url_raw( $src ) );
+			foreach ( $kept[ $name ] as $attribute ) {
+				$value = $sent->get_attribute( $attribute );
+				if ( null !== $value ) {
+					$tag->set_attribute( $attribute, $value );
+				}
+			}
+
+			return $tag->get_updated_html();
 		}
 
-		if ( ! preg_match( '#<(iframe|img|video|audio)\b#i', $html ) && '' === trim( wp_strip_all_tags( $html ) ) ) {
-			return '';
-		}
-
-		return $html;
+		return '';
 	}
 
 	/**
