@@ -30,8 +30,9 @@ export const getRegistrationErrorCode = (
 /**
  * The site's own explanation of a registration error, safe to show under the mapped message.
  *
- * Mirrors `Jetpack::get_registration_error_description()`: drops messages that are only an HTTP
- * status and `jetpack_id` (which carries the raw response body), strips markup, and caps the length.
+ * Applies the same rules as `Jetpack::get_registration_error_description()`: drops messages that are
+ * only an HTTP status and `jetpack_id` (which carries the raw response body), and caps the length.
+ * It also strips markup, which the PHP version leaves to the caller.
  *
  * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
  * @return {string|undefined} The description, or undefined when there's nothing worth showing.
@@ -72,6 +73,17 @@ export const getRegistrationErrorSummary = (
 ): ReactNode =>
 	getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
 	getRegistrationErrorDescription( registrationError );
+
+const offlineModeMessage = () =>
+	createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ), {
+		a: (
+			<a
+				href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+				target="_blank"
+				rel="noopener noreferrer"
+			/>
+		),
+	} );
 
 const unreachableMessage = () =>
 	__(
@@ -154,10 +166,7 @@ export const getConnectScreenErrorMessage = (
 		case 'connection_disabled':
 			return __( 'This site has been suspended.', 'jetpack-connection-js' );
 		case 'offline_mode':
-			return __(
-				'This site is in Offline Mode (for example a local development site), so it can’t connect to WordPress.com.',
-				'jetpack-connection-js'
-			);
+			return offlineModeMessage();
 		case 'request_cancelled':
 			return __(
 				'There have been too many connection attempts from this site. Please wait an hour and try again.',
@@ -223,7 +232,6 @@ export const getConnectScreenErrorMessage = (
 			);
 		case 'Api404Error':
 		case 'Api404AfterRedirectError':
-		case 'rest_no_route':
 			return __(
 				'Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.',
 				'jetpack-connection-js'
@@ -271,18 +279,7 @@ export const getConnectScreenErrorMessage = (
 	}
 
 	if ( isOfflineMode ) {
-		return createInterpolateElement(
-			__( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ),
-			{
-				a: (
-					<a
-						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-						target="_blank"
-						rel="noopener noreferrer"
-					/>
-				),
-			}
-		);
+		return offlineModeMessage();
 	}
 
 	return undefined;

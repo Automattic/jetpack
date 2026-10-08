@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Onboarding: Show a readable error message instead of a raw request error when connecting the site fails.
