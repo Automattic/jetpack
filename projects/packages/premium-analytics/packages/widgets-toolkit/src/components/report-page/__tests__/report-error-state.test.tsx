@@ -23,6 +23,14 @@ function buildState( status: { isError: boolean; error?: unknown; refetch?: () =
 }
 
 describe( 'ReportErrorState', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'replaces the report sections with a notice whose Retry refetches', async () => {
 		const refetch = jest.fn();
 		const { rerender } = render( buildState( { isError: false, refetch } ) );
@@ -34,7 +42,9 @@ describe( 'ReportErrorState', () => {
 		expect( getNoticeText( RETRY_COPY ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Report table' ) ).not.toBeInTheDocument();
 
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		await userEvent
+			.setup( { advanceTimers: jest.advanceTimersByTime } )
+			.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
