@@ -116,6 +116,17 @@ describe( 'useFeaturedImageDuplicate', () => {
 		[
 			'a dismissed image',
 			{ meta: { _jetpack_featured_image_duplicate_dismissed: FEATURED_ID } },
+			{ showNotice: false, showCheckbox: false },
+		],
+		[
+			// Reachable by switching featured images; the ticked box must stay to be unticked.
+			'a dismissed image that is still hidden',
+			{
+				meta: {
+					_jetpack_featured_image_duplicate_dismissed: FEATURED_ID,
+					_jetpack_hide_featured_image: true,
+				},
+			},
 			{ showNotice: false, showCheckbox: true },
 		],
 		[

@@ -145,7 +145,10 @@ export function useFeaturedImageDuplicate() {
 			isResolved:
 				! urls || select( coreStore ).hasFinishedResolution( 'getMedia', [ featuredId, query ] ),
 			showNotice: isDuplicate && ! isHidden && ! isDismissed,
-			showCheckbox: hasFeatureFlag( 'featured-image-hide-supported' ) && isDuplicate,
+			showCheckbox:
+				hasFeatureFlag( 'featured-image-hide-supported' ) &&
+				isDuplicate &&
+				( ! isDismissed || isHidden ),
 		};
 	}, [] );
 

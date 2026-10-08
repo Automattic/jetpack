@@ -11,4 +11,9 @@
 		margin-block: 0 4px;
 		margin-inline: 0;
 	}
+
+	// Core greys out the Preview link while it autosaves; keep it blue.
+	.components-button.is-link:is(:active, :disabled, [aria-disabled="true"]) {
+		color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+	}
 }
