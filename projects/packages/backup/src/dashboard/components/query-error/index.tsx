@@ -70,6 +70,8 @@ export default function QueryError( {
 	className,
 }: Props ) {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
+	const code = errorCode( error );
+	const id = referenceId ?? null;
 	const previous = useRef( { isRetrying, message } );
 
 	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
@@ -88,10 +90,10 @@ export default function QueryError( {
 		>
 			<Notice.Title>{ title }</Notice.Title>
 			{ error?.message && <Notice.Description>{ error.message }</Notice.Description> }
-			{ error && (
+			{ ( code || id ) && (
 				// A div, since `Text` is a span and the reference is a block.
 				<Notice.Description render={ <div /> }>
-					<ErrorReference code={ errorCode( error ) } id={ referenceId ?? null } />
+					<ErrorReference code={ code } id={ id } />
 				</Notice.Description>
 			) }
 			{ onRetry && (

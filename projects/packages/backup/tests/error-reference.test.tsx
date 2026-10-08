@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import ErrorReference, { formatReference } from '../src/dashboard/components/error-reference';
+import QueryError from '../src/dashboard/components/query-error';
 import type { FailureReference } from '../src/dashboard/types/failure-reference';
 
 jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
@@ -26,6 +27,14 @@ describe( 'formatReference', () => {
 it( 'renders nothing, not an empty line with a copy button, when there is nothing to quote', () => {
 	const { container } = render( <ErrorReference code={ null } id={ null } /> );
 	expect( container ).toBeEmptyDOMElement();
+} );
+
+it( 'leaves no empty description in QueryError when there is nothing to quote', () => {
+	const { container } = render(
+		<QueryError title="We couldn't load this." error={ new Error( 'Not an ApiError' ) } />
+	);
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- an empty box has no role or text to query by.
+	expect( container.querySelector( '.jpb-query-error div:empty' ) ).toBeNull();
 } );
 
 it( 'copies exactly the line it shows, and announces it', async () => {
