@@ -48,8 +48,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const [ checkingEmail, setCheckingEmail ] = useState( false );
 	// One request per address, shared by the debounced check and a submit that beats it.
 	const emailCheck = useRef< { email: string; taken: Promise< boolean | null > } | null >( null );
-	// Straight to the fields when they are the only way through, or a saved guest is changing them.
-	const firstStep = identity.canSignIn && commenter.value.kind !== 'guest' ? 'choose' : 'guest';
+	// Straight to the fields when they are the only way through.
+	const firstStep = identity.canSignIn ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< Step >( firstStep );
 	const defaultSubscribed = () =>
 		Object.fromEntries(
