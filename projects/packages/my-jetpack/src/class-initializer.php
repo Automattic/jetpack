@@ -719,7 +719,7 @@ class Initializer {
 			 * @param bool $enabled Whether to expose the seed. Default false.
 			 */
 			&& apply_filters( 'jetpack_my_jetpack_offline_features', false )
-			// The offline initialization default stays false; a host may still veto the seed.
+			// Honor an explicit host veto without enabling offline entry.
 			/** This filter is documented in self::should_initialize(). */
 			&& apply_filters( 'jetpack_my_jetpack_should_initialize', true )
 			&& REST_Main_Features::permissions_callback()
