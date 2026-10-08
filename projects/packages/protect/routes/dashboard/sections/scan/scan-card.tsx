@@ -1,16 +1,17 @@
-import { ThreatsDataViews } from '@automattic/jetpack-scan';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { bug, chevronDown, chevronUp } from '@wordpress/icons';
-import { Button, Icon, Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { bug } from '@wordpress/icons';
+import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
+import ScanningState from './scanning-state';
+import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
+import { loadIgnored } from './threat-actions';
+import ThreatsList from './threats-list';
 import type { ScanState } from './types';
 import './style.scss';
-
-const SCAN_PATH = '/jetpack/v4/protect-dashboard/scan';
 
 // Like the Protect plugin: quick checks first, then back off.
 const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
@@ -56,12 +57,11 @@ function useIsDocumentHidden(): boolean {
 /**
  * The Scan card: start a scan, then review what it found or see that the site is safe.
  *
- * @param props      - Component props.
- * @param props.scan - The report the page loaded with.
  * @return The card.
  */
-export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
-	const [ scan, setScan ] = useState( initialScan );
+export default function ScanCard() {
+	// The section only renders this card once PHP has printed the Scan state.
+	const scan = useScan() as ScanState;
 	const [ isStarting, setIsStarting ] = useState( false );
 	const [ isFetching, setIsFetching ] = useState( false );
 	const [ startError, setStartError ] = useState< string | null >( null );
@@ -70,22 +70,22 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 	const isHidden = useIsDocumentHidden();
 	const threats = scan.threats ?? [];
 	const hasThreats = threats.length > 0;
-	const [ isOpen, setIsOpen ] = useState( hasThreats );
-	const toggle = useCallback( () => setIsOpen( open => ! open ), [] );
+	const ignored = scan.ignored;
+	const { hasPlan } = scan;
 	const isScanning =
 		! scan.error && ( !! scan.scanning || isRequestedScanNotStarted( scan, requestedAt ) );
 
-	// Show what a scan found as soon as it finds something.
+	// Ignored threats come from Scan history, which only a Scan plan has.
 	useEffect( () => {
-		if ( hasThreats ) {
-			setIsOpen( true );
+		if ( hasPlan ) {
+			loadIgnored();
 		}
-	}, [ hasThreats ] );
+	}, [ hasPlan ] );
 
 	const fetchScan = useCallback(
 		() =>
 			apiFetch< ScanState >( { path: SCAN_PATH } )
-				.then( next => setScan( current => ( { ...current, ...next } ) ) )
+				.then( mergeScan )
 				.catch( () => setScan( current => ( { ...current, error: true, scanning: false } ) ) ),
 		[]
 	);
@@ -106,7 +106,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 					setRequestedAt( requested );
 				}
 				setPolls( 0 );
-				setScan( current => ( { ...current, ...next } ) );
+				mergeScan( next );
 			} )
 			.catch( ( e: { message?: string } ) =>
 				setStartError( e?.message || __( 'The scan couldn’t be started.', 'jetpack-protect-pkg' ) )
@@ -126,22 +126,27 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 		return () => clearTimeout( timer );
 	}, [ isScanning, isHidden, polls, fetchScan ] );
 
-	let body;
+	// The running scan gets the whole card, without the header and footer.
 	if ( isScanning ) {
-		body = (
-			<CardRow>
-				<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
-					<Spinner />
-					<Text variant="body-lg">{ __( 'Scanning your site…', 'jetpack-protect-pkg' ) }</Text>
-					{ polls >= MAX_POLLS && (
-						<Button variant="outline" onClick={ refresh } loading={ isFetching }>
-							{ __( 'Check again', 'jetpack-protect-pkg' ) }
-						</Button>
-					) }
-				</Stack>
-			</CardRow>
+		return (
+			<Card.Root
+				render={ <section /> }
+				className="jp-protect-card"
+				aria-label={ __( 'Scan', 'jetpack-protect-pkg' ) }
+			>
+				<Card.Content>
+					<ScanningState
+						scan={ scan }
+						onCheckAgain={ polls >= MAX_POLLS ? refresh : undefined }
+						isChecking={ isFetching }
+					/>
+				</Card.Content>
+			</Card.Root>
 		);
-	} else if ( scan.error ) {
+	}
+
+	let body;
+	if ( scan.error ) {
 		body = (
 			<CardRow>
 				<Stack direction="column" gap="sm" align="start">
@@ -157,7 +162,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ! hasThreats ) {
+	} else if ( ! hasThreats && ! ignored?.length ) {
 		body = (
 			<CardRow>
 				<SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } />
@@ -166,41 +171,30 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 	} else {
 		body = (
 			<>
-				<CardRow className="jp-protect-card__stats">
-					<Stat
-						label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
-						value={ threats.length }
-						warning
-					/>
-					<Stat
-						label={ __( 'Plugins checked', 'jetpack-protect-pkg' ) }
-						value={ scan.pluginsChecked ?? 0 }
-					/>
-					<Stat
-						label={ __( 'Themes checked', 'jetpack-protect-pkg' ) }
-						value={ scan.themesChecked ?? 0 }
-					/>
-				</CardRow>
-				<CardRow className="jp-protect-card__disclosure">
-					<button
-						type="button"
-						className="jp-protect-card__disclosure-toggle"
-						aria-expanded={ isOpen }
-						onClick={ toggle }
-					>
-						<Text variant="body-lg">{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }</Text>
-						<Icon icon={ isOpen ? chevronUp : chevronDown } size={ 24 } />
-					</button>
-				</CardRow>
-				{ isOpen && (
-					<CardRow className="jp-protect-card__threats">
-						<ThreatsDataViews
-							data={ threats }
-							showStatusFilter={ false }
-							persistKey="jetpack-protect-dashboard:threats:view"
+				{ hasThreats && (
+					<CardRow className="jp-protect-card__stats">
+						<Stat
+							label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
+							value={ threats.length }
+							warning
+						/>
+						<Stat
+							label={ __( 'Plugins checked', 'jetpack-protect-pkg' ) }
+							value={ scan.pluginsChecked ?? 0 }
+						/>
+						<Stat
+							label={ __( 'Themes checked', 'jetpack-protect-pkg' ) }
+							value={ scan.themesChecked ?? 0 }
 						/>
 					</CardRow>
 				) }
+				<CardRow className="jp-protect-card__threats">
+					<ThreatsList
+						threats={ threats }
+						ignored={ ignored }
+						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
+					/>
+				</CardRow>
 			</>
 		);
 	}

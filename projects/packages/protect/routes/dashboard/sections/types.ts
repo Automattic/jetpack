@@ -26,4 +26,6 @@ export type ProtectSection< S = unknown > = {
 	OverviewCard?: ComponentType< DashboardContext< S > >;
 	SettingsCard?: ComponentType< DashboardContext< S > >;
 	tab?: SectionTab< S >;
+	/** A sidebar the dashboard shows while `param` is in the URL, such as the threat open in Scan. */
+	inspector?: { param: string; Panel: ComponentType };
 };

@@ -1,6 +1,7 @@
 import { dateI18n } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import { getCheckedCounts } from './labels';
 import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
 
@@ -37,8 +38,7 @@ type Props = {
  * @return The empty state.
  */
 export default function SafeState( { scan, isStarting, onScan }: Props ) {
-	const pluginsChecked = scan.pluginsChecked ?? 0;
-	const themesChecked = scan.themesChecked ?? 0;
+	const counts = getCheckedCounts( scan );
 	const nextCheck = getNextCheck( scan.lastChecked );
 	const nextScan = useHasPassed( nextCheck ) ? null : nextCheck;
 
@@ -52,16 +52,8 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 				{ sprintf(
 					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
 					__( 'No issues were found after scanning %1$s and %2$s.', 'jetpack-protect-pkg' ),
-					sprintf(
-						/* translators: %s is a number. */
-						_n( '%s plugin', '%s plugins', pluginsChecked, 'jetpack-protect-pkg' ),
-						pluginsChecked.toLocaleString()
-					),
-					sprintf(
-						/* translators: %s is a number. */
-						_n( '%s theme', '%s themes', themesChecked, 'jetpack-protect-pkg' ),
-						themesChecked.toLocaleString()
-					)
+					counts.plugins,
+					counts.themes
 				) }
 				<br />
 				{ nextScan
