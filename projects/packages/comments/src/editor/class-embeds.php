@@ -214,7 +214,7 @@ class Embeds extends WP_REST_Controller {
 
 		$sent = new \WP_HTML_Tag_Processor( $html );
 		while ( $sent->next_tag() ) {
-			$name = $sent->get_tag();
+			$name = (string) $sent->get_tag();
 			$src  = $sent->get_attribute( 'src' );
 			$src  = is_string( $src ) ? esc_url_raw( str_starts_with( $src, '//' ) ? 'https:' . $src : $src ) : '';
 
