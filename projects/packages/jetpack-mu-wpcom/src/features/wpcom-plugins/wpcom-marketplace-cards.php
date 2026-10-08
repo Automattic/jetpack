@@ -180,7 +180,7 @@ function wpcom_marketplace_card_description_markup( $description, $plugin ) {
 		return $description;
 	}
 
-	$installed = 'install' !== install_plugin_install_status( $plugin )['status'];
+	$installed = wpcom_marketplace_is_installed( $plugin );
 	$referral  = Marketplace_Catalog::is_referral( $plugin );
 
 	// Checkout installs everything a product needs, so its card says so rather than core's "required".
@@ -302,7 +302,7 @@ function wpcom_marketplace_remember_dependency( $result, $action, $args ) {
  */
 function wpcom_marketplace_card_strip( array $plugin ) {
 	// Calypso drops the price once a plugin is installed.
-	$rows = 'install' === install_plugin_install_status( $plugin )['status']
+	$rows = ! wpcom_marketplace_is_installed( $plugin )
 		? wpcom_marketplace_price_rows( $plugin )
 		: array(
 			'headline' => '',
