@@ -3,6 +3,7 @@ export {
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
+	SETTINGS_SECTION,
 	type DashboardSection,
 	type DashboardSectionId,
 } from './sections';

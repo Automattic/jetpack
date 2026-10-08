@@ -102,19 +102,29 @@ export function isSectionAwaitingSync(
 }
 
 /**
+ * The Settings tab's slug. The stage renders that tab itself, after the registered sections.
+ */
+export const SETTINGS_SECTION = 'settings';
+
+/**
  * Narrow a candidate slug to an available section, falling back to the first
  * section by order. A miss is a stale slug or a section unavailable now
  * (`?section=woocommerce` with WooCommerce off).
  *
- * @param value    - The candidate section slug (e.g. from the URL).
- * @param sections - The available sections, in order.
+ * @param value      - The candidate section slug (e.g. from the URL).
+ * @param sections   - The available sections, in order.
+ * @param stageSlugs - Slugs of the tabs the stage renders itself.
  * @return The resolved section slug, or an empty string when no sections exist.
  */
 export function resolveSectionId(
 	value: string | undefined,
-	sections: DashboardSection[]
+	sections: DashboardSection[],
+	stageSlugs: readonly string[] = []
 ): DashboardSectionId {
-	if ( value && sections.some( section => section.slug === value ) ) {
+	if (
+		value &&
+		( stageSlugs.includes( value ) || sections.some( section => section.slug === value ) )
+	) {
 		return value;
 	}
 

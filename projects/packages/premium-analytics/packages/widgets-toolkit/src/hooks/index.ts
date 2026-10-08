@@ -7,6 +7,7 @@ export { useElementSize, type ElementSize } from './use-element-size';
 export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
 export { useNormalizedReportParams } from './use-normalized-report-params';
 export { useWidgetNavigationSearch } from './use-widget-navigation-search';
+export { usePlanUsage } from './use-plan-usage';
 export { useSegmentStyles } from '../widgets/common';
 export { useSeriesStyles } from './use-series-styles';
 export { useStoredDetailLayout } from './use-stored-detail-layout';

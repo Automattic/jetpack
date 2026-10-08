@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 export type SectionTab< TabId extends string = string > = {
 	id: TabId;
 	label: string;
+	disabled?: boolean;
 };
 
 export interface SectionTabsProps< TabId extends string = string > {
@@ -55,7 +56,7 @@ export function SectionTabs< TabId extends string = string >( {
 			<div className={ clsx( styles.tabList, className ) }>
 				<Tabs.List variant="minimal">
 					{ tabs.map( tab => (
-						<Tabs.Tab key={ tab.id } value={ tab.id }>
+						<Tabs.Tab key={ tab.id } value={ tab.id } disabled={ tab.disabled }>
 							{ tab.label }
 						</Tabs.Tab>
 					) ) }
