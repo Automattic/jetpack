@@ -1,0 +1,62 @@
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Admin_Menu may register the page top-level or under Jetpack.
+body.jetpack_page_jetpack-send,
+body.toplevel_page_jetpack-send {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+// Content renders inside Tabs.Root so the sticky tab strip spans the page.
+.jetpack-send-tabs {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+}
+
+.jetpack-send-page__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	padding: var(--wpds-dimension-padding-2xl);
+	max-inline-size: 960px;
+}
+
+.jetpack-send-dns__record {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 4px 16px;
+	padding-block: 12px;
+	border-block-end: 1px solid #f0f0f0;
+}
+
+.jetpack-send-dns__value {
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
+	word-break: break-all;
+}
+
+.jetpack-send-dns__actions,
+.jetpack-send-from {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jetpack-send-from__domain {
+	padding-block-start: 22px;
+}
+
+.jetpack-send-usage__bar {
+	block-size: 8px;
+	border-radius: 4px;
+	background: #f0f0f0;
+	overflow: hidden;
+}
+
+.jetpack-send-usage__fill {
+	block-size: 100%;
+	background: var(--jp-green-40, #069e08);
+}
