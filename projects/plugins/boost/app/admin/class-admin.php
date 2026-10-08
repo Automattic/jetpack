@@ -131,13 +131,10 @@ class Admin {
 	 * Load the modern dashboard only on a Boost admin request that has not filtered it off.
 	 */
 	private function maybe_load_wp_build() {
-		if ( ! self::is_modern_dashboard() ) {
-			return;
-		}
-
+		// Check the page first, so a site hooking the deprecated filter is only warned on Boost's screen.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		if ( JETPACK_BOOST_SLUG !== $page || ! $this->dashboard_build_is_available() ) {
+		if ( JETPACK_BOOST_SLUG !== $page || ! self::is_modern_dashboard() || ! $this->dashboard_build_is_available() ) {
 			return;
 		}
 

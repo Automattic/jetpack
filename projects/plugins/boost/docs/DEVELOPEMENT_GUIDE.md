@@ -39,8 +39,8 @@ Add `--production` for a production build. The build produces both the legacy
 webpack assets and the modern dashboard assets.
 
 The modern dashboard is the default. To restore the legacy dashboard, add this filter. It is
-deprecated and logs a notice when hooked, because the legacy dashboard will be removed in a
-future release:
+deprecated, because the legacy dashboard will be removed in a future release; with `WP_DEBUG`
+on, hooking it triggers a deprecation notice on Boost's admin page:
 
 ```php
 add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );
