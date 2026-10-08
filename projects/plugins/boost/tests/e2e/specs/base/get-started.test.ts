@@ -22,6 +22,14 @@ test.describe( 'Getting started page', () => {
 
 		await page.getByRole( 'button', { name: 'Get Boost' } ).click();
 
+		await expect( page, 'User should be redirected to My Jetpack pricing page' ).toHaveURL(
+			/admin\.php\?page=my-jetpack#\/add-boost$/
+		);
+		await page
+			.locator( '#my-jetpack-container' )
+			.getByRole( 'button', { name: 'Get Boost', exact: true } )
+			.click();
+
 		await expect( page, 'User should be redirected to checkout page' ).toHaveURL(
 			expectedUrlPattern,
 			{
