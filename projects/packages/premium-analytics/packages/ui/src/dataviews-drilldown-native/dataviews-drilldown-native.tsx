@@ -325,13 +325,7 @@ export function DataViewsDrilldownNative< Item >( {
 
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>
-			<div
-				className={ clsx(
-					styles.root,
-					hideLevelMarkers && styles.hideLevelMarkers,
-					collapsible && styles.collapsible
-				) }
-			>
+			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
 				<GenericDataViews< Item >
 					view={ effectiveView }
 					onChangeView={ handleChangeView }
