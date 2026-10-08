@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Build the report and detail page empty states on one shared PageEmptyState. No user-facing change.
+

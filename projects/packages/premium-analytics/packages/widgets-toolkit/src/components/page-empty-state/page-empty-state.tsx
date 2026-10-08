@@ -6,10 +6,10 @@ import { search } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
-import styles from './detail-page-empty-state.module.scss';
+import styles from './page-empty-state.module.scss';
 import type { ReactNode } from 'react';
 
-export interface DetailPageEmptyStateProps {
+export interface PageEmptyStateProps {
 	title: string;
 	description?: string;
 	/** Buttons or links under the description. */
@@ -17,12 +17,12 @@ export interface DetailPageEmptyStateProps {
 }
 
 /**
- * Stand in for a detail page's header and widgets when a whole tab has nothing to report, centred in the space `DetailPageLayout` leaves below its tabs.
+ * Stand in for a report's or a detail page's sections when there is nothing to show, centred in the space the page layout leaves below its header.
  *
- * @param {DetailPageEmptyStateProps} props - The component props.
- * @return The detail page empty state.
+ * @param {PageEmptyStateProps} props - The component props.
+ * @return The page empty state.
  */
-export function DetailPageEmptyState( { title, description, actions }: DetailPageEmptyStateProps ) {
+export function PageEmptyState( { title, description, actions }: PageEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.root }>
 			<EmptyState.Visual>
