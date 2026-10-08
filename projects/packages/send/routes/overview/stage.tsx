@@ -1,11 +1,8 @@
-import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
-import SendPage from '../../_inc/components/send-page';
+import StatusGate from '../../_inc/components/status-gate';
+import OverviewScreen from '../../_inc/screens/overview';
 
 const Stage = () => (
-	<SendPage active="overview" showTabs={ false }>
-		<Text variant="body-md">{ __( 'Send is installed.', 'jetpack-send-pkg' ) }</Text>
-	</SendPage>
+	<StatusGate active="overview">{ status => <OverviewScreen status={ status } /> }</StatusGate>
 );
 
 export { Stage as stage };
