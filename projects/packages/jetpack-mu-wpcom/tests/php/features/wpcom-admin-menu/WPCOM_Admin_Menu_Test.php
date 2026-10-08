@@ -417,6 +417,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		);
 
 		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
+		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty -- Declared in a fixture excluded from Phan, as the real package is.
 		\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::$supports_simple = $package_supports_simple;
 		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_true' );
 
