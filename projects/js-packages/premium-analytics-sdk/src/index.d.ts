@@ -18,6 +18,7 @@ export declare function describeError( ...args: any[] ): any;
 // The states a widget kind takes from its widget. Not exported: no consumer names them, a kind's
 // props carry them.
 type WidgetStateError = {
+	title?: string;
 	description: string;
 	actions?: Array< { label: string; onClick: () => void } >;
 };

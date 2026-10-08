@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Declare the optional title of a widget state error.
