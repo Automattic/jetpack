@@ -110,16 +110,19 @@ class Email_Log {
 			return false;
 		}
 
+		// Invalid UTF-8 makes wpdb refuse the whole row, losing the log entry.
+		$text = fn( $key, $default = '' ) => (string) wp_check_invalid_utf8( (string) ( $row[ $key ] ?? $default ), true );
+
 		return (bool) $wpdb->insert(
 			self::table_name(),
 			array(
 				'created_at' => gmdate( 'Y-m-d H:i:s' ),
-				'recipients' => mb_substr( (string) ( $row['recipients'] ?? '' ), 0, 1000 ),
-				'subject'    => mb_substr( (string) ( $row['subject'] ?? '' ), 0, 255 ),
-				'status'     => (string) $row['status'],
-				'error'      => (string) ( $row['error'] ?? '' ),
-				'request_id' => substr( (string) ( $row['request_id'] ?? '' ), 0, 64 ),
-				'source'     => (string) ( $row['source'] ?? 'wp_mail' ),
+				'recipients' => mb_substr( $text( 'recipients' ), 0, 1000 ),
+				'subject'    => mb_substr( $text( 'subject' ), 0, 255 ),
+				'status'     => $text( 'status' ),
+				'error'      => $text( 'error' ),
+				'request_id' => substr( $text( 'request_id' ), 0, 64 ),
+				'source'     => $text( 'source', 'wp_mail' ),
 			),
 			array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);

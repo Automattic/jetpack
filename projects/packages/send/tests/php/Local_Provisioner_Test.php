@@ -123,6 +123,22 @@ class Local_Provisioner_Test extends BaseTestCase {
 		$this->assertSame( 'v=DKIM1; k=rsa; p=ABC', $result['dns_records'][2]['value'] );
 	}
 
+	public function test_provision_names_the_dkim_record_from_the_selector_not_the_response() {
+		$key = array_replace_recursive( self::dkim_key(), array( 'dkim_dns_records' => array( array( 'name' => 'jpsend._domainkey' ) ) ) );
+
+		$this->http = new Http_Mock(
+			array(
+				array( 201, array() ),
+				array( 201, array( 'key' => 'sub-key' ) ),
+				array( 201, $key ),
+			)
+		);
+
+		$result = ( new Local_Provisioner( new MailChannels_Client( 'parent-key' ) ) )->provision( 'example.com' );
+
+		$this->assertSame( 'jpsend._domainkey.example.com', $result['dns_records'][2]['name'] );
+	}
+
 	public function test_provision_continues_without_dkim_when_the_key_cannot_be_created() {
 		$this->http = new Http_Mock(
 			array(

@@ -31,8 +31,11 @@ class Mailer {
 		}
 
 		$settings = Settings::get();
-		$account  = Account::get();
-		if ( empty( $settings['enabled'] ) || ! $account ) {
+		if ( empty( $settings['enabled'] ) ) {
+			return null;
+		}
+		$account = Account::get();
+		if ( ! $account ) {
 			return null;
 		}
 
@@ -80,7 +83,7 @@ class Mailer {
 		if ( 'sent' !== ( $result['status'] ?? '' ) ) {
 			return new WP_Error(
 				'jetpack_send_rejected',
-				! empty( $result['reason'] ) ? (string) $result['reason'] : __( 'MailChannels did not accept the message.', 'jetpack-send-pkg' ),
+				! empty( $result['reason'] ) && is_string( $result['reason'] ) ? $result['reason'] : __( 'MailChannels did not accept the message.', 'jetpack-send-pkg' ),
 				array( 'status' => 502 )
 			);
 		}

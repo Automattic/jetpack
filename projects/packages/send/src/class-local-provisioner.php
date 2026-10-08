@@ -185,7 +185,7 @@ class Local_Provisioner implements Provisioner {
 
 		return array(
 			'type'    => 'TXT',
-			'name'    => (string) ( $record['name'] ?? self::DKIM_SELECTOR . '._domainkey.' . $domain ),
+			'name'    => self::DKIM_SELECTOR . '._domainkey.' . $domain,
 			'value'   => (string) $record['value'],
 			'purpose' => 'dkim',
 		);

@@ -143,6 +143,21 @@ class Mailer_Test extends BaseTestCase {
 			'network error'            => array( new WP_Error( 'http_request_failed', 'Operation timed out' ) ),
 			'2xx without results'      => array( array( 202, array( 'request_id' => 'req-3' ) ) ),
 			'2xx with a non-JSON body' => array( array( 200, '<html>OK</html>' ) ),
+			'non-string reason'        => array(
+				array(
+					202,
+					array(
+						'request_id' => 'req-4',
+						'results'    => array(
+							array(
+								'index'  => 0,
+								'status' => 'failed',
+								'reason' => array( 'code' => 'suppressed' ),
+							),
+						),
+					),
+				),
+			),
 			'per-recipient failure'    => array(
 				array(
 					202,
@@ -214,5 +229,14 @@ class Mailer_Test extends BaseTestCase {
 
 		$this->assertNull( Mailer::pre_wp_mail( null, array_merge( self::atts(), $overrides ) ) );
 		$this->assertSame( array(), $this->http->requests );
+	}
+
+	public function test_send_test_reports_a_readable_message_for_an_html_error_page() {
+		$this->http = new Http_Mock( array( array( 401, '<html><body>401 Authorization Required</body></html>' ) ) );
+
+		$result = Mailer::send_test( 'admin@example.org' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'MailChannels returned HTTP 401.', $result->get_error_message() );
 	}
 }

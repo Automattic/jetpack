@@ -214,7 +214,7 @@ class MailChannels_Client {
 		$decoded = '' === $raw ? array() : json_decode( $raw, true );
 
 		if ( $code < 200 || $code >= 300 ) {
-			$errors = self::extract_errors( $decoded, $raw );
+			$errors = self::extract_errors( $decoded );
 			return new WP_Error(
 				'jetpack_send_http_' . $code,
 				$errors
@@ -234,11 +234,10 @@ class MailChannels_Client {
 	/**
 	 * Pull human-readable messages out of an error body.
 	 *
-	 * @param mixed  $decoded Decoded JSON.
-	 * @param string $raw     Raw body.
-	 * @return string[]
+	 * @param mixed $decoded Decoded JSON.
+	 * @return string[] Empty when the body is not JSON or has no recognized error field.
 	 */
-	private static function extract_errors( $decoded, $raw ) {
+	private static function extract_errors( $decoded ) {
 		if ( is_array( $decoded ) && isset( $decoded['errors'] ) && is_array( $decoded['errors'] ) ) {
 			$messages = array();
 			foreach ( $decoded['errors'] as $error ) {
@@ -255,6 +254,6 @@ class MailChannels_Client {
 				return array( $decoded[ $key ] );
 			}
 		}
-		return null === $decoded && '' !== $raw ? array( substr( wp_strip_all_tags( $raw ), 0, 300 ) ) : array();
+		return array();
 	}
 }
