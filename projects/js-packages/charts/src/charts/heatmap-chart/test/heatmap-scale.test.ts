@@ -1,7 +1,11 @@
 import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { mixHexColors } from '../../../utils/color-utils';
-import { getHeatmapScale, HEATMAP_HIGH_CONTRAST } from '../private/heatmap-scale';
+import {
+	getHeatmapScale,
+	HEATMAP_HIGH_CONTRAST,
+	HEATMAP_MIN_SPREAD,
+} from '../private/heatmap-scale';
 
 // The wp-admin scheme colors, then the pre-7.0 ones, which include a sunrise below 3:1 on white.
 const PRIMARIES = [
@@ -32,10 +36,11 @@ describe.each( [
 		}
 	);
 
-	it.each( PRIMARIES )( 'runs the scale of %s out to 9:1', primary => {
-		const { high } = getHeatmapScale( primary, background );
+	it.each( PRIMARIES )( 'runs the scale of %s out to 9:1, as without an empty cell', primary => {
+		const { high } = getHeatmapScale( primary, background, emptyCell );
 
 		expect( contrastRatio( high, background ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
+		expect( high ).toBe( getHeatmapScale( primary, background ).high );
 	} );
 } );
 
@@ -59,10 +64,22 @@ describe( 'getHeatmapScale', () => {
 		}
 	} );
 
+	it.each( [ '#c3c4c7', '#959595', '#8c8f94' ] )(
+		'deepens the high end to keep the steps apart on a dark %s empty cell',
+		emptyCell => {
+			const { low, high } = getHeatmapScale( '#3858e9', '#ffffff', emptyCell );
+
+			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_MIN_SPREAD );
+			expect(
+				Math.min( contrastRatio( low, '#ffffff' ), contrastRatio( low, emptyCell ) )
+			).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
+		}
+	);
+
 	it.each( [
 		[ 'no step clears it', '#ffffff', '#555555' ],
-		[ 'clearing it would pass the high end', '#ffffff', '#767676' ],
-		[ 'clearing it would pass the high end', '#1e1e1e', '#6b6b6b' ],
+		[ 'clearing it leaves no room to keep the steps apart', '#ffffff', '#767676' ],
+		[ 'clearing it leaves no room to keep the steps apart', '#1e1e1e', '#6b6b6b' ],
 	] )(
 		'measures against the background alone when %s (%s, %s)',
 		( _case, background, emptyCell ) => {

@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
 import styles from '../heatmap-chart.module.scss';
@@ -29,8 +30,10 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 	if ( ! context ) {
 		return null;
 	}
-	const { fillVars } = context;
+	const { extent, fillVars } = context;
 	const labelStyle = legend.labelStyles;
+	// With negative values a zero is a filled step, so "Less" is the lowest value, not an empty cell.
+	const showsEmptyCell = extent[ 0 ] >= 0;
 
 	return (
 		<Stack direction="row" gap="xs" align="center">
@@ -41,6 +44,16 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
+			{ showsEmptyCell && (
+				<span
+					aria-hidden="true"
+					data-testid="heatmap-legend-empty-swatch"
+					className={ clsx(
+						styles[ 'heatmap-chart__legend-swatch' ],
+						styles[ 'heatmap-chart__legend-swatch--empty' ]
+					) }
+				/>
+			) }
 			<Stack
 				direction="row"
 				gap={ variant === 'bar' ? undefined : 'xs' }

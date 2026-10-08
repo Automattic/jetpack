@@ -5,6 +5,9 @@ import { mixHexColors, relativeLuminance } from '../../../utils/color-utils';
 /** Contrast the highest step aims for against the background, so the steps stay apart. */
 export const HEATMAP_HIGH_CONTRAST = 9;
 
+/** Least contrast between the lowest and highest steps, so the scale never flattens. */
+export const HEATMAP_MIN_SPREAD = 2;
+
 const STEPS = 200;
 
 export type HeatmapScale = {
@@ -25,7 +28,7 @@ const firstMeeting = ( from: string, to: string, meets: ( color: string ) => boo
 
 /**
  * The two ends of the heatmap fill scale: 3:1 against the background and the empty cell at the
- * low end, toward 9:1 against the background at the high end.
+ * low end, toward 9:1 against the background and at least 2:1 against the low end at the high end.
  *
  * @param primary    - The resolved primary color, as six-digit hex.
  * @param background - The resolved chart background, as six-digit hex.
@@ -53,22 +56,29 @@ export const getHeatmapScale = (
 			firstMeeting( primary, extreme, meets )
 		);
 	};
-	// Only `high` can miss: black or white tops out near 4.58:1 on a mid-tone background.
-	const high =
-		firstMeeting(
-			primary,
-			extreme,
-			color => contrastRatio( color, background ) >= HEATMAP_HIGH_CONTRAST
-		) ?? extreme;
+	// The high end deepens past 9:1 when the low end sits close to it, as on a dark empty cell.
+	const highAbove = ( low: string ) => {
+		const apart = ( color: string ) =>
+			contrastRatio( color, background ) > contrastRatio( low, background ) &&
+			contrastRatio( color, low ) >= HEATMAP_MIN_SPREAD;
+		// Black or white tops out near 4.58:1 on a mid-tone background, short of 9:1.
+		return (
+			firstMeeting(
+				primary,
+				extreme,
+				color => apart( color ) && contrastRatio( color, background ) >= HEATMAP_HIGH_CONTRAST
+			) ?? ( apart( extreme ) ? extreme : null )
+		);
+	};
 
 	// The lowest step sits beside empty cells, so it stands apart from them too, unless an
-	// empty-cell color far from the background would push it past the high end.
+	// empty-cell color far from the background leaves no room above it for the rest of the scale.
 	const againstEmptyCell = emptyCell ? lowAgainst( [ background, emptyCell ] ) : null;
-	const low =
-		againstEmptyCell &&
-		contrastRatio( againstEmptyCell, background ) <= contrastRatio( high, background )
-			? againstEmptyCell
-			: lowAgainst( [ background ] );
+	const highAboveEmptyCell = againstEmptyCell && highAbove( againstEmptyCell );
+	if ( againstEmptyCell && highAboveEmptyCell ) {
+		return { low: againstEmptyCell, high: highAboveEmptyCell };
+	}
 
-	return { low: low ?? extreme, high };
+	const low = lowAgainst( [ background ] ) ?? extreme;
+	return { low, high: highAbove( low ) ?? extreme };
 };

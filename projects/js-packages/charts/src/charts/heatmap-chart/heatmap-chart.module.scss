@@ -209,6 +209,10 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 	background: $heatmap-fill;
 }
 
+.heatmap-chart__legend-swatch--empty {
+	background: var(--a8c-charts-color-track);
+}
+
 // One band: the steps butt against each other and only the band's ends round.
 .heatmap-chart__legend-scale--bar {
 	overflow: hidden;
