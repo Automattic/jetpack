@@ -42,7 +42,8 @@ export interface WidgetStateProps {
 	 */
 	isFetching?: boolean;
 	isError: boolean;
-	isEmpty: boolean;
+	/** Omit when zeros are the answer, as in highlights. */
+	isEmpty?: boolean;
 	error?: WidgetStateError;
 	/** Omit for the generic "no results for this time period" state. */
 	empty?: WidgetStateEmpty;
@@ -55,7 +56,7 @@ export function WidgetState( {
 	isLoading,
 	isFetching = false,
 	isError,
-	isEmpty,
+	isEmpty = false,
 	error,
 	empty,
 	renderLoading,

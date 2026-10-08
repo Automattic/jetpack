@@ -101,8 +101,6 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ showError }
-			// A site without views still gets its current month, at zero.
-			isEmpty={ false }
 			error={
 				showError
 					? describeError( error, {

@@ -70,8 +70,6 @@ function WordAdsHighlightsReport() {
 				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
-				// A zero balance is a real $0.00, never an empty state.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load WordAds earnings. Please try again in a moment.",
