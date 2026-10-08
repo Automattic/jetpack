@@ -114,7 +114,13 @@ test( 'uploads files picked in the editor iframe into an empty gallery', async (
 	document.body.appendChild( iframe );
 
 	const uploads = await uploadFiles( [], makeFiles( [ 'a', 'b' ], iframe.contentWindow.File ) );
-
 	expect( uploads ).toHaveLength( 2 );
-	expect( select( blockEditorStore ).getBlockAttributes( clientId ).columns ).toBe( 2 );
+
+	// Columns follow the images that remain, not the files selected, and outlive a total failure.
+	act( () => {
+		uploads[ 1 ].onError( 'File too large.' );
+		uploads[ 0 ].onFileChange( [] );
+	} );
+
+	expect( select( blockEditorStore ).getBlockAttributes( clientId ).columns ).toBe( 1 );
 } );

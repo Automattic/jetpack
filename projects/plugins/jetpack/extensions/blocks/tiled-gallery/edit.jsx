@@ -71,10 +71,18 @@ const TiledGalleryEdit = ( {
 
 	// One upload per file, each into a slot reserved up front: client-side media processing reports
 	// each file separately rather than the whole batch, so each callback updates only its own image.
-	const addFiles = files => {
+	// With `columnLimit`, clamp columns to the images left once each upload settles, as library selection does.
+	const addFiles = ( files, columnLimit ) => {
 		if ( ! mediaUpload ) {
 			return;
 		}
+		const updateImages = newImages => {
+			setImages( newImages );
+			// An upload that failed outright keeps the previous setting.
+			if ( columnLimit && newImages.length > 0 ) {
+				setAttributes( { columns: Math.min( newImages.length, columnLimit ) } );
+			}
+		};
 		const uploads = Array.from( files ).map( file => ( {
 			file,
 			placeholderUrl: createBlobURL( file ),
@@ -96,13 +104,13 @@ const TiledGalleryEdit = ( {
 					return;
 				}
 				if ( ! media ) {
-					setImages( currentImages.filter( ( img, i ) => i !== index ) );
+					updateImages( currentImages.filter( ( img, i ) => i !== index ) );
 					return;
 				}
 				// Keep fields set while processing continues, such as a custom link.
 				const image = { ...currentImages[ index ], ...pickRelevantMediaFiles( media ) };
 				currentUrl = image.url;
-				setImages( currentImages.map( ( img, i ) => ( i === index ? image : img ) ) );
+				updateImages( currentImages.map( ( img, i ) => ( i === index ? image : img ) ) );
 			};
 			mediaUpload( {
 				allowedTypes: ALLOWED_MEDIA_TYPES,
@@ -137,24 +145,25 @@ const TiledGalleryEdit = ( {
 	const onSelectImages = files => {
 		// Not `instanceof File`: files picked in the editor iframe come from that window's File.
 		if ( Object.prototype.toString.call( files[ 0 ] ) === '[object File]' ) {
-			addFiles( files );
-		} else {
-			const newImages = files.map( file => {
-				const existingImage = images.find(
-					img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
-				);
-
-				if ( existingImage?.customLink ) {
-					return {
-						...pickRelevantMediaFiles( file ),
-						customLink: existingImage.customLink,
-					};
-				}
-				return pickRelevantMediaFiles( file );
-			} );
-
-			setImages( newImages );
+			addFiles( files, columns );
+			return;
 		}
+
+		const newImages = files.map( file => {
+			const existingImage = images.find(
+				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
+			);
+
+			if ( existingImage?.customLink ) {
+				return {
+					...pickRelevantMediaFiles( file ),
+					customLink: existingImage.customLink,
+				};
+			}
+			return pickRelevantMediaFiles( file );
+		} );
+
+		setImages( newImages );
 		setAttributes( { columns: columns ? Math.min( files.length, columns ) : columns } );
 
 		setChanged( true );
