@@ -20,7 +20,7 @@ export type ConnectionStateId =
 	| 'connected';
 
 /**
- * Where "Manage connection" goes: the Connectors screen, or the connection dialog before WordPress 7.0.
+ * What "Manage connection" does: link to the Connectors screen, or open the connection dialog before WordPress 7.0.
  */
 export type ManageConnection = { type: 'link'; url: string } | { type: 'dialog' };
 
@@ -44,7 +44,7 @@ type StoreSelector = (
 ) => Record< 'getConnectionStatus', () => Record< string, unknown > >;
 
 /**
- * Where "Manage connection" goes on this site.
+ * What "Manage connection" does on this site.
  *
  * @return The Connectors screen when WordPress has one, else the dialog.
  */
