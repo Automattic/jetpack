@@ -77,7 +77,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'visitors',
 		countLabel: count =>
 			/* translators: %s: number of store visitors. */
-			_n( '%s Store visitor', '%s Store visitors', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Store Visitor', '%s Store Visitors', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'conversion-rate',
