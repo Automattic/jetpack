@@ -41,6 +41,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@jetpack-backup/init": "link:packages/init",
 		"@tanstack/react-query": "5.102.8",
+		"@wordpress/a11y": "4.55.0",
 		"@wordpress/admin-ui": "2.10.0",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/base-styles": "13.1.0",

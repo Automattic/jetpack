@@ -174,6 +174,10 @@ class Checkpoint {
 	 * @return array|WP_Error site_commenter_id, name, email, avatar.
 	 */
 	public static function exchange( $code ) {
+		// The client stops verifying certificates for good on a host whose first request failed to.
+		// An identity must never arrive over a connection anyone on the path could have answered.
+		add_filter( 'jetpack_client_verify_ssl_certs', '__return_true', 999 );
+
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/comments/identity/exchange', self::blog_id() ),
 			'2',
@@ -185,6 +189,8 @@ class Checkpoint {
 			(string) wp_json_encode( array( 'code' => (string) $code ), JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
+
+		remove_filter( 'jetpack_client_verify_ssl_certs', '__return_true', 999 );
 
 		$known = array( 'invalid_code', 'blog_mismatch', 'code_used', 'code_expired', 'rate_limited', 'server_error' );
 
@@ -236,6 +242,12 @@ class Checkpoint {
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		if ( '' !== $code ) {
+			// A form another site auto-submits can spend a code too, and the passport it
+			// earns lands in whichever browser sent it. Only this site's own pages may post one.
+			if ( ! self::is_same_site_request() ) {
+				self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
+			}
+
 			$identity = self::exchange( $code );
 
 			if ( is_wp_error( $identity ) ) {
@@ -260,6 +272,40 @@ class Checkpoint {
 		// A signed-in commenter counts as registered, and has given a name and email.
 		add_filter( 'pre_option_comment_registration', '__return_zero' );
 		add_filter( 'pre_option_require_name_email', '__return_zero' );
+	}
+
+	/**
+	 * Whether the browser says the request came from this site: the Origin or Referer
+	 * host against the home and site hosts, or Sec-Fetch-Site alone when a proxy
+	 * stripped both. Nothing at all is allowed through; another site's name is not.
+	 *
+	 * @return bool
+	 */
+	public static function is_same_site_request() {
+		$hosts = array();
+
+		// Both: a page on the home host posts to wp-comments-post.php on the site host.
+		foreach ( array( home_url(), site_url() ) as $url ) {
+			$host = wp_parse_url( $url, PHP_URL_HOST );
+
+			if ( is_string( $host ) ) {
+				$hosts[] = strtolower( $host );
+			}
+		}
+
+		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
+			if ( empty( $_SERVER[ $header ] ) ) {
+				continue;
+			}
+
+			$host = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ), PHP_URL_HOST );
+
+			return is_string( $host ) && in_array( strtolower( $host ), $hosts, true );
+		}
+
+		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
+
+		return '' === $site || in_array( $site, array( 'same-origin', 'none' ), true );
 	}
 
 	/**

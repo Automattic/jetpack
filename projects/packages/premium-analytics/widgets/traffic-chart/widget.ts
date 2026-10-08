@@ -15,7 +15,7 @@ import {
 	type ChartIntervalFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -115,7 +115,11 @@ const chartIntervalAttribute = {
 
 // The switch must show what the chart draws, and the default depends on Stats v1.
 const chartTypeAttribute = {
-	...chartTypeAttributeField< TrafficChartAttributes >(),
+	id: 'chartType',
+	label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+	type: 'jpa/toggle-group',
+	elements: CHART_TYPE_ELEMENTS,
+	relevance: 'high',
 	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
 };
 
