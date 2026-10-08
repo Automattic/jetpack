@@ -17,6 +17,20 @@ define( 'JETPACK_SEND_MAILCHANNELS_PARENT_API_KEY', '…' );
 define( 'JETPACK_SEND_MAILCHANNELS_SEND_LIMIT', 3000 ); // Optional.
 ```
 
+## Compatibility
+
+Send delivers mail through the MailChannels API instead of PHPMailer, so some `wp_mail()` behavior differs:
+
+- `phpmailer_init` is not applied to mail Send delivers, because no PHPMailer object exists.
+- Emails with inline embeds, a non-UTF-8 charset, a multipart body with a custom boundary, or only Cc/Bcc recipients are handed to default mail, even when the fallback setting is off.
+- From addresses outside the sending domain are rewritten to the configured From address, and the original address is kept as Reply-To.
+
+## Hooks
+
+- `jetpack_send_provisioner`: filters the provisioner Send uses to create the sending account.
+- `jetpack_send_log_retention_days`: filters how many days Send keeps email log rows (default 30).
+- `jetpack_send_pre_existing_spf`: short-circuits the DNS lookup of a domain's existing SPF record; return the record, or an empty string for none.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
