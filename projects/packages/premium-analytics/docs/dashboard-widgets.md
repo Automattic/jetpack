@@ -11,6 +11,7 @@ This page covers the registration path. Sections, which place widget instances i
 | Term                         | Meaning                                                                                                                                                                  | Example                                              |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
 | Widget type name             | Namespaced identifier, `<namespace>/<name>`, lowercase. The namespace names the owner.                                                                                   | `jpa/clicks`, `wordads/highlights`                   |
+| Field type name              | Namespaced identifier a widget attribute names by `type`; the dashboard registers the definition and renders the control.                                                | `jpa/toggle-group`                                   |
 | Render module, widget module | The script-module ids of the widget's render entry and metadata entry, which the client `import()`s through the page import map.                                         | `jetpack-premium-analytics/widgets/clicks/render`    |
 | Manifest                     | The widgets wp-build discovered under `widgets/`, generated into `build/widgets.php` and read through `jpa_get_registered_widget_modules()`.                             | see `Analytics::widget_manifest_path()`              |
 | Candidate                    | A manifest entry before the registry-time filter. A dropped candidate never registers.                                                                                   | `jetpack_premium_analytics_registrable_widget_types` |
@@ -161,6 +162,12 @@ A plugin's widgets import the dashboard through `@automattic/jetpack-premium-ana
 wp-build finds it installed under that name, leaves the import external (`wpPlugin.externalNamespaces` lists the `automattic` scope) and records it as a module dependency of the widget.
 
 `src/sdk-module.php` registers the facade built from `packages/sdk` under that same name on `wp_default_scripts`. The page import map resolves the SDK to the facade and the facade to the dashboard's own modules: one React, one toolkit, one query client for the dashboard and every widget on the page.
+
+### Field types the dashboard provides
+
+`packages/fields/src/field-types.ts` registers the dashboard's field types with `registerFieldType()` from `@wordpress/widget-primitives`, from the boot init module, before any route renders. `useWidgetTypes` resolves an attribute that names one into a plain DataViews field: the registered `Edit` control on top of the definition's base type. A name nothing registered passes through, and the form skips the attribute.
+
+The names live under `jpa/`, the dashboard's namespace, whichever plugin's widget writes them; the SDK README lists them. They never reach the database: a layout stores the widget type and the attribute values. Renaming one is a second registration of the same definition under the new name, a minor of the contract while both answer and a major when the old one goes.
 
 ### Translations on the client
 
