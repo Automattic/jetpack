@@ -404,3 +404,71 @@ body.toplevel_page_jetpack-send {
 		font-size: 12px;
 	}
 }
+
+// Navy and blue set Send apart from the AI banner's green.
+// isolation keeps its layers under the sticky page header.
+.jetpack-send-banner {
+	position: relative;
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-block-size: 156px;
+	padding: 32px;
+	border-radius: 8px;
+	background: #0b1d3a;
+	overflow: hidden;
+	isolation: isolate;
+	container-type: inline-size;
+}
+
+.jetpack-send-banner__content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-inline-size: 420px;
+}
+
+.jetpack-send-banner__title {
+	margin: 0;
+	color: #eef3ff;
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 32px;
+}
+
+.jetpack-send-banner__description {
+	margin: 0;
+	color: #c5d3f5;
+	font-size: 13px;
+	line-height: 20px;
+}
+
+.jetpack-send-banner__art {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-end: 24px;
+	inline-size: 280px;
+	transform: translateY(-50%);
+
+	&:dir(rtl) {
+		transform: translateY(-50%) scaleX(-1);
+	}
+}
+
+.jetpack-send-banner__close {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	z-index: 1;
+	color: #fff;
+}
+
+// The art would sit under the copy on narrow screens.
+@container (max-width: 600px) {
+
+	.jetpack-send-banner__art {
+		display: none;
+	}
+}

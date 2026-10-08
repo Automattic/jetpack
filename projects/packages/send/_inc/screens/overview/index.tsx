@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import ConnectCard from './connect-card';
 import DnsCard from './dns-card';
+import IntroBanner from './intro-banner';
 import SetupCard from './setup-card';
 import StatusCard from './status-card';
 import TestEmailCard from './test-email-card';
@@ -55,6 +56,7 @@ const OverviewScreen = ( { status }: { status: SendStatus } ) => {
 					) }
 				</Notice.Root>
 			) }
+			<IntroBanner />
 			{ ! account && ! status.provisioner && <ConnectCard connectUrl={ status.connect_url } /> }
 			{ ! account && status.provisioner && (
 				<SetupCard suggestedDomain={ status.suggested_domain } />
