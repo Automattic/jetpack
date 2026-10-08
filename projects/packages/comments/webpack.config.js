@@ -46,6 +46,7 @@ export default {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: { 'framer-motion$': path.join( __dirname, 'tools/framer-motion.js' ) },
 	},
 	node: false,
 	module: {
