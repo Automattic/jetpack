@@ -6,8 +6,7 @@ import {
 	useStatsAppReferrersMarkSpamMutation,
 	useStatsAppReferrersUnmarkSpamMutation,
 } from '@jetpack-premium-analytics/data';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
-import { Button } from '@wordpress/components';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
@@ -53,23 +52,10 @@ function MarkAsSpamConfirm( {
 				) }
 			</Text>
 			<Stack direction="row" justify="flex-end" gap="sm">
-				<Button
-					__next40pxDefaultSize
-					variant="tertiary"
-					onClick={ closeModal }
-					disabled={ isBusy }
-					accessibleWhenDisabled
-				>
+				<Button variant="minimal" onClick={ closeModal } disabled={ isBusy }>
 					{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
-				<Button
-					__next40pxDefaultSize
-					variant="primary"
-					onClick={ confirm }
-					isBusy={ isBusy }
-					disabled={ isBusy }
-					accessibleWhenDisabled
-				>
+				<Button variant="solid" onClick={ confirm } loading={ isBusy }>
 					{ __( 'Mark as spam', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
 			</Stack>
