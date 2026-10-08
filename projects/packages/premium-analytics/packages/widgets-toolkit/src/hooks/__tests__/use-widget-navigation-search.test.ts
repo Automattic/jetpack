@@ -62,7 +62,6 @@ describe( 'useWidgetNavigationSearch', () => {
 			compare_from: '2026-02-01',
 			compare_to: '2026-02-10',
 			compare_preset: 'previous-period',
-			date_type: 'created',
 		} );
 	} );
 

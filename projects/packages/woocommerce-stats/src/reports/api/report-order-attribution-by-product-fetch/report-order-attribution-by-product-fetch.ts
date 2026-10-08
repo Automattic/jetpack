@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { fetchReport, type ReportRequestParams } from '../../fetch-report';
+import { getSiteDateType } from '../../utils/site-date-type';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 import type { ORDER_ATTRIBUTION_VIEWS } from '../report-order-attribution-summary-fetch/report-order-attribution-summary-fetch';
@@ -41,7 +42,7 @@ export type RequestReportOrderAttributionByProductParams = BaseReportParams & {
 export async function fetchReportOrderAttributionByProduct(
 	params: RequestReportOrderAttributionByProductParams
 ): Promise< OrderAttributionByProductResponse > {
-	const { from, to, interval, view, filters, date_type } = params;
+	const { from, to, interval, view, filters, date_type = getSiteDateType() } = params;
 
 	const queryParams: ReportRequestParams = {
 		from,

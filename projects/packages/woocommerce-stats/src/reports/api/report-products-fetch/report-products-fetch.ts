@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { fetchReport, type ReportRequestParams } from '../../fetch-report';
+import { getSiteDateType } from '../../utils/site-date-type';
 import { BaseReportParams } from '../../utils/types';
 import type { FilterCondition } from '../../types/filter-condition';
 
@@ -38,7 +39,7 @@ export async function fetchReportProducts(
 	const queryArgs: ReportRequestParams = {
 		from: params.from,
 		to: params.to,
-		date_type: params.date_type,
+		date_type: params.date_type ?? getSiteDateType(),
 	};
 
 	if ( params.limit ) {
