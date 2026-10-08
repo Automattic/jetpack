@@ -9,7 +9,7 @@ export type WpcomActivityEntry = {
 	summary: string;
 	actor?: { type: string; name: string };
 	content?: { text?: string };
-	object?: { backup_stats?: string };
+	object?: { backup_stats?: string; backup_period?: number | false };
 	/** False when WordPress.com has no backup record for the row. */
 	is_rewindable?: boolean;
 };
