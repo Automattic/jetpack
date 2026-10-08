@@ -73,8 +73,7 @@ export class MeasurableImageStore {
 			};
 		}
 
-		commands.updateImage( this.id, { url: this.currentSrc } );
-		commands.updateImage( this.id, { fileSize } );
+		commands.updateImage( this.id, { url: this.currentSrc, fileSize } );
 	}
 
 	private async maybeUpdateWeight() {
@@ -89,10 +88,9 @@ export class MeasurableImageStore {
 		try {
 			const weight = await this.image.getWeight( url );
 			this.weightMap[ url ] = weight;
-			commands.updateImage( this.id, { fileWeight: { weight } } );
+			commands.updateImage( this.id, { fileWeight: { weight }, loading: false } );
 		} catch {
-			commands.updateImage( this.id, { fileWeight: { weight: -1 } } );
+			commands.updateImage( this.id, { fileWeight: { weight: -1 }, loading: false } );
 		}
-		commands.updateImage( this.id, { loading: false } );
 	}
 }

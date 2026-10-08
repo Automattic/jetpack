@@ -218,9 +218,19 @@ it( 'emits one image outcome after a rejected weight fetch without analytics ret
 	const track = jest.fn();
 	api.Analytics.setTracksCallback( track );
 	const outcome = api.Analytics.trackImageOutcome( controller );
+	const states = [];
+	const unsubscribe = api.subscribeToFacts(
+		() => states.push( controller.getSnapshot() ),
+		controller.id
+	);
 	controller.acquire()();
+	states.length = 0;
 	await outcome;
 	await Promise.resolve();
+	expect( states ).toEqual( [
+		expect.objectContaining( { loading: false, fileWeight: { weight: -1 } } ),
+	] );
+	unsubscribe();
 	expect( measurable.getWeight ).toHaveBeenCalledTimes( 1 );
 	for ( let hover = 0; hover < 2; hover++ ) {
 		const stop = controller.acquire();
@@ -421,9 +431,12 @@ it( 'shares a pending weight fetch and publishes completion after all consumers 
 	expect( controller.getSnapshot().loading ).toBe( true );
 	first();
 	second();
-	finish( 90 );
+	finish( 120 );
 	await Promise.resolve();
-	expect( states.at( -1 ) ).toMatchObject( { loading: false, fileWeight: { weight: 90 } } );
+	expect( states ).toEqual( [
+		expect.objectContaining( { loading: true, fileWeight: { weight: 90 } } ),
+		expect.objectContaining( { loading: false, fileWeight: { weight: 120 } } ),
+	] );
 	controller.acquire()();
 	expect( measurable.getWeight ).toHaveBeenCalledTimes( 2 );
 	stop();
@@ -450,8 +463,22 @@ it( 'updates displayed dimensions without refetching an unchanged source', async
 	await controller.updateDimensions();
 	expect( measurable.getFileSize ).toHaveBeenCalledTimes( 1 );
 	expect( controller.getSnapshot().sizeOnPage ).toEqual( { width: 200, height: 150 } );
+	const states = [];
+	const stop = api.subscribeToFacts( () => states.push( controller.getSnapshot() ), controller.id );
+	measurable.getFileSize.mockResolvedValueOnce( { width: 600, height: 450 } );
 	source( 'https://example.test/two.png' );
 	await controller.updateDimensions();
+	expect( states ).toEqual( [
+		expect.objectContaining( {
+			url: 'https://example.test/one.png',
+			fileSize: { width: 300, height: 300 },
+		} ),
+		expect.objectContaining( {
+			url: 'https://example.test/two.png',
+			fileSize: { width: 600, height: 450 },
+		} ),
+	] );
+	stop();
 	expect( measurable.getFileSize ).toHaveBeenCalledTimes( 2 );
 	expect( measurable.getFileSize ).toHaveBeenLastCalledWith( 'https://example.test/two.png' );
 	expect( controller.getSnapshot().url ).toBe( 'https://example.test/two.png' );
