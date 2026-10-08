@@ -700,7 +700,10 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
 component owns the states, the skeleton, the shares and deltas, and the detail-link window
-(`widgets/search-terms/render.tsx` is the reference). Everything else renders its states through
+(`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
+segments and the hook's status; it owns the states, the total, the legend and the deltas
+(`widgets/payment-status/payment-status-widget.tsx` is the reference). Everything else renders its
+states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
@@ -761,7 +764,8 @@ area. Notes:
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
-> `<Leaderboard>` is that wrapper; the other widget kinds get theirs as follow-ups.
+> `<Leaderboard>` is that wrapper, and `<Donut>` for a breakdown; the other widget kinds get theirs
+> as follow-ups.
 
 **Comparison data**
 

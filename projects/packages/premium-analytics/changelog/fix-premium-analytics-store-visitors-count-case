@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Store performance: Use sentence case in the Store visitors chart tooltip, like the other count labels.

@@ -14,6 +14,7 @@ describe( 'author detail widget type aliases', () => {
 		expect( titles ).toEqual( {
 			'jpa/popular-post--author': 'Popular post',
 			'jpa/latest-post--author': 'Latest post',
+			'jpa/views-over-years--author': 'All-time traffic',
 		} );
 	} );
 
@@ -29,6 +30,8 @@ describe( 'author detail widget type aliases', () => {
 				'This author’s most-viewed post, with its headline views, likes and comments.',
 			'jpa/latest-post--author':
 				'This author’s most recently published post, with its headline views, likes and comments.',
+			'jpa/views-over-years--author':
+				'Every month of this author’s views since their first post, page or product, with each year’s total beside it. Always the full history: the period above doesn’t narrow it. Pick a month to read the rest of the page over it.',
 		} );
 	} );
 } );

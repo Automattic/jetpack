@@ -1,9 +1,9 @@
 {
 	"name": "jpa/author-performance",
 	"title": "Author performance",
-	"description": "How the posts of the author being viewed performed over the selected period.",
+	"description": "Views, likes and comments for the author being viewed over the selected period.",
 	"help": {
-		"content": "This author’s views over the selected period. Views come from the site’s 20 most viewed authors per period, so on a site with more authors, a period where this author ranks lower counts as zero."
+		"content": "This author’s views over the selected period, with the likes and comments their posts received in it. Views include the author’s pages and other content, as in the Authors report."
 	},
 	"category": "stats",
 	"presentation": "framed"

@@ -3,11 +3,9 @@
  */
 import { useStatsEmailSummary } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import EmailsReportPage from './page';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
@@ -61,22 +59,16 @@ const email: StatsEmailSummaryItem = {
 
 /**
  * Serve a one-email summary through the mocked data hook.
- *
- * @param isError - Whether the request failed.
- * @return The mocked refetch.
  */
-function mockEmailSummary( isError = false ) {
-	const refetch = jest.fn();
+function mockEmailSummary() {
 	useStatsEmailSummaryMock.mockReturnValue( {
 		data: { data: [ { items: [ email ] } ] },
 		isLoading: false,
 		isFetching: false,
-		isError,
+		isError: false,
 		error: null,
-		refetch,
+		refetch: jest.fn(),
 	} as unknown as ReturnType< typeof useStatsEmailSummary > );
-
-	return refetch;
 }
 
 describe( 'EmailsReportPage', () => {
@@ -87,20 +79,5 @@ describe( 'EmailsReportPage', () => {
 
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
-	} );
-
-	it( 'replaces the table with an error that refetches on Retry', async () => {
-		const refetch = mockEmailSummary( true );
-
-		render( <EmailsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load emails. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
-
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

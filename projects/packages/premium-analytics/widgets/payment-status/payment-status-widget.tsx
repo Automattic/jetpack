@@ -4,79 +4,85 @@
 import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { payment } from '@jetpack-premium-analytics/icons';
 import {
-	DonutChart,
-	DonutChartSkeleton,
+	Donut,
 	PAYMENT_STATUS_FILTERS,
-	WidgetState,
-	buildPaymentStatusData,
-	useSegmentStyles,
+	describeError,
 	useWidgetRootContext,
+	type DataFormat,
+	type DonutSegmentInput,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
-/**
- * Internal dependencies
- */
-import styles from './style.module.css';
+
+const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultipliers: true } };
 
 /**
- * Paid vs unpaid order revenue donut. Must render inside a `WidgetRoot`, which
- * supplies `reportParams` through context.
+ * Paid against unpaid order revenue. Must render inside a `WidgetRoot`, which supplies
+ * `reportParams` through context.
  */
 export function PaymentStatusWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		useReportOrders( {
-			...reportParams,
-			filters: PAYMENT_STATUS_FILTERS,
-		} );
+	const {
+		primary,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		error,
+		refetch,
+	} = useReportOrders( {
+		...reportParams,
+		filters: PAYMENT_STATUS_FILTERS,
+	} );
+	const summary = primary.data?.summary;
+	const previous = comparison.data?.summary;
 
-	const { chartData, total, comparisonTotal, legendData } = useMemo(
-		() => buildPaymentStatusData( primary.data, comparison.data ),
-		[ primary.data, comparison.data ]
+	const segments = useMemo< DonutSegmentInput[] >(
+		() =>
+			summary
+				? [
+						{
+							label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
+							value: summary.paid_net_sales,
+							previousValue: previous?.paid_net_sales,
+						},
+						{
+							label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
+							value: summary.unpaid_net_sales,
+							previousValue: previous?.unpaid_net_sales,
+						},
+					]
+				: [],
+		[ summary, previous ]
 	);
 
-	const segmentStyles = useSegmentStyles( chartData );
-
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholder across
-			// range changes, so only surface the error when there is nothing to show.
-			isError={ isError && ! hasData }
-			isEmpty={ chartData.length === 0 }
-			error={ {
-				description: __(
+		<Donut
+			segments={ segments }
+			status={ {
+				isLoading,
+				isFetching,
+				// The report queries keep the previous period's data as placeholder across
+				// range changes, so only surface the error when there is nothing to show.
+				isError: isError && ! hasData,
+				hasComparison,
+				refetch,
+			} }
+			error={ describeError( error, {
+				retryDescription: __(
 					"We couldn't load payment data. Please try again in a moment.",
 					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
+				onRetry: refetch,
+			} ) }
 			empty={ {
 				icon: payment,
 				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
-			renderLoading={ <DonutChartSkeleton /> }
-		>
-			<Stack className={ styles.container } direction="column" align="center" justify="center">
-				<DonutChart
-					chartData={ chartData }
-					value={ total }
-					styles={ segmentStyles }
-					comparisonValue={ hasComparison ? comparisonTotal : null }
-					legendData={ legendData }
-					showLegend={ true }
-					dataFormat={ {
-						type: 'currency',
-						options: { useMultipliers: true },
-					} }
-					maxSize={ null }
-					withTooltips
-				/>
-			</Stack>
-		</WidgetState>
+			format={ CURRENCY_FORMAT }
+		/>
 	);
 }

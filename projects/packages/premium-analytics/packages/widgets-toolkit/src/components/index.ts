@@ -64,6 +64,7 @@ export {
 	type LeaderboardRowInput,
 	type LeaderboardStatus,
 } from './leaderboard';
+export { Donut, type DonutProps, type DonutSegmentInput } from './donut';
 export {
 	BarChart,
 	BarChartSkeleton,
@@ -148,7 +149,7 @@ export {
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ExporterCsvAction,
 	ReportCsvAction,
-	useReportRetry,
+	ReportErrorState,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportLocationsMapProps,
@@ -165,7 +166,6 @@ export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DETAIL_HEADER_GLYPH_SIZE,
-	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -178,6 +178,7 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
+export { PageEmptyState } from './page-empty-state';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	canSendFeedback,
