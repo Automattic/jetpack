@@ -129,6 +129,8 @@ Any public property of `Widget_Type`: `render_module`, `widget_module`, `present
 
 Through `register_widget_type()` the strings arrive translated and `help`, `icon` and `actions` in shape. The manifest helper translates and sanitizes them itself.
 
+An `icon` is a `jpa/<name>` reference. The client resolves it through the resolver `packages/init` registers: the dashboard's own icons first, then `@wordpress/icons` under the same kebab-case name, and an unknown name degrades to no icon. A `widget.ts` that still exports an icon element keeps it over the reference.
+
 ### Version
 
 `WIDGET_API_VERSION` names the contract a widget is built against (see [Versioning the contract](#versioning-the-contract)). A consumer compares it in the callback: it skips registration when the major differs, and waits while the minor is below the one its imports need.

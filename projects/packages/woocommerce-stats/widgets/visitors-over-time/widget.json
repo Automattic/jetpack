@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/visitors-over-time",
+	"icon": "jpa/seen",
 	"title": "Store visitors over time",
 	"description": "Track how many people visit your store over time.",
 	"help": {

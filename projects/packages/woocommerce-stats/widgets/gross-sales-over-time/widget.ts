@@ -23,7 +23,6 @@ const CHART_TYPES = [
 ];
 
 export default {
-	icon: chartBar,
 	attributes: [
 		{
 			id: 'chartType',

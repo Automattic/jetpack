@@ -335,8 +335,8 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (icon, attributes, example)
+├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
+├── widget.ts                               # runtime-only definition (attributes, example; icon only when widget.json names none)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```

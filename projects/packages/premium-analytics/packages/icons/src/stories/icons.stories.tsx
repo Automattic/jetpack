@@ -1,5 +1,5 @@
 import { Icon, Stack } from '@jetpack-premium-analytics/externals';
-import * as icons from '../index';
+import * as icons from '../library';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof Icon > = {

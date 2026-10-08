@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Register an icon resolver so a widget.json can name its icon.
+
+
