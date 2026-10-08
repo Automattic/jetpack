@@ -20,7 +20,7 @@ type VisitorsOverTimeRenderAttributes = VisitorsOverTimeAttributes &
 
 const countLabel = ( count: number ) =>
 	/* translators: %s: number of store visitors. */
-	_n( '%s Store Visitor', '%s Store Visitors', count, 'jetpack-woocommerce-stats-pkg' );
+	_n( '%s Store visitor', '%s Store visitors', count, 'jetpack-woocommerce-stats-pkg' );
 
 /**
  * Visitors of the visitors report, read under the widget root for its report params.
