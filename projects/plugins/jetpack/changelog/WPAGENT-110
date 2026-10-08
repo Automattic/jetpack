@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: Register Agents Manager REST routes when Scheduled Tasks is enabled.
