@@ -141,12 +141,32 @@ describe( 'FeaturesContent', () => {
 		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'still answers a search that matched nothing while modules are in flight', () => {
-		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+	it.each( [ 'all', 'available' ] )(
+		'still answers a search that matched nothing while modules are in flight (filter: %s)',
+		filter => {
+			mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
 
-		renderAt( '/features?search=zzzz' );
+			renderAt( `/features?filter=${ filter }&search=zzzz` );
 
-		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features match “zzzz”.' );
+			expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features match “zzzz”.' );
+		}
+	);
+
+	it( 'waits for modules before reporting an empty Available filter after a reload', () => {
+		mockIsLoading = true;
+		mockStates = [ { ...activeStats, pending: true } as FeatureState ];
+		const { rerenderAt } = renderAt( '/features?filter=available' );
+
+		expect( screen.queryByText( 'No features found.' ) ).not.toBeInTheDocument();
+
+		mockIsLoading = false;
+		mockStates = [ activeStats ];
+		rerenderAt();
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+
+		mockStates = [ { ...activeStats, unavailableReason: 'Unavailable' } ];
+		rerenderAt();
+		expect( screen.getByText( 'No features found.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
