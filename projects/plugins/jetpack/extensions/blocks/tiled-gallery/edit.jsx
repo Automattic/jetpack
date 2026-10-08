@@ -109,8 +109,9 @@ const TiledGalleryEdit = ( {
 					updateImages( currentImages.filter( ( img, i ) => i !== index ) );
 					return;
 				}
-				// Keep fields set while processing continues, such as a custom link.
-				const image = { ...currentImages[ index ], ...pickRelevantMediaFiles( media ) };
+				// Replace attachment fields, whose dimensions processing can change, but keep a custom link.
+				const { customLink } = currentImages[ index ];
+				const image = { ...pickRelevantMediaFiles( media ), ...( customLink && { customLink } ) };
 				currentUrl = image.url;
 				updateImages( currentImages.map( ( img, i ) => ( i === index ? image : img ) ) );
 			};

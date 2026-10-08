@@ -88,7 +88,7 @@ test( 'keeps every image when uploads report one file at a time', async () => {
 	const getImages = () => select( blockEditorStore ).getBlockAttributes( clientId ).images;
 
 	// Interleaved like the client-side queue. a sends no preview and finishes last; c and d fail
-	// the two ways uploaders report it; b keeps processing after the user links it.
+	// the two ways uploaders report it; b gets pre-rotation dimensions and a link mid-processing.
 	act( () => {
 		b.onFileChange( [ { url: 'blob:b' } ] );
 		c.onFileChange( [ { url: 'blob:c' } ] );
@@ -96,7 +96,9 @@ test( 'keeps every image when uploads report one file at a time', async () => {
 		b.onFileChange( [ { id: 4, url: 'http://example.com/b.jpg' } ] );
 		dispatch( blockEditorStore ).updateBlockAttributes( clientId, {
 			images: getImages().map( img =>
-				img.id === 4 ? { ...img, customLink: 'http://example.com/b' } : img
+				img.id === 4
+					? { ...img, width: 4032, height: 3024, customLink: 'http://example.com/b' }
+					: img
 			),
 		} );
 		b.onFileChange( [ { id: 4, url: 'http://example.com/b-scaled.jpg' } ] );
@@ -106,7 +108,11 @@ test( 'keeps every image when uploads report one file at a time', async () => {
 	} );
 
 	expect( select( blockEditorStore ).getBlockAttributes( clientId ).ids ).toEqual( [ 1, 2, 3, 4 ] );
-	expect( getImages()[ 3 ].customLink ).toBe( 'http://example.com/b' );
+	expect( getImages()[ 3 ] ).toEqual( {
+		id: 4,
+		url: 'http://example.com/b-scaled.jpg',
+		customLink: 'http://example.com/b',
+	} );
 } );
 
 test( 'uploads files picked in the editor iframe into an empty gallery', async () => {
