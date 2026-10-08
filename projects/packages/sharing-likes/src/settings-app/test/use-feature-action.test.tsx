@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { queryKeys, useSettings, useStatus } from '../data/queries';
+import { queryKeys, useServices, useSettings, useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveSetting } from '../data/use-save-setting';
 import {
@@ -77,6 +77,39 @@ describe( 'useFeatureAction', () => {
 			expect( snackbarMessages() ).toContain( 'The feature could not be turned on.' )
 		);
 	} );
+	it.each( [
+		[
+			'Sharing hands off to the block',
+			() => Promise.resolve( switched ),
+			'Settings have been saved',
+		],
+		[ 'the action is refused', () => Promise.reject( { message: 'Refused.' } ), 'Refused.' ],
+	] as [ string, () => Promise< unknown >, string ][] )(
+		'does not read the services list again when %s',
+		async ( _when, post, notice ) => {
+			mockApiFetch.mockImplementation( ( { method } ) =>
+				method === 'POST'
+					? post()
+					: Promise.resolve( { visible: [ 'x' ], hidden: [], services: [] } )
+			);
+			const queryClient = createTestQueryClient();
+			const { result } = renderHook(
+				() => {
+					useServices( true );
+					return useFeatureAction();
+				},
+				{ wrapper: wrapperFor( queryClient ) }
+			);
+			await waitFor( () => expect( apiCalls() ).toHaveLength( 1 ) );
+
+			act( () => result.current.run( 'sharing', 'switch-to-block' ) );
+
+			await waitFor( () => expect( snackbarMessages() ).toContain( notice ) );
+			await waitFor( () => expect( result.current.isPending ).toBe( false ) );
+			expect( apiCalls() ).toEqual( [ { path: '/wpcom/v2/sharing-likes/services' } ] );
+		}
+	);
+
 	it( "lets a refused action's status read finish before the next action runs", async () => {
 		let resolveStatus!: ( value: Status ) => void;
 		const statusRead = new Promise< Status >( resolve => ( resolveStatus = resolve ) );

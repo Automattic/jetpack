@@ -3,12 +3,24 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { configures, type Feature, type Status } from '../types';
 import { runFeatureAction, type FeatureAction } from './api';
 import { errorMessage } from './error-message';
 import { FEATURE_ACTION_KEY, MUTATION_SCOPE, SAVE_SETTING_KEY, queryKeys } from './queries';
-import type { Feature } from '../types';
+import type { QueryClient } from '@tanstack/react-query';
 
 export type { FeatureAction };
+
+/**
+ * Whether the cached status has the Sharing section showing its options.
+ *
+ * @param queryClient - Query client.
+ * @return Whether it configures.
+ */
+function sharingConfigures( queryClient: QueryClient ): boolean {
+	const state = queryClient.getQueryData< Status >( queryKeys.status )?.sharing.state;
+	return !! state && configures( state );
+}
 
 /**
  * "Switch to the … block" and "Turn on …".
@@ -47,7 +59,11 @@ export function useFeatureAction() {
 				queryClient.isMutating( { mutationKey: SAVE_SETTING_KEY } ) > 0
 					? undefined
 					: queryClient.invalidateQueries( { queryKey: queryKeys.settings } ),
-				queryClient.invalidateQueries( { queryKey: queryKeys.services } ),
+				// The list is still mounted until React re-renders, and the route answers 409 once Sharing stops configuring.
+				queryClient.invalidateQueries( {
+					queryKey: queryKeys.services,
+					refetchType: ! error && sharingConfigures( queryClient ) ? 'active' : 'none',
+				} ),
 			] ),
 	} );
 
