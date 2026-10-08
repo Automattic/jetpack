@@ -1,7 +1,7 @@
 import { getSettings, setSettings } from '@wordpress/date';
 import { seedSiteDateParams } from './site-date-seed';
 
-// "Today" is 2026-02-18 in the site zone, so last-30-days runs Jan 20 to Feb 18.
+// "Today" is 2026-02-18 in the site zone, so last-7-days runs Feb 12 to Feb 18.
 const NOW = new Date( '2026-02-18T17:00:00.000Z' );
 
 describe( 'seedSiteDateParams', () => {
@@ -28,13 +28,13 @@ describe( 'seedSiteDateParams', () => {
 
 	it( 'compares a fresh load with the previous period', () => {
 		expect( seedSiteDateParams( { section: 'traffic' } ) ).toMatchObject( {
-			preset: 'last-30-days',
-			from: '2026-01-20T00:00:00.000-05:00',
+			preset: 'last-7-days',
+			from: '2026-02-12T00:00:00.000-05:00',
 			to: '2026-02-18T23:59:59.999-05:00',
 			comp: '1',
 			compare_preset: 'previous-period',
-			compare_from: '2025-12-21T00:00:00.000-05:00',
-			compare_to: '2026-01-19T23:59:59.999-05:00',
+			compare_from: '2026-02-05T00:00:00.000-05:00',
+			compare_to: '2026-02-11T23:59:59.999-05:00',
 		} );
 	} );
 

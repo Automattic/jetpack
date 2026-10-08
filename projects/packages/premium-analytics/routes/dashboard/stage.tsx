@@ -55,6 +55,7 @@ import {
 	useDashboardSectionLayout,
 	useDashboardSections,
 	useOnboarding,
+	useRememberAppliedPreset,
 	useSectionDateFilter,
 } from './hooks';
 import './overlay-focus-ring.scss';
@@ -232,17 +233,20 @@ function Dashboard(): JSX.Element {
 		},
 		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
 	);
+	const { onChange: rememberOnChange, onApply: rememberOnApply } = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
 			changeDateRange( ...args );
 			trackedOnChange( ...args );
+			rememberOnChange( ...args );
 		},
-		[ changeDateRange, trackedOnChange ]
+		[ changeDateRange, trackedOnChange, rememberOnChange ]
 	);
 	const onDateApply = useCallback( () => {
 		applyDateRange();
 		trackedOnApply();
-	}, [ applyDateRange, trackedOnApply ] );
+		rememberOnApply();
+	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -294,8 +298,8 @@ function Dashboard(): JSX.Element {
 				 */
 				<Stack direction="row" align="center" gap="sm">
 					{ /*
-					 * `startYear` is omitted: `getStoreInfo()` is still a stub, so nothing here
-					 * knows how far back data goes; the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT`.
+					 * `startYear` is omitted: nothing here knows how far back data goes, so the
+					 * surface falls back to `DEFAULT_YEAR_SURFACE_COUNT`.
 					 */ }
 					<DateYearFilter
 						value={ dateFilters.appliedPresetId }

@@ -114,7 +114,7 @@ test( 'renders thirty daily bars for each device using score band colours and em
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'heading', { name: 'Last 30 days', level: 2 } ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'heading', { name: 'Desktop', level: 3 } ) ).toBeInTheDocument();
-	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
+	expect( screen.getAllByRole( 'application', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
 	for ( const [ device, tiers ] of [
 		[ 'Desktop', [ 'good', 'medium', 'poor' ] ],
@@ -193,7 +193,7 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 	} );
 	expect( bar ).toHaveClass( 'boost-daily-history__bar--zero' );
 	expect( bar ).not.toHaveClass( 'boost-daily-history__bar--empty' );
-	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
+	fireEvent.keyDown( chart.getByRole( 'application' ), { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0/100' );
 	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 		padding: '0px',
@@ -204,7 +204,7 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 
 test( 'exposes the date, grade, and both device metrics through keyboard tooltips', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	fireEvent.keyDown( screen.getAllByRole( 'application' )[ 0 ], { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	for ( const value of [
 		dateI18n( 'F j, Y', timestamp, false ),
@@ -233,7 +233,7 @@ function hoverChart() {
 
 test( 'keeps a recorded day popover open once the chart drops its highlight', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	const chart = hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	const popover = await screen.findByTestId( 'history-popover' );
@@ -255,7 +255,7 @@ test( 'keeps a recorded day popover open once the chart drops its highlight', as
 
 test( 'exposes a recorded day once while the popover repeats it visually', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	fireEvent.keyDown( screen.getAllByRole( 'application' )[ 0 ], { key: 'ArrowRight' } );
 	const popover = await screen.findByTestId( 'history-popover' );
 	expect( popover ).toHaveTextContent( '90/100' );
 	const tooltip = screen.getByRole( 'tooltip' );
@@ -266,7 +266,7 @@ test( 'exposes a recorded day once while the popover repeats it visually', async
 
 test( 'keeps the held day open when the chart is clicked', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	const chart = hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
@@ -281,7 +281,7 @@ test( 'keeps the held day open when the chart is clicked', async () => {
 } );
 
 async function pressDay( index: number, pointerType: string ) {
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	const bar = await waitFor( () => {
 		const bars = getBars( screen.getAllByTestId( 'bar-chart' )[ 0 ] );
 		expect( bars ).toHaveLength( 30 );
@@ -328,7 +328,7 @@ test( 'shows a clicked empty day in the popover, not the chart tooltip box', asy
 
 test( 'shows a keyboard-selected empty day in the popover beside its column', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	for ( let step = 0; step < 4; step++ ) {
 		fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	}
@@ -342,7 +342,7 @@ test( 'shows a keyboard-selected empty day in the popover beside its column', as
 
 test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
 	for ( const key of [ 'Enter', ' ', 'Home', 'a' ] ) {
@@ -353,7 +353,7 @@ test( "keeps a keyboard-opened day showing through the chart's own keys", async 
 
 test( 'does not reopen the day the pointer left once the chart has no highlight', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	const chart = hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
@@ -370,7 +370,7 @@ test( 'does not reopen the day the pointer left once the chart has no highlight'
 
 test( 'follows arrow keys while the pointer rests on the chart', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
@@ -382,7 +382,7 @@ test( 'follows arrow keys while the pointer rests on the chart', async () => {
 
 test( 'opens a recorded day popover by keyboard and closes it with Escape', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const desktop = screen.getAllByRole( 'application' )[ 0 ];
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	await waitFor( () => expect( tooltip ).toHaveFocus() );
@@ -436,7 +436,7 @@ describe( 'popover placement', () => {
 		const { unmount } = render( <HistoryChartCard data={ history } { ...callbacks } />, {
 			wrapper,
 		} );
-		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		fireEvent.keyDown( screen.getAllByRole( 'application' )[ 0 ], { key: 'ArrowRight' } );
 		return { positioner: await screen.findByTestId( 'history-positioner' ), unmount };
 	}
 
@@ -465,10 +465,10 @@ describe( 'popover placement', () => {
 
 test( 'shows empty days after loading and explains them on keyboard focus', async () => {
 	const { rerender } = render( <HistoryChartCard isLoading { ...callbacks } />, { wrapper } );
-	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'application' ) ).not.toBeInTheDocument();
 	rerender( <HistoryChartCard data={ null } { ...callbacks } /> );
-	expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 2 );
-	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	expect( screen.getAllByRole( 'application' ) ).toHaveLength( 2 );
+	fireEvent.keyDown( screen.getAllByRole( 'application' )[ 0 ], { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
 	expect( tooltip ).toHaveTextContent( 'No scores recorded for this day.' );
@@ -486,7 +486,7 @@ test( 'explains empty days before the first recorded score only without older hi
 		<HistoryChartCard data={ later } { ...callbacks } hasOlderHistory={ false } />,
 		{ wrapper }
 	);
-	const chart = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = screen.getAllByRole( 'application' )[ 0 ];
 	const move = ( key: string, steps: number ) => {
 		for ( let step = 0; step < steps; step++ ) {
 			fireEvent.keyDown( chart, { key } );
@@ -569,14 +569,14 @@ test.each( [ 15, 30 ] as const )(
 
 test( 'leaving one chart resets its tooltip without remounting the next chart', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	const [ desktop, mobile ] = screen.getAllByRole( 'grid' );
+	const [ desktop, mobile ] = screen.getAllByRole( 'application' );
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
 	fireEvent.keyDown( desktop, { key: 'Tab' } );
 	fireEvent.blur( desktop, { relatedTarget: mobile } );
 	expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
-	expect( screen.getAllByRole( 'grid' )[ 1 ] ).toBe( mobile );
-	expect( screen.getAllByRole( 'grid' )[ 0 ] ).toBe( desktop );
+	expect( screen.getAllByRole( 'application' )[ 1 ] ).toBe( mobile );
+	expect( screen.getAllByRole( 'application' )[ 0 ] ).toBe( desktop );
 } );
 
 test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
@@ -585,7 +585,7 @@ test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
 		const { rerender, unmount } = render( <HistoryChartCard data={ history } { ...callbacks } />, {
 			wrapper,
 		} );
-		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		fireEvent.keyDown( screen.getAllByRole( 'application' )[ 0 ], { key: 'ArrowRight' } );
 		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByTestId( 'history-highlight' ) ).toBeInTheDocument();
 		rerender( <HistoryChartCard data={ history } { ...callbacks } { ...state } /> );
@@ -617,7 +617,7 @@ test( 'keeps the card padding for notices and drops it only for the charts', () 
 	rerender( <HistoryChartCard isLoading { ...callbacks } /> );
 	expect( zeroPaddingBody() ).not.toBeNull();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
-	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'grid' )[ 0 ] );
+	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'application' )[ 0 ] );
 	/* eslint-enable testing-library/no-node-access */
 } );
 
@@ -636,7 +636,7 @@ test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 sit
 		} );
 		expect( screen.getByText( `${ firstDay } – ${ lastDay }` ) ).toBeInTheDocument();
 		await waitFor( () => expect( screen.getAllByText( firstDay ) ).toHaveLength( 2 ) );
-		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		fireEvent.keyDown( screen.getAllByRole( 'application' )[ 0 ], { key: 'ArrowRight' } );
 		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 		expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', visibleWindow.startDate, false ) );
 		expect( tooltip ).toHaveTextContent( 'No scores recorded for this day.' );
@@ -649,7 +649,7 @@ test( 'transitions from an error to paid history', () => {
 	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
-	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
+	expect( screen.getAllByRole( 'application', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 } );
 
 test( 'announces history errors in the assertive live region', () => {

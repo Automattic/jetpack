@@ -226,6 +226,7 @@ export {
 	getLocationsReportSection,
 	getLocationsScopeParams,
 	getPostsReportQueryParams,
+	getReferrerSpamDomain,
 	getSummarizedReportQueryParams,
 	getUtmDimensionLabel,
 	getUtmDimensionOptions,
