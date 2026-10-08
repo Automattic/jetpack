@@ -1093,7 +1093,9 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		// Availability is re-checked inside the helper because this render can run where the redirect did not.
+		// Asked again here rather than inferred from the redirect: with the wizard on a
+		// connected user is deliberately left on this screen to finish setup, and anyone
+		// who cannot connect never reaches it.
 		if ( self::is_onboarding_takeover() ) {
 			echo '<div id="my-jetpack-container"></div>';
 			return;
