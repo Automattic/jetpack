@@ -56,6 +56,13 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	private const SIGNED_URL_BODY = '@signed-url-body';
 
 	/**
+	 * Like the above, but `https`: the download route refuses any other scheme.
+	 *
+	 * @var string
+	 */
+	private const HTTPS_SIGNED_URL_BODY = '@https-signed-url-body';
+
+	/**
 	 * REST Server.
 	 *
 	 * @var WP_REST_Server
@@ -106,7 +113,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 */
 	public static function provide_bridge_dispatches() {
 		return array(
-			'/jetpack/v4/site/capabilities'          => array(
+			'/jetpack/v4/site/capabilities'               => array(
 				'GET',
 				'/jetpack/v4/site/capabilities',
 				array(),
@@ -116,7 +123,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'hasScan'       => true,
 				),
 			),
-			'/jetpack/v4/site/rewindable-activity'   => array(
+			'/jetpack/v4/site/rewindable-activity'        => array(
 				'GET',
 				'/jetpack/v4/site/rewindable-activity',
 				array(
@@ -130,7 +137,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'totalPages' => 1,
 				),
 			),
-			'/jetpack/v4/rewind/backup/ls'           => array(
+			'/jetpack/v4/rewind/backup/ls'                => array(
 				'POST',
 				'/jetpack/v4/rewind/backup/ls',
 				array(
@@ -148,7 +155,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					),
 				),
 			),
-			'/jetpack/v4/rewind/backup/path-info'    => array(
+			'/jetpack/v4/rewind/backup/path-info'         => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/path-info',
 				array(
@@ -162,7 +169,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'mtime' => 1748888135,
 				),
 			),
-			'/jetpack/v4/rewind/backup/file-content' => array(
+			'/jetpack/v4/rewind/backup/file-content'      => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/file-content',
 				array(
@@ -177,6 +184,20 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'content'   => "<?php\ndefine( 'DB_NAME', 'wordpress' );\n",
 					'is_text'   => true,
 					'truncated' => false,
+				),
+			),
+			'/jetpack/v4/rewind/backup/file-download-url' => array(
+				'GET',
+				'/jetpack/v4/rewind/backup/file-download-url',
+				array(
+					'file_period'           => '1748888135',
+					'encoded_manifest_path' => 'ZjU6L3dwLWNvbmZpZy5waHA=',
+				),
+				array(
+					array( 'body' => self::HTTPS_SIGNED_URL_BODY ),
+				),
+				array(
+					'url' => 'https://example.org/signed-stream',
 				),
 			),
 			'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
@@ -224,7 +245,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'message'    => 'Restoring uploads',
 				),
 			),
-			'/jetpack/v4/site/backup/schedule'       => array(
+			'/jetpack/v4/site/backup/schedule'            => array(
 				'POST',
 				'/jetpack/v4/site/backup/schedule',
 				array( 'schedule_hour' => 3 ),
@@ -234,7 +255,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'scheduled_hour' => 3,
 				),
 			),
-			'/jetpack/v4/site/backup/retention'      => array(
+			'/jetpack/v4/site/backup/retention'           => array(
 				'POST',
 				'/jetpack/v4/site/backup/retention',
 				array( 'retention_days' => 30 ),
@@ -366,6 +387,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 			if ( isset( $answer['body'] ) && self::SIGNED_URL_BODY === $answer['body'] ) {
 				$answers[ $index ]['body'] = wp_json_encode(
 					array( 'url' => home_url( '/signed-stream' ) ),
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+			if ( isset( $answer['body'] ) && self::HTTPS_SIGNED_URL_BODY === $answer['body'] ) {
+				$answers[ $index ]['body'] = wp_json_encode(
+					array( 'url' => 'https://example.org/signed-stream' ),
 					JSON_UNESCAPED_SLASHES
 				);
 			}
