@@ -101,7 +101,10 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 			},
 			{
 				id: 'threat',
-				label: __( 'Threats', 'jetpack-protect-pkg' ),
+				label:
+					status === 'fixed'
+						? __( 'Fixed threats', 'jetpack-protect-pkg' )
+						: __( 'Ignored threats', 'jetpack-protect-pkg' ),
 				enableHiding: false,
 				enableSorting: false,
 				enableGlobalSearch: true,
