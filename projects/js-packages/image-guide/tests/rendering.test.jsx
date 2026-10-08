@@ -222,3 +222,29 @@ it( 'clears a completed label fade so showing its container cannot replay it', a
 	expect( target.querySelector( '.label' ) ).toBe( label );
 	expect( label ).not.toHaveClass( 'jb-ig-label-fade' );
 } );
+
+it( 'settles cancelled entrance and label animations before showing the container again', async () => {
+	const stores = [ image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
+	const bubble = target.querySelector( '.interaction-area' );
+	const label = target.querySelector( '.label' );
+	expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+	expect( label ).toHaveClass( 'jb-ig-label-fade' );
+	target.style.display = 'none';
+	for ( const [ element, animationName ] of [
+		[ label, 'jb-ig-fade-in' ],
+		[ bubble, 'jb-ig-bubble-fly-in' ],
+	] ) {
+		const event = new Event( 'animationcancel', { bubbles: true } );
+		Object.defineProperty( event, 'animationName', { value: animationName } );
+		act( () => element.dispatchEvent( event ) );
+	}
+	target.style.display = '';
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.interaction-area' ) ).toBe( bubble );
+	expect( target.querySelector( '.label' ) ).toBe( label );
+	expect( bubble ).not.toHaveClass( 'jb-ig-bubble-fly' );
+	expect( bubble ).toHaveStyle( { animationDelay: '' } );
+	expect( label ).not.toHaveClass( 'jb-ig-label-fade' );
+} );
