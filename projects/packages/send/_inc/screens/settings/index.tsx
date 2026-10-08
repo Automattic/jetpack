@@ -1,10 +1,12 @@
 import { TextControl, ToggleControl } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { AlertDialog, Button, Card, Notice, Stack, Text } from '@wordpress/ui';
 import ErrorNotice from '../../components/error-notice';
-import { useSendAction } from '../../data/store';
+import { errorMessage, postAction } from '../../data/api';
+import { sendStore, useSendAction } from '../../data/store';
 import type { Account, SendStatus } from '../../data/types';
 import type { FormEvent } from 'react';
 
@@ -16,6 +18,7 @@ const SettingsScreen = ( { status, account }: { status: SendStatus; account: Acc
 	const [ saved, setSaved ] = useState( false );
 	const [ confirmOpen, setConfirmOpen ] = useState( false );
 	const { run, busy, error } = useSendAction();
+	const { receiveStatus } = useDispatch( sendStore );
 	const navigate = useNavigate();
 
 	const onSubmit = useCallback(
@@ -32,12 +35,13 @@ const SettingsScreen = ( { status, account }: { status: SendStatus; account: Acc
 	);
 
 	const onReset = useCallback( async () => {
-		const result = await run( 'reset' );
-		if ( ! result ) {
-			return { close: false, error: __( 'Reset failed. Please try again.', 'jetpack-send-pkg' ) };
+		try {
+			receiveStatus( await postAction( 'reset' ) );
+		} catch ( e ) {
+			return { close: false, error: errorMessage( e ) };
 		}
 		navigate( { href: '/' } );
-	}, [ run, navigate ] );
+	}, [ receiveStatus, navigate ] );
 
 	const openConfirm = useCallback( () => setConfirmOpen( true ), [] );
 

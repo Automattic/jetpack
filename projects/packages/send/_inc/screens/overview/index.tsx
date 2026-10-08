@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import ConnectCard from './connect-card';
 import DnsCard from './dns-card';
@@ -13,6 +13,20 @@ const OverviewScreen = ( { status }: { status: SendStatus } ) => {
 
 	return (
 		<>
+			{ status.reset_warning && (
+				<Notice.Root intent="warning">
+					<Notice.Description>
+						{ sprintf(
+							/* translators: %s: error message from the email service. */
+							__(
+								'Send was reset, but its sending account could not be removed: %s',
+								'jetpack-send-pkg'
+							),
+							status.reset_warning
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			{ status.provisioner === 'local' && (
 				<Notice.Root intent="info">
 					<Notice.Description>

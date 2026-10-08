@@ -44,8 +44,14 @@ const LogScreen = () => {
 		};
 	}, [ page, perPage, statusFilter ] );
 
-	const fields = useMemo< Field< LogRow >[] >(
-		() => [
+	const fields = useMemo< Field< LogRow >[] >( () => {
+		const statusLabels: Record< LogRow[ 'status' ], string > = {
+			sent: __( 'Sent', 'jetpack-send-pkg' ),
+			fallback: __( 'Fallback', 'jetpack-send-pkg' ),
+			failed: __( 'Failed', 'jetpack-send-pkg' ),
+		};
+
+		return [
 			{
 				id: 'created_at',
 				label: __( 'Date', 'jetpack-send-pkg' ),
@@ -60,20 +66,18 @@ const LogScreen = () => {
 				id: 'status',
 				label: __( 'Status', 'jetpack-send-pkg' ),
 				enableSorting: false,
-				elements: [
-					{ value: 'sent', label: __( 'Sent', 'jetpack-send-pkg' ) },
-					{ value: 'fallback', label: __( 'Fallback', 'jetpack-send-pkg' ) },
-					{ value: 'failed', label: __( 'Failed', 'jetpack-send-pkg' ) },
-				],
+				elements: Object.entries( statusLabels ).map( ( [ value, label ] ) => ( {
+					value,
+					label,
+				} ) ),
 				filterBy: { operators: [ 'is' ] as Operator[] },
 				render: ( { item } ) => (
-					<Badge intent={ STATUS_INTENT[ item.status ] ?? 'none' }>{ item.status }</Badge>
+					<Badge intent={ STATUS_INTENT[ item.status ] }>{ statusLabels[ item.status ] }</Badge>
 				),
 			},
 			{ id: 'error', label: __( 'Error', 'jetpack-send-pkg' ), enableSorting: false },
-		],
-		[]
-	);
+		];
+	}, [] );
 
 	const getItemId = useCallback( ( item: LogRow ) => item.id, [] );
 
