@@ -103,6 +103,13 @@ const OwnerCandidateList = ( {
 		);
 	}
 
+	// Separate statements, not a ternary: the minifier folds two `__()` calls in one
+	// expression into a single call with a non-literal argument, which i18n-check rejects.
+	let placeholder: string = __( 'Select an administrator', 'jetpack-connection-js' );
+	if ( isLoading ) {
+		placeholder = __( 'Loading administrators…', 'jetpack-connection-js' );
+	}
+
 	return (
 		<div className="jp-connection__transfer-ownership">
 			<Text render={ <p /> }>
@@ -114,11 +121,7 @@ const OwnerCandidateList = ( {
 
 			<SelectControl
 				label={ __( 'New connection owner', 'jetpack-connection-js' ) }
-				placeholder={
-					isLoading
-						? __( 'Loading administrators…', 'jetpack-connection-js' )
-						: __( 'Select an administrator', 'jetpack-connection-js' )
-				}
+				placeholder={ placeholder }
 				items={ items }
 				value={ items.find( item => item.value === String( selectedId ) ) ?? null }
 				onValueChange={ handleChange }
