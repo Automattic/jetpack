@@ -357,7 +357,7 @@ class Password_Detection {
 								);
 							?>
 						</p>
-						<p><?php esc_html_e( 'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.', 'jetpack-account-protection' ); ?></p>
+						<p><?php esc_html_e( 'This security feature is enabled on this site to help keep your account safe.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
 								printf(

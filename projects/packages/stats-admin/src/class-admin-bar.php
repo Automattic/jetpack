@@ -29,56 +29,54 @@ class Admin_Bar {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'admin_head', array( __CLASS__, 'maybe_add_chart' ), 100 );
-		add_action( 'wp_head', array( __CLASS__, 'maybe_add_chart' ), 100 );
+		add_action( 'admin_bar_menu', array( __CLASS__, 'maybe_add_chart_node' ), 100 );
+		add_action( 'admin_bar_init', array( __CLASS__, 'maybe_add_chart' ) );
 		add_action( 'wp_before_admin_bar_render', array( __CLASS__, 'add_site_menu_link' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_serve_chart' ), 1 );
 		add_filter( 'pre_option_db_version', array( __CLASS__, 'ignore_db_version' ) );
 	}
 
 	/**
-	 * Queue the views chart and print its styles when the current user should see it.
+	 * Whether the current user should see the views chart.
+	 *
+	 * @return bool
+	 */
+	private static function can_see_chart() {
+		return is_user_logged_in() && Stats_Options::get_option( 'admin_bar' ) && current_user_can( 'view_stats' );
+	}
+
+	/**
+	 * Add the views chart when the current user should see it.
+	 *
+	 * Hooked to admin_bar_menu because a REST request fires no page head, and the admin-bar endpoint needs this node.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar The admin bar.
+	 * @return void
+	 */
+	public static function maybe_add_chart_node( $wp_admin_bar ) {
+		if ( self::can_see_chart() ) {
+			self::add_chart_node( $wp_admin_bar );
+		}
+	}
+
+	/**
+	 * Add the views chart styles to the admin bar stylesheet when the current user should see the chart.
 	 *
 	 * @return void
 	 */
 	public static function maybe_add_chart() {
-		if (
-			! is_user_logged_in() ||
-			! Stats_Options::get_option( 'admin_bar' ) ||
-			! current_user_can( 'view_stats' ) ||
-			! is_admin_bar_showing()
-		) {
+		if ( ! self::can_see_chart() ) {
 			return;
 		}
 
-		add_action( 'admin_bar_menu', array( __CLASS__, 'add_chart_node' ), 100 );
-		?>
-<style data-ampdevmode type='text/css'>
-#wpadminbar .quicklinks li#wp-admin-bar-stats {
-	height: 32px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a {
-	height: 32px;
-	padding: 0;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a div {
-	height: 32px;
-	width: 95px;
-	overflow: hidden;
-	margin: 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div {
-	width: auto;
-	margin: 0 8px 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a img {
-	height: 24px;
-	margin: 4px 0;
-	max-width: none;
-	border: none;
-}
-</style>
-		<?php
+		wp_add_inline_style(
+			'admin-bar',
+			'#wpadminbar .quicklinks li#wp-admin-bar-stats { height: 32px; }
+#wpadminbar .quicklinks li#wp-admin-bar-stats a { height: 32px; padding: 0; }
+#wpadminbar .quicklinks li#wp-admin-bar-stats a div { height: 32px; width: 95px; overflow: hidden; margin: 0 10px; }
+#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div { width: auto; margin: 0 8px 0 10px; }
+#wpadminbar .quicklinks li#wp-admin-bar-stats a img { height: 24px; margin: 4px 0; max-width: none; border: none; }'
+		);
 	}
 
 	/**
@@ -98,6 +96,8 @@ class Admin_Bar {
 				'id'    => 'stats',
 				'href'  => self::get_dashboard_url(),
 				'title' => "<div><img fetchpriority='low' loading='lazy' decoding='async' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
+				// A client that reads the admin bar as data, like the omnibar, shows this instead of the image markup.
+				'meta'  => array( 'menu_title' => __( 'Stats', 'jetpack-stats-admin' ) ),
 			)
 		);
 	}

@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
@@ -35,6 +36,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		commenter,
 		rememberDetails,
 		isDialogOpen,
+		isPosting,
 		forget,
 	} = useContext( CommentSignals );
 	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
@@ -45,6 +47,9 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		'idle' | 'pending' | 'failed' | 'rate_limited'
 	>( 'idle' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
+	const [ checkingEmail, setCheckingEmail ] = useState( false );
+	// One request per address, shared by the debounced check and a submit that beats it.
+	const emailCheck = useRef< { email: string; taken: Promise< boolean | null > } | null >( null );
 	// Straight to the fields when they are the only way through, or a saved guest is changing them.
 	const firstStep = identity.canSignIn && commenter.value.kind !== 'guest' ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< 'choose' | 'guest' | 'subscribe' >( firstStep );
@@ -68,6 +73,22 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const guest =
 		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
 	const enteredEmail = details.value.email;
+	const isEmail = ( email: string ) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email );
+	const checkEmail = async ( email: string ) => {
+		if ( emailCheck.current?.email !== email ) {
+			emailCheck.current = { email, taken: emailHasAccount( email ) };
+		}
+
+		const { taken } = emailCheck.current;
+		const answer = await taken;
+
+		// A check that got no answer is asked again next time, not kept as a no.
+		if ( answer === null && emailCheck.current?.taken === taken ) {
+			emailCheck.current = null;
+		}
+
+		return answer === true;
+	};
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -107,13 +128,13 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	useEffect( () => {
 		setEmailTaken( false );
 
-		if ( ! showFields || ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( enteredEmail ) ) {
+		if ( ! showFields || ! isEmail( enteredEmail ) ) {
 			return;
 		}
 
 		let current = true;
 		const timer = window.setTimeout( async () => {
-			const taken = await emailHasAccount( enteredEmail );
+			const taken = await checkEmail( enteredEmail );
 
 			if ( current ) {
 				setEmailTaken( taken );
@@ -202,8 +223,40 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	useEffect( () => internals.setFormValue( formValue( false ) ) );
 
-	const submit = ( event: Event ) => {
+	const submit = async ( event: Event ) => {
 		event.preventDefault();
+
+		if ( isPosting.peek() || checkingEmail ) {
+			return;
+		}
+
+		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
+
+		if ( showFields ) {
+			setCheckingEmail( true );
+			let email = '';
+			let taken = false;
+
+			// Checked again if the email changes during the wait, since the new one is what posts.
+			while ( email !== details.peek().email ) {
+				email = details.peek().email;
+				taken = isEmail( email ) && ( await checkEmail( email ) );
+			}
+
+			setCheckingEmail( false );
+
+			// Closed during the wait, which cancels the submit.
+			if ( ! isDialogOpen.peek() ) {
+				return;
+			}
+
+			if ( taken ) {
+				setEmailTaken( true );
+				// The submit button turns disabled under the focus, which would drop it to the body.
+				dialog.current?.querySelector< HTMLInputElement >( '#email' )?.focus();
+				return;
+			}
+		}
 
 		if ( ! posting ) {
 			// Saved with consent, or cleared without it, as core does after a comment.
@@ -220,8 +273,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 					: { kind: 'unknown' };
 			return;
 		}
-
-		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
 
 		// Read as the comment form submits, then dropped, so a blocked submit leaves no consent behind.
 		internals.setFormValue( formValue( showFields && rememberDetails.peek(), anonymous ) );
@@ -256,7 +307,12 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 					) }
 					{ /* Only with a comment to post, and where core takes one with no name. */ }
 					{ posting && ! mustLogIn && ! requireNameEmail && (
-						<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
+						<button
+							type="submit"
+							name="anonymous"
+							className="jetpack-comments__button is-link"
+							aria-disabled={ isPosting.value || undefined }
+						>
 							{ strings.postWithoutSaving }
 						</button>
 					) }
@@ -324,8 +380,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 						<div className="jetpack-comments__dialog-actions">
 							<button
 								type="submit"
-								className="jetpack-comments__button is-primary"
+								className={ clsx( 'jetpack-comments__button is-primary', {
+									'is-busy': isPosting.value || checkingEmail,
+								} ) }
 								disabled={ emailTaken }
+								aria-disabled={ isPosting.value || checkingEmail || undefined }
 							>
 								{ ! posting && strings.save }
 								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
@@ -431,7 +490,14 @@ const DetailsFields = ( {
 			label: strings.email,
 			describedBy: 'email-notes',
 		},
-		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
+		// Text, like Verbum and unlike core's type="url", so a bare domain passes. Core adds the protocol on save.
+		{
+			field: 'url' as const,
+			type: 'text',
+			autoComplete: 'url',
+			label: strings.website,
+			maxLength: 200,
+		},
 	];
 
 	return (
@@ -446,6 +512,9 @@ const DetailsFields = ( {
 						name={ field }
 						type={ input.type }
 						autoComplete={ input.autoComplete }
+						maxLength={ input.maxLength }
+						spellcheck={ field === 'url' ? false : undefined }
+						autoCorrect={ field === 'url' ? 'off' : undefined }
 						className="jetpack-comments__input"
 						aria-describedby={ input.describedBy }
 						aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }

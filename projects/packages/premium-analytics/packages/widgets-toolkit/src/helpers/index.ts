@@ -1,4 +1,4 @@
-export { formatOrderMetric, getFormatByMetricKey } from './format-orders-metrics';
+export { getFormatByMetricKey } from './format-orders-metrics';
 export { buildTimeSeriesChartData, type TimeSeriesData } from './build-time-series-chart-data';
 export { buildSalesByCouponData, type SalesByCouponData } from './build-sales-by-coupon-data';
 export { PHYSICAL_PRODUCTS_FILTER, BOOKINGS_FILTER } from './product-type-filters';
@@ -104,6 +104,4 @@ export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
-export { formatTooltipPointLabel } from './format-tooltip-point-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
-export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';

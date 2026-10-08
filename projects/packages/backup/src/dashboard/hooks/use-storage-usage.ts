@@ -49,6 +49,10 @@ type Figures = {
 	 * popover's gate compares against the promise, as legacy's does.
 	 */
 	planRetentionDays: number | null;
+	/** The retention in force: the site's own setting, else the plan's. */
+	retentionDays: number | null;
+	/** Bytes the last full backup took, or null when unreported. */
+	lastBackupSize: number | null;
 };
 
 /**
@@ -140,6 +144,8 @@ export function useStorageUsage(): Result {
 		minDaysOfBackupsAllowed,
 		forecastInDays,
 		planRetentionDays,
+		retentionDays,
+		lastBackupSize,
 	};
 
 	// A limit of zero is not a limit anyone can be measured against, and a

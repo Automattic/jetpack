@@ -20,18 +20,11 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import {
-	appendTooltipExtras,
-	formatTooltipPointLabel,
-	isEmptyChartData,
-	getFixedYAxis,
-	formatBucketTooltipDate,
-	resolveTooltipUnits,
-} from '../../helpers';
+import { isEmptyChartData, getFixedYAxis, formatBucketTooltipDate } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
-import { ChartTooltip } from '../chart-tooltip';
+import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
@@ -41,7 +34,7 @@ import type { ComponentProps } from 'react';
 
 /**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
- * a sparkline (no y-axis, grid, or legend). Matches the comparative line chart
+ * a sparkline (no axes, grid, or legend). Matches the comparative line chart
  * so a metric switching chart type keeps the same breakpoint.
  */
 const COMPACT_CHART_HEIGHT = 140;
@@ -76,7 +69,7 @@ export type ComparativeBarChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
+	 * Degrade to a sparkline (no axes, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
 	compactWhenShort?: boolean;
@@ -146,7 +139,7 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, theme } = useGlobalChartsContext();
 
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
@@ -204,24 +197,9 @@ export function ComparativeBarChart( {
 	);
 	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
 
-	const tooltipUnits = useMemo(
-		() => resolveTooltipUnits( series, tooltipExtras ),
-		[ series, tooltipExtras ]
-	);
-
-	const getTooltipLabel = useCallback(
-		(
-			datum: { date: Date; realDate?: Date; endDate?: Date },
-			_index: number,
-			key: string,
-			value: string | null,
-			rawValue: number | null
-		): string => {
-			const date = formatBucketTooltipDate( datum, displayResolution );
-			const unit = tooltipUnits.get( key );
-			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
-		},
-		[ tooltipUnits, displayResolution ]
+	const formatTooltipBucket = useCallback(
+		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
+		[ displayResolution ]
 	);
 
 	/**
@@ -260,12 +238,15 @@ export function ComparativeBarChart( {
 				}
 
 				// Comparison dates were aligned onto the primary axis, so the hovered
-				// category matches on `date`, not on `realDate`.
+				// category matches on `date`, not on `realDate`. A bucket the comparison
+				// lacks still gets an entry, so the tooltip keeps its column and reads a dash.
 				const paired = seriesData.data.find( point => point.date?.getTime() === hoveredTime );
 
-				if ( paired?.value != null ) {
-					augmented[ seriesData.label ] = { datum: paired, index, key: seriesData.label };
-				}
+				augmented[ seriesData.label ] = {
+					datum: paired ?? { date: hovered.date, value: null },
+					index,
+					key: seriesData.label,
+				};
 			}
 
 			return { ...tooltipData, datumByKey: augmented };
@@ -273,31 +254,28 @@ export function ComparativeBarChart( {
 		[ alignedSeries, primarySeriesByGroup ]
 	);
 
-	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
-	// them by key (see `ChartTooltip`'s `seriesKeys`).
-	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
-
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
-			const { tooltipData, supplementaryRows } = appendTooltipExtras(
-				withComparisonDatum( params.tooltipData ),
-				tooltipExtras
-			);
+			// `seriesStyles` follows `alignedSeries`, so the model pairs rows by that order.
+			const model = buildDatedTooltipModel( {
+				tooltipData: withComparisonDatum( params.tooltipData ),
+				series: alignedSeries,
+				seriesStyles,
+				extras: tooltipExtras,
+				dataFormat,
+				formatDate: formatTooltipBucket,
+			} );
 
-			return (
-				<ChartTooltip
-					tooltipData={ tooltipData }
-					dataFormat={ dataFormat }
-					seriesStyles={ seriesStyles }
-					seriesKeys={ seriesKeys }
-					indicatorType="rect"
-					layout="inline"
-					supplementaryRows={ supplementaryRows }
-					getLabel={ getTooltipLabel }
-				/>
-			);
+			return model && <DatedTooltip model={ model } indicatorType="rect" />;
 		},
-		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum, tooltipExtras ]
+		[
+			dataFormat,
+			seriesStyles,
+			alignedSeries,
+			withComparisonDatum,
+			tooltipExtras,
+			formatTooltipBucket,
+		]
 	);
 
 	/**
@@ -310,16 +288,17 @@ export function ComparativeBarChart( {
 	);
 
 	const chartOptions = useMemo( () => {
+		const hiddenWhenCompact = isCompact ? { display: false } : {};
 		const baseOptions = {
 			axis: {
 				x: {
 					tickFormat: xTickFormat,
 					tickResolution,
+					...hiddenWhenCompact,
 				},
 				y: {
 					tickFormat: yTickFormat,
-					// Hide the y-axis on short tiles; its labels would otherwise overlap.
-					...( isCompact ? { display: false } : {} ),
+					...hiddenWhenCompact,
 				},
 			},
 		};
@@ -342,6 +321,7 @@ export function ComparativeBarChart( {
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
+				margin={ isCompact ? theme.sparkline.margin : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				// A zero-value bar has no height, so a quiet day would otherwise read as
 				// missing data. This draws it as a hairline stub instead.

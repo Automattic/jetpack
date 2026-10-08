@@ -37,6 +37,16 @@ export const SELECTABLE_PRESETS = [
 export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 
 /**
+ * The "Last N days" presets, which `getPreviousPeriodMonthCount` steps back by days.
+ */
+export const DAY_COUNT_PRESETS: readonly PrimaryPresetId[] = [
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_365_DAYS,
+];
+
+/**
  * The all-time marker. On the year surface it covers every year the surface
  * lists; on a detail page it runs from the resource's own start (its publish
  * date) through today. A report sends it as `num: -1`, so WPCOM picks the start.

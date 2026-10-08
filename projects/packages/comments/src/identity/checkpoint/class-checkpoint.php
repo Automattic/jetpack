@@ -23,9 +23,9 @@ class Checkpoint {
 	// Sent when the form rendered as signed in on the passport. Without it the passport is
 	// left alone, so a log-out that never reached the server still posts as the guest shown.
 	const PASSPORT_FIELD = 'jetpack_comment_identity_passport';
-	// Comment meta: the commenter's provider and avatar.
-	const META_PROVIDER = 'jetpack_comment_identity_provider';
-	const META_AVATAR   = 'jetpack_comment_identity_avatar';
+	// Comment meta: the commenter's id and avatar.
+	const META_ID     = 'jetpack_comment_identity_id';
+	const META_AVATAR = 'jetpack_comment_identity_avatar';
 
 	/**
 	 * Singleton instance.
@@ -124,12 +124,11 @@ class Checkpoint {
 
 		$params = array(
 			'blog_id'   => self::blog_id(),
-			// The only provider, and part of what WordPress.com verifies.
-			'provider'  => 'wordpress',
 			'challenge' => $challenge,
 			'origin'    => $origin,
-			// WordPress.com rejects an expiry past ten minutes out; a minute is left for clock skew.
-			'expires'   => time() + 9 * MINUTE_IN_SECONDS,
+			// Outlasts a slow WordPress.com login or password reset. WordPress.com rejects
+			// an expiry past an hour out, so ten minutes are left for clock skew.
+			'expires'   => time() + 50 * MINUTE_IN_SECONDS,
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -172,7 +171,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, provider, name, email, avatar, expires_at.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar.
 	 */
 	public static function exchange( $code ) {
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -199,14 +198,12 @@ class Checkpoint {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( 200 === $status && is_array( $body ) && ! empty( $body['site_commenter_id'] ) && ! empty( $body['provider'] ) ) {
+		if ( 200 === $status && is_array( $body ) && ! empty( $body['site_commenter_id'] ) ) {
 			return array(
 				'site_commenter_id' => sanitize_text_field( (string) $body['site_commenter_id'] ),
-				'provider'          => sanitize_key( (string) $body['provider'] ),
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
-				'expires_at'        => (int) ( $body['expires_at'] ?? 0 ),
 			);
 		}
 
@@ -342,8 +339,7 @@ class Checkpoint {
 			return;
 		}
 
-		add_comment_meta( $comment_id, 'jetpack_comment_identity_id', $this->identity['site_commenter_id'], true );
-		add_comment_meta( $comment_id, self::META_PROVIDER, $this->identity['provider'], true );
+		add_comment_meta( $comment_id, self::META_ID, $this->identity['site_commenter_id'], true );
 
 		if ( '' !== $this->identity['avatar'] ) {
 			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );

@@ -1,0 +1,10 @@
+# Files not needed to be distributed.
+
+# Files not needed in the production build.
+# (see also entries in the monorepo root .gitattributes)
+/build/**/*.map  production-exclude
+packages/**      production-exclude
+routes/**        production-exclude
+
+# Files needed in the production build.
+build/**         production-include

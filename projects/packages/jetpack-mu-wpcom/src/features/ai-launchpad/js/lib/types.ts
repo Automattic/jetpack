@@ -127,6 +127,9 @@ export type TailorSource = 'ai' | 'fallback';
 export interface TailorResult {
 	source: TailorSource;
 	output: TailoredOutput;
+	// Present only when the output could not be saved, so the host shows an error instead of a list
+	// nobody saved. `retry` re-sends this same output (no new AI call) and resolves true once saved.
+	saveError?: { retry: () => Promise< boolean > };
 }
 
 export type TrackEventProps = Record< string, string | number | boolean | null >;

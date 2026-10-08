@@ -390,7 +390,12 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 
 		$widget_type = $registry->get_registered( 'plugin/first' );
 		$this->assertInstanceOf( Widget_Type::class, $widget_type );
-		$this->assertSame( array( 'content' => 'Read <em>this</em> carefully.' ), $widget_type->help );
+		// Legacy wp_kses keeps `<script>` contents as text; the HTML API wp_kses drops them.
+		// @todo: Expect only 'Read <em>this</em> .' once the HTML API version is the only one we care about (WP 7.2+).
+		$help    = $widget_type->help ?? array();
+		$content = $help['content'] ?? null;
+		$this->assertContains( $content, array( 'Read <em>this</em> carefully.', 'Read <em>this</em> .' ) );
+		$this->assertSame( array( 'content' => $content ), $help );
 		$this->assertNull( $widget_type->icon );
 		$this->assertFalse( Widget_Type_Registry::get_instance()->is_registered( 'plugin/first' ) );
 	}
