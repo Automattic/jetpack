@@ -206,7 +206,17 @@ jobs:
           mkdir artifacts
           [[ "$COVERAGE" == true ]] && mkdir coverage
 
-          jq -r 'keys[] | if . == "monorepo" then "composer.json" else "projects/\( . )/composer.json" end' <<<"$CHANGED" > "$QUEUEFILE"
+          # Put some known slow things at the start of the queue, then everything else.
+          jq -r '
+            [
+              "plugins/jetpack",
+              "packages/premium-analytics",
+              "packages/publicize",
+              "packages/backup"
+            ] as $slow
+            | keys | sort_by( . as $p | $slow | index( $p ) // infinite )[]
+            | if . == "monorepo" then "composer.json" else "projects/\( . )/composer.json" end
+          ' <<<"$CHANGED" > "$QUEUEFILE"
 
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
