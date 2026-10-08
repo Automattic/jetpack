@@ -40,9 +40,9 @@ export type MonthCalendarHeatmapProps = {
 };
 
 /**
- * One mini calendar per month on a shared scale, months across and named
- * beneath, weeks starting on Monday. The blocks spread out in a wide tile; in a
- * narrow one only the grid scrolls, and a one-row tile drops the legend.
+ * One mini calendar per month on a shared scale, named beneath, weeks starting on Monday.
+ * The days grow with the tile, wrapping the months onto more rows when that makes them
+ * larger; otherwise one row of months scrolls, and a one-row tile drops the legend.
  */
 export function MonthCalendarHeatmap( {
 	valueByDay,
@@ -87,6 +87,7 @@ export function MonthCalendarHeatmap( {
 				data={ data }
 				columnGroups={ columnGroups }
 				compact
+				fitCells
 				keyboardNavigation="calendar"
 				ariaLabel={ ariaLabel }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
