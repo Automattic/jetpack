@@ -106,14 +106,14 @@ describe( 'useConnectionState — before the site is registered', () => {
 		global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
 	} );
 
-	it( 'names the connect-site action, and promises no more clicks than it takes', () => {
+	it( 'names the connect-site action, and both halves of what it connects', () => {
 		setConnectionStore( { isRegistered: false } );
 
 		const { result } = renderConnectionState();
 
 		expect( result.current ).toEqual( {
 			label: 'Site not connected',
-			description: 'Connect your site to use Jetpack.',
+			description: 'To use Jetpack, connect this site and your account to WordPress.com.',
 			action: 'CONNECT_SITE',
 			status: 'error',
 		} );
@@ -127,7 +127,7 @@ describe( 'useConnectionState — before the site is registered', () => {
 
 		expect( result.current ).toEqual( {
 			label: 'Site not connected',
-			description: 'A site admin will need to connect this site to Jetpack.',
+			description: 'A site admin will need to connect this site to WordPress.com.',
 			status: 'error',
 		} );
 	} );
