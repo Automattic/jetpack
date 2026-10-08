@@ -17,24 +17,27 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 	}
 
 	return (
-		<ProtectCard icon={ bug } title={ __( 'Scan', 'jetpack' ) }>
+		<ProtectCard icon={ bug } title={ __( 'Scan', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="sm">
 					<Text variant="body-md">
 						{ scan.hasPlan
 							? __(
 									'Scan checks your site for malware every day. Threat alerts and scan settings are managed on Jetpack.com.',
-									'jetpack'
+									'jetpack-protect-pkg'
 								)
 							: __(
 									'Your site is checked every day for known vulnerabilities in WordPress, plugins and themes. There’s nothing to set up.',
-									'jetpack'
+									'jetpack-protect-pkg'
 								) }
 					</Text>
 					<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
 						{ scan.hasPlan
-							? __( 'Manage Scan settings', 'jetpack' )
-							: __( 'Get Scan for daily malware scanning and one-click fixes', 'jetpack' ) }
+							? __( 'Manage Scan settings', 'jetpack-protect-pkg' )
+							: __(
+									'Get Scan for daily malware scanning and one-click fixes',
+									'jetpack-protect-pkg'
+								) }
 					</Link>
 				</Stack>
 			</CardRow>

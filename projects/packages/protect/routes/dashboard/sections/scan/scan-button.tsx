@@ -96,7 +96,7 @@ export default function ScanButton( { scan, isStarting, onScan, label, variant, 
 		/* translators: %s is a date and time, such as "Oct 6, 10PM". */
 		__(
 			'Free vulnerability checks run once a day, so the next one can start on %s. Upgrade to Scan to scan whenever you like.',
-			'jetpack'
+			'jetpack-protect-pkg'
 		),
 		dateI18n( 'M j, gA', nextCheck )
 	);
@@ -116,7 +116,7 @@ export default function ScanButton( { scan, isStarting, onScan, label, variant, 
 			</Popover.Trigger>
 			<Popover.Popup className="jp-protect-scan-button__popover" initialFocus={ false }>
 				<Stack direction="column" gap="xs">
-					<Popover.Title>{ __( 'Checked once a day', 'jetpack' ) }</Popover.Title>
+					<Popover.Title>{ __( 'Checked once a day', 'jetpack-protect-pkg' ) }</Popover.Title>
 					<Popover.Description>{ description }</Popover.Description>
 				</Stack>
 			</Popover.Popup>

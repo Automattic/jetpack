@@ -2,14 +2,21 @@
 /**
  * Protect dashboard: the Scan section.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-protect
  */
 
+namespace Automattic\Jetpack\Protect\Sections;
+
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Protect\Dashboard;
+use Automattic\Jetpack\Protect\Dashboard_Section;
+use Automattic\Jetpack\Protect\Dashboard_Threats;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Redirect;
+use WP_Error;
+use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -20,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since $$next-version$$
  */
-class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Section {
+class Scan implements Dashboard_Section {
 
 	/**
 	 * Scan statuses that mean a scan is still running, as the Protect plugin reads them.
@@ -58,7 +65,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	 * @return array
 	 */
 	public function get_state() {
-		$has_plan = Jetpack_Protect_Dashboard::has_scan_plan();
+		$has_plan = Dashboard::has_scan_plan();
 
 		return array_merge(
 			array(
@@ -84,12 +91,12 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( __CLASS__, 'get_scan' ),
-					'permission_callback' => array( Jetpack_Protect_Dashboard::class, 'can_manage' ),
+					'permission_callback' => array( Dashboard::class, 'can_manage' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( __CLASS__, 'start_scan' ),
-					'permission_callback' => array( Jetpack_Protect_Dashboard::class, 'can_manage' ),
+					'permission_callback' => array( Dashboard::class, 'can_manage' ),
 				),
 			)
 		);
@@ -101,7 +108,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	 * @return array
 	 */
 	public static function get_scan() {
-		return self::get_scan_report( Jetpack_Protect_Dashboard::has_scan_plan(), true );
+		return self::get_scan_report( Dashboard::has_scan_plan(), true );
 	}
 
 	/**
@@ -110,7 +117,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 	 * @return array|WP_Error
 	 */
 	public static function start_scan() {
-		$has_plan = Jetpack_Protect_Dashboard::has_scan_plan();
+		$has_plan = Dashboard::has_scan_plan();
 
 		if ( $has_plan && ! get_transient( self::REQUEST_LOCK ) ) {
 			$api_url  = Scan_Status::get_api_url();
@@ -118,7 +125,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 				? $api_url
 				: Client::wpcom_json_api_request_as_blog( $api_url . '/enqueue', '2', array( 'method' => 'POST' ), null, 'wpcom' );
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack' ), array( 'status' => 502 ) );
+				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 			}
 			set_transient( self::REQUEST_LOCK, time(), MINUTE_IN_SECONDS );
 			Scan_Status::delete_option();
@@ -170,9 +177,7 @@ class Jetpack_Protect_Dashboard_Scan implements Jetpack_Protect_Dashboard_Sectio
 			'lastChecked'    => $status->last_checked,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),
-			'threats'        => Jetpack_Protect_Dashboard_Threats::format_all( $status->threats ),
+			'threats'        => Dashboard_Threats::format_all( $status->threats ),
 		);
 	}
 }
-
-Jetpack_Protect_Dashboard::register_section( new Jetpack_Protect_Dashboard_Scan() );

@@ -8,7 +8,6 @@ module.exports = {
 		'<rootDir>/_inc/shared/',
 		'<rootDir>/_inc/content-guidelines-ai/',
 		'<rootDir>/modules/',
-		'<rootDir>/routes/',
 	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/client',
@@ -18,7 +17,6 @@ module.exports = {
 		'<rootDir>/_inc/shared/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/_inc/content-guidelines-ai/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/modules/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
-		'<rootDir>/routes/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...baseConfig.collectCoverageFrom.slice( 3 ),
 	],
 };

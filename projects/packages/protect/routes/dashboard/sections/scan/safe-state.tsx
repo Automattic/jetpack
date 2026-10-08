@@ -46,20 +46,20 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 		<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
 			<SafeShield />
 			<Text variant="heading-xl" render={ <h3 /> }>
-				{ __( 'Your site is safe right now', 'jetpack' ) }
+				{ __( 'Your site is safe right now', 'jetpack-protect-pkg' ) }
 			</Text>
 			<Text variant="body-lg" className="jp-protect-safe__details">
 				{ sprintf(
 					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
-					__( 'No issues were found after scanning %1$s and %2$s.', 'jetpack' ),
+					__( 'No issues were found after scanning %1$s and %2$s.', 'jetpack-protect-pkg' ),
 					sprintf(
 						/* translators: %s is a number. */
-						_n( '%s plugin', '%s plugins', pluginsChecked, 'jetpack' ),
+						_n( '%s plugin', '%s plugins', pluginsChecked, 'jetpack-protect-pkg' ),
 						pluginsChecked.toLocaleString()
 					),
 					sprintf(
 						/* translators: %s is a number. */
-						_n( '%s theme', '%s themes', themesChecked, 'jetpack' ),
+						_n( '%s theme', '%s themes', themesChecked, 'jetpack-protect-pkg' ),
 						themesChecked.toLocaleString()
 					)
 				) }
@@ -67,16 +67,16 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 				{ nextScan
 					? sprintf(
 							/* translators: %s is a date and time, such as "Sep 30, 9AM". */
-							__( 'Next scan will happen automatically on %s.', 'jetpack' ),
+							__( 'Next scan will happen automatically on %s.', 'jetpack-protect-pkg' ),
 							dateI18n( 'M j, gA', nextScan )
 						)
-					: __( 'Your site is scanned automatically every day.', 'jetpack' ) }
+					: __( 'Your site is scanned automatically every day.', 'jetpack-protect-pkg' ) }
 			</Text>
 			<ScanButton
 				scan={ scan }
 				isStarting={ isStarting }
 				onScan={ onScan }
-				label={ __( 'Scan again now', 'jetpack' ) }
+				label={ __( 'Scan again now', 'jetpack-protect-pkg' ) }
 			/>
 		</Stack>
 	);

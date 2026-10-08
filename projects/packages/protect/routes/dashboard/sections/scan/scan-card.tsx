@@ -109,7 +109,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 				setScan( current => ( { ...current, ...next } ) );
 			} )
 			.catch( ( e: { message?: string } ) =>
-				setStartError( e?.message || __( 'The scan couldn’t be started.', 'jetpack' ) )
+				setStartError( e?.message || __( 'The scan couldn’t be started.', 'jetpack-protect-pkg' ) )
 			)
 			.finally( () => setIsStarting( false ) );
 	}, [] );
@@ -132,10 +132,10 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 			<CardRow>
 				<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
 					<Spinner />
-					<Text variant="body-lg">{ __( 'Scanning your site…', 'jetpack' ) }</Text>
+					<Text variant="body-lg">{ __( 'Scanning your site…', 'jetpack-protect-pkg' ) }</Text>
 					{ polls >= MAX_POLLS && (
 						<Button variant="outline" onClick={ refresh } loading={ isFetching }>
-							{ __( 'Check again', 'jetpack' ) }
+							{ __( 'Check again', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
 				</Stack>
@@ -146,10 +146,13 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 			<CardRow>
 				<Stack direction="column" gap="sm" align="start">
 					<Text variant="body-md">
-						{ __( 'We couldn’t check your site for vulnerabilities right now.', 'jetpack' ) }
+						{ __(
+							'We couldn’t check your site for vulnerabilities right now.',
+							'jetpack-protect-pkg'
+						) }
 					</Text>
 					<Button variant="outline" onClick={ refresh } loading={ isFetching }>
-						{ __( 'Try again', 'jetpack' ) }
+						{ __( 'Try again', 'jetpack-protect-pkg' ) }
 					</Button>
 				</Stack>
 			</CardRow>
@@ -165,12 +168,18 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 			<>
 				<CardRow className="jp-protect-card__stats">
 					<Stat
-						label={ __( 'All vulnerabilities found', 'jetpack' ) }
+						label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
 						value={ threats.length }
 						warning
 					/>
-					<Stat label={ __( 'Plugins checked', 'jetpack' ) } value={ scan.pluginsChecked ?? 0 } />
-					<Stat label={ __( 'Themes checked', 'jetpack' ) } value={ scan.themesChecked ?? 0 } />
+					<Stat
+						label={ __( 'Plugins checked', 'jetpack-protect-pkg' ) }
+						value={ scan.pluginsChecked ?? 0 }
+					/>
+					<Stat
+						label={ __( 'Themes checked', 'jetpack-protect-pkg' ) }
+						value={ scan.themesChecked ?? 0 }
+					/>
 				</CardRow>
 				<CardRow className="jp-protect-card__disclosure">
 					<button
@@ -179,7 +188,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 						aria-expanded={ isOpen }
 						onClick={ toggle }
 					>
-						<Text variant="body-lg">{ __( 'Review and fix threats', 'jetpack' ) }</Text>
+						<Text variant="body-lg">{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }</Text>
 						<Icon icon={ isOpen ? chevronUp : chevronDown } size={ 24 } />
 					</button>
 				</CardRow>
@@ -199,11 +208,14 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 	return (
 		<ProtectCard
 			icon={ bug }
-			title={ __( 'Scan', 'jetpack' ) }
+			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
 			status={
 				scan.hasPlan
-					? { label: __( 'Active', 'jetpack' ), intent: 'stable' }
-					: { label: __( 'Vulnerability checks only', 'jetpack' ), intent: 'informational' }
+					? { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' }
+					: {
+							label: __( 'Vulnerability checks only', 'jetpack-protect-pkg' ),
+							intent: 'informational',
+						}
 			}
 			actions={
 				hasThreats &&
@@ -212,7 +224,7 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 						scan={ scan }
 						isStarting={ isStarting }
 						onScan={ startScan }
-						label={ __( 'Scan now', 'jetpack' ) }
+						label={ __( 'Scan now', 'jetpack-protect-pkg' ) }
 						variant="outline"
 						size="compact"
 					/>
@@ -230,8 +242,11 @@ export default function ScanCard( { scan: initialScan }: { scan: ScanState } ) {
 			<CardRow>
 				<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
 					{ scan.hasPlan
-						? __( 'View scan history', 'jetpack' )
-						: __( 'Get Scan for daily malware scanning and one-click fixes', 'jetpack' ) }
+						? __( 'View scan history', 'jetpack-protect-pkg' )
+						: __(
+								'Get Scan for daily malware scanning and one-click fixes',
+								'jetpack-protect-pkg'
+							) }
 				</Link>
 			</CardRow>
 		</ProtectCard>
