@@ -108,6 +108,25 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/subscribers/send-bounce-confirmation',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'send_bounce_confirmation' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'email_subscription_id' => array(
+							'type'     => 'integer',
+							'required' => true,
+							'minimum'  => 1,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/subscribers/individual',
 			array(
 				array(
@@ -485,6 +504,59 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				'subscribers_remove_failed',
 				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not remove the subscriber.', 'jetpack' ),
 				array( 'status' => $status )
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Proxy POST /wpcom/v2/sites/{blog_id}/subscribers/send-bounce-confirmation.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function send_bounce_confirmation( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/subscribers/send-bounce-confirmation', (int) $blog_id ),
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'email_subscription_id' => (int) $request->get_param( 'email_subscription_id' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			// Pass through wpcom's error code and data (e.g. `available_on`).
+			$data           = is_array( $body ) && isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : array();
+			$data['status'] = $status;
+
+			return new WP_Error(
+				is_array( $body ) && ! empty( $body['code'] ) ? (string) $body['code'] : 'subscribers_bounce_retry_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not send the confirmation email.', 'jetpack' ),
+				$data
 			);
 		}
 
