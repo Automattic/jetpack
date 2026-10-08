@@ -2,23 +2,21 @@ import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-tes
 
 const FIELD_COUNT = 30;
 
+let createdFeedbackId: number | undefined;
+
 test.use( { viewport: { width: 1280, height: 720 } } );
 
 test.afterEach( async ( { requestUtils } ) => {
-	const feedbackSubmissions = await requestUtils.rest( {
-		path: '/wp/v2/feedback',
-		params: { per_page: 100, status: 'publish,future,draft,pending,private,trash' },
-	} );
+	if ( createdFeedbackId === undefined ) {
+		return;
+	}
 
-	await Promise.all(
-		feedbackSubmissions.map( ( feedback: { id: number } ) =>
-			requestUtils.rest( {
-				method: 'DELETE',
-				path: `/wp/v2/feedback/${ feedback.id }`,
-				params: { force: true },
-			} )
-		)
-	);
+	await requestUtils.rest( {
+		method: 'DELETE',
+		path: `/wp/v2/feedback/${ createdFeedbackId }`,
+		params: { force: true },
+	} );
+	createdFeedbackId = undefined;
 } );
 
 test.describe( 'Forms: Single response page', () => {
@@ -29,6 +27,13 @@ test.describe( 'Forms: Single response page', () => {
 		requestUtils,
 	} ) => {
 		const formTitle = 'E2E Tall Form';
+		const getFeedbackIds = async (): Promise< number[] > => {
+			const feedback = await requestUtils.rest( {
+				path: '/wp/v2/feedback',
+				params: { per_page: 100, status: 'publish,future,draft,pending,private,trash' },
+			} );
+			return feedback.map( ( { id }: { id: number } ) => id );
+		};
 
 		await test.step( 'Insert a form with many fields', async () => {
 			await admin.createNewPost();
@@ -43,6 +48,7 @@ test.describe( 'Forms: Single response page', () => {
 		} );
 
 		await test.step( 'Submit the form on the frontend', async () => {
+			const existingIds = await getFeedbackIds();
 			const previewPage = await editor.openPreviewPage();
 			const form = previewPage.getByRole( 'form', { name: formTitle } );
 			const textboxes = form.getByRole( 'textbox' );
@@ -55,13 +61,16 @@ test.describe( 'Forms: Single response page', () => {
 			await expect(
 				previewPage.getByRole( 'heading', { name: 'Thank you for your response.' } )
 			).toBeVisible();
+
+			const newIds = ( await getFeedbackIds() ).filter( id => ! existingIds.includes( id ) );
+			expect( newIds ).toHaveLength( 1 );
+			createdFeedbackId = newIds[ 0 ];
 		} );
 
 		await test.step( 'Scroll the single response page to the last field', async () => {
-			const [ feedback ] = await requestUtils.rest( { path: '/wp/v2/feedback' } );
 			await admin.visitAdminPage(
 				'admin.php',
-				`page=jetpack-forms-responses-wp-admin&p=${ encodeURIComponent( `/response/${ feedback.id }` ) }`
+				`page=jetpack-forms-responses-wp-admin&p=${ encodeURIComponent( `/response/${ createdFeedbackId }` ) }`
 			);
 
 			const card = page.locator( '.jp-forms__single-response-card' );
