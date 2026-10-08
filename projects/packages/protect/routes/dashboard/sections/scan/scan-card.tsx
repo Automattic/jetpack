@@ -212,7 +212,7 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
 			status={
 				scan.hasPlan
-					? { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' }
+					? undefined
 					: {
 							label: __( 'Vulnerability checks only', 'jetpack-protect-pkg' ),
 							intent: 'informational',
