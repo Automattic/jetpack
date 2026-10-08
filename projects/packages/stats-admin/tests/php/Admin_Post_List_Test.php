@@ -462,6 +462,40 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A connection-level error stops the remaining batches, which would fail the same way.
+	 *
+	 * @return void
+	 */
+	public function test_get_post_page_views_for_current_list_stops_on_connection_error() {
+		global $wp_query;
+
+		$wp_query = (object) array(
+			'posts' => array_map(
+				function ( $id ) {
+					return (object) array( 'ID' => $id );
+				},
+				range( 1, 250 )
+			),
+		);
+
+		$requests = 0;
+		$column   = $this->get_column_with_views_callback(
+			function () use ( &$requests ) {
+				++$requests;
+
+				return new WP_Error( 'site_not_connected', 'This site is not connected to WordPress.com.' );
+			}
+		);
+
+		$views = $column->get_post_page_views_for_current_list();
+
+		$this->assertSame( 1, $requests );
+		$this->assertSame( array(), $views );
+
+		$wp_query = null;
+	}
+
+	/**
 	 * Test the fallback format to compact.
 	 *
 	 * @return void
