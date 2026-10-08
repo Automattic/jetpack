@@ -107,6 +107,62 @@ class REST_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A provisioner whose provision() and deprovision() results can be overridden.
+	 *
+	 * @param array|\WP_Error|null $provision_result   Replaces provision()'s result when set.
+	 * @param true|\WP_Error       $deprovision_result deprovision()'s result.
+	 * @return Provisioner
+	 */
+	private static function provisioner( $provision_result = null, $deprovision_result = true ) {
+		return new class( $provision_result, $deprovision_result ) extends Fake_Provisioner {
+			/**
+			 * Replacement provision() result.
+			 *
+			 * @var array|\WP_Error|null
+			 */
+			private $provision_result;
+
+			/**
+			 * The deprovision() result.
+			 *
+			 * @var true|\WP_Error
+			 */
+			private $deprovision_result;
+
+			/**
+			 * Constructor.
+			 *
+			 * @param array|\WP_Error|null $provision_result   Replacement provision() result.
+			 * @param true|\WP_Error       $deprovision_result The deprovision() result.
+			 */
+			public function __construct( $provision_result, $deprovision_result ) {
+				$this->provision_result   = $provision_result;
+				$this->deprovision_result = $deprovision_result;
+			}
+
+			/**
+			 * The replacement result, or the fixed one.
+			 *
+			 * @param string $domain Domain.
+			 * @return array|\WP_Error
+			 */
+			public function provision( $domain ) {
+				return null === $this->provision_result ? parent::provision( $domain ) : $this->provision_result;
+			}
+
+			/**
+			 * The configured result.
+			 *
+			 * @param array $account Account.
+			 * @return true|\WP_Error
+			 */
+			public function deprovision( array $account ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by the interface.
+				return $this->deprovision_result;
+			}
+		};
+	}
+
+	/**
 	 * Every route, with params that pass validation.
 	 *
 	 * @return array[]
@@ -150,6 +206,13 @@ class REST_Controller_Test extends BaseTestCase {
 				array(
 					'domain_lockdown' => 'failed',
 					'sender_domain'   => 'passed',
+				),
+				400,
+			),
+			'sender domain failing'              => array(
+				array(
+					'domain_lockdown' => 'passed',
+					'sender_domain'   => 'failed',
 				),
 				400,
 			),
@@ -207,5 +270,83 @@ class REST_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'fake-key', $account['api_key'] );
 		$this->assertSame( 'jpsend', $account['dkim_selector'] );
 		$this->assertFalse( Settings::get()['enabled'] );
+	}
+
+	public function test_setup_failure_leaves_the_account_and_settings_unchanged() {
+		$this->login( 'administrator' );
+		Account::save( self::account() );
+		Settings::update( array( 'enabled' => true ) );
+		$provisioner = self::provisioner( new \WP_Error( 'jetpack_send_transport', 'down', array( 'status' => 0 ) ) );
+		add_filter( 'jetpack_send_provisioner', fn() => $provisioner );
+
+		$response = $this->request( 'POST', '/setup', array( 'domain' => 'other.com' ) );
+
+		$this->assertSame( 502, $response->get_status() );
+		$this->assertSame( 'jetpack_send_transport', $response->get_data()['code'] );
+		$account = Account::get();
+		$this->assertIsArray( $account );
+		$this->assertSame( 'example.com', $account['domain'] );
+		$this->assertSame( 'secret-sub-key', $account['api_key'] );
+		$this->assertTrue( Settings::get()['enabled'] );
+	}
+
+	/**
+	 * Whether deprovisioning fails, and the warning the response carries.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_deprovision_results() {
+		return array(
+			'deprovisioned' => array( true, '' ),
+			'cannot delete' => array( new \WP_Error( 'x', 'Could not delete' ), 'Could not delete' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_deprovision_results
+	 *
+	 * @param true|\WP_Error $deprovision_result What deprovision() returns.
+	 * @param string         $warning            Expected reset_warning.
+	 */
+	#[DataProvider( 'provide_deprovision_results' )]
+	public function test_reset_clears_local_state_even_if_deprovisioning_fails( $deprovision_result, $warning ) {
+		$this->login( 'administrator' );
+		Account::save( self::account() );
+		Settings::update( array( 'enabled' => true ) );
+		$provisioner = self::provisioner( null, $deprovision_result );
+		add_filter( 'jetpack_send_provisioner', fn() => $provisioner );
+
+		$response = $this->request( 'POST', '/reset' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNull( Account::get() );
+		$this->assertFalse( Settings::get()['enabled'] );
+		$this->assertSame( $warning, $response->get_data()['reset_warning'] );
+	}
+
+	/**
+	 * Domain input and what it normalizes to.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_domains() {
+		return array(
+			'url with path and mixed case' => array( 'https://WWW.Example.com/path', 'www.example.com' ),
+			'trailing dot'                 => array( 'example.com.', 'example.com' ),
+			'no dot'                       => array( 'localhost', '' ),
+			'empty'                        => array( '', '' ),
+			'uppercase'                    => array( 'Example.COM', 'example.com' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_domains
+	 *
+	 * @param string $input    Raw input.
+	 * @param string $expected Normalized domain, or ''.
+	 */
+	#[DataProvider( 'provide_domains' )]
+	public function test_sanitize_domain( $input, $expected ) {
+		$this->assertSame( $expected, REST_Controller::sanitize_domain( $input ) );
 	}
 }
