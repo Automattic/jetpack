@@ -170,6 +170,11 @@ describe( 'Stats query factories', () => {
 			{ period: 'day', start_date: '2026-07-01', date: '2026-07-07' },
 		],
 		[ 'the whole history', { period: 'month', num: -1 }, { period: 'month', num: -1 } ],
+		[
+			'today, past the post limit',
+			{ period: 'day', num: 1, approximate: true },
+			{ period: 'day', num: 1, approximate: 'true' },
+		],
 	] as const )( 'builds author stats query keys over %s', ( _name, params, apiParams ) => {
 		const query = statsAuthorQuery( 7, params );
 

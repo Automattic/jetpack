@@ -11,11 +11,16 @@ export type StatsAuthorParams = {
 	from?: string;
 	to?: string;
 	num?: number;
+	/**
+	 * Past the endpoint's post limit, read views through the site-wide ranking
+	 * instead of refusing; the dates stay exact.
+	 */
+	approximate?: boolean;
 };
 
 export const statsAuthorQuery = (
 	authorId: number,
-	{ period, from, to, num }: StatsAuthorParams
+	{ period, from, to, num, approximate }: StatsAuthorParams
 ): StatsReportQueryOptions< 'author' > => {
 	const { start_date: startDate, end_date: endDate } = reportParamsToStatsQueryParams( {
 		from,
@@ -30,6 +35,7 @@ export const statsAuthorQuery = (
 			params: {
 				period,
 				...( num === undefined ? {} : { num } ),
+				...( approximate ? { approximate: 'true' } : {} ),
 				...( num === undefined && startDate ? { start_date: startDate } : {} ),
 				...( num === undefined && endDate ? { end_date: endDate } : {} ),
 			},

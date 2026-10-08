@@ -493,6 +493,22 @@ describe( 'author detail stage on the provisional all-time window', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'says an unknown author is not found, without a Retry that cannot help', () => {
+		mockSummary( { isNotFound: true } );
+		mockUseAuthorAllTimeStart.mockReturnValue( {
+			allTimeStart: undefined,
+			isPending: true,
+			isError: true,
+			error: { error: 'unknown_author', status: 404 },
+			refetch,
+		} );
+
+		render( stage() );
+
+		expect( getNoticeText( "We couldn't find this author." ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'offers Retry in place of the widgets when the first content date cannot load', async () => {
 		mockUseAuthorAllTimeStart.mockReturnValue( {
 			allTimeStart: undefined,

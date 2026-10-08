@@ -191,15 +191,6 @@ function AuthorDetail(): JSX.Element {
 						),
 						onRetry: summary.refetch,
 					} );
-	} else if ( isAnchoringAllTime && anchor.isError ) {
-		// Without the first content date, all time has no start to report from.
-		notice = describeError( anchor.error, {
-			retryDescription: __(
-				"We couldn't load this author's stats. Please try again in a moment.",
-				'jetpack-premium-analytics-pkg'
-			),
-			onRetry: anchor.refetch,
-		} );
 	} else if ( summary.isNotFound ) {
 		notice = {
 			intent: 'info',
@@ -215,6 +206,15 @@ function AuthorDetail(): JSX.Element {
 				),
 			},
 		};
+	} else if ( isAnchoringAllTime && anchor.isError ) {
+		// Without the author's start, all time has no start to report from.
+		notice = describeError( anchor.error, {
+			retryDescription: __(
+				"We couldn't load this author's stats. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: anchor.refetch,
+		} );
 	}
 
 	return (

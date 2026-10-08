@@ -3,7 +3,7 @@
  */
 import {
 	ReportScopeProvider,
-	useStatsAuthor,
+	useStatsAuthorAllTime,
 	useStatsVisits,
 } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
@@ -25,7 +25,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsVisits: jest.fn(),
-	useStatsAuthor: jest.fn(),
+	useStatsAuthorAllTime: jest.fn(),
 } ) );
 
 // The site zone decides where a month starts and ends; pin it so the ranges are literal.
@@ -42,7 +42,7 @@ class ResizeObserverStub {
 }
 
 const mockUseStatsVisits = jest.mocked( useStatsVisits );
-const mockUseStatsAuthor = jest.mocked( useStatsAuthor );
+const mockUseStatsAuthorAllTime = jest.mocked( useStatsAuthorAllTime );
 
 function visitsResult(
 	rows: [ string, number ][] | undefined,
@@ -114,14 +114,14 @@ describe( 'ViewsOverYears widget', () => {
 		mockOpenSectionRange.mockReset();
 		mockUseStatsVisits.mockReset();
 		mockVisits( visitsResult( ROWS ) );
-		mockUseStatsAuthor.mockReturnValue( {
+		mockUseStatsAuthorAllTime.mockReturnValue( {
 			data: undefined,
 			isLoading: false,
 			isFetching: false,
 			isError: false,
 			error: null,
 			refetch: jest.fn(),
-		} as unknown as ReturnType< typeof useStatsAuthor > );
+		} as unknown as ReturnType< typeof useStatsAuthorAllTime > );
 		jest.useFakeTimers();
 		jest.setSystemTime( NOW );
 	} );
@@ -183,7 +183,7 @@ describe( 'ViewsOverYears widget', () => {
 	} );
 
 	it( 'reads one author’s history, opens its first month on the first content day, and opens a month as the page’s period', async () => {
-		mockUseStatsAuthor.mockReturnValue( {
+		mockUseStatsAuthorAllTime.mockReturnValue( {
 			data: {
 				startDate: '2025-11-24',
 				data: ROWS.map( ( [ period, views ] ) => ( { period, views } ) ),
@@ -193,7 +193,7 @@ describe( 'ViewsOverYears widget', () => {
 			isError: false,
 			error: null,
 			refetch: jest.fn(),
-		} as unknown as ReturnType< typeof useStatsAuthor > );
+		} as unknown as ReturnType< typeof useStatsAuthorAllTime > );
 		const openPeriod = jest.fn();
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render(
@@ -212,11 +212,7 @@ describe( 'ViewsOverYears widget', () => {
 			</ReportScopeProvider>
 		);
 
-		expect( mockUseStatsAuthor ).toHaveBeenLastCalledWith(
-			7,
-			{ period: 'month', num: -1 },
-			{ enabled: true }
-		);
+		expect( mockUseStatsAuthorAllTime ).toHaveBeenLastCalledWith( 7, { enabled: true } );
 		expect( mockUseStatsVisits ).toHaveBeenCalledWith( expect.anything(), { enabled: false } );
 		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
 
@@ -234,9 +230,7 @@ describe( 'ViewsOverYears widget', () => {
 		expect(
 			screen.getByText( 'Open an author to see their all-time traffic here.' )
 		).toBeInTheDocument();
-		expect( mockUseStatsAuthor ).toHaveBeenLastCalledWith( 0, expect.anything(), {
-			enabled: false,
-		} );
+		expect( mockUseStatsAuthorAllTime ).toHaveBeenLastCalledWith( 0, { enabled: false } );
 		for ( const [ , options ] of mockUseStatsVisits.mock.calls ) {
 			expect( options?.enabled ).toBe( false );
 		}
