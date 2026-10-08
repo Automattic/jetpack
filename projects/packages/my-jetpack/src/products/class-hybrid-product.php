@@ -144,7 +144,7 @@ abstract class Hybrid_Product extends Product {
 	 *
 	 * In addition to the parent's plugin deactivation, also deactivates the
 	 * matching Jetpack module when `static::$module_name` is set and the
-	 * module is saved as active — otherwise Hybrid products activated via
+	 * module is saved and active — otherwise Hybrid products activated via
 	 * the Jetpack-module path stay half-on after "deactivation".
 	 *
 	 * @return bool|WP_Error True on success (matches Product::deactivate()),
@@ -152,11 +152,16 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function deactivate() {
 		$result               = parent::deactivate();
+		$modules              = new Modules();
 		$saved_active_modules = (array) \Jetpack_Options::get_option( 'active_modules', array() );
 
-		// A standalone plugin can force its module on through a filter without saving it, leaving nothing to remove.
-		if ( ! empty( static::$module_name ) && in_array( static::$module_name, $saved_active_modules, true ) ) {
-			if ( ! ( new Modules() )->deactivate( static::$module_name ) ) {
+		// Modules::deactivate() can't remove a module only a plugin's filter forces on, nor a saved one that is unavailable.
+		if (
+			! empty( static::$module_name )
+			&& in_array( static::$module_name, $saved_active_modules, true )
+			&& $modules->is_active( static::$module_name )
+		) {
+			if ( ! $modules->deactivate( static::$module_name ) ) {
 				return new WP_Error(
 					'module_deactivation_failed',
 					__( 'Error deactivating Jetpack module', 'jetpack-my-jetpack' )
