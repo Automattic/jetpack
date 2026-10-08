@@ -149,8 +149,6 @@ jobs:
         with:
           path: ${{ matrix.buildGroup }}.tar
           retention-days: 1
-          # Already compressed.
-          compression-level: 0
           archive: false
 
   e2e-tests:
