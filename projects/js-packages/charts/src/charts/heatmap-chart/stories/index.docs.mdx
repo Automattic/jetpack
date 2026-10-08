@@ -333,7 +333,7 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 
 ## Theming
 
-The heatmap resolves the color its scale is built from in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). From it and the chart background the chart derives the two ends of the scale: the shade closest to the background that still reaches 3:1 against it and against the empty-cell color, and a deeper one toward 9:1, deeper still when needed to stay 2:1 from the lowest step, darker or lighter than the primary as the background requires. CSS `color-mix` fills in the steps between.
+The heatmap resolves the color its scale is built from in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). From it and the chart background the chart derives the two ends of the scale: the shade closest to the background that still reaches 3:1 against it and against the empty-cell color, and a deeper one toward 9:1, darker or lighter than the primary as the background requires. CSS `color-mix` fills in the steps between.
 
 Use the prop for one chart, or move the palette slot in CSS to change every chart at once.
 
