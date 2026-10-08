@@ -203,7 +203,7 @@ export function Toolbar( {
 					value={ search }
 					onChange={ onSearchChange }
 					aria-label={ __( 'Search features', 'jetpack-my-jetpack' ) }
-					placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
+					placeholder={ __( 'Search', 'jetpack-my-jetpack' ) }
 					className={ styles.search }
 				/>
 

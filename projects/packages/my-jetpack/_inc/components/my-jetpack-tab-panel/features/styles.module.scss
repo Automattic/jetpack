@@ -509,8 +509,8 @@ $view-group-padding: 4px;
 }
 
 
-// Seven usual pills, minimum-width search and layout buttons need this room;
-// the connected column caps the toolbar's content width at 918px.
+// The filter pills, minimum-width search and layout buttons need this room;
+// keep the breakpoint below the connected column's maximum content width.
 @container features-toolbar (max-width: 57rem) {
 
 	.pills {
