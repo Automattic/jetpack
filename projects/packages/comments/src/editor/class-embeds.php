@@ -180,7 +180,7 @@ class Embeds extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	private static function respond( $data ) {
-		$data->html = self::strip_scripts( isset( $data->html ) ? $data->html : '' );
+		$data->html = self::strip_scripts( $data->html ?? '' );
 
 		// Nothing to show without the script, so the comment will hold the link. Say so now.
 		if ( '' === $data->html ) {
