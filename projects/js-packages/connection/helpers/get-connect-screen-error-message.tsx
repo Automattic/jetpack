@@ -54,10 +54,12 @@ export const getRegistrationErrorDescription = (
 	// The message comes from the site, so bound its length and keep the tag pattern linear-time.
 	const text = message
 		.slice( 0, 1000 )
+		.replace( /[\uD800-\uDBFF]$/, '' )
 		.replace( /<[^<>]*>/g, ' ' )
 		.replace( /\s+/g, ' ' )
 		.trim();
-	return text ? text.slice( 0, 250 ) : undefined;
+	// Cut by code point so an emoji is never split in half.
+	return text ? Array.from( text ).slice( 0, 250 ).join( '' ) : undefined;
 };
 
 /**
