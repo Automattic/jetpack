@@ -43,10 +43,10 @@ export function useSaveSetting(): SaveSetting {
 				type: 'snackbar',
 			} );
 		},
-		onError: ( error, { key, previous } ) => {
-			queryClient.setQueryData< Settings >(
-				queryKeys.settings,
-				current => current && { ...current, [ key ]: previous }
+		onError: ( error, { key, value, previous } ) => {
+			// A later edit of the same setting replaced this value, and its own save settles it.
+			queryClient.setQueryData< Settings >( queryKeys.settings, current =>
+				current && current[ key ] === value ? { ...current, [ key ]: previous } : current
 			);
 			createErrorNotice(
 				errorMessage( error, __( 'Your settings could not be saved.', 'jetpack-sharing-likes' ) ),

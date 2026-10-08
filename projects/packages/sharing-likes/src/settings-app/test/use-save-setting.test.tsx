@@ -162,6 +162,39 @@ describe( 'useSaveSetting', () => {
 		}
 	);
 
+	it( 'keeps a later edit of the same setting when the earlier save fails', async () => {
+		const first = deferred< Settings >();
+		const second = deferred< Settings >();
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method !== 'PUT' ) {
+				return Promise.resolve( path?.endsWith( '/status' ) ? baseStatus : baseSettings );
+			}
+			return apiCalls( 'PUT' ).length === 1 ? first.promise : second.promise;
+		} );
+		const { result, queryClient } = renderSave();
+
+		let saves: Promise< unknown >[] = [];
+		act( () => {
+			saves = [
+				result.current( 'button_style', 'icon' ),
+				result.current( 'button_style', 'text' ),
+			];
+		} );
+		await act( async () => {
+			first.reject( { message: 'Nope.' } );
+			await saves[ 0 ];
+		} );
+
+		expect( queryClient.getQueryData< Settings >( queryKeys.settings )?.button_style ).toBe(
+			'text'
+		);
+
+		await act( async () => {
+			second.resolve( { ...baseSettings, button_style: 'text' } );
+			await saves[ 1 ];
+		} );
+	} );
+
 	it( 'sends a queued save without waiting on retries of a failed status read', async () => {
 		mockApiFetch.mockImplementation( ( { method, path } ) => {
 			if ( method === 'PUT' ) {
