@@ -42,3 +42,13 @@ function add_filter( $hook_name, $callback, $priority = 10, $accepted_args = 1 )
 
 	return true;
 }
+
+/**
+ * Report that no action has fired yet.
+ *
+ * @param string $hook_name Hook name.
+ * @return int
+ */
+function did_action( $hook_name ) {
+	return 0;
+}
