@@ -65,6 +65,8 @@ type EditorProps = {
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
 	placeholder: string;
+	/** Fetch and draw provider previews. Off on the edit-comment screen, where the URL is enough. */
+	previewEmbeds?: boolean;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
 	onError: () => void;
@@ -226,7 +228,7 @@ const Editor = ( {
  * @param props     - Editor props.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
-	registerEmbedBlock( props.labels );
+	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
 	createRoot( container ).render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />
