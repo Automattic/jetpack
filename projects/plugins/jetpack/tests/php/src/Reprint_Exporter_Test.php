@@ -53,10 +53,33 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		Rest_Authentication::init()->reset_saved_auth_state();
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_reprint_export_available' );
+		remove_all_filters( 'salt' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
+		delete_option( Reprint_Exporter::SECRET_HASH_OPTION );
+		delete_option( Reprint_Exporter::ENABLED_HASH_OPTION );
 		unset( $_GET['reprint-api-jetpack'], $_GET['endpoint'], $_SERVER['REQUEST_METHOD'] );
 		parent::tear_down();
+	}
+
+	/**
+	 * Replaces the salt the exporter keys its hashes with, as a rotated
+	 * wp-config.php would.
+	 *
+	 * Through WordPress's own `salt` filter, so it takes effect wherever
+	 * wp_salt() is read.
+	 *
+	 * @param string $salt The salt to use for the auth scheme.
+	 */
+	private function change_salt( $salt ) {
+		add_filter(
+			'salt',
+			static function ( $current, $scheme ) use ( $salt ) {
+				return 'auth' === $scheme ? $salt : $current;
+			},
+			10,
+			2
+		);
 	}
 
 	/**
@@ -77,6 +100,22 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		update_option( $option, $value );
 
 		Reprint_Exporter::protect_options();
+	}
+
+	/**
+	 * Plants a window timestamp with the hash the current salt gives it.
+	 *
+	 * Stands in for a stamp the exporter itself made at some other time, which
+	 * open_export_window() cannot produce because it always stamps now.
+	 *
+	 * @param int $enabled_at Unix timestamp to store.
+	 */
+	private function plant_window( $enabled_at ) {
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $enabled_at );
+		$this->plant_option(
+			Reprint_Exporter::ENABLED_HASH_OPTION,
+			hash_hmac( 'sha256', Reprint_Exporter::ENABLED_HASH_OPTION . "\0" . $enabled_at, wp_salt( 'auth' ) )
+		);
 	}
 
 	/**
@@ -335,7 +374,9 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
 
-		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+		// The option itself, not the window state: a stamp without a hash reads
+		// as closed anyway, so that alone would not show the guard held.
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION ) );
 	}
 
 	/**
@@ -420,6 +461,79 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A foreign write to either hash is refused, as for the two original options.
+	 *
+	 * A hash an attacker could rewrite would be no protection at all: they
+	 * would store their own secret and then a hash for it.
+	 */
+	public function test_foreign_update_of_the_hashes_is_refused() {
+		Reprint_Exporter::store_secret( 'the-real-secret' );
+		Reprint_Exporter::open_export_window();
+		Reprint_Exporter::protect_options();
+		$secret_hash = get_option( Reprint_Exporter::SECRET_HASH_OPTION );
+		$window_hash = get_option( Reprint_Exporter::ENABLED_HASH_OPTION );
+		$this->assertNotFalse( $secret_hash, 'Fixture must have stored a secret hash.' );
+		$this->assertNotFalse( $window_hash, 'Fixture must have stored a window hash.' );
+
+		update_option( Reprint_Exporter::SECRET_HASH_OPTION, 'attacker-chosen' );
+		update_option( Reprint_Exporter::ENABLED_HASH_OPTION, 'attacker-chosen' );
+
+		$this->assertSame( $secret_hash, get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
+		$this->assertSame( $window_hash, get_option( Reprint_Exporter::ENABLED_HASH_OPTION ) );
+	}
+
+	/**
+	 * A foreign write cannot create either hash from scratch either.
+	 */
+	public function test_foreign_write_cannot_create_the_hashes() {
+		Reprint_Exporter::protect_options();
+
+		update_option( Reprint_Exporter::SECRET_HASH_OPTION, 'attacker-chosen' );
+		update_option( Reprint_Exporter::ENABLED_HASH_OPTION, 'attacker-chosen' );
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_HASH_OPTION ) );
+	}
+
+	/**
+	 * A direct add_option() of a hash stops the request.
+	 */
+	public function test_foreign_add_option_of_a_hash_aborts() {
+		Reprint_Exporter::protect_options();
+
+		$this->expectException( WPDieException::class );
+		add_option( Reprint_Exporter::ENABLED_HASH_OPTION, 'attacker-chosen' );
+	}
+
+	/**
+	 * Discarding clears the hashes along with the values they cover.
+	 */
+	public function test_discard_credentials_clears_the_hashes() {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		Reprint_Exporter::open_export_window();
+		$this->assertNotFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ), 'Fixture must have stored a secret hash.' );
+		$this->assertNotFalse( get_option( Reprint_Exporter::ENABLED_HASH_OPTION ), 'Fixture must have stored a window hash.' );
+
+		Reprint_Exporter::discard_credentials();
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_HASH_OPTION ) );
+	}
+
+	/**
+	 * Discarding reports a stray hash too, not only a stray value.
+	 */
+	public function test_discard_reports_a_planted_hash() {
+		$this->capture_events();
+		$this->plant_option( Reprint_Exporter::SECRET_HASH_OPTION, 'planted-by-someone-else' );
+
+		Reprint_Exporter::discard_credentials();
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
+		$this->assertSame( array( 'credentials_discarded' ), array_column( $this->recorded_events, 0 ) );
+	}
+
+	/**
 	 * Activation throws away credentials it did not mint.
 	 *
 	 * Anything in these options at activation was written while Jetpack was
@@ -428,7 +542,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_discard_credentials_clears_planted_values() {
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_window( time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before activation.' );
 
 		Reprint_Exporter::discard_credentials();
@@ -445,7 +559,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_activation_discards_planted_credentials() {
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-while-deactivated' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_window( time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before activation.' );
 
 		Jetpack::plugin_activation( false );
@@ -463,7 +577,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_connecting_discards_planted_credentials() {
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-while-disconnected' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_window( time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before connecting.' );
 
 		do_action( 'jetpack_site_registered' );
@@ -607,18 +721,74 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * No event ever carries the secret.
+	 * No event ever carries the secret or either hash.
+	 *
+	 * Runs the whole lifecycle, mismatches included, so every event name the
+	 * exporter can fire is in the capture.
 	 */
-	public function test_events_never_carry_the_secret() {
+	public function test_events_never_carry_the_secret_or_a_hash() {
 		$this->capture_events();
 
 		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
-		$response = ( new REST_Controller() )->rotate_secret();
-		$secret   = $response->get_data()['secret'];
+		$response    = ( new REST_Controller() )->rotate_secret();
+		$secret      = $response->get_data()['secret'];
+		$secret_hash = get_option( Reprint_Exporter::SECRET_HASH_OPTION );
+		( new REST_Controller() )->enable_export();
+		$window_hash = get_option( Reprint_Exporter::ENABLED_HASH_OPTION );
+		$this->assertNotFalse( $secret_hash, 'Fixture must have stored a secret hash.' );
+		$this->assertNotFalse( $window_hash, 'Fixture must have stored a window hash.' );
 
-		$this->assertNotEmpty( $this->recorded_events );
-		$this->assertStringNotContainsString( $secret, wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES ) );
+		$stub = $this->make_ready_stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+		$this->assertTrue( $stub->served, 'Fixture must serve before the salt changes.' );
+
+		$this->change_salt( 'a-salt-from-a-rewritten-wp-config' );
+		( new REST_Controller() )->enable_export();
+		$this->run_handler( new Reprint_Exporter_Test_Stub(), $this->make_wp( '' ) );
+
+		$names = array_column( $this->recorded_events, 0 );
+		$this->assertContains( 'credential_hash_mismatch', $names, 'Fixture must have produced a mismatch event.' );
+
+		$serialized = wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES );
+		$this->assertStringNotContainsString( $secret, $serialized );
+		$this->assertStringNotContainsString( $secret_hash, $serialized );
+		$this->assertStringNotContainsString( $window_hash, $serialized );
+	}
+
+	/**
+	 * A secret whose hash does not match reports an event.
+	 */
+	public function test_secret_hash_mismatch_reports_an_event() {
+		$this->capture_events();
+
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertCount( 1, array_filter( $this->recorded_events, fn( $e ) => 'credential_hash_mismatch' === $e[0] ) );
+	}
+
+	/**
+	 * A current window timestamp whose hash does not match gets the same 409 as
+	 * a lapsed one.
+	 *
+	 * The caller holds the real secret, and re-arming fixes both cases, so
+	 * there is nothing to tell apart.
+	 */
+	public function test_window_hash_mismatch_returns_409() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_option( Reprint_Exporter::ENABLED_HASH_OPTION, 'planted-by-someone-else' );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 409, $stub->error_code );
+		$this->assertFalse( $stub->served );
 	}
 
 	/**
@@ -783,6 +953,55 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Rotating stores a hash binding the secret to the site's auth salt.
+	 *
+	 * Keyed with wp_salt() rather than AUTH_SALT on purpose; see
+	 * compute_credential_hash().
+	 */
+	public function test_rotate_secret_stores_a_salt_hash() {
+		$response = ( new REST_Controller() )->rotate_secret();
+		$secret   = $response->get_data()['secret'];
+
+		$this->assertSame(
+			hash_hmac( 'sha256', Reprint_Exporter::SECRET_HASH_OPTION . "\0" . $secret, wp_salt( 'auth' ) ),
+			get_option( Reprint_Exporter::SECRET_HASH_OPTION )
+		);
+	}
+
+	/**
+	 * Rotation works on a site whose wp-config.php still has the placeholder
+	 * salts.
+	 *
+	 * The test config is such a site, so this pins that wp_salt()'s fallback
+	 * is accepted rather than refused: many real sites are in this state and
+	 * their operators cannot easily fix it.
+	 */
+	public function test_rotate_secret_works_with_placeholder_salts() {
+		$this->assertSame( 'put your unique phrase here', Constants::get_constant( 'AUTH_SALT' ), 'Fixture must be a placeholder-salt site.' );
+
+		$this->assertSame( 200, ( new REST_Controller() )->rotate_secret()->get_status() );
+		$this->assertNotFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
+	}
+
+	/**
+	 * Rotate, open, export: the normal path end to end.
+	 */
+	public function test_rotate_open_and_export_round_trip() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$secret = ( new REST_Controller() )->rotate_secret()->get_data()['secret'];
+		( new REST_Controller() )->enable_export();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertTrue( $stub->served );
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( $secret, $stub->verified_secret );
+	}
+
+	/**
 	 * Enabling the export opens the window without minting a secret.
 	 */
 	public function test_enable_export_opens_window_without_secret() {
@@ -813,20 +1032,49 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ) );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now - ( HOUR_IN_SECONDS + 1 ) );
+		$this->plant_window( $now - ( HOUR_IN_SECONDS + 1 ) );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ), 'A second past the hour is stale.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now - HOUR_IN_SECONDS );
+		$this->plant_window( $now - HOUR_IN_SECONDS );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open( $now ), 'Exactly an hour old still counts.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now + $skew + 1 );
+		$this->plant_window( $now + $skew + 1 );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ), 'A second past the skew tolerance is rejected.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now + $skew );
+		$this->plant_window( $now + $skew );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open( $now ), 'Exactly the skew tolerance is allowed.' );
 
 		Reprint_Exporter::open_export_window();
 		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
+	 * A current timestamp with no hash, or the wrong hash, reads as closed.
+	 *
+	 * Without this, someone who can read a real secret from the database and
+	 * write one row could reopen a lapsed window at will.
+	 */
+	public function test_export_window_closed_when_hash_is_missing_or_wrong() {
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open(), 'No hash at all.' );
+
+		$this->plant_option( Reprint_Exporter::ENABLED_HASH_OPTION, 'planted-by-someone-else' );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open(), 'Wrong hash.' );
+
+		Reprint_Exporter::open_export_window();
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'The exporter\'s own stamp still opens it.' );
+	}
+
+	/**
+	 * A window opened under one salt reads as closed under another.
+	 */
+	public function test_export_window_closed_after_auth_salt_changes() {
+		Reprint_Exporter::open_export_window();
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must be open before the salt changes.' );
+
+		$this->change_salt( 'a-salt-from-a-rewritten-wp-config' );
+
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 	}
 
 	// -- Export request handler -----------------------------------------------
@@ -988,6 +1236,111 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A secret with no hash is refused before its signature is even checked.
+	 *
+	 * Writing the secret row alone, which is all a database write can do, must
+	 * not arm the exporter.
+	 */
+	public function test_planted_secret_without_a_hash_is_refused() {
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertStringContainsString( 'rotate', $body );
+		$this->assertNull( $stub->verified_secret, 'A secret without a hash must not reach HMAC verification.' );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A secret whose hash was made without the salt is refused the same way.
+	 */
+	public function test_planted_secret_with_a_wrong_hash_is_refused() {
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$this->plant_option(
+			Reprint_Exporter::SECRET_HASH_OPTION,
+			hash_hmac( 'sha256', Reprint_Exporter::SECRET_HASH_OPTION . "\0planted-by-someone-else", 'a-guessed-salt' )
+		);
+
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertStringContainsString( 'rotate', $body );
+		$this->assertNull( $stub->verified_secret );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * Copying the window timestamp and its hash into the secret options does
+	 * not make a secret that verifies.
+	 *
+	 * Both hashes use the same salt, so without the option-name prefix this
+	 * would leave the attacker holding a secret they know.
+	 */
+	public function test_window_values_copied_into_the_secret_options_are_refused() {
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, (string) get_option( Reprint_Exporter::ENABLED_OPTION ) );
+		$this->plant_option( Reprint_Exporter::SECRET_HASH_OPTION, get_option( Reprint_Exporter::ENABLED_HASH_OPTION ) );
+
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertNull( $stub->verified_secret );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A new salt invalidates the credential with a message that says so.
+	 *
+	 * The window has to be re-opened first, since the old window hash no longer
+	 * matches either and a closed window stays silent. Once it is, the client
+	 * learns it must rotate, rather than a signature failure it cannot act on.
+	 */
+	public function test_changing_auth_salt_invalidates_the_credential() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		( new REST_Controller() )->rotate_secret();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$this->change_salt( 'a-salt-from-a-rewritten-wp-config' );
+		( new REST_Controller() )->enable_export();
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertStringContainsString( 'invalidated', $body );
+		$this->assertStringContainsString( 'rotate-export-secret', $body );
+		$this->assertStringNotContainsString( 'Export not configured', $body );
+		$this->assertNull( $stub->verified_secret );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A closed window says nothing about a bad hash either.
+	 *
+	 * So an idle site stays indistinguishable from one without the feature,
+	 * and a stray probe fires no event.
+	 */
+	public function test_closed_window_stays_silent_with_a_bad_hash() {
+		$this->capture_events();
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( '', $body );
+		$this->assertFalse( $stub->terminated );
+		$this->assertSame( array(), $this->recorded_events );
+	}
+
+	/**
 	 * Invalid HMAC returns 403.
 	 */
 	public function test_invalid_hmac_returns_403() {
@@ -1007,7 +1360,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_valid_hmac_serves_export() {
 		$stub = $this->make_ready_stub();
 		Reprint_Exporter::store_secret( 'a-secret' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() - 30 );
+		$this->plant_window( time() - 30 );
 
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 
