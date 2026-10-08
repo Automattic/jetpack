@@ -175,27 +175,25 @@ describe( 'HeatmapChart', () => {
 	test.each( [
 		[ 'with zeros painted empty', data, 1 ],
 		[ 'with negative values', [ { label: 'W1', data: [ { value: -2 }, { value: 0 } ] } ], 0 ],
-	] )(
-		'leads the legend with an empty-cell swatch outside the scale %s',
-		( _case, rows, count ) => {
-			render(
-				<GlobalChartsProvider>
-					<HeatmapChart width={ 500 } height={ 300 } data={ rows }>
-						<HeatmapChart.Legend variant="bar" />
-					</HeatmapChart>
-				</GlobalChartsProvider>
-			);
-			const empty = screen.queryAllByTestId( 'heatmap-legend-empty-swatch' );
-			const scale = screen.getByTestId( 'heatmap-legend-scale' );
+	] )( 'starts the legend scale with an empty-cell swatch %s', ( _case, rows, count ) => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ rows }>
+					<HeatmapChart.Legend variant="bar" />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const empty = screen.queryAllByTestId( 'heatmap-legend-empty-swatch' );
+		const scale = screen.getByTestId( 'heatmap-legend-scale' );
 
-			expect( empty ).toHaveLength( count );
-			expect( within( scale ).getAllByTestId( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
-			for ( const swatch of empty ) {
-				expect( scale ).not.toContainElement( swatch );
-				expect( swatch.compareDocumentPosition( scale ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
-			}
-		}
-	);
+		expect( empty ).toHaveLength( count );
+		expect( within( scale ).getAllByTestId( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
+		expect(
+			within( scale )
+				.getAllByTestId( /^heatmap-legend-(empty-)?swatch$/ )
+				.slice( 0, count )
+		).toEqual( empty );
+	} );
 
 	test( 'paints the legend on the same scale as the cells', () => {
 		render(

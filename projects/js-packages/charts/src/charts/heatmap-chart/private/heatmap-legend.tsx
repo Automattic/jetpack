@@ -44,16 +44,6 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
-			{ showsEmptyCell && (
-				<span
-					aria-hidden="true"
-					data-testid="heatmap-legend-empty-swatch"
-					className={ clsx(
-						styles[ 'heatmap-chart__legend-swatch' ],
-						styles[ 'heatmap-chart__legend-swatch--empty' ]
-					) }
-				/>
-			) }
 			<Stack
 				direction="row"
 				gap={ variant === 'bar' ? undefined : 'xs' }
@@ -61,6 +51,15 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 				data-testid="heatmap-legend-scale"
 				className={ variant === 'bar' ? styles[ 'heatmap-chart__legend-scale--bar' ] : undefined }
 			>
+				{ showsEmptyCell && (
+					<span
+						data-testid="heatmap-legend-empty-swatch"
+						className={ clsx(
+							styles[ 'heatmap-chart__legend-swatch' ],
+							styles[ 'heatmap-chart__legend-swatch--empty' ]
+						) }
+					/>
+				) }
 				{ Array.from( { length: steps }, ( _, index ) => {
 					const intensity = steps <= 1 ? 1 : index / ( steps - 1 );
 					return (
