@@ -92,11 +92,11 @@ export default function BackupDetail( { item }: Props ) {
 					<Stack
 						className="jpb-backup-detail__header-title"
 						direction="row"
-						gap="xs"
+						gap="xl"
 						align="center"
 					>
-						<Icon icon={ cloud } />
-						<Text variant="heading-md" render={ <h2 /> }>
+						<Icon icon={ cloud } size={ 24 } />
+						<Text variant="body-xl" render={ <h2 /> }>
 							{ item.title }
 						</Text>
 					</Stack>
@@ -139,31 +139,28 @@ export default function BackupDetail( { item }: Props ) {
 				</Stack>
 			</Card.Header>
 			<Card.Content className="jpb-backup-detail__body">
-				<Text className="jpb-backup-detail__stats" dir="auto">
+				<Text variant="body-lg" className="jpb-backup-detail__stats" dir="auto">
 					{ item.stats }
 				</Text>
-				<Text variant="body-sm" className="jpb-text-muted jpb-backup-detail__by">
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s formatted date+time, %2$s actor name */
-							__( '%1$s by %2$s', 'jetpack-backup-pkg' ),
-							dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ),
-							'<Actor />'
-						),
-						{ Actor: <bdi>{ item.actor.name }</bdi> }
-					) }
+				<Text variant="body-md" className="jpb-text-muted jpb-backup-detail__by">
+					<span>{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }</span>
+					<span>
+						{ createInterpolateElement(
+							sprintf(
+								/* translators: %s: actor name */
+								__( 'By %s', 'jetpack-backup-pkg' ),
+								'<Actor />'
+							),
+							{ Actor: <bdi>{ item.actor.name }</bdi> }
+						) }
+					</span>
 				</Text>
-				<div className="jpb-backup-detail__files">
-					<div className="jpb-backup-detail__files-title">
-						{ __( 'Files', 'jetpack-backup-pkg' ) }
-					</div>
-					<FileBrowser
-						rewindId={ item.rewindId }
-						selection={ selection }
-						onSelectionChange={ setSelection }
-						onSelectionIdsChange={ handleSelectionIdsChange }
-					/>
-				</div>
+				<FileBrowser
+					rewindId={ item.rewindId }
+					selection={ selection }
+					onSelectionChange={ setSelection }
+					onSelectionIdsChange={ handleSelectionIdsChange }
+				/>
 			</Card.Content>
 		</Card.Root>
 	);

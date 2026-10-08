@@ -1,9 +1,15 @@
 .jpb-backup-detail {
+	border-radius: var(--wpds-border-radius-xl);
 
 	&__header {
+		padding-block: var(--wpds-dimension-padding-2xl);
 		// Card.Header doesn't ship its own separator; add one so the
 		// header row and the body content read as distinct sections.
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #dcdcde);
+
+		@media (min-width: 600px) {
+			padding-inline: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
+		}
 	}
 
 	// Allow the title group and the action group to drop onto separate
@@ -13,7 +19,7 @@
 	// collapses into an unreadable squeeze.
 	&__header-row {
 		flex-wrap: wrap;
-		row-gap: 8px;
+		row-gap: var(--wpds-dimension-gap-sm);
 	}
 
 	// Keep the title pinned to its icon and let the heading shrink with
@@ -29,7 +35,8 @@
 	// for them side-by-side (deep mobile / zoomed-in widths).
 	&__header-actions {
 		flex-wrap: wrap;
-		flex-shrink: 0;
+		flex-shrink: 1;
+		max-inline-size: 100%;
 	}
 
 	&__body {
@@ -62,11 +69,9 @@
 		display: inline-flex;
 		gap: 6px;
 		align-items: center;
-		padding: 6px 12px;
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
 		border-radius: 2px;
 		background-color: var(--wp-admin-theme-color, #007cba);
-		font-size: 13px;
-		line-height: 1.4;
 		text-decoration: none;
 
 		// wp-admin's global `a { color: #2271b1 }` is unlayered and wins
@@ -95,25 +100,9 @@
 		}
 	}
 
-	&__stats {
-		font-weight: 600;
-	}
-
-	// "Files" section inside the body. Sits below the meta row and holds
-	// the FileBrowser tree. A subtle top border separates it from the
-	// summary, matching the legacy admin's section divider.
-	&__files {
-		margin-top: 16px;
-		padding-top: 16px;
-		border-top: 1px solid var(--wp-components-color-gray-200, #dcdcde);
-	}
-
-	&__files-title {
-		font-size: 11px;
-		font-weight: 500;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		color: var(--wp-components-color-foreground-muted, #757575);
-		margin-bottom: 8px;
+	&__by {
+		display: flex;
+		flex-wrap: wrap;
+		column-gap: var(--wpds-dimension-gap-lg);
 	}
 }

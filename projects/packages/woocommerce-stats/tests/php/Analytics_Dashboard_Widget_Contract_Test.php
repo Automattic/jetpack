@@ -54,6 +54,7 @@ class Analytics_Dashboard_Widget_Contract_Test extends BaseTestCase {
 		return array(
 			'no version yet: the widget types file has not loaded' => array( null ),
 			'the contract before useReport' => array( '1.3.0' ),
+			'the contract before Donut'     => array( '1.4.0' ),
 			'the next major'                => array( '2.0.0' ),
 		);
 	}
