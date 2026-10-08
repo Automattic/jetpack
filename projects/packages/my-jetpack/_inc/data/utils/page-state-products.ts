@@ -57,7 +57,7 @@ export function setPluginsActiveInPageState( productSlugs: string[] ) {
 }
 
 /**
- * Make the page state's plugins match the Features tab's state, as a feature toggle's response returns it.
+ * Make the page state's plugins match the Features tab's state, as a plugin or bulk switch returns it.
  *
  * @param state - The Features tab's state.
  */
