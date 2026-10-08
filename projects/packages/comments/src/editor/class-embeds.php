@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Comments;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -136,8 +137,8 @@ class Embeds extends WP_REST_Controller {
 		// Each lookup is a request to a provider on the visitor's behalf. Thirty in ten minutes covers
 		// a reader trying links, not a script. The object cache counts atomically; a site without a
 		// persistent one, or one that cannot be reached, falls back to a transient, which a parallel burst can slip past.
-		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$key   = 'embed_previews_' . md5( $ip );
+		// The address comes through the site's trusted proxy header, so one proxy is not one bucket.
+		$key   = 'embed_previews_' . md5( (string) IP_Utils::get_ip() );
 		$count = false;
 
 		if ( wp_using_ext_object_cache() ) {

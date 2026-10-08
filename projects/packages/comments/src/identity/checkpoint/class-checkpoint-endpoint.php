@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Comments;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -174,8 +175,7 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 		$account = false;
 
 		if ( function_exists( 'is_email_wp_emails' ) ) {
-			$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-			$key = 'email_checks_' . md5( $ip );
+			$key = 'email_checks_' . md5( (string) IP_Utils::get_ip() );
 
 			// Per address and across every site, so the answer cannot be farmed blog by blog. Twenty
 			// in ten minutes is generous for a reader typing, not for anyone sweeping a list.
