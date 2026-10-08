@@ -87,9 +87,8 @@ export type DonutProps = {
 	format?: DataFormat;
 };
 
-// Widget attributes.
+// Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
-export declare function chartTypeAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;
 export type ReportParamsFieldAttributes = any;
 export type ReportGrain = any;
