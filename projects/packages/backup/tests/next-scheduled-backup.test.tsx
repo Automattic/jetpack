@@ -916,7 +916,9 @@ describe( 'on the Overview', () => {
 		// Synchronized on the failure being reported *and* the schedule being
 		// available, neither of which the mutation under test removes.
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status." )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region',
+			} )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();

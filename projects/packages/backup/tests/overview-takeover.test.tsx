@@ -287,7 +287,9 @@ describe( 'Backup-state read failure', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status." )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region',
+			} )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -302,7 +304,9 @@ describe( 'Backup-state read failure', () => {
 		// notice assertion this test would pass with the fix reverted.
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect(
-			screen.getByText( "We couldn't check your site's backup status." )
+			screen.getByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region',
+			} )
 		).toBeInTheDocument();
 	} );
 } );
