@@ -89,8 +89,9 @@ describe( 'MonthCalendarHeatmap', () => {
 			const width = jest.spyOn( Element.prototype, 'scrollWidth', 'get' ).mockReturnValue( 0 );
 			render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
 			const grid = screen.getByRole( 'grid' );
+			let restyles = 0;
 			const restyle = () =>
-				act( async () => grid.style.setProperty( '--restyled', String( Math.random() ) ) );
+				act( async () => grid.style.setProperty( '--restyled', String( ++restyles ) ) );
 			expect( grid.scrollLeft ).toBe( 0 );
 
 			width.mockReturnValue( 900 );

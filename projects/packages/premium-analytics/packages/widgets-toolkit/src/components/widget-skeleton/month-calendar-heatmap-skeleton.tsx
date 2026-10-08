@@ -13,7 +13,7 @@ const MONTHS = 12;
 
 /** Loading shape for a month calendar heatmap: a block and a label per month. */
 export function MonthCalendarHeatmapSkeleton() {
-	// The same merged theme the loaded chart reads, so the blocks land where the months will.
+	// The theme size the loaded chart keeps on a one-row tile; a taller tile grows and wraps it.
 	const { compactCellSize, compactCellGap, groupGap } = useGlobalChartsContext().theme.heatmapChart;
 	const geometry = {
 		'--jpa-month-cell-size': `${ compactCellSize }px`,
