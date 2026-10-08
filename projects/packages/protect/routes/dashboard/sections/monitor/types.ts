@@ -5,6 +5,8 @@ export type MonitorState = {
 	available: boolean;
 	active: boolean;
 	uptimeDays: number;
+	/** Whether the current user has a WordPress.com connection. */
+	userConnected: boolean;
 };
 
 export type UptimeDay = {

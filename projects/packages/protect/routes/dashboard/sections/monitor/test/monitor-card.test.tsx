@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import MonitorCard from '../monitor-card';
 import type { ProtectSettingsData } from '../../../data/use-protect-settings';
-import type { UptimeDay } from '../types';
+import type { MonitorState, UptimeDay } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
@@ -14,10 +14,13 @@ const days: UptimeDay[] = [
 	{ date: '2026-03-14', status: 'up', downtimeInMinutes: 0 },
 ];
 
-const renderCard = ( settings: Partial< ProtectSettingsData > = {} ) =>
+const renderCard = (
+	settings: Partial< ProtectSettingsData > = {},
+	state: Partial< MonitorState > = {}
+) =>
 	render(
 		<MonitorCard
-			state={ { available: true, active: true, uptimeDays: 40 } }
+			state={ { available: true, active: true, uptimeDays: 40, userConnected: true, ...state } }
 			settings={ { settings: null, isSaving: () => false, ...settings } as ProtectSettingsData }
 			openSettings={ jest.fn() }
 		/>
@@ -39,7 +42,23 @@ describe( 'MonitorCard', () => {
 		await expect( screen.findByText( badge ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Uptime, last 3 days (UTC)' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1 day up, 1 day down, 1 day with no data' ) ).toBeInTheDocument();
-		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( days.length );
+		expect( screen.getAllByRole( 'listitem' ).map( item => item.textContent ) ).toEqual( [
+			'March 12, 2026: no data',
+			'March 13, 2026: down for 12 minutes',
+			'March 14, 2026: 100% uptime',
+		] );
+		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/protect-dashboard/uptime' } );
+	} );
+
+	it.each( [
+		[ 'Monitor is unavailable', { available: false }, null, 'Unavailable' ],
+		[ 'Monitor is off', { active: false }, null, 'Off' ],
+		[ 'Monitor was turned off since page load', {}, { monitor: false }, 'Off' ],
+	] )( 'asks for no uptime when %s', ( _name, state, liveSettings, badge ) => {
+		renderCard( { settings: liveSettings }, state );
+
+		expect( screen.getByText( badge ) ).toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
 	it( 'says the history is unavailable when it cannot be loaded', async () => {

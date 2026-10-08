@@ -111,7 +111,9 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 	const days = uptime?.days;
 	const count = ( status: UptimeDay[ 'status' ] ) =>
 		days?.filter( day => day.status === status ).length ?? 0;
-	const summary = [
+	const summary = sprintf(
+		/* translators: %1$s, %2$s and %3$s are counts of days: "38 days up", "1 day down", "1 day with no data". */
+		__( '%1$s, %2$s, %3$s', 'jetpack-protect-pkg' ),
 		/* translators: %d is a number of days. */
 		sprintf( _n( '%d day up', '%d days up', count( 'up' ), 'jetpack-protect-pkg' ), count( 'up' ) ),
 		sprintf(
@@ -128,8 +130,8 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 				'jetpack-protect-pkg'
 			),
 			count( 'monitor_inactive' )
-		),
-	].join( ', ' );
+		)
+	);
 
 	const body = available
 		? __(

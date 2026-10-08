@@ -41,6 +41,14 @@ class Monitor implements Dashboard_Section {
 	const UPTIME_TRANSIENT = 'jetpack_protect_dashboard_uptime';
 
 	/**
+	 * Drop the cached history whenever Monitor is turned on or off.
+	 */
+	public function __construct() {
+		add_action( 'jetpack_activate_module_monitor', array( $this, 'clear_cache' ) );
+		add_action( 'jetpack_deactivate_module_monitor', array( $this, 'clear_cache' ) );
+	}
+
+	/**
 	 * The section's key.
 	 *
 	 * @return string
@@ -50,14 +58,17 @@ class Monitor implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether the Monitor module can run here, whether it is on, and how many days of uptime show.
+	 * Whether Monitor can run here and is on, the days of uptime shown, and whether the user can reach WordPress.com.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
 		return array_merge(
 			Dashboard::get_module_state( 'monitor' ),
-			array( 'uptimeDays' => self::UPTIME_DAYS )
+			array(
+				'uptimeDays'    => self::UPTIME_DAYS,
+				'userConnected' => ( new Connection_Manager() )->is_user_connected(),
+			)
 		);
 	}
 
@@ -67,10 +78,6 @@ class Monitor implements Dashboard_Section {
 	 * @return void
 	 */
 	public function register_routes() {
-		// Module toggles are REST requests, so hooking here is early enough to drop the cached history.
-		add_action( 'jetpack_activate_module_monitor', array( $this, 'clear_cache' ) );
-		add_action( 'jetpack_deactivate_module_monitor', array( $this, 'clear_cache' ) );
-
 		register_rest_route(
 			'jetpack/v4',
 			'/protect-dashboard/uptime',
@@ -105,9 +112,14 @@ class Monitor implements Dashboard_Section {
 			return $this->unavailable_error();
 		}
 
-		$days = $this->fetch_days();
+		// It has no 40-day period, so ask for 90 and keep the newest days.
+		$history = $this->request( '/jetpack-monitor-uptime?period=' . rawurlencode( '90 days' ) );
+		$days    = $this->parse_days( $history['body'] );
 		if ( ! $days ) {
-			set_transient( self::UPTIME_TRANSIENT, 'failed', MINUTE_IN_SECONDS );
+			// A 401 or 403 is about this user's token, so it must not hide the history from other admins.
+			if ( ! in_array( $history['code'], array( 401, 403 ), true ) ) {
+				set_transient( self::UPTIME_TRANSIENT, 'failed', MINUTE_IN_SECONDS );
+			}
 			return $this->unavailable_error();
 		}
 
@@ -129,13 +141,12 @@ class Monitor implements Dashboard_Section {
 	}
 
 	/**
-	 * The newest UPTIME_DAYS days of uptime, oldest first; empty when unavailable.
+	 * The newest UPTIME_DAYS days of an uptime history, oldest first; empty when it has no valid days.
 	 *
+	 * @param mixed $body The decoded history, keyed by `Y-m-d` date.
 	 * @return array
 	 */
-	private function fetch_days() {
-		// It has no 40-day period, so ask for 90 and keep the newest days.
-		$body = $this->request( '/jetpack-monitor-uptime?period=' . rawurlencode( '90 days' ) );
+	private function parse_days( $body ) {
 		if ( ! is_array( $body ) ) {
 			return array();
 		}
@@ -167,7 +178,7 @@ class Monitor implements Dashboard_Section {
 	 * @return bool|null
 	 */
 	private function fetch_is_up() {
-		$body   = $this->request( '/jetpack-monitor-status' );
+		$body   = $this->request( '/jetpack-monitor-status' )['body'];
 		$status = is_array( $body ) ? ( $body['status'] ?? null ) : null;
 		return is_bool( $status ) ? $status : null;
 	}
@@ -176,7 +187,7 @@ class Monitor implements Dashboard_Section {
 	 * GET a wpcom/v2 site endpoint as the current user.
 	 *
 	 * @param string $path Path after `/sites/<id>`.
-	 * @return mixed The decoded body, or null on failure.
+	 * @return array The HTTP `code` (0 when the request failed) and the decoded `body`, null unless the code is 200.
 	 */
 	private function request( $path ) {
 		$response = Client::wpcom_json_api_request_as_user(
@@ -186,10 +197,11 @@ class Monitor implements Dashboard_Section {
 			null,
 			'wpcom'
 		);
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
-		}
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+		$code     = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		return array(
+			'code' => $code,
+			'body' => 200 === $code ? json_decode( wp_remote_retrieve_body( $response ), true ) : null,
+		);
 	}
 
 	/**

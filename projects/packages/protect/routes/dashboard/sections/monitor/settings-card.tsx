@@ -1,3 +1,4 @@
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
@@ -15,12 +16,27 @@ import type { MonitorContext } from './types';
  */
 export default function MonitorSettingsCard( { state, settings }: MonitorContext ) {
 	const available = Boolean( state?.available );
+	const userConnected = Boolean( state?.userConnected );
+	const { save, refresh } = settings;
+	// Turning Monitor on subscribes the user to its emails on the server.
+	const monitorData = useMemo(
+		() => ( {
+			...settings,
+			save: async ( patch, path ) => {
+				await save( patch, path );
+				if ( patch.monitor === true ) {
+					await refresh( [ 'monitor_receive_notifications' ] );
+				}
+			},
+		} ),
+		[ settings, save, refresh ]
+	);
 	return (
 		<ProtectCard icon={ seen } title={ __( 'Monitor', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<SettingToggle
-						data={ settings }
+						data={ monitorData }
 						name="monitor"
 						label={ __( 'Monitor your site for downtime', 'jetpack-protect-pkg' ) }
 						help={
@@ -37,11 +53,20 @@ export default function MonitorSettingsCard( { state, settings }: MonitorContext
 							'Email me when my site goes down and comes back up',
 							'jetpack-protect-pkg'
 						) }
-						help={ __(
-							'Emails go to your WordPress.com account’s address.',
-							'jetpack-protect-pkg'
-						) }
-						disabled={ ! available || ! settings.settings?.monitor }
+						help={
+							userConnected
+								? __( 'Emails go to your WordPress.com account’s address.', 'jetpack-protect-pkg' )
+								: __(
+										'Connect your WordPress.com account to manage these emails.',
+										'jetpack-protect-pkg'
+									)
+						}
+						disabled={
+							! available ||
+							! userConnected ||
+							! settings.settings?.monitor ||
+							settings.isSaving( 'monitor' )
+						}
 					/>
 				</Stack>
 			</CardRow>

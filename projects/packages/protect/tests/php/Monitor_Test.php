@@ -107,7 +107,13 @@ class Monitor_Test extends BaseTestCase {
 	 */
 	public function answer_as_wpcom( $preempt, $args, $url ) {
 		$this->requests[] = $url;
-		return false !== strpos( $url, '/sites/123/jetpack-monitor-status' ) ? $this->status_response : $this->uptime_response;
+		if ( false !== strpos( $url, '/wpcom/v2/sites/123/jetpack-monitor-status' ) ) {
+			return $this->status_response;
+		}
+		if ( false !== strpos( $url, '/wpcom/v2/sites/123/jetpack-monitor-uptime?period=90+days' ) ) {
+			return $this->uptime_response;
+		}
+		return new WP_Error( 'unexpected_request', $url );
 	}
 
 	/**
@@ -205,16 +211,18 @@ class Monitor_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Uptime-history answers that can't be shown.
+	 * Uptime-history answers that can't be shown, and how many requests two calls make.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_unusable_histories() {
 		return array(
-			'request failed'    => array( new WP_Error( 'http_request_failed', 'Timed out' ) ),
-			'WordPress.com 500' => array( self::json_response( array(), 500 ) ),
-			'no days'           => array( self::json_response( array() ) ),
-			'no valid days'     => array( self::json_response( array( 'total' => array( 'status' => 'up' ) ) ) ),
+			'request failed'         => array( new WP_Error( 'http_request_failed', 'Timed out' ), 1 ),
+			'WordPress.com 500'      => array( self::json_response( array(), 500 ), 1 ),
+			'no days'                => array( self::json_response( array() ), 1 ),
+			'no valid days'          => array( self::json_response( array( 'total' => array( 'status' => 'up' ) ) ), 1 ),
+			'this user is refused'   => array( self::json_response( array(), 403 ), 2 ),
+			'this user is not known' => array( self::json_response( array(), 401 ), 2 ),
 		);
 	}
 
@@ -222,9 +230,10 @@ class Monitor_Test extends BaseTestCase {
 	 * @dataProvider provide_unusable_histories
 	 *
 	 * @param array|WP_Error $uptime_response WordPress.com's answer for the uptime history.
+	 * @param int            $requests        Requests made by two calls: 1 when the failure is cached for everyone.
 	 */
 	#[DataProvider( 'provide_unusable_histories' )]
-	public function test_get_uptime_is_a_502_when_the_history_is_unusable_and_does_not_retry_at_once( $uptime_response ) {
+	public function test_get_uptime_is_a_502_when_the_history_is_unusable_and_caches_only_shared_failures( $uptime_response, $requests ) {
 		$this->uptime_response = $uptime_response;
 		$monitor               = new Monitor();
 
@@ -235,7 +244,7 @@ class Monitor_Test extends BaseTestCase {
 		$this->assertSame( 'uptime_unavailable', $first->get_error_code() );
 		$this->assertSame( array( 'status' => 502 ), $first->get_error_data() );
 		$this->assertInstanceOf( WP_Error::class, $second );
-		$this->assertCount( 1, $this->requests, 'The failure should be cached.' );
+		$this->assertCount( $requests, $this->requests );
 	}
 
 	public function test_get_uptime_refuses_a_disconnected_user_even_with_a_warm_cache() {
@@ -260,19 +269,77 @@ class Monitor_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_toggling_monitor_drops_the_cached_history() {
-		global $wp_rest_server;
-		$wp_rest_server = null;
-		$monitor        = new Monitor();
-		add_action( 'rest_api_init', array( $monitor, 'register_routes' ) );
+	public function test_get_state_says_whether_the_user_can_reach_wpcom() {
+		$monitor = new Monitor();
 
-		$response = rest_do_request( new \WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/uptime' ) );
-		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $monitor->get_state()['userConnected'] );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		$this->assertFalse( $monitor->get_state()['userConnected'] );
+	}
+
+	/**
+	 * The hooks Jetpack fires when Monitor is turned on or off.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_toggle_hooks() {
+		return array(
+			array( 'jetpack_activate_module_monitor' ),
+			array( 'jetpack_deactivate_module_monitor' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_toggle_hooks
+	 *
+	 * @param string $hook The module hook.
+	 */
+	#[DataProvider( 'provide_toggle_hooks' )]
+	public function test_toggling_monitor_drops_the_cached_history( $hook ) {
+		( new Monitor() )->get_uptime();
 		$this->assertIsArray( get_transient( Monitor::UPTIME_TRANSIENT ) );
 
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- The Jetpack module hook under test.
-		do_action( 'jetpack_deactivate_module_monitor', 'monitor' );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The Jetpack module hooks under test.
+		do_action( $hook, 'monitor' );
 
 		$this->assertFalse( get_transient( Monitor::UPTIME_TRANSIENT ) );
+	}
+
+	/**
+	 * Users who may not use the route, and the status each gets.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_refused_users() {
+		return array(
+			'logged out' => array( null, 401 ),
+			'subscriber' => array( 'subscriber', 403 ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_refused_users
+	 *
+	 * @param string|null $role   The user's role, or null when logged out.
+	 * @param int         $status The expected HTTP status.
+	 */
+	#[DataProvider( 'provide_refused_users' )]
+	public function test_the_route_refuses_users_who_cannot_manage_the_site( $role, $status ) {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+		add_action( 'rest_api_init', array( new Monitor(), 'register_routes' ) );
+		$user_id = null === $role ? 0 : wp_insert_user(
+			array(
+				'user_login' => 'monitor_visitor',
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$response = rest_do_request( new \WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/uptime' ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( array(), $this->requests );
 	}
 }
