@@ -65,6 +65,7 @@ export function syncPageStateWithFeatures( state: MainFeaturesState ) {
 	setPluginsActiveInPageState( getProductSlugsWithActivePlugin( state ) );
 
 	// Only without Jetpack: when it is active, the products it also provides stay active whatever their own plugin does.
+	// Boost, CRM and Akismet are skipped too, harmlessly: none needs a user connection, so the card ignores them.
 	if ( state.jetpack !== 'active' ) {
 		setPluginActiveStateInPageState( getProductSlugsWithInactivePlugin( state ), false );
 	}
