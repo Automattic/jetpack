@@ -3,8 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Text } from '@wordpress/ui';
@@ -18,6 +17,7 @@ import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
+import TransferOwnershipDialog from '../transfer-ownership-dialog';
 import type { MouseEvent } from 'react';
 import './style.scss';
 
@@ -87,6 +87,7 @@ const ManageConnectionDialog = ( {
 	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
 	const [ unlinkError, setUnlinkError ] = useState( '' );
 	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
+	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
 
 	/**
 	 * Initialize the REST API.
@@ -201,6 +202,27 @@ const ManageConnectionDialog = ( {
 		setIsOwnerDisconnectDialogOpen( false );
 	}, [ setIsOwnerDisconnectDialogOpen ] );
 
+	const openTransferDialog = useCallback( ( e?: MouseEvent< HTMLElement > ) => {
+		e && e.preventDefault();
+		setIsTransferOpen( true );
+	}, [] );
+
+	// Transferring is the way out of the owner-disconnect warning, so hand the user to
+	// that flow rather than running a second copy of it inside the warning.
+	const openTransferFromOwnerDialog = useCallback( () => {
+		setIsOwnerDisconnectDialogOpen( false );
+		setIsTransferOpen( true );
+	}, [] );
+
+	const closeTransferDialog = useCallback( () => {
+		setIsTransferOpen( false );
+	}, [] );
+
+	// The new owner's tokens decide what the page may show, so re-read everything.
+	const handleTransferred = useCallback( () => {
+		window.location.reload();
+	}, [] );
+
 	return (
 		<>
 			{ isOpen && (
@@ -230,10 +252,7 @@ const ManageConnectionDialog = ( {
 								connectedUser.currentUser?.isMaster && (
 									<ManageConnectionActionCard
 										title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-											site: getScriptData()?.site?.suffix,
-										} ) }
-										isExternal={ true }
+										onClick={ openTransferDialog }
 										key="transfer"
 										action="transfer"
 										disabled={ isControlsDisabled }
@@ -279,6 +298,14 @@ const ManageConnectionDialog = ( {
 							context={ context }
 						/>
 
+						<TransferOwnershipDialog
+							isOpen={ isTransferOpen }
+							onClose={ closeTransferDialog }
+							apiRoot={ apiRoot }
+							apiNonce={ apiNonce }
+							onTransferred={ handleTransferred }
+						/>
+
 						<OwnerDisconnectDialog
 							isOpen={ isOwnerDisconnectDialogOpen }
 							onClose={ handleCloseOwnerDialog }
@@ -286,6 +313,7 @@ const ManageConnectionDialog = ( {
 							apiNonce={ apiNonce }
 							onDisconnected={ onDisconnected }
 							onUnlinked={ onUnlinked }
+							onTransferOwnership={ openTransferFromOwnerDialog }
 						/>
 					</Modal>
 				</>

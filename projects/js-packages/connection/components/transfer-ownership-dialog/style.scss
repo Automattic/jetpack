@@ -1,0 +1,10 @@
+// Chrome comes from .jp-connection__disconnect-dialog, set on the Modal
+// alongside this class: matching that footprint is what makes the step read as
+// a replacement rather than a modal stacked over the manage dialog.
+.jp-connection__transfer-dialog {
+
+	.jp-connection__transfer-ownership {
+		max-inline-size: 600px;
+		margin-inline: auto;
+	}
+}

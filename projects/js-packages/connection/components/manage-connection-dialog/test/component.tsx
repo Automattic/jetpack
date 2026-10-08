@@ -17,6 +17,16 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 		setApiRoot: mockSetApiRoot,
 		setApiNonce: mockSetApiNonce,
 		unlinkUser: mockUnlinkUser,
+		fetchConnectionOwnerCandidates: () =>
+			Promise.resolve( [
+				{
+					id: 7,
+					login: 'kazz',
+					displayName: 'Kazz',
+					email: 'kazz@example.com',
+					avatar: '',
+				},
+			] ),
 		disconnectSite: mockDisconnectSite,
 	},
 } ) );
@@ -88,6 +98,28 @@ describe( 'ManageConnectionDialog', () => {
 				screen.getByRole( 'link', { name: /Disconnect my user account/ } )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: /Disconnect Jetpack/ } ) ).toBeInTheDocument();
+		} );
+
+		it( 'opens the owner chooser as a step instead of leaving the site', async () => {
+			const user = userEvent.setup();
+			render( <ManageConnectionDialog { ...testProps } /> );
+
+			const transfer = screen.getByRole( 'link', {
+				name: /Transfer ownership to another admin/,
+			} );
+			expect( transfer ).not.toHaveAttribute( 'target', '_blank' );
+			expect(
+				screen.queryByRole( 'dialog', { name: 'Transfer connection ownership' } )
+			).not.toBeInTheDocument();
+
+			await user.click( transfer );
+
+			const step = await screen.findByRole( 'dialog', {
+				name: 'Transfer connection ownership',
+			} );
+			await expect(
+				within( step ).findByRole( 'combobox', { name: /New connection owner/ } )
+			).resolves.toBeInTheDocument();
 		} );
 
 		it( 'hides "Disconnect Jetpack" on a WoA site even for an admin', () => {
