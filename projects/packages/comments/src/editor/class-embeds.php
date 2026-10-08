@@ -180,7 +180,9 @@ class Embeds extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	private static function respond( $data ) {
-		$data->html = self::strip_scripts( $data->html ?? '' );
+		// The editor would hand each entry to SandBox as a script of its own.
+		unset( $data->scripts );
+		$data->html = self::sanitize_html( $data->html ?? '' );
 
 		// Nothing to show without the script, so the comment will hold the link. Say so now.
 		if ( '' === $data->html ) {
@@ -194,19 +196,41 @@ class Embeds extends WP_REST_Controller {
 	}
 
 	/**
-	 * A provider's HTML without its script, or '' when nothing visible is left. The script would run
-	 * first-party for every reader on a commenter's say-so. An iframe plays without it, and a
-	 * quote reads without it.
+	 * A provider's HTML as markup alone, or '' when nothing visible is left. Its script would run
+	 * first-party for every reader on a commenter's say-so, and so would an inline handler, so the
+	 * HTML goes through kses with core's post rules plus the iframe the players need.
 	 *
 	 * @param mixed $html What the provider sent.
 	 * @return string
 	 */
-	public static function strip_scripts( $html ) {
+	public static function sanitize_html( $html ) {
 		if ( ! is_string( $html ) ) {
 			return '';
 		}
 
+		// Whole, so a script's body does not survive as text once kses drops its tags.
 		$html = (string) preg_replace( '#<script\b[^>]*>.*?(?:</script\s*>|$)#is', '', $html );
+
+		$allowed = wp_kses_allowed_html( 'post' );
+		unset( $allowed['object'] );
+		$allowed['iframe'] = array(
+			'src'             => true,
+			'width'           => true,
+			'height'          => true,
+			'title'           => true,
+			'allow'           => true,
+			'allowfullscreen' => true,
+			'frameborder'     => true,
+			'scrolling'       => true,
+			'loading'         => true,
+			'referrerpolicy'  => true,
+			'sandbox'         => true,
+			'style'           => true,
+			'class'           => true,
+			'name'            => true,
+		);
+
+		$html = wp_kses( $html, $allowed );
 
 		if ( ! preg_match( '#<(iframe|img|video|audio)\b#i', $html ) && '' === trim( wp_strip_all_tags( $html ) ) ) {
 			return '';
@@ -290,7 +314,7 @@ class Embeds extends WP_REST_Controller {
 				$wp_embed->return_false_on_fail = true;
 				add_filter( 'embed_oembed_discover', '__return_false', 999 );
 
-				$content = self::strip_scripts( $wp_embed->shortcode( array(), $url ) );
+				$content = self::sanitize_html( $wp_embed->shortcode( array(), $url ) );
 
 				remove_filter( 'embed_oembed_discover', '__return_false', 999 );
 				$wp_embed->return_false_on_fail = $on_fail;

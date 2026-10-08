@@ -25,8 +25,8 @@ import type { ChangeEvent, FormEvent } from 'react';
 const NAME = 'core/embed';
 
 type Attributes = { url?: string };
-/** What the preview route answers: core's proxy shape. */
-type Preview = { html?: string; scripts?: string[] };
+/** What the preview route answers: core's proxy shape, less the scripts it never fills. */
+type Preview = { html?: string };
 /** What a lookup settled on: data, a URL the site will not embed, or a failure worth retrying. */
 type Lookup = Preview | 'unsupported' | null;
 type EditProps = BlockEditProps< Attributes > & {
@@ -190,11 +190,10 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 			{ controls }
 			<figure { ...blockProps }>
 				<div className="wp-block-embed__wrapper">
-					{ /* Same-origin, as core previews embeds, for the Referer YouTube wants. The route strips the provider's script, so the frame holds markup alone. */ }
+					{ /* Same-origin, as core previews embeds, for the Referer YouTube wants. The route sanitizes the provider's HTML, so the frame holds markup alone. */ }
 					<SandBox
 						allowSameOrigin
 						html={ preview.html }
-						scripts={ preview.scripts }
 						title={ sprintf(
 							/* translators: %s: host providing embed content e.g: www.youtube.com */
 							__( 'Embedded content from %s', 'default' ),
