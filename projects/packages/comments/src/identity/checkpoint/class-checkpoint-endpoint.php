@@ -23,8 +23,9 @@ use WP_REST_Server;
  * and on Simple that host serves no REST API.
  *
  * All are open to anyone. Log out carries no nonce because one rendered for a
- * logged-out reader outlives the page cache; SameSite=Lax keeps a cross-site
- * request from carrying the passport, and one that says it is cross-site is refused.
+ * logged-out reader outlives the page cache; it takes a POST alone, which
+ * SameSite=Lax keeps from carrying the passport across sites, and one from
+ * another site is refused.
  */
 class Checkpoint_Endpoint extends WP_REST_Controller {
 
@@ -177,11 +178,16 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 			$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 			$key = 'email_checks_' . md5( $ip );
 
-			// Per address and across every site, so the answer cannot be farmed blog by blog. Twenty
-			// in ten minutes is generous for a reader typing, not for anyone sweeping a list.
+			// Per address and across every site, so the answer cannot be farmed blog by blog: without a
+			// global group WordPress.com prefixes the key with the blog id. Twenty in ten minutes is
+			// generous for a reader typing, not for anyone sweeping a list.
+			wp_cache_add_global_groups( 'jetpack_comments' );
 			wp_cache_add( $key, 0, 'jetpack_comments', 10 * MINUTE_IN_SECONDS );
 
-			if ( (int) wp_cache_incr( $key, 1, 'jetpack_comments' ) > 20 ) {
+			$count = wp_cache_incr( $key, 1, 'jetpack_comments' );
+
+			// With no count to check, say no: the answer is worth less than the limit.
+			if ( false === $count || (int) $count > 20 ) {
 				return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
 			}
 
@@ -203,9 +209,12 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	public static function log_out() {
 		nocache_headers();
 
-		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
+		// A link from another site is a GET, and a browser without Sec-Fetch-Site would follow it with the passport.
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+			wp_send_json_error( array( 'code' => 'post_required' ), 405, JSON_UNESCAPED_SLASHES );
+		}
 
-		if ( '' !== $site && 'same-origin' !== $site ) {
+		if ( ! Checkpoint::is_same_site_request() ) {
 			wp_send_json_error( array( 'code' => 'cross_site' ), 403, JSON_UNESCAPED_SLASHES );
 		}
 
