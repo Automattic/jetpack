@@ -76,6 +76,8 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	const boxRef = useRef< HTMLDivElement >( null );
 	const textareaRef = useRef< HTMLTextAreaElement >( null );
 	const editorRef = useRef< HTMLDivElement >( null );
+	// Set by a click, so the editor's caret lands where it did; a keyboard arrival goes to the end.
+	const clicked = useRef( false );
 	// Downloaded on first focus; the textarea stays if it never arrives.
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
 	const prompt = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
@@ -94,7 +96,10 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
 						labels: { blockTools: strings.blockTools, addBlock: strings.addBlock },
-						focus,
+						// Read once the editor renders, after the click has placed the textarea's caret.
+						focus: focus
+							? () => ( clicked.current ? textareaRef.current!.selectionStart : -1 )
+							: undefined,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),
 						onError: () => setEditor( 'failed' ),
@@ -110,6 +115,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isBoxOpen.value = true;
 		openEditor();
 	}, [ isBoxOpen, openEditor ] );
+	const markClicked = useCallback( () => ( clicked.current = true ), [] );
 	const onEditorFocus = useCallback( () => ( isBoxOpen.value = true ), [ isBoxOpen ] );
 	const onInput = useCallback(
 		( event: TargetedEvent< HTMLTextAreaElement > ) =>
@@ -188,6 +194,11 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
+		const settle = () => {
+			isSubmitting.current = false;
+			isPosting.value = false;
+		};
+
 		const onSubmit = ( event: SubmitEvent ) => {
 			if ( commenter.peek().kind === 'unknown' && ! isDialogOpen.peek() ) {
 				event.preventDefault();
@@ -195,7 +206,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				return;
 			}
 
+			// The busy button stays focusable, as core's does, so it is held here instead.
 			if ( isSubmitting.current ) {
+				event.preventDefault();
 				return;
 			}
 
@@ -204,12 +217,14 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			// Kept, not cleared: the server can still turn this away.
 			saveDraft( formSettings.postId, commentValue.peek() );
 			markSubmitted( formSettings.postId );
+
+			// Another script can cancel the submit after this runs, and the page then stays.
+			setTimeout( () => event.defaultPrevented && settle() );
 		};
 
 		const onPageShow = ( event: PageTransitionEvent ) => {
 			if ( event.persisted ) {
-				isSubmitting.current = false;
-				isPosting.value = false;
+				settle();
 			}
 		};
 
@@ -260,6 +275,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 					aria-busy={ editor === 'loading' }
 					// Its loading copy, below, takes the placeholder's place.
 					placeholder={ editor === 'loading' ? '' : placeholder }
+					onPointerDown={ markClicked }
 					onFocus={ onFocus }
 					onInput={ onInput }
 				/>
@@ -293,13 +309,13 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 							id={ submit.id }
 							name={ submit.name }
 							type="submit"
-							className={ submit.class }
+							className={ clsx( submit.class, { 'is-busy': isPosting.value } ) }
 							disabled={
 								( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
 								isEmptyComment.value ||
-								isTooLong ||
-								isPosting.value
+								isTooLong
 							}
+							aria-disabled={ isPosting.value || undefined }
 							value={ commentParent.value ? strings.reply : submit.label }
 						/>
 					</span>

@@ -115,6 +115,29 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
 	} );
 
+	it( 'carries the pending label as the note of a row the report flags pending', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { revenue: 3 },
+				data: [
+					{ date_start: '2026-06-01', revenue: 3 },
+					{ date_start: '2026-06-02', revenue: null, pending: true },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'revenue',
+			label: 'Revenue',
+			zone: 'UTC',
+			pendingLabel: 'Not counted yet.',
+		} );
+
+		expect( tab.current.map( point => [ point.value, point.note ] ) ).toEqual( [
+			[ 3, undefined ],
+			[ null, 'Not counted yet.' ],
+		] );
+	} );
+
 	it( 'includes real previous-period values when comparison is on and has rows', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },

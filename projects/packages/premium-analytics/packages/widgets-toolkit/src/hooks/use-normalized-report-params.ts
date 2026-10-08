@@ -3,7 +3,6 @@
  */
 import {
 	getDefaultPreset,
-	getStoreInfo,
 	normalizeReportParams,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -37,8 +36,7 @@ export function useNormalizedReportParams(
 		!! attributes?.reportParams && Object.keys( attributes.reportParams ).length > 0;
 	const rawReportParams = hasReportParams ? attributes.reportParams : search;
 
-	const { launchedDate } = getStoreInfo();
-	const defaultPreset = getDefaultPreset( launchedDate );
+	const defaultPreset = getDefaultPreset();
 
 	return useMemo(
 		() => normalizeReportParams( rawReportParams, defaultPreset ),

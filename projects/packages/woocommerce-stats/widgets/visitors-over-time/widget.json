@@ -1,0 +1,11 @@
+{
+	"name": "woocommerce-analytics/visitors-over-time",
+	"title": "Visitors over time",
+	"description": "Track website visitor trends and monitor traffic patterns over time.",
+	"help": {
+		"content": "Track website visitor trends and monitor traffic patterns over time."
+	},
+	"category": "visitors",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

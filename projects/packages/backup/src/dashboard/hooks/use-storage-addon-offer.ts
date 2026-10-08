@@ -30,9 +30,9 @@ const EMPTY: Result = { slug: null, sizeText: null, monthlyPrice: null, currency
 /**
  * React Query hook exposing the storage add-on being offered.
  *
- * Shared by both consumers in the storage section — the upsell needs the size and
- * price, the popover needs the slug. Legacy leaves that to chance: only its upsell
- * fetches, so its popover's link is built from a `null` default on every site.
+ * Shared by the storage section's upsell and popover, and by the retention dialog,
+ * which sizes it for the choice rather than for today's usage. Legacy's popover never
+ * fetches, so its link is built from a `null` default on every site.
  *
  * Deliberately not gated on `useCanQueryWpcom()`: the route only checks
  * `manage_options`. The `enabled` flag below is what keeps it from firing early, since

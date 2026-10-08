@@ -143,6 +143,7 @@ const renderTooltip = params => {
 | `rows[].indicator` | `series` / `icon` / `blank`           | The series swatch, the extra's `icon`, or a blank of the same width                      |
 | `rows[].value`   | `number \| null`                        | The current reading; `null` reads as a dash, announced "No data for <name>"              |
 | `rows[].previous` | `{ value, indicator } \| undefined`   | The comparison reading with its own indicator (the comparison series' swatch); absent or `null` reads as a dash |
+| `note`           | `string \| undefined`                   | Why the bucket has no reading, from the first current-period point that carries one; comparison points are skipped. When every row is without a reading, the tooltip shows the date and the note alone |
 
 ## Reading
 

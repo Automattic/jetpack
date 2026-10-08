@@ -29,7 +29,7 @@ class VideoPress_Player {
 	protected $video_container_id;
 
 	/**
-	 * DOM identifier of the video element (video, object, embed)
+	 * DOM identifier of the video element
 	 *
 	 * @var string
 	 * @since 1.3
@@ -37,7 +37,7 @@ class VideoPress_Player {
 	protected $video_id;
 
 	/**
-	 * Array of playback options: force_flash or freedom
+	 * Array of playback options.
 	 *
 	 * @var array
 	 * @since 1.3
@@ -156,9 +156,8 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Output content suitable for a feed reader displaying RSS or Atom feeds
+	 * Output content suitable for a feed reader displaying RSS or Atom feeds.
 	 * We do not display error messages in the feed view due to caching concerns.
-	 * Flash content presented using <embed> markup for feed reader compatibility.
 	 *
 	 * @since 1.3
 	 * @return string HTML string or empty string if error
@@ -168,14 +167,7 @@ class VideoPress_Player {
 			return '';
 		}
 
-		if ( isset( $this->options['force_flash'] ) && true === $this->options['force_flash'] ) {
-			$content = $this->flash_embed();
-
-		} else {
-			$content = $this->html5_static();
-		}
-
-		return $this->html_wrapper( $content );
+		return $this->html_wrapper( $this->html5_static() );
 	}
 
 	/**
@@ -191,22 +183,15 @@ class VideoPress_Player {
 		} elseif ( is_wp_error( $this->video ) ) {
 			$content = $this->error_message( $this->video );
 
-		} elseif ( isset( $this->options['force_flash'] ) && true === $this->options['force_flash'] ) {
-			$content = $this->flash_object();
-
 		} elseif ( isset( $this->video->restricted_embed ) && true === $this->video->restricted_embed ) {
+			// Restricted videos always get the dynamic player, even with `freedom` set.
+			$content = $this->html5_dynamic_next();
 
-			if ( $this->options['forcestatic'] ) {
-				$content = $this->flash_object();
-
-			} else {
-				$content = $this->html5_dynamic();
-			}
 		} elseif ( isset( $this->options['freedom'] ) && true === $this->options['freedom'] ) {
 			$content = $this->html5_static();
 
 		} else {
-			$content = $this->html5_dynamic();
+			$content = $this->html5_dynamic_next();
 		}
 
 		return $this->html_wrapper( $content );
@@ -236,107 +221,14 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Rating agencies and industry associations require a potential viewer verify their age before a video or its poster frame are displayed.
-	 * Content rated for audiences 17 years of age or older requires such verification across multiple rating agencies and industry associations
-	 *
-	 * @since 1.3
-	 * @return bool true if video requires the viewer verify they are 17 years of age or older
-	 */
-	private function age_gate_required() {
-		if ( isset( $this->video->age_rating ) && $this->video->age_rating >= 17 ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Select a date of birth using HTML form elements.
-	 *
-	 * @since 1.5
-	 * @return string HTML markup
-	 */
-	private function html_age_gate() {
-		global $wp_locale;
-		$text_align = 'left';
-		if ( $this->video->text_direction === 'rtl' ) {
-			$text_align = 'right';
-		}
-
-		$html         = '<div class="videopress-age-gate" style="margin:0 60px">';
-		$html        .= '<p class="instructions" style="color:rgb(255, 255, 255);font-size:21px;padding-top:60px;padding-bottom:20px;text-align:' . $text_align . '">' . esc_html( __( 'This video is intended for mature audiences.', 'jetpack' ) ) . '<br />' . esc_html( __( 'Please verify your birthday.', 'jetpack' ) ) . '</p>';
-		$html        .= '<fieldset id="birthday" style="border:0 none;text-align:' . $text_align . ';padding:0;">';
-		$inputs_style = 'border:1px solid #444;margin-';
-		if ( $this->video->text_direction === 'rtl' ) {
-			$inputs_style .= 'left';
-		} else {
-			$inputs_style .= 'right';
-		}
-		$inputs_style .= ':10px;background-color:rgb(0, 0, 0);font-size:14px;color:rgb(255,255,255);padding:4px 6px;line-height: 2em;vertical-align: middle';
-
-		/**
-		 * Display a list of months in the Gregorian calendar.
-		 * Set values to 0-based to match JavaScript Date.
-		 *
-		 * @link https://developer.mozilla.org/en/JavaScript/Reference/global_objects/date Mozilla JavaScript Reference: Date
-		 */
-		$html .= '<select name="month" style="' . $inputs_style . '">';
-
-		for ( $i = 0; $i < 12; $i++ ) {
-			$html .= '<option value="' . esc_attr( $i ) . '">' . esc_html( $wp_locale->get_month( $i + 1 ) ) . '</option>';
-		}
-		$html .= '</select>';
-
-		/**
-		 * Todo: numdays variance by month.
-		 */
-		$html .= '<select name="day" style="' . $inputs_style . '">';
-		for ( $i = 1; $i < 32; $i++ ) {
-			$html .= '<option>' . $i . '</option>';
-		}
-		$html .= '</select>';
-
-		/**
-		 * Current record for human life is 122. Go back 130 years and no one is left out.
-		 * Don't ask infants younger than 2 for their birthday
-		 * Default to 13
-		 */
-		$html        .= '<select name="year" style="' . $inputs_style . '">';
-		$start_year   = gmdate( 'Y' ) - 2;
-		$default_year = $start_year - 11;
-		$end_year     = $start_year - 128;
-		for ( $year = $start_year; $year > $end_year; $year-- ) {
-			$html .= '<option';
-			if ( $year === $default_year ) {
-				$html .= ' selected="selected"';
-			}
-			$html .= '>' . $year . '</option>';
-		}
-		unset( $start_year );
-		unset( $default_year );
-		unset( $end_year );
-		$html .= '</select>';
-
-		$html .= '<input type="submit" value="' . __( 'Submit', 'jetpack' ) . '" style="cursor:pointer;border-radius: 1em;border:1px solid #333;background-color:#333;background:-webkit-gradient( linear, left top, left bottom, color-stop(0.0, #444), color-stop(1, #111) );background:-moz-linear-gradient(center top, #444 0%, #111 100%);font-size:13px;padding:4px 10px 5px;line-height:1em;vertical-align:top;color:white;text-decoration:none;margin:0" />';
-
-		$html .= '</fieldset>';
-		$html .= '<p style="padding-top:20px;padding-bottom:60px;text-align:' . $text_align . ';"><a rel="nofollow noopener noreferrer" href="https://videopress.com/" target="_blank" style="color:rgb(128,128,128);text-decoration:underline;font-size:15px">' . __( 'More information', 'jetpack' ) . '</a></p>';
-
-		$html .= '</div>';
-		return $html;
-	}
-
-	/**
 	 * Return HTML5 video static markup for the given video parameters.
 	 * Use default browser player controls.
-	 * No Flash fallback.
 	 *
 	 * @since 1.2
 	 * @link https://html.spec.whatwg.org/multipage/media.html#the-video-element HTML5 video
 	 * @return string HTML5 video element and children
 	 */
 	private function html5_static() {
-		wp_enqueue_script( 'videopress' );
 		$thumbnail = esc_url( $this->video->poster_frame_uri );
 		$html      = "<video id=\"{$this->video_id}\" width=\"{$this->video->calculated_width}\" height=\"{$this->video->calculated_height}\" poster=\"$thumbnail\" controls=\"true\"";
 
@@ -393,239 +285,7 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Click to play dynamic HTML5-capable player.
-	 * The player displays a video preview section including poster frame,
-	 * video title, play button and watermark on the original page load
-	 * and calculates the playback capabilities of the browser. The video player
-	 * is loaded when the visitor clicks on the video preview area.
-	 * If Flash Player 10 or above is available the browser will display
-	 * the Flash version of the video. If HTML5 video appears to be supported
-	 * and the browser may be capable of MP4 (H.264, AAC) or OGV (Theora, Vorbis)
-	 * playback the browser will display its native HTML5 player.
-	 *
-	 * @since 1.5
-	 * @return string HTML markup
-	 */
-	private function html5_dynamic() {
-
-		/**
-		 * Filter the VideoPress legacy player feature
-		 *
-		 * This filter allows you to control whether the legacy VideoPress player should be used
-		 * instead of the improved one.
-		 *
-		 * @module videopress
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param boolean $videopress_use_legacy_player
-		 */
-		if ( ! apply_filters( 'jetpack_videopress_use_legacy_player', false ) ) {
-			return $this->html5_dynamic_next();
-		}
-
-		wp_enqueue_script( 'videopress' );
-		$video_placeholder_id = $this->video_container_id . '-placeholder';
-		$age_gate_required    = $this->age_gate_required();
-		$width                = absint( $this->video->calculated_width );
-		$height               = absint( $this->video->calculated_height );
-
-		$html = '<div id="' . $video_placeholder_id . '" class="videopress-placeholder" style="';
-		if ( $age_gate_required ) {
-			$html .= "min-width:{$width}px;min-height:{$height}px";
-		} else {
-			$html .= "width:{$width}px;height:{$height}px";
-		}
-		$html .= ';display:none;cursor:pointer !important;position:relative;';
-		if ( isset( $this->video->skin ) && isset( $this->video->skin->background_color ) ) {
-			$html .= 'background-color:' . esc_attr( $this->video->skin->background_color ) . ';';
-		}
-		$html .= 'font-family: \'Helvetica Neue\',Arial,Helvetica,\'Nimbus Sans L\',sans-serif;font-weight:bold;font-size:18px">' . PHP_EOL;
-
-		/**
-		 * Do not display a poster frame, title, or any other content hints for mature content.
-		 */
-		if ( ! $age_gate_required ) {
-			if ( ! empty( $this->video->title ) ) {
-				$html .= '<div class="videopress-title" style="display:inline;position:absolute;margin:20px 20px 0 20px;padding:4px 8px;vertical-align:top;text-align:';
-				if ( $this->video->text_direction === 'rtl' ) {
-					$html .= 'right" dir="rtl"';
-				} else {
-					$html .= 'left" dir="ltr"';
-				}
-				if ( isset( $this->video->language ) ) {
-					$html .= ' lang="' . esc_attr( $this->video->language ) . '"';
-				}
-				$html .= '><span style="padding:3px 0;line-height:1.5em;';
-				if ( isset( $this->video->skin ) && isset( $this->video->skin->background_color ) ) {
-					$html .= 'background-color:';
-					if ( $this->video->skin->background_color === 'rgb(0,0,0)' ) {
-						$html .= 'rgba(0,0,0,0.8)';
-					} else {
-						$html .= esc_attr( $this->video->skin->background_color );
-					}
-					$html .= ';';
-				}
-				$html .= 'color:rgb(255,255,255)">' . esc_html( $this->video->title ) . '</span></div>';
-			}
-			$html .= '<img class="videopress-poster" alt="';
-			if ( ! empty( $this->video->title ) ) {
-				/* translators: %s is the video title */
-				$html .= esc_attr( $this->video->title ) . '" title="' . esc_attr( sprintf( _x( 'Watch: %s', 'watch a video title', 'jetpack' ), $this->video->title ) );
-			}
-			$html .= '" src="' . esc_url( $this->video->poster_frame_uri, array( 'http', 'https' ) ) . '" width="' . $width . '" height="' . $height . '" />' . PHP_EOL;
-
-			// style a play button hovered over the poster frame
-			$html .= '<div class="play-button"><span style="z-index:2;display:block;position:absolute;top:50%;left:50%;text-align:center;vertical-align:middle;color:rgb(255,255,255);opacity:0.9;margin:0 0 0 -0.45em;padding:0;line-height:0;font-size:500%;text-shadow:0 0 40px rgba(0,0,0,0.5)">&#9654;</span></div>' . PHP_EOL;
-
-			// watermark
-			if ( isset( $this->video->skin ) && isset( $this->video->skin->watermark ) ) {
-				$html .= '<div style="position:relative;margin-top:-40px;height:25px;margin-bottom:35px;';
-				if ( $this->video->text_direction === 'rtl' ) {
-					$html .= 'margin-left:20px;text-align:left;';
-				} else {
-					$html .= 'margin-right:20px;text-align:right;';
-				}
-				$html .= 'vertical-align:bottom;z-index:3">';
-				$html .= '<img alt="" src="' . esc_url( $this->video->skin->watermark, array( 'http', 'https' ) ) . '" width="90" height="13" style="background-color:transparent;background-image:none;background-repeat:no-repeat;border:none;margin:0;padding:0"/>';
-				$html .= '</div>' . PHP_EOL;
-			}
-		}
-
-		$data = array(
-			'blog'     => absint( $this->video->blog_id ),
-			'post'     => absint( $this->video->post_id ),
-			'duration' => absint( $this->video->duration ),
-			'poster'   => esc_url_raw( $this->video->poster_frame_uri, array( 'http', 'https' ) ),
-			'hd'       => (bool) $this->options['hd'],
-		);
-		if ( isset( $this->video->videos ) ) {
-			if ( isset( $this->video->videos->mp4 ) && isset( $this->video->videos->mp4->url ) ) {
-				$data['mp4'] = array(
-					'size' => $this->video->videos->mp4->format,
-					'uri'  => esc_url_raw( $this->video->videos->mp4->url, array( 'http', 'https' ) ),
-				);
-			}
-			if ( isset( $this->video->videos->ogv ) && isset( $this->video->videos->ogv->url ) ) {
-				$data['ogv'] = array(
-					'size' => 'std',
-					'uri'  => esc_url_raw( $this->video->videos->ogv->url, array( 'http', 'https' ) ),
-				);
-			}
-		}
-		$locale = array( 'dir' => $this->video->text_direction );
-		if ( isset( $this->video->language ) ) {
-			$locale['lang'] = $this->video->language;
-		}
-		$data['locale'] = $locale;
-		unset( $locale );
-
-		$guid    = $this->video->guid;
-		$guid_js = wp_json_encode( $guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$html   .= '<script type="text/javascript">' . PHP_EOL;
-		$html   .= 'jQuery(document).ready(function() {';
-
-		$html .= 'if ( !jQuery.VideoPress.data[' . $guid_js . '] ) { jQuery.VideoPress.data[' . $guid_js . '] = new Array(); }' . PHP_EOL;
-		$html .= 'jQuery.VideoPress.data[' . $guid_js . '][' . self::$shown[ $guid ] . ']=' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';' . PHP_EOL;
-		unset( $data );
-
-		$jq_container   = wp_json_encode( '#' . $this->video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$jq_placeholder = wp_json_encode( '#' . $video_placeholder_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$player_config  = "{width:{$width},height:{$height},";
-		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
-			$player_config .= 'freedom:"true",';
-		}
-		$player_config .= 'container:jQuery(' . $jq_container . ')}';
-
-		$html .= "jQuery({$jq_placeholder}).show(0,function(){jQuery.VideoPress.analytics.impression({$guid_js})});" . PHP_EOL;
-
-		if ( $age_gate_required ) {
-			$html .= 'if ( jQuery.VideoPress.support.flash() ) {' . PHP_EOL;
-			/**
-			 * Insert alternative content for Flash players.
-			 *
-			 * @link https://github.com/swfobject/swfobject/wiki/SWFObject-API#swfobjectembedswfswfurlstr-replaceelemidstr-widthstr-heightstr-swfversionstr-xiswfurlstr-flashvarsobj-parobj-attobj-callbackfn
-			 */
-			$html .= 'swfobject.embedSWF(' . implode(
-				',',
-				array(
-					'jQuery.VideoPress.video.flash.player_uri',
-					wp_json_encode( $this->video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
-					wp_json_encode( $width, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
-					wp_json_encode( $height, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
-					'jQuery.VideoPress.video.flash.min_version',
-					'jQuery.VideoPress.video.flash.expressinstall', // attempt to upgrade the Flash player if less than min_version. requires a 310x137 container or larger but we will always try to include
-					'{guid:' . $guid_js . '}', // FlashVars
-					'jQuery.VideoPress.video.flash.params',
-					'null', // no attributes
-					'jQuery.VideoPress.video.flash.embedCallback', // error fallback
-				)
-			) . ');';
-			$html .= '} else {' . PHP_EOL;
-			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js},{$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
-			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . wp_json_encode( '#' . $this->video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '));}else{';
-			$html .= 'jQuery(' . $jq_placeholder . ').html(' . wp_json_encode( $this->html_age_date(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');' . PHP_EOL;
-			$html .= 'jQuery(' . wp_json_encode( '#' . $video_placeholder_id . ' input[type="submit"]', JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
-			$html .= '}}}' . PHP_EOL;
-		} else {
-			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js}, {$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
-			if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true ) {
-				$html .= "jQuery.VideoPress.video.play(jQuery({$jq_container}));";
-			} else {
-				$html .= 'jQuery(' . $jq_placeholder . ').one("click",function(){jQuery.VideoPress.video.play(jQuery(' . $jq_container . '))});';
-			}
-			$html .= '}';
-
-			// close the jQuery(document).ready() function
-			$html .= '});';
-		}
-		$html .= '</script>' . PHP_EOL;
-		$html .= '</div>' . PHP_EOL;
-
-		/*
-		 * JavaScript required
-		 */
-		$noun = __( 'this video', 'jetpack' );
-		if ( ! $age_gate_required ) {
-			$vid_type = '';
-			if ( ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) && ( isset( $this->video->videos->ogv ) && isset( $this->video->videos->ogv->url ) ) ) {
-				$vid_type = 'ogv';
-			} elseif ( isset( $this->video->videos->mp4 ) && isset( $this->video->videos->mp4->url ) ) {
-				$vid_type = 'mp4';
-			} elseif ( isset( $this->video->videos->ogv ) && isset( $this->video->videos->ogv->url ) ) {
-				$vid_type = 'ogv';
-			}
-
-			if ( $vid_type !== '' ) {
-				$noun = '<a ';
-				if ( isset( $this->video->language ) ) {
-					$noun .= 'hreflang="' . esc_attr( $this->video->language ) . '" ';
-				}
-				if ( $vid_type === 'mp4' ) {
-					$noun .= 'type="video/mp4" href="' . esc_url( $this->video->videos->mp4->url, array( 'http', 'https' ) );
-				} elseif ( $vid_type === 'ogv' ) {
-					$noun .= 'type="video/ogv" href="' . esc_url( $this->video->videos->ogv->url, array( 'http', 'https' ) );
-				}
-				$noun .= '">';
-				if ( isset( $this->video->title ) ) {
-					$noun .= esc_html( $this->video->title );
-				} else {
-					$noun .= __( 'this video', 'jetpack' );
-				}
-				$noun .= '</a>';
-			} elseif ( ! empty( $this->title ) ) {
-				$noun = esc_html( $this->title );
-			}
-			unset( $vid_type );
-		}
-		/* translators: %s video title or generic 'this video' string */
-		$html .= '<noscript><p>' . sprintf( _x( 'JavaScript required to play %s.', 'Play as in playback or view a movie', 'jetpack' ), $noun ) . '</p></noscript>';
-
-		return $html;
-	}
-
-	/**
-	 * Output for the non-legacy HTML5 player.
+	 * Output for the HTML5 player.
 	 */
 	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;
@@ -754,18 +414,16 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Only allow legitimate Flash parameters and their values
+	 * Validate legacy Flash parameters for backward compatibility.
 	 *
 	 * @since 1.2
-	 * @link https://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html Flash object and embed attributes
-	 * @link https://helpx.adobe.com/flash/kb/font-outlines-device-fonts.html devicefont
-	 * @link https://helpx.adobe.com/flash/kb/control-access-scripts-host-web.html allowscriptaccess
-	 * @link https://www.adobe.com/devnet/flashplayer/articles/full_screen_mode.html full screen mode
-	 * @link https://help.adobe.com/en_US/as3/dev/WS1EFE2EDA-026D-4d14-864E-79DFD56F87C6.html allownetworking
+	 * @deprecated $$next-version$$ Flash playback is no longer supported.
 	 * @param array $flash_params Flash parameters expressed in key-value form.
-	 * @return array validated Flash parameters
+	 * @return array Validated Flash parameters.
 	 */
 	public static function esc_flash_params( $flash_params ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+
 		$allowed_params = array(
 			'swliveconnect'         => array( 'true', 'false' ),
 			'play'                  => array( 'true', 'false' ),
@@ -782,12 +440,7 @@ class VideoPress_Player {
 			'seamlesstabbing'       => array( 'true', 'false' ),
 			'allowfullscreen'       => array( 'true', 'false' ),
 			'fullScreenAspectRatio' => array( 'portrait', 'landscape' ),
-			'base',
-			'bgcolor',
-			'flashvars',
 		);
-
-		$allowed_params_keys = array_keys( $allowed_params );
 
 		$filtered_params = array();
 		foreach ( $flash_params as $param => $value ) {
@@ -795,156 +448,19 @@ class VideoPress_Player {
 				continue;
 			}
 			$param = strtolower( $param );
-			if ( in_array( $param, $allowed_params_keys, true ) ) {
-				if ( isset( $allowed_params[ $param ] ) && is_array( $allowed_params[ $param ] ) ) {
-					$value = strtolower( $value );
-					if ( in_array( $value, $allowed_params[ $param ], true ) ) {
-						$filtered_params[ $param ] = $value;
-					}
-				} else {
+			if ( isset( $allowed_params[ $param ] ) ) {
+				$value = strtolower( $value );
+				if ( in_array( $value, $allowed_params[ $param ], true ) ) {
 					$filtered_params[ $param ] = $value;
 				}
 			}
 		}
-		unset( $allowed_params_keys );
 
-		/**
-		 * Flash specifies sameDomain, not samedomain. change from lowercase value for preciseness
-		 */
+		// Flash requires the case-sensitive value sameDomain.
 		if ( isset( $filtered_params['allowscriptaccess'] ) && $filtered_params['allowscriptaccess'] === 'samedomain' ) {
 			$filtered_params['allowscriptaccess'] = 'sameDomain';
 		}
 
 		return $filtered_params;
-	}
-
-	/**
-	 * Filter Flash variables from the response, taking into consideration player options.
-	 *
-	 * @since 1.3
-	 * @return array Flash variable key value pairs
-	 */
-	private function get_flash_variables() {
-		if ( ! isset( $this->video->players->swf->vars ) ) {
-			return array();
-		}
-
-		$flashvars = (array) $this->video->players->swf->vars;
-		if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true ) {
-			$flashvars['autoPlay'] = 'true';
-		}
-		return $flashvars;
-	}
-
-	/**
-	 * Validate and filter Flash parameters
-	 *
-	 * @since 1.3
-	 * @return array Flash parameters passed through key and value validation
-	 */
-	private function get_flash_parameters() {
-		if ( ! isset( $this->video->players->swf->params ) ) {
-			return array();
-		} else {
-			return self::esc_flash_params(
-				/**
-						 * Filters the Flash parameters of the VideoPress player.
-						 *
-						 * @module videopress
-						 *
-						 * @since 1.2.0
-						 *
-						 * @param array $this->video->players->swf->params Array of swf parameters for the VideoPress flash player.
-						 */
-				apply_filters( 'video_flash_params', (array) $this->video->players->swf->params, 10, 1 )
-			);
-		}
-	}
-
-	/**
-	 * Flash player markup in a HTML embed element.
-	 *
-	 * @since 1.1
-	 * @link https://html.spec.whatwg.org/multipage/iframe-embed-object.html#the-embed-element embed element
-	 * @link http://www.google.com/support/reader/bin/answer.py?answer=70664 Google Reader markup support
-	 * @return string HTML markup. Embed element with no children
-	 */
-	private function flash_embed() {
-		wp_enqueue_script( 'videopress' );
-		if ( ! isset( $this->video->players->swf ) || ! isset( $this->video->players->swf->url ) ) {
-			return '';
-		}
-
-		$embed = array(
-			'id'     => $this->video_id,
-			'src'    => esc_url_raw( $this->video->players->swf->url . '&' . http_build_query( $this->get_flash_variables(), '', '&' ), array( 'http', 'https' ) ),
-			'type'   => 'application/x-shockwave-flash',
-			'width'  => $this->video->calculated_width,
-			'height' => $this->video->calculated_height,
-		);
-		if ( isset( $this->video->title ) ) {
-			$embed['title'] = $this->video->title;
-		}
-		$embed = array_merge( $embed, $this->get_flash_parameters() );
-
-		$html = '<embed';
-		foreach ( $embed as $attribute => $value ) {
-			$html .= ' ' . esc_html( $attribute ) . '="' . esc_attr( $value ) . '"';
-		}
-		unset( $embed );
-		$html .= '></embed>';
-		return $html;
-	}
-
-	/**
-	 * Double-baked Flash object markup for Internet Explorer and more standards-friendly consuming agents.
-	 *
-	 * @since 1.1
-	 * @return string HTML markup. Object and children.
-	 */
-	private function flash_object() {
-		wp_enqueue_script( 'videopress' );
-		if ( ! isset( $this->video->players->swf ) || ! isset( $this->video->players->swf->url ) ) {
-			return '';
-		}
-
-		$thumbnail_html = '<img alt="';
-		if ( isset( $this->video->title ) ) {
-			$thumbnail_html .= esc_attr( $this->video->title );
-		}
-		$thumbnail_html .= '" src="' . esc_url( $this->video->poster_frame_uri, array( 'http', 'https' ) ) . '" width="' . $this->video->calculated_width . '" height="' . $this->video->calculated_height . '" />';
-		$flash_vars      = esc_attr( http_build_query( $this->get_flash_variables(), '', '&' ) );
-		$flash_params    = '';
-		foreach ( $this->get_flash_parameters() as $attribute => $value ) {
-			$flash_params .= '<param name="' . esc_attr( $attribute ) . '" value="' . esc_attr( $value ) . '" />';
-		}
-		/* translators: %s url to the Adobe Flash Player website */
-		$flash_help       = sprintf( __( 'This video requires <a rel="nofollow noopener noreferrer" href="%s" target="_blank">Adobe Flash</a> for playback.', 'jetpack' ), 'https://get.adobe.com/flashplayer/' );
-		$flash_player_url = esc_url( $this->video->players->swf->url, array( 'http', 'https' ) );
-		$description      = '';
-		if ( isset( $this->video->title ) ) {
-			$standby     = $this->video->title;
-			$description = '<p><strong>' . esc_html( $this->video->title ) . '</strong></p>';
-		} else {
-			$standby = __( 'Loading video...', 'jetpack' );
-		}
-		$standby = ' standby="' . esc_attr( $standby ) . '"';
-		return <<<OBJECT
-<script type="text/javascript">if(typeof swfobject!=="undefined"){swfobject.registerObject("{$this->video_id}", "{$this->video->players->swf->version}");}</script>
-<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="{$this->video->calculated_width}" height="{$this->video->calculated_height}" id="{$this->video_id}"{$standby}>
-	<param name="movie" value="{$flash_player_url}" />
-	{$flash_params}
-	<param name="flashvars" value="{$flash_vars}" />
-	<!--[if !IE]>-->
-	<object type="application/x-shockwave-flash" data="{$flash_player_url}" width="{$this->video->calculated_width}" height="{$this->video->calculated_height}"{$standby}>
-		{$flash_params}
-		<param name="flashvars" value="{$flash_vars}" />
-	<!--<![endif]-->
-	{$thumbnail_html}{$description}<p class="robots-nocontent">{$flash_help}</p>
-	<!--[if !IE]>-->
-	</object>
-	<!--<![endif]-->
-</object>
-OBJECT;
 	}
 }

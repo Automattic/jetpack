@@ -60,7 +60,8 @@ type EditorProps = {
 	initialContent: string;
 	/** Accessible names, translated in PHP. */
 	labels: { blockTools: string; addBlock: string };
-	focus: boolean;
+	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
+	focus?: () => number;
 	placeholder: string;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
@@ -86,9 +87,9 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 	}
 }
 
-// The reader clicked into the textarea to get here, so the caret goes to the end.
-const FocusOnMount = () => {
-	const { selectBlock } = useDispatch( blockEditorStore );
+// The reader reached into the textarea to get here, so the caret goes where they put it.
+const FocusOnMount = ( { offset }: { offset: () => number } ) => {
+	const { selectBlock, selectionChange } = useDispatch( blockEditorStore );
 	const last = useSelect( select => select( blockEditorStore ).getBlockOrder().at( -1 ), [] );
 	const done = useRef( false );
 
@@ -96,9 +97,14 @@ const FocusOnMount = () => {
 	useEffect( () => {
 		if ( last && ! done.current ) {
 			done.current = true;
-			selectBlock( last, -1 );
+			const at = offset();
+			if ( at < 0 ) {
+				selectBlock( last, -1 );
+			} else {
+				selectionChange( last, 'content', at, at );
+			}
 		}
-	}, [ last, selectBlock ] );
+	}, [ last, offset, selectBlock, selectionChange ] );
 
 	return null;
 };
@@ -171,6 +177,16 @@ const Editor = ( {
 	const redo = useCallback( () => dispatch( { type: 'redo' } ), [] );
 	// Backspace just after a shortcut such as "- " calls this to undo the conversion.
 	const editorSettings = useMemo( () => ( { ...settings, __experimentalUndo: undo } ), [ undo ] );
+	// Into the paragraph the text became, which lost its trimmed whitespace.
+	const offset = useCallback( () => {
+		const at = focus?.() ?? -1;
+		if ( at < 0 || initialContent.includes( '<!-- wp:' ) ) {
+			return -1;
+		}
+		const text = initialContent.trim();
+		const lead = initialContent.indexOf( text );
+		return Math.min( Math.max( at - lead, 0 ), text.length );
+	}, [ focus, initialContent ] );
 
 	return (
 		<SlotFillProvider>
@@ -181,7 +197,7 @@ const Editor = ( {
 				settings={ editorSettings }
 				useSubRegistry
 			>
-				{ focus && <FocusOnMount /> }
+				{ focus && <FocusOnMount offset={ offset } /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
 						<BlockToolbar labels={ labels } />

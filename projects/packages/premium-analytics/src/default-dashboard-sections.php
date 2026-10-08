@@ -84,9 +84,14 @@ function is_store_dashboard_section_available() {
  *
  * @since 0.3.0
  *
- * @return bool True when the subscriptions module is active.
+ * @return bool True when the subscriptions module is active and the reader may see Stats.
  */
 function is_subscribers_dashboard_section_available() {
+	// Outside the filter, which answers only whether the module is there.
+	if ( ! Capabilities::current_user_can_view_stats() ) {
+		return false;
+	}
+
 	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
 
 	/**

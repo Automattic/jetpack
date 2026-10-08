@@ -33,9 +33,12 @@ class Sharing_Service {
 	 * Record a save.
 	 *
 	 * @param array<string,mixed> $data Posted data.
+	 * @return array<string,mixed>
 	 */
 	public function set_global_options( $data ) {
 		$GLOBALS['sharing_likes_test_global_options'] = $data;
+
+		return $data;
 	}
 
 	/**
@@ -171,7 +174,7 @@ class Sharing_Service {
 	/**
 	 * The stored global options, or the real class's defaults when none are stored.
 	 *
-	 * The real class also saves those defaults on that first read.
+	 * The real class also saves those defaults on that first read, leaving `show` unset.
 	 *
 	 * @return array
 	 */
@@ -185,9 +188,12 @@ class Sharing_Service {
 				'button_style'  => 'icon-text',
 				'sharing_label' => false,
 				'open_links'    => 'same',
-				'show'          => array( 'post', 'page' ),
 				'custom'        => array(),
 			);
+
+			$options           = is_array( $options ) ? $options : array();
+			$options['global'] = $global;
+			update_option( 'sharing-options', $options );
 		}
 
 		if ( ! isset( $global['show'] ) ) {

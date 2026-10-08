@@ -13,6 +13,7 @@ use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Capabilities
@@ -34,6 +35,16 @@ class Capabilities_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_analytics_capabilities();
+
+		// Each test hydrates the section registry under its own users and sections.
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
+		if ( false === has_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		}
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -204,14 +215,107 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Store access is not dashboard access: the capability that opens the store
-	 * reports says nothing about who may read stats.
+	 * A reader with no Stats access reaches the dashboard through a section available to them,
+	 * the way a shop manager does through the WooCommerce tab, and not without one.
 	 */
-	public function test_woocommerce_report_viewer_is_not_a_dashboard_reader() {
+	public function test_a_section_available_to_the_reader_opens_the_dashboard() {
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/store',
+			array(
+				'label'        => 'Store',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_store_reports' ),
+			)
+		);
+
+		$this->login_as( 'subscriber' );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics(), 'No section is theirs.' );
+
+		$shop_manager = $this->login_as( 'author' );
+		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * The menu checks the capability more than once per screen; the sections answer once.
+	 */
+	public function test_sections_are_asked_once_per_request() {
+		$checks = 0;
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/counted',
+			array(
+				'label'        => 'Counted',
+				'is_available' => static function () use ( &$checks ) {
+					++$checks;
+					return true;
+				},
+			)
+		);
+		$user_id = $this->login_as( 'subscriber' );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertTrue( user_can( $user_id, Capabilities::VIEW_ANALYTICS ) );
+		$this->assertSame( 1, $checks );
+	}
+
+	/**
+	 * A section gated on the dashboard capability itself does not count towards it, rather than
+	 * recursing.
+	 */
+	public function test_a_section_gated_on_the_dashboard_capability_does_not_recurse() {
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/circular',
+			array(
+				'label'        => 'Circular',
+				'is_available' => array( Capabilities::class, 'current_user_can_view_analytics' ),
+			)
+		);
+		$this->login_as( 'administrator' );
+
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * Sections answer for the current user, so the mapping refuses to answer for anyone else.
+	 */
+	public function test_mapping_refuses_users_other_than_the_current_one() {
+		$other_admin = wp_insert_user(
+			array(
+				'user_login' => 'pa-other-administrator',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$this->login_as( 'administrator' );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( user_can( $other_admin, Capabilities::VIEW_ANALYTICS ) );
+	}
+
+	/**
+	 * Pins the Stats helper to what the proxy enforces for a Stats prefix, for the same reason
+	 * as the store helper above.
+	 */
+	public function test_stats_helper_matches_the_proxy_capability() {
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/stats/top-posts' );
+		$request->set_param( 'endpoint', 'stats/top-posts' );
+
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
+
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+		$this->assertFalse( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 
-		$this->assertTrue( Capabilities::current_user_can_view_store_reports() );
-		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
+		$this->login_as( 'administrator' );
+		$this->assertTrue( Capabilities::current_user_can_view_stats() );
+		$this->assertSame( $controller->check_data_permission( $request ), Capabilities::current_user_can_view_stats() );
 	}
 }

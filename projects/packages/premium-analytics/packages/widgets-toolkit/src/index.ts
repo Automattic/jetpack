@@ -23,7 +23,6 @@ export {
 	DonutChart,
 	DonutChartSkeleton,
 	Legend,
-	ReportMetricWidget,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	type MetricTab,
@@ -135,6 +134,7 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	canSendFeedback,
 	FeedbackModal,
 	type FeedbackSource,
 	PageNotice,
@@ -227,6 +227,7 @@ export {
 	getLocationsReportSection,
 	getLocationsScopeParams,
 	getPostsReportQueryParams,
+	getReferrerSpamDomain,
 	getSummarizedReportQueryParams,
 	getUtmDimensionLabel,
 	getUtmDimensionOptions,
@@ -274,7 +275,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	formatOrderMetric,
 	getFormatByMetricKey,
 	buildTimeSeriesChartData,
 	type TimeSeriesData,
@@ -359,16 +359,13 @@ export {
  * Widget components
  */
 export {
-	BookingOrderMetricWidget,
 	BookingsByAttendanceWidget,
 	BookingsRevenueByCustomerTypeWidget,
 	BookingConversionRateWidget,
 	ConversionRateWidget,
 	CouponUseWidget,
-	MetricComparisonWidget,
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
-	OrderMetricWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,

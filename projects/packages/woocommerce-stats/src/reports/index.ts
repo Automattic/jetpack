@@ -15,4 +15,5 @@ export {
 	type OrderAttributionView,
 } from './api/report-order-attribution-summary-fetch';
 export type { FilterCondition } from './types/filter-condition';
+export { BOOKINGS_FILTER } from './utils/product-filters';
 export type { DateType, ReportParams } from './utils/types';

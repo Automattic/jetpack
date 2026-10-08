@@ -31,7 +31,6 @@ export {
 
 export { SemiCircleChart, type SemiCircleChartData } from './chart-semi-circle';
 export { DonutChart, DonutChartSkeleton, type DonutChartData } from './chart-donut';
-export { ReportMetricWidget } from './report-metric';
 export {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -181,6 +180,7 @@ export {
 } from './detail-page';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
+	canSendFeedback,
 	FeedbackModal,
 	PageOptionsMenu,
 	type FeedbackSource,
