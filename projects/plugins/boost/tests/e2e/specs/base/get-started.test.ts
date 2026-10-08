@@ -26,7 +26,7 @@ test.describe( 'Getting started page', () => {
 			/admin\.php\?page=my-jetpack#\/add-boost$/
 		);
 		await page
-			.locator( '#my-jetpack-container' )
+			.locator( '#my-jetpack-dashboard-wp-admin-app' )
 			.getByRole( 'button', { name: 'Get Boost', exact: true } )
 			.click();
 
