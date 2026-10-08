@@ -1,7 +1,11 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
+import {
+	MediaPlaceholder,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
-import { mediaUpload } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pick } from 'lodash';
@@ -29,6 +33,7 @@ export const pickRelevantMediaFiles = image => {
 
 const TiledGalleryEdit = ( {
 	attributes,
+	clientId,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -46,6 +51,11 @@ const TiledGalleryEdit = ( {
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, attributes.className );
 
 	const blockProps = useBlockProps();
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const mediaUpload = useSelect(
+		select => select( blockEditorStore ).getSettings().mediaUpload,
+		[]
+	);
 	const [ selectedImage, setSelectedImage ] = useState( null );
 	const [ changed, setChanged ] = useState(
 		'undefined' === typeof columnWidths || columnWidths?.length === 0 ? true : false
@@ -58,13 +68,39 @@ const TiledGalleryEdit = ( {
 		} );
 	};
 
+	// One upload per file: client-side media processing reports each file separately rather than
+	// the whole batch, so each callback swaps in its own image against the latest attributes.
 	const addFiles = files => {
-		mediaUpload( {
-			allowedTypes: ALLOWED_MEDIA_TYPES,
-			filesList: files,
-			onFileChange: value =>
-				setImages( ( images || [] ).concat( value.map( pickRelevantMediaFiles ) ) ),
-			onError: noticeOperations.createErrorNotice,
+		if ( ! mediaUpload ) {
+			return;
+		}
+		Array.from( files ).forEach( file => {
+			let previousUrl;
+			mediaUpload( {
+				allowedTypes: ALLOWED_MEDIA_TYPES,
+				filesList: [ file ],
+				onFileChange: ( [ media ] ) => {
+					if ( ! media ) {
+						return;
+					}
+					const currentImages = getBlockAttributes( clientId )?.images || [];
+					const index = previousUrl
+						? currentImages.findIndex( ( { url } ) => url === previousUrl )
+						: -1;
+					// The user removed this image while it was still uploading.
+					if ( previousUrl && index === -1 ) {
+						return;
+					}
+					const image = pickRelevantMediaFiles( media );
+					previousUrl = image.url;
+					setImages(
+						index === -1
+							? [ ...currentImages, image ]
+							: currentImages.map( ( img, i ) => ( i === index ? image : img ) )
+					);
+				},
+				onError: noticeOperations.createErrorNotice,
+			} );
 		} );
 
 		setChanged( true );
@@ -87,6 +123,11 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onSelectImages = files => {
+		if ( files[ 0 ] instanceof File ) {
+			addFiles( files );
+			return;
+		}
+
 		const newImages = files.map( file => {
 			const existingImage = images.find(
 				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
@@ -184,6 +225,7 @@ const TiledGalleryEdit = ( {
 					name: __( 'images', 'jetpack' ),
 				} }
 				onSelect={ onSelectImages }
+				handleUpload={ false }
 				accept="image/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				multiple
