@@ -198,7 +198,7 @@ describe( 'getManageConnection', () => {
 		[ 'the connection dialog before WordPress 7.0', null, { type: 'dialog' } ],
 	] )( 'opens %s', ( _, connectorsUrl, expected ) => {
 		window.myJetpackInitialState = {
-			header: { connectorsUrl },
+			header: { activeModules: [], connectorsUrl },
 		} as unknown as typeof window.myJetpackInitialState;
 
 		expect( getManageConnection() ).toEqual( expected );

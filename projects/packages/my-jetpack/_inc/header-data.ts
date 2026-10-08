@@ -8,3 +8,9 @@ export {
 	type ConnectionStateId,
 	type ManageConnection,
 } from './hooks/use-connection-state';
+export {
+	filterLauncherDestinations,
+	getLauncherDestinations,
+	useLauncherDestinations,
+	type LauncherDestination,
+} from './hooks/use-launcher-destinations';
