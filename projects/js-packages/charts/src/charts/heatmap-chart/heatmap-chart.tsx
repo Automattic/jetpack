@@ -274,7 +274,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		groupGap,
 	] );
 	const wrapped = useMemo(
-		() => ( fit ? wrapColumnGroups( groupLayout, fit.bands, 2 ) : null ),
+		() => ( fit ? wrapColumnGroups( groupLayout, fit.bands ) : null ),
 		[ fit, groupLayout ]
 	);
 
@@ -466,10 +466,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	// Every item is placed by hand rather than auto-flowed, so the template can
 	// carry gap tracks that hold no cell.
-	const columnLine = ( columnIndex: number ) =>
-		( wrapped ?? groupLayout ).columns[ columnIndex ].line;
-	const bandOf = ( columnIndex: number ) => wrapped?.columns[ columnIndex ].band ?? 0;
-	const bands = wrapped?.bands ?? 1;
+	const placed = wrapped ?? groupLayout;
+	const columnLine = ( columnIndex: number ) => placed.columns[ columnIndex ].line;
+	const bandOf = ( columnIndex: number ) => placed.columns[ columnIndex ].band;
+	const { bands } = placed;
 	// Each band repeats the label row, the data rows and the group-label row, and
 	// the next starts one group gap below.
 	const bandRowCount = ( hasColumnLabels ? 1 : 0 ) + rows + ( hasGroups ? 1 : 0 ) + 1;
@@ -724,14 +724,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						{ hasGroups && (
 							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
-								{ ( wrapped ?? groupLayout ).groups.map( ( group, groupIndex ) => (
+								{ placed.groups.map( ( group, groupIndex ) => (
 									<span
 										key={ `group-${ groupIndex }` }
 										data-testid="heatmap-group-label"
 										className={ styles[ 'heatmap-chart__group-label' ] }
 										style={ {
 											gridColumn: `${ group.line } / span ${ group.span }`,
-											gridRow: dataRowOf( wrapped?.groups[ groupIndex ].band ?? 0, rows ),
+											gridRow: dataRowOf( group.band, rows ),
 										} }
 									>
 										{ group.label }

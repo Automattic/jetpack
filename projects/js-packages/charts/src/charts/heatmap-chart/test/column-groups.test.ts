@@ -16,6 +16,7 @@ describe( 'resolveColumnGroups', () => {
 		expect( resolveColumnGroups( [ { label: 'A', span: 3 } ], 0, 2 ) ).toEqual( {
 			columns: [],
 			groups: [],
+			bands: 1,
 		} );
 		expect( console ).not.toHaveWarned();
 	} );
@@ -30,9 +31,9 @@ describe( 'resolveColumnGroups', () => {
 		expect( lines( layout.columns ) ).toEqual( [ 2, 3, 5, 7, 8 ] );
 		expect( gaps( layout.columns ) ).toEqual( [ false, false, true, true, false ] );
 		expect( layout.groups ).toEqual( [
-			{ label: 'A', span: 2, line: 2 },
-			{ label: 'B', span: 1, line: 5 },
-			{ label: 'C', span: 2, line: 7 },
+			{ label: 'A', span: 2, line: 2, band: 0 },
+			{ label: 'B', span: 1, line: 5, band: 0 },
+			{ label: 'C', span: 2, line: 7, band: 0 },
 		] );
 		expect( layout.columns.map( column => column.group ) ).toEqual( [ 0, 0, 1, 2, 2 ] );
 	} );
@@ -90,14 +91,16 @@ describe( 'wrapColumnGroups', () => {
 	];
 
 	test( 'restarts each band at the first line, aligning the groups in slots as wide as their widest', () => {
-		const wrapped = wrapColumnGroups( resolveColumnGroups( groups, 5, 2 ), 2, 2 );
+		const wrapped = wrapColumnGroups( resolveColumnGroups( groups, 5, 2 ), 2 );
 		expect( wrapped?.slotSpans ).toEqual( [ 2, 1 ] );
-		expect( wrapped?.columns ).toEqual( [
-			{ line: 2, band: 0 },
-			{ line: 3, band: 0 },
-			{ line: 5, band: 0 },
-			{ line: 2, band: 1 },
-			{ line: 3, band: 1 },
+		expect(
+			wrapped?.columns.map( ( { line, band, gapBefore } ) => [ line, band, gapBefore ] )
+		).toEqual( [
+			[ 2, 0, false ],
+			[ 3, 0, false ],
+			[ 5, 0, true ],
+			[ 2, 1, false ],
+			[ 3, 1, false ],
 		] );
 		expect( wrapped?.groups.map( ( { label, line, band } ) => [ label, line, band ] ) ).toEqual( [
 			[ 'A', 2, 0 ],
@@ -111,7 +114,7 @@ describe( 'wrapColumnGroups', () => {
 		[ 'an ungrouped tail', groups, 6, 2 ],
 	] )( 'leaves the layout unwrapped for %s', ( _, columnGroups, columnCount, bands ) => {
 		expect(
-			wrapColumnGroups( resolveColumnGroups( columnGroups, columnCount, 2 ), bands, 2 )
+			wrapColumnGroups( resolveColumnGroups( columnGroups, columnCount, 2 ), bands )
 		).toBeNull();
 	} );
 } );

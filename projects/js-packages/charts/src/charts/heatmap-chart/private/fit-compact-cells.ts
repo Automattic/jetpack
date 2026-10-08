@@ -29,7 +29,7 @@ export type CompactCellFit = { bands: number; cellSize: number };
 export const fitCompactCells = ( input: CompactCellFitInput ): CompactCellFit => {
 	const { width, height, layout, rows, cellGap, groupGap, minCellSize } = input;
 	const columns = layout.columns.length;
-	if ( columns === 0 || rows === 0 || width <= 0 || height <= 0 ) {
+	if ( columns === 0 || rows === 0 ) {
 		return { bands: 1, cellSize: minCellSize };
 	}
 
@@ -42,12 +42,8 @@ export const fitCompactCells = ( input: CompactCellFitInput ): CompactCellFit =>
 	let best: CompactCellFit | null = null;
 
 	for ( let target = 1; target <= maxBands; target++ ) {
-		const wrapped = target > 1 ? wrapColumnGroups( layout, target, 2 ) : null;
-		if ( target > 1 && ! wrapped ) {
-			break;
-		}
-
-		const bands = wrapped?.bands ?? 1;
+		const wrapped = target > 1 ? wrapColumnGroups( layout, target ) : null;
+		const { bands } = wrapped ?? layout;
 		const cellColumns = wrapped
 			? wrapped.slotSpans.reduce( ( sum, span ) => sum + span, 0 )
 			: columns;
