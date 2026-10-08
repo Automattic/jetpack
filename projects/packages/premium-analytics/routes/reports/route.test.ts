@@ -1,17 +1,14 @@
 import {
 	ensureCoreSettingsReady,
-	getStatsStartDate,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getReportDefinition } from './registry';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
-	getStatsStartDate: jest.fn( () => undefined ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Carries incoming params through, as the real normalizer keeps the detail scopes.
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
@@ -76,39 +73,6 @@ describe( 'report route.beforeLoad', () => {
 			await expect(
 				beforeLoad( { report: 'authors' }, { section: 'b' } )
 			).resolves.toBeUndefined();
-		} );
-	} );
-
-	describe( 'on an all-time window', () => {
-		const statsStart = toLocalTZ( '2012-03-04', 'UTC' );
-		const allTime = ( from: string ) => ( {
-			preset: 'all-time',
-			from,
-			to: '2026-06-16T00:00:00.000+00:00',
-		} );
-
-		afterEach( () => {
-			( getStatsStartDate as jest.Mock ).mockReturnValue( undefined );
-		} );
-
-		it( 'moves a linked start to the day Stats start', async () => {
-			( getStatsStartDate as jest.Mock ).mockReturnValue( statsStart );
-
-			await expect(
-				beforeLoad( { report: 'authors' }, allTime( '2021-01-01T00:00:00.000+00:00' ) )
-			).rejects.toMatchObject( {
-				search: { preset: 'all-time', from: expect.stringMatching( /^2012-03-04T00:00:00/ ) },
-				replace: true,
-			} );
-		} );
-
-		it.each( [
-			[ 'a start already on the day Stats start', statsStart, '2012-03-04T00:00:00.000+00:00' ],
-			[ 'any start while that day is unknown', undefined, '2019-05-05T00:00:00.000+00:00' ],
-		] )( 'passes through %s', async ( _title, start, from ) => {
-			( getStatsStartDate as jest.Mock ).mockReturnValue( start );
-
-			await expect( beforeLoad( { report: 'authors' }, allTime( from ) ) ).resolves.toBeUndefined();
 		} );
 	} );
 

@@ -62,10 +62,18 @@ describe( 'downloadReportCsv', () => {
 		);
 	} );
 
-	it( 'leaves the date range out for all-time reports', async () => {
-		await downloadReportCsv( buildExporter( { hasDateRange: false } ), REPORT_PARAMS );
+	it.each( [
+		[ 'an undated report', { hasDateRange: false }, REPORT_PARAMS, 'things' ],
+		[
+			'a report on All time',
+			{},
+			{ ...REPORT_PARAMS, preset: 'all-time' } as ReportParams,
+			'things-all-time',
+		],
+	] )( 'leaves the dates out for %s', async ( _, overrides, params, filename ) => {
+		await downloadReportCsv( buildExporter( overrides ), params );
 
-		expect( mockSaveCsv ).toHaveBeenCalledWith( 'things', expect.any( String ) );
+		expect( mockSaveCsv ).toHaveBeenCalledWith( filename, expect.any( String ) );
 	} );
 
 	it( 'rejects instead of saving a header-only file when the fetch fails', async () => {

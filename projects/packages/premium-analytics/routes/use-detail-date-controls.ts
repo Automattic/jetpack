@@ -3,7 +3,7 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import {
-	ANCHORED_SURFACE_PRESETS,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	PRESET_ALL_TIME,
 	computePrimaryRange,
 	parseSiteDateTime,
@@ -12,7 +12,7 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 
 type DetailDateControls = {
-	presetIds: typeof ANCHORED_SURFACE_PRESETS;
+	presetIds: typeof MENU_SURFACE_PRESETS_WITH_ALL_TIME;
 	allTimeStart: Date | undefined;
 	withIntervalControl: false;
 };
@@ -75,7 +75,7 @@ export function useDetailDateControls(
 
 	const dateControls = useMemo< DetailDateControls >(
 		() => ( {
-			presetIds: ANCHORED_SURFACE_PRESETS,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			allTimeStart,
 			withIntervalControl: false,
 		} ),

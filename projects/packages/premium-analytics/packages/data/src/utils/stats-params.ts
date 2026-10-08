@@ -152,6 +152,16 @@ export function getPeriodsBetweenInclusive(
 	return BUCKET_COUNTERS[ period ]( from, to );
 }
 
+/**
+ * Whether a `num` asks WPCOM for all time: every period from the start of the site's Stats.
+ *
+ * @param num - The `num` query param.
+ * @return True for a negative `num`.
+ */
+export function isAllTimeNum( num: unknown ): boolean {
+	return Number( num ) < 0;
+}
+
 export function reportParamsToStatsQueryParams(
 	params: StatsQueryParamInput = {}
 ): StatsQueryParams {
@@ -165,7 +175,8 @@ export function reportParamsToStatsQueryParams(
 	// Stats v1.1 resolves an offset-bearing ISO datetime to the local calendar
 	// day (WOOA7S-1656/1664), so start_date/end_date pass through untrimmed.
 	const endDate = params.end_date ?? params.date ?? params.to;
-	const startDate = params.start_date ?? params.from;
+	// A start date would override the all-time window WPCOM derives from `num`.
+	const startDate = isAllTimeNum( params.num ) ? undefined : ( params.start_date ?? params.from );
 	const days =
 		params.days ??
 		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );

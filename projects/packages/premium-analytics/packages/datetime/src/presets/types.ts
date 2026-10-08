@@ -39,7 +39,7 @@ export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 /**
  * The all-time marker. On the year surface it covers every year the surface
  * lists; on a detail page it runs from the resource's own start (its publish
- * date), and on a report from the day the site's Stats start, through today.
+ * date) through today. A report sends it as `num: -1`, so WPCOM picks the start.
  */
 export const PRESET_ALL_TIME = 'all-time' as const;
 
@@ -80,10 +80,12 @@ export const MENU_SURFACE_PRESET_GROUPS = [
 export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
 
 /**
- * What a surface with a start date offers: the whole menu, plus all time
- * anchored on that date, a resource's publish date or the day the site's Stats start.
+ * The whole menu plus all time, as a detail page or a report offers it.
  */
-export const ANCHORED_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
+export const MENU_SURFACE_PRESETS_WITH_ALL_TIME = [
+	...MENU_SURFACE_PRESETS,
+	PRESET_ALL_TIME,
+] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.

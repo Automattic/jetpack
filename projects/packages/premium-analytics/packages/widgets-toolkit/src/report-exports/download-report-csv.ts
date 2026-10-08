@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
 import { buildCsv, buildCsvDateRangeFilename, saveCsv } from '../helpers/build-csv';
@@ -10,9 +14,14 @@ export function getReportCsvFilename< TItem, TRow >(
 	exporter: ReportCsvExporter< TItem, TRow >,
 	reportParams: ReportParams
 ): string {
-	return exporter.hasDateRange
-		? buildCsvDateRangeFilename( exporter.filenamePrefix, reportParams )
-		: exporter.filenamePrefix;
+	if ( ! exporter.hasDateRange ) {
+		return exporter.filenamePrefix;
+	}
+
+	// All time names itself: on a report its `from` is only a placeholder.
+	return reportParams.preset === PRESET_ALL_TIME
+		? `${ exporter.filenamePrefix }-${ PRESET_ALL_TIME }`
+		: buildCsvDateRangeFilename( exporter.filenamePrefix, reportParams );
 }
 
 /** Fetch a report's full rows and save them as the report page's CSV. */

@@ -189,12 +189,21 @@ describe( 'DatePeriodDropdown', () => {
 		] );
 	} );
 
-	it( 'describes the trigger with its exact dates', () => {
-		renderDropdown();
+	it.each( [
+		[ 'Last 30 days', {} ],
+		[ 'All time', { appliedPresetId: 'all-time', allTimeStart: JULY_2026.from } ],
+	] as const )( 'describes the %s trigger with its exact dates', ( name, overrides ) => {
+		renderDropdown( overrides );
 
-		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveAccessibleDescription(
+		expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription(
 			/July 1.+31, 2026/
 		);
+	} );
+
+	it( 'leaves an unanchored All time undated', () => {
+		renderDropdown( { appliedPresetId: 'all-time' } );
+
+		expect( screen.getByRole( 'button', { name: 'All time' } ) ).not.toHaveAccessibleDescription();
 	} );
 
 	describe( 'tooltip', () => {

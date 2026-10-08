@@ -22,4 +22,3 @@ require_once __DIR__ . '/mocks/woocommerce-mocks.php';
 // Controllable stand-in for the WPCOM platform's feature gate, so the Simple/Atomic branch of
 // is_videopress_available() can be driven either way; inert until a test populates $GLOBALS['jpa_test_wpcom_features'].
 require_once __DIR__ . '/mocks/wpcom-feature-mocks.php';
-require_once __DIR__ . '/mocks/wpcom-blog-details-mock.php';

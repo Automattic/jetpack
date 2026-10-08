@@ -6,6 +6,7 @@ import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
 	getPresetLabel,
+	PRESET_ALL_TIME,
 	PRESET_CUSTOM,
 	type DateRange,
 	type PrimaryPresetId,
@@ -232,8 +233,12 @@ export function DatePeriodDropdown( {
 			open={ isOpen }
 			onOpenChange={ handleOpenChange }
 			// The label names the period, so the dates live here: the design
-			// keeps them off the control's face.
-			tooltip={ formatDateRange( appliedRange ) }
+			// keeps them off the control's face. Unanchored all time has no real start to show.
+			tooltip={
+				appliedPresetId === PRESET_ALL_TIME && ! allTimeStart
+					? undefined
+					: formatDateRange( appliedRange )
+			}
 			trigger={
 				<Button
 					{ ...DATE_CONTROL_TRIGGER_DEFAULTS }

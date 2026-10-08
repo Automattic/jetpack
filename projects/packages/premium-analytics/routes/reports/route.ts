@@ -3,19 +3,10 @@
  */
 import {
 	ensureCoreSettingsReady,
-	getStatsStartDate,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import {
-	PRESET_ALL_TIME,
-	computePrimaryRange,
-	reportingTimeZone,
-} from '@jetpack-premium-analytics/datetime';
-import {
-	encodeRangeToSearchParams,
-	pickDashboardOriginParams,
-} from '@jetpack-premium-analytics/routing';
+import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -25,20 +16,6 @@ import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
 type ReportRouteSearch = Record< string, string | undefined >;
-
-/**
- * The all-time window a report covers, from the day the site's Stats start.
- *
- * @return The window as the picker writes it, or undefined when the start is unknown.
- */
-function getReportAllTimeParams(): { from: string; to: string } | undefined {
-	const startDate = getStatsStartDate();
-	const range = startDate
-		? computePrimaryRange( PRESET_ALL_TIME, reportingTimeZone(), { startDate } )
-		: undefined;
-
-	return range ? encodeRangeToSearchParams( range, { presetId: PRESET_ALL_TIME } ) : undefined;
-}
 
 /**
  * Route lifecycle for the dynamic report page (`/reports/$report`).
@@ -79,12 +56,8 @@ export const route = {
 			!! currentSearch.section &&
 			!! definition.resolveSection &&
 			resolvedSection !== currentSearch.section;
-		// A link from the dashboard's year surface carries that surface's all-time start, not the site's.
-		const allTimeParams =
-			currentSearch.preset === PRESET_ALL_TIME ? getReportAllTimeParams() : undefined;
-		const needsAllTimeAnchor = !! allTimeParams && allTimeParams.from !== currentSearch.from;
 
-		if ( needsDateSeed || needsSectionSeed || needsAllTimeAnchor ) {
+		if ( needsDateSeed || needsSectionSeed ) {
 			/*
 			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection shouldn't block
 			 * the page and the seed's own dates don't depend on it, so fall through.
@@ -98,10 +71,9 @@ export const route = {
 			// Allowlist the params this page owns rather than spreading `currentSearch`
 			// wholesale, so foreign params a link carried in aren't persisted.
 			const seeded: Record< string, unknown > = {
-				...normalizeReportParams( {
-					...currentSearch,
-					...allTimeParams,
-				} as Parameters< typeof normalizeReportParams >[ 0 ] ),
+				...normalizeReportParams(
+					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
+				),
 				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};

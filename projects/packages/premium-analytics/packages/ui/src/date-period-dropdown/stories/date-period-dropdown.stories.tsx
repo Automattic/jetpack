@@ -1,4 +1,7 @@
-import { ANCHORED_SURFACE_PRESETS, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import {
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	computePrimaryRange,
+} from '@jetpack-premium-analytics/datetime';
 import { useState } from 'react';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import type {
@@ -116,7 +119,7 @@ export const CustomRange: Story = {
 export const DetailSurface: Story = {
 	render: () => (
 		<DatePeriodDropdownWithState
-			presetIds={ ANCHORED_SURFACE_PRESETS }
+			presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME }
 			allTimeStart={ new Date( '2024-03-01T00:00:00.000Z' ) }
 		/>
 	),

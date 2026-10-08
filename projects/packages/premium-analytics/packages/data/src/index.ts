@@ -100,7 +100,6 @@ export {
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
-	getStatsStartDate,
 	getStoreInfo,
 	type StoreInfo,
 } from './defaults';

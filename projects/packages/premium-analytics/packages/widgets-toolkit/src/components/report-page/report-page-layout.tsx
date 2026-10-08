@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import { getStatsStartDate } from '@jetpack-premium-analytics/data';
-import { ANCHORED_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext } from 'react';
 /**
  * Internal dependencies
  */
@@ -45,19 +44,12 @@ export interface ReportPageLayoutProps {
  * @return The report page scaffold.
  */
 export function ReportPageLayout( { title, dateFilters, tabs, children }: ReportPageLayoutProps ) {
-	const allTimeStart = useMemo( getStatsStartDate, [] );
-
 	return (
 		<div className={ styles.root }>
 			{ tabs }
 			<SectionHeader title={ title } pinned>
 				{ dateFilters ? (
-					<DateFiltersPanel
-						{ ...dateFilters }
-						// Unanchored, All time would quietly mean a fixed lookback instead.
-						presetIds={ allTimeStart ? ANCHORED_SURFACE_PRESETS : undefined }
-						allTimeStart={ allTimeStart }
-					/>
+					<DateFiltersPanel { ...dateFilters } presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME } />
 				) : null }
 			</SectionHeader>
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>

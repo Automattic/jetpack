@@ -42,7 +42,7 @@ import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopAuthorsQuery } from '../stats-top-authors-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
-import { statsVideoPlaysQuery } from '../stats-video-plays-query';
+import { statsVideoPlaysQuery, statsVideoPlaysReportQuery } from '../stats-video-plays-query';
 import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsStatsQuery } from '../stats-wordads-query';
@@ -589,16 +589,35 @@ describe( 'Stats query factories', () => {
 		}
 	);
 
-	it( 'leaves the top-authors window of a negative num to WPCOM', () => {
-		const query = statsTopAuthorsQuery( {
-			from: '2015-01-01T00:00:00.000+00:00',
+	it.each( [
+		[ 'list', statsReferrersQuery, {} ],
+		[ 'video summary', statsVideoPlaysReportQuery, { summarize: 1, complete_stats: 1 } ],
+	] )( 'leaves a %s all-time window to WPCOM as a summarized negative num', ( _, build, extra ) => {
+		const params = build( {
+			from: '2020-01-01T00:00:00.000+00:00',
 			to: '2026-10-07T23:59:59.999+00:00',
+			interval: 'day',
+			num: -1,
+			...extra,
+		} ).queryKey[ 5 ];
+
+		expect( params ).toMatchObject( {
+			num: -1,
+			summarize: 1,
+			date: '2026-10-07T23:59:59.999+00:00',
+		} );
+		expect( params ).not.toHaveProperty( 'start_date' );
+	} );
+
+	it( 'asks the UTM endpoint for all time in days', () => {
+		const query = statsUtmQuery( {
+			from: '2020-01-01',
+			to: '2026-10-07',
 			interval: 'day',
 			num: -1,
 		} );
 
-		expect( query.queryKey[ 5 ] ).toHaveProperty( 'num', -1 );
-		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'start_date' );
+		expect( query.queryKey[ 5 ] ).toMatchObject( { days: -1, start_date: '' } );
 	} );
 
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading

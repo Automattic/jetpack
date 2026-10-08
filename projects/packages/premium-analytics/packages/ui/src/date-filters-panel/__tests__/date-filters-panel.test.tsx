@@ -1,6 +1,6 @@
 import { TZDate } from '@date-fns/tz';
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { ANCHORED_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
@@ -94,7 +94,7 @@ describe( 'DateFiltersPanel', () => {
 	it( 'renders the detail surface: every period, plus all time and a custom range', async () => {
 		const user = userEvent.setup();
 		renderPanel( {
-			presetIds: ANCHORED_SURFACE_PRESETS,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			appliedPresetId: 'all-time',
 		} );
 

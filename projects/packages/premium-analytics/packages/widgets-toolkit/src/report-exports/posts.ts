@@ -14,12 +14,20 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 import type { CsvColumn } from '../helpers/build-csv';
 
 /** The Posts & pages report's query: every row, summarized over the window. */
 export function getPostsReportQueryParams( reportParams: ReportParams ): StatsReportParams {
-	return { ...reportParams, max: 0, period: 'day', summarize: 1, skip_archives: 1 };
+	return {
+		...reportParams,
+		max: 0,
+		period: 'day',
+		summarize: 1,
+		skip_archives: 1,
+		...getReportWindowParams( reportParams ),
+	};
 }
 
 type PostsCsvRow = { label?: unknown; views: number; link?: string | null };

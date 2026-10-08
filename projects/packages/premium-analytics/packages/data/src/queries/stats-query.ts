@@ -44,6 +44,7 @@ import {
 import { getStatsRefetchInterval } from '../utils/refetch-interval';
 import { resolveReportTimeZone } from '../utils/report-timezone';
 import {
+	isAllTimeNum,
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
 	type StatsQueryParams,
@@ -208,8 +209,8 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
-		typeof statsParams.days === 'number' &&
-		statsParams.days > 1
+		( ( typeof statsParams.days === 'number' && statsParams.days > 1 ) ||
+			isAllTimeNum( statsParams.num ) )
 			? { summarize: 1 }
 			: {} ),
 	};
