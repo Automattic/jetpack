@@ -1,4 +1,4 @@
-import { resolveColumnGroups } from '../private/column-groups';
+import { resolveColumnGroups, wrapColumnGroups } from '../private/column-groups';
 
 const lines = ( columns: { line: number }[] ) => columns.map( column => column.line );
 const gaps = ( columns: { gapBefore: boolean }[] ) => columns.map( column => column.gapBefore );
@@ -79,5 +79,39 @@ describe( 'resolveColumnGroups', () => {
 		);
 		expect( layout.groups ).toEqual( [] );
 		expect( console ).toHaveWarned();
+	} );
+} );
+
+describe( 'wrapColumnGroups', () => {
+	const groups = [
+		{ label: 'A', span: 2 },
+		{ label: 'B', span: 1 },
+		{ label: 'C', span: 2 },
+	];
+
+	test( 'restarts each band at the first line, aligning the groups in slots as wide as their widest', () => {
+		const wrapped = wrapColumnGroups( resolveColumnGroups( groups, 5, 2 ), 2, 2 );
+		expect( wrapped?.slotSpans ).toEqual( [ 2, 1 ] );
+		expect( wrapped?.columns ).toEqual( [
+			{ line: 2, band: 0 },
+			{ line: 3, band: 0 },
+			{ line: 5, band: 0 },
+			{ line: 2, band: 1 },
+			{ line: 3, band: 1 },
+		] );
+		expect( wrapped?.groups.map( ( { label, line, band } ) => [ label, line, band ] ) ).toEqual( [
+			[ 'A', 2, 0 ],
+			[ 'B', 5, 0 ],
+			[ 'C', 2, 1 ],
+		] );
+	} );
+
+	test.each( [
+		[ 'one band', groups, 5, 1 ],
+		[ 'an ungrouped tail', groups, 6, 2 ],
+	] )( 'leaves the layout unwrapped for %s', ( _, columnGroups, columnCount, bands ) => {
+		expect(
+			wrapColumnGroups( resolveColumnGroups( columnGroups, columnCount, 2 ), bands, 2 )
+		).toBeNull();
 	} );
 } );

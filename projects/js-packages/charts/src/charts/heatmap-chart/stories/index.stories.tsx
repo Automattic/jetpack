@@ -279,6 +279,26 @@ const MonthCalendarGrid = ( {
 };
 
 /**
+ * `fitCells` grows the days with the container, wrapping the months onto more rows when
+ * that makes them larger. Drag the container's corner to see the band count change.
+ */
+export const MonthCalendarFitCells: StoryObj< MonthCalendarStoryArgs > = {
+	render: args => <MonthCalendarGrid { ...args } />,
+	args: {
+		...sharedThemeArgs,
+		compact: true,
+		fitCells: true,
+		withTooltips: true,
+		ariaLabel: 'Monthly posting activity',
+		containerWidth: '1200px',
+		containerHeight: '360px',
+		months: 12,
+		weekStartsOn: 1,
+		locale: '',
+	},
+};
+
+/**
  * Months as one grid sharing one scale: the "Monthly posting activity" layout.
  * Drag the container's corner: the month gaps share the width, shrink to the theme's
  * `groupGap`, and past that the container scrolls with the keyboard selection in view.

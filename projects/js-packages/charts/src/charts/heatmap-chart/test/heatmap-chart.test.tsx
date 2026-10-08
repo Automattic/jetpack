@@ -943,6 +943,47 @@ describe( 'HeatmapChart column groups', () => {
 	} );
 } );
 
+describe( 'HeatmapChart fitCells', () => {
+	const threeMonths = Array.from( { length: 6 }, ( _, index ) => ( {
+		data: [ { value: index }, { value: index + 1 } ],
+	} ) );
+	const columnGroups = [
+		{ label: 'Jan', span: 2 },
+		{ label: 'Feb', span: 2 },
+		{ label: 'Mar', span: 2 },
+	];
+
+	const boxSpies: jest.SpyInstance[] = [];
+
+	beforeEach( () => {
+		boxSpies.push(
+			jest.spyOn( Element.prototype, 'clientWidth', 'get' ).mockReturnValue( 400 ),
+			jest.spyOn( Element.prototype, 'clientHeight', 'get' ).mockReturnValue( 400 )
+		);
+	} );
+
+	// Not restoreAllMocks: that also undoes jest-console's spies the warning checks rely on.
+	afterEach( () => {
+		boxSpies.splice( 0 ).forEach( spy => spy.mockRestore() );
+	} );
+
+	test( 'wraps the groups that fit better on a second band below the first, cells grown to match', () => {
+		renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'91px'
+		);
+		const [ , feb, mar ] = screen.getAllByTestId( 'heatmap-group-label' );
+		expect( feb ).toHaveStyle( { gridColumn: '5 / span 2', gridRow: '3' } );
+		// Band two starts below band one's two rows, label row and gap row.
+		expect( mar ).toHaveStyle( { gridColumn: '2 / span 2', gridRow: '7' } );
+		const marchCell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '4' && element.dataset.row === '0' );
+		expect( marchCell ).toHaveStyle( { gridColumn: '2', gridRow: '5' } );
+	} );
+} );
+
 describe( 'HeatmapChart calendar navigation', () => {
 	const calendar = ( range: { start: string; end: string }, days: string[] ) =>
 		buildMonthCalendarHeatmapData(
