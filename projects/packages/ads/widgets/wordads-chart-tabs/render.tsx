@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { WORDADS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
@@ -77,7 +77,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	// Unsaved instances must not fall back to the section's URL date range.
-	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+	const reportParams = attributes.reportParams ?? defaultReportParams();
 
 	return (
 		// Scope the widget body before WidgetRoot strips unsupported comparison params;

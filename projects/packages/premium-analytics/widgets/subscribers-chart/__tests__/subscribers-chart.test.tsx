@@ -1,8 +1,13 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	getDefaultQueryParams,
+} from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -168,6 +173,22 @@ describe( 'SubscribersChartWidget', () => {
 			expect( mockUseStatsSubscribersReport ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { to: '2020-01-31' } )
 			);
+		} );
+
+		it( 'starts on a preset the reader remembers after the widget loaded', async () => {
+			const preferences = dispatch( preferencesStore );
+			preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', 'last-12-months' );
+
+			try {
+				render( <SubscribersChartWidget attributes={ {} } /> );
+
+				await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+				expect( mockUseStatsSubscribersReport ).toHaveBeenLastCalledWith(
+					expect.objectContaining( { preset: 'last-12-months' } )
+				);
+			} finally {
+				preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+			}
 		} );
 
 		it( 'drops a comparison its attributes carry', async () => {

@@ -4,4 +4,4 @@ export {
 	getDefaultReportParams,
 	withDefaultComparison,
 } from './reports';
-export { getStoreInfo, type StoreInfo } from './store-info';
+export { DASHBOARD_PREFERENCES_SCOPE, rememberPreset } from './remembered-preset';
