@@ -82,4 +82,3 @@ export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
-export { getOverLimitMessage, getPlanUpgradeUrl } from './plan-usage';
