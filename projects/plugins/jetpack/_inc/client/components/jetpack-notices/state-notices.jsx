@@ -46,11 +46,7 @@ class JetpackStateNotices extends Component {
 			}
 		);
 
-	// Several codes below (e.g. `wpcom_408`, `wpcom_5??`, `wpcom_bad_response`,
-	// `register_http_request_failed`, `connection_disabled`) also have copy in the shared
-	// `getConnectScreenErrorMessage` helper in
-	// `projects/js-packages/connection/helpers/get-connect-screen-error-message.tsx`;
-	// when changing copy for a shared code, check that file too.
+	// Some codes here also have copy in the connection package's getConnectScreenErrorMessage; keep them in sync.
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message;

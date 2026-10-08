@@ -160,6 +160,18 @@ describe( 'getRegistrationErrorDescription', () => {
 		expect( long ).toHaveLength( 250 );
 	} );
 
+	it( 'never splits an emoji when capping the length', () => {
+		const atLimit = getRegistrationErrorDescription( {
+			response: { message: 'x'.repeat( 249 ) + '😀😀' },
+		} );
+		expect( atLimit ).toBe( 'x'.repeat( 249 ) + '😀' );
+
+		const atPreCut = getRegistrationErrorDescription( {
+			response: { message: '<b>' + 'x'.repeat( 996 ) + '😀' },
+		} );
+		expect( atPreCut ).not.toMatch( /[\uD800-\uDBFF](?![\uDC00-\uDFFF])/ );
+	} );
+
 	it( 'handles pathological markup quickly', () => {
 		const start = Date.now();
 		const description = getRegistrationErrorDescription( {
