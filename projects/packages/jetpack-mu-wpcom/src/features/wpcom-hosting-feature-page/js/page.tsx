@@ -1,6 +1,4 @@
-import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
-import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Page } from '@wordpress/admin-ui';
+import AdminPage from '@automattic/jetpack-components/admin-page';
 import { FeatureContext } from './feature-context.ts';
 import { ActivateScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
 import { getInitialState } from './state.ts';
@@ -22,21 +20,18 @@ export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
 
 	return (
 		<FeatureContext.Provider value={ config }>
-			<Page
-				className="wpcom-hosting-feature jp-admin-page"
-				visual={ <JetpackLogo showText={ false } height={ 20 } /> }
+			<AdminPage
+				className="wpcom-hosting-feature"
 				title={ config.productName }
-				ariaLabel={ config.productName }
 				subTitle={ config.subTitle }
-				hasPadding={ false }
+				unwrapped
 			>
 				<div className="wpcom-hosting-feature__body">
 					{ initialState.state === 'in_progress' && <InProgressScreen /> }
 					{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
 					{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }
 				</div>
-				<JetpackFooter />
-			</Page>
+			</AdminPage>
 		</FeatureContext.Provider>
 	);
 }
