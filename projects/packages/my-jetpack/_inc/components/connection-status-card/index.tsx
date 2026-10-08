@@ -285,7 +285,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 							     registration shows the terms of service first. */ }
 							{ state.action === 'CONNECT_SITE' ? (
 								<Button variant="link" href={ `#${ MyJetpackRoutes.ConnectionSkipPricing }` }>
-									{ __( 'Connect your site', 'jetpack-my-jetpack' ) }
+									{ __( 'Connect your site and account', 'jetpack-my-jetpack' ) }
 								</Button>
 							) : null }
 						</Stack>

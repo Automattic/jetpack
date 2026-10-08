@@ -177,16 +177,13 @@ describe( 'Wizard start screen', () => {
 
 		await user.click( getStarted() );
 
-		await waitFor( () =>
-			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_myjetpack_onboarding_wizard_connect_success'
-			)
-		);
-
 		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 1 );
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_click'
-		);
+		// One name across both onboarding flows, told apart by the flow property.
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_my_jetpack_onboarding_click', {
+			flow: 'wizard',
+		} );
+		// And nothing on the way out: the hand-off resolving is not a connection.
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		// The browser is on its way to WordPress.com; the step does not move here.
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 	} );
@@ -230,7 +227,7 @@ describe( 'Wizard start screen', () => {
 
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_myjetpack_onboarding_wizard_connect_error',
+				'jetpack_my_jetpack_onboarding_connect_error',
 				{ error_code: 'site_inaccessible' }
 			)
 		);
@@ -250,11 +247,8 @@ describe( 'Wizard start screen', () => {
 
 		// The message interpolates the server's prose; only the code is reported.
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_error',
+			'jetpack_my_jetpack_onboarding_connect_error',
 			expect.objectContaining( { error: expect.anything() } )
-		);
-		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_success'
 		);
 	} );
 
@@ -271,10 +265,9 @@ describe( 'Wizard start screen', () => {
 		).resolves.toBeInTheDocument();
 		// No message to show, so the code stands in for it.
 		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_error',
-			{ error_code: 'JsonParseError' }
-		);
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_my_jetpack_onboarding_connect_error', {
+			error_code: 'JsonParseError',
+		} );
 	} );
 
 	it( 'names what Jetpack does, one free feature group per row', () => {
@@ -303,9 +296,17 @@ describe( 'Wizard start screen', () => {
 			'href',
 			'https://jetpack.com/redirect/?source=wpcom-tos'
 		);
-		expect( screen.getByRole( 'link', { name: /sync your site’s data/ } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: /sync your site‘s data/ } ) ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
+		);
+	} );
+
+	it( 'names the button the terms are about', () => {
+		setupWizard();
+
+		expect( screen.getByText( /By clicking/ ) ).toHaveTextContent(
+			screen.getByRole( 'button', { name: 'Get started' } ).textContent as string
 		);
 	} );
 
@@ -339,11 +340,17 @@ describe( 'Wizard resume after connecting', () => {
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
 	} );
 
-	it( 'lets the user back to the start screen, but no further forward', () => {
-		setupWizard( { isUserConnected: true } );
+	it( 'will not let a connected user back onto the connect screen', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
 
-		expect( railStep( 'Connect' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railStep( 'Connect' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railStep( 'Your site' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( railStep( 'What you need' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+
+		await user.click( railStep( 'Connect' ) );
+
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
 	} );
 } );
 
@@ -431,8 +438,8 @@ describe( 'Wizard shell', () => {
 		await advance( user, 1 );
 		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
-		await user.click( railStep( 'Connect' ) );
-		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+		await user.click( railStep( 'Your site' ) );
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
 
 		// Ground already covered stays reachable after stepping back.
 		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );

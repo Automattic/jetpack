@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Registers the REST route that settles the setup flow.
  *
@@ -64,21 +66,25 @@ class REST_Onboarding {
 	public static function settle( $request ) {
 		$outcome = $request->get_param( 'outcome' );
 
+		// A saved run can resume on a site that has since lost its connection, so a finish
+		// without a connected owner is downgraded rather than refused: the user did leave
+		// the screen, and erroring would lose that and interrupt them again.
+		if ( 'completed' === $outcome && ! ( new Connection_Manager() )->has_connected_owner() ) {
+			$outcome = 'skipped';
+		}
+
 		if ( 'completed' === $outcome ) {
-			\Jetpack_Options::update_option( 'onboarding_completed', true );
+			update_option( Initializer::ONBOARDING_COMPLETED_OPTION, true, false );
 		}
 
 		// Recorded for a skip as well as a finish: someone who has been all the way
 		// through should not be offered it again on their next visit either.
-		update_user_meta(
-			get_current_user_id(),
-			Initializer::ONBOARDING_DISMISSED_USER_META,
-			true
-		);
+		update_user_option( get_current_user_id(), Initializer::ONBOARDING_DISMISSED_USER_OPTION, true );
 
 		return rest_ensure_response(
 			array(
-				'completed' => (bool) \Jetpack_Options::get_option( 'onboarding_completed', false ),
+				'completed' => (bool) get_option( Initializer::ONBOARDING_COMPLETED_OPTION, false ),
+				'outcome'   => $outcome,
 				'settled'   => true,
 			)
 		);

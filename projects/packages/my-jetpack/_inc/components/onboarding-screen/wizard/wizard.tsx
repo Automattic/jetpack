@@ -96,9 +96,15 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
 	// so the opening step is read off the connection rather than remembered.
 	const { isUserConnected } = useConnection();
-	const [ step, setStep ] = useState< WizardStep >( () => openingStep( isUserConnected ) );
+	/*
+	 * The floor, not just the opening step: a connected user must not reach a screen
+	 * whose only button would register the site a second time.
+	 */
+	const firstStep = openingStep( isUserConnected );
+
+	const [ step, setStep ] = useState< WizardStep >( firstStep );
 	// The rail only lets the user back into ground already covered.
-	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( step );
+	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( firstStep );
 	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( {} );
 	/*
 	 * Held apart from `choices`, which is a set of fixed values the wizard will
@@ -140,7 +146,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		[ exitUrl ]
 	);
 
-	const handleBack = useCallback( () => setStep( ( step - 1 ) as WizardStep ), [ step ] );
+	const handleBack = useCallback(
+		() => setStep( Math.max( step - 1, firstStep ) as WizardStep ),
+		[ step, firstStep ]
+	);
 
 	const handleNext = useCallback( () => {
 		const next = ( step + 1 ) as WizardStep;
@@ -153,11 +162,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const handleRailClick = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
 			const index = Number( ( event.currentTarget as HTMLButtonElement ).value ) as WizardStep;
-			if ( index <= furthestStep ) {
+			if ( index <= furthestStep && index >= firstStep ) {
 				setStep( index );
 			}
 		},
-		[ furthestStep ]
+		[ furthestStep, firstStep ]
 	);
 
 	const meta = steps[ step ];
@@ -217,7 +226,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 									type="button"
 									value={ index }
 									aria-current={ index === step ? 'true' : undefined }
-									aria-disabled={ index > furthestStep || undefined }
+									aria-disabled={ index > furthestStep || index < firstStep || undefined }
 									className={ styles[ 'rail-step' ] }
 									onClick={ handleRailClick }
 								>
@@ -283,7 +292,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
 								{ ! isStart && (
 									<Stack gap="sm">
-										{ step > 0 && (
+										{ step > firstStep && (
 											<Button variant="minimal" tone="neutral" onClick={ handleBack }>
 												{ __( 'Back', 'jetpack-my-jetpack' ) }
 											</Button>
