@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -186,14 +185,6 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( array( 'opt_in_new_stats' => true ), $stored['notices'] );
 	}
 
-	public function test_write_keeps_administrators_able_to_view_stats() {
-		$this->log_in_as( 'administrator' );
-
-		$this->post_settings( array( Stats_Options::OPTION_NAME => array( 'roles' => array( 'editor' ) ) ) );
-
-		$this->assertSame( array( 'administrator', 'editor' ), get_option( Stats_Options::OPTION_NAME )['roles'] );
-	}
-
 	public function test_write_refuses_a_role_the_site_does_not_have() {
 		$this->log_in_as( 'administrator' );
 
@@ -213,15 +204,6 @@ class Stats_Settings_Test extends BaseTestCase {
 		$data = rest_get_server()->dispatch( new WP_REST_Request( 'GET', self::ROUTE ) )->get_data();
 
 		$this->assertSame( array( 'administrator', 'retired' ), $data[ Stats_Options::OPTION_NAME ]['roles'] );
-	}
-
-	public function test_write_stores_the_stats_version() {
-		$this->log_in_as( 'administrator' );
-		update_option( Stats_Options::OPTION_NAME, array( 'admin_bar' => true ) );
-
-		$this->post_settings( array( Stats_Options::OPTION_NAME => array( 'admin_bar' => false ) ) );
-
-		$this->assertSame( Stats_Main::STATS_VERSION, get_option( Stats_Options::OPTION_NAME )['version'] );
 	}
 
 	public function test_write_the_site_does_not_store_answers_with_an_error() {

@@ -78,6 +78,19 @@ describe( 'useStatsSettings', () => {
 		await expect( first ).rejects.toThrow( 'refused' );
 
 		expect( mockEdited().wpcom_reader_views_enabled ).toBe( false );
+		// The second save stored the first change too, so the failure finds nothing to put back.
+		expect( mockEdited().stats_options?.admin_bar ).toBe( false );
+	} );
+
+	it( 'keeps a pending change when an earlier save fails', async () => {
+		const { result } = renderHook( () => useStatsSettings() );
+
+		const first = result.current.saveChange( { admin_bar: false } );
+		result.current.saveChange( { wpcom_reader_views_enabled: false } );
+		mockSite.saves[ 0 ].reject( new Error( 'refused' ) );
+		await expect( first ).rejects.toThrow( 'refused' );
+
+		expect( mockEdited().wpcom_reader_views_enabled ).toBe( false );
 	} );
 
 	it( 'puts back the stored value of a change the site refuses', async () => {

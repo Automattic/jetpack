@@ -1215,6 +1215,7 @@ describe( 'Dashboard customizing', () => {
 describe( 'Dashboard Settings tab', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
