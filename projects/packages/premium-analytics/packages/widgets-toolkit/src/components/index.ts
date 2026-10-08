@@ -148,7 +148,7 @@ export {
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ExporterCsvAction,
 	ReportCsvAction,
-	useReportRetry,
+	ReportErrorState,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportLocationsMapProps,

@@ -158,7 +158,7 @@ export {
 	ReportRecordsTable,
 	ReportThumbnail,
 	REPORT_TITLE_LINK_CLASS_NAMES,
-	useReportRetry,
+	ReportErrorState,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportLocationsMapProps,

@@ -6,15 +6,13 @@ import { Text } from '@jetpack-premium-analytics/externals';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
 	ReportPageSection,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
-	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -84,7 +82,6 @@ function CommentFollowersReport(): JSX.Element {
 		status: records,
 		sort: sortCommentFollowerCsvRows,
 	} );
-	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS[ 'comment-followers' ];
 	// The endpoint reports site-wide followers apart from the per-post rows, so either can exist alone.
@@ -102,17 +99,13 @@ function CommentFollowersReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
-				{ records.isError ? (
-					<PageNotice
-						{ ...describeError( records.error, {
-							retryDescription: __(
-								"We couldn't load subscribers. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							onRetry: retry,
-						} ) }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load subscribers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<>
 						{ ( hasAllPostsFollowers || hasPostRows ) && (
 							<ReportPageSection className={ styles.summary }>
@@ -137,7 +130,7 @@ function CommentFollowersReport(): JSX.Element {
 							/>
 						) }
 					</>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
