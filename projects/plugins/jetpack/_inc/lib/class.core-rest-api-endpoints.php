@@ -3618,11 +3618,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				break;
 		}
 
-		// Normalize value to boolean.
-		if ( is_wp_error( $value ) || $value === null ) {
-			$value = false;
-		}
-
 		// Save option to use it next time.
 		update_option( $option, $value );
 
