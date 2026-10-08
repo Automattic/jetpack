@@ -130,6 +130,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 
 		expect( indexingToggle() ).toBeDisabled();
 		expect( screen.getByText( /Your site is private/i ) ).toBeInTheDocument();
+		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
 	} );
 
 	it( 'is enabled with the usual help text on a public site', () => {

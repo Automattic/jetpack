@@ -235,9 +235,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<Card.Title>
 								<CardTitleIcon icon={ seen } title={ __( 'Site visibility', 'jetpack-seo' ) } />
 							</Card.Title>
-							<CollapsibleCard.HeaderDescription>
-								<StatusIndicator status={ visibilityStatus } />
-							</CollapsibleCard.HeaderDescription>
+							{ ! local.site_is_private && (
+								<CollapsibleCard.HeaderDescription>
+									<StatusIndicator status={ visibilityStatus } />
+								</CollapsibleCard.HeaderDescription>
+							) }
 						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>

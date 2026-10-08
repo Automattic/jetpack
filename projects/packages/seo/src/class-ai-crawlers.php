@@ -302,7 +302,7 @@ class Ai_Crawlers {
 	 * @return bool
 	 */
 	public static function has_static_robots_txt() {
-		return file_exists( ABSPATH . 'robots.txt' );
+		return Static_Files::exists( 'robots.txt' );
 	}
 
 	/**

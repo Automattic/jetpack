@@ -87,6 +87,7 @@ class DashboardSettingsTest extends TestCase {
 		remove_filter( 'rest_request_after_callbacks', array( Dashboard_Data::class, 'after_settings_request' ), 10 );
 		remove_filter( 'jetpack_active_modules', '\\Private_Site\\filter_jetpack_active_modules' );
 		remove_filter( 'register_setting_args', array( Dashboard_Data::class, 'force_setting_args' ), 10 );
+		remove_filter( 'rest_pre_get_setting', array( Dashboard_Data::class, 'read_boolean_setting' ), 10 );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'pre_option_' . \Automattic\Jetpack\Current_Plan::PLAN_OPTION );
@@ -287,8 +288,35 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertTrue( Llms_Txt::is_enabled() );
 
 		// And back off again, so the toggle isn't one-way.
-		$this->save_settings( array( Llms_Txt::OPTION => false ) );
+		$this->save_settings(
+			array(
+				Dashboard_Data::AI_SEO_ENHANCER_OPTION => false,
+				Llms_Txt::OPTION                       => false,
+			)
+		);
 		$this->assertFalse( Llms_Txt::is_enabled() );
+
+		// A separate request reads false as an empty string from the options table.
+		wp_cache_delete( 'alloptions', 'options' );
+		foreach ( array( Dashboard_Data::AI_SEO_ENHANCER_OPTION, Llms_Txt::OPTION ) as $option ) {
+			wp_cache_delete( $option, 'options' );
+		}
+
+		$response = rest_do_request( new WP_REST_Request( 'GET', self::CORE_SETTINGS_ROUTE ) );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( $data[ Dashboard_Data::AI_SEO_ENHANCER_OPTION ] );
+		$this->assertFalse( $data[ Llms_Txt::OPTION ] );
+	}
+
+	/**
+	 * Preserve earlier read overrides and leave unrelated settings to core.
+	 */
+	public function test_boolean_setting_reader_preserves_other_values() {
+		$this->assertTrue( Dashboard_Data::read_boolean_setting( true, Llms_Txt::OPTION, array() ) );
+		$this->assertFalse( Dashboard_Data::read_boolean_setting( false, Llms_Txt::OPTION, array() ) );
+		$this->assertNull( Dashboard_Data::read_boolean_setting( null, 'unrelated_setting', array() ) );
 	}
 
 	/**

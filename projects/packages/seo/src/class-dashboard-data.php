@@ -214,6 +214,7 @@ class Dashboard_Data {
 		// own, whoever registers them and whenever. Added after the loop above so our
 		// own registrations don't recurse through it.
 		add_filter( 'register_setting_args', array( __CLASS__, 'force_setting_args' ), 10, 4 );
+		add_filter( 'rest_pre_get_setting', array( __CLASS__, 'read_boolean_setting' ), 10, 3 );
 
 		// The one thing that has to happen after the write rather than during it:
 		// dropping the superseded legacy front-page option. Both actions pass the
@@ -266,6 +267,22 @@ class Dashboard_Data {
 				'show_in_rest' => $ours[ $option ]['show_in_rest'],
 			)
 		);
+	}
+
+	/**
+	 * Normalize false options stored as empty strings so core REST returns a boolean, not null.
+	 *
+	 * @param mixed  $value Existing filtered setting value.
+	 * @param string $name REST setting name.
+	 * @param array  $args REST setting registration arguments.
+	 * @return mixed Filtered setting value.
+	 */
+	public static function read_boolean_setting( $value, $name, $args ) {
+		if ( null !== $value || ! in_array( $name, array( self::AI_SEO_ENHANCER_OPTION, Llms_Txt::OPTION ), true ) ) {
+			return $value;
+		}
+
+		return (bool) get_option( $args['option_name'], $args['schema']['default'] );
 	}
 
 	/**

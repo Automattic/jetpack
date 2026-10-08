@@ -74,7 +74,7 @@ class Llms_Txt {
 	 * @return bool
 	 */
 	public static function can_serve() {
-		$has_static_file = defined( 'ABSPATH' ) && file_exists( ABSPATH . 'llms.txt' );
+		$has_static_file = defined( 'ABSPATH' ) && Static_Files::exists( 'llms.txt' );
 
 		/**
 		 * Filters whether WordPress can serve the dynamic `/llms.txt`. Hosts that
