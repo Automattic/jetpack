@@ -6,6 +6,15 @@ Go through the dom to analyze image size on screen vs actual file size.
 
 ### Installation From Git Repo
 
+## UI setup
+
+`setupImageGuideUI( target, { href, tracksCallback, fetchFunction } )` mounts the
+React toolbar in a new wrapper inside `target`, preserving its existing children.
+Call it before the window `load` event; tracking is registered synchronously.
+It returns `{ unmount() }`, which removes the toolbar and its wrapper and can be
+called repeatedly. Page guides and their listeners live until the page unloads;
+this handle only controls the toolbar. Boost ignores the return value.
+
 ## Contribute
 
 ## Get Help

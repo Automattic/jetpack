@@ -1,14 +1,16 @@
-import { mount } from 'svelte';
+import { createElement } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
 import ImageGuideAnalytics from './analytics.ts';
 import { getMeasurableImages } from './find-image-elements.ts';
-import { guideState } from './stores/GuideState.ts';
+import { selectors, subscribeToFacts } from './stores/store.ts';
 import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
-import Main from './ui/Main.svelte';
+import { Main } from './ui/React.tsx';
 import type { FetchFn, MeasurableImage } from './MeasurableImage.ts';
-import type { ImageGuideConfig } from './types.ts';
 
 const measurableImageStores: MeasurableImageStore[] = [];
 let fetchFunction: FetchFn | undefined;
+const attachedImages = new WeakSet< HTMLElement >();
+const mountedGuides = new Map< HTMLElement, { root: Root; stores: MeasurableImageStore[] } >();
 
 /**
  * Set up a listener to initialize stuff on window load.
@@ -34,10 +36,11 @@ function onWindowLoad() {
 	ImageGuideAnalytics.trackInitialState();
 
 	// Watch for the guide being turned on/off
-	guideState.subscribe( async $state => {
-		if ( $state === 'paused' ) {
+	const attach = async () => {
+		if ( selectors.getGuideState() === 'paused' ) {
 			return;
 		}
+		measurableImageStores.forEach( store => store.updateDimensions() );
 		const measurableImages = await getMeasurableImages(
 			Array.from(
 				document.querySelectorAll(
@@ -54,7 +57,9 @@ function onWindowLoad() {
 		);
 
 		ImageGuideAnalytics.trackPage( measurableImageStores );
-	} );
+	};
+	subscribeToFacts( attach );
+	attach();
 }
 
 /**
@@ -204,64 +209,36 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 }
 
 /**
- * This gets a little tricky because of the various layout positions
- * the images can be in.
- *
- * For example, images can be positioned with static, absolute, fixed, etc.
- * But on top of that, they can be a part of a parent that has that positioning.
- * And to make things even more complex, they can change dynamically, for example in a slider.
- *
- * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
+ * Attach guides once per image without replacing page content.
  *
  * @param {MeasurableImage[]} measuredImages - The images to attach the guides to.
- * @return {MeasurableImageStore[]} The stores for the attached images.
+ * @return {MeasurableImageStore[]} The stores for newly attached images.
  */
 export function attachGuides( measuredImages: MeasurableImage[] ) {
-	const componentConfiguration = measuredImages.reduce(
-		( acc, image ) => {
-			if ( ! image.node.parentNode ) {
-				// eslint-disable-next-line no-console
-				console.error( `Image has no parent`, image.node );
-				return acc;
-			}
-
-			const container = findContainer( image );
-
-			if ( ! container ) {
-				// eslint-disable-next-line no-console
-				console.error( `Could not find a parent for image`, image );
-				return acc;
-			}
-
-			// Don't create new entry for Svelte component configuration.
-			// Use the index in the array as a unique identifier.
-			const id = parseInt( container.dataset.jetpackBoostGuideId || '' );
-			const stores = acc[ id ]?.props.stores || [];
-			const store = new MeasurableImageStore( image );
-			stores.push( store );
-
-			// If there's only one image, assume a new Svelte component needs to be created.
-			if ( stores.length === 1 ) {
-				acc[ id ] = {
-					target: container,
-					// This triggers the nice fade-in animation as soon as the component is attached.
-					intro: true,
-					props: {
-						stores,
-					},
-				};
-			}
-
-			return acc;
-		},
-		{} as Record< number, ImageGuideConfig >
-	);
-
-	// Take the component configuration and create the Svelte components.
-	return Object.values( componentConfiguration )
-		.map( ( config: ImageGuideConfig ) => {
-			mount( Main, config );
-			return config.props.stores;
-		} )
-		.flat();
+	const stores: MeasurableImageStore[] = [];
+	const changed = new Set< HTMLElement >();
+	for ( const image of measuredImages ) {
+		if ( attachedImages.has( image.node ) || ! image.node.parentNode ) continue;
+		const container = findContainer( image );
+		if ( ! container ) continue;
+		let guide = mountedGuides.get( container );
+		if ( ! guide ) {
+			// Page-owned background and parent elements must retain their children.
+			const wrapper = document.createElement( 'div' );
+			wrapper.style.display = 'contents';
+			container.append( wrapper );
+			guide = { root: createRoot( wrapper ), stores: [] };
+			mountedGuides.set( container, guide );
+		}
+		const store = new MeasurableImageStore( image );
+		guide.stores = [ ...guide.stores, store ];
+		stores.push( store );
+		attachedImages.add( image.node );
+		changed.add( container );
+	}
+	for ( const container of changed ) {
+		const { root, stores: images } = mountedGuides.get( container );
+		root.render( createElement( Main, { stores: images } ) );
+	}
+	return stores;
 }
