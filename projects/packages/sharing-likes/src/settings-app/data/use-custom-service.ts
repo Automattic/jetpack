@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { createCustomService, deleteCustomService, updateCustomService } from './api';
@@ -132,5 +132,5 @@ export function useCustomService() {
 		[ cached, deleteMutation, notifySaved, saveLists, setServices ]
 	);
 
-	return { create, update, remove };
+	return useMemo( () => ( { create, update, remove } ), [ create, update, remove ] );
 }
