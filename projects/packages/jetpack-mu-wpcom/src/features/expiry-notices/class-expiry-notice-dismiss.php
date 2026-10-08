@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Dismissals live in user meta written through core's `/wp/v2/users/me`, so
  * wp-admin and the front end read and write the same record.
@@ -96,13 +98,16 @@ class Expiry_Notice_Dismiss {
 	/**
 	 * Whether the banner for this state can be dismissed at all.
 	 *
-	 * Only once the revert has happened: before that the site still has
-	 * something to lose.
+	 * Once the plan has expired, except on Atomic before the revert: there the site still has plugins and themes to lose.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 */
 	public static function is_dismissible( array $expiry_state ): bool {
-		return Expiry_Data::STATE_EXPIRED === ( $expiry_state['state'] ?? '' );
+		$state = $expiry_state['state'] ?? '';
+		if ( Expiry_Data::STATE_EXPIRED_GRACE === $state ) {
+			return ! Constants::is_true( 'IS_ATOMIC' );
+		}
+		return Expiry_Data::STATE_EXPIRED === $state;
 	}
 
 	/**
