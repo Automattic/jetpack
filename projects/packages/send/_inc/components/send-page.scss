@@ -32,18 +32,82 @@ body.toplevel_page_jetpack-send {
 	max-inline-size: 1024px;
 }
 
-.jetpack-send-dns__record {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 4px 16px;
-	padding-block: 12px;
-	border-block-end: 1px solid #f0f0f0;
+.jetpack-send-dns__records {
+	border-block-start: 1px solid #f0f0f0;
 }
 
+.jetpack-send-dns__record {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-block: 16px;
+	border-block-end: 1px solid #f0f0f0;
+
+	&.is-compact {
+		padding-block: 12px;
+	}
+}
+
+.jetpack-send-dns__record-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.jetpack-send-dns__fields {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 0;
+}
+
+.jetpack-send-dns__field {
+	display: grid;
+	grid-template-columns: 48px minmax(0, 1fr);
+	align-items: start;
+	gap: 12px;
+
+	dt {
+		padding-block-start: 6px;
+		color: #757575;
+		font-size: 12px;
+	}
+
+	dd {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		margin: 0;
+	}
+}
+
+// Overrides wp-admin's `code` styles; long DKIM keys wrap inside the box.
 .jetpack-send-dns__value {
+	flex: 1;
+	min-inline-size: 0;
+	margin: 0;
+	padding: 5px 8px;
+	border-radius: 2px;
+	background: #f6f7f7;
+	color: #1e1e1e;
 	font-family: Menlo, Consolas, monospace;
 	font-size: 12px;
-	word-break: break-all;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+
+// Keeps Copy at its compact height beside multi-line values.
+.jetpack-send-copy {
+	flex-shrink: 0;
+}
+
+.jetpack-send-dns__problem {
+	color: #b32d2e;
+}
+
+.jetpack-send-dns__count {
+	color: #757575;
 }
 
 .jetpack-send-dns__actions,
