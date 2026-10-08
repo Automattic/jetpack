@@ -43,12 +43,22 @@ let mockAppliedRange: Partial< typeof JULY_2026 > = { from: undefined, to: undef
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
+let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
+let mockIsAdmin: boolean;
+let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
 let mockDateFiltersPanelProps: { onChange: ( ...args: unknown[] ) => void; onApply: () => void };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
-	useSyncStatus: () => ( { ...mockSyncState, triggerSync: mockTriggerSync } ),
+	useSyncStatus: ( options: typeof mockSyncOptions ) => {
+		mockSyncOptions = options;
+		return { ...mockSyncState, triggerSync: mockTriggerSync };
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: () => mockIsAdmin,
 } ) );
 
 jest.mock( '../site-readiness', () => ( {
@@ -153,6 +163,7 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
+	canSendFeedback: () => mockCanSendFeedback,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
@@ -391,6 +402,9 @@ jest.mock( './hooks', () => ( {
 beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
+	mockSyncOptions = undefined;
+	mockIsAdmin = true;
+	mockCanSendFeedback = true;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -668,6 +682,14 @@ describe( 'Dashboard feedback banner', () => {
 		);
 	} );
 
+	it( 'is not offered to a reader who cannot send feedback', () => {
+		mockCanSendFeedback = false;
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'holds off on a section the copy does not speak for', () => {
 		useDashboardSectionsMock.mockReturnValue( {
 			sections: [
@@ -828,6 +850,15 @@ describe( 'Dashboard sync notice', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
+	} );
+
+	it( 'neither polls nor starts the sync for a reader who cannot run it', () => {
+		mockSection( { requires_sync: true } );
+		mockIsAdmin = false;
+
+		render( <Dashboard /> );
+
+		expect( mockSyncOptions?.enabled ).toBe( false );
 	} );
 
 	it( 'leaves a section that does not depend on the sync unannotated', () => {
