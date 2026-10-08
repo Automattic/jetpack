@@ -40,7 +40,7 @@ body.toplevel_page_jetpack-protect {
 		margin: 0;
 	}
 
-	// A compact button.s height, so headers without one match.
+	// A compact button's height, so headers without one match.
 	&__header-end {
 		min-block-size: var(--wpds-dimension-size-md);
 	}
@@ -52,5 +52,13 @@ body.toplevel_page_jetpack-protect {
 
 	&__stat-value.is-warning {
 		color: var(--wpds-color-foreground-content-warning);
+	}
+}
+
+// From 782px up, boot squeezes the inspector beside the page.
+@media (min-width: 782px) {
+
+	[class*="__inspector"]:has(.jp-protect-inspector) {
+		min-inline-size: 360px;
 	}
 }
