@@ -198,7 +198,7 @@ export const SkeletonShortTile: SkeletonStory = {
 };
 
 /**
- * On a short tile the chart degrades to a sparkline — dropping its axis, grid,
+ * On a short tile the chart degrades to a sparkline — dropping its axes, grid,
  * and legend — instead of squashing its labels, while the metric cards stay.
  */
 export const Compact: Story = {
