@@ -191,7 +191,7 @@ describe( 'DatePeriodDropdown', () => {
 
 	it.each( [
 		[ 'Last 30 days', {} ],
-		[ 'All time', { appliedPresetId: 'all-time', allTimeStart: JULY_2026.from } ],
+		[ 'All time', { appliedPresetId: 'all-time' } ],
 	] as const )( 'describes the %s trigger with its exact dates', ( name, overrides ) => {
 		renderDropdown( overrides );
 
@@ -200,8 +200,8 @@ describe( 'DatePeriodDropdown', () => {
 		);
 	} );
 
-	it( 'leaves an unanchored All time undated', () => {
-		renderDropdown( { appliedPresetId: 'all-time' } );
+	it( 'leaves an All time that WPCOM starts undated', () => {
+		renderDropdown( { appliedPresetId: 'all-time', allTimeStartsOnServer: true } );
 
 		expect( screen.getByRole( 'button', { name: 'All time' } ) ).not.toHaveAccessibleDescription();
 	} );

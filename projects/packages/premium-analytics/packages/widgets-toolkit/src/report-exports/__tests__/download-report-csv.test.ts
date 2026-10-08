@@ -70,7 +70,13 @@ describe( 'downloadReportCsv', () => {
 			{ ...REPORT_PARAMS, preset: 'all-time' } as ReportParams,
 			'things-all-time',
 		],
-	] )( 'leaves the dates out for %s', async ( _, overrides, params, filename ) => {
+		[
+			'an All time window with its own start',
+			{ datesAllTime: true },
+			{ ...REPORT_PARAMS, preset: 'all-time' } as ReportParams,
+			'things-2026-03-01_2026-03-10',
+		],
+	] )( 'names the file for %s', async ( _, overrides, params, filename ) => {
 		await downloadReportCsv( buildExporter( overrides ), params );
 
 		expect( mockSaveCsv ).toHaveBeenCalledWith( filename, expect.any( String ) );

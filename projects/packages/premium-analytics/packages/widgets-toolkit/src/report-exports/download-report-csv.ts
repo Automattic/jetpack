@@ -18,8 +18,8 @@ export function getReportCsvFilename< TItem, TRow >(
 		return exporter.filenamePrefix;
 	}
 
-	// All time names itself: on a report its `from` is only a placeholder.
-	return reportParams.preset === PRESET_ALL_TIME
+	// A report's All time `from` is a placeholder, since WPCOM picks the start.
+	return reportParams.preset === PRESET_ALL_TIME && ! exporter.datesAllTime
 		? `${ exporter.filenamePrefix }-${ PRESET_ALL_TIME }`
 		: buildCsvDateRangeFilename( exporter.filenamePrefix, reportParams );
 }

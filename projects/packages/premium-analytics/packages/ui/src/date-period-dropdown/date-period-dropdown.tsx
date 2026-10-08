@@ -74,6 +74,12 @@ type DatePeriodDropdownProps = {
 	allTimeStart?: Date;
 
 	/**
+	 * Whether WPCOM picks where all time starts, which leaves the applied range's start a
+	 * placeholder that the tooltip must not show.
+	 */
+	allTimeStartsOnServer?: boolean;
+
+	/**
 	 * IANA timezone string (e.g., 'America/New_York').
 	 */
 	timeZone: string;
@@ -145,6 +151,7 @@ export function DatePeriodDropdown( {
 	appliedRange,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer = false,
 	timeZone,
 	onSelect,
 	range,
@@ -233,9 +240,9 @@ export function DatePeriodDropdown( {
 			open={ isOpen }
 			onOpenChange={ handleOpenChange }
 			// The label names the period, so the dates live here: the design
-			// keeps them off the control's face. Unanchored all time has no real start to show.
+			// keeps them off the control's face.
 			tooltip={
-				appliedPresetId === PRESET_ALL_TIME && ! allTimeStart
+				appliedPresetId === PRESET_ALL_TIME && allTimeStartsOnServer
 					? undefined
 					: formatDateRange( appliedRange )
 			}

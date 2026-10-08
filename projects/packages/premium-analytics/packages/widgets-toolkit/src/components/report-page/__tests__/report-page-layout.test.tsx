@@ -75,7 +75,10 @@ describe( 'ReportPageLayout', () => {
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
 		expect( panelProps ).toEqual( expect.objectContaining( dateFilters ) );
-		expect( panelProps.presetIds ).toBe( MENU_SURFACE_PRESETS_WITH_ALL_TIME );
+		expect( panelProps ).toMatchObject( {
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+			allTimeStartsOnServer: true,
+		} );
 		// The interval control stays hidden; the staged interval still rides along for the dashboard.
 		expect( panelProps.withIntervalControl ).toBeUndefined();
 	} );

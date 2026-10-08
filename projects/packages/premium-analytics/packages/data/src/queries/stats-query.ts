@@ -64,7 +64,9 @@ type StatsSanitizer< TData = unknown > = (
 
 type StatsReportQuerySettings = {
 	/**
-	 * Query params to omit because they are unsupported or would override the requested window.
+	 * Query params derived from the shared report range that this endpoint does not accept.
+	 * WPCOM drops params an endpoint does not declare, so this changes nothing server-side —
+	 * it only keeps the request URL and the proxy cache key honest.
 	 */
 	omitParams?: readonly ( keyof StatsQueryParamFields )[];
 };

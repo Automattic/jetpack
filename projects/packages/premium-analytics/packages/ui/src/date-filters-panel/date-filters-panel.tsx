@@ -62,6 +62,9 @@ export type DateFiltersPanelProps = {
 	 */
 	allTimeStart?: Date;
 
+	/** Whether WPCOM picks where all time starts; see `DatePeriodDropdown`. */
+	allTimeStartsOnServer?: boolean;
+
 	/**
 	 * Whether to offer Custom range at the end of the menu. On by default; a
 	 * surface whose design lists common periods only turns it off.
@@ -140,6 +143,7 @@ export function DateFiltersPanel( {
 	comparisonPresetId,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer,
 	withCustomRange = true,
 	withIntervalControl = false,
 	interval,
@@ -281,6 +285,7 @@ export function DateFiltersPanel( {
 						onOpenChange={ setIsPrimaryPickerOpen }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
+						allTimeStartsOnServer={ allTimeStartsOnServer }
 						withCustomRange={ withCustomRange }
 						attentionId={ attentionId }
 					/>

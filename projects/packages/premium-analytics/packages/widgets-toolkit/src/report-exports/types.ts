@@ -9,6 +9,8 @@ export type ReportCsvExporter< TItem, TRow > = {
 	filenamePrefix: string;
 	/** All-time reports leave the date range out of the filename. */
 	hasDateRange: boolean;
+	/** Date an All time file too, for an exporter that queries the window's own start. */
+	datesAllTime?: boolean;
 	/** Fetch the report's full primary rows, as its page loads them. */
 	fetchItems: ( reportParams: ReportParams ) => Promise< TItem[] >;
 	/** Flatten, label, and order rows exactly as the page's CSV does. */

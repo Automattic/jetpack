@@ -49,7 +49,11 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 			{ tabs }
 			<SectionHeader title={ title } pinned>
 				{ dateFilters ? (
-					<DateFiltersPanel { ...dateFilters } presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME } />
+					<DateFiltersPanel
+						{ ...dateFilters }
+						presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME }
+						allTimeStartsOnServer
+					/>
 				) : null }
 			</SectionHeader>
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
