@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Enhanced Ownership: Retire the site-level legacy contact field in favour of the account-level legacy contact setting on WordPress.com.

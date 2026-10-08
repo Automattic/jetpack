@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sync: Stop syncing the retired wpcom_legacy_contact option.
