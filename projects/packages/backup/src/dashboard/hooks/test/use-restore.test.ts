@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { pickLiveRestore } from '../../data/api/restore';
 import { DEFAULT_RESTORE_ITEMS } from '../../types/restore';
-import { useRestore } from '../use-restore';
+import { useRestore, POLL_INTERVAL_MS } from '../use-restore';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -97,12 +97,12 @@ function submitAll( result: RenderedRestore ) {
  * @param ms - How far to advance.
  */
 async function advance( ms: number ) {
-	// Advance in small steps (~POLL_INTERVAL_MS). Longer steps never give React 19 a gap between updates, so it throws "Maximum update depth exceeded".
+	// Advance in small steps (POLL_INTERVAL_MS). Longer steps never give React 19 a gap between updates, so it throws "Maximum update depth exceeded".
 	while ( ms > 0 ) {
 		await act( async () => {
-			await jest.advanceTimersByTimeAsync( Math.min( ms, 5000 ) );
+			await jest.advanceTimersByTimeAsync( Math.min( ms, POLL_INTERVAL_MS ) );
 		} );
-		ms -= 5000;
+		ms -= POLL_INTERVAL_MS;
 	}
 }
 

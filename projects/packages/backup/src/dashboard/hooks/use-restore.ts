@@ -40,7 +40,7 @@ type Result = {
  * no responsiveness and costs a WordPress.com round trip per tick for its
  * whole duration.
  */
-const POLL_INTERVAL_MS = 5000;
+export const POLL_INTERVAL_MS = 5000;
 
 /**
  * How long the screen will go without a recognisable sign of life before
