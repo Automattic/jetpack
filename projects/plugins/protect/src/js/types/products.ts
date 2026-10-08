@@ -23,7 +23,6 @@ export type ProductData = {
 	features: string[];
 	has_free_offering: boolean;
 	has_paid_plan_for_product: boolean;
-	features_by_tier: Array< string >;
 	is_bundle: boolean;
 	is_plugin_active: boolean;
 	is_upgradable: boolean;

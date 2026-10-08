@@ -118,13 +118,6 @@ class Protect extends Hybrid_Product {
 	public static $category = 'security';
 
 	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
-
-	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
@@ -237,94 +230,6 @@ class Protect extends Hybrid_Product {
 		return array(
 			self::UPGRADED_TIER_SLUG,
 			self::FREE_TIER_SLUG,
-		);
-	}
-
-	/**
-	 * Get the internationalized comparison of free vs upgraded features
-	 *
-	 * @return array[] Protect features comparison
-	 */
-	public static function get_features_by_tier() {
-		return array(
-			array(
-				'name'  => __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array(
-						'included'    => true,
-						'description' => __( 'Check items against database', 'jetpack-my-jetpack' ),
-					),
-					self::UPGRADED_TIER_SLUG => array(
-						'included'    => true,
-						'description' => __( 'Line by line malware scanning', 'jetpack-my-jetpack' ),
-					),
-				),
-			),
-			array(
-				'name'  => __( 'Daily automated scans', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => true ),
-					self::UPGRADED_TIER_SLUG => array(
-						'included'    => true,
-						'description' => __( 'Plus on-demand manual scans', 'jetpack-my-jetpack' ),
-					),
-				),
-			),
-			array(
-				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array(
-						'included'    => false,
-						'description' => __( 'Manual rules only', 'jetpack-my-jetpack' ),
-					),
-					self::UPGRADED_TIER_SLUG => array(
-						'included'    => true,
-						'description' => __( 'Automatic protection and rule updates', 'jetpack-my-jetpack' ),
-					),
-				),
-			),
-			array(
-				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => true ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
-				'name'  => __( 'Account protection', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => true ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
-				'name'  => __( 'Access to scan on Cloud', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => false ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
-				'name'  => __( 'One-click auto fixes', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => false ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
-				'name'  => __( 'Notifications', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => false ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
-			array(
-				'name'  => __( 'Severity labels', 'jetpack-my-jetpack' ),
-				'tiers' => array(
-					self::FREE_TIER_SLUG     => array( 'included' => false ),
-					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
-				),
-			),
 		);
 	}
 
