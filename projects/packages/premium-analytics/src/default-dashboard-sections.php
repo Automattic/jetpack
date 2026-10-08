@@ -111,9 +111,7 @@ function is_subscribers_dashboard_section_available() {
  */
 function get_traffic_section_default_layout() {
 	return array(
-		// Rows fill the three-column grid in the prototype's order. Plan usage
-		// is intentionally not a default; it stays available from the widget
-		// picker.
+		// Rows fill the three-column grid in the prototype's order.
 		// Row 1: traffic chart.
 		get_dashboard_default_widget_instance(
 			'default-traffic-chart-widget-instance',
