@@ -7,6 +7,7 @@ import {
 	WidgetState,
 	type ChartDisplayChartType,
 	type DataFormat,
+	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
@@ -16,27 +17,15 @@ import { useMemo } from 'react';
  */
 import styles from './report-metric-chart.module.css';
 
+/** What the chart reads from a report's rows and summary. */
 type Report = {
 	summary?: Record< string, unknown >;
 	data?: Array< { date_start: string } >;
 };
 
-/** What the chart reads from the result of a report hook. */
-type ReportResult = {
-	primary: { data?: Report };
-	comparison: { data?: Report };
-	hasComparison: boolean;
-	timezone: string;
-	isLoading: boolean;
-	isFetching: boolean;
-	hasData: boolean;
-	isError: boolean;
-	refetch: () => void;
-};
-
 type ReportMetricChartProps = {
 	/** The result of a report hook, such as `useReportOrders`. */
-	report: ReportResult;
+	report: ReportResult< Report >;
 	/** The report field to chart, read from each row and from the summary. */
 	field: string;
 	/** The metric's name, for the headline and the legend. */

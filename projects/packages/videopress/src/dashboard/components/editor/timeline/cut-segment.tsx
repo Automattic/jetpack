@@ -123,9 +123,10 @@ function StudioEditorCutEdge( { edge, ...props }: Props & { edge: Edge } ): Reac
 			role="slider"
 			tabIndex={ 0 }
 			aria-label={
-				edge === 'start'
-					? __( 'Cut start', 'jetpack-videopress-pkg' )
-					: __( 'Cut end', 'jetpack-videopress-pkg' )
+				{
+					start: __( 'Cut start', 'jetpack-videopress-pkg' ),
+					end: __( 'Cut end', 'jetpack-videopress-pkg' ),
+				}[ edge ]
 			}
 			aria-orientation="horizontal"
 			aria-valuemin={ edge === 'start' ? session.trimStartMs : cut.startMs }

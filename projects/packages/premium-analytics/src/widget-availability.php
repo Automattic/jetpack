@@ -34,6 +34,12 @@ const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 const STORE_REPORT_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
 
 /**
+ * Widget categories whose data counts as a Stats report: each reaches WPCOM through a proxy
+ * prefix gated on `view_stats`.
+ */
+const STATS_REPORT_WIDGET_CATEGORIES = array( 'stats', 'traffic', 'subscribers' );
+
+/**
  * Removes developer-only candidates in production.
  *
  * Split from the hook callback so both branches are testable without touching
@@ -161,40 +167,48 @@ add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrab
  * Split from the hook callback so both branches are testable without a user.
  *
  * @since 0.1.0
+ * @since $$next-version$$ Added `$can_view_stats`.
  *
  * @param array $widget_candidates      Manifest candidates, each with a `category`.
  * @param bool  $can_view_store_reports Whether the reader may see the store reports.
- * @return array The candidates, minus the store-report categories for readers who can't.
+ * @param bool  $can_view_stats         Whether the reader may see the Stats reports.
+ * @return array The candidates, minus the categories whose reports the reader can't see.
  */
-function remove_capability_gated_widget_types( $widget_candidates, $can_view_store_reports ) {
-	if ( $can_view_store_reports ) {
+function remove_capability_gated_widget_types( $widget_candidates, $can_view_store_reports, $can_view_stats = true ) {
+	$hidden_categories = array_merge(
+		$can_view_store_reports ? array() : STORE_REPORT_WIDGET_CATEGORIES,
+		$can_view_stats ? array() : STATS_REPORT_WIDGET_CATEGORIES
+	);
+
+	if ( ! $hidden_categories ) {
 		return $widget_candidates;
 	}
 
 	return array_values(
 		array_filter(
 			$widget_candidates,
-			static function ( $widget ) {
-				return ! in_array( $widget['category'] ?? '', STORE_REPORT_WIDGET_CATEGORIES, true );
+			static function ( $widget ) use ( $hidden_categories ) {
+				return ! in_array( $widget['category'] ?? '', $hidden_categories, true );
 			}
 		)
 	);
 }
 
 /**
- * Registry-time callback: hides widgets whose data the reader cannot fetch — a
- * `view_stats` reader would only collect 403s from the proxy's `analytics` prefix.
- * The registry is request-scoped, so filtering on the current user is safe here.
+ * Registry-time callback: hides widgets whose data the reader cannot fetch — a `view_stats`
+ * reader would only collect 403s from the proxy's `analytics` prefix, and a shop manager from
+ * the Stats prefixes. The registry is request-scoped, so filtering on the current user is safe here.
  *
  * @since 0.1.0
  *
  * @param array $widget_candidates Manifest candidates.
- * @return array The candidates, minus the store-report categories for readers who can't see them.
+ * @return array The candidates, minus the categories whose reports the reader can't see.
  */
 function filter_registrable_widget_types_by_capability( $widget_candidates ) {
 	return remove_capability_gated_widget_types(
 		$widget_candidates,
-		Capabilities::current_user_can_view_store_reports()
+		Capabilities::current_user_can_view_store_reports(),
+		Capabilities::current_user_can_view_stats()
 	);
 }
 

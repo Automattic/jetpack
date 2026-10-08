@@ -66,6 +66,7 @@ export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
+export { sanitizeStatsAuthorResponse } from './author';
 export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
 export type { StatsSummaryResponse } from './summary';

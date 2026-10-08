@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Update tests for compatibility with new wp_kses() functionality.
+
+

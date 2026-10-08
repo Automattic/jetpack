@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Declare `useReport` with the types it has, so the report hooks built on it keep their response types.

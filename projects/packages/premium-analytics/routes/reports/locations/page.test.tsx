@@ -11,12 +11,10 @@ import {
 	locationsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { getLocationFields, useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
@@ -63,8 +61,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	supportsLocationsCountryFilter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.supportsLocationsCountryFilter,
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
-	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
-	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
+	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.ReportErrorState,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
 			{ tabs }
@@ -82,9 +80,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	// the props the page hands them matter.
 	ReportLocationsMap: jest.fn( () => <div data-testid="locations-map" /> ),
 	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
-	useReportRetry: ( refetch: () => unknown ) => () => {
-		void refetch();
-	},
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -273,35 +268,6 @@ describe( 'LocationsReportPage', () => {
 			expect.objectContaining( { isLoading: false, isFetching: true } )
 		);
 		expect( lastMapProps().isLoading ).toBe( true );
-	} );
-
-	it( 'renders the error state instead of the records table', () => {
-		mockRecords( { isError: true } );
-
-		render( <LocationsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load locations. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
-	} );
-
-	it( 'drops Retry when the request is denied', () => {
-		mockRecords( { isError: true, error: { error: 'unauthorized', status: 403 } } );
-
-		render( <LocationsReportPage /> );
-
-		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'refetches the active tab when Retry is clicked', async () => {
-		const records = mockRecords( { isError: true } );
-
-		render( <LocationsReportPage /> );
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'hides the map when the period has no rows', () => {

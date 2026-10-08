@@ -6,7 +6,6 @@ import {
 	drawableIntervals,
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
-	getStoreInfo,
 	normalizeReportParams,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
@@ -54,10 +53,7 @@ function ChartIntervalControl( {
 			elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
 		) as [ StatsPeriod, ...StatsPeriod[] ];
 		// Like the chart: a widget that owns its range reads it before the page's.
-		const params = normalizeReportParams(
-			ownRange ?? search,
-			getDefaultPreset( getStoreInfo().launchedDate )
-		);
+		const params = normalizeReportParams( ownRange ?? search, getDefaultPreset() );
 		const allowed = getAllowedIntervalsForPreset(
 			params.preset,
 			params.from ?? '',

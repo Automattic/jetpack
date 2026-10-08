@@ -180,13 +180,20 @@ final class Placement_Section {
 	 * @return string[]
 	 */
 	public static function selected_post_types(): array {
-		$sharing = get_option( 'sharing-options', array() );
-
-		if ( ! is_array( $sharing ) || ! isset( $sharing['global']['show'] ) ) {
+		if ( ! self::is_saved() ) {
 			return self::default_post_types();
 		}
 
-		return self::normalize_show( $sharing['global']['show'] );
+		return self::normalize_show( get_option( 'sharing-options' )['global']['show'] );
+	}
+
+	/**
+	 * Whether a placement is stored, rather than left to each feature's default.
+	 */
+	public static function is_saved(): bool {
+		$sharing = get_option( 'sharing-options', array() );
+
+		return is_array( $sharing ) && isset( $sharing['global']['show'] );
 	}
 
 	/**

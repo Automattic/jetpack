@@ -23,8 +23,8 @@ export type AuthorPerformanceAttributes = {
 };
 
 /**
- * The series is this author's row read out of every `stats/top-authors` bucket
- * over the page's chart interval.
+ * Views per chart bucket, plus window totals for likes and comments, from
+ * `stats/author/<id>`.
  */
 export default {
 	icon: seen,

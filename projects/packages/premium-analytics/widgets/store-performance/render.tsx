@@ -346,9 +346,6 @@ function StorePerformanceContent() {
 				isLoading={ isInitialLoading }
 				isFetching={ isFetching }
 				isError={ isError }
-				// The tabs are fixed, so there is always something to render: the only
-				// empty state this widget ever had was "no metric selected".
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load store performance data. Please try again in a moment.",

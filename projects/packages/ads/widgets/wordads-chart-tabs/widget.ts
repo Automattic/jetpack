@@ -15,7 +15,7 @@ import { chartBar, megaphone } from '@wordpress/icons';
  * Internal dependencies
  */
 import { chartLine } from './chart-line';
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { WORDADS_GRAIN } from './grain';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -56,9 +56,9 @@ export default {
 		},
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
-		attributes: {
-			reportParams: DEFAULT_REPORT_PARAMS,
-			chartType: 'line',
+		// A getter: the host reads it on every render, and the default can change after load.
+		get attributes() {
+			return { reportParams: defaultReportParams(), chartType: 'line' };
 		},
 	},
 };

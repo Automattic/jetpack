@@ -1,5 +1,7 @@
 # DonutChart
 
+Widgets render [`Donut`](../donut/) instead: it takes the segments and the request status, and draws this chart with its total, legend, deltas and states. `DonutChart` is the chart alone, for the kind to compose.
+
 A responsive donut (pie) chart component that automatically adapts to its container size.
 
 ## Features

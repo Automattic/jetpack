@@ -3,7 +3,7 @@
 .jetpack-ai-voice-to-content__modal {
 
 	.components-modal__header {
-		border-bottom: 1px solid var(--studio-gray-5, #dcdcde);
+		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
 		padding: 20px 24px;
 	}
 
@@ -115,7 +115,7 @@
 		}
 
 		.icon {
-			color: var(--studio-gray-20);
+			color: var(--wpds-color-foreground-interactive-neutral-weak);
 		}
 	}
 }

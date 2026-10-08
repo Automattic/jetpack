@@ -28,7 +28,7 @@ describe( 'area chart tooltip bucket info', () => {
 			</GlobalChartsProvider>
 		);
 
-		screen.getByRole( 'grid', { name: /area chart/i } ).focus();
+		screen.getByRole( 'application', { name: /area chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2.8.2026, 09 Uhr' );
@@ -61,7 +61,7 @@ describe( 'area chart tooltip bucket info', () => {
 			</GlobalChartsProvider>
 		);
 
-		screen.getByRole( 'grid', { name: /area chart/i } ).focus();
+		screen.getByRole( 'application', { name: /area chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'chart-tooltip-0' ) ).not.toHaveTextContent( 'Uhr' );

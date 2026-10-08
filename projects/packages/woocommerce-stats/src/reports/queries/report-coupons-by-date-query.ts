@@ -1,15 +1,11 @@
 /**
- * External dependencies
- */
-
-/**
  * Internal dependencies
  */
 import { fetchReportCouponsByDate } from '../api/report-coupons-by-date-fetch';
 import { sanitizeReportCouponsByDateResponse } from '../processing/coupons-by-date';
 import { FilterCondition } from '../types/filter-condition';
 import { resolveReportTimeZone } from '../utils/report-timezone';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportCouponsByDateParams = Parameters< typeof fetchReportCouponsByDate >[ 0 ] & {
 	filters?: FilterCondition[];

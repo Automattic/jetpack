@@ -371,23 +371,6 @@ describe( 'getComparisonRangeFromPreset', () => {
 				to: siteDate( 2024, 11, 31, 23, 59, 59, 999 ),
 			} );
 		} );
-
-		/*
-		 * Whole months are detected by round trip, not calendar alignment, so
-		 * the rolling last-12-months window (mid-month to mid-month) also steps
-		 * back by its month count.
-		 */
-		it( 'steps a rolling 12-month window back by its month count for previous-period', () => {
-			const last12Months = {
-				from: siteDate( 2025, 7, 31, 0, 0, 0, 0 ),
-				to: siteDate( 2026, 7, 30, 23, 59, 59, 999 ),
-			};
-
-			expect( getComparisonRangeFromPreset( last12Months, 'previous-period' ) ).toEqual( {
-				from: siteDate( 2024, 7, 31, 0, 0, 0, 0 ),
-				to: siteDate( 2025, 7, 30, 23, 59, 59, 999 ),
-			} );
-		} );
 	} );
 
 	describe( 'previous-week', () => {

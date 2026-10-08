@@ -190,11 +190,86 @@ export function validateAgainstSchema( value: unknown, schema: JsonSchema, path 
 			errors.push( `${ path }: length ${ value.length } > maxLength ${ schema.maxLength }` );
 		}
 		if ( schema.enum && ! schema.enum.includes( value ) ) {
-			errors.push( `${ path }: "${ value }" not in enum [${ schema.enum.join( ', ' ) }]` );
+			// The value itself is left out: these messages end up in the `tailored` Logstash record.
+			errors.push( `${ path }: not in enum` );
 		}
 	}
 
 	return errors;
+}
+
+/** At most this many reasons per failed attempt reach the server. */
+export const MAX_REASONS_PER_ATTEMPT = 3;
+
+/** Each reason is cut to this many characters. */
+const MAX_REASON_LENGTH = 120;
+
+/**
+ * The outcome of parsing one model reply: the validated output, or null plus why it was rejected.
+ *
+ * The reasons name only paths and rules (`first_post_draft.subtitle: expected string`), never a
+ * value, because they are logged.
+ */
+export type ParseResult =
+	{ output: TailoredOutput; errors: [] } | { output: null; errors: string[] };
+
+/**
+ * Remove optional keys the model wrote as null or as an empty string, at any depth of the schema.
+ *
+ * Models often spell "leave this out" as null or "". The schema rejects null for every field and
+ * "" for the fields with a minLength, so without this an output that is otherwise complete would
+ * fail into a retry over a field nothing needs. Required keys are left alone, so a null required
+ * field still fails validation.
+ *
+ * @param value  - The parsed value, mutated in place.
+ * @param schema - The schema node `value` is validated against.
+ */
+function dropEmptyOptionalKeys( value: unknown, schema: JsonSchema ): void {
+	if ( schema.type === 'array' && schema.items && Array.isArray( value ) ) {
+		value.forEach( item => dropEmptyOptionalKeys( item, schema.items as JsonSchema ) );
+		return;
+	}
+	if (
+		schema.type !== 'object' ||
+		! value ||
+		typeof value !== 'object' ||
+		Array.isArray( value )
+	) {
+		return;
+	}
+	const record = value as Record< string, unknown >;
+	for ( const [ key, subSchema ] of Object.entries( schema.properties ?? {} ) ) {
+		if ( ! ( key in record ) ) {
+			continue;
+		}
+		if (
+			! schema.required?.includes( key ) &&
+			( record[ key ] === null || record[ key ] === '' )
+		) {
+			delete record[ key ];
+			continue;
+		}
+		dropEmptyOptionalKeys( record[ key ], subSchema );
+	}
+}
+
+/**
+ * Remove `page_intros` keys that name no known page task. An intro for a task the client cannot
+ * place would never render, so it is not worth discarding the whole output over.
+ *
+ * @param parsed - The parsed model output, mutated in place.
+ */
+function dropUnknownPageIntros( parsed: unknown ): void {
+	const intros = ( parsed as { page_intros?: unknown } | null )?.page_intros;
+	if ( ! intros || typeof intros !== 'object' || Array.isArray( intros ) ) {
+		return;
+	}
+	const known = AGENT_OUTPUT_SCHEMA.properties?.page_intros?.properties ?? {};
+	for ( const key of Object.keys( intros ) ) {
+		if ( ! ( key in known ) ) {
+			delete ( intros as Record< string, unknown > )[ key ];
+		}
+	}
 }
 
 /**
@@ -222,26 +297,44 @@ function dropInvalidOptionalInferred( parsed: unknown ): void {
 }
 
 /**
- * Parse the raw `content` string returned by jetpack-ai-query and validate it
- * against the agent output schema. Returns the typed output, or null if the JSON
- * is malformed or fails validation.
+ * Turn a validator message into a loggable reason: drop the root `$.` and anything outside a
+ * conservative character set, and cap the length. Paths can carry a key the model invented, so
+ * this keeps even those to plain identifiers.
+ *
+ * @param message - A validateAgainstSchema message.
+ * @return The reason.
+ */
+function toReason( message: string ): string {
+	return message
+		.replace( /^\$\./, '' )
+		.replace( /[^A-Za-z0-9_.$[\]:<>= -]/g, '' )
+		.slice( 0, MAX_REASON_LENGTH );
+}
+
+/**
+ * Parse the raw `content` string returned by jetpack-ai-query and validate it against the agent
+ * output schema, after removing the optional fields that would fail it for no good reason.
  *
  * @param content - The raw JSON string from `choices[0].message.content`.
- * @return The validated output, or null.
+ * @return The validated output, or null plus the reasons it was rejected.
  */
-export function parseAgentResponse( content: string ): TailoredOutput | null {
+export function parseAgentResponse( content: string ): ParseResult {
 	let parsed: unknown;
 	try {
 		parsed = JSON.parse( content );
 	} catch {
-		return null;
+		// Not the SyntaxError message: V8 quotes the offending text in it.
+		return { output: null, errors: [ '$: invalid JSON' ] };
 	}
 
+	dropEmptyOptionalKeys( parsed, AGENT_OUTPUT_SCHEMA );
+	dropUnknownPageIntros( parsed );
 	dropInvalidOptionalInferred( parsed );
 
-	if ( validateAgainstSchema( parsed, AGENT_OUTPUT_SCHEMA ).length > 0 ) {
-		return null;
+	const errors = validateAgainstSchema( parsed, AGENT_OUTPUT_SCHEMA );
+	if ( errors.length > 0 ) {
+		return { output: null, errors: errors.slice( 0, MAX_REASONS_PER_ATTEMPT ).map( toReason ) };
 	}
 
-	return parsed as TailoredOutput;
+	return { output: parsed as TailoredOutput, errors: [] };
 }

@@ -162,7 +162,8 @@ The Area Chart supports an optional entry animation:
 
 ## Accessibility
 
-- Chart container has `role="grid"` with an `aria-label` of `"Area chart"`.
+- Chart container has `role="application"` and an `aria-label` of `"Area chart"`, so screen readers pass arrow keys through to the chart's point navigation.
+- Set `ariaLabel` to name the chart after what it shows, so a screen reader user with several charts on a page can tell them apart.
 - Tab to focus the chart; arrow keys navigate data points; tooltips are announced to screen readers.
 - **Escape**: Close a keyboard-opened tooltip and return focus to the chart
 - All series colors can be overridden through the palette custom properties; do not rely on color alone to distinguish series.

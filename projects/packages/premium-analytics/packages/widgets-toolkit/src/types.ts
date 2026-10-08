@@ -67,6 +67,33 @@ export type DataFormat = {
 export type CountLabel = ( count: number ) => TransformedText< `%s ${ string }` >;
 
 /**
+ * What a widget kind knows about its request, in the data layer's terms: the fields the
+ * widget's data hook returns, from which the kind renders its states.
+ */
+export type WidgetStatus = {
+	/**
+	 * Nothing on screen answers the current params.
+	 */
+	isLoading: boolean;
+	/**
+	 * Unchanged params being revalidated.
+	 */
+	isFetching?: boolean;
+	/**
+	 * The request failed.
+	 */
+	isError?: boolean;
+	/**
+	 * The comparison period is on and the data carries values for it.
+	 */
+	hasComparison?: boolean;
+	/**
+	 * Re-runs the request; the default error state offers it as Retry.
+	 */
+	refetch?: () => unknown;
+};
+
+/**
  * Local stand-in for the `WidgetErrorConfig` type from `@automattic/dashboard`
  * (CIAB Admin), which is not published to npm. Mirrors the documented shape of
  * the dashboard's widget error contract: a message plus an optional action
