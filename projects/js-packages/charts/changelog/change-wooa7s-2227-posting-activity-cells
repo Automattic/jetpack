@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Heatmap chart: Add a fitCells option that grows compact cells to fill the chart, wrapping column groups onto more rows when that makes the cells larger.
+Heatmap chart: Add a fitCells option that grows compact cells to fill the chart, wrapping column groups onto more rows when that makes the cells larger, and draw column group and legend labels at 13px.

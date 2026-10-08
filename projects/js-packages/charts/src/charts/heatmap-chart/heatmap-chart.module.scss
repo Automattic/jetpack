@@ -96,9 +96,9 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 
 // Beneath its columns, set off from the last row by more than the cell gap.
 .heatmap-chart__group-label {
-	color: var(--a8c-charts-color-label-secondary);
-	font-size: var(--wpds-typography-font-size-xs);
-	line-height: var(--wpds-typography-line-height-xs);
+	color: var(--a8c-charts-color-label);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
 	white-space: nowrap;
 	text-align: center;
 	padding-block-start: var(--wpds-dimension-padding-xs);
@@ -200,6 +200,8 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 
 .heatmap-chart__legend-label {
 	color: var(--a8c-charts-color-label);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
 }
 
 .heatmap-chart__legend-swatch {
