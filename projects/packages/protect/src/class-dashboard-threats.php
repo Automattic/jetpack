@@ -207,6 +207,9 @@ class Dashboard_Threats {
 	 * @return string|null
 	 */
 	private static function get_plugin_icon( $site, $slug ) {
+		if ( ! $slug ) {
+			return null;
+		}
 		$icons = (array) ( $site['directory'][ $slug ]->icons ?? array() );
 		foreach ( array( 'svg', '2x', '1x', 'default' ) as $size ) {
 			if ( ! empty( $icons[ $size ] ) ) {
