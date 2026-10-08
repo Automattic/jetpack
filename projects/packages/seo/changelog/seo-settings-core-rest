@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Fix saving SEO settings, clearing front-page descriptions, and switching sitemaps off on private sites.
+Fix saving SEO settings, clearing front-page descriptions, and switching sitemaps off on private sites. Preserve unsaved title structure edits when saving another row. Explain when sitemap generation is managed by the hosting platform.

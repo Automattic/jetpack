@@ -825,6 +825,26 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
+	 * Simple cannot switch its sitemap even if a module becomes available.
+	 */
+	public function test_simple_sitemap_is_read_only_even_with_an_available_module() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->make_modules_available( array( 'sitemaps' ) );
+		$this->act_as( 'administrator' );
+		\Jetpack_Options::update_option( 'active_modules', array( 'sitemaps' ) );
+
+		$this->assertFalse( Dashboard_Data::get_settings_data()['sitemap_switchable'] );
+
+		foreach ( array( true, false ) as $enabled ) {
+			$response = $this->update_modules( array( 'sitemap_active' => $enabled ) );
+
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 'jetpack_seo_module_unavailable', $response->get_data()['code'] );
+			$this->assertSame( array( 'sitemaps' ), \Jetpack_Options::get_option( 'active_modules' ) );
+		}
+	}
+
+	/**
 	 * Report both module-backed settings as active regardless of what's stored or
 	 * available, the way WordPress.com does.
 	 *

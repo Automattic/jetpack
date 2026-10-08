@@ -14,6 +14,7 @@ import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
+import PlatformSitemapNotice from './platform-sitemap-notice';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
@@ -136,15 +137,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	// A sitemap only works when search engines are allowed, so its effective
 	// state (and the toggle below) is gated on `search_engines_visible`.
-	const sitemapEffectivelyOn = local.search_engines_visible && local.sitemap_active;
+	const simpleSite = isSimpleSite();
+	const sitemapEffectivelyOn = ! simpleSite && local.search_engines_visible && local.sitemap_active;
 	const sitemapIndexingHelp = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
+	// Simple's module state cannot establish whether its platform sitemap is published.
 	const visibilityEnabledCount =
-		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
+		( local.search_engines_visible ? 1 : 0 ) +
+		( ( simpleSite && local.search_engines_visible ) || sitemapEffectivelyOn ? 1 : 0 );
 
 	// Module completion states for the card headers. Each module defines
 	// "complete" for itself (see JETPACK-2051); the indicator is presentational.
-	// Visibility counts its two toggles, the sitemap by its *effective* state
-	// since it can't run while indexing is blocked.
+	// Simple counts only indexing; other hosts also count the effective sitemap state.
 	let visibilityStatus: SettingStatus = 'not-started';
 	if ( visibilityEnabledCount === 2 ) {
 		visibilityStatus = 'complete';
@@ -252,17 +255,24 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={ ! local.sitemap_switchable ? platformManagedHelp : sitemapIndexingHelp }
-									// Reflect the effective state: a sitemap can't be generated while
-									// indexing is blocked, so show it off (the stored preference is kept
-									// and restored when indexing is re-enabled).
+									help={
+										simpleSite || ! local.sitemap_switchable
+											? platformManagedHelp
+											: sitemapIndexingHelp
+									}
+									// Simple's disabled switch is not a sitemap publication-status indicator.
+									// Other hosts display off while indexing is blocked, preserving the preference.
 									checked={ sitemapEffectivelyOn }
 									onChange={ next => commit( { sitemap_active: next } ) }
 									disabled={
-										isSaving || ! local.search_engines_visible || ! local.sitemap_switchable
+										simpleSite ||
+										isSaving ||
+										! local.search_engines_visible ||
+										! local.sitemap_switchable
 									}
 									__nextHasNoMarginBottom
 								/>
+								{ simpleSite && <PlatformSitemapNotice /> }
 								{ sitemapEffectivelyOn && local.sitemap_url && (
 									<Link
 										className={ styles.sitemapLink }

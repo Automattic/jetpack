@@ -279,7 +279,7 @@ describe( 'Settings module title chips', () => {
 	);
 } );
 
-describe( 'Advanced module — WordPress.com Simple', () => {
+describe( 'WordPress.com Simple settings', () => {
 	/**
 	 * Flip the dashboard into WordPress.com Simple mode by seeding the global
 	 * `isSimpleSite()` reads, rather than mocking the module — that keeps
@@ -288,6 +288,7 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 	const setSimpleSite = () => {
 		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
 			site: { host: 'wpcom' },
+			seo: { hosting_options_url: 'https://wordpress.com/support/activate-your-plan/' },
 		};
 	};
 
@@ -309,6 +310,57 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 		render( <SettingsScreen form={ buildForm() } /> );
 
 		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [ true, false ] )(
+		'keeps the sitemap control read-only without claiming publication when indexing is %s',
+		searchEnginesVisible => {
+			setSimpleSite();
+			const form = buildForm( {
+				search_engines_visible: searchEnginesVisible,
+				sitemap_active: true,
+				sitemap_switchable: true,
+				sitemap_url: 'https://example.com/sitemap.xml',
+			} );
+
+			render( <SettingsScreen form={ form } /> );
+
+			const toggle = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+			expect( toggle ).toBeDisabled();
+			expect( toggle ).not.toBeChecked();
+			expect( statusFor( 'Site visibility' ) ).toBe(
+				searchEnginesVisible ? 'Complete' : 'Not started'
+			);
+			expect(
+				screen.getByText(
+					'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+				)
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /Explore hosting options/ } ) ).toHaveAttribute(
+				'href',
+				'https://wordpress.com/support/activate-your-plan/'
+			);
+			expect( screen.queryByRole( 'link', { name: 'View sitemap' } ) ).not.toBeInTheDocument();
+			expect( form.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [ 'woa', 'self-hosted' ] )( 'keeps the sitemap control available on %s', host => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
+
+		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
+
+		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeEnabled();
+		expect(
+			screen.queryByText(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			)
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Explore hosting options/ } )
+		).not.toBeInTheDocument();
 	} );
 } );
 

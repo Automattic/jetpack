@@ -607,6 +607,11 @@ class Dashboard_Data {
 	 * @return bool
 	 */
 	private static function has_module( $module ) {
+		// Simple's platform-managed generator is not controlled by module activation.
+		if ( 'sitemaps' === $module && ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
 		return in_array( $module, ( new Modules() )->get_available(), true );
 	}
 
