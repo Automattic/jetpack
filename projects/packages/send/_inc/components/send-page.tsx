@@ -44,7 +44,11 @@ const SendPage = ( { active, showTabs, children }: Props ) => {
 		[ navigate ]
 	);
 
-	const content = <div className="jetpack-send-page__content">{ children }</div>;
+	const contentClass =
+		active === 'log'
+			? 'jetpack-send-page__content jetpack-send-page__content--wide'
+			: 'jetpack-send-page__content';
+	const content = <div className={ contentClass }>{ children }</div>;
 
 	return (
 		<AdminPage

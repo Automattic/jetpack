@@ -16,12 +16,20 @@ body.toplevel_page_jetpack-send {
 	flex-direction: column;
 }
 
+// Centered column like Social and Podcast; the Log's table gets more room.
 .jetpack-send-page__content {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 744px;
+	margin-inline: auto;
 	padding: var(--wpds-dimension-padding-2xl);
-	max-inline-size: 960px;
+}
+
+.jetpack-send-page__content--wide {
+	max-inline-size: 1024px;
 }
 
 .jetpack-send-dns__record {
