@@ -92,6 +92,10 @@ export default function useProtectSettings(): ProtectSettingsData {
 			} catch ( e ) {
 				const rolledBack = { ...settingsRef.current };
 				keys.forEach( key => {
+					// A later save of this key already replaced our value; keep it.
+					if ( rolledBack[ key ] !== patch[ key ] ) {
+						return;
+					}
 					savedKeys.current.delete( key );
 					if ( key in previous ) {
 						rolledBack[ key ] = previous[ key ];
@@ -105,7 +109,12 @@ export default function useProtectSettings(): ProtectSettingsData {
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' )
 				);
 			} finally {
-				setSaving( current => current.filter( key => ! keys.includes( key ) ) );
+				// One entry per save in flight, so an overlapping save of the same key keeps it busy.
+				setSaving( current => {
+					const next = [ ...current ];
+					keys.forEach( key => next.splice( next.indexOf( key ), 1 ) );
+					return next;
+				} );
 			}
 		},
 		[ setSettings ]

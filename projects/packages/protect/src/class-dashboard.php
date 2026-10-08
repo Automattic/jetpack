@@ -86,11 +86,7 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
-		// Each feature lives in its own file and registers itself, so features can land independently.
-		$section_files = glob( __DIR__ . '/sections/class-*.php' );
-		foreach ( is_array( $section_files ) ? $section_files : array() as $section_file ) {
-			require_once $section_file;
-		}
+		self::load_sections( __DIR__ . '/sections' );
 
 		/**
 		 * Fires once the Protect dashboard has wired its hooks, so the page exists.
@@ -98,6 +94,46 @@ class Dashboard {
 		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Register the section class each `class-<name>.php` file in a folder declares.
+	 *
+	 * Each feature lives in its own file, so features can land independently. The class for
+	 * `class-login-protection.php` is `Sections\Login_Protection`; the file must have no side effects,
+	 * since the classmap autoloader can also load it.
+	 *
+	 * @param string $dir Folder holding the section files.
+	 * @return void
+	 */
+	public static function load_sections( $dir ) {
+		$files = glob( $dir . '/class-*.php' );
+		foreach ( is_array( $files ) ? $files : array() as $file ) {
+			$name  = str_replace( ' ', '_', ucwords( str_replace( '-', ' ', substr( basename( $file, '.php' ), 6 ) ) ) );
+			$class = __NAMESPACE__ . '\\Sections\\' . $name;
+			if ( ! class_exists( $class ) ) {
+				require_once $file;
+			}
+			if ( ! is_subclass_of( $class, Dashboard_Section::class ) || self::has_section_of_class( $class ) ) {
+				continue;
+			}
+			self::register_section( new $class() );
+		}
+	}
+
+	/**
+	 * Whether a section of the given class is already registered, so init() can run twice.
+	 *
+	 * @param string $class Section class name.
+	 * @return bool
+	 */
+	private static function has_section_of_class( $class ) {
+		foreach ( self::$sections as $section ) {
+			if ( $section instanceof $class ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -142,6 +178,16 @@ class Dashboard {
 	}
 
 	/**
+	 * Print each section's state as `window.jetpackProtectDashboard`, for the page's scripts.
+	 *
+	 * @return void
+	 */
+	public static function print_initial_state() {
+		$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		wp_print_inline_script_tag( 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
+	}
+
+	/**
 	 * Whether the current user may see and use the dashboard's REST routes.
 	 *
 	 * @return bool
@@ -156,7 +202,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	public static function has_scan_plan() {
-		return class_exists( Plan::class ) && Plan::has_required_plan();
+		return Plan::has_required_plan();
 	}
 
 	/**
@@ -323,8 +369,7 @@ class Dashboard {
 	public static function render() {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
-			$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-			wp_print_inline_script_tag( 'window.jetpackProtectDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
+			self::print_initial_state();
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;

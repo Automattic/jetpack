@@ -76,6 +76,36 @@ describe( 'useProtectSettings', () => {
 		expect( result.current.settings ).toEqual( { list: 'new', other: 1 } );
 	} );
 
+	it( 'keeps a later save when an earlier save of the same key fails', async () => {
+		const first = defer();
+		const second = defer();
+		const posts = [ first.promise, second.promise ];
+		mockApiFetch.mockImplementation( () => posts.shift() );
+		const { result } = renderHook( () => useProtectSettings() );
+
+		let firstSave: Promise< void >;
+		act( () => {
+			firstSave = result.current.save( { list: 'a' } );
+		} );
+		let secondSave: Promise< void >;
+		act( () => {
+			secondSave = result.current.save( { list: 'b' } );
+		} );
+		await act( async () => {
+			second.resolve( {} );
+			await secondSave;
+		} );
+		expect( result.current.isSaving( 'list' ) ).toBe( true );
+
+		await act( async () => {
+			first.reject( { message: 'Nope' } );
+			await firstSave;
+		} );
+
+		expect( result.current.settings ).toEqual( { list: 'b' } );
+		expect( result.current.isSaving( 'list' ) ).toBe( false );
+	} );
+
 	it( 'refetches after a failed load, clearing the error', async () => {
 		respondWith( { get: Promise.reject( new Error( 'offline' ) ) } );
 		const { result } = renderHook( () => useProtectSettings() );

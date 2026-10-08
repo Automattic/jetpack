@@ -2,7 +2,7 @@ import { useCallback } from '@wordpress/element';
 import { Link } from '@wordpress/ui';
 import type { MouseEvent, ReactNode } from 'react';
 
-/** Matches `Jetpack_Protect_Dashboard::MENU_SLUG`. */
+/** Matches `Automattic\Jetpack\Protect\Dashboard::MENU_SLUG`. */
 export const PROTECT_PAGE_SLUG = 'jetpack-protect';
 
 const SETTINGS_URL = `admin.php?page=${ PROTECT_PAGE_SLUG }&p=${ encodeURIComponent( '/?tab=settings' ) }`;

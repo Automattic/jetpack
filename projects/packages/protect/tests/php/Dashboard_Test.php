@@ -61,6 +61,23 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Record _doing_it_wrong() calls instead of raising them.
+	 *
+	 * @return \ArrayObject The names of the functions called wrongly, filled as calls happen.
+	 */
+	private function capture_doing_it_wrong() {
+		$calls = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $calls ) {
+				$calls[] = $function_name;
+			}
+		);
+		return $calls;
+	}
+
+	/**
 	 * Build a section double.
 	 *
 	 * @param string $key            Section key.
@@ -246,20 +263,13 @@ class Dashboard_Test extends BaseTestCase {
 	 * Test that a second section with a registered key is refused.
 	 */
 	public function test_register_section_keeps_the_first_section_for_a_key() {
-		$doing_it_wrong = array();
-		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-		add_action(
-			'doing_it_wrong_run',
-			function ( $function_name ) use ( &$doing_it_wrong ) {
-				$doing_it_wrong[] = $function_name;
-			}
-		);
+		$doing_it_wrong = $this->capture_doing_it_wrong();
 
 		Dashboard::register_section( $this->make_section( 'scan', array( 'order' => 'first' ) ) );
 		Dashboard::register_section( $this->make_section( 'scan', array( 'order' => 'second' ) ) );
 
 		$this->assertSame( array( 'scan' => array( 'order' => 'first' ) ), Dashboard::get_initial_state() );
-		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong );
+		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong->getArrayCopy() );
 	}
 
 	/**
@@ -280,5 +290,51 @@ class Dashboard_Test extends BaseTestCase {
 			),
 			Dashboard::get_initial_state()
 		);
+	}
+
+	/**
+	 * Test that a section file's class is found by its file name, and registered once however often init() runs.
+	 */
+	public function test_load_sections_registers_each_file_class_once() {
+		$dir            = __DIR__ . '/fixtures/sections';
+		$doing_it_wrong = $this->capture_doing_it_wrong();
+
+		Dashboard::load_sections( $dir );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Loading twice is the behavior under test.
+		Dashboard::load_sections( $dir );
+
+		$this->assertSame( array( 'example' => array( 'loaded' => true ) ), Dashboard::get_initial_state() );
+		$this->assertCount( 0, $doing_it_wrong );
+	}
+
+	/**
+	 * Section states, and the script that prints them.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_initial_states() {
+		return array(
+			'no sections'            => array( null, 'window.jetpackProtectDashboard = {};' ),
+			'state closing a script' => array( array( 'title' => '</script>' ), 'window.jetpackProtectDashboard = {"scan":{"title":"\\u003C/script\\u003E"}};' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_initial_states
+	 *
+	 * @param array|null $state    The scan section's state, or null for no section.
+	 * @param string     $expected The printed script.
+	 */
+	#[DataProvider( 'provide_initial_states' )]
+	public function test_print_initial_state_prints_an_escaped_object( $state, $expected ) {
+		if ( null !== $state ) {
+			Dashboard::register_section( $this->make_section( 'scan', $state ) );
+		}
+
+		ob_start();
+		Dashboard::print_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( $expected, $output );
 	}
 }
