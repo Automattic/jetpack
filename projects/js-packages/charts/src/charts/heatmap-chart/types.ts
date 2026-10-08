@@ -78,14 +78,7 @@ export interface HeatmapChartProps extends Omit<
 	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
-	/**
-	 * Compact mode only: grow the cells to fill the chart's box instead of keeping
-	 * the theme's `compactCellSize`, wrapping the column groups onto more bands
-	 * when that gives larger cells. The theme size is the floor: when no band
-	 * count reaches it, the grid keeps one band at that size and overflows, as
-	 * without this prop. Needs a box with a definite height. Ignored, with a
-	 * warning, when a column is a summary. Default false.
-	 */
+	/** Compact mode only: grow the cells to fill the chart's box, wrapping the column groups onto more rows when that makes them larger. Default false. */
 	fitCells?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
 	showValues?: boolean;

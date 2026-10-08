@@ -273,7 +273,7 @@ Without `fitCells`, in a wide tile the months spread out evenly; as the tile nar
 
 ### Fitting the cells to the box
 
-Add `fitCells` to a compact chart to grow its cells with its box instead of keeping `compactCellSize`. The months wrap onto as many bands as give the largest cells, so a taller box takes two rows of six months and a narrow one four rows of three. All bands share one scale, and keyboard navigation and the accessibility tree still follow the data, not the bands. When no band count reaches `compactCellSize`, the chart draws one band at that size and overflows as before, so put it in an `overflow-x: auto` container.
+Add `fitCells` to a compact chart to grow its cells with its box instead of keeping `compactCellSize`. The months wrap onto as many rows as give the largest cells, so a taller box takes two rows of six months and a narrow one four rows of three. All rows share one scale, and keyboard navigation and the accessibility tree still follow the data, not the rows. When no row count reaches `compactCellSize`, the chart draws one row at that size and overflows as before, so put it in an `overflow-x: auto` container.
 
 <Canvas of={ HeatmapStories.MonthCalendarFitCells } />
 

@@ -974,7 +974,7 @@ describe( 'HeatmapChart fitCells', () => {
 		);
 		const [ , feb, mar ] = screen.getAllByTestId( 'heatmap-group-label' );
 		expect( feb ).toHaveStyle( { gridColumn: '5 / span 2', gridRow: '3' } );
-		// Band two starts below band one's two rows, label row and gap row.
+		// Band one takes rows 1-2, its labels 3 and the gap 4, so band two's labels sit on 7.
 		expect( mar ).toHaveStyle( { gridColumn: '2 / span 2', gridRow: '7' } );
 		const marchCell = screen
 			.getAllByTestId( 'heatmap-cell' )
@@ -997,6 +997,29 @@ describe( 'HeatmapChart fitCells', () => {
 			'11px'
 		);
 		expect( console ).toHaveWarned();
+	} );
+
+	test( 'leaves the grid the box less the content beside it', () => {
+		const offsetHeight = jest
+			.spyOn( HTMLElement.prototype, 'offsetHeight', 'get' )
+			.mockImplementation( function ( this: HTMLElement ) {
+				return this.dataset.testid === 'beside-grid' ? 100 : 0;
+			} );
+		try {
+			renderChart( {
+				data: threeMonths,
+				columnGroups,
+				compact: true,
+				fitCells: true,
+				children: <div data-testid="beside-grid" />,
+			} );
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+				'66px'
+			);
+		} finally {
+			offsetHeight.mockRestore();
+		}
 	} );
 
 	test( 'refits within the resize delivery, before later observers read the grid', () => {

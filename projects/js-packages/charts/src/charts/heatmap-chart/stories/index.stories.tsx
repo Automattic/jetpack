@@ -280,7 +280,7 @@ const MonthCalendarGrid = ( {
 
 /**
  * `fitCells` grows the days with the container, wrapping the months onto more rows when
- * that makes them larger. Drag the container's corner to see the band count change.
+ * that makes them larger. Drag the container's corner to see the row count change.
  */
 export const MonthCalendarFitCells: StoryObj< MonthCalendarStoryArgs > = {
 	render: args => <MonthCalendarGrid { ...args } />,
