@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: Compare Last 30 days and custom ranges starting mid-month with the same number of days right before them.
