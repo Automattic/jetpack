@@ -38,7 +38,7 @@ export type ConnectionState = {
 	manageConnection: ManageConnection | null;
 };
 
-// The connection store is untyped JS.
+// The connection package's store is plain JS with no types, so describe the one selector read here.
 type StoreSelector = (
 	storeId: string
 ) => Record< 'getConnectionStatus', () => Record< string, unknown > >;
