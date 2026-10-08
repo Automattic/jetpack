@@ -702,8 +702,8 @@ A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's 
 component owns the states, the skeleton, the shares and deltas, and the detail-link window
 (`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
 segments and the hook's status; it owns the states, the total, the legend and the deltas
-(`widgets/payment-status/payment-status-widget.tsx` is the reference). Everything else renders its
-states through
+(the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
+Everything else renders its states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
