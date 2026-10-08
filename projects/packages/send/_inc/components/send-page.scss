@@ -98,7 +98,10 @@ body.toplevel_page_jetpack-send {
 	color: #757575;
 }
 
+// Notice is a 3-column grid; stay in the text column.
 .jetpack-send-zone-records {
+	grid-column: 2;
+	min-inline-size: 0;
 	margin-block-start: 8px;
 
 	summary {
