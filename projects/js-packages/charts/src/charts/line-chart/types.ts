@@ -31,6 +31,8 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 };
 
 export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+	/** Accessible name of the chart. Defaults to a localized "Line chart". */
+	ariaLabel?: string;
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */

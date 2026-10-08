@@ -7,8 +7,6 @@ import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import postcss from 'rollup-plugin-postcss';
-import svelte from 'rollup-plugin-svelte';
-import sveltePreprocess from 'svelte-preprocess';
 
 const production = process.env.NODE_ENV === 'production';
 
@@ -23,8 +21,7 @@ const exportConditions = [ 'jetpack:src' ];
  */
 export default {
 	input: `./src/index.ts`,
-	// Boost relies on this external import so its asset manifest declares wp-data.
-	external: [ '@wordpress/data' ],
+	external: id => /^(?:react(?:-dom)?(?:\/|$)|@wordpress\/)/.test( id ),
 	output: {
 		sourcemap: ! production,
 		format: 'esm',
@@ -43,7 +40,6 @@ export default {
 		resolve( {
 			browser: true,
 			preferBuiltins: false,
-			dedupe: [ 'svelte' ],
 			exportConditions,
 		} ),
 
@@ -62,22 +58,6 @@ export default {
 			extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
 			extract: path.resolve( `./build/guide.css` ),
 			minimize: production,
-		} ),
-
-		svelte( {
-			preprocess: sveltePreprocess( {
-				sourceMap: ! production,
-				typescript: {
-					compilerOptions: {
-						module: 'esnext',
-						moduleResolution: 'bundler',
-					},
-				},
-			} ),
-			compilerOptions: {
-				// enable run-time checks when not in production
-				dev: ! production,
-			},
 		} ),
 
 		typescript( {
