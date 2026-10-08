@@ -22,9 +22,8 @@
 	"main": "./src/index.ts",
 	"scripts": {
 		"build": "pnpm run clear-dist && webpack && tsgo --emitDeclarationOnly",
-		"build-concurrently": "pnpm run build",
-		"build-development": "pnpm run build-concurrently",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
+		"build-development": "pnpm run build",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
 		"clear-dist": "rm -rf build/",
 		"dev": "pnpm run clear-dist && concurrently 'pnpm:dev-validate-ts' 'pnpm:dev-compile'",
 		"dev-compile": "webpack --watch",
