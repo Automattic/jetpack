@@ -1,8 +1,11 @@
 import { __ } from '@wordpress/i18n';
+import { DeleteThemeModal } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
 import { fixThreat, ignoreThreat, isThreatBusy, unignoreThreat } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
+
+type LinkKey = 'update' | 'deactivate' | 'delete' | 'details';
 
 /**
  * A row's DataViews actions: primary ones show on hover, and the ⋯ menu lists them all.
@@ -16,15 +19,14 @@ export function getThreatRowActions(
 	canAct: boolean
 ): Action< ScanThreat >[] {
 	const link =
-		( key: 'update' | 'deactivate' | 'details' ) =>
+		( key: LinkKey ) =>
 		( [ item ]: ScanThreat[] ) => {
 			const url = item?.extension?.actions?.[ key ];
 			if ( url ) {
 				window.open( url, key === 'details' ? '_blank' : '_self', 'noopener' );
 			}
 		};
-	const hasLink = ( key: 'update' | 'deactivate' | 'details' ) => ( item: ScanThreat ) =>
-		!! item.extension?.actions?.[ key ];
+	const hasLink = ( key: LinkKey ) => ( item: ScanThreat ) => !! item.extension?.actions?.[ key ];
 
 	return [
 		{
@@ -59,6 +61,20 @@ export function getThreatRowActions(
 			label: ( [ item ] ) => ( item ? getSoftwareActionLabels( item ).deactivate : '' ),
 			isEligible: hasLink( 'deactivate' ),
 			callback: link( 'deactivate' ),
+		},
+		{
+			id: 'delete-plugin',
+			label: __( 'Delete plugin', 'jetpack-protect-pkg' ),
+			isEligible: item => item.extension?.type === 'plugins' && hasLink( 'delete' )( item ),
+			// WordPress asks to confirm on the page this opens.
+			callback: link( 'delete' ),
+		},
+		{
+			id: 'delete-theme',
+			label: __( 'Delete theme', 'jetpack-protect-pkg' ),
+			modalHeader: __( 'Delete theme?', 'jetpack-protect-pkg' ),
+			isEligible: item => item.extension?.type === 'themes' && hasLink( 'delete' )( item ),
+			RenderModal: DeleteThemeModal,
 		},
 		{
 			id: 'wordpress-org',

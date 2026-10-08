@@ -9,7 +9,7 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 	extension?: Threat[ 'extension' ] & {
 		icon?: string | null;
 		/** Admin links for the current user, each only when it applies. */
-		actions?: { update?: string; deactivate?: string; details?: string };
+		actions?: { update?: string; deactivate?: string; delete?: string; details?: string };
 	};
 };
 

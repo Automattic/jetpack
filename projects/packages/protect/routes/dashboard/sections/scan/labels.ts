@@ -30,31 +30,35 @@ export function getThreatLabel( threat: ScanThreat ): { kind: string; subject: s
 }
 
 /**
- * Labels for the links that update or deactivate the affected software.
+ * Labels for the links that update, deactivate or delete the affected software.
  *
  * @param threat - The threat.
- * @return The `update` and `deactivate` labels.
+ * @return The `update`, `deactivate` and `delete` labels.
  */
 export function getSoftwareActionLabels( threat: ScanThreat ): {
 	update: string;
 	deactivate: string;
+	delete: string;
 } {
 	const type = threat.extension?.type;
 	if ( type === 'core' ) {
 		return {
 			update: __( 'Update WordPress', 'jetpack-protect-pkg' ),
 			deactivate: '',
+			delete: '',
 		};
 	}
 	if ( type === 'themes' ) {
 		return {
 			update: __( 'Update theme', 'jetpack-protect-pkg' ),
 			deactivate: __( 'Switch theme', 'jetpack-protect-pkg' ),
+			delete: __( 'Delete theme', 'jetpack-protect-pkg' ),
 		};
 	}
 	return {
 		update: __( 'Update plugin', 'jetpack-protect-pkg' ),
 		deactivate: __( 'Deactivate plugin', 'jetpack-protect-pkg' ),
+		delete: __( 'Delete plugin', 'jetpack-protect-pkg' ),
 	};
 }
 

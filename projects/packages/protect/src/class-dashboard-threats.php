@@ -149,7 +149,7 @@ class Dashboard_Threats {
 	 * @param string|null $type The plural extension type.
 	 * @param string|null $slug The extension slug.
 	 * @param string|null $file The installed plugin's file, for a plugin.
-	 * @return array Links keyed `update`, `deactivate` and `details`, each only when it applies.
+	 * @return array Links keyed `update`, `deactivate`, `delete` and `details`, each only when it applies.
 	 */
 	private static function get_actions( $site, $type, $slug, $file ) {
 		$actions = array();
@@ -172,6 +172,14 @@ class Dashboard_Threats {
 			if ( current_user_can( 'switch_themes' ) && get_stylesheet() === $slug ) {
 				$actions['deactivate'] = self_admin_url( 'themes.php' );
 			}
+			// Core deletes on this link without asking, so the dashboard confirms first. Multisite deletes from Network Admin.
+			if ( ! is_multisite() && current_user_can( 'delete_themes' ) && ! in_array( $slug, array( get_stylesheet(), get_template() ), true ) && wp_get_theme( $slug )->exists() ) {
+				$actions['delete'] = add_query_arg(
+					'_wpnonce',
+					wp_create_nonce( 'delete-theme_' . $slug ),
+					admin_url( 'themes.php?action=delete&stylesheet=' . rawurlencode( $slug ) )
+				);
+			}
 			return $actions;
 		}
 
@@ -191,6 +199,14 @@ class Dashboard_Threats {
 				'_wpnonce',
 				wp_create_nonce( 'deactivate-plugin_' . $file ),
 				self_admin_url( 'plugins.php?action=deactivate&plugin=' . rawurlencode( $file ) )
+			);
+		}
+		// Core asks "Are you sure?" on this link before deleting anything.
+		if ( current_user_can( 'delete_plugins' ) && ! is_plugin_active( $file ) ) {
+			$actions['delete'] = add_query_arg(
+				'_wpnonce',
+				wp_create_nonce( 'bulk-plugins' ),
+				self_admin_url( 'plugins.php?action=delete-selected&checked[]=' . rawurlencode( $file ) )
 			);
 		}
 		if ( isset( $site['directory'][ $slug ] ) ) {
