@@ -1,4 +1,4 @@
-import { VisuallyHidden } from '@wordpress/components';
+import { VisuallyHidden } from '@wordpress/ui';
 import { LabelValueContent } from '../../../components/tooltip/private/label-value-content';
 import type { DataPointPercentageCalculated } from '../../../types';
 
