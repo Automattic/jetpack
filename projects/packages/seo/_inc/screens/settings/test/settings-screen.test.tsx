@@ -297,6 +297,47 @@ describe( 'WordPress.com Simple settings', () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 	} );
 
+	it.each( [
+		[ 'wpcom', false ],
+		[ 'woa', true ],
+		[ 'unknown', true ],
+	] )(
+		'keeps verification codes editable and respects module availability on %s',
+		( host, switchable ) => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				site: { host },
+				seo: {
+					preload: {
+						'/jetpack/v4/seo/overview': { body: { verification_switchable: switchable } },
+					},
+				},
+			};
+			const form = buildForm();
+
+			render( <SettingsScreen form={ form } /> );
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Site verification' } ) );
+
+			const input = screen.getByRole( 'textbox', { name: /Bing/ } );
+			expect( input ).toBeEnabled();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the controlled field's change callback directly.
+			fireEvent.change( input, { target: { value: 'bing-code' } } );
+			fireEvent.blur( input );
+			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
+			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
+
+			const toggle = screen.queryByRole( 'checkbox', { name: /Enable site verification/ } );
+			expect( toggle !== null ).toBe( switchable );
+			if ( toggle ) {
+				// eslint-disable-next-line testing-library/prefer-user-event -- Exercise only the module-switch callback.
+				fireEvent.click( toggle );
+			}
+			expect( jest.mocked( form.commit ).mock.calls ).toEqual(
+				switchable ? [ [ { verification_tools_active: false } ] ] : []
+			);
+		}
+	);
+
 	it( 'renders the module on a self-hosted site', () => {
 		render( <SettingsScreen form={ buildForm() } /> );
 
