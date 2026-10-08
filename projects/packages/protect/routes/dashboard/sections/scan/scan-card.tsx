@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { bug } from '@wordpress/icons';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
+import TabLink from '../../components/tab-link';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
 import ScanningState from './scanning-state';
@@ -57,9 +58,11 @@ function useIsDocumentHidden(): boolean {
 /**
  * The Scan card: start a scan, then review what it found or see that the site is safe.
  *
+ * @param props         - Component props.
+ * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
  * @return The card.
  */
-export default function ScanCard() {
+export default function ScanCard( { openTab }: { openTab: ( tab: string ) => void } ) {
 	// The section only renders this card once PHP has printed the Scan state.
 	const scan = useScan() as ScanState;
 	const [ isStarting, setIsStarting ] = useState( false );
@@ -234,14 +237,18 @@ export default function ScanCard() {
 			) }
 			{ body }
 			<CardRow>
-				<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
-					{ scan.hasPlan
-						? __( 'View scan history', 'jetpack-protect-pkg' )
-						: __(
-								'Get Scan for daily malware scanning and one-click fixes',
-								'jetpack-protect-pkg'
-							) }
-				</Link>
+				{ scan.hasPlan ? (
+					<TabLink tab="history" onOpen={ openTab }>
+						{ __( 'View scan history', 'jetpack-protect-pkg' ) }
+					</TabLink>
+				) : (
+					<Link href={ scan.url }>
+						{ __(
+							'Get Scan for daily malware scanning and one-click fixes',
+							'jetpack-protect-pkg'
+						) }
+					</Link>
+				) }
 			</CardRow>
 		</ProtectCard>
 	);

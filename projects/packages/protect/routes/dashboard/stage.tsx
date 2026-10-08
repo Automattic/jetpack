@@ -32,7 +32,10 @@ const Stage = () => {
 	);
 	const openSettings = useCallback( () => goTo( 'settings' ), [ goTo ] );
 	const settings = useProtectSettings();
-	const context = useMemo( () => ( { settings, openSettings } ), [ settings, openSettings ] );
+	const context = useMemo(
+		() => ( { settings, openSettings, openTab: goTo } ),
+		[ settings, openSettings, goTo ]
+	);
 
 	const state = window.jetpackProtectDashboard ?? {};
 	const sectionTabs = sections.flatMap( section =>

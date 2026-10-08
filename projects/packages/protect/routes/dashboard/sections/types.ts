@@ -8,6 +8,8 @@ export type DashboardContext< S = unknown > = {
 	settings: ProtectSettingsData;
 	/** Switches to the Settings tab. */
 	openSettings: () => void;
+	/** Switches to a tab by its value, such as a section tab. */
+	openTab: ( tab: string ) => void;
 };
 
 export type SectionTab< S = unknown > = {
