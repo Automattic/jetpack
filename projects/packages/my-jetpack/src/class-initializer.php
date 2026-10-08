@@ -55,14 +55,25 @@ class Initializer {
 	const ONBOARDING_WIZARD_FEATURE_FLAG = 'my-jetpack-onboarding-wizard';
 
 	/**
-	 * User meta recording that this user chose to skip setup.
+	 * User option recording that this user chose to skip setup.
 	 *
 	 * Per user rather than per site, because skipping is one person saying "not
 	 * now": a second admin arriving at a site nobody has set up should still be
 	 * offered the flow. Finishing it is the site-wide fact, and that is
-	 * `onboarding_completed`.
+	 * ONBOARDING_COMPLETED_OPTION.
+	 *
+	 * A user option rather than plain user meta: `wp_usermeta` is network-wide, so
+	 * without the blog prefix a skip on one site would silence setup on all of them.
 	 */
-	const ONBOARDING_DISMISSED_USER_META = 'jetpack_my_jetpack_onboarding_dismissed';
+	const ONBOARDING_DISMISSED_USER_OPTION = 'jetpack_my_jetpack_onboarding_dismissed';
+
+	/**
+	 * Option recording that someone has finished setup on this site.
+	 *
+	 * Site-wide, because the flow connects the site and switches modules on, so a
+	 * second admin does not need it again. Deliberately not autoloaded.
+	 */
+	const ONBOARDING_COMPLETED_OPTION = 'jetpack_my_jetpack_onboarding_completed';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -156,8 +167,6 @@ class Initializer {
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 
-		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_onboarding' ) );
-
 		// Nothing else gets to talk over the takeover. See both methods for why it
 		// takes two hooks rather than one.
 		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
@@ -243,10 +252,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		self::maybe_redirect_to_onboarding();
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
-
-		// The redirect into setup has already run, on `admin_init`.
 
 		// If the user reaches the onboarding page, add a class to the body
 		if ( $step === 'onboarding' ) {
@@ -256,39 +265,6 @@ class Initializer {
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
-	}
-
-	/**
-	 * The admin screens the onboarding takeover may interrupt.
-	 *
-	 * My Jetpack only: `admin_init` runs before `page=jetpack` answers `action=register`
-	 * and `connect_url_redirect`, so redirecting from there drops their arguments.
-	 *
-	 * @internal Not part of the package's public API.
-	 *
-	 * @return string[] Values of the `page` query arg.
-	 */
-	public static function get_onboarding_screens() {
-		/**
-		 * Filters the admin pages that redirect into Jetpack's setup flow.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string[] $screens Values of the `page` query arg.
-		 */
-		return (array) apply_filters( 'jetpack_my_jetpack_onboarding_screens', array( 'my-jetpack' ) );
-	}
-
-	/**
-	 * Whether this request is a page the takeover may interrupt.
-	 *
-	 * @return bool
-	 */
-	private static function is_onboarding_screen() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads which page was asked for, changes nothing.
-		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-
-		return in_array( $page, self::get_onboarding_screens(), true );
 	}
 
 	/**
@@ -304,39 +280,22 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_onboarding_settled() {
-		if ( \Jetpack_Options::get_option( 'onboarding_completed', false ) ) {
+		if ( get_option( self::ONBOARDING_COMPLETED_OPTION, false ) ) {
 			return true;
 		}
 
-		return (bool) get_user_meta( get_current_user_id(), self::ONBOARDING_DISMISSED_USER_META, true );
+		return (bool) get_user_option( self::ONBOARDING_DISMISSED_USER_OPTION );
 	}
 
 	/**
 	 * Send the user into setup when they land on My Jetpack without one.
 	 *
-	 * Hooked on `admin_init` rather than the page load, so a fresh activation meets setup
-	 * on the way in, and only for an ordinary GET: a form post must not be redirected.
+	 * Runs from My Jetpack's own page load, which nothing but a request for that page
+	 * reaches and which fires before any output, so it needs no guards of its own.
 	 *
 	 * @return void
 	 */
 	public static function maybe_redirect_to_onboarding() {
-		// Network admin links to the network's own Jetpack pages, and setup is per site.
-		if ( is_network_admin() ) {
-			return;
-		}
-
-		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			return;
-		}
-
-		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'GET' !== $_SERVER['REQUEST_METHOD'] ) {
-			return;
-		}
-
-		if ( ! self::is_onboarding_screen() ) {
-			return;
-		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
@@ -355,7 +314,8 @@ class Initializer {
 			$connection_done,
 			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
 			$wizard_enabled,
-			self::is_onboarding_settled()
+			// Only the wizard records a settled run, so only it may act on one.
+			$wizard_enabled && self::is_onboarding_settled()
 		);
 
 		if ( null === $redirect_args ) {
@@ -535,10 +495,6 @@ class Initializer {
 	 * does not apply. `is_wpcom_platform()` covers Simple and WordPress.com on Atomic, and
 	 * requires wpcomsh, so other Atomic-hosted products still count as self-hosted here.
 	 *
-	 * Atomic is the case that matters: wpcomsh filters `jetpack_is_connection_ready` to
-	 * require a connection owner, so a site whose owner was removed reports disconnected
-	 * and is redirected into onboarding while WordPress.com still manages its connection.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
@@ -616,13 +572,18 @@ class Initializer {
 	/**
 	 * Whether the current request is the full-viewport onboarding takeover.
 	 *
-	 * Onboarding hides all wp-admin chrome and never renders through wp-build.
+	 * Onboarding hides all wp-admin chrome and never renders through wp-build. The page
+	 * is part of the question: `in_admin_header` and the JITM filter run everywhere.
 	 *
 	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
 	public static function is_onboarding_request() {
+		if ( ! self::is_my_jetpack_admin_request() ) {
+			return false;
+		}
+
 		if ( ! isset( $_GET['step'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
@@ -1132,9 +1093,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		// No connection check needed here: admin_init() has already redirected connected users
-		// away from onboarding. Availability is re-checked inside the helper on purpose — this
-		// render can run even when that redirect did not.
+		// Availability is re-checked inside the helper because this render can run where the redirect did not.
 		if ( self::is_onboarding_takeover() ) {
 			echo '<div id="my-jetpack-container"></div>';
 			return;

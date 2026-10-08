@@ -169,16 +169,17 @@ describe( 'ConnectionStatusCard', () => {
 			asAdmin();
 			setup();
 			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Connect your site to use Jetpack.' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'To use Jetpack, connect this site and your account to WordPress.com.' )
+			).toBeInTheDocument();
 		} );
 
-		it( 'offers the promised click, as a route to the connect screen', () => {
+		it( 'links to the connect screen rather than registering in place', () => {
 			asAdmin();
 			setup();
-			expect( screen.getByRole( 'link', { name: 'Connect your site' } ) ).toHaveAttribute(
-				'href',
-				'#/connection?skip_pricing=true'
-			);
+			expect(
+				screen.getByRole( 'link', { name: 'Connect your site and account' } )
+			).toHaveAttribute( 'href', '#/connection?skip_pricing=true' );
 		} );
 
 		it( 'states the standing as text, with no disconnect to offer', () => {
@@ -194,10 +195,12 @@ describe( 'ConnectionStatusCard', () => {
 			setup();
 			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
 			expect(
-				screen.getByText( 'A site admin will need to connect this site to Jetpack.' )
+				screen.getByText( 'A site admin will need to connect this site to WordPress.com.' )
 			).toBeInTheDocument();
 			// And offers them no route to a screen that would turn them away.
-			expect( screen.queryByRole( 'link', { name: 'Connect your site' } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'link', { name: 'Connect your site and account' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -216,7 +219,9 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the correct copy for the site connection line item', () => {
 			asAdmin();
 			setup();
-			expect( screen.getByText( 'Connect your site to use Jetpack.' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'To use Jetpack, connect this site and your account to WordPress.com.' )
+			).toBeInTheDocument();
 		} );
 	} );
 
@@ -527,7 +532,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			expect(
-				screen.getByText( 'Connect your account to unlock all the features.' )
+				screen.getByText( 'Some Jetpack features need your WordPress.com account.' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 			expect( screen.queryByText( /Jetpack Connection error/ ) ).not.toBeInTheDocument();
@@ -663,7 +668,7 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders prompt for this user to connect', () => {
 			setup();
 			expect(
-				screen.getByText( 'Connect your account to unlock all the features.' )
+				screen.getByText( 'Some Jetpack features need your WordPress.com account.' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 		} );
@@ -724,7 +729,7 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'still shows the connect account prompt', () => {
 			setup();
 			expect(
-				screen.getByText( 'Connect your account to unlock all the features.' )
+				screen.getByText( 'Some Jetpack features need your WordPress.com account.' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 		} );

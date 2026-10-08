@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-My Jetpack: setup no longer interrupts the Jetpack connection flow, and no longer traps a site that is registered without a connected WordPress.com account on a setup screen with no way out. The connection card it lands on instead now says what connecting is for.
+My Jetpack: Setup is now only offered on My Jetpack's own page, so it no longer interrupts the Jetpack connection flow, and no longer traps a site that is registered without a connected WordPress.com account on a setup screen with no way out. The connection card it lands on instead now says what connecting is for.
