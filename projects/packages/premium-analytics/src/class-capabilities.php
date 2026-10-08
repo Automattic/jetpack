@@ -2,8 +2,8 @@
 /**
  * Who may see the Premium Analytics dashboard.
  *
- * Who may open it is up to its sections: each decides who may see it, and add_menu_page() takes
- * one capability string — hence a meta capability of our own.
+ * Opening it takes one section available to the reader, by whatever rule that section registered,
+ * and add_menu_page() takes one capability string — hence a meta capability of our own.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -31,6 +31,7 @@ class Capabilities {
 	 * @return void
 	 */
 	public static function register() {
+		self::$has_available_section = array();
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 	}
 
@@ -43,6 +44,7 @@ class Capabilities {
 	 * @return void
 	 */
 	public static function unregister() {
+		self::$has_available_section = array();
 		remove_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10 );
 	}
 
@@ -53,6 +55,13 @@ class Capabilities {
 	 * @var bool
 	 */
 	private static $resolving_sections = false;
+
+	/**
+	 * Whether a section is available, per `<user id>:<blog id>`, for the rest of the request.
+	 *
+	 * @var array<string, bool>
+	 */
+	private static $has_available_section = array();
 
 	/**
 	 * Maps the dashboard capability: a reader needs at least one section available to them.
@@ -87,12 +96,18 @@ class Capabilities {
 			return false;
 		}
 
-		self::$resolving_sections = true;
-		try {
-			return array() !== Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME );
-		} finally {
-			self::$resolving_sections = false;
+		// add_menu_page() and the admin menu each check the capability on every admin screen.
+		$key = get_current_user_id() . ':' . get_current_blog_id();
+		if ( ! isset( self::$has_available_section[ $key ] ) ) {
+			self::$resolving_sections = true;
+			try {
+				self::$has_available_section[ $key ] = array() !== Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME );
+			} finally {
+				self::$resolving_sections = false;
+			}
 		}
+
+		return self::$has_available_section[ $key ];
 	}
 
 	/**

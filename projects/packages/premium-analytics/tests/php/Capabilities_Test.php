@@ -219,11 +219,6 @@ class Capabilities_Test extends BaseTestCase {
 	 * the way a shop manager does through the WooCommerce tab, and not without one.
 	 */
 	public function test_a_section_available_to_the_reader_opens_the_dashboard() {
-		$shop_manager = $this->login_as( 'subscriber' );
-		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
-
-		$this->assertFalse( Capabilities::current_user_can_view_analytics(), 'No built-in section is theirs.' );
-
 		register_dashboard_section(
 			DASHBOARD_NAME,
 			'test/store',
@@ -233,7 +228,36 @@ class Capabilities_Test extends BaseTestCase {
 			)
 		);
 
+		$this->login_as( 'subscriber' );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics(), 'No section is theirs.' );
+
+		$shop_manager = $this->login_as( 'author' );
+		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+	}
+
+	/**
+	 * The menu checks the capability more than once per screen; the sections answer once.
+	 */
+	public function test_sections_are_asked_once_per_request() {
+		$checks = 0;
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'test/counted',
+			array(
+				'label'        => 'Counted',
+				'is_available' => static function () use ( &$checks ) {
+					++$checks;
+					return true;
+				},
+			)
+		);
+		$this->login_as( 'subscriber' );
+
+		Capabilities::current_user_can_view_analytics();
+		Capabilities::current_user_can_view_analytics();
+
+		$this->assertSame( 1, $checks );
 	}
 
 	/**
