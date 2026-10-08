@@ -62,10 +62,11 @@ const TiledGalleryEdit = ( {
 		'undefined' === typeof columnWidths || columnWidths?.length === 0 ? true : false
 	);
 
-	const setImages = imgs => {
+	const setImages = ( imgs, otherAttributes ) => {
 		setAttributes( {
 			images: imgs,
 			ids: imgs.map( ( { id } ) => parseInt( id, 10 ) ),
+			...otherAttributes,
 		} );
 	};
 
@@ -76,13 +77,14 @@ const TiledGalleryEdit = ( {
 		if ( ! mediaUpload ) {
 			return;
 		}
-		const updateImages = newImages => {
-			setImages( newImages );
-			// An upload that failed outright keeps the previous setting.
-			if ( columnLimit && newImages.length > 0 ) {
-				setAttributes( { columns: Math.min( newImages.length, columnLimit ) } );
-			}
-		};
+		// Pending placeholders don't count until an upload succeeds, so rejected files keep the setting.
+		const updateImages = newImages =>
+			setImages(
+				newImages,
+				columnLimit && newImages.some( ( { id } ) => id )
+					? { columns: Math.min( newImages.length, columnLimit ) }
+					: undefined
+			);
 		const uploads = Array.from( files ).map( file => ( {
 			file,
 			placeholderUrl: createBlobURL( file ),

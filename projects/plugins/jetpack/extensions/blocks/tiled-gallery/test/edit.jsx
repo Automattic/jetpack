@@ -116,11 +116,12 @@ test( 'uploads files picked in the editor iframe into an empty gallery', async (
 	const uploads = await uploadFiles( [], makeFiles( [ 'a', 'b' ], iframe.contentWindow.File ) );
 	expect( uploads ).toHaveLength( 2 );
 
-	// Columns follow the images that remain, not the files selected, and outlive a total failure.
-	act( () => {
-		uploads[ 1 ].onError( 'File too large.' );
-		uploads[ 0 ].onFileChange( [] );
-	} );
+	const getColumns = () => select( blockEditorStore ).getBlockAttributes( clientId ).columns;
 
-	expect( select( blockEditorStore ).getBlockAttributes( clientId ).columns ).toBe( 1 );
+	// Columns follow the uploads that succeed, not the files selected.
+	act( () => uploads[ 1 ].onError( 'File too large.' ) );
+	expect( getColumns() ).toBeUndefined();
+
+	act( () => uploads[ 0 ].onFileChange( [ { id: 3, url: 'http://example.com/a.jpg' } ] ) );
+	expect( getColumns() ).toBe( 1 );
 } );
