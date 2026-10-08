@@ -54,13 +54,12 @@ test.describe.serial( 'Critical CSS module', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
-		await boostUtils.activateBoostModule( 'critical_css' );
 		await boostUtils.executeWpCommand(
 			'plugin activate e2e-external-css-enqueue/e2e-external-css-enqueue.php'
 		);
-		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await jetpackBoostPage.visit();
-		await criticalCssGenerated;
+		await jetpackBoostPage.toggleModule( 'critical_css', true );
+		await jetpackBoostPage.generateCriticalCss();
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
@@ -74,9 +73,7 @@ test.describe.serial( 'Critical CSS module', () => {
 	} ) => {
 		await boostUtils.deactivateBoostModule( 'critical_css' );
 		await boostUtils.activateBoostModule( 'critical_css' );
-		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await jetpackBoostPage.visit();
-		await criticalCssGenerated;
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
@@ -109,9 +106,8 @@ test.describe.serial( 'Critical CSS module', () => {
 			'Action Required message should be visible'
 		).toBeVisible();
 
-		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration();
 		await page.getByRole( 'link', { name: 'Go to Jetpack Boost' } ).click();
-		await criticalCssGenerated;
+		await jetpackBoostPage.generateCriticalCss();
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
@@ -156,24 +152,18 @@ test.describe.serial( 'Critical CSS module', () => {
 			`Regenerate request should succeed (got HTTP ${ regenerationResponse.status() })`
 		).toBeTruthy();
 
-		const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
-		await expect(
-			page.locator( '.jb-critical-css-progress' ),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeVisible();
-		await criticalCssGenerated;
+		await jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'
 		).toBeVisible();
 
-		await page.getByText( 'Advanced Recommendations' ).click();
-		await expect(
-			page.locator( '.jb-critical-css__advanced' ),
-			'Critical CSS advanced recommendations should be visible'
-		).toBeVisible();
+		await page.getByRole( 'link', { name: 'this page', exact: true } ).click();
+		await expect( page, 'Critical CSS recommendations should open' ).toHaveURL(
+			/critical-css-advanced/
+		);
 
-		await page.getByRole( 'button', { name: 'Go back' } ).click();
+		await page.getByRole( 'link', { name: 'Back to settings', exact: true } ).click();
 		await expect(
 			page.getByTestId( 'critical-css-meta' ),
 			'Critical CSS meta information should be visible'

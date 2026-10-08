@@ -6,7 +6,7 @@ import {
 	useState,
 	useSyncExternalStore,
 } from 'react';
-import ImageGuideAnalytics, { type TracksCallback } from '../analytics.ts';
+import ImageGuideAnalytics from '../analytics.ts';
 import { MeasurableImageStore } from '../stores/MeasurableImageStore.ts';
 import { commands, selectors, subscribeToFacts } from '../stores/store.ts';
 import type { GuideSize } from '../types.ts';
@@ -82,18 +82,8 @@ function External() {
 	);
 }
 
-export function AdminBarToggle( {
-	href,
-	tracksCallback,
-}: {
-	href: string;
-	tracksCallback: TracksCallback;
-} ) {
+export function AdminBarToggle( { href }: { href: string } ) {
 	const state = useGuideState();
-	useLayoutEffect(
-		() => ImageGuideAnalytics.setTracksCallback( tracksCallback ),
-		[ tracksCallback ]
-	);
 	const toggle = useCallback( ( event: React.MouseEvent< HTMLAnchorElement > ) => {
 		event.preventDefault();
 		commands.cycleGuideState();
@@ -107,7 +97,7 @@ export function AdminBarToggle( {
 			onClick={ toggle }
 		>
 			<JetpackLogo />
-			<span>Image Guide: { selectors.getGuideLabel() }</span>
+			<span>{ `Image Guide: ${ selectors.getGuideLabel() }` }</span>
 		</a>
 	);
 }
@@ -124,7 +114,9 @@ export function Bubble( {
 	intro?: boolean;
 } ) {
 	const { oversizedRatio: ratio, loading } = useImage( store );
-	const [ fly ] = useState( intro );
+	const [ fly, setFly ] = useState( intro );
+	const bubbleRef = useRef< HTMLDivElement >( null );
+	const labelRef = useRef< HTMLDivElement >( null );
 	const previousLoading = useRef( loading );
 	const [ fadeLabel, setFadeLabel ] = useState( false );
 	useLayoutEffect( () => {
@@ -132,6 +124,30 @@ export function Bubble( {
 		previousLoading.current = loading;
 	}, [ loading ] );
 	const spinner = usePresence( loading, 300 );
+	const finishEntrance = useCallback(
+		( event: React.AnimationEvent< HTMLDivElement > | AnimationEvent ) => {
+			if ( event.target === event.currentTarget && event.animationName === 'jb-ig-bubble-fly-in' ) {
+				setFly( false );
+			}
+		},
+		[]
+	);
+	const finishLabelFade = useCallback(
+		( event: React.AnimationEvent< HTMLDivElement > | AnimationEvent ) => {
+			if ( event.animationName === 'jb-ig-fade-in' ) setFadeLabel( false );
+		},
+		[]
+	);
+	useLayoutEffect( () => {
+		const bubble = bubbleRef.current;
+		const label = labelRef.current;
+		bubble?.addEventListener( 'animationcancel', finishEntrance );
+		label?.addEventListener( 'animationcancel', finishLabelFade );
+		return () => {
+			bubble?.removeEventListener( 'animationcancel', finishEntrance );
+			label?.removeEventListener( 'animationcancel', finishLabelFade );
+		};
+	}, [ loading, finishEntrance, finishLabelFade ] );
 	const severity = ratio > 4 ? 'high' : ratio > 2.5 ? 'medium' : 'normal';
 	const hover = useCallback(
 		( event: React.MouseEvent< HTMLDivElement > ) => {
@@ -144,12 +160,18 @@ export function Bubble( {
 		<div
 			className={ `jb-ig-bubble interaction-area ${ severity }${ fly ? ' jb-ig-bubble-fly' : '' }` }
 			style={ fly ? { animationDelay: `${ 150 + 50 * index }ms` } : undefined }
+			ref={ bubbleRef }
+			onAnimationEnd={ finishEntrance }
 			onMouseEnter={ hover }
 		>
 			<div className="jb-ig-bubble bubble">
 				{ ! loading && (
 					<div className="jb-ig-bubble bubble-inner">
-						<div className={ `label${ fadeLabel ? ' jb-ig-label-fade' : '' }` }>
+						<div
+							className={ `label${ fadeLabel ? ' jb-ig-label-fade' : '' }` }
+							ref={ labelRef }
+							onAnimationEnd={ finishLabelFade }
+						>
 							{ ratio > 9 ? (
 								`${ Math.floor( ratio ) }x`
 							) : ratio > 0.99 ? (
@@ -286,15 +308,11 @@ export function Popup( {
 				</div>
 				<div className="jb-ig-popup row">
 					<div className="label">Expected Dimensions</div>
-					<div className="value">
-						{ expectedSize.width } x { expectedSize.height }
-					</div>
+					<div className="value">{ `${ expectedSize.width } x ${ expectedSize.height }` }</div>
 				</div>
 				<div className="jb-ig-popup row">
 					<div className="label">Size on screen</div>
-					<div className="value">
-						{ sizeOnPage.width } x { sizeOnPage.height }
-					</div>
+					<div className="value">{ `${ sizeOnPage.width } x ${ sizeOnPage.height }` }</div>
 				</div>
 				<div className="jb-ig-popup row">
 					<div className="label">Image Size</div>

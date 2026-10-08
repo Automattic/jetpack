@@ -11,7 +11,6 @@ This page covers the registration path. Sections, which place widget instances i
 | Term                         | Meaning                                                                                                                                                                  | Example                                              |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
 | Widget type name             | Namespaced identifier, `<namespace>/<name>`, lowercase. The namespace names the owner.                                                                                   | `jpa/clicks`, `wordads/highlights`                   |
-| Field type name              | Namespaced identifier a widget attribute names by `type`; the dashboard registers the definition and renders the control.                                                | `jpa/toggle-group`                                   |
 | Render module, widget module | The script-module ids of the widget's render entry and metadata entry, which the client `import()`s through the page import map.                                         | `jetpack-premium-analytics/widgets/clicks/render`    |
 | Manifest                     | The widgets wp-build discovered under `widgets/`, generated into `build/widgets.php` and read through `jpa_get_registered_widget_modules()`.                             | see `Analytics::widget_manifest_path()`              |
 | Candidate                    | A manifest entry before the registry-time filter. A dropped candidate never registers.                                                                                   | `jetpack_premium_analytics_registrable_widget_types` |
@@ -163,12 +162,6 @@ wp-build finds it installed under that name, leaves the import external (`wpPlug
 
 `src/sdk-module.php` registers the facade built from `packages/sdk` under that same name on `wp_default_scripts`. The page import map resolves the SDK to the facade and the facade to the dashboard's own modules: one React, one toolkit, one query client for the dashboard and every widget on the page.
 
-### Field types the dashboard provides
-
-`packages/fields/src/field-types.ts` registers the dashboard's field types with `registerFieldType()` from `@wordpress/widget-primitives`, from the boot init module, before any route renders. `useWidgetTypes` resolves an attribute that names one into a plain DataViews field: the registered `Edit` control on top of the definition's base type. A name nothing registered passes through, and the form skips the attribute.
-
-The names live under `jpa/`, the dashboard's namespace, whichever plugin's widget writes them; the SDK README lists them. They never reach the database: a layout stores the widget type and the attribute values. Renaming one is a second registration of the same definition under the new name, a minor of the contract while both answer and a major when the old one goes.
-
 ### Translations on the client
 
 Every record says where its bundles' catalogs live. `routes/widget-module-i18n.ts` derives the bundle path from the module id, `{handle-prefix}/widgets/{dir}/{render,widget}` to `build/widgets/{dir}/{render,widget}.js`, whatever the prefix.
@@ -227,7 +220,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id. 1.4.0 added `useReport`, which runs a report query and its comparison in the dashboard's query client, and `toBucketStamp`, which writes the bounds of a report row the way the dashboard's time series read them. The field types the dashboard registers are part of the contract too: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` have been there since 1.0.0, so a new name is a minor. `chartTypeAttributeField` left the SDK while it is private and every consumer lives in this repository; a widget declares the attribute itself.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id. 1.4.0 added `useReport`, which runs a report query and its comparison in the dashboard's query client, and `toBucketStamp`, which writes the bounds of a report row the way the dashboard's time series read them. 1.5.0 added `Donut`, the breakdown kind, and `WidgetStatus`, the request status every kind takes. The field types the dashboard registers are part of the contract too: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` have been there since 1.0.0, so a new name is a minor. `chartTypeAttributeField` left the SDK while it is private and every consumer lives in this repository; a widget declares the attribute itself.
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 

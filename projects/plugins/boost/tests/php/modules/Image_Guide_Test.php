@@ -40,7 +40,7 @@ class Image_Guide_Test extends Base_TestCase {
 			$this->assertSame(
 				array(
 					array( 'jetpack-boost-guide', 'dist/guide.min.js', array( 'wp-data', 'manifest-only' ), 'build-version', true ),
-					array( 'jetpack-boost-guide', 'dist/guide.min.js', array( 'wp-data', 'wp-i18n', 'wp-polyfill' ), JETPACK_BOOST_VERSION, true ),
+					array( 'jetpack-boost-guide', 'dist/guide.min.js', array( 'react', 'react-dom', 'react-jsx-runtime', 'wp-data', 'wp-i18n', 'wp-polyfill' ), JETPACK_BOOST_VERSION, true ),
 				),
 				$enqueued
 			);
