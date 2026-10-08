@@ -3,7 +3,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
-import { markPluginsActive } from '../utils/mark-plugins-active';
+import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import { markPluginsActive, setPageStateProductItems } from '../utils/mark-plugins-active';
 import useProducts from './use-products';
 
 const useInstallPlugins = ( productSlugs: string | string[] ) => {
@@ -29,7 +30,8 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 		},
 		options: {
 			onSuccess: () => {
-				markPluginsActive( productIds );
+				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
+				setPageStateProductItems( markPluginsActive( items, productIds ) );
 				refetch().then( () => {
 					createSuccessNotice( successMessage, { type: 'snackbar' } );
 				} );

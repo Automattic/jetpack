@@ -1,4 +1,19 @@
-import { getProductsWithActivePlugin } from '../mark-plugins-active';
+import { getProductsWithActivePlugin, markPluginsActive } from '../mark-plugins-active';
+
+describe( 'markPluginsActive', () => {
+	it( 'marks the listed products in a copy, leaving the given items untouched', () => {
+		const items = {
+			videopress: { is_plugin_active: false },
+			social: { is_plugin_active: false },
+		} as unknown as Parameters< typeof markPluginsActive >[ 0 ];
+
+		expect( markPluginsActive( items, [ 'videopress', 'unknown' ] ) ).toEqual( {
+			videopress: { is_plugin_active: true },
+			social: { is_plugin_active: false },
+		} );
+		expect( items.videopress.is_plugin_active ).toBe( false );
+	} );
+} );
 
 describe( 'getProductsWithActivePlugin', () => {
 	it.each( [

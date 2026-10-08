@@ -22,6 +22,7 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import {
 	getProductsWithActivePlugin,
 	markPluginsActive,
+	setPageStateProductItems,
 } from '../../../data/utils/mark-plugins-active';
 import { setPendingSuccessNotice } from '../../../utils/pending-notice';
 import { reloadPage } from '../../../utils/reload-page';
@@ -113,7 +114,8 @@ function requestPluginSwitch(
 	)
 		.then( state => {
 			queryClient.setQueryData( QUERY_KEY, state );
-			markPluginsActive( getProductsWithActivePlugin( state ) );
+			const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
+			setPageStateProductItems( markPluginsActive( items, getProductsWithActivePlugin( state ) ) );
 			return state;
 		} )
 		.finally( () => {

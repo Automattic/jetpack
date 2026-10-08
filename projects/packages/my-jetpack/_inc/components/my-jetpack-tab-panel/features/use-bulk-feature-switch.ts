@@ -13,9 +13,11 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import {
 	getProductsWithActivePlugin,
 	markPluginsActive,
+	setPageStateProductItems,
 } from '../../../data/utils/mark-plugins-active';
 import { getModuleStatus } from './module-availability';
 import { QUERY_KEY } from './use-main-features';
@@ -118,7 +120,10 @@ export function useBulkFeatureSwitch() {
 				);
 
 				queryClient.setQueryData( QUERY_KEY, state );
-				markPluginsActive( getProductsWithActivePlugin( state ) );
+				const items = getMyJetpackWindowInitialState( 'products' )?.items ?? {};
+				setPageStateProductItems(
+					markPluginsActive( items, getProductsWithActivePlugin( state ) )
+				);
 				// Modules are read from their own store, which has to catch up before the rows
 				// let go of the asked-for value, or they flicker back to the old one first.
 				await fetchModules();
