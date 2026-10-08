@@ -10,6 +10,8 @@ import './style.scss';
 export interface AvatarBadgeProps {
 	/** Name the badge stands for. */
 	name: string;
+	/** Whether this is the person taking ownership over. */
+	isIncoming?: boolean;
 }
 
 /**
@@ -21,7 +23,7 @@ export interface AvatarBadgeProps {
  * @param {AvatarBadgeProps} props - Component props.
  * @return {import('react').ReactNode} The AvatarBadge component.
  */
-export const AvatarBadge = ( { name }: AvatarBadgeProps ) => {
+export const AvatarBadge = ( { name, isIncoming }: AvatarBadgeProps ) => {
 	const initials = name
 		.split( /\s+/ )
 		.slice( 0, 2 )
@@ -30,7 +32,14 @@ export const AvatarBadge = ( { name }: AvatarBadgeProps ) => {
 		.toUpperCase();
 
 	return (
-		<span className="jp-connection__transfer-ownership__avatar" aria-hidden="true">
+		<span
+			className={
+				isIncoming
+					? 'jp-connection__transfer-ownership__avatar is-incoming'
+					: 'jp-connection__transfer-ownership__avatar'
+			}
+			aria-hidden="true"
+		>
 			{ initials }
 		</span>
 	);
@@ -53,7 +62,7 @@ export interface CandidateIdentityProps {
  */
 const CandidateIdentity = ( { displayName, login, email }: CandidateIdentityProps ) => (
 	<div className="jp-connection__transfer-ownership__identity">
-		<AvatarBadge name={ displayName } />
+		<AvatarBadge name={ displayName } isIncoming />
 		<span className="jp-connection__transfer-ownership__who">
 			<strong>{ displayName }</strong>
 			<span className="jp-connection__transfer-ownership__meta">

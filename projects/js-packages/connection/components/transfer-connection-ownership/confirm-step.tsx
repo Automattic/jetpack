@@ -46,7 +46,7 @@ const TransferConfirmStep = ( {
 						</span>
 					</>
 				) }
-				<AvatarBadge name={ candidate.displayName } />
+				<AvatarBadge name={ candidate.displayName } isIncoming />
 				<Text>
 					{ createInterpolateElement(
 						sprintf(
