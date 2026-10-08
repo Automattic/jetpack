@@ -56,8 +56,8 @@ type DatePeriodDropdownProps = {
 	appliedPresetId?: PrimaryPresetId;
 
 	/**
-	 * The applied range. Names the period on the trigger where no preset does,
-	 * and its exact dates are the trigger's tooltip either way.
+	 * The applied range, used for the trigger label and date tooltip.
+	 * Server-defined All time ranges omit the tooltip.
 	 */
 	appliedRange: DateRange;
 

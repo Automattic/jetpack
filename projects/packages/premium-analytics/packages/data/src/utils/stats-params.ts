@@ -171,12 +171,17 @@ export function reportParamsToStatsQueryParams(
 			.map( key => [ key, params[ key ] ] )
 	) as StatsQueryParams;
 
+	const allTime = isAllTimeNum( params.num );
+	if ( allTime ) {
+		delete statsParams.start_date;
+	}
+
 	const period = params.period ?? getStatsPeriodFromInterval( params.interval );
 	// Stats v1.1 resolves an offset-bearing ISO datetime to the local calendar
 	// day (WOOA7S-1656/1664), so start_date/end_date pass through untrimmed.
 	const endDate = params.end_date ?? params.date ?? params.to;
 	// A start date would override the all-time window WPCOM derives from `num`.
-	const startDate = isAllTimeNum( params.num ) ? undefined : ( params.start_date ?? params.from );
+	const startDate = allTime ? undefined : ( params.start_date ?? params.from );
 	const days =
 		params.days ??
 		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );

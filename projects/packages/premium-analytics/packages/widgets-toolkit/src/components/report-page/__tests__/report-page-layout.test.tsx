@@ -74,8 +74,8 @@ describe( 'ReportPageLayout', () => {
 
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
-		expect( panelProps ).toEqual( expect.objectContaining( dateFilters ) );
 		expect( panelProps ).toMatchObject( {
+			...dateFilters,
 			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			allTimeStartsOnServer: true,
 		} );
