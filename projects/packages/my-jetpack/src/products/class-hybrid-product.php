@@ -151,11 +151,11 @@ abstract class Hybrid_Product extends Product {
 	 *                       WP_Error if the module deactivation failed.
 	 */
 	public static function deactivate() {
-		$result = parent::deactivate();
-		$saved  = (array) \Jetpack_Options::get_option( 'active_modules', array() );
+		$result               = parent::deactivate();
+		$saved_active_modules = (array) \Jetpack_Options::get_option( 'active_modules', array() );
 
 		// A standalone plugin can force its module on through a filter without saving it, leaving nothing to remove.
-		if ( ! empty( static::$module_name ) && in_array( static::$module_name, $saved, true ) ) {
+		if ( ! empty( static::$module_name ) && in_array( static::$module_name, $saved_active_modules, true ) ) {
 			if ( ! ( new Modules() )->deactivate( static::$module_name ) ) {
 				return new WP_Error(
 					'module_deactivation_failed',
