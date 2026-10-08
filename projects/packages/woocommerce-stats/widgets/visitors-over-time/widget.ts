@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { chartBar, seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -23,7 +23,7 @@ const CHART_TYPES = [
 ];
 
 export default {
-	icon: chartBar,
+	icon: seen,
 	attributes: [
 		{
 			id: 'chartType',
