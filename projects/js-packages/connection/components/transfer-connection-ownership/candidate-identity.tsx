@@ -17,9 +17,6 @@ export interface AvatarBadgeProps {
 /**
  * Round initials badge for one person.
  *
- * Initials rather than a Gravatar: the outgoing owner has no avatar to show — script data
- * carries their name alone — so fetching one for the other side would only mismatch it.
- *
  * @param {AvatarBadgeProps} props - Component props.
  * @return {import('react').ReactNode} The AvatarBadge component.
  */
@@ -55,7 +52,7 @@ export interface CandidateIdentityProps {
 }
 
 /**
- * Avatar, display name and login for one person, shown on the done step.
+ * Initials, display name and login for one person.
  *
  * @param {CandidateIdentityProps} props - Component props.
  * @return {import('react').ReactNode} The CandidateIdentity component.

@@ -26,8 +26,8 @@ interface TransferOwnershipDialogProps {
 /**
  * The ownership transfer step, opened from the manage connection dialog.
  *
- * Mounted only while open, so the candidate request fires when the user asks for the
- * step rather than whenever the manage dialog renders, and each open starts clean.
+ * Do not hoist the body: mounting only while open is what keeps the candidate request
+ * off every render of the dialog that hosts it.
  *
  * @param {TransferOwnershipDialogProps} props - Component props.
  * @return {import('react').ReactNode} The TransferOwnershipDialog component.
@@ -42,8 +42,8 @@ const TransferOwnershipDialog = ( {
 	const title = __( 'Transfer connection ownership', 'jetpack-connection-js' );
 	const [ newOwnerId, setNewOwnerId ] = useState< number | null >( null );
 
-	// Leaving by any route has to refresh once ownership has moved: the dialog behind
-	// still offers owner-only actions to someone who is no longer the owner.
+	// Not `onClose`: the dialog behind still offers owner-only actions to someone who
+	// has just stopped being the owner.
 	const handleDismiss = useCallback( () => {
 		if ( newOwnerId ) {
 			onTransferred?.( newOwnerId );

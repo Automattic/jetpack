@@ -28,8 +28,7 @@ export interface TransferConnectionOwnershipProps {
 /**
  * Hand this site's WordPress.com connection to another connected administrator.
  *
- * Carries the whole choose → confirm → done flow and its own actions, so a surface can
- * drop it in without wiring any of the steps itself.
+ * Carries the whole choose → confirm → done flow and its own actions.
  *
  * @param {TransferConnectionOwnershipProps} props - Component props.
  * @return {import('react').ReactNode} The TransferConnectionOwnership component.
@@ -54,8 +53,7 @@ const TransferConnectionOwnership = ( {
 	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred } );
 
 	const hasCandidates = !! candidates?.length;
-	// True only when the connection owner is also the protected owner — and the person
-	// transferring is the owner, so this reads as "you".
+	// True only of the connection owner, who is the person transferring: hence "you're".
 	const isProtectedOwner = !! getScriptData()?.connection?.hasProtectedOwner;
 
 	if ( 'done' === step && selectedCandidate ) {
@@ -73,7 +71,6 @@ const TransferConnectionOwnership = ( {
 	}
 
 	if ( 'confirm' === step && selectedCandidate ) {
-		// "anyway" because the warning above it says what the transfer costs a protected owner.
 		let confirmLabel: string = __( 'Transfer ownership', 'jetpack-connection-js' );
 		if ( isTransferring ) {
 			confirmLabel = __( 'Transferring…', 'jetpack-connection-js' );
@@ -118,7 +115,6 @@ const TransferConnectionOwnership = ( {
 
 			<Stack direction="row" align="center" justify="flex-end" gap="sm">
 				{ onDismiss && (
-					// Close is the only action left when nobody can take over, so it carries a border.
 					<Button variant={ hasCandidates ? 'minimal' : 'outline' } onClick={ onDismiss }>
 						{ dismissLabel }
 					</Button>

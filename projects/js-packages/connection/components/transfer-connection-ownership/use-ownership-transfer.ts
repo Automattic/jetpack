@@ -21,9 +21,8 @@ export interface ConnectionOwnerCandidate {
 /**
  * Turn a failed transfer into something the user can act on.
  *
- * The endpoint refuses for four distinct reasons and a generic message would leave the
- * user guessing which one they hit. The list is built when the dialog opens, so a
- * candidate can stop qualifying while it is on screen.
+ * All four are reachable: the list is built when the dialog opens, so a candidate can
+ * stop qualifying while it is on screen.
  *
  * @param {string} code    - Error code from the REST response.
  * @param {string} message - Error message from the REST response.
@@ -72,7 +71,7 @@ export interface UseOwnershipTransferArgs {
 }
 
 /**
- * Candidate list and transfer state, shared by the chooser and the dialog that frames it.
+ * Candidate list, selection and the step the user is on.
  *
  * @param {UseOwnershipTransferArgs} args - Hook arguments.
  * @return The candidates, the current selection, and the transfer action.
