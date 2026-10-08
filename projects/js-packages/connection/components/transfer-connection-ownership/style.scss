@@ -1,0 +1,96 @@
+// The actions sit outside the list's own column, so give the pair a column of
+// their own. `flex-shrink: 0` because the dialogs lay this out inside a
+// `height: 100%` box that sits beside a footer: without it the box is squeezed
+// and the button rides up over the list's trailing hint.
+.jp-connection__transfer-ownership-form {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 16px;
+}
+
+.jp-connection__transfer-ownership {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 16px;
+	text-align: start;
+}
+
+.jp-connection__transfer-ownership__list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.jp-connection__transfer-ownership__option {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	border: 1px solid var(--jp-gray-10, #dcdcde);
+	border-radius: 6px;
+	cursor: pointer;
+
+	&.is-selected {
+		border-color: var(--jp-black, #3858e9);
+		background-color: #f1f4fe;
+	}
+}
+
+.jp-connection__transfer-ownership__avatar {
+	flex-shrink: 0;
+	border-radius: 50%;
+}
+
+.jp-connection__transfer-ownership__who {
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.jp-connection__transfer-ownership__meta {
+	color: var(--jp-gray-50, #646970);
+	font-size: 12.5px;
+}
+
+.jp-connection__transfer-ownership__error {
+	color: var(--jp-red-60, #d63638);
+}
+
+.jp-connection__transfer-ownership__identity {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jp-connection__transfer-ownership__outcomes {
+	margin: 0;
+	padding-inline-start: 20px;
+	list-style: disc;
+}
+
+.jp-connection__transfer-ownership__handover {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jp-connection__transfer-ownership__arrow {
+	color: var(--jp-gray-50, #646970);
+}
+
+.jp-connection__transfer-ownership__avatar.is-initials {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 38px;
+	block-size: 38px;
+	background-color: var(--jp-black, #101517);
+	color: var(--jp-white, #fff);
+	font-size: 13px;
+	font-weight: 600;
+}
