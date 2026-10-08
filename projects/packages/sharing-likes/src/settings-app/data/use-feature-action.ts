@@ -38,11 +38,11 @@ export function useFeatureAction() {
 				),
 				{ type: 'snackbar' }
 			);
-			queryClient.invalidateQueries( { queryKey: queryKeys.status } );
 		},
 		// Which settings are offered follows the section variants; returned so the reads finish inside the scope.
-		onSettled: () =>
+		onSettled: ( _status, error ) =>
 			Promise.all( [
+				error ? queryClient.invalidateQueries( { queryKey: queryKeys.status } ) : undefined,
 				// A pending save's response brings fresh settings, and this read could land after it.
 				queryClient.isMutating( { mutationKey: SAVE_SETTING_KEY } ) > 0
 					? undefined

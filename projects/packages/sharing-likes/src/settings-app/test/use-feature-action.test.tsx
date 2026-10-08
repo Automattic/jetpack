@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { queryKeys, useSettings } from '../data/queries';
+import { queryKeys, useSettings, useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveSetting } from '../data/use-save-setting';
 import {
@@ -77,6 +77,44 @@ describe( 'useFeatureAction', () => {
 			expect( snackbarMessages() ).toContain( 'The feature could not be turned on.' )
 		);
 	} );
+	it( "lets a refused action's status read finish before the next action runs", async () => {
+		let resolveStatus!: ( value: Status ) => void;
+		const statusRead = new Promise< Status >( resolve => ( resolveStatus = resolve ) );
+		mockApiFetch.mockImplementation( ( { path, method } ) => {
+			if ( method === 'POST' ) {
+				return path?.includes( 'likes/activate' )
+					? Promise.reject( { message: 'Refused.' } )
+					: Promise.resolve( switched );
+			}
+			return path?.endsWith( '/status' ) ? statusRead : Promise.resolve( baseSettings );
+		} );
+		const queryClient = createTestQueryClient();
+		const { result } = renderHook(
+			() => {
+				useStatus();
+				return useFeatureAction();
+			},
+			{ wrapper: wrapperFor( queryClient ) }
+		);
+
+		act( () => {
+			result.current.run( 'likes', 'activate' );
+			result.current.run( 'sharing', 'switch-to-block' );
+		} );
+		await waitFor( () =>
+			expect( apiCalls() ).toContainEqual( { path: '/wpcom/v2/sharing-likes/status' } )
+		);
+		expect( apiCalls( 'POST' ) ).toHaveLength( 1 );
+
+		await act( async () => resolveStatus( baseStatus ) );
+
+		await waitFor( () =>
+			expect( queryClient.getQueryData< Status >( queryKeys.status )?.sharing.state ).toBe(
+				'block_call_to_action'
+			)
+		);
+	} );
+
 	it( "keeps a save's value when the action before it reads settings again", async () => {
 		let resolvePut!: ( value: Settings ) => void;
 		const put = new Promise< Settings >( resolve => ( resolvePut = resolve ) );
