@@ -16,8 +16,9 @@ use WP_REST_Server;
 
 /**
  * The embed block in a comment: a URL from a provider core trusts, previewed through an open
- * route and drawn through core's embed cache. Discovery is off at every step, so the only
- * requests that leave go to a provider's own endpoint, never to an address a commenter typed.
+ * route and drawn through core's embed cache, without the provider's script. Discovery is off at
+ * every step, so the only requests that leave go to a provider's own endpoint, never to an
+ * address a commenter typed.
  *
  * The route is `wpcom/v2`, registered as the identity routes are, so one definition is
  * same-origin on self-hosted and Atomic and served through public-api on Simple.
@@ -176,13 +177,42 @@ class Embeds extends WP_REST_Controller {
 	 * The oEmbed data as a response the browser and any cache between may keep: it is the same for every visitor.
 	 *
 	 * @param object $data The oEmbed data.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	private static function respond( $data ) {
+		$data->html = self::strip_scripts( isset( $data->html ) ? $data->html : '' );
+
+		// Nothing to show without the script, so the comment will hold the link. Say so now.
+		if ( '' === $data->html ) {
+			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
+		}
+
 		$response = new WP_REST_Response( $data );
 		$response->header( 'Cache-Control', 'public, max-age=' . HOUR_IN_SECONDS );
 
 		return $response;
+	}
+
+	/**
+	 * A provider's HTML without its script, or '' when nothing visible is left. The script would run
+	 * first-party for every reader on a commenter's say-so. An iframe plays without it, and a
+	 * quote reads without it.
+	 *
+	 * @param mixed $html What the provider sent.
+	 * @return string
+	 */
+	public static function strip_scripts( $html ) {
+		if ( ! is_string( $html ) ) {
+			return '';
+		}
+
+		$html = (string) preg_replace( '#<script\b[^>]*>.*?(?:</script\s*>|$)#is', '', $html );
+
+		if ( ! preg_match( '#<(iframe|img|video|audio)\b#i', $html ) && '' === trim( wp_strip_all_tags( $html ) ) ) {
+			return '';
+		}
+
+		return $html;
 	}
 
 	/**
@@ -260,7 +290,7 @@ class Embeds extends WP_REST_Controller {
 				$wp_embed->return_false_on_fail = true;
 				add_filter( 'embed_oembed_discover', '__return_false', 999 );
 
-				$content = $wp_embed->shortcode( array(), $url );
+				$content = self::strip_scripts( $wp_embed->shortcode( array(), $url ) );
 
 				remove_filter( 'embed_oembed_discover', '__return_false', 999 );
 				$wp_embed->return_false_on_fail = $on_fail;

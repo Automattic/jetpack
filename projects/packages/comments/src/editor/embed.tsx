@@ -34,6 +34,8 @@ type EditProps = BlockEditProps< Attributes > & {
 };
 
 let labels: EditorLabels;
+// Off on the edit-comment screen, where a provider's markup would share wp-admin's origin and the URL is enough.
+let previewEmbeds = true;
 
 // Module scope, where Terser cannot fold the two calls into one `_x( failed ? … : … )`.
 const embedLabel = _x( 'Embed', 'button label', 'default' );
@@ -66,7 +68,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 	// A URL the site will not embed, or a route it closes, becomes a link, with no fuss: most links in
 	// a comment are just links. A rate limit or a dropped request keeps the block so the reader can retry.
 	useEffect( () => {
-		if ( ! url ) {
+		if ( ! url || ! previewEmbeds ) {
 			return;
 		}
 
@@ -155,6 +157,25 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 		);
 	}
 
+	const controls = (
+		<BlockControls>
+			<ToolbarGroup>
+				<ToolbarButton onClick={ onEdit }>{ __( 'Edit URL', 'default' ) }</ToolbarButton>
+			</ToolbarGroup>
+		</BlockControls>
+	);
+
+	if ( ! previewEmbeds ) {
+		return (
+			<>
+				{ controls }
+				<figure { ...blockProps }>
+					<div className="wp-block-embed__wrapper">{ url }</div>
+				</figure>
+			</>
+		);
+	}
+
 	if ( ! preview ) {
 		return (
 			<div { ...blockProps } aria-busy="true">
@@ -166,14 +187,10 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 
 	return (
 		<>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton onClick={ onEdit }>{ __( 'Edit URL', 'default' ) }</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
+			{ controls }
 			<figure { ...blockProps }>
 				<div className="wp-block-embed__wrapper">
-					{ /* Same-origin, as core previews embeds: a trusted provider's script runs in the page once posted anyway. */ }
+					{ /* Same-origin, as core previews embeds, for the Referer YouTube wants. The route strips the provider's script, so the frame holds markup alone. */ }
 					<SandBox
 						allowSameOrigin
 						html={ preview.html }
@@ -201,9 +218,11 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
  * this package's own. Nothing registers without the preview route.
  *
  * @param editorLabels - The editor's labels, with the route.
+ * @param preview      - Whether to fetch and draw provider previews. Off, the block shows its URL.
  */
-export const registerEmbedBlock = ( editorLabels: EditorLabels ) => {
+export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true ) => {
 	labels = editorLabels;
+	previewEmbeds = preview;
 
 	if ( ! labels.embedUrl || getBlockType( NAME ) ) {
 		return;
