@@ -999,7 +999,7 @@ describe( 'HeatmapChart fitCells', () => {
 		expect( console ).toHaveWarned();
 	} );
 
-	test( 'refits when the box resizes', () => {
+	test( 'refits within the resize delivery, before later observers read the grid', () => {
 		const observers: ResizeObserverCallback[] = [];
 		const original = window.ResizeObserver;
 		window.ResizeObserver = class {
@@ -1012,12 +1012,14 @@ describe( 'HeatmapChart fitCells', () => {
 		} as unknown as typeof ResizeObserver;
 		try {
 			renderChart( { data: threeMonths, columnGroups, compact: true, fitCells: true } );
-			boxSpies[ 1 ].mockReturnValue( 100 );
-			act( () => observers.forEach( callback => callback( [], {} as ResizeObserver ) ) );
 			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-			expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
-				'48px'
-			);
+			boxSpies[ 1 ].mockReturnValue( 100 );
+			let cellSize = '';
+			act( () => {
+				observers.forEach( callback => callback( [], {} as ResizeObserver ) );
+				cellSize = grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' );
+			} );
+			expect( cellSize ).toBe( '48px' );
 			const [ , , mar ] = screen.getAllByTestId( 'heatmap-group-label' );
 			expect( mar ).toHaveStyle( { gridRow: '3' } );
 		} finally {

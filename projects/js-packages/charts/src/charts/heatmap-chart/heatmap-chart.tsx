@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
 import { useIsomorphicLayoutEffect } from '../../hooks';
 import {
@@ -257,7 +258,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		if ( typeof ResizeObserver === 'undefined' ) {
 			return;
 		}
-		const observer = new ResizeObserver( measure );
+		// Commit before later observers in this delivery read the grid, or they see the
+		// old cells at the new width, and before paint, so that frame is never drawn.
+		const observer = new ResizeObserver( () => flushSync( measure ) );
 		observer.observe( chart );
 		return () => observer.disconnect();
 	}, [
