@@ -24,9 +24,9 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 ### Managing features
 
-On connected sites, My Jetpack Features shows all eligible features by default, including unavailable modules and their reasons. Unavailable modules have no switch or bulk selection. Choose **Available** to narrow the list; search spans all eligible features, and choosing a filter clears the search. Feature filters, search, layout, and an open feature remain in the URL across reloads.
+Where Features opens (connected sites, and offline sites with the offline entry enabled), My Jetpack Features shows all eligible features by default, including unavailable modules and their reasons. Unavailable modules have no switch or bulk selection. Choose **Available** to narrow the list; search spans all eligible features, and choosing a filter clears the search. Feature filters, search, layout, and an open feature remain in the URL across reloads.
 
-When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons in their details.
+When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons only in the details window of main cards.
 
 #### Offline mode
 

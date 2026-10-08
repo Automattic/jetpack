@@ -509,9 +509,9 @@ $view-group-padding: 4px;
 }
 
 
-// Measured on the toolbar: below this, the pills, the search at its floor and
-// the layout buttons no longer fit one row.
-@container features-toolbar (max-width: 55rem) {
+// Eight filter pills, the search at its minimum width and the layout buttons
+// need this much container width to stay on one row.
+@container features-toolbar (max-width: 70rem) {
 
 	.pills {
 		display: none;
