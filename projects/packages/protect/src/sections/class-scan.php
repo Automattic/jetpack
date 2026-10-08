@@ -46,7 +46,7 @@ class Scan implements Dashboard_Section {
 	const INITIALIZING_STATUSES = array( 'idle', 'unavailable' );
 
 	/**
-	 * Transient set while a requested scan is enqueued, so repeated requests don't stack.
+	 * Lock held for a minute after a scan request, so repeated requests don't stack.
 	 *
 	 * @var string
 	 */
@@ -304,7 +304,7 @@ class Scan implements Dashboard_Section {
 	 * @return array The `status`, such as `in_progress` or `fixed`, and any `error`.
 	 */
 	private static function get_threat_fix_status( $response, $id ) {
-		$threat = $response->threats->{ $id } ?? null;
+		$threat = $response->threats->{ (string) $id } ?? null;
 		return array(
 			'status' => $threat->status ?? ( empty( $threat->error ) ? 'in_progress' : 'not_fixed' ),
 			'error'  => $threat->error ?? null,
@@ -358,15 +358,15 @@ class Scan implements Dashboard_Section {
 	public static function start_scan() {
 		$has_plan = Dashboard::has_scan_plan();
 
-		if ( $has_plan && ! get_transient( self::REQUEST_LOCK ) ) {
+		if ( $has_plan && self::claim_request_lock() ) {
 			$api_url  = Scan_Status::get_api_url();
 			$response = is_wp_error( $api_url )
 				? $api_url
 				: Client::wpcom_json_api_request_as_blog( $api_url . '/enqueue', '2', array( 'method' => 'POST' ), null, 'wpcom' );
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				self::release_request_lock();
 				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 			}
-			set_transient( self::REQUEST_LOCK, time(), MINUTE_IN_SECONDS );
 			Scan_Status::delete_option();
 
 			/**
@@ -378,6 +378,36 @@ class Scan implements Dashboard_Section {
 		}
 
 		return self::get_scan_report( $has_plan, true );
+	}
+
+	/**
+	 * Claim the once-a-minute scan request slot before calling WordPress.com, so concurrent requests don't both enqueue.
+	 *
+	 * @return bool Whether this request got the slot.
+	 */
+	private static function claim_request_lock() {
+		// `wp_cache_add()` is atomic with a persistent object cache; transients can only narrow the race.
+		if ( wp_using_ext_object_cache() ) {
+			return wp_cache_add( self::REQUEST_LOCK, time(), 'jetpack_protect', MINUTE_IN_SECONDS );
+		}
+		if ( get_transient( self::REQUEST_LOCK ) ) {
+			return false;
+		}
+		set_transient( self::REQUEST_LOCK, time(), MINUTE_IN_SECONDS );
+		return true;
+	}
+
+	/**
+	 * Give the scan request slot back after a failed request, so the user can retry straight away.
+	 *
+	 * @return void
+	 */
+	private static function release_request_lock() {
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_delete( self::REQUEST_LOCK, 'jetpack_protect' );
+		} else {
+			delete_transient( self::REQUEST_LOCK );
+		}
 	}
 
 	/**

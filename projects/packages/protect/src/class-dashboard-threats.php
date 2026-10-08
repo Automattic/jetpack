@@ -26,7 +26,7 @@ class Dashboard_Threats {
 	 * @return array
 	 */
 	public static function format( $threat, $site = null ) {
-		$site      = $site ?? self::get_site_extensions();
+		$site    ??= self::get_site_extensions();
 		$extension = $threat->extension ?? null;
 		// History names extension types in the singular; the threat list reads the plural.
 		$type  = in_array( $extension->type ?? '', array( 'plugin', 'theme' ), true ) ? $extension->type . 's' : ( $extension->type ?? null );

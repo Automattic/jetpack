@@ -33,6 +33,8 @@ function formatDetected( date: string ): string {
 }
 
 type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
+/** Whether the site's plan can fix and ignore threats; the free vulnerability check can't. */
+type ActionProps = RowProps & { canAct: boolean };
 
 /**
  * The threat column: the icon and title, as one button that opens the details.
@@ -62,9 +64,10 @@ function ThreatCell( { item, onOpen }: RowProps ) {
  * @param props        - Component props.
  * @param props.item   - The threat.
  * @param props.onOpen - Opens the threat in the inspector.
+ * @param props.canAct - Whether the site can ignore threats.
  * @return The menu.
  */
-function ThreatMenu( { item, onOpen }: RowProps ) {
+function ThreatMenu( { item, onOpen, canAct }: ActionProps ) {
 	const actions = item.extension?.actions ?? {};
 	const isIgnored = item.status === 'ignored';
 	const onView = useCallback( () => onOpen( item ), [ item, onOpen ] );
@@ -108,14 +111,18 @@ function ThreatMenu( { item, onOpen }: RowProps ) {
 						</Menu.ItemLabel>
 					</Menu.LinkItem>
 				) }
-				<Menu.Separator />
-				<Menu.Item onClick={ onToggleIgnore }>
-					<Menu.ItemLabel>
-						{ isIgnored
-							? __( 'Unignore threat', 'jetpack-protect-pkg' )
-							: __( 'Ignore threat', 'jetpack-protect-pkg' ) }
-					</Menu.ItemLabel>
-				</Menu.Item>
+				{ canAct && (
+					<>
+						<Menu.Separator />
+						<Menu.Item onClick={ onToggleIgnore }>
+							<Menu.ItemLabel>
+								{ isIgnored
+									? __( 'Unignore threat', 'jetpack-protect-pkg' )
+									: __( 'Ignore threat', 'jetpack-protect-pkg' ) }
+							</Menu.ItemLabel>
+						</Menu.Item>
+					</>
+				) }
 			</Menu.Popup>
 		</Menu.Root>
 	);
@@ -127,20 +134,21 @@ function ThreatMenu( { item, onOpen }: RowProps ) {
  * @param props        - Component props.
  * @param props.item   - The threat.
  * @param props.onOpen - Opens the threat in the inspector.
+ * @param props.canAct - Whether the site can fix and ignore threats.
  * @return The cell.
  */
-function ActionsCell( { item, onOpen }: RowProps ) {
+function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
 	const onClick = useCallback( () => onOpen( item ), [ item, onOpen ] );
 	const { busy } = useThreatAction( item.id );
 	return (
 		<Stack direction="row" gap="xs" align="center" justify="end">
 			{ /* While a fix runs, a snackbar reports it; hiding Auto-fix stops a second request. */ }
-			{ item.fixable && item.status !== 'ignored' && busy !== 'fixing' && (
+			{ canAct && item.fixable && item.status !== 'ignored' && busy !== 'fixing' && (
 				<Button variant="outline" size="compact" onClick={ onClick }>
 					{ __( 'Auto-fix', 'jetpack-protect-pkg' ) }
 				</Button>
 			) }
-			<ThreatMenu item={ item } onOpen={ onOpen } />
+			<ThreatMenu item={ item } onOpen={ onOpen } canAct={ canAct } />
 			<IconButton
 				icon={ chevronRight }
 				label={ __( 'View details', 'jetpack-protect-pkg' ) }
@@ -159,6 +167,8 @@ type ThreatsListProps = {
 	ignored?: ScanThreat[];
 	/** Shown when there are no active threats. */
 	empty?: ReactNode;
+	/** Whether the site's plan can fix and ignore threats. */
+	canAct: boolean;
 };
 
 /**
@@ -168,9 +178,10 @@ type ThreatsListProps = {
  * @param props.threats - The active threats.
  * @param props.ignored - The ignored threats.
  * @param props.empty   - Shown when there are no active threats.
+ * @param props.canAct  - Whether the site can fix and ignore threats.
  * @return The table.
  */
-export default function ThreatsList( { threats, ignored, empty }: ThreatsListProps ) {
+export default function ThreatsList( { threats, ignored, empty, canAct }: ThreatsListProps ) {
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
 		search: '',
@@ -239,10 +250,10 @@ export default function ThreatsList( { threats, ignored, empty }: ThreatsListPro
 				label: __( 'Actions', 'jetpack-protect-pkg' ),
 				enableHiding: false,
 				enableSorting: false,
-				render: ( { item } ) => <ActionsCell item={ item } onOpen={ open } />,
+				render: ( { item } ) => <ActionsCell item={ item } onOpen={ open } canAct={ canAct } />,
 			},
 		],
-		[ open ]
+		[ open, canAct ]
 	);
 
 	const { data, paginationInfo } = useMemo(

@@ -97,22 +97,21 @@ export default function ScanCard() {
 	}, [ fetchScan ] );
 
 	const startScan = useCallback( () => {
-		const requested = Date.now();
 		setIsStarting( true );
 		setStartError( null );
+		// With Scan, show the scan as started right away; the free check only re-reads its report.
+		setRequestedAt( hasPlan ? Date.now() : null );
 		apiFetch< ScanState >( { path: SCAN_PATH, method: 'POST' } )
 			.then( next => {
-				if ( next.hasPlan && ! next.error ) {
-					setRequestedAt( requested );
-				}
 				setPolls( 0 );
 				mergeScan( next );
 			} )
-			.catch( ( e: { message?: string } ) =>
-				setStartError( e?.message || __( 'The scan couldn’t be started.', 'jetpack-protect-pkg' ) )
-			)
+			.catch( ( e: { message?: string } ) => {
+				setRequestedAt( null );
+				setStartError( e?.message || __( 'The scan couldn’t be started.', 'jetpack-protect-pkg' ) );
+			} )
 			.finally( () => setIsStarting( false ) );
-	}, [] );
+	}, [ hasPlan ] );
 
 	// Poll while a scan runs, pausing in background tabs and after MAX_POLLS.
 	useEffect( () => {
@@ -192,6 +191,7 @@ export default function ScanCard() {
 					<ThreatsList
 						threats={ threats }
 						ignored={ ignored }
+						canAct={ hasPlan }
 						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
 					/>
 				</CardRow>
