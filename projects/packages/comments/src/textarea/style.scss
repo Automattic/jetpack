@@ -7,7 +7,8 @@
 	min-block-size: 5lh;
 	field-sizing: content;
 	padding: var(--jetpack-comments-pad);
-	resize: none;
+	// Pinned: themes resize textarea#comment, and the grip overlaps the submit.
+	resize: none !important;
 
 	// Pinned: themes set display on textarea#comment, and an ID outranks classes.
 	&[hidden] {
