@@ -63,6 +63,34 @@ describe( 'App', () => {
 		}
 	} );
 
+	it( 'hides the footer on offline Features', () => {
+		const initial = window.myJetpackInitialState;
+		const scriptData = window.JetpackScriptData;
+		const local = { jetpack: 'inactive', features: [] };
+		window.location.hash = '#/features';
+		window.myJetpackInitialState = {
+			...initial,
+			isOfflineFeatures: true,
+			products: { items: {} },
+			myJetpackFlags: {},
+		};
+		window.JetpackScriptData = {
+			site: { admin_url: 'http://example.org/wp-admin/' },
+			myJetpack: { isAvailable: true, offlineFeatures: { mainFeatures: local, plugins: {} } },
+		};
+		apiFetch.mockResolvedValue( local );
+
+		try {
+			const view = render( <App /> );
+			expect( screen.getByRole( 'heading', { name: 'Features' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'contentinfo', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+			view.unmount();
+		} finally {
+			window.myJetpackInitialState = initial;
+			window.JetpackScriptData = scriptData;
+		}
+	} );
+
 	it( 'keeps offline entry and reload inside Features with its query and without connected queries', async () => {
 		const initial = window.myJetpackInitialState;
 		const scriptData = window.JetpackScriptData;
