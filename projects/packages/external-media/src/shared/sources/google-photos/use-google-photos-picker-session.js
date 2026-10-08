@@ -112,7 +112,8 @@ export default function useGooglePhotosPickerSession( {
 					error?.data?.reason === 'PENDING_USER_ACTION'
 						? __(
 								'This Google account doesn’t have Google Photos set up yet. Set it up at photos.google.com, then try again.',
-								'jetpack-external-media'
+								'jetpack-external-media',
+								/* dummy arg to avoid bad minification */ 0
 							)
 						: __(
 								'Couldn’t connect to Google Photos. Try again, or disconnect and reconnect your Google account.',
