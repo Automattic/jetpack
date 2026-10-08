@@ -40,8 +40,61 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	public function handle_subscribe_block_placements() {
+		self::seed_missing_options(
+			array(
+				'jetpack_subscriptions_subscribe_post_end_enabled',
+				'jetpack_subscriptions_subscribe_navigation_enabled',
+			)
+		);
+
 		$this->handle_subscribe_block_post_end_placement();
 		$this->handle_subscribe_block_navigation_placement();
+	}
+
+	/**
+	 * Stores unset placement options as disabled, so they are autoloaded instead of queried on every request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $option_names Option names.
+	 * @return void
+	 */
+	public static function seed_missing_options( $option_names ) {
+		// Only write from a back-end request, and never where a persistent cache already remembers the miss.
+		if (
+			wp_using_ext_object_cache()
+			|| ! ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) )
+		) {
+			return;
+		}
+
+		global $wpdb;
+		$missing = new \stdClass();
+		$seeded  = false;
+		foreach ( $option_names as $option_name ) {
+			if ( $missing !== get_option( $option_name, $missing ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- add_option() can overwrite a concurrent enable.
+			$inserted = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, %s )",
+					$option_name,
+					'0',
+					'yes'
+				)
+			);
+			if ( false !== $inserted ) {
+				wp_cache_delete( $option_name, 'options' );
+				$seeded = true;
+			}
+		}
+
+		if ( $seeded ) {
+			wp_cache_delete( 'notoptions', 'options' );
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/**
