@@ -1,7 +1,7 @@
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
-import { Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { Notice, Spinner, Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import HistoryList from './history-list';
 import { loadHistory, useHistory } from './store';
@@ -33,17 +33,6 @@ export default function HistoryPanel() {
 				<Stack direction="row" justify="center">
 					<Spinner />
 				</Stack>
-			</CardRow>
-		);
-	} else if ( threats.length === 0 ) {
-		body = (
-			<CardRow>
-				<Text variant="body-md">
-					{ __(
-						'No threats have been fixed or ignored yet. They’ll appear here once Scan has dealt with one.',
-						'jetpack-protect-pkg'
-					) }
-				</Text>
 			</CardRow>
 		);
 	} else {

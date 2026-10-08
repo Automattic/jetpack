@@ -4,7 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronRight, moreVertical } from '@wordpress/icons';
-import { Button, IconButton, Menu, Stack, Tabs } from '@wordpress/ui';
+import { Button, IconButton, Menu, Stack } from '@wordpress/ui';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { useThreatParam } from './store';
 import { ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
@@ -163,8 +163,6 @@ export function ActionsCell( { item, onOpen, canAct }: ActionProps ) {
 
 type ThreatsListProps = {
 	threats: ScanThreat[];
-	/** Ignored threats, or undefined when the site can't ignore threats or they haven't loaded. */
-	ignored?: ScanThreat[];
 	/** Shown when there are no active threats. */
 	empty?: ReactNode;
 	/** Whether the site's plan can fix and ignore threats. */
@@ -172,16 +170,15 @@ type ThreatsListProps = {
 };
 
 /**
- * The threats a scan found, or those the site ignored; choosing one opens its details in the inspector.
+ * The threats a scan found; choosing one opens its details in the inspector.
  *
  * @param props         - Component props.
  * @param props.threats - The active threats.
- * @param props.ignored - The ignored threats.
  * @param props.empty   - Shown when there are no active threats.
  * @param props.canAct  - Whether the site can fix and ignore threats.
  * @return The table.
  */
-export default function ThreatsList( { threats, ignored, empty, canAct }: ThreatsListProps ) {
+export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
 		search: '',
@@ -199,12 +196,6 @@ export default function ThreatsList( { threats, ignored, empty, canAct }: Threat
 		},
 	} );
 
-	const [ status, setStatus ] = useState< 'active' | 'ignored' >( 'active' );
-	const isIgnoredView = status === 'ignored' && !! ignored?.length;
-	const onStatusChange = useCallback( ( value: unknown ) => {
-		setStatus( value === 'ignored' ? 'ignored' : 'active' );
-		setView( current => ( { ...current, page: 1 } ) );
-	}, [] );
 	const [ selected, setThreat ] = useThreatParam();
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
 	const open = useCallback( ( item: ScanThreat ) => setThreat( item.id ), [ setThreat ] );
@@ -257,39 +248,14 @@ export default function ThreatsList( { threats, ignored, empty, canAct }: Threat
 	);
 
 	const { data, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( isIgnoredView ? ignored : threats, view, fields ),
-		[ isIgnoredView, ignored, threats, view, fields ]
+		() => filterSortAndPaginate( threats, view, fields ),
+		[ threats, view, fields ]
 	);
 
 	return (
 		<div className="jp-protect-threats">
-			{ ignored && ignored.length > 0 && (
-				<div className="jp-protect-threats__filter">
-					<Tabs.Root
-						value={ isIgnoredView ? 'ignored' : 'active' }
-						onValueChange={ onStatusChange }
-					>
-						<Tabs.List variant="minimal">
-							<Tabs.Tab value="active">
-								{ sprintf(
-									/* translators: %d is a number of threats. */
-									__( 'Active (%d)', 'jetpack-protect-pkg' ),
-									threats.length
-								) }
-							</Tabs.Tab>
-							<Tabs.Tab value="ignored">
-								{ sprintf(
-									/* translators: %d is a number of threats. */
-									__( 'Ignored (%d)', 'jetpack-protect-pkg' ),
-									ignored.length
-								) }
-							</Tabs.Tab>
-						</Tabs.List>
-					</Tabs.Root>
-				</div>
-			) }
 			<DataViews
-				empty={ isIgnoredView ? undefined : empty }
+				empty={ empty }
 				data={ data }
 				fields={ fields }
 				view={ view }

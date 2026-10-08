@@ -7,6 +7,9 @@ import type { ScanThreat } from '../scan/types';
 /** The search param naming the history threat open in the inspector. */
 export const HISTORY_THREAT_PARAM = 'historyThreat';
 
+/** The search param choosing History's Fixed or Ignored list. */
+export const HISTORY_STATUS_PARAM = 'status';
+
 export type HistoryData = { threats: ScanThreat[] | null; error: string | null };
 
 // One object, not one per read: useSyncExternalStore re-renders forever on a new snapshot.

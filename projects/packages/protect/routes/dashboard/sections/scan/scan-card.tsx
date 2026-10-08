@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
+import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
 import ScanningState from './scanning-state';
@@ -16,6 +17,9 @@ import './style.scss';
 
 // Like the Protect plugin: quick checks first, then back off.
 const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
+
+// Opens Scan history on its Ignored list.
+const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 // About ten minutes of polling before asking the user to check again.
 const MAX_POLLS = 40;
@@ -164,7 +168,7 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ! hasThreats && ! ignored?.length ) {
+	} else if ( ! hasThreats ) {
 		body = (
 			<CardRow>
 				<SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } />
@@ -193,7 +197,6 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 				<CardRow className="jp-protect-card__threats">
 					<ThreatsList
 						threats={ threats }
-						ignored={ ignored }
 						canAct={ hasPlan }
 						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
 					/>
@@ -238,9 +241,25 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 			{ body }
 			<CardRow>
 				{ scan.hasPlan ? (
-					<TabLink tab="history" onOpen={ openTab }>
-						{ __( 'View scan history', 'jetpack-protect-pkg' ) }
-					</TabLink>
+					<Stack direction="row" gap="lg" wrap="wrap">
+						<TabLink tab="history" onOpen={ openTab }>
+							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
+						</TabLink>
+						{ !! ignored?.length && (
+							<TabLink tab="history" params={ IGNORED_PARAMS } onOpen={ openTab }>
+								{ sprintf(
+									/* translators: %d is a number of threats. */
+									_n(
+										'View %d ignored threat',
+										'View %d ignored threats',
+										ignored.length,
+										'jetpack-protect-pkg'
+									),
+									ignored.length
+								) }
+							</TabLink>
+						) }
+					</Stack>
 				) : (
 					<Link href={ scan.url }>
 						{ __(

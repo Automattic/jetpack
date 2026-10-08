@@ -1,17 +1,18 @@
 import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getThreatLabel } from '../scan/labels';
-import { useThreatParam } from '../scan/store';
+import { THREAT_PARAM, useScan, useThreatParam } from '../scan/store';
+import { loadIgnored } from '../scan/threat-actions';
 import { ActionsCell, ThreatCell, formatDetected } from '../scan/threats-list';
-import { HISTORY_THREAT_PARAM } from './store';
+import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
 import type { ScanThreat } from '../scan/types';
 
 const DEFAULT_LAYOUTS = { table: {} };
-
-type Status = 'fixed' | 'ignored';
+const NO_THREATS: ScanThreat[] = [];
 
 /**
  * When a threat was fixed, or for an ignored one, when it was found.
@@ -23,7 +24,9 @@ const getDate = ( item: ScanThreat ) =>
 	( item.status === 'fixed' ? item.fixedOn : item.firstDetected ) ?? '';
 
 /**
- * Fixed and ignored threats, laid out like the Scan list; choosing one opens its details.
+ * Fixed threats from Scan history and the Scan list's ignored ones, laid out like the Scan list.
+ *
+ * Ignored threats open in the Scan inspector, which can unignore them.
  *
  * @param props         - Component props.
  * @param props.threats - Every threat in Scan history.
@@ -31,10 +34,15 @@ const getDate = ( item: ScanThreat ) =>
  */
 export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const fixed = useMemo( () => threats.filter( item => item.status === 'fixed' ), [ threats ] );
-	const ignored = useMemo( () => threats.filter( item => item.status === 'ignored' ), [ threats ] );
-	const [ status, setStatus ] = useState< Status >(
-		fixed.length || ! ignored.length ? 'fixed' : 'ignored'
-	);
+	// Ignore and unignore update this list in place, so it is current right after either.
+	const ignored = useScan()?.ignored ?? NO_THREATS;
+	const [ statusParam, setStatusParam ] = useThreatParam( HISTORY_STATUS_PARAM );
+	const status = statusParam === 'ignored' ? 'ignored' : 'fixed';
+
+	useEffect( () => {
+		loadIgnored();
+	}, [] );
+
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
 		search: '',
@@ -52,13 +60,33 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		},
 	} );
 
-	const onStatusChange = useCallback( ( value: unknown ) => {
-		setStatus( value === 'ignored' ? 'ignored' : 'fixed' );
-		setView( current => ( { ...current, page: 1 } ) );
-	}, [] );
-	const [ selected, setThreat ] = useThreatParam( HISTORY_THREAT_PARAM );
+	const onStatusChange = useCallback(
+		( value: unknown ) => {
+			setStatusParam( value === 'ignored' ? 'ignored' : undefined );
+			setView( current => ( { ...current, page: 1 } ) );
+		},
+		[ setStatusParam ]
+	);
+	const [ selectedFixed ] = useThreatParam( HISTORY_THREAT_PARAM );
+	const [ selectedIgnored ] = useThreatParam( THREAT_PARAM );
+	const selected = status === 'fixed' ? selectedFixed : selectedIgnored;
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
-	const open = useCallback( ( item: ScanThreat ) => setThreat( item.id ), [ setThreat ] );
+	const navigate = useNavigate();
+	// One navigation sets both params, so only one inspector's param is ever in the URL.
+	const open = useCallback(
+		( item: ScanThreat ) => {
+			const id = String( item.id );
+			const isFixed = item.status === 'fixed';
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					[ HISTORY_THREAT_PARAM ]: isFixed ? id : undefined,
+					[ THREAT_PARAM ]: isFixed ? undefined : id,
+				} ),
+			} as Parameters< typeof navigate >[ 0 ] );
+		},
+		[ navigate ]
+	);
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
 	const fields = useMemo< Field< ScanThreat >[] >(
@@ -104,7 +132,9 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				label: __( 'Actions', 'jetpack-protect-pkg' ),
 				enableHiding: false,
 				enableSorting: false,
-				render: ( { item } ) => <ActionsCell item={ item } onOpen={ open } canAct={ false } />,
+				render: ( { item } ) => (
+					<ActionsCell item={ item } onOpen={ open } canAct={ item.status === 'ignored' } />
+				),
 			},
 		],
 		[ open, status ]
@@ -138,6 +168,11 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				</Tabs.Root>
 			</div>
 			<DataViews
+				empty={
+					status === 'fixed'
+						? __( 'Threats Scan fixes will appear here.', 'jetpack-protect-pkg' )
+						: __( 'Threats you ignore will appear here.', 'jetpack-protect-pkg' )
+				}
 				data={ data }
 				fields={ fields }
 				view={ view }

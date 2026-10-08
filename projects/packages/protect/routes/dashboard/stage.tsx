@@ -19,22 +19,24 @@ const Stage = () => {
 	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
 	const requestedTab = typeof search.tab === 'string' ? search.tab : '';
 	const navigate = useNavigate();
-	const goTo = useCallback(
-		( next: string ) => {
+	const openTab = useCallback(
+		( next: string, params?: Record< string, string > ) => {
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
+					...params,
 					tab: next === 'overview' ? undefined : next,
 				} ),
 			} as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]
 	);
+	const goTo = useCallback( ( next: string ) => openTab( next ), [ openTab ] );
 	const openSettings = useCallback( () => goTo( 'settings' ), [ goTo ] );
 	const settings = useProtectSettings();
 	const context = useMemo(
-		() => ( { settings, openSettings, openTab: goTo } ),
-		[ settings, openSettings, goTo ]
+		() => ( { settings, openSettings, openTab } ),
+		[ settings, openSettings, openTab ]
 	);
 
 	const state = window.jetpackProtectDashboard ?? {};

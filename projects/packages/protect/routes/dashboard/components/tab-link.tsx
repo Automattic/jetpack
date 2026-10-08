@@ -10,17 +10,20 @@ export const PROTECT_PAGE_SLUG = 'jetpack-protect';
  *
  * @param props          - Component props.
  * @param props.tab      - The tab's value, such as "settings".
+ * @param props.params   - More search params to set, such as the tab's filter.
  * @param props.onOpen   - Switches to the tab.
  * @param props.children - The link text.
  * @return The link.
  */
 export default function TabLink( {
 	tab,
+	params,
 	onOpen,
 	children,
 }: {
 	tab: string;
-	onOpen: ( tab: string ) => void;
+	params?: Record< string, string >;
+	onOpen: ( tab: string, params?: Record< string, string > ) => void;
 	children: ReactNode;
 } ) {
 	const onClick = useCallback(
@@ -29,14 +32,16 @@ export default function TabLink( {
 				return;
 			}
 			event.preventDefault();
-			onOpen( tab );
+			onOpen( tab, params );
 		},
-		[ onOpen, tab ]
+		[ onOpen, tab, params ]
 	);
 
 	return (
 		<Link
-			href={ `admin.php?page=${ PROTECT_PAGE_SLUG }&p=${ encodeURIComponent( `/?tab=${ tab }` ) }` }
+			href={ `admin.php?page=${ PROTECT_PAGE_SLUG }&p=${ encodeURIComponent(
+				`/?${ new URLSearchParams( { ...params, tab } ) }`
+			) }` }
 			onClick={ onClick }
 		>
 			{ children }
