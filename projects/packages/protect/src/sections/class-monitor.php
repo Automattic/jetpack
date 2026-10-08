@@ -120,7 +120,7 @@ class Monitor implements Dashboard_Section {
 			if ( ! in_array( $history['code'], array( 401, 403 ), true ) ) {
 				set_transient( self::UPTIME_TRANSIENT, 'failed', MINUTE_IN_SECONDS );
 			}
-			return $this->unavailable_error();
+			return $this->unavailable_error( $history );
 		}
 
 		$uptime = array(
@@ -187,7 +187,8 @@ class Monitor implements Dashboard_Section {
 	 * GET a wpcom/v2 site endpoint as the current user.
 	 *
 	 * @param string $path Path after `/sites/<id>`.
-	 * @return array The HTTP `code` (0 when the request failed) and the decoded `body`, null unless the code is 200.
+	 * @return array The HTTP `code` (0 when the request failed), the decoded `body` (null unless the code is 200),
+	 *               and an `error` string describing a transport failure (null otherwise).
 	 */
 	private function request( $path ) {
 		$response = Client::wpcom_json_api_request_as_user(
@@ -197,19 +198,35 @@ class Monitor implements Dashboard_Section {
 			null,
 			'wpcom'
 		);
-		$code     = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'code'  => 0,
+				'body'  => null,
+				'error' => $response->get_error_code() . ': ' . $response->get_error_message(),
+			);
+		}
+		$code = (int) wp_remote_retrieve_response_code( $response );
 		return array(
-			'code' => $code,
-			'body' => 200 === $code ? json_decode( wp_remote_retrieve_body( $response ), true ) : null,
+			'code'  => $code,
+			'body'  => 200 === $code ? json_decode( wp_remote_retrieve_body( $response ), true ) : null,
+			'error' => null,
 		);
 	}
 
 	/**
-	 * The error returned when WordPress.com can't be reached.
+	 * The error returned when WordPress.com can't be reached, carrying the upstream detail for debugging.
 	 *
+	 * @param array $request The failing request from `request()`; empty for a cached failure with no detail to hand.
 	 * @return WP_Error
 	 */
-	private function unavailable_error() {
-		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+	private function unavailable_error( $request = array() ) {
+		$data = array( 'status' => 502 );
+		if ( isset( $request['code'] ) ) {
+			$data['upstreamStatus'] = $request['code'];
+		}
+		if ( ! empty( $request['error'] ) ) {
+			$data['upstreamError'] = $request['error'];
+		}
+		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ), $data );
 	}
 }

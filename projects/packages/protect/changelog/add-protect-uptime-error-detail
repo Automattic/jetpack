@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Include the upstream status and error in the uptime route's failure response, so a timeout, a 401, and a 500 can be told apart.
