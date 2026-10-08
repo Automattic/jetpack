@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Heatmap chart: Start the legend with a swatch in the empty-cell color, and keep the lowest and highest steps of the scale at least 2:1 apart when the empty-cell color is dark.

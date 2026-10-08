@@ -25,7 +25,7 @@ lowest step keeps 3:1 contrast against that background and the empty cells.
 | `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
-| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
+| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background, and further when needed to stay 2:1 from the lowest step. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `tooltipVariant` | `'light' \| 'dark'` | - | **Deprecated.** Every tooltip draws on the package tooltip surface; this prop has no effect. |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the surface's own; tighten the padding of a one-line tooltip, for example. |
@@ -52,7 +52,7 @@ Sub-component that renders a sequential gradient scale from the lightest to the 
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `steps` | `number` | `5` | Number of color swatches in the scale. |
+| `steps` | `number` | `5` | Number of color swatches in the scale, not counting the empty-cell swatch. |
 | `variant` | `'swatches' \| 'bar'` | `'swatches'` | `swatches` spaces the steps out as cell-sized squares; `bar` joins them into one continuous band with rounded ends. |
 | `lessLabel` | `string` | `'Less'` | Label shown to the left of the swatches. |
 | `moreLabel` | `string` | `'More'` | Label shown to the right of the swatches. |
