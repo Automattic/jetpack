@@ -19,10 +19,20 @@ $uptime-down-bg: var(--wpds-color-background-surface-error);
 			background: var(--wpds-color-stroke-surface-success-strong);
 		}
 
-		// Stripes, so down days don't rely on colour alone.
+		// Stripes, so down days don't rely on color alone.
 		&.is-down {
 			block-size: 100%;
 			background: repeating-linear-gradient(45deg, $uptime-down 0 3px, $uptime-down-bg 3px 5px);
+		}
+
+		// Forced colors drop solid backgrounds, leaving only down days visible.
+		@media (forced-colors: active) {
+			border: 1px solid CanvasText;
+
+			&.is-up {
+				background: CanvasText;
+				forced-color-adjust: none;
+			}
 		}
 	}
 

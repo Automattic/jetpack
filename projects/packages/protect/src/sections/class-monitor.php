@@ -67,6 +67,10 @@ class Monitor implements Dashboard_Section {
 	 * @return void
 	 */
 	public function register_routes() {
+		// Module toggles are REST requests, so hooking here is early enough to drop the cached history.
+		add_action( 'jetpack_activate_module_monitor', array( $this, 'clear_cache' ) );
+		add_action( 'jetpack_deactivate_module_monitor', array( $this, 'clear_cache' ) );
+
 		register_rest_route(
 			'jetpack/v4',
 			'/protect-dashboard/uptime',
@@ -84,6 +88,10 @@ class Monitor implements Dashboard_Section {
 	 * @return array|WP_Error
 	 */
 	public function get_uptime() {
+		if ( ! Dashboard::get_module_state( 'monitor' )['active'] ) {
+			return new WP_Error( 'monitor_inactive', __( 'Downtime monitoring is off.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
+		}
+
 		// The endpoints check `manage_options` for the requesting user, so a blog token is refused.
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
 			return new WP_Error( 'not_connected', __( 'Connect your WordPress.com account to see uptime.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
@@ -109,6 +117,15 @@ class Monitor implements Dashboard_Section {
 		);
 		set_transient( self::UPTIME_TRANSIENT, $uptime, null === $uptime['isUp'] ? MINUTE_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
 		return $uptime;
+	}
+
+	/**
+	 * Forget the cached uptime history.
+	 *
+	 * @return void
+	 */
+	public function clear_cache() {
+		delete_transient( self::UPTIME_TRANSIENT );
 	}
 
 	/**

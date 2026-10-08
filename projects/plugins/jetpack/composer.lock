@@ -3229,10 +3229,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "3a8c2090533df980dc334554ca364bc1ac471ca0"
+                "reference": "bfe0e82f7a2d9fac6019ec6ea1c07fe797fcf5ec"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-protect-models": "@dev",
                 "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-status": "@dev",

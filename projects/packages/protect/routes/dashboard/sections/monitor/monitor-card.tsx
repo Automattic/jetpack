@@ -85,8 +85,11 @@ function getStatus(
  */
 export default function MonitorCard( { state: monitor, settings, openSettings }: MonitorContext ) {
 	const available = Boolean( monitor?.available );
+	// Saves apply optimistically, and the uptime route refuses until Monitor is really on.
 	const active =
-		available && isModuleActive( settings.settings, 'monitor', Boolean( monitor?.active ) );
+		available &&
+		! settings.isSaving( 'monitor' ) &&
+		isModuleActive( settings.settings, 'monitor', Boolean( monitor?.active ) );
 	const [ uptime, setUptime ] = useState< Uptime | null >( null );
 	const [ failed, setFailed ] = useState( false );
 
@@ -149,7 +152,7 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 							{ sprintf(
 								/* translators: %d is a number of days. */
 								__( 'Uptime, last %d days (UTC)', 'jetpack-protect-pkg' ),
-								monitor?.uptimeDays ?? 0
+								days?.length ?? monitor?.uptimeDays ?? 0
 							) }
 						</Text>
 						{ failed && (
