@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { bug } from '@wordpress/icons';
+import { shield } from '@wordpress/icons';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
@@ -204,7 +204,7 @@ export default function ScanCard( { openTab }: { openTab: ( tab: string ) => voi
 
 	return (
 		<ProtectCard
-			icon={ bug }
+			icon={ shield }
 			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
 			status={
 				scan.hasPlan
