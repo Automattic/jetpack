@@ -13,6 +13,8 @@ export const MUTATION_SCOPE = { id: 'sharing-likes' };
 
 export const SAVE_SETTING_KEY = [ 'sharing-likes', 'save-setting' ] as const;
 
+export const SAVE_SERVICES_KEY = [ 'sharing-likes', 'save-services' ] as const;
+
 export const FEATURE_ACTION_KEY = [ 'sharing-likes', 'feature-action' ] as const;
 
 // Matches every write by prefix, saves and feature actions alike.

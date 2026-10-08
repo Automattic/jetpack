@@ -12,6 +12,21 @@ export const fetchSettings = () => apiFetch< Settings >( { path: `${ BASE }/sett
 export const fetchServices = () => apiFetch< Services >( { path: `${ BASE }/services` } );
 
 /**
+ * Save which services show, and in which order. Unknown IDs are dropped.
+ *
+ * @param visible - Services shown as buttons.
+ * @param hidden  - Services behind the "More" button.
+ * @return The services as now saved.
+ */
+export function saveServices( visible: string[], hidden: string[] ) {
+	return apiFetch< Services >( {
+		path: `${ BASE }/services`,
+		method: 'PUT',
+		data: { visible, hidden },
+	} );
+}
+
+/**
  * Save one setting. The route refuses any key the screen does not show.
  *
  * @param key   - Setting.
