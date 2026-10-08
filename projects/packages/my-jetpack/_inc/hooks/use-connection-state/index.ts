@@ -1,6 +1,6 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useMyJetpackConnection from '../use-my-jetpack-connection';
 import type { ConnectionErrorSeverity } from '@automattic/jetpack-connection';
 
 export type ConnectionState = {
