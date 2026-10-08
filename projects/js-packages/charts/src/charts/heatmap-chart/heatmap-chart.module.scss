@@ -200,8 +200,6 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 
 .heatmap-chart__legend-label {
 	color: var(--a8c-charts-color-label);
-	font-size: var(--wpds-typography-font-size-md);
-	line-height: var(--wpds-typography-line-height-sm);
 }
 
 .heatmap-chart__legend-swatch {
