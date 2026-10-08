@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
@@ -83,6 +83,23 @@ describe( 'MonthCalendarHeatmap', () => {
 			render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
 
 			expect( screen.getByRole( 'grid' ).scrollLeft ).toBe( 900 );
+		} );
+
+		it( 'jumps back to the current month only when the months start to scroll again', async () => {
+			const width = jest.spyOn( Element.prototype, 'scrollWidth', 'get' ).mockReturnValue( 0 );
+			render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
+			const grid = screen.getByRole( 'grid' );
+			const restyle = () =>
+				act( async () => grid.style.setProperty( '--restyled', String( Math.random() ) ) );
+			expect( grid.scrollLeft ).toBe( 0 );
+
+			width.mockReturnValue( 900 );
+			await restyle();
+			expect( grid.scrollLeft ).toBe( 900 );
+
+			grid.scrollLeft = 0;
+			await restyle();
+			expect( grid.scrollLeft ).toBe( 0 );
 		} );
 
 		it( 'scrolls the other way in RTL', () => {
