@@ -20,6 +20,8 @@ env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
   # This string is used as a unique identifier of test reminder comments on PRs.
   TEST_COMMENT_INDICATOR: "<!-- wpcom-reminder-comment -->"
+  # Trade some archive size for much faster compression.
+  XZ_OPT: -3 -T0
 
 jobs:
   prepare:
