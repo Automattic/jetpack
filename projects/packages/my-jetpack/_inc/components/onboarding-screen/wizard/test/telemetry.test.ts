@@ -27,6 +27,7 @@ describe( 'Wizard event names', () => {
 	it( 'sends only property keys Tracks will take', () => {
 		const keys = [
 			'flow_id',
+			'flow',
 			'step',
 			'site_type',
 			'filled',

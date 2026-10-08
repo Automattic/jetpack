@@ -1764,6 +1764,14 @@ $rail-row-min-height: 40px;
 	overflow-wrap: anywhere;
 }
 
-.start-terms {
+/*
+ * The shared component is on the legacy Text and brings an unlayered
+ * `.terms-of-service` that sets 16px and --jp-black, at the same strength
+ * as a lone class of ours. Both classes on the element wins, and the size
+ * is restated here because that rule has no variant to defer to.
+ */
+.start-terms:global(.terms-of-service) {
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Onboarding: interrupt My Jetpack only, so Jetpack's own connection pages finish what they started, and stop sending a registered site with no connected WordPress.com account into a setup screen it has no way out of. The connection card it lands on instead now says what connecting is for.
+Onboarding: Only offer setup on My Jetpack's own page, so Jetpack's own connection pages finish what they started, and stop sending a registered site with no connected WordPress.com account into a setup screen it has no way out of. The connection card it lands on instead now says what connecting is for.

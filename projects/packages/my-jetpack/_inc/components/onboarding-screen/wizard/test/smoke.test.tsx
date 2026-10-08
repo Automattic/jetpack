@@ -247,18 +247,18 @@ describe( 'Wizard start screen', () => {
 
 		await user.click( getStarted() );
 
-		await waitFor( () =>
-			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_myjetpack_onboarding_wizard_connect_success',
-				expect.objectContaining( { step: 'start' } )
-			)
-		);
-
 		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 1 );
+		// One name across both onboarding flows, told apart by the flow property.
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_click',
-			expect.objectContaining( { step: 'start' } )
+			'jetpack_my_jetpack_onboarding_click',
+			expect.objectContaining( { flow: 'wizard', step: 'start' } )
 		);
+		// The whole list, so the hand-off resolving cannot add an event back:
+		// it is not the same thing as anyone having connected.
+		expect( mockRecordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'jetpack_my_jetpack_onboarding_wizard_step_view',
+			'jetpack_my_jetpack_onboarding_click',
+		] );
 		// The browser is on its way to WordPress.com; the step does not move here.
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 	} );
@@ -302,7 +302,7 @@ describe( 'Wizard start screen', () => {
 
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_myjetpack_onboarding_wizard_connect_error',
+				'jetpack_my_jetpack_onboarding_connect_error',
 				expect.objectContaining( { error_code: 'site_inaccessible' } )
 			)
 		);
@@ -322,12 +322,8 @@ describe( 'Wizard start screen', () => {
 
 		// The message interpolates the server's prose; only the code is reported.
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_error',
+			'jetpack_my_jetpack_onboarding_connect_error',
 			expect.objectContaining( { error: expect.anything() } )
-		);
-		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_success',
-			expect.anything()
 		);
 	} );
 
@@ -345,7 +341,7 @@ describe( 'Wizard start screen', () => {
 		// No message to show, so the code stands in for it.
 		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_error',
+			'jetpack_my_jetpack_onboarding_connect_error',
 			expect.objectContaining( { error_code: 'JsonParseError' } )
 		);
 	} );
@@ -376,9 +372,17 @@ describe( 'Wizard start screen', () => {
 			'href',
 			'https://jetpack.com/redirect/?source=wpcom-tos'
 		);
-		expect( screen.getByRole( 'link', { name: /sync your site’s data/ } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: /sync your site‘s data/ } ) ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
+		);
+	} );
+
+	it( 'names the button the terms are about', () => {
+		setupWizard();
+
+		expect( screen.getByText( /By clicking/ ) ).toHaveTextContent(
+			screen.getByRole( 'button', { name: 'Get started' } ).textContent as string
 		);
 	} );
 
@@ -928,7 +932,7 @@ describe( 'What the wizard reports', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_site_type_select',
+			'jetpack_my_jetpack_onboarding_wizard_site_type_select',
 			expect.objectContaining( { site_type: 'store', step: 'site-type' } )
 		);
 
@@ -949,7 +953,7 @@ describe( 'What the wizard reports', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_site_type_detail',
+			'jetpack_my_jetpack_onboarding_wizard_site_type_detail',
 			expect.anything()
 		);
 	} );

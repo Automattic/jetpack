@@ -1,9 +1,8 @@
-import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, Link, Notice, Text } from '@wordpress/ui';
+import { Button, Icon, Notice, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useRef, useState } from 'react';
 import {
@@ -53,15 +52,20 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 			skipPricingPage: true,
 		} );
 	// The same bundle the rest of the flow carries, so the connection is part of
-	// the funnel rather than three loose events beside it.
+	// the funnel rather than two loose events beside it.
 	const track = useWizardTracks( 'start' );
 
 	// Only registration failures reach the store. Fetching the authorization URL can
 	// fail too, and that rejection is ours to hold or the screen says nothing.
 	const [ handoffError, setHandoffError ] = useState< unknown >( null );
 
+	// A hand-off rejection leaves `userIsConnecting` set in the store (CONNECT-499),
+	// so on a real site the button stays busy and the retry below is unreachable.
 	const isConnecting = siteIsRegistering || userIsConnecting;
 	const error = registrationError || handoffError;
+
+	// Named once: the terms sentence has to say the same words as the button it is about.
+	const primaryLabel = __( 'Get started', 'jetpack-my-jetpack' );
 
 	// The button is disabled while the request is in flight, which already swallows
 	// a second click. This closes the gap before that state has rendered, so a
@@ -79,23 +83,21 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		// return to knows to say the connection worked.
 		markConnecting();
 
-		track( WIZARD_EVENTS.connectClick );
+		// `flow` is what tells this run from the single-screen flow, which reports
+		// the click under the same name.
+		track( WIZARD_EVENTS.connectClick, { flow: 'wizard' } );
 
-		handleRegisterSite()
-			.then( () => {
-				// Nothing advances here: the browser is on its way to WordPress.com,
-				// and the wizard reads its step back off the connection on return.
-				track( WIZARD_EVENTS.connectSuccess );
-			} )
-			.catch( ( caught: unknown ) => {
-				inFlight.current = false;
-				setHandoffError( caught );
-				// The code only: the message interpolates the server's prose, which
-				// can carry the site's own URL.
-				track( WIZARD_EVENTS.connectError, {
-					error_code: connectionErrorCode( caught ),
-				} );
+		// No success event: this resolves as the browser leaves for WordPress.com,
+		// which is not the same thing as anyone having connected.
+		handleRegisterSite().catch( ( caught: unknown ) => {
+			inFlight.current = false;
+			setHandoffError( caught );
+			// The code only: the message interpolates the server's prose, which
+			// can carry the site's own URL.
+			track( WIZARD_EVENTS.connectError, {
+				error_code: connectionErrorCode( caught ),
 			} );
+		} );
 	}, [ handleRegisterSite, track ] );
 
 	return (
@@ -157,28 +159,11 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 						loading={ isConnecting }
 						loadingAnnouncement={ __( 'Connecting your site…', 'jetpack-my-jetpack' ) }
 					>
-						{ __( 'Get started', 'jetpack-my-jetpack' ) }
+						{ primaryLabel }
 					</Button>
 				</ThemeProvider>
 
-				<Text variant="body-md" render={ <p /> } className={ styles[ 'start-terms' ] }>
-					{ createInterpolateElement(
-						__(
-							'By continuing, you agree to our <tosLink>Terms of Service</tosLink> and to <syncLink>sync your site’s data</syncLink> with us.',
-							'jetpack-my-jetpack'
-						),
-						{
-							tosLink: <Link openInNewTab tone="neutral" href={ getRedirectUrl( 'wpcom-tos' ) } />,
-							syncLink: (
-								<Link
-									openInNewTab
-									tone="neutral"
-									href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-								/>
-							),
-						}
-					) }
-				</Text>
+				<TermsOfService className={ styles[ 'start-terms' ] } agreeButtonLabel={ primaryLabel } />
 			</div>
 		</div>
 	);

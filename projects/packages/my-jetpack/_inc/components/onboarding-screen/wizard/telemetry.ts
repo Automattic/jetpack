@@ -10,17 +10,18 @@ import type { WizardStep } from './lib';
  * assembled from parts a search could not find.
  */
 export const WIZARD_EVENTS = {
-	stepView: 'jetpack_myjetpack_onboarding_wizard_step_view',
-	siteTypeSelect: 'jetpack_myjetpack_onboarding_wizard_site_type_select',
-	siteTypeDetail: 'jetpack_myjetpack_onboarding_wizard_site_type_detail',
-	moduleToggle: 'jetpack_myjetpack_onboarding_wizard_module_toggle',
-	stepComplete: 'jetpack_myjetpack_onboarding_wizard_step_complete',
-	applyResult: 'jetpack_myjetpack_onboarding_wizard_apply_result',
-	complete: 'jetpack_myjetpack_onboarding_wizard_complete',
-	skip: 'jetpack_myjetpack_onboarding_wizard_skip',
-	connectClick: 'jetpack_myjetpack_onboarding_wizard_connect_click',
-	connectSuccess: 'jetpack_myjetpack_onboarding_wizard_connect_success',
-	connectError: 'jetpack_myjetpack_onboarding_wizard_connect_error',
+	stepView: 'jetpack_my_jetpack_onboarding_wizard_step_view',
+	siteTypeSelect: 'jetpack_my_jetpack_onboarding_wizard_site_type_select',
+	siteTypeDetail: 'jetpack_my_jetpack_onboarding_wizard_site_type_detail',
+	moduleToggle: 'jetpack_my_jetpack_onboarding_wizard_module_toggle',
+	stepComplete: 'jetpack_my_jetpack_onboarding_wizard_step_complete',
+	applyResult: 'jetpack_my_jetpack_onboarding_wizard_apply_result',
+	complete: 'jetpack_my_jetpack_onboarding_wizard_complete',
+	skip: 'jetpack_my_jetpack_onboarding_wizard_skip',
+	// These two carry no `wizard` segment on purpose: the single-screen flow
+	// reports them under the same names, and `flow` tells the two apart.
+	connectClick: 'jetpack_my_jetpack_onboarding_click',
+	connectError: 'jetpack_my_jetpack_onboarding_connect_error',
 } as const;
 
 const FLOW_ID_KEY = 'jetpack-onboarding-flow-id';
