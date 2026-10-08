@@ -76,8 +76,8 @@ class Mailer {
 			return $response;
 		}
 
-		$result = $response['results'][0] ?? array();
-		if ( isset( $result['status'] ) && 'sent' !== $result['status'] ) {
+		$result = isset( $response['results'][0] ) && is_array( $response['results'][0] ) ? $response['results'][0] : array();
+		if ( 'sent' !== ( $result['status'] ?? '' ) ) {
 			return new WP_Error(
 				'jetpack_send_rejected',
 				! empty( $result['reason'] ) ? (string) $result['reason'] : __( 'MailChannels did not accept the message.', 'jetpack-send-pkg' ),

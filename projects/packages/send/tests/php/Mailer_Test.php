@@ -139,9 +139,11 @@ class Mailer_Test extends BaseTestCase {
 	 */
 	public static function provide_failures() {
 		return array(
-			'HTTP error'            => array( array( 403, array( 'errors' => array( 'Invalid API key' ) ) ) ),
-			'network error'         => array( new WP_Error( 'http_request_failed', 'Operation timed out' ) ),
-			'per-recipient failure' => array(
+			'HTTP error'               => array( array( 403, array( 'errors' => array( 'Invalid API key' ) ) ) ),
+			'network error'            => array( new WP_Error( 'http_request_failed', 'Operation timed out' ) ),
+			'2xx without results'      => array( array( 202, array( 'request_id' => 'req-3' ) ) ),
+			'2xx with a non-JSON body' => array( array( 200, '<html>OK</html>' ) ),
+			'per-recipient failure'    => array(
 				array(
 					202,
 					array(
