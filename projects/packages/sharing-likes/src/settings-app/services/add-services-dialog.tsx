@@ -4,7 +4,7 @@ import { chevronLeft, chevronRight, plus } from '@wordpress/icons';
 import { Button, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
 import { CustomServiceFields, EMPTY_CUSTOM_SERVICE, isComplete } from './custom-service-fields';
 import { ServiceIcon } from './service-icon';
-import type { CustomServiceFields as Fields, Service, ServiceRow } from '../types';
+import type { CustomServiceFields as Fields, Service } from '../types';
 import type { FormEvent, JSX } from 'react';
 
 const FORM_ID = 'jetpack-sharing-likes-custom-service';
@@ -41,8 +41,8 @@ function ServiceOption( {
  * The services a row can add, one button each, then an optional custom-service step.
  *
  * @param props           - Props.
- * @param props.row       - Row the services go to.
  * @param props.title     - The row's own Add label.
+ * @param props.intro     - Where the chosen service goes.
  * @param props.available - Services the site does not use yet.
  * @param props.onAdd     - Adds a service at the end of the row.
  * @param props.onCreate  - Creates a custom service and adds it.
@@ -50,15 +50,15 @@ function ServiceOption( {
  * @return Dialog.
  */
 export function AddServicesDialog( {
-	row,
 	title,
+	intro,
 	available,
 	onAdd,
 	onCreate,
 	onClose,
 }: {
-	row: ServiceRow;
 	title: string;
+	intro: string;
 	available: Service[];
 	onAdd: ( id: string ) => void;
 	onCreate: ( fields: Fields ) => Promise< boolean >;
@@ -139,17 +139,7 @@ export function AddServicesDialog( {
 				<Dialog.Content>
 					{ step === 'pick' ? (
 						<Stack direction="column" gap="lg">
-							<Text render={ <p /> }>
-								{ row === 'visible'
-									? __(
-											'Choose a service to add it at the end of your buttons.',
-											'jetpack-sharing-likes'
-										)
-									: __(
-											'Choose a service to add it behind the More button.',
-											'jetpack-sharing-likes'
-										) }
-							</Text>
+							<Text render={ <p /> }>{ intro }</Text>
 							<Stack direction="row" gap="sm" wrap="wrap" ref={ optionsRef }>
 								{ available.map( ( service, index ) => (
 									<ServiceOption

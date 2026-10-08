@@ -95,7 +95,7 @@ export function ServiceChip( {
 					direction="row"
 					align="center"
 					gap="xs"
-					role="toolbar"
+					role="group"
 					aria-label={ sprintf(
 						/* translators: %s: sharing service name, such as "Facebook". */
 						__( '%s options', 'jetpack-sharing-likes' ),

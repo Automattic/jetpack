@@ -116,7 +116,7 @@ async function runToolbarAction(
 	action: string
 ) {
 	await user.click( screen.getByRole( 'button', { name: service } ) );
-	const toolbar = await screen.findByRole( 'toolbar', { name: `${ service } options` } );
+	const toolbar = await screen.findByRole( 'group', { name: `${ service } options` } );
 	await user.click( within( toolbar ).getByRole( 'button', { name: action } ) );
 }
 
@@ -166,7 +166,7 @@ describe( 'ServicesManager', () => {
 		await renderManager();
 
 		await user.click( screen.getByRole( 'button', { name: 'Facebook' } ) );
-		const toolbar = await screen.findByRole( 'toolbar', { name: 'Facebook options' } );
+		const toolbar = await screen.findByRole( 'group', { name: 'Facebook options' } );
 		// The row is mirrored, so the first button sits on the right.
 		expect( within( toolbar ).getAllByRole( 'button' )[ 0 ] ).toHaveAccessibleName( 'Move right' );
 		await user.click( within( toolbar ).getByRole( 'button', { name: 'Move left' } ) );
@@ -366,5 +366,31 @@ describe( 'ServicesManager', () => {
 		await waitFor( () =>
 			expect( within( dialog ).getByRole( 'button', { name: 'Acme' } ) ).toHaveFocus()
 		);
+	} );
+	it( 'moves a button among the services the site still has', async () => {
+		// A deleted service's ID can sit in the cached lists until they are saved again.
+		respond( { ...services, visible: [ 'gone', 'facebook', 'x' ] } );
+		const user = userEvent.setup();
+		await renderManager();
+
+		await runToolbarAction( user, 'X', 'Move left' );
+
+		await waitFor( () =>
+			expect( apiCalls( 'PUT' )[ 0 ] ).toMatchObject( { data: { visible: [ 'x', 'facebook' ] } } )
+		);
+	} );
+
+	it( 'says Share in the Add dialog when no service is shown as a button', async () => {
+		respond( { ...services, visible: [], hidden: [ 'email' ] } );
+		const user = userEvent.setup();
+		await renderManager();
+
+		await user.click( screen.getByRole( 'button', { name: 'Add to the Share button' } ) );
+
+		expect(
+			within( await screen.findByRole( 'dialog' ) ).getByText(
+				'Choose a service to add it behind the Share button.'
+			)
+		).toBeInTheDocument();
 	} );
 } );

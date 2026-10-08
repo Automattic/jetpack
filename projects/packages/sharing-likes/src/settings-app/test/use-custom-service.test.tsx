@@ -2,7 +2,13 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { queryKeys, useServices } from '../data/queries';
 import { useCustomService } from '../data/use-custom-service';
-import { apiCalls, createTestQueryClient, resetNotices, wrapperFor } from './helpers';
+import {
+	apiCalls,
+	createTestQueryClient,
+	resetNotices,
+	snackbarMessages,
+	wrapperFor,
+} from './helpers';
 import type { Service, Services } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -129,5 +135,15 @@ describe( 'useCustomService', () => {
 				data: { visible: [ 'facebook' ], hidden: [] },
 			},
 		] );
+	} );
+	it( 'says the service could not be deleted when the delete fails', async () => {
+		mockApiFetch.mockImplementation( ( { method } ) =>
+			method === 'DELETE' ? Promise.reject( {} ) : Promise.resolve( services )
+		);
+		const { result } = renderCustom();
+
+		await act( () => result.current.remove( hackerNews.id ) );
+
+		expect( snackbarMessages() ).toContain( 'The custom service could not be deleted.' );
 	} );
 } );

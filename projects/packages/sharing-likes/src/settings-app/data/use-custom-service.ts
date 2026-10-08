@@ -13,24 +13,19 @@ import type { CustomServiceFields, Service, ServiceRow, Services } from '../type
  * A custom-service write in the screen's write scope, with its error snackbar.
  *
  * @param mutationFn - Request.
+ * @param fallback   - Message when the error carries none.
  * @return Mutate function.
  */
 function useCustomServiceMutation< Variables, Result >(
-	mutationFn: ( variables: Variables ) => Promise< Result >
+	mutationFn: ( variables: Variables ) => Promise< Result >,
+	fallback: string
 ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	return useMutation( {
 		mutationKey: CUSTOM_SERVICE_KEY,
 		scope: MUTATION_SCOPE,
 		mutationFn,
-		onError: error =>
-			createErrorNotice(
-				errorMessage(
-					error,
-					__( 'The custom service could not be saved.', 'jetpack-sharing-likes' )
-				),
-				{ type: 'snackbar' }
-			),
+		onError: error => createErrorNotice( errorMessage( error, fallback ), { type: 'snackbar' } ),
 	} ).mutateAsync;
 }
 
@@ -54,9 +49,13 @@ export function useCustomService() {
 	const queryClient = useQueryClient();
 	const saveLists = useSaveServices();
 	const { createSuccessNotice } = useDispatch( noticesStore );
-	const createMutation = useCustomServiceMutation( createCustomService );
-	const updateMutation = useCustomServiceMutation( updateService );
-	const deleteMutation = useCustomServiceMutation( deleteCustomService );
+	const notSaved = __( 'The custom service could not be saved.', 'jetpack-sharing-likes' );
+	const createMutation = useCustomServiceMutation( createCustomService, notSaved );
+	const updateMutation = useCustomServiceMutation( updateService, notSaved );
+	const deleteMutation = useCustomServiceMutation(
+		deleteCustomService,
+		__( 'The custom service could not be deleted.', 'jetpack-sharing-likes' )
+	);
 
 	const cached = useCallback(
 		() => queryClient.getQueryData< Services >( queryKeys.services ),

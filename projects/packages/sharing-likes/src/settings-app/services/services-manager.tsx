@@ -73,7 +73,9 @@ export function ServicesManager(): JSX.Element {
 			if ( ! data ) {
 				return;
 			}
-			const ids = [ ...data[ row ] ];
+			// The index counts the buttons on screen, which skip IDs whose service is gone.
+			const known = new Set( data.services.map( service => service.id ) );
+			const ids = data[ row ].filter( other => known.has( other ) );
 			const [ id ] = ids.splice( index, 1 );
 			ids.splice( index + delta, 0, id );
 			saveLists( { visible: data.visible, hidden: data.hidden, [ row ]: ids } );
@@ -171,6 +173,15 @@ export function ServicesManager(): JSX.Element {
 	const addHiddenLabel = hasVisible
 		? __( 'Add to the More button', 'jetpack-sharing-likes' )
 		: __( 'Add to the Share button', 'jetpack-sharing-likes' );
+	const addIntros: Record< Row, string > = {
+		visible: __(
+			'Choose a service to add it at the end of your buttons.',
+			'jetpack-sharing-likes'
+		),
+		hidden: hasVisible
+			? __( 'Choose a service to add it behind the More button.', 'jetpack-sharing-likes' )
+			: __( 'Choose a service to add it behind the Share button.', 'jetpack-sharing-likes' ),
+	};
 	const available = services.filter(
 		service =>
 			! service.deprecated && ! visible.includes( service.id ) && ! hidden.includes( service.id )
@@ -239,8 +250,8 @@ export function ServicesManager(): JSX.Element {
 			) ) }
 			{ adding && (
 				<AddServicesDialog
-					row={ adding }
 					title={ adding === 'visible' ? addVisibleLabel : addHiddenLabel }
+					intro={ addIntros[ adding ] }
 					available={ available }
 					onAdd={ onAdd }
 					onCreate={ onCreate }
