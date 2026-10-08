@@ -354,12 +354,6 @@ class Analytics {
 		}
 		configure_csv_exports();
 
-		// The WooCommerce store currency, for formatting store money.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_store_currency' ) ) {
-			require_once __DIR__ . '/store-currency.php';
-		}
-		configure_store_currency();
-
 		// VideoPress availability for the client's video routes. The widget layer
 		// reads the same signal through widget-type-support.php.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_videopress_availability' ) ) {

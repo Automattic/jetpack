@@ -1,29 +1,27 @@
 <?php
 /**
- * Tests for store currency script data.
+ * Tests for the store currency script data.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
-namespace Automattic\Jetpack\PremiumAnalytics;
+namespace Automattic\Jetpack\WooCommerceStats;
 
-use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../src/store-currency.php';
-
 /**
- * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_store_currency_script_data
+ * @covers \Automattic\Jetpack\WooCommerceStats\Store_Currency
  */
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_store_currency_script_data' )]
+#[CoversClass( Store_Currency::class )]
 class Store_Currency_Test extends TestCase {
 
 	public function test_script_data_is_unchanged_without_woocommerce() {
 		$data = array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) );
 
-		$this->assertSame( $data, inject_store_currency_script_data( $data ) );
+		$this->assertSame( $data, Store_Currency::add_script_data( $data ) );
 	}
 
 	/**
@@ -35,7 +33,7 @@ class Store_Currency_Test extends TestCase {
 	public function test_script_data_adds_the_store_currency_beside_existing_keys() {
 		require_once __DIR__ . '/mocks/woocommerce-currency-mock.php';
 
-		$data = inject_store_currency_script_data(
+		$data = Store_Currency::add_script_data(
 			array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) )
 		);
 
