@@ -79,7 +79,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		// registrar never registers and must never tear down.
 
 		delete_transient( 'monitor_last_downtime' );
-		delete_option( 'monitor_receive_notifications' );
+		delete_option( 'monitor_receive_notifications' . $this->admin_id );
 
 		parent::tear_down();
 	}
@@ -482,9 +482,8 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		$this->assertTrue( $result['changed'] );
 		$this->assertSame( 1, Monitor_Abilities_Test_Stub::$apply_calls, 'IXR setNotifications should have been called exactly once.' );
 		$this->assertTrue( Monitor_Abilities_Test_Stub::$last_applied, 'apply_notifications_update should have been called with the desired value.' );
-		// `update_option` stores booleans as '1'/'' through the DB roundtrip; assert truthiness
-		// rather than the exact string so this test is robust to env differences.
-		$this->assertTrue( (bool) get_option( 'monitor_receive_notifications' ), 'monitor_receive_notifications option should mirror the new state.' );
+		$this->assertSame( '1', (string) get_option( 'monitor_receive_notifications' . $this->admin_id ), 'The user\'s monitor_receive_notifications option should mirror the new state.' );
+		$this->assertFalse( get_option( 'monitor_receive_notifications' ), 'The value must not be stored where other users would read it.' );
 	}
 
 	public function test_set_notifications_returns_changed_false_when_state_matches() {
@@ -503,7 +502,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 
 		// Seed a stale local option (false) that disagrees with the remote state
 		// (true) to exercise the self-healing sync on the no-op path.
-		update_option( 'monitor_receive_notifications', false );
+		update_option( 'monitor_receive_notifications' . $this->admin_id, 0 );
 
 		$result = Monitor_Abilities_Test_Stub::set_notifications( array( 'enabled' => true ) );
 
@@ -514,7 +513,7 @@ class Monitor_Abilities_Test extends WP_UnitTestCase {
 		// Even on a no-op the local option is synced to the known-good remote
 		// value (true here) so the legacy REST reader, which trusts this option
 		// before going remote, can't surface a stale state.
-		$this->assertTrue( (bool) get_option( 'monitor_receive_notifications' ), 'No-op should still sync the mirrored option to the remote value.' );
+		$this->assertSame( '1', (string) get_option( 'monitor_receive_notifications' . $this->admin_id ), 'No-op should still sync the mirrored option to the remote value.' );
 	}
 
 	/**

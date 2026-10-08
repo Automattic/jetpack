@@ -82,8 +82,8 @@ class Jetpack_Monitor {
 			wp_die( sprintf( '%s: %s', esc_html( $xml->getErrorCode() ), esc_html( $xml->getErrorMessage() ) ) );
 		}
 
-		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'monitor_receive_notifications', (bool) $value );
+		// Read by Jetpack_Core_Json_Api_Endpoints::get_remote_value. An integer, as update_option() won't create a `false` option.
+		update_option( 'monitor_receive_notifications' . get_current_user_id(), (int) (bool) $value );
 
 		return true;
 	}

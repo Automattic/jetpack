@@ -225,10 +225,10 @@ class Monitor_Abilities extends Registrar {
 
 	/**
 	 * Execute: declarative state-setter. Idempotent — compares desired vs current
-	 * and returns changed=false when they match. Either way the local
-	 * `monitor_receive_notifications` option is synced to the remote value (after
-	 * the write on a change, and on the no-op path) so the legacy REST reader,
-	 * which trusts that option first, never reports a stale state.
+	 * and returns changed=false when they match. Either way the current user's
+	 * local copy of the value is synced to the remote one (after the write on a
+	 * change, and on the no-op path) so the legacy REST reader, which trusts that
+	 * copy first, never reports a stale state.
 	 *
 	 * @param array|null $input Input matching the ability's input_schema.
 	 * @return array|\WP_Error
@@ -270,14 +270,14 @@ class Monitor_Abilities extends Registrar {
 		}
 
 		if ( $desired === $current ) {
-			// Sync the local `monitor_receive_notifications` option to the
-			// known-good remote value even on a no-op. The legacy
+			// Sync the user's local copy to the known-good remote value even on
+			// a no-op. The legacy
 			// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader trusts
 			// this option before falling back to a remote read, so a stale local
 			// value would let it report the wrong state. The changed=true path
 			// below mirrors the option after a write; mirroring here keeps the
 			// unchanged path self-healing too.
-			update_option( 'monitor_receive_notifications', $current );
+			static::mirror_notifications_state( $current );
 
 			return array(
 				'enabled' => $current,
@@ -290,15 +290,25 @@ class Monitor_Abilities extends Registrar {
 			return $applied;
 		}
 
-		// Mirror the write to the `monitor_receive_notifications` option so the
-		// legacy `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader — the
+		// Mirror the write to the user's local copy so the legacy
+		// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader — the
 		// only other reader of this option — stays in sync with the remote state.
-		update_option( 'monitor_receive_notifications', $desired );
+		static::mirror_notifications_state( $desired );
 
 		return array(
 			'enabled' => $desired,
 			'changed' => true,
 		);
+	}
+
+	/**
+	 * Save the current user's notification state where the legacy REST reader looks for it.
+	 *
+	 * @param bool $enabled Whether the current user receives notifications.
+	 */
+	protected static function mirror_notifications_state( bool $enabled ): void {
+		// An integer, as update_option() won't create an option whose value is `false`.
+		update_option( 'monitor_receive_notifications' . get_current_user_id(), (int) $enabled );
 	}
 
 	/**

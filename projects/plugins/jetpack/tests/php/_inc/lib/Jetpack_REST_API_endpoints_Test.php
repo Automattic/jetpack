@@ -1053,6 +1053,22 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Each admin reads their own Monitor email choice, not the one another admin saved.
+	 */
+	public function test_settings_retrieve_monitor_notifications_per_user() {
+		$subscribed   = $this->create_and_get_user( 'administrator' );
+		$unsubscribed = $this->create_and_get_user( 'administrator' );
+		update_option( 'monitor_receive_notifications' . $subscribed->ID, 1 );
+		update_option( 'monitor_receive_notifications' . $unsubscribed->ID, 0 );
+
+		wp_set_current_user( $subscribed->ID );
+		$this->assertTrue( $this->create_and_get_request( 'settings' )->get_data()['monitor_receive_notifications'] );
+
+		wp_set_current_user( $unsubscribed->ID );
+		$this->assertFalse( $this->create_and_get_request( 'settings' )->get_data()['monitor_receive_notifications'] );
+	}
+
+	/**
 	 * Test fetching milestone widget data.
 	 *
 	 * @since 5.5.0
