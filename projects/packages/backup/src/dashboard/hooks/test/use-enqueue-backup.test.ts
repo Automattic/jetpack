@@ -4,7 +4,12 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { keys } from '../../data/query-client';
 import { useBackups } from '../use-backups';
-import { REQUEST_CEILING_MS, useBackupRequested, useEnqueueBackup } from '../use-enqueue-backup';
+import {
+	REQUEST_CEILING_MS,
+	useBackupRequested,
+	useEnqueueBackup,
+	useEnqueueFailure,
+} from '../use-enqueue-backup';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
@@ -22,6 +27,15 @@ function makeWrapper() {
 	const wrapper = ( { children }: { children: ReactNode } ) =>
 		createElement( QueryClientProvider, { client }, children );
 	return { client, wrapper };
+}
+
+/**
+ * The button's controls, plus the failure the notice outside the header reads.
+ *
+ * @return Both hooks' results.
+ */
+function useEnqueueAndFailure() {
+	return { ...useEnqueueBackup(), failure: useEnqueueFailure() };
 }
 
 beforeEach( () => {
@@ -55,22 +69,22 @@ describe( 'useEnqueueBackup', () => {
 		mockedApiFetch.mockResolvedValue( null );
 		const { wrapper } = makeWrapper();
 
-		const { result } = renderHook( () => useEnqueueBackup(), { wrapper } );
+		const { result } = renderHook( useEnqueueAndFailure, { wrapper } );
 		act( () => result.current.enqueue() );
 
 		await waitFor( () => expect( result.current.state ).toBe( 'error' ) );
-		expect( result.current.errorMessage ).toBe( 'Could not start a backup. Please try again.' );
+		expect( result.current.failure?.message ).toBe( 'Could not start a backup. Please try again.' );
 	} );
 
 	it( 'surfaces the reason when WPCOM refuses inside a 200', async () => {
 		mockedApiFetch.mockResolvedValue( { success: false, error: 'Backups are not enabled.' } );
 		const { wrapper } = makeWrapper();
 
-		const { result } = renderHook( () => useEnqueueBackup(), { wrapper } );
+		const { result } = renderHook( useEnqueueAndFailure, { wrapper } );
 		act( () => result.current.enqueue() );
 
 		await waitFor( () => expect( result.current.state ).toBe( 'error' ) );
-		expect( result.current.errorMessage ).toBe( 'Backups are not enabled.' );
+		expect( result.current.failure?.message ).toBe( 'Backups are not enabled.' );
 	} );
 
 	it( 'reports a rejected request as a failure', async () => {
@@ -80,11 +94,11 @@ describe( 'useEnqueueBackup', () => {
 		} );
 		const { wrapper } = makeWrapper();
 
-		const { result } = renderHook( () => useEnqueueBackup(), { wrapper } );
+		const { result } = renderHook( useEnqueueAndFailure, { wrapper } );
 		act( () => result.current.enqueue() );
 
 		await waitFor( () => expect( result.current.state ).toBe( 'error' ) );
-		expect( result.current.errorMessage ).toBe( 'Sorry, you are not allowed.' );
+		expect( result.current.failure?.message ).toBe( 'Sorry, you are not allowed.' );
 	} );
 
 	it( 'invalidates the backups query so the list starts reflecting the new backup', async () => {
@@ -103,14 +117,29 @@ describe( 'useEnqueueBackup', () => {
 		mockedApiFetch.mockResolvedValue( null );
 		const { wrapper } = makeWrapper();
 
-		const { result } = renderHook( () => useEnqueueBackup(), { wrapper } );
+		const { result } = renderHook( useEnqueueAndFailure, { wrapper } );
 		act( () => result.current.enqueue() );
 		await waitFor( () => expect( result.current.state ).toBe( 'error' ) );
 
 		act( () => result.current.reset() );
 
 		await waitFor( () => expect( result.current.state ).toBe( 'idle' ) );
-		expect( result.current.errorMessage ).toBeNull();
+		await waitFor( () => expect( result.current.failure ).toBeNull() );
+	} );
+
+	// Download and Restore have no button, so a failure kept past it greets the return trip.
+	it( 'forgets the failure once the button unmounts', async () => {
+		mockedApiFetch.mockResolvedValue( null );
+		const { wrapper } = makeWrapper();
+		const { result: button, unmount } = renderHook( () => useEnqueueBackup(), { wrapper } );
+		const { result: notice } = renderHook( () => useEnqueueFailure(), { wrapper } );
+
+		act( () => button.current.enqueue() );
+		await waitFor( () => expect( notice.current ).not.toBeNull() );
+
+		unmount();
+
+		await waitFor( () => expect( notice.current ).toBeNull() );
 	} );
 } );
 

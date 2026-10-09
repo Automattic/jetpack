@@ -16,7 +16,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import BackupNowButton from '../src/dashboard/components/backup-now-button';
+import BackupNowButton, { BackupNowFailure } from '../src/dashboard/components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../src/dashboard/components/backup-status';
 import BackupStatusBanner from '../src/dashboard/components/backup-status/banner';
 import { keys } from '../src/dashboard/data/query-client';
@@ -334,6 +334,10 @@ describe( 'BackupNowButton', () => {
 				'true'
 			)
 		);
+		// The tooltip alone never reached a screen reader.
+		expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAccessibleDescription(
+			'A backup is currently in progress.'
+		);
 	} );
 
 	it( 'refuses to queue a backup when WPCOM has stopped them', async () => {
@@ -344,8 +348,7 @@ describe( 'BackupNowButton', () => {
 		await expect(
 			screen.findByRole( 'button', { name: 'Back up now' } )
 		).resolves.toBeInTheDocument();
-		// Re-queried inside the wait, not held from above: the storage answer lands
-		// after the button and moves it into the tooltip branch, a different element.
+		// Re-queried inside the wait: the storage answer lands after the button.
 		await waitFor( () =>
 			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
 				'aria-disabled',
@@ -422,6 +425,39 @@ describe( 'BackupNowButton', () => {
 				'true'
 			)
 		);
+	} );
+
+	// JETPACK-2965: swapping the button's wrapper remounted it, dropping focus to `<body>`.
+	it.each( [
+		[ 'succeeds', { success: true }, 'Backup enqueued', 'Backup enqueued' ],
+		[
+			'fails',
+			{ success: false, error: 'Backups are not enabled.' },
+			'Backups are not enabled.',
+			'Back up now',
+		],
+	] )( 'keeps focus on the button when the enqueue %s', async ( _name, reply, settled, label ) => {
+		const answer = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( '/site/backup/enqueue' )
+				? Promise.resolve( reply )
+				: answer?.( options )
+		);
+
+		renderWithClient(
+			<>
+				<BackupNowButton />
+				<BackupNowFailure />
+			</>
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'Back up now' } )
+		).resolves.toBeInTheDocument();
+		await userEvent.tab();
+		await userEvent.keyboard( '{Enter}' );
+
+		await expect( screen.findByText( settled ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: label } ) ).toHaveFocus();
 	} );
 
 	// The legacy button has no rejection handler and discards the body,

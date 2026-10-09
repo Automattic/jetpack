@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ApiError } from '../data/api/_helpers';
@@ -10,6 +10,8 @@ export type EnqueueState = 'idle' | 'enqueuing' | 'enqueued' | 'error';
 
 /** How long a request may wait for WPCOM to report a backup before the UI gives up. */
 export const REQUEST_CEILING_MS = 10 * 60_000;
+
+const ENQUEUE_KEY = [ 'backup', 'enqueue' ] as const;
 
 // Shared through the query cache so components outside the button can see the click.
 type Requested =
@@ -76,8 +78,6 @@ export function useBackupRequested(): boolean {
 
 type Result = {
 	state: EnqueueState;
-	/** User-facing reason the enqueue failed, or null. */
-	errorMessage: string | null;
 	enqueue: () => void;
 	reset: () => void;
 };
@@ -104,6 +104,9 @@ export function useEnqueueBackup(): Result {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation( {
+		mutationKey: ENQUEUE_KEY,
+		// Dropped with its observer, so a failure outlives neither a retry nor the button.
+		gcTime: 0,
 		// The flag is set at once so the banner appears on the click. The baseline
 		// comes from a fresh read taken before the POST, never from a possibly stale cache.
 		onMutate: async () => {
@@ -158,7 +161,7 @@ export function useEnqueueBackup(): Result {
 		onSuccess: () => queryClient.invalidateQueries( { queryKey: keys.backups() } ),
 	} );
 
-	const { mutate, reset: resetMutation, isPending, isError, isSuccess, error } = mutation;
+	const { mutate, reset: resetMutation, isPending, isError, isSuccess } = mutation;
 
 	const enqueue = useCallback( () => {
 		mutate();
@@ -180,8 +183,21 @@ export function useEnqueueBackup(): Result {
 
 	return {
 		state,
-		errorMessage: isError ? ( error?.message ?? null ) : null,
 		enqueue,
 		reset,
 	};
+}
+
+/**
+ * Why the button's latest request failed, for a notice rendered outside the header.
+ *
+ * @return The failure, or null unless the latest request failed.
+ */
+export function useEnqueueFailure(): Error | null {
+	const states = useMutationState( {
+		filters: { mutationKey: ENQUEUE_KEY },
+		select: mutation => mutation.state,
+	} );
+	const latest = states[ states.length - 1 ];
+	return latest?.status === 'error' ? latest.error : null;
 }
