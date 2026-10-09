@@ -1,15 +1,11 @@
 /**
- * External dependencies
- */
-
-/**
  * Internal dependencies
  */
 import { fetchReportConversionRate } from '../api/report-conversion-rate-fetch';
 import { sanitizeReportConversionRateResponse } from '../processing/conversion-rate';
 import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { RequestReportConversionRateParams } from '../api/report-conversion-rate-fetch';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 const getReportConversionRateQueryKey = ( p: RequestReportConversionRateParams ) =>
 	[ 'reports', 'conversion-rate', p.from, p.to, p.interval, p.date_type, p.filters ] as const;

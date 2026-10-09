@@ -439,7 +439,8 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
+		// The Protect package's dashboard, loaded by the Jetpack plugin's module, serves the same page as the standalone plugin.
+		if ( static::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' ) ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}

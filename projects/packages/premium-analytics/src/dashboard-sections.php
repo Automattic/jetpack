@@ -120,7 +120,7 @@ function configure_dashboard_preview_scope() {
 }
 
 /**
- * Injects the available section slugs into JetpackScriptData.
+ * Injects the available section slugs, and whether the reader may see Stats, into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
  * choosing its redirect, so it reads the slugs from boot data instead.
@@ -131,17 +131,18 @@ function configure_dashboard_preview_scope() {
  * @return array
  */
 function inject_dashboard_sections_script_data( array $data ): array {
-	$sections = get_available_dashboard_section_slugs();
-
-	if ( null === $sections ) {
-		return $data;
-	}
-
 	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['sections'] = $sections;
+	// Surfaces outside any section, such as feedback, post to Stats endpoints.
+	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
+
+	$sections = get_available_dashboard_section_slugs();
+
+	if ( null !== $sections ) {
+		$data['premium_analytics']['sections'] = $sections;
+	}
 
 	return $data;
 }

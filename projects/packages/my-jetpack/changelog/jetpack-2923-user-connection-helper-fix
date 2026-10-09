@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop counting products that are off as needing a user connection.

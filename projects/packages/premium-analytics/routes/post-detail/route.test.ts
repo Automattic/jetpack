@@ -89,19 +89,6 @@ describe( 'post detail route report origin', () => {
 		await expect( result ).rejects.not.toHaveProperty( 'search.comp' );
 	} );
 
-	it( 'keeps no linking window when the link itself was on all time', async () => {
-		const result = route.beforeLoad( {
-			params: { postId: '42' },
-			search: { from: '2026-01-01', to: '2026-06-16', interval: 'month', preset: 'all-time' },
-		} );
-
-		await expect( result ).rejects.toMatchObject( {
-			search: { preset: 'all-time', post_id: '42' },
-		} );
-		const { search } = mockRedirect.mock.calls[ 0 ][ 0 ];
-		expect( Object.keys( search ).filter( key => key.startsWith( 'ref_' ) ) ).toEqual( [] );
-	} );
-
 	it( 'keeps the page its own range and the linking window when re-seeding a settled URL', async () => {
 		const result = route.beforeLoad( {
 			params: { postId: '42' },

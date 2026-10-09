@@ -1,4 +1,5 @@
 Significance: patch
 Type: other
+Comment: Newsletter: Overview onboarding checklist updates. Behind the newsletter-overview feature flag, which is off in production.
 
-Newsletter: update the Overview onboarding checklist, which is behind a feature flag, to the steps WordPress.com tracks and their completion.
+

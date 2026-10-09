@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.1] - 2026-10-07
+### Removed
+- Comments: Stop syncing the comment identity provider meta. [#53296]
+
+### Fixed
+- WooCommerce Analytics: Match WooCommerce's own order stats for refunds, so a full refund after a partial refund is no longer counted twice and refunds of never-paid orders no longer show as returns. [#53159]
+
 ## [5.4.0] - 2026-10-05
 ### Added
 - Sync the VideoPress site setting that turns off sharing for every video. [#52991]
@@ -1868,6 +1875,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[5.4.1]: https://github.com/Automattic/jetpack-sync/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/Automattic/jetpack-sync/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/Automattic/jetpack-sync/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/Automattic/jetpack-sync/compare/v5.1.3...v5.2.0

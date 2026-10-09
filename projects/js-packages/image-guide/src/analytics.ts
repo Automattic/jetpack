@@ -1,5 +1,4 @@
-import { observe } from './stores/facade.ts';
-import { selectors } from './stores/store.ts';
+import { selectors, subscribeToFacts } from './stores/store.ts';
 import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 
 /**
@@ -57,50 +56,45 @@ export default class ImageGuideAnalytics {
 			let unsubscribe = () => {};
 			let emitted = false;
 			// Wait until the image is loaded and then track the state.
-			unsubscribe = observe(
-				() => selectors.getImageFacts( imageStore.id ).loading,
-				loading => {
-					if ( ! loading && ! emitted ) {
-						emitted = true;
-						const {
-							oversizedRatio,
-							fileSize,
-							sizeOnPage,
-							expectedSize,
-							potentialSavings,
-							url: imageURL,
-						} = imageStore.getSnapshot();
-						const severity = getSeverity( oversizedRatio );
+			const track = () => {
+				if ( ! selectors.getImageFacts( imageStore.id ).loading && ! emitted ) {
+					emitted = true;
+					const {
+						oversizedRatio,
+						fileSize,
+						sizeOnPage,
+						expectedSize,
+						potentialSavings,
+						url: imageURL,
+					} = imageStore.getSnapshot();
+					const severity = getSeverity( oversizedRatio );
 
-						const props: ImageProperties = {
-							severity,
-							oversized_ratio: oversizedRatio,
-							file_width: fileSize.width,
-							file_height: fileSize.height,
-							size_on_page_width: sizeOnPage.width,
-							size_on_page_height: sizeOnPage.height,
-							expected_width: expectedSize.width,
-							expected_height: expectedSize.height,
-							potential_savings: potentialSavings,
-							image_url: imageURL,
-						};
+					const props: ImageProperties = {
+						severity,
+						oversized_ratio: oversizedRatio,
+						file_width: fileSize.width,
+						file_height: fileSize.height,
+						size_on_page_width: sizeOnPage.width,
+						size_on_page_height: sizeOnPage.height,
+						expected_width: expectedSize.width,
+						expected_height: expectedSize.height,
+						potential_savings: potentialSavings,
+						image_url: imageURL,
+					};
 
-						ImageGuideAnalytics.tracksCallback( 'image_guide_image_outcome', {
-							...props,
-							window_width: window.innerWidth,
-							window_height: window.innerHeight,
-							device_pixel_ratio: window.devicePixelRatio,
-						} );
+					ImageGuideAnalytics.tracksCallback( 'image_guide_image_outcome', {
+						...props,
+						window_width: window.innerWidth,
+						window_height: window.innerHeight,
+						device_pixel_ratio: window.devicePixelRatio,
+					} );
 
-						resolve( props );
-						unsubscribe();
-					}
-				},
-				undefined,
-				undefined,
-				imageStore.id
-			);
-			if ( emitted ) unsubscribe();
+					resolve( props );
+					unsubscribe();
+				}
+			};
+			unsubscribe = subscribeToFacts( track, imageStore.id );
+			track();
 		} );
 	}
 

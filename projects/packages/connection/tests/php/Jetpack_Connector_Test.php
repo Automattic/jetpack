@@ -193,8 +193,37 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
+		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
 		$this->assertArrayNotHasKey( 'protectedOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/* ── get_connector_data() — connected ──────────────────────── */
+
+	/**
+	 * A connected site carries the account sections and a link to the connected users list.
+	 */
+	public function test_get_connector_data_when_connected() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+		wp_set_current_user( $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['isConnected'] );
+		$this->assertTrue( $data['isRegistered'] );
+		$this->assertArrayHasKey( 'currentUser', $data );
+		$this->assertArrayHasKey( 'connectionOwner', $data );
+		$this->assertStringContainsString( 'users.php', $data['connectedUsersUrl'] );
+		$this->assertStringContainsString(
+			Users_Connection_Admin::VIEW_QUERY_ARG . '=' . Users_Connection_Admin::VIEW_CONNECTED,
+			$data['connectedUsersUrl']
+		);
 	}
 
 	/**

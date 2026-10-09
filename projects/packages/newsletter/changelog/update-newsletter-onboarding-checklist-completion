@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
+Comment: Overview onboarding checklist: show the steps WordPress.com tracks and their completion. Behind the newsletter-overview feature flag, which is off in production.
 
-Overview: show the onboarding checklist steps WordPress.com tracks (subscribe form, first subscribers, first newsletter), with their completion, and complete a step when it is skipped.
+

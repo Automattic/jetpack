@@ -23,9 +23,9 @@ declare module 'react' {
 	interface HTMLAttributes< T > {
 		/**
 		 * `inert` is a standard HTML attribute that @types/react only added in its React 19 typings;
-		 * this package is pinned to 18. Declared as a string because that is what React 18 renders it
-		 * from — React 19's boolean handling is not in play here.
+		 * this package is pinned to 18. Declared as a boolean to match what the helper from
+		 * `@wordpress/react-inert-value` returns.
 		 */
-		inert?: string;
+		inert?: boolean;
 	}
 }

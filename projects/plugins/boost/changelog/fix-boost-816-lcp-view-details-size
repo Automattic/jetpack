@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Fix the "View details" link in the issues notice looking oversized next to the surrounding text on the modernized dashboard.

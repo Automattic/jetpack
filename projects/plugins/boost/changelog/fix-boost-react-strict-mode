@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Update React.StrictMode for React 19 compatibility.
+
