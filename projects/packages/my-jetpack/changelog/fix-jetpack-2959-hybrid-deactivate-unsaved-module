@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Products: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive.

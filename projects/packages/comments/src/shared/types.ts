@@ -125,6 +125,8 @@ export type Settings = {
 	site: { name: string; iconUrl: string };
 	/** Empty where the host offers no subscriptions. */
 	manageSubscriptionsUrl: string;
+	/** Null where usage events are off. */
+	tracks: { platform: string } | null;
 	strings: Strings;
 	commenter: Details;
 	/** Empty `editProfileUrl` for a user who may not edit their own profile. */
@@ -143,5 +145,7 @@ declare global {
 		jetpackCommentsEditorLabels?: EditorLabels;
 		/** The comment on the edit-comment screen, as the editor writes it. */
 		jetpackCommentsEditorContent?: string;
+		/** The Tracks queue, which w.js drains. */
+		_tkq?: unknown[];
 	}
 }
