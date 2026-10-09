@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../../../types';
+import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
 
@@ -36,10 +37,52 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 		if ( JETPACK_MODULES_NOT_FOR_MULTISITE.includes( $module.module ) ) {
 			return {
 				isAvailable: false,
+				isMultisiteBlocked: true,
 				reason: __( 'Not available on multisite', 'jetpack-my-jetpack' ),
 			};
 		}
 	}
 
+	if ( $module.available === false ) {
+		return {
+			isAvailable: false,
+			reason: $module.unavailable_reason || __( 'Unavailable', 'jetpack-my-jetpack' ),
+		};
+	}
+
 	return { isAvailable: true };
+}
+
+/**
+ * Why a feature has no available route on this site.
+ *
+ * @param state - The feature's live state.
+ * @return The unavailable reason, or undefined when a plugin or host provides a route.
+ */
+export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
+	if ( state.control.kind === 'module' ) {
+		return state.control.module.override
+			? undefined
+			: getModuleStatus( state.control.module ).reason;
+	}
+	if ( state.feature.plugin && state.feature.plugin_status !== 'not-installed' ) {
+		return undefined;
+	}
+	return state.unavailableReason;
+}
+
+/**
+ * Whether the feature can run here without changing the host's policy.
+ *
+ * @param state - The feature's live state.
+ * @return Whether it belongs in the Available filter.
+ */
+export function isFeatureAvailable( state: FeatureState ): boolean {
+	const { control } = state;
+	return (
+		! state.pending &&
+		( control.kind !== 'module' || control.module.override !== 'inactive' ) &&
+		( control.kind !== 'plugin' || control.override !== 'inactive' ) &&
+		! getFeatureUnavailableReason( state )
+	);
 }

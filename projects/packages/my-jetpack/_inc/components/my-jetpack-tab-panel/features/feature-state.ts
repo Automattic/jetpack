@@ -1,4 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
+import { getQueryArg } from '@wordpress/url';
 import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
@@ -7,8 +8,14 @@ import {
 	pluginSwitchKey,
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
-import { getProductModules } from './mappings';
-import { getModuleStatus, getOverrideReason } from './module-availability';
+import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
+import { linksTo } from '../../../utils/admin-menu-sync';
+import { getProductModules, PRODUCT_MODULES } from './mappings';
+import {
+	getFeatureUnavailableReason,
+	getModuleStatus,
+	getOverrideReason,
+} from './module-availability';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
@@ -50,7 +57,51 @@ export type FeatureState = {
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
 	product?: ProductCamelCase;
+	unavailableReason?: string;
+	moduleUnavailableReason?: string;
 };
+
+/**
+ * Keep offline Open links within registered admin pages.
+ *
+ * @param state - The feature state.
+ * @return A management URL, or an empty string.
+ */
+export function getFeatureManageUrl( state: FeatureState ): string {
+	if ( getFeatureUnavailableReason( state ) ) {
+		return '';
+	}
+
+	const url = state.feature.manage_url || '';
+	if ( ! isOfflineFeatures() || ! url ) {
+		return url;
+	}
+
+	const page = getQueryArg( url, 'page' );
+	const registered =
+		! page ||
+		getOfflineFeaturesSeed()?.mainFeatures.available_admin_pages?.includes( String( page ) );
+	const inSidebar = Array.from( document.querySelectorAll( '#adminmenu li' ) ).some( item =>
+		linksTo( item, url )
+	);
+	return registered || inSidebar ? url : '';
+}
+
+/**
+ * The module's limitation when the standalone plugin remains available.
+ *
+ * @param state - The feature's live state.
+ * @return The inline note, or undefined.
+ */
+export function getModuleUnavailableNote( state: FeatureState ): string | undefined {
+	return state.moduleUnavailableReason
+		? sprintf(
+				/* translators: %s is why the Jetpack module is unavailable; its standalone plugin remains available. */
+				__( 'Jetpack module: %s', 'jetpack-my-jetpack' ),
+				state.moduleUnavailableReason
+			)
+		: undefined;
+}
 
 /**
  * Why a feature can't be switched here: a host forced its module or plugin on or off, or
@@ -74,7 +125,7 @@ export function getForcedReason( state: FeatureState ): string | null {
 		return getOverrideReason( control.override );
 	}
 
-	return null;
+	return state.unavailableReason ?? null;
 }
 
 /**
@@ -161,6 +212,21 @@ export function resolveFeatureState(
 	const $module =
 		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
+	const ungatedSlug = PRODUCT_MODULES[ feature.product as keyof typeof PRODUCT_MODULES ];
+	const gatedModule =
+		jetpack === 'active' && ungatedSlug && ! productModules[ feature.product ]
+			? modules?.[ ungatedSlug ]
+			: undefined;
+	if ( gatedModule?.available === false ) {
+		return {
+			feature,
+			product,
+			status: 'inactive',
+			control: { kind: 'none' },
+			unavailableReason: getModuleStatus( gatedModule ).reason,
+		};
+	}
+
 	if ( feature.in_jetpack && jetpack === 'active' ) {
 		// Answering from an empty module list would offer to install a plugin for a
 		// feature Jetpack is already running.
@@ -168,13 +234,21 @@ export function resolveFeatureState(
 			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 		}
 
-		// A host's override decides the module whatever the plan, so it explains itself
-		// rather than falling through to the standalone plugin.
-		if ( $module?.available || $module?.override ) {
+		const moduleStatus = $module && getModuleStatus( $module );
+		if (
+			$module &&
+			( moduleStatus?.isAvailable ||
+				moduleStatus?.isMultisiteBlocked ||
+				$module.override ||
+				! feature.plugin )
+		) {
 			return {
 				feature,
 				product,
-				status: $module.activated ? 'active' : 'inactive',
+				status:
+					( moduleStatus?.isAvailable || $module.override ) && $module.activated
+						? 'active'
+						: 'inactive',
 				control: { kind: 'module', module: $module },
 			};
 		}
@@ -184,7 +258,9 @@ export function resolveFeatureState(
 		// Read for status even where a plugin is the switch: the wp-admin sidebar counts a
 		// Hybrid product as on when either its plugin or its module is, and a card that
 		// disagreed with the sidebar would be wrong on any Jetpack site running the module.
-		const moduleIsOn = Boolean( $module?.available && $module.activated );
+		const moduleStatus = $module && getModuleStatus( $module );
+		const moduleIsOn = Boolean( moduleStatus?.isAvailable && $module?.activated );
+		const moduleUnavailableReason = moduleStatus?.reason;
 
 		if ( feature.plugin_status === 'not-installed' ) {
 			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,
@@ -197,6 +273,7 @@ export function resolveFeatureState(
 				feature,
 				product,
 				status: moduleIsOn || runsWithoutPlugin ? 'active' : 'inactive',
+				moduleUnavailableReason,
 				control: {
 					kind: 'install-plugin',
 					plugin: feature.plugin,
@@ -209,6 +286,7 @@ export function resolveFeatureState(
 			feature,
 			product,
 			status: feature.plugin_status === 'active' || moduleIsOn ? 'active' : 'inactive',
+			moduleUnavailableReason,
 			control: {
 				kind: 'plugin',
 				plugin: feature.plugin,

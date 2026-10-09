@@ -2,8 +2,10 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
+import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
 import { getFeatureModuleSlug } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
+import { getFeatureUnavailableReason } from './module-availability';
 import {
 	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
 	compareModulesByName,
@@ -39,7 +41,7 @@ export function getModuleFeatureState(
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
-	return {
+	const state: FeatureState = {
 		feature: {
 			slug: $module.module,
 			name: $module.name,
@@ -51,6 +53,7 @@ export function getModuleFeatureState(
 		isSwitching: asked !== undefined,
 		control: { kind: 'module', module: $module },
 	};
+	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
 }
 
 /**
@@ -95,7 +98,11 @@ export function groupMoreFeatures(
 
 	// One pass over the name-sorted modules, so every group reads A to Z.
 	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
-		if ( ! $module.available || covered.has( $module.module ) || hidden.has( $module.module ) ) {
+		if (
+			$module.module === 'vaultpress' ||
+			covered.has( $module.module ) ||
+			hidden.has( $module.module )
+		) {
 			continue;
 		}
 
@@ -210,7 +217,10 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						modules,
 						PRODUCT_MODULES,
 						requested,
-						getHiddenModules( modules )
+						new Set( [
+							...getHiddenModules( modules ),
+							...( state.hidden_modules ?? getHiddenFeatures() ),
+						] )
 					)
 				: [],
 		[ state, modules, requested ]

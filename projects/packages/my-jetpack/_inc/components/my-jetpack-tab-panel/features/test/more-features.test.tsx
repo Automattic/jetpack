@@ -3,9 +3,10 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import useAnalytics from '../../../../hooks/use-analytics';
 import { FeatureItem, getModuleSettingsUrl } from '../feature-item';
+import { resolveFeatureState } from '../feature-state';
 import { FeaturesTrackingProvider } from '../features-tracking-context';
 import { MoreFeatures } from '../more-features';
-import { getModuleFeatureState } from '../use-more-features';
+import { filterMoreFeatures, getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureSelection } from '../use-feature-selection';
 
@@ -68,6 +69,137 @@ const section = ( $module = sharing, requested: Record< string, boolean > = {} )
 const renderSection = ( ...args: Parameters< typeof section > ) => render( section( ...args ) );
 
 describe( 'MoreFeatures', () => {
+	it( 'shows an unavailable reason without switches, selection or settings, and filters the row out', () => {
+		setSiteEditor( { isBlockTheme: false } );
+		const unavailable = getModuleFeatureState(
+			{
+				...sharing,
+				module: 'woocommerce-analytics',
+				name: 'WooCommerce Analytics',
+				available: false,
+				activated: true,
+				unavailable_reason: 'Requires WooCommerce 3+ plugin',
+				configure_url: 'https://example.com/settings',
+			},
+			{}
+		);
+		const groups = [ { label: 'Analytics', states: [ unavailable ] } ];
+		expect( filterMoreFeatures( groups, 'active', '' ) ).toEqual( [] );
+		expect( unavailable.status ).toBe( 'inactive' );
+		const tree = ( filter: 'all' | 'available' ) => (
+			<MoreFeatures
+				groups={ filterMoreFeatures( groups, filter, '' ) }
+				selection={ selection }
+				jetpack="active"
+			/>
+		);
+		const { rerender } = render( tree( 'all' ) );
+		expect( screen.getByText( 'Requires WooCommerce 3+ plugin' ) ).toBeVisible();
+		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		rerender( tree( 'available' ) );
+		expect( screen.queryByText( 'WooCommerce Analytics' ) ).not.toBeInTheDocument();
+		rerender( tree( 'all' ) );
+		expect( screen.getByText( 'Requires WooCommerce 3+ plugin' ) ).toBeVisible();
+	} );
+
+	it.each( [ 'waf', 'backup' ] as const )(
+		'explains the multisite-blocked %s and leaves it out of Available',
+		module => {
+			setSiteEditor( { isBlockTheme: false } );
+			window.JetpackScriptData.site.is_multisite = true;
+			try {
+				const blockedModule = { ...sharing, module, activated: true };
+				const state =
+					module === 'backup'
+						? resolveFeatureState(
+								{
+									slug: 'backup',
+									name: 'VaultPress Backup',
+									plans: [],
+									in_jetpack: true,
+									module,
+									plugin: 'jetpack-backup',
+									plugin_status: 'not-installed',
+								} as MainFeature,
+								'active',
+								undefined,
+								{ backup: blockedModule },
+								{}
+							)
+						: getModuleFeatureState( blockedModule, {} );
+				const groups = [ { label: 'Security', states: [ state ] } ];
+				render(
+					<QueryClientProvider client={ new QueryClient() }>
+						<MoreFeatures groups={ groups } selection={ selection } jetpack="active" />
+					</QueryClientProvider>
+				);
+				expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
+				expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+				expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+				expect( filterMoreFeatures( groups, 'available', '' ) ).toEqual( [] );
+			} finally {
+				window.JetpackScriptData.site.is_multisite = false;
+			}
+		}
+	);
+
+	it.each( [ false, 'active' ] as const )(
+		'never badges an installed plugin unavailable with module override %s',
+		override => {
+			setSiteEditor( { isBlockTheme: false } );
+			const state = resolveFeatureState(
+				{
+					slug: 'videopress',
+					name: 'VideoPress',
+					description: 'Manage videos.',
+					plans: [],
+					in_jetpack: true,
+					product: 'videopress',
+					plugin: 'jetpack-videopress',
+					plugin_status: 'inactive',
+				} as MainFeature,
+				'active',
+				undefined,
+				{
+					videopress: {
+						...sharing,
+						module: 'videopress',
+						available: false,
+						unavailable_reason: 'Unavailable in Offline mode',
+						override,
+					},
+				},
+				{}
+			);
+			const groups = filterMoreFeatures(
+				[ { label: 'Video', states: [ state ] } ],
+				'available',
+				''
+			);
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<MoreFeatures groups={ groups } selection={ selection } jetpack="active" isList />
+				</QueryClientProvider>
+			);
+			expect( screen.queryByText( 'Jetpack module: Unavailable in Offline mode' ) !== null ).toBe(
+				! override
+			);
+			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Inactive' ) ).toBeVisible();
+			expect( screen.queryByText( 'Unavailable' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox', { name: 'Activate VideoPress' } ) !== null ).toBe(
+				! override
+			);
+			expect( screen.queryByRole( 'checkbox', { name: 'Select VideoPress' } ) !== null ).toBe(
+				! override
+			);
+		}
+	);
+
 	it( 'says what to do in the Site Editor, and drops the status badge, where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,

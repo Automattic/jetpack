@@ -15,6 +15,27 @@ describe( 'matchesFilter', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
 
+	it( 'keeps host-forced-on modules in Available even when their module is unsupported', () => {
+		const state = buildState( {} );
+		state.control = { kind: 'module', module: { available: true, override: 'active' } as never };
+		expect( matchesFilter( state, 'available' ) ).toBe( true );
+		state.control.module.available = false;
+		expect( matchesFilter( state, 'available' ) ).toBe( true );
+		state.control.module.override = false;
+		expect( matchesFilter( state, 'available' ) ).toBe( false );
+		expect( matchesFilter( state, 'all' ) ).toBe( true );
+	} );
+
+	it.each< [ string, FeatureState[ 'control' ] ] >( [
+		[ 'module', { kind: 'module', module: { available: true, override: 'inactive' } as never } ],
+		[ 'installed plugin', { kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' } ],
+	] )( 'excludes a host-forced-off %s from Available but keeps it under All', ( _, control ) => {
+		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
+		state.control = control;
+		expect( matchesFilter( state, 'available' ) ).toBe( false );
+		expect( matchesFilter( state, 'all' ) ).toBe( true );
+	} );
+
 	it( 'splits Active and Inactive on the live status, not the catalog', () => {
 		const on = buildState( {}, 'active' );
 		const off = buildState( {} );
@@ -63,18 +84,26 @@ describe( 'getFeatureFilters', () => {
 
 		expect( values( 'all' ) ).toEqual( [
 			'all',
+			'available',
 			'active',
 			'inactive',
 			'essential',
 			'security',
 			'growth',
 		] );
-		expect( values( 'all', true ) ).toEqual( [ 'all', 'active', 'inactive', 'included' ] );
+		expect( values( 'all', true ) ).toEqual( [
+			'all',
+			'available',
+			'active',
+			'inactive',
+			'included',
+		] );
 	} );
 
 	it( 'still gives Included in plan a pill when a link selects it mid-visit', () => {
 		expect( getFeatureFilters( 'included' ).map( ( { value } ) => value ) ).toEqual( [
 			'all',
+			'available',
 			'active',
 			'inactive',
 			'included',

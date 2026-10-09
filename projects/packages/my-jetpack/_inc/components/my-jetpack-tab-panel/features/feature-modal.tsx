@@ -14,6 +14,7 @@ import { FeatureInstallNotice } from './feature-install-notice';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
+import { getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -119,7 +120,8 @@ export function FeatureModal( {
 	onClose,
 }: FeatureModalProps ) {
 	const { feature, product } = state;
-	const isActive = state.status === 'active';
+	const unavailable = getFeatureUnavailableReason( state );
+	const isActive = ! unavailable && state.status === 'active';
 	const freeHighlights = feature.free_highlights ?? [];
 	const pricingNotes = feature.pricing_notes ?? [];
 
@@ -239,7 +241,9 @@ export function FeatureModal( {
 							<Dialog.Title>{ feature.name }</Dialog.Title>
 							<Stack direction="row" align="center" gap="sm" wrap="wrap">
 								<Badge intent={ isActive ? 'stable' : 'draft' }>
-									{ getActivationStatusLabel( isActive ) }
+									{ unavailable
+										? __( 'Unavailable', 'jetpack-my-jetpack' )
+										: getActivationStatusLabel( isActive ) }
 								</Badge>
 								{ feature.essential ? (
 									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>

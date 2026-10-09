@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Icon, Stack, Text } from '@wordpress/ui';
-import { getForcedReason, getInstallBlockReason } from './feature-state';
+import { getForcedReason, getInstallBlockReason, getModuleUnavailableNote } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -69,7 +69,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 }
 
 /**
- * What the button beside an inactive feature's name will do to turn it on.
+ * The module limitation and the action's setup note in the feature details.
  *
  * @param {FeatureDeliveryProps} props       - The component props.
  * @param {FeatureState}         props.state - Live state for the feature.
@@ -78,9 +78,10 @@ function getNote( state: FeatureState, pluginName: string ): string {
 export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature } = state;
 
-	// Once it runs, how it arrived is no longer the question; forced off, the header badge says why.
+	const moduleNote = getModuleUnavailableNote( state );
+	// An active plugin does not remove its module's limitation.
 	if ( state.status === 'active' || getForcedReason( state ) ) {
-		return null;
+		return moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null;
 	}
 
 	const pluginName = feature.plugin_name || feature.name;
@@ -97,6 +98,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 			<Icon icon={ info } size={ 20 } className={ styles[ 'inline-icon' ] } />
 			{ /* Separate sentences rather than a joined string: not every script spaces them. */ }
 			<Stack direction="column" gap="xs">
+				{ moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null }
 				{ note ? (
 					<Text variant="body-sm">
 						{ createInterpolateElement( note, {
