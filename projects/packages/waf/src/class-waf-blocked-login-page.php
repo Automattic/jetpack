@@ -26,6 +26,13 @@ class Waf_Blocked_Login_Page extends Blocked_Login_Page {
 	private static $instance;
 
 	/**
+	 * The IP block list blocks the whole site, set-password link included.
+	 *
+	 * @var bool
+	 */
+	protected $check_unfinished_registrations = false;
+
+	/**
 	 * Instance of the class.
 	 *
 	 * @param string $ip_address IP address.

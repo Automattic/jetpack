@@ -2,7 +2,10 @@ import { speak } from '@wordpress/a11y';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
+import { errorCode } from '../../data/api/_helpers';
+import ErrorReference from '../error-reference';
 import './style.scss';
+import type { ReferenceId } from '../../types/failure-reference';
 
 type Props = {
 	/** What failed, in the reader's terms. */
@@ -16,6 +19,8 @@ type Props = {
 	 * need to report the failure — they just have no detail line to add.
 	 */
 	error?: Error | null;
+	/** The id of what failed, quoted beside the error code. */
+	referenceId?: ReferenceId;
 	/** Refetches the failed query. Omitted when the caller has no way to retry. */
 	onRetry?: () => void;
 	/** Whether a retry is in flight. */
@@ -47,22 +52,26 @@ type Props = {
  * change, and a retry that failed again would leave the DOM
  * byte-identical to before the click, which reads as a dead control.
  *
- * @param props            - Component props.
- * @param props.title      - What failed, in the reader's terms.
- * @param props.error      - The query's error.
- * @param props.onRetry    - Refetches the failed query, when the caller can.
- * @param props.isRetrying - Whether a retry is currently in flight.
- * @param props.className  - Extra class for the notice.
+ * @param props             - Component props.
+ * @param props.title       - What failed, in the reader's terms.
+ * @param props.error       - The query's error.
+ * @param props.referenceId - The id of what failed, quoted beside the error code.
+ * @param props.onRetry     - Refetches the failed query, when the caller can.
+ * @param props.isRetrying  - Whether a retry is currently in flight.
+ * @param props.className   - Extra class for the notice.
  * @return The rendered error.
  */
 export default function QueryError( {
 	title,
 	error,
+	referenceId,
 	onRetry,
 	isRetrying = false,
 	className,
 }: Props ) {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
+	const code = errorCode( error );
+	const id = referenceId ?? null;
 	const previous = useRef( { isRetrying, message } );
 
 	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
@@ -81,6 +90,12 @@ export default function QueryError( {
 		>
 			<Notice.Title>{ title }</Notice.Title>
 			{ error?.message && <Notice.Description>{ error.message }</Notice.Description> }
+			{ ( code || id ) && (
+				// A div, since `Text` is a span and the reference is a block.
+				<Notice.Description render={ <div /> }>
+					<ErrorReference code={ code } id={ id } />
+				</Notice.Description>
+			) }
 			{ onRetry && (
 				<Notice.Actions>
 					<Button

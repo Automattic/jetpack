@@ -19,10 +19,7 @@ import {
 	useRequestedSwitch,
 } from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import {
-	getProductSlugsWithActivePlugin,
-	setPluginsActiveInPageState,
-} from '../../../data/utils/page-state-products';
+import { syncPageStateWithFeatures } from '../../../data/utils/page-state-products';
 import { setPendingSuccessNotice } from '../../../utils/pending-notice';
 import { reloadPage } from '../../../utils/reload-page';
 import type { QueryClient } from '@tanstack/react-query';
@@ -113,7 +110,7 @@ function requestPluginSwitch(
 	)
 		.then( state => {
 			queryClient.setQueryData( QUERY_KEY, state );
-			setPluginsActiveInPageState( getProductSlugsWithActivePlugin( state ) );
+			syncPageStateWithFeatures( state );
 			return state;
 		} )
 		.finally( () => {

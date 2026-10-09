@@ -5,8 +5,10 @@ import { __ } from '@wordpress/i18n';
 import { cloudUpload, error as errorIcon } from '@wordpress/icons';
 import { Card, EmptyState, Link, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
+import ErrorReference from '../error-reference';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
+import type { FailureReference } from '../../types/failure-reference';
 
 type Props = {
 	state: BackupsState;
@@ -14,6 +16,8 @@ type Props = {
 	progress: number;
 	/** A backup was requested but WPCOM has not reported it yet. */
 	isStarting?: boolean;
+	/** What to quote to support when backups are failing. */
+	reference?: FailureReference | null;
 };
 
 /**
@@ -108,9 +112,15 @@ export function ContactSupportLine() {
  * @param props.state      - Derived backup state.
  * @param props.progress   - Completion of the running backup, 0–100.
  * @param props.isStarting - A backup was requested but WPCOM has not reported it yet.
+ * @param props.reference  - What to quote to support when backups are failing.
  * @return The rendered panel.
  */
-export default function BackupStatusPanel( { state, progress, isStarting = false }: Props ) {
+export default function BackupStatusPanel( {
+	state,
+	progress,
+	isStarting = false,
+	reference,
+}: Props ) {
 	if ( state === 'no-good-backups' && ! isStarting ) {
 		return (
 			<div className="jpb-backup-status">
@@ -129,6 +139,7 @@ export default function BackupStatusPanel( { state, progress, isStarting = false
 							<EmptyState.Description>
 								<ContactSupportLine />
 							</EmptyState.Description>
+							{ reference && <ErrorReference { ...reference } /> }
 						</EmptyState.Root>
 					</Card.Content>
 				</Card.Root>
