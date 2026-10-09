@@ -92,6 +92,7 @@ describe( 'the Restore screen during a running restore', () => {
 	// region that arrives together with its text is missed by screen readers.
 	// Exact text, so the region cannot widen to the per-poll percentage.
 	it.each( [
+		[ 'queued', 0, /^Your restore is queued and will begin automatically\.$/ ],
 		[ 'running', 0, /^Restoring from backup…$/ ],
 		[ 'finished', 100, /^Restore complete\.$/ ],
 		[ 'finished-with-errors', 100, /^Restore finished with errors$/ ],
