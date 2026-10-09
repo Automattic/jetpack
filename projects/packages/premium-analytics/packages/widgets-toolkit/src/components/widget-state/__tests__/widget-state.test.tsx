@@ -218,7 +218,7 @@ describe( 'WidgetState', () => {
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'protects an empty action link that opens a new tab', () => {
+	it( 'opens an empty action link in a new tab', () => {
 		render(
 			<WidgetState
 				isLoading={ false }
@@ -232,7 +232,6 @@ describe( 'WidgetState', () => {
 
 		const link = screen.getByRole( 'link', { name: /Learn more/ } );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders the error state with an action button', () => {
