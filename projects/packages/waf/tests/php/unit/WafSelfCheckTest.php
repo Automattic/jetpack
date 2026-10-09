@@ -21,20 +21,21 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 
 	/**
-	 * Point the WAF at an empty directory.
+	 * Start like a site with the firewall off, whose WAF constants aren't defined yet.
 	 */
 	protected function setUp(): void {
 		$dir = sys_get_temp_dir() . '/jetpack-waf-self-check-' . uniqid();
 		mkdir( $dir );
-		define( 'JETPACK_WAF_DIR', $dir );
+		define( 'WP_CONTENT_DIR', $dir );
 	}
 
 	/**
-	 * Remove the token file and directory.
+	 * Remove the token file and directories.
 	 */
 	protected function tearDown(): void {
-		array_map( 'unlink', glob( JETPACK_WAF_DIR . '/*' ) );
-		rmdir( JETPACK_WAF_DIR );
+		array_map( 'unlink', glob( WP_CONTENT_DIR . '/jetpack-waf/*' ) );
+		array_map( 'rmdir', glob( WP_CONTENT_DIR . '/*' ) );
+		rmdir( WP_CONTENT_DIR );
 		unset( $_GET[ Waf_Self_Check::QUERY_PARAM ] );
 	}
 
