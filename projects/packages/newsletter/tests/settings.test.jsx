@@ -74,6 +74,7 @@ jest.mock( '../src/settings/sections', () => ( {
 		emailContentProps.current = props;
 		return <div data-testid="email-content-section" />;
 	},
+	EmailDesignSection: () => <div data-testid="email-design-section" />,
 	EmailDefaultsSection: props => {
 		emailDefaultsProps.current = props;
 		return <div data-testid="email-defaults-section" />;
