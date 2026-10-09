@@ -43,12 +43,7 @@ export function ChartEmptyState( {
 			{ action && (
 				<EmptyState.Actions>
 					{ 'href' in action ? (
-						<LinkButton
-							variant="outline"
-							href={ action.href }
-							target={ action.target }
-							rel={ action.target === '_blank' ? 'noopener noreferrer' : undefined }
-						>
+						<LinkButton variant="outline" href={ action.href } target={ action.target }>
 							{ action.label }
 						</LinkButton>
 					) : (
