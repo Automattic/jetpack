@@ -56,6 +56,13 @@ later JS surface gets its own sibling directory. The screen takes Newsletter's
 Jetpack chrome on purpose. It reads `JetpackScriptData.sharing_likes` for its first
 render and saves through `src/rest/`.
 
+Its services manager, under `src/settings-app/services/`, saves the enabled lists
+through `useSaveServices`, in the same write scope as every other save. Removing
+the last service on a block theme hands the section to the block with no way
+back, which is why that one removal asks first instead of offering Undo. Deleting
+a custom service leaves its ID in `sharing-services`, so `useCustomService` saves
+the lists again without it.
+
 ## Per-post switches
 
 `Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
