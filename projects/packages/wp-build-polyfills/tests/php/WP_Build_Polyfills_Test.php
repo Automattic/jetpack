@@ -237,6 +237,17 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Assert which widget-primitives registration won, by its asset version.
+	 *
+	 * @param string $expected Asset version of the build that should be registered.
+	 */
+	private function assert_widget_primitives_from( $expected ) {
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( $expected, $module['version'] );
+	}
+
+	/**
 	 * Create a separate build holding only widget-primitives, as another plugin's copy would.
 	 *
 	 * @param string|null $package_version Bundled package version, or null for a build without version.php.
@@ -907,7 +918,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->invoke_register_modules( $older );
 		$this->invoke_register_modules( $newer );
 
-		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+		$this->assert_widget_primitives_from( 'newer' );
 	}
 
 	/**
@@ -921,7 +932,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->invoke_register_modules( $newer );
 		$this->invoke_register_modules( $older );
 
-		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+		$this->assert_widget_primitives_from( 'newer' );
 	}
 
 	/**
@@ -934,13 +945,13 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$this->invoke_register_modules( $legacy );
 		$this->invoke_register_modules( $newer );
-		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+		$this->assert_widget_primitives_from( 'newer' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		unset( $GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] );
 		$this->invoke_register_modules( $newer );
 		$this->invoke_register_modules( $legacy );
-		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+		$this->assert_widget_primitives_from( 'newer' );
 	}
 
 	/**
@@ -958,7 +969,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$this->invoke_register_modules( $newer );
 
-		$this->assertSame( '1.0.0-gutenberg', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+		$this->assert_widget_primitives_from( '1.0.0-gutenberg' );
 	}
 
 	/**
