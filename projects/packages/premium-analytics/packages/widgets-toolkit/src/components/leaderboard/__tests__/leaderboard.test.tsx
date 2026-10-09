@@ -24,6 +24,15 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
+// Identity class names, so the row chrome a variant selects can be read off the rows. The
+// interop reads `__esModule` first, and a string there would make it take `.default` as the module.
+jest.mock( '../../../../../../tests/style-stub.cjs', () => {
+	return new Proxy(
+		{},
+		{ get: ( _, name ) => ( name === '__esModule' ? false : String( name ) ) }
+	);
+} );
+
 const REPORT_PARAMS = {
 	from: '2026-06-01',
 	to: '2026-06-16',
@@ -271,20 +280,33 @@ describe( 'Leaderboard', () => {
 			] );
 		} );
 
-		it.each( [
-			[ 'without a comparison', 'bars' as const, false ],
-			[ 'in the list variant', 'list' as const, true ],
-		] )( 'draws no legend %s', ( _, variant, hasComparison ) => {
+		it( 'names only the selected period without a comparison', () => {
 			renderLeaderboard(
-				<Leaderboard
-					rows={ ROWS }
-					status={ { ...READY, hasComparison } }
-					variant={ variant }
-					legend={ GIVEN_LEGEND }
-				/>
+				<Leaderboard rows={ ROWS } status={ READY } variant="bars" legend={ GIVEN_LEGEND } />
 			);
 
-			expect( screen.queryAllByTestId( 'legend-label' ) ).toHaveLength( 0 );
+			expect( screen.getAllByTestId( 'legend-label' ).map( label => label.textContent ) ).toEqual( [
+				GIVEN_LEGEND.primary,
+			] );
 		} );
+
+		it( 'draws the rows without the list chrome', () => {
+			renderLeaderboard( <Leaderboard rows={ ROWS } status={ READY } variant="bars" /> );
+
+			expect( screen.getByTitle( 'Getting Started' ) ).toHaveClass( 'bars' );
+		} );
+	} );
+
+	it( 'draws no legend in the list variant', () => {
+		renderLeaderboard(
+			<Leaderboard
+				rows={ ROWS }
+				status={ { ...READY, hasComparison: true } }
+				legend={ { primary: 'This month', comparison: 'Last month' } }
+			/>
+		);
+
+		expect( screen.queryAllByTestId( 'legend-label' ) ).toHaveLength( 0 );
+		expect( screen.getByTitle( 'Getting Started' ) ).not.toHaveClass( 'bars' );
 	} );
 } );

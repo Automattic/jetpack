@@ -6,6 +6,7 @@ export type {
 } from './leaderboard-chart';
 
 export { LeaderboardSkeleton, type LeaderboardSkeletonProps } from './leaderboard-skeleton';
+export type { LeaderboardVariant } from './leaderboard-variant';
 
 export { LeaderboardLabel } from './leaderboard-label';
 export type { LeaderboardLabelProps, LeaderboardRowMedia } from './leaderboard-label';

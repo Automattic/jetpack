@@ -43,6 +43,7 @@ export {
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LeaderboardSkeletonProps,
+	type LeaderboardVariant,
 	Leaderboard,
 	type LeaderboardDrillDown,
 	type LeaderboardProps,

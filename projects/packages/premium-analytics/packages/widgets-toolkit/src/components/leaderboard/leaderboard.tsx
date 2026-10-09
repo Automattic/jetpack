@@ -29,18 +29,14 @@ import {
 import { resolveDrillDownTrail } from './drill-down-trail';
 import styles from './leaderboard.module.scss';
 import type { DataFormat, WidgetStatus } from '../../types';
+import type { LeaderboardVariant } from '../chart-leaderboard/leaderboard-variant';
 
 /**
  * The request status, as every widget kind takes it.
  */
 export type LeaderboardStatus = WidgetStatus;
 
-/**
- * How the rows draw. `list` lays the label on its bar and shows the comparison as a delta;
- * `bars` lays the label above the bar and, when comparing, draws the previous period as a
- * second bar under a period legend.
- */
-export type LeaderboardVariant = 'list' | 'bars';
+export type { LeaderboardVariant };
 
 /**
  * The copy a drill-down needs. Rows with `children` become buttons that show them, under a
@@ -88,12 +84,14 @@ export type LeaderboardProps = {
 	 */
 	format?: DataFormat;
 	/**
-	 * How the rows draw. Defaults to `list`.
+	 * How the rows draw: `list` lays the label on its bar and shows the comparison as a delta;
+	 * `bars` lays the label above the bar, draws the previous period as a second bar when
+	 * comparing, and names the periods in a legend. Defaults to `list`.
 	 */
 	variant?: LeaderboardVariant;
 	/**
-	 * Labels of the period legend the `bars` variant draws when comparing. Derived from the
-	 * report params when omitted.
+	 * Labels of the period legend of the `bars` variant. Derived from the report params when
+	 * omitted.
 	 */
 	legend?: LegendLabels;
 	/**
@@ -192,17 +190,14 @@ export function Leaderboard( {
 				drillDown: drillDown
 					? { onSelect: select, rowAriaLabel: drillDown.rowAriaLabel }
 					: undefined,
+				variant,
 			} ),
-		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select ]
+		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select, variant ]
 	);
 
-	// Only the second bar needs naming: one series under a legend says nothing.
 	const legendLabels = useMemo(
-		() =>
-			variant === 'bars' && hasComparison
-				? ( legend ?? formatLegendLabels( reportParams ) )
-				: undefined,
-		[ variant, hasComparison, legend, reportParams ]
+		() => ( variant === 'bars' ? ( legend ?? formatLegendLabels( reportParams ) ) : undefined ),
+		[ variant, legend, reportParams ]
 	);
 
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
