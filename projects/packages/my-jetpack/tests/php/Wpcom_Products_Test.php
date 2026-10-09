@@ -4,7 +4,10 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\My_Jetpack\Products\Complete;
+use Automattic\Jetpack\My_Jetpack\Products\Pro;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -129,6 +132,8 @@ class Wpcom_Products_Test extends TestCase {
 		$_GET = array();
 
 		Wpcom_Products::reset_request_failures();
+		Wpcom_Products::reset_purchases_cache();
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
 
 	/**
@@ -246,5 +251,28 @@ class Wpcom_Products_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$this->assertSame( array(), $product_price );
+	}
+	/**
+	 * Recognize Pro purchases while sales are off without classifying them as Complete.
+	 *
+	 * @dataProvider pro_subscriptions
+	 * @param string $slug Subscription slug.
+	 */
+	#[DataProvider( 'pro_subscriptions' )]
+	public function test_pro_recognition_is_independent_of_sales( $slug ) {
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( (object) array( 'product_slug' => $slug ) ), HOUR_IN_SECONDS );
+		$this->assertTrue( Pro::has_paid_plan_for_product() );
+		$this->assertFalse( Complete::has_paid_plan_for_product() );
+		$this->assertFalse( Complete::has_required_plan() );
+	}
+
+	/**
+	 * Recognized billing terms, including support-only monthly.
+	 *
+	 * @return array
+	 */
+	public static function pro_subscriptions() {
+		return array_map( static fn( $slug ) => array( $slug ), Pro::get_paid_plan_product_slugs() );
 	}
 }

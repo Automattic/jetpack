@@ -33,6 +33,8 @@ const ProductLink = props => {
 		default: null,
 	};
 
+	productLinkMap.jetpack_pro = productLinkMap.jetpack_complete;
+
 	const productGroup = getProductGroup( productId );
 
 	const productLink = productLinkMap[ productGroup ];
