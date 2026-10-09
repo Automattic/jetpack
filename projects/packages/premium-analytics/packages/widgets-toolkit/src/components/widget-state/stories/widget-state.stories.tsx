@@ -1,4 +1,3 @@
-import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { postAuthor } from '@wordpress/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart } from '../../chart-bar';
@@ -171,11 +170,7 @@ export const EmptyWithAction: Story = {
 		isEmpty: true,
 		empty: {
 			description: 'You haven’t published any posts yet.',
-			actions: (
-				<LinkButton variant="outline" href="/wp-admin/post-new.php">
-					Create post
-				</LinkButton>
-			),
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
 		},
 		children: <MockChart />,
 	},
