@@ -36,8 +36,6 @@ import type { LeaderboardVariant } from '../chart-leaderboard/leaderboard-varian
  */
 export type LeaderboardStatus = WidgetStatus;
 
-export type { LeaderboardVariant };
-
 /**
  * The copy a drill-down needs. Rows with `children` become buttons that show them, under a
  * back link; deeper levels are labelled after the row they return to.

@@ -96,12 +96,12 @@ export type BuildLeaderboardChartDataOptions = {
 	 */
 	detailSearch?: Record< string, unknown >;
 	/**
-	 * Makes every row with children a drill-down button. Without it, such rows keep their own action.
-	 */
-	/**
 	 * The look the rows draw with; the row chrome follows it. Defaults to `list`.
 	 */
 	variant?: LeaderboardVariant;
+	/**
+	 * Makes every row with children a drill-down button. Without it, such rows keep their own action.
+	 */
 	drillDown?: LeaderboardDrillDownOptions;
 };
 
