@@ -227,8 +227,9 @@
 	}
 }
 
-.jetpack-boost-overview__progress--good {
-	--wp-components-color-foreground: var(--wpds-color-foreground-content-success-weak);
+// ProgressBar's indicator has only a hashed class, hence the child selector.
+.jetpack-boost-overview__progress--good > div {
+	background-color: var(--jetpack-boost-score-good);
 }
 
 .jetpack-boost-overview__tier--good {
@@ -241,16 +242,16 @@
 	white-space: nowrap;
 }
 
-.jetpack-boost-overview__progress--medium {
-	--wp-components-color-foreground: var(--jetpack-boost-score-medium);
+.jetpack-boost-overview__progress--medium > div {
+	background-color: var(--jetpack-boost-score-medium);
 }
 
 .jetpack-boost-overview__tier--medium {
 	color: var(--wpds-color-foreground-content-warning-weak);
 }
 
-.jetpack-boost-overview__progress--poor {
-	--wp-components-color-foreground: var(--wpds-color-foreground-content-error-weak);
+.jetpack-boost-overview__progress--poor > div {
+	background-color: var(--jetpack-boost-score-poor);
 }
 
 .jetpack-boost-overview__tier--poor {
