@@ -64,7 +64,9 @@ trait WPCOM_REST_API_Proxy_Request {
 		if ( isset( $query_params['rest_route'] ) ) {
 			unset( $query_params['rest_route'] );
 		}
-		$api_url = add_query_arg( $query_params, $path );
+
+		$query   = self::build_wpcom_query( $query_params );
+		$api_url = '' === $query ? $path : $path . ( str_contains( $path, '?' ) ? '&' : '?' ) . $query;
 
 		$request_options = array_replace_recursive(
 			array(
@@ -147,5 +149,40 @@ trait WPCOM_REST_API_Proxy_Request {
 	 */
 	public function proxy_request_to_wpcom_as_blog( $request, $path = '', $request_options = array() ) {
 		return $this->proxy_request_to_wpcom( $request, $path, 'blog', false, $request_options );
+	}
+
+	/**
+	 * Query string for the params to forward, without `_method` and without unsafe keys.
+	 *
+	 * `Client` rebuilds the URL with add_query_arg(), which writes each key decoded: a key holding
+	 * `%`, `&` or `=` would reach WordPress.com as another param.
+	 *
+	 * @param array $query_params Query params of the request.
+	 * @return string
+	 */
+	private static function build_wpcom_query( array $query_params ): string {
+		unset( $query_params['_method'] );
+
+		return http_build_query( self::drop_unsafe_query_keys( $query_params ), '', '&' );
+	}
+
+	/**
+	 * Drop, at every depth, the params whose key is not made of letters, digits, `_` and `-`.
+	 *
+	 * @param array $params Query params.
+	 * @return array
+	 */
+	private static function drop_unsafe_query_keys( array $params ): array {
+		$safe = array();
+
+		foreach ( $params as $key => $value ) {
+			if ( ! preg_match( '/^[A-Za-z0-9_-]+$/', (string) $key ) ) {
+				continue;
+			}
+
+			$safe[ $key ] = is_array( $value ) ? self::drop_unsafe_query_keys( $value ) : $value;
+		}
+
+		return $safe;
 	}
 }
