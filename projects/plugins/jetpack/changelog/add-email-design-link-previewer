@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Behind the jetpack-email-design feature flag, off by default. The user-facing entry belongs in the release that enables it.
+
+

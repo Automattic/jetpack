@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Newsletter\Urls as Newsletter_Urls;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -66,7 +65,10 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
-	 * Tell the Newsletter settings page where this screen is, or that there is none.
+	 * Tell the admin where this screen is, or that there is none.
+	 *
+	 * The bare URL: each surface that links here adds its own `return` arg, because each one is
+	 * somewhere different to go back to. {@see self::exit_url()} reads and validates it.
 	 *
 	 * @param array $data The script data so far.
 	 * @return array The script data, with `newsletter.emailDesignUrl` null when there is no screen.
@@ -74,12 +76,7 @@ class Jetpack_Email_Design_Editor {
 	public static function add_script_data( $data ) {
 		$url = self::get_url();
 
-		// The `return` arg is what sends the editor's back button here rather than to the
-		// dashboard; {@see self::exit_url()} is where it is read and validated. Encoded first
-		// because `add_query_arg()` does not: the settings URL's own `&` would end the value.
-		$data['newsletter']['emailDesignUrl'] = '' === $url
-			? null
-			: add_query_arg( 'return', rawurlencode( Newsletter_Urls::get_newsletter_settings_url() ), $url );
+		$data['newsletter']['emailDesignUrl'] = '' === $url ? null : $url;
 
 		return $data;
 	}

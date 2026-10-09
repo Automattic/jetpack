@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getUserConnectionUrl, useConnection } from '@automattic/jetpack-connection';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -38,11 +38,22 @@ import {
 	cautionFilled as warning,
 } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
 import type { JSX } from 'react';
+
+/*
+ * Declared here rather than in the script-data package: the key is published by the email design
+ * screen and read only by this file. Null on a site with no such screen.
+ */
+declare module '@automattic/jetpack-script-data' {
+	interface JetpackScriptData {
+		newsletter?: { emailDesignUrl?: string | null };
+	}
+}
 
 interface PreviewErrorInfo {
 	code?: string;
@@ -407,6 +418,35 @@ const PreviewAccessSelector = ( {
 	);
 };
 
+/**
+ * Link out to the email design screen, for the creator who looks at the preview and wants the
+ * email to look different. A new tab, because this one holds an unsaved post.
+ *
+ * @return The link, or null on a site with no design screen.
+ */
+const EmailDesignLink = () => {
+	const { tracks } = useAnalytics();
+	const emailDesignUrl = getScriptData()?.newsletter?.emailDesignUrl;
+
+	const handleClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_modal_email_design_click' );
+	}, [ tracks ] );
+
+	if ( ! emailDesignUrl ) {
+		return null;
+	}
+
+	return (
+		<Link
+			openInNewTab
+			href={ addQueryArgs( emailDesignUrl, { return: window.location.href } ) }
+			onClick={ handleClick }
+		>
+			{ __( 'Edit email design', 'jetpack' ) }
+		</Link>
+	);
+};
+
 interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {}
 
 const PreviewControls = ( {
@@ -427,6 +467,7 @@ const PreviewControls = ( {
 				selectedAccess={ selectedAccess }
 				setSelectedAccess={ setSelectedAccess }
 			/>
+			<EmailDesignLink />
 		</HStack>
 	);
 };
