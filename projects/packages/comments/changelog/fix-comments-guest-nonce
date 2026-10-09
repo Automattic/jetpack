@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Stop turning away logged-out readers' comments when the page was served from a cache older than a day.
+Stop turning away logged-out readers' comments when a cached page's form has expired.
