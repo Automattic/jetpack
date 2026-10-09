@@ -13,6 +13,7 @@ use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -85,6 +86,13 @@ class Monitor implements Dashboard_Section {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_uptime' ),
 				'permission_callback' => array( Dashboard::class, 'can_manage' ),
+				'args'                => array(
+					'retry' => array(
+						'description' => __( 'Ask WordPress.com again, even if it failed in the last minute.', 'jetpack-protect-pkg' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
+				),
 			)
 		);
 	}
@@ -92,9 +100,10 @@ class Monitor implements Dashboard_Section {
 	/**
 	 * Daily uptime for the last UPTIME_DAYS days (oldest first) and the current status, from WordPress.com.
 	 *
+	 * @param WP_REST_Request|null $request The request; its `retry` flag skips a remembered failure.
 	 * @return array|WP_Error
 	 */
-	public function get_uptime() {
+	public function get_uptime( $request = null ) {
 		if ( ! Dashboard::get_module_state( 'monitor' )['active'] ) {
 			return new WP_Error( 'monitor_inactive', __( 'Downtime monitoring is off.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
 		}
@@ -108,7 +117,7 @@ class Monitor implements Dashboard_Section {
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
-		if ( 'failed' === $cached ) {
+		if ( 'failed' === $cached && ! ( $request && $request['retry'] ) ) {
 			return $this->unavailable_error();
 		}
 

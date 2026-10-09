@@ -1,15 +1,18 @@
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, gmdateI18n } from '@wordpress/date';
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
-import { Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Button, Link, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import type { MonitorContext, Uptime, UptimeDay } from './types';
 import type { CardStatus } from '../../components/card';
 import './style.scss';
+
+const UPTIME_PATH = '/jetpack/v4/protect-dashboard/uptime';
+const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
 
 /**
  * Text for one day's bar.
@@ -46,6 +49,7 @@ function describeDay( day: UptimeDay ): string {
  *
  * @param available - Whether Monitor can run on this site.
  * @param active    - Whether Monitor is on.
+ * @param connected - Whether the user has a WordPress.com connection.
  * @param uptime    - The uptime response, once loaded.
  * @param failed    - Whether loading it failed.
  * @return The badge, if any.
@@ -53,6 +57,7 @@ function describeDay( day: UptimeDay ): string {
 function getStatus(
 	available: boolean,
 	active: boolean,
+	connected: boolean,
 	uptime: Uptime | null,
 	failed: boolean
 ): CardStatus | undefined {
@@ -61,6 +66,9 @@ function getStatus(
 	}
 	if ( ! active ) {
 		return { label: __( 'Off', 'jetpack-protect-pkg' ), intent: 'draft' };
+	}
+	if ( ! connected ) {
+		return { label: __( 'On', 'jetpack-protect-pkg' ), intent: 'none' };
 	}
 	if ( uptime?.isUp === true ) {
 		return { label: __( 'Operational', 'jetpack-protect-pkg' ), intent: 'stable' };
@@ -90,23 +98,36 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 		available &&
 		! settings.isSaving( 'monitor' ) &&
 		isModuleActive( settings.settings, 'monitor', Boolean( monitor?.active ) );
+	const { refresh } = settings;
 	const [ uptime, setUptime ] = useState< Uptime | null >( null );
-	const [ failed, setFailed ] = useState( false );
+	const [ error, setError ] = useState< string | null >( null );
+	const [ retries, setRetries ] = useState( 0 );
+	const connected = Boolean( monitor?.userConnected ) && error !== 'not_connected';
+	const failed = connected && error !== null;
+	const canLoad = active && Boolean( monitor?.userConnected );
+	const retry = useCallback( () => setRetries( count => count + 1 ), [] );
 
 	useEffect( () => {
-		if ( ! active ) {
+		if ( ! canLoad ) {
 			return;
 		}
 		let current = true;
 		setUptime( null );
-		setFailed( false );
-		apiFetch< Uptime >( { path: '/jetpack/v4/protect-dashboard/uptime' } )
+		setError( null );
+		// A retry skips the failure the server remembers for a minute.
+		apiFetch< Uptime >( { path: retries ? `${ UPTIME_PATH }?retry=1` : UPTIME_PATH } )
 			.then( response => current && setUptime( response ) )
-			.catch( () => current && setFailed( true ) );
+			.catch( async ( e: { code?: string } ) => {
+				// Monitor was turned off elsewhere: re-read it so the card and its toggle show Off.
+				if ( e?.code === 'monitor_inactive' ) {
+					await refresh( [ 'monitor' ] );
+				}
+				return current && setError( e?.code ?? 'uptime_unavailable' );
+			} );
 		return () => {
 			current = false;
 		};
-	}, [ active ] );
+	}, [ canLoad, retries, refresh ] );
 
 	const days = uptime?.days;
 	const count = ( status: UptimeDay[ 'status' ] ) =>
@@ -144,26 +165,48 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 		<ProtectCard
 			icon={ seen }
 			title={ __( 'Monitor', 'jetpack-protect-pkg' ) }
-			status={ getStatus( available, active, uptime, failed ) }
+			status={ getStatus( available, active, connected, uptime, failed ) }
 		>
 			<CardRow>
 				{ ! active && <Text variant="body-md">{ body }</Text> }
 				{ active && (
 					<Stack direction="column" gap="md">
-						<Text variant="body-md">
-							{ sprintf(
-								/* translators: %d is a number of days. */
-								__( 'Uptime, last %d days (UTC)', 'jetpack-protect-pkg' ),
-								days?.length ?? monitor?.uptimeDays ?? 0
-							) }
-						</Text>
-						{ failed && (
+						{ connected && (
 							<Text variant="body-md">
-								{ __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ) }
+								{ sprintf(
+									/* translators: %d is a number of days. */
+									__( 'Uptime, last %d days (UTC)', 'jetpack-protect-pkg' ),
+									days?.length ?? monitor?.uptimeDays ?? 0
+								) }
 							</Text>
 						) }
-						{ ! failed && ! days && <Skeleton className="jp-protect-uptime__skeleton" /> }
-						{ ! failed && days && (
+						{ ! connected && (
+							<>
+								<Text variant="body-md">
+									{ __(
+										'Your site is being monitored. Connect your WordPress.com account to see its uptime history.',
+										'jetpack-protect-pkg'
+									) }
+								</Text>
+								<Link href={ CONNECT_URL }>
+									{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
+								</Link>
+							</>
+						) }
+						{ failed && (
+							<Stack direction="row" gap="sm" align="center">
+								<Text variant="body-md">
+									{ __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ) }
+								</Text>
+								<Button variant="minimal" size="compact" onClick={ retry }>
+									{ __( 'Try again', 'jetpack-protect-pkg' ) }
+								</Button>
+							</Stack>
+						) }
+						{ connected && ! failed && ! days && (
+							<Skeleton className="jp-protect-uptime__skeleton" />
+						) }
+						{ connected && ! failed && days && (
 							<>
 								<div className="jp-protect-uptime" aria-hidden="true">
 									{ days.map( day => (
