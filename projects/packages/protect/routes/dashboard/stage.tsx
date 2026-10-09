@@ -7,6 +7,7 @@ import Overview from './components/overview';
 import SettingsTab from './components/settings-tab';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
+import { CLOSED_INSPECTOR } from './sections/inspector-params';
 import './route.scss';
 
 /**
@@ -24,6 +25,8 @@ const Stage = () => {
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
+					// Leaving a tab closes the inspector, whose threat belongs to the list on that tab.
+					...CLOSED_INSPECTOR,
 					...params,
 					tab: next === 'overview' ? undefined : next,
 				} ),

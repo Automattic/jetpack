@@ -8,8 +8,10 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 	vulnerabilities?: { id?: string; title?: string; source?: string }[];
 	extension?: Threat[ 'extension' ] & {
 		icon?: string | null;
-		/** Admin links for the current user, each only when it applies. */
-		actions?: { update?: string; deactivate?: string; delete?: string; details?: string };
+		/** Whether the installed plugin or theme is in use; `parent` is the active theme's parent. */
+		state?: 'active' | 'inactive' | 'parent' | null;
+		/** Admin links for the current user, and whether the dashboard can delete it, each only when it applies. */
+		actions?: { update?: string; deactivate?: string; delete?: boolean; details?: string };
 	};
 };
 

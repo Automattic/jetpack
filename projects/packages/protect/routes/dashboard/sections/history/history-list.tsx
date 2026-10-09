@@ -3,9 +3,12 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { CLOSED_INSPECTOR } from '../inspector-params';
 import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
 import { getThreatRowActions } from '../scan/threat-row-actions';
 import { createThreatView, getThreatFields } from '../scan/threats-list';
+import useOpenThreat from '../use-open-threat';
 import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
 import type { ScanThreat } from '../scan/types';
 
@@ -34,38 +37,31 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const fixed = useMemo( () => threats.filter( item => item.status === 'fixed' ), [ threats ] );
 	// Ignore and unignore update this list in place, so it is current right after either.
 	const ignored = useScan()?.ignored ?? NO_THREATS;
-	const [ statusParam, setStatusParam ] = useSearchParam( HISTORY_STATUS_PARAM );
+	const [ statusParam ] = useSearchParam( HISTORY_STATUS_PARAM );
 	const status = statusParam === 'ignored' ? 'ignored' : 'fixed';
 
 	const [ view, setView ] = useState< View >( () => createThreatView( 'date' ) );
+	const navigate = useNavigate();
 
+	// Switching lists closes the inspector, whose threat is in the list being left.
 	const onStatusChange = useCallback(
 		( value: unknown ) => {
-			setStatusParam( value === 'ignored' ? 'ignored' : undefined );
+			navigate( {
+				search: ( prev: Record< string, unknown > ) => ( {
+					...prev,
+					...CLOSED_INSPECTOR,
+					[ HISTORY_STATUS_PARAM ]: value === 'ignored' ? 'ignored' : undefined,
+				} ),
+			} as Parameters< typeof navigate >[ 0 ] );
 			setView( current => ( { ...current, page: 1 } ) );
 		},
-		[ setStatusParam ]
+		[ navigate ]
 	);
 	const [ selectedFixed ] = useSearchParam( HISTORY_THREAT_PARAM );
 	const [ selectedIgnored ] = useSearchParam( THREAT_PARAM );
 	const selected = status === 'fixed' ? selectedFixed : selectedIgnored;
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
-	const navigate = useNavigate();
-	// One navigation sets both params, so only one inspector's param is ever in the URL.
-	const open = useCallback(
-		( item: ScanThreat ) => {
-			const id = String( item.id );
-			const isFixed = item.status === 'fixed';
-			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
-					[ HISTORY_THREAT_PARAM ]: isFixed ? id : undefined,
-					[ THREAT_PARAM ]: isFixed ? undefined : id,
-				} ),
-			} as Parameters< typeof navigate >[ 0 ] );
-		},
-		[ navigate ]
-	);
+	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
 	const fields = useMemo(
@@ -90,6 +86,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 		() => filterSortAndPaginate( status === 'fixed' ? fixed : ignored, view, fields ),
 		[ status, fixed, ignored, view, fields ]
 	);
+	useArrowKeyNavigation( data, selected, getItemId, open );
 
 	return (
 		<div className="jp-protect-threats">

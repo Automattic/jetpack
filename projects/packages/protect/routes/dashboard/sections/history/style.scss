@@ -1,0 +1,58 @@
+.jp-protect-history-skeleton {
+
+	&__filter {
+		display: flex;
+		gap: 16px;
+		padding: 12px var(--wp-ui-card-padding, 24px);
+	}
+
+	&__tab {
+		inline-size: 72px;
+		block-size: 20px;
+	}
+
+	&__row {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		padding: 12px var(--wp-ui-card-padding, 24px);
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__badge {
+		flex: none;
+		inline-size: 56px;
+		block-size: 20px;
+	}
+
+	&__icon {
+		flex: none;
+		inline-size: 32px;
+		block-size: 32px;
+	}
+
+	&__label {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	&__text {
+		block-size: 16px;
+	}
+
+	&__subtext {
+		inline-size: 30%;
+		block-size: 14px;
+	}
+
+	&__date {
+		flex: none;
+		inline-size: 96px;
+		block-size: 16px;
+		margin-inline-start: auto;
+	}
+}

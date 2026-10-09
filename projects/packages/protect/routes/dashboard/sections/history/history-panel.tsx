@@ -1,10 +1,12 @@
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
-import { Notice, Spinner, Stack } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import HistoryList from './history-list';
+import HistorySkeleton from './history-skeleton';
 import { loadHistory, useHistory } from './store';
+import './style.scss';
 
 /**
  * The History tab: threats Scan has fixed, and ones that were ignored.
@@ -29,10 +31,8 @@ export default function HistoryPanel() {
 		);
 	} else if ( ! threats ) {
 		body = (
-			<CardRow>
-				<Stack direction="row" justify="center">
-					<Spinner />
-				</Stack>
+			<CardRow className="jp-protect-card__threats">
+				<HistorySkeleton />
 			</CardRow>
 		);
 	} else {
