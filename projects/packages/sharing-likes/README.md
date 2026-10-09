@@ -24,6 +24,18 @@ them and the legacy buttons are off. No screen sets them yet; to try it:
 	wp option update jetpack_sharing_buttons_auto_add '["after_content"]' --format=json
 	wp option update jetpack_likes_auto_add '["before_content"]' --format=json
 
+Single posts and pages get them by default. To add another post type's single views:
+
+```php
+add_filter(
+	'jetpack_sharing_likes_template_placement_post_types',
+	function ( $post_types ) {
+		$post_types[] = 'product';
+		return $post_types;
+	}
+);
+```
+
 It also ships the per-post Likes and Sharing switches the block editor shows, as
 REST fields on every public post type. `Initializer::init()` leaves these out:
 each belongs to the feature that reads it, so call it wherever that feature

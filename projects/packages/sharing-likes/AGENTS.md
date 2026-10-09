@@ -277,9 +277,12 @@ unset, and once the single template is saved with a block on one side, moving it
 to the other side adds nothing there. Tests that call `apply_block_hooks_to_content()`
 with plain `insert_hooked_blocks` miss all of this; go through `get_block_template()`.
 
-**Which templates.** `single` and `singular` serve every post type without a
-template of its own, so on the front end a singular request for anything but a
-post or page gets nothing. That only holds while the template comes from the
+**Which templates.** Posts and pages get the blocks; the
+`jetpack_sharing_likes_template_placement_post_types` filter changes that list,
+and with it which `single-{type}` templates, custom templates and singular
+requests count. `single` and `singular` serve every post type without a
+template of its own, so on the front end a singular request for a post type
+outside the list gets nothing. That only holds while the template comes from the
 theme: once the owner saves it in the Site Editor, the blocks are ordinary
 blocks in it and show on every post type it serves. A block the owner already
 placed by hand in the template, the pattern or the post being viewed is not
@@ -296,7 +299,7 @@ one priority run in registration order, and Simple sets this package up on
 
 **Patterns.** A pattern counts when its `templateTypes` include a post or page
 template, as a template's slug would. Otherwise it falls back to `is_singular()`
-for posts and pages, as do custom templates that declare no post types,
+for the listed post types, as do custom templates that declare no post types,
 which is never true in the Site Editor's REST requests. So on a theme that puts
 `core/post-content` in an untyped pattern, the blocks show on the front end but
 not in the Site Editor, and saving that template there inlines the pattern and

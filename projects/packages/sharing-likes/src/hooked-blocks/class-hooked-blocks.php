@@ -67,7 +67,7 @@ final class Hooked_Blocks {
 			$wanted[] = Block_Names::LIKE;
 		}
 
-		if ( ! $wanted || ! self::is_single_post_or_page_context( $context ) || ! self::blocks_can_load() ) {
+		if ( ! $wanted || ! self::is_single_view_context( $context, self::post_types() ) || ! self::blocks_can_load() ) {
 			return $hooked_block_types;
 		}
 
@@ -119,14 +119,37 @@ final class Hooked_Blocks {
 	}
 
 	/**
-	 * Whether a context shows a single post or page: a template or pattern by the template types it
-	 * serves, else by the current request, which never holds in the Site Editor's REST requests.
+	 * Post types whose single views get the blocks.
 	 *
-	 * @param mixed $context Template, template part, pattern array or post.
+	 * @return string[]
 	 */
-	private static function is_single_post_or_page_context( $context ): bool {
+	private static function post_types(): array {
+		/**
+		 * Filters the post types whose single views get the Sharing Buttons and Like blocks the template placements add.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $post_types Post type names. Default posts and pages.
+		 */
+		$post_types = apply_filters( 'jetpack_sharing_likes_template_placement_post_types', array( 'post', 'page' ) );
+
+		return is_array( $post_types ) ? array_values( array_unique( array_filter( $post_types, 'is_string' ) ) ) : array( 'post', 'page' );
+	}
+
+	/**
+	 * Whether a context shows a single view of one of the post types: a template or pattern by the
+	 * template types it serves, else by the current request, which never holds in the Site Editor's REST requests.
+	 *
+	 * @param mixed    $context    Template, template part, pattern array or post.
+	 * @param string[] $post_types Post types that get the blocks.
+	 */
+	private static function is_single_view_context( $context, array $post_types ): bool {
+		if ( ! $post_types ) {
+			return false;
+		}
+
 		// `single`, `singular` and custom templates also serve other post types, so a request for one of those has the last word.
-		if ( is_singular() && ! is_singular( array( 'post', 'page' ) ) ) {
+		if ( is_singular() && ! is_singular( $post_types ) ) {
 			return false;
 		}
 
@@ -135,45 +158,67 @@ final class Hooked_Blocks {
 				return false;
 			}
 
-			if ( self::is_single_post_or_page_slug( (string) $context->slug ) ) {
+			if ( self::is_single_view_slug( (string) $context->slug, $post_types ) ) {
 				return true;
 			}
 
 			if ( is_array( $context->post_types ) && $context->post_types ) {
-				return (bool) array_intersect( array( 'post', 'page' ), $context->post_types );
+				return (bool) array_intersect( $post_types, $context->post_types );
 			}
 
 			// A custom template that declares no post types can be assigned to any post.
-			return $context->is_custom && is_singular( array( 'post', 'page' ) );
+			return $context->is_custom && is_singular( $post_types );
 		}
 
 		if ( is_array( $context ) ) {
 			$template_types = isset( $context['templateTypes'] ) && is_array( $context['templateTypes'] ) ? $context['templateTypes'] : array();
 
 			foreach ( $template_types as $template_type ) {
-				if ( is_string( $template_type ) && self::is_single_post_or_page_slug( $template_type ) ) {
+				if ( is_string( $template_type ) && self::is_single_view_slug( $template_type, $post_types ) ) {
 					return true;
 				}
 			}
 
-			return is_singular( array( 'post', 'page' ) );
+			return is_singular( $post_types );
 		}
 
 		return false;
 	}
 
 	/**
-	 * Whether a template slug or type is for posts or pages, or for any single post like `single`.
+	 * Whether a template slug or type serves single views of one of the post types.
 	 *
-	 * @param string $slug Template slug.
+	 * @param string   $slug       Template slug.
+	 * @param string[] $post_types Post types that get the blocks.
 	 */
-	private static function is_single_post_or_page_slug( string $slug ): bool {
-		if ( in_array( $slug, array( 'single', 'page', 'singular', 'single-post' ), true ) || str_starts_with( $slug, 'page-' ) ) {
+	private static function is_single_view_slug( string $slug, array $post_types ): bool {
+		if ( 'singular' === $slug ) {
 			return true;
 		}
 
-		// `single-post-{slug}` is one post's template, unless it belongs to a post type named `post-…`.
-		return str_starts_with( $slug, 'single-post-' ) && ! post_type_exists( substr( $slug, strlen( 'single-' ) ) );
+		if ( in_array( 'page', $post_types, true ) && ( 'page' === $slug || str_starts_with( $slug, 'page-' ) ) ) {
+			return true;
+		}
+
+		// Pages have templates of their own; `single` serves every other post type without one.
+		$single_types = array_diff( $post_types, array( 'page' ) );
+
+		if ( 'single' === $slug ) {
+			return (bool) $single_types;
+		}
+
+		foreach ( $single_types as $post_type ) {
+			if ( 'single-' . $post_type === $slug ) {
+				return true;
+			}
+
+			// `single-{type}-{slug}` is one post's template, unless it belongs to a post type named `{type}-…`.
+			if ( str_starts_with( $slug, 'single-' . $post_type . '-' ) && ! post_type_exists( substr( $slug, strlen( 'single-' ) ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

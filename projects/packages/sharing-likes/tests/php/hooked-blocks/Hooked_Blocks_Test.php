@@ -67,6 +67,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		remove_all_filters( 'hooked_block_types' );
 		remove_all_filters( 'hooked_block_' . Block_Names::SHARING_BUTTONS );
 		remove_all_filters( 'hooked_block_' . Block_Names::LIKE );
+		remove_all_filters( 'jetpack_sharing_likes_template_placement_post_types' );
 		unregister_post_type( 'post-card' );
 
 		foreach ( array_merge( Template_Placements::OPTIONS, array( 'sharing-services', 'sharing-options', 'disabled_likes', 'disabled_reblogs' ) ) as $option ) {
@@ -224,6 +225,51 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	#[DataProvider( 'provide_singular_requests' )]
 	public function test_places_the_blocks_only_while_viewing_a_post_or_page( $context, string $post_type, bool $placed ): void {
 		self::view( $post_type );
+
+		$this->assertSame( $placed ? self::PLACED : self::NOTHING, $this->placed_blocks( $context ) );
+	}
+
+	/**
+	 * @return array<string, array{0: mixed, 1: mixed, 2: string, 3: bool}>
+	 */
+	public static function provide_filtered_post_types(): array {
+		$with_products   = array( 'post', 'page', 'product' );
+		$untyped_pattern = array( 'name' => 'theme/content' );
+
+		return array(
+			'products: their template'                  => array( $with_products, self::template( 'single-product' ), '', true ),
+			'products: one product\'s template'         => array( $with_products, self::template( 'single-product-blue-mug' ), '', true ),
+			'products: a custom template for them'      => array( $with_products, self::template( 'wide', 'wp_template', array( 'product' ) ), '', true ),
+			'products: single template, a product'      => array( $with_products, self::template( 'single' ), 'product', true ),
+			'products: untyped pattern, a product'      => array( $with_products, $untyped_pattern, 'product', true ),
+			'posts only: page template'                 => array( array( 'post' ), self::template( 'page' ), '', false ),
+			'pages only: single template'               => array( array( 'page' ), self::template( 'single' ), '', false ),
+			'pages only: page template'                 => array( array( 'page' ), self::template( 'page' ), '', true ),
+			'pages only: singular template, a post'     => array( array( 'page' ), self::template( 'singular' ), 'post', false ),
+			'no post types: singular template'          => array( array(), self::template( 'singular' ), '', false ),
+			'not a list: falls back to posts and pages' => array( 'product', self::template( 'single-product' ), '', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_filtered_post_types
+	 *
+	 * @param mixed  $post_types What the filter returns.
+	 * @param mixed  $context    Where the anchor sits.
+	 * @param string $viewing    Post type of the post being viewed, if any.
+	 * @param bool   $placed     Whether the blocks are placed.
+	 */
+	#[DataProvider( 'provide_filtered_post_types' )]
+	public function test_places_the_blocks_on_the_post_types_the_filter_returns( $post_types, $context, string $viewing, bool $placed ): void {
+		add_filter(
+			'jetpack_sharing_likes_template_placement_post_types',
+			static function () use ( $post_types ) {
+				return $post_types;
+			}
+		);
+		if ( '' !== $viewing ) {
+			self::view( $viewing );
+		}
 
 		$this->assertSame( $placed ? self::PLACED : self::NOTHING, $this->placed_blocks( $context ) );
 	}

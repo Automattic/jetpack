@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add the Sharing Buttons and Like blocks before or after the post content in block themes' single post and page templates, when the legacy buttons are off and a site option asks for them.
+Add the Sharing Buttons and Like blocks before or after the post content in block themes' single post and page templates, when the legacy buttons are off and a site option asks for them. The `jetpack_sharing_likes_template_placement_post_types` filter adds other post types.
