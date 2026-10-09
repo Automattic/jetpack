@@ -1,5 +1,6 @@
 {
 	"name": "jpa/post-views",
+	"icon": "jpa/seen",
 	"title": "Post views",
 	"description": "The view trend of the post or page being viewed over the selected period.",
 	"help": {

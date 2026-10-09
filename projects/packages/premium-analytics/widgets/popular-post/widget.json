@@ -1,5 +1,6 @@
 {
 	"name": "jpa/popular-post",
+	"icon": "jpa/trending-up",
 	"title": "Most popular in the last year",
 	"description": "Your most-viewed post of the last 12 months, with its all-time stats.",
 	"help": {

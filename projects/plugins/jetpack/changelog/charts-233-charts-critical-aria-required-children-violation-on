@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Announce line, area and bar charts correctly to screen readers.

@@ -7,4 +7,5 @@ import { defaultReportParamsForGrain } from '@jetpack-premium-analytics/fields';
  */
 import { SUBSCRIBERS_GRAIN } from './grain';
 
-export const DEFAULT_REPORT_PARAMS = defaultReportParamsForGrain( SUBSCRIBERS_GRAIN );
+// Read per use, not once at load: the default follows the reader's remembered preset.
+export const defaultReportParams = () => defaultReportParamsForGrain( SUBSCRIBERS_GRAIN );

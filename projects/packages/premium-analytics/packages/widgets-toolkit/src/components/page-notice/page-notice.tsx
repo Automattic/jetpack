@@ -12,7 +12,7 @@ export interface PageNoticeProps extends Pick< WidgetStateError, 'description' |
 	/** `info` for a fact rather than a fault, such as a missing item; failures, access denied included, are an `error`. */
 	intent?: 'error' | 'info';
 	/** A way out of the page, such as back to its report; `render` is a childless router link, as its children would replace `label`. */
-	link?: { label: string; render: ReactElement };
+	link?: { label: string; render: ReactElement< Record< string, unknown > > };
 }
 
 /**

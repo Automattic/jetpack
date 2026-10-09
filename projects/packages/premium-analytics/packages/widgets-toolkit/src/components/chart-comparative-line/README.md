@@ -1,10 +1,10 @@
 # ComparativeLineChart
 
-A **pure** line chart component for comparing time series data across different periods. Built on top of `@automattic/charts` with automatic date alignment for comparison series.
+A line chart component for comparing time series data across different periods. Built on top of `@automattic/charts` with automatic date alignment for comparison series.
 
-## Pure Component Design
+## Series Styles from Props
 
-This component is **pure** in its styling: it receives all styling via props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides.
+This component takes its series styles from props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides and, with `compactWhenShort`, the sparkline margin (`sparkline.margin`) a short chart takes.
 
 ```tsx
 import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';

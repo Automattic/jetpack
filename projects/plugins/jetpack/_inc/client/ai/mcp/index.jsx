@@ -24,6 +24,7 @@ import {
 	list,
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
+import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
 import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
@@ -181,21 +182,23 @@ function ConnectRow( { title, description, onClick } ) {
 /**
  * MCP hub component.
  *
- * @param {object}   props                   - Component props.
- * @param {object}   props.mcpAbilities      - Full mcp_abilities object from API.
- * @param {number}   props.blogId            - Current site's blog ID.
- * @param {string}   props.activityLogUrl    - URL for the activity log link.
- * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
- * @param {Function} props.onNavigate        - Called with 'read' | 'write' | 'setup'.
- * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
- * @param {boolean}  [props.showActivityLog] - Whether this view owns the activity log row
- *                                           (false when the Overview tab renders it instead).
+ * @param {object}   props                       - Component props.
+ * @param {object}   props.mcpAbilities          - Full mcp_abilities object from API.
+ * @param {number}   props.blogId                - Current site's blog ID.
+ * @param {string}   props.activityLogUrl        - URL for the activity log link.
+ * @param {boolean}  [props.activityLogFiltered] - Whether the activity log link opens filtered to AI agent actions.
+ * @param {Set}      props.savingToolIds         - Set of toolIds currently being saved.
+ * @param {Function} props.onNavigate            - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate              - Called with partial mcp_abilities update.
+ * @param {boolean}  [props.showActivityLog]     - Whether this view owns the activity log row
+ *                                               (false when the Overview tab renders it instead).
  * @return {object} Component markup.
  */
 export default function McpHub( {
 	mcpAbilities,
 	blogId,
 	activityLogUrl,
+	activityLogFiltered = false,
 	savingToolIds,
 	onNavigate,
 	onUpdate,
@@ -316,7 +319,11 @@ export default function McpHub( {
 
 			{ showActivityLog && isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
-					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
+					<a
+						className="jetpack-ai-mcp__connect-row"
+						href={ activityLogUrl }
+						onClick={ onActivityLogClick( activityLogFiltered ) }
+					>
 						<span className="jetpack-ai-mcp__connect-row-icon">
 							<Icon icon={ list } size={ 24 } />
 						</span>
@@ -325,7 +332,7 @@ export default function McpHub( {
 								{ __( 'Activity log', 'jetpack' ) }
 							</Text>
 							<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
-								{ __( 'Review recent actions taken by AI agents on your site.', 'jetpack' ) }
+								{ getActivityLogDescription( activityLogFiltered ) }
 							</Text>
 						</span>
 						<span className="jetpack-ai-mcp__connect-row-chevron">

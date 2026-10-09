@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useSubscribersChart, {
@@ -118,8 +118,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
-				// `stats/subscribers` answers a window before the site had any with `null` rows, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
@@ -148,7 +146,7 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
-	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+	const reportParams = attributes.reportParams ?? defaultReportParams();
 
 	return (
 		<ReportScopeProvider offersComparison={ false }>

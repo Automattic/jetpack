@@ -11,9 +11,11 @@
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/fields": "workspace:*",
+		"@jetpack-premium-analytics/icons": "workspace:*",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/boot": "0.22.0",
 		"@wordpress/data": "10.55.0",
-		"@wordpress/icons": "^16.0.0"
+		"@wordpress/icons": "^16.0.0",
+		"@wordpress/widget-primitives": "0.7.0"
 	}
 }
