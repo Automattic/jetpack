@@ -10,6 +10,7 @@ import {
 } from '../chart-leaderboard/leaderboard-row';
 import type { LeaderboardChartData } from '../chart-leaderboard/leaderboard-chart';
 import type { LeaderboardRowMedia } from '../chart-leaderboard/leaderboard-label';
+import type { LeaderboardVariant } from '../chart-leaderboard/leaderboard-variant';
 
 type PostLinkAction = Extract< LeaderboardRowAction, { kind: 'postLink' } >;
 type VideoLinkAction = Extract< LeaderboardRowAction, { kind: 'videoLink' } >;
@@ -95,6 +96,10 @@ export type BuildLeaderboardChartDataOptions = {
 	 */
 	detailSearch?: Record< string, unknown >;
 	/**
+	 * The look the rows draw with; the row chrome follows it. Defaults to `list`.
+	 */
+	variant?: LeaderboardVariant;
+	/**
 	 * Makes every row with children a drill-down button. Without it, such rows keep their own action.
 	 */
 	drillDown?: LeaderboardDrillDownOptions;
@@ -137,6 +142,7 @@ function resolveAction(
  * @param options.maxRows       - Rows past this count are dropped; `0` keeps every row.
  * @param options.detailSearch  - The dashboard window a detail link carries when the row declares none.
  * @param options.drillDown     - Makes every row with children a drill-down button.
+ * @param options.variant       - The look the rows draw with.
  * @return The chart rows.
  */
 export function buildLeaderboardChartData(
@@ -146,6 +152,7 @@ export function buildLeaderboardChartData(
 		maxRows = 0,
 		detailSearch = {},
 		drillDown,
+		variant,
 	}: BuildLeaderboardChartDataOptions = {}
 ): LeaderboardChartData {
 	const visible = maxRows > 0 ? rows.slice( 0, maxRows ) : rows;
@@ -163,6 +170,7 @@ export function buildLeaderboardChartData(
 				label: row.label,
 				media: row.media ?? NO_MEDIA,
 				action: resolveAction( row, detailSearch, drillDown ),
+				variant,
 			} ),
 			currentValue: row.value,
 			// A negative value, net revenue after refunds say, draws as an empty bar.

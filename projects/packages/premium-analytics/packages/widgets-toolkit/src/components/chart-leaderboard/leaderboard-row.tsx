@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import clsx from 'clsx';
+/**
  * Internal dependencies
  */
 import { ExternalLink } from '../external-link';
@@ -6,6 +10,7 @@ import { PostTitleLink } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
+import type { LeaderboardVariant } from './leaderboard-variant';
 import type { MouseEvent, ReactElement } from 'react';
 
 export type LeaderboardRowAction =
@@ -63,6 +68,8 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The mutually exclusive action applied to this chart row. */
 	action: LeaderboardRowAction;
+	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
+	variant?: LeaderboardVariant;
 };
 
 export type LeaderboardRowChartProps =
@@ -103,7 +110,15 @@ export function resolveLeaderboardRowAction(
  *
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
-export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
+export function LeaderboardRow( {
+	label,
+	media,
+	action,
+	variant = 'list',
+}: LeaderboardRowProps ): ReactElement {
+	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
+	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
+
 	// Title-link rows put the row chrome on the link itself.
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
@@ -114,9 +129,9 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 			search: action.search,
 			title: label,
 			classNames: {
-				internal: styles.rowLink,
-				external: styles.rowLink,
-				plain: styles.row,
+				internal: rowLinkClassName,
+				external: rowLinkClassName,
+				plain: rowClassName,
 				text: styles.label,
 			},
 		};
@@ -138,14 +153,14 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 
 	if ( action.kind === 'link' ) {
 		return (
-			<ExternalLink className={ styles.rowLink } href={ action.href } title={ label }>
+			<ExternalLink className={ rowLinkClassName } href={ action.href } title={ label }>
 				{ content }
 			</ExternalLink>
 		);
 	}
 
 	return (
-		<span className={ styles.row } title={ label }>
+		<span className={ rowClassName } title={ label }>
 			{ content }
 		</span>
 	);
