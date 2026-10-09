@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the newest bundled copy of a polyfilled script module when several plugins register it, and take widget-primitives from Gutenberg only from 24.1.0.

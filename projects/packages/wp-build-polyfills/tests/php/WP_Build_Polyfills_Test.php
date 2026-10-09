@@ -44,6 +44,13 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	private $original_wp_scripts;
 
 	/**
+	 * Build directories created by make_widget_primitives_build(), removed on tear down.
+	 *
+	 * @var string[]
+	 */
+	private $extra_build_dirs = array();
+
+	/**
 	 * Set up test fixtures.
 	 *
 	 * @before
@@ -123,8 +130,12 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		remove_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) );
 		remove_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) );
+		unset( $GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] );
 
 		$this->recursive_rmdir( $this->build_dir );
+		foreach ( $this->extra_build_dirs as $dir ) {
+			$this->recursive_rmdir( $dir );
+		}
 
 		parent::tear_down();
 	}
@@ -212,15 +223,38 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 	/**
 	 * Invoke the private register_modules method.
+	 *
+	 * @param string|null $build_dir Build directory to register from; the test build by default.
 	 */
-	private function invoke_register_modules() {
+	private function invoke_register_modules( $build_dir = null ) {
 		$this->request_polyfills( WP_Build_Polyfills::MODULE_IDS );
 
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_modules' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$method->invoke( null, $this->build_dir, __FILE__ );
+		$method->invoke( null, $build_dir ?? $this->build_dir, __FILE__ );
+	}
+
+	/**
+	 * Create a separate build holding only widget-primitives, as another plugin's copy would.
+	 *
+	 * @param string|null $package_version Bundled package version, or null for a build without version.php.
+	 * @param string      $asset_version   Asset hash, to tell the registrations apart.
+	 * @return string The build directory.
+	 */
+	private function make_widget_primitives_build( $package_version, $asset_version ) {
+		$dir = $this->build_dir . '-' . $asset_version;
+		mkdir( $dir . '/modules/widget-primitives', 0755, true );
+		$this->extra_build_dirs[] = $dir;
+		file_put_contents(
+			$dir . '/modules/widget-primitives/index.asset.php',
+			"<?php return array('dependencies' => array(), 'version' => '$asset_version', 'module_dependencies' => array());"
+		);
+		if ( null !== $package_version ) {
+			file_put_contents( $dir . '/modules/widget-primitives/version.php', "<?php return '$package_version';" );
+		}
+		return $dir;
 	}
 
 	/**
@@ -843,7 +877,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_modules_does_not_replace_widget_primitives_with_supported_gutenberg() {
-		define( 'GUTENBERG_VERSION', '23.9.0' );
+		define( 'GUTENBERG_VERSION', '24.1.0' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
@@ -860,6 +894,71 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$module = $this->get_module_data( '@wordpress/widget-primitives' );
 		$this->assertNotNull( $module );
 		$this->assertSame( '1.0.0-gutenberg', $module['version'] );
+	}
+
+	/**
+	 * A newer bundled widget-primitives replaces the copy another plugin registered first.
+	 */
+	public function test_register_modules_newer_copy_replaces_older_copy() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		$older                        = $this->make_widget_primitives_build( '0.7.0', 'older' );
+		$newer                        = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $older );
+		$this->invoke_register_modules( $newer );
+
+		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+	}
+
+	/**
+	 * An older bundled copy registered later leaves the newer registration alone.
+	 */
+	public function test_register_modules_older_copy_keeps_newer_registration() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		$older                        = $this->make_widget_primitives_build( '0.7.0', 'older' );
+		$newer                        = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $newer );
+		$this->invoke_register_modules( $older );
+
+		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+	}
+
+	/**
+	 * A build without version.php predates the file and counts as older, whichever order it loads in.
+	 */
+	public function test_register_modules_copy_without_version_counts_as_older() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		$legacy                       = $this->make_widget_primitives_build( null, 'legacy' );
+		$newer                        = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $legacy );
+		$this->invoke_register_modules( $newer );
+		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		unset( $GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] );
+		$this->invoke_register_modules( $newer );
+		$this->invoke_register_modules( $legacy );
+		$this->assertSame( 'newer', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_newer_copy_leaves_supported_gutenberg_copy() {
+		define( 'GUTENBERG_VERSION', '24.1.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+		$newer = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $newer );
+
+		$this->assertSame( '1.0.0-gutenberg', $this->get_module_data( '@wordpress/widget-primitives' )['version'] );
 	}
 
 	/**
