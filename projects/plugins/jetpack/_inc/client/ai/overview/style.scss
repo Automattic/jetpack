@@ -256,7 +256,10 @@
 		border-radius: var(--wpds-border-radius-lg);
 		overflow: hidden;
 		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
-		--wp-components-color-foreground: var(--wpds-color-foreground-interactive-brand);
+
+		> div {
+			background-color: var(--wpds-color-foreground-interactive-brand);
+		}
 	}
 }
 
