@@ -64,9 +64,16 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Oldest widget contract the widgets run on: the one whose dashboard resolves the icons they name.
+	 * Lowest widget contract the build works against: the UTM leaderboards draw the bars variant,
+	 * which the dashboard ships from 1.7.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.6.0';
+	const MIN_WIDGET_API_VERSION = '1.7.0';
+
+	/**
+	 * Widget categories the package builds but holds back from the tab for now: the bookings
+	 * reports answer 500 on a store without a synced booking (WOOA7S-2287).
+	 */
+	const HELD_BACK_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
@@ -133,7 +140,6 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 5, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 6, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-bookings-over-time-widget-instance', self::BOOKINGS_OVER_TIME_TYPE, 7, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 8, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 9, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 10, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 11, 1, 2 ),
@@ -144,6 +150,23 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 16, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 17, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 18, 1, 2 ),
+		);
+	}
+
+	/**
+	 * The manifest minus the categories held back from the tab.
+	 *
+	 * @param array[] $widget_modules Widget module records of the build manifest.
+	 * @return array[] The records the package registers.
+	 */
+	private static function remove_held_back_widget_types( $widget_modules ) {
+		return array_values(
+			array_filter(
+				$widget_modules,
+				static function ( $widget_module ) {
+					return ! in_array( $widget_module['category'] ?? '', self::HELD_BACK_WIDGET_CATEGORIES, true );
+				}
+			)
 		);
 	}
 
@@ -167,7 +190,7 @@ class Analytics_Dashboard {
 		}
 
 		register_widget_types_from_manifest(
-			jetpack_woocommerce_stats_get_registered_widget_modules(),
+			self::remove_held_back_widget_types( jetpack_woocommerce_stats_get_registered_widget_modules() ),
 			array(
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', self::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),

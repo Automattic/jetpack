@@ -1,5 +1,5 @@
 export { buildSalesByCouponData, type SalesByCouponData } from './build-sales-by-coupon-data';
-export { PHYSICAL_PRODUCTS_FILTER, BOOKINGS_FILTER } from './product-type-filters';
+export { BOOKINGS_FILTER } from './product-type-filters';
 export {
 	buildRevenueByCustomerTypeData,
 	type RevenueByCustomerTypeData,
@@ -11,7 +11,6 @@ export {
 	type ColorableItem,
 } from './segment-styles';
 export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
-export { buildSalesByUtmData } from './build-sales-by-utm-data';
 export {
 	buildSessionsByDeviceData,
 	type SessionsByDeviceData,

@@ -11,8 +11,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 | `SalesByCouponWidget`          | `SemiCircleChart`                               | Coupon sales for all product types                |
 | `SalesByDeviceWidget`          | `BarChart`                                      | Sales breakdown by device type                    |
 | `TotalReturnsWidget`           | `BarChart`                                      | Returns/refunds for all product types             |
-| `TopPerformingProductsWidget`  | `LeaderboardChart`                              | Top products by revenue                           |
-| `TopPerformingBookingsWidget`  | `LeaderboardChart`                              | Top bookings by revenue                           |
 
 ## Chart Components
 
