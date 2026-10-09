@@ -36,7 +36,6 @@ function TotalSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType 
 			field="total_sales"
 			label={ __( 'Total sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
-			emptyText={ __( 'No sales in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load total sales. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

@@ -10,7 +10,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -82,10 +81,6 @@ function NewVsReturningCustomer() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: people,
-				description: __( 'No customer data in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 		/>
 	);
 }

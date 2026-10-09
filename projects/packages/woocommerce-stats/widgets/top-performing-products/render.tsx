@@ -6,7 +6,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { store } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -31,8 +30,6 @@ export default function TopPerformingProductsRender( {
 		<WidgetRoot attributes={ attributes }>
 			<ProductLeaderboard
 				filter={ PHYSICAL_PRODUCTS_FILTER }
-				emptyIcon={ store }
-				emptyText={ __( 'No product sales in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 				errorText={ __(
 					"We couldn't load product data. Please try again in a moment.",
 					'jetpack-woocommerce-stats-pkg'
