@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './chart-empty-state.module.scss';
+import type { ReactNode } from 'react';
 
 export type ChartEmptyStateProps = {
 	/**
@@ -19,6 +20,8 @@ export type ChartEmptyStateProps = {
 	 * @default "We couldn’t find results for this time period."
 	 */
 	text?: string;
+	/** Buttons or links under the description. */
+	actions?: ReactNode;
 };
 
 /**
@@ -27,6 +30,7 @@ export type ChartEmptyStateProps = {
 export function ChartEmptyState( {
 	icon = search,
 	text = __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' ),
+	actions,
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>
@@ -34,6 +38,7 @@ export function ChartEmptyState( {
 			     different states keep the same vertical rhythm. */ }
 			{ icon && <Icon size={ 40 } className={ styles.icon } icon={ icon } /> }
 			<EmptyState.Description>{ text }</EmptyState.Description>
+			{ actions && <EmptyState.Actions>{ actions }</EmptyState.Actions> }
 		</EmptyState.Root>
 	);
 }

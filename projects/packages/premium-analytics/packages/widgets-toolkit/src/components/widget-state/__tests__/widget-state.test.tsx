@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { chartBar } from '@wordpress/icons';
@@ -171,6 +172,31 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows a custom empty action only while the widget has no results', () => {
+		const empty = {
+			description: 'No posts here.',
+			actions: <LinkButton href="/wp-admin/post-new.php">Create post</LinkButton>,
+		};
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/post-new.php'
+		);
+
+		rerender(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the error state with an action button', () => {
