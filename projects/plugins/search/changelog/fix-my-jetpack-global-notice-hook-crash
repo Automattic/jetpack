@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Fix the dashboard crashing with "Something went wrong" when one notice replaces another.
