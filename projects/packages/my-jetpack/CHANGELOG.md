@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.9.0] - 2026-10-07
+### Changed
+- Features tab: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording. VideoPress plan comparison: Show the ad-free, customizable player as included in the free plan. [#53181]
+- Features tab: Use the illustrated VideoPress artwork in the feature details window. [#53191]
+
+### Removed
+- Remove the my-jetpack-features-tab feature flag, along with Initializer::register_feature_flags() and Initializer::is_features_tab_enabled(). [#52778]
+- Remove the Products page and route all links to it to the Features tab. [#52778]
+- Point the footer's Modules link and Help's "All Jetpack modules" link back to the Modules page. [#52778]
+
+### Fixed
+- Make the "plugins needed" notice for paid plans translatable as full sentences in both singular and plural forms. [#53213]
+- Stop counting products that are off as needing a user connection. [#53247]
+
 ## [6.8.0] - 2026-10-05
 ### Added
 - Search: Grant the free Search product directly instead of routing through a $0 checkout. [#52655]
@@ -3023,6 +3037,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.8.0...6.9.0
 [6.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.1...6.8.0
 [6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.6.0...6.7.0

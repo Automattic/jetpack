@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
@@ -59,17 +59,15 @@ const ModernRoutes = ( { subpageSlot }: ModernAppProps ) => {
  * @param props.subpageSlot - Chassis mount for the active sub-page.
  */
 const ModernApp = ( { subpageSlot }: ModernAppProps ) => (
-	<StrictMode>
-		<DataSyncProvider>
-			<ModernNavigationProvider>
-				<NoticeProvider>
-					<CriticalCssProvider>
-						<ModernRoutes subpageSlot={ subpageSlot } />
-					</CriticalCssProvider>
-				</NoticeProvider>
-			</ModernNavigationProvider>
-		</DataSyncProvider>
-	</StrictMode>
+	<DataSyncProvider>
+		<ModernNavigationProvider>
+			<NoticeProvider>
+				<CriticalCssProvider>
+					<ModernRoutes subpageSlot={ subpageSlot } />
+				</CriticalCssProvider>
+			</NoticeProvider>
+		</ModernNavigationProvider>
+	</DataSyncProvider>
 );
 
 export default ModernApp;

@@ -24,6 +24,7 @@ import ResponseMeta from '../../src/dashboard/components/inspector/response-meta
 import ResponseNavigation from '../../src/dashboard/components/inspector/response-navigation/index.tsx';
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
 import MarkAsSpamConfirmationModal from '../../src/dashboard/components/mark-as-spam-confirmation-modal';
+import useFormRecord from '../../src/dashboard/hooks/use-form-record.ts';
 import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
@@ -141,18 +142,8 @@ function Stage(): React.JSX.Element {
 	// For managed forms, resolve the actual jetpack_form post title so the
 	// breadcrumb matches the header of the list it links to (response.entry_title
 	// is the embedding page/post title, which can differ from the form's name).
-	const formName = useSelect(
-		select => {
-			const formId = response?.form_id;
-			if ( ! formId ) {
-				return '';
-			}
-			const record = select( coreStore ).getEntityRecord( 'postType', 'jetpack_form', formId ) as
-				{ title?: { rendered?: string } } | undefined;
-			return record ? decodeEntities( record.title?.rendered || '' ) : '';
-		},
-		[ response?.form_id ]
-	);
+	const formRecord = useFormRecord( response?.form_id );
+	const formName = formRecord ? decodeEntities( formRecord.title?.rendered || '' ) : '';
 
 	// The email's "Mark as spam" button lands here with `?mark_as_spam=1`, which
 	// opens a confirmation dialog — the destructive step is never taken on the

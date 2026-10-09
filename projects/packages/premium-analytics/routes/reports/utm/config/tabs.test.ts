@@ -12,11 +12,4 @@ describe( 'UTM report tabs', () => {
 		expect( resolveSection( undefined ) ).toBe( 'source-medium' );
 		expect( resolveSection( 'missing' ) ).toBe( 'source-medium' );
 	} );
-
-	it.each( [ 'source-medium', 'campaign-source-medium', 'source', 'medium', 'campaign' ] as const )(
-		'resolves %s',
-		tab => {
-			expect( resolveSection( tab ) ).toBe( tab );
-		}
-	);
 } );

@@ -275,23 +275,6 @@ function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	};
 }
 
-export function isStatsTimeSeriesPayload( payload: unknown ) {
-	const response = coerceStatsRecord( payload );
-
-	if (
-		coerceStatsArray( response.fields ).length ||
-		Object.keys( coerceStatsRecord( response.days ) ).length
-	) {
-		return true;
-	}
-
-	const firstRow = coerceStatsRecord( coerceStatsArray< StatsRecord >( response.data )[ 0 ] );
-
-	return Boolean(
-		firstRow.period || firstRow.time_interval || firstRow.date || firstRow.date_start
-	);
-}
-
 export function sanitizeStatsTimeSeriesResponse(
 	payload: unknown,
 	query?: StatsQueryParams,

@@ -1,0 +1,50 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Components/TooltipBox/API Reference" />
+
+# TooltipBox API Reference
+
+Complete API documentation for the TooltipBox component.
+
+## Props
+
+`TooltipBox` accepts every `HTMLAttributes<HTMLDivElement>` prop, plus `unstyled`.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `unstyled` | `boolean` | `false` | Drops the chart surface, scope class and dark theme, leaving a bare box |
+| `role` | `AriaRole` | `'tooltip'` | The ARIA role of the box. Replaces the default |
+| `className` | `string` | - | Added beside the surface classes |
+| `style` | `CSSProperties` | - | Inline styles. Kept when `unstyled` is set |
+| `children` | `ReactNode` | - | The tooltip content |
+
+The component also forwards `ref` to the box element (`HTMLDivElement`).
+
+## Type Definitions
+
+### TooltipBoxProps
+
+<Source
+	language="typescript"
+	code={`type TooltipBoxProps = HTMLAttributes< HTMLDivElement > & {
+	/** Drop the chart surface, scope class and dark theme, leaving a bare box. */
+	unstyled?: boolean;
+};`}
+/>
+
+## Exports
+
+<Source
+	language="typescript"
+	code={`import { TooltipBox } from '@automattic/charts';
+import type { TooltipBoxProps } from '@automattic/charts';`}
+/>
+
+## Rendered Classes
+
+| Class | Applied |
+|-------|---------|
+| `visx-tooltip` | Always |
+| `a8c-charts-tooltip-scope` | Unless `unstyled` |
+| Tooltip surface class | Unless `unstyled` |
+| Your `className` | Always, beside the above |

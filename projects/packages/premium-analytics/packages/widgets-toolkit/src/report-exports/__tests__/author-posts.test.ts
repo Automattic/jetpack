@@ -7,9 +7,22 @@ import { fetchStatsTopAuthorsRows, type ReportParams } from '@jetpack-premium-an
  */
 import { authorPostsCsvExporter } from '../authors';
 
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	fetchStatsClicksRows: jest.fn(),
+	fetchStatsComments: jest.fn(),
+	fetchStatsEmailSummaryRows: jest.fn(),
+	fetchStatsFileDownloadsRows: jest.fn(),
+	fetchStatsInsightsYears: jest.fn(),
+	fetchStatsLocationsRows: jest.fn(),
+	fetchStatsReferrersRows: jest.fn(),
+	fetchStatsSearchTermsReport: jest.fn(),
+	fetchStatsTagsRows: jest.fn(),
 	fetchStatsTopAuthorsRows: jest.fn(),
+	fetchStatsUtmRows: jest.fn(),
+	fetchStatsVideoPlaysRows: jest.fn(),
 } ) );
 
 const fetchStatsTopAuthorsRowsMock = jest.mocked( fetchStatsTopAuthorsRows );

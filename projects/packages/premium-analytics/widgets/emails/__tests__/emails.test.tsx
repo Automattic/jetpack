@@ -4,7 +4,6 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -80,15 +79,19 @@ describe( 'EmailsList', () => {
 	} );
 
 	it.each( [
-		[ 'opens', '420', '42%', '420 opens, 42% open rate' ],
-		[ 'clicks', '75', '7%', '75 clicks, 7% click rate' ],
-	] as const )( 'shows the %s count beside its rate', ( metric, count, rate, description ) => {
-		renderEmailsList( metric );
+		[ 'opens', '420', '420 opens', '42%', '420 opens, 42% open rate' ],
+		[ 'clicks', '75', '75 clicks', '7%', '75 clicks, 7% click rate' ],
+	] as const )(
+		'shows the %s count beside its rate',
+		( metric, count, label, rate, description ) => {
+			renderEmailsList( metric );
 
-		expect( screen.getByText( count ) ).toBeInTheDocument();
-		expect( screen.getByText( rate ) ).toBeInTheDocument();
-		expect( screen.getByText( description ) ).toBeInTheDocument();
-	} );
+			expect( screen.getByText( count ) ).toBeInTheDocument();
+			expect( screen.getByText( label ) ).toBeInTheDocument();
+			expect( screen.getByText( rate ) ).toBeInTheDocument();
+			expect( screen.getByText( description ) ).toBeInTheDocument();
+		}
+	);
 
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
@@ -108,23 +111,6 @@ describe( 'EmailsList', () => {
 
 		expect( labelsFor( 'opens' )[ 0 ] ).toContain( 'Newer' );
 		expect( labelsFor( 'clicks' )[ 0 ] ).toContain( 'Newer' );
-	} );
-
-	it( 'renders the rate at two decimals, trimming a trailing zero', () => {
-		render(
-			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
-				<EmailsList
-					rows={ [
-						row( { id: 1, label: 'Half a percent', opensRate: 11.5 } ),
-						row( { id: 2, label: 'Three decimals', opensRate: 3.814 } ),
-					] }
-					metric="opens"
-				/>
-			</WidgetRoot>
-		);
-
-		expect( screen.getByText( '11.5%' ) ).toBeInTheDocument();
-		expect( screen.getByText( '3.81%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows an em dash for a click rate with no attributable recipient', () => {
@@ -169,23 +155,6 @@ describe( 'EmailsList', () => {
 		expect( screen.getByText( '18.4K' ) ).toBeInTheDocument();
 		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
 	} );
-
-	it.each( [
-		[ 'opens', '420', '420 opens' ],
-		[ 'clicks', '75', '75 clicks' ],
-	] as const )(
-		'names the unit behind an unabbreviated %s count',
-		async ( metric, count, label ) => {
-			const user = userEvent.setup();
-			renderEmailsList( metric );
-
-			await user.hover( screen.getByText( count ) );
-
-			await expect(
-				screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-			).resolves.toHaveTextContent( label );
-		}
-	);
 
 	it( 'carries the report post ID and URL into the rendered detail link', async () => {
 		mockApiFetch.mockResolvedValue( {

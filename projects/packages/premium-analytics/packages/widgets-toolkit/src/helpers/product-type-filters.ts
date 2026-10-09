@@ -14,17 +14,6 @@ import type { FilterCondition } from '@jetpack-premium-analytics/data';
  */
 
 /**
- * Filter for physical products only.
- * Includes: simple, variable, and variation product types.
- * Excludes: digital/downloadable products and bookings.
- */
-export const PHYSICAL_PRODUCTS_FILTER: FilterCondition = {
-	key: 'product_type',
-	value: [ 'simple', 'variable', 'variation' ],
-	compare: 'IN',
-};
-
-/**
  * Filter for booking products only.
  * Includes: booking, bookable-event, and bookable-service product types.
  * Used by WooCommerce Bookings extension.

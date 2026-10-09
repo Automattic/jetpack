@@ -65,6 +65,28 @@ export function deriveTextColor( background ) {
 }
 
 /**
+ * The text color a background calls for, given the one the site would otherwise supply.
+ *
+ * The rule the renderer applies: a site's own text color is kept when it already reads on the
+ * background, so clearing the control restores it rather than stamping a tint over it. Absent and
+ * unreadable both derive; a color that cannot be judged is kept, as contrast against an unknown is
+ * not a number.
+ *
+ * @param {*} inherited  - The text color the site supplies, or undefined when it supplies none.
+ * @param {*} background - The background.
+ * @return {string|null} The color to store, or null to store none and inherit.
+ */
+export function textFor( inherited, background ) {
+	if ( null === ( inherited ?? null ) ) {
+		return deriveTextColor( background );
+	}
+
+	const contrast = contrastRatio( inherited, background );
+
+	return null === contrast || contrast >= MINIMUM_CONTRAST ? null : deriveTextColor( background );
+}
+
+/**
  * Make a color readable on a background, keeping its own hue and saturation.
  *
  * For a color that should stay recognizable — a site's link color, say — where `deriveTextColor`

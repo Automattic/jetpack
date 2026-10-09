@@ -180,33 +180,14 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the cell links wherever the URL filter points it.
+	 * Render the views cell for a post and return its markup.
 	 *
-	 * @return void
+	 * @param int $post_id The post.
+	 * @return string
 	 */
-	public function test_add_stats_post_table_cell_url_is_filterable() {
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => 'Filtered Test Post',
-				'post_status' => 'publish',
-				'post_author' => 1,
-			)
-		);
-
+	private function render_cell( $post_id ) {
 		global $wp_query;
 		$wp_query = $this->get_wp_query_mock( $post_id );
-
-		// Shaped like the real replacement: esc_url() encodes the `&` on output, so
-		// a URL without one would not exercise the cell's escaping at all.
-		$filtered_url = 'https://example.com/wp-admin/admin.php?page=analytics&p=%2Fpost%2F' . $post_id;
-		$received_url = '';
-		$received_id  = 0;
-		$filter       = function ( $url, $url_post_id ) use ( &$received_url, &$received_id, $filtered_url ) {
-			$received_url = $url;
-			$received_id  = $url_post_id;
-			return $filtered_url;
-		};
-		add_filter( 'jetpack_stats_post_list_column_url', $filter, 10, 2 );
 
 		$column_mock = $this->getMockBuilder( Admin_Post_List_Column::class )
 							->onlyMethods( array( 'get_stats' ) )
@@ -219,18 +200,84 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$column_mock->add_stats_post_table_cell( 'stats', $post_id );
 		$output = ob_get_clean();
 
-		remove_filter( 'jetpack_stats_post_list_column_url', $filter, 10 );
+		$wp_query = null;
+		return html_entity_decode( $output, ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
+	 * Test that the cell links wherever jetpack_stats_url points it.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_url_is_filterable() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		// Shaped like the real replacement: esc_url() encodes the `&` on output, so
+		// a URL without one would not exercise the cell's escaping at all.
+		$filtered_url  = 'https://example.com/wp-admin/admin.php?page=analytics&p=%2Fpost%2F' . $post_id;
+		$received_url  = '';
+		$received_args = array();
+		$filter        = function ( $url, $args ) use ( &$received_url, &$received_args, $filtered_url ) {
+			$received_url  = $url;
+			$received_args = $args;
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_url', $filter, 10, 2 );
+
+		$output = $this->render_cell( $post_id );
+
+		remove_filter( 'jetpack_stats_url', $filter, 10 );
+		wp_delete_post( $post_id, true );
 
 		$this->assertStringContainsString(
 			'href="' . $filtered_url . '"',
-			html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ),
+			$output,
 			'The filtered URL has to be the anchor target, not just present somewhere in the cell.'
 		);
 		$this->assertStringContainsString( 'admin.php?page=stats', $received_url, 'The filter receives the unfiltered stats URL.' );
-		$this->assertSame( $post_id, $received_id );
+		$this->assertSame(
+			array(
+				'view' => 'post',
+				'id'   => $post_id,
+			),
+			$received_args
+		);
+	}
 
+	/**
+	 * Test that a callback on the deprecated column filter still moves the link.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_honours_the_deprecated_url_filter() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Legacy Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		$filtered_url = 'https://example.com/legacy-stats/' . $post_id;
+		$filter       = function () use ( $filtered_url ) {
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_post_list_column_url', $filter );
+		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
+
+		$output = $this->render_cell( $post_id );
+
+		remove_filter( 'jetpack_stats_post_list_column_url', $filter );
+		remove_filter( 'deprecated_hook_trigger_error', '__return_false' );
 		wp_delete_post( $post_id, true );
-		$wp_query = null;
+
+		$this->assertStringContainsString( 'href="' . $filtered_url . '"', $output );
 	}
 
 	/**

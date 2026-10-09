@@ -41,6 +41,7 @@ const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
 const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
+const connectedUsersUrl = data.connectedUsersUrl || '';
 const connectedPlugins = data.connectedPlugins || [];
 const siteDetails = data.siteDetails || null;
 const isWoaSite = Boolean( data.isWoaSite );
@@ -1579,26 +1580,43 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				} )
 			: null,
 
-		// Footer: connection details link + disconnect site button.
+		// Footer: connection details and connected users links + disconnect site button.
 		createElement( 'hr', { className: 'jetpack-connector__divider' } ),
 		createElement(
 			HStack,
-			{ spacing: 3, alignment: 'center' },
-			siteDetails
-				? createElement(
-						Button,
-						{
-							ref: detailsLinkRef,
-							variant: 'link',
-							onClick: e => {
-								e.currentTarget.blur();
-								setShowDetailsModal( true );
+			{ spacing: 3, alignment: 'center', wrap: true },
+			// Grouped so the links stay together on one side, leaving the HStack's
+			// space-between to separate them from the destructive action.
+			createElement(
+				HStack,
+				{ spacing: 4, expanded: false, alignment: 'center', justify: 'flex-start' },
+				siteDetails
+					? createElement(
+							Button,
+							{
+								ref: detailsLinkRef,
+								variant: 'link',
+								onClick: e => {
+									e.currentTarget.blur();
+									setShowDetailsModal( true );
+								},
+								className: 'jetpack-connector__details-link',
 							},
-							className: 'jetpack-connector__details-link',
-						},
-						__( 'Connection details', 'jetpack-connection' )
-					)
-				: null,
+							__( 'Connection details', 'jetpack-connection' )
+						)
+					: null,
+				connectedUsersUrl
+					? createElement(
+							Button,
+							{
+								variant: 'link',
+								href: connectedUsersUrl,
+								className: 'jetpack-connector__connected-users-link',
+							},
+							__( 'Connected users', 'jetpack-connection' )
+						)
+					: null
+			),
 			isManagedPlatformSite
 				? null
 				: createElement(

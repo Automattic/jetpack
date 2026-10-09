@@ -1,5 +1,6 @@
 {
 	"name": "jpa/sales-by-coupon-usage",
+	"icon": "jpa/chart-bar",
 	"title": "Sales by coupon usage",
 	"description": "Sales by coupon usage over the selected time period.",
 	"help": {

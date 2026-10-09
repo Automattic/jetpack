@@ -16,8 +16,12 @@ declare module '@automattic/jetpack-script-data' {
 			// Whether the dashboard offers adding, removing and resetting widgets: the
 			// premium-analytics-dashboard-composition feature flag, read by the policy.
 			dashboard_composition_enabled?: boolean;
+			// Whether the reader may see Stats reports; a shop manager may see only the store's.
+			can_view_stats?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
+			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
+			store_currency?: { code: string; symbol: string };
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

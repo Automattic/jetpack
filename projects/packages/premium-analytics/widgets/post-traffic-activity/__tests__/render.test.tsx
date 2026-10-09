@@ -200,32 +200,17 @@ describe( 'PostTrafficActivity cell sizing', () => {
 			.mockReturnValue( { width: 700, height } as DOMRect );
 	}
 
-	it( 'keeps the design cap while the area is unmeasured', () => {
-		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
-
-		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '42' );
-	} );
-
-	it( 'shrinks the cells so a short tile still fits the month-label row', () => {
+	it.each( [
+		[ 'keeps the design cap while the area is unmeasured', 0, '42' ],
 		// 200px minus the 44px grid overhead leaves 156px for seven rows → 22px.
-		mockMeasuredHeight( 200 );
+		[ 'shrinks the cells so a short tile still fits the month-label row', 200, '22' ],
+		[ 'keeps the design cap when the tile offers more than enough height', 600, '42' ],
+		[ 'clamps to the minimum readable cell on a collapsed tile', 50, '8' ],
+	] )( '%s', ( _title, height, expected ) => {
+		mockMeasuredHeight( height );
 		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
 
-		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '22' );
-	} );
-
-	it( 'keeps the design cap when the tile offers more than enough height', () => {
-		mockMeasuredHeight( 600 );
-		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
-
-		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '42' );
-	} );
-
-	it( 'clamps to the minimum readable cell on a collapsed tile', () => {
-		mockMeasuredHeight( 50 );
-		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
-
-		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( '8' );
+		expect( screen.getByTestId( 'max-cell-height' ) ).toHaveTextContent( expected );
 	} );
 } );
 
@@ -235,19 +220,11 @@ describe( 'PostTrafficActivity page span', () => {
 		return mockUsePostTrafficActivity.mock.calls.at( -1 )?.[ 2 ];
 	}
 
-	it( 'asks for the whole week columns the card width can draw', () => {
-		mockCardWidth = 1000;
-
-		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
-
-		// floor( (1000 - 32) / (64 + 4) ) = 14 columns.
-		expect( requestedDays() ).toBe( 14 * 7 );
-	} );
-
 	it( 'repages on resize, measuring the card in whole pixels', () => {
 		mockCardWidth = 1000;
 
 		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+		// floor( (1000 - 32) / (64 + 4) ) = 14 columns.
 		expect( requestedDays() ).toBe( 14 * 7 );
 
 		// A real observer reports subpixels, and 439.6 straddles a column boundary:

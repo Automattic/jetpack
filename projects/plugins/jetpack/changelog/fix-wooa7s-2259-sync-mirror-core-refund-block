@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Fix Returns in the WooCommerce reports for a full refund after a partial refund, and for refunds of orders that were never paid.

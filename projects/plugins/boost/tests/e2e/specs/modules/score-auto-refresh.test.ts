@@ -41,10 +41,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 		} );
 	} );
 
-	test( 'Score refresh should be debounced after module toggle', async ( {
-		jetpackBoostPage,
-		page,
-	} ) => {
+	test( 'Score refresh should be debounced after module toggle', async ( { jetpackBoostPage } ) => {
 		await test.step( 'Visit Jetpack Boost page', async () => {
 			await jetpackBoostPage.visit();
 		} );
@@ -69,10 +66,10 @@ test.describe( 'Auto refresh of speed scores', () => {
 		} );
 
 		await test.step( 'Verify score refresh has not started within debounce window', async () => {
-			await expect( page.getByRole( 'heading', { name: 'Loading…' } ) ).toBeHidden();
-			await expect( page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ) ).toBeVisible();
-			await expect( page.locator( '.jb-score-bar--mobile .jb-score-bar__loading' ) ).toBeHidden();
-			await expect( page.locator( '.jb-score-bar--desktop .jb-score-bar__loading' ) ).toBeHidden();
+			const scores = jetpackBoostPage.scoresCard();
+			await expect( scores.getByText( 'Calculating…' ) ).toBeHidden();
+			await expect( scores.locator( '[aria-busy="true"]' ) ).toHaveCount( 0 );
+			await expect( scores.getByRole( 'region', { name: 'Overall', exact: true } ) ).toBeVisible();
 		} );
 
 		await test.step( 'Verify score refresh starts after debounce', async () => {

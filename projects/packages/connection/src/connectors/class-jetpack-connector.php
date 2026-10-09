@@ -181,8 +181,9 @@ class Jetpack_Connector {
 		}
 
 		if ( $is_connected ) {
-			$data['currentUser']     = static::get_current_user_data( $manager );
-			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
+			$data['currentUser']       = static::get_current_user_data( $manager );
+			$data['connectionOwner']   = static::get_connection_owner_data( $manager );
+			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
 		}
 
 		$protected_owner = static::get_protected_owner_card_state( $manager );

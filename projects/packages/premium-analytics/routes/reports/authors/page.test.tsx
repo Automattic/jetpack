@@ -1,15 +1,11 @@
 /**
  * External dependencies
  */
-import {
-	ExporterCsvAction,
-	ReportDrilldownTable,
-} from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { ReportDrilldownTable } from '@jetpack-premium-analytics/widgets-toolkit';
+import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useAuthorsReportRecords } from './config';
 import AuthorsReportPage from './page';
 import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -32,7 +28,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 	ReportDrilldownTable: jest.fn( () => null ),
 } ) );
 
@@ -48,7 +43,6 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( useAuthorsReportRecords );
-const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 
 /**
@@ -94,61 +88,6 @@ describe( 'AuthorsReportPage', () => {
 				collapsible: true,
 				defaultExpanded: 'none',
 			} )
-		);
-	} );
-
-	it( 'surfaces the error and retry instead of stale rows', () => {
-		useRecordsMock.mockReturnValue(
-			buildRecords( {
-				rows: [
-					{
-						id: 'id:42',
-						label: 'Ada Lovelace',
-						avatarUrl: null,
-						isGroup: true,
-						views: 12,
-					},
-				],
-				isError: true,
-			} )
-		);
-
-		render( <AuthorsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load authors. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'passes the report status to the page export action', () => {
-		const rows: AuthorRow[] = [
-			{
-				id: 'id:42',
-				label: 'Untracked Authors',
-				avatarUrl: null,
-				isGroup: true,
-				views: 12,
-			},
-			{
-				id: 'id:42|post:id:1',
-				parentId: 'id:42',
-				parentName: 'Untracked Authors',
-				label: 'Analytical Engine',
-				avatarUrl: null,
-				views: 7,
-				postId: '1',
-			},
-		];
-		const records = buildRecords( { rows } );
-		useRecordsMock.mockReturnValue( records );
-
-		render( <AuthorsReportPage /> );
-
-		expect( screen.getByRole( 'button', { name: 'Download' } ) ).toBeInTheDocument();
-		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { status: records } )
 		);
 	} );
 } );

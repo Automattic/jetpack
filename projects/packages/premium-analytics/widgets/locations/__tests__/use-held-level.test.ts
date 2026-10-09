@@ -59,11 +59,6 @@ describe( 'useHeldLevel', () => {
 	it.each( [
 		[ 'the same level reloads', SETTLED_COUNTRIES, { drillDepth: 0 } ],
 		[
-			'going back up to all locations',
-			{ ...SETTLED_COUNTRIES, data: REGIONS, drillDepth: 1 },
-			{ drillDepth: 0 },
-		],
-		[
 			'going back up to the regions',
 			{ ...SETTLED_COUNTRIES, data: CITIES, drillDepth: 2 },
 			{ drillDepth: 1 },

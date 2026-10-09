@@ -80,10 +80,15 @@ describe( 'isAwaitingData', () => {
 	}
 
 	beforeEach( () => {
+		jest.useFakeTimers();
 		renders.length = 0;
 		client = new QueryClient( {
 			defaultOptions: { queries: { staleTime: STALE_TIME, retry: false } },
 		} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'is true on a first load, when there is nothing on screen at all', async () => {
@@ -185,6 +190,8 @@ describe( 'isAwaitingData', () => {
 	// `refetch()` deliberately ignores `enabled`, so a switched-off query can still
 	// have a real request in flight.
 	it( 'is true while a switched-off query is refetching by hand', async () => {
+		// Real timers: nothing advances the fake clock while the test awaits the fetch.
+		jest.useRealTimers();
 		render( wrap( <Probe range="january" enabled={ false } /> ) );
 
 		expect( read( 'awaiting' ) ).toBe( 'false' );

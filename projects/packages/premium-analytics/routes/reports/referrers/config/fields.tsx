@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Link, Stack } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
+	ExternalLink,
 	MetricWithComparison,
 	type ReferrerRecord,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -88,9 +89,9 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 				return (
 					<DrilldownLeafCell groupLabel={ item.parentLabel }>
 						{ safeUrl ? (
-							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
+							<ExternalLink href={ safeUrl } variant="default">
 								{ label }{ ' ' }
-							</Link>
+							</ExternalLink>
 						) : (
 							label
 						) }

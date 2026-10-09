@@ -5,13 +5,8 @@ import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data'
 import { type Field } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ExternalLink, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
-/**
- * Internal dependencies
- */
-import styles from './fields.module.css';
 
 /**
  * DataViews field config for the Comments Subscribers records table.
@@ -47,14 +42,7 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 					return <>{ item.label }</>;
 				}
 
-				return (
-					<a className={ styles.postLink } href={ href } target="_blank" rel="noopener noreferrer">
-						{ item.label }
-						{ item.labelIcon === 'external' ? (
-							<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-						) : null }
-					</a>
-				);
+				return <ExternalLink href={ href }>{ item.label }</ExternalLink>;
 			},
 		},
 		{

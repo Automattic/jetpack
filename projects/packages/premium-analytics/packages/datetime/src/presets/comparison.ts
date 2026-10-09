@@ -18,11 +18,12 @@ import {
 	COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK,
 	WEEKDAY_YEAR_SHIFT_DAYS,
 	getComparisonRangeFromPreset,
-	getWholeMonthCount,
+	getPreviousPeriodMonthCount,
 	type ComparisonPresetId,
 	type ComparisonRangeOptions,
 	type DateRange,
 } from '../get-comparison-range';
+import type { PrimaryPresetId } from './types';
 
 /**
  * A comparison the applied range can offer: the preset, the resolved window,
@@ -106,11 +107,15 @@ function getMatchDayOfWeekLabel( siblingLabel: string ): string {
  * it mirrors. Follows the same whole-months branch as the range math, so the
  * label never contradicts the window it names.
  *
- * @param reference - The applied range the comparison mirrors.
+ * @param reference       - The applied range the comparison mirrors.
+ * @param primaryPresetId - The preset the range came from.
  * @return The label.
  */
-function getPreviousPeriodLabel( reference: Required< DateRange > ): string {
-	const wholeMonths = getWholeMonthCount( reference.from, reference.to );
+function getPreviousPeriodLabel(
+	reference: Required< DateRange >,
+	primaryPresetId?: PrimaryPresetId
+): string {
+	const wholeMonths = getPreviousPeriodMonthCount( reference.from, reference.to, primaryPresetId );
 
 	if ( wholeMonths === 1 ) {
 		return __( 'Previous month', 'jetpack-premium-analytics-pkg' );
@@ -179,15 +184,17 @@ function getPreviousSpanLabel( reference: Required< DateRange > ): string {
  * Label for an option, naming the comparison target rather than the offset: a
  * range set in 2025 offers "Same period in 2024".
  *
- * @param id         - The comparison preset.
- * @param reference  - The applied range.
- * @param comparison - The resolved comparison range.
+ * @param id              - The comparison preset.
+ * @param reference       - The applied range.
+ * @param comparison      - The resolved comparison range.
+ * @param primaryPresetId - The preset the applied range came from.
  * @return The label.
  */
 function getOptionLabel(
 	id: ComparisonPresetId,
 	reference: Required< DateRange >,
-	comparison: Required< DateRange >
+	comparison: Required< DateRange >,
+	primaryPresetId?: PrimaryPresetId
 ): string {
 	if ( id === COMPARISON_PREVIOUS_WEEK ) {
 		return __( 'Same period from last week', 'jetpack-premium-analytics-pkg' );
@@ -219,7 +226,7 @@ function getOptionLabel(
 		return getMatchDayOfWeekLabel( getPreviousSpanLabel( reference ) );
 	}
 
-	return getPreviousPeriodLabel( reference );
+	return getPreviousPeriodLabel( reference, primaryPresetId );
 }
 
 /**
@@ -287,7 +294,7 @@ export function getComparisonOptions(
 
 		offered.push( {
 			id,
-			label: getOptionLabel( id, { from: refFrom, to: refTo }, resolved ),
+			label: getOptionLabel( id, { from: refFrom, to: refTo }, resolved, options.primaryPresetId ),
 			shortLabel: SHORT_LABELS[ id ](),
 			range: resolved,
 			aliases: [],

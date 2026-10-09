@@ -8,13 +8,13 @@ import { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../constants';
 import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import GoBackLink from '../go-back-link';
-import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 
 /**
  * The AddLicenseScreen component of the My Jetpack app.
@@ -60,7 +60,7 @@ export default function AddLicenseScreen() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ getProductsSectionPath( hasActivatedLicense ? '?reload=true' : '' ) }
+					to={ `${ MyJetpackRoutes.Features }${ hasActivatedLicense ? '?reload=true' : '' }` }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

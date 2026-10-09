@@ -1,17 +1,19 @@
 /**
  * Internal dependencies
  */
-import { saveCsv } from '../../helpers/build-csv';
+import * as buildCsvModule from '../../helpers/build-csv';
 import { downloadReportCsv } from '../download-report-csv';
 import type { ReportCsvExporter } from '../types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
-jest.mock( '../../helpers/build-csv', () => ( {
-	...jest.requireActual( '../../helpers/build-csv' ),
-	saveCsv: jest.fn(),
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() => jest.requireActual( '../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
-
-const mockSaveCsv = jest.mocked( saveCsv );
 
 type Row = { name: string; count: number };
 
@@ -37,8 +39,15 @@ function buildExporter(
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
 
 describe( 'downloadReportCsv', () => {
+	let mockSaveCsv: jest.SpiedFunction< typeof buildCsvModule.saveCsv >;
+
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSaveCsv = jest.spyOn( buildCsvModule, 'saveCsv' ).mockImplementation( () => {} );
+	} );
+
+	afterEach( () => {
+		mockSaveCsv.mockRestore();
 	} );
 
 	it( 'saves the fetched rows through the exporter, with a dated filename', async () => {
