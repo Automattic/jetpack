@@ -7,6 +7,10 @@ body.jetpack_page_jetpack-protect,
 body.toplevel_page_jetpack-protect {
 
 	@include jetpack-admin-page-layout-wp-build;
+
+	// Dialogs portal into <body>, under the admin menu (z-index 9990)
+	// unless lifted.
+	--wp-ui-dialog-z-index: 100000;
 }
 
 .jp-protect-dashboard__body {
