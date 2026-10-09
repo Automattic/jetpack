@@ -217,12 +217,55 @@ class Monitor_Test extends BaseTestCase {
 	 */
 	public static function provide_unusable_histories() {
 		return array(
-			'request failed'         => array( new WP_Error( 'http_request_failed', 'Timed out' ), 1 ),
-			'WordPress.com 500'      => array( self::json_response( array(), 500 ), 1 ),
-			'no days'                => array( self::json_response( array() ), 1 ),
-			'no valid days'          => array( self::json_response( array( 'total' => array( 'status' => 'up' ) ) ), 1 ),
-			'this user is refused'   => array( self::json_response( array(), 403 ), 2 ),
-			'this user is not known' => array( self::json_response( array(), 401 ), 2 ),
+			'request failed'         => array(
+				new WP_Error( 'http_request_failed', 'Timed out' ),
+				1,
+				array(
+					'status'         => 502,
+					'upstreamStatus' => 0,
+					'upstreamError'  => 'http_request_failed: Timed out',
+				),
+			),
+			'WordPress.com 500'      => array(
+				self::json_response( array(), 500 ),
+				1,
+				array(
+					'status'         => 502,
+					'upstreamStatus' => 500,
+				),
+			),
+			'no days'                => array(
+				self::json_response( array() ),
+				1,
+				array(
+					'status'         => 502,
+					'upstreamStatus' => 200,
+				),
+			),
+			'no valid days'          => array(
+				self::json_response( array( 'total' => array( 'status' => 'up' ) ) ),
+				1,
+				array(
+					'status'         => 502,
+					'upstreamStatus' => 200,
+				),
+			),
+			'this user is refused'   => array(
+				self::json_response( array(), 403 ),
+				2,
+				array(
+					'status'         => 502,
+					'upstreamStatus' => 403,
+				),
+			),
+			'this user is not known' => array(
+				self::json_response( array(), 401 ),
+				2,
+				array(
+					'status'         => 502,
+					'upstreamStatus' => 401,
+				),
+			),
 		);
 	}
 
@@ -231,9 +274,10 @@ class Monitor_Test extends BaseTestCase {
 	 *
 	 * @param array|WP_Error $uptime_response WordPress.com's answer for the uptime history.
 	 * @param int            $requests        Requests made by two calls: 1 when the failure is cached for everyone.
+	 * @param array          $error_data      The error data the 502 should carry, telling a timeout from a 401 from a 500.
 	 */
 	#[DataProvider( 'provide_unusable_histories' )]
-	public function test_get_uptime_is_a_502_when_the_history_is_unusable_and_caches_only_shared_failures( $uptime_response, $requests ) {
+	public function test_get_uptime_is_a_502_when_the_history_is_unusable_and_caches_only_shared_failures( $uptime_response, $requests, $error_data ) {
 		$this->uptime_response = $uptime_response;
 		$monitor               = new Monitor();
 
@@ -242,7 +286,7 @@ class Monitor_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $first );
 		$this->assertSame( 'uptime_unavailable', $first->get_error_code() );
-		$this->assertSame( array( 'status' => 502 ), $first->get_error_data() );
+		$this->assertSame( $error_data, $first->get_error_data() );
 		$this->assertInstanceOf( WP_Error::class, $second );
 		$this->assertCount( $requests, $this->requests );
 	}
