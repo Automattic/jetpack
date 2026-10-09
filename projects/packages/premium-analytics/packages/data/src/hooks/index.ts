@@ -7,7 +7,6 @@ export { useReportCustomers } from './use-report-customers';
 export { useReportCustomersByDate } from './use-report-customers-by-date';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportProducts } from './use-report-products';
-export { useProductImages } from './use-product-images';
 export {
 	usePostThumbnail,
 	usePostThumbnails,

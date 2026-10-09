@@ -1,5 +1,6 @@
 {
 	"name": "jpa/referrers",
+	"icon": "jpa/globe",
 	"title": "Top referrers",
 	"description": "Websites and search engines referring visitors to your site.",
 	"help": {

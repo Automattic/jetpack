@@ -1,6 +1,6 @@
-import { Button, Card } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, plugins } from '@wordpress/icons';
+import { Card, LinkButton, Text } from '@wordpress/ui';
 import LicenseKeyLink from './license-key-link';
 
 /**
@@ -31,9 +31,12 @@ const JETPACK_CONNECT_URL = 'admin.php?page=my-jetpack';
  */
 export default function NotConnectedScreen() {
 	return (
-		<Card className="jpb-gates__card">
-			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h2 /> }>
+		<div className="jpb-gates__stage">
+			<Card.Root className="jpb-gates__card">
+				<span className="jpb-gates__badge" aria-hidden="true">
+					<Icon icon={ plugins } />
+				</span>
+				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
 					{ __( 'Connect Jetpack to get started', 'jetpack-backup-pkg' ) }
 				</Text>
 				<Text>
@@ -42,11 +45,13 @@ export default function NotConnectedScreen() {
 						'jetpack-backup-pkg'
 					) }
 				</Text>
-				<Button variant="primary" href={ JETPACK_CONNECT_URL }>
-					{ __( 'Connect Jetpack', 'jetpack-backup-pkg' ) }
-				</Button>
-				<LicenseKeyLink />
-			</Stack>
-		</Card>
+				<div className="jpb-gates__actions">
+					<LinkButton variant="solid" tone="brand" href={ JETPACK_CONNECT_URL }>
+						{ __( 'Connect Jetpack', 'jetpack-backup-pkg' ) }
+					</LinkButton>
+					<LicenseKeyLink />
+				</div>
+			</Card.Root>
+		</div>
 	);
 }

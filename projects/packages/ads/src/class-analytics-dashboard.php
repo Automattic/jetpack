@@ -47,6 +47,12 @@ class Analytics_Dashboard {
 	const REGISTER_WIDGET_TYPES_ACTION = 'jetpack_premium_analytics_register_widget_types';
 
 	/**
+	 * Lowest widget contract the build works against: the widgets name their icons in `widget.json`,
+	 * which the dashboard resolves from 1.6.0.
+	 */
+	const MIN_WIDGET_API_VERSION = '1.6.0';
+
+	/**
 	 * Text domain of the widget metadata and of the built widget bundles.
 	 */
 	const TEXTDOMAIN = 'jetpack-ads-pkg';
@@ -120,7 +126,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
-		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) || self::widget_contract_moved_on() ) {
+		if ( ! self::widget_contract_is_supported() ) {
 			return;
 		}
 
@@ -137,6 +143,22 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Whether the dashboard's widget contract is one the widgets were built against: at least the
+	 * minimum, and not the next major.
+	 *
+	 * @return bool
+	 */
+	private static function widget_contract_is_supported() {
+		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) ) {
+			return false;
+		}
+
+		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
+
+		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '2', '<' );
 	}
 
 	/**

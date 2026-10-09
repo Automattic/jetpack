@@ -12,13 +12,13 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 
 **Steps to fix:**
 1. Go to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/)
-2. Select the correct environment tab (**Sandbox** or **Live**) — this must match what you chose in the plugin
+2. Select the **Live** tab — the plugin connects to Production
 3. Click on your app name
 4. Copy the **Client ID** and **Client Secret** exactly (no extra spaces)
 5. Re-enter them in the block editor
 
 **Common mistakes:**
-- Using Sandbox credentials with Production environment (or vice versa)
+- Using Sandbox credentials — the plugin connects to Production
 - Copying the App Name instead of the Client ID
 - Extra whitespace at the beginning or end of the credentials
 
@@ -36,7 +36,7 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 **Cause:** Network connectivity issue between your server and PayPal's API.
 
 **Steps to fix:**
-1. By default, this plugin uses the **Production API** (`api.paypal.com`). Ensure your server can reach `api.paypal.com` over HTTPS. If you've explicitly enabled Sandbox mode, also whitelist `api-m.sandbox.paypal.com`.
+1. This plugin uses the **Production API** (`api.paypal.com`). Ensure your server can reach `api.paypal.com` over HTTPS. A development site running with the sandbox feature flag on also needs `api-m.sandbox.paypal.com`.
 2. Some hosting providers block outgoing HTTPS requests — contact your host to whitelist PayPal domains
 3. If using a firewall or security plugin, ensure it's not blocking outgoing API calls
 4. Try again in a few minutes — PayPal may be experiencing temporary issues
@@ -79,7 +79,6 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 **Steps to fix:**
 1. Try a different price or currency
 2. Check your PayPal account for any restrictions or holds
-3. If using Sandbox, create a fresh sandbox business account
 
 ### Button preview shows but frontend doesn't render
 
@@ -169,12 +168,12 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 
 ### Switching Environments
 
-The plugin defaults to **Production**. If you've been testing in Sandbox and are ready to go live, or need to switch between environments for any reason:
+The plugin connects to **Production**; the sandbox is only available to developers behind the `paypal-payments-sandbox` feature flag (see `DEVELOPMENT.md`). If a site was connected to the sandbox while that flag was on:
 
 1. In the block editor, open the sidebar (**Settings** panel)
 2. Under **PayPal Connection**, note the current environment
 3. Disconnect the current connection (this clears the stored credentials and token — your existing published buttons continue to work, as their payment links are static PayPal URLs)
-4. Reconnect using credentials for the target environment — **Production** (Live) or **Sandbox** credentials from the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/)
+4. Reconnect with **Live** credentials from the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/), or through **Connect PayPal**
 5. Recreate any buttons you need — payment resources from one environment don't work in the other
 
 ### Credential Storage

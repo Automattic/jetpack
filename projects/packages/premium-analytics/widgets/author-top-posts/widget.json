@@ -1,5 +1,6 @@
 {
 	"name": "jpa/author-top-posts",
+	"icon": "jpa/post-list",
 	"title": "Top viewed posts",
 	"description": "The most viewed posts of the author being viewed over the selected period.",
 	"help": {
