@@ -32,14 +32,24 @@ class Analytics_Dashboard {
 	/**
 	 * Widget type names the package builds, from `widgets/*\/widget.json`.
 	 */
-	const NET_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/net-sales-over-time';
-	const TOTAL_SALES_OVER_TIME_TYPE   = 'woocommerce-analytics/total-sales-over-time';
-	const GROSS_SALES_OVER_TIME_TYPE   = 'woocommerce-analytics/gross-sales-over-time';
-	const ORDERS_OVER_TIME_TYPE        = 'woocommerce-analytics/orders-over-time';
-	const AVERAGE_ORDER_VALUE_TYPE     = 'woocommerce-analytics/average-order-value';
-	const AVERAGE_ITEMS_PER_ORDER_TYPE = 'woocommerce-analytics/average-items-per-order';
-	const BOOKINGS_OVER_TIME_TYPE      = 'woocommerce-analytics/bookings-over-time';
-	const VISITORS_OVER_TIME_TYPE      = 'woocommerce-analytics/visitors-over-time';
+	const NET_SALES_OVER_TIME_TYPE       = 'woocommerce-analytics/net-sales-over-time';
+	const TOTAL_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/total-sales-over-time';
+	const GROSS_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/gross-sales-over-time';
+	const ORDERS_OVER_TIME_TYPE          = 'woocommerce-analytics/orders-over-time';
+	const AVERAGE_ORDER_VALUE_TYPE       = 'woocommerce-analytics/average-order-value';
+	const AVERAGE_ITEMS_PER_ORDER_TYPE   = 'woocommerce-analytics/average-items-per-order';
+	const BOOKINGS_OVER_TIME_TYPE        = 'woocommerce-analytics/bookings-over-time';
+	const VISITORS_OVER_TIME_TYPE        = 'woocommerce-analytics/visitors-over-time';
+	const NEW_VS_RETURNING_CUSTOMER_TYPE = 'woocommerce-analytics/new-vs-returning-customer';
+	const PAYMENT_STATUS_TYPE            = 'woocommerce-analytics/payment-status';
+	const ORDERS_FULFILLMENT_TYPE        = 'woocommerce-analytics/orders-fulfillment';
+	const COUPON_USAGE_OVER_TIME_TYPE    = 'woocommerce-analytics/coupon-usage-over-time';
+	const BOOKINGS_BY_STATUS_TYPE        = 'woocommerce-analytics/bookings-by-status';
+	const TOP_PERFORMING_PRODUCTS_TYPE   = 'woocommerce-analytics/top-performing-products';
+	const TOP_PERFORMING_BOOKINGS_TYPE   = 'woocommerce-analytics/top-performing-bookings';
+	const SALES_BY_UTM_SOURCE_TYPE       = 'woocommerce-analytics/sales-by-utm-source';
+	const SALES_BY_UTM_CHANNEL_TYPE      = 'woocommerce-analytics/sales-by-utm-channel';
+	const SALES_BY_UTM_CAMPAIGN_TYPE     = 'woocommerce-analytics/sales-by-utm-campaign';
 
 	/**
 	 * Registry actions of the dashboard package.
@@ -53,13 +63,20 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Oldest widget contract the widgets run on: the one whose SDK added `useReport`.
+	 * Lowest widget contract the build works against: the UTM leaderboards draw the bars variant,
+	 * which the dashboard ships from 1.7.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.4.0';
+	const MIN_WIDGET_API_VERSION = '1.7.0';
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions, and the reports proxy on REST
-	 * requests.
+	 * Widget categories the package builds but holds back from the tab for now: the bookings
+	 * reports answer 500 on a store without a synced booking (WOOA7S-2287).
+	 */
+	const HELD_BACK_WIDGET_CATEGORIES = array( 'bookings' );
+
+	/**
+	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
+	 * requests, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -72,6 +89,8 @@ class Analytics_Dashboard {
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
+
+		Store_Currency::init();
 	}
 
 	/**
@@ -118,8 +137,32 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-orders-over-time-widget-instance', self::ORDERS_OVER_TIME_TYPE, 3, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 4, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 5, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-bookings-over-time-widget-instance', self::BOOKINGS_OVER_TIME_TYPE, 6, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 7, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 6, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 7, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 8, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 9, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 10, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 11, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 12, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 13, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 14, 1, 2 ),
+		);
+	}
+
+	/**
+	 * The manifest minus the categories held back from the tab.
+	 *
+	 * @param array[] $widget_modules Widget module records of the build manifest.
+	 * @return array[] The records the package registers.
+	 */
+	private static function remove_held_back_widget_types( $widget_modules ) {
+		return array_values(
+			array_filter(
+				$widget_modules,
+				static function ( $widget_module ) {
+					return ! in_array( $widget_module['category'] ?? '', self::HELD_BACK_WIDGET_CATEGORIES, true );
+				}
+			)
 		);
 	}
 
@@ -143,7 +186,7 @@ class Analytics_Dashboard {
 		}
 
 		register_widget_types_from_manifest(
-			jetpack_woocommerce_stats_get_registered_widget_modules(),
+			self::remove_held_back_widget_types( jetpack_woocommerce_stats_get_registered_widget_modules() ),
 			array(
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', self::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),

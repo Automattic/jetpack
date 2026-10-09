@@ -4,11 +4,12 @@ A date-keyed bar chart with previous-period comparison, built on `@automattic/ch
 The bar counterpart to [`ComparativeLineChart`](../chart-comparative-line/README.md): it takes the
 same series shape and shares its date alignment, so `MetricTabsChart` swaps the two on one flag.
 
-## Theme-driven, not pure
+## Series Styles from the Theme
 
-Unlike `ComparativeLineChart`, this component reads the chart theme through
-`useGlobalChartsContext()` and **must be rendered inside a `GlobalChartsProvider`** — outside one
-that hook throws, before `BarChart` gets a chance to supply its own.
+Unlike `ComparativeLineChart`, which takes its series styles from props, this component reads them
+from the chart theme through `useGlobalChartsContext()`. It **must be rendered inside a
+`GlobalChartsProvider`** — outside one that hook throws, before `BarChart` gets a chance to supply
+its own.
 
 That is also why there is deliberately no `styles` prop. The comparison shadow's geometry comes
 from the theme's `barChart.barStyles.comparison.widthFactor`, and its distinctness from the current

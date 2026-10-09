@@ -5,13 +5,11 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ExporterCsvAction,
 	referrersCsvExporter,
-	useReportRetry,
 	type ReferrerRecord,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -22,7 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getReferrerFields, useReferrersReportRecords } from './config';
+import { getReferrerFields, useMarkAsSpamAction, useReferrersReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -68,28 +66,13 @@ const RECORDS_VIEW = {
 function ReferrersReport(): JSX.Element {
 	const reportParams = useReportParams();
 
-	const records = useReferrersReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
+	const { action: markAsSpamAction, spammedDomains } = useMarkAsSpamAction();
+	const actions = useMemo( () => [ markAsSpamAction ], [ markAsSpamAction ] );
+	const records = useReferrersReportRecords( reportParams, spammedDomains );
 	const fields = useMemo( () => getReferrerFields(), [] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.referrers;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load referrers. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -105,12 +88,19 @@ function ReferrersReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getReferrerRowId }
 						getItemParentId={ getReferrerParentId }
+						actions={ actions }
 						hideLevelMarkers
 						collapsible
 						defaultExpanded="none"
@@ -119,7 +109,7 @@ function ReferrersReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

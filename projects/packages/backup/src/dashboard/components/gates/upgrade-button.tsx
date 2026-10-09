@@ -1,7 +1,7 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { LinkButton } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
 
@@ -32,8 +32,8 @@ export default function UpgradeButton() {
 	}, [ analytics, site ] );
 
 	return (
-		<Button variant="primary" href={ upgradeUrl } onClick={ recordClick }>
+		<LinkButton variant="solid" tone="brand" href={ upgradeUrl } onClick={ recordClick }>
 			{ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
-		</Button>
+		</LinkButton>
 	);
 }

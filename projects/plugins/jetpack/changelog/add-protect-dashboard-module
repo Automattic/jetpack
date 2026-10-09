@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Add a feature-flagged Protect Dashboard module that adds a Protect page to the Jetpack sidebar.

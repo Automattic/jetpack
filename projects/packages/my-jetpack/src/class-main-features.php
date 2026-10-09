@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Describes the main Jetpack features: their copy, links and how a site owner gets each one.
@@ -364,7 +366,9 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'jetpack'     => false,
+					// Only while the Jetpack plugin offers its flag-gated `protect-dashboard` module, and never on
+					// WordPress.com Simple, whose partial bootstrap skips the flag. Not is_module(): it passes any slug.
+					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && in_array( 'protect-dashboard', (array) ( new Modules() )->get_available(), true ),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',

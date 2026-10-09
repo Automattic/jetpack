@@ -872,11 +872,10 @@ describe( 'on the Overview', () => {
 		const row = scheduleRow();
 		expect( overviewGrid() ).not.toBeNull();
 		expect( row ).not.toBeNull();
-		// A block box, or the 16px separating this from the storage section below
-		// computes and then does nothing — vertical margins do not apply to the
-		// inline box `Text` renders by default.
 		expect( row?.tagName ).toBe( 'DIV' );
-		expect( placementRelativeToGrid( row as HTMLElement ) ).toEqual( {
+		// Inside the storage row's wrapper, which is the grid's sibling.
+		// eslint-disable-next-line testing-library/no-node-access -- Placement is the thing under test.
+		expect( placementRelativeToGrid( row?.parentElement as HTMLElement ) ).toEqual( {
 			isSibling: true,
 			comesFirst: true,
 		} );
@@ -895,7 +894,7 @@ describe( 'on the Overview', () => {
 
 		// The running backup is reported…
 		await expect(
-			screen.findByText( 'Your backup will be ready soon' )
+			screen.findByText( 'Generating backup… (42% progress)' )
 		).resolves.toBeInTheDocument();
 		// …and so is the next one.
 		await expect( screen.findByText( /^Next full backup/ ) ).resolves.toHaveTextContent(
@@ -916,7 +915,9 @@ describe( 'on the Overview', () => {
 		// Synchronized on the failure being reported *and* the schedule being
 		// available, neither of which the mutation under test removes.
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status." )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region, script, style',
+			} )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -953,9 +954,7 @@ describe( 'on the Overview', () => {
 
 		renderStageWithProbe();
 
-		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 	} );

@@ -27,6 +27,7 @@ export type RawPromotedProduct = {
 		cost_per_interval?: number;
 		interval_unit?: string;
 		interval_count?: number;
+		transition_after_renewal_count?: number;
 	} | null;
 } | null;
 
