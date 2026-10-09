@@ -63,7 +63,7 @@ $default_matrix_vars = array(
 	// {int|null} Total number of numbered splits, for `split-num`.
 	'split-total'         => null,
 
-	// {string[]|null} Project slugs to run alone, with all CPUs.
+	// {string[]|null} Groups to run under one worker with all CPUs.
 	'split-projects'      => null,
 
 	// {string[]} Project slugs a `split-num` job skips, as they have their own job.
