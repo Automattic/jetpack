@@ -25,9 +25,6 @@ export function useSendBounceConfirmationMutation() {
 			} );
 		},
 		onError: () => {
-			// Refresh the retry state in case the server says the retry isn't available yet.
-			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
-			queryClient.invalidateQueries( { queryKey: [ 'subscriber-details' ] } );
 			createErrorNotice(
 				__( "Couldn't send the confirmation email. Please try again.", 'jetpack-newsletter' ),
 				{ type: 'snackbar' }

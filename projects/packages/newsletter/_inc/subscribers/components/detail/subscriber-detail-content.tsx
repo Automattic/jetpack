@@ -20,7 +20,6 @@ import type { JSX } from 'react';
 
 // Matches Email_Deliverability::BOUNCE_RETRY_COOLDOWN on WordPress.com.
 const BOUNCE_RETRY_COOLDOWN_DAYS = 30;
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 type Props = {
 	open: {
@@ -186,15 +185,14 @@ function BounceRetryNotice( {
 	);
 	if ( ! canRetry && bounceRetry?.sent_on ) {
 		const sentOn = new Date( bounceRetry.sent_on );
-		const retryOn = new Date( sentOn.getTime() + BOUNCE_RETRY_COOLDOWN_DAYS * DAY_IN_MS );
 		message = sprintf(
-			// translators: 1: date the confirmation email was sent, 2: date another one can be sent.
+			// translators: 1: date the confirmation email was sent, 2: number of days before another can be sent.
 			__(
-				'A confirmation email was sent on %1$s. If they haven’t confirmed, you can send another one after %2$s.',
+				'A confirmation email was sent on %1$s. If they haven’t confirmed, you can send another one after %2$d days.',
 				'jetpack-newsletter'
 			),
 			formatDate( sentOn.toISOString() ),
-			formatDate( retryOn.toISOString() )
+			BOUNCE_RETRY_COOLDOWN_DAYS
 		);
 	} else if ( ! canRetry ) {
 		message = __(

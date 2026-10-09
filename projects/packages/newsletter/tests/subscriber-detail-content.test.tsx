@@ -9,12 +9,14 @@ import type {
 const mockFetchSubscriberDetails = jest.fn();
 const mockFetchSubscriberStats = jest.fn();
 const mockFetchSubscribedNewsletterCategories = jest.fn();
+const mockSendBounceConfirmation = jest.fn();
 
 jest.mock( '../_inc/subscribers/data/api', () => ( {
 	fetchSubscriberDetails: ( ...args: unknown[] ) => mockFetchSubscriberDetails( ...args ),
 	fetchSubscriberStats: ( ...args: unknown[] ) => mockFetchSubscriberStats( ...args ),
 	fetchSubscribedNewsletterCategories: ( ...args: unknown[] ) =>
 		mockFetchSubscribedNewsletterCategories( ...args ),
+	sendBounceConfirmation: ( ...args: unknown[] ) => mockSendBounceConfirmation( ...args ),
 } ) );
 
 jest.mock( '@automattic/jetpack-components/gravatar', () => ( {
@@ -260,5 +262,77 @@ describe( 'SubscriberDetailContent', () => {
 		expect( mockFetchSubscriberDetails ).toHaveBeenCalledTimes( 2 );
 		expect( screen.getByText( 'Subscription type' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Could not load subscriber details.' ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'bounced subscriber', () => {
+		const SEND = { name: 'Send confirmation email' };
+
+		it( 'sends the confirmation to the subscriber’s address', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'bounced',
+					bounce_retry: { can_retry: true, sent_on: null },
+				} )
+			);
+			mockSendBounceConfirmation.mockResolvedValue( { success: true } );
+
+			renderPanel();
+
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( await screen.findByRole( 'button', SEND ) );
+
+			await waitFor( () =>
+				expect( mockSendBounceConfirmation ).toHaveBeenCalledWith( 'reader@example.com' )
+			);
+		} );
+
+		it( 'tells the owner when they can send again after a confirmation went out', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'bounced',
+					bounce_retry: { can_retry: false, sent_on: '2026-10-01T12:00:00+00:00' },
+				} )
+			);
+
+			renderPanel();
+
+			await expect(
+				screen.findByText( /^A confirmation email was sent on/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', SEND ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+
+		it( 'gives no date while the mail system still blocks the address', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'bounced',
+					bounce_retry: { can_retry: false, sent_on: null },
+				} )
+			);
+
+			renderPanel();
+
+			await expect(
+				screen.findByText( /You can't send a confirmation email right now/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', SEND ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+
+		it( 'offers no confirmation email to a subscriber who paused emails', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'emails_paused',
+				} )
+			);
+
+			renderPanel();
+
+			await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', SEND ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

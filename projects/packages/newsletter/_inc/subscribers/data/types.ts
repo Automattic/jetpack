@@ -32,12 +32,6 @@ export type SubscriptionPlan = {
 	end_date?: string | null;
 };
 
-// Bounce retry state, present when `subscription_status_reason` is `bounced`. Dates are ISO 8601 UTC.
-export type BounceRetry = {
-	can_retry: boolean;
-	sent_on: string | null;
-};
-
 export type Subscriber = {
 	user_id: number;
 	display_name: string;
@@ -58,6 +52,12 @@ export type Subscriber = {
 	plans?: SubscriptionPlan[];
 
 	bounce_retry?: BounceRetry | null;
+};
+
+// Bounce retry state, present when `subscription_status_reason` is `bounced`. Dates are ISO 8601 UTC.
+export type BounceRetry = {
+	can_retry: boolean;
+	sent_on: string | null;
 };
 
 export type SubscribersResponse = {
