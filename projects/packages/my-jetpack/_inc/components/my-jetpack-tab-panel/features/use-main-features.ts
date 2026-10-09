@@ -19,6 +19,7 @@ import {
 	useRequestedSwitch,
 } from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
 import { syncPageStateWithFeatures } from '../../../data/utils/page-state-products';
 import { setPendingSuccessNotice } from '../../../utils/pending-notice';
 import { reloadPage } from '../../../utils/reload-page';
@@ -37,7 +38,9 @@ const EMPTY_STATE: MainFeaturesState = { jetpack: 'not-installed', features: [] 
  * @return The state.
  */
 function initialState(): MainFeaturesState {
-	const state = getMyJetpackWindowInitialState( 'mainFeatures' );
+	const state = isOfflineFeatures()
+		? getOfflineFeaturesSeed()?.mainFeatures
+		: getMyJetpackWindowInitialState( 'mainFeatures' );
 
 	return state && Array.isArray( state.features ) ? state : EMPTY_STATE;
 }

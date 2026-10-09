@@ -9,6 +9,7 @@ import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
 import AddLicenseScreen from './components/add-license-screen';
 import ConnectionScreen from './components/connection-screen';
 import MyJetpackScreen from './components/my-jetpack-screen';
+import OfflineFeaturesScreen from './components/offline-features-screen';
 import PartnerCouponGate from './components/partner-coupon-gate';
 import {
 	AntiSpamInterstitial,
@@ -32,6 +33,7 @@ import ProtectProductPage from './components/product-interstitial/protect/produc
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
+import { isOfflineFeatures } from './data/utils/offline-features';
 import Providers from './providers';
 import './style.module.scss';
 
@@ -50,11 +52,37 @@ function ScrollToTop() {
 }
 
 /**
+ * Keep Features query state when an offline entry uses another hash route.
+ *
+ * @return {import('react').ReactElement} The offline screen or its redirect.
+ */
+function OfflineFeaturesRoute() {
+	const { pathname, search } = useLocation();
+
+	return pathname === '/features' ? (
+		<OfflineFeaturesScreen />
+	) : (
+		<Navigate replace to={ `/features${ search }` } />
+	);
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
  */
 export default function App() {
+	if ( isOfflineFeatures() ) {
+		return (
+			<Providers>
+				<HashRouter>
+					<ScrollToTop />
+					<OfflineFeaturesRoute />
+				</HashRouter>
+			</Providers>
+		);
+	}
+
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 
 	return (

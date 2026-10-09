@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
 import { Link, LinkButton, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
@@ -100,7 +101,21 @@ type UpgradeButtonProps = {
  * @param {FeatureState}       props.state - Live state for the feature.
  * @return The rendered component, or null when there is nothing to sell.
  */
-export function UpgradeButton( { state }: UpgradeButtonProps ) {
+export function UpgradeButton( props: UpgradeButtonProps ) {
+	if ( isOfflineFeatures() ) {
+		return null;
+	}
+	return <TrackedUpgradeButton { ...props } />;
+}
+
+/**
+ * Render an upgrade with connected analytics.
+ *
+ * @param props       - The props.
+ * @param props.state - The feature state.
+ * @return The upgrade button.
+ */
+function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 	const { feature } = state;
 	const { recordEvent } = useAnalytics();
 	const upgradePath = getUpgradePath( state );
