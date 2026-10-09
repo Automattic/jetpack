@@ -33,8 +33,20 @@
 		block-size: 32px;
 	}
 
+	&__label {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 6px;
+	}
+
 	&__text {
 		block-size: 16px;
+	}
+
+	&__subtext {
+		inline-size: 30%;
+		block-size: 14px;
 	}
 
 	&__date {

@@ -34,7 +34,7 @@ function formatDetected( date: string ): string {
 type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
 
 /**
- * The threat column: the icon and title, as one button that opens the details.
+ * The threat column: the icon, the kind of threat and what it's in on a second line, as one button that opens the details.
  *
  * @param props        - Component props.
  * @param props.item   - The threat.
@@ -47,9 +47,9 @@ function ThreatCell( { item, onOpen }: RowProps ) {
 	return (
 		<button type="button" className="jp-protect-threats__title" onClick={ onClick }>
 			<ThreatMedia threat={ item } size={ 32 } />
-			<span>
-				{ kind && <strong>{ kind }: </strong> }
-				{ subject }
+			<span className="jp-protect-threats__label">
+				{ kind ? <strong>{ kind }</strong> : subject }
+				{ kind && <span className="jp-protect-card__muted">{ subject }</span> }
 			</span>
 		</button>
 	);

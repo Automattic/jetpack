@@ -20,7 +20,13 @@ export default function HistorySkeleton() {
 				<div key={ index } className="jp-protect-history-skeleton__row" aria-hidden="true">
 					<Skeleton className="jp-protect-history-skeleton__badge" />
 					<Skeleton className="jp-protect-history-skeleton__icon" />
-					<Skeleton className="jp-protect-history-skeleton__text" style={ { inlineSize: width } } />
+					<div className="jp-protect-history-skeleton__label">
+						<Skeleton
+							className="jp-protect-history-skeleton__text"
+							style={ { inlineSize: width } }
+						/>
+						<Skeleton className="jp-protect-history-skeleton__subtext" />
+					</div>
 					<Skeleton className="jp-protect-history-skeleton__date" />
 				</div>
 			) ) }
