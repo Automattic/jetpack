@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { select } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { setScan, useScan } from '../store';
 import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
@@ -27,7 +27,7 @@ describe( 'ignoreThreat', () => {
 		const [ notice ] = select( noticesStore ).getNotices();
 		expect( notice ).toMatchObject( {
 			type: 'snackbar',
-			explicitDismiss: true,
+			explicitDismiss: false,
 			content: 'Ignored the threat in a.php.',
 		} );
 		await act( async () => notice.actions[ 0 ].onClick() );
@@ -41,7 +41,7 @@ describe( 'ignoreThreat', () => {
 } );
 
 describe( 'threat notices', () => {
-	it( 'offer View while the action runs, which opens that threat', () => {
+	it( 'offer View while the action runs, which opens that threat and keeps the notice', () => {
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 		const open = jest.fn();
 		const fixable = { ...threat, id: 10 };
@@ -51,9 +51,20 @@ describe( 'threat notices', () => {
 		const notice = select( noticesStore )
 			.getNotices()
 			.find( item => item.id === 'jetpack-protect-threat-action-10' );
-		expect( notice ).toMatchObject( { status: 'info', content: 'Fixing the threat in a.php…' } );
+		expect( notice ).toMatchObject( {
+			status: 'info',
+			explicitDismiss: true,
+			content: 'Fixing the threat in a.php…',
+		} );
+
+		// The snackbar removes the notice before running its action.
+		dispatch( noticesStore ).removeNotice( notice.id );
 		notice.actions[ 0 ].onClick();
+
 		expect( open ).toHaveBeenCalledWith( fixable );
+		expect( select( noticesStore ).getNotices() ).toContainEqual(
+			expect.objectContaining( { id: notice.id, content: 'Fixing the threat in a.php…' } )
+		);
 	} );
 
 	it( 'keep one snackbar per threat, so acting on one doesn’t replace another’s', async () => {

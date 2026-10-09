@@ -55,8 +55,8 @@ function show( threat: ScanThreat, content: string, status: NoticeStatus, action
 	dispatch( noticesStore ).createNotice( status, content, {
 		type: 'snackbar',
 		id: noticeId( threat ),
-		// Stay until dismissed, so a slow action's progress doesn't vanish before it ends.
-		explicitDismiss: true,
+		// Progress and errors stay until dismissed, so they can't vanish before the action ends.
+		explicitDismiss: status !== 'success',
 		actions: action ? [ action ] : [],
 	} );
 }
@@ -86,12 +86,16 @@ function notify(
  * @param open     - Opens the threat in the inspector.
  */
 function notifyStarted( threat: ScanThreat, template: Template, open?: OpenThreat ) {
-	notify(
-		threat,
-		template,
-		'info',
-		open && { label: __( 'View', 'jetpack-protect-pkg' ), onClick: () => open( threat ) }
-	);
+	const content = sprintf( template, describe( threat ) );
+	const view: NoticeAction | undefined = open && {
+		label: __( 'View', 'jetpack-protect-pkg' ),
+		// A snackbar removes itself when its action is clicked, so show it again.
+		onClick: () => {
+			open( threat );
+			show( threat, content, 'info', view );
+		},
+	};
+	show( threat, content, 'info', view );
 }
 
 /**
