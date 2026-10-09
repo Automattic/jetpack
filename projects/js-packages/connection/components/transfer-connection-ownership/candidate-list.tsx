@@ -130,7 +130,7 @@ const OwnerCandidateList = ( {
 				popupWidth="anchor"
 			/>
 
-			<Text render={ <p /> } variant="body-sm">
+			<Text render={ <p /> } className="jp-connection__transfer-ownership__hint">
 				{ createInterpolateElement(
 					__(
 						"Don't see someone? They need to be an administrator and <link>connect their WordPress.com account</link> first.",
