@@ -1,0 +1,18 @@
+.jp-protect-recent-blocks {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	&__item {
+		display: flex;
+		justify-content: space-between;
+		gap: 16px;
+		padding-block: 8px;
+
+		& + & {
+			border-block-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+	}
+}
