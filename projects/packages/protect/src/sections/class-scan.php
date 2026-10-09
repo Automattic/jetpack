@@ -310,7 +310,7 @@ class Scan implements Dashboard_Section {
 		$file  = 'plugins' === $type ? ( Dashboard_Threats::get_plugin_files( get_plugins() )[ $slug ] ?? null ) : null;
 		$theme = 'themes' === $type ? wp_get_theme( $slug ) : null;
 		$theme = $theme && $theme->exists() ? $theme : null;
-		if ( ! Dashboard_Threats::can_delete( $type, $slug, $file, $theme ) ) {
+		if ( ! Dashboard_Threats::can_delete( $type, $file, $theme ) ) {
 			return new WP_Error( 'software_not_deletable', __( 'This can’t be deleted here. It may be in use, or already gone.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 

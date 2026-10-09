@@ -192,7 +192,7 @@ class Dashboard_Threats {
 			if ( current_user_can( 'switch_themes' ) && get_stylesheet() === $slug ) {
 				$actions['deactivate'] = self_admin_url( 'themes.php' );
 			}
-			if ( self::can_delete( $type, $slug, null, $theme ) ) {
+			if ( self::can_delete( $type, null, $theme ) ) {
 				$actions['delete'] = true;
 			}
 			return $actions;
@@ -216,7 +216,7 @@ class Dashboard_Threats {
 				self_admin_url( 'plugins.php?action=deactivate&plugin=' . rawurlencode( $file ) )
 			);
 		}
-		if ( self::can_delete( $type, $slug, $file ) ) {
+		if ( self::can_delete( $type, $file ) ) {
 			$actions['delete'] = true;
 		}
 		if ( isset( $site['directory'][ $slug ] ) ) {
@@ -245,19 +245,14 @@ class Dashboard_Threats {
 	 * Multisite is left to Network Admin, where another site may still use it.
 	 *
 	 * @param string|null    $type  The plural extension type.
-	 * @param string|null    $slug  The extension slug.
 	 * @param string|null    $file  The installed plugin's file, for a plugin.
 	 * @param \WP_Theme|null $theme The installed theme, for a theme.
 	 * @return bool
 	 */
-	public static function can_delete( $type, $slug, $file, $theme = null ) {
-		if ( is_multisite() || ! $slug ) {
-			return false;
-		}
-		if ( 'themes' === $type ) {
-			return $theme && current_user_can( 'delete_themes' ) && ! in_array( $slug, array( get_stylesheet(), get_template() ), true );
-		}
-		return 'plugins' === $type && $file && current_user_can( 'delete_plugins' ) && ! is_plugin_active( $file );
+	public static function can_delete( $type, $file, $theme = null ) {
+		return ! is_multisite()
+			&& 'inactive' === self::get_state( $type, $file, $theme )
+			&& current_user_can( 'themes' === $type ? 'delete_themes' : 'delete_plugins' );
 	}
 
 	/**

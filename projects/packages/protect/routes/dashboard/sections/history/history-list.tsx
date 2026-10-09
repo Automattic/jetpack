@@ -4,9 +4,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { CLOSED_INSPECTOR } from '../inspector-params';
 import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
 import { getThreatRowActions } from '../scan/threat-row-actions';
 import { createThreatView, getThreatFields } from '../scan/threats-list';
+import useOpenThreat from '../use-open-threat';
 import { HISTORY_STATUS_PARAM, HISTORY_THREAT_PARAM } from './store';
 import type { ScanThreat } from '../scan/types';
 
@@ -47,9 +49,8 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
+					...CLOSED_INSPECTOR,
 					[ HISTORY_STATUS_PARAM ]: value === 'ignored' ? 'ignored' : undefined,
-					[ HISTORY_THREAT_PARAM ]: undefined,
-					[ THREAT_PARAM ]: undefined,
 				} ),
 			} as Parameters< typeof navigate >[ 0 ] );
 			setView( current => ( { ...current, page: 1 } ) );
@@ -60,21 +61,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const [ selectedIgnored ] = useSearchParam( THREAT_PARAM );
 	const selected = status === 'fixed' ? selectedFixed : selectedIgnored;
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
-	// One navigation sets both params, so only one inspector's param is ever in the URL.
-	const open = useCallback(
-		( item: ScanThreat ) => {
-			const id = String( item.id );
-			const isFixed = item.status === 'fixed';
-			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
-					[ HISTORY_THREAT_PARAM ]: isFixed ? id : undefined,
-					[ THREAT_PARAM ]: isFixed ? undefined : id,
-				} ),
-			} as Parameters< typeof navigate >[ 0 ] );
-		},
-		[ navigate ]
-	);
+	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
 	const fields = useMemo(

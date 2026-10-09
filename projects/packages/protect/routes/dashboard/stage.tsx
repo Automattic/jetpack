@@ -7,13 +7,8 @@ import Overview from './components/overview';
 import SettingsTab from './components/settings-tab';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
-import { INSPECTOR_PARAMS } from './sections/inspector-params';
+import { CLOSED_INSPECTOR } from './sections/inspector-params';
 import './route.scss';
-
-// Leaving a tab closes the inspector, whose threat belongs to the list on that tab.
-const CLOSED_INSPECTOR = Object.fromEntries(
-	INSPECTOR_PARAMS.map( param => [ param, undefined ] )
-);
 
 /**
  * Boot stage for the Protect dashboard: Overview, any section tabs, then Settings; the active one in `?tab=`.
@@ -30,6 +25,7 @@ const Stage = () => {
 			navigate( {
 				search: ( prev: Record< string, unknown > ) => ( {
 					...prev,
+					// Leaving a tab closes the inspector, whose threat belongs to the list on that tab.
 					...CLOSED_INSPECTOR,
 					...params,
 					tab: next === 'overview' ? undefined : next,

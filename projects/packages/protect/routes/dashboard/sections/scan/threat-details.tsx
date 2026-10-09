@@ -3,9 +3,9 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
-import { THREAT_PARAM, useSearchParam } from './store';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { ComponentProps, ReactNode } from 'react';
@@ -39,23 +39,22 @@ function SeverityBadge( { severity = 0 }: { severity?: number } ) {
  */
 function StateBadge( { threat }: { threat: ScanThreat } ) {
 	const { type, state } = threat.extension ?? {};
-	const isTheme = type === 'themes';
-	if ( ! state || ( ! isTheme && type !== 'plugins' ) ) {
+	if ( ! state ) {
 		return null;
 	}
-	let label: string;
-	if ( state === 'parent' ) {
-		label = __( 'Parent of active theme', 'jetpack-protect-pkg' );
-	} else if ( state === 'active' ) {
-		label = isTheme
+	const isTheme = type === 'themes';
+	const labels = {
+		parent: __( 'Parent of active theme', 'jetpack-protect-pkg' ),
+		active: isTheme
 			? __( 'Active theme', 'jetpack-protect-pkg' )
-			: __( 'Active plugin', 'jetpack-protect-pkg' );
-	} else {
-		label = isTheme
+			: __( 'Active plugin', 'jetpack-protect-pkg' ),
+		inactive: isTheme
 			? __( 'Inactive theme', 'jetpack-protect-pkg' )
-			: __( 'Inactive plugin', 'jetpack-protect-pkg' );
-	}
-	return <Badge intent={ state === 'inactive' ? 'draft' : 'informational' }>{ label }</Badge>;
+			: __( 'Inactive plugin', 'jetpack-protect-pkg' ),
+	};
+	return (
+		<Badge intent={ state === 'inactive' ? 'draft' : 'informational' }>{ labels[ state ] }</Badge>
+	);
 }
 
 /**
@@ -120,8 +119,7 @@ function Section( { title, children }: { title: string; children: ReactNode } ) 
 function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
-	const [ , setThreat ] = useSearchParam( THREAT_PARAM );
-	const open = useCallback( ( item: ScanThreat ) => setThreat( item.id ), [ setThreat ] );
+	const open = useOpenThreat();
 	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
 	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
 	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
