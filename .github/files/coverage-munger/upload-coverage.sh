@@ -47,7 +47,7 @@ if compgen -G 'coverage/php-combined-*.cov' &>/dev/null; then
 	# and then gets confused when trying to find a common base directory. Sigh.
 	mkdir coverage-tmp
 	.github/files/coverage-munger/vendor/bin/phpcov merge --php coverage-tmp/merged.cov coverage/
-	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" coverage-tmp/merged.cov
 
 	.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage-tmp/
 	echo '::endgroup::'
