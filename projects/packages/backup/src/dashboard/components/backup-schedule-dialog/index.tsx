@@ -75,7 +75,7 @@ export default function BackupScheduleDialog( { scheduledHour, scheduledBy, onCl
 			>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Daily backup time', 'jetpack-backup-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon disabled={ isPending } />
+					<Dialog.CloseIconButton disabled={ isPending } />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">

@@ -1,6 +1,7 @@
+import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -12,7 +13,7 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, ButtonLink, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
@@ -54,6 +55,16 @@ export default function RestoreScreen() {
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+
+	const lostTrack = __(
+		"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
+		'jetpack-backup-pkg'
+	);
+	useEffect( () => {
+		if ( state.phase === 'lost-track' ) {
+			speak( lostTrack, 'polite' );
+		}
+	}, [ state.phase, lostTrack ] );
 
 	// When the restore on screen was already running before this screen
 	// opened, the heading has to name *its* backup. It need not be the one
@@ -284,9 +295,9 @@ export default function RestoreScreen() {
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -315,9 +326,9 @@ export default function RestoreScreen() {
 								</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
-									<LinkButton variant="solid" render={ <Link to="/" /> }>
+									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -367,12 +378,7 @@ export default function RestoreScreen() {
 						{ state.phase === 'lost-track' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __(
-											"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
-											'jetpack-backup-pkg'
-										) }
-									</Notice.Description>
+									<Notice.Description>{ lostTrack }</Notice.Description>
 								</Notice.Root>
 								{ state.detail && (
 									<Text variant="body-sm" className="jpb-text-muted">

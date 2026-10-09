@@ -206,7 +206,7 @@ function ConfirmDiscardDialog( {
 			<Dialog.Popup size="small">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Discard changes?', 'jetpack-videopress-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 				{ /*
 				 * Dialog.Popup is an unpadded flex column; body padding comes

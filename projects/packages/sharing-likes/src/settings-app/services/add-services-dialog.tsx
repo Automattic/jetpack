@@ -156,7 +156,7 @@ export function AddServicesDialog( {
 					<Dialog.Title>
 						{ step === 'custom' ? __( 'Add a custom service', 'jetpack-sharing-likes' ) : title }
 					</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					{ step === 'pick' ? (

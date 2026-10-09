@@ -4,7 +4,7 @@
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -211,9 +211,9 @@ export default function ProductInterstitial( {
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<LinkButton size="compact" variant="outline" href={ existingLicenseKeyUrl }>
+					<ButtonLink size="compact" variant="outline" href={ existingLicenseKeyUrl }>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</LinkButton>
+					</ButtonLink>
 				) : null
 			}
 		>

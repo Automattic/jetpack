@@ -144,7 +144,6 @@ export function PosterDropdown( {
 	return (
 		<Dropdown
 			contentClassName="poster-panel__dropdown"
-			placement="top left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
 					ref={ buttonRef }

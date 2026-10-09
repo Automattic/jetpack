@@ -1,7 +1,7 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
-import { Link, LinkButton, Text } from '@wordpress/ui';
+import { Link, ButtonLink, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
@@ -118,7 +118,7 @@ export function UpgradeButton( { state }: UpgradeButtonProps ) {
 	}
 
 	return (
-		<LinkButton
+		<ButtonLink
 			href={ getFeaturePricingHref( upgradePath, feature.slug ) }
 			onClick={ onUpgrade }
 			variant="outline"
@@ -132,7 +132,7 @@ export function UpgradeButton( { state }: UpgradeButtonProps ) {
 			) }
 		>
 			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
-		</LinkButton>
+		</ButtonLink>
 	);
 }
 

@@ -2,7 +2,7 @@ import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, ButtonLink, Link, Stack, Text } from '@wordpress/ui';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
@@ -157,18 +157,18 @@ function SoftwareActions( { threat }: { threat: ScanThreat } ) {
 	return (
 		<Stack direction="row" gap="sm" wrap="wrap">
 			{ actions.update && (
-				<LinkButton href={ actions.update } variant="outline" size="compact">
+				<ButtonLink href={ actions.update } variant="outline" size="compact">
 					{ labels.update }
-				</LinkButton>
+				</ButtonLink>
 			) }
 			{ actions.deactivate && (
-				<LinkButton href={ actions.deactivate } variant="outline" tone="neutral" size="compact">
+				<ButtonLink href={ actions.deactivate } variant="outline" tone="neutral" size="compact">
 					{ labels.deactivate }
-				</LinkButton>
+				</ButtonLink>
 			) }
 			<DeleteSoftwareButton threat={ threat } />
 			{ actions.details && (
-				<LinkButton
+				<ButtonLink
 					href={ actions.details }
 					variant="minimal"
 					tone="neutral"
@@ -176,7 +176,7 @@ function SoftwareActions( { threat }: { threat: ScanThreat } ) {
 					openInNewTab
 				>
 					{ __( 'View on WordPress.org', 'jetpack-protect-pkg' ) }
-				</LinkButton>
+				</ButtonLink>
 			) }
 		</Stack>
 	);

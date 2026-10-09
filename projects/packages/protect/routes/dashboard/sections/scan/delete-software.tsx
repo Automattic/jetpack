@@ -1,6 +1,6 @@
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { AlertDialog, Button, LinkButton, Stack, Text } from '@wordpress/ui';
+import { AlertDialog, Button, ButtonLink, Stack, Text } from '@wordpress/ui';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import type { ScanThreat } from './types';
 import type { RenderModalProps } from '@wordpress/dataviews';
@@ -46,9 +46,9 @@ export function DeleteSoftwareButton( { threat }: { threat: ScanThreat } ) {
 	}
 	if ( threat.extension?.type !== 'themes' ) {
 		return (
-			<LinkButton href={ url } variant="outline" tone="neutral" size="compact">
+			<ButtonLink href={ url } variant="outline" tone="neutral" size="compact">
 				{ label }
-			</LinkButton>
+			</ButtonLink>
 		);
 	}
 	return (

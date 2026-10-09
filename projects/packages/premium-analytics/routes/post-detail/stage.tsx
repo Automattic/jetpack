@@ -4,7 +4,7 @@ import {
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton } from '@jetpack-premium-analytics/externals';
+import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -237,7 +237,7 @@ function PostDetail(): JSX.Element {
 									editingActions={ <WidgetDashboard.Actions /> }
 								>
 									{ publicUrl ? (
-										<LinkButton
+										<ButtonLink
 											variant="solid"
 											tone="neutral"
 											size="compact"
@@ -247,7 +247,7 @@ function PostDetail(): JSX.Element {
 											{ summary.type === 'page'
 												? __( 'View page', 'jetpack-premium-analytics-pkg' )
 												: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-										</LinkButton>
+										</ButtonLink>
 									) : null }
 								</DetailPageActions>
 							}
@@ -282,14 +282,14 @@ function PostDetail(): JSX.Element {
 											'jetpack-premium-analytics-pkg'
 										) }
 										actions={
-											<LinkButton
+											<ButtonLink
 												variant="outline"
 												size="compact"
 												href="https://jetpack.com/support/newsletter/"
 												openInNewTab
 											>
 												{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
-											</LinkButton>
+											</ButtonLink>
 										}
 									/>
 								) : (

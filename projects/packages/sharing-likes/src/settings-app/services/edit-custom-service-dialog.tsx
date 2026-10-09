@@ -67,7 +67,7 @@ export function EditCustomServiceDialog( {
 							service.name
 						) }
 					</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<form id={ FORM_ID } onSubmit={ handleSubmit }>

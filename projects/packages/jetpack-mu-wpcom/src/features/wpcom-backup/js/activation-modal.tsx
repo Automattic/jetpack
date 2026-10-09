@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Dialog, Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Dialog, Link, ButtonLink, Stack, Text } from '@wordpress/ui';
 import { splitDomainName } from './domain.ts';
 import { canProceed, hasAnyBlockingError, needsPlanUpgrade } from './eligibility.ts';
 import { ErrorContentInfo } from './error-content-info.tsx';
@@ -146,7 +146,7 @@ export function TransferActivationModal( {
 							? __( 'Backups cannot be activated', 'jetpack-mu-wpcom' )
 							: __( 'One more step', 'jetpack-mu-wpcom' ) }
 					</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="md">
@@ -171,9 +171,9 @@ export function TransferActivationModal( {
 				<Dialog.Footer>
 					{ /* An anchor cannot be disabled, so a blocked transfer gets a button instead. */ }
 					{ canProceed( isEligible, errors ) ? (
-						<LinkButton variant="solid" href={ activateUrl } onClick={ recordActivationConfirm }>
+						<ButtonLink variant="solid" href={ activateUrl } onClick={ recordActivationConfirm }>
 							{ actionLabel }
-						</LinkButton>
+						</ButtonLink>
 					) : (
 						<Button variant="solid" disabled>
 							{ actionLabel }

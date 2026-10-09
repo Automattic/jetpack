@@ -97,6 +97,56 @@ function resolveEntry( packageName, subEntry = null ) {
 	return path.join( pkgDir, pkg.module || pkg.main );
 }
 
+/**
+ * Read the version of a bundled package.
+ *
+ * @param {string} packageName - npm package name.
+ * @return {string} The package.json version.
+ */
+function resolvePackageVersion( packageName ) {
+	const pkgPath = localRequire.resolve( `${ packageName }/package.json` );
+	return JSON.parse( readFileSync( pkgPath, 'utf8' ) ).version;
+}
+
+/**
+ * Emit `version.php` next to a module build, returning the bundled package version.
+ *
+ * WP_Build_Polyfills reads it to keep the newest copy when several plugins register the module.
+ */
+class ModuleVersionPlugin {
+	/**
+	 * Remember the version to emit.
+	 *
+	 * @param {string} version - The bundled package version.
+	 */
+	constructor( version ) {
+		this.version = version;
+	}
+
+	/**
+	 * Hook the asset emission into the compilation.
+	 *
+	 * @param {import('webpack').Compiler} compiler - The webpack compiler.
+	 */
+	apply( compiler ) {
+		const { RawSource } = compiler.webpack.sources;
+		compiler.hooks.thisCompilation.tap( 'ModuleVersionPlugin', compilation => {
+			compilation.hooks.processAssets.tap(
+				{
+					name: 'ModuleVersionPlugin',
+					stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+				},
+				() => {
+					compilation.emitAsset(
+						'version.php',
+						new RawSource( `<?php return '${ this.version }';\n` )
+					);
+				}
+			);
+		} );
+	}
+}
+
 // ── Shared config ───────────────────────────────────────────────────────────
 
 // Files inside upstream @wordpress packages that import a helper from
@@ -452,6 +502,7 @@ const esmConfigs = modulePolyfills.map( polyfill => ( {
 			...disabledPlugins,
 		} ),
 		new PolyfillModulePlugin( { skipPackage: polyfill.packageName } ),
+		new ModuleVersionPlugin( resolvePackageVersion( polyfill.packageName ) ),
 	],
 } ) );
 

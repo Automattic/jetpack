@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { inertValue } from '@wordpress/react-inert-value';
-import { Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Link, ButtonLink, Stack, Text } from '@wordpress/ui';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -54,9 +54,9 @@ export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 			<div className="ai-launchpad-tailored-list__preview-frame is-editable">
 				{ thumbnail }
 				<span className="ai-launchpad-tailored-list__preview-edit">
-					<LinkButton variant="solid" size="compact" href={ siteEditUrl }>
+					<ButtonLink variant="solid" size="compact" href={ siteEditUrl }>
 						{ __( 'Edit site', 'jetpack-mu-wpcom' ) }
-					</LinkButton>
+					</ButtonLink>
 				</span>
 			</div>
 		);

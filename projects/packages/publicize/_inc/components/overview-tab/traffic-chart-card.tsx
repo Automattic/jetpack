@@ -7,7 +7,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
-import { Card, EmptyState, LinkButton, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Card, EmptyState, ButtonLink, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { features, hasSocialPaidFeatures } from '../../utils';
 import {
@@ -234,9 +234,9 @@ export default function TrafficChartCard(): JSX.Element {
 									</Notice.Title>
 									<Notice.Description>{ upgradeText }</Notice.Description>
 									<Notice.Actions>
-										<LinkButton variant="solid" size="compact" href={ upgradeUrl }>
+										<ButtonLink variant="solid" size="compact" href={ upgradeUrl }>
 											{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
-										</LinkButton>
+										</ButtonLink>
 									</Notice.Actions>
 								</Notice.Root>
 							</div>

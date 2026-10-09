@@ -3,7 +3,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloudUpload, share, video } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Dialog, LinkButton, Text } from '@wordpress/ui';
+import { Button, Dialog, ButtonLink, Text } from '@wordpress/ui';
 // The dismissal flag lives with the other first-run storage helpers so the
 // redirect and the modal can't drift onto different keys.
 import {
@@ -411,7 +411,7 @@ export default function OnboardingModal(): ReactElement | null {
 					 * affordance still positions against the band itself.
 					 */ }
 					<BandTheme>
-						<Dialog.CloseIcon
+						<Dialog.CloseIconButton
 							className="vp-onboarding-modal__close"
 							label={ __( 'Close', 'jetpack-videopress-pkg' ) }
 						/>
@@ -485,9 +485,9 @@ export default function OnboardingModal(): ReactElement | null {
 							) }
 						</Button>
 					) : (
-						<LinkButton variant="minimal" tone="neutral" href={ LEARN_MORE_URL } openInNewTab>
+						<ButtonLink variant="minimal" tone="neutral" href={ LEARN_MORE_URL } openInNewTab>
 							{ __( 'Learn more', 'jetpack-videopress-pkg' ) }
-						</LinkButton>
+						</ButtonLink>
 					) }
 					{ /*
 					 * Neutral solid to match the spec's dark primary; the DS

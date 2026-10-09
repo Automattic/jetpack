@@ -80,13 +80,15 @@
 
 		// A thin bar above the title, as in the design.
 		&__body &__bar {
-			// Colours the indicator and, at 10%, the track.
-			--wp-components-color-foreground: var(--wpds-color-background-interactive-brand-strong);
 			inline-size: 200px;
 			max-inline-size: 100%;
 			block-size: 2px;
 			margin-block: 20px 0;
 			text-align: start;
+
+			> div {
+				background-color: var(--wpds-color-background-interactive-brand-strong);
+			}
 		}
 	}
 }

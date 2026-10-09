@@ -1,7 +1,7 @@
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
-import { Button, Link, LinkButton, Popover, Stack, Text } from '@wordpress/ui';
+import { Button, Link, ButtonLink, Popover, Stack, Text } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import { useStorageAddonOffer } from '../../hooks/use-storage-addon-offer';
@@ -121,9 +121,9 @@ export default function StorageHelpPopover( { forecastInDays, storageUsed, stora
 						} ) }
 					</Text>
 					{ href && (
-						<LinkButton variant="solid" size="compact" href={ href } onClick={ recordClick }>
+						<ButtonLink variant="solid" size="compact" href={ href } onClick={ recordClick }>
 							{ __( 'Add more storage', 'jetpack-backup-pkg' ) }
-						</LinkButton>
+						</ButtonLink>
 					) }
 				</Stack>
 			</Popover.Popup>

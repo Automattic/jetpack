@@ -77,7 +77,7 @@ describe( 'StaleDataNotice', () => {
 
 			expect( description( /Showing data from 7 minutes ago\./ ) ).toBeInTheDocument();
 			// Interrupting a screen reader every minute is what the fixed
-			// `spokenMessage` prevents — it never mentions an age, so it never changes.
+			// announcement prevents: it never mentions an age, so it never changes.
 			expect( announcement() ).toBe( announced );
 			expect( announced ).not.toMatch( /minutes ago/ );
 		} finally {
