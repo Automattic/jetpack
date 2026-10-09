@@ -45,7 +45,6 @@
 		"@wordpress/ui": "0.22.0",
 		"@wordpress/widgets": "4.55.0",
 		"clsx": "2.1.1",
-		"copy-webpack-plugin": "14.0.0",
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.3",
 		"lodash": "4.18.1",
