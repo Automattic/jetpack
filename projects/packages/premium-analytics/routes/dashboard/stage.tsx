@@ -394,8 +394,6 @@ function Dashboard(): JSX.Element {
 										value={ section.slug }
 										className={ styles.content }
 									>
-										<PlanLimitNotice enabled={ ! editMode } />
-
 										<SectionHeader
 											ref={ setHeaderRef }
 											title={ resolveSectionHeading( section ) }
@@ -408,6 +406,8 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
+												<PlanLimitNotice enabled={ ! editMode } />
+
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }
 												<FeedbackBanner
