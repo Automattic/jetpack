@@ -26,6 +26,7 @@ Main component for rendering semi-circular pie charts.
 | `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). When `interactive` is enabled, requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100% |
 | `className` | `string` | - | Additional CSS class for the container |
 | `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
+| `ariaLabel` | `string` | `'Semi-circle chart'` | Accessible name of the chart. Name it after what it shows; give each chart on a page a different name. |
 | `chartId` | `string` | - | Optional unique identifier (auto-generated if not provided) |
 
 ## PieSemiCircleChartRenderTooltipParams Type

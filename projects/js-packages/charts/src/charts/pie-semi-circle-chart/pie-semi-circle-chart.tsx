@@ -1,11 +1,10 @@
 import { Group } from '@visx/group';
-import { Pie } from '@visx/shape';
+import { arc, pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTooltip } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
 	useDataWithPercentages,
@@ -19,12 +18,17 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import {
+	orderArcsForNavigation,
+	PieSelectionOutput,
+	SelectedSegmentRing,
+	usePieKeyboardNavigation,
+} from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
@@ -39,7 +43,7 @@ import type {
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieProvidedProps } from '@visx/shape';
-import type { FC, MouseEvent, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Parameters passed to the renderTooltip function for semi-circle charts.
@@ -125,6 +129,11 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * When provided, replaces the default `label: value` tooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieSemiCircleChartRenderTooltipParams ) => ReactNode;
+
+	/**
+	 * Accessible name of the chart. Defaults to a localized "Semi-circle chart".
+	 */
+	ariaLabel?: string;
 }
 
 // Base props type with optional responsive properties
@@ -137,6 +146,9 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 >;
 
 export type ArcData = PieProvidedProps< DataPointPercentageCalculated >[ 'arcs' ][ number ];
+
+type PieDatum = DataPointPercentageCalculated & { index: number };
+type PieArcDatum = PieProvidedProps< PieDatum >[ 'arcs' ][ number ];
 
 /**
  * Validates the semi-circle pie chart data
@@ -182,45 +194,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
 	renderTooltip = renderDefaultPieSemiCircleTooltip,
+	ariaLabel,
 	gap = 'md',
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
 	const legendPosition = legend.position ?? 'bottom';
 
 	const chartId = useChartId( providedChartId );
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentageCalculated >();
-	const standaloneScopeClass = useStandaloneScopeClass();
-
-	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
-	const containerRef = useRef< HTMLDivElement >( null );
-
-	const handleMouseMove = useCallback(
-		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
-			const bounds = containerRef.current?.getBoundingClientRect();
-			if ( ! bounds ) {
-				return;
-			}
-
-			showTooltip( {
-				tooltipData: arc.data,
-				tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
-				tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
-			} );
-		},
-		[ showTooltip, tooltipOffsetX, tooltipOffsetY ]
-	);
-
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
-
-	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: MouseEvent< SVGElement > ) => {
-			handleMouseMove( event, arc );
-		},
-		[ handleMouseMove ]
-	);
 
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
@@ -285,8 +265,47 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	} );
 
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const wipeMask = animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null;
 
 	const effectiveWidth = propWidth || DEFAULT_WIDTH;
+
+	// Map data with index for color assignment
+	// When interactive, we need to find the original index to maintain consistent colors
+	const dataWithIndex = visibleData.map( d => {
+		const originalIndex = data.findIndex( item => item.label === d.label );
+		return {
+			...d,
+			index: originalIndex >= 0 ? originalIndex : 0,
+		};
+	} );
+
+	// Configure pie angles based on clockwise direction
+	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
+	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
+
+	const arcs = pie< PieDatum >( {
+		value: accessors.value,
+		sort: accessors.sort,
+		padAngle: PAD_ANGLE,
+		startAngle,
+		endAngle,
+	} )( dataWithIndex );
+	const navigationArcs = orderArcsForNavigation( arcs );
+
+	const {
+		chartRef,
+		svgRef,
+		selectedIndex,
+		getSegmentHandlers,
+		getKeyboardTooltipAnchor,
+		outputProps,
+		chartProps,
+	} = usePieKeyboardNavigation( {
+		segmentLabels: navigationArcs.map( arcDatum => arcDatum.data.label ),
+		withTooltips,
+		tooltipOffsetX,
+		tooltipOffsetY,
+	} );
 
 	if ( ! isValid ) {
 		const errorWidth = propHeight
@@ -306,20 +325,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			</div>
 		);
 	}
-
-	// Map data with index for color assignment
-	// When interactive, we need to find the original index to maintain consistent colors
-	const dataWithIndex = visibleData.map( d => {
-		const originalIndex = data.findIndex( item => item.label === d.label );
-		return {
-			...d,
-			index: originalIndex >= 0 ? originalIndex : 0,
-		};
-	} );
-
-	// Configure pie angles based on clockwise direction
-	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
-	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
 
 	const legendElement = showLegend && (
 		<Legend
@@ -376,9 +381,19 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const radius = height; // For a semi-circle, radius equals the SVG height
 					const innerRadius = radius * ( 1 - thickness );
 
+					const path = arc< PieArcDatum >( { innerRadius, outerRadius: radius, cornerRadius: 3 } );
+					const selectedArc =
+						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
+
 					return (
-						<Center ref={ containerRef } className={ styles[ 'pie-semi-circle-chart__plot' ] }>
+						<Center
+							ref={ chartRef }
+							className={ styles[ 'pie-semi-circle-chart__plot' ] }
+							{ ...chartProps }
+							aria-label={ ariaLabel ?? __( 'Semi-circle chart', 'jetpack-charts' ) }
+						>
 							<svg
+								ref={ svgRef }
 								width={ width }
 								height={ height }
 								viewBox={ `0 0 ${ width } ${ height }` }
@@ -395,81 +410,71 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								</defs>
 
 								{ /* Main chart group centered horizontally and positioned at bottom */ }
-								<Group
-									top={ height }
-									left={ width / 2 }
-									mask={
-										animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null
-									}
-								>
+								<Group top={ height } left={ width / 2 } mask={ wipeMask }>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
 											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
-										<>
-											{ /* Pie chart */ }
-											<Pie< DataPointPercentageCalculated & { index: number } >
-												data={ dataWithIndex }
-												pieValue={ accessors.value }
-												outerRadius={ radius }
-												innerRadius={ innerRadius }
-												cornerRadius={ 3 }
-												padAngle={ PAD_ANGLE }
-												startAngle={ startAngle }
-												endAngle={ endAngle }
-												pieSort={ accessors.sort }
+										arcs.map( arcDatum => (
+											<g
+												key={ arcDatum.data.label }
+												{ ...getSegmentHandlers(
+													arcDatum.data,
+													navigationArcs.indexOf( arcDatum )
+												) }
 											>
-												{ pie => {
-													return pie.arcs.map( arc => (
-														<g
-															key={ arc.data.label }
-															onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
-															onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
-														>
-															<path
-																d={ pie.path( arc ) || '' }
-																fill={ accessors.fill( arc.data ) }
-																data-testid="pie-segment"
-															/>
-														</g>
-													) );
-												} }
-											</Pie>
-
-											{ /* Label and note text */ }
-											<Group>
-												<Text
-													textAnchor="middle"
-													verticalAnchor="start"
-													y={ -40 } // Position above the chart with space for note
-													className={ styles.label }
-												>
-													{ label }
-												</Text>
-												<Text
-													textAnchor="middle"
-													verticalAnchor="start"
-													y={ -20 } // Position between label and chart
-													className={ styles.note }
-												>
-													{ note }
-												</Text>
-											</Group>
-
-											{ /* Render SVG children from composition API */ }
-											{ ! allSegmentsHidden && svgChildren }
-										</>
+												<path
+													d={ path( arcDatum ) || '' }
+													fill={ accessors.fill( arcDatum.data ) }
+													data-testid="pie-segment"
+												/>
+											</g>
+										) )
 									) }
 								</Group>
+								{ /* Unmasked so the entry wipe cannot hide the focus indicator. */ }
+								{ selectedArc && (
+									<Group top={ height } left={ width / 2 }>
+										<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+									</Group>
+								) }
+								{ ! allSegmentsHidden && (
+									<Group top={ height } left={ width / 2 } mask={ wipeMask }>
+										{ /* Label and note text */ }
+										<Group>
+											<Text
+												textAnchor="middle"
+												verticalAnchor="start"
+												y={ -40 } // Position above the chart with space for note
+												className={ styles.label }
+											>
+												{ label }
+											</Text>
+											<Text
+												textAnchor="middle"
+												verticalAnchor="start"
+												y={ -20 } // Position between label and chart
+												className={ styles.note }
+											>
+												{ note }
+											</Text>
+										</Group>
+
+										{ /* Render SVG children from composition API */ }
+										{ svgChildren }
+									</Group>
+								) }
 							</svg>
-							{ withTooltips && tooltipOpen && tooltipData && (
-								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-									<div className={ standaloneScopeClass } role="tooltip">
-										{ renderTooltip( { tooltipData } ) }
-									</div>
-								</BoundedTooltip>
-							) }
+							<PieSelectionOutput
+								{ ...outputProps }
+								selectedData={ selectedArc?.data }
+								keyboardTooltipAnchor={
+									selectedArc &&
+									getKeyboardTooltipAnchor( width / 2, height, path.centroid( selectedArc ) )
+								}
+								renderTooltip={ renderTooltip }
+							/>
 						</Center>
 					);
 				} }

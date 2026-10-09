@@ -773,6 +773,121 @@ describe( 'PieChart', () => {
 			expect( screen.queryByText( /Click legend items to show data/i ) ).not.toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Keyboard navigation', () => {
+		const data = [
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+		];
+
+		test.each( [
+			[ undefined, 'Pie chart' ],
+			[ 'Devices', 'Devices' ],
+		] )( 'names the focusable chart from ariaLabel %p', ( ariaLabel, name ) => {
+			render( <PieChart data={ data } ariaLabel={ ariaLabel } /> );
+			expect( screen.getByRole( 'application', { name } ) ).toHaveAttribute( 'tabindex', '0' );
+		} );
+
+		const expectRingOn = ( segment: HTMLElement ) =>
+			expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+				'd',
+				segment.getAttribute( 'd' )
+			);
+
+		test( 'arrow keys move the focused tooltip and highlight across segments', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+			const [ macos, linux ] = screen.getAllByTestId( 'pie-segment' );
+			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+				'MacOS'
+			);
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expectRingOn( macos );
+
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveTextContent(
+				'Linux'
+			);
+			expectRingOn( linux );
+		} );
+
+		test( 'announces and highlights a segment without a tooltip when withTooltips is false', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } /> );
+			const status = screen.getByRole( 'status' );
+			expect( status ).toBeEmptyDOMElement();
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 0 ] );
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			expect( status ).toHaveTextContent( 'MacOS: 30K' );
+		} );
+
+		test( 'leaves the announcement to the focused tooltip when withTooltips is true', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		} );
+
+		test.each( [
+			[ true, [ 'Linux: 22K' ] ],
+			[ false, [] ],
+		] )(
+			'hovering a segment ends the keyboard selection (withTooltips %p)',
+			async ( withTooltips, tooltips ) => {
+				const user = userEvent.setup();
+				render( <PieChart data={ data } withTooltips={ withTooltips } /> );
+
+				await user.tab();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'pie-selected-ring' ) ).toBeInTheDocument();
+
+				await user.hover( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+
+				expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.queryAllByRole( 'tooltip' ).map( tooltip => tooltip.textContent ) ).toEqual(
+					tooltips
+				);
+			}
+		);
+
+		test( 'keeps focus in the chart when tooltips are turned off under a keyboard selection', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveFocus();
+
+			rerender( <PieChart data={ data } withTooltips={ false } /> );
+
+			expect( screen.getByRole( 'application' ) ).toHaveFocus();
+			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+		} );
+
+		test( 'keeps focus in the chart when an update removes the selected segment', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveFocus();
+
+			rerender( <PieChart data={ data.slice( 0, 1 ) } withTooltips /> );
+
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+		} );
+	} );
 } );
 
 // Chart container at (100, 50); the tooltip box measures 120x40. Everything
@@ -828,5 +943,61 @@ describe( 'PieChart tooltip position', () => {
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 			transform: 'translate(60px, 65px)',
 		} );
+	} );
+
+	test( 'moves the keyboard tooltip with the segment when the chart resizes', async () => {
+		const rects = mockRects();
+		const rectOf = rects.getMockImplementation();
+		let svgShift = 0;
+		// The plot is centered in the 400x300 container, so its offset follows its committed size.
+		rects.mockImplementation( function ( this: Element ) {
+			const rect = rectOf.call( this );
+			if ( ! ( this instanceof SVGSVGElement && this.hasAttribute( 'viewBox' ) ) ) {
+				return rect;
+			}
+			const size = Number( this.getAttribute( 'width' ) );
+			return {
+				...rect,
+				left: 100 + ( 400 - size ) / 2 + svgShift,
+				top: 50 + ( 300 - size ) / 2 + svgShift,
+			};
+		} );
+		const user = userEvent.setup();
+		const data = [
+			{ label: 'A', value: 60, valueDisplay: '60' },
+			{ label: 'B', value: 40, valueDisplay: '40' },
+		];
+		const renderAtSize = ( size: number ) => (
+			<GlobalChartsProvider>
+				<PieChart data={ data } width={ 400 } height={ 300 } size={ size } withTooltips />
+			</GlobalChartsProvider>
+		);
+		const selectFirstSegment = async () => {
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+			return screen.getByTestId( 'bounded-tooltip' ).style.transform;
+		};
+
+		const translation = ( transform: string ) => transform.match( /-?[\d.]+/g )?.map( Number );
+
+		const view = render( renderAtSize( 100 ) );
+		const expected = await selectFirstSegment();
+		view.unmount();
+
+		svgShift = 7;
+		const { unmount } = render( renderAtSize( 100 ) );
+		expect( translation( await selectFirstSegment() ) ).toEqual(
+			translation( expected )?.map( value => value + 7 )
+		);
+		unmount();
+		svgShift = 0;
+
+		const { rerender } = render( renderAtSize( 200 ) );
+		await expect( selectFirstSegment() ).resolves.not.toBe( expected );
+		rerender( renderAtSize( 100 ) );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { transform: expected } );
 	} );
 } );

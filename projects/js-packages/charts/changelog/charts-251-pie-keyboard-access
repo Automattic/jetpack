@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pie and semi-circle charts: Let keyboard users move through segments with the arrow keys, and give the chart an accessible name with a new `ariaLabel` prop.
