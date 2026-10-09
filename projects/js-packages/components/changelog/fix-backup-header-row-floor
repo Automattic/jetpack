@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: AdminPage: Load the header rules from the shared layout mixin; no visible change.
+
+

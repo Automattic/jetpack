@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Admin page layout: Add a header mixin that keeps the page header the same height on every screen and centers the logo.

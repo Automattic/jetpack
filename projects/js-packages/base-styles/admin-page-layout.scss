@@ -59,6 +59,23 @@ $jp-admin-bar-height-mobile: 46px;
 $jp-breakpoint-auto-fold: 960px;
 $jp-breakpoint-mobile: 782px;
 
+// Include on admin-ui's <Page> node. Keeps the header the same height whatever
+// its actions slot holds, and centers the 20px JetpackLogo in its 24px slot.
+// admin-ui has no class hooks here: the header is the page's first child,
+// and its visual slot is a `<div aria-hidden="true">`.
+@mixin jetpack-admin-page-header {
+
+	> :first-child [aria-hidden="true"] {
+		place-items: center;
+	}
+
+	// admin-ui's own floor is 32px, so the row follows its tallest control.
+	> :first-child > div:has([aria-hidden="true"]) {
+		min-block-size: 40px;
+		align-items: center;
+	}
+}
+
 @mixin jetpack-admin-page-layout {
 	// ── wp-admin chrome resets ────────────────────────────────────────
 	#wpcontent {
@@ -214,6 +231,11 @@ $jp-breakpoint-mobile: 782px;
 
 	.jp-admin-page__page > :first-child {
 		flex-shrink: 0;              // pinned at top of the flex column.
+	}
+
+	.jp-admin-page__page {
+
+		@include jetpack-admin-page-header;
 	}
 
 	// When the page hosts a tabs strip, drop the header's bottom border so the

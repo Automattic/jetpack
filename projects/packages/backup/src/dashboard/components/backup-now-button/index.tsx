@@ -117,6 +117,7 @@ function BackupNow() {
 				<Button
 					variant="outline"
 					tone="neutral"
+					size="compact"
 					disabled={ disabled }
 					// Scoped to the request itself, never to the running backup.
 					// `loading` paints the label `color: transparent` and overlays a
