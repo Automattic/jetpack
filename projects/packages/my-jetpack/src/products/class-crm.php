@@ -196,7 +196,7 @@ class Crm extends Product {
 
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if ( str_starts_with( $purchase->product_slug, 'jetpack_complete' ) || str_starts_with( $purchase->product_slug, 'jetpack_pro_' ) ) {
 					return true;
 				}
 			}
@@ -215,6 +215,9 @@ class Crm extends Product {
 			'jetpack_complete',
 			'jetpack_complete_monthly',
 			'jetpack_complete_bi_yearly',
+			'jetpack_pro_yearly',
+			'jetpack_pro_bi_yearly',
+			'jetpack_pro_monthly',
 		);
 	}
 
