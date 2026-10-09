@@ -173,15 +173,39 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the route answers with an error, and keeps the files, when WordPress would ask for filesystem credentials.
+	 */
+	public function test_delete_software_needs_direct_filesystem_access() {
+		$file = WP_PLUGIN_DIR . '/protect-delete-test.php';
+		wp_mkdir_p( WP_PLUGIN_DIR );
+		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_clean_plugins_cache( false );
+		update_option( 'active_plugins', array() );
+		$use_ftp = function () {
+			return 'ftpext';
+		};
+		add_filter( 'filesystem_method', $use_ftp );
+
+		$result = self::delete_as_admin( 'plugins', 'protect-delete-test' );
+		remove_filter( 'filesystem_method', $use_ftp );
+		$exists = file_exists( $file );
+		wp_delete_file( $file );
+
+		$this->assertSame( 'software_not_deleted', is_wp_error( $result ) ? $result->get_error_code() : null );
+		$this->assertTrue( $exists );
+	}
+
+	/**
 	 * Themes, and whether the route should delete each while a child theme is active.
 	 *
 	 * @return array[]
 	 */
 	public static function provider_delete_theme() {
 		return array(
-			'unused theme is deleted'        => array( 'protect-unused', true ),
-			'active theme is kept'           => array( 'protect-child', false ),
-			'parent of active theme is kept' => array( 'protect-parent', false ),
+			'unused theme is deleted'         => array( 'protect-unused', true ),
+			'active theme is kept'            => array( 'protect-child', false ),
+			'parent of active theme is kept'  => array( 'protect-parent', false ),
+			'path to an unused theme is kept' => array( './protect-unused', false ),
 		);
 	}
 
