@@ -1,11 +1,13 @@
 import { CheckboxControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Fieldset, Stack, Text } from '@wordpress/ui';
 import './style.scss';
 import type { RestoreItems } from '../../types/restore';
 
 type Props = {
+	legend: string;
+	legendClassName?: string;
 	value: RestoreItems;
 	onChange: ( next: RestoreItems ) => void;
 };
@@ -102,17 +104,32 @@ function ChecklistRow( { item, value, onChange }: RowProps ) {
  * The keys map to `RestoreItems` (themes/plugins/roots/contents/sqls/uploads);
  * each description follows its label in brackets.
  *
- * @param props          - Component props.
- * @param props.value    - Current state of each toggle.
- * @param props.onChange - Called with the next state when any toggle flips.
+ * @param props                 - Component props.
+ * @param props.legend          - The question the checkboxes answer, which names the group.
+ * @param props.legendClassName - Extra class for the legend.
+ * @param props.value           - Current state of each toggle.
+ * @param props.onChange        - Called with the next state when any toggle flips.
  * @return The rendered checklist.
  */
-export default function RestoreItemsChecklist( { value, onChange }: Props ) {
+export default function RestoreItemsChecklist( {
+	legend,
+	legendClassName,
+	value,
+	onChange,
+}: Props ) {
 	return (
-		<Stack direction="column" gap="lg" className="jpb-restore-checklist">
-			{ ITEMS.map( item => (
-				<ChecklistRow key={ item.key } item={ item } value={ value } onChange={ onChange } />
-			) ) }
-		</Stack>
+		<Fieldset.Root className="jpb-restore-checklist">
+			<Fieldset.Legend
+				className="jpb-restore-checklist__legend jpb-text-muted"
+				render={ <Text className={ legendClassName } /> }
+			>
+				{ legend }
+			</Fieldset.Legend>
+			<Stack direction="column" gap="lg" className="jpb-restore-checklist__items">
+				{ ITEMS.map( item => (
+					<ChecklistRow key={ item.key } item={ item } value={ value } onChange={ onChange } />
+				) ) }
+			</Stack>
+		</Fieldset.Root>
 	);
 }

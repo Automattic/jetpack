@@ -151,10 +151,12 @@ export default function RestoreScreen() {
 										) }
 									</Notice.Description>
 								</Notice.Root>
-								<Text className="jpb-text-muted jpb-restore__label">
-									{ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }
-								</Text>
-								<RestoreItemsChecklist value={ items } onChange={ setItems } />
+								<RestoreItemsChecklist
+									legend={ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }
+									legendClassName="jpb-restore__label"
+									value={ items }
+									onChange={ setItems }
+								/>
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message

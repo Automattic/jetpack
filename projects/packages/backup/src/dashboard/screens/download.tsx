@@ -167,13 +167,14 @@ export default function DownloadScreen() {
 						<VisuallyHidden role="status">{ announcement }</VisuallyHidden>
 						{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
 							<>
-								<Text className="jpb-text-muted">
-									{ __(
+								<RestoreItemsChecklist
+									legend={ __(
 										'Choose the items you wish to include in the download:',
 										'jetpack-backup-pkg'
 									) }
-								</Text>
-								<RestoreItemsChecklist value={ items } onChange={ setItems } />
+									value={ items }
+									onChange={ setItems }
+								/>
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message
