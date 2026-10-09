@@ -32,6 +32,16 @@
 		font-size: 1.25rem;
 	}
 
+	// The content box is a centred flex column, so it shrink-wraps each child.
+	// Width is explicit rather than `align-self: stretch`, which the auto inline
+	// margin below would cancel out, collapsing the step around its shortest view.
+	.jp-connection__transfer-ownership-form {
+		inline-size: 100%;
+		max-inline-size: 600px;
+		margin-inline: auto;
+		text-align: start;
+	}
+
 	&__actions {
 		background: var(--jp-white);
 		margin: 0 !important;
@@ -79,8 +89,7 @@
 
 		// The action slug is now applied to the card root itself, not a descendant.
 		&.transfer,
-		&.unlink,
-		&.check-users {
+		&.unlink {
 			color: var(--jp-black);
 			fill: var(--jp-black);
 		}

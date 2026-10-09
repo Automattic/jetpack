@@ -1,0 +1,82 @@
+// Keep `flex-shrink: 0`: the dialogs lay this out in a `height: 100%` box
+// beside a footer, and without it the button rides up over the text above.
+.jp-connection__transfer-ownership-form {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 16px;
+}
+
+.jp-connection__transfer-ownership {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 16px;
+	text-align: start;
+
+	// @wordpress/ui's scale starts at 13px, which reads as fine print beside
+	// the 16px the surrounding dialog uses. Size the step from Jetpack's
+	// token instead, and keep the smaller pieces relative to it.
+	font-size: var(--font-body, 16px);
+
+	p {
+		font-size: inherit;
+	}
+}
+
+.jp-connection__transfer-ownership__avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	inline-size: 38px;
+	block-size: 38px;
+	border-radius: 50%;
+	background-color: var(--jp-black, #000);
+	color: var(--jp-white, #fff);
+	font-size: 0.875em;
+	font-weight: 600;
+
+	// Not a status colour: red, yellow and green mean something else here.
+	&.is-incoming {
+		background-color: var(--jp-pink, #c9356e);
+	}
+}
+
+.jp-connection__transfer-ownership__who {
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.jp-connection__transfer-ownership__meta {
+	color: var(--jp-gray-50, #646970);
+	font-size: 0.875em;
+}
+
+.jp-connection__transfer-ownership__hint {
+	font-size: 0.875em;
+	color: var(--jp-gray-50, #646970);
+}
+
+.jp-connection__transfer-ownership__identity {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jp-connection__transfer-ownership__outcomes {
+	margin: 0;
+	padding-inline-start: 20px;
+	list-style: disc;
+}
+
+.jp-connection__transfer-ownership__handover {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.jp-connection__transfer-ownership__arrow {
+	color: var(--jp-gray-50, #646970);
+}

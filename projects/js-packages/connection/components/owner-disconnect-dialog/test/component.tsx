@@ -46,8 +46,11 @@ describe( 'OwnerDisconnectDialog', () => {
 	} );
 
 	describe( 'when open', () => {
+		const renderOpen = ( props = {} ) =>
+			render( <OwnerDisconnectDialog { ...testProps } { ...props } /> );
+
 		it( 'renders the labelled Modal', () => {
-			render( <OwnerDisconnectDialog { ...testProps } /> );
+			renderOpen();
 			// Modal aria.labelledby points at the heading; assert both resolve to the same label.
 			expect( screen.getByRole( 'dialog', { name: dialogName } ) ).toBeInTheDocument();
 			expect(
@@ -56,24 +59,34 @@ describe( 'OwnerDisconnectDialog', () => {
 		} );
 
 		it( 'seeds the REST API with the passed root and nonce', () => {
-			render( <OwnerDisconnectDialog { ...testProps } /> );
+			renderOpen();
 			expect( mockSetApiRoot ).toHaveBeenCalledWith( testProps.apiRoot );
 			expect( mockSetApiNonce ).toHaveBeenCalledWith( testProps.apiNonce );
 		} );
 
-		it( 'renders both action cards as links', () => {
-			render( <OwnerDisconnectDialog { ...testProps } /> );
-			expect(
+		it( 'hands the user to the transfer flow rather than running its own', async () => {
+			const onTransferOwnership = jest.fn();
+			const user = userEvent.setup();
+			renderOpen( { onTransferOwnership } );
+
+			await user.click(
 				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
-			).toBeInTheDocument();
+			);
+
+			expect( onTransferOwnership ).toHaveBeenCalledTimes( 1 );
+			expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'hides the transfer action when no flow is wired up', () => {
+			renderOpen();
 			expect(
-				screen.getByRole( 'link', { name: /View other connected accounts/ } )
-			).toBeInTheDocument();
+				screen.queryByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'calls onClose when "Stay connected" is clicked', async () => {
 			const user = userEvent.setup();
-			render( <OwnerDisconnectDialog { ...testProps } /> );
+			renderOpen();
 			await user.click( screen.getByRole( 'button', { name: 'Stay connected' } ) );
 			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 		} );
