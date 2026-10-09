@@ -187,6 +187,13 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Verify that every caller shares one instance, so login hooks are registered once.
+	 */
+	public function test_instance_is_reused() {
+		$this->assertSame( Brute_Force_Protection::instance(), Brute_Force_Protection::instance() );
+	}
+
+	/**
 	 * Verifies that the transient value is not acted upon (decremented) if the transient value was indeed not set.
 	 *
 	 * @backupGlobals enabled

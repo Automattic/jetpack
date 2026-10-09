@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Brute Force Protection: Run login checks once per request instead of once per internal lookup.
