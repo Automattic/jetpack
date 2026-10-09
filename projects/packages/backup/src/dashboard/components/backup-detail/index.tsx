@@ -2,8 +2,8 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
-import { Link } from '@wordpress/route';
-import { Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Link as RouterLink } from '@wordpress/route';
+import { Card, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { useBackupRuns } from '../../hooks/use-backup-runs';
@@ -140,22 +140,28 @@ export default function BackupDetail( { item }: Props ) {
 						gap="sm"
 						align="center"
 					>
-						<LinkButton
-							variant="minimal"
+						<Stack
+							direction="row"
+							gap="xs"
+							align="center"
 							render={
 								<Link
-									to={ `/download/${ item.rewindId }` }
-									// Cast for the same reason `screens/overview.tsx` casts
-									// its `navigate` call: nothing registers a typed route
-									// tree, so TanStack's search types collapse to shapes a
-									// plain object cannot satisfy.
-									search={ downloadSearch as never }
+									render={
+										<RouterLink
+											to={ `/download/${ item.rewindId }` }
+											// Cast for the same reason `screens/overview.tsx` casts
+											// its `navigate` call: nothing registers a typed route
+											// tree, so TanStack's search types collapse to shapes a
+											// plain object cannot satisfy.
+											search={ downloadSearch as never }
+										/>
+									}
 								/>
 							}
 						>
-							<LinkButton.Icon icon={ downloadIcon } />
+							<Icon icon={ downloadIcon } size={ 18 } />
 							{ downloadLabel( selectedIds.length ) }
-						</LinkButton>
+						</Stack>
 						{ /*
 						 * Deliberately not labelled from the file selection, and its
 						 * link carries none.
@@ -169,7 +175,10 @@ export default function BackupDetail( { item }: Props ) {
 						 * items" confirms a full-site restore believing it is
 						 * scoped.
 						 */ }
-						<LinkButton variant="solid" render={ <Link to={ `/restore/${ item.rewindId }` } /> }>
+						<LinkButton
+							variant="solid"
+							render={ <RouterLink to={ `/restore/${ item.rewindId }` } /> }
+						>
 							<LinkButton.Icon icon={ rotateLeft } />
 							{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
 						</LinkButton>
