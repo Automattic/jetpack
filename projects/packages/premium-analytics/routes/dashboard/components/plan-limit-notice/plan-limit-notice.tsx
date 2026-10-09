@@ -12,7 +12,7 @@ import {
 import { Notice } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { statsUpgradeUrl, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -31,6 +31,16 @@ type PlanLimitStatus = {
 	used: number;
 	limit: number;
 };
+
+// Once per page load, not per mount: every section tab mounts its own copy.
+const viewedThisLoad = new Set< string >();
+
+/**
+ * Reset the once-per-load view latch. Test-only.
+ */
+export function resetPlanLimitNoticeForTesting() {
+	viewedThisLoad.clear();
+}
 
 type PlanLimitNoticeProps = {
 	/**
@@ -71,7 +81,10 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 	const isEligible = enabled && ! isSimpleSite() && getScriptData()?.site?.host !== 'vip';
 
 	const { data: usage } = useStatsAppPlanUsage( { enabled: isEligible } );
-	const status = isEligible ? getPlanLimitStatus( usage ) : null;
+	const status = useMemo(
+		() => ( isEligible ? getPlanLimitStatus( usage ) : null ),
+		[ isEligible, usage ]
+	);
 
 	// Only the near-limit notice can be put off; past the limit it stays for the cycle.
 	const isNear = !! status && ! status.isOver;
@@ -80,13 +93,31 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 	const [ isPostponed, setIsPostponed ] = useState( false );
 	const trackEvent = useTrackEvent();
 
+	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false || isPostponed );
+	const statusName = status?.isOver ? 'over' : 'near';
+
+	useEffect( () => {
+		if ( ! status || isHeld || viewedThisLoad.has( statusName ) ) {
+			return;
+		}
+
+		viewedThisLoad.add( statusName );
+		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_view', { status: statusName } );
+	}, [ status, isHeld, statusName, trackEvent ] );
+
 	const postpone = useCallback( () => {
 		setIsPostponed( true );
 		updateNotice( { id: 'tier_upgrade', status: 'postponed', postponed_for: POSTPONE_SECONDS } );
 		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_dismiss' );
 	}, [ updateNotice, trackEvent ] );
 
-	if ( ! status || ( isNear && ( ! notices || notices.tier_upgrade === false || isPostponed ) ) ) {
+	const recordUpgradeClick = useCallback( () => {
+		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_upgrade_click', {
+			status: statusName,
+		} );
+	}, [ trackEvent, statusName ] );
+
+	if ( ! status || isHeld ) {
 		return null;
 	}
 
@@ -120,7 +151,7 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 
 			{ upgradeHref && (
 				<Notice.Actions>
-					<Notice.ActionLink href={ upgradeHref }>
+					<Notice.ActionLink href={ upgradeHref } onClick={ recordUpgradeClick }>
 						{ __( 'Upgrade plan', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionLink>
 				</Notice.Actions>
