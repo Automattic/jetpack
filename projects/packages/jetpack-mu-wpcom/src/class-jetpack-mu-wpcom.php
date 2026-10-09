@@ -107,7 +107,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
 		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
-		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments' ) );
+		add_filter( 'jetpack_comments_new_hotness', '__return_true' );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -867,30 +867,6 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
 			\Automattic\Jetpack\Comments\Embeds::init();
 		}
-	}
-
-	/**
-	 * Turn on the rebuilt Jetpack Comments form for every Simple site that would
-	 * get Verbum, and for an Atomic site carrying the rollout sticker.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $enabled Whether it is already on.
-	 * @return bool
-	 */
-	public static function enable_jetpack_comments( $enabled ) {
-		if ( $enabled ) {
-			return true;
-		}
-
-		// Checked here too, not just in the loader, because the routes gate only on this filter.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return ! self::should_disable_comment_experience( get_current_blog_id() );
-		}
-
-		$blog_id = (int) get_wpcom_blog_id();
-
-		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
 	}
 
 	/**
