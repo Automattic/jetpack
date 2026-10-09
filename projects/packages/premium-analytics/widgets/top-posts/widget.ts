@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { page } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -24,7 +23,6 @@ export type TopPostsAttributes = {
  * its control in the frame header.
  */
 export default {
-	icon: page,
 	attributes: [
 		{
 			id: 'contentView',

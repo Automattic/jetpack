@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { globe } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -40,7 +39,6 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
  * doubles as the defaults applied to new instances.
  */
 export default {
-	icon: globe,
 	attributes: [
 		{
 			id: 'metrics',
