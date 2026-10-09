@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/payment-status",
+	"icon": "jpa/chart-bar",
 	"title": "Payment status",
 	"description": "Shows the breakdown of paid vs unpaid order revenue over the selected time period.",
 	"help": {

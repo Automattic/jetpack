@@ -63,9 +63,10 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Oldest widget contract the widgets run on: the one whose `Leaderboard` draws the bars variant.
+	 * Lowest widget contract the build works against: the UTM leaderboards draw the bars variant,
+	 * which the dashboard ships from 1.7.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.6.0';
+	const MIN_WIDGET_API_VERSION = '1.7.0';
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
