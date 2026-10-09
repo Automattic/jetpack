@@ -64,9 +64,16 @@ allowBuilds:
   core-js: false
   core-js-pure: false
   print-this: false
+  # TEMP: git-hosted @wordpress/build has no scripts to run.
+  '@wordpress/build': false
 
 # Package compromise avoidance: Block odd protocols in subdeps
-blockExoticSubdeps: true
+blockExoticSubdeps: false
+# TEMP (experiment): measure WordPress/gutenberg#79889 in CI. Do not merge.
+overrides:
+  "@wordpress/build": "github:WordPress/gutenberg#1da05f7f167f8d8a8b630d7b47b8c1ec42ae57a6&path:packages/wp-build"
+  "@wordpress/build>@wordpress/style-runtime": "0.13.0"
+  "@wordpress/build>@wordpress/browserslist-config": "6.57.0"
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
