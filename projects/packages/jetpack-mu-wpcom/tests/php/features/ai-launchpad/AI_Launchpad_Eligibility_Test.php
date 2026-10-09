@@ -36,23 +36,21 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Eligibility follows the enable flag, and either no-guidance source overrides it.
+	 *
 	 * @dataProvider provide_eligibility_inputs
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @param bool $was_ai_onboarded Whether the site already went through AI onboarding.
-	 * @param bool $enabled          Whether wpcom_ai_launchpad_enabled is set.
-	 * @param bool $dismissed        Whether the user dismissed the AI Launchpad.
-	 * @param bool $no_guidance      Whether wpcom_ai_launchpad_no_guidance is set.
-	 * @param bool $expected         Expected eligibility result.
+	 * @param bool $enabled     Whether wpcom_ai_launchpad_enabled is set.
+	 * @param bool $dismissed   Whether the user dismissed the AI Launchpad.
+	 * @param bool $no_guidance Whether wpcom_ai_launchpad_no_guidance is set.
+	 * @param bool $expected    Expected eligibility result.
 	 */
 	#[DataProvider( 'provide_eligibility_inputs' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_is_eligible( $was_ai_onboarded, $enabled, $dismissed, $no_guidance, $expected ) {
-		if ( $was_ai_onboarded ) {
-			update_option( 'site_intent', 'ai-assembler' );
-		}
+	public function test_is_eligible( $enabled, $dismissed, $no_guidance, $expected ) {
 		if ( $enabled ) {
 			update_option( 'wpcom_ai_launchpad_enabled', true );
 		}
@@ -73,13 +71,10 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_eligibility_inputs() {
 		return array(
-			'enabled'                     => array( false, true, false, false, true ),
-			'not enabled'                 => array( false, false, false, false, false ),
-			'ai-onboarded stays eligible' => array( true, true, false, false, true ),
-			'ai-onboarded without enable' => array( true, false, false, false, false ),
-			'dismissed blocks'            => array( false, true, true, false, false ),
-			'no guidance blocks'          => array( false, false, false, true, false ),
-			'no guidance beats enabled'   => array( false, true, false, true, false ),
+			'enabled'                   => array( true, false, false, true ),
+			'not enabled'               => array( false, false, false, false ),
+			'dismissed blocks'          => array( true, true, false, false ),
+			'no guidance beats enabled' => array( true, false, true, false ),
 		);
 	}
 }

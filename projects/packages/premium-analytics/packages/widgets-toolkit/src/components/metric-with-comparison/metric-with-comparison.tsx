@@ -99,6 +99,7 @@ export function MetricWithComparison( {
 					fallback={ deltaFallback }
 					showAbsolute={ showAbsoluteDelta }
 					absoluteFormat={ absoluteFormat }
+					currencyCode={ dataFormat.options?.currencyCode }
 				/>
 			) }
 		</Stack>

@@ -1,5 +1,6 @@
 {
 	"name": "wordads/chart-tabs",
+	"icon": "jpa/megaphone",
 	"title": "Ads summary",
 	"description": "Track ads served, average CPM, and revenue over the selected period.",
 	"help": {

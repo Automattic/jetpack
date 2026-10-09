@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { resolveFieldTypes } from '@jetpack-premium-analytics/fields';
+import { lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import type { WidgetActionRecord, WidgetRelevance, WidgetType } from '@wordpress/widget-primitives';
 
 /**
@@ -11,6 +12,7 @@ import type { WidgetActionRecord, WidgetRelevance, WidgetType } from '@wordpress
  */
 export interface StoryWidgetManifest {
 	name: string;
+	icon?: string;
 	title: string;
 	description?: string;
 	help?: WidgetType[ 'help' ];
@@ -30,9 +32,8 @@ type StoryWidgetManifestAction = Omit< WidgetActionRecord, 'relevance' > & {
 
 /**
  * Runtime-only fields a widget declares in `widget.ts` (its default export):
- * the ones that cannot live in JSON because they hold a React element or
- * component references. Typed loosely so any widget module is accepted without
- * a per-call-site cast.
+ * the ones that cannot live in JSON because they hold component references.
+ * Typed loosely so any widget module is accepted without a per-call-site cast.
  */
 interface StoryWidgetModule {
 	icon?: unknown;
@@ -51,15 +52,16 @@ export type StoryWidgetType = {
 
 /**
  * Combine a widget's `widget.json` manifest (identity + declarative metadata)
- * with its `widget.ts` module export (icon, attributes, example) into the
- * widget type a Storybook story hands to the dashboard helper.
+ * with its `widget.ts` module export (attributes, example) into the widget
+ * type a Storybook story hands to the dashboard helper.
  *
  * This mirrors what the dashboard does at runtime — merge the REST manifest
  * over the lazily-imported module — which Storybook has no REST layer to
  * perform. `name`/`title`/`help` and the other declarative fields come from the
- * manifest; `icon`, `attributes`, and `example` come from the module. The
- * attribute list is typed against the widget's own `Item`, so it is widened
- * here once instead of at every call site.
+ * manifest, icon references resolved the way the host resolves them;
+ * `attributes` and `example` come from the module. The attribute list is typed
+ * against the widget's own `Item`, so it is widened here once instead of at
+ * every call site.
  */
 export function createStoryWidgetType(
 	manifest: StoryWidgetManifest,
@@ -68,7 +70,9 @@ export function createStoryWidgetType(
 	return {
 		name: manifest.name,
 		title: manifest.title,
-		icon: moduleDefinition.icon as WidgetType[ 'icon' ],
+		icon:
+			( manifest.icon ? lookupWidgetIcon( manifest.icon ) : null ) ??
+			( moduleDefinition.icon as WidgetType[ 'icon' ] ),
 		// Mirrors useWidgetTypes: a `type` naming a registered field type resolves here.
 		attributes: moduleDefinition.attributes
 			? resolveFieldTypes(
@@ -82,11 +86,9 @@ export function createStoryWidgetType(
 		...( manifest.help ? { help: manifest.help } : {} ),
 		...( manifest.actions
 			? {
-					// Mirrors useWidgetTypes: an icon reference only reaches the
-					// host once resolved, and the story has no resolver.
 					actions: manifest.actions.map( action => ( {
 						...action,
-						icon: undefined,
+						icon: action.icon ? ( lookupWidgetIcon( action.icon ) ?? undefined ) : undefined,
 						relevance: action.relevance as WidgetRelevance | undefined,
 					} ) ),
 				}

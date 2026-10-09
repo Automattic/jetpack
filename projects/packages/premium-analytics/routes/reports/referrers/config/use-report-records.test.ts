@@ -93,6 +93,43 @@ describe( 'useReferrersReportRecords', () => {
 		] );
 	} );
 
+	it( 'offers spam only on eligible rows and drops a hidden domain with its nested rows', () => {
+		const spamRow = ( domain: string ): StatsReferrersComparisonItem => ( {
+			label: domain,
+			views: 2,
+			link: null,
+			icon: null,
+			labelIcon: null,
+			actions: [ { type: 'spam', data: { domain } } ],
+			children: [
+				{ label: '/page', views: 2, link: null, icon: null, labelIcon: null, children: null },
+			],
+		} );
+		mockUseStatsReferrers.mockReturnValue( {
+			comparisonRows: {
+				rows: [ ...comparisonRows, spamRow( 'kept.example' ), spamRow( 'spam.example' ) ],
+				hasComparison: false,
+			},
+			isLoading: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsReferrers > );
+
+		const { result } = renderHook( () =>
+			useReferrersReportRecords(
+				{ from: '2026-07-09', to: '2026-07-10', interval: 'day' },
+				new Set( [ 'spam.example' ] )
+			)
+		);
+
+		expect( result.current.rows.map( row => [ row.label, row.spamDomain ?? null ] ) ).toEqual( [
+			[ 'Search Engines', null ],
+			[ 'google.com', null ],
+			[ 'kept.example', 'kept.example' ],
+			[ '/page', null ],
+		] );
+	} );
+
 	it( 'surfaces error and refetch from the report', () => {
 		const refetch = jest.fn();
 		mockUseStatsReferrers.mockReturnValue( {

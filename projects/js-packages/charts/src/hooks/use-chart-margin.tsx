@@ -27,10 +27,10 @@ const DEFAULT_MARGIN_BOTTOM = 20;
 const DEFAULT_MARGIN_LEFT = 20;
 
 /**
- * Bottom margin to use when the X-axis is rendered at the top.
+ * Bottom margin when no X-axis sits below the chart, because it is on top or hidden.
  * We only need a small buffer below the chart in that case.
  */
-const DEFAULT_BOTTOM_FOR_TOP_AXIS = 10;
+const DEFAULT_BOTTOM_WITHOUT_X_AXIS = 10;
 
 /**
  * Fallback font size used when we cannot derive a font size
@@ -168,23 +168,24 @@ export const useChartMargin = (
 			}
 		}
 
-		// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
-		// This mirrors Y-axis behavior where margin is based on label size and tick length,
-		// but keeps the padding minimal so consumers can control container spacing themselves.
-		const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
-		const { fontSize, tickLength, tickLabelStyle } = getXAxisLabelMetrics( theme, xOrientation );
-		const computedXMargin = fontSize + tickLength;
-
-		if ( xOrientation === 'top' ) {
-			defaultMargin.top = Math.max( defaultMargin.top, computedXMargin );
-			defaultMargin.bottom = DEFAULT_BOTTOM_FOR_TOP_AXIS;
-		} else {
-			defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
-		}
-
-		// An X-axis label is centered on its tick, so the ones at either end of the
-		// scale hang half their width outside the plot area and clip at the SVG edge.
+		// A hidden x axis reserves nothing either, whichever side it sits on.
 		if ( options.axis?.x?.display !== false ) {
+			// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
+			// This mirrors Y-axis behavior where margin is based on label size and tick length,
+			// but keeps the padding minimal so consumers can control container spacing themselves.
+			const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
+			const { fontSize, tickLength, tickLabelStyle } = getXAxisLabelMetrics( theme, xOrientation );
+			const computedXMargin = fontSize + tickLength;
+
+			if ( xOrientation === 'top' ) {
+				defaultMargin.top = Math.max( defaultMargin.top, computedXMargin );
+				defaultMargin.bottom = DEFAULT_BOTTOM_WITHOUT_X_AXIS;
+			} else {
+				defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
+			}
+
+			// An X-axis label is centered on its tick, so the ones at either end of the
+			// scale hang half their width outside the plot area and clip at the SVG edge.
 			const { first, last } = getEdgeTickWidths(
 				options.axis?.x?.tickValues ?? [],
 				options.axis?.x?.tickFormat,
@@ -193,6 +194,8 @@ export const useChartMargin = (
 
 			defaultMargin.left = Math.max( defaultMargin.left, Math.ceil( first / 2 ) );
 			defaultMargin.right = Math.max( defaultMargin.right, Math.ceil( last / 2 ) );
+		} else {
+			defaultMargin.bottom = DEFAULT_BOTTOM_WITHOUT_X_AXIS;
 		}
 
 		return defaultMargin;

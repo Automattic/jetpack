@@ -14,6 +14,9 @@
 
 	// Seeds every tooltip from the chart surface: dark text on light.
 	--a8c-charts-color-tooltip-surface: var(--a8c-charts-color-surface);
+
+	// Rounded rather than the package's square bars.
+	--a8c-charts-border-radius-bar-chart: var(--wpds-border-radius-sm);
 }
 
 // Scoped to their charts: both roles are read by more than the chart that

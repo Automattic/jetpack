@@ -23,8 +23,7 @@ describe( 'LeaderboardSkeleton', () => {
 	} );
 
 	it.each( [
-		// The default matches a chart drawn `withOverlayLabel`, which every widget but
-		// `sales-by-utm` uses.
+		// The default matches a chart drawn `withOverlayLabel`, the `list` variant.
 		[ 'a label and its value on one line by default', undefined, 'skeleton-value', 'skeleton-bar' ],
 		[
 			'the label over its bar for the plain chart',

@@ -105,7 +105,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.55.0",
 		"@wordpress/build": "0.23.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.55.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.5.1",
 		"babel-plugin-polyfill-corejs3": "0.14.0",

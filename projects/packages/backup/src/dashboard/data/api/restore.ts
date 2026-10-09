@@ -39,7 +39,7 @@ export type RestoreStatusResponse = {
 	/** 0–100. */
 	progress: number;
 	rewind_id: string;
-	/** Machine identifier such as `checksum_mismatch`. Never shown to users. */
+	/** Machine identifier such as `checksum_mismatch`. Shown only as the error reference. */
 	error_code: string;
 	message: string;
 };
