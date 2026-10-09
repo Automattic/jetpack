@@ -2,7 +2,6 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
 import { useMemo } from 'react';
-import { config } from '../../config';
 import type { Activity } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -30,8 +29,8 @@ type UseActivityActionsOptions = {
  * links into the Jetpack Cloud Backup restore flow for the row's rewind
  * point (`https://cloud.jetpack.com/backup/{slug}/restore/{rewindId}`)
  * and opens in a new tab. Eligibility requires `activityIsRewindable`,
- * a `rewindId`, a `calypsoSlug` from Initial_State, and a platform that
- * can restore; rows missing any of those don't render the action.
+ * a `rewindId`, and a `calypsoSlug` from Initial_State; rows missing
+ * any of those don't render the action.
  *
  * TEMPORARY: this off-site link is a stop-gap until the Backup wp-admin
  * port (https://github.com/Automattic/jetpack/pull/48236) lands. Once
@@ -55,8 +54,7 @@ export function useActivityActions( {
 			isPrimary: true,
 			label: __( 'Restore backup', 'jetpack-activity-log' ),
 			icon: <Icon icon={ backup } />,
-			isEligible: item =>
-				Boolean( config.canRestore && item.activityIsRewindable && item.rewindId && calypsoSlug ),
+			isEligible: item => Boolean( item.activityIsRewindable && item.rewindId && calypsoSlug ),
 			callback: async items => {
 				const item = items[ 0 ];
 				if ( ! item?.rewindId || ! calypsoSlug ) {

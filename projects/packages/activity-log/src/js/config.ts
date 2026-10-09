@@ -5,7 +5,6 @@
 
 interface RawConfig {
 	apiSource?: string;
-	canRestore?: boolean;
 	wpcomUpgradeUrl?: string;
 	tracksUserData?: TracksUserData | null;
 }
@@ -25,7 +24,6 @@ const raw: RawConfig =
 export const config = {
 	/** `wpcom` calls WordPress.com directly; `jetpack` goes through the site's REST proxy. */
 	apiSource: raw.apiSource === 'wpcom' ? ( 'wpcom' as const ) : ( 'jetpack' as const ),
-	canRestore: raw.canRestore !== false,
 	/** Set when the upgrade is a WordPress.com plan rather than a Jetpack product. */
 	wpcomUpgradeUrl: raw.wpcomUpgradeUrl || '',
 	/** Set when the Jetpack connection can't identify the user, as on Simple. */
