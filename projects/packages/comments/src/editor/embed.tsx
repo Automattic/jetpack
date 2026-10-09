@@ -1,13 +1,7 @@
 /* @jsxImportSource react */
 import { BlockControls, BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { embedContentIcon } from '@wordpress/block-library/build-module/embed/icons.mjs';
-import {
-	createBlock,
-	getBlockType,
-	registerBlockType,
-	type Block,
-	type BlockEditProps,
-} from '@wordpress/blocks';
+import { createBlock, getBlockType, registerBlockType } from '@wordpress/blocks';
 import {
 	Button,
 	Placeholder,
@@ -19,19 +13,11 @@ import {
 } from '@wordpress/components';
 import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import type { EmbedAttributes, EmbedEditProps, EmbedLookup, EmbedPreview } from './types';
 import type { EditorLabels } from '../shared/types';
 import type { ChangeEvent, FormEvent } from 'react';
 
 const NAME = 'core/embed';
-
-type Attributes = { url?: string };
-/** What the preview route answers: core's proxy shape, less the scripts it never fills. */
-type Preview = { html?: string };
-/** What a lookup settled on: data, a URL the site will not embed, or a failure worth retrying. */
-type Lookup = Preview | 'unsupported' | null;
-type EditProps = BlockEditProps< Attributes > & {
-	onReplace: ( blocks: Block | Block[] ) => void;
-};
 
 let labels: EditorLabels;
 // Off on the edit-comment screen, where a provider's markup would share wp-admin's origin and the URL is enough.
@@ -53,10 +39,10 @@ const hostOf = ( url: string ) => {
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
-const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: EditProps ) => {
+const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: EmbedEditProps ) => {
 	const [ draft, setDraft ] = useState( url ?? '' );
 	const [ editing, setEditing ] = useState( ! url );
-	const [ preview, setPreview ] = useState< Preview | null >( null );
+	const [ preview, setPreview ] = useState< EmbedPreview | null >( null );
 	const [ failed, setFailed ] = useState( false );
 	const [ attempt, setAttempt ] = useState( 0 );
 	const [ interactive, setInteractive ] = useState( false );
@@ -78,13 +64,13 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 		const target = new URL( labels.embedUrl, window.location.href );
 		target.searchParams.set( 'url', url );
 		fetch( target.toString(), { credentials: 'omit' } )
-			.then( ( response ): Promise< Lookup > | Lookup => {
+			.then( ( response ): Promise< EmbedLookup > | EmbedLookup => {
 				if ( response.status >= 400 && response.status < 500 && response.status !== 429 ) {
 					return 'unsupported';
 				}
-				return response.ok ? ( response.json() as Promise< Preview > ) : null;
+				return response.ok ? ( response.json() as Promise< EmbedPreview > ) : null;
 			} )
-			.catch( (): Lookup => null )
+			.catch( (): EmbedLookup => null )
 			.then( data => {
 				if ( stale ) {
 					return;
@@ -227,7 +213,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true )
 		return;
 	}
 
-	registerBlockType< Attributes >( NAME, {
+	registerBlockType< EmbedAttributes >( NAME, {
 		title: _x( 'Embed', 'block title', 'default' ),
 		category: 'embed',
 		icon: embedContentIcon,
@@ -252,7 +238,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true )
 				{
 					type: 'block',
 					blocks: [ 'core/paragraph' ],
-					transform: ( { url }: Attributes ) => toParagraph( url ?? '' ),
+					transform: ( { url }: EmbedAttributes ) => toParagraph( url ?? '' ),
 				},
 			],
 		},

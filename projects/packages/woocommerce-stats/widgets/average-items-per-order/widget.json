@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/average-items-per-order",
+	"icon": "jpa/chart-bar",
 	"title": "Average items per order",
 	"description": "Show the average number of products per order over a set period of time.",
 	"help": {

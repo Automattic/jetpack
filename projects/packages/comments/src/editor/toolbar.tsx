@@ -3,9 +3,8 @@ import { BlockControls, store as blockEditorStore } from '@wordpress/block-edito
 import { createBlock, getBlockType, switchToBlockType } from '@wordpress/blocks';
 import { DropdownMenu, Toolbar, ToolbarGroup, ToolbarItem } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import type { ComponentProps } from 'react';
-
-type IconType = ComponentProps< typeof DropdownMenu >[ 'icon' ];
+import type { IconType } from './types';
+import type { EditorLabels } from '../shared/types';
 
 // The blocks a comment offers.
 const names = [ 'core/paragraph', 'core/list', 'core/quote', 'core/code' ];
@@ -31,11 +30,7 @@ const menuItem = ( name: string, onClick: () => void ) => {
 };
 
 // The toolbar across the top, for the selected block and its text.
-export const BlockToolbar = ( {
-	labels,
-}: {
-	labels: { blockTools: string; addBlock: string };
-} ) => {
+export const BlockToolbar = ( { labels }: { labels: EditorLabels } ) => {
 	const { root, index } = useSelect( select => {
 		const { getSelectedBlockClientIds, getBlock, getBlockHierarchyRootClientId, getBlockIndex } =
 			select( blockEditorStore );

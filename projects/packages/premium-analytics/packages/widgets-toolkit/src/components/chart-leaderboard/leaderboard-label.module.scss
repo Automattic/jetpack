@@ -83,6 +83,13 @@
 	white-space: nowrap;
 }
 
+/* The `bars` look lays the label above its bar: nothing to inset from or to
+ * give a height to. */
+.bars {
+	min-block-size: 0;
+	padding-inline: 0;
+}
+
 .rowLink {
 	gap: var(--wpds-dimension-gap-xs);
 }

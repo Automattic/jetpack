@@ -9,6 +9,7 @@ import {
 	ActivityEventIcon,
 	ActivityEventTitle,
 } from './ActivityEvent';
+import { getActorElements } from './actor-elements';
 import type { Activity, ActivityLogGroupCountResponse, ActorSummary } from './types';
 import type { Field, Operator } from '@wordpress/dataviews';
 
@@ -22,6 +23,7 @@ type UseActivityFieldsArgs = {
 	gmtOffset?: number;
 	activityLogTypes?: ActivityLogGroupCountResponse[ 'groups' ] | undefined;
 	actors?: ActorSummary[];
+	isAllAiAgentsActive?: boolean;
 };
 
 /**
@@ -162,12 +164,13 @@ const formatDateCell = ( {
  * isn't already on UTC), the Event cell, the User cell, and the hidden
  * `activity_type` / `actor` fields that power the filter dropdowns.
  *
- * @param args                  - Hook options.
- * @param args.timezoneString   - IANA timezone (e.g. "Europe/London").
- * @param args.gmtOffset        - Decimal hour offset from UTC.
- * @param args.activityLogTypes - Group map from /activity-log/count/group.
- * @param args.actors           - Distinct actors from /activity-log/actors,
- *                              used to populate the "Performed by" dropdown.
+ * @param args                     - Hook options.
+ * @param args.timezoneString      - IANA timezone (e.g. "Europe/London").
+ * @param args.gmtOffset           - Decimal hour offset from UTC.
+ * @param args.activityLogTypes    - Group map from /activity-log/count/group.
+ * @param args.actors              - Distinct actors from /activity-log/actors,
+ *                                 used to populate the "Performed by" dropdown.
+ * @param args.isAllAiAgentsActive - Whether the current filter includes "All AI agents".
  * @return The fields array passed to `<DataViews fields=… />`.
  */
 export function useActivityFields( {
@@ -175,6 +178,7 @@ export function useActivityFields( {
 	gmtOffset,
 	activityLogTypes,
 	actors,
+	isAllAiAgentsActive,
 }: UseActivityFieldsArgs ): Field< Activity >[] {
 	const isLargeScreen = useViewportMatch( 'huge', '>=' );
 	const dateTimeLabel = getDateTimeLabel( { timezoneString, gmtOffset, isLargeScreen } );
@@ -192,19 +196,10 @@ export function useActivityFields( {
 			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 	}, [ activityLogTypes ] );
 
-	const actorElements = useMemo< ActivityLogTypeOption[] >( () => {
-		if ( ! actors || actors.length === 0 ) {
-			return [];
-		}
-		return actors
-			.filter( actor => actor.id )
-			.map( actor => {
-				const name = actor.name || actor.id;
-				const label = typeof actor.count === 'number' ? `${ name } (${ actor.count })` : name;
-				return { value: actor.id, label };
-			} )
-			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
-	}, [ actors ] );
+	const actorElements = useMemo(
+		() => getActorElements( actors, isAllAiAgentsActive ),
+		[ actors, isAllAiAgentsActive ]
+	);
 
 	return useMemo( () => {
 		const fields: Field< Activity >[] = [

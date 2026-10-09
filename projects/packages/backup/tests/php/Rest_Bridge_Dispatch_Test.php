@@ -137,6 +137,29 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'totalPages' => 1,
 				),
 			),
+			'/jetpack/v4/backups/sizes'                   => array(
+				'GET',
+				'/jetpack/v4/backups/sizes',
+				array( 'page' => 2 ),
+				array(
+					array(
+						'body' => '{"ok":true,"totalItems":"102","page":2,"totalPages":2,"itemsPerPage":100,"backups":[{"status":"success","object":{"type":"Backup","backup_type":"backup","backup_stats":"{\"size\":4456295019}","backup_period":"1791312007","backup_size":"4456295019"},"summary":"Backup complete","is_rewindable":true},{"status":"warning","object":{"type":"Backup","backup_period":"1791225607","backup_size":"0"}}]}',
+					),
+				),
+				array(
+					'totalPages' => 2,
+					'backups'    => array(
+						array(
+							'period' => 1791312007,
+							'size'   => 4456295019,
+						),
+						array(
+							'period' => 1791225607,
+							'size'   => 0,
+						),
+					),
+				),
+			),
 			'/jetpack/v4/rewind/backup/ls'                => array(
 				'POST',
 				'/jetpack/v4/rewind/backup/ls',

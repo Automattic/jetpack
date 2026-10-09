@@ -259,10 +259,16 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 					'callback'            => array( $this, 'add_comp' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
+						// Exactly one of user_id / email identifies the subscriber; add_comp()
+						// enforces that, since the schema can't express "one or the other".
 						'user_id'       => array(
-							'type'     => 'integer',
-							'required' => true,
-							'minimum'  => 1,
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'email'         => array(
+							'type'   => 'string',
+							'format' => 'email',
 						),
 						'plan_id'       => array(
 							'type'     => 'integer',
@@ -725,7 +731,11 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	/**
 	 * POST /wpcom/v2/subscribers/comp — issue a complimentary subscription on a paid membership
 	 * product for a single subscriber. Mirrors Calypso's `requestAddComp` thunk, which POSTs to
-	 * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+	 * `/sites/{id}/memberships/comps/{identifier}/{plan_id}`.
+	 *
+	 * The identifier is a wpcom user id, or an email address for a subscriber with no wpcom
+	 * account — WP.com resolves (or creates) an account from the address and links the
+	 * subscriber row. See NL-1033.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -738,18 +748,31 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		$user_id       = (int) $request->get_param( 'user_id' );
+		$email         = (string) $request->get_param( 'email' );
 		$plan_id       = (int) $request->get_param( 'plan_id' );
 		$no_expiration = (bool) $request->get_param( 'no_expiration' );
+
+		if ( ( $user_id && '' !== $email ) || ( ! $user_id && '' === $email ) ) {
+			return new WP_Error(
+				'subscribers_comp_invalid_subscriber',
+				__( 'Provide either a user ID or an email address for the subscriber.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		$body = $no_expiration
 			? wp_json_encode( array( 'no_expiration' => true ), JSON_UNESCAPED_SLASHES )
 			: null;
 
+		// WP.com rawurldecode()s this segment, so an email has to arrive encoded — `%d` would
+		// flatten it to 0.
+		$identifier = $user_id ? (string) $user_id : rawurlencode( $email );
+
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf(
-				'/sites/%d/memberships/comps/%d/%d',
+				'/sites/%d/memberships/comps/%s/%d',
 				(int) $blog_id,
-				$user_id,
+				$identifier,
 				$plan_id
 			),
 			'2',
