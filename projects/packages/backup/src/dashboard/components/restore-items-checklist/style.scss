@@ -1,19 +1,10 @@
-// A `fieldset` laid out like the `div` it replaced; the gap is the card body's.
+// The card body's gap; a fieldset otherwise won't shrink below its content.
 .jpb-restore-checklist {
 	gap: 16px;
 	min-inline-size: 0;
-	margin-block: 0;
-	margin-inline: 0;
-	padding-block: 0;
-	padding-inline: 0;
-	border: 0;
 
 	// `Fieldset.Legend` is an all-caps field label; `Text` restores the rest.
 	&__legend {
 		text-transform: none;
-	}
-
-	&__items {
-		row-gap: 20px;
 	}
 }

@@ -125,7 +125,7 @@ export default function RestoreItemsChecklist( {
 			>
 				{ legend }
 			</Fieldset.Legend>
-			<Stack direction="column" gap="lg" className="jpb-restore-checklist__items">
+			<Stack direction="column" gap="lg">
 				{ ITEMS.map( item => (
 					<ChecklistRow key={ item.key } item={ item } value={ value } onChange={ onChange } />
 				) ) }
