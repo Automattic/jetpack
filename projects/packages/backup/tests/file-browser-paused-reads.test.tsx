@@ -32,6 +32,12 @@ const WP_CONTENT = {
 	'style.css': { type: 'file', period: '1786644531', manifest_path: 'f5:/wp-content/style.css' },
 };
 
+// Ways a background refetch can leave a loaded listing unanswered.
+const UNANSWERED_REFETCH: [ string, () => void ][] = [
+	[ 'parks', () => onlineManager.setOnline( false ) ],
+	[ 'fails', () => mockApiFetch.mockRejectedValue( new Error( 'Service unavailable' ) ) ],
+];
+
 /**
  * Render the browser.
  */
@@ -104,22 +110,25 @@ describe( 'the root tree', () => {
 		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	} );
 
-	// The other half: a parked *refetch* still holds its rows, so reporting it
-	// as unanswered would blank a tree that is on screen and working.
-	it( 'keeps its rows when a refetch parks on a loaded tree', async () => {
-		renderBrowser();
-		await expect(
-			screen.findByRole( 'button', { name: 'Folder: wp-content' } )
-		).resolves.toBeInTheDocument();
+	// The other half: a refetch that parks or fails still holds its rows, so
+	// reporting it as unanswered would blank a tree that is on screen and working.
+	it.each( UNANSWERED_REFETCH )(
+		'keeps its rows when a refetch %s on a loaded tree',
+		async ( _label, leaveUnanswered ) => {
+			renderBrowser();
+			await expect(
+				screen.findByRole( 'button', { name: 'Folder: wp-content' } )
+			).resolves.toBeInTheDocument();
 
-		onlineManager.setOnline( false );
-		await act( async () => {
-			await queryClient.invalidateQueries( { queryKey: keys.fileTree( REWIND_ID, '/' ) } );
-		} );
-		await settle();
+			leaveUnanswered();
+			await act( async () => {
+				await queryClient.invalidateQueries( { queryKey: keys.fileTree( REWIND_ID, '/' ) } );
+			} );
+			await settle();
 
-		expect( screen.getByRole( 'button', { name: 'Folder: wp-content' } ) ).toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'button', { name: 'Folder: wp-content' } ) ).toBeInTheDocument();
+		}
+	);
 } );
 
 describe( 'an expanded folder', () => {
@@ -135,21 +144,40 @@ describe( 'an expanded folder', () => {
 		await expect( screen.findByRole( 'status' ) ).resolves.toBeEmptyDOMElement();
 	} );
 
-	it( 'keeps its children when a refetch parks on a loaded folder', async () => {
+	it.each( UNANSWERED_REFETCH )(
+		'keeps its children when a refetch %s on a loaded folder',
+		async ( _label, leaveUnanswered ) => {
+			renderBrowser();
+			await userEvent.click( await screen.findByRole( 'button', { name: 'Folder: wp-content' } ) );
+			await expect(
+				screen.findByRole( 'button', { name: 'File: style.css' } )
+			).resolves.toBeInTheDocument();
+
+			leaveUnanswered();
+			await act( async () => {
+				await queryClient.invalidateQueries( {
+					queryKey: keys.fileTree( REWIND_ID, '/wp-content' ),
+				} );
+			} );
+			await settle();
+
+			expect( screen.getByRole( 'button', { name: 'File: style.css' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	// `staleTime` is 0 here, so a row subscribed to the root refetches it as it mounts.
+	it( 'does not reread the root listing', async () => {
 		renderBrowser();
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Folder: wp-content' } ) );
 		await expect(
 			screen.findByRole( 'button', { name: 'File: style.css' } )
 		).resolves.toBeInTheDocument();
-
-		onlineManager.setOnline( false );
-		await act( async () => {
-			await queryClient.invalidateQueries( {
-				queryKey: keys.fileTree( REWIND_ID, '/wp-content' ),
-			} );
-		} );
 		await settle();
 
-		expect( screen.getByRole( 'button', { name: 'File: style.css' } ) ).toBeInTheDocument();
+		const rootReads = mockApiFetch.mock.calls.filter(
+			( [ options ] ) => options.data?.path === '/'
+		);
+		expect( rootReads ).toHaveLength( 1 );
 	} );
 } );

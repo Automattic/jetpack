@@ -488,12 +488,9 @@ export default function FileBrowser( {
 			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
 			: 'jpb-file-browser__layout';
 
-	// A failed root tree is indistinguishable from a backup that contains
-	// nothing: `children` is null either way, so the tree renders empty
-	// under a "0 items selected" header that invites the reader to select
-	// from it. Replace the whole browser rather than just the tree — the
-	// selection header is meaningless without a tree to select from.
-	if ( rootsError ) {
+	// A failed root read would render as an empty backup under a header inviting selection, so
+	// replace the whole browser. A failed background refresh still has its rows and keeps the tree.
+	if ( rootsError && ! rootsData ) {
 		return (
 			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
 				<QueryError
@@ -601,10 +598,12 @@ function NodeRow( {
 }: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading, error } = useFileTree(
-		rewindId,
-		open && nodeIsFolder ? node.path : null
-	);
+	// Not `null` for a closed row: that means the root, and every row would refetch it once stale.
+	const { children, isLoading, error } = useFileTree( rewindId, node.path, {
+		enabled: open && nodeIsFolder,
+	} );
+	// A failed refresh of a folder whose children are still cached is not a failed folder.
+	const failed = Boolean( error ) && ! children;
 	const { selected, deselected } = selection;
 
 	// Effective check: own positive > own negative > inherited positive.
@@ -747,7 +746,7 @@ function NodeRow( {
 					 * reader is told the folder contains nothing rather than
 					 * that we couldn't look inside it.
 					 */ }
-					{ ! isLoading && error && (
+					{ ! isLoading && failed && (
 						// `alert` rather than `status`: the reader asked for this
 						// folder and got nothing back, so it is worth interrupting.
 						// Both states are announced because each replaces content the
@@ -778,7 +777,7 @@ function NodeRow( {
 						className="jpb-file-browser__empty"
 						style={ { paddingInlineStart: 44 + depth * 16 } }
 					>
-						{ ! isLoading && ! error && ( children ?? [] ).length === 0
+						{ ! isLoading && ! failed && ( children ?? [] ).length === 0
 							? /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
 								__( 'Empty', 'jetpack-backup-pkg' )
 							: '' }
