@@ -34,6 +34,8 @@ export const Textarea = () => {
 			setEditor( 'loading' );
 			loadEditor()
 				.then( ( { mountEditor } ) => {
+					// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
+					setEditor( 'ready' );
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
 						labels,
@@ -43,7 +45,6 @@ export const Textarea = () => {
 						onChange: content => ( commentValue.value = content ),
 						onError: () => setEditor( 'failed' ),
 					} );
-					setEditor( 'ready' );
 				} )
 				.catch( () => setEditor( 'failed' ) );
 		},
