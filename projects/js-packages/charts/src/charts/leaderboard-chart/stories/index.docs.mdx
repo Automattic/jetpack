@@ -212,6 +212,10 @@ Any entry with an `onClick` field becomes a clickable, keyboard-accessible row. 
 
 By default the button's accessible name is derived from its rendered content (the label plus the formatted value). For an image-only JSX label whose text content doesn't yield a clean name, set the optional `ariaLabel` field on the entry to give assistive tech a deterministic name.
 
+A label can't hold its own link or button inside the row button, since interactive elements can't be nested. For a row that needs both, set `hasInteractiveLabel: true` with `onClick` and a required `ariaLabel`. The row button then sits behind the row's cells and wraps no text, so it takes its name only from `ariaLabel`; the label's links and buttons sit above it and stay clickable, and Tab reaches them before the row button:
+
+<Canvas of={ LeaderboardChartStories.InteractiveLabel } />
+
 Configuring what happens on click — for example, drilling down into a sub-view — is the consumer's responsibility, not the chart's:
 
 <Canvas of={ LeaderboardChartStories.Interactive } />
@@ -607,6 +611,7 @@ The Leaderboard Chart component supports an optional entry animation that create
 - Legend items can be toggled via keyboard using standard button interaction.
 - Rows with `onClick` render as native `<button>` elements and are activatable with Enter or Space.
 - An interactive row's accessible name comes from its content (label + value); set the entry's `ariaLabel` to override it for image-only labels.
+- A row with `hasInteractiveLabel` takes its name only from the required `ariaLabel`, and its label's links come before the row button in tab order.
 
 ### Screen Reader Support
 

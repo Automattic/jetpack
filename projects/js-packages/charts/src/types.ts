@@ -191,7 +191,7 @@ export type DataPointDate = {
 	color?: string;
 };
 
-export type LeaderboardEntry = {
+type LeaderboardEntryFields = {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
 	 */
@@ -245,7 +245,8 @@ export type LeaderboardEntry = {
 	 * For links or other interactive affordances (external-link icons, info
 	 * tooltips), put them in the `label` render prop instead of using onClick —
 	 * a row is either a button (onClick) or carries interactive label content,
-	 * never both, since interactive elements cannot be nested in HTML.
+	 * never both, since interactive elements cannot be nested in HTML. The
+	 * exception is a row that sets `hasInteractiveLabel`.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
@@ -260,6 +261,21 @@ export type LeaderboardEntry = {
 	 */
 	ariaLabel?: string;
 };
+
+export type LeaderboardEntry = LeaderboardEntryFields &
+	(
+		| { hasInteractiveLabel?: false }
+		| {
+				/**
+				 * Set when the `label` holds its own link or button. The row's button
+				 * then sits behind the row instead of around it, so both stay operable.
+				 * Requires `onClick`, and `ariaLabel` since the button wraps no text.
+				 */
+				hasInteractiveLabel: true;
+				onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+				ariaLabel: string;
+		  }
+	);
 
 export type GradientStop = {
 	offset: string;

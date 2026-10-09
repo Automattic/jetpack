@@ -547,6 +547,59 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
 		} );
 
+		it( 'keeps a label link beside the row button, not inside it, when the label is interactive', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <a href="/author/1">Author</a>,
+							onClick,
+							ariaLabel: 'View posts by Author',
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+
+			const button = screen.getByRole( 'button', { name: 'View posts by Author' } );
+			const link = screen.getByRole( 'link', { name: 'Author' } );
+			link.addEventListener( 'click', event => event.preventDefault() );
+			expect( button ).not.toContainElement( link );
+
+			await user.click( button );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+			await user.click( link );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+			// A value tooltip takes pointer events above the button; its click still drills down.
+			await user.click( screen.getByText( '12.5K' ) );
+			expect( onClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it( 'tabs to the label link before the row button when the label is interactive', async () => {
+			const user = userEvent.setup();
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <a href="/author/1">Author</a>,
+							onClick: jest.fn(),
+							ariaLabel: 'View posts by Author',
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+
+			await user.tab();
+			expect( screen.getByRole( 'link', { name: 'Author' } ) ).toHaveFocus();
+			await user.tab();
+			expect( screen.getByRole( 'button', { name: 'View posts by Author' } ) ).toHaveFocus();
+		} );
+
 		it( 'calls onClick when the row is clicked', async () => {
 			const user = userEvent.setup();
 			const onClick = jest.fn();
