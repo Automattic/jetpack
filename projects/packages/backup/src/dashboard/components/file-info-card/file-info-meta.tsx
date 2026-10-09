@@ -1,5 +1,6 @@
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import { formatFileSize } from '../../hooks/use-path-info';
 
 /**
@@ -27,7 +28,7 @@ export default function FileInfoMeta( {
 	// `dir` on a span, not the `<dd>`: isolating the value there would flip the
 	// row's `text-align: start` inside an RTL panel.
 	return (
-		<dl className="jpb-file-info__meta">
+		<Text variant="body-sm" render={ <dl className="jpb-file-info__meta" /> }>
 			{ modified && (
 				<div>
 					<dt>{ __( 'Modified:', 'jetpack-backup-pkg' ) }</dt>
@@ -56,6 +57,6 @@ export default function FileInfoMeta( {
 					</dd>
 				</div>
 			) }
-		</dl>
+		</Text>
 	);
 }
