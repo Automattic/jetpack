@@ -1,4 +1,4 @@
-import { currentUserCan } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import {
 	PeriodChangeSignalProvider,
 	queryClient,
@@ -40,6 +40,7 @@ import {
 	onboardingTourSteps,
 	RefreshFailureNotice,
 	SectionSyncNotice,
+	StatsSettingsPanel,
 } from './components';
 import {
 	buildWidgetTypeRenames,
@@ -49,6 +50,7 @@ import {
 	offersDateComparison,
 	resolveSectionHeading,
 	resolveSectionId,
+	SETTINGS_SECTION,
 } from './config';
 import {
 	useActiveSection,
@@ -66,6 +68,9 @@ import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 import type { JSX } from 'react';
 
+const SETTINGS_TAB_SLUGS = [ SETTINGS_SECTION ];
+const NO_TAB_SLUGS: string[] = [];
+
 /**
  * Premium Analytics dashboard page stage component.
  *
@@ -73,20 +78,31 @@ import type { JSX } from 'react';
  */
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection( sections );
+	const [ editMode, setEditMode ] = useState( false );
+	// Present only for users who can manage the settings, on sites where the dashboard owns them.
+	const hasSettingsTab = !! getScriptData()?.premium_analytics?.stats_settings;
+	// Disabled while customizing, since a layout is arranged on a widget section.
+	const [ activeSection, setActiveSection ] = useActiveSection(
+		sections,
+		hasSettingsTab && ! editMode ? SETTINGS_TAB_SLUGS : NO_TAB_SLUGS
+	);
+	const isSettingsActive = activeSection === SETTINGS_SECTION;
+	// The Settings tab has no layout of its own, and `WidgetDashboard` opens Customize over an
+	// empty one, so the first section's layout and date state stay in place behind it.
+	const widgetSection = isSettingsActive ? resolveSectionId( undefined, sections ) : activeSection;
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
 		() => buildWidgetTypeRenames( widgetModules ),
 		[ widgetModules ]
 	);
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
-		activeSection,
+		widgetSection,
 		sections,
 		widgetTypeRenames
 	);
 	const [ gridSettings ] = useDashboardGridSettings();
 
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	const activeSectionRecord = sections.find( section => section.slug === widgetSection );
 
 	/**
 	 * The widget types the inserter offers, for now, are:
@@ -97,7 +113,15 @@ function Dashboard(): JSX.Element {
 		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
 		[ activeSectionRecord ]
 	);
-	const canPerform = useDashboardPolicy( { insertableWidgetTypes } );
+	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
+	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
+	const canPerform = useMemo< typeof dashboardPolicy >(
+		() =>
+			isSettingsActive
+				? request => request.operation !== 'customize' && dashboardPolicy( request )
+				: dashboardPolicy,
+		[ dashboardPolicy, isSettingsActive ]
+	);
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -135,8 +159,7 @@ function Dashboard(): JSX.Element {
 
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
-	const [ editMode, setEditMode ] = useState( false );
-	const trackCustomize = useTrackCustomize( 'dashboard', activeSection );
+	const trackCustomize = useTrackCustomize( 'dashboard', widgetSection );
 	// Every way into and out of edit mode arrives here: the menu below, the command
 	// palette, an empty layout, and the dashboard's own Cancel and Done.
 	const onEditChange = useCallback(
@@ -222,9 +245,12 @@ function Dashboard(): JSX.Element {
 	// A widget can set the period, here or on another section (WOOA7S-2036); once
 	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
-		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
+		showHeaderDateControl &&
+		! editMode &&
+		! isSettingsActive &&
+		dateFilterSurface !== DATE_FILTER_YEAR;
 	const { openPeriod, attentionId } = usePeriodHost(
-		activeSection,
+		widgetSection,
 		dateFilters.appliedRange,
 		showsPeriodControl
 	);
@@ -238,7 +264,7 @@ function Dashboard(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
+		{ surface: 'dashboard', section: widgetSection, offersComparison: showComparison }
 	);
 	const { onChange: rememberOnChange, onApply: rememberOnApply } = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
@@ -376,7 +402,9 @@ function Dashboard(): JSX.Element {
 										</>
 									) }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
+										<PageOptionsMenu
+											onCustomize={ editMode || isSettingsActive ? undefined : startCustomizing }
+										/>
 									</Stack>
 								</Stack>
 							}
@@ -384,6 +412,8 @@ function Dashboard(): JSX.Element {
 						>
 							<DashboardSections
 								sections={ sections }
+								withSettingsTab={ hasSettingsTab }
+								isSettingsTabDisabled={ editMode }
 								value={ activeSection }
 								onChange={ setActiveSection }
 							>
@@ -436,6 +466,14 @@ function Dashboard(): JSX.Element {
 										) : null }
 									</SectionTabPanel>
 								) ) }
+
+								{ hasSettingsTab && (
+									<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
+										<div className={ styles.body }>
+											<StatsSettingsPanel />
+										</div>
+									</SectionTabPanel>
+								) }
 							</DashboardSections>
 
 							<WidgetDashboard.Commands />

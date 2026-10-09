@@ -27,6 +27,13 @@ final class Dashboard_Section_Registry {
 	const REGISTER_ACTION = 'jetpack_premium_analytics_register_dashboard_sections';
 
 	/**
+	 * Slugs the dashboard stage uses for its own tabs, which a section may not take.
+	 *
+	 * @var string[]
+	 */
+	private const RESERVED_SLUGS = array( 'settings' );
+
+	/**
 	 * Registered sections, as `$dashboard_name => $id => $section` pairs.
 	 *
 	 * @var array<string, Dashboard_Section[]>
@@ -102,6 +109,13 @@ final class Dashboard_Section_Registry {
 			);
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
 			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.9.0' );
+			return false;
+		}
+
+		if ( in_array( $section->slug, self::RESERVED_SLUGS, true ) ) {
+			/* translators: %s: Section slug. */
+			$message = sprintf( __( 'Dashboard section slug "%s" is reserved for the dashboard.', 'jetpack-premium-analytics-pkg' ), $section->slug );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
 			return false;
 		}
 

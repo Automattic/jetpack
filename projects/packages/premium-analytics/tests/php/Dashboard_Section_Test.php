@@ -666,6 +666,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The dashboard stage draws its own Settings tab at the `settings` slug.
+	 */
+	public function test_register_rejects_the_settings_slug() {
+		$this->capture_doing_it_wrong();
+
+		$section = register_dashboard_section( 'slug_dashboard', 'example/settings', array( 'label' => 'Settings' ) );
+
+		$this->assertFalse( $section );
+		$this->assertSame( array( Dashboard_Section_Registry::class . '::register' ), $this->doing_it_wrong );
+	}
+
+	/**
 	 * Non-array section arguments are ignored and defaults are retained.
 	 */
 	public function test_section_ignores_non_array_args() {
