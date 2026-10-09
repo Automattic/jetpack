@@ -155,6 +155,46 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Whether the plugin is active, and the state a threat in it reports.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_plugin_state() {
+		return array(
+			'active plugin'   => array( true, 'active' ),
+			'inactive plugin' => array( false, 'inactive' ),
+		);
+	}
+
+	/**
+	 * Test that a plugin threat says whether the plugin is active.
+	 *
+	 * @dataProvider provider_plugin_state
+	 * @param bool   $is_active Whether the plugin is active.
+	 * @param string $expected  The expected state.
+	 */
+	#[DataProvider( 'provider_plugin_state' )]
+	public function test_plugin_state( $is_active, $expected ) {
+		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
+		wp_mkdir_p( WP_PLUGIN_DIR );
+		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_clean_plugins_cache( false );
+		update_option( 'active_plugins', $is_active ? array( 'protect-state-test.php' ) : array() );
+
+		$threat = Dashboard_Threats::format(
+			(object) array(
+				'extension' => (object) array(
+					'slug' => 'protect-state-test',
+					'type' => 'plugin',
+				),
+			)
+		);
+		wp_delete_file( $file );
+
+		$this->assertSame( $expected, $threat['extension']['state'] );
+	}
+
+	/**
 	 * Test format().
 	 *
 	 * @dataProvider provider_format

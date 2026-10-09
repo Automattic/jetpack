@@ -57,6 +57,7 @@ class Dashboard_Threats {
 				'version' => $extension->version ?? null,
 				'type'    => $type,
 				'icon'    => 'plugins' === $type ? self::get_plugin_icon( $site, $slug ) : ( $theme && $theme->get_screenshot() ? $theme->get_screenshot() : null ),
+				'state'   => self::get_state( $type, $file, $theme ),
 				'actions' => self::get_actions( $site, $type, $slug, $file, $theme ),
 			) : null,
 		);
@@ -137,6 +138,27 @@ class Dashboard_Threats {
 			);
 		}
 		return $formatted;
+	}
+
+	/**
+	 * Whether the affected plugin or theme is in use.
+	 *
+	 * @param string|null    $type  The plural extension type.
+	 * @param string|null    $file  The installed plugin's file, for a plugin.
+	 * @param \WP_Theme|null $theme The installed theme, for a theme.
+	 * @return string|null `active`, `inactive`, or `parent` for the active theme's parent; null when it isn't installed.
+	 */
+	private static function get_state( $type, $file, $theme ) {
+		if ( 'plugins' === $type && $file ) {
+			return is_plugin_active( $file ) ? 'active' : 'inactive';
+		}
+		if ( 'themes' === $type && $theme ) {
+			if ( get_stylesheet() === $theme->get_stylesheet() ) {
+				return 'active';
+			}
+			return get_template() === $theme->get_stylesheet() ? 'parent' : 'inactive';
+		}
+		return null;
 	}
 
 	/**

@@ -31,6 +31,34 @@ function SeverityBadge( { severity = 0 }: { severity?: number } ) {
 }
 
 /**
+ * Whether the plugin or theme the threat is in is in use, as a badge.
+ *
+ * @param props        - Component props.
+ * @param props.threat - The threat.
+ * @return The badge, or null when the threat isn't in an installed plugin or theme.
+ */
+function StateBadge( { threat }: { threat: ScanThreat } ) {
+	const { type, state } = threat.extension ?? {};
+	const isTheme = type === 'themes';
+	if ( ! state || ( ! isTheme && type !== 'plugins' ) ) {
+		return null;
+	}
+	let label: string;
+	if ( state === 'parent' ) {
+		label = __( 'Parent of active theme', 'jetpack-protect-pkg' );
+	} else if ( state === 'active' ) {
+		label = isTheme
+			? __( 'Active theme', 'jetpack-protect-pkg' )
+			: __( 'Active plugin', 'jetpack-protect-pkg' );
+	} else {
+		label = isTheme
+			? __( 'Inactive theme', 'jetpack-protect-pkg' )
+			: __( 'Inactive plugin', 'jetpack-protect-pkg' );
+	}
+	return <Badge intent={ state === 'inactive' ? 'draft' : 'informational' }>{ label }</Badge>;
+}
+
+/**
  * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice.
  *
  * @param threat - The threat.
@@ -227,6 +255,7 @@ export default function ThreatDetails( {
 				</Text>
 				<Stack direction="row" gap="xs" wrap="wrap">
 					<SeverityBadge severity={ threat.severity } />
+					{ threat.status !== 'fixed' && <StateBadge threat={ threat } /> }
 					{ threat.status === 'ignored' && (
 						<Badge intent="informational">{ __( 'Ignored', 'jetpack-protect-pkg' ) }</Badge>
 					) }
