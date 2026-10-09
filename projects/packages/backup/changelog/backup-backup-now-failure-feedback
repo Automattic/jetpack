@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
-Comment: The modernized dashboard, behind a feature flag, now explains a failed Back up now in a notice and keeps the button focused.
+Comment: The modernized dashboard, behind a feature flag, now announces a failed Back up now to screen readers and keeps the button focused.
 
