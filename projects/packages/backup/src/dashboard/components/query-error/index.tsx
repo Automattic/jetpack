@@ -29,6 +29,8 @@ type Props = {
 	isRetrying?: boolean;
 	/** Where focus goes if the notice goes away while holding it, as after a successful retry. */
 	returnFocusTo?: RefObject< HTMLElement | null >;
+	/** Shown but not spoken, for a notice that restates one already announced beside it. */
+	silent?: boolean;
 	/**
 	 * Extra class for the notice, which has no margin of its own; a caller
 	 * in ordinary flow adds its own spacing.
@@ -63,6 +65,7 @@ type Props = {
  * @param props.onRetry       - Refetches the failed query, when the caller can.
  * @param props.isRetrying    - Whether a retry is currently in flight.
  * @param props.returnFocusTo - Where focus goes if the notice goes away while holding it.
+ * @param props.silent        - Whether to leave the notice unannounced.
  * @param props.className     - Extra class for the notice.
  * @return The rendered error.
  */
@@ -73,6 +76,7 @@ export default function QueryError( {
 	onRetry,
 	isRetrying = false,
 	returnFocusTo,
+	silent = false,
 	className,
 }: Props ) {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
@@ -83,17 +87,23 @@ export default function QueryError( {
 
 	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
 	useEffect( () => {
-		if ( previous.current.isRetrying && ! isRetrying && previous.current.message === message ) {
+		if (
+			! silent &&
+			previous.current.isRetrying &&
+			! isRetrying &&
+			previous.current.message === message
+		) {
 			speak( message, 'assertive' );
 		}
 		previous.current = { isRetrying, message };
-	}, [ isRetrying, message ] );
+	}, [ isRetrying, message, silent ] );
 
 	return (
 		<Notice.Root
 			ref={ rootRef }
 			intent="error"
-			spokenMessage={ message }
+			// `null`, not `undefined`: an omitted message falls back to speaking the children.
+			spokenMessage={ silent ? null : message }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
 			<Notice.Title>{ title }</Notice.Title>

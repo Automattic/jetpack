@@ -203,6 +203,9 @@ export default function StorageAddonUpsell( {
 		return null;
 	}
 
+	// Without the size, which arrives later: a changed message would be announced a second time.
+	const spoken = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, null );
+
 	// Priced or no link: a slug missing from the catalogue arrives with an empty pricing block.
 	const href =
 		slug !== null && monthlyPrice !== null && currencyCode !== null && site !== undefined
@@ -216,7 +219,7 @@ export default function StorageAddonUpsell( {
 			ref={ noticeRef }
 			intent={ isWarning ? 'warning' : 'error' }
 			className="jpb-storage-notice"
-			spokenMessage={ [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) }
+			spokenMessage={ [ spoken?.title, spoken?.body ].filter( Boolean ).join( ' ' ) }
 		>
 			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>

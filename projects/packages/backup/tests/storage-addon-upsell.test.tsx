@@ -22,10 +22,16 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
 // Imports must come after the jest.mock factories above.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import { useRef, useState } from 'react';
 import RealStorageSpace, { StorageNotice } from '../src/dashboard/components/storage-space';
 import { useStorageAddonOffer } from '../src/dashboard/hooks/use-storage-addon-offer';
@@ -175,6 +181,7 @@ async function settle(): Promise< void > {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockRecordEvent.mockReset();
+	( speak as jest.Mock ).mockClear();
 	mockEndpoints();
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
@@ -257,6 +264,17 @@ describe( 'when the upsell appears', () => {
 		expect(
 			screen.getByText( /Upgrade to add additional 100GB of storage\./, { ignore: SPEECH } )
 		).toBeInTheDocument();
+	} );
+
+	it( 'announces the warning once, though the add-on size arrives after it', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		await expect( offerLink() ).resolves.toBeInTheDocument();
+		await settle();
+		const spoken = ( speak as jest.Mock ).mock.calls.filter( ( [ text ] ) =>
+			text.startsWith( 'You are close to reaching your storage limit' )
+		);
+		expect( spoken ).toHaveLength( 1 );
 	} );
 
 	it( 'still warns when the offer never arrives', async () => {

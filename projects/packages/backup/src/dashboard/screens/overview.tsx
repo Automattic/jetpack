@@ -24,7 +24,7 @@ import {
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
 import { useAnalytics } from '../hooks/use-analytics';
-import { failedAttemptReference, useBackups } from '../hooks/use-backups';
+import { failedAttemptReference, isUsableBackup, useBackups } from '../hooks/use-backups';
 import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
@@ -215,7 +215,11 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	const finishedRuns = useRefreshActivityOnBackupComplete( backupsState, isBackupRequested );
+	const finishedRuns = useRefreshActivityOnBackupComplete(
+		backupsState,
+		isBackupRequested,
+		backups.find( isUsableBackup )?.id ?? null
+	);
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -457,8 +461,9 @@ function RightPane( {
 				 * Neither the upstream reason nor a retry: the list beside this pane
 				 * reports the activity feed's failure with both, and a second copy of
 				 * each is two error notices and two buttons for one thing to fix.
+				 * Silent too: it mounts with the list's notice, and the later `speak()` would win.
 				 */ }
-				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
+				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } silent />
 			</div>
 		);
 	}

@@ -179,7 +179,7 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		expect( view.getByRole( 'region', { name: PAGE } ) ).toHaveFocus();
 	} );
 
-	it( 'still shows a plain spinner on the very first load', async () => {
+	it( 'still shows the loading state on the very first load', async () => {
 		// The loading branch is first-load-only now, so it must still fire
 		// when there is genuinely nothing to show yet.
 		const pending = deferred< unknown >();
@@ -187,6 +187,7 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 
 		const view = within( renderGate() );
 
+		expect( view.getByText( 'Loading your backup details…' ) ).toBeInTheDocument();
 		expect( view.queryByText( ERROR_SCREEN ) ).not.toBeInTheDocument();
 		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
 
