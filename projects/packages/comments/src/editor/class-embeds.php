@@ -16,8 +16,9 @@ use WP_REST_Server;
 
 /**
  * The embed block in a comment: a URL from a provider core trusts, previewed through an open
- * route and drawn through core's embed cache. Discovery is off at every step, so the only
- * requests that leave go to a provider's own endpoint, never to an address a commenter typed.
+ * route and drawn through core's embed cache, without the provider's script. Discovery is off at
+ * every step, so the only requests that leave go to a provider's own endpoint, never to an
+ * address a commenter typed.
  *
  * The route is `wpcom/v2`, registered as the identity routes are, so one definition is
  * same-origin on self-hosted and Atomic and served through public-api on Simple.
@@ -176,13 +177,66 @@ class Embeds extends WP_REST_Controller {
 	 * The oEmbed data as a response the browser and any cache between may keep: it is the same for every visitor.
 	 *
 	 * @param object $data The oEmbed data.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	private static function respond( $data ) {
+		// The editor would hand each entry to SandBox as a script of its own.
+		unset( $data->scripts );
+		$data->html = self::sanitize_html( $data->html ?? '' );
+
+		// No player or photo to show, so the comment will hold the link. Say so now.
+		if ( '' === $data->html ) {
+			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
+		}
+
 		$response = new WP_REST_Response( $data );
 		$response->header( 'Cache-Control', 'public, max-age=' . HOUR_IN_SECONDS );
 
 		return $response;
+	}
+
+	/**
+	 * A provider's player or photo, rebuilt as a bare iframe or img, or '' when it sent neither. Nothing else of
+	 * its HTML is kept, so no script or inline handler runs first-party for every reader on a commenter's say-so.
+	 *
+	 * @param mixed $html What the provider sent.
+	 * @return string
+	 */
+	public static function sanitize_html( $html ) {
+		if ( ! is_string( $html ) ) {
+			return '';
+		}
+
+		$kept = array(
+			'IFRAME' => array( 'width', 'height', 'title', 'allow', 'allowfullscreen', 'frameborder', 'loading', 'referrerpolicy', 'sandbox' ),
+			'IMG'    => array( 'width', 'height', 'alt' ),
+		);
+
+		$sent = new \WP_HTML_Tag_Processor( $html );
+		while ( $sent->next_tag() ) {
+			$name = (string) $sent->get_tag();
+			$src  = $sent->get_attribute( 'src' );
+			$src  = is_string( $src ) ? esc_url_raw( str_starts_with( $src, '//' ) ? 'https:' . $src : $src ) : '';
+
+			if ( ! isset( $kept[ $name ] ) || 'https' !== wp_parse_url( $src, PHP_URL_SCHEME ) ) {
+				continue;
+			}
+
+			// A tag of our own, so only the attributes listed above come along.
+			$tag = new \WP_HTML_Tag_Processor( 'IFRAME' === $name ? '<iframe></iframe>' : '<img>' );
+			$tag->next_tag();
+			$tag->set_attribute( 'src', $src );
+			foreach ( $kept[ $name ] as $attribute ) {
+				$value = $sent->get_attribute( $attribute );
+				if ( null !== $value ) {
+					$tag->set_attribute( $attribute, $value );
+				}
+			}
+
+			return $tag->get_updated_html();
+		}
+
+		return '';
 	}
 
 	/**
@@ -230,19 +284,7 @@ class Embeds extends WP_REST_Controller {
 			$link = esc_url_raw( $raw, array( 'http', 'https' ) );
 			$text = $link ? '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' : esc_html( $raw );
 
-			if ( '' === $text ) {
-				return null;
-			}
-
-			$html = "\n<p>$text</p>\n";
-
-			return array(
-				'blockName'    => 'core/paragraph',
-				'attrs'        => array(),
-				'innerBlocks'  => array(),
-				'innerHTML'    => $html,
-				'innerContent' => array( $html ),
-			);
+			return '' === $text ? null : Block_Editor::paragraph( $text );
 		}
 
 		if ( null === $render ) {
@@ -260,7 +302,7 @@ class Embeds extends WP_REST_Controller {
 				$wp_embed->return_false_on_fail = true;
 				add_filter( 'embed_oembed_discover', '__return_false', 999 );
 
-				$content = $wp_embed->shortcode( array(), $url );
+				$content = self::sanitize_html( $wp_embed->shortcode( array(), $url ) );
 
 				remove_filter( 'embed_oembed_discover', '__return_false', 999 );
 				$wp_embed->return_false_on_fail = $on_fail;
@@ -270,6 +312,18 @@ class Embeds extends WP_REST_Controller {
 				$content = '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( $url ) . '</a>';
 			} else {
 				wp_enqueue_style( 'wp-block-embed' );
+
+				// Providers size the frame to the post's content width, wider than a nested comment.
+				$tags = new \WP_HTML_Tag_Processor( $content );
+				while ( $tags->next_tag( 'iframe' ) ) {
+					// Pixels only: Spotify sends width="100%", which is no ratio.
+					$width  = (string) $tags->get_attribute( 'width' );
+					$height = (string) $tags->get_attribute( 'height' );
+					$ratio  = ctype_digit( $width ) && ctype_digit( $height ) && (int) $width && (int) $height ? "aspect-ratio:$width/$height;height:auto;" : '';
+					$style  = $tags->get_attribute( 'style' );
+					$tags->set_attribute( 'style', "max-width:100%;$ratio" . ( is_string( $style ) ? $style : '' ) );
+				}
+				$content = $tags->get_updated_html();
 			}
 		}
 

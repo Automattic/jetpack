@@ -13,7 +13,7 @@ import type { ReactElement } from 'react';
 type ChartAttributes = { chartType?: string };
 
 // `Option` carries no `icon`, so the icon-bearing fixtures name their own
-// shape, the way `chartTypeAttributeField` builds its elements.
+// shape, the way the toolkit's `CHART_TYPE_ELEMENTS` are built.
 type IconOption = Option & { icon: ReactElement };
 
 const ICON = <svg />;

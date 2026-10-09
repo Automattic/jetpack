@@ -80,6 +80,18 @@ add_filter( 'jetpack_feature_flag_enabled_paypal-payments-api-managed-buttons', 
 
 On WordPress.com Simple and Atomic, Automatticians can flip it under **Tools → Feature Flags**.
 
+### Connecting the sandbox
+
+The connection wizard offers the PayPal sandbox only while the `paypal-payments-sandbox` flag is on, also off by default. Off, a disconnected site connects to production whatever its stored environment says; a site already connected to the sandbox stays connected. Turn it on the same way:
+
+```bash
+wp companion feature-flag enable paypal-payments-sandbox
+```
+
+```php
+add_filter( 'jetpack_feature_flag_enabled_paypal-payments-sandbox', '__return_true' );
+```
+
 ## Options and Transients
 
 | Key | Kind | Holds |

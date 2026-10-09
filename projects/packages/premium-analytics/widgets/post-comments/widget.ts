@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { comment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -15,7 +14,6 @@ export type PostCommentsAttributes = Record< never, never >;
  * card. The list is a lifetime roster and is not date-scoped.
  */
 export default {
-	icon: comment,
 	attributes: [] as WidgetAttributeField< PostCommentsAttributes >[],
 	example: {
 		attributes: {},

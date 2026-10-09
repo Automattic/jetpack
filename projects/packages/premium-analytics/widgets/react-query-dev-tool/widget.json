@@ -1,5 +1,6 @@
 {
 	"name": "jpa/react-query-dev-tool",
+	"icon": "jpa/bug",
 	"title": "React Query Devtools",
 	"description": "Inspect the dashboard's React Query cache. Available outside production only.",
 	"category": "developer",

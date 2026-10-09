@@ -30,7 +30,7 @@ import './prompt.scss';
  * Types
  */
 import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.ts';
-import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
+import type { ClipboardEvent, InputEvent, KeyboardEvent } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
@@ -57,8 +57,8 @@ export const AiModalPromptInput = ( {
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
 
-	const onPromptInput = ( event: ChangeEvent< HTMLInputElement > ) => {
-		setPrompt( event.target.textContent || '' );
+	const onPromptInput = ( event: InputEvent< HTMLInputElement > ) => {
+		setPrompt( ( event.target as HTMLInputElement ).textContent || '' );
 	};
 
 	const onPromptPaste = ( event: ClipboardEvent< HTMLInputElement > ) => {

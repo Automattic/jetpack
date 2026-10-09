@@ -1,5 +1,6 @@
 {
 	"name": "jpa/author-performance",
+	"icon": "jpa/seen",
 	"title": "Author performance",
 	"description": "Views, likes and comments for the author being viewed over the selected period.",
 	"help": {

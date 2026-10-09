@@ -35,10 +35,10 @@ describe( 'ManageConnectionsModal', () => {
 		// some via timers) so no state update escapes act.
 		await act( async () => {
 			await Promise.resolve();
-			jest.runAllTimers();
+			await jest.runAllTimersAsync();
 		} );
 		await act( async () => {
-			jest.runAllTimers();
+			await jest.runAllTimersAsync();
 		} );
 	};
 

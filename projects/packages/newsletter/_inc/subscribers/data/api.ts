@@ -228,16 +228,21 @@ export function fetchMembershipsProducts(): Promise< MembershipsProduct[] > {
 /**
  * Issue a complimentary subscription for a single subscriber on a chosen paid plan, mirroring
  * Calypso's `requestAddComp`. Server-side proxies to
- * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+ * `/sites/{id}/memberships/comps/{identifier}/{plan_id}`.
+ *
+ * Exactly one of `user_id` / `email` identifies the subscriber. Email-only readers have no wpcom
+ * account, so WP.com resolves (or creates) one from the address and links the subscriber row.
  *
  * @param payload               - Comp parameters.
  * @param payload.user_id       - WPCOM user id of the subscriber.
+ * @param payload.email         - Email address, for subscribers with no wpcom account.
  * @param payload.plan_id       - Membership product id to comp.
  * @param payload.no_expiration - Whether the comp should never expire.
  * @return Raw WP.com response.
  */
 export function addComp( payload: {
-	user_id: number;
+	user_id?: number;
+	email?: string;
 	plan_id: number;
 	no_expiration?: boolean;
 } ): Promise< { id?: number; message?: string } > {

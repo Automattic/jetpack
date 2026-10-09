@@ -2,6 +2,8 @@ import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, unseen } from '@wordpress/icons';
 import { Button, Stack, Text } from '@wordpress/ui';
+import { errorCode } from '../../data/api/_helpers';
+import ErrorReference from '../error-reference';
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
@@ -11,6 +13,7 @@ import { Button, Stack, Text } from '@wordpress/ui';
  * specific enough to blame.
  *
  * @param props                - Component props.
+ * @param props.previewable    - Whether the file type can be previewed at all; picks the reveal button's label.
  * @param props.awaitingReveal - Whether the file holds secrets the reader has not asked for yet.
  * @param props.onReveal       - Called when the reader asks for the hidden preview.
  * @param props.showPreview    - Whether the filename's extension is in the previewable map.
@@ -23,6 +26,7 @@ import { Button, Stack, Text } from '@wordpress/ui';
  */
 export default function PreviewBody( {
 	awaitingReveal,
+	previewable,
 	onReveal,
 	showPreview,
 	isLoading,
@@ -32,6 +36,7 @@ export default function PreviewBody( {
 	error,
 }: {
 	awaitingReveal: boolean;
+	previewable: boolean;
 	onReveal: () => void;
 	showPreview: boolean;
 	isLoading: boolean;
@@ -43,16 +48,18 @@ export default function PreviewBody( {
 	// Ahead of `showPreview`, which the gate holds false until the reveal.
 	if ( awaitingReveal ) {
 		return (
-			<Stack direction="column" align="center" gap="xs">
+			<Stack direction="column" align="center" gap="lg" className="jpb-file-info__sensitive">
 				<Icon icon={ unseen } />
-				<Text variant="body-sm" render={ <p /> }>
+				<Text variant="body-sm" className="jpb-text-muted" render={ <p /> }>
 					{ __(
-						'This preview is hidden because it contains sensitive information.',
+						'The preview is hidden because it contains sensitive information.',
 						'jetpack-backup-pkg'
 					) }
 				</Text>
 				<Button variant="outline" size="compact" onClick={ onReveal }>
-					{ __( 'Show preview', 'jetpack-backup-pkg' ) }
+					{ previewable
+						? __( 'Show preview', 'jetpack-backup-pkg' )
+						: __( 'Show download', 'jetpack-backup-pkg' ) }
 				</Button>
 			</Stack>
 		);
@@ -76,9 +83,12 @@ export default function PreviewBody( {
 	}
 	if ( error ) {
 		return (
-			<Text variant="body-sm" className="jpb-text-muted">
-				{ __( 'Preview could not be loaded for this file.', 'jetpack-backup-pkg' ) }
-			</Text>
+			<Stack direction="column" gap="xs">
+				<Text variant="body-sm" className="jpb-text-muted">
+					{ __( 'Preview could not be loaded for this file.', 'jetpack-backup-pkg' ) }
+				</Text>
+				<ErrorReference code={ errorCode( error ) } id={ null } />
+			</Stack>
 		);
 	}
 	// Deliberately not the unpreviewable-extension wording: the extension said
@@ -110,9 +120,9 @@ export default function PreviewBody( {
 				</Text>
 			) }
 			{ /* `ltr`, not `auto`: source stays LTR even when it opens with an RTL string literal. */ }
-			<pre className="jpb-file-info__code" dir="ltr">
+			<Text variant="body-sm" render={ <pre className="jpb-file-info__code" dir="ltr" /> }>
 				{ content }
-			</pre>
+			</Text>
 		</>
 	);
 }
