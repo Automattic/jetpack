@@ -13,6 +13,7 @@ const mockModules: { current: Record< string, MyJetpackModule > } = { current: {
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
 const mockGetJetpackModules = jest.fn( () => mockModules.current );
 const mockOfflineSeed: { current?: OfflineFeaturesSeed } = {};
+let mockResolved = true;
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
@@ -27,6 +28,7 @@ jest.mock( '@wordpress/data', () => ( {
 		selector( () => ( {
 			getJetpackModules: mockGetJetpackModules,
 			areModulesLoading: () => false,
+			hasFinishedResolution: () => mockResolved,
 		} ) ),
 } ) );
 
@@ -101,10 +103,20 @@ describe( 'withoutPluginForcedOverrides', () => {
 
 describe( 'useAllJetpackModules', () => {
 	beforeEach( () => {
+		mockResolved = true;
 		window.myJetpackInitialState = { myJetpackFlags: {} } as typeof window.myJetpackInitialState;
 		jetpackIs( 'active' );
 		mockGetJetpackModules.mockClear();
 	} );
+
+	it.each( [ false, true ] )(
+		'reports finished resolution even when loading is false: %s',
+		resolved => {
+			mockResolved = resolved;
+			const { result } = renderHook( () => useAllJetpackModules() );
+			expect( result.current.hasLoaded ).toBe( resolved );
+		}
+	);
 
 	it( 'hands back the store modules without the override a standalone plugin causes', () => {
 		mockModules.current = {
@@ -128,7 +140,7 @@ describe( 'useAllJetpackModules', () => {
 			const { result } = renderHook( () => useAllJetpackModules() );
 
 			expect( mockGetJetpackModules ).not.toHaveBeenCalled();
-			expect( result.current ).toEqual( { modules: {}, isLoading: false } );
+			expect( result.current ).toEqual( { modules: {}, isLoading: false, hasLoaded: true } );
 		}
 	);
 

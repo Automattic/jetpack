@@ -28,6 +28,17 @@ let mockMainFeatures: Record< string, unknown > = {
 	isPlaceholderData: false,
 };
 
+let mockModules: Record< string, MyJetpackModule > = {};
+let mockModulesLoaded = true;
+const mockRecordEvent = jest.fn();
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( {
+		modules: mockModules,
+		isLoading: false,
+		hasLoaded: mockModulesLoaded,
+	} ),
+} ) );
+
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
 let mockIsLoading = false;
@@ -36,14 +47,22 @@ let mockIsLoading = false;
 // analytics packages for a test about which layout renders.
 jest.mock( '../../../../hooks/use-analytics', () => ( {
 	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
+	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 
 jest.mock( '../feature-state', () => ( {
+	...jest.requireActual( '../feature-state' ),
 	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
 } ) );
 
-jest.mock( '../feature-item', () => ( { FeatureItem: () => <div>grid card</div> } ) );
+jest.mock( '../feature-item', () => ( {
+	FeatureItem: ( { state }: { state: FeatureState } ) => (
+		<div>
+			<span>grid card</span>
+			<span>{ state.feature.slug }</span>
+		</div>
+	),
+} ) );
 jest.mock( '../feature-list', () => ( {
 	FeatureList: () => <div>list rows</div>,
 	UnswitchableNote: () => null,
@@ -80,6 +99,9 @@ const renderAt = ( url: string ) => {
 
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
+		mockModules = {};
+		mockModulesLoaded = true;
+		mockRecordEvent.mockClear();
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
 		mockGroups = [];
@@ -89,6 +111,170 @@ describe( 'FeaturesContent', () => {
 			isPlaceholderData: false,
 		};
 	} );
+	it.each( [ false, true ] )( 'shows a classic escape only on a marked view: %s', marked => {
+		const original = window.location.href;
+		try {
+			window.history.replaceState(
+				{},
+				'',
+				`?s=stats%20%26%20visits&module_tag=Jetpack%20Stats&modules_fallback=${ marked ? '1' : '0' }`
+			);
+			renderAt( '/features?search=stats%20%26%20visits&module_tag=Jetpack%20Stats' );
+			const link = screen.queryByRole( 'link', { name: 'Classic Modules list' } );
+			const params = link
+				? new URL( link.getAttribute( 'href' )!, window.location.href ).searchParams
+				: undefined;
+			expect( params && Object.fromEntries( params ) ).toEqual(
+				marked
+					? {
+							page: 'jetpack_modules',
+							modules_fallback: '1',
+							s: 'stats & visits',
+							module_tag: 'Jetpack Stats',
+						}
+					: undefined
+			);
+		} finally {
+			window.history.replaceState( {}, '', original );
+		}
+	} );
+
+	it.each( [
+		{ name: 'Jetpack Stats' },
+		{ long_description: 'Jetpack Stats' },
+		{ module_tags: [ 'Jetpack Stats' ] },
+	] )( 'preserves migrated search fields %p without broadening native search', fields => {
+		mockStates = [
+			{ ...activeStats, feature: { ...activeStats.feature, product: 'stats' } } as FeatureState,
+		];
+		mockModules = { stats: fields as MyJetpackModule };
+		const view = renderAt( '/features?search=Jetpack%20Stats' );
+		expect( screen.queryByText( 'grid card' ) ).not.toBeInTheDocument();
+		const original = window.location.href;
+		try {
+			window.history.replaceState( {}, '', '?modules_fallback=1&s=Jetpack%20Stats' );
+			view.rerenderAt();
+			expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+		} finally {
+			window.history.replaceState( {}, '', original );
+		}
+	} );
+
+	it.each( [
+		'module_tag=Writing',
+		'search=artificial%20intelligence',
+		'search=artificial%20intelligence&module_tag=Writing',
+	] )( 'matches migrated AI metadata with its activation toggle hidden: %s', params => {
+		const original = window.location.href;
+		const flags = window.myJetpackInitialState.myJetpackFlags;
+		try {
+			window.myJetpackInitialState.myJetpackFlags = { ...flags, showAiModuleToggle: false };
+			window.history.replaceState( {}, '', '?modules_fallback=1&s=artificial%20intelligence' );
+			mockStates = [
+				activeStats,
+				{
+					...activeStats,
+					feature: {
+						...activeStats.feature,
+						slug: 'jetpack-ai',
+						product: 'jetpack-ai',
+						name: 'AI',
+					},
+				} as FeatureState,
+			];
+			mockModules = {
+				ai: {
+					module_tags: [ 'Writing' ],
+					search_terms: 'artificial intelligence',
+				} as MyJetpackModule,
+			};
+			renderAt( `/features?${ params }` );
+			expect( screen.getByText( 'jetpack-ai' ) ).toBeInTheDocument();
+			expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 1 );
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = flags;
+			window.history.replaceState( {}, '', original );
+		}
+	} );
+
+	it( 'applies a saved tag and search to product cards and module rows, and clears only the tag', async () => {
+		const stats = {
+			...activeStats,
+			feature: { ...activeStats.feature, product: 'stats' },
+		} as FeatureState;
+		mockModules = { stats: { module_tags: [ 'Jetpack Stats' ] } as MyJetpackModule };
+		mockStates = [
+			stats,
+			{
+				...activeStats,
+				feature: {
+					...activeStats.feature,
+					slug: 'other-stats',
+					name: 'Other stats',
+					product: undefined,
+				},
+			},
+		];
+		const tagged = moduleState( 'stats-extra', false );
+		if ( tagged.control.kind === 'module' ) tagged.control.module.module_tags = [ 'Jetpack Stats' ];
+		mockGroups = [
+			{ label: 'Other', states: [ tagged, moduleState( 'stats-unrelated', false ) ] },
+		];
+		const original = window.location.href;
+		window.history.replaceState( {}, '', '?modules_fallback=1&s=old&module_tag=old' );
+		renderAt( '/features?search=stats&module_tag=Jetpack%20Stats' );
+		expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 2 );
+		expect( screen.getByRole( 'button', { name: /^All/ } ) ).toHaveTextContent( 'All2' );
+		expect( screen.getByText( 'stats-extra' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'stats-unrelated' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Clear tag' } ) );
+		expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveFocus();
+		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( '?search=stats' );
+		expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 4 );
+		expect( screen.getByText( 'stats-unrelated' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '&s=stats' )
+		);
+		expect(
+			screen.getByRole( 'link', { name: 'Classic Modules list' } ).getAttribute( 'href' )
+		).not.toContain( 'module_tag' );
+		await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), ' new' );
+		expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 's=stats+new' )
+		);
+		window.history.replaceState( {}, '', original );
+	} );
+
+	it.each( [ 'search=related', 'module_tag=Social' ] )(
+		'waits for modules before reporting an empty migrated view: %s',
+		params => {
+			const original = window.location.href;
+			try {
+				window.history.replaceState( {}, '', '?modules_fallback=1&s=related' );
+				mockStates = [];
+				mockModulesLoaded = false;
+				const view = renderAt( `/features?${ params }` );
+				expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
+				expect(
+					mockRecordEvent.mock.calls.some(
+						( [ name ] ) => name === 'jetpack_myjetpack_features_empty_state_view'
+					)
+				).toBe( false );
+				mockModulesLoaded = true;
+				view.rerenderAt();
+				expect( screen.getByRole( 'heading' ) ).toBeInTheDocument();
+				expect(
+					mockRecordEvent.mock.calls.some(
+						( [ name ] ) => name === 'jetpack_myjetpack_features_empty_state_view'
+					)
+				).toBe( true );
+			} finally {
+				window.history.replaceState( {}, '', original );
+			}
+		}
+	);
 
 	it( 'restores the available filter and search from the route after a remount', async () => {
 		const view = renderAt( '/features?view=list' );

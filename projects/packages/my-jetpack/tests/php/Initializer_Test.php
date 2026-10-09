@@ -23,6 +23,105 @@ use WorDBless\BaseTestCase;
  * Tests for the Initializer class.
  */
 class Initializer_Test extends BaseTestCase {
+	/**
+	 * @dataProvider modules_rest_results
+	 */
+	#[DataProvider( 'modules_rest_results' )]
+	public function test_modules_rest_gate_rejects_disabled_and_error_results( $enabled, $auth, $expected ) {
+		$enabled_filter = static function () use ( $enabled ) {
+			return $enabled;
+		};
+		$auth_filter    = static function () use ( $auth ) {
+			return $auth;
+		};
+		add_filter( 'rest_enabled', $enabled_filter );
+		add_filter( 'rest_authentication_errors', $auth_filter, PHP_INT_MAX );
+		try {
+			$this->assertSame( $expected, Initializer::is_modules_rest_api_enabled() );
+		} finally {
+			remove_filter( 'rest_enabled', $enabled_filter );
+			remove_filter( 'rest_authentication_errors', $auth_filter, PHP_INT_MAX );
+		}
+	}
+
+	public static function modules_rest_results() {
+		return array(
+			'normal'      => array( true, null, true ),
+			'disabled'    => array( false, null, false ),
+			'auth denied' => array( true, false, false ),
+			'auth error'  => array( true, new \WP_Error( 'denied' ), false ),
+		);
+	}
+
+	public function test_rest_probe_preserves_the_admin_cookie_user_without_a_rest_nonce() {
+		global $wp_rest_auth_cookie;
+		$original_cookie = $wp_rest_auth_cookie;
+		$user            = wp_insert_user(
+			array(
+				'user_login' => 'rest-probe-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		$wp_rest_auth_cookie = true;
+		add_filter( 'rest_authentication_errors', 'rest_cookie_check_errors', 100 );
+		try {
+			$this->assertTrue( Initializer::is_modules_rest_api_enabled() );
+			$this->assertSame( $user, get_current_user_id() );
+			add_filter( 'rest_authentication_errors', '__return_null', 10 );
+			$this->assertTrue( Initializer::is_modules_rest_api_enabled() );
+			$this->assertSame( $user, get_current_user_id() );
+		} finally {
+			$wp_rest_auth_cookie = $original_cookie;
+			remove_filter( 'rest_authentication_errors', 'rest_cookie_check_errors', 100 );
+			remove_filter( 'rest_authentication_errors', '__return_null', 10 );
+		}
+	}
+
+	public function test_marked_links_have_a_scoped_classic_fallback_with_preserved_arguments() {
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'modules-fallback',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		$_GET = array(
+			'page'             => 'my-jetpack',
+			'modules_fallback' => '1',
+			's'                => 'stats & visits',
+			'module_tag'       => 'Jetpack Stats',
+			'redirect'         => 'https://example.test/unsafe',
+		);
+		ob_start();
+		Initializer::print_modules_fallback();
+		$html = ob_get_clean();
+		$this->assertStringStartsWith( '<noscript><meta', $html );
+		$this->assertSame( 1, substr_count( $html, '<meta ' ) );
+		$this->assertStringContainsString( 'page=jetpack_modules', $html );
+		$this->assertStringContainsString( 's=stats+%26+visits', $html );
+		$this->assertStringContainsString( 'module_tag=Jetpack+Stats', $html );
+		$this->assertStringNotContainsString( 'modules_fallback', $html );
+		$this->assertStringNotContainsString( 'unsafe', $html );
+		add_filter( 'rest_enabled', '__return_false' );
+		try {
+			ob_start();
+			Initializer::print_modules_fallback();
+			$this->assertSame( 2, substr_count( ob_get_clean(), '<meta ' ) );
+		} finally {
+			remove_filter( 'rest_enabled', '__return_false' );
+		}
+		unset( $_GET['modules_fallback'] );
+		ob_start();
+		Initializer::print_modules_fallback();
+		$this->assertSame( '', ob_get_clean() );
+		$_GET = array();
+	}
+
 	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
 		$user = wp_insert_user(
 			array(

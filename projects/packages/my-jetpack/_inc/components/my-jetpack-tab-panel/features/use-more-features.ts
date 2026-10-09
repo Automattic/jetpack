@@ -1,4 +1,3 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
@@ -6,14 +5,7 @@ import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-sta
 import { getFeatureModuleSlug } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
 import { getFeatureUnavailableReason } from './module-availability';
-import {
-	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
-	compareModulesByName,
-	hasSearch,
-	moduleFields,
-	rankBy,
-	searchTerms,
-} from './search';
+import { compareModulesByName, hasSearch, moduleFields, rankBy, searchTerms } from './search';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
@@ -124,15 +116,17 @@ export function groupMoreFeatures(
  *
  * A search replaces the filter and ranks the modules, as it does for the main features.
  *
- * @param groups - The grouped modules.
- * @param filter - The active filter.
- * @param search - The search term.
+ * @param groups   - The grouped modules.
+ * @param filter   - The active filter.
+ * @param search   - The search term.
+ * @param migrated - Whether the term came from Modules.
  * @return The groups still showing something.
  */
 export function filterMoreFeatures(
 	groups: MoreFeaturesGroup[],
 	filter: FeatureFilter,
-	search: string
+	search: string,
+	migrated = false
 ): MoreFeaturesGroup[] {
 	const terms = hasSearch( search ) ? searchTerms( search ) : null;
 
@@ -143,7 +137,9 @@ export function filterMoreFeatures(
 			state => {
 				const $module = getStateModule( state );
 
-				return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+				return $module
+					? moduleFields( $module, migrated )
+					: [ { value: state.feature.name, weight: 3 } ];
 			}
 		).map( ( { item } ) => item );
 
@@ -160,19 +156,12 @@ export function filterMoreFeatures(
 }
 
 /**
- * Classic-theme modules: a block theme has no widget areas for them to act on.
- */
-const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
-
-/**
  * Modules on their way out, offered only to a site already running them.
  *
  * @return The slugs.
  */
 export function getDeprecatedModules(): string[] {
-	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
-
-	return [ ...LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE, ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
+	return window.myJetpackInitialState?.deprecatedModules ?? [];
 }
 
 // Module-scoped so a module switched off here keeps its row, and its switch back on, until a reload.

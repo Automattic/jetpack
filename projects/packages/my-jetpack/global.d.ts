@@ -555,6 +555,7 @@ interface Window {
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
 		hiddenFeatures?: Array< string >;
+		deprecatedModules?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;

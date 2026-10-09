@@ -28,6 +28,8 @@ Where Features opens (connected sites, and offline sites with the offline entry 
 
 When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons only in the details window of main cards.
 
+Eligible legacy Modules links open Features through browser navigation, carrying saved searches and recognized module tags. Search and tag together narrow the results; **Clear tag** removes only the tag. These views include a **Classic Modules list** link that preserves the current search and tag and remains available if feature data fails to load. Purpose-group and active/inactive filters, unknown tags, and tags matching only hidden features stay on Modules. Sites or users without Features access, offline sites (even with the offline entry enabled), and disabled REST access retain Modules; without JavaScript, legacy links and repointed management links also reach Modules. The pinned footer and its Reset action remain available.
+
 #### Offline mode
 
 The offline Features entry is off by default. Register `add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );` before My Jetpack initializes, for example in a must-use plugin, and visit `/wp-admin/admin.php?page=my-jetpack#/features` on a site in offline mode. My Jetpack opens Features without connection onboarding; other hash routes redirect there while preserving the query string.

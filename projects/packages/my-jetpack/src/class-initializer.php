@@ -107,6 +107,7 @@ class Initializer {
 		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
 		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
+		add_action( 'admin_head', array( __CLASS__, 'print_modules_fallback' ) );
 
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
@@ -624,6 +625,7 @@ class Initializer {
 					'assetsUrl'             => self::get_assets_url(),
 					'isJetpackPluginActive' => class_exists( 'Jetpack' ),
 					'hiddenFeatures'        => Feature_Visibility::get_hidden(),
+					'deprecatedModules'     => Feature_Visibility::get_deprecated_modules(),
 					'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				)
 			);
@@ -730,6 +732,7 @@ class Initializer {
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
 				'hiddenFeatures'         => Feature_Visibility::get_hidden(),
+				'deprecatedModules'      => Feature_Visibility::get_deprecated_modules(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
@@ -782,6 +785,131 @@ class Initializer {
 	}
 
 	/**
+	 * Whether module management can use the REST API.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_modules_rest_api_enabled() {
+		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+		$enabled = apply_filters( 'rest_enabled', true );
+		$user    = wp_get_current_user();
+		$auth    = false;
+		try {
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			$auth = apply_filters( 'rest_authentication_errors', true );
+		} finally {
+			wp_set_current_user( $user->ID );
+		}
+		return $enabled && ! is_wp_error( $enabled ) && false !== $auth && ! is_wp_error( $auth );
+	}
+
+	/**
+	 * Get a Features management link with a classic Modules fallback.
+	 *
+	 * @since $$next-version$$
+	 * @param array     $args Legacy Modules view arguments.
+	 * @param bool|null $eligible Whether the returned URL is an eligible Features view.
+	 * @return string The management URL.
+	 */
+	public static function get_modules_management_url( $args = array(), &$eligible = null ) {
+		$eligible = false;
+		/**
+		 * Whether the host permits module management on the My Jetpack route.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $available Whether Features can manage modules on this host.
+		 */
+		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
+		if (
+			! $available
+			|| array_diff( array_keys( $args ), array( 's', 'module_tag' ) )
+			|| array_filter( $args, 'is_string' ) !== $args
+			|| ! Plugins_Installer::is_plugin_active( 'jetpack/jetpack.php' )
+			|| ! current_user_can( 'jetpack_manage_modules' )
+			|| ! current_user_can( 'manage_options' )
+			|| ! self::current_user_can_access_page()
+			|| ( new Status() )->is_offline_mode()
+			|| ( new Status_Host() )->is_wpcom_simple()
+			|| is_network_admin()
+			|| ! self::should_initialize()
+			|| ! ( new Connection_Manager() )->is_connected()
+			|| null !== self::get_partner_coupon_screen()
+			|| ! self::is_modules_rest_api_enabled()
+		) {
+			return $classic;
+		}
+
+		if ( isset( $args['module_tag'] ) && '' !== $args['module_tag'] ) {
+			if ( ! function_exists( 'jetpack_get_module_i18n_tag' ) ) {
+				return $classic;
+			}
+			$known      = array();
+			$modules    = new Modules();
+			$hidden     = Main_Features::get_hidden_modules();
+			$deprecated = Feature_Visibility::get_deprecated_modules();
+			foreach ( $modules->get_available() as $slug ) {
+				if ( in_array( $slug, $hidden, true ) || ( in_array( $slug, $deprecated, true ) && ! $modules->is_active( $slug ) ) ) {
+					continue;
+				}
+				$module = $modules->get( $slug );
+				$known  = array_merge( $known, $module['module_tags'] ?? array() );
+			}
+			$known = array_map( array( Jetpack::class, 'translate_module_tag' ), $known );
+			if ( ! in_array( $args['module_tag'], $known, true ) ) {
+				return $classic;
+			}
+		}
+
+		$eligible = true;
+		$hash     = array();
+		if ( isset( $args['s'] ) && '' !== $args['s'] ) {
+			$hash['search'] = $args['s'];
+		}
+		if ( isset( $args['module_tag'] ) && '' !== $args['module_tag'] ) {
+			$hash['module_tag'] = $args['module_tag'];
+		}
+		return add_query_arg(
+			array_merge(
+				urlencode_deep( $args ),
+				array(
+					'page'             => 'my-jetpack',
+					'modules_fallback' => '1',
+				)
+			),
+			admin_url( 'admin.php' )
+		)
+			. '#/features' . ( $hash ? '?' . http_build_query( $hash, '', '&', PHP_QUERY_RFC3986 ) : '' );
+	}
+
+	/**
+	 * Print the classic fallback for marked module-management links.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function print_modules_fallback() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation fallback.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact allowlisted marker is accepted.
+		if ( 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || ! Plugins_Installer::is_plugin_active( 'jetpack/jetpack.php' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return;
+		}
+		$args = array( 'page' => 'jetpack_modules' );
+		foreach ( array( 's', 'module_tag' ) as $key ) {
+			if ( isset( $_GET[ $key ] ) && is_string( $_GET[ $key ] ) ) {
+				$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$meta = '<meta http-equiv="refresh" content="0; url=' . esc_url( add_query_arg( urlencode_deep( $args ), admin_url( 'admin.php' ) ) ) . '">';
+		echo '<noscript>' . $meta . '</noscript>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped above.
+		if ( ! self::is_modules_rest_api_enabled() ) {
+			echo $meta; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- URL escaped above.
+		}
+	}
+
+	/**
 	 * Get the slug and label of the Features tab, for footer links to it.
 	 *
 	 * Kept for footers built before the Products tab was removed: Jetpack 16.3 calls this, and
@@ -813,6 +941,10 @@ class Initializer {
 		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
+		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
+			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
+		}
 
 		if (
 			self::is_my_jetpack_admin_request()

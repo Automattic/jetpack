@@ -1,5 +1,5 @@
 import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpack-components';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Component } from 'react';
@@ -73,7 +73,9 @@ export class Footer extends Component {
 					'jetpack'
 				),
 				title: __( 'Access the full list of Jetpack modules available on your site.', 'jetpack' ),
-				href: this.props.siteAdminUrl + 'admin.php?page=jetpack_modules',
+				href:
+					getScriptData()?.myJetpack?.modulesManagementUrl ||
+					this.props.siteAdminUrl + 'admin.php?page=jetpack_modules',
 				onClick: this.trackModulesClick,
 			} );
 		}

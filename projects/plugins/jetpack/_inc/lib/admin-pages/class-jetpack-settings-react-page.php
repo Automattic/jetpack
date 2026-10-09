@@ -183,7 +183,9 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * @return void
 	 */
 	public function add_fallback_redirects() {
-		if ( ! $this->is_rest_api_enabled() ) {
+		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+		$rest_auth = apply_filters( 'rest_authentication_errors', true );
+		if ( ! $this->is_rest_api_enabled() || is_wp_error( $rest_auth ) ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
 		}
