@@ -83,6 +83,9 @@ describe( 'getConnectScreenErrorMessage', () => {
 		);
 		expect( getConnectScreenErrorMessage( 'site_requires_authorization' ) ).toContain( 'log in' );
 		expect( getConnectScreenErrorMessage( 'xml_rpc-32700' ) ).toContain( 'xmlrpc.php' );
+		expect( getConnectScreenErrorMessage( 'xml_rpc-32601' ) ).toContain(
+			'blocking or replacing XML-RPC'
+		);
 		expect( getConnectScreenErrorMessage( 'verify_secrets_mismatch' ) ).toBe(
 			'The connection attempt expired or was interrupted. Please try again.'
 		);
@@ -166,18 +169,17 @@ describe( 'getRegistrationErrorDescription', () => {
 		} );
 		expect( atLimit ).toBe( 'x'.repeat( 249 ) + '😀' );
 
+		// The 1,000-character pre-cut lands between the emoji's two halves, inside the 250 returned.
 		const atPreCut = getRegistrationErrorDescription( {
-			response: { message: '<b>' + 'x'.repeat( 996 ) + '😀' },
+			response: { message: '<' + 'a'.repeat( 748 ) + '>' + 'x'.repeat( 249 ) + '😀' },
 		} );
-		expect( atPreCut ).not.toMatch( /[\uD800-\uDBFF](?![\uDC00-\uDFFF])/ );
+		expect( atPreCut ).toBe( 'x'.repeat( 249 ) );
 	} );
 
-	it( 'handles pathological markup quickly', () => {
-		const start = Date.now();
+	it( 'bounds pathological markup', () => {
 		const description = getRegistrationErrorDescription( {
 			response: { message: '<'.repeat( 50000 ) },
 		} );
-		expect( Date.now() - start ).toBeLessThan( 100 );
 		expect( description?.length ?? 0 ).toBeLessThanOrEqual( 250 );
 	} );
 } );

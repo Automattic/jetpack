@@ -19,4 +19,17 @@ describe( 'ConnectScreenAction', () => {
 		);
 		expect( screen.getByText( /Your site couldn’t reach WordPress\.com/ ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows the site’s explanation under the mapped message', () => {
+		render(
+			<ConnectScreenAction
+				buttonLabel="Set up Jetpack"
+				displayButtonError
+				errorCode="register_http_request_failed"
+				errorDescription="cURL error 6: Could not resolve host."
+			/>
+		);
+		expect( screen.getByText( /Your site couldn’t reach WordPress\.com/ ) ).toBeInTheDocument();
+		expect( screen.getByText( 'cURL error 6: Could not resolve host.' ) ).toBeInTheDocument();
+	} );
 } );
