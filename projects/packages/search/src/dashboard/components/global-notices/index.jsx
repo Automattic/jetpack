@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import { Notice } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 
@@ -12,6 +13,7 @@ const STATUS_TO_INTENT = {
 
 const NoticeItem = ( { notice, onDismissNotice } ) => {
 	const { id, duration, showDismiss = true, status, text } = notice;
+	const intent = STATUS_TO_INTENT[ status ] ?? 'neutral';
 
 	const handleDismiss = useCallback( () => onDismissNotice( id ), [ onDismissNotice, id ] );
 
@@ -22,8 +24,14 @@ const NoticeItem = ( { notice, onDismissNotice } ) => {
 		}
 	}, [ duration, handleDismiss ] );
 
+	useEffect( () => {
+		if ( text ) {
+			speak( text, intent === 'error' ? 'assertive' : 'polite' );
+		}
+	}, [ text, intent ] );
+
 	return (
-		<Notice.Root intent={ STATUS_TO_INTENT[ status ] ?? 'neutral' } spokenMessage={ text }>
+		<Notice.Root intent={ intent }>
 			{ text && <Notice.Description>{ text }</Notice.Description> }
 			{ showDismiss && <Notice.CloseIconButton onClick={ handleDismiss } /> }
 		</Notice.Root>
