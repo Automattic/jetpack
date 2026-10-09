@@ -12,10 +12,16 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
-// Imports must come after the jest.mock factory above.
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
+// Imports must come after the jest.mock factories above.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import BackupNowButton from '../src/dashboard/components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../src/dashboard/components/backup-status';
 import BackupStatusBanner from '../src/dashboard/components/backup-status/banner';
@@ -334,6 +340,9 @@ describe( 'BackupNowButton', () => {
 				'true'
 			)
 		);
+		expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAccessibleDescription(
+			'A backup is currently in progress.'
+		);
 	} );
 
 	it( 'refuses to queue a backup when WPCOM has stopped them', async () => {
@@ -344,8 +353,7 @@ describe( 'BackupNowButton', () => {
 		await expect(
 			screen.findByRole( 'button', { name: 'Back up now' } )
 		).resolves.toBeInTheDocument();
-		// Re-queried inside the wait, not held from above: the storage answer lands
-		// after the button and moves it into the tooltip branch, a different element.
+		// Re-queried inside the wait: the storage answer lands after the button.
 		await waitFor( () =>
 			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
 				'aria-disabled',
@@ -422,6 +430,63 @@ describe( 'BackupNowButton', () => {
 				'true'
 			)
 		);
+	} );
+
+	// JETPACK-2965: swapping the button's wrapper remounted it, dropping focus to `<body>`.
+	it.each( [
+		[ 'succeeds', { success: true }, 'Backup enqueued', 'Backup enqueued' ],
+		[
+			'fails',
+			{ success: false, error: 'Backups are not enabled.' },
+			'Backups are not enabled.',
+			'Back up now',
+		],
+	] )( 'keeps focus on the button when the enqueue %s', async ( _name, reply, settled, label ) => {
+		const answer = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( '/site/backup/enqueue' )
+				? Promise.resolve( reply )
+				: answer?.( options )
+		);
+
+		renderWithClient( <BackupNowButton /> );
+		await expect(
+			screen.findByRole( 'button', { name: 'Back up now' } )
+		).resolves.toBeInTheDocument();
+		await userEvent.tab();
+		await userEvent.keyboard( '{Enter}' );
+
+		await expect( screen.findByText( settled ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: label } ) ).toHaveFocus();
+	} );
+
+	it( 'announces each failed attempt once, and describes the button with the reason', async () => {
+		const answer = mockApiFetch.getMockImplementation();
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) =>
+			options?.path?.includes( '/site/backup/enqueue' )
+				? Promise.resolve( { success: false, error: 'Backups are not enabled.' } )
+				: answer?.( options )
+		);
+		const announced = 'Could not start a backup. Please try again. Backups are not enabled.';
+		const announcements = () =>
+			( speak as jest.Mock ).mock.calls.filter(
+				( [ text, politeness ] ) => text === announced && politeness === 'assertive'
+			).length;
+		( speak as jest.Mock ).mockClear();
+
+		renderWithClient( <BackupNowButton /> );
+		const button = await screen.findByRole( 'button', { name: 'Back up now' } );
+		await userEvent.click( button );
+
+		await waitFor( () =>
+			expect( button ).toHaveAccessibleDescription( 'Backups are not enabled.' )
+		);
+		expect( screen.getByText( announced, { selector: '.a11y-speak-region' } ) ).toBeInTheDocument();
+		expect( button ).toHaveFocus();
+		expect( announcements() ).toBe( 1 );
+
+		await userEvent.click( button );
+		await waitFor( () => expect( announcements() ).toBe( 2 ) );
 	} );
 
 	// The legacy button has no rejection handler and discards the body,

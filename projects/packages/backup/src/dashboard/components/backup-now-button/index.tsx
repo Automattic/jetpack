@@ -1,6 +1,7 @@
-import { useCallback, useEffect } from '@wordpress/element';
+import { speak } from '@wordpress/a11y';
+import { useCallback, useEffect, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Tooltip } from '@wordpress/ui';
+import { Button, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useBackups } from '../../hooks/use-backups';
 import { useBackupRequested, useEnqueueBackup } from '../../hooks/use-enqueue-backup';
@@ -26,6 +27,17 @@ export default function BackupNowButton() {
 }
 
 /**
+ * Announce a failed request: focus stays on the button, and its changed description is not read.
+ *
+ * @param reason - Why the request failed.
+ */
+function announceFailure( reason: string ) {
+	const title = __( 'Could not start a backup. Please try again.', 'jetpack-backup-pkg' );
+	// The hook falls back to this same sentence when WPCOM gives no reason.
+	speak( reason && reason !== title ? `${ title } ${ reason }` : title, 'assertive' );
+}
+
+/**
  * The button itself, mounted only for a site that can press it.
  *
  * Ports legacy's label and tooltip cycle (`src/js/components/back-up-now/index.jsx`) with
@@ -37,6 +49,7 @@ function BackupNow() {
 	const { tracks } = useAnalytics();
 	const { backupsStopped } = useSiteSize();
 	const { state: enqueueState, errorMessage, enqueue, reset } = useEnqueueBackup();
+	const descriptionId = useId();
 
 	const isRequested = useBackupRequested();
 	const { state: backupsState } = useBackups();
@@ -58,7 +71,7 @@ function BackupNow() {
 	// worth knowing about.
 	const handleClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_plugin_backup_now' );
-		enqueue();
+		enqueue( announceFailure );
 	}, [ tracks, enqueue ] );
 
 	const isEnqueuing = enqueueState === 'enqueuing';
@@ -87,31 +100,9 @@ function BackupNow() {
 
 	const disabled = isEnqueuing || isEnqueued || isBackupRunning || backupsStopped;
 
-	const button = (
-		<Button
-			variant="outline"
-			tone="neutral"
-			disabled={ disabled }
-			// Scoped to the request itself, never to the running backup.
-			// `loading` paints the label `color: transparent` and overlays a
-			// spinner — it keeps the button's width so the header doesn't
-			// jump, but it also hides the text, which is only acceptable for
-			// the second the POST is in flight. A backup runs for minutes,
-			// and the label must stay readable for all of it.
-			loading={ isEnqueuing }
-			loadingAnnouncement={ label }
-			onClick={ handleClick }
-		>
-			{ label }
-		</Button>
-	);
-
-	if ( ! tooltip ) {
-		return button;
-	}
-
+	// One tree in every state: a changed wrapper remounts the button and drops its focus.
 	return (
-		<Tooltip.Root>
+		<Tooltip.Root disabled={ ! tooltip }>
 			{ /*
 			 * `Tooltip.Trigger` renders a `button` of its own, which cannot
 			 * wrap ours, so it is rendered as a `span` instead. The span is
@@ -122,7 +113,31 @@ function BackupNow() {
 			 * pointer and focus events the tooltip anchors on, and adding a
 			 * `tabIndex` here would only create a second tab stop.
 			 */ }
-			<Tooltip.Trigger render={ <span className="jpb-backup-now" /> }>{ button }</Tooltip.Trigger>
+			<Tooltip.Trigger render={ <span className="jpb-backup-now" /> }>
+				<Button
+					variant="outline"
+					tone="neutral"
+					disabled={ disabled }
+					// Scoped to the request itself, never to the running backup.
+					// `loading` paints the label `color: transparent` and overlays a
+					// spinner — it keeps the button's width so the header doesn't
+					// jump, but it also hides the text, which is only acceptable for
+					// the second the POST is in flight. A backup runs for minutes,
+					// and the label must stay readable for all of it.
+					loading={ isEnqueuing }
+					loadingAnnouncement={ label }
+					onClick={ handleClick }
+					aria-describedby={ tooltip ? descriptionId : undefined }
+				>
+					{ label }
+				</Button>
+				{ /* The tooltip gives the button no accessible description, so this does. */ }
+				{ tooltip && (
+					<VisuallyHidden id={ descriptionId } render={ <span /> }>
+						{ tooltip }
+					</VisuallyHidden>
+				) }
+			</Tooltip.Trigger>
 			<Tooltip.Popup>{ tooltip }</Tooltip.Popup>
 		</Tooltip.Root>
 	);
