@@ -28,7 +28,11 @@ if [[ -n "$TMP" ]]; then
 	echo "::group::Combining PHP coverage"
 	composer --working-dir="$BASE" update
 	"$BASE"/vendor/bin/phpcov merge --php "$PHP_COMBINED" coverage
+
+	# We're going to be processing the file in a different run, with a different checkout base path ($GITHUB_WORKSPACE), while PHPUnit needs the base path to match.
+	# So munge the file to contain relative paths instead of absolute ones.
 	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" "$PHP_COMBINED"
+
 	echo '::endgroup::'
 
 	echo "::group::Creating PHP coverage summary"

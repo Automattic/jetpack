@@ -42,7 +42,14 @@ if compgen -G 'coverage/php-combined-*.cov' &>/dev/null; then
 	echo '::endgroup::'
 
 	echo '::group::Generating PHP coverage report'
-	.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage/
+
+	# We have to merge and re-relativize the paths, because `phpcov merge` keeps the raw (relative) paths from the first .cov file processed but then `realpath`s the paths in all the rest,
+	# and then gets confused when trying to find a common base directory. Sigh.
+	mkdir coverage-tmp
+	.github/files/coverage-munger/vendor/bin/phpcov merge --php coverage-tmp/merged.cov coverage/
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
+
+	.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage-tmp/
 	echo '::endgroup::'
 fi
 
