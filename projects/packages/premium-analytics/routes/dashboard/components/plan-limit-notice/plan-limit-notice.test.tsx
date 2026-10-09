@@ -6,9 +6,11 @@ import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { createNoticesRegistry } from '../../../../tests/js/notice-test-utils';
 import { PlanLimitNotice, resetPlanLimitNoticeForTesting } from './plan-limit-notice';
 
 jest.mock(
@@ -23,13 +25,20 @@ const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 type Usage = { views_count: number; views_limit: number | null };
 type Notices = { tier_upgrade?: boolean };
 
+let notices = createNoticesRegistry();
+
 /**
  * Answers the usage and notices requests the notice makes.
  *
- * @param usage   - This cycle's views and the plan's limit.
- * @param notices - The Stats notice visibility state.
+ * @param usage     - This cycle's views and the plan's limit.
+ * @param state     - The Stats notice visibility state.
+ * @param saveReply - The reply to saving a notice's visibility.
  */
-function mockEndpoints( usage: Usage, notices: Notices = {} ) {
+function mockEndpoints(
+	usage: Usage,
+	state: Notices = {},
+	saveReply: () => Promise< unknown > = () => Promise.resolve( { tier_upgrade: false } )
+) {
 	mockApiFetch.mockImplementation( ( { path, method }: { path: string; method?: string } ) => {
 		if ( path.includes( 'jetpack-stats/usage' ) ) {
 			return Promise.resolve( {
@@ -38,7 +47,7 @@ function mockEndpoints( usage: Usage, notices: Notices = {} ) {
 			} );
 		}
 		if ( path.includes( 'notices' ) ) {
-			return Promise.resolve( method === 'POST' ? { tier_upgrade: false } : notices );
+			return method === 'POST' ? saveReply() : Promise.resolve( state );
 		}
 		return Promise.reject( new Error( `Unexpected request: ${ path }` ) );
 	} );
@@ -65,7 +74,11 @@ function setHost( host: string ) {
  * @return The render result.
  */
 async function renderNotice() {
-	const view = render( <PlanLimitNotice enabled /> );
+	const view = render(
+		<RegistryProvider value={ notices.registry }>
+			<PlanLimitNotice enabled />
+		</RegistryProvider>
+	);
 	// The notices request waits on the usage reply, so settle both rounds.
 	await act( () => jest.runAllTimersAsync() );
 	await act( () => jest.runAllTimersAsync() );
@@ -82,6 +95,7 @@ describe( 'PlanLimitNotice', () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		resetPlanLimitNoticeForTesting();
+		notices = createNoticesRegistry();
 		recordEvent.mockClear();
 		mockApiFetch.mockReset();
 		setHost( 'jetpack' );
@@ -92,12 +106,12 @@ describe( 'PlanLimitNotice', () => {
 	} );
 
 	it( 'warns a site at 90% of its limit and links to the upgrade', async () => {
-		mockEndpoints( { views_count: 9120, views_limit: 10000 } );
+		mockEndpoints( { views_count: 9000, views_limit: 10000 } );
 
 		const { container } = await renderNotice();
 
 		expect( container ).toHaveTextContent( 'You are approaching your plan’s view limit' );
-		expect( container ).toHaveTextContent( '9,120 of 10,000 billable views used this cycle.' );
+		expect( container ).toHaveTextContent( '9,000 of 10,000 billable views used this cycle.' );
 		expect( screen.getByRole( 'link', { name: 'Upgrade plan' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining(
@@ -122,8 +136,8 @@ describe( 'PlanLimitNotice', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'cannot be dismissed once the site is over its limit', async () => {
-		mockEndpoints( { views_count: 11480, views_limit: 10000 }, { tier_upgrade: false } );
+	it( 'cannot be dismissed once the site reaches its limit', async () => {
+		mockEndpoints( { views_count: 10000, views_limit: 10000 }, { tier_upgrade: false } );
 
 		const { container } = await renderNotice();
 
@@ -156,6 +170,48 @@ describe( 'PlanLimitNotice', () => {
 		expect( recordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_plan_limit_notice_dismiss',
 			undefined
+		);
+	} );
+
+	it( 'stays dismissed in a section that mounts before the dismissal is saved', async () => {
+		let saveDismissal = () => {};
+		mockEndpoints(
+			{ views_count: 9120, views_limit: 10000 },
+			{},
+			() => new Promise( resolve => ( saveDismissal = () => resolve( { tier_upgrade: false } ) ) )
+		);
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { unmount } = await renderNotice();
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+		unmount();
+		const view = render(
+			<RegistryProvider value={ notices.registry }>
+				<PlanLimitNotice enabled />
+			</RegistryProvider>
+		);
+
+		expect( view.container ).toBeEmptyDOMElement();
+		saveDismissal();
+	} );
+
+	it( 'brings the notice back and says so when the dismissal fails', async () => {
+		mockEndpoints( { views_count: 9120, views_limit: 10000 }, {}, () =>
+			Promise.reject( new Error( 'offline' ) )
+		);
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { container } = await renderNotice();
+		// Offline: the refetch after the failure never answers either.
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST' ? Promise.reject( new Error( 'offline' ) ) : new Promise( () => {} )
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( container ).toHaveTextContent( 'You are approaching your plan’s view limit' );
+		expect( notices.createErrorNotice ).toHaveBeenCalledWith(
+			'Couldn’t dismiss the notice. Please try again.',
+			{ type: 'snackbar' }
 		);
 	} );
 
