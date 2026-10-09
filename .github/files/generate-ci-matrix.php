@@ -133,8 +133,7 @@ $to_split[] = array(
 // Add JS tests and coverage
 $js_split_config = array(
 	'projects' => array(
-		'premium-analytics' => 'packages/premium-analytics',
-		'jetpack'           => 'plugins/jetpack',
+		'slow' => array( 'packages/premium-analytics', 'plugins/jetpack' ),
 	),
 	'generic'  => 2,
 );
