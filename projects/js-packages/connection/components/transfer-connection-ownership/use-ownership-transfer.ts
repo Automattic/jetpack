@@ -5,18 +5,7 @@ import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
-
-/** A connected administrator the connection could be handed to. */
-export interface ConnectionOwnerCandidate {
-	/** Local user ID. */
-	id: number;
-	/** Local user login. */
-	login: string;
-	/** Local display name. */
-	displayName: string;
-	/** Local email address. */
-	email: string;
-}
+import type { ConnectionOwnerCandidate } from './types';
 
 /** What `checkStatus` throws: an Error carrying the REST body it could not return. */
 interface ApiError {
@@ -80,6 +69,8 @@ export interface UseOwnershipTransferArgs {
 	/** Called as soon as WordPress.com accepts the new owner. */
 	onTransferred?: ( newOwnerId: number ) => void;
 }
+
+export type { ConnectionOwnerCandidate };
 
 /**
  * Candidate list, selection and the step the user is on.
@@ -163,7 +154,6 @@ export default function useOwnershipTransfer( {
 
 	return {
 		candidates,
-		isLoading: null === candidates,
 		selectedId,
 		setSelectedId,
 		selectedCandidate,

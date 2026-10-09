@@ -1042,6 +1042,42 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * A logged-out request must not reach the list at all.
+	 */
+	public function test_owner_candidates_rejects_a_logged_out_request() {
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/connection/owner/candidates' ) );
+
+		$this->assertSame( 401, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_list_connection_owner_candidates', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Any administrator may read the list, not only the current owner.
+	 *
+	 * They are the ones offered the transfer once ownership moves to them.
+	 */
+	public function test_owner_candidates_allows_an_admin_who_is_not_the_owner() {
+		$secondary = get_user_by( 'id', self::$secondary_user_id );
+		$secondary->add_cap( 'jetpack_disconnect' );
+		wp_set_current_user( self::$secondary_user_id );
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$secondary_user_id => 'secondkey.private.' . self::$secondary_user_id,
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/connection/owner/candidates' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$secondary->remove_cap( 'jetpack_disconnect' );
+	}
+
+	/**
 	 * The list carries logins and email addresses, so it needs the same capability as the change.
 	 */
 	public function test_owner_candidates_requires_the_disconnect_capability() {

@@ -52,6 +52,12 @@ interface ManageConnectionDialogProps {
 	onDisconnected?: () => void;
 	/** The callback to be called upon user unlink success. */
 	onUnlinked: () => void;
+	/**
+	 * The callback to be called once ownership has moved and the user leaves the step.
+	 * Defaults to reloading: the transfer changes what the current user may do, so a
+	 * consumer that does nothing here would leave owner-only actions on screen.
+	 */
+	onOwnershipTransferred?: ( newOwnerId: number ) => void;
 	/** The context in which this component is being used. */
 	context?: string;
 	/** An object representing the connected user. */
@@ -77,6 +83,7 @@ const ManageConnectionDialog = ( {
 	connectedPlugins,
 	onDisconnected,
 	onUnlinked,
+	onOwnershipTransferred,
 	context = 'jetpack-dashboard',
 	connectedUser = {}, // Pass empty object to avoid undefined errors.
 	connectedSiteId,
@@ -216,15 +223,19 @@ const ManageConnectionDialog = ( {
 	}, [] );
 
 	// After a transfer there is nothing to go back to: the actions behind belong to an
-	// owner the user no longer is, so leaving the step reloads instead.
+	// owner the user no longer is, so leaving the step refreshes instead.
 	const leaveTransfer = useCallback( () => {
 		if ( newOwnerId ) {
-			window.location.reload();
+			if ( onOwnershipTransferred ) {
+				onOwnershipTransferred( newOwnerId );
+			} else {
+				window.location.reload();
+			}
 			return;
 		}
 
 		setIsTransferOpen( false );
-	}, [ newOwnerId ] );
+	}, [ newOwnerId, onOwnershipTransferred ] );
 
 	const heading = isTransferOpen
 		? __( 'Transfer connection ownership', 'jetpack-connection-js' )
