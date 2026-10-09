@@ -38,7 +38,8 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: ghcr.io/mariadb/mariadb:lts
+        # Only jobs with WordPress need a database. An empty image skips the service.
+        image: ${{ case( matrix.wp != 'none', 'ghcr.io/mariadb/mariadb:lts', '' ) }}
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
