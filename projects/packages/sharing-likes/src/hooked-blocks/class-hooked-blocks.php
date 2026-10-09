@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
 
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
 
 /**
@@ -21,9 +22,6 @@ use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
  * @since $$next-version$$
  */
 final class Hooked_Blocks {
-
-	public const SHARING_BLOCK = 'jetpack/sharing-buttons';
-	public const LIKE_BLOCK    = 'jetpack/like';
 
 	private const ANCHOR = 'core/post-content';
 
@@ -41,8 +39,8 @@ final class Hooked_Blocks {
 	public static function init(): void {
 		// Ahead of Newsletter's Subscribe block at 10, whichever registers first.
 		add_filter( 'hooked_block_types', array( self::class, 'hook_block_types' ), 5, 4 );
-		add_filter( 'hooked_block_' . self::SHARING_BLOCK, array( self::class, 'build_sharing_buttons' ), 10, 4 );
-		add_filter( 'hooked_block_' . self::LIKE_BLOCK, array( self::class, 'build_like' ), 10, 4 );
+		add_filter( 'hooked_block_' . Block_Names::SHARING_BUTTONS, array( self::class, 'build_sharing_buttons' ), 10, 4 );
+		add_filter( 'hooked_block_' . Block_Names::LIKE, array( self::class, 'build_like' ), 10, 4 );
 	}
 
 	/**
@@ -63,10 +61,10 @@ final class Hooked_Blocks {
 		$wanted    = array();
 
 		if ( in_array( $placement, Template_Placements::get( Template_Placements::FEATURE_SHARING ), true ) ) {
-			$wanted[] = self::SHARING_BLOCK;
+			$wanted[] = Block_Names::SHARING_BUTTONS;
 		}
 		if ( in_array( $placement, Template_Placements::get( Template_Placements::FEATURE_LIKES ), true ) ) {
-			$wanted[] = self::LIKE_BLOCK;
+			$wanted[] = Block_Names::LIKE;
 		}
 
 		if ( ! $wanted || ! self::is_single_post_or_page_context( $context ) || ! self::blocks_can_load() ) {
@@ -222,7 +220,7 @@ final class Hooked_Blocks {
 	 * @param string $block Block type.
 	 */
 	private static function legacy_buttons_absent( string $block ): bool {
-		if ( self::SHARING_BLOCK === $block ) {
+		if ( Block_Names::SHARING_BUTTONS === $block ) {
 			return ! Environment::sharing_module_running() || Environment::legacy_sharing_switched_off();
 		}
 

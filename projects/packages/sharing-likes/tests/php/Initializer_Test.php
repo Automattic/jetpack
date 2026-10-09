@@ -40,8 +40,8 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
 		remove_all_filters( 'hooked_block_types' );
-		remove_all_filters( 'hooked_block_' . Hooked_Blocks::SHARING_BLOCK );
-		remove_all_filters( 'hooked_block_' . Hooked_Blocks::LIKE_BLOCK );
+		remove_all_filters( 'hooked_block_' . Block_Names::SHARING_BUTTONS );
+		remove_all_filters( 'hooked_block_' . Block_Names::LIKE );
 		$this->forget_initialization();
 
 		parent::tear_down();

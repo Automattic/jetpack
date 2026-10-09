@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -212,14 +213,14 @@ final class Environment {
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
 	public static function sharing_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/sharing-buttons' );
+		return self::block_is_registered( Block_Names::SHARING_BUTTONS );
 	}
 
 	/**
 	 * Whether the Like block is available to offer as an alternative.
 	 */
 	public static function like_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/like' );
+		return self::block_is_registered( Block_Names::LIKE );
 	}
 
 	/**

@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
 
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
+
 /**
  * A `jetpack/sharing-buttons` block with its buttons, carried over from the
  * site's legacy sharing services where the block offers them.
@@ -55,7 +57,7 @@ final class Sharing_Buttons_Markup {
 
 		foreach ( self::services() as $service ) {
 			$children[] = array(
-				'blockName'    => 'jetpack/sharing-button',
+				'blockName'    => Block_Names::SHARING_BUTTON,
 				'attrs'        => array(
 					'service' => $service,
 					'label'   => $labels[ $service ],

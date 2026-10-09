@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Resources;
 use Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag;
@@ -338,7 +339,7 @@ class Settings_Controller_Test extends BaseTestCase {
 	public function test_rejects_turning_likes_back_on_after_simple_switched_to_the_block(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
 
@@ -447,8 +448,8 @@ class Settings_Controller_Test extends BaseTestCase {
 	public function test_leaves_out_likes_settings_for_comment_likes_on_simple_after_the_switch(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::LIKE );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
 		update_option(

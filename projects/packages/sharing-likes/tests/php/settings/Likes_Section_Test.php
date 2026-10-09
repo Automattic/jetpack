@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -61,7 +62,7 @@ class Likes_Section_Test extends BaseTestCase {
 	 */
 	public function test_offers_no_way_back_where_the_block_is_the_route(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 		$this->given_connection( true );
 		$this->given_modules( array() );
 
@@ -88,7 +89,7 @@ class Likes_Section_Test extends BaseTestCase {
 	public function test_nudges_toward_the_block_on_simple(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 
 		$markup = $this->render();
 
@@ -103,7 +104,7 @@ class Likes_Section_Test extends BaseTestCase {
 	 */
 	public function test_offers_the_block_to_a_site_running_comment_likes_alone(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 		$this->given_connection( true );
 		$this->given_modules( array( 'comment-likes' ) );
 
@@ -115,7 +116,7 @@ class Likes_Section_Test extends BaseTestCase {
 
 	public function test_nudges_toward_the_block_with_both_likes_modules_running(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 		$this->given_connection( true );
 		$this->given_modules( array( 'likes', 'comment-likes' ) );
 
@@ -146,7 +147,7 @@ class Likes_Section_Test extends BaseTestCase {
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 
 		$markup = $this->render();
 
@@ -166,7 +167,7 @@ class Likes_Section_Test extends BaseTestCase {
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 		$this->given_connection( true );
 		$this->given_modules( array( 'likes' ) );
 
@@ -186,7 +187,7 @@ class Likes_Section_Test extends BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 		update_option( 'disabled_likes', 1 );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::LIKE );
 
 		$markup = $this->render();
 

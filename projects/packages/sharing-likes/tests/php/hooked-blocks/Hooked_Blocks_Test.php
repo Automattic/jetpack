@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,12 +31,9 @@ class Hooked_Blocks_Test extends BaseTestCase {
 
 	use Section_Environment;
 
-	private const SHARING = 'jetpack/sharing-buttons';
-	private const LIKE    = 'jetpack/like';
-
 	private const CONTENT = '<!-- wp:post-title /--><!-- wp:post-content {"layout":{"type":"constrained"}} /-->';
 
-	private const PLACED  = array( 'core/post-title', 'core/post-content', self::SHARING, self::LIKE );
+	private const PLACED  = array( 'core/post-title', 'core/post-content', Block_Names::SHARING_BUTTONS, Block_Names::LIKE );
 	private const NOTHING = array( 'core/post-title', 'core/post-content' );
 
 	/**
@@ -67,8 +65,8 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'hooked_block_types' );
-		remove_all_filters( 'hooked_block_' . self::SHARING );
-		remove_all_filters( 'hooked_block_' . self::LIKE );
+		remove_all_filters( 'hooked_block_' . Block_Names::SHARING_BUTTONS );
+		remove_all_filters( 'hooked_block_' . Block_Names::LIKE );
 		unregister_post_type( 'post-card' );
 
 		foreach ( array_merge( Template_Placements::OPTIONS, array( 'sharing-services', 'sharing-options', 'disabled_likes', 'disabled_reblogs' ) ) as $option ) {
@@ -235,7 +233,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 */
 	public function test_places_each_block_on_its_side_of_the_content_in_the_theme_templates(): void {
 		Template_Placements::update( Template_Placements::FEATURE_SHARING, array( Template_Placements::BEFORE_CONTENT ) );
-		$expected = array( 'core/post-title', self::SHARING, 'core/post-content', self::LIKE );
+		$expected = array( 'core/post-title', Block_Names::SHARING_BUTTONS, 'core/post-content', Block_Names::LIKE );
 
 		$this->assertSame( $expected, self::top_level_blocks( get_block_template( get_stylesheet() . '//single' )->content ) );
 		$this->assertSame( $expected, self::top_level_blocks( get_block_template( get_stylesheet() . '//page' )->content ) );
@@ -245,7 +243,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 * @return array<string, array{0: string[], 1: array<string, mixed>, 2: string[], 3: string[]}>
 	 */
 	public static function provide_gates(): array {
-		$both        = array( self::SHARING, self::LIKE );
+		$both        = array( Block_Names::SHARING_BUTTONS, Block_Names::LIKE );
 		$no_services = array(
 			'sharing-services' => array(
 				'visible' => array(),
@@ -255,14 +253,14 @@ class Hooked_Blocks_Test extends BaseTestCase {
 
 		return array(
 			'legacy features off'                      => array( array( 'blocks' ), array(), array(), $both ),
-			'Sharing module on'                        => array( array( 'blocks', 'sharedaddy' ), array(), array(), array( self::LIKE ) ),
+			'Sharing module on'                        => array( array( 'blocks', 'sharedaddy' ), array(), array(), array( Block_Names::LIKE ) ),
 			'Sharing module on, every service removed' => array( array( 'blocks', 'sharedaddy' ), $no_services, array(), $both ),
-			'Likes module on'                          => array( array( 'blocks', 'likes' ), array(), array(), array( self::SHARING ) ),
+			'Likes module on'                          => array( array( 'blocks', 'likes' ), array(), array(), array( Block_Names::SHARING_BUTTONS ) ),
 			'classic theme'                            => array( array( 'blocks' ), array(), array( 'classic theme' ), array() ),
 			'Blocks module off'                        => array( array(), array(), array(), array() ),
 			'disconnected'                             => array( array( 'blocks' ), array(), array( 'disconnected' ), array() ),
 			// Offline mode loads Jetpack's blocks, but the Like block needs a connection.
-			'offline mode'                             => array( array( 'blocks' ), array(), array( 'offline' ), array( self::SHARING ) ),
+			'offline mode'                             => array( array( 'blocks' ), array(), array( 'offline' ), array( Block_Names::SHARING_BUTTONS ) ),
 			'Simple, legacy buttons on'                => array( array(), array(), array( 'simple' ), array() ),
 			'Simple, both switched to the blocks'      => array(
 				array(),
@@ -336,7 +334,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 * @return array<string, array{0: mixed, 1: string, 2: string[], 3?: string}>
 	 */
 	public static function provide_sharing_buttons_already_handled(): array {
-		$ignored  = '<!-- wp:post-title /--><!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . self::SHARING . '"]}} /-->';
+		$ignored  = '<!-- wp:post-title /--><!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . Block_Names::SHARING_BUTTONS . '"]}} /-->';
 		$by_hand  = self::CONTENT . '<!-- wp:group --><div class="wp-block-group"><!-- wp:jetpack/sharing-buttons /--></div><!-- /wp:group -->';
 		$template = self::template( 'single' );
 
@@ -344,15 +342,15 @@ class Hooked_Blocks_Test extends BaseTestCase {
 
 		return array(
 			// Core records a block the owner removed from that anchor under the hooked type.
-			'removed by the owner'               => array( self::template( 'single' ), $ignored, array( 'core/post-title', 'core/post-content', self::LIKE ) ),
-			'added to the template by hand'      => array( $template, $by_hand, array_merge( self::NOTHING, array( self::LIKE, self::SHARING ) ) ),
+			'removed by the owner'               => array( self::template( 'single' ), $ignored, array( 'core/post-title', 'core/post-content', Block_Names::LIKE ) ),
+			'added to the template by hand'      => array( $template, $by_hand, array_merge( self::NOTHING, array( Block_Names::LIKE, Block_Names::SHARING_BUTTONS ) ) ),
 			'added to the pattern by hand'       => array(
 				array(
 					'templateTypes' => array( 'single' ),
 					'content'       => $by_hand,
 				),
 				$by_hand,
-				array_merge( self::NOTHING, array( self::LIKE, self::SHARING ) ),
+				array_merge( self::NOTHING, array( Block_Names::LIKE, Block_Names::SHARING_BUTTONS ) ),
 			),
 			// Core passes a theme pattern without its content the first time it is fetched.
 			'added to the theme pattern by hand' => array(
@@ -361,9 +359,9 @@ class Hooked_Blocks_Test extends BaseTestCase {
 					'filePath'      => dirname( __DIR__ ) . '/fixtures/patterns/sharing-buttons-by-hand.html',
 				),
 				$by_hand,
-				array_merge( self::NOTHING, array( self::LIKE, self::SHARING ) ),
+				array_merge( self::NOTHING, array( Block_Names::LIKE, Block_Names::SHARING_BUTTONS ) ),
 			),
-			'added to the post by hand'          => array( self::template( 'single' ), self::CONTENT, array_merge( self::NOTHING, array( self::LIKE ) ), '<!-- wp:jetpack/sharing-buttons /-->' ),
+			'added to the post by hand'          => array( self::template( 'single' ), self::CONTENT, array_merge( self::NOTHING, array( Block_Names::LIKE ) ), '<!-- wp:jetpack/sharing-buttons /-->' ),
 		);
 	}
 
@@ -508,7 +506,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 */
 	public function test_leaves_the_blocks_alone_elsewhere(): void {
 		$block    = array(
-			'blockName'    => self::LIKE,
+			'blockName'    => Block_Names::LIKE,
 			'attrs'        => array(),
 			'innerBlocks'  => array(),
 			'innerContent' => array(),
@@ -516,8 +514,8 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		$content  = array( 'blockName' => 'core/post-content' );
 		$template = self::template( 'single' );
 
-		$this->assertSame( $block, Hooked_Blocks::build_like( $block, self::LIKE, 'first_child', $content ) );
-		$this->assertSame( $block, Hooked_Blocks::build_sharing_buttons( $block, self::SHARING, 'after', array( 'blockName' => 'core/post-title' ) ) );
+		$this->assertSame( $block, Hooked_Blocks::build_like( $block, Block_Names::LIKE, 'first_child', $content ) );
+		$this->assertSame( $block, Hooked_Blocks::build_sharing_buttons( $block, Block_Names::SHARING_BUTTONS, 'after', array( 'blockName' => 'core/post-title' ) ) );
 		$this->assertSame( array(), Hooked_Blocks::hook_block_types( array(), 'last_child', 'core/post-content', $template ) );
 	}
 }
