@@ -12,7 +12,7 @@ The widget types live in `widgets/`. wp-build builds them, and the package regis
 
 The package decides nothing about who gets the section. The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. Availability stays on the section itself: WooCommerce active, the store-reports capability, and the `premium-analytics-store-section` flag, which this package registers.
 
-The package also owns when store data syncs to WordPress.com. `Sync_Configuration` opts in to the shared `woocommerce_analytics` sync module only while the site offers the section, and drops per-order changes until the first analytics full sync has started; the dashboard package's `Sync_Status_Tracker` records that start.
+The package also owns when store data syncs to WordPress.com. `Sync_Configuration` opts in to the shared `woocommerce_analytics` sync module only while the site offers the section, registers its name through `jetpack_premium_analytics_sync_modules`, and drops per-order changes until that module's first full sync has started. The dashboard package's `Sync_Status_Tracker` records starts separately for each registered module.
 
 ## Using this package in your WordPress plugin
 

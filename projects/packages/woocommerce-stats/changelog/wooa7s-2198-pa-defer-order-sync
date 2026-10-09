@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Sync no store analytics data until the site offers the WooCommerce tab, and no order changes until the first full analytics sync starts.
+Sync no store analytics data until the site offers the WooCommerce tab, and no order changes until the WooCommerce analytics module's first full sync starts.

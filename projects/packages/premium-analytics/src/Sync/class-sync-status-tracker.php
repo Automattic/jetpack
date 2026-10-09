@@ -24,18 +24,16 @@ class Sync_Status_Tracker {
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
 	/**
-	 * Unix ts at which the first full sync covering an analytics module began. Kept once set, so a
-	 * later full sync of other modules cannot hide that analytics data is already on WPCOM.
+	 * First full-sync start timestamps, keyed by analytics module name.
 	 */
 	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
 
 	/**
-	 * Default sync-module names whose end-of-sync event flips the milestone. Provided by
-	 * WooCommerce Analytics, which registers a custom full-sync module under this key.
+	 * Consumer packages register their analytics module names through the sync-module filter.
 	 *
 	 * @var string[]
 	 */
-	const ANALYTICS_SYNC_MODULES = array( 'woocommerce_analytics' );
+	const ANALYTICS_SYNC_MODULES = array();
 
 	/**
 	 * Action hook fired once when the analytics milestone flips. Consumer plugins
@@ -123,11 +121,9 @@ class Sync_Status_Tracker {
 	 */
 	public static function get_analytics_sync_modules(): array {
 		/**
-		 * Filter the sync-module names whose end-of-sync flips the analytics
-		 * milestone. Consumer plugins that register custom full-sync modules
-		 * can add their module keys here.
+		 * Filter the analytics module names whose starts are tracked and whose completion sets the milestone.
 		 *
-		 * @param string[] $module_names Default: array( 'woocommerce_analytics' ).
+		 * @param string[] $module_names Default: empty array.
 		 */
 		return (array) apply_filters( 'jetpack_premium_analytics_sync_modules', self::ANALYTICS_SYNC_MODULES );
 	}
@@ -176,26 +172,37 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Record the start of the first full sync that covers an analytics module.
+	 * Record each analytics module's first full-sync start.
 	 *
 	 * @param array|mixed $config Sync configuration of the full sync that began.
 	 * @return void
 	 */
 	public static function on_full_sync_start( $config ): void {
-		if ( get_option( self::ANALYTICS_SYNC_STARTED_OPTION ) || ! self::includes_analytics_module( $config ) ) {
-			return;
+		$config   = (array) $config;
+		$previous = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		$started  = $previous;
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( ! empty( $config[ $module_name ] ) && empty( $started[ $module_name ] ) ) {
+				$started[ $module_name ] = time();
+			}
 		}
 
-		update_option( self::ANALYTICS_SYNC_STARTED_OPTION, time() );
+		if ( $started !== $previous ) {
+			update_option( self::ANALYTICS_SYNC_STARTED_OPTION, $started );
+		}
 	}
 
 	/**
-	 * Whether a full sync covering an analytics module has ever started on this site.
+	 * Whether the given module's full sync has ever started on this site.
 	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $module_name Sync module name.
 	 * @return bool
 	 */
-	public static function has_analytics_full_sync_started(): bool {
-		return self::milestone_reached() || (int) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, 0 ) > 0;
+	public static function has_module_full_sync_started( string $module_name ): bool {
+		$started = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		return (int) ( $started[ $module_name ] ?? 0 ) > 0;
 	}
 
 	/**

@@ -1,5 +1,4 @@
 Significance: patch
-Type: other
-Comment: Update composer.lock for the new woocommerce-stats requirements.
+Type: bugfix
 
-
+Premium Analytics: Delay order analytics sync until the WooCommerce tab is available and its full sync starts.
