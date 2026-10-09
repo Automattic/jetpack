@@ -29,7 +29,7 @@
 		"@types/jsdom": "^30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@vitest/eslint-plugin": "^1.6.27",
-		"@wordpress/eslint-plugin": "27.0.0",
+		"@wordpress/eslint-plugin": "27.1.0",
 		"@wordpress/stylelint-config": "26.1.0",
 		"@wordpress/theme": "2.3.0",
 		"babel-jest": "30.5.1",

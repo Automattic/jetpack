@@ -7286,8 +7286,8 @@ importers:
         specifier: ^1.6.27
         version: 1.6.27(eslint@10.11.0)(typescript@6.0.3)
       '@wordpress/eslint-plugin':
-        specifier: 27.0.0
-        version: 27.0.0(@vitest/eslint-plugin@1.6.27(eslint@10.11.0)(typescript@6.0.3))(@wordpress/theme@2.3.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.11.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.4(eslint@10.11.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.11.0))(eslint-plugin-playwright@2.12.0(eslint@10.11.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint@10.11.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.11.0))(eslint-plugin-react@7.37.5(eslint@10.11.0))(eslint@10.11.0)(typescript@6.0.3)(wp-prettier@3.9.6)
+        specifier: 27.1.0
+        version: 27.1.0(@vitest/eslint-plugin@1.6.27(eslint@10.11.0)(typescript@6.0.3))(@wordpress/theme@2.3.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.11.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.4(eslint@10.11.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.11.0))(eslint-plugin-playwright@2.12.0(eslint@10.11.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint@10.11.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.11.0))(eslint-plugin-react@7.37.5(eslint@10.11.0))(eslint@10.11.0)(typescript@6.0.3)(wp-prettier@3.9.6)
       '@wordpress/stylelint-config':
         specifier: 26.1.0
         version: 26.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@2.3.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))
@@ -11711,8 +11711,8 @@ packages:
     resolution: {integrity: sha512-QT0x2X39blQjLHru11Dp00DAR0LLRMKMC6ATSWidliD3xQfKz+BjiPzTJd/LyhPLEE8C9li7ylKUlseIO2EYjQ==}
     engines: {node: '>=18.12.0'}
 
-  '@wordpress/eslint-plugin@27.0.0':
-    resolution: {integrity: sha512-0KMR7l7517fl/ZgADGrPG/cReBBCN93LSmu/bsQ7jzdst9+RmCI8y+q3V2XGWfKio9TK+ZM10zUvi9wTnd0T3Q==}
+  '@wordpress/eslint-plugin@27.1.0':
+    resolution: {integrity: sha512-ZhcmKOK8mb6faa2M2nMfYrC6mIxWIFaPJ5UKFjcAacxIIZ9t4iQsfZSP9m25J1j1K/tj0UD/CGsWO/G8MIFUWA==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
       '@vitest/eslint-plugin': '>=1.6.27'
@@ -11983,8 +11983,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@wordpress/prettier-config@4.56.0':
-    resolution: {integrity: sha512-FTiY8VRrKVcB2FNxFsALoe8TC0ilpIzYdiRT+VaS87HlEF99L5UfZoGT7gL2VhdEhkNCS9FPtk9k2xGPok/WJg==}
+  '@wordpress/prettier-config@4.57.0':
+    resolution: {integrity: sha512-bUL7MI6c6yCKVj2/OBOlFYAJiqozrnBqwQIj+EYMxxjrxnO6ymUvRL8XbqpKHC4xVUBbQ5aw8Sh+zjQ0DaKfaw==}
     engines: {node: '>=18.12.0'}
     peerDependencies:
       prettier: '>=3'
@@ -27033,12 +27033,12 @@ snapshots:
 
   '@wordpress/escape-html@3.57.0': {}
 
-  '@wordpress/eslint-plugin@27.0.0(@vitest/eslint-plugin@1.6.27(eslint@10.11.0)(typescript@6.0.3))(@wordpress/theme@2.3.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.11.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.4(eslint@10.11.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.11.0))(eslint-plugin-playwright@2.12.0(eslint@10.11.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint@10.11.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.11.0))(eslint-plugin-react@7.37.5(eslint@10.11.0))(eslint@10.11.0)(typescript@6.0.3)(wp-prettier@3.9.6)':
+  '@wordpress/eslint-plugin@27.1.0(@vitest/eslint-plugin@1.6.27(eslint@10.11.0)(typescript@6.0.3))(@wordpress/theme@2.3.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.11.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.4(eslint@10.11.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.11.0))(eslint-plugin-playwright@2.12.0(eslint@10.11.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.11.0))(eslint@10.11.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.11.0))(eslint-plugin-react@7.37.5(eslint@10.11.0))(eslint@10.11.0)(typescript@6.0.3)(wp-prettier@3.9.6)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.7.2(eslint@10.11.0)
       '@eslint/compat': 2.1.1(eslint@10.11.0)
       '@vitest/eslint-plugin': 1.6.27(eslint@10.11.0)(typescript@6.0.3)
-      '@wordpress/prettier-config': 4.56.0(wp-prettier@3.9.6)
+      '@wordpress/prettier-config': 4.57.0(wp-prettier@3.9.6)
       '@wordpress/theme': 2.3.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3))
       cosmiconfig: 7.1.0
       eslint: 10.11.0
@@ -29541,7 +29541,7 @@ snapshots:
       - supports-color
       - vite
 
-  '@wordpress/prettier-config@4.56.0(wp-prettier@3.9.6)':
+  '@wordpress/prettier-config@4.57.0(wp-prettier@3.9.6)':
     dependencies:
       prettier: wp-prettier@3.9.6
 
