@@ -13,6 +13,7 @@ import { ChartEmptyState } from '../chart-empty-state';
 import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
+import type { EmptyStateAction } from '../chart-empty-state/chart-empty-state';
 import type { ComponentProps, FocusEvent, ReactNode } from 'react';
 
 export interface WidgetStateError {
@@ -27,8 +28,8 @@ export interface WidgetStateEmpty {
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Defaults to the generic "We couldn’t find results for this time period." when omitted. */
 	description?: string;
-	/** Buttons or links under the description. */
-	actions?: ReactNode;
+	/** One action under the description. */
+	action?: EmptyStateAction;
 }
 
 export interface WidgetStateProps {
@@ -155,7 +156,7 @@ export function WidgetState( {
 			<ChartEmptyState
 				icon={ empty ? ( empty.icon ?? null ) : undefined }
 				text={ empty?.description }
-				actions={ empty?.actions }
+				action={ empty?.action }
 			/>
 		);
 	} else {
