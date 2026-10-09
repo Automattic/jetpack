@@ -26,7 +26,7 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 Where Features opens (connected sites, and offline sites with the offline entry enabled), My Jetpack Features shows all eligible features by default, including unavailable modules and their reasons. Unavailable modules have no switch or bulk selection. Choose **Available** to exclude unavailable features, forced-off modules, and installed plugins forced inactive from the list and its count. Search spans all eligible features, and choosing a filter clears the search. Feature filters, search, layout, and an open feature remain in the URL across reloads.
 
-When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons only in the details window of main cards.
+When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. On connected sites, plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons only in the details window of main cards.
 
 #### Offline mode
 
@@ -34,7 +34,9 @@ The offline Features entry is off by default. Register `add_filter( 'jetpack_my_
 
 Users need permission to edit posts and activate plugins, plus manage the network on multisite. The Jetpack plugin keeps its Modules and Settings entry for users who cannot access Features. Local modules can be switched and retain their state after reload. The Features controller refuses to activate modules that require a connection; standalone plugins can still be activated and may run their own activation steps, including Social enabling its module.
 
-The offline page skips product, ownership, notification, and history queries. It does not prevent requests elsewhere in shared Jetpack code: the Search plan lookup with copied credentials and connected-user script data on a cold cache can still contact WordPress.com.
+Feature details retain plan names and explanations as plain text offline, without purchase links or upgrade buttons.
+
+The offline page skips product, ownership, notification, and history queries. The Jetpack plugin also suppresses its Scan toolbar notice and its signed status request in offline mode, whether or not offline Features is enabled. Other shared Jetpack code can still contact WordPress.com: the Search plan lookup with copied credentials and connected-user script data on a cold cache remain possible.
 
 ## Architecture
 
