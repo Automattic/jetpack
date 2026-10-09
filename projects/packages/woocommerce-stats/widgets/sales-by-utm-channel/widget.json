@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/sales-by-utm-channel",
+	"icon": "jpa/chart-bar",
 	"title": "Sales by UTM channel",
 	"description": "Shows the top UTM channels by order revenue over the selected time period.",
 	"help": {
