@@ -115,6 +115,9 @@ describe( 'ManageConnectionDialog', () => {
 
 			// One dialog, renamed — a second modal would mean two focus traps.
 			expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
+			// The step owns the actions: a dialog-wide Cancel here would close without
+			// the refresh a completed transfer needs.
+			expect( screen.queryByRole( 'button', { name: 'Cancel' } ) ).not.toBeInTheDocument();
 			expect(
 				screen.getByRole( 'dialog', { name: 'Transfer connection ownership' } )
 			).toBeInTheDocument();
