@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PayPalIcon from '../icon';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
@@ -218,6 +219,11 @@ export default function ConnectionWizard( {
 	const visibleStep =
 		wizardStep === 'welcome' && ! partnerReferralsAvailable ? 'dashboard' : wizardStep;
 
+	// Flag off, the wizard connects to production only: no toggle on the welcome
+	// step, no sandbox link under the credentials. The way back out of a sandbox
+	// a merchant was already in stays.
+	const sandboxAllowed = isSandboxAllowed();
+
 	return (
 		<div className="jetpack-paypal-payment-buttons__connect">
 			{ /* Reconnecting from a block that still holds a button — let the
@@ -274,13 +280,15 @@ export default function ConnectionWizard( {
 							'jetpack-paypal-payments'
 						) }
 					</p>
-					<div className="jetpack-paypal-wizard__env-toggle">
-						<ToggleControl
-							label={ __( 'Use sandbox (testing)', 'jetpack-paypal-payments' ) }
-							checked={ environment === 'sandbox' }
-							onChange={ checked => setEnvironment( checked ? 'sandbox' : 'production' ) }
-						/>
-					</div>
+					{ sandboxAllowed && (
+						<div className="jetpack-paypal-wizard__env-toggle">
+							<ToggleControl
+								label={ __( 'Use sandbox (testing)', 'jetpack-paypal-payments' ) }
+								checked={ environment === 'sandbox' }
+								onChange={ checked => setEnvironment( checked ? 'sandbox' : 'production' ) }
+							/>
+						</div>
+					) }
 					<div className="jetpack-paypal-wizard__actions">
 						<Button
 							variant="primary"
@@ -484,26 +492,28 @@ export default function ConnectionWizard( {
 						</Button>
 					</div>
 
-					<p className="jetpack-paypal-wizard__env-toggle">
-						{ environment === 'production' ? (
-							<Button variant="link" onClick={ () => setEnvironment( 'sandbox' ) }>
-								{ __( 'Use Sandbox for testing', 'jetpack-paypal-payments' ) }
-							</Button>
-						) : (
-							<>
-								<Button variant="link" onClick={ () => setEnvironment( 'production' ) }>
-									{ __( 'Switch to Production (Live)', 'jetpack-paypal-payments' ) }
+					{ ( sandboxAllowed || environment === 'sandbox' ) && (
+						<p className="jetpack-paypal-wizard__env-toggle">
+							{ environment === 'production' ? (
+								<Button variant="link" onClick={ () => setEnvironment( 'sandbox' ) }>
+									{ __( 'Use Sandbox for testing', 'jetpack-paypal-payments' ) }
 								</Button>
-								<br />
-								<span className="jetpack-paypal-wizard__env-hint">
-									{ __(
-										'Sandbox creates test buttons that do not process real payments.',
-										'jetpack-paypal-payments'
-									) }
-								</span>
-							</>
-						) }
-					</p>
+							) : (
+								<>
+									<Button variant="link" onClick={ () => setEnvironment( 'production' ) }>
+										{ __( 'Switch to Production (Live)', 'jetpack-paypal-payments' ) }
+									</Button>
+									<br />
+									<span className="jetpack-paypal-wizard__env-hint">
+										{ __(
+											'Sandbox creates test buttons that do not process real payments.',
+											'jetpack-paypal-payments'
+										) }
+									</span>
+								</>
+							) }
+						</p>
+					) }
 				</div>
 			) }
 

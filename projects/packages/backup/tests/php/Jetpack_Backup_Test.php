@@ -149,8 +149,8 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * The callback reports the upstream status, so the REST layer has something
-	 * to serve other than a generic 500.
+	 * The callback reports the upstream status and reason, so the REST layer has
+	 * something to serve other than a generic 500, and the reader something to quote.
 	 *
 	 * @param string $callback Name of the route callback.
 	 * @dataProvider provide_wpcom_backed_route_callbacks
@@ -159,6 +159,7 @@ class Jetpack_Backup_Test extends TestCase {
 	public function test_route_forwards_a_non_200( $callback ) {
 		$this->sign_in_as_connected_admin();
 		$this->wpcom_status = 503;
+		$this->wpcom_body   = '{"code":"rewind_unavailable","message":"Rewind is unavailable."}';
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 
 		$result = call_user_func( array( Jetpack_Backup::class, $callback ) );
@@ -166,6 +167,14 @@ class Jetpack_Backup_Test extends TestCase {
 		$this->assertInstanceOf( WP_Error::class, $result, $callback );
 		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code(), $callback );
 		$this->assertSame( 503, $result->get_error_data()['status'], $callback );
+		$this->assertSame(
+			array(
+				'code'    => 'rewind_unavailable',
+				'message' => 'Rewind is unavailable.',
+			),
+			$result->get_error_data()['wpcom'],
+			$callback
+		);
 	}
 
 	/**

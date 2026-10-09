@@ -9,6 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockLineChartLegendSpy,
 	mockLineChartSpy,
+	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
 	setMockHiddenSeries,
@@ -105,6 +106,7 @@ type RecordedLineProps = {
 	options?: {
 		yScale?: { domain?: [ number, number ]; zero?: boolean };
 		axis: {
+			x: { display?: boolean };
 			y: {
 				display?: boolean;
 				tickValues?: number[];
@@ -174,22 +176,25 @@ describe( 'ComparativeLineChart', () => {
 
 	// `useChartMargin` sizes the gutters itself; overriding them here clipped the edge dates.
 	it.each( [
-		[ 'by default', DATA_FORMAT, false ],
-		[ 'on a pinned domain', { type: 'percentage' as const, options: { decimals: 0 } }, false ],
-		[ 'on a sparkline, which hides the y axis', DATA_FORMAT, true ],
-	] )( 'never overrides the gutters the chart measured %s', ( _case, dataFormat, isSparkline ) => {
-		setMockChartHeight( isSparkline ? 80 : Infinity );
-
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ dataFormat }
-				compactWhenShort={ isSparkline }
-			/>
-		);
+		[ 'by default', DATA_FORMAT ],
+		[ 'on a pinned domain', { type: 'percentage' as const, options: { decimals: 0 } } ],
+	] )( 'keeps both axes and the gutters the chart measured %s', ( _case, dataFormat ) => {
+		render( <ComparativeLineChart series={ SERIES } dataFormat={ dataFormat } compactWhenShort /> );
 
 		expect( recordedProps().margin ).toBeUndefined();
-		expect( recordedProps().options.axis.y.display ).toBe( isSparkline ? false : undefined );
+		expect( recordedProps().options.axis.x.display ).toBeUndefined();
+		expect( recordedProps().options.axis.y.display ).toBeUndefined();
+	} );
+
+	it( 'draws a short tile as a sparkline the pointer can reach edge to edge', () => {
+		setMockChartHeight( 80 );
+		render(
+			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+		);
+
+		expect( recordedProps().options.axis.x.display ).toBe( false );
+		expect( recordedProps().options.axis.y.display ).toBe( false );
+		expect( recordedProps().margin ).toBe( mockSparklineMargin );
 	} );
 
 	describe( 'value axis baseline', () => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Skip the WordPress.com account check on guest emails outside WordPress.com, where nothing turns those comments away.

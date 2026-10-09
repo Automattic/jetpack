@@ -1,0 +1,76 @@
+// Three classes: block themes reach it with two classes and a tag.
+.jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
+	display: block;
+	box-sizing: border-box;
+	inline-size: 100%;
+	// A few lines, padding included, as the editor has; field-sizing ignores rows.
+	min-block-size: 5lh;
+	field-sizing: content;
+	padding: var(--jetpack-comments-pad);
+	// Pinned: themes resize textarea#comment, and the grip overlaps the submit.
+	resize: none !important;
+
+	// Pinned: themes set display on textarea#comment, and an ID outranks classes.
+	&[hidden] {
+		display: none !important;
+	}
+
+	// The shade the editor gives its own placeholder, so the handoff keeps it.
+	&::placeholder {
+		color: currentColor;
+		opacity: 0.62;
+	}
+
+	// Pinned: themes reach for a textarea's border with every kind of selector.
+	&,
+	&:focus {
+		border: 0 !important;
+		background: transparent !important;
+		box-shadow: none !important;
+		color: inherit;
+		outline: none !important;
+	}
+}
+
+// The placeholder, over the textarea while the editor downloads, its dots
+// bouncing one after another.
+.jetpack-comments__loading {
+	position: absolute;
+	inset-block-start: var(--jetpack-comments-pad);
+	inset-inline-start: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+	opacity: 0.62;
+	pointer-events: none;
+}
+
+.jetpack-comments__loading span {
+	display: inline-block;
+	animation: jetpack-comments-bounce 1s ease-in-out infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+.jetpack-comments__loading span:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.jetpack-comments__loading span:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+@keyframes jetpack-comments-bounce {
+
+	0%,
+	60%,
+	100% {
+		transform: none;
+	}
+
+	30% {
+		transform: translateY(-0.3em);
+	}
+}
