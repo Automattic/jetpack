@@ -22,6 +22,7 @@ jest.unstable_mockModule( '../../../helpers/get-user-connection-url', () => ( {
 jest.unstable_mockModule( '../../../state/store', () => ( {
 	__esModule: true,
 	STORE_ID: 'jetpack-connection',
+	initConnectionStore: () => ( { name: 'jetpack-connection' } ),
 } ) );
 
 const useRestoreConnection = ( await import( '../index' ) ).default;

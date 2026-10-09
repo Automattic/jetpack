@@ -5,14 +5,16 @@ import {
 	Col,
 	PricingCard,
 } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ConnectScreenRequiredPlan, initConnectionStore } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
 const Admin = () => {
-	const connectionStatus = useSelect( select =>
-		select( CONNECTION_STORE_ID ).getConnectionStatus()
+	const connectionStore = initConnectionStore();
+	const connectionStatus = useSelect(
+		select => select( connectionStore ).getConnectionStatus(),
+		[ connectionStore ]
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;

@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import useConnection from '../';
-import { STORE_ID } from '../../../state/store';
+import { STORE_ID, initConnectionStore } from '../../../state/store';
 import type { UseConnectionProps } from '../types';
 
 /**
@@ -26,6 +26,9 @@ interface StoreSelect {
 
 describe( 'useConnection', () => {
 	const setupStubs = () => {
+		// The store registers lazily now; register it before stubbing it.
+		initConnectionStore();
+
 		const { result: dispatch } = renderHook( () => useDispatch( STORE_ID ) as StoreDispatch );
 		let storeSelect: StoreSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) as StoreSelect ) ) );
