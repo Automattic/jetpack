@@ -1,5 +1,6 @@
 {
 	"name": "videopress/top-videos",
+	"icon": "jpa/video",
 	"title": "Top videos",
 	"description": "Your most played VideoPress videos, sourced from Jetpack Stats.",
 	"help": {

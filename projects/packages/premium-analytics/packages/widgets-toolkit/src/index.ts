@@ -284,8 +284,6 @@ export {
 	calculateDelta,
 	flagUrl,
 	BOOKINGS_FILTER,
-	PHYSICAL_PRODUCTS_FILTER,
-	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
 	buildCsv,
@@ -364,14 +362,7 @@ export {
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	SalesByUtmWidget,
 	SessionsByDeviceWidget,
-	TopPerformingProductLeaderboardWidget,
-	type TopPerformingProductLeaderboardWidgetProps,
-	TopPerformingProductsWidget,
-	type TopPerformingProductsWidgetProps,
-	TopPerformingBookingsWidget,
-	type TopPerformingBookingsWidgetProps,
 } from './widgets';
 
 /**

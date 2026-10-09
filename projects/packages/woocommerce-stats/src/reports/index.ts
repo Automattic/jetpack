@@ -15,7 +15,7 @@ export {
 	type OrderAttributionView,
 } from './api/report-order-attribution-summary-fetch';
 export type { FilterCondition } from './types/filter-condition';
-export { BOOKINGS_FILTER } from './utils/product-filters';
+export { BOOKINGS_FILTER, PHYSICAL_PRODUCTS_FILTER } from './utils/product-filters';
 export {
 	FULFILLED_ORDERS_FILTER,
 	PAYMENT_STATUS_FILTERS,

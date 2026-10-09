@@ -3,6 +3,7 @@ import { useContext, useEffect } from 'preact/hooks';
 import { Footer } from '../footer';
 import { markSubmitted, saveDraft } from '../shared/draft';
 import { CommentSignals } from '../shared/state';
+import { recordEvent } from '../shared/tracks';
 import { Textarea } from '../textarea';
 import { preloadEditor } from '../textarea/load-editor';
 
@@ -61,6 +62,21 @@ export const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			form.removeEventListener( 'focusout', onFocusOut );
 		};
 	}, [ form, isEmptyComment, isBoxOpen ] );
+
+	// The top of the funnel: a reader who reached for the form, posting or not.
+	useEffect( () => {
+		const onFocusIn = () =>
+			recordEvent( 'jetpack_comments_form_focus', {
+				commenter: commenter.peek().kind,
+				// Read from the input: a reply link focuses the box before the observer below hears of it.
+				is_reply: Number( form.querySelector< HTMLInputElement >( '#comment_parent' )?.value ) > 0,
+				editor: JetpackComments.blocks,
+			} );
+
+		form.addEventListener( 'focusin', onFocusIn, { once: true } );
+
+		return () => form.removeEventListener( 'focusin', onFocusIn );
+	}, [ form, commenter ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
