@@ -14,11 +14,11 @@ const hasCoordinates = points =>
 /**
  * Resolve new addresses without rewriting saved or explicitly edited locations.
  *
- * @param {string}        address   Address to resolve.
- * @param {Array}         points    Current map locations.
- * @param {Function|null} lookup    Async lookup, or null until the provider is ready.
- * @param {Function}      onSuccess Receives the resolved points.
- * @param {Function}      onError   Receives lookup failures.
+ * @param {string}        address   - Address to resolve.
+ * @param {Array}         points    - Current map locations.
+ * @param {Function|null} lookup    - Async lookup, or null until the provider is ready.
+ * @param {Function}      onSuccess - Receives the resolved points.
+ * @param {Function}      onError   - Receives lookup failures.
  */
 export default function useAddressLookup( address, points, lookup, onSuccess, onError ) {
 	const previous = useRef( { address, points, resolved: hasCoordinates( points ) } );
