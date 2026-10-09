@@ -23,14 +23,16 @@ SUMMARY="artifacts/summary-$ARTIFACT.tsv"
 
 TMP=$( find "$PWD/coverage" -name '*.cov' )
 if [[ -n "$TMP" ]]; then
+	PHP_COMBINED="artifacts/php-combined-$ARTIFACT.cov"
+
 	echo "::group::Combining PHP coverage"
 	composer --working-dir="$BASE" update
-	"$BASE"/vendor/bin/phpcov merge --php artifacts/php-combined.cov coverage
-	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" artifacts/php-combined.cov
+	"$BASE"/vendor/bin/phpcov merge --php "$PHP_COMBINED" coverage
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" "$PHP_COMBINED"
 	echo '::endgroup::'
 
 	echo "::group::Creating PHP coverage summary"
-	"$BASE"/extract-php-summary-data.php artifacts/php-combined.cov > "$SUMMARY"
+	"$BASE"/extract-php-summary-data.php "$PHP_COMBINED" > "$SUMMARY"
 	echo '::endgroup::'
 fi
 
