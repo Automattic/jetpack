@@ -11,6 +11,9 @@ use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -122,6 +125,42 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
+		);
+	}
+
+	/**
+	 * A store that has taken orders moves its tab ahead of Traffic, which makes it the default tab.
+	 *
+	 * @dataProvider provide_order_ids_and_section_order
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param int[] $order_ids      Ids the stubbed order query returns.
+	 * @param int   $expected_order Expected section order.
+	 */
+	#[DataProvider( 'provide_order_ids_and_section_order' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_orders_the_section_by_whether_the_store_has_orders( $order_ids, $expected_order ) {
+		require_once __DIR__ . '/mocks/woocommerce-orders-mock.php';
+		$GLOBALS['jetpack_woocommerce_stats_order_ids'] = $order_ids;
+		$this->enable_store();
+		Analytics_Dashboard::init();
+
+		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
+
+		$this->assertSame( $expected_order, $section->order );
+	}
+
+	/**
+	 * Data provider for test_orders_the_section_by_whether_the_store_has_orders.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_order_ids_and_section_order() {
+		return array(
+			'no orders'  => array( array(), Analytics_Dashboard::SECTION_ORDER ),
+			'has orders' => array( array( 12, 34 ), Analytics_Dashboard::SELLING_SECTION_ORDER ),
 		);
 	}
 

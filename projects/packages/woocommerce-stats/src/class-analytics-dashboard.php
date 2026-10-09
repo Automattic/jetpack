@@ -75,6 +75,19 @@ class Analytics_Dashboard {
 	const HELD_BACK_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
+	 * Tab order: after the built-in tabs, or ahead of Traffic (10) once the store has orders, which
+	 * makes it the dashboard's default tab.
+	 */
+	const SECTION_ORDER         = 40;
+	const SELLING_SECTION_ORDER = 5;
+
+	/**
+	 * Transient caching whether the store has orders, as `yes` or `no`: the section registers on
+	 * every page that prints the dashboard's script data.
+	 */
+	const HAS_ORDERS_TRANSIENT = 'jetpack_woocommerce_stats_has_orders';
+
+	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
 	 * requests, and the store currency on the script data.
 	 *
@@ -113,13 +126,43 @@ class Analytics_Dashboard {
 			self::SECTION_ID,
 			array(
 				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'          => 40,
+				'order'          => self::store_has_orders() ? self::SELLING_SECTION_ORDER : self::SECTION_ORDER,
 				'is_available'   => $is_available,
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'  => true,
 				'default_layout' => array( __CLASS__, 'get_default_layout' ),
 			)
 		);
+	}
+
+	/**
+	 * Whether the store has taken at least one order, cached for a week once it has and an hour
+	 * until then.
+	 *
+	 * @return bool
+	 */
+	private static function store_has_orders() {
+		if ( ! function_exists( 'wc_get_orders' ) ) {
+			return false;
+		}
+
+		$cached = get_transient( self::HAS_ORDERS_TRANSIENT );
+		if ( false !== $cached ) {
+			return 'yes' === $cached;
+		}
+
+		$has_orders = ! empty(
+			wc_get_orders(
+				array(
+					'limit'  => 1,
+					'return' => 'ids',
+				)
+			)
+		);
+
+		set_transient( self::HAS_ORDERS_TRANSIENT, $has_orders ? 'yes' : 'no', $has_orders ? WEEK_IN_SECONDS : HOUR_IN_SECONDS );
+
+		return $has_orders;
 	}
 
 	/**
