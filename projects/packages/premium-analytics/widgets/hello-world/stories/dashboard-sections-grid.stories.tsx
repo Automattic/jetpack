@@ -111,9 +111,9 @@ const storySections = [
 		default_layout: [],
 	},
 	{
-		id: 'woocommerce/store',
-		slug: 'store',
-		label: 'Store',
+		id: 'woocommerce-analytics/woocommerce',
+		slug: 'woocommerce',
+		label: 'WooCommerce',
 		order: 40,
 		default_layout: [],
 	},

@@ -97,7 +97,6 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	appliedPresetId: 'last-30-days',
 	appliedRange: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
 	interval: 'day',
-	appliedInterval: 'day',
 	intervalOptions: [ 'day' ],
 	onChange: () => {},
 	onComparisonChange: () => {},
@@ -107,7 +106,6 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	canApply: false,
 	timeZone: STORY_TIMEZONE,
 	replaceRange: () => {},
-	drillDown: () => {},
 };
 
 /**

@@ -125,9 +125,8 @@ class Sales_By_Channel_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-			'orderby'   => 'gross_sales',
-			'view'      => 'channel',
+			'orderby' => 'gross_sales',
+			'view'    => 'channel',
 		);
 	}
 

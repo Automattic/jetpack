@@ -5,4 +5,10 @@ type TooltipProps = {
 	};
 };
 
-export type { TooltipProps };
+type TooltipData = {
+	label: string;
+	value: number;
+	valueDisplay?: string;
+};
+
+export type { TooltipProps, TooltipData };

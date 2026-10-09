@@ -50,14 +50,18 @@ function ConnectScreenRequiredPlan( {
 
 	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
 
-	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const {
+		run: handleCheckoutWorkflow,
+		hasCheckoutStarted,
+		checkoutError,
+	} = useProductCheckoutWorkflow( {
 		productSlug,
 		redirectUrl: redirectUri,
 		siteProductAvailabilityHandler,
 		from,
 	} );
 
-	const displayButtonError = Boolean( registrationError );
+	const displayButtonError = Boolean( registrationError || checkoutError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
 	const errorCode = registrationError ? registrationError.response?.code : undefined;

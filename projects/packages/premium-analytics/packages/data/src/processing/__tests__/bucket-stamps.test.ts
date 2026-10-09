@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { localTZDate } from '@jetpack-premium-analytics/datetime';
-/**
  * Internal dependencies
  */
 import { sanitizeReportBookingsResponse } from '../bookings';
@@ -64,48 +60,6 @@ describe.each( zoneThreadingSanitizers )( '%s sanitizer', ( _name, sanitize ) =>
 } );
 
 describe( 'store report sanitizers', () => {
-	it( 'strips the offset from rows and from the summary', () => {
-		const report = sanitizeReportVisitorsResponse(
-			{ data: [ wooRow( '2026-06-15' ) ], summary: wooRow( '2026-06-15' ) },
-			SITE_ZONE
-		);
-
-		expect( report.data[ 0 ].date_start ).toBe( '2026-06-15T00:00:00' );
-		expect( report.data[ 0 ].date_end ).toBe( '2026-06-15T23:59:59' );
-		expect( report.summary.date_start ).toBe( '2026-06-15T00:00:00' );
-	} );
-
-	// No store endpoint writes this today; an offset that is not the site's own is
-	// the only one that moves a bucket when it is resolved.
-	it( 'resolves a fabricated UTC stamp into the site wall time', () => {
-		const report = sanitizeReportVisitorsResponse(
-			{ data: [ wooRow( '2026-06-15', 'Z' ) ], summary: wooRow( '2026-06-15', 'Z' ) },
-			SITE_ZONE
-		);
-
-		expect( report.data[ 0 ].date_start ).toBe( '2026-06-15T08:00:00' );
-	} );
-
-	// The offset the server writes is the site's own, so the reader resolves the
-	// stripped stamp to the instant it resolved the offset-bearing one to.
-	it( 'leaves the instant a reader resolves unchanged', () => {
-		const raw = wooRow( '2026-06-15' );
-		const report = sanitizeReportVisitorsResponse( { data: [ raw ], summary: raw }, SITE_ZONE );
-
-		expect( localTZDate( report.data[ 0 ].date_start, SITE_ZONE ).getTime() ).toBe(
-			localTZDate( raw.date_start, SITE_ZONE ).getTime()
-		);
-	} );
-
-	it( 'keeps an empty default bound empty', () => {
-		const report = sanitizeReportVisitorsResponse(
-			{ data: [], summary: { active_sessions: '0', visitors: '0', date_start: '', date_end: '' } },
-			SITE_ZONE
-		);
-
-		expect( report.summary.date_start ).toBe( '' );
-	} );
-
 	// This one lists its output fields instead of spreading, so it drifts on its own.
 	it( 'stamps order attribution intervals in both periods', () => {
 		const period = {

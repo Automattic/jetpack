@@ -161,7 +161,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -179,8 +179,8 @@ opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
-opt-in, the Store tab also needs the `premium-analytics-store-section` feature flag, off by default; see
-`docs/dashboard-sections.md`.
+opt-in, the WooCommerce tab also needs the `premium-analytics-store-section` feature flag, off by default; see
+`docs/dashboard-sections.md`. The tab itself registers from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
@@ -319,7 +319,7 @@ lazy-loaded by the dashboard at runtime.
 > module paths as provisional rather than a long-term API.
 
 > **Legacy note.** Widgets currently under `packages/widgets-toolkit/src/widgets/*` (e.g.
-> `sales-by-coupon`, `sales-by-utm`) predate this layout and are scheduled to be migrated.
+> `sales-by-coupon`, `sales-by-device`) predate this layout and are scheduled to be migrated.
 > Do not use them as templates for new work — follow the structure and story template below
 > instead.
 
@@ -335,8 +335,8 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (icon, attributes, example)
+├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
+├── widget.ts                               # runtime-only definition (attributes, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -346,8 +346,13 @@ Notes:
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
   (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
   `widget.ts` no longer declares it.
+- `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
+  the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
+  name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
+  resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps
+  `widget.ts` for its attribute type and exports `{}`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
-  `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
+  `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
 - Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
   `link:` for internal packages (e.g.
@@ -629,8 +634,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   real `WidgetDashboard` through the shared story helper instead.
 - Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
   `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
-  `widget.ts` default export carries only `icon`, `attributes`, and `example`. Stories read
-  those declarative fields from `widget.json` via `createStoryWidgetType()`.
+  `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
+  `widget.json` reference. Stories read the declarative fields from `widget.json` via
+  `createStoryWidgetType()`, which resolves the icon the way the host does.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
   and imported in `render.tsx`; render-only types may compose that imported shape with host
   fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
@@ -639,6 +645,11 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   typecheck. Use `Record< never, never >` instead.
 - Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
   `reportParams` and makes date/comparison Storybook controls misleading.
+- Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
+  `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
+  commits the range and draws the date control's attention to it. A host that offers none leaves
+  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
+  over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget
@@ -695,7 +706,10 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
 component owns the states, the skeleton, the shares and deltas, and the detail-link window
-(`widgets/search-terms/render.tsx` is the reference). Everything else renders its states through
+(`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
+segments and the hook's status; it owns the states, the total, the legend and the deltas
+(the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
+Everything else renders its states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
@@ -756,7 +770,8 @@ area. Notes:
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
-> `<Leaderboard>` is that wrapper; the other widget kinds get theirs as follow-ups.
+> `<Leaderboard>` is that wrapper, and `<Donut>` for a breakdown; the other widget kinds get theirs
+> as follow-ups.
 
 **Comparison data**
 

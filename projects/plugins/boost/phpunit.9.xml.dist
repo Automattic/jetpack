@@ -19,6 +19,7 @@
 			<exclude>tests/php/Jetpack_Boost_Test.php</exclude>
 			<exclude>tests/php/lib/minify/Concatenate_Static_Cache_Urls_Test.php</exclude>
 			<exclude>tests/php/lib/minify/Concatenate_JS_Strategy_Test.php</exclude>
+			<exclude>tests/php/lib/minify/Cache_Bust_Mtime_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Storage_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</exclude>
@@ -30,6 +31,7 @@
 			<file>tests/php/Jetpack_Boost_Test.php</file>
 			<file>tests/php/lib/minify/Concatenate_Static_Cache_Urls_Test.php</file>
 			<file>tests/php/lib/minify/Concatenate_JS_Strategy_Test.php</file>
+			<file>tests/php/lib/minify/Cache_Bust_Mtime_Test.php</file>
 			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
 			<file>tests/php/lib/critical-css/Generator_Test.php</file>
 			<file>tests/php/lib/critical-css/Critical_CSS_Storage_Test.php</file>

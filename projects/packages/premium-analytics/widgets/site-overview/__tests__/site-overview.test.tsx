@@ -62,6 +62,11 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 		expect( screen.getByText( '260' ) ).toBeInTheDocument();
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
+		// Sighted mouse users get the caveat as a hover title…
+		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
+		// …and assistive technology gets it as visually hidden text, since a
+		// `title` on a non-focusable element is unreachable by keyboard.
+		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the exact total behind the shortened count', async () => {
@@ -75,21 +80,6 @@ describe( 'SiteOverviewWidget', () => {
 
 		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( '18,400' ) ).toBeInTheDocument();
-	} );
-
-	it( 'explains the per-day visitor aggregation on the Visitors tile', async () => {
-		render(
-			<SiteOverviewWidget
-				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
-		);
-
-		await expect( screen.findByText( 'Visitors' ) ).resolves.toBeInTheDocument();
-		// Sighted mouse users get the caveat as a hover title…
-		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
-		// …and assistive technology gets it as visually hidden text, since a
-		// `title` on a non-focusable element is unreachable by keyboard.
-		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows zeros, not an empty state, when every visible metric is zero', async () => {
@@ -165,21 +155,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'requests the dashboard date range from report params', async () => {
-		render(
-			<SiteOverviewWidget
-				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
-		);
-
-		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/summary' );
-		expect( requestedPath ).toContain( 'date=2026-03-10' );
-	} );
-
-	it( 'fetches the comparison window when comparison params are present', async () => {
+	it( 'requests the report range and the comparison window from the summary endpoint', async () => {
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-02-10' ) ? COMPARISON_RESPONSE : SUMMARY_RESPONSE )
 		);
@@ -201,8 +177,12 @@ describe( 'SiteOverviewWidget', () => {
 		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
 
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
-		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
-		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
+		expect( requestedPaths ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /stats\/summary\?.*date=2026-03-10/ ),
+				expect.stringMatching( /stats\/summary\?.*date=2026-02-10/ ),
+			] )
+		);
 
 		// Distinct metrics must show distinct deltas, not one shared value: views
 		// 420 vs 300 rises, likes 48 vs 60 falls.

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/annual-highlights",
+	"icon": "jpa/calendar",
 	"title": "Year in review",
 	"description": "Your totals for the year at a glance — posts, words, likes, and comments.",
 	"help": {

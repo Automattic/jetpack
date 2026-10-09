@@ -16,7 +16,6 @@ export const projects = [
 	'projects/packages/premium-analytics/widgets',
 	'projects/packages/publicize/_inc/components',
 	'projects/packages/search/src/dashboard/components',
-	'projects/packages/videopress/src/client/admin/components',
 	'projects/packages/videopress/src/client/block-editor',
 	'projects/packages/videopress/src/client/components',
 	'projects/plugins/boost/app/assets/src/js',

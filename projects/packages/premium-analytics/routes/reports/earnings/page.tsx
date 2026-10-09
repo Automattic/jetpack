@@ -5,16 +5,14 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
 	useReportCsvExport,
-	useReportRetry,
 	type CsvColumn,
 	type EarningsHistoryRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -125,7 +123,6 @@ function EarningsReport(): JSX.Element {
 		status: records,
 		sort: sortEarningsCsvRows,
 	} );
-	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.earnings;
 
@@ -148,17 +145,13 @@ function EarningsReport(): JSX.Element {
 					) : undefined
 				}
 			>
-				{ records.isError ? (
-					<PageNotice
-						{ ...describeError( records.error, {
-							retryDescription: __(
-								"We couldn't load earnings. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							onRetry: retry,
-						} ) }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load earnings. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< EarningsHistoryRow >
 						key={ tab }
 						data={ records.rows }
@@ -169,7 +162,7 @@ function EarningsReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

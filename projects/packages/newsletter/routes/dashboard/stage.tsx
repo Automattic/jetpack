@@ -13,7 +13,6 @@ import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { NewsletterSettingsBody } from '../../src/settings/newsletter-settings';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import OverviewBody from './components/overview-body';
-import SubscriberStatsChart from './components/subscriber-stats-chart';
 import '../../src/settings/style.scss';
 import './route.scss';
 
@@ -39,8 +38,8 @@ function getRedirectUri(): string | undefined {
  * active-tab indicator slides between tabs instead of remounting on each
  * route hop.
  *
- * Active tab is read from `?tab=`. Overview is the default; the other tabs
- * load via `?tab=stats`, `?tab=subscribers`, and `?tab=settings`. Inactive panels stay empty so we don't pay
+ * Active tab is read from `?tab=`. Overview is the default, and shows Stats once onboarding is done;
+ * the other tabs load via `?tab=subscribers` and `?tab=settings`. Inactive panels stay empty so we don't pay
  * for the other view's data fetching until the user opens it.
  *
  * @return Stage content.
@@ -61,8 +60,6 @@ const Stage = () => {
 	let activeTab: NewsletterTab = overviewEnabled ? 'overview' : 'subscribers';
 	if ( ! subscribersEnabled || search.tab === 'settings' ) {
 		activeTab = 'settings';
-	} else if ( search.tab === 'stats' && overviewEnabled ) {
-		activeTab = 'stats';
 	} else if ( search.tab === 'subscribers' ) {
 		activeTab = 'subscribers';
 	}
@@ -165,11 +162,6 @@ const Stage = () => {
 									{ overviewEnabled ? (
 										<Tabs.Panel value="overview">
 											{ activeTab === 'overview' ? <OverviewBody /> : null }
-										</Tabs.Panel>
-									) : null }
-									{ overviewEnabled ? (
-										<Tabs.Panel value="stats">
-											{ activeTab === 'stats' ? <SubscriberStatsChart /> : null }
 										</Tabs.Panel>
 									) : null }
 									<Tabs.Panel value="subscribers">

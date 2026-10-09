@@ -28,9 +28,11 @@ import {
 } from '@wordpress/element';
 import '@wordpress/format-library';
 import { unregisterFormatType } from '@wordpress/rich-text';
+import { registerEmbedBlock } from './embed';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { BoundaryProps, EditorProps, WritingAreaProps } from './types';
+import type { KeyboardEvent, MouseEvent } from 'react';
 
 import './style.scss';
 
@@ -56,19 +58,6 @@ const settings = {
 	supportsLayout: false,
 };
 
-type EditorProps = {
-	initialContent: string;
-	/** Accessible names, translated in PHP. */
-	labels: { blockTools: string; addBlock: string };
-	focus: boolean;
-	placeholder: string;
-	onChange: ( content: string ) => void;
-	/** The editor broke; the caller brings its textarea back. */
-	onError: () => void;
-};
-
-type BoundaryProps = { onError: () => void; children: ReactNode };
-
 // A render error would otherwise leave an empty box where the textarea was.
 class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 	state = { failed: false };
@@ -77,8 +66,8 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 		return { failed: true };
 	}
 
-	componentDidCatch() {
-		this.props.onError();
+	componentDidCatch( error: unknown ) {
+		this.props.onError( error );
 	}
 
 	render() {
@@ -86,9 +75,24 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 	}
 }
 
-// The reader clicked into the textarea to get here, so the caret goes to the end.
-const FocusOnMount = () => {
-	const { selectBlock } = useDispatch( blockEditorStore );
+// A draft from the editor is block markup; anything else is plain text for one paragraph.
+const toBlocks = ( content: string, placeholder: string ) =>
+	content.includes( '<!-- wp:' )
+		? parse( content )
+		: [
+				createBlock( 'core/paragraph', {
+					placeholder,
+					content: content
+						.trim()
+						.replace( /&/g, '&amp;' )
+						.replace( /</g, '&lt;' )
+						.replace( /\n/g, '<br>' ),
+				} ),
+			];
+
+// The reader reached into the textarea to get here, so the caret goes where they put it.
+const FocusOnMount = ( { offset }: { offset: () => number } ) => {
+	const { selectBlock, selectionChange } = useDispatch( blockEditorStore );
 	const last = useSelect( select => select( blockEditorStore ).getBlockOrder().at( -1 ), [] );
 	const done = useRef( false );
 
@@ -96,14 +100,17 @@ const FocusOnMount = () => {
 	useEffect( () => {
 		if ( last && ! done.current ) {
 			done.current = true;
-			selectBlock( last, -1 );
+			const at = offset();
+			if ( at < 0 ) {
+				selectBlock( last, -1 );
+			} else {
+				selectionChange( last, 'content', at, at );
+			}
 		}
-	}, [ last, selectBlock ] );
+	}, [ last, offset, selectBlock, selectionChange ] );
 
 	return null;
 };
-
-type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNode };
 
 // The undo and redo shortcuts, which live in the post editor, not the block editor.
 const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
@@ -132,36 +139,34 @@ const Editor = ( {
 	onChange,
 }: Omit< EditorProps, 'onError' > ) => {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
-		// A draft from the editor is block markup; anything else is plain text for one paragraph.
-		const blocks = initialContent.includes( '<!-- wp:' )
-			? parse( initialContent )
-			: [
-					createBlock( 'core/paragraph', {
-						placeholder,
-						content: initialContent
-							.trim()
-							.replace( /&/g, '&amp;' )
-							.replace( /</g, '&lt;' )
-							.replace( /\n/g, '<br>' ),
-					} ),
-				];
+		const blocks = toBlocks( initialContent, placeholder );
 
 		return { past: [], present: { blocks, markup: serialize( blocks ) }, future: [], editedAt: 0 };
 	} );
 	const { blocks, markup } = present;
+	const isEmpty = blocks.every(
+		( { name, attributes } ) =>
+			name === 'core/paragraph' && ! String( attributes.content ?? '' ).trim()
+	);
 
 	// Here, not in the handlers below, so an undo reaches the form too.
 	useEffect( () => {
 		// Empty paragraphs serialize to markup, which is not a comment.
-		onChange(
-			blocks.every(
-				( { name, attributes } ) =>
-					name === 'core/paragraph' && ! String( attributes.content ?? '' ).trim()
-			)
-				? ''
-				: markup
-		);
-	}, [ blocks, markup, onChange ] );
+		onChange( isEmpty ? '' : markup );
+	}, [ isEmpty, markup, onChange ] );
+
+	// An empty box is one line to type on, so a click anywhere in it lands there.
+	// Not mousedown: rich text is uneditable from pointerdown to pointerup on a click outside it.
+	const onClick = useCallback(
+		( event: MouseEvent< HTMLDivElement > ) => {
+			if ( isEmpty && ! ( event.target as Element ).closest( '[data-block]' ) ) {
+				[ ...event.currentTarget.querySelectorAll< HTMLElement >( '[contenteditable="true"]' ) ]
+					.at( -1 )
+					?.focus();
+			}
+		},
+		[ isEmpty ]
+	);
 
 	const onEdit = useCallback(
 		( next: Block[] ) => dispatch( { type: 'edit', blocks: next, at: Date.now() } ),
@@ -171,6 +176,16 @@ const Editor = ( {
 	const redo = useCallback( () => dispatch( { type: 'redo' } ), [] );
 	// Backspace just after a shortcut such as "- " calls this to undo the conversion.
 	const editorSettings = useMemo( () => ( { ...settings, __experimentalUndo: undo } ), [ undo ] );
+	// Into the paragraph the text became, which lost its trimmed whitespace.
+	const offset = useCallback( () => {
+		const at = focus?.() ?? -1;
+		if ( at < 0 || initialContent.includes( '<!-- wp:' ) ) {
+			return -1;
+		}
+		const text = initialContent.trim();
+		const lead = initialContent.indexOf( text );
+		return Math.min( Math.max( at - lead, 0 ), text.length );
+	}, [ focus, initialContent ] );
 
 	return (
 		<SlotFillProvider>
@@ -181,14 +196,14 @@ const Editor = ( {
 				settings={ editorSettings }
 				useSubRegistry
 			>
-				{ focus && <FocusOnMount /> }
+				{ focus && <FocusOnMount offset={ offset } /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
 						<BlockToolbar labels={ labels } />
 					</div>
 					{ /* In the page, not an iframe, so the blocks wear the theme's type. */ }
 					<BlockTools>
-						<WritingFlow className="editor-styles-wrapper">
+						<WritingFlow className="editor-styles-wrapper" onClick={ onClick }>
 							<ObserveTyping>
 								<BlockList />
 							</ObserveTyping>
@@ -208,6 +223,7 @@ const Editor = ( {
  * @param props     - Editor props.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
+	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
 	createRoot( container ).render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />

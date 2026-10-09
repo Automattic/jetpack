@@ -27,18 +27,20 @@ describe( 'BaseTooltip', () => {
 		expect( screen.getByText( 'Custom Child Content' ) ).toBeInTheDocument();
 	} );
 
-	test( 'applies correct positioning styles', () => {
+	it( 'places a legacy box centered above its point', () => {
 		render( <BaseTooltip { ...defaultProps } /> );
-		const tooltip = screen.getByRole( 'tooltip' );
-		expect( tooltip ).toHaveStyle( {
+		expect( screen.getByRole( 'tooltip' ) ).toHaveStyle( {
+			position: 'absolute',
 			top: '100px',
 			left: '200px',
+			transform: 'translate(-50%, -100%)',
 		} );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveClass( 'visx-tooltip', 'surface' );
 	} );
 
-	test( 'renders the standalone container on the tooltip chrome', () => {
-		render( <BaseTooltip { ...defaultProps } /> );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveClass( 'tooltip' );
+	it( 'renders in flow without top and left', () => {
+		render( <BaseTooltip>Content</BaseTooltip> );
+		expect( screen.getByRole( 'tooltip' ) ).not.toHaveStyle( { position: 'absolute' } );
 	} );
 
 	test( 'handles missing valueDisplay', () => {

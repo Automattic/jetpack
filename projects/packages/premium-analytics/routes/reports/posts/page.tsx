@@ -8,9 +8,8 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportDrilldownTable,
@@ -18,7 +17,6 @@ import {
 	ExporterCsvAction,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
-	useReportRetry,
 	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -106,7 +104,6 @@ function PostsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 
 	const records = usePostsReportRecords( activeTab, reportParams );
-	const retry = useReportRetry( records.refetch );
 	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
 	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
 		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
@@ -185,22 +182,6 @@ function PostsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS.posts;
 
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load posts. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
-
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -212,7 +193,15 @@ function PostsReport(): JSX.Element {
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ tableReplacement ?? recordsTable }
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load posts. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ recordsTable }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

@@ -6,8 +6,8 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import { getApiErrorStatus, shouldRetryApiError, StatsResponseShapeError } from '../utils';
-import { globalErrorManager } from './global-error-manager';
+// Not the `../utils` barrel, which loads `@wordpress/core-data`.
+import { shouldRetryApiError, StatsResponseShapeError } from '../utils/api-error';
 
 // Everything below reads the HTTP status, which apiFetch drops on its way to
 // throwing the parsed body. `fetchPreservingStatus()` restores it at its own
@@ -17,12 +17,8 @@ import { globalErrorManager } from './global-error-manager';
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
 
-/**
- * QueryCache with global error detection for auth and server errors.
- *
- * Module level is safe: configuration rather than a side-effect subscription,
- * and QueryClient must be instantiated once.
- */
+// Module level is safe: configuration rather than a side-effect subscription,
+// and QueryClient must be instantiated once.
 const queryCache = new QueryCache( {
 	onError: error => {
 		if ( error instanceof StatsResponseShapeError ) {
@@ -30,33 +26,6 @@ const queryCache = new QueryCache( {
 			// the widget intentionally replaces the detail with user-safe copy.
 			// eslint-disable-next-line no-console
 			console.warn( `Unexpected Stats response: ${ error.message }` );
-		}
-
-		const currentError = globalErrorManager.getError();
-
-		// Don't override network error (highest priority)
-		if ( currentError === 'network' ) {
-			return;
-		}
-
-		const status = getApiErrorStatus( error );
-
-		if ( status === 401 ) {
-			// Auth errors take precedence over server errors, but not network errors.
-			if ( currentError !== 'auth' ) {
-				globalErrorManager.setError( 'auth' );
-			}
-		} else if ( status === 502 || status === 503 || status === 504 ) {
-			// Server errors: only set if no higher-priority error exists.
-			if ( currentError !== 'auth' && currentError !== 'server' ) {
-				globalErrorManager.setError( 'server' );
-			}
-		}
-	},
-	onSuccess: () => {
-		// Clear transient server errors once queries start succeeding again.
-		if ( globalErrorManager.getError() === 'server' ) {
-			globalErrorManager.clearError();
 		}
 	},
 } );

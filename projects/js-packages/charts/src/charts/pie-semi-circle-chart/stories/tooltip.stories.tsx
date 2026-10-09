@@ -73,7 +73,7 @@ Default.parameters = {
 	docs: {
 		description: {
 			story:
-				'Default semi-circle pie chart with tooltips enabled using the built-in BaseTooltip component.',
+				'Default semi-circle pie chart with tooltips enabled using the default `label: value` tooltip.',
 		},
 	},
 };

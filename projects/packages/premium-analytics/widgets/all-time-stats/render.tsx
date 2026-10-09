@@ -83,8 +83,6 @@ function AllTimeStatsReport() {
 				// `placeholderData` keeps the last totals on screen, so a transient
 				// refetch failure should not replace them with an error.
 				isError={ ! summary && isError }
-				// Highlights have no empty state: a total that is missing shows zero.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load all-time stats. Please try again in a moment.",
