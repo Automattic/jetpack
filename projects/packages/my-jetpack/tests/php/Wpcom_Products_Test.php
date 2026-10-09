@@ -5,7 +5,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Complete;
+use Automattic\Jetpack\My_Jetpack\Products\Growth;
 use Automattic\Jetpack\My_Jetpack\Products\Pro;
+use Automattic\Jetpack\My_Jetpack\Products\Security;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -254,7 +256,7 @@ class Wpcom_Products_Test extends TestCase {
 		$this->assertSame( array(), $product_price );
 	}
 	/**
-	 * Catalog availability must never enable unsupported Pro billing terms.
+	 * Catalog availability must never enable unsupported or retired billing terms.
 	 *
 	 * @dataProvider bundle_availability
 	 * @param mixed $availability Store availability field.
@@ -295,6 +297,10 @@ class Wpcom_Products_Test extends TestCase {
 			$this->assertSame( $expected, $pro['available'] );
 			$this->assertSame( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ), array_column( $pro['terms'], 'wpcom_product_slug' ) );
 			$this->assertSame( array( $expected, $expected ), array_column( $pro['terms'], 'available' ) );
+			$complete = Complete::get_pricing_for_ui();
+			$this->assertSame( array( $expected, $expected, $expected ), array_column( $complete['terms'], 'available' ) );
+			$this->assertFalse( Security::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Growth::get_pricing_for_ui()['available'] );
 		} finally {
 			remove_filter( 'pre_http_request', $filter );
 		}

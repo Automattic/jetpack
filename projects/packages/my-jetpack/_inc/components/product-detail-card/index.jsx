@@ -5,8 +5,8 @@ import {
 	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { getCurrencyObject } from '@automattic/number-formatters';
-import { Notice } from '@wordpress/components';
+import { formatCurrency, getCurrencyObject } from '@automattic/number-formatters';
+import { Notice, SelectControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus, starFilled } from '@wordpress/icons';
 import { Link, Text } from '@wordpress/ui';
@@ -109,7 +109,22 @@ const ProductDetailCard = ( {
 		status,
 		pluginSlug,
 		postCheckoutUrl,
+		managePaidPlanPurchaseUrl,
 	} = detail;
+
+	const [ selectedTerm, setSelectedTerm ] = useState( '' );
+	const availableTerms = pricingForUi?.terms?.filter( term => term.available === true ) || [];
+	const selectedPricing =
+		availableTerms.find( term => term.wpcomProductSlug === selectedTerm ) ||
+		availableTerms[ 0 ] ||
+		pricingForUi;
+	const bundleUnavailable =
+		isBundle && ! hasPaidPlanForProduct && selectedPricing?.available !== true;
+	const termLabels = {
+		year: __( 'Yearly', 'jetpack-my-jetpack' ),
+		'two years': __( 'Every two years', 'jetpack-my-jetpack' ),
+		month: __( 'Monthly', 'jetpack-my-jetpack' ),
+	};
 
 	const isBundleUpsell = isBundle && isUpsell;
 	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
@@ -124,7 +139,7 @@ const ProductDetailCard = ( {
 		wpcomFreeProductSlug,
 		introductoryOffer,
 		productTerm,
-	} = pricingForUi || {};
+	} = selectedPricing || {};
 
 	const { recordEvent } = useAnalytics();
 
@@ -215,6 +230,8 @@ const ProductDetailCard = ( {
 			__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
 			price
 		);
+	} else if ( productTerm === 'two years' ) {
+		priceDescription = __( '/month, paid every two years', 'jetpack-my-jetpack' );
 	} else if ( productTerm === 'year' ) {
 		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
 	} else {
@@ -245,7 +262,7 @@ const ProductDetailCard = ( {
 	 * @return {object}            Icon Product component.
 	 */
 	function ProductIcon( { slug: iconSlug } ) {
-		const ProIcon = getIconBySlug( iconSlug );
+		const ProIcon = getIconBySlug( iconSlug === 'pro' ? 'jetpack' : iconSlug );
 		if ( ! ProIcon ) {
 			return null;
 		}
@@ -274,12 +291,33 @@ const ProductDetailCard = ( {
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
 				);
-	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
+	const ctaLabel =
+		isBundle && hasPaidPlanForProduct
+			? __( 'Manage plan', 'jetpack-my-jetpack' )
+			: ctaButtonLabel || defaultCtaLabel;
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick( { cta_text: ctaLabel } );
-		onClick?.( mainCheckoutRedirect, detail );
-	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
+		if ( bundleUnavailable ) {
+			return;
+		}
+		if ( isBundle && hasPaidPlanForProduct ) {
+			window.location.href = managePaidPlanPurchaseUrl;
+			return;
+		}
+		onClick?.( mainCheckoutRedirect, { ...detail, pricingForUi: selectedPricing } );
+	}, [
+		onClick,
+		trackButtonClick,
+		mainCheckoutRedirect,
+		detail,
+		ctaLabel,
+		bundleUnavailable,
+		isBundle,
+		hasPaidPlanForProduct,
+		managePaidPlanPurchaseUrl,
+		selectedPricing,
+	] );
 
 	const trialClickHandler = useCallback( () => {
 		trackButtonClick( { custom_slug: wpcomFreeProductSlug, cta_text: 'Start for free' } );
@@ -287,6 +325,10 @@ const ProductDetailCard = ( {
 	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	const productPrice = introductoryOffer?.reason ? price : discountPrice;
+
+	if ( isBundleUpsell && bundleUnavailable ) {
+		return null;
+	}
 
 	return (
 		<div
@@ -361,8 +403,39 @@ const ProductDetailCard = ( {
 
 				{ isProductLoading && <LoadingBlock width="100%" height="70px" spaceBelow /> }
 
-				{ needsPurchase && productPrice && (
+				{ isBundle && needsPurchase && availableTerms.length > 0 && (
+					<SelectControl
+						label={ __( 'Billing term', 'jetpack-my-jetpack' ) }
+						value={ selectedPricing.wpcomProductSlug }
+						options={ availableTerms.map( term => ( {
+							label: termLabels[ term.productTerm ],
+							value: term.wpcomProductSlug,
+						} ) ) }
+						onChange={ setSelectedTerm }
+					/>
+				) }
+				{ bundleUnavailable && (
+					<Notice status="info" isDismissible={ false }>
+						{ __(
+							'This plan is currently unavailable for purchase. To change an existing plan, contact support.',
+							'jetpack-my-jetpack'
+						) }{ ' ' }
+						<Link href="https://jetpack.com/contact-support/" openInNewTab>
+							{ __( 'Contact support', 'jetpack-my-jetpack' ) }
+						</Link>
+					</Notice>
+				) }
+				{ needsPurchase && ! bundleUnavailable && productPrice && (
 					<>
+						{ isBundle && (
+							<p>
+								{ sprintf(
+									/* translators: %s: the total price charged for the billing term. */
+									__( '%s billed per term', 'jetpack-my-jetpack' ),
+									formatCurrency( selectedPricing.discountPrice, currencyCode )
+								) }
+							</p>
+						) }
 						<div className={ styles[ 'price-container' ] }>
 							<Price value={ productPrice } currency={ currencyCode } isOld={ false } />
 							{ productPrice < price && (
@@ -417,7 +490,7 @@ const ProductDetailCard = ( {
 					</Notice>
 				) }
 
-				{ ! hideTOS && (
+				{ ! hideTOS && ! bundleUnavailable && ! ( isBundle && hasPaidPlanForProduct ) && (
 					<div className={ styles[ 'tos-container' ] }>
 						<TermsOfService
 							agreeButtonLabel={
@@ -440,7 +513,12 @@ const ProductDetailCard = ( {
 						hasMainCheckoutStarted={ hasMainCheckoutStarted }
 						isFetching={ isFetching }
 						isFetchingSuccess={ isFetchingSuccess }
-						cantInstallPlugin={ cantInstallPlugin }
+						cantInstallPlugin={
+							( cantInstallPlugin && ! isBundle ) ||
+							bundleUnavailable ||
+							isProductLoading ||
+							( isBundle && hasPaidPlanForProduct && ! managePaidPlanPurchaseUrl )
+						}
 						isPrimary={ ! isBundleUpsell }
 						className={ styles[ 'checkout-button' ] }
 						label={ ctaLabel }
