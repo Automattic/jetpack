@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use Automattic\Jetpack\Status\Cache;
 use WP_Error;
 
 /**
@@ -34,6 +35,47 @@ class Plan_Test extends Search_TestCase {
 		$plan_info = static::$plan->get_plan_info_from_wpcom();
 		$this->assertEquals( 200, $plan_info['response']['code'] );
 		$this->assertTrue( strpos( $plan_info['body'], '"supports_search"' ) !== false );
+	}
+
+	public function test_offline_lookup_leaves_missing_plan_unchanged() {
+		Cache::set( 'is_offline_mode', true );
+		$requests = 0;
+		$spy      = function ( $preempt ) use ( &$requests ) {
+			++$requests;
+			return $preempt;
+		};
+		add_filter( 'pre_http_request', $spy, 5 );
+
+		try {
+			$this->assertFalse( static::$plan->get_plan_info() );
+			$result = static::$plan->get_plan_info_from_wpcom();
+			$this->assertInstanceOf( WP_Error::class, $result );
+			$this->assertSame( 'site_offline', $result->get_error_code() );
+			$this->assertFalse( static::$plan->get_plan_info( true ) );
+			do_action( 'jetpack_heartbeat' );
+			$this->assertSame( 0, $requests );
+			$this->assertFalse( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+		} finally {
+			remove_filter( 'pre_http_request', $spy, 5 );
+			Cache::set( 'is_offline_mode', null );
+		}
+	}
+
+	public function test_offline_lookup_preserves_cached_plan() {
+		Cache::set( 'is_offline_mode', true );
+		$cached_plan = array(
+			'supports_search'         => true,
+			'supports_instant_search' => true,
+		);
+		update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $cached_plan );
+
+		try {
+			$this->assertSame( $cached_plan, static::$plan->get_plan_info() );
+			$this->assertSame( $cached_plan, static::$plan->get_plan_info( true ) );
+			$this->assertSame( $cached_plan, get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+		} finally {
+			Cache::set( 'is_offline_mode', null );
+		}
 	}
 
 	/**
