@@ -3,7 +3,7 @@ import { createInterpolateElement, useCallback, useMemo, useState } from '@wordp
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Card, LinkButton, Stack, Text } from '@wordpress/ui';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { useBackupRuns } from '../../hooks/use-backup-runs';
@@ -140,18 +140,22 @@ export default function BackupDetail( { item }: Props ) {
 						gap="sm"
 						align="center"
 					>
-						<Link
-							to={ `/download/${ item.rewindId }` }
-							// Cast for the same reason `screens/overview.tsx` casts
-							// its `navigate` call: nothing registers a typed route
-							// tree, so TanStack's search types collapse to shapes a
-							// plain object cannot satisfy.
-							search={ downloadSearch as never }
-							className="jpb-backup-detail__download"
+						<LinkButton
+							variant="minimal"
+							render={
+								<Link
+									to={ `/download/${ item.rewindId }` }
+									// Cast for the same reason `screens/overview.tsx` casts
+									// its `navigate` call: nothing registers a typed route
+									// tree, so TanStack's search types collapse to shapes a
+									// plain object cannot satisfy.
+									search={ downloadSearch as never }
+								/>
+							}
 						>
-							<Icon icon={ downloadIcon } size={ 18 } />
+							<LinkButton.Icon icon={ downloadIcon } />
 							{ downloadLabel( selectedIds.length ) }
-						</Link>
+						</LinkButton>
 						{ /*
 						 * Deliberately not labelled from the file selection, and its
 						 * link carries none.
@@ -165,14 +169,17 @@ export default function BackupDetail( { item }: Props ) {
 						 * items" confirms a full-site restore believing it is
 						 * scoped.
 						 */ }
-						<Link to={ `/restore/${ item.rewindId }` } className="jpb-backup-detail__restore">
-							<Icon icon={ rotateLeft } size={ 18 } />
+						<LinkButton variant="solid" render={ <Link to={ `/restore/${ item.rewindId }` } /> }>
+							<LinkButton.Icon icon={ rotateLeft } />
 							{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
-						</Link>
+						</LinkButton>
 					</Stack>
 				</Stack>
 			</Card.Header>
-			<Card.Content className="jpb-backup-detail__body">
+			<Card.Content
+				className="jpb-backup-detail__body"
+				render={ <Stack direction="column" gap="md" /> }
+			>
 				<Text variant="body-lg" className="jpb-backup-detail__stats" dir="auto">
 					{ item.stats }
 				</Text>
