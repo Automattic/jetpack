@@ -63,6 +63,19 @@ describe( 'useProtectSettings', () => {
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
 	} );
 
+	it( 'refresh takes only the requested keys from the server, even ones saved earlier', async () => {
+		respondWith( {
+			get: Promise.resolve( { email: true, other: 1 } ),
+			post: Promise.resolve( {} ),
+		} );
+		const { result } = renderHook( () => useProtectSettings() );
+		await act( () => result.current.save( { email: false, other: 2 } ) );
+
+		await act( () => result.current.refresh( [ 'email' ] ) );
+
+		expect( result.current.settings ).toEqual( { email: true, other: 2 } );
+	} );
+
 	it( 'keeps a value saved while the load was in flight', async () => {
 		const get = defer();
 		respondWith( { get: get.promise, post: Promise.resolve( {} ) } );
