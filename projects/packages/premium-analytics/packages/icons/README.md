@@ -25,9 +25,8 @@ import { calendar, search } from '@jetpack-premium-analytics/icons';
 
 ## Exports
 
-`calendar`, `channel`, `coupon`, `customer`, `device`, `goal`, `location`,
-`megaphone`, `payment`, `paymentReturn`, `productBlouse`, `reports`,
-`search`
+`calendar`, `coupon`, `customer`, `device`, `goal`, `location`, `megaphone`,
+`payment`, `paymentReturn`, `reports`, `search`
 
 ## Dependencies
 

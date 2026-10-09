@@ -319,7 +319,7 @@ lazy-loaded by the dashboard at runtime.
 > module paths as provisional rather than a long-term API.
 
 > **Legacy note.** Widgets currently under `packages/widgets-toolkit/src/widgets/*` (e.g.
-> `sales-by-coupon`, `sales-by-utm`) predate this layout and are scheduled to be migrated.
+> `sales-by-coupon`, `sales-by-device`) predate this layout and are scheduled to be migrated.
 > Do not use them as templates for new work — follow the structure and story template below
 > instead.
 
