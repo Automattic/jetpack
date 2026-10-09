@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Sync: Move the store analytics sync opt-in and the Store tab flag to the WooCommerce Stats package, and record when the first full analytics sync starts.
+Sync: Move the store analytics sync opt-in and the Store tab flag to the WooCommerce Stats package, and record the first full-sync start separately for each analytics module.

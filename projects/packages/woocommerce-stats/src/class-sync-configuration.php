@@ -110,8 +110,27 @@ class Sync_Configuration {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_delete_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );
+		add_filter( 'jetpack_premium_analytics_sync_modules', array( $this, 'register_analytics_sync_module' ) );
+
+		// The legacy completion milestone represented Woo's sync before per-module start records existed.
+		if ( method_exists( Sync_Status_Tracker::class, 'has_module_full_sync_started' )
+			&& false === get_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION )
+			&& (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0 ) {
+			Sync_Status_Tracker::on_full_sync_start( array( 'woocommerce_analytics' => 1 ) );
+		}
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
+	}
+
+	/**
+	 * Register Woo's module with the analytics sync tracker.
+	 *
+	 * @param string[] $modules Registered analytics module names.
+	 * @return string[]
+	 */
+	public function register_analytics_sync_module( array $modules ): array {
+		$modules[] = 'woocommerce_analytics';
+		return $modules;
 	}
 
 	/**
@@ -200,11 +219,11 @@ class Sync_Configuration {
 	 */
 	public function skip_reports_data_before_analytics_full_sync( $args ) {
 		// An older copy of the dashboard package cannot tell, so order changes sync as they did before the gate.
-		if ( ! method_exists( Sync_Status_Tracker::class, 'has_analytics_full_sync_started' ) ) {
+		if ( ! method_exists( Sync_Status_Tracker::class, 'has_module_full_sync_started' ) ) {
 			return $args;
 		}
 
-		return Sync_Status_Tracker::has_analytics_full_sync_started() ? $args : false;
+		return Sync_Status_Tracker::has_module_full_sync_started( 'woocommerce_analytics' ) ? $args : false;
 	}
 
 	/**

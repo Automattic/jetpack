@@ -19,6 +19,7 @@ use Automattic\Jetpack\Sync\Modules\Terms;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -36,6 +37,8 @@ class Sync_Configuration_Test extends TestCase {
 	#[After]
 	public function tear_down() {
 		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
+		delete_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION );
+		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -127,6 +130,7 @@ class Sync_Configuration_Test extends TestCase {
 		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertFalse( has_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $configuration, 'skip_reports_data_before_analytics_full_sync' ) ) );
 		$this->assertNotContains( WooCommerce_Analytics::class, apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES ) );
+		$this->assertNotContains( 'woocommerce_analytics', Sync_Status_Tracker::get_analytics_sync_modules() );
 	}
 
 	/**
@@ -252,14 +256,62 @@ class Sync_Configuration_Test extends TestCase {
 		$this->assertSame( $config, ( new Sync_Configuration() )->expand_full_sync_config( $config ) );
 	}
 
-	/**
-	 * Order changes sync as usual once the analytics full sync has finished.
-	 */
-	public function test_skip_reports_data_before_analytics_full_sync_passes_order_changes_after_the_full_sync() {
-		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
-		$args = array( array( 'order_id' => 1 ) );
+	public static function provide_sync_states(): array {
+		return array(
+			'no full sync'               => array( null, false, false, false ),
+			'Woo full sync started'      => array( 'woocommerce_analytics', false, false, true ),
+			'another module started'     => array( 'other_analytics', false, false, false ),
+			'another module finished'    => array( 'other_analytics', true, false, false ),
+			'legacy Woo full sync ended' => array( null, false, true, true ),
+			'legacy Woo, another starts' => array( 'other_analytics', false, true, true ),
+		);
+	}
 
-		$this->assertSame( $args, ( new Sync_Configuration() )->skip_reports_data_before_analytics_full_sync( $args ) );
+	/**
+	 * @dataProvider provide_sync_states
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string|null $module_name     Module whose full sync started.
+	 * @param bool        $finished        Whether that full sync finished.
+	 * @param bool        $legacy_finished Whether Woo's full sync finished before per-module tracking.
+	 * @param bool        $should_sync     Whether order actions should sync.
+	 */
+	#[DataProvider( 'provide_sync_states' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_order_actions_stay_blocked_until_woocommerce_full_sync_starts( ?string $module_name, bool $finished, bool $legacy_finished, bool $should_sync ) {
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'other_analytics';
+				return $modules;
+			}
+		);
+		if ( $legacy_finished ) {
+			update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+		}
+
+		$configuration = new Sync_Configuration();
+		$configuration->configure_sync();
+		if ( null !== $module_name ) {
+			$config = array( $module_name => 1 );
+			Sync_Status_Tracker::configure();
+			do_action( 'jetpack_full_sync_start', $config );
+			if ( $finished ) {
+				Sync_Status_Tracker::maybe_set_milestone(
+					array( 'config' => $config ),
+					array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+				);
+			}
+			$configuration->configure_sync();
+		}
+
+		$args = array( array( 'order_id' => 1 ) );
+		foreach ( array( 'sync', 'delete' ) as $action ) {
+			$this->assertSame( $should_sync ? $args : false, apply_filters( "jetpack_sync_before_enqueue_woocommerce_analytics_{$action}_reports_data", $args ) );
+		}
 	}
 
 	/**
