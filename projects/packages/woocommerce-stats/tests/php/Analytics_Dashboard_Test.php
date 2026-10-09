@@ -11,7 +11,6 @@ use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -43,7 +42,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
-		remove_filter( 'jetpack_admin_js_script_data', array( Analytics_Dashboard::class, 'add_script_data' ) );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
@@ -93,32 +91,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	/**
 	 * The section carries the WooCommerce label, the woocommerce slug and the package's layout.
 	 */
-	/**
-	 * @dataProvider data_date_type_options
-	 */
-	#[DataProvider( 'data_date_type_options' )]
-	public function test_script_data_carries_the_store_date_type( $option, string $expected ) {
-		if ( null !== $option ) {
-			update_option( 'woocommerce_date_type', $option );
-		}
-		Analytics_Dashboard::init();
-
-		$data = apply_filters( 'jetpack_admin_js_script_data', array( 'site' => array() ) );
-
-		$this->assertSame( array( 'date_type' => $expected ), $data['woocommerce_stats'] );
-		$this->assertArrayHasKey( 'site', $data );
-	}
-
-	public static function data_date_type_options(): array {
-		return array(
-			'unset defaults to paid' => array( null, 'paid' ),
-			'date_created'           => array( 'date_created', 'created' ),
-			'date_paid'              => array( 'date_paid', 'paid' ),
-			'date_completed'         => array( 'date_completed', 'completed' ),
-			'unknown falls back'     => array( 'date_modified', 'paid' ),
-		);
-	}
-
 	public function test_registers_the_woocommerce_section() {
 		$this->enable_store();
 		Analytics_Dashboard::init();

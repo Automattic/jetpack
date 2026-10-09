@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { fetchReport } from '../../fetch-report';
-import { getSiteDateType } from '../../utils/site-date-type';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -34,7 +33,7 @@ export async function fetchReportCustomers( {
 	from,
 	to,
 	filters,
-	date_type = getSiteDateType(),
+	date_type,
 }: RequestReportCustomersParams ): Promise< ReportsCustomersNewReturningResponse > {
 	return fetchReport< ReportsCustomersNewReturningResponse >( 'customers/new-returning', {
 		from,

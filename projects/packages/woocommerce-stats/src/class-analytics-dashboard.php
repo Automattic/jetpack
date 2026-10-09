@@ -69,7 +69,7 @@ class Analytics_Dashboard {
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
-	 * requests, and the store currency and date type on the script data.
+	 * requests, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -82,45 +82,8 @@ class Analytics_Dashboard {
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 
 		Store_Currency::init();
-	}
-
-	/**
-	 * Add the merchant's WooCommerce Analytics date type, which the report client sends with each report.
-	 *
-	 * WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
-	 *
-	 * @param mixed $data The script data.
-	 * @return mixed
-	 */
-	public static function add_script_data( $data ) {
-		if ( ! is_array( $data ) ) {
-			return $data;
-		}
-
-		$data['woocommerce_stats'] = array(
-			'date_type' => self::get_date_type(),
-		);
-
-		return $data;
-	}
-
-	/**
-	 * The report API's name for the `woocommerce_date_type` option, defaulting to `paid` as WooCommerce does.
-	 *
-	 * @return string One of `created`, `paid`, or `completed`.
-	 */
-	private static function get_date_type() {
-		$date_types = array(
-			'date_created'   => 'created',
-			'date_paid'      => 'paid',
-			'date_completed' => 'completed',
-		);
-		$option     = get_option( 'woocommerce_date_type' );
-
-		return is_string( $option ) && isset( $date_types[ $option ] ) ? $date_types[ $option ] : 'paid';
 	}
 
 	/**

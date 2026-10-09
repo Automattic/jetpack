@@ -3,7 +3,6 @@
  */
 import { fetchReport } from '../../fetch-report';
 import { hasProductFilters } from '../../utils/product-filters';
-import { getSiteDateType } from '../../utils/site-date-type';
 import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
@@ -45,7 +44,7 @@ export async function fetchReportOrders( {
 	to,
 	interval,
 	filters,
-	date_type = getSiteDateType(),
+	date_type,
 }: RequestReportOrdersParams ): Promise< ReportsOrdersByDateResponse > {
 	const endpoint = hasProductFilters( filters )
 		? 'orders-by-product-type/by-date'

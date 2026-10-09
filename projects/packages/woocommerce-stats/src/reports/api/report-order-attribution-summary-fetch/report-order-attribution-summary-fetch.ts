@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { fetchReport } from '../../fetch-report';
-import { getSiteDateType } from '../../utils/site-date-type';
 import type { BaseReportParams } from '../../utils/types';
 
 export const ORDER_ATTRIBUTION_VIEWS = [
@@ -53,15 +52,7 @@ export type RequestReportOrderAttributionSummaryParams = BaseReportParams & {
 export async function fetchReportOrderAttributionSummary(
 	params: RequestReportOrderAttributionSummaryParams
 ): Promise< OrderAttributionSummaryResponse > {
-	const {
-		from,
-		to,
-		interval,
-		view,
-		compare_from,
-		compare_to,
-		date_type = getSiteDateType(),
-	} = params;
+	const { from, to, interval, view, compare_from, compare_to, date_type } = params;
 
 	const queryParams: Record< string, string | undefined > = {
 		from,

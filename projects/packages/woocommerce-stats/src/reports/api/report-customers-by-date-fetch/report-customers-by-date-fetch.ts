@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { fetchReport } from '../../fetch-report';
-import { getSiteDateType } from '../../utils/site-date-type';
 import type { BaseReportParams } from '../../utils/types';
 
 type ReportsCustomersByDateSummary = {
@@ -60,7 +59,7 @@ export async function fetchReportCustomersByDate( {
 	from,
 	to,
 	interval,
-	date_type = getSiteDateType(),
+	date_type,
 }: RequestReportCustomersByDateParams ): Promise< ReportsCustomersByDateResponse > {
 	return fetchReport< ReportsCustomersByDateResponse >( 'customers/by-date', {
 		from,
