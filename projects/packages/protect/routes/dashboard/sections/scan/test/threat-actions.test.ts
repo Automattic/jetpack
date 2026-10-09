@@ -25,7 +25,11 @@ describe( 'ignoreThreat', () => {
 		expect( result.current?.ignored ).toEqual( [ { ...threat, status: 'ignored' } ] );
 
 		const [ notice ] = select( noticesStore ).getNotices();
-		expect( notice ).toMatchObject( { type: 'snackbar', content: 'Ignored the threat in a.php.' } );
+		expect( notice ).toMatchObject( {
+			type: 'snackbar',
+			explicitDismiss: true,
+			content: 'Ignored the threat in a.php.',
+		} );
 		await act( async () => notice.actions[ 0 ].onClick() );
 
 		expect( mockApiFetch ).toHaveBeenLastCalledWith( {

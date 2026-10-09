@@ -50,6 +50,8 @@ function show( threat: ScanThreat, content: string, status: NoticeStatus, undo?:
 	dispatch( noticesStore ).createNotice( status, content, {
 		type: 'snackbar',
 		id: noticeId( threat ),
+		// Stay until dismissed, so a slow action's progress doesn't vanish before it ends.
+		explicitDismiss: true,
 		actions: undo ? [ { label: __( 'Undo', 'jetpack-protect-pkg' ), onClick: undo } ] : [],
 	} );
 }
