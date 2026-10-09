@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { _x } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 import { getYearElements } from './years';
@@ -23,7 +22,6 @@ export type AnnualHighlightsAttributes = {
  * depend on the site's own data, so a new instance starts on the current year.
  */
 export default {
-	icon: calendar,
 	attributes: [
 		{
 			id: 'year',

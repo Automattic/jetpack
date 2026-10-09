@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery: Keep every image when uploading several at once with client-side media processing enabled.
