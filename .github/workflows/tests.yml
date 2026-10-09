@@ -58,7 +58,7 @@ jobs:
       COVERAGE: ${{ matrix.coverage }}
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
-      SPLIT_PROJECTS: ${{ case( matrix.split-projects, toJSON( matrix.split-projects ), '' ) }}
+      SPLIT_GROUPS: ${{ case( matrix.split-groups, toJSON( matrix.split-groups ), '' ) }}
       SPLIT_EXCLUDE: ${{ toJSON( matrix.split-exclude ) }}
     strategy:
       fail-fast: false
@@ -125,8 +125,8 @@ jobs:
           CHANGED=$( jq -c --argjson valid "$VALIDPROJECTS" 'with_entries( select( .key | IN( $valid[] ) ) )' <<<"$CHANGED" )
 
           # Narrow to this job's split, if any.
-          if [[ -n "$SPLIT_PROJECTS" ]]; then
-            CHANGED=$( jq -c --argjson p "$SPLIT_PROJECTS" 'with_entries( select( .key | IN( $p[] ) ) )' <<<"$CHANGED" )
+          if [[ -n "$SPLIT_GROUPS" ]]; then
+            CHANGED=$( jq -c --argjson p "$SPLIT_GROUPS" 'with_entries( select( .key | IN( $p[] ) ) )' <<<"$CHANGED" )
           elif (( SPLIT_NUM )); then
             # Exclude hard-coded projects and deal out every nth remaining, balanced by count.
             CHANGED=$( jq -c --argjson exclude "$SPLIT_EXCLUDE" --argjson num "$SPLIT_NUM" --argjson total "$SPLIT_TOTAL" 'keys - $exclude | with_entries( select( .key % $total == $num - 1 ) | { key: .value, value: true } )' <<<"$CHANGED" )
@@ -224,7 +224,7 @@ jobs:
           # Workers == number of CPUs.
           N=$( nproc )
           # Limit split projects to one worker, as Jest will use everything it can.
-          if [[ -n "$SPLIT_PROJECTS" && ( $TEST_SCRIPT == 'test-js' || $TEST_SCRIPT == 'test-js-coverage' ) ]]; then
+          if [[ -n "$SPLIT_GROUPS" && ( $TEST_SCRIPT == 'test-js' || $TEST_SCRIPT == 'test-js-coverage' ) ]]; then
             echo "Enabling 1 worker for $N CPU(s)"
             N=1
           else
@@ -250,7 +250,7 @@ jobs:
             fi
 
             # Force one CPU per worker with generic JS test splits, allowing multiple projects to run in parallel workers, as otherwise Jest uses everything it can.
-            if [[ -z "$SPLIT_PROJECTS" && ( "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ) ]]; then
+            if [[ -z "$SPLIT_GROUPS" && ( "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ) ]]; then
               taskset -cp "$WORKERID" $$ > /dev/null
               echo "Worker $WORKERID has availableParallelism() set to $( node -p 'require( "os" ).availableParallelism()' )"
             fi
