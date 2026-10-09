@@ -104,7 +104,7 @@ trait Section_Environment {
 	 * @return string[]
 	 */
 	public function offer_modules(): array {
-		return array( 'sharedaddy', 'likes', 'comment-likes' );
+		return array( 'blocks', 'sharedaddy', 'likes', 'comment-likes' );
 	}
 
 	/**

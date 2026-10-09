@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -86,6 +87,16 @@ final class Environment {
 	 */
 	public static function settings_screen_supported(): bool {
 		return self::legacy_sharing_supported();
+	}
+
+	/**
+	 * Whether Jetpack's blocks load on this site, as `Jetpack_Gutenberg::should_load()` decides
+	 * before its `jetpack_gutenberg` filter: the Blocks module, and a connection or offline mode.
+	 *
+	 * True on Simple without asking for modules or a connection, both of which it lacks.
+	 */
+	public static function jetpack_blocks_load(): bool {
+		return self::module_active( 'blocks' ) && self::legacy_sharing_supported();
 	}
 
 	/**
@@ -202,14 +213,14 @@ final class Environment {
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
 	public static function sharing_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/sharing-buttons' );
+		return self::block_is_registered( Block_Names::SHARING_BUTTONS );
 	}
 
 	/**
 	 * Whether the Like block is available to offer as an alternative.
 	 */
 	public static function like_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/like' );
+		return self::block_is_registered( Block_Names::LIKE );
 	}
 
 	/**

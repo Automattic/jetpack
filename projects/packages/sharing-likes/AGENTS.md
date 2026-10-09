@@ -262,6 +262,56 @@ The routes and `Post_Handler` save through the same writers:
 and never call `Sharing_Service::set_global_options()` directly (see
 `Sharing_Options::update()`).
 
+## Template placements
+
+`src/hooked-blocks/` adds the Sharing Buttons and Like blocks to block themes'
+single post and page templates with the Block Hooks API, before or after
+`core/post-content`. `Template_Placements` owns the two options,
+`jetpack_sharing_buttons_auto_add` and `jetpack_likes_auto_add`, and is their
+only writer. `Hooked_Blocks` registers the filters from `Initializer::init()` on
+every request, and `Sharing_Buttons_Markup` builds the block with its buttons.
+That markup has to match `sharing-buttons/save.jsx` exactly, or the Site Editor
+flags the block as invalid.
+
+**One side of the content per block.** Core builds templates and patterns with
+`insert_hooked_blocks_and_set_ignored_hooked_blocks_metadata()`, which records
+a type in the anchor's `metadata.ignoredHookedBlocks` as soon as its `before`
+pass inserts it. The `after` pass then skips that type, so a block hooked on both
+sides only ever shows before. That list is per block type and anchor, not per
+position, and saving a template in the Site Editor writes it for good: a block
+the owner removed stays removed, a saved block stays when its placement is
+unset, and once the single template is saved with a block on one side, moving it
+to the other side adds nothing there. Tests that call `apply_block_hooks_to_content()`
+with plain `insert_hooked_blocks` miss all of this; go through `get_block_template()`.
+
+**Which templates.** Posts and pages get the blocks; the
+`jetpack_sharing_likes_template_placement_post_types` filter changes that list,
+and with it which `single-{type}` templates, custom templates and singular
+requests count. `single` and `singular` serve every post type without a
+template of its own, so on the front end a singular request for a post type
+outside the list gets nothing. That only holds while the template comes from the
+theme: once the owner saves it in the Site Editor, the blocks are ordinary
+blocks in it and show on every post type it serves. A block the owner already
+placed by hand in the template, the pattern or the post being viewed is not
+added again; one in a template part or synced pattern is not seen.
+
+**Never resolve a template inside a callback** (see `Hooked_Blocks`):
+`get_block_template()`, `Environment::single_template_editor_url()` and the
+sections' `state()` all recurse from there.
+
+**Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
+as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on
+one priority run in registration order, and Simple sets this package up on
+`init:10`, after Subscribe's `init:9`, so `hooked_block_types` runs at 5.
+
+**Patterns.** A pattern counts when its `templateTypes` include a post or page
+template, as a template's slug would. Otherwise it falls back to `is_singular()`
+for the listed post types, as do custom templates that declare no post types,
+which is never true in the Site Editor's REST requests. So on a theme that puts
+`core/post-content` in an untyped pattern, the blocks show on the front end but
+not in the Site Editor, and saving that template there inlines the pattern and
+records both blocks as ignored for good. The default themes don't do this.
+
 ## Placement defaults
 
 `sharing-options['global']['show']` is frequently absent, and every renderer
@@ -300,7 +350,8 @@ be asserted without a bootstrapped site. Environment lookups belong in
 
 **A block theme is available to tests.** `tests/php/fixtures/themes/block-theme`
 ships `templates/single.html`, which is what makes `wp_is_block_theme()` true and
-gives `Environment::single_template_editor_url()` a real target. The `Section_Environment`
+gives `Environment::single_template_editor_url()` a real target, and `templates/page.html`
+for the template placements. The `Section_Environment`
 trait registers the directory and pins the stylesheet to it; the suite's default
 theme is neither a block theme nor resolvable, so nothing reaches the block
 variants without that pin.

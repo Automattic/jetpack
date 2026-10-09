@@ -14,6 +14,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionProperty;
 use WorDBless\BaseTestCase;
 use WP_Block_Template;
@@ -63,7 +64,7 @@ class Environment_Test extends BaseTestCase {
 	 * @return string[]
 	 */
 	public function offer_modules(): array {
-		return array( 'sharedaddy', 'likes', 'comment-likes' );
+		return array( 'blocks', 'sharedaddy', 'likes', 'comment-likes' );
 	}
 
 	/**
@@ -328,5 +329,44 @@ class Environment_Test extends BaseTestCase {
 		$this->given_site( array(), true );
 
 		$this->assertTrue( Environment::legacy_sharing_supported() );
+	}
+
+	/**
+	 * @return array<string, array{0: string[], 1: bool, 2: bool, 3: bool, 4: bool}>
+	 */
+	public static function provide_jetpack_blocks_sites(): array {
+		return array(
+			'Blocks module on a connected site'     => array( array( 'blocks' ), true, false, false, true ),
+			'Blocks module in offline mode'         => array( array( 'blocks' ), false, true, false, true ),
+			'Blocks module off'                     => array( array(), true, false, false, false ),
+			'disconnected and online'               => array( array( 'blocks' ), false, false, false, false ),
+			'Simple, with no modules or connection' => array( array(), false, false, true, true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_jetpack_blocks_sites
+	 *
+	 * @param string[] $modules   Active modules.
+	 * @param bool     $connected Whether the site holds a connection.
+	 * @param bool     $offline   Whether the site is in offline mode.
+	 * @param bool     $simple    Whether this is a Simple site.
+	 * @param bool     $expected  Whether Jetpack's blocks load.
+	 */
+	#[DataProvider( 'provide_jetpack_blocks_sites' )]
+	public function test_jetpack_blocks_load_where_the_plugin_loads_them( array $modules, bool $connected, bool $offline, bool $simple, bool $expected ): void {
+		$this->given_site( $modules, $connected );
+		if ( $offline ) {
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+		}
+		if ( $simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		$loads = Environment::jetpack_blocks_load();
+
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$this->assertSame( $expected, $loads );
 	}
 }

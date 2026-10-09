@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -165,7 +166,7 @@ class Services_Controller_Test extends BaseTestCase {
 	 */
 	public function test_emptying_the_services_where_the_block_is_on_offer_reports_the_save(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 
 		$response = $this->request(
 			'POST',

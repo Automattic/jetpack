@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove unfinished Sharing Buttons auto-add code that never ran; the Sharing & Likes package replaces it.
+
+

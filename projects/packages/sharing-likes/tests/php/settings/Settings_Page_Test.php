@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -328,8 +329,8 @@ class Settings_Page_Test extends BaseTestCase {
 	public function test_leaves_the_block_prompts_and_the_extras_once_simple_switched_both_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
+		$this->given_block( Block_Names::LIKE );
 		$this->given_no_services();
 		update_option( 'disabled_likes', 1 );
 		update_option( 'disabled_reblogs', 1 );
@@ -350,7 +351,7 @@ class Settings_Page_Test extends BaseTestCase {
 	 */
 	public function test_moves_third_party_fields_out_of_a_hidden_services_list(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 		$this->given_connection( true );
 		$this->given_modules( array( 'sharedaddy' ) );
 		$this->given_no_services();
