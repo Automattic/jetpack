@@ -463,6 +463,8 @@ class Comment_Form {
 			$settings = array_merge(
 				array(
 					'version'                => Comments::PACKAGE_VERSION,
+					// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
+					'assetsUrl'              => trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) ),
 					// The dialog's shadow root links it again; page styles stop at that boundary.
 					// Decoded: WordPress.com's static-file filter joins its query with &amp;.
 					'styleUrl'               => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',

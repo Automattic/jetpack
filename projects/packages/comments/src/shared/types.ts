@@ -110,6 +110,8 @@ export type Strings = {
 export type Settings = {
 	/** The package version that rendered the page, checked against the bundle's before it takes over. */
 	version: string;
+	/** The build directory, which webpack loads the lazy chunks from. */
+	assetsUrl: string;
 	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
