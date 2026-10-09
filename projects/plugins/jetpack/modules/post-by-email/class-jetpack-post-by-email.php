@@ -35,6 +35,30 @@ class Jetpack_Post_By_Email {
 	}
 
 	/**
+	 * Name of the option holding a user's local copy of their Post by Email address.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id Local user ID.
+	 *
+	 * @return string
+	 */
+	public static function address_copy_option_name( $user_id ) {
+		return 'post_by_email_address' . (int) $user_id;
+	}
+
+	/**
+	 * Delete a user's local copy of their Post by Email address.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id Local user ID.
+	 */
+	public static function delete_address_copy( $user_id ) {
+		delete_option( self::address_copy_option_name( $user_id ) );
+	}
+
+	/**
 	 * Adds hooks for PBE.
 	 */
 	public function action_init() {
@@ -239,8 +263,12 @@ class Jetpack_Post_By_Email {
 			return array( 'message' => $error );
 		}
 
-		// Used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'post_by_email_address' . get_current_user_id(), $response );
+		// Read by Jetpack_Core_Json_Api_Endpoints::get_remote_value. A delete answers `true`, which is not an address.
+		if ( is_string( $response ) ) {
+			update_option( self::address_copy_option_name( get_current_user_id() ), $response );
+		} else {
+			self::delete_address_copy( get_current_user_id() );
+		}
 
 		return $response;
 	}
