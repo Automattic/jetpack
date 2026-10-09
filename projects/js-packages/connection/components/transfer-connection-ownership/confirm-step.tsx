@@ -112,7 +112,8 @@ const TransferConfirmStep = ( {
 								<Link
 									openInNewTab
 									href={ getRedirectUrl(
-										'why-the-wordpress-com-connection-is-important-for-jetpack'
+										'why-the-wordpress-com-connection-is-important-for-jetpack',
+										{ anchor: 'user-roles-and-the-wordpress-com-connection' }
 									) }
 								/>
 							),
