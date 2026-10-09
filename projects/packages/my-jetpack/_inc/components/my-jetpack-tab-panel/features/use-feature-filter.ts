@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { getFeatureModuleSlug } from './feature-state';
-import { getProductModules } from './mappings';
+import { PRODUCT_MODULES } from './mappings';
 import { getFeatureUnavailableReason, isFeatureAvailable } from './module-availability';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -104,6 +104,6 @@ export function matchesModuleTag(
 	const module =
 		state.control.kind === 'module'
 			? state.control.module
-			: modules[ getFeatureModuleSlug( state.feature, getProductModules() ) ];
+			: modules[ getFeatureModuleSlug( state.feature, PRODUCT_MODULES ) ];
 	return module?.module_tags?.includes( tag ) ?? false;
 }

@@ -160,6 +160,43 @@ describe( 'FeaturesContent', () => {
 		}
 	} );
 
+	it.each( [
+		'module_tag=Writing',
+		'search=artificial%20intelligence',
+		'search=artificial%20intelligence&module_tag=Writing',
+	] )( 'matches migrated AI metadata with its activation toggle hidden: %s', params => {
+		const original = window.location.href;
+		const flags = window.myJetpackInitialState.myJetpackFlags;
+		try {
+			window.myJetpackInitialState.myJetpackFlags = { ...flags, showAiModuleToggle: false };
+			window.history.replaceState( {}, '', '?modules_fallback=1&s=artificial%20intelligence' );
+			mockStates = [
+				activeStats,
+				{
+					...activeStats,
+					feature: {
+						...activeStats.feature,
+						slug: 'jetpack-ai',
+						product: 'jetpack-ai',
+						name: 'AI',
+					},
+				} as FeatureState,
+			];
+			mockModules = {
+				ai: {
+					module_tags: [ 'Writing' ],
+					search_terms: 'artificial intelligence',
+				} as MyJetpackModule,
+			};
+			renderAt( `/features?${ params }` );
+			expect( screen.getByText( 'jetpack-ai' ) ).toBeInTheDocument();
+			expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 1 );
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = flags;
+			window.history.replaceState( {}, '', original );
+		}
+	} );
+
 	it( 'applies a saved tag and search to product cards and module rows, and clears only the tag', async () => {
 		const stats = {
 			...activeStats,

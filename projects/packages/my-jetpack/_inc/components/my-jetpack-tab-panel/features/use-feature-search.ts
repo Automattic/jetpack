@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { getFeatureModuleSlug } from './feature-state';
-import { getProductModules } from './mappings';
+import { PRODUCT_MODULES } from './mappings';
 import { hasSearch, moduleFields, rankBy, searchTerms } from './search';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -28,7 +28,7 @@ export function useFeatureSearch(
 		const terms = searchTerms( search );
 
 		return rankBy( states, terms, state => {
-			const module = modules?.[ getFeatureModuleSlug( state.feature, getProductModules() ) ];
+			const module = modules?.[ getFeatureModuleSlug( state.feature, PRODUCT_MODULES ) ];
 			return [
 				{ value: state.feature.name, weight: 3 },
 				{ value: state.feature.description, weight: 1 },
