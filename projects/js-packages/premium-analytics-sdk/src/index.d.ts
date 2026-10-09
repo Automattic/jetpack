@@ -88,6 +88,14 @@ export type DonutProps = {
 	format?: DataFormat;
 };
 
+// The same breakdown drawn as a half ring.
+export declare const SemiCircle: ComponentType< SemiCircleProps >;
+export type SemiCircleSegmentInput = DonutSegmentInput;
+export type SemiCircleProps = DonutProps & {
+	// Whether the total of the segments shows under the arc; off for shares that add up to one.
+	withTotal?: boolean;
+};
+
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;

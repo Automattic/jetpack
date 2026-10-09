@@ -20,3 +20,7 @@ export const useReportConforms: typeof Api.useReport< Probe > =
 
 // And when the facade's `Donut` stops accepting the props the contract declares.
 export const donutConforms: typeof Api.Donut = null as unknown as typeof Facade.Donut;
+
+// And when the facade's `SemiCircle` stops accepting the props the contract declares.
+export const semiCircleConforms: typeof Api.SemiCircle =
+	null as unknown as typeof Facade.SemiCircle;
