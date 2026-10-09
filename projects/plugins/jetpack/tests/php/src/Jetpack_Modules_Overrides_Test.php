@@ -179,8 +179,25 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Helpers
+	 * An offline refresh clears an inactive plugin's cached module override.
 	 */
+	public function test_offline_module_refresh_drops_inactive_videopress_override() {
+		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
+		add_filter( 'jetpack_active_modules', $force_active );
+		add_filter( 'jetpack_active_modules', array( $this, 'force_active_modules' ) );
+		$this->instance->clear_cache();
+		$this->assertFalse( \Automattic\Jetpack\My_Jetpack\Products\Videopress::is_standalone_plugin_active() );
+		$this->assertSame( 'active', $this->instance->get_module_override( 'videopress' ) );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/module/all' );
+
+		try {
+			\Automattic\Jetpack\My_Jetpack\Initializer::use_local_module_options( null, array(), $request );
+			$this->assertFalse( $this->instance->get_module_override( 'videopress' ) );
+			$this->assertSame( 'active', $this->instance->get_module_override( 'photon' ) );
+		} finally {
+			\Automattic\Jetpack\My_Jetpack\Initializer::restore_module_options( null, array(), $request );
+		}
+	}
 
 	/**
 	 * Helper to force active Photon and the Asset CDN.
