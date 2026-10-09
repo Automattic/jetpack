@@ -1,8 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Notice, Stack, Text } from '@wordpress/ui';
+import { store as noticesStore } from '@wordpress/notices';
+import { Button, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
@@ -12,7 +14,6 @@ import RecentBlocks from './recent-blocks';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
 import type { BlockedRequest, FirewallContext, FirewallState } from './types';
-import type { ComponentProps } from 'react';
 import './style.scss';
 
 const UNAVAILABLE: FirewallState = {
@@ -25,16 +26,19 @@ const UNAVAILABLE: FirewallState = {
 	manualRules: { blockList: '', blockListEnabled: false, allowList: '', allowListEnabled: false },
 };
 
-type NoticeIntent = ComponentProps< typeof Notice.Root >[ 'intent' ];
+// One id for the test's snackbars, so the result replaces "Testing the firewall…".
+const NOTICE_ID = 'jetpack-protect-firewall-test';
 
-const OUTCOMES: Record< TestOutcome | 'error', { intent: NoticeIntent; message: () => string } > = {
+type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
+
+const OUTCOMES: Record< TestOutcome | 'error', { status: NoticeStatus; message: () => string } > = {
 	blocked: {
-		intent: 'success',
+		status: 'success',
 		message: () =>
 			__( 'The firewall blocked the test request. It’s working.', 'jetpack-protect-pkg' ),
 	},
 	silent: {
-		intent: 'warning',
+		status: 'warning',
 		message: () =>
 			__(
 				'The firewall caught the test request but let it through, because it’s only logging requests.',
@@ -42,7 +46,7 @@ const OUTCOMES: Record< TestOutcome | 'error', { intent: NoticeIntent; message: 
 			),
 	},
 	'not-blocked': {
-		intent: 'error',
+		status: 'error',
 		message: () =>
 			__(
 				'The test request wasn’t blocked. The firewall may not be running on this site.',
@@ -50,7 +54,7 @@ const OUTCOMES: Record< TestOutcome | 'error', { intent: NoticeIntent; message: 
 			),
 	},
 	off: {
-		intent: 'info',
+		status: 'info',
 		message: () =>
 			__(
 				'The test request got through, because the firewall is off. Turn it on and test again to see it blocked.',
@@ -58,10 +62,29 @@ const OUTCOMES: Record< TestOutcome | 'error', { intent: NoticeIntent; message: 
 			),
 	},
 	error: {
-		intent: 'error',
+		status: 'error',
 		message: () => __( 'The firewall test couldn’t run. Try again.', 'jetpack-protect-pkg' ),
 	},
 };
+
+/**
+ * Show the firewall test's progress or result as a snackbar.
+ *
+ * @param status    - The notice's kind.
+ * @param content   - The message.
+ * @param learnMore - Opens the test's steps; the result has it, progress doesn't.
+ */
+function notify( status: NoticeStatus, content: string, learnMore?: () => void ) {
+	dispatch( noticesStore ).createNotice( status, content, {
+		type: 'snackbar',
+		id: NOTICE_ID,
+		// Results stay until dismissed, so there's time to read them and open Learn more.
+		explicitDismiss: status !== 'info' || !! learnMore,
+		actions: learnMore
+			? [ { label: __( 'Learn more', 'jetpack-protect-pkg' ), onClick: learnMore } ]
+			: [],
+	} );
+}
 
 const formatCount = ( count: number ) =>
 	new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
@@ -84,27 +107,29 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	} );
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
-	const [ failed, setFailed ] = useState( false );
 	const [ recorded, setRecorded ] = useState( false );
+	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
 
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
-		setResult( null );
-		setFailed( false );
+		notify( 'info', __( 'Testing the firewall…', 'jetpack-protect-pkg' ) );
 		try {
 			const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
-			setResult( await runFirewallTest( active ) );
+			const testResult = await runFirewallTest( active );
 			const fresh = await apiFetch< {
 				blockedCount: number | null;
 				recentBlocks: BlockedRequest[];
 			} >( { path: `${ FIREWALL_PATH }/blocks` } );
 			setBlocks( fresh );
+			setResult( testResult );
 			setRecorded(
 				fresh.recentBlocks.some( block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID )
 			);
+			const { status, message } = OUTCOMES[ testResult.outcome ];
+			notify( status, message(), () => setDetailsOpen( true ) );
 		} catch {
-			setFailed( true );
+			notify( OUTCOMES.error.status, OUTCOMES.error.message() );
 		} finally {
 			setIsTesting( false );
 		}
@@ -125,8 +150,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			</ProtectCard>
 		);
 	}
-
-	const outcome = result?.outcome ?? ( failed ? 'error' : null );
 
 	return (
 		<ProtectCard
@@ -158,15 +181,13 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					</Text>
 				) }
 			</CardRow>
-			{ outcome && (
-				<CardRow>
-					<Stack direction="column" gap="md">
-						<Notice.Root intent={ OUTCOMES[ outcome ].intent }>
-							<Notice.Description>{ OUTCOMES[ outcome ].message() }</Notice.Description>
-						</Notice.Root>
-						{ result && <TestDetails result={ result } recorded={ recorded } /> }
-					</Stack>
-				</CardRow>
+			{ result && (
+				<TestDetails
+					result={ result }
+					recorded={ recorded }
+					open={ detailsOpen }
+					onOpenChange={ setDetailsOpen }
+				/>
 			) }
 			{ active && (
 				<CardRow>

@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Dialog, Stack, Text } from '@wordpress/ui';
 import { SELF_CHECK_RULE_ID } from './firewall-test';
 import type { TestResult } from './firewall-test';
 
@@ -23,13 +23,7 @@ function getShortRequest( url: string ): string {
  * @param props.recorded - Whether a new "firewall test" block appeared in the log.
  * @return The steps.
  */
-export default function TestDetails( {
-	result,
-	recorded,
-}: {
-	result: TestResult;
-	recorded: boolean;
-} ) {
+function TestSteps( { result, recorded }: { result: TestResult; recorded: boolean } ) {
 	const loggedNote = sprintf(
 		/* translators: %d is a firewall rule's ID. */
 		__( 'It’s in Recently blocked requests as rule %d.', 'jetpack-protect-pkg' ),
@@ -86,5 +80,43 @@ export default function TestDetails( {
 				</li>
 			) ) }
 		</ol>
+	);
+}
+
+/**
+ * The test's steps in a dialog, opened from the result's "Learn more".
+ *
+ * @param props              - Component props.
+ * @param props.result       - The test's result.
+ * @param props.recorded     - Whether a new "firewall test" block appeared in the log.
+ * @param props.open         - Whether the dialog is open.
+ * @param props.onOpenChange - Opens or closes the dialog.
+ * @return The dialog.
+ */
+export default function TestDetails( {
+	result,
+	recorded,
+	open,
+	onOpenChange,
+}: {
+	result: TestResult;
+	recorded: boolean;
+	open: boolean;
+	onOpenChange: ( open: boolean ) => void;
+} ) {
+	return (
+		<Dialog.Root open={ open } onOpenChange={ onOpenChange }>
+			<Dialog.Popup>
+				<Dialog.Header>
+					<Dialog.Title>
+						{ __( 'How the firewall test works', 'jetpack-protect-pkg' ) }
+					</Dialog.Title>
+					<Dialog.CloseIcon />
+				</Dialog.Header>
+				<Dialog.Content>
+					<TestSteps result={ result } recorded={ recorded } />
+				</Dialog.Content>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }
