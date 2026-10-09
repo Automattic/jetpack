@@ -22,6 +22,7 @@ const props = {
 		hasScan: false,
 		currentIp: '',
 		manualRules: { blockList: '', blockListEnabled: false, allowList: '', allowListEnabled: false },
+		sharesData: false,
 	},
 	settings: { settings: null },
 	openTab: jest.fn(),

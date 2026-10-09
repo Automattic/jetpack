@@ -24,6 +24,7 @@ const UNAVAILABLE: FirewallState = {
 	hasScan: false,
 	currentIp: '',
 	manualRules: { blockList: '', blockListEnabled: false, allowList: '', allowListEnabled: false },
+	sharesData: false,
 };
 
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
@@ -110,6 +111,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ recorded, setRecorded ] = useState( false );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
+	const sharesData = Boolean( settings.settings?.jetpack_waf_share_data ?? firewall.sharesData );
 
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
@@ -200,7 +202,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ active && (
 				<CardRow>
-					<RecentBlocks blocks={ blocks.recentBlocks } />
+					<RecentBlocks blocks={ blocks.recentBlocks } canViewAll={ sharesData } />
 				</CardRow>
 			) }
 			<CardRow>

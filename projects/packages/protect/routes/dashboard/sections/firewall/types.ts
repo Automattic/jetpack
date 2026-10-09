@@ -6,6 +6,9 @@ export type BlockedRequest = {
 	timestamp: string;
 	ruleId: number;
 	reason: string;
+	/** From the firewall's request log, when it's kept and has the block. */
+	uri?: string;
+	userAgent?: string;
 };
 
 export type ManualRulesState = {
@@ -26,6 +29,8 @@ export type FirewallState = {
 	currentIp: string;
 	/** The IP lists the firewall enforces, as of page load. */
 	manualRules: ManualRulesState;
+	/** Whether the firewall keeps its request log ("Share basic data"). */
+	sharesData: boolean;
 };
 
 /** Undefined when PHP registered no Firewall section. */
