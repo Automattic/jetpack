@@ -1,19 +1,39 @@
-.jp-protect-recent-blocks {
-	margin: 0;
-	padding: 0;
-	list-style: none;
+.jp-protect-blocks-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	text-align: start;
 
-	&__item {
-		display: flex;
-		justify-content: space-between;
-		gap: 16px;
-		padding-block: 8px;
+	th,
+	td {
+		padding-block: 10px;
+		padding-inline: 0 16px;
+		border-block-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+		text-align: start;
+		vertical-align: middle;
+	}
 
-		& + & {
-			border-block-start:
-				var(--wpds-border-width-xs) solid
-				var(--wpds-color-stroke-surface-neutral);
-		}
+	th {
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	tbody tr:last-child td {
+		border-block-end: 0;
+	}
+
+	&__when,
+	&__reason {
+		white-space: nowrap;
+	}
+
+	// The badge resets white-space itself.
+	&__reason > * {
+		white-space: nowrap;
 	}
 }
 
