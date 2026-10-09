@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sharing Buttons block: Remove the unfinished code that added the block to templates, now handled by the Sharing & Likes package.
