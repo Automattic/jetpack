@@ -99,7 +99,8 @@
 	}
 }
 
-.jetpack-boost-overview .jetpack-boost-overview__scores-divider {
+// components 42 doubles the divider class: the element wins.
+.jetpack-boost-overview hr.jetpack-boost-overview__scores-divider {
 	margin: 0;
 	border-color: var(--wpds-color-stroke-surface-neutral);
 }
