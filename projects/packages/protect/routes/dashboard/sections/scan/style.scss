@@ -234,7 +234,7 @@
 
 	// DataViews gives every cell a 15ch minimum; ours only need their content.
 	.dataviews-view-table .dataviews-view-table__cell-content-wrapper {
-		min-width: 0;
+		min-inline-size: 0;
 	}
 
 	&__nowrap {

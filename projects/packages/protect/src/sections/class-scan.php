@@ -307,24 +307,44 @@ class Scan implements Dashboard_Section {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/theme.php';
 
+		// Looked up by key, so only the slug of installed software matches and anything else is refused.
 		$file  = 'plugins' === $type ? ( Dashboard_Threats::get_plugin_files( get_plugins() )[ $slug ] ?? null ) : null;
-		$theme = 'themes' === $type ? wp_get_theme( $slug ) : null;
-		$theme = $theme && $theme->exists() ? $theme : null;
+		$theme = 'themes' === $type ? ( wp_get_themes( array( 'errors' => null ) )[ $slug ] ?? null ) : null;
 		if ( ! Dashboard_Threats::can_delete( $type, $slug, $file, $theme ) ) {
 			return new WP_Error( 'software_not_deletable', __( 'This can’t be deleted here. It may be in use, or already gone.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
-		// Both return null when WordPress needs filesystem credentials, which only its own screens ask for.
-		$deleted = 'plugins' === $type ? delete_plugins( array( $file ) ) : delete_theme( $slug );
+		$deleted = null;
+		if ( self::can_write_files() ) {
+			$deleted = 'plugins' === $type ? delete_plugins( array( $file ) ) : delete_theme( $theme->get_stylesheet() );
+		}
 		if ( true !== $deleted ) {
 			return new WP_Error( 'software_not_deleted', is_wp_error( $deleted ) ? $deleted->get_error_message() : __( 'WordPress couldn’t delete the files. Try deleting it from the Plugins or Themes screen.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
 		}
 
+		delete_transient( self::HISTORY_CACHE );
 		if ( class_exists( Status::class ) ) {
 			Scan_Status::delete_option();
 			Protect_Status::delete_option();
 		}
 		return array( 'ok' => true );
+	}
+
+	/**
+	 * Whether WordPress can delete files without asking for filesystem credentials.
+	 *
+	 * Core's delete functions print the credentials form and exit when it can't, which a REST request can't show.
+	 *
+	 * @return bool
+	 */
+	private static function can_write_files() {
+		if ( 'direct' === get_filesystem_method() ) {
+			return true;
+		}
+		ob_start();
+		$has_credentials = request_filesystem_credentials( self_admin_url() );
+		ob_end_clean();
+		return (bool) $has_credentials;
 	}
 
 	/**

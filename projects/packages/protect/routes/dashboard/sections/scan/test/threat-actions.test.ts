@@ -110,4 +110,25 @@ describe( 'deleteSoftware', () => {
 		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 2 ] );
 		expect( result.current?.ignored ).toEqual( [] );
 	} );
+
+	it.each( [
+		[ 'the server’s reason', { message: 'Nope' }, 'Nope' ],
+		[ 'a fallback naming the software', {}, 'akismet couldn’t be deleted.' ],
+	] )(
+		'resolves to %s when the delete fails, and keeps the threats',
+		async ( _name, e, reason ) => {
+			mockApiFetch.mockRejectedValue( e );
+			const inPlugin = {
+				id: 1,
+				title: 'Vulnerable plugin',
+				extension: { type: 'plugins' as const, slug: 'akismet', name: 'akismet', version: '1.0' },
+			};
+			setScan( current => ( { ...current, threats: [ inPlugin ], ignored: [] } ) );
+			const { result } = renderHook( () => useScan() );
+
+			await expect( deleteSoftware( inPlugin ) ).resolves.toBe( reason );
+
+			expect( result.current?.threats ).toEqual( [ inPlugin ] );
+		}
+	);
 } );

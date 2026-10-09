@@ -137,50 +137,76 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Whether the plugin being deleted is active, and whether the route deletes it.
+	 * Software the route is asked to delete, and the error it answers with, if any.
 	 *
 	 * @return array[]
 	 */
-	public static function provider_delete_plugin() {
+	public static function provider_delete_software() {
+		$slug = 'protect-delete-test';
 		return array(
-			'inactive plugin is deleted' => array( false, true ),
-			'active plugin is kept'      => array( true, false ),
+			'inactive plugin is deleted'               => array( 'plugins', $slug, array(), null ),
+			'active plugin is kept'                    => array( 'plugins', $slug, array( 'active' => $slug ), 'software_not_deletable' ),
+			'plugin is kept from a user who cannot'    => array( 'plugins', $slug, array( 'role' => 'editor' ), 'software_not_deletable' ),
+			'plugin is kept without filesystem access' => array( 'plugins', $slug, array( 'filesystem' => 'ftpext' ), 'software_not_deleted' ),
+			'unused theme is deleted'                  => array( 'themes', $slug, array(), null ),
+			'active theme is kept'                     => array( 'themes', $slug, array( 'active' => $slug ), 'software_not_deletable' ),
+			'parent of the active theme is kept'       => array( 'themes', $slug, array( 'parent' => $slug ), 'software_not_deletable' ),
+			'theme is kept when the slug is a path'    => array( 'themes', './' . $slug, array(), 'software_not_deletable' ),
 		);
 	}
 
 	/**
-	 * Test that the route deletes an inactive plugin's files, but never an active plugin's.
+	 * Test that the route deletes only software the site doesn't use, named by its own slug, for a user who may.
 	 *
-	 * @dataProvider provider_delete_plugin
-	 * @param bool $is_active   Whether the plugin is active.
-	 * @param bool $is_deleted  Whether its file should be gone.
+	 * @dataProvider provider_delete_software
+	 * @param string      $type  The plural extension type.
+	 * @param string      $slug  The slug the request names.
+	 * @param array       $site  What differs from an administrator deleting unused software: `active`, `parent`, `role` or `filesystem`.
+	 * @param string|null $error The expected error code, or null when the files should be gone.
 	 */
-	#[DataProvider( 'provider_delete_plugin' )]
-	public function test_delete_software_only_deletes_inactive_plugins( $is_active, $is_deleted ) {
-		$file = WP_PLUGIN_DIR . '/protect-delete-test.php';
+	#[DataProvider( 'provider_delete_software' )]
+	public function test_delete_software( $type, $slug, $site, $error ) {
+		$plugin    = WP_PLUGIN_DIR . '/protect-delete-test.php';
+		$theme_dir = get_theme_root() . '/protect-delete-test';
+		$file      = 'plugins' === $type ? $plugin : $theme_dir . '/style.css';
 		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		// phpcs:disable WordPress.WP.AlternativeFunctions
+		mkdir( $theme_dir, 0777, true ); // wp_mkdir_p() refuses the `../` in WorDBless's content path.
+		file_put_contents( $plugin, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" );
+		file_put_contents( $theme_dir . '/style.css', "/*\nTheme Name: Protect Delete Test\n*/\n" );
+		file_put_contents( $theme_dir . '/index.php', "<?php\n" );
+		// phpcs:enable
+		register_theme_directory( get_theme_root() );
 		wp_clean_plugins_cache( false );
-		update_option( 'active_plugins', $is_active ? array( 'protect-delete-test.php' ) : array() );
-		$admin_id = wp_insert_user(
+		wp_clean_themes_cache( false );
+		update_option( 'active_plugins', isset( $site['active'] ) ? array( $site['active'] . '.php' ) : array() );
+		update_option( 'stylesheet', $site['active'] ?? 'protect-other-theme' );
+		update_option( 'template', $site['active'] ?? $site['parent'] ?? 'protect-other-theme' );
+		$filesystem = function () use ( $site ) {
+			return $site['filesystem'] ?? 'direct';
+		};
+		add_filter( 'filesystem_method', $filesystem );
+		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'admin',
+				'user_login' => 'user',
 				'user_pass'  => 'pass',
-				'role'       => 'administrator',
+				'role'       => $site['role'] ?? 'administrator',
 			)
 		);
-		wp_set_current_user( $admin_id );
+		wp_set_current_user( $user_id );
 
 		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/software/delete' );
-		$request->set_param( 'type', 'plugins' );
-		$request->set_param( 'slug', 'protect-delete-test' );
+		$request->set_param( 'type', $type );
+		$request->set_param( 'slug', $slug );
 		$result = Scan::delete_software( $request );
 		$exists = file_exists( $file );
-		if ( $exists ) {
-			wp_delete_file( $file );
+		remove_filter( 'filesystem_method', $filesystem );
+		array_map( 'wp_delete_file', array_filter( array( $plugin, $theme_dir . '/style.css', $theme_dir . '/index.php' ), 'file_exists' ) );
+		if ( is_dir( $theme_dir ) ) {
+			rmdir( $theme_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 		}
 
-		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
-		$this->assertSame( $is_deleted, ! $exists, 'File' );
+		$this->assertSame( $error, is_wp_error( $result ) ? $result->get_error_code() : null, 'Result' );
+		$this->assertSame( null === $error, ! $exists, 'File' );
 	}
 }

@@ -2,7 +2,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog, Button, Notice, Stack, Text } from '@wordpress/ui';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
-import { THREAT_PARAM, useSearchParam } from './store';
+import { THREAT_PARAM, useScan, useSearchParam } from './store';
 import { deleteSoftware } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { RenderModalProps } from '@wordpress/dataviews';
@@ -47,20 +47,27 @@ function getDeleteMessage( threat: ScanThreat ): string {
 }
 
 /**
- * Delete the software, then close the inspector, whose threat went with it.
+ * Delete the software, then close the inspector if its threat went with it.
  *
  * @param threat - The threat.
  * @return Deletes, resolving to why it failed, or null once done.
  */
 function useDeleteSoftware( threat: ScanThreat | undefined ) {
-	const [ , setThreat ] = useSearchParam( THREAT_PARAM );
+	const [ selected, setThreat ] = useSearchParam( THREAT_PARAM );
+	const scan = useScan();
 	return useCallback( async () => {
 		const error = threat ? await deleteSoftware( threat ) : null;
-		if ( ! error ) {
+		const open = [ ...( scan?.threats ?? [] ), ...( scan?.ignored ?? [] ) ].find(
+			item => String( item.id ) === selected
+		);
+		const isOpenThreatDeleted =
+			open?.extension?.type === threat?.extension?.type &&
+			open?.extension?.slug === threat?.extension?.slug;
+		if ( ! error && open && isOpenThreatDeleted ) {
 			setThreat();
 		}
 		return error;
-	}, [ threat, setThreat ] );
+	}, [ threat, selected, scan, setThreat ] );
 }
 
 /**
