@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Show the redesigned dashboard by default. Return false from the `rsm_jetpack_ui_modernization_backup` filter to keep the previous one.
+Show the redesigned dashboard by default. Return false from the `rsm_jetpack_ui_modernization_backup` filter to keep the legacy dashboard.

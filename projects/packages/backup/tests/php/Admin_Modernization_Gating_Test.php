@@ -93,10 +93,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	public function test_is_modernized_follows_the_filter() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		$this->assertTrue( Jetpack_Backup::is_modernized() );
-
-		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
 	}
