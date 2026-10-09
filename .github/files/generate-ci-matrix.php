@@ -71,9 +71,9 @@ $default_matrix_vars = array(
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
-// Entries in `$to_expand` are split into several jobs first, see "Expand splits" below.
-$matrix    = array();
-$to_expand = array();
+// Entries in `$to_split` are split into several jobs first, see "Split jobs" below.
+$matrix   = array();
+$to_split = array();
 
 $php_split_config = array(
 	'projects' => array( 'plugins/jetpack' ),
@@ -82,7 +82,7 @@ $php_split_config = array(
 
 // Add PHP tests.
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
-	$to_expand[] = array(
+	$to_split[] = array(
 		'name'         => "PHP tests: PHP $php WP latest (%s)",
 		'script'       => 'test-php',
 		'php'          => $php,
@@ -93,8 +93,8 @@ foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
 }
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
-	$phpver      = $versions['PHP_VERSION'];
-	$to_expand[] = array(
+	$phpver     = $versions['PHP_VERSION'];
+	$to_split[] = array(
 		'name'         => "PHP tests: PHP {$phpver} WP $wp (%s)",
 		'script'       => 'test-php',
 		'php'          => $phpver,
@@ -115,7 +115,7 @@ $matrix[] = array(
 );
 
 // Add wpcomsh tests.
-$to_expand[] = array(
+$to_split[] = array(
 	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh (%s)',
 	'script'       => 'test-php',
 	'php'          => '8.3',
@@ -126,7 +126,7 @@ $to_expand[] = array(
 );
 
 // Add PHP coverage.
-$to_expand[] = array(
+$to_split[] = array(
 	'name'         => 'Code coverage (PHP, %s)',
 	'script'       => 'test-php-coverage',
 	'wp'           => 'latest',
@@ -141,8 +141,8 @@ $js_split_config = array(
 	'generic'  => 2,
 );
 foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
-	$is_cov      = $script === 'test-js-coverage';
-	$to_expand[] = array(
+	$is_cov     = $script === 'test-js-coverage';
+	$to_split[] = array(
 		'name'         => $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)',
 		'script'       => $script,
 		'timeout'      => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
@@ -152,7 +152,7 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 }
 
 /*
- * Expand splits: one job for each of `split_config.projects`, then `split_config.generic` jobs to round-robin everything else.
+ * Split jobs: one job for each of `split_config.projects`, then `split_config.generic` jobs to round-robin everything else.
  * For example, this config gives "Test name (jetpack)", "Test name (1 of 2)", and "Test name (2 of 2)":
  *
  * array(
@@ -163,7 +163,7 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
  *   ),
  * )
  */
-foreach ( $to_expand as $m ) {
+foreach ( $to_split as $m ) {
 	$split = $m['split_config'];
 	unset( $m['split_config'] );
 	foreach ( $split['projects'] as $slug ) {
@@ -335,9 +335,9 @@ foreach ( $matrix as &$m ) {
 		error( "Keys `split-num` and `split-project` cannot both be set!\n%s", $orig );
 	}
 
-	// Make sure `split_config` isn't in a normal `$matrix` entry instead of `$to_expand`.
+	// Make sure `split_config` isn't in a normal `$matrix` entry instead of `$to_split`.
 	if ( isset( $m['split_config'] ) ) {
-		error( "Key `split_config` is only valid for entries in `\$to_expand`!\n%s", $orig );
+		error( "Key `split_config` is only valid for entries in `\$to_split`!\n%s", $orig );
 	}
 }
 unset( $m );
