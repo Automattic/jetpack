@@ -42,7 +42,7 @@ if compgen -G 'coverage/js-combined-*.json' &>/dev/null; then
 	echo '::endgroup::'
 fi
 
-if [[ -f coverage/php-combined.cov ]]; then
+if compgen -G 'coverage/php-combined-*.cov' &>/dev/null; then
 	echo '::group::Composer install'
 	composer --working-dir=.github/files/coverage-munger/ update
 	echo '::endgroup::'
