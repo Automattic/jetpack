@@ -90,7 +90,7 @@ describe( 'the root tree', () => {
 
 		// The selection header renders above the tree either way, so reading it
 		// proves the browser mounted without deciding what this test asserts.
-		expect( screen.getByRole( 'checkbox', { name: '0 items selected' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Select all' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'presentation' ) ).toBeInTheDocument();
 	} );
 

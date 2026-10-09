@@ -11,7 +11,7 @@ import {
 	file as folderIcon,
 	page as fileIcon,
 } from '@wordpress/icons';
-import { Spinner, Stack } from '@wordpress/ui';
+import { Spinner, Stack, Text } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
 import useNarrowElement from '../../hooks/use-narrow-element';
 import { isFolder } from '../../types/file-tree';
@@ -444,14 +444,15 @@ export default function FileBrowser( {
 		onSelectionIdsChange?.( selectedIds );
 	}, [ selectedIds, onSelectionIdsChange ] );
 
-	// The selection summary's checkbox doubles as a "select all / clear"
-	// toggle: clicking it with anything selected clears both sets,
-	// clicking with nothing selected seeds every top-level root path as
-	// a positive selection. Mirrors the legacy backup-contents header
-	// — selecting a folder includes its whole subtree on the server side,
-	// so we don't need to recurse the lazy-loaded child paths here.
+	// A selected folder covers its unloaded subtree, so "everything" is every root with no exceptions.
+	const allSelected =
+		roots.length > 0 && deselected.size === 0 && roots.every( node => selected.has( node.path ) );
+	const someSelected = selected.size > 0 && ! allSelected;
+	const selectionCountId = useId();
+
+	// Clears only from a full selection, so a click on a partial one never discards it.
 	const toggleSelectAll = useCallback( () => {
-		if ( selected.size > 0 ) {
+		if ( allSelected ) {
 			onSelectionChange( EMPTY_FILE_SELECTION );
 			return;
 		}
@@ -459,7 +460,7 @@ export default function FileBrowser( {
 			selected: new Set( roots.map( node => node.path ) ),
 			deselected: new Set(),
 		} );
-	}, [ selected.size, roots, onSelectionChange ] );
+	}, [ allSelected, roots, onSelectionChange ] );
 
 	// Closing the card unmounts the element that currently holds focus, which
 	// drops focus to `<body>` and sends the next Tab back to the top of the
@@ -510,15 +511,24 @@ export default function FileBrowser( {
 				<div className="jpb-file-browser__main">
 					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
 						<CheckboxControl
-							checked={ selected.size > 0 }
-							label={ sprintf(
+							checked={ allSelected }
+							indeterminate={ someSelected }
+							label={
+								allSelected
+									? __( 'Clear selection', 'jetpack-backup-pkg' )
+									: __( 'Select all', 'jetpack-backup-pkg' )
+							}
+							aria-describedby={ selectionCountId }
+							onChange={ toggleSelectAll }
+							__nextHasNoMarginBottom
+						/>
+						<Text variant="body-sm" className="jpb-text-muted" id={ selectionCountId }>
+							{ sprintf(
 								/* translators: %d count of selected items (files + opaque folders) */
 								_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
 								selectedCount
 							) }
-							onChange={ toggleSelectAll }
-							__nextHasNoMarginBottom
-						/>
+						</Text>
 					</Stack>
 					<div className="jpb-file-browser__tree">
 						{ rootsLoading && (
