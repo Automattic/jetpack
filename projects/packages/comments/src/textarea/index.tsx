@@ -31,27 +31,48 @@ export const Textarea = () => {
 			}
 
 			const textarea = textareaRef.current!;
-			const fail = ( stage: string ) => {
+			const fail = ( stage: string, error: unknown ) => {
 				setEditor( 'failed' );
-				recordEvent( 'jetpack_comments_editor_error', { stage } );
+				// Focus from script is never user activation; a restored draft means a reader.
+				if ( focus && navigator.userActivation?.hasBeenActive === false ) {
+					return;
+				}
+				// A chunk that never arrived carries a `type` of missing, timeout or error, and its URL.
+				const { name, type, request } = ( error ?? {} ) as {
+					name?: string;
+					type?: string;
+					request?: unknown;
+				};
+				const chunk =
+					typeof request === 'string' ? request.split( '?' )[ 0 ].split( '/' ).pop() : undefined;
+				recordEvent( 'jetpack_comments_editor_error', {
+					stage,
+					error: name ?? typeof error,
+					...( type ? { type } : {} ),
+					...( chunk ? { chunk } : {} ),
+				} );
 			};
 			matchTheme( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
 			setEditor( 'loading' );
 			loadEditor()
-				.then( ( { mountEditor } ) => {
-					// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
-					setEditor( 'ready' );
-					mountEditor( editorRef.current!, {
-						initialContent: commentValue.peek(),
-						labels,
-						// Read once the editor renders, after the click has placed the textarea's caret.
-						focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
-						placeholder,
-						onChange: content => ( commentValue.value = content ),
-						onError: () => fail( 'render' ),
-					} );
-				} )
-				.catch( () => fail( 'load' ) );
+				.then(
+					( { mountEditor } ) => {
+						// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
+						setEditor( 'ready' );
+						mountEditor( editorRef.current!, {
+							initialContent: commentValue.peek(),
+							labels,
+							// Read once the editor renders, after the click has placed the textarea's caret.
+							focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
+							placeholder,
+							onChange: content => ( commentValue.value = content ),
+							onError: error => fail( 'render', error ),
+						} );
+					},
+					error => fail( 'load', error )
+				)
+				// A throw while mounting, which the load handler above does not see.
+				.catch( error => fail( 'render', error ) );
 		},
 		[ blocks, editor, placeholder, labels, commentValue ]
 	);
