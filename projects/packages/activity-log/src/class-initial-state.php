@@ -45,7 +45,6 @@ class Initial_State {
 			'config'        => array(
 				// Simple sites have no Jetpack REST API to proxy through, so the app calls WordPress.com directly.
 				'apiSource'       => $is_wpcom_simple ? 'wpcom' : 'jetpack',
-				'canRestore'      => ! $is_wpcom_simple,
 				'wpcomUpgradeUrl' => $is_wpcom_simple ? self::get_wpcom_upgrade_url( $site_suffix ) : '',
 				'tracksUserData'  => $is_wpcom_simple ? self::get_wpcom_tracks_user_data() : null,
 			),
@@ -77,7 +76,7 @@ class Initial_State {
 	}
 
 	/**
-	 * WordPress.com checkout for the cheapest plan with the full Activity Log, returning here after.
+	 * WordPress.com plan selection, returning here after checkout or cancel.
 	 *
 	 * @param string $site_suffix The site's Calypso slug.
 	 * @return string
@@ -87,10 +86,11 @@ class Initial_State {
 
 		return add_query_arg(
 			array(
-				'redirect_to'     => $page_url,
-				'checkoutBackUrl' => $page_url,
+				'siteSlug'    => rawurlencode( $site_suffix ),
+				'redirect_to' => $page_url,
+				'cancel_to'   => $page_url,
 			),
-			'https://wordpress.com/checkout/' . rawurlencode( $site_suffix ) . '/personal'
+			'https://wordpress.com/setup/plan-upgrade/'
 		);
 	}
 

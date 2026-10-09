@@ -125,7 +125,7 @@ export function UpsellCallout() {
 				<Text as="p" variant="muted">
 					{ wpcomUpgradeUrl
 						? __(
-								'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on all paid WordPress.com plans.',
+								'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on WordPress.com paid plans.',
 								'jetpack-activity-log'
 							)
 						: __(

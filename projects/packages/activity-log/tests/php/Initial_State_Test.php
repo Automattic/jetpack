@@ -31,7 +31,7 @@ class Initial_State_Test extends TestCase {
 	}
 
 	/**
-	 * Simple has no Jetpack REST API or Rewind, so the proxy, restore links, and Jetpack checkout would all break there.
+	 * Simple has no Jetpack REST API or connection, so the proxy and Jetpack checkout would both break there.
 	 */
 	public function test_config_switches_to_wordpress_com_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -47,8 +47,7 @@ class Initial_State_Test extends TestCase {
 		$config = $this->get_rendered_state()['config'];
 
 		$this->assertSame( 'wpcom', $config['apiSource'] );
-		$this->assertFalse( $config['canRestore'] );
-		$this->assertStringStartsWith( 'https://wordpress.com/checkout/', $config['wpcomUpgradeUrl'] );
+		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade/?siteSlug=', $config['wpcomUpgradeUrl'] );
 		$this->assertSame(
 			array(
 				'userid'   => $user_id,
