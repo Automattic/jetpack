@@ -31,7 +31,7 @@ const renderCard = (
 					...settings,
 				} as ProtectSettingsData
 			}
-			openSettings={ jest.fn() }
+			openTab={ jest.fn() }
 		/>
 	);
 
