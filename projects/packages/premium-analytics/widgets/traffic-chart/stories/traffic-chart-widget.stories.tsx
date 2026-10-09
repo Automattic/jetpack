@@ -204,9 +204,15 @@ export const EmptyNoPosts: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			site: { ...scriptData?.site, admin_url: 'https://example.com/blog/wp-admin/' },
+		} as typeof window.JetpackScriptData;
 		setReportMockState( 'stats/visits', 'empty' );
 		forceStatsMockState( '/wp/v2/posts', 'empty' );
 		return () => {
+			window.JetpackScriptData = scriptData;
 			setReportMockState( 'stats/visits', null );
 			forceStatsMockState( '/wp/v2/posts', null );
 		};

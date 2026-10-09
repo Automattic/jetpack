@@ -15,8 +15,13 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 const mockApiFetch = jest.mocked( apiFetch );
 
 beforeEach( () => {
+	jest.useFakeTimers();
 	queryClient.clear();
 	mockApiFetch.mockReset();
+} );
+
+afterEach( () => {
+	jest.useRealTimers();
 } );
 
 it( 'shares one published-post request between empty widgets', async () => {
@@ -32,6 +37,36 @@ it( 'shares one published-post request between empty widgets', async () => {
 	await waitFor( () => expect( firstResult.current ).toBe( true ) );
 	await waitFor( () => expect( secondResult.current ).toBe( true ) );
 	expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+} );
+
+it( 'keeps the no-posts result while the published-post request refetches', async () => {
+	let resolveRefresh!: ( value: unknown ) => void;
+	mockApiFetch.mockResolvedValueOnce( [] );
+	mockApiFetch.mockImplementationOnce(
+		() =>
+			new Promise( resolve => {
+				resolveRefresh = resolve;
+			} )
+	);
+
+	const { result } = renderHook( () => useNoPublishedPosts( true ), {
+		wrapper: queryClientWrapper,
+	} );
+	await waitFor( () => expect( result.current ).toBe( true ) );
+
+	let refetch!: Promise< unknown >;
+	act( () => {
+		refetch = queryClient.refetchQueries( { queryKey: [ 'latest-post' ] } );
+	} );
+	await waitFor( () =>
+		expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
+	);
+	expect( result.current ).toBe( true );
+
+	await act( async () => {
+		resolveRefresh( [] );
+		await refetch;
+	} );
 } );
 
 it( 'stops claiming no posts when a refresh fails after a cached empty result', async () => {

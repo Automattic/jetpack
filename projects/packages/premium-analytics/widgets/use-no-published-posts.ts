@@ -10,5 +10,5 @@ import {
 export function useNoPublishedPosts( enabled: boolean ): boolean {
 	const result = useStatsQuery< LatestPostResponse >( latestPostQuery(), { enabled } );
 
-	return enabled && ! result.isFetching && ! result.isError && result.data === null;
+	return enabled && ! result.isError && result.data === null;
 }
