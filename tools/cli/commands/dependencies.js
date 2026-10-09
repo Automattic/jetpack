@@ -38,8 +38,11 @@ infrastructureFileSets.test = new Set( [
 infrastructureFileSets.build = new Set( [
 	...infrastructureFileSets.base,
 	'tools/cli/commands/build.js',
+	'tools/cli/helpers/build-cache.js',
 	'tools/cli/helpers/install.js',
 	'tools/cli/helpers/projectHelpers.js',
+	'tools/js-tools/tsconfig.base.json',
+	'tools/js-tools/tsconfig.tsc-declaration-only.json',
 	'.github/workflows/build.yml',
 ] );
 infrastructureFileSets.e2e = {
@@ -51,6 +54,10 @@ infrastructureFileSets.e2e = {
 		);
 	},
 };
+
+// The set of files whose change invalidates every project's build (reused by the build cache to
+// derive a "tool version": editing build infrastructure busts all cached builds).
+export const infrastructureBuildFiles = infrastructureFileSets.build;
 
 // Files to ignore for --git-changed.
 const ignoreFiles = [ '**/*.md', '**/*.txt' ];
