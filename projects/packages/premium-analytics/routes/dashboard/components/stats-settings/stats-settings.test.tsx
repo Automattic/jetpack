@@ -8,8 +8,9 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useStatsSettings: jest.fn(),
 } ) );
 
+const mockTrackEvent = jest.fn();
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	useTrackEvent: () => jest.fn(),
+	useTrackEvent: () => mockTrackEvent,
 } ) );
 
 const mockCreateErrorNotice = jest.fn();
@@ -35,9 +36,14 @@ const SETTINGS = {
 	wpcom_reader_views_enabled: true,
 };
 
+const ROLES = [
+	{ slug: 'administrator', name: 'Administrator', count: null },
+	{ slug: 'editor', name: 'Editor', count: null },
+];
+
 const setScriptData = ( featuresUrl: string | null ) => {
 	window.JetpackScriptData = {
-		premium_analytics: { stats_settings: { roles: [], features_url: featuresUrl } },
+		premium_analytics: { stats_settings: { roles: ROLES, features_url: featuresUrl } },
 	} as typeof window.JetpackScriptData;
 };
 
@@ -75,6 +81,63 @@ describe( 'StatsSettingsPanel', () => {
 		);
 
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( notice, { type: 'snackbar' } );
+	} );
+
+	it.each( [
+		[
+			'a switch turning off',
+			{},
+			async () =>
+				userEvent.click(
+					screen.getByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
+				),
+			[ { setting: 'admin_bar', enabled: false } ],
+		],
+		[
+			'a role added',
+			{},
+			async () => {
+				await userEvent.click(
+					screen.getByRole( 'combobox', { name: 'Count logged in page views from' } )
+				);
+				await userEvent.click( await screen.findByRole( 'option', { name: 'Editor' } ) );
+			},
+			[ { setting: 'count_roles', enabled: true, role: 'editor' } ],
+		],
+		[
+			'a role removed, without the administrator role the field keeps',
+			{ roles: [ 'administrator', 'editor' ] },
+			async () => userEvent.click( screen.getByRole( 'button', { name: 'Remove' } ) ),
+			[ { setting: 'roles', enabled: false, role: 'editor' } ],
+		],
+	] )( 'records %s', async ( _title, stored, act, events ) => {
+		useStatsSettingsMock.mockReturnValue( {
+			settings: { ...SETTINGS, ...stored },
+			isError: false,
+			saveChange: jest.fn().mockResolvedValue( undefined ),
+		} );
+
+		render( <StatsSettingsPanel /> );
+		await act();
+
+		expect( mockTrackEvent.mock.calls ).toEqual(
+			events.map( event => [ 'jetpack_premium_analytics_settings_changed', event ] )
+		);
+	} );
+
+	it( 'records nothing when the site refuses the save', async () => {
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn().mockRejectedValue( { code: 'offline_error' } ),
+		} );
+
+		render( <StatsSettingsPanel /> );
+		await userEvent.click(
+			screen.getByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
+		);
+
+		expect( mockTrackEvent ).not.toHaveBeenCalled();
 	} );
 
 	it( 'says the settings could not be loaded when the site does not return them', () => {
