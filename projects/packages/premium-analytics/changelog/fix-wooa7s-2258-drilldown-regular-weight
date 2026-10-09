@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reports: show the Referrers, Clicks, Authors and UTM tables at one weight on every row, so the chevron alone marks a row that expands.
