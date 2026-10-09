@@ -219,6 +219,7 @@ class Initializer {
 			array(
 				Uploader_Rest_Endpoints::class,
 				Rest_Controller::class,
+				Api_Proxy_Controller::class,
 				VideoPress_Rest_Api_V1_Stats::class,
 				VideoPress_Rest_Api_V1_Site::class,
 				VideoPress_Rest_Api_V1_Settings::class,
@@ -227,6 +228,8 @@ class Initializer {
 		) {
 			add_action( 'rest_api_init', array( $rest_endpoint, 'init' ), 0 );
 		}
+		// Hooked outside REST: the Stats package sweeps expired transients from cron.
+		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		self::register_oembed_providers();
 
 		// In inline mode a VideoPress URL never needs the oEmbed round trip: skip
