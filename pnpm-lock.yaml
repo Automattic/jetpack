@@ -6295,8 +6295,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0(@react-spring/web@10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@woocommerce/email-editor':
-        specifier: 2.4.1
-        version: 2.4.1(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)
+        specifier: 2.5.0
+        version: 2.5.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/a11y':
         specifier: 4.57.0
         version: 4.57.0
@@ -11466,8 +11466,11 @@ packages:
   '@webcontainer/env@1.1.1':
     resolution: {integrity: sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng==}
 
-  '@woocommerce/email-editor@2.4.1':
-    resolution: {integrity: sha512-VHcA04WtIKebeLmUe4gZxPiNSoXolexSXB+2gGPCI4sce86litIzT51QAFnrAB5/C+PORW8reXx3nmuYM6xffw==}
+  '@woocommerce/email-editor@2.5.0':
+    resolution: {integrity: sha512-TN47hummzdOFY+tKVE0S58A3AXE3uBkwTog/7BeRUorO7aDLRkf569EPOUZn5xP+/v5hHa2F+jAA+WNlJ59EhA==}
+    peerDependencies:
+      react: ^18.3.0
+      react-dom: ^18.3.0
 
   '@wordpress/a11y@4.57.0':
     resolution: {integrity: sha512-1BhlEYblenx5w5SkHaEdBodcNf93NDt5nd7QmOc1PpDVxWsGc/ARO30puvUlTnc1tq0Z8KEwy/wiPaTJUoprLw==}
@@ -23422,7 +23425,7 @@ snapshots:
 
   '@webcontainer/env@1.1.1': {}
 
-  '@woocommerce/email-editor@2.4.1(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)':
+  '@woocommerce/email-editor@2.5.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/api-fetch': 7.57.0
       '@wordpress/base-styles': 13.3.0
@@ -23454,6 +23457,7 @@ snapshots:
       '@wordpress/priority-queue': 3.57.0
       '@wordpress/private-apis': 2.0.0
       '@wordpress/rich-text': 7.57.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/ui': 0.24.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url': 4.57.0
       clsx: 2.1.1
       deepmerge: 4.3.1
