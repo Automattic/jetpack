@@ -5,14 +5,15 @@ import {
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
+	Text,
 } from '@automattic/jetpack-components';
 import { getRegistrationErrorSummary, useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
+import styles from './styles.module.scss';
 
 /**
  * Product Detail component.
@@ -20,7 +21,6 @@ import useProtectData from '../../hooks/use-protect-data';
  * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = () => {
-	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
 	const { handleRegisterSite, registrationError } = useConnection( {
@@ -57,10 +57,10 @@ const ConnectedPricingTable = () => {
 		try {
 			await handleRegisterSite();
 		} catch {
-			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) );
+			// The error is shown under the button, from `registrationError`.
 			setHasConnectionStarted( false );
 		}
-	}, [ handleRegisterSite, recordEvent, showErrorNotice ] );
+	}, [ handleRegisterSite, recordEvent ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
@@ -151,15 +151,15 @@ const ConnectedPricingTable = () => {
 							onClick={ getProtectFree }
 							isLoading={ hasConnectionStarted }
 							disabled={ isPlanLoading || hasConnectionStarted }
-							error={
-								registrationError
-									? getRegistrationErrorSummary( registrationError ) ||
-										__( 'An error occurred. Please try again.', 'jetpack-protect' )
-									: null
-							}
 						>
 							{ __( 'Start for free', 'jetpack-protect' ) }
 						</Button>
+						{ registrationError && (
+							<Text variant="body-small" className={ styles.error } role="alert">
+								{ getRegistrationErrorSummary( registrationError ) ||
+									__( 'An error occurred. Please try again.', 'jetpack-protect' ) }
+							</Text>
+						) }
 					</PricingTableHeader>
 					<PricingTableItem
 						isIncluded={ true }
