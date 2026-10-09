@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Apply Global Styles label settings to form labels, including the group label on multiple-choice fields. The Outlined and Animated styles keep their own label weight.
