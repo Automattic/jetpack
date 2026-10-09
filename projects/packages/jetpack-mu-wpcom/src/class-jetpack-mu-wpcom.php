@@ -821,8 +821,8 @@ class Jetpack_Mu_Wpcom {
 			return true;
 		}
 
-		// Don't load any comment experience in the Reader, GlotPress, or P2.
-		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || $is_p2 || $is_forums );
+		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
+		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
 	}
 
 	/**
@@ -839,7 +839,7 @@ class Jetpack_Mu_Wpcom {
 			if ( isset( $_GET['blogid'] ) ) {
 				$blog_id = intval( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
-			if ( is_admin() || self::should_disable_comment_experience( $blog_id ) ) {
+			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
 
