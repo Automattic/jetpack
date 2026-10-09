@@ -105,7 +105,7 @@ describe( 'PlanLimitNotice', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'warns a site at 90% of its limit and offers the upgrade', async () => {
+	it( 'warns a site at 90% of its limit and links to the upgrade', async () => {
 		mockEndpoints( { views_count: 9000, views_limit: 10000 } );
 
 		const { container } = await renderNotice();
