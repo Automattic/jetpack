@@ -20,6 +20,23 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	};
 } );
 
+// Answered from the page's products, so the card never waits on the request.
+jest.mock( '../../../data/products/use-all-products', () => {
+	const { prepareProductData } = jest.requireActual( '../../../data/utils/prepare-product-data' );
+
+	return {
+		useAllProducts: () => ( {
+			data: Object.fromEntries(
+				Object.entries( globalThis.myJetpackInitialState.products.items ).map(
+					( [ slug, product ] ) => [ slug, prepareProductData( product ) ]
+				)
+			),
+			isLoading: false,
+			isError: false,
+		} ),
+	};
+} );
+
 const mockRecordEvent = jest.fn();
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -146,6 +163,14 @@ beforeEach( () => {
 	global.JetpackScriptData.user.current_user.capabilities = {};
 } );
 
+// The account prompt only shows while something switched on needs an account.
+const needAnAccount = () => {
+	Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
+		requires_user_connection: true,
+		is_plugin_active: true,
+	} );
+};
+
 const asAdmin = () => {
 	global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
 };
@@ -206,7 +231,8 @@ describe( 'ConnectionStatusCard', () => {
 	describe( 'When the user has not connected their WordPress.com account and there are no broken modules', () => {
 		describe( 'There are no products that require user connection', () => {
 			const setup = () => {
-				setConnectionStore( { isRegistered: true } );
+				asAdmin();
+				setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
 				return render(
 					<Providers>
 						<ConnectionStatusCard { ...testProps } />
@@ -214,9 +240,12 @@ describe( 'ConnectionStatusCard', () => {
 				);
 			};
 
-			it( 'renders the correct site connection line item', () => {
+			it( 'reads as healthy, with no account prompt', () => {
 				setup();
 				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+				expect(
+					screen.queryByRole( 'button', { name: 'Connect my account' } )
+				).not.toBeInTheDocument();
 			} );
 		} );
 
@@ -235,6 +264,28 @@ describe( 'ConnectionStatusCard', () => {
 				setup();
 				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
+
+			it.each( [ 'active', 'can_upgrade' ] )(
+				'keeps asking while its plugin is on, as %s, whatever the plan',
+				status => {
+					asAdmin();
+					setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
+					Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
+						requires_user_connection: true,
+						is_plugin_active: true,
+						status,
+					} );
+					render(
+						<Providers>
+							<ConnectionStatusCard { ...testProps } />
+						</Providers>
+					);
+
+					expect(
+						screen.getByRole( 'button', { name: 'Connect my account' } )
+					).toBeInTheDocument();
+				}
+			);
 
 			it( 'renders the correct user connection line item', () => {
 				setup();
@@ -487,6 +538,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
 			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -623,6 +675,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When a non-admin is not connected, but there is a connection owner', () => {
 		const setup = () => {
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -652,6 +705,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When a non-admin is not connected, and there is no connection owner', () => {
 		const setup = () => {
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -677,6 +731,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When an admin is not connected but site is registered', () => {
 		const setup = () => {
+			needAnAccount();
 			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
 
 			setConnectionStore( {

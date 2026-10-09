@@ -24,6 +24,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const READER_CHAT_JS_URL                  = 'https://widgets.wp.com/agents-manager/reader-chat.min.js';
 const READER_CHAT_ASSET_TRANSIENT         = 'jetpack_reader_chat_asset';
 const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;

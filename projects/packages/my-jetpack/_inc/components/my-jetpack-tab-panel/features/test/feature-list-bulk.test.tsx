@@ -76,7 +76,7 @@ const moduleState = ( slug: string ) =>
 
 describe( 'FeatureList with the bulk switch', () => {
 	it( 'sends the selected features in one request and clears the selection after it', async () => {
-		mockApiFetch.mockResolvedValue( { state: {}, failed: [] } );
+		mockApiFetch.mockResolvedValue( { state: { features: [] }, failed: [] } );
 
 		render(
 			<QueryClientProvider client={ new QueryClient() }>
@@ -101,7 +101,7 @@ describe( 'FeatureList with the bulk switch', () => {
 	} );
 
 	it( 'renders groups under their headings and switches both lists from the one bar', async () => {
-		mockApiFetch.mockResolvedValue( { state: {}, failed: [] } );
+		mockApiFetch.mockResolvedValue( { state: { features: [] }, failed: [] } );
 
 		render(
 			<QueryClientProvider client={ new QueryClient() }>
@@ -131,7 +131,7 @@ describe( 'FeatureList with the bulk switch', () => {
 		);
 	} );
 	it( 'reports what the run switched, counted against what it sent', async () => {
-		mockApiFetch.mockResolvedValue( { state: {}, failed: [] } );
+		mockApiFetch.mockResolvedValue( { state: { features: [] }, failed: [] } );
 
 		renderTracked( [ pluginState( 'akismet' ), pluginState( 'boost' ), pluginState( 'crm' ) ] );
 
@@ -152,7 +152,7 @@ describe( 'FeatureList with the bulk switch', () => {
 
 	it( 'names the features a run could not switch, and leaves them out of the total', async () => {
 		mockApiFetch.mockResolvedValue( {
-			state: {},
+			state: { features: [] },
 			failed: [ { type: 'plugin', slug: 'boost', message: 'Nope.' } ],
 		} );
 

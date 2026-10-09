@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { act, configure, render, screen } from '@testing-library/react';
+import { act, configure, getConfig, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
 /**
@@ -15,9 +15,6 @@ import {
 	useRaisePeriodChange,
 	useSettlePeriodChange,
 } from '../period-change-signal';
-
-// Effects run, clean up and run again under Strict Mode, as they can in production.
-configure( { reactStrictMode: true } );
 
 const JULY = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
@@ -75,6 +72,18 @@ function Scene( {
 }
 
 describe( 'period change signal', () => {
+	let reactStrictMode: boolean;
+
+	// Effects run, clean up and run again under Strict Mode, as they can in production.
+	beforeAll( () => {
+		reactStrictMode = getConfig().reactStrictMode;
+		configure( { reactStrictMode: true } );
+	} );
+
+	afterAll( () => {
+		configure( { reactStrictMode } );
+	} );
+
 	it( 'waits while the navigation is in flight, then fires once the range lands', async () => {
 		const user = userEvent.setup();
 		const view = render( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );

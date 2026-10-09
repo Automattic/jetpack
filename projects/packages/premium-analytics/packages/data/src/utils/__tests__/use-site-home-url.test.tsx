@@ -2,38 +2,45 @@
  * External dependencies
  */
 import { renderHook } from '@testing-library/react';
+import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
 import { useSiteHomeUrl } from '../use-site-home-url';
 
-const mockGetEntityRecord = jest.fn();
-
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-} ) );
-
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: ( selector: ( select: () => { getEntityRecord: jest.Mock } ) => unknown ) =>
-		selector( () => ( { getEntityRecord: mockGetEntityRecord } ) ),
+	select: jest.fn(),
+	dispatch: jest.fn(),
+	resolveSelect: jest.fn(),
+	useSelect: jest.fn(),
 } ) );
+
+jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
 describe( 'useSiteHomeUrl', () => {
+	const getEntityRecord = jest.fn();
+	const fakeSelect = () => ( { getEntityRecord } );
+
 	beforeEach( () => {
-		mockGetEntityRecord.mockReset();
+		getEntityRecord.mockReset();
+		jest
+			.mocked( useSelect )
+			.mockImplementation( mapSelect =>
+				( mapSelect as unknown as ( select: typeof fakeSelect ) => unknown )( fakeSelect )
+			);
 	} );
 
 	it( 'returns the site URL from the core site settings', () => {
-		mockGetEntityRecord.mockReturnValue( { url: 'https://example.com/' } );
+		getEntityRecord.mockReturnValue( { url: 'https://example.com/' } );
 
 		const { result } = renderHook( () => useSiteHomeUrl() );
 
-		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'root', 'site' );
+		expect( getEntityRecord ).toHaveBeenCalledWith( 'root', 'site' );
 		expect( result.current ).toBe( 'https://example.com/' );
 	} );
 
 	it( 'returns undefined when the site settings are unavailable', () => {
-		mockGetEntityRecord.mockReturnValue( undefined );
+		getEntityRecord.mockReturnValue( undefined );
 
 		const { result } = renderHook( () => useSiteHomeUrl() );
 

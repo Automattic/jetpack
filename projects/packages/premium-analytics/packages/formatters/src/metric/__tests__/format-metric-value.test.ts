@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { formatCurrency, getCurrencyObject } from '@automattic/number-formatters';
+import { formatCurrency, getCurrencyObject, setLocale } from '@automattic/number-formatters';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -9,10 +10,12 @@ import { formatMetricValue } from '../format-metric-value';
 
 jest.mock( '@automattic/number-formatters', () => {
 	const actual = jest.requireActual( '@automattic/number-formatters' );
+	const mocks = { formatCurrency: jest.fn(), getCurrencyObject: jest.fn() };
 	return {
 		...actual,
-		formatCurrency: jest.fn(),
-		getCurrencyObject: jest.fn(),
+		...mocks,
+		// The store-currency instance shares the mocks above.
+		createNumberFormatters: () => ( { ...actual.createNumberFormatters(), ...mocks } ),
 	};
 } );
 
@@ -95,6 +98,40 @@ describe( 'formatMetricValue', () => {
 
 	it( 'defaults to type number', () => {
 		expect( formatMetricValue( 42.42 ) ).toBe( '42' );
+	} );
+
+	describe( 'type: currency (store currency)', () => {
+		afterEach( () => {
+			delete window.JetpackScriptData;
+		} );
+
+		const setStore = ( storeCurrency?: unknown ) => {
+			window.JetpackScriptData = {
+				premium_analytics: { store_currency: storeCurrency },
+			} as unknown as typeof window.JetpackScriptData;
+		};
+
+		it.each( [
+			[ 'the store currency', { code: 'EUR', symbol: '€' }, 'EUR' ],
+			[ 'USD without a store', undefined, 'USD' ],
+			[ 'USD for a malformed code', { code: 'eur', symbol: '€' }, 'USD' ],
+		] )( 'defaults to %s', ( _, storeCurrency, expected ) => {
+			setStore( storeCurrency );
+
+			formatMetricValue( 100, 'currency' );
+			formatMetricValue( 1500, 'currency', { useMultipliers: true } );
+
+			expect( formatCurrency ).toHaveBeenCalledWith( 100, expected );
+			expect( getCurrencyObject ).toHaveBeenCalledWith( 0, expected );
+		} );
+
+		it( 'lets an explicit currencyCode override the store currency', () => {
+			setStore( { code: 'EUR', symbol: '€' } );
+
+			formatMetricValue( 100, 'currency', { currencyCode: 'USD' } );
+
+			expect( formatCurrency ).toHaveBeenCalledWith( 100, 'USD' );
+		} );
 	} );
 
 	describe( 'type: currency (standard)', () => {
@@ -378,6 +415,34 @@ describe( 'formatMetricValue', () => {
 			expect(
 				formatMetricValue( 1234, 'number', { useMultipliers: true, signDisplay: 'always' } )
 			).toBe( '+1.2K' );
+		} );
+
+		it.each( [
+			[ 0.04, 1, '< 0.1' ],
+			[ 0, 1, '0.0' ],
+			[ 0.05, 1, '0.1' ],
+			[ 0.4, 0, '< 1' ],
+		] )( 'marks %d below %d decimals as %s', ( value, decimals, expected ) => {
+			expect( formatMetricValue( value, 'number', { decimals, markBelowPrecision: true } ) ).toBe(
+				expected
+			);
+		} );
+
+		it( 'leaves values below precision unmarked without the option', () => {
+			expect( formatMetricValue( 0.04, 'number', { decimals: 1 } ) ).toBe( '0.0' );
+		} );
+
+		it( 'marks below precision in the site locale', () => {
+			setLocale( 'de' );
+			setLocaleData( { '< %s': [ 'unter %s' ] }, 'jetpack-premium-analytics-pkg' );
+			try {
+				expect(
+					formatMetricValue( 0.04, 'number', { decimals: 1, markBelowPrecision: true } )
+				).toBe( 'unter 0,1' );
+			} finally {
+				setLocale( 'en' );
+				resetLocaleData( {}, 'jetpack-premium-analytics-pkg' );
+			}
 		} );
 	} );
 } );

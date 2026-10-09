@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show the submit row at all times, and stop theme button and field styles clashing with the form.

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-premium-analytics-sdk",
-	"version": "0.1.0",
+	"version": "0.3.0",
 	"private": true,
 	"description": "The SDK the Premium Analytics dashboard provides to plugins that extend it.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/premium-analytics-sdk/#readme",

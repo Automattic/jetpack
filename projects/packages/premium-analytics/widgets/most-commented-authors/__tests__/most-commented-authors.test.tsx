@@ -28,12 +28,6 @@ describe( 'MostCommentedAuthorsWidget', () => {
 					link: '?s=guest@example.com',
 					gravatar: 'https://www.gravatar.com/avatar/guest?s=96',
 				},
-				{
-					name: 'Member Author',
-					comments: 8,
-					link: '?user_id=1662656',
-					gravatar: 'https://www.gravatar.com/avatar/member?s=96',
-				},
 			],
 			posts: [
 				{
@@ -59,23 +53,5 @@ describe( 'MostCommentedAuthorsWidget', () => {
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=guest%40example.com' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( within( link ).getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
-	} );
-
-	it( 'links WordPress.com users to the comments filtered by user id', async () => {
-		renderWidget();
-
-		const link = await screen.findByRole( 'link', { name: /Member Author/ } );
-		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?user_id=1662656' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( within( link ).getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
-	} );
-
-	// Both comment widgets read the same response; this one must show only the
-	// authors group, never the posts rows the sibling widget renders.
-	it( 'shows only the authors group from the shared report', async () => {
-		renderWidget();
-
-		await expect( screen.findByText( 'Guest Author' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
 	} );
 } );

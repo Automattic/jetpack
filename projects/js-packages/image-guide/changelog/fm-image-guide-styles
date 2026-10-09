@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Extract Image Guide styles from Svelte compiler scoping without changing the overlay.
+
+

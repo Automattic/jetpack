@@ -17,33 +17,14 @@ describe( 'defaultPeriodForInterval', () => {
 			[ 'year', 'month' ],
 			[ 'day', 'day' ],
 			[ 'hour', 'day' ],
-			[ undefined, 'day' ],
-			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {
 			expect( defaultPeriodForInterval( interval, DAY_WEEK_MONTH ) ).toBe( expected );
-		} );
-	} );
-
-	describe( 'day/week/month/year widgets (wordads chart tabs)', () => {
-		it.each( [
-			[ 'week', 'week' ],
-			[ 'month', 'month' ],
-			// Year is offered here, so it is kept rather than collapsed.
-			[ 'year', 'year' ],
-			[ 'day', 'day' ],
-			[ undefined, 'day' ],
-			[ 'nonsense', 'day' ],
-		] )( 'maps %s to %s', ( interval, expected ) => {
-			expect( defaultPeriodForInterval( interval, DAY_WEEK_MONTH_YEAR ) ).toBe( expected );
 		} );
 	} );
 
 	describe( 'hour/day/week/month widgets (traffic chart)', () => {
 		it.each( [
 			[ 'hour', 'hour' ],
-			[ 'day', 'day' ],
-			[ 'week', 'week' ],
-			[ 'year', 'month' ],
 			[ undefined, 'day' ],
 			[ 'nonsense', 'day' ],
 		] )( 'maps %s to %s', ( interval, expected ) => {

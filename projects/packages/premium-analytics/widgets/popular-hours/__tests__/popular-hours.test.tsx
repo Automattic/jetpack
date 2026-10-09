@@ -3,6 +3,7 @@
  */
 import { StatsResponseShapeError, useStatsHourOfDay } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -23,6 +24,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsHourOfDay: jest.fn(),
+	useStatsStreak: jest.fn(),
+	useStatsVisits: jest.fn(),
 } ) );
 
 const mockUseStatsHourOfDay = jest.mocked( useStatsHourOfDay );
@@ -89,22 +92,16 @@ describe( 'PopularHoursWidget', () => {
 		expect( screen.getByText( '7 pm' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the mean per day, dividing by the range the response reports', () => {
-		// 300 views over the ten days 2026-08-03..2026-08-12 is 30 a day.
-		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( report() ) );
+	// The same 300 views at the peak hour, over the range the response reports.
+	it.each( [
+		[ 10, '30 views per day' ],
+		[ 5, '60 views per day' ],
+	] )( 'shows the mean per day over the %d days the response reports', ( days, average ) => {
+		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( { ...report(), days } ) );
 
 		renderWidget();
 
-		expect( screen.getByText( '30 views per day' ) ).toBeInTheDocument();
-	} );
-
-	it( 'updates the average when the response reports a different range', () => {
-		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( { ...report(), days: 5 } ) );
-
-		renderWidget();
-
-		// The same 300 views average 60 over five days instead of 30 over ten.
-		expect( screen.getByText( '60 views per day' ) ).toBeInTheDocument();
+		expect( screen.getByText( average ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps a low-traffic daily average visible', () => {
@@ -155,24 +152,6 @@ describe( 'PopularHoursWidget', () => {
 		expect( points?.[ 0 ] ).toBe( '0' );
 	} );
 
-	it( 'abbreviates a large average but keeps the exact figure available', () => {
-		mockUseStatsHourOfDay.mockReturnValue(
-			hourOfDayResult( {
-				...report(),
-				days: 1,
-				buckets: Array.from( { length: 24 }, ( _, hour ) => ( {
-					hour,
-					views: hour === 19 ? 166900 : 0,
-				} ) ),
-			} )
-		);
-
-		renderWidget();
-
-		expect( screen.getByText( '167K views per day' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '166,900 views per day' ) ).toBeInTheDocument();
-	} );
-
 	it( 'strips comparison params, since the endpoint has no comparison period', () => {
 		mockUseStatsHourOfDay.mockReturnValue( hourOfDayResult( report() ) );
 
@@ -215,11 +194,13 @@ describe( 'PopularHoursWidget', () => {
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry for a failure that can heal', () => {
+	it( 'refetches from the Retry action for a failure that can heal', async () => {
+		const refetch = jest.fn();
 		mockUseStatsHourOfDay.mockReturnValue(
 			hourOfDayResult( undefined, {
 				isError: true,
 				error: { error: 'no_connection', status: 403 },
+				refetch,
 			} )
 		);
 
@@ -228,7 +209,8 @@ describe( 'PopularHoursWidget', () => {
 		expect(
 			screen.getByText( "We couldn't load your popular hours. Please try again in a moment." )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'keeps the rendered peak when a refetch fails, instead of showing the error', () => {

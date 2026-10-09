@@ -27,6 +27,7 @@ export {
 	PieChartUnresponsive,
 	PieSemiCircleChart,
 	Sparkline,
+	TooltipBox,
 	buildCalendarHeatmapData,
 	getBucketInfo,
 	lightenHexColor,

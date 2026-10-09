@@ -5,16 +5,16 @@ import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportCsvAction,
-	ReportErrorState,
+	ExporterCsvAction,
+	LOCATIONS_GEO_MODES,
 	ReportLocationsMap,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	locationsCsvExporter,
+	supportsLocationsCountryFilter,
 	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -26,12 +26,10 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
-	GEO_MODES,
 	getLocationFields,
 	getReportLocationsTabs,
 	getTabLabel,
 	resolveSection,
-	supportsCountryFilter,
 	useLocationsReportRecords,
 	type LocationRow,
 	type ReportLocationsTabId,
@@ -69,9 +67,6 @@ const COUNTRY_FILTER_FIELD = 'country';
 /** The country picked in the records table, and the tab it was picked on. */
 type PickedCountry = { tab: ReportLocationsTabId; code: string };
 
-// Match the table's own default order, so the file reads like the screen.
-const sortLocationCsvRows = ( a: LocationRow, b: LocationRow ) => b.views - a.views;
-
 /**
  * Read the picked country out of a records-table view.
  *
@@ -107,44 +102,19 @@ export default function LocationsReportPage(): JSX.Element {
 	}
 	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() =>
 			getLocationFields(
-				supportsCountryFilter( activeTab ) ? records.countries.options : undefined,
-				records.hasComparison
+				supportsLocationsCountryFilter( activeTab ) ? records.countries.options : undefined,
+				records.hasComparison,
+				activeTab
 			),
 		[ activeTab, records.countries.options, records.hasComparison ]
 	);
-	// Region and city names repeat across countries. On screen the flag tells
-	// them apart; a CSV needs its own column.
-	const csvColumns = useMemo< CsvColumn< LocationRow >[] >(
-		() => [
-			{ label: __( 'Location', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			...( supportsCountryFilter( activeTab )
-				? [
-						{
-							label: __( 'Country', 'jetpack-premium-analytics-pkg' ),
-							getValue: ( row: LocationRow ) => row.countryFull,
-						},
-					]
-				: [] ),
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[ activeTab ]
+	const csvExporter = useMemo(
+		() => locationsCsvExporter( activeTab, countryFilter ? { country: countryFilter } : undefined ),
+		[ activeTab, countryFilter ]
 	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.table.rows,
-		// The tabs export different lists, so each gets its own filename.
-		filenamePrefix: `locations-${ activeTab }`,
-		range: reportParams,
-		status: records.table,
-		sort: sortLocationCsvRows,
-	} );
 
 	// The API scopes the rows, so the picked country has to reach the request.
 	const handleChangeView = useCallback(
@@ -189,25 +159,17 @@ export default function LocationsReportPage(): JSX.Element {
 	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
 	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
-			/>
-		);
-	}
-
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ csvExporter }
+					items={ records.table.rows }
+					status={ records.table }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout
@@ -215,29 +177,33 @@ export default function LocationsReportPage(): JSX.Element {
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ tableReplacement ?? (
-					<>
-						{ showMap && (
-							<ReportLocationsMap
-								rows={ geoRows }
-								mode={ GEO_MODES[ activeTab ] }
-								focusCountry={ focusCountry }
-								isLoading={ tableIsLoading }
-							/>
-						) }
-						<ReportRecordsTable< LocationRow >
-							key={ activeTab }
-							data={ records.table.rows }
-							fields={ fields }
-							getItemId={ getLocationRowId }
-							isLoading={ records.table.isLoading }
-							isFetching={ records.table.isFetching }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-							onChangeView={ handleChangeView }
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load locations. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ showMap && (
+						<ReportLocationsMap
+							rows={ geoRows }
+							mode={ LOCATIONS_GEO_MODES[ activeTab ] }
+							focusCountry={ focusCountry }
+							isLoading={ tableIsLoading }
 						/>
-					</>
-				) }
+					) }
+					<ReportRecordsTable< LocationRow >
+						key={ activeTab }
+						data={ records.table.rows }
+						fields={ fields }
+						getItemId={ getLocationRowId }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+						onChangeView={ handleChangeView }
+					/>
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

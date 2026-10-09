@@ -129,7 +129,7 @@ function initializeLoadObservers() {
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
  * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, `loadState`, `minResourceCount`, and `metrics`.
+ *                            `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -273,8 +273,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
 			// updating after user input or visibility change).
 			if ( ! useResourceSettle ) {
-				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
-				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
+				// Wait for network quiescence rather than a fixed timeout on slow systems.
 				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
 			} else {
 				// Resilient path (scenarios with a perpetually-pending request, e.g. Forms — see
@@ -294,7 +293,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Refuse to measure the wrong page. Asserted here (after every redirect and the client
 			// route settle) so a mis-targeted or redirected page fails the iteration instead of
 			// posting off-target bytes to this scenario's permanent, no-rollback CodeVitals keys.
-			assertExpectedUrl( page.url(), expectUrlIncludes );
+			assertExpectedUrl( page.url(), expectUrlIncludes, scenario.expectUrlHash );
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
@@ -927,24 +926,22 @@ function assertCaptureComplete( resourceStats, scenario ) {
 }
 
 /**
- * Refuse to measure the wrong page.
+ * Refuse a final URL that fails the configured substring or exact hash guard.
  *
- * Scope, on purpose: this catches a page whose FINAL URL no longer contains the expected route —
- * the concrete threat here is class-dashboard.php server-redirecting a bare page URL to the forms
- * LIST, which strips the pinned `p=/responses/inbox` from the URL, so this fires. It does NOT prove
- * the SPA client-rendered the inbox: a client-side route divergence that keeps the URL would pass.
- * That is a deliberate trade — a stricter DOM-selector assertion would throw on every iteration if
- * the guessed selector is wrong or the markup shifts, which blackholes the scenario's whole series
- * on the append-only store. The URL check defends the real redirect without that failure mode.
- *
- * decodeURIComponent can throw on a malformed URL; we catch and re-throw as a mis-target so the
- * iteration fails closed (no post) with a clear message rather than an opaque URIError.
+ * URL guards do not prove rendered content; targeted scenarios also supply a visible selector.
+ * Malformed URLs fail the iteration closed rather than allowing an off-target measurement.
  *
  * @param {string}      currentUrl        - The page's final URL (page.url()).
  * @param {string|null} expectUrlIncludes - Substring the final URL must contain, or null to skip.
- * @throws {Error} When the final URL does not contain the expected route (or cannot be decoded).
+ * @param {string}      [expectUrlHash]   - Exact final hash route, including the leading #.
+ * @throws {Error} When the final URL cannot be parsed/decoded or fails either configured guard.
  */
-function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
+function assertExpectedUrl( currentUrl, expectUrlIncludes, expectUrlHash ) {
+	if ( expectUrlHash && new URL( currentUrl ).hash !== expectUrlHash ) {
+		throw new Error(
+			`Wrong page: expected hash "${ expectUrlHash }" but landed on "${ currentUrl }"`
+		);
+	}
 	if ( ! expectUrlIncludes ) {
 		return;
 	}

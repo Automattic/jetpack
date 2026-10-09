@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Fix value axis labels piling up at the left edge of a summary bar chart resized to one row.

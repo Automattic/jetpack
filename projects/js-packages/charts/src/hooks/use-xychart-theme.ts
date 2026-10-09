@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useGlobalChartsTheme } from '../providers';
 import { CATALOG_POINTERS } from '../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement } from '../providers/chart-scope';
-import { createCssVariableResolver, normalizeColorToHex } from '../utils';
+import { createCssVariableResolver } from '../utils';
 import type { SeriesData } from '../types';
 
 export const useXYChartTheme = ( data: SeriesData[] ) => {
@@ -18,9 +18,9 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 	);
 
 	return useMemo( () => {
-		// Only what is read as a string is resolved: the palette, `backgroundColor`, `htmlLabel.color`.
+		// Only what is read as a string is resolved: the palette and `backgroundColor`.
 		// At the chart's scope element, never :root, so an override inside the provider tree is seen.
-		// One resolver for all three, so they share a single getComputedStyle call.
+		// One resolver for both, so they share a single getComputedStyle call.
 		const resolve = createCssVariableResolver( scopeElement );
 		const resolveColor = ( value?: string ): string | undefined =>
 			value ? ( resolve( value ) ?? value ) : value;
@@ -33,14 +33,6 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			.map( color => resolveColor( color ) )
 			.filter( ( color ): color is string => Boolean( color ) && ! color.includes( 'var(' ) );
 
-		// The tooltip is painted in a portal outside the scope, and visx concatenates this color into a `box-shadow` where a chain cannot take a suffix; see TOKENS.md#the-svg-bridge. Passing it explicitly leaves `svgLabelSmall.fill`, which visx derives it from, a chain for the SVG tick labels.
-		// Hex specifically: that concatenation appends `55`, which only yields a color
-		// after a 6-digit hex. An `rgb()` computed value takes the whole shadow down.
-		const resolvedLabelColor = resolveColor( CATALOG_POINTERS.labelAxis );
-		const htmlLabelColor = resolvedLabelColor
-			? normalizeColorToHex( resolvedLabelColor ) || resolvedLabelColor
-			: resolvedLabelColor;
-
 		// visx's fallbacks for whichever axis or grid style object it is not given. All four are
 		// supplied, so these reach nothing; they stay because the config type requires them.
 		return buildChartTheme( {
@@ -49,7 +41,7 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			gridColorDark: '',
 			colors: paletteColors,
 			backgroundColor: resolveColor( CATALOG_POINTERS.background ),
-			htmlLabel: htmlLabelColor ? { color: htmlLabelColor } : undefined,
+			htmlLabel: { color: CATALOG_POINTERS.labelAxis },
 			gridStyles: { ...theme.gridStyles, stroke: CATALOG_POINTERS.grid },
 			xAxisLineStyles: { ...theme.xAxisLineStyles, stroke: CATALOG_POINTERS.axisX },
 			xTickLineStyles: { ...theme.xTickLineStyles, stroke: CATALOG_POINTERS.tickX },

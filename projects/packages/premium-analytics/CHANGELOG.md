@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-10-05
+### Added
+- Add a Download CSV action to more widgets that saves the full report for the selected dates. [#53079] [#52969] [#53019] [#53017]
+- Add video thumbnails to the Videos report. [#52908]
+- Dashboard: Expose the CSV download action of the linked report through the SDK; the widget contract is 1.3.0. [#52909]
+- Dashboard: Expose the Leaderboard component, the error mapper and the video plays hook through the SDK; the widget contract is 1.2.0. [#52885]
+- Dashboard: Let a widget type declare its former names, so layouts saved before a rename keep rendering it; the widget contract is 1.1.0. [#52874]
+- Date controls: Add the weekly chart interval to year-long date ranges such as Last 12 months, next to the monthly default. [#52978]
+- Locations: Add drill-down from a region to its cities. [#52911]
+- Top pages widget: Add the download to the Archives view. [#52966]
+- Widgets toolkit: Add a Leaderboard component that renders ranked rows with their states, shares and deltas; Top videos, Search terms and Most commented authors use it. [#52965]
+
+### Changed
+- Charts: Give every chart tooltip the same box, with no tooltip padding, shadow or font size of its own. [#53072]
+- Charts: Show tooltips on the shared dark chart tooltip surface. [#52850]
+- Dashboard: Turn on adding and removing widgets by default. [#52826]
+- Locations: Keep the previous list on screen, dimmed, while a drill-down loads, and move the map to the picked country straight away. [#53083]
+- Open post and video details on All time, return to the previous date range from the breadcrumbs, and rearrange the Email clicks tab to match the design. [#52960]
+- Reports: Drop "report" from headings and label the export button "Download CSV". [#52908]
+- Show load errors and missing items on author, post, and video details in a notice, and stop offering Retry when access is denied. [#53086] [#53141]
+- Show Posts & Pages and Videos report titles in bold beside a fixed-size thumbnail. [#52958]
+- Top pages widget: Download the full report for the selected dates instead of the rows on screen. [#52966]
+- Traffic chart: Default to the chart type Jetpack Stats v1 saved in this browser, else bars. [#52899]
+- Widgets toolkit: Keep the hover underline on the ReportLink text when it renders text with a badge beside it. [#52752]
+- Widgets toolkit: Share the internal and external link markup between components, and stop setting rel on links that open in a new tab. [#53043]
+
+### Removed
+- Dashboard: Move the Top videos widget to the VideoPress package, which registers it and seeds it into the Traffic section. [#52909]
+
+### Fixed
+- Dashboard: Open the date menus on the applied option instead of the first one. [#53081]
+- Date controls: Use the default chart interval when switching to a different preset, instead of keeping the previous preset's. [#52897]
+- Fix the Latest comments widget counting pingbacks and trackbacks in its remaining comments count. [#52964]
+- Fix the post comments count, the most popular time, and unnamed countries showing wrong values when Stats has no data for them. [#52902]
+- Reports: Show the "No data found" state on every report with no rows, and stop the table search and settings from showing while an empty report loads. [#52900]
+- Show report load errors in a notice across the report, without Retry when access is denied. [#53141]
+- Traffic chart: Show views per visitor and the number of posts published in the tooltip. [#52957]
+
 ## [0.10.0] - 2026-09-29
 ### Changed
 - Dashboard: Offer in the widget picker only the widgets the current tab shows by default. [#52922]
@@ -466,6 +504,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.11.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.7.0...0.8.0

@@ -74,6 +74,11 @@
 	min-block-size: 18px;
 }
 
+/* Core's "required" heading, hidden until the card script swaps in ours. */
+.plugin-card:has(.wpcom-marketplace-strip[data-requires-label]) .plugin-dependencies-explainer-text {
+	visibility: hidden;
+}
+
 .wpcom-marketplace-label {
 	display: block;
 	inline-size: fit-content;

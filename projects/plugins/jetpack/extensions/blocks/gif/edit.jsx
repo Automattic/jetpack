@@ -4,8 +4,10 @@ import { Placeholder } from '@wordpress/components';
 import { createRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import isAllowedEmbedUrl from '../../shared/is-allowed-embed-url';
 import metadata from './block.json';
 import SearchForm from './components/search-form';
+import { GIPHY_URL_ALLOWED_HOSTS } from './constants';
 import Controls from './controls';
 import useFetchGiphyData from './hooks/use-fetch-giphy-data';
 import { getUrl, getSelectedGiphyAttributes } from './utils';
@@ -18,6 +20,7 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 	const searchFormInputRef = createRef();
 	const { isFetching, giphyData, fetchGiphyData } = useFetchGiphyData();
 	const blockProps = useBlockProps();
+	const isValidGiphyUrl = isAllowedEmbedUrl( giphyUrl, GIPHY_URL_ALLOWED_HOSTS );
 
 	const setSearchInputFocus = () => {
 		searchFormInputRef.current.focus();
@@ -50,7 +53,7 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 	return (
 		<div { ...blockProps } className={ clsx( blockProps.className, `align${ align }` ) }>
 			<Controls />
-			{ ! giphyUrl ? (
+			{ ! isValidGiphyUrl ? (
 				<Placeholder
 					className="wp-block-jetpack-gif_placeholder"
 					icon={ icon }

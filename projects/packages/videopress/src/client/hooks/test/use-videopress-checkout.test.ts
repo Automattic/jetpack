@@ -39,6 +39,7 @@ describe( 'useVideoPressCheckout', () => {
 			run: mockRun,
 			isRegistered: true,
 			hasCheckoutStarted: false,
+			checkoutError: null,
 		} );
 	} );
 

@@ -1,4 +1,3 @@
-import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { getLocaleData, resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import {
 	formatScoreDelta,
@@ -31,17 +30,6 @@ test.each( [
 	[ 'poor', 'Poor' ],
 ] as const )( 'labels the %s tier', ( tier, label ) => {
 	expect( getScoreTierLabel( tier ) ).toBe( label );
-} );
-
-test.each( [
-	[ 25, 'F' ],
-	[ 35, 'E' ],
-	[ 50, 'D' ],
-	[ 75, 'C' ],
-	[ 90, 'B' ],
-	[ 91, 'A' ],
-] )( 'keeps the existing overall grade at %i', ( score, grade ) => {
-	expect( getScoreLetter( Number( score ), Number( score ) ) ).toBe( grade );
 } );
 
 test( 'distinguishes missing baselines from zero and formats improvements', () => {

@@ -239,7 +239,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 						'tracking_id' => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
-							'description'       => 'The tracking ID the referral was created with, to find a seller who just finished onboarding.',
+							'description'       => 'The tracking ID the referral was created with: to find a seller who just finished onboarding, or with a merchant ID, as proof the blog referred them.',
 						),
 					),
 				),
@@ -257,6 +257,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'args'                => array(
 						'environment' => $environment_arg,
 						'merchant_id' => array_merge( $merchant_id_arg, array( 'required' => true ) ),
+						'tracking_id' => array(
+							'type'              => 'string',
+							'default'           => '',
+							'sanitize_callback' => 'sanitize_text_field',
+							'description'       => 'The tracking ID the blog onboarded the seller with, as proof it referred them.',
+						),
 						'method'      => array(
 							'required'    => true,
 							'type'        => 'string',
@@ -556,6 +562,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			if ( is_wp_error( $merchant_id ) ) {
 				return $merchant_id;
 			}
+		} elseif ( '' !== $tracking_id ) {
+			$bound = $this->assert_merchant_belongs_to_site( $environment, $credentials, $merchant_id, $site_id, $tracking_id );
+			if ( is_wp_error( $bound ) ) {
+				return $bound;
+			}
 		}
 
 		$integration = $this->get_merchant_integration( $environment, $credentials, $merchant_id );
@@ -563,7 +574,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			return $integration;
 		}
 
-		if ( ! $this->tracking_id_belongs_to_site( $integration['tracking_id'] ?? '', $site_id ) ) {
+		// With no tracking ID of its own, a blog proves itself by PayPal's latest record.
+		if ( '' === $tracking_id && ! $this->tracking_id_belongs_to_site( $integration['tracking_id'] ?? '', $site_id ) ) {
 			return $this->merchant_not_for_site_error();
 		}
 
@@ -592,7 +604,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			return $credentials;
 		}
 
-		$bound = $this->assert_merchant_belongs_to_site( $environment, $credentials, $merchant_id, $site_id );
+		$bound = $this->assert_merchant_belongs_to_site(
+			$environment,
+			$credentials,
+			$merchant_id,
+			$site_id,
+			(string) $request->get_param( 'tracking_id' )
+		);
 		if ( is_wp_error( $bound ) ) {
 			return $bound;
 		}
@@ -682,17 +700,20 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * Refuse to act for a seller this blog did not refer.
 	 *
 	 * The blog token proves which site is calling, not which seller it may act
-	 * for, so the seller's integration record is checked for this blog's tracking
-	 * ID. A verified pair is remembered so the check is not a PayPal call on every
-	 * button operation.
+	 * for. A blog that sends the tracking ID it onboarded the seller with is
+	 * checked by resolving that ID at PayPal; one that sends none is checked
+	 * against the seller's integration record, which names only the latest
+	 * referral. A verified pair is remembered so the check is not a PayPal call
+	 * on every button operation.
 	 *
 	 * @param string $environment 'sandbox' or 'production'.
 	 * @param array  $credentials Platform credentials.
 	 * @param string $merchant_id The seller's PayPal merchant ID.
 	 * @param int    $site_id     The calling blog's ID.
+	 * @param string $tracking_id The tracking ID the blog onboarded the seller with, when it has one.
 	 * @return true|WP_Error
 	 */
-	private function assert_merchant_belongs_to_site( $environment, $credentials, $merchant_id, $site_id ) {
+	private function assert_merchant_belongs_to_site( $environment, $credentials, $merchant_id, $site_id, $tracking_id = '' ) {
 		if ( '' === $merchant_id ) {
 			return $this->merchant_not_for_site_error();
 		}
@@ -701,16 +722,58 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			return true;
 		}
 
-		$integration = $this->get_merchant_integration( $environment, $credentials, $merchant_id );
-		if ( is_wp_error( $integration ) ) {
-			return $integration;
-		}
+		if ( '' !== $tracking_id ) {
+			$named = $this->tracking_id_names_merchant( $environment, $credentials, $tracking_id, $merchant_id, $site_id );
+			if ( is_wp_error( $named ) ) {
+				return $named;
+			}
+		} else {
+			$integration = $this->get_merchant_integration( $environment, $credentials, $merchant_id );
+			if ( is_wp_error( $integration ) ) {
+				return $integration;
+			}
 
-		if ( ! $this->tracking_id_belongs_to_site( $integration['tracking_id'] ?? '', $site_id ) ) {
-			return $this->merchant_not_for_site_error();
+			if ( ! $this->tracking_id_belongs_to_site( $integration['tracking_id'] ?? '', $site_id ) ) {
+				return $this->merchant_not_for_site_error();
+			}
 		}
 
 		$this->remember_merchant_binding( $environment, $site_id, $merchant_id );
+
+		return true;
+	}
+
+	/**
+	 * Whether a blog's own tracking ID resolves to the seller at PayPal.
+	 *
+	 * PayPal keeps every tracking ID a seller ever onboarded with, so a blog's ID
+	 * stays valid after the seller connects another site, which only moves the
+	 * record's latest ID. Only WordPress.com mints these, for the blog named in
+	 * them, so one that resolves proves the referral.
+	 *
+	 * @param string $environment 'sandbox' or 'production'.
+	 * @param array  $credentials Platform credentials.
+	 * @param string $tracking_id The tracking ID the blog presents.
+	 * @param string $merchant_id The seller the blog wants to act for.
+	 * @param int    $site_id     The calling blog's ID.
+	 * @return true|WP_Error
+	 */
+	private function tracking_id_names_merchant( $environment, $credentials, $tracking_id, $merchant_id, $site_id ) {
+		if ( ! $this->tracking_id_belongs_to_site( $tracking_id, $site_id ) ) {
+			return $this->merchant_not_for_site_error();
+		}
+
+		$found = $this->find_merchant_id_by_tracking_id( $environment, $credentials, $tracking_id );
+		if ( is_wp_error( $found ) ) {
+			// No such referral at PayPal: the blog never onboarded a seller with it.
+			return 'paypal_merchant_not_found' === $found->get_error_code()
+				? $this->merchant_not_for_site_error()
+				: $found;
+		}
+
+		if ( $found !== $merchant_id ) {
+			return $this->merchant_not_for_site_error();
+		}
 
 		return true;
 	}
@@ -751,7 +814,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			$environment,
 			$credentials,
 			'GET',
-			sprintf( self::PAYPAL_MERCHANT_INTEGRATIONS_ENDPOINT, $credentials['partner_merchant_id'] ) . '?tracking_id=' . rawurlencode( $tracking_id )
+			sprintf( self::PAYPAL_MERCHANT_INTEGRATIONS_ENDPOINT, $credentials['partner_merchant_id'] ) . '?tracking_id=' . rawurlencode( $tracking_id ),
+			null,
+			array(),
+			// Skip logging the 404 PayPal answers until the seller finishes onboarding.
+			array( 404 )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -845,15 +912,16 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	/**
 	 * Make one authenticated call to PayPal with the platform token.
 	 *
-	 * @param string     $environment   'sandbox' or 'production'.
-	 * @param array      $credentials   Platform credentials.
-	 * @param string     $method        HTTP method.
-	 * @param string     $path          API path, with any query string.
-	 * @param array|null $body          JSON body for POST and PUT.
-	 * @param array      $extra_headers Headers added to the standard set.
+	 * @param string     $environment       'sandbox' or 'production'.
+	 * @param array      $credentials       Platform credentials.
+	 * @param string     $method            HTTP method.
+	 * @param string     $path              API path, with any query string.
+	 * @param array|null $body              JSON body for POST and PUT.
+	 * @param array      $extra_headers     Headers added to the standard set.
+	 * @param int[]      $unlogged_statuses Expected error statuses to skip logging.
 	 * @return array|WP_Error The wp_remote_request() response, or WP_Error (502) when PayPal was unreachable.
 	 */
-	private function paypal_request( $environment, $credentials, $method, $path, $body = null, $extra_headers = array() ) {
+	private function paypal_request( $environment, $credentials, $method, $path, $body = null, $extra_headers = array(), $unlogged_statuses = array() ) {
 		$base_url = $this->base_url( $environment );
 
 		$token = $this->get_paypal_access_token( $environment, $base_url, $credentials['client_id'], $credentials['client_secret'] );
@@ -888,7 +956,54 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			);
 		}
 
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( ( $status_code < 200 || $status_code >= 300 ) && ! in_array( $status_code, $unlogged_statuses, true ) ) {
+			$this->log_paypal_error( $response, $status_code, $method, $path );
+		}
+
 		return $response;
+	}
+
+	/**
+	 * Log a PayPal error with its debug ID, which PayPal support uses to trace the call.
+	 * Logging errors are caught so the PayPal call still returns.
+	 *
+	 * @param array  $response    The wp_remote_request() response.
+	 * @param int    $status_code PayPal's HTTP status.
+	 * @param string $method      HTTP method.
+	 * @param string $path        API path, with any query string.
+	 */
+	private function log_paypal_error( $response, $status_code, $method, $path ) {
+		try {
+			// A 401 has the debug ID only in the header. Fall back to the body.
+			$debug_id = wp_remote_retrieve_header( $response, 'paypal-debug-id' );
+			if ( ! is_string( $debug_id ) || '' === $debug_id ) {
+				$debug_id = self::decode_body( $response )['debug_id'] ?? '';
+			}
+
+			// Use site_id(). For a self-hosted caller the current blog is public-api's.
+			$extra = array(
+				'debug_id' => $debug_id,
+				'status'   => $status_code,
+				'method'   => $method,
+				'path'     => $path,
+				'site_id'  => $this->site_id(),
+			);
+
+			/**
+			 * Filters whether to send PayPal API errors to logstash.
+			 *
+			 * @param bool  $enabled Whether to send the entry. Default true.
+			 * @param array $extra   The entry's data.
+			 */
+			if ( ! (bool) apply_filters( 'wpcom_paypal_payment_buttons_log_enabled', true, $extra ) ) {
+				return;
+			}
+
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash( 'paypal_payment_buttons', 'api_error', $extra );
+		} catch ( \Throwable $e ) {
+			unset( $e );
+		}
 	}
 
 	/**
@@ -1034,8 +1149,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			);
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		$data        = self::decode_body( $response );
+
+		if ( 200 !== $status_code ) {
+			$this->log_paypal_error( $response, $status_code, 'POST', self::PAYPAL_TOKEN_ENDPOINT );
+		}
 
 		if ( 200 !== $status_code || empty( $data['access_token'] ) ) {
 			return new WP_Error(

@@ -126,7 +126,7 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
  *
  * Theme JSON can resolve before REST_REQUEST is defined, and the Accept header also matches front-end requests.
  *
- * @since $$next-version$$
+ * @since 16.3
  *
  * @return bool
  */
@@ -142,7 +142,7 @@ function jetpack_google_fonts_is_rest_url() {
 /**
  * Whether catalogue faces are needed in theme JSON for an editor or API request.
  *
- * @since $$next-version$$
+ * @since 16.3
  *
  * @return bool
  */
@@ -159,7 +159,7 @@ function jetpack_google_fonts_load_font_faces() {
 	 *
 	 * @module google-fonts
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @param bool $load_font_faces Whether to load catalogue font faces. Default true for editor, API and CLI requests.
 	 */

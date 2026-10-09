@@ -399,7 +399,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "b2a4bae2f69c1662763ebacc77c9517c36411a91"
+                "reference": "6bf10704aa6241cf7d03a212d94e12ef109a15fc"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -436,7 +436,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.8.x-dev"
+                    "dev-trunk": "9.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -657,7 +657,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "9ebda5203b5e2772d529ed3bdb991ee8cc1055a0"
+                "reference": "73c932fe220819cd7591a10a45e4c4e2f1705289"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -681,7 +681,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
@@ -738,10 +738,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "e429a1035b390485595aad18457de4de45ddd3f4"
+                "reference": "5c14b8a379641981708c669dc2c93ab682bcab22"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -761,7 +762,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 }
             },
             "autoload": {

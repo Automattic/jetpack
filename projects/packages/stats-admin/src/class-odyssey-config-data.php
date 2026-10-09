@@ -104,6 +104,8 @@ class Odyssey_Config_Data {
 			),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
+			// Empty for a site set to a fixed UTC offset; `gmt_offset` alone cannot follow daylight saving.
+			'timezone'                       => (string) get_option( 'timezone_string' ),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			// Repeated in the site record below, which a site without a connection never gets.
 			'admin_url'                      => admin_url(),
@@ -235,8 +237,19 @@ class Odyssey_Config_Data {
 
 	/**
 	 * Get the features of the current plan.
+	 *
+	 * The app cannot refresh what it paywalls on, so a WordPress.com-hosted site is asked
+	 * directly; a plan cached before an upgrade gates a feature the site has already paid for.
 	 */
 	protected function get_plan_features() {
+		// method_exists guard: an older plans package may win the autoloader on another plugin.
+		if ( method_exists( Jetpack_Plan::class, 'get_wpcom_site_specific_features' ) ) {
+			$features = Jetpack_Plan::get_wpcom_site_specific_features();
+			if ( null !== $features ) {
+				return $features;
+			}
+		}
+
 		$plan = Jetpack_Plan::get();
 		if ( empty( $plan['features'] ) ) {
 			return array();

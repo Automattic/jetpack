@@ -5,8 +5,8 @@ import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { BaseTooltip } from '../../components/tooltip';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
+import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -53,7 +53,7 @@ export type PieSemiCircleChartRenderTooltipParams = {
 
 /**
  * Default tooltip renderer for semi-circle pie charts.
- * Renders a BaseTooltip with the hovered segment's data.
+ * Renders the default `label: value` tooltip content for the hovered segment.
  *
  * @param {PieSemiCircleChartRenderTooltipParams} params - The tooltip parameters containing the hovered data point
  * @return {ReactNode} The rendered tooltip content
@@ -61,7 +61,7 @@ export type PieSemiCircleChartRenderTooltipParams = {
 const renderDefaultPieSemiCircleTooltip = ( {
 	tooltipData,
 }: PieSemiCircleChartRenderTooltipParams ): ReactNode => {
-	return <BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />;
+	return <LabelValueContent data={ tooltipData } />;
 };
 
 const PAD_ANGLE = 0.03; // Padding between segments
@@ -122,7 +122,7 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 
 	/**
 	 * Custom render function for tooltip content.
-	 * When provided, replaces the default BaseTooltip with custom content.
+	 * When provided, replaces the default `label: value` tooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieSemiCircleChartRenderTooltipParams ) => ReactNode;
 }

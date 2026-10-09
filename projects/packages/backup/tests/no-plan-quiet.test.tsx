@@ -20,7 +20,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { stage as DownloadStage } from '../routes/download/stage';
@@ -31,7 +31,7 @@ import { BACKUPS_POLL_INTERVAL_MS } from '../src/dashboard/hooks/use-backups';
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const DISCONNECTED = { isRegistered: false, hasConnectedOwner: false, isUserConnected: false };
 
-const NO_PLAN = "This site doesn't have an active Backup plan";
+const NO_PLAN = 'Add a Jetpack Backup plan';
 const UPSELL_CTA = /^Get VaultPress Backup$/;
 const NOT_CONNECTED = 'Connect Jetpack to get started';
 const RESTORING = 'Restoring your site';
@@ -240,9 +240,13 @@ describe( 'The same site once it has a plan', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Backup in progress' } )
-		).resolves.toBeInTheDocument();
+		// Disabled only once the running backup has been read.
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 		expect( screen.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
 
 		const before = asked( BACKUPS_PATH );
