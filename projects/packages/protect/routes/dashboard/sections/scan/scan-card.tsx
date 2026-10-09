@@ -1,20 +1,27 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { bug } from '@wordpress/icons';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { shield } from '@wordpress/icons';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
+import TabLink from '../../components/tab-link';
+import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
 import ScanningState from './scanning-state';
 import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
 import ThreatsList from './threats-list';
+import type { DashboardContext } from '../types';
 import type { ScanState } from './types';
 import './style.scss';
 
 // Like the Protect plugin: quick checks first, then back off.
 const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
+
+// Open Scan history on a given list, not whichever was open last.
+const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
+const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 // About ten minutes of polling before asking the user to check again.
 const MAX_POLLS = 40;
@@ -57,9 +64,11 @@ function useIsDocumentHidden(): boolean {
 /**
  * The Scan card: start a scan, then review what it found or see that the site is safe.
  *
+ * @param props         - Component props.
+ * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
  * @return The card.
  */
-export default function ScanCard() {
+export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab' > ) {
 	// The section only renders this card once PHP has printed the Scan state.
 	const scan = useScan() as ScanState;
 	const [ isStarting, setIsStarting ] = useState( false );
@@ -161,7 +170,7 @@ export default function ScanCard() {
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ! hasThreats && ! ignored?.length ) {
+	} else if ( ! hasThreats ) {
 		body = (
 			<CardRow>
 				<SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } />
@@ -190,7 +199,6 @@ export default function ScanCard() {
 				<CardRow className="jp-protect-card__threats">
 					<ThreatsList
 						threats={ threats }
-						ignored={ ignored }
 						canAct={ hasPlan }
 						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
 					/>
@@ -201,15 +209,18 @@ export default function ScanCard() {
 
 	return (
 		<ProtectCard
-			icon={ bug }
+			icon={ shield }
 			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
-			status={
+			description={
 				scan.hasPlan
-					? { label: __( 'Active', 'jetpack-protect-pkg' ), intent: 'stable' }
-					: {
-							label: __( 'Vulnerability checks only', 'jetpack-protect-pkg' ),
-							intent: 'informational',
-						}
+					? __(
+							'Daily malware and vulnerability checks for your files, WordPress, plugins and themes.',
+							'jetpack-protect-pkg'
+						)
+					: __(
+							'Daily vulnerability checks for WordPress, plugins and themes.',
+							'jetpack-protect-pkg'
+						)
 			}
 			actions={
 				hasThreats &&
@@ -234,14 +245,34 @@ export default function ScanCard() {
 			) }
 			{ body }
 			<CardRow>
-				<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
-					{ scan.hasPlan
-						? __( 'View scan history', 'jetpack-protect-pkg' )
-						: __(
-								'Get Scan for daily malware scanning and one-click fixes',
-								'jetpack-protect-pkg'
-							) }
-				</Link>
+				{ scan.hasPlan ? (
+					<Stack direction="row" gap="lg" wrap="wrap">
+						<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
+							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
+						</TabLink>
+						{ !! ignored?.length && (
+							<TabLink tab="history" params={ IGNORED_PARAMS } onOpen={ openTab }>
+								{ sprintf(
+									/* translators: %d is a number of threats. */
+									_n(
+										'View %d ignored threat',
+										'View %d ignored threats',
+										ignored.length,
+										'jetpack-protect-pkg'
+									),
+									ignored.length
+								) }
+							</TabLink>
+						) }
+					</Stack>
+				) : (
+					<Link href={ scan.url }>
+						{ __(
+							'Get Scan for daily malware scanning and one-click fixes',
+							'jetpack-protect-pkg'
+						) }
+					</Link>
+				) }
 			</CardRow>
 		</ProtectCard>
 	);

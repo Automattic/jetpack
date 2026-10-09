@@ -5,21 +5,25 @@ import type { MouseEvent, ReactNode } from 'react';
 /** Matches `Automattic\Jetpack\Protect\Dashboard::MENU_SLUG`. */
 export const PROTECT_PAGE_SLUG = 'jetpack-protect';
 
-const SETTINGS_URL = `admin.php?page=${ PROTECT_PAGE_SLUG }&p=${ encodeURIComponent( '/?tab=settings' ) }`;
-
 /**
- * A link to the Settings tab that switches tabs in place, and still opens in a new tab when asked.
+ * A link to a dashboard tab that switches tabs in place, and still opens in a new tab when asked.
  *
  * @param props          - Component props.
- * @param props.onOpen   - Switches to the Settings tab.
+ * @param props.tab      - The tab's value, such as "settings".
+ * @param props.params   - More search params to set, such as the tab's filter.
+ * @param props.onOpen   - Switches to the tab.
  * @param props.children - The link text.
  * @return The link.
  */
-export default function SettingsLink( {
+export default function TabLink( {
+	tab,
+	params,
 	onOpen,
 	children,
 }: {
-	onOpen: () => void;
+	tab: string;
+	params?: Record< string, string >;
+	onOpen: ( tab: string, params?: Record< string, string > ) => void;
 	children: ReactNode;
 } ) {
 	const onClick = useCallback(
@@ -28,13 +32,18 @@ export default function SettingsLink( {
 				return;
 			}
 			event.preventDefault();
-			onOpen();
+			onOpen( tab, params );
 		},
-		[ onOpen ]
+		[ onOpen, tab, params ]
 	);
 
 	return (
-		<Link href={ SETTINGS_URL } onClick={ onClick }>
+		<Link
+			href={ `admin.php?page=${ PROTECT_PAGE_SLUG }&p=${ encodeURIComponent(
+				`/?${ new URLSearchParams( { ...params, tab } ) }`
+			) }` }
+			onClick={ onClick }
+		>
 			{ children }
 		</Link>
 	);

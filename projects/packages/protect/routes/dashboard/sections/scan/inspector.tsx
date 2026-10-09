@@ -3,7 +3,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { IconButton } from '@wordpress/ui';
-import { useScan, useThreatParam } from './store';
+import { THREAT_PARAM, useScan, useSearchParam } from './store';
 import ThreatDetails from './threat-details';
 import type { ScanThreat } from './types';
 
@@ -13,7 +13,7 @@ import type { ScanThreat } from './types';
  * @return The inspector.
  */
 export default function ScanInspector() {
-	const [ selected, setThreat ] = useThreatParam();
+	const [ selected, setThreat ] = useSearchParam( THREAT_PARAM );
 	const scan = useScan();
 	const isChosen = ( item: ScanThreat ) => String( item.id ) === selected;
 	const threat = scan?.threats?.find( isChosen ) ?? scan?.ignored?.find( isChosen );

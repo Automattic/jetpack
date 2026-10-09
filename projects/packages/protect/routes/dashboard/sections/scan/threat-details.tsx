@@ -1,7 +1,9 @@
 import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
+import { dateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
 import type { ScanThreat } from './types';
@@ -146,7 +148,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
  */
 function SoftwareActions( { threat }: { threat: ScanThreat } ) {
 	const actions = threat.extension?.actions ?? {};
-	if ( ! actions.update && ! actions.deactivate && ! actions.details ) {
+	if ( ! actions.update && ! actions.deactivate && ! actions.delete && ! actions.details ) {
 		return null;
 	}
 
@@ -164,6 +166,7 @@ function SoftwareActions( { threat }: { threat: ScanThreat } ) {
 					{ labels.deactivate }
 				</LinkButton>
 			) }
+			<DeleteSoftwareButton threat={ threat } />
 			{ actions.details && (
 				<LinkButton
 					href={ actions.details }
@@ -224,7 +227,19 @@ export default function ThreatDetails( {
 					{ threat.status === 'ignored' && (
 						<Badge intent="informational">{ __( 'Ignored', 'jetpack-protect-pkg' ) }</Badge>
 					) }
+					{ threat.status === 'fixed' && (
+						<Badge intent="stable">{ __( 'Fixed', 'jetpack-protect-pkg' ) }</Badge>
+					) }
 				</Stack>
+				{ threat.status === 'fixed' && threat.fixedOn && (
+					<Text variant="body-sm" className="jp-protect-card__muted">
+						{ sprintf(
+							/* translators: %s is a date, such as "Aug 15, 7:00 AM". */
+							__( 'Jetpack fixed this threat on %s.', 'jetpack-protect-pkg' ),
+							dateI18n( 'M j, Y, g:i A', threat.fixedOn, undefined )
+						) }
+					</Text>
+				) }
 				{ threat.status === 'ignored' && (
 					<Text variant="body-sm" className="jp-protect-card__muted">
 						{ __(

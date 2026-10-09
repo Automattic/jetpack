@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { bug } from '@wordpress/icons';
+import { shield } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import type { ScanContext } from './types';
@@ -17,7 +17,7 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 	}
 
 	return (
-		<ProtectCard icon={ bug } title={ __( 'Scan', 'jetpack-protect-pkg' ) }>
+		<ProtectCard icon={ shield } title={ __( 'Scan', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="sm">
 					<Text variant="body-md">

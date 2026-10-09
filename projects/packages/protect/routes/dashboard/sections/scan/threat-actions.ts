@@ -24,6 +24,9 @@ const NOTICE_ID = 'jetpack-protect-threat-action';
 const EMPTY: ThreatActionState = {};
 const actionStore = createStore< Record< string, ThreatActionState > >( () => ( {} ) );
 
+// Every action checks this first, so a second click can't send a duplicate request.
+const isBusy = ( id: string | number ) => !! actionStore.get()[ String( id ) ]?.busy;
+
 const setBusy = ( id: string | number, busy?: ThreatActionState[ 'busy' ] ) =>
 	actionStore.set( states => ( { ...states, [ String( id ) ]: busy ? { busy } : EMPTY } ) );
 
@@ -80,6 +83,9 @@ export function loadIgnored(): Promise< void > {
  * @return Resolves once done, or once the error is shown.
  */
 function setIgnored( threat: ScanThreat, ignore: boolean ): Promise< void > {
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve();
+	}
 	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
 	notify(
 		ignore
@@ -132,6 +138,9 @@ export const unignoreThreat = ( threat: ScanThreat ) => setIgnored( threat, fals
  */
 export async function fixThreat( threat: ScanThreat ): Promise< void > {
 	const { id } = threat;
+	if ( isBusy( id ) ) {
+		return;
+	}
 	setBusy( id, 'fixing' );
 	notify( __( 'Fixing threat…', 'jetpack-protect-pkg' ), undefined, 'info' );
 

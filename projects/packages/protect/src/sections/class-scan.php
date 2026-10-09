@@ -60,11 +60,11 @@ class Scan implements Dashboard_Section {
 	const FIX_DONE_STATUSES = array( 'fixed', 'not_fixed' );
 
 	/**
-	 * Transient caching ignored threats from Scan history, which is slow to fetch.
+	 * Transient caching Scan history, which is slow to fetch; the ignored list and the History tab share it.
 	 *
 	 * @var string
 	 */
-	const IGNORED_CACHE = 'jetpack_protect_dashboard_ignored_threats';
+	const HISTORY_CACHE = 'jetpack_protect_dashboard_scan_history';
 
 	/**
 	 * The section key.
@@ -216,7 +216,7 @@ class Scan implements Dashboard_Section {
 		}
 
 		Scan_Status::delete_option();
-		delete_transient( self::IGNORED_CACHE );
+		delete_transient( self::HISTORY_CACHE );
 		return array( 'ok' => true );
 	}
 
@@ -226,9 +226,29 @@ class Scan implements Dashboard_Section {
 	 * @return array|WP_Error
 	 */
 	public static function get_ignored_threats() {
-		$ignored = get_transient( self::IGNORED_CACHE );
-		if ( is_array( $ignored ) ) {
-			return $ignored;
+		$history = self::get_history_threats();
+		if ( is_wp_error( $history ) ) {
+			return new WP_Error( 'ignored_unavailable', __( 'Ignored threats are unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+		}
+		return array_values(
+			array_filter(
+				$history,
+				function ( $threat ) {
+					return 'ignored' === $threat['status'];
+				}
+			)
+		);
+	}
+
+	/**
+	 * Every threat Scan has fixed or ignored, cached for five minutes.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_history_threats() {
+		$cached = get_transient( self::HISTORY_CACHE );
+		if ( is_array( $cached ) ) {
+			return $cached;
 		}
 
 		$api_url  = Scan_Status::get_api_url();
@@ -242,21 +262,14 @@ class Scan implements Dashboard_Section {
 			null,
 			'wpcom'
 		);
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'ignored_unavailable', __( 'Ignored threats are unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+		$body     = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ) );
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) || ! is_object( $body ) ) {
+			return new WP_Error( 'history_unavailable', __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 		}
 
-		$history = json_decode( wp_remote_retrieve_body( $response ) );
-		$ignored = array();
-		foreach ( (array) ( $history->threats ?? array() ) as $threat ) {
-			if ( 'ignored' === ( $threat->status ?? null ) ) {
-				$ignored[] = $threat;
-			}
-		}
-		$ignored = Dashboard_Threats::format_all( $ignored );
-
-		set_transient( self::IGNORED_CACHE, $ignored, 5 * MINUTE_IN_SECONDS );
-		return $ignored;
+		$threats = Dashboard_Threats::format_all( (array) ( $body->threats ?? array() ) );
+		set_transient( self::HISTORY_CACHE, $threats, 5 * MINUTE_IN_SECONDS );
+		return $threats;
 	}
 
 	/**
@@ -273,7 +286,11 @@ class Scan implements Dashboard_Section {
 		}
 
 		Scan_Status::delete_option();
-		return self::get_threat_fix_status( $response, $id );
+		$status = self::get_threat_fix_status( $response, $id );
+		if ( 'fixed' === $status['status'] ) {
+			delete_transient( self::HISTORY_CACHE );
+		}
+		return $status;
 	}
 
 	/**
@@ -291,6 +308,10 @@ class Scan implements Dashboard_Section {
 
 		$status = self::get_threat_fix_status( $response, $id );
 		if ( in_array( $status['status'], self::FIX_DONE_STATUSES, true ) ) {
+			// A fixed threat moves into Scan history.
+			if ( 'fixed' === $status['status'] ) {
+				delete_transient( self::HISTORY_CACHE );
+			}
 			$status['scan'] = self::get_scan_report( true, true );
 		}
 		return $status;
@@ -368,6 +389,7 @@ class Scan implements Dashboard_Section {
 				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 			}
 			Scan_Status::delete_option();
+			delete_transient( self::HISTORY_CACHE );
 
 			/**
 			 * Fires after the Protect dashboard enqueues a scan on WordPress.com.

@@ -8,12 +8,13 @@ import type { ScanContext, ScanState } from './types';
 /**
  * The Overview's Scan card, once PHP has printed the Scan state.
  *
- * @param props       - The dashboard context.
- * @param props.state - The Scan section's state.
+ * @param props         - The dashboard context.
+ * @param props.state   - The Scan section's state.
+ * @param props.openTab - Switches dashboard tabs.
  * @return The card.
  */
-function ScanOverviewCard( { state }: ScanContext ) {
-	return state ? <ScanCard /> : null;
+function ScanOverviewCard( { state, openTab }: ScanContext ) {
+	return state ? <ScanCard openTab={ openTab } /> : null;
 }
 
 const section: ProtectSection< ScanState | undefined > = {

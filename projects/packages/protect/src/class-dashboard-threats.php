@@ -57,7 +57,7 @@ class Dashboard_Threats {
 				'version' => $extension->version ?? null,
 				'type'    => $type,
 				'icon'    => 'plugins' === $type ? self::get_plugin_icon( $site, $slug ) : ( $theme && $theme->get_screenshot() ? $theme->get_screenshot() : null ),
-				'actions' => self::get_actions( $site, $type, $slug, $file ),
+				'actions' => self::get_actions( $site, $type, $slug, $file, $theme ),
 			) : null,
 		);
 	}
@@ -145,13 +145,14 @@ class Dashboard_Threats {
 	/**
 	 * Admin links that act on the affected plugin, theme or core, for the current user.
 	 *
-	 * @param array       $site The site's plugins and updates.
-	 * @param string|null $type The plural extension type.
-	 * @param string|null $slug The extension slug.
-	 * @param string|null $file The installed plugin's file, for a plugin.
-	 * @return array Links keyed `update`, `deactivate` and `details`, each only when it applies.
+	 * @param array          $site The site's plugins and updates.
+	 * @param string|null    $type The plural extension type.
+	 * @param string|null    $slug The extension slug.
+	 * @param string|null    $file The installed plugin's file, for a plugin.
+	 * @param \WP_Theme|null $theme The installed theme, for a theme.
+	 * @return array Links keyed `update`, `deactivate`, `delete` and `details`, each only when it applies.
 	 */
-	private static function get_actions( $site, $type, $slug, $file ) {
+	private static function get_actions( $site, $type, $slug, $file, $theme = null ) {
 		$actions = array();
 
 		if ( 'core' === $type ) {
@@ -172,6 +173,14 @@ class Dashboard_Threats {
 			if ( current_user_can( 'switch_themes' ) && get_stylesheet() === $slug ) {
 				$actions['deactivate'] = self_admin_url( 'themes.php' );
 			}
+			// Core deletes on this link without asking, so the dashboard confirms first. Multisite deletes from Network Admin.
+			if ( ! is_multisite() && current_user_can( 'delete_themes' ) && $theme && ! in_array( $slug, array( get_stylesheet(), get_template() ), true ) ) {
+				$actions['delete'] = add_query_arg(
+					'_wpnonce',
+					wp_create_nonce( 'delete-theme_' . $slug ),
+					admin_url( 'themes.php?action=delete&stylesheet=' . rawurlencode( $slug ) )
+				);
+			}
 			return $actions;
 		}
 
@@ -191,6 +200,14 @@ class Dashboard_Threats {
 				'_wpnonce',
 				wp_create_nonce( 'deactivate-plugin_' . $file ),
 				self_admin_url( 'plugins.php?action=deactivate&plugin=' . rawurlencode( $file ) )
+			);
+		}
+		// Core asks "Are you sure?" on this link. On multisite, another site may still use the plugin.
+		if ( ! is_multisite() && current_user_can( 'delete_plugins' ) && ! is_plugin_active( $file ) ) {
+			$actions['delete'] = add_query_arg(
+				'_wpnonce',
+				wp_create_nonce( 'bulk-plugins' ),
+				self_admin_url( 'plugins.php?action=delete-selected&checked[]=' . rawurlencode( $file ) )
 			);
 		}
 		if ( isset( $site['directory'][ $slug ] ) ) {
