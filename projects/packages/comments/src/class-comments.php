@@ -53,5 +53,6 @@ class Comments {
 		Avatars::init();
 		Block_Editor::init();
 		Embeds::init();
+		Tracks::init();
 	}
 }
