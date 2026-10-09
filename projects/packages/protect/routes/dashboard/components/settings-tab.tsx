@@ -36,7 +36,7 @@ export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) 
 			{ error && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ error }</Notice.Description>
-					<Notice.CloseIcon onClick={ dismissError } />
+					<Notice.CloseIconButton onClick={ dismissError } />
 				</Notice.Root>
 			) }
 			{ cards.length ? (
