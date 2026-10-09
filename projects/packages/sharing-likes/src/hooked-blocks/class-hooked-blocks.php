@@ -15,7 +15,8 @@ use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
  * Places `jetpack/sharing-buttons` and `jetpack/like` before or after `core/post-content`
  * with the Block Hooks API, where `Template_Placements` asks for them.
  *
- * Callbacks read options and site facts each time: WordPress.com REST requests switch blogs after `init`.
+ * Callbacks read options and site facts each time, since WordPress.com REST requests switch blogs
+ * after `init`, and never resolve a template, since building one applies block hooks.
  *
  * @since $$next-version$$
  */
@@ -73,7 +74,11 @@ final class Hooked_Blocks {
 		}
 
 		foreach ( $wanted as $block ) {
-			if ( self::legacy_buttons_absent( $block ) && ! in_array( $block, $hooked_block_types, true ) ) {
+			if (
+				self::legacy_buttons_absent( $block )
+				&& ! self::already_placed( $block, $context )
+				&& ! in_array( $block, $hooked_block_types, true )
+			) {
 				$hooked_block_types[] = $block;
 			}
 		}
@@ -116,40 +121,89 @@ final class Hooked_Blocks {
 	}
 
 	/**
-	 * Whether a context shows a single post or page.
-	 *
-	 * Templates are recognised by slug, or by the post types a theme's custom template declares.
-	 * Patterns declare their template types, if at all, so the rest fall back to the current request,
-	 * which never holds in the Site Editor's REST requests. Template parts and posts get nothing.
+	 * Whether a context shows a single post or page: a template or pattern by the template types it
+	 * serves, else by the current request, which never holds in the Site Editor's REST requests.
 	 *
 	 * @param mixed $context Template, template part, pattern array or post.
 	 */
 	private static function is_single_post_or_page_context( $context ): bool {
+		// `single`, `singular` and custom templates also serve other post types, so a request for one of those has the last word.
+		if ( is_singular() && ! is_singular( array( 'post', 'page' ) ) ) {
+			return false;
+		}
+
 		if ( $context instanceof \WP_Block_Template ) {
 			if ( 'wp_template' !== $context->type ) {
 				return false;
 			}
 
-			$slug = (string) $context->slug;
-
-			if (
-				in_array( $slug, array( 'single', 'page', 'singular' ), true )
-				|| str_starts_with( $slug, 'single-post' )
-				|| str_starts_with( $slug, 'page-' )
-			) {
+			if ( self::is_single_post_or_page_slug( (string) $context->slug ) ) {
 				return true;
 			}
 
-			return is_array( $context->post_types ) && array_intersect( array( 'post', 'page' ), $context->post_types );
+			if ( is_array( $context->post_types ) && $context->post_types ) {
+				return (bool) array_intersect( array( 'post', 'page' ), $context->post_types );
+			}
+
+			// A custom template that declares no post types can be assigned to any post.
+			return $context->is_custom && is_singular( array( 'post', 'page' ) );
 		}
 
 		if ( is_array( $context ) ) {
 			$template_types = isset( $context['templateTypes'] ) && is_array( $context['templateTypes'] ) ? $context['templateTypes'] : array();
 
-			return array_intersect( array( 'single', 'page', 'singular' ), $template_types ) || is_singular( array( 'post', 'page' ) );
+			foreach ( $template_types as $template_type ) {
+				if ( is_string( $template_type ) && self::is_single_post_or_page_slug( $template_type ) ) {
+					return true;
+				}
+			}
+
+			return is_singular( array( 'post', 'page' ) );
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether a template slug or type is for posts or pages, or for any single post like `single`.
+	 *
+	 * @param string $slug Template slug.
+	 */
+	private static function is_single_post_or_page_slug( string $slug ): bool {
+		if ( in_array( $slug, array( 'single', 'page', 'singular', 'single-post' ), true ) || str_starts_with( $slug, 'page-' ) ) {
+			return true;
+		}
+
+		// `single-post-{slug}` is one post's template, unless it belongs to a post type named `post-…`.
+		return str_starts_with( $slug, 'single-post-' ) && ! post_type_exists( substr( $slug, strlen( 'single-' ) ) );
+	}
+
+	/**
+	 * Whether the post being viewed, the template or the pattern already holds the block, as when the owner added it by hand.
+	 *
+	 * @param string $block   Block type.
+	 * @param mixed  $context Template or pattern array, its content not yet hooked.
+	 */
+	private static function already_placed( string $block, $context ): bool {
+		$post = is_singular() ? get_queried_object() : null;
+
+		if ( $post instanceof \WP_Post && has_block( $block, $post->post_content ) ) {
+			return true;
+		}
+
+		if ( $context instanceof \WP_Block_Template ) {
+			$content = $context->content;
+		} else {
+			$content = $context['content'] ?? null;
+			$path    = $context['filePath'] ?? null;
+
+			// Core hands over a theme pattern before reading its file, the first time it is fetched.
+			if ( null === $content && is_string( $path ) && is_readable( $path ) ) {
+				$content = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- A local theme file.
+			}
+		}
+
+		return is_string( $content ) && has_block( $block, $content );
 	}
 
 	/**
@@ -164,8 +218,6 @@ final class Hooked_Blocks {
 
 	/**
 	 * Whether the legacy feature shows no buttons, so visitors never get both.
-	 *
-	 * Never call anything that resolves a template from here: building one applies block hooks.
 	 *
 	 * @param string $block Block type.
 	 */

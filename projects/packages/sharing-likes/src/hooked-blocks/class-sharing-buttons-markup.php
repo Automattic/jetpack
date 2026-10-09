@@ -39,9 +39,9 @@ final class Sharing_Buttons_Markup {
 	);
 
 	/**
-	 * `styleType` values `sharing-buttons/block.json` accepts, all of them legacy button styles too.
+	 * Legacy button styles the block styles too. It accepts `official` but has no styles for it.
 	 */
-	private const STYLE_TYPES = array( 'icon-text', 'icon', 'text', 'official' );
+	private const STYLE_TYPES = array( 'icon-text', 'icon', 'text' );
 
 	/**
 	 * Fill a hooked `jetpack/sharing-buttons` block with its buttons and markup.
@@ -85,19 +85,38 @@ final class Sharing_Buttons_Markup {
 	}
 
 	/**
-	 * The block's services for the legacy buttons the site shows, or the defaults.
+	 * The block's services for the legacy buttons the site shows, those behind "More" when none
+	 * are visible, or the defaults.
 	 *
 	 * Reads the option rather than `Sharing_Service`, which may not be loaded, and saves defaults on read.
 	 *
 	 * @return string[]
 	 */
 	public static function services(): array {
-		$stored   = get_option( 'sharing-services' );
-		$visible  = is_array( $stored ) && isset( $stored['visible'] ) && is_array( $stored['visible'] ) ? $stored['visible'] : array();
+		$stored = get_option( 'sharing-services' );
+
+		foreach ( array( 'visible', 'hidden' ) as $list ) {
+			$services = is_array( $stored ) && isset( $stored[ $list ] ) && is_array( $stored[ $list ] ) ? self::block_services( $stored[ $list ] ) : array();
+
+			if ( $services ) {
+				return $services;
+			}
+		}
+
+		return self::DEFAULT_SERVICES;
+	}
+
+	/**
+	 * The block's services for some legacy service IDs, dropping those it does not offer.
+	 *
+	 * @param array $legacy_ids Legacy service IDs.
+	 * @return string[]
+	 */
+	private static function block_services( array $legacy_ids ): array {
 		$labels   = self::labels();
 		$services = array();
 
-		foreach ( $visible as $legacy_id ) {
+		foreach ( $legacy_ids as $legacy_id ) {
 			if ( ! is_string( $legacy_id ) ) {
 				continue;
 			}
@@ -109,7 +128,7 @@ final class Sharing_Buttons_Markup {
 			}
 		}
 
-		return $services ? $services : self::DEFAULT_SERVICES;
+		return $services;
 	}
 
 	/**

@@ -69,6 +69,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		remove_all_filters( 'hooked_block_types' );
 		remove_all_filters( 'hooked_block_' . self::SHARING );
 		remove_all_filters( 'hooked_block_' . self::LIKE );
+		unregister_post_type( 'post-card' );
 
 		foreach ( array_merge( Template_Placements::OPTIONS, array( 'sharing-services', 'sharing-options', 'disabled_likes', 'disabled_reblogs' ) ) as $option ) {
 			delete_option( $option );
@@ -95,6 +96,24 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		$template->post_types = $post_types;
 
 		return $template;
+	}
+
+	/**
+	 * Fake a front-end request for a single post.
+	 *
+	 * @param string $post_type    Post type of the post being viewed.
+	 * @param string $post_content Its content.
+	 */
+	private static function view( string $post_type, string $post_content = '' ): void {
+		$query                 = new WP_Query();
+		$query->is_singular    = true;
+		$query->queried_object = new WP_Post(
+			(object) array(
+				'post_type'    => $post_type,
+				'post_content' => $post_content,
+			)
+		);
+		$GLOBALS['wp_query']   = $query;
 	}
 
 	/**
@@ -153,12 +172,15 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			'theme custom template for pages and posts' => array( self::template( 'blank', 'wp_template', array( 'page', 'post' ) ), true ),
 			'theme custom template for products'        => array( self::template( 'wide', 'wp_template', array( 'product' ) ), false ),
 			'custom post type template'                 => array( self::template( 'single-product' ), false ),
+			'post type template starting with post'     => array( self::template( 'single-postcard' ), false ),
+			'template for a post type named post-card'  => array( self::template( 'single-post-card' ), false ),
 			'index template'                            => array( self::template( 'index' ), false ),
 			'archive template'                          => array( self::template( 'archive' ), false ),
 			'template part'                             => array( self::template( 'single', 'wp_template_part' ), false ),
 			'pattern for single templates'              => array( array( 'templateTypes' => array( 'single' ) ), true ),
 			'pattern for page templates'                => array( array( 'templateTypes' => array( 'page' ) ), true ),
 			'pattern for singular templates'            => array( array( 'templateTypes' => array( 'singular' ) ), true ),
+			'pattern for one post\'s template'          => array( array( 'templateTypes' => array( 'single-post-hello-world' ) ), true ),
 			'pattern for archives, outside a post'      => array( array( 'templateTypes' => array( 'archive' ) ), false ),
 			'pattern without template types'            => array( array( 'name' => 'theme/content' ), false ),
 			'post content'                              => array( new WP_Post( (object) array( 'post_type' => 'post' ) ), false ),
@@ -173,36 +195,39 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_contexts' )]
 	public function test_places_the_blocks_in_single_post_and_page_contexts_only( $context, bool $placed ): void {
+		register_post_type( 'post-card' );
+
 		$this->assertSame( $placed ? self::PLACED : self::NOTHING, $this->placed_blocks( $context ) );
 	}
 
 	/**
-	 * @return array<string, array{0: string, 1: bool}>
+	 * @return array<string, array{0: mixed, 1: string, 2: bool}>
 	 */
 	public static function provide_singular_requests(): array {
+		$untyped_pattern = array( 'name' => 'theme/content' );
+
 		return array(
-			'a post'    => array( 'post', true ),
-			'a page'    => array( 'page', true ),
-			'a product' => array( 'product', false ),
+			'untyped pattern, a post'          => array( $untyped_pattern, 'post', true ),
+			'untyped pattern, a page'          => array( $untyped_pattern, 'page', true ),
+			'untyped pattern, a product'       => array( $untyped_pattern, 'product', false ),
+			'single template, a product'       => array( self::template( 'single' ), 'product', false ),
+			'singular template, an attachment' => array( self::template( 'singular' ), 'attachment', false ),
+			'custom template, a post'          => array( self::template( 'wp-custom-template-wide' ), 'post', true ),
 		);
 	}
 
 	/**
-	 * Patterns that declare no template types are judged by the request rendering them.
-	 *
 	 * @dataProvider provide_singular_requests
 	 *
+	 * @param mixed  $context   Where the anchor sits.
 	 * @param string $post_type Post type of the post being viewed.
 	 * @param bool   $placed    Whether the blocks are placed.
 	 */
 	#[DataProvider( 'provide_singular_requests' )]
-	public function test_places_the_blocks_in_untyped_patterns_while_viewing_a_post_or_page( string $post_type, bool $placed ): void {
-		$query                 = new WP_Query();
-		$query->is_singular    = true;
-		$query->queried_object = new WP_Post( (object) array( 'post_type' => $post_type ) );
-		$GLOBALS['wp_query']   = $query;
+	public function test_places_the_blocks_only_while_viewing_a_post_or_page( $context, string $post_type, bool $placed ): void {
+		self::view( $post_type );
 
-		$this->assertSame( $placed ? self::PLACED : self::NOTHING, $this->placed_blocks( array( 'name' => 'theme/content' ) ) );
+		$this->assertSame( $placed ? self::PLACED : self::NOTHING, $this->placed_blocks( $context ) );
 	}
 
 	/**
@@ -308,15 +333,55 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Core skips a block the owner removed from that anchor, which it records under the hooked type.
+	 * @return array<string, array{0: mixed, 1: string, 2: string[], 3?: string}>
 	 */
-	public function test_leaves_out_a_block_the_template_ignores(): void {
-		$content = '<!-- wp:post-title /--><!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . self::SHARING . '"]}} /-->';
+	public static function provide_sharing_buttons_already_handled(): array {
+		$ignored  = '<!-- wp:post-title /--><!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . self::SHARING . '"]}} /-->';
+		$by_hand  = self::CONTENT . '<!-- wp:group --><div class="wp-block-group"><!-- wp:jetpack/sharing-buttons /--></div><!-- /wp:group -->';
+		$template = self::template( 'single' );
 
-		$this->assertSame(
-			array( 'core/post-title', 'core/post-content', self::LIKE ),
-			$this->placed_blocks( self::template( 'single' ), $content )
+		$template->content = $by_hand;
+
+		return array(
+			// Core records a block the owner removed from that anchor under the hooked type.
+			'removed by the owner'               => array( self::template( 'single' ), $ignored, array( 'core/post-title', 'core/post-content', self::LIKE ) ),
+			'added to the template by hand'      => array( $template, $by_hand, array_merge( self::NOTHING, array( self::LIKE, self::SHARING ) ) ),
+			'added to the pattern by hand'       => array(
+				array(
+					'templateTypes' => array( 'single' ),
+					'content'       => $by_hand,
+				),
+				$by_hand,
+				array_merge( self::NOTHING, array( self::LIKE, self::SHARING ) ),
+			),
+			// Core passes a theme pattern without its content the first time it is fetched.
+			'added to the theme pattern by hand' => array(
+				array(
+					'templateTypes' => array( 'single' ),
+					'filePath'      => dirname( __DIR__ ) . '/fixtures/patterns/sharing-buttons-by-hand.html',
+				),
+				$by_hand,
+				array_merge( self::NOTHING, array( self::LIKE, self::SHARING ) ),
+			),
+			'added to the post by hand'          => array( self::template( 'single' ), self::CONTENT, array_merge( self::NOTHING, array( self::LIKE ) ), '<!-- wp:jetpack/sharing-buttons /-->' ),
 		);
+	}
+
+	/**
+	 * @dataProvider provide_sharing_buttons_already_handled
+	 *
+	 * @param mixed    $context  Template or pattern, holding the content as core passes it.
+	 * @param string   $content  Serialized blocks.
+	 * @param string[] $expected Top-level blocks.
+	 * @param string   $post     Content of the post being viewed, if any.
+	 */
+	#[DataProvider( 'provide_sharing_buttons_already_handled' )]
+	public function test_leaves_out_a_block_the_template_already_handles( $context, string $content, array $expected, string $post = '' ): void {
+		if ( '' !== $post ) {
+			self::view( 'post', $post );
+		}
+
+		$this->assertSame( $expected, $this->placed_blocks( $context, $content ) );
 	}
 
 	/**
@@ -390,6 +455,24 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			'a button style the block lacks'  => array(
 				array( 'sharing-options' => array( 'global' => array( 'button_style' => 'fancy' ) ) ),
 				$defaults,
+				null,
+			),
+			'official buttons'                => array(
+				array( 'sharing-options' => array( 'global' => array( 'button_style' => 'official' ) ) ),
+				$defaults,
+				null,
+			),
+			'every button behind More'        => array(
+				array(
+					'sharing-services' => array(
+						'visible' => array( 'skype' ),
+						'hidden'  => array( 'email', 'print' ),
+					),
+				),
+				array(
+					'mail'  => 'Mail',
+					'print' => 'Print',
+				),
 				null,
 			),
 		);

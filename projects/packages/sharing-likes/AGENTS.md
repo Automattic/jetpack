@@ -277,19 +277,26 @@ unset, and once the single template is saved with a block on one side, moving it
 to the other side adds nothing there. Tests that call `apply_block_hooks_to_content()`
 with plain `insert_hooked_blocks` miss all of this; go through `get_block_template()`.
 
-**Never resolve a template inside a callback.** Building a template applies
-block hooks, so `get_block_template()`, `Environment::single_template_editor_url()`
-and the sections' `state()` all recurse from there. Read options and site facts
-inside the callbacks, not when registering them, and memoise nothing per site:
-WordPress.com REST requests switch blogs after `init`.
+**Which templates.** `single` and `singular` serve every post type without a
+template of its own, so on the front end a singular request for anything but a
+post or page gets nothing. That only holds while the template comes from the
+theme: once the owner saves it in the Site Editor, the blocks are ordinary
+blocks in it and show on every post type it serves. A block the owner already
+placed by hand in the template, the pattern or the post being viewed is not
+added again; one in a template part or synced pattern is not seen.
+
+**Never resolve a template inside a callback** (see `Hooked_Blocks`):
+`get_block_template()`, `Environment::single_template_editor_url()` and the
+sections' `state()` all recurse from there.
 
 **Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
 as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on
 one priority run in registration order, and Simple sets this package up on
 `init:10`, after Subscribe's `init:9`, so `hooked_block_types` runs at 5.
 
-**Patterns.** A pattern counts when its `templateTypes` include `single`, `page`
-or `singular`. Otherwise it falls back to `is_singular()` for posts and pages,
+**Patterns.** A pattern counts when its `templateTypes` include a post or page
+template, as a template's slug would. Otherwise it falls back to `is_singular()`
+for posts and pages, as do custom templates that declare no post types,
 which is never true in the Site Editor's REST requests. So on a theme that puts
 `core/post-content` in an untyped pattern, the blocks show on the front end but
 not in the Site Editor, and saving that template there inlines the pattern and
