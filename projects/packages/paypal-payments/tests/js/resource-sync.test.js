@@ -472,6 +472,8 @@ describe( 'GATED_ATTRIBUTES', () => {
 		'productId',
 		'customerNotes',
 		'returnUrl',
+		// PayPal keeps the address separate from the shipping fees, so no gate owns it.
+		'collectShippingAddress',
 		// Both come off the payment rather than a form field, so a gate would have
 		// nothing to open or close.
 		'integrationMode',
@@ -524,7 +526,6 @@ describe( 'GATED_ATTRIBUTES', () => {
 				shippingMode: 'QUANTITY',
 				shippingValue: '5.00',
 				shippingAdditionalValue: '2.00',
-				collectShippingAddress: true,
 				maxQuantity: 25,
 				variants: { dimensions: [ { name: 'Size', options: [] } ] },
 			};

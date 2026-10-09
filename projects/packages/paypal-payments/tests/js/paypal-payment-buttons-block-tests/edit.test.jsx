@@ -5318,16 +5318,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openSavedForm();
 		}
 
-		it( 'shows the toggle alone while shipping is off', async () => {
+		it( 'shows the address checkbox without the fees while shipping is off', async () => {
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
 			expect( screen.getByLabelText( 'Add shipping' ) ).not.toBeChecked();
 			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
-			expect( screen.queryByLabelText( 'Collect shipping address' ) ).not.toBeInTheDocument();
+
+			const box = screen.getByLabelText( 'Collect shipping address' );
+
+			expect( box ).not.toBeChecked();
+			expect( box ).toBeEnabled();
 			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
-		// The checkbox sits under the toggle, so every mode shows it.
+		// The checkbox is outside the fee settings, so every mode shows it.
 		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
 			'offers the address checkbox in %s mode',
 			async shippingMode => {
@@ -5587,9 +5591,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		// The toggle hides the address checkbox too, and PayPal keeps asking buyers for an
-		// address the merchant can no longer see unless it goes off with the rest.
-		it( 'resets the mode, both fees and the address checkbox when shipping goes off', async () => {
+		it( 'resets the mode and both fees when shipping goes off, keeping the address', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -5604,47 +5606,33 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				shippingMode: 'FLAT',
 				shippingValue: '',
 				shippingAdditionalValue: '',
-				collectShippingAddress: false,
-			} );
-		} );
-
-		it( 'keeps collecting the address when shipping goes off under a profile tax', async () => {
-			const user = userEvent.setup();
-			await renderShipping( {
-				taxEnabled: true,
-				taxType: 'PREFERENCE',
-				taxValue: '',
-				collectShippingAddress: true,
-			} );
-
-			await user.click( screen.getByLabelText( 'Add shipping' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				shippingEnabled: false,
-				shippingMode: 'FLAT',
-				shippingValue: '',
-				shippingAdditionalValue: '',
-				collectShippingAddress: true,
 			} );
 		} );
 
 		// PayPal answers 422 with "Shipping address collection is needed when tax type is
 		// PREFERENCE", so the form keeps that combination out of reach.
-		it( 'locks the address on while the tax comes from the PayPal profile', async () => {
-			await renderShipping( {
-				taxEnabled: true,
-				taxType: 'PREFERENCE',
-				collectShippingAddress: false,
-			} );
+		it.each( [
+			[ 'on', true ],
+			[ 'off', false ],
+		] )(
+			'locks the address on while the tax comes from the PayPal profile, with shipping %s',
+			async ( _label, shippingEnabled ) => {
+				await renderShipping( {
+					shippingEnabled,
+					taxEnabled: true,
+					taxType: 'PREFERENCE',
+					collectShippingAddress: false,
+				} );
 
-			const box = screen.getByLabelText( 'Collect shipping address' );
+				const box = screen.getByLabelText( 'Collect shipping address' );
 
-			expect( box ).toBeChecked();
-			expect( box ).toBeDisabled();
-			expect(
-				screen.getByText( 'Required while the tax comes from your PayPal settings.' )
-			).toBeInTheDocument();
-		} );
+				expect( box ).toBeChecked();
+				expect( box ).toBeDisabled();
+				expect(
+					screen.getByText( 'Required while the tax comes from your PayPal settings.' )
+				).toBeInTheDocument();
+			}
+		);
 
 		it( 'turns the address on with the profile tax', async () => {
 			const user = userEvent.setup();
@@ -5657,13 +5645,40 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
-		it( 'writes the address preference when the box is ticked', async () => {
+		// PayPal keeps the address separate from the shipping fees.
+		it.each( [
+			[ 'on', true ],
+			[ 'off', false ],
+		] )(
+			'writes the address preference when the box is ticked, with shipping %s',
+			async ( _label, shippingEnabled ) => {
+				const user = userEvent.setup();
+				await renderShipping( { shippingEnabled } );
+
+				await user.click( screen.getByLabelText( 'Collect shipping address' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
+			}
+		);
+
+		// Dropping a profile tax leaves the address ticked.
+		it( 'lets the address be unticked with shipping and tax off', async () => {
 			const user = userEvent.setup();
-			await renderShipping();
+			await renderShipping( {
+				shippingEnabled: false,
+				shippingValue: '',
+				taxEnabled: false,
+				collectShippingAddress: true,
+			} );
 
-			await user.click( screen.getByLabelText( 'Collect shipping address' ) );
+			const box = screen.getByLabelText( 'Collect shipping address' );
 
-			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
+			expect( box ).toBeChecked();
+			expect( box ).toBeEnabled();
+
+			await user.click( box );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: false } );
 		} );
 
 		it.each( [

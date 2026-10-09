@@ -1419,18 +1419,10 @@ export default function ApiManagedEdit( {
 				{ /* Shipping */ }
 				<ToggleControl
 					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
-					help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
+					help={ __( 'Set shipping fees', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
-					// A profile tax still needs the address once shipping is off, so that one stays on.
 					onChange={ value =>
-						setAttributes(
-							value
-								? { shippingEnabled: true }
-								: {
-										...turnGateOff( 'shippingEnabled' ),
-										...( addressIsRequired ? { collectShippingAddress: true } : {} ),
-									}
-						)
+						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
 					}
 					disabled={ isBusy }
 				/>
@@ -1496,15 +1488,17 @@ export default function ApiManagedEdit( {
 								disabled={ isBusy }
 							/>
 						) }
-						<CheckboxControl
-							label={ __( 'Collect shipping address', 'jetpack-paypal-payments' ) }
-							help={ addressIsRequired ? helpAddressWithProfileTax : helpAddress }
-							checked={ addressIsRequired || !! collectShippingAddress }
-							onChange={ value => setAttributes( { collectShippingAddress: value } ) }
-							disabled={ isBusy || addressIsRequired }
-						/>
 					</>
 				) }
+
+				{ /* Shipping address */ }
+				<CheckboxControl
+					label={ __( 'Collect shipping address', 'jetpack-paypal-payments' ) }
+					help={ addressIsRequired ? helpAddressWithProfileTax : helpAddress }
+					checked={ addressIsRequired || !! collectShippingAddress }
+					onChange={ value => setAttributes( { collectShippingAddress: value } ) }
+					disabled={ isBusy || addressIsRequired }
+				/>
 
 				{ /* Handling fee */ }
 				<ToggleControl
