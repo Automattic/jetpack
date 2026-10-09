@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Label a partial first or last week on the Traffic, Subscribers, and ads charts with the selected range's own start or end date.

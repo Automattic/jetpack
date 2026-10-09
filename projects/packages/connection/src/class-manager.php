@@ -1619,7 +1619,7 @@ class Manager {
 	 * network. The identity travels in the signature rather than the payload, so WordPress.com
 	 * decides whether the caller is the owner it holds.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
@@ -1770,7 +1770,7 @@ class Manager {
 	 *
 	 * Leaves `master_user` alone: releasing the lock does not change who the owner is.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return true|WP_Error True on success, WP_Error otherwise.
 	 */
@@ -1851,7 +1851,7 @@ class Manager {
 	/**
 	 * The refusal for a caller who is not the owner WordPress.com holds.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_Error
 	 */
@@ -1868,7 +1868,7 @@ class Manager {
 	 *
 	 * Zero means this user is not named yet, so it is not a conflict.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @param int $wpcom_user_id WordPress.com user the claim would anchor.
 	 * @return bool
@@ -1882,7 +1882,7 @@ class Manager {
 	/**
 	 * The support path for a site a different account already protects.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_Error
 	 */
@@ -2103,7 +2103,7 @@ class Manager {
 	 *
 	 * @since 1.29.0
 	 * @since 9.3.0 Refused while ownership is locked.
-	 * @since $$next-version$$ The anchored owner passes the lock, and moving the site off them
+	 * @since 9.9.0 The anchored owner passes the lock, and moving the site off them
 	 *                         releases the anchor.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
@@ -2186,7 +2186,7 @@ class Manager {
 	 * A consumer locking ownership through the filter is a separate refusal that still applies to
 	 * everybody, so it is re-read here with the anchor out of the way.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return bool
 	 */
@@ -2221,7 +2221,7 @@ class Manager {
 	 * locks the site to nobody, and `reconcile_protected_owner()` returns before asking when
 	 * there is no local anchor left to repair it with. The reverse mistake costs nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @param int        $new_owner_id The local user who now holds the connection.
 	 * @param true|array $accepted     What WordPress.com answered the switch with: a report of
@@ -2258,7 +2258,7 @@ class Manager {
 	 * Request to WPCOM to update the connection owner.
 	 *
 	 * @since 1.29.0
-	 * @since $$next-version$$ Returns what WordPress.com answered rather than casting it, so a
+	 * @since 9.9.0 Returns what WordPress.com answered rather than casting it, so a
 	 *                         report of what the switch did can be read. Still falsy on failure.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.

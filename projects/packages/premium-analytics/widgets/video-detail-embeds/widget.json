@@ -1,5 +1,6 @@
 {
 	"name": "jpa/video-detail-embeds",
+	"icon": "jpa/pages",
 	"title": "Used on posts & pages",
 	"description": "Pages where the selected video is embedded, sourced from Jetpack Stats.",
 	"help": {

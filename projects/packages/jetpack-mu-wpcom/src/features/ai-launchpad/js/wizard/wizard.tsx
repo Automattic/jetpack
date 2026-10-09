@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog, Stack } from '@wordpress/ui';
-import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
+import { tailor } from '../lib/tailor.ts';
 import {
 	setTracksContext,
 	trackViewed,
@@ -18,7 +18,6 @@ import {
 	buildWizardPayload,
 	canContinue,
 	isLastStep,
-	toPrewarmInput,
 	TOTAL_STEPS,
 	type WizardState,
 	type WizardStep,
@@ -79,10 +78,6 @@ export function Wizard( {
 		trackViewed( { step: stepName } );
 	}, [ stepName ] );
 
-	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
-	// promise via getPrewarmedTailor.
-	usePrewarm( step === 1 ? toPrewarmInput( state ) : {}, copy );
-
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
 			trackWizardStepCompleted( { step: stepName } );
@@ -115,7 +110,7 @@ export function Wizard( {
 			} )
 			.catch( () => {} );
 
-		const tailoring = getPrewarmedTailor( payload, copy );
+		const tailoring = tailor( payload, copy );
 		trackWizardStepCompleted( { step: stepName } );
 		// One event per field the user actually modified, vs the pre-filled values.
 		if ( siteName.trim() !== initialSiteName.trim() ) {

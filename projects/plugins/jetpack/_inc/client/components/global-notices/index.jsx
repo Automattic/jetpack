@@ -52,7 +52,6 @@ class NoticesList extends Component {
 					status={ notice.status }
 					duration={ notice.duration || null }
 					text={ notice.text }
-					isCompact={ notice.isCompact }
 					onDismissClick={ this.handleLocalNoticeDismissClick( notice ) }
 					showDismiss={ notice.showDismiss }
 				>

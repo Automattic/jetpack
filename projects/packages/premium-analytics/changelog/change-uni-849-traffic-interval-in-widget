@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Traffic: Move the chart interval control from the page header into the Traffic summary widget, which saves its own interval.

@@ -7,6 +7,9 @@
 
 use PHPUnit\Framework\Attributes\CoversClass;
 
+// Turn off real logstash calls. spy_log() at priority 11 records each entry.
+add_filter( 'wpcom_paypal_payment_buttons_log_enabled', '__return_false' );
+
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-paypal-onboarding.php';
 require_once __DIR__ . '/fixtures/class-jetpack-server-version.php';
@@ -43,6 +46,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	const SITE_ID = 1234;
 
 	/**
+	 * Log entries recorded by spy_log().
+	 *
+	 * @var array<int, array>
+	 */
+	private $logged = array();
+
+	/**
 	 * The transient remembering that MERCHANT1 was referred by SITE_ID on sandbox.
 	 *
 	 * @return string
@@ -59,12 +69,15 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 
 		$this->original_blog_id = $GLOBALS['blog_id'];
 		$this->endpoint         = new WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding();
+		$this->logged           = array();
+		add_filter( 'wpcom_paypal_payment_buttons_log_enabled', array( $this, 'spy_log' ), 11, 2 );
 	}
 
 	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
+		remove_filter( 'wpcom_paypal_payment_buttons_log_enabled', array( $this, 'spy_log' ), 11 );
 		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'is_jetpack_authorized_for_site' );
@@ -81,6 +94,18 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$wp_rest_server = null;
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Record a log entry and return $enabled unchanged.
+	 *
+	 * @param bool  $enabled Whether to log.
+	 * @param array $extra   The log entry's data.
+	 * @return bool
+	 */
+	public function spy_log( $enabled, $extra ) {
+		$this->logged[] = $extra;
+		return $enabled;
 	}
 
 	/**
@@ -262,12 +287,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	/**
 	 * Build a mocked HTTP response array.
 	 *
-	 * @param int   $status HTTP status code.
-	 * @param array $body   Response body, JSON-encoded for the mock.
+	 * @param int   $status  HTTP status code.
+	 * @param array $body    Response body, JSON-encoded for the mock.
+	 * @param array $headers Response headers.
 	 * @return array
 	 */
-	private function http_response( $status, array $body ) {
+	private function http_response( $status, array $body, array $headers = array() ) {
 		return array(
+			'headers'  => new \WpOrg\Requests\Utility\CaseInsensitiveDictionary( $headers ),
 			'response' => array(
 				'code'    => $status,
 				'message' => 'OK',
@@ -469,6 +496,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'paypal_token_failed', $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
+		// Only PayPal's answers get logged.
+		$this->assertSame( array(), $this->logged );
 	}
 
 	/**
@@ -1008,6 +1037,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'paypal_request_failed', $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
+		// Only PayPal's answers get logged.
+		$this->assertSame( array(), $this->logged );
 	}
 
 	/**
@@ -1099,6 +1130,208 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
+	 * Test that a blog's own tracking ID authorizes it even after the seller connected another site.
+	 *
+	 * PayPal's record then names the other blog as the latest referral, but the
+	 * tracking ID this blog onboarded the seller with still resolves to them.
+	 */
+	public function test_forwarded_request_is_authorized_by_the_blogs_own_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'?tracking_id='                    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT1' ) ),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response( 9999 ),
+				'/v1/checkout/payment-resources'   => $this->http_response( 200, array( 'resources' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request(
+				array(
+					'method'      => 'GET',
+					'tracking_id' => 'woo-ncps-1234-1700000000',
+				)
+			)
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 200, $result->get_data()['status'] );
+		$this->assertStringContainsString( '/merchant-integrations?tracking_id=woo-ncps-1234-1700000000', $requests[1]['url'] );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( '/merchant-integrations/MERCHANT1', $request['url'] );
+		}
+		$this->assertSame( 1, get_transient( $this->merchant_binding_transient() ) );
+	}
+
+	/**
+	 * Test that a tracking ID issued for another blog is refused before PayPal is asked.
+	 */
+	public function test_forwarded_request_refuses_another_blogs_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-9999-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertEmpty( $requests );
+	}
+
+	/**
+	 * Test that a blog's tracking ID resolving to a different seller does not authorize the one named.
+	 */
+	public function test_forwarded_request_refuses_a_tracking_id_naming_another_seller() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT2' ) ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( '/v1/checkout/payment-resources', $request['url'] );
+		}
+		$this->assertFalse( get_transient( $this->merchant_binding_transient() ) );
+	}
+
+	/**
+	 * Test that a tracking ID PayPal has no referral for is refused, since the blog never onboarded anyone with it.
+	 */
+	public function test_forwarded_request_refuses_a_tracking_id_paypal_does_not_know() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => $this->http_response( 404, array( 'name' => 'RESOURCE_NOT_FOUND' ) ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that PayPal being unreachable during the tracking ID lookup is reported as such, not as a refusal.
+	 */
+	public function test_forwarded_request_reports_paypal_unreachable_during_the_tracking_id_lookup() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => new WP_Error( 'http_request_failed', 'cURL error 28' ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request(
+			$this->forward_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertNotSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a blog reading a seller with its own tracking ID gets the record even when the latest referral is another blog's.
+	 */
+	public function test_merchant_integration_is_read_with_the_blogs_own_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'?tracking_id='                    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT1' ) ),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response( 9999 ),
+			),
+			$requests
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request(
+				array(
+					'merchant_id' => 'MERCHANT1',
+					'tracking_id' => 'woo-ncps-1234-1700000000',
+				)
+			)
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
+		$this->assertSame( 'woo-ncps-9999-1700000000', $result->get_data()['tracking_id'] );
+		$this->assertSame( 1, get_transient( $this->merchant_binding_transient() ) );
+	}
+
+	/**
+	 * Test that a seller found by a blog's tracking ID is reported even when another blog referred them since.
+	 */
+	public function test_merchant_integration_by_tracking_id_tolerates_a_later_referral_elsewhere() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'?tracking_id='                    => $this->http_response( 200, array( 'merchant_id' => 'MERCHANT1' ) ),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response( 9999 ),
+			)
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
+	}
+
+	/**
+	 * Test that a blog with a tracking ID of another blog's cannot read a seller by merchant ID either.
+	 */
+	public function test_merchant_integration_refuses_another_blogs_tracking_id_with_a_merchant_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request(
+				array(
+					'merchant_id' => 'MERCHANT1',
+					'tracking_id' => 'woo-ncps-9999-1700000000',
+				)
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertEmpty( $requests );
+	}
+
+	/**
 	 * Test that only the Payment Links & Buttons API can be called through the proxy.
 	 *
 	 * @dataProvider provide_paths
@@ -1127,6 +1360,289 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			'trailing newline'      => array( "/v1/checkout/payment-resources\n", false ),
 			'not a string'          => array( 42, false ),
 		);
+	}
+
+	// --- Error logging ---
+
+	/**
+	 * Test that a PayPal error is logged with its header debug ID ahead of the body's.
+	 */
+	public function test_a_paypal_error_is_logged_with_the_debug_id_from_its_header() {
+		$this->sign_request_as( self::SITE_ID );
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/v1/checkout/payment-resources'   => $this->http_response(
+					401,
+					array(
+						'error'             => 'invalid_token',
+						'error_description' => 'Token signature verification failed',
+						'debug_id'          => 'body401',
+					),
+					array( 'PayPal-Debug-Id' => 'header401' )
+				),
+			)
+		);
+
+		$this->endpoint->forward_request(
+			$this->forward_request(
+				array(
+					'method' => 'GET',
+					'path'   => '/v1/checkout/payment-resources/PLB-ZZZZZZZZZZZZ',
+				)
+			)
+		);
+
+		// The entry lists only these fields, with the signed caller's site_id.
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => 'header401',
+					'status'   => 401,
+					'method'   => 'GET',
+					'path'     => '/v1/checkout/payment-resources/PLB-ZZZZZZZZZZZZ',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that a PayPal error without the header is logged with the debug ID from its body.
+	 */
+	public function test_a_paypal_error_is_logged_with_the_debug_id_from_its_body() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/v1/checkout/payment-resources'   => $this->http_response(
+					422,
+					array(
+						'name'     => 'UNPROCESSABLE_ENTITY',
+						'debug_id' => 'body422',
+					)
+				),
+			)
+		);
+
+		$this->endpoint->forward_request( $this->forward_request() );
+
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => 'body422',
+					'status'   => 422,
+					'method'   => 'POST',
+					'path'     => '/v1/checkout/payment-resources',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that a successful PayPal answer skips logging.
+	 */
+	public function test_a_paypal_success_skips_logging() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/v1/checkout/payment-resources'   => $this->http_response( 201, array( 'id' => 'PLB-NEW' ) ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request( $this->forward_request() );
+
+		$this->assertSame( 201, $result->get_data()['status'] );
+		$this->assertSame( array(), $this->logged );
+	}
+
+	/**
+	 * Test that the tracking ID lookup skips logging PayPal's 404 for a seller still onboarding.
+	 */
+	public function test_a_tracking_id_lookup_404_skips_logging() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => $this->http_response( 404, array( 'name' => 'RESOURCE_NOT_FOUND' ) ),
+			)
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertSame( 'paypal_merchant_not_found', $result->get_error_code() );
+		$this->assertSame( 404, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $this->logged );
+	}
+
+	/**
+	 * Test that the tracking ID lookup logs a 500.
+	 */
+	public function test_a_tracking_id_lookup_500_is_logged() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => $this->http_response(
+					500,
+					array(
+						'name'     => 'INTERNAL_SERVICE_ERROR',
+						'debug_id' => 'body500',
+					)
+				),
+			)
+		);
+
+		$this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => 'body500',
+					'status'   => 500,
+					'method'   => 'GET',
+					'path'     => '/v1/customer/partners/SANDBOX_PARTNER/merchant-integrations?tracking_id=woo-ncps-1234-1700000000',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that the merchant ID lookup logs a 404.
+	 */
+	public function test_a_merchant_id_lookup_404_is_logged() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->http_response(
+					404,
+					array(
+						'name'     => 'RESOURCE_NOT_FOUND',
+						'debug_id' => 'body404',
+					)
+				),
+			)
+		);
+
+		$this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'merchant_id' => 'MERCHANT1' ) )
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => 'body404',
+					'status'   => 404,
+					'method'   => 'GET',
+					'path'     => '/v1/customer/partners/SANDBOX_PARTNER/merchant-integrations/MERCHANT1',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that a referral error with no debug ID is logged with an empty one.
+	 */
+	public function test_a_referral_error_is_logged_with_an_empty_debug_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->http_response( 500, array( 'name' => 'INTERNAL_SERVICE_ERROR' ) ),
+			)
+		);
+
+		$this->endpoint->generate_signup_link( $this->signup_link_request() );
+
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => '',
+					'status'   => 500,
+					'method'   => 'POST',
+					'path'     => '/v2/customer/partner-referrals',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that a token exchange error is logged.
+	 */
+	public function test_a_token_exchange_error_is_logged() {
+		$this->sign_request_as( self::SITE_ID );
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->http_response(
+					401,
+					array(
+						'error'             => 'invalid_client',
+						'error_description' => 'Client Authentication failed',
+					),
+					array( 'PayPal-Debug-Id' => 'header-token401' )
+				),
+			)
+		);
+
+		$this->endpoint->forward_request( $this->forward_request() );
+
+		// The entry lists only these fields, keeping the client secret out of the log.
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => 'header-token401',
+					'status'   => 401,
+					'method'   => 'POST',
+					'path'     => '/v1/oauth2/token',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that a 200 token exchange skips logging, even with an empty body.
+	 */
+	public function test_a_token_exchange_200_skips_logging() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->http_response( 200, array() ),
+			)
+		);
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
+
+		$this->assertSame( 'paypal_token_error', $result->get_error_code() );
+		$this->assertSame( array(), $this->logged );
 	}
 
 	// --- Referral creation ---

@@ -67,7 +67,9 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$rest_route           = wp_unslash( $_GET['rest_route'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST
+			|| str_starts_with( wp_unslash( $_SERVER['REQUEST_URI'] ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) && is_string( $rest_route ) && str_starts_with( $rest_route, '/wpcom/v2/admin-menu' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$this->domain         = ( new Status() )->get_site_suffix();
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );

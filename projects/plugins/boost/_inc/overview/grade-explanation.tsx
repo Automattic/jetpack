@@ -22,15 +22,15 @@ export default function GradeExplanation( {
 				<tbody>
 					<tr>
 						<th>A</th>
-						<td>90+</td>
+						<td>{ __( 'Over 90', 'jetpack-boost' ) }</td>
 					</tr>
 					<tr>
 						<th>B</th>
-						<td>75 - 90</td>
+						<td>{ __( 'Over 75 to 90', 'jetpack-boost' ) }</td>
 					</tr>
 					<tr>
 						<th>C</th>
-						<td>50 - 75</td>
+						<td>{ __( 'Over 50 to 75', 'jetpack-boost' ) }</td>
 					</tr>
 				</tbody>
 			</table>
@@ -38,15 +38,15 @@ export default function GradeExplanation( {
 				<tbody>
 					<tr>
 						<th>D</th>
-						<td>35 - 50</td>
+						<td>{ __( 'Over 35 to 50', 'jetpack-boost' ) }</td>
 					</tr>
 					<tr>
 						<th>E</th>
-						<td>25 - 35</td>
+						<td>{ __( 'Over 25 to 35', 'jetpack-boost' ) }</td>
 					</tr>
 					<tr>
 						<th>F</th>
-						<td>0 - 25</td>
+						<td>{ __( '25 or below', 'jetpack-boost' ) }</td>
 					</tr>
 				</tbody>
 			</table>

@@ -4,6 +4,7 @@ import { Card, CollapsibleCard, Icon, Stack } from '@wordpress/ui';
 import { useCornerstoneSummary } from '$features/cornerstone-pages/cornerstone-pages';
 import CornerstonePagesCard from '$features/cornerstone-pages/cornerstone-pages-card';
 import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-module';
+import CloudCssUpgradeNotice from '$features/critical-css/cloud-css-upgrade-notice';
 import CriticalCssModule from '$features/critical-css/critical-css-module/critical-css-module';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
@@ -90,6 +91,7 @@ const Settings = ( { active = true }: { active?: boolean } ) => {
 	return (
 		<ModuleSurfaceProvider value="row">
 			<Stack ref={ section } direction="column" gap="xl" className={ styles.settings }>
+				{ active && <CloudCssUpgradeNotice /> }
 				<Group
 					group="cornerstone_pages"
 					visit={ visit }

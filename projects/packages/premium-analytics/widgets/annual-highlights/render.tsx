@@ -14,6 +14,8 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	ExporterCsvDownloadButton,
+	annualInsightsCsvExporter,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -91,8 +93,6 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 				// `placeholderData` keeps the last highlights on screen, so a transient
 				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
-				// Highlights have no empty state: a missing year shows zeros.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load your year in review. Please try again in a moment.",
@@ -108,6 +108,12 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 			</WidgetState>
 			<WidgetFooter>
 				<ReportLink report="annual-insights" />
+				<ExporterCsvDownloadButton
+					exporter={ annualInsightsCsvExporter }
+					// Same gate as the error state: a failed refetch keeps the cached years.
+					status={ { isLoading, isFetching, isError: ! data && isError } }
+					rowCount={ data?.years?.length ?? 0 }
+				/>
 			</WidgetFooter>
 		</div>
 	);

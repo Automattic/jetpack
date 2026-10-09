@@ -82,7 +82,9 @@ beforeEach( () => {
  */
 async function untickEverything() {
 	for ( const label of ITEM_LABELS ) {
-		await userEvent.click( await screen.findByRole( 'checkbox', { name: label } ) );
+		await userEvent.click(
+			await screen.findByRole( 'checkbox', { name: new RegExp( `^${ label }` ) } )
+		);
 	}
 }
 
@@ -129,7 +131,10 @@ describe( 'Download screen with nothing selected', () => {
 
 		// Mounted and empty before anything is wrong: a live region that
 		// appears together with its first message is unreliable.
-		const hint = await screen.findByRole( 'status' );
+		await expect(
+			screen.findByRole( 'button', { name: /Generate download/ } )
+		).resolves.toBeVisible();
+		const hint = screen.getAllByRole( 'status' ).find( el => el.id.endsWith( 'selection-hint' ) )!;
 		expect( hint ).toBeEmptyDOMElement();
 		expect( button( /Generate download/ ) ).toHaveAttribute( 'aria-describedby', hint.id );
 
@@ -137,7 +142,7 @@ describe( 'Download screen with nothing selected', () => {
 
 		// The same element, now carrying the message — an update to a
 		// region already in the tree, not an insertion.
-		expect( screen.getByRole( 'status' ) ).toBe( hint );
+		expect( screen.getAllByRole( 'status' ) ).toContain( hint );
 		expect( hint ).toHaveTextContent( 'Select at least one item to download.' );
 	} );
 
@@ -158,7 +163,7 @@ describe( 'Download screen with nothing selected', () => {
 	it( 're-arms as soon as one category comes back', async () => {
 		render( <DownloadStage /> );
 		await untickEverything();
-		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Site database' } ) );
+		await userEvent.click( screen.getByRole( 'checkbox', { name: /^Site database/ } ) );
 
 		expect( screen.queryByText( 'Select at least one item to download.' ) ).not.toBeInTheDocument();
 		expect( button( /Generate download/ ) ).not.toHaveAttribute( 'aria-disabled', 'true' );

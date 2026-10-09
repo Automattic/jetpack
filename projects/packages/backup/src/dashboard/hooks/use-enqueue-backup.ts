@@ -1,11 +1,78 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from '@wordpress/element';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ApiError } from '../data/api/_helpers';
-import { enqueueBackup } from '../data/api/backups';
+import { enqueueBackup, fetchBackups, type RawBackupEntry } from '../data/api/backups';
+import { normalizeBackups } from '../data/normalize/backups';
 import { keys } from '../data/query-client';
 
 export type EnqueueState = 'idle' | 'enqueuing' | 'enqueued' | 'error';
+
+/** How long a request may wait for WPCOM to report a backup before the UI gives up. */
+export const REQUEST_CEILING_MS = 10 * 60_000;
+
+// Shared through the query cache so components outside the button can see the click.
+type Requested =
+	| false
+	| {
+			clickedAt: number;
+			/** False until the fresh pre-click read lands, so an unknown baseline never clears the request. */
+			baselineReady: boolean;
+			baselineId: string | null;
+	  };
+
+/**
+ * The newest backup id in the backups read, or null when there is none.
+ *
+ * @param data - Raw backups response.
+ * @return The newest id, as a string.
+ */
+export function newestBackupId( data: RawBackupEntry[] | null | undefined ): string | null {
+	return normalizeBackups( Array.isArray( data ) ? data : undefined )[ 0 ]?.id ?? null;
+}
+
+/**
+ * Whether a backup was requested and WPCOM has not reported it yet.
+ *
+ * Gotcha: this reads the query cache, not the button, and `useBackups` polls while it is true.
+ *
+ * @return True while a requested backup is not yet reported.
+ */
+export function useBackupRequested(): boolean {
+	const queryClient = useQueryClient();
+	const { data: requested } = useQuery( {
+		queryKey: keys.enqueueRequested(),
+		queryFn: (): Requested => false,
+		enabled: false,
+		initialData: false as Requested,
+	} );
+	const { data: backups } = useQuery( {
+		queryKey: keys.backups(),
+		queryFn: fetchBackups,
+		enabled: false,
+	} );
+
+	const clickedAt = requested ? requested.clickedAt : null;
+	useEffect( () => {
+		if ( clickedAt === null ) {
+			return;
+		}
+		const timer = setTimeout(
+			() => queryClient.setQueryData( keys.enqueueRequested(), false ),
+			Math.max( 0, clickedAt + REQUEST_CEILING_MS - Date.now() )
+		);
+		return () => clearTimeout( timer );
+	}, [ clickedAt, queryClient ] );
+
+	if ( ! requested ) {
+		return false;
+	}
+	if ( ! requested.baselineReady ) {
+		return true;
+	}
+	const newest = newestBackupId( backups );
+	return newest === null || newest === requested.baselineId;
+}
 
 type Result = {
 	state: EnqueueState;
@@ -37,6 +104,39 @@ export function useEnqueueBackup(): Result {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation( {
+		// The flag is set at once so the banner appears on the click. The baseline
+		// comes from a fresh read taken before the POST, never from a possibly stale cache.
+		onMutate: async () => {
+			const clickedAt = Date.now();
+			const pending: Requested = { clickedAt, baselineReady: false, baselineId: null };
+			queryClient.setQueryData( keys.enqueueRequested(), pending );
+			// A `null` read overwrites the cache, so take the snapshot first.
+			const cached = queryClient.getQueryData< RawBackupEntry[] | null >( keys.backups() );
+			let fresh: RawBackupEntry[] | null | undefined;
+			try {
+				fresh = await queryClient.fetchQuery( {
+					queryKey: keys.backups(),
+					queryFn: fetchBackups,
+					staleTime: 0,
+				} );
+			} catch {
+				fresh = undefined;
+			}
+			const baseline = Array.isArray( fresh ) ? fresh : cached;
+			// No usable list: stay pending until the ceiling rather than guess a baseline.
+			if ( ! Array.isArray( baseline ) ) {
+				return;
+			}
+			const ready: Requested = {
+				clickedAt,
+				baselineReady: true,
+				baselineId: newestBackupId( baseline ),
+			};
+			queryClient.setQueryData( keys.enqueueRequested(), ready );
+		},
+		onError: () => {
+			queryClient.setQueryData( keys.enqueueRequested(), false );
+		},
 		mutationFn: async () => {
 			const result = await enqueueBackup();
 			if ( result === null ) {
@@ -66,7 +166,8 @@ export function useEnqueueBackup(): Result {
 
 	const reset = useCallback( () => {
 		resetMutation();
-	}, [ resetMutation ] );
+		queryClient.setQueryData( keys.enqueueRequested(), false );
+	}, [ resetMutation, queryClient ] );
 
 	let state: EnqueueState = 'idle';
 	if ( isPending ) {

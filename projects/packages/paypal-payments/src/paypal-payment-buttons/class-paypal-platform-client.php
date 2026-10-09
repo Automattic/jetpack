@@ -8,7 +8,7 @@
  * with a PayPal-Auth-Assertion naming the seller.
  *
  * @package automattic/jetpack-paypal-payments
- * @since $$next-version$$
+ * @since 0.12.0
  */
 
 namespace Automattic\Jetpack\PaypalPayments;
@@ -59,18 +59,22 @@ class PayPal_Platform_Client {
 			);
 		}
 
-		$result = self::call_wpcom(
-			'POST',
-			self::WPCOM_REQUEST_ROUTE,
-			array(
-				'environment' => PayPal_OAuth::get_environment(),
-				'merchant_id' => $merchant_id,
-				'method'      => $method,
-				'path'        => $path,
-				'body'        => $body,
-				'request_id'  => $request_id,
-			)
+		$params = array(
+			'environment' => PayPal_OAuth::get_environment(),
+			'merchant_id' => $merchant_id,
+			'method'      => $method,
+			'path'        => $path,
+			'body'        => $body,
+			'request_id'  => $request_id,
 		);
+
+		// Proof this site referred the seller; a site onboarded before it was kept has none.
+		$tracking_id = PayPal_Partner_Onboarding::get_referral_tracking_id();
+		if ( '' !== $tracking_id ) {
+			$params['tracking_id'] = $tracking_id;
+		}
+
+		$result = self::call_wpcom( 'POST', self::WPCOM_REQUEST_ROUTE, $params );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -100,7 +104,8 @@ class PayPal_Platform_Client {
 	 * Read a referred seller's integration record.
 	 *
 	 * @param string $merchant_id The seller's PayPal merchant ID, when known.
-	 * @param string $tracking_id The referral's tracking ID, to find a seller who just finished onboarding.
+	 * @param string $tracking_id The referral's tracking ID: alone, to find a seller who just finished
+	 *                            onboarding; with a merchant ID, as proof this site referred them.
 	 * @return array|\WP_Error PayPal's merchant integration, or WP_Error.
 	 */
 	public static function get_merchant_integration( $merchant_id = '', $tracking_id = '' ) {

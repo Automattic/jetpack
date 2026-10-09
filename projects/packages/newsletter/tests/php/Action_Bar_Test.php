@@ -49,6 +49,7 @@ class Action_Bar_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'wp_count_posts' );
+		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_actions( 'transition_post_status' );
 		delete_transient( Action_Bar::ENOUGH_POSTS_TRANSIENT );
 		parent::tear_down();
@@ -176,5 +177,58 @@ class Action_Bar_Test extends BaseTestCase {
 		Action_Bar::flush_published_posts_count( 'publish', 'draft', (object) array( 'post_type' => 'post' ) );
 
 		$this->assertStringNotContainsString( 'actnbr-actn-follow', $this->render() );
+	}
+
+	public function test_post_stats_link_can_be_claimed_through_the_stats_url_filter() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Stats link post',
+				'post_status' => 'publish',
+			)
+		);
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'action-bar-admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		global $wp_query, $post;
+		$original_query        = $wp_query;
+		$wp_query              = new \WP_Query();
+		$wp_query->is_singular = true;
+		$wp_query->is_single   = true;
+		$post                  = get_post( $post_id );
+
+		$received_url  = '';
+		$received_args = null;
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) use ( &$received_url, &$received_args ) {
+				$received_url  = $url;
+				$received_args = $args;
+				return 'https://example.org/new-stats';
+			},
+			10,
+			2
+		);
+
+		$html = $this->render();
+
+		$wp_query = $original_query;
+		$post     = null;
+		wp_set_current_user( 0 );
+
+		$this->assertStringContainsString( '<a href="https://example.org/new-stats">', $html );
+		$this->assertStringContainsString( 'admin.php?page=stats#!/stats/post/' . $post_id . '/', $received_url );
+		$this->assertSame(
+			array(
+				'view' => 'post',
+				'id'   => $post_id,
+			),
+			$received_args
+		);
 	}
 }

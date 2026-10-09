@@ -121,6 +121,16 @@ describe( 'FeatureList with the shared selection', () => {
 		await waitFor( () => expect( checkbox( 'Select akismet' ) ).not.toBeChecked() );
 	} );
 
+	it( 'clears picked rows the action had nothing to do for, too', async () => {
+		render( <SelectionHarness states={ [ akismet, boost ] } /> );
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+		await userEvent.click( button( 'Activate' ) );
+
+		expect( mockRun ).toHaveBeenCalledWith( [ akismet ], true );
+		await waitFor( () => expect( checkbox( 'Select boost' ) ).not.toBeChecked() );
+	} );
+
 	it( 'holds the bar while any row still has a switch in flight', async () => {
 		render( <SelectionHarness states={ [ akismet, { ...boost, isSwitching: true } ] } /> );
 

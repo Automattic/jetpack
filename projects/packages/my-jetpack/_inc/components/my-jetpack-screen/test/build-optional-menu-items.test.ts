@@ -10,7 +10,6 @@ const baseArgs = {
 	isSiteConnected: true,
 	isJetpackPluginActive: true,
 	isSimpleSite: false,
-	modulesListPath: 'admin.php?page=jetpack_modules',
 	onModulesClick: jest.fn(),
 	onResetClick: jest.fn(),
 	onResetKeyDown: jest.fn(),

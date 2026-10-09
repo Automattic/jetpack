@@ -511,7 +511,7 @@ const StageInner = () => {
 		? id
 		: Object.keys( completedUploads ).find( key => completedUploads[ key ] === id );
 	const queuedUpload = uploadQueue.find( item => item.id === id );
-	const retainedUpload = useRef< UploadItem >();
+	const retainedUpload = useRef< UploadItem >( undefined );
 	// Keep the editor present if queue cleanup precedes a slow attachment fetch.
 	if ( queuedUpload ) {
 		retainedUpload.current = queuedUpload;

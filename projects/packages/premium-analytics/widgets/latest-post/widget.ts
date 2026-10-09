@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { post } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -23,7 +22,6 @@ export type LatestPostAttributes = {
  * period.
  */
 export default {
-	icon: post,
 	attributes: [] as WidgetAttributeField< LatestPostAttributes >[],
 	example: {
 		attributes: {},

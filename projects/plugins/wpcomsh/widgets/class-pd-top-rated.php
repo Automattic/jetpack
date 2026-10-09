@@ -80,11 +80,11 @@ class PD_Top_Rated extends WP_Widget {
 				}
 
 				if ( is_array( $current_category ) && isset( $current_category[0]->cat_ID ) && (int) $current_category[0]->cat_ID > 0 ) {
-					$args     = array(
+					$post_query_args = array(
 						'category' => $current_category[0]->cat_ID,
 						'fields'   => 'ids',
 					);
-					$post_ids = get_posts( $args );
+					$post_ids        = get_posts( $post_query_args );
 				}
 
 				if ( ! empty( $post_ids ) ) { // set variable
@@ -115,12 +115,12 @@ class PD_Top_Rated extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 
 		$instance                       = $old_instance;
-		$instance['title']              = wp_strip_all_tags( $new_instance['title'] );
-		$instance['show_posts']         = (int) $new_instance['show_posts'];
-		$instance['show_pages']         = (int) $new_instance['show_pages'];
-		$instance['show_comments']      = (int) $new_instance['show_comments'];
-		$instance['filter_by_category'] = (int) $new_instance['filter_by_category'];
-		$instance['item_count']         = (int) $new_instance['item_count'];
+		$instance['title']              = wp_strip_all_tags( $new_instance['title'] ?? '' );
+		$instance['show_posts']         = (int) ( $new_instance['show_posts'] ?? 0 );
+		$instance['show_pages']         = (int) ( $new_instance['show_pages'] ?? 0 );
+		$instance['show_comments']      = (int) ( $new_instance['show_comments'] ?? 0 );
+		$instance['filter_by_category'] = (int) ( $new_instance['filter_by_category'] ?? 0 );
+		$instance['item_count']         = (int) ( $new_instance['item_count'] ?? 5 );
 		return $instance;
 	}
 

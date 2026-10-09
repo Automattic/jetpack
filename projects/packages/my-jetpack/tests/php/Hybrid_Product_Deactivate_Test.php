@@ -203,7 +203,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 
 	/**
 	 * When the Jetpack module is already inactive, ::deactivate() must
-	 * skip the module branch entirely — the is_active() gate is what
+	 * skip the module branch entirely — the saved-and-active gate is what
 	 * prevents a spurious jetpack_pre_deactivate_module action.
 	 */
 	public function test_deactivate_skips_modules_deactivate_when_module_inactive() {
@@ -218,6 +218,43 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 			$this->pre_deactivate_calls,
 			'Modules::deactivate() must not be called when the module was already inactive.'
 		);
+	}
+
+	public function test_deactivate_succeeds_when_a_saved_module_is_unavailable() {
+		$this->set_module_active( 'backup' );
+		$drop_backup = static function ( $modules ) {
+			unset( $modules['backup'] );
+			return $modules;
+		};
+		add_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
+
+		try {
+			$this->assertFalse( ( new Modules() )->is_active( 'backup' ) );
+			$result = Backup::deactivate();
+		} finally {
+			remove_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+		$this->assertArrayNotHasKey( 'backup', $this->pre_deactivate_calls );
+	}
+
+	public function test_deactivate_succeeds_when_its_standalone_plugin_forces_the_module_on() {
+		$force = static function ( $modules ) {
+			return array_merge( $modules, array( 'videopress' ) );
+		};
+		add_filter( 'jetpack_active_modules', $force );
+
+		try {
+			$this->assertTrue( ( new Modules() )->is_active( 'videopress' ) );
+			$result = Videopress::deactivate();
+		} finally {
+			remove_filter( 'jetpack_active_modules', $force );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertArrayNotHasKey( 'videopress', $this->pre_deactivate_calls );
 	}
 
 	/**

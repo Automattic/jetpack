@@ -397,6 +397,20 @@ class PayPal_OAuth_Test extends TestCase {
 	}
 
 	/**
+	 * Test the onboarding method is left out when pasted credentials take over from a referral.
+	 */
+	public function test_connection_status_omits_onboarding_method_with_credentials() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertTrue( $status['connected'] );
+		$this->assertArrayNotHasKey( 'onboarding_method', $status );
+	}
+
+	/**
 	 * Test Partner Referrals is unavailable off WordPress.com, even with credentials stored.
 	 */
 	public function test_connection_status_partner_referrals_ignores_credentials() {

@@ -16,7 +16,6 @@ import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
-import type { FeatureFilter } from './use-feature-filter';
 
 // Set by @wordpress/ui on the dialog's own close button.
 const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
@@ -95,21 +94,19 @@ type FeatureModalProps = {
 	total: number;
 	onStep: ( slug: string ) => void;
 	onClose: () => void;
-	onFilterByPlan: ( plan: FeatureFilter ) => void;
 };
 
 /**
  * The feature's details, shown over the grid rather than on a page of its own.
  *
- * @param {FeatureModalProps} props                - The component props.
- * @param {FeatureState}      props.state          - Live state for the feature being shown.
- * @param {FeatureNeighbor}   props.previous       - The preceding shown feature, if any.
- * @param {FeatureNeighbor}   props.next           - The following shown feature, if any.
- * @param {number}            props.position       - This feature's 1-based place among those shown, 0 when hidden.
- * @param {number}            props.total          - How many features are shown.
- * @param {Function}          props.onStep         - Switches the modal to another feature.
- * @param {Function}          props.onClose        - Closes the modal.
- * @param {Function}          props.onFilterByPlan - Filters the grid to one plan.
+ * @param {FeatureModalProps} props          - The component props.
+ * @param {FeatureState}      props.state    - Live state for the feature being shown.
+ * @param {FeatureNeighbor}   props.previous - The preceding shown feature, if any.
+ * @param {FeatureNeighbor}   props.next     - The following shown feature, if any.
+ * @param {number}            props.position - This feature's 1-based place among those shown, 0 when hidden.
+ * @param {number}            props.total    - How many features are shown.
+ * @param {Function}          props.onStep   - Switches the modal to another feature.
+ * @param {Function}          props.onClose  - Closes the modal.
  * @return The rendered component.
  */
 export function FeatureModal( {
@@ -120,11 +117,11 @@ export function FeatureModal( {
 	total,
 	onStep,
 	onClose,
-	onFilterByPlan,
 }: FeatureModalProps ) {
 	const { feature, product } = state;
 	const isActive = state.status === 'active';
 	const freeHighlights = feature.free_highlights ?? [];
+	const pricingNotes = feature.pricing_notes ?? [];
 
 	const onOpenChange = useCallback(
 		( open: boolean ) => {
@@ -147,13 +144,15 @@ export function FeatureModal( {
 	const steppedToRef = useRef< string | null >( null );
 
 	// The header's action, which is what the modal is open in order to reach — not the
-	// first link in the body.
+	// first link in the body, and not Upgrade, which renders before the switch arrives.
 	const findAction = useCallback( () => {
 		const actions = popupRef.current?.querySelector( '[data-feature-actions]' );
 
 		return Array.from( actions?.querySelectorAll< HTMLElement >( 'button, a[href]' ) ?? [] ).find(
 			element =>
-				! element.hasAttribute( 'disabled' ) && element.getAttribute( 'aria-disabled' ) !== 'true'
+				! element.hasAttribute( 'disabled' ) &&
+				element.getAttribute( 'aria-disabled' ) !== 'true' &&
+				! element.hasAttribute( 'data-feature-upgrade' )
 		);
 	}, [] );
 
@@ -290,7 +289,16 @@ export function FeatureModal( {
 							</section>
 						) }
 
-						<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
+						<FeaturePaid state={ state } />
+
+						{ pricingNotes.length > 0 && (
+							<section className={ styles[ 'detail-section' ] }>
+								<Text variant="heading-sm" render={ <h3 /> }>
+									{ __( 'How you pay', 'jetpack-my-jetpack' ) }
+								</Text>
+								<FeatureHighlights items={ pricingNotes } icon={ check } />
+							</section>
+						) }
 					</div>
 
 					{ ! isDesktop && <FeatureLinks feature={ feature } /> }

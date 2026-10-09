@@ -186,6 +186,7 @@ export default function App() {
 	const {
 		blogId,
 		activityLogUrl,
+		activityLogFiltered = false,
 		apiRoot,
 		apiNonce,
 		upgradeUrl,
@@ -196,7 +197,7 @@ export default function App() {
 		masterEnabled = true,
 		masterForcedOff = '',
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
-		manageUrl = 'admin.php?page=my-jetpack#/products',
+		manageUrl = 'admin.php?page=my-jetpack#/features',
 		hasMyJetpack = true,
 		canConnectSite = true,
 		isOfflineMode = false,
@@ -484,6 +485,7 @@ export default function App() {
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
+										activityLogFiltered={ activityLogFiltered }
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
@@ -518,11 +520,11 @@ export default function App() {
 				{ view === 'overview' && (
 					<AiOverview
 						activityLogUrl={ activityLogUrl }
+						activityLogFiltered={ activityLogFiltered }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						canLoadUsage={ canLoadUsage }
-						// Same preconditions the MCP hub applies to its copy of the
-						// row: the copy promises AI-agent actions, which need MCP.
+						// Same preconditions the MCP hub applies to its copy of the row.
 						showActivityLog={
 							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
 						}

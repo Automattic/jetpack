@@ -7,8 +7,10 @@ import PricingTable, {
 } from '@automattic/jetpack-components/pricing-table';
 import ProductPrice from '@automattic/jetpack-components/product-price';
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from 'react';
+import { store as noticesStore } from '@wordpress/notices';
+import { useEffect, useState } from 'react';
 import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import PageSubTitle from '../page-subtitle';
@@ -45,13 +47,25 @@ export default function PricingUpsell() {
 		redirectUri: redirectUrl,
 	} );
 
-	const { run, hasCheckoutStarted } = useVideoPressCheckout( {
+	const { run, hasCheckoutStarted, checkoutError } = useVideoPressCheckout( {
 		productSlug: pricing?.yearly?.slug ?? '',
 		redirectUrl,
 		siteSuffix,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );
+
+	const { createErrorNotice } = useDispatch( noticesStore );
+	useEffect( () => {
+		if ( checkoutError ) {
+			createErrorNotice(
+				__( 'Checkout could not start. Please try again.', 'jetpack-videopress-pkg' ),
+				{
+					type: 'snackbar',
+				}
+			);
+		}
+	}, [ checkoutError, createErrorNotice ] );
 
 	if ( ! pricing ) {
 		return null;

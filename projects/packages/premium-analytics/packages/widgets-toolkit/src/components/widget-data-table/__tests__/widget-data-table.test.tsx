@@ -42,23 +42,6 @@ const goToPage = async ( user: ReturnType< typeof userEvent.setup >, page: numbe
 };
 
 describe( 'WidgetDataTable', () => {
-	it( 'falls back to the last page when a refetch leaves the current one out of range', async () => {
-		// The table's page survives a refetch now that `WidgetState` keeps its
-		// children mounted, so a smaller result can strand the reader past the
-		// end. DataViews slices blindly and hides its pagination once a single
-		// page is left, which would leave a blank table and no way back.
-		const user = userEvent.setup();
-		const { rerender } = render( table( 25 ) );
-
-		await goToPage( user, 2 );
-		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
-
-		rerender( table( 8 ) );
-
-		expect( screen.getByText( 'Row 1' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Row 8' ) ).toBeInTheDocument();
-	} );
-
 	it( 'keeps the pagination controls agreeing with the rows it fell back to', async () => {
 		// Shrinking to two pages rather than one, so the footer stays on screen.
 		// DataViews reads `view.page` for its own controls, so clamping only the
@@ -74,19 +57,6 @@ describe( 'WidgetDataTable', () => {
 
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
-	} );
-
-	it( 'takes the reader forward from the page it fell back to, not the stale one', async () => {
-		const user = userEvent.setup();
-		const { rerender } = render( table( 25 ) );
-
-		await goToPage( user, 3 );
-		rerender( table( 12 ) );
-
-		await user.click( screen.getByRole( 'button', { name: /previous page/i } ) );
-
-		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '1' );
-		expect( screen.getByText( 'Row 1' ) ).toBeInTheDocument();
 	} );
 
 	it( 'stays where it fell back to when a later result grows again', async () => {

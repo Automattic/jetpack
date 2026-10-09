@@ -1,5 +1,6 @@
 {
 	"name": "jpa/stats-top-posts",
+	"icon": "jpa/page",
 	"title": "Top pages",
 	"description": "Your most viewed posts, pages, and archives.",
 	"help": {

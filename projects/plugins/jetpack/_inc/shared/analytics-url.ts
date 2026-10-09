@@ -49,7 +49,7 @@ interface AnalyticsDateRange {
 	to: string;
 }
 
-type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'store';
+type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'woocommerce';
 type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
 
 /**
@@ -70,7 +70,12 @@ export type AnalyticsView =
  * map, because the two coincide; it exists to reject unknown values arriving
  * from untyped JS callers.
  */
-const DASHBOARD_SECTIONS: readonly string[] = [ 'traffic', 'insights', 'subscribers', 'store' ];
+const DASHBOARD_SECTIONS: readonly string[] = [
+	'traffic',
+	'insights',
+	'subscribers',
+	'woocommerce',
+];
 
 /** Callers say `traffic`; the tab layout registry calls it `post-traffic`. */
 const POST_SECTIONS: Record< AnalyticsPostSection, string > = {

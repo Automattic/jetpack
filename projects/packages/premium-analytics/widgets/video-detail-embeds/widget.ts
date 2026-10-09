@@ -1,9 +1,4 @@
 /**
- * WordPress dependencies
- */
-import { pages } from '@wordpress/icons';
-
-/**
  * Configurable attributes for the "Used on posts & pages" widget.
  *
  * The widget is scoped to a single video and has no own settings: the video is
@@ -22,6 +17,4 @@ export type VideoDetailEmbedsAttributes = Record< never, never >;
  * selected video, so the host scopes it through `reportParams.post_id` rather
  * than a widget attribute.
  */
-export default {
-	icon: pages,
-};
+export default {};

@@ -50,6 +50,7 @@ export function LaunchButton() {
 			const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
 				siteSlug: launchButtonData.siteDomain,
 				ref: 'wp-admin',
+				back_to: window.location.href,
 			} );
 
 			return (

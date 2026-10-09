@@ -5,29 +5,43 @@ import {
 	mergeStatsArchivesComparisonRows,
 	mergeStatsClicksComparisonRows,
 	mergeStatsFileDownloadsComparisonRows,
+	mergeStatsLocationsComparisonRows,
 	mergeStatsReferrersComparisonRows,
 	mergeStatsTopAuthorsComparisonRows,
 	mergeStatsTopPostsComparisonRows,
+	mergeStatsUtmComparisonRows,
 	mergeStatsVideoPlaysComparisonRows,
 	type StatsArchivesComparisonItem,
 	type StatsClicksComparisonItem,
+	type StatsCommentsResponse,
+	type StatsEmailSummaryItem,
 	type StatsFileDownloadsComparisonItem,
+	type StatsInsightsYear,
+	type StatsLocationsComparisonItem,
 	type StatsNormalizedReport,
 	type StatsReferrersComparisonItem,
 	type StatsSearchTermsItem,
+	type StatsTagsItem,
 	type StatsTopAuthorsComparisonItem,
 	type StatsTopPostsComparisonItem,
+	type StatsUtmComparisonItem,
 	type StatsVideoPlaysComparisonItem,
 } from '../processing/stats';
 import { queryClient } from '../providers/query-client-provider';
 import { withoutComparison } from '../utils/without-comparison';
 import { statsArchivesQuery } from './stats-archives-query';
 import { statsClicksQuery } from './stats-clicks-query';
+import { statsCommentsQuery } from './stats-comments-query';
+import { statsEmailSummaryQuery, type StatsEmailSummaryParams } from './stats-email-summary-query';
 import { statsFileDownloadsQuery } from './stats-file-downloads-query';
+import { statsInsightsQuery } from './stats-insights-query';
+import { statsLocationsQuery, type StatsLocationsParams } from './stats-locations-query';
 import { statsReferrersQuery } from './stats-referrers-query';
 import { statsSearchTermsQuery } from './stats-search-terms-query';
+import { statsTagsQuery, type StatsTagsParams } from './stats-tags-query';
 import { statsTopAuthorsQuery } from './stats-top-authors-query';
 import { statsTopPostsQuery } from './stats-top-posts-query';
+import { statsUtmQuery, type StatsUtmParams } from './stats-utm-query';
 import { statsVideoPlaysReportQuery } from './stats-video-plays-query';
 import type { StatsReportParams } from './stats-query';
 
@@ -60,6 +74,14 @@ export async function fetchStatsFileDownloadsRows(
 ): Promise< StatsFileDownloadsComparisonItem[] > {
 	const report = await fetchReport( statsFileDownloadsQuery( withoutComparison( params ) ) );
 	return mergeStatsFileDownloadsComparisonRows( report, undefined ).rows;
+}
+
+/** Fetch every location row for a report window, inside its country or region filter. */
+export async function fetchStatsLocationsRows(
+	params: StatsLocationsParams
+): Promise< StatsLocationsComparisonItem[] > {
+	const report = await fetchReport( statsLocationsQuery( withoutComparison( params ) ) );
+	return mergeStatsLocationsComparisonRows( report, undefined ).rows;
 }
 
 /** Fetch the raw search-terms report; its Unknown row is built by the caller. */
@@ -99,4 +121,34 @@ export async function fetchStatsTopAuthorsRows(
 ): Promise< StatsTopAuthorsComparisonItem[] > {
 	const report = await fetchReport( statsTopAuthorsQuery( withoutComparison( params ) ) );
 	return mergeStatsTopAuthorsComparisonRows( report, undefined ).rows;
+}
+
+/** Fetch every UTM value and its top posts for a report window. */
+export async function fetchStatsUtmRows(
+	params: StatsUtmParams
+): Promise< StatsUtmComparisonItem[] > {
+	const report = await fetchReport( statsUtmQuery( withoutComparison( params ) ) );
+	return mergeStatsUtmComparisonRows( report, undefined ).rows;
+}
+
+export async function fetchStatsInsightsYears(): Promise< StatsInsightsYear[] > {
+	const report = await fetchReport( statsInsightsQuery() );
+	return report.years ?? [];
+}
+
+/** Fetch the whole comments report; callers pick the authors or posts group. */
+export function fetchStatsComments(): Promise< StatsCommentsResponse > {
+	return fetchReport( statsCommentsQuery() );
+}
+
+export async function fetchStatsTagsRows( params: StatsTagsParams ): Promise< StatsTagsItem[] > {
+	const report = await fetchReport( statsTagsQuery( params ) );
+	return report.data?.[ 0 ]?.items ?? [];
+}
+
+export async function fetchStatsEmailSummaryRows(
+	params: StatsEmailSummaryParams
+): Promise< StatsEmailSummaryItem[] > {
+	const report = await fetchReport( statsEmailSummaryQuery( params ) );
+	return report.data?.[ 0 ]?.items ?? [];
 }

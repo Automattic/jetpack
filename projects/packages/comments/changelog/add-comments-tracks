@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Record usage events for the comment form, sign-in, and block editor.
