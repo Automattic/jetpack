@@ -71,7 +71,7 @@ $jp-breakpoint-mobile: 782px;
 
 	// admin-ui's own floor is 32px, so the row follows its tallest control.
 	> :first-child > div:has([aria-hidden="true"]) {
-		min-height: 40px;
+		min-block-size: 40px;
 		align-items: center;
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Backup: Keep the dashboard header the same height on every screen, and center the Jetpack logo.
