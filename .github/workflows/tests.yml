@@ -58,7 +58,7 @@ jobs:
       COVERAGE: ${{ matrix.coverage }}
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
-      SPLIT_GROUPS: ${{ case( matrix.split-groups, toJSON( matrix.split-groups ), '' ) }}
+      SPLIT_GROUPS: ${{ case( matrix.split-groups != null, toJSON( matrix.split-groups ), '' ) }}
       SPLIT_EXCLUDE: ${{ toJSON( matrix.split-exclude ) }}
     strategy:
       fail-fast: false
