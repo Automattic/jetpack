@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+// @phan-file-suppress PhanRedefinedClassReference, PhanUndeclaredMethodInCallable -- Jetpack_Fonts is declared in both the wpcom stubs and vendor/automattic/custom-fonts, and the stub lacks maybe_render_fonts().
+
 /**
  * Class CustomFontsTest.
  */

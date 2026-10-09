@@ -51,7 +51,9 @@ function wpcomsh_maybe_skip_custom_fonts() {
 	if ( ! class_exists( 'Jetpack_Fonts' ) ) {
 		return;
 	}
-	$instance = Jetpack_Fonts::get_instance();
+	// Jetpack_Fonts is declared in both the wpcom stubs and vendor/automattic/custom-fonts; the stub lacks get_font_css().
+	$instance = Jetpack_Fonts::get_instance(); // @phan-suppress-current-line PhanRedefinedClassReference
+	// @phan-suppress-next-line PhanRedefinedClassReference, PhanUndeclaredMethod
 	if ( '' === trim( $instance->get_font_css() ) && ! apply_filters( 'jetpack_fonts_render_without_rules', false ) ) {
 		remove_action( 'wp_enqueue_scripts', array( $instance, 'maybe_render_fonts' ) );
 	}
