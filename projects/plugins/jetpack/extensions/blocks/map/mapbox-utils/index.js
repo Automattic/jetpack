@@ -15,15 +15,19 @@ export function getMapBounds( mapboxgl, points ) {
 	return bounds;
 }
 
-export function fitMapToBounds( map, bounds ) {
-	map.fitBounds( bounds, {
-		padding: {
-			top: 80,
-			bottom: 80,
-			left: 40,
-			right: 40,
+export function fitMapToBounds( map, bounds, eventData ) {
+	map.fitBounds(
+		bounds,
+		{
+			padding: {
+				top: 80,
+				bottom: 80,
+				left: 40,
+				right: 40,
+			},
 		},
-	} );
+		eventData
+	);
 }
 
 export function setMarkerHTML( el, markerColor ) {
