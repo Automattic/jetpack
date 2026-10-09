@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Service;
 
 use Automattic\Jetpack\Forms\ContactForm\Feedback;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use WP_Error;
 
 /**
@@ -112,13 +113,38 @@ class Form_Webhooks {
 			return;
 		}
 
-		$form_data = $feedback->get_compiled_fields( 'webhook', 'id-value' );
+		$form_data = $this->add_response_links( $feedback->get_compiled_fields( 'webhook', 'id-value' ), $post_id, $feedback );
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
 			$response = $this->send_webhook( $form_data, $webhook, $post_id );
 			$this->log_response_to_post_meta( $post_id, $response );
 		}
+	}
+
+	/**
+	 * Add links that let a logged-in site editor open the response and download its files.
+	 *
+	 * File fields keep their text value; their files are added under `<field-id>_files`. Keys a form
+	 * already uses are never overwritten.
+	 *
+	 * @param array    $form_data The field values keyed by form field ID.
+	 * @param int      $post_id   The feedback post ID.
+	 * @param Feedback $feedback  The response.
+	 * @return array The form data with the links added.
+	 */
+	private function add_response_links( $form_data, $post_id, $feedback ) {
+		foreach ( Response_File_Links::get_files_by_field( $post_id, $feedback ) as $field_id => $files ) {
+			if ( ! array_key_exists( $field_id . '_files', $form_data ) ) {
+				$form_data[ $field_id . '_files' ] = $files;
+			}
+		}
+
+		if ( ! array_key_exists( 'response_url', $form_data ) ) {
+			$form_data['response_url'] = Dashboard::get_single_response_admin_url( $post_id );
+		}
+
+		return $form_data;
 	}
 
 	/**
