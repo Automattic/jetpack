@@ -93,6 +93,17 @@ describe( 'useStatsSettings', () => {
 		expect( mockEdited().wpcom_reader_views_enabled ).toBe( false );
 	} );
 
+	it( 'keeps a newer pending edit to the same setting when an earlier save fails', async () => {
+		const { result } = renderHook( () => useStatsSettings() );
+
+		const first = result.current.saveChange( { roles: [ 'administrator', 'editor' ] } );
+		result.current.saveChange( { roles: [ 'administrator', 'editor', 'author' ] } );
+		mockSite.saves[ 0 ].reject( new Error( 'refused' ) );
+		await expect( first ).rejects.toThrow( 'refused' );
+
+		expect( mockEdited().stats_options?.roles ).toEqual( [ 'administrator', 'editor', 'author' ] );
+	} );
+
 	it( 'puts back the stored value of a change the site refuses', async () => {
 		const { result } = renderHook( () => useStatsSettings() );
 
