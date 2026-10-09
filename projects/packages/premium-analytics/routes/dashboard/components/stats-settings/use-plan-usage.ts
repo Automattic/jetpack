@@ -7,7 +7,7 @@ import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
  * @return The query state, the limit when there is one to meter against, and the over-limit count to warn about.
  */
 export function usePlanUsage() {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsAppPlanUsage();
+	const { data, isLoading, isError, refetch } = useStatsAppPlanUsage();
 
 	// Legacy plans and no plan report a null limit, and a zero limit gives nothing to meter against either.
 	const limit =
@@ -20,7 +20,6 @@ export function usePlanUsage() {
 	return {
 		data,
 		isLoading,
-		isFetching,
 		isError,
 		refetch,
 		limit,

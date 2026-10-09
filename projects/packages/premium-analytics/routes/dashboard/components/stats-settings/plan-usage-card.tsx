@@ -9,16 +9,13 @@ import {
 	VisuallyHidden,
 } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import {
-	getOverLimitMessage,
-	getPlanUpgradeUrl,
-	usePlanUsage,
-	useTrackEvent,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { ProgressBar } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { getOverLimitMessage, getPlanUpgradeUrl } from './plan-usage';
 import styles from './stats-settings.module.scss';
+import { usePlanUsage } from './use-plan-usage';
 import type { JSX } from 'react';
 
 const TIERED_BILLING_URL =

@@ -55,7 +55,6 @@ import {
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	buildStatsSubscribersCountsData,
-	mockPlanUsageData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
 	mockEmailCountryBreakdown,
@@ -83,9 +82,6 @@ const STATS_VIEWS_BY_HOUR_PATH =
 	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
-// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
-// own path branch rather than a `routeStatsReport()` case.
-const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
 const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
 // Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
@@ -1640,10 +1636,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
-	}
-
-	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
-		return mockPlanUsageData;
 	}
 
 	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {
