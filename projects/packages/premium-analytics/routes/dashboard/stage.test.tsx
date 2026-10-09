@@ -344,6 +344,8 @@ jest.mock( './components', () => ( {
 		enabled ? <div data-testid="feedback-banner" /> : null,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
+	PlanLimitNotice: ( { enabled }: { enabled: boolean } ) =>
+		enabled ? <div data-testid="plan-limit-notice" /> : null,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -722,6 +724,15 @@ describe( 'Dashboard feedback banner', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'puts the plan limit notice away while the reader arranges the layout', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByTestId( 'plan-limit-notice' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
 	} );
 } );
 
