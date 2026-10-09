@@ -2,9 +2,13 @@ let mockSelectMethods;
 let mockFetchSearchPlanInfo;
 const mockCheckoutWorkflow = jest.fn();
 const mockActivateFree = jest.fn();
+const mockAdminPage = jest.fn();
 
 jest.mock( '@automattic/jetpack-components', () => ( {
-	AdminPage: ( { children } ) => <div>{ children }</div>,
+	AdminPage: props => {
+		mockAdminPage( props );
+		return <div>{ props.children }</div>;
+	},
 	AdminSectionHero: ( { children } ) => <div>{ children }</div>,
 	Button: ( { children } ) => <button>{ children }</button>,
 	Col: ( { children } ) => <div>{ children }</div>,
@@ -77,6 +81,7 @@ import UpsellPage from '../index';
 
 const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 	getAPINonce: jest.fn( () => 'nonce' ),
+	getAPIRootUrl: jest.fn( () => 'https://example.com/wp-json/' ),
 	isNewPricing202208: jest.fn( () => true ),
 	isWpcom: jest.fn( () => false ),
 	getSiteAdminUrl: jest.fn( () => 'https://example.com/wp-admin/' ),
@@ -121,6 +126,21 @@ describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage — REST client', () => {
+	test( 'passes the API root and nonce to AdminPage so it keeps the shared client authenticated', () => {
+		mockSelectMethods = createSelectMethods();
+
+		render( <UpsellPage /> );
+
+		expect( mockAdminPage ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				apiRoot: 'https://example.com/wp-json/',
+				apiNonce: 'nonce',
+			} )
+		);
 	} );
 } );
 
