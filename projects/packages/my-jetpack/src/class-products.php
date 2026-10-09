@@ -145,6 +145,7 @@ class Products {
 			'stats'            => Products\Stats::class,
 			'growth'           => Products\Growth::class,
 			'complete'         => Products\Complete::class,
+			'pro'              => Products\Pro::class,
 			// Features.
 			'activity-log'     => Products\Activity_Log::class,
 			'newsletter'       => Products\Newsletter::class,
