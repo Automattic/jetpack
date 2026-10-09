@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Show the method, URI and user agent of recently blocked requests on the Protect dashboard.
