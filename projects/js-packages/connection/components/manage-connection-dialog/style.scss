@@ -32,6 +32,15 @@
 		font-size: 1.25rem;
 	}
 
+	// The content box is a centred flex column, so it shrink-wraps each child.
+	// The transfer step is a form: stretch it and left-align the copy.
+	.jp-connection__transfer-ownership-form {
+		align-self: stretch;
+		max-inline-size: 600px;
+		margin-inline: auto;
+		text-align: start;
+	}
+
 	&__actions {
 		background: var(--jp-white);
 		margin: 0 !important;

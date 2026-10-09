@@ -99,7 +99,7 @@ describe( 'ManageConnectionDialog', () => {
 			expect( screen.getByRole( 'link', { name: /Disconnect Jetpack/ } ) ).toBeInTheDocument();
 		} );
 
-		it( 'opens the owner chooser as a step instead of leaving the site', async () => {
+		it( 'shows the owner chooser in the dialog it already has, not a second one', async () => {
 			const user = userEvent.setup();
 			render( <ManageConnectionDialog { ...testProps } /> );
 
@@ -107,18 +107,39 @@ describe( 'ManageConnectionDialog', () => {
 				name: /Transfer ownership to another admin/,
 			} );
 			expect( transfer ).not.toHaveAttribute( 'target', '_blank' );
-			expect(
-				screen.queryByRole( 'dialog', { name: 'Transfer connection ownership' } )
-			).not.toBeInTheDocument();
 
 			await user.click( transfer );
-
-			const step = await screen.findByRole( 'dialog', {
-				name: 'Transfer connection ownership',
-			} );
 			await expect(
-				within( step ).findByRole( 'combobox', { name: /New connection owner/ } )
+				screen.findByRole( 'combobox', { name: /New connection owner/ } )
 			).resolves.toBeInTheDocument();
+
+			// One dialog, renamed — a second modal would mean two focus traps.
+			expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
+			expect(
+				screen.getByRole( 'dialog', { name: 'Transfer connection ownership' } )
+			).toBeInTheDocument();
+			// The actions behind are gone rather than sitting under an overlay.
+			expect(
+				screen.queryByRole( 'link', { name: /Disconnect Jetpack/ } )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'returns to the actions when the chooser is dismissed', async () => {
+			const user = userEvent.setup();
+			render( <ManageConnectionDialog { ...testProps } /> );
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await expect(
+				screen.findByRole( 'combobox', { name: /New connection owner/ } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+
+			await expect(
+				screen.findByRole( 'link', { name: /Disconnect Jetpack/ } )
+			).resolves.toBeInTheDocument();
+			expect( testProps.onClose ).not.toHaveBeenCalled();
 		} );
 
 		it( 'hides "Disconnect Jetpack" on a WoA site even for an admin', () => {
