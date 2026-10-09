@@ -15,6 +15,11 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 	useNavigate: () => mockNavigate,
@@ -41,6 +46,7 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
 import { resetListStateForTesting } from '../src/dashboard/screens/overview';
@@ -198,6 +204,7 @@ beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockSearch.mockReset();
 	mockNavigate.mockReset();
+	( speak as jest.Mock ).mockClear();
 
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
@@ -375,5 +382,19 @@ describe( 'A selection the activity log has not answered for', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
+	} );
+
+	it( "leaves the failure to the list's announcement, which carries the reason", async () => {
+		mockEndpoints( { activity: 'error', backups: [] } );
+
+		render( <OverviewStage /> );
+
+		await expect(
+			screen.findByText( LOAD_FAILED, { ignore: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
+		// Both notices mount in one commit, and each `speak()` clears the one before it.
+		const spoken = ( speak as jest.Mock ).mock.calls.map( ( [ text ] ) => text );
+		expect( spoken ).toContain( `We couldn't load your site's activity. ${ FAILURE_REASON }` );
+		expect( spoken ).not.toContain( LOAD_FAILED );
 	} );
 } );

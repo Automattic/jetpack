@@ -1,8 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import { createElement, type ReactNode } from 'react';
 import { useRefreshActivityOnBackupComplete } from '../use-refresh-activity-on-backup-complete';
 import type { BackupsState } from '../../types/backup';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 /**
  * Fresh client per test so the module singleton's cache can't leak.
@@ -18,7 +21,7 @@ function makeWrapper() {
 	return { client, wrapper };
 }
 
-type Pair = [ BackupsState, boolean ];
+type Pair = [ BackupsState, boolean, ( string | null )? ];
 type Step = BackupsState | Pair;
 const toPair = ( step: Step ): Pair => ( typeof step === 'string' ? [ step, false ] : step );
 
@@ -26,7 +29,7 @@ const toPair = ( step: Step ): Pair => ( typeof step === 'string' ? [ step, fals
  * Drive the hook through a sequence of states and report every
  * invalidation it asked for.
  *
- * @param steps - States to render, in order; a `[ state, isRequested ]` pair sets the request flag.
+ * @param steps - States to render, in order; a `[ state, isRequested, latestBackupId ]` tuple sets the rest.
  * @return The spy on `invalidateQueries` and the hook's last finished-run count.
  */
 function walk( steps: Step[] ) {
@@ -34,7 +37,8 @@ function walk( steps: Step[] ) {
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	const [ first, ...rest ] = steps.map( toPair );
 	const { rerender, result } = renderHook(
-		( [ state, isRequested ]: Pair ) => useRefreshActivityOnBackupComplete( state, isRequested ),
+		( [ state, isRequested, latestBackupId = null ]: Pair ) =>
+			useRefreshActivityOnBackupComplete( state, isRequested, latestBackupId ),
 		{ wrapper, initialProps: first }
 	);
 	rest.forEach( pair => rerender( pair ) );
@@ -42,6 +46,10 @@ function walk( steps: Step[] ) {
 }
 
 const ACTIVITY_LOG_ROOT = { queryKey: [ 'backup', 'activity-log' ] };
+
+beforeEach( () => {
+	( speak as jest.Mock ).mockClear();
+} );
 
 describe( 'useRefreshActivityOnBackupComplete', () => {
 	it( 'refreshes the activity log when a running backup completes', () => {
@@ -120,5 +128,40 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 		],
 	] as Array< [ string, Step[], number ] > )( '%s', ( _name, steps, calls ) => {
 		expect( walk( steps ).invalidate ).toHaveBeenCalledTimes( calls );
+	} );
+
+	// A failed run, or a failed or timed-out request, ends on the backup that was already there.
+	it.each( [
+		[
+			'announces a request that produced a backup without showing in-progress',
+			[
+				[ 'complete', false, 'a' ],
+				[ 'complete', true, 'a' ],
+				[ 'complete', false, 'b' ],
+			],
+			1,
+		],
+		[
+			'stays quiet about a backup already complete on load',
+			[ 'loading', [ 'complete', false, 'a' ] ],
+			0,
+		],
+		[
+			'stays quiet when a request ends with no new backup',
+			[
+				[ 'complete', false, 'a' ],
+				[ 'complete', true, 'a' ],
+				[ 'complete', false, 'a' ],
+			],
+			0,
+		],
+		[
+			'stays quiet about a failed run, even across an unreadable poll',
+			[ [ 'in-progress', false, 'a' ], 'error', [ 'complete', false, 'a' ] ],
+			0,
+		],
+	] as Array< [ string, Step[], number ] > )( '%s', ( _name, steps, calls ) => {
+		walk( steps );
+		expect( speak ).toHaveBeenCalledTimes( calls );
 	} );
 } );
