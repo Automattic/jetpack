@@ -278,7 +278,7 @@ describe( 'Backup-state read failure', () => {
 
 		await expect(
 			screen.findByText( "We couldn't check your site's backup status.", {
-				ignore: '.a11y-speak-region',
+				ignore: '.a11y-speak-region, script, style',
 			} )
 		).resolves.toBeInTheDocument();
 	} );
@@ -295,7 +295,7 @@ describe( 'Backup-state read failure', () => {
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.getByText( "We couldn't check your site's backup status.", {
-				ignore: '.a11y-speak-region',
+				ignore: '.a11y-speak-region, script, style',
 			} )
 		).toBeInTheDocument();
 	} );

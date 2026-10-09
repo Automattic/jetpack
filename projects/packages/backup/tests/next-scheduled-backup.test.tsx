@@ -916,7 +916,7 @@ describe( 'on the Overview', () => {
 		// available, neither of which the mutation under test removes.
 		await expect(
 			screen.findByText( "We couldn't check your site's backup status.", {
-				ignore: '.a11y-speak-region',
+				ignore: '.a11y-speak-region, script, style',
 			} )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );

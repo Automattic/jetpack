@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { megaphone } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -30,7 +29,6 @@ export type UtmInsightsAttributes = {
  * host renders its control.
  */
 export default {
-	icon: megaphone,
 	attributes: [
 		{
 			id: 'utmDimension',
