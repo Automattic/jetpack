@@ -241,9 +241,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			settings: {
-				'import/extensions': javascriptFiles
-					.map( v => v.replace( '**/*', '' ) )
-					.filter( v => v !== '.svelte' ),
+				'import/extensions': javascriptFiles.map( v => v.replace( '**/*', '' ) ),
 				'import/internal-regex': '^jetpack-js-tools/',
 				'import/resolver': {
 					typescript: {
