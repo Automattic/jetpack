@@ -32,18 +32,19 @@ export const Textarea = () => {
 
 			const textarea = textareaRef.current!;
 			const fail = ( stage: string, error: unknown ) => {
+				setEditor( 'failed' );
+				// Focus from script is never user activation; a restored draft means a reader.
+				if ( focus && navigator.userActivation?.hasBeenActive === false ) {
+					return;
+				}
 				// A chunk that never arrived carries a `type` of missing, timeout or error, and its URL.
 				const { name, type, request } = ( error ?? {} ) as {
 					name?: string;
 					type?: string;
-					request?: string;
+					request?: unknown;
 				};
-				const chunk = request?.split( '?' )[ 0 ].split( '/' ).pop();
-				setEditor( 'failed' );
-				// Link scanners focus the box from script, which is never user activation; a restored draft means a reader.
-				if ( focus && navigator.userActivation?.hasBeenActive === false ) {
-					return;
-				}
+				const chunk =
+					typeof request === 'string' ? request.split( '?' )[ 0 ].split( '/' ).pop() : undefined;
 				recordEvent( 'jetpack_comments_editor_error', {
 					stage,
 					error: name ?? typeof error,
