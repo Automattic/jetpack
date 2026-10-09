@@ -74,13 +74,17 @@ class Modules_Abilities extends Registrar {
 				'requires_connection'      => array( 'type' => 'boolean' ),
 				'requires_user_connection' => array( 'type' => 'boolean' ),
 				'auto_activate'            => array( 'type' => 'string' ),
+				'override'                 => array(
+					'type' => 'string',
+					'enum' => array( 'none', 'active', 'inactive' ),
+				),
 			),
 		);
 
 		return array(
 			'jetpack/get-modules'       => array(
 				'label'               => __( 'Get Jetpack modules', 'jetpack' ),
-				'description'         => __( 'Return zero or more Jetpack modules as an array. Each element has { slug, name, description, active, sort, feature, plan_classes, requires_connection, requires_user_connection, auto_activate }. Combine slug / active / feature / search filters to narrow the list. When slug is provided and unknown, the result is an empty array (not an error). Use this before calling jetpack/set-module-status to enumerate legal slugs.', 'jetpack' ),
+				'description'         => __( 'Return zero or more Jetpack modules as an array. Each element has { slug, name, description, active, sort, feature, plan_classes, requires_connection, requires_user_connection, auto_activate, override }. An override of "active" or "inactive" means a filter or the host forces that state, so jetpack/set-module-status cannot change it. Combine slug / active / feature / search filters to narrow the list. When slug is provided and unknown, the result is an empty array (not an error). Use this before calling jetpack/set-module-status to enumerate legal slugs.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'default'              => array(),
@@ -214,6 +218,8 @@ class Modules_Abilities extends Registrar {
 		$name = isset( $i18n['name'] ) ? (string) $i18n['name'] : ( isset( $mod['name'] ) ? (string) $mod['name'] : $slug );
 		$desc = isset( $i18n['description'] ) ? (string) $i18n['description'] : ( isset( $mod['description'] ) ? (string) $mod['description'] : '' );
 
+		$override = \Jetpack_Modules_Overrides::instance()->get_module_override( $slug );
+
 		return array(
 			'slug'                     => $slug,
 			'name'                     => $name,
@@ -225,6 +231,7 @@ class Modules_Abilities extends Registrar {
 			'requires_connection'      => ! empty( $mod['requires_connection'] ),
 			'requires_user_connection' => ! empty( $mod['requires_user_connection'] ),
 			'auto_activate'            => isset( $mod['auto_activate'] ) ? (string) $mod['auto_activate'] : 'No',
+			'override'                 => $override ? $override : 'none',
 		);
 	}
 
