@@ -17,7 +17,7 @@ import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
-import TransferOwnershipDialog from '../transfer-ownership-dialog';
+import TransferConnectionOwnership from '../transfer-connection-ownership';
 import type { MouseEvent } from 'react';
 import './style.scss';
 
@@ -88,6 +88,7 @@ const ManageConnectionDialog = ( {
 	const [ unlinkError, setUnlinkError ] = useState( '' );
 	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
 	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
+	const [ newOwnerId, setNewOwnerId ] = useState< number | null >( null );
 
 	/**
 	 * Initialize the REST API.
@@ -214,14 +215,20 @@ const ManageConnectionDialog = ( {
 		setIsTransferOpen( true );
 	}, [] );
 
-	const closeTransferDialog = useCallback( () => {
-		setIsTransferOpen( false );
-	}, [] );
+	// After a transfer there is nothing to go back to: the actions behind belong to an
+	// owner the user no longer is, so leaving the step reloads instead.
+	const leaveTransfer = useCallback( () => {
+		if ( newOwnerId ) {
+			window.location.reload();
+			return;
+		}
 
-	// The new owner's tokens decide what the page may show, so re-read everything.
-	const handleTransferred = useCallback( () => {
-		window.location.reload();
-	}, [] );
+		setIsTransferOpen( false );
+	}, [ newOwnerId ] );
+
+	const heading = isTransferOpen
+		? __( 'Transfer connection ownership', 'jetpack-connection-js' )
+		: title;
 
 	return (
 		<>
@@ -229,7 +236,7 @@ const ManageConnectionDialog = ( {
 				<>
 					<Modal
 						title=""
-						contentLabel={ title }
+						contentLabel={ heading }
 						aria={ {
 							labelledby: 'jp-connection__manage-dialog__heading',
 						} }
@@ -240,14 +247,24 @@ const ManageConnectionDialog = ( {
 						className={ 'jp-connection__manage-dialog' }
 					>
 						<div className="jp-connection__manage-dialog__content">
-							<h1 id="jp-connection__manage-dialog__heading">{ title }</h1>
+							<h1 id="jp-connection__manage-dialog__heading">{ heading }</h1>
 							<Text className="jp-connection__manage-dialog__large-text">
 								{ __(
 									'At least one user must be connected for your Jetpack products to work properly.',
 									'jetpack-connection-js'
 								) }
 							</Text>
-							{ isCurrentUserAdmin &&
+							{ isTransferOpen && (
+								<TransferConnectionOwnership
+									apiRoot={ apiRoot }
+									apiNonce={ apiNonce }
+									onTransferred={ setNewOwnerId }
+									onDismiss={ leaveTransfer }
+									dismissLabel={ __( 'Back', 'jetpack-connection-js' ) }
+								/>
+							) }
+							{ ! isTransferOpen &&
+								isCurrentUserAdmin &&
 								connectedUser.currentUser?.isConnected &&
 								connectedUser.currentUser?.isMaster && (
 									<ManageConnectionActionCard
@@ -258,7 +275,7 @@ const ManageConnectionDialog = ( {
 										disabled={ isControlsDisabled }
 									/>
 								) }
-							{ connectedUser.currentUser?.isConnected && (
+							{ ! isTransferOpen && connectedUser.currentUser?.isConnected && (
 								<>
 									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
 									<ManageConnectionActionCard
@@ -274,7 +291,7 @@ const ManageConnectionDialog = ( {
 									/>
 								</>
 							) }
-							{ isCurrentUserAdmin && ! isWoASite() && (
+							{ ! isTransferOpen && isCurrentUserAdmin && ! isWoASite() && (
 								<ManageConnectionActionCard
 									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 									onClick={ openDisconnectDialog }
@@ -296,14 +313,6 @@ const ManageConnectionDialog = ( {
 							isOpen={ isDisconnectDialogOpen }
 							onClose={ closeDisconnectDialog }
 							context={ context }
-						/>
-
-						<TransferOwnershipDialog
-							isOpen={ isTransferOpen }
-							onClose={ closeTransferDialog }
-							apiRoot={ apiRoot }
-							apiNonce={ apiNonce }
-							onTransferred={ handleTransferred }
 						/>
 
 						<OwnerDisconnectDialog

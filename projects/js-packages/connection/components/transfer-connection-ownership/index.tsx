@@ -23,6 +23,8 @@ export interface TransferConnectionOwnershipProps {
 	onTransferred?: ( newOwnerId: number ) => void;
 	/** Called whenever the user leaves. Omit to hide the dismiss action. */
 	onDismiss?: () => void;
+	/** Label for the dismiss action, for a surface the user is returning to. */
+	dismissLabel?: string;
 }
 
 /**
@@ -38,6 +40,7 @@ const TransferConnectionOwnership = ( {
 	apiNonce,
 	onTransferred,
 	onDismiss,
+	dismissLabel,
 }: TransferConnectionOwnershipProps ) => {
 	const {
 		candidates,
@@ -99,9 +102,9 @@ const TransferConnectionOwnership = ( {
 	}
 
 	// Separate statements, not a ternary — see the note in candidate-list.tsx.
-	let dismissLabel: string = __( 'Close', 'jetpack-connection-js' );
+	let defaultDismissLabel: string = __( 'Close', 'jetpack-connection-js' );
 	if ( hasCandidates ) {
-		dismissLabel = __( 'Cancel', 'jetpack-connection-js' );
+		defaultDismissLabel = __( 'Cancel', 'jetpack-connection-js' );
 	}
 
 	return (
@@ -116,7 +119,7 @@ const TransferConnectionOwnership = ( {
 			<Stack direction="row" align="center" justify="flex-end" gap="sm">
 				{ onDismiss && (
 					<Button variant={ hasCandidates ? 'minimal' : 'outline' } onClick={ onDismiss }>
-						{ dismissLabel }
+						{ dismissLabel || defaultDismissLabel }
 					</Button>
 				) }
 				{ hasCandidates && (
