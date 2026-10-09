@@ -71,31 +71,40 @@ $default_matrix_vars = array(
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
-$matrix = array();
+// Entries in `$to_expand` are split into several jobs first, see "Expand splits" below.
+$matrix    = array();
+$to_expand = array();
+
+$php_split_config = array(
+	'projects' => array( 'plugins/jetpack' ),
+	'generic'  => 1,
+);
 
 // Add PHP tests.
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
-	$matrix[] = array(
-		'name'    => "PHP tests: PHP $php WP latest",
-		'script'  => 'test-php',
-		'php'     => $php,
-		'wp'      => 'latest',
-		'timeout' => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
+	$to_expand[] = array(
+		'name'         => "PHP tests: PHP $php WP latest (%s)",
+		'script'       => 'test-php',
+		'php'          => $php,
+		'wp'           => 'latest',
+		'timeout'      => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
+		'split_config' => $php_split_config,
 	);
 }
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
-	$phpver   = $versions['PHP_VERSION'];
-	$matrix[] = array(
-		'name'    => "PHP tests: PHP {$phpver} WP $wp",
-		'script'  => 'test-php',
-		'php'     => $phpver,
-		'wp'      => $wp,
-		'timeout' => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
+	$phpver      = $versions['PHP_VERSION'];
+	$to_expand[] = array(
+		'name'         => "PHP tests: PHP {$phpver} WP $wp (%s)",
+		'script'       => 'test-php',
+		'php'          => $phpver,
+		'wp'           => $wp,
+		'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
+		'split_config' => $php_split_config,
 	);
 }
 
-// Add WooCommerce tests.
+// Add WooCommerce tests. Not split, as only Jetpack is tested with WooCommerce.
 $matrix[] = array(
 	'name'             => 'PHP tests: PHP 7.4 WP latest with WooCommerce',
 	'script'           => 'test-php',
@@ -106,52 +115,78 @@ $matrix[] = array(
 );
 
 // Add wpcomsh tests.
-$matrix[] = array(
-	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh',
+$to_expand[] = array(
+	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh (%s)',
 	'script'       => 'test-php',
 	'php'          => '8.3',
 	'wp'           => 'latest',
 	'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	'with-wpcomsh' => true,
+	'split_config' => $php_split_config,
 );
 
-// Add JS tests and coverage, with the same splits.
-// We specify projects we want on their own job, and then create some generic jobs to round-robin the rest.
-$js_project_splits = array( 'packages/premium-analytics', 'plugins/jetpack' );
-$js_generic_splits = 2;
+// Add PHP coverage.
+$to_expand[] = array(
+	'name'         => 'Code coverage (PHP, %s)',
+	'script'       => 'test-php-coverage',
+	'wp'           => 'latest',
+	'timeout'      => 30, // 2026-09-14: Runs are at around 15 minutes each.
+	'coverage'     => true,
+	'split_config' => $php_split_config,
+);
+
+// Add JS tests and coverage
+$js_split_config = array(
+	'projects' => array( 'packages/premium-analytics', 'plugins/jetpack' ),
+	'generic'  => 2,
+);
 foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
-	$is_cov = $script === 'test-js-coverage';
-	$name   = $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)';
-	foreach ( $js_project_splits as $slug ) {
-		$matrix[] = array(
-			'name'          => sprintf( $name, basename( $slug ) ),
-			'script'        => $script,
-			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
-			'coverage'      => $is_cov,
-			'split-project' => $slug,
+	$is_cov      = $script === 'test-js-coverage';
+	$to_expand[] = array(
+		'name'         => $is_cov ? 'Code coverage (JS, %s)' : 'JS tests (%s)',
+		'script'       => $script,
+		'timeout'      => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
+		'coverage'     => $is_cov,
+		'split_config' => $js_split_config,
+	);
+}
+
+/*
+ * Expand splits: one job for each of `split_config.projects`, then `split_config.generic` jobs to round-robin everything else.
+ * For example, this config gives "Test name (jetpack)", "Test name (1 of 2)", and "Test name (2 of 2)":
+ *
+ * array(
+ *   'name'         => 'Test name (%s)',
+ *   'split_config' => array(
+ *     'projects' => array( 'plugins/jetpack' ),
+ *     'generic'  => 2,
+ *   ),
+ * )
+ */
+foreach ( $to_expand as $m ) {
+	$split = $m['split_config'];
+	unset( $m['split_config'] );
+	foreach ( $split['projects'] as $slug ) {
+		$matrix[] = array_merge(
+			$m,
+			array(
+				'name'          => sprintf( $m['name'], basename( $slug ) ),
+				'split-project' => $slug,
+			)
 		);
 	}
-	for ( $i = 1; $i <= $js_generic_splits; $i++ ) {
-		$matrix[] = array(
-			'name'          => sprintf( $name, "$i of $js_generic_splits" ),
-			'script'        => $script,
-			'timeout'       => 15, // 2026-10-06: Successful runs seem to take 3-7 minutes.
-			'coverage'      => $is_cov,
-			'split-num'     => $i,
-			'split-total'   => $js_generic_splits,
-			'split-exclude' => $js_project_splits,
+	for ( $i = 1; $i <= $split['generic']; $i++ ) {
+		$matrix[] = array_merge(
+			$m,
+			array(
+				'name'          => sprintf( $m['name'], "$i of {$split['generic']}" ),
+				'split-num'     => $i,
+				'split-total'   => $split['generic'],
+				'split-exclude' => $split['projects'],
+			)
 		);
 	}
 }
-
-// Add PHP coverage.
-$matrix[] = array(
-	'name'     => 'Code coverage (PHP)',
-	'script'   => 'test-php-coverage',
-	'wp'       => 'latest',
-	'timeout'  => 30, // 2026-09-14: Runs are at around 15 minutes each.
-	'coverage' => true,
-);
 
 // END matrix definitions.
 // Now, validation.
@@ -298,6 +333,11 @@ foreach ( $matrix as &$m ) {
 	// Either use number or project.
 	if ( $m['split-num'] !== null && $m['split-project'] !== null ) {
 		error( "Keys `split-num` and `split-project` cannot both be set!\n%s", $orig );
+	}
+
+	// Make sure `split_config` isn't in a normal `$matrix` entry instead of `$to_expand`.
+	if ( isset( $m['split_config'] ) ) {
+		error( "Key `split_config` is only valid for entries in `\$to_expand`!\n%s", $orig );
 	}
 }
 unset( $m );
