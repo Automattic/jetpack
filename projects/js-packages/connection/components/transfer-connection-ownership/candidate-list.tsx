@@ -126,26 +126,24 @@ const OwnerCandidateList = ( {
 				popupWidth="anchor"
 			/>
 
-			{ ! isLoading && (
-				<Text render={ <p /> } variant="body-sm">
-					{ createInterpolateElement(
-						__(
-							"Don't see someone? They need to be an administrator and <link>connect their WordPress.com account</link> first.",
-							'jetpack-connection-js'
+			<Text render={ <p /> } variant="body-sm">
+				{ createInterpolateElement(
+					__(
+						"Don't see someone? They need to be an administrator and <link>connect their WordPress.com account</link> first.",
+						'jetpack-connection-js'
+					),
+					{
+						link: (
+							<Link
+								openInNewTab
+								href={ getRedirectUrl(
+									'why-the-wordpress-com-connection-is-important-for-jetpack'
+								) }
+							/>
 						),
-						{
-							link: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl(
-										'why-the-wordpress-com-connection-is-important-for-jetpack'
-									) }
-								/>
-							),
-						}
-					) }
-				</Text>
-			) }
+					}
+				) }
+			</Text>
 
 			{ error && (
 				<Text render={ <p /> } className="jp-connection__transfer-ownership__error">

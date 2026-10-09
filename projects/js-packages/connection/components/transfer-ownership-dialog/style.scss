@@ -6,4 +6,11 @@
 		max-inline-size: 600px;
 		margin-inline: auto;
 	}
+
+	.jp-connection__transfer-dialog__footer {
+		margin-block-start: auto;
+		padding: 2rem 1rem;
+		border-block-start: 1px solid var(--jp-gray);
+		background: var(--jp-white);
+	}
 }
