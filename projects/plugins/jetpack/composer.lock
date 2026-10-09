@@ -3230,7 +3230,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "3a8c2090533df980dc334554ca364bc1ac471ca0"
+                "reference": "0b4b284bcdaf8d9ad14822417a7615d41bbf7214"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3243,6 +3243,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-waf": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
