@@ -27,7 +27,6 @@ const REPORT_PARAMS = {
 	from: '2026-06-01',
 	to: '2026-06-16',
 	interval: 'day' as const,
-	date_type: 'created' as const,
 };
 
 const READY: LeaderboardStatus = { isLoading: false, isError: false };
@@ -77,7 +76,7 @@ describe( 'Leaderboard', () => {
 			/>
 		);
 
-		const dashboardWindow = 'from=2026-06-01&to=2026-06-16&interval=day&date_type=created';
+		const dashboardWindow = 'from=2026-06-01&to=2026-06-16&interval=day';
 		expect( screen.getByRole( 'link', { name: 'Walkthrough' } ) ).toHaveAttribute(
 			'href',
 			`/video/101?${ dashboardWindow }`

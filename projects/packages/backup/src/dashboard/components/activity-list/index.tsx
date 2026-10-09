@@ -1,5 +1,5 @@
 import { DataViews } from '@wordpress/dataviews';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { createContext, useCallback, useContext, useEffect, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -12,7 +12,10 @@ import {
 	rotateLeft,
 } from '@wordpress/icons';
 import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
+import { formatDuration } from '../../data/durations';
+import { formatStorageSize } from '../../data/storage-units';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
+import { useBackupRuns, type BackupRunLookup } from '../../hooks/use-backup-runs';
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
 import { formatRowDate } from './row-date';
@@ -32,6 +35,9 @@ const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	// Catch-all for event families we don't give a dedicated icon.
 	other: info,
 };
+
+// Context rather than a closure in `fields`: a new `render` would remount every cell.
+const BackupRunsContext = createContext< BackupRunLookup >( () => null );
 
 type Props = {
 	selectedId: string | null;
@@ -134,19 +140,32 @@ function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 }
 
 /**
- * Descriptions cell — single muted line with the timestamp + optional
- * summary, joined by a thin separator.
+ * Descriptions cell — single muted line with the timestamp, a backup's
+ * size and duration once known, and the optional summary.
  *
  * @param props      - Component props.
  * @param props.item - The activity item.
  * @return The rendered description.
  */
 function DescriptionCell( { item }: { item: ActivityItem } ) {
+	const runFor = useContext( BackupRunsContext );
+	const run = isBackupItem( item ) ? runFor( item ) : null;
 	return (
 		<Stack direction="row" align="center" gap="md">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ rowDate( item ) }
 			</Text>
+			{ /* Before the summary, which is the part that truncates. */ }
+			{ run && (
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__run">
+					{ [
+						run.siteSize !== null && formatStorageSize( run.siteSize ),
+						run.duration !== null && formatDuration( run.duration, 'short' ),
+					]
+						.filter( Boolean )
+						.join( ' · ' ) }
+				</Text>
+			) }
 			{ /*
 			 * `auto`, not `ltr`: WPCOM may legitimately translate this line into RTL.
 			 * Same everywhere `stats` and `summary` are rendered.
@@ -212,6 +231,7 @@ export default function ActivityList( {
 		pageSize,
 		sortOrder,
 	} );
+	const runFor = useBackupRuns( items.filter( isBackupItem ) );
 
 	const onNewestPage = page === 1 && sortOrder === 'desc';
 	const isReady = onNewestPage && ! isLoading && ! isPlaceholderData;
@@ -351,58 +371,60 @@ export default function ActivityList( {
 			aria-busy={ isBusy }
 		>
 			{ reportsAboveList && <div className="jpb-activity-list__failure">{ failure }</div> }
-			<DataViews< ActivityItem >
-				data={ items }
-				fields={ fields }
-				view={ view }
-				onChangeView={ handleChangeView }
-				// Typed as a number upstream, but the page clamp treats null as "unknown":
-				// https://github.com/WordPress/gutenberg/pull/82244
-				paginationInfo={ { totalItems, totalPages: totalPages as number } }
-				defaultLayouts={ { list: {} } }
-				getItemId={ getRowId }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				isLoading={ isBusy }
-				search={ false }
-				empty={ reportsAboveList ? undefined : failure }
-			>
-				<Stack
-					direction="row"
-					align="start"
-					justify="space-between"
-					gap="sm"
-					className="jpb-activity-list__toolbar"
+			<BackupRunsContext.Provider value={ runFor }>
+				<DataViews< ActivityItem >
+					data={ items }
+					fields={ fields }
+					view={ view }
+					onChangeView={ handleChangeView }
+					// Typed as a number upstream, but the page clamp treats null as "unknown":
+					// https://github.com/WordPress/gutenberg/pull/82244
+					paginationInfo={ { totalItems, totalPages: totalPages as number } }
+					defaultLayouts={ { list: {} } }
+					getItemId={ getRowId }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					isLoading={ isBusy }
+					search={ false }
+					empty={ reportsAboveList ? undefined : failure }
 				>
-					<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
-						<Text variant="heading-lg" render={ <h2 /> }>
-							{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
-						</Text>
-						<Text variant="body-sm" className="jpb-text-muted">
-							{ sprintf(
-								/* translators: %d: number of restore points shown on each page of the list. */
-								_n(
-									"Restore points from your site's activity. %d per page.",
-									"Restore points from your site's activity. %d per page.",
-									pageSize,
-									'jetpack-backup-pkg'
-								),
-								pageSize
-							) }
-						</Text>
-						{ activityLogUrl && (
-							<Text variant="body-sm">
-								<Link href={ activityLogUrl }>
-									{ __( 'See all activity in the Activity Log', 'jetpack-backup-pkg' ) }
-								</Link>
+					<Stack
+						direction="row"
+						align="start"
+						justify="space-between"
+						gap="sm"
+						className="jpb-activity-list__toolbar"
+					>
+						<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
+							<Text variant="heading-lg" render={ <h2 /> }>
+								{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
 							</Text>
-						) }
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ sprintf(
+									/* translators: %d: number of restore points shown on each page of the list. */
+									_n(
+										"Restore points from your site's activity. %d per page.",
+										"Restore points from your site's activity. %d per page.",
+										pageSize,
+										'jetpack-backup-pkg'
+									),
+									pageSize
+								) }
+							</Text>
+							{ activityLogUrl && (
+								<Text variant="body-sm">
+									<Link href={ activityLogUrl }>
+										{ __( 'See all activity in the Activity Log', 'jetpack-backup-pkg' ) }
+									</Link>
+								</Text>
+							) }
+						</Stack>
+						<DataViews.ViewConfig />
 					</Stack>
-					<DataViews.ViewConfig />
-				</Stack>
-				<DataViews.Layout />
-				<DataViews.Footer />
-			</DataViews>
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+			</BackupRunsContext.Provider>
 		</Card.Root>
 	);
 }

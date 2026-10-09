@@ -47,6 +47,7 @@ class Rest_Bridge_Gating_Test extends TestCase {
 	private const MODERNIZED_ROUTES = array(
 		'/jetpack/v4/site/capabilities',
 		'/jetpack/v4/site/rewindable-activity',
+		'/jetpack/v4/backups/sizes',
 		'/jetpack/v4/rewind/backup/ls',
 		'/jetpack/v4/rewind/backup/file-content',
 		'/jetpack/v4/rewind/backup/file-download-url',
