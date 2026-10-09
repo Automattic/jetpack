@@ -3,7 +3,7 @@ import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { useSendBounceConfirmationMutation } from '../../data/use-send-bounce-confirmation-mutation';
 import {
@@ -154,7 +154,7 @@ function DetailRow( {
  * @param props                     - Component props.
  * @param props.emailSubscriptionId - Email subscription id; nothing renders without one.
  * @param props.bounceRetry         - Bounce retry state from the API.
- * @return Bounce retry block, or null when no retry can be offered.
+ * @return Bounce retry block, or null without an email subscription id.
  */
 function BounceRetryNotice( {
 	emailSubscriptionId,
@@ -172,25 +172,22 @@ function BounceRetryNotice( {
 		}
 	}, [ emailSubscriptionId, mutate ] );
 
-	const note = bounceRetry?.sent_on
-		? sprintf(
-				// translators: %s: date the confirmation email was sent.
-				__( 'Confirmation email sent on %s.', 'jetpack-newsletter' ),
-				formatDate( bounceRetry.sent_on )
-			)
-		: '';
-	// Hidden while the mail system still blocks the address; disabled only after a send.
-	if ( ! emailSubscriptionId || ( ! canRetry && ! note ) ) {
+	if ( ! emailSubscriptionId ) {
 		return null;
 	}
 
 	return (
 		<Stack direction="column" gap="sm" align="start">
 			<Text variant="body-sm">
-				{ __(
-					"We stopped sending emails to this subscriber after their address bounced. If you're sure their address is correct, you can send one confirmation email to ask to restart their subscription.",
-					'jetpack-newsletter'
-				) }
+				{ canRetry
+					? __(
+							"We stopped sending emails to this subscriber after their address bounced. If you're sure their address is correct, you can send one confirmation email to ask to restart their subscription.",
+							'jetpack-newsletter'
+						)
+					: __(
+							"We stopped sending emails to this subscriber after their address bounced. You can't send a confirmation email right now. Try again later.",
+							'jetpack-newsletter'
+						) }
 			</Text>
 			<Button
 				variant="outline"
@@ -202,7 +199,6 @@ function BounceRetryNotice( {
 			>
 				{ __( 'Send confirmation email', 'jetpack-newsletter' ) }
 			</Button>
-			{ note ? <Text variant="body-sm">{ note }</Text> : null }
 		</Stack>
 	);
 }
