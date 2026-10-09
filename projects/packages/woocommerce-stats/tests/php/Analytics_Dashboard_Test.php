@@ -105,6 +105,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
 			array(
+				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
 				Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::TOTAL_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
