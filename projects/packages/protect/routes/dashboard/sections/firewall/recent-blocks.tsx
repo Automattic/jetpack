@@ -2,7 +2,13 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack, Text } from '@wordpress/ui';
 import { SELF_CHECK_RULE_ID, getBlockLabel } from './firewall-test';
+import { summarizeUserAgent } from './user-agent';
 import type { BlockedRequest } from './types';
+
+const detailClass = ( column: string, value?: string ) =>
+	`jp-protect-blocks-table__${ column }${ value ? '' : ' is-empty' }`;
+
+const NOT_LOGGED = <span className="jp-protect-card__muted">—</span>;
 
 const formatTime = ( block: BlockedRequest ) => (
 	<time dateTime={ block.timestamp }>{ dateI18n( 'M j, g:i A', block.timestamp, undefined ) }</time>
@@ -11,13 +17,21 @@ const formatTime = ( block: BlockedRequest ) => (
 /**
  * The firewall's recent blocked requests: the latest on the card, all of them in a dialog.
  *
- * @param props        - Component props.
- * @param props.blocks - The blocked requests, newest first.
+ * @param props            - Component props.
+ * @param props.blocks     - The blocked requests, newest first.
+ * @param props.canViewAll - Whether the firewall keeps its request log, which the dialog needs.
  * @return The summary and dialog.
  */
-export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } ) {
+export default function RecentBlocks( {
+	blocks,
+	canViewAll,
+}: {
+	blocks: BlockedRequest[];
+	canViewAll: boolean;
+} ) {
 	const title = __( 'Recently blocked requests', 'jetpack-protect-pkg' );
 	const [ latest ] = blocks;
+	const hasDetails = blocks.some( block => block.uri || block.userAgent );
 
 	return (
 		<Stack direction="row" gap="md" justify="space-between" align="center" wrap="wrap">
@@ -40,7 +54,7 @@ export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } )
 					) }
 				</Text>
 			</Stack>
-			{ latest && (
+			{ latest && canViewAll && (
 				<Dialog.Root>
 					<Dialog.Trigger render={ <Button variant="outline" size="compact" /> }>
 						{ __( 'View blocked requests', 'jetpack-protect-pkg' ) }
@@ -56,6 +70,12 @@ export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } )
 									<tr>
 										<th scope="col">{ __( 'When', 'jetpack-protect-pkg' ) }</th>
 										<th scope="col">{ __( 'Reason', 'jetpack-protect-pkg' ) }</th>
+										{ hasDetails && (
+											<>
+												<th scope="col">{ __( 'Request', 'jetpack-protect-pkg' ) }</th>
+												<th scope="col">{ __( 'Client', 'jetpack-protect-pkg' ) }</th>
+											</>
+										) }
 									</tr>
 								</thead>
 								<tbody>
@@ -69,6 +89,26 @@ export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } )
 													{ getBlockLabel( block ) }
 												</Badge>
 											</td>
+											{ hasDetails && (
+												<>
+													<td className={ detailClass( 'request', block.uri ) }>
+														{ block.uri ? (
+															<code title={ block.uri }>{ block.uri }</code>
+														) : (
+															NOT_LOGGED
+														) }
+													</td>
+													<td className={ detailClass( 'client', block.userAgent ) }>
+														{ block.userAgent ? (
+															<span title={ block.userAgent }>
+																{ summarizeUserAgent( block.userAgent ) }
+															</span>
+														) : (
+															NOT_LOGGED
+														) }
+													</td>
+												</>
+											) }
 										</tr>
 									) ) }
 								</tbody>

@@ -35,6 +35,62 @@
 	&__reason > * {
 		white-space: nowrap;
 	}
+
+	&__client {
+		white-space: nowrap;
+	}
+
+	// Takes the spare width; long URIs are cut, in full on hover.
+	&__request {
+		inline-size: 100%;
+		max-inline-size: 0;
+
+		code {
+			display: block;
+			overflow: hidden;
+			padding: 0;
+			background: none;
+			font-size: 12px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	@media (max-width: 600px) {
+
+		thead {
+			display: none;
+		}
+
+		tr {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 4px 16px;
+			padding-block: 10px;
+			border-block-end:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		tbody tr:last-child {
+			border-block-end: 0;
+		}
+
+		td {
+			padding: 0;
+			border: 0;
+		}
+
+		&__request,
+		&__client {
+			grid-column: 1 / -1;
+			max-inline-size: none;
+		}
+
+		td.is-empty {
+			display: none;
+		}
+	}
 }
 
 .jp-protect-firewall-test {
