@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
+import { search } from '@jetpack-premium-analytics/icons';
 import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
@@ -20,6 +22,7 @@ import { trendingUp } from '@wordpress/icons';
  * Internal dependencies
  */
 import { usePopularPost } from './use-popular-post';
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -74,6 +77,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
+	const noPublishedPosts = useNoPublishedPosts( ! authorId && ! isLoading && ! isError && ! post );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -123,11 +127,19 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				authorId
 					? undefined
 					: {
-							icon: trendingUp,
-							description: __(
-								'No post views in the last 12 months.',
-								'jetpack-premium-analytics-pkg'
-							),
+							icon: noPublishedPosts ? search : trendingUp,
+							description: noPublishedPosts
+								? __(
+										"Your most-read post will show here once you've published one.",
+										'jetpack-premium-analytics-pkg'
+									)
+								: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
+							action: noPublishedPosts
+								? {
+										label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+										href: getAdminUrl( 'post-new.php' ),
+									}
+								: undefined,
 						}
 			}
 			renderLoading={ <PostHighlightCardSkeleton /> }

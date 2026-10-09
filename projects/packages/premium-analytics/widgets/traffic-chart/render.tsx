@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { chartInterval, useReportScope } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
@@ -18,6 +19,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
 import { TRAFFIC_PERIODS, defaultChartType } from './widget';
@@ -93,6 +95,14 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 		refetch,
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
+	const views = metricTabs.find( metric => metric.key === 'views' );
+	const viewsAreEmpty =
+		! isLoading &&
+		! isError &&
+		views?.value === 0 &&
+		views.current.every( point => point.value === 0 || point.value === null ) &&
+		( views.previous?.every( point => point.value === 0 || point.value === null ) ?? true );
+	const noPublishedPosts = useNoPublishedPosts( viewsAreEmpty );
 
 	return (
 		<div className={ styles.root }>
@@ -118,7 +128,22 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					onDatumClick={ openBucket }
-					empty={ <ChartEmptyState /> }
+					empty={
+						noPublishedPosts ? (
+							<ChartEmptyState
+								text={ __(
+									"You haven't published any posts yet. Get started by creating your first one.",
+									'jetpack-premium-analytics-pkg'
+								) }
+								action={ {
+									label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+									href: getAdminUrl( 'post-new.php' ),
+								} }
+							/>
+						) : (
+							<ChartEmptyState />
+						)
+					}
 				/>
 			</WidgetState>
 		</div>

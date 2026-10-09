@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
-import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { queryClient, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import { render, screen, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -16,8 +16,7 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 jest.mock( '../use-traffic-chart' );
-
-jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 setSettings( {
 	...getSettings(),
@@ -36,7 +35,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
-const mockGetScriptData = jest.mocked( getScriptData );
+const mockApiFetch = jest.mocked( apiFetch );
+const originalScriptData = window.JetpackScriptData;
 
 const V1_KEY = 'jetpack_stats_chart_type_123';
 
@@ -73,8 +73,18 @@ function drawnChartType(): string {
 }
 
 beforeEach( () => {
+	jest.useFakeTimers();
+	window.JetpackScriptData = {
+		...originalScriptData,
+		site: {
+			...originalScriptData?.site,
+			admin_url: 'https://example.com/blog/wp-admin/',
+			wpcom: { blog_id: 123 },
+		},
+	} as typeof window.JetpackScriptData;
+	queryClient.clear();
 	window.localStorage.clear();
-	mockGetScriptData.mockReturnValue( { site: { wpcom: { blog_id: 123 } } } as never );
+	mockApiFetch.mockReset();
 	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
 	mockUseTrafficChart.mockReturnValue( {
@@ -91,6 +101,11 @@ beforeEach( () => {
 		isError: false,
 		refetch: jest.fn(),
 	} );
+} );
+
+afterEach( () => {
+	window.JetpackScriptData = originalScriptData;
+	jest.useRealTimers();
 } );
 
 describe( 'TrafficChart chart type', () => {
@@ -139,7 +154,7 @@ describe( 'TrafficChart inherited Stats v1 choice', () => {
 	} );
 
 	it( 'falls back to the default when the site id is unknown', () => {
-		mockGetScriptData.mockReturnValue( undefined as never );
+		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
 		window.localStorage.setItem( V1_KEY, 'line' );
 
 		render( <TrafficChartRender attributes={ attributes } /> );
@@ -307,5 +322,89 @@ describe( 'TrafficChart with an idle window', () => {
 		expect(
 			screen.getByText( 'We couldn’t find results for this time period.' )
 		).toBeInTheDocument();
+	} );
+
+	async function renderEmptyViews( posts: unknown ) {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		mockApiFetch.mockResolvedValue( posts );
+
+		const view = render(
+			<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } />
+		);
+
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'success' )
+		);
+
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		render( empty );
+		return view;
+	}
+
+	it( 'offers Create post when an empty Views result has no published post', async () => {
+		await renderEmptyViews( [] );
+
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/blog/wp-admin/post-new.php'
+		);
+		expect( screen.getByText( /You haven't published any posts yet/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps Create post while the empty Views result refetches', async () => {
+		const { rerender } = await renderEmptyViews( [] );
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: true,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+
+		rerender( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		expect( empty.props.action?.label ).toBe( 'Create post' );
+	} );
+
+	it( 'keeps the generic message when a post has no views in the range', async () => {
+		await renderEmptyViews( [ { id: 7 } ] );
+
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'keeps the generic empty state when the published-post check fails', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		mockApiFetch.mockRejectedValue( { code: 'rest_forbidden', data: { status: 403 } } );
+
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'error' )
+		);
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		expect( empty.props.action ).toBeUndefined();
+	} );
+
+	it( 'does not check posts when Views has traffic', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );
