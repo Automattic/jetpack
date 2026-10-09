@@ -283,6 +283,7 @@ export {
 	type TimeSeriesData,
 	calculateDelta,
 	flagUrl,
+	statsUpgradeUrl,
 	BOOKINGS_FILTER,
 	PHYSICAL_PRODUCTS_FILTER,
 	buildSalesByUtmData,

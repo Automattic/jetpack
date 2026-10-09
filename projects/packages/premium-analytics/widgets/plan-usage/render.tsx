@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
+	statsUpgradeUrl,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -55,30 +56,13 @@ function overLimitMessage( overLimitMonths: number ): string {
 }
 
 /**
- * The Stats tier-upgrade purchase screen for this site — the same flow the
- * Stats "Plan usage" section links to — returning to this dashboard after
- * checkout. `undefined` where script data is absent (e.g. Storybook without a
- * seeded `window.JetpackScriptData`).
- */
-function upgradeUrl(): string | undefined {
-	const site = getScriptData()?.site;
-	const blogId = site?.wpcom?.blog_id;
-	if ( ! site?.admin_url || ! blogId ) {
-		return undefined;
-	}
-
-	const backTo = encodeURIComponent( 'admin.php?page=jetpack-premium-analytics-wp-admin' );
-	return `${ site.admin_url }admin.php?page=stats#!/stats/purchase/${ blogId }?from=jetpack-premium-analytics&productType=commercial&redirect_uri=${ backTo }`;
-}
-
-/**
  * Presentational bar, following the Stats "Plan usage" section. Renders the
  * populated state only — `WidgetState` owns loading, error, and unavailable.
  */
 function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsageBarProps ) {
 	const usageValue = usage ?? 0;
 	const isOverLimit = usageValue >= limit;
-	const upgradeHref = upgradeUrl();
+	const upgradeHref = statsUpgradeUrl( 'jetpack-premium-analytics' );
 
 	return (
 		<Stack

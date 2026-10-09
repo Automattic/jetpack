@@ -38,6 +38,7 @@ import {
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
+	PlanLimitNotice,
 	RefreshFailureNotice,
 	SectionSyncNotice,
 } from './components';
@@ -393,6 +394,8 @@ function Dashboard(): JSX.Element {
 										value={ section.slug }
 										className={ styles.content }
 									>
+										<PlanLimitNotice enabled={ ! editMode } />
+
 										<SectionHeader
 											ref={ setHeaderRef }
 											title={ resolveSectionHeading( section ) }
