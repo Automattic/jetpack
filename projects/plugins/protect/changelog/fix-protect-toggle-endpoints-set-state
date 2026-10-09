@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Firewall and Account protection: Fix turning a feature on or off doing the opposite when the page was out of date.
