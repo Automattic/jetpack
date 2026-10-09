@@ -7,10 +7,11 @@
 
 namespace Automattic\Jetpack\Protect\Sections;
 
-use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
+use Automattic\Jetpack\Waf\Waf_Request;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Self_Check;
 use WP_Error;
 use WP_REST_Server;
@@ -46,9 +47,9 @@ class Firewall implements Dashboard_Section {
 			Dashboard::get_module_state( 'waf' ),
 			self::get_blocks(),
 			array(
-				'hasScan'   => Dashboard::has_scan_plan(),
-				// For "Add your current IP" on the always-allowed list; `jetpack-ip` only arrives through other packages.
-				'currentIp' => class_exists( IP_Utils::class ) ? (string) IP_Utils::get_ip() : '',
+				'hasScan'     => Dashboard::has_scan_plan(),
+				'currentIp'   => self::get_current_ip(),
+				'manualRules' => self::get_manual_rules(),
 			)
 		);
 	}
@@ -120,6 +121,44 @@ class Firewall implements Dashboard_Section {
 			'blockedCount' => class_exists( Waf_Blocklog_Manager::class )
 				? Waf_Blocklog_Manager::get_all_time_block_count()
 				: null,
+		);
+	}
+
+	/**
+	 * The visitor's IP address as the firewall sees it, for "Add my IP address" on the always-allowed list.
+	 *
+	 * Behind a proxy, `X-Forwarded-For` can name the proxy for every visitor; allowing it would exempt all traffic.
+	 *
+	 * @return string Empty when the WAF package isn't loaded.
+	 */
+	public static function get_current_ip() {
+		if ( ! class_exists( Waf_Request::class ) ) {
+			return '';
+		}
+
+		return (string) ( new Waf_Request() )->get_real_user_ip_address();
+	}
+
+	/**
+	 * The IP lists the firewall enforces.
+	 *
+	 * @return array{blockList: string, blockListEnabled: bool, allowList: string, allowListEnabled: bool}
+	 */
+	public static function get_manual_rules() {
+		if ( ! class_exists( Waf_Rules_Manager::class ) ) {
+			return array(
+				'blockList'        => '',
+				'blockListEnabled' => false,
+				'allowList'        => '',
+				'allowListEnabled' => false,
+			);
+		}
+
+		return array(
+			'blockList'        => (string) get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, '' ),
+			'blockListEnabled' => (bool) Waf_Rules_Manager::ip_block_list_enabled(),
+			'allowList'        => (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ),
+			'allowListEnabled' => (bool) Waf_Rules_Manager::ip_allow_list_enabled(),
 		);
 	}
 

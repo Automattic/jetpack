@@ -22,6 +22,7 @@ const UNAVAILABLE: FirewallState = {
 	recentBlocks: [],
 	hasScan: false,
 	currentIp: '',
+	manualRules: { blockList: '', blockListEnabled: false, allowList: '', allowListEnabled: false },
 };
 
 type NoticeIntent = ComponentProps< typeof Notice.Root >[ 'intent' ];
@@ -169,7 +170,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ active && (
 				<CardRow>
-					<ManualRules settings={ settings } openTab={ openTab } />
+					<ManualRules
+						rules={ firewall.manualRules ?? UNAVAILABLE.manualRules }
+						settings={ settings }
+						openTab={ openTab }
+					/>
 				</CardRow>
 			) }
 			{ active && (

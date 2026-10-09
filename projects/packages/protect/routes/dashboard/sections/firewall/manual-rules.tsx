@@ -1,7 +1,9 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import TabLink from '../../components/tab-link';
+import type { ProtectSettings } from '../../data/use-protect-settings';
 import type { DashboardContext } from '../types';
+import type { ManualRulesState } from './types';
 
 const SHOWN = 3;
 
@@ -14,6 +16,28 @@ const SHOWN = 3;
 export function summarizeIpList( list?: unknown ): { shown: string[]; more: number } {
 	const ips = typeof list === 'string' ? list.split( /[\s,]+/ ).filter( Boolean ) : [];
 	return { shown: ips.slice( 0, SHOWN ), more: Math.max( 0, ips.length - SHOWN ) };
+}
+
+/**
+ * The manual rules from page load, replaced by the saved settings once the Settings tab loads them.
+ *
+ * @param fromPageLoad - The rules PHP sent with the page.
+ * @param settings     - Jetpack settings, or null before they load.
+ * @return The rules to show.
+ */
+export function getManualRules(
+	fromPageLoad: ManualRulesState,
+	settings: ProtectSettings | null
+): ManualRulesState {
+	if ( ! settings ) {
+		return fromPageLoad;
+	}
+	return {
+		blockList: String( settings.jetpack_waf_ip_block_list ?? '' ),
+		blockListEnabled: Boolean( settings.jetpack_waf_ip_block_list_enabled ),
+		allowList: String( settings.jetpack_waf_ip_allow_list ?? '' ),
+		allowListEnabled: Boolean( settings.jetpack_waf_ip_allow_list_enabled ),
+	};
 }
 
 /**
@@ -65,15 +89,17 @@ function IpListSummary( {
  * The firewall's manual rules: the IP addresses it always blocks and always allows.
  *
  * @param props          - Component props.
- * @param props.settings - Jetpack settings, which hold both lists.
+ * @param props.rules    - The rules as of page load.
+ * @param props.settings - Jetpack settings, which hold both lists once loaded.
  * @param props.openTab  - Switches dashboard tabs, for the link to Settings.
  * @return The summary.
  */
 export default function ManualRules( {
+	rules,
 	settings,
 	openTab,
-}: Pick< DashboardContext, 'settings' | 'openTab' > ) {
-	const values = settings.settings ?? {};
+}: { rules: ManualRulesState } & Pick< DashboardContext, 'settings' | 'openTab' > ) {
+	const current = getManualRules( rules, settings.settings );
 
 	return (
 		<Stack direction="column" gap="sm">
@@ -82,13 +108,13 @@ export default function ManualRules( {
 			</Text>
 			<IpListSummary
 				label={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
-				list={ values.jetpack_waf_ip_block_list }
-				enabled={ Boolean( values.jetpack_waf_ip_block_list_enabled ) }
+				list={ current.blockList }
+				enabled={ current.blockListEnabled }
 			/>
 			<IpListSummary
 				label={ __( 'Always-allowed IP addresses', 'jetpack-protect-pkg' ) }
-				list={ values.jetpack_waf_ip_allow_list }
-				enabled={ Boolean( values.jetpack_waf_ip_allow_list_enabled ) }
+				list={ current.allowList }
+				enabled={ current.allowListEnabled }
 			/>
 			<TabLink tab="settings" onOpen={ openTab }>
 				{ __( 'Manage manual rules', 'jetpack-protect-pkg' ) }
