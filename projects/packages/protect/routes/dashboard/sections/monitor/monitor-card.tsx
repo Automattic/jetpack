@@ -5,7 +5,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 import { Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
-import SettingsLink from '../../components/settings-link';
+import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import type { MonitorContext, Uptime, UptimeDay } from './types';
 import type { CardStatus } from '../../components/card';
@@ -77,13 +77,13 @@ function getStatus(
 /**
  * The Monitor card: current status and daily uptime, one bar per day.
  *
- * @param props              - The dashboard context.
- * @param props.state        - The Monitor module's state from PHP.
- * @param props.settings     - Jetpack settings, for the module's live state.
- * @param props.openSettings - Opens the Settings tab.
+ * @param props          - The dashboard context.
+ * @param props.state    - The Monitor module's state from PHP.
+ * @param props.settings - Jetpack settings, for the module's live state.
+ * @param props.openTab  - Switches dashboard tabs, for the link to Settings.
  * @return The card.
  */
-export default function MonitorCard( { state: monitor, settings, openSettings }: MonitorContext ) {
+export default function MonitorCard( { state: monitor, settings, openTab }: MonitorContext ) {
 	const available = Boolean( monitor?.available );
 	// Saves apply optimistically, and the uptime route refuses until Monitor is really on.
 	const active =
@@ -191,11 +191,11 @@ export default function MonitorCard( { state: monitor, settings, openSettings }:
 			</CardRow>
 			{ available && (
 				<CardRow>
-					<SettingsLink onOpen={ openSettings }>
+					<TabLink tab="settings" onOpen={ openTab }>
 						{ active
 							? __( 'Configure Downtime Monitoring', 'jetpack-protect-pkg' )
 							: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
-					</SettingsLink>
+					</TabLink>
 				</CardRow>
 			) }
 		</ProtectCard>
