@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Recover from a stale REST nonce by fetching a fresh one and retrying the request once.
