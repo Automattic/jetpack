@@ -769,6 +769,19 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that sites other than Simple leave the AI credits check to the endpoint.
+	 */
+	public function test_inline_script_leaves_ai_credits_to_the_endpoint_off_simple() {
+		$this->enable_and_enqueue_block_editor();
+
+		$data = $this->get_image_studio_inline_data();
+
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'usesAiCredits', $data );
+		$this->assertNull( $data['usesAiCredits'] );
+	}
+
+	/**
 	 * Test inline script includes canGenerateVideoClips property.
 	 */
 	public function test_inline_script_includes_can_generate_video_clips() {

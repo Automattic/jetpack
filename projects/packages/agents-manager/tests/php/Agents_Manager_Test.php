@@ -1198,6 +1198,39 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that get_current_site tells chats whether the site uses AI credits.
+	 *
+	 * @param bool      $is_simple   Whether to simulate a Simple site.
+	 * @param bool      $has_sticker Whether the site has the AI credits sticker.
+	 * @param bool|null $expected    Expected usesAiCredits value.
+	 * @dataProvider provide_uses_ai_credits
+	 */
+	#[DataProvider( 'provide_uses_ai_credits' )]
+	public function test_get_current_site_says_whether_the_site_uses_ai_credits( $is_simple, $has_sticker, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', $is_simple );
+		Functions\when( 'has_blog_sticker' )->alias(
+			static function ( $sticker, $blog_id ) use ( $has_sticker ) {
+				return $has_sticker && 'ai-credit-metering' === $sticker && get_current_blog_id() === $blog_id;
+			}
+		);
+
+		$this->assertSame( $expected, $this->call_get_current_site()['usesAiCredits'] );
+	}
+
+	/**
+	 * Data provider for test_get_current_site_says_whether_the_site_uses_ai_credits.
+	 *
+	 * @return array<string, array{0: bool, 1: bool, 2: bool|null}>
+	 */
+	public static function provide_uses_ai_credits() {
+		return array(
+			'Simple site with the sticker'    => array( true, true, true ),
+			'Simple site without the sticker' => array( true, false, false ),
+			'other site, which cannot tell'   => array( false, true, null ),
+		);
+	}
+
+	/**
 	 * Tests that enqueue_scripts includes currentUser in agentsManagerData.
 	 */
 	public function test_enqueue_scripts_includes_current_user() {
