@@ -28,19 +28,22 @@ const NoticeContextProvider = ( { children } ) => {
 	const setNotice = useCallback(
 		// If onClose is not provided in the "notice", and close button is not hidden, use the custom onClose function
 		( notice: Notice, onClose?: NoticeOptions[ 'onClose' ] ) => {
-			// Only update notice if there is not already a notice or the new notice has a higher priority
-			if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
-				const newOptions = {
-					...notice.options,
-					onClose:
-						notice.options?.onClose || ( ! notice.options?.hideCloseButton ? onClose : undefined ),
-				};
+			const newOptions = {
+				...notice.options,
+				onClose:
+					notice.options?.onClose || ( ! notice.options?.hideCloseButton ? onClose : undefined ),
+			};
 
-				resetNotice();
-				setCurrentNotice( { ...notice, options: newOptions } );
-			}
+			// Compare against the queued state: watchers call this several times in one effect pass.
+			setCurrentNotice( prev =>
+				! prev.message || notice.options.priority > prev.options.priority
+					? { ...notice, options: newOptions }
+					: prev
+			);
 		},
-		[ currentNotice.message, currentNotice.options.priority, resetNotice ]
+		// Changing identity on each notice change re-runs the watchers, e.g. to show the next notice after a close.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[ currentNotice.message, currentNotice.options.priority ]
 	);
 
 	return (
