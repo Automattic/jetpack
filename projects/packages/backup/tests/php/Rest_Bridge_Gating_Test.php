@@ -71,23 +71,20 @@ class Rest_Bridge_Gating_Test extends TestCase {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 
-		if ( $modernized ) {
-			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		}
+		$filter = $modernized ? '__return_true' : '__return_false';
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, $filter );
 
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
 		remove_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 
-		if ( $modernized ) {
-			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		}
+		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, $filter );
 
 		return array_keys( $wp_rest_server->get_routes() );
 	}
 
 	/**
-	 * With the filter off — the default — none of the bridge routes exist.
+	 * With the filter off, none of the bridge routes exist.
 	 */
 	public function test_registers_no_routes_when_not_modernized() {
 		$routes = $this->collect_routes( false );
