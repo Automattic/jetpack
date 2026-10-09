@@ -169,8 +169,46 @@ jobs:
             mkdir "$BUILD_BASE"
             touch "$BUILD_BASE/mirrors.txt"
           else
-            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
+            # TEMP (WordPress/gutenberg#79889 measurement): sample memory while building.
+            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}" &
+            BUILD_PID=$!
+            .github/files/build-memory-sampler.sh "$BUILD_PID" /tmp/build-memory &
+            SAMPLER_PID=$!
+            BUILD_RC=0
+            wait "$BUILD_PID" || BUILD_RC=$?
+            wait "$SAMPLER_PID"
+            exit "$BUILD_RC"
           fi
+
+      - name: Report build memory
+        if: ${{ always() }}
+        env:
+          JOB_NAME: ${{ github.job }}
+        run: |
+          [[ -f /tmp/build-memory/summary.md ]] || exit 0
+          {
+            echo "### Build memory ($JOB_NAME, $(nproc) CPUs, $(awk '/MemTotal/{printf "%d", $2/1024}' /proc/meminfo) MB RAM)"
+            echo
+            echo "| Metric | Value |"
+            echo "| --- | --- |"
+            cat /tmp/build-memory/summary.md
+            echo
+            echo '<details><summary>Processes at peak build-tree RSS</summary>'
+            echo
+            echo '```'
+            head -40 /tmp/build-memory/peak-processes.txt
+            echo '```'
+            echo '</details>'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Store build memory log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: build-memory-${{ github.job }}
+          path: /tmp/build-memory/
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Create archive
         run: |
