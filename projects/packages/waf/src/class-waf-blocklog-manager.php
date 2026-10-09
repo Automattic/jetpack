@@ -14,6 +14,12 @@ class Waf_Blocklog_Manager {
 
 	const BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        = 'jetpack_waf_blocklog_daily_summary';
 	const BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT = 'jetpack_waf_all_time_block_count';
+	const SCHEMA_VERSION_OPTION_NAME                = 'jetpack_waf_blocklog_schema_version';
+
+	/**
+	 * Version 2 adds the request's method, URI and user agent.
+	 */
+	const SCHEMA_VERSION = 2;
 
 	/**
 	 * Database connection.
@@ -106,12 +112,55 @@ class Waf_Blocklog_Manager {
 			timestamp datetime NOT NULL,
 			rule_id BIGINT NOT NULL,
 			reason longtext NOT NULL,
+			method varchar(10) NULL,
+			request_uri text NULL,
+			user_agent text NULL,
 			PRIMARY KEY (log_id),
 			KEY timestamp (timestamp)
 		)
 		";
 
 		dbDelta( $sql );
+		update_option( self::SCHEMA_VERSION_OPTION_NAME, self::SCHEMA_VERSION );
+	}
+
+	/**
+	 * Add the columns newer versions log to a table created by an older one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function maybe_upgrade_blocklog_table() {
+		if ( (int) get_option( self::SCHEMA_VERSION_OPTION_NAME, 1 ) < self::SCHEMA_VERSION ) {
+			self::create_blocklog_table();
+		}
+	}
+
+	/**
+	 * The method, URI and user agent of a request, trimmed to fit the log. No IP address is kept.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $server The request's server variables, such as `$_SERVER`.
+	 * @return array{method: string|null, request_uri: string|null, user_agent: string|null}
+	 */
+	public static function get_request_details( array $server ) {
+		$trim = function ( $key, $length ) use ( $server ) {
+			if ( ! isset( $server[ $key ] ) || ! is_string( $server[ $key ] ) ) {
+				return null;
+			}
+			$value = \stripslashes( $server[ $key ] );
+			return function_exists( 'mb_strcut' ) ? mb_strcut( $value, 0, $length, 'UTF-8' ) : substr( $value, 0, $length );
+		};
+
+		$method = $trim( 'REQUEST_METHOD', 10 );
+
+		return array(
+			'method'      => null === $method ? null : strtoupper( $method ),
+			'request_uri' => $trim( 'REQUEST_URI', 2048 ),
+			'user_agent'  => $trim( 'HTTP_USER_AGENT', 512 ),
+		);
 	}
 
 	/**
@@ -130,9 +179,25 @@ class Waf_Blocklog_Manager {
 
 		global $table_prefix;
 
-		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
+		$details = self::get_request_details( $_SERVER );
+
+		// Until its upgrade runs, the table has no detail columns; PHP 8.1+ throws on them instead of returning false.
+		try {
+			$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason, rule_id, timestamp, method, request_uri, user_agent) VALUES (?, ?, ?, ?, ?, ?)" );
+		} catch ( \Exception $e ) {
+			$statement = false;
+		}
+
 		if ( false !== $statement ) {
-			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+			$statement->bind_param( 'sissss', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'], $details['method'], $details['request_uri'], $details['user_agent'] );
+		} else {
+			$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
+			if ( false !== $statement ) {
+				$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+			}
+		}
+
+		if ( false !== $statement ) {
 			$statement->execute();
 
 			if ( $conn->insert_id > 100 ) {
@@ -375,7 +440,7 @@ class Waf_Blocklog_Manager {
 	 * @since $$next-version$$
 	 *
 	 * @param int $limit How many to return.
-	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string}> Timestamps are ISO 8601 UTC.
+	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string, method: string|null, uri: string|null, userAgent: string|null}> Timestamps are ISO 8601 UTC; the request details are null for rows logged before they were kept.
 	 */
 	public static function get_recent_blocks( $limit = 10 ) {
 		global $wpdb;
@@ -384,7 +449,7 @@ class Waf_Blocklog_Manager {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table, read on demand.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT log_id, timestamp, rule_id, reason FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
+				"SELECT * FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
 				$limit
 			),
 			ARRAY_A
@@ -402,6 +467,9 @@ class Waf_Blocklog_Manager {
 					'timestamp' => str_replace( ' ', 'T', $row['timestamp'] ) . 'Z',
 					'ruleId'    => (int) $row['rule_id'],
 					'reason'    => (string) $row['reason'],
+					'method'    => $row['method'] ?? null,
+					'uri'       => $row['request_uri'] ?? null,
+					'userAgent' => $row['user_agent'] ?? null,
 				);
 			},
 			$rows

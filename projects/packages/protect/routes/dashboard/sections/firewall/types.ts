@@ -6,6 +6,10 @@ export type BlockedRequest = {
 	timestamp: string;
 	ruleId: number;
 	reason: string;
+	/** Null for blocks logged before the firewall kept request details. */
+	method: string | null;
+	uri: string | null;
+	userAgent: string | null;
 };
 
 export type ManualRulesState = {

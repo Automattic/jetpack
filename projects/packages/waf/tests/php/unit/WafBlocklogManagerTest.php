@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
@@ -122,5 +123,123 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 
 		$this->assertSame( 3, Waf_Blocklog_Manager::get_all_time_block_count() );
 		$this->assertSame( 3, Waf_Blocklog_Manager::get_current_day_block_count() );
+	}
+
+	/**
+	 * Test which request details are kept for a blocked request.
+	 *
+	 * @dataProvider provideRequestDetails
+	 *
+	 * @param array $server   The request's server variables.
+	 * @param array $expected The kept details.
+	 */
+	#[DataProvider( 'provideRequestDetails' )]
+	public function testRequestDetails( $server, $expected ) {
+		$this->assertSame( $expected, Waf_Blocklog_Manager::get_request_details( $server ) );
+	}
+
+	/**
+	 * Data provider for testRequestDetails.
+	 *
+	 * @return array
+	 */
+	public static function provideRequestDetails() {
+		return array(
+			'a normal request'             => array(
+				array(
+					'REQUEST_METHOD'  => 'post',
+					'REQUEST_URI'     => '/?s=%3Cscript%3E',
+					'HTTP_USER_AGENT' => 'sqlmap/1.7',
+				),
+				array(
+					'method'      => 'POST',
+					'request_uri' => '/?s=%3Cscript%3E',
+					'user_agent'  => 'sqlmap/1.7',
+				),
+			),
+			'missing values are null'      => array(
+				array(),
+				array(
+					'method'      => null,
+					'request_uri' => null,
+					'user_agent'  => null,
+				),
+			),
+			'oversized values are trimmed' => array(
+				array(
+					'REQUEST_METHOD'  => str_repeat( 'X', 20 ),
+					'REQUEST_URI'     => '/' . str_repeat( 'a', 5000 ),
+					'HTTP_USER_AGENT' => str_repeat( 'b', 1000 ),
+				),
+				array(
+					'method'      => str_repeat( 'X', 10 ),
+					'request_uri' => '/' . str_repeat( 'a', 2047 ),
+					'user_agent'  => str_repeat( 'b', 512 ),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Rows logged before the table had request details still read back, with the details null.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testRecentBlocksIncludeRequestDetailsWhenLogged() {
+		define( 'ARRAY_A', 'ARRAY_A' );
+		$GLOBALS['wpdb'] = new class() {
+			/** @var string */
+			public $prefix = 'wp_';
+
+			/**
+			 * @param bool $suppress Whether to suppress errors.
+			 */
+			public function suppress_errors( $suppress = true ) {
+				return $suppress;
+			}
+
+			/**
+			 * @param string $query Query.
+			 */
+			public function prepare( $query ) {
+				return $query;
+			}
+
+			/**
+			 * @return array
+			 */
+			public function get_results() {
+				return array(
+					array(
+						'log_id'      => '2',
+						'timestamp'   => '2026-10-09 16:54:03',
+						'rule_id'     => '-1',
+						'reason'      => 'ip block list',
+						'method'      => 'GET',
+						'request_uri' => '/?page_id=1',
+						'user_agent'  => 'curl/8.14.1',
+					),
+					array(
+						'log_id'    => '1',
+						'timestamp' => '2026-10-09 16:07:51',
+						'rule_id'   => '-2',
+						'reason'    => 'firewall test',
+					),
+				);
+			}
+		};
+
+		$blocks = Waf_Blocklog_Manager::get_recent_blocks();
+
+		$this->assertSame(
+			array(
+				'method'    => 'GET',
+				'uri'       => '/?page_id=1',
+				'userAgent' => 'curl/8.14.1',
+			),
+			array_intersect_key( $blocks[0], array_flip( array( 'method', 'uri', 'userAgent' ) ) )
+		);
+		$this->assertNull( $blocks[1]['uri'] );
 	}
 }

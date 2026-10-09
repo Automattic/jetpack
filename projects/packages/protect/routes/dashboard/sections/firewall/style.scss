@@ -5,6 +5,7 @@
 
 	&__item {
 		display: flex;
+		align-items: flex-start;
 		justify-content: space-between;
 		gap: 16px;
 		padding-block: 8px;
@@ -14,6 +15,17 @@
 				var(--wpds-border-width-xs) solid
 				var(--wpds-color-stroke-surface-neutral);
 		}
+	}
+
+	&__request {
+		min-inline-size: 0;
+	}
+
+	&__uri {
+		overflow: hidden;
+		font-size: 12px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 }
 

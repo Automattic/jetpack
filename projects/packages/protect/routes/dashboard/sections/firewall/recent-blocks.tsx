@@ -25,7 +25,19 @@ export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } )
 				<ul className="jp-protect-recent-blocks">
 					{ blocks.map( block => (
 						<li key={ block.id } className="jp-protect-recent-blocks__item">
-							<Text variant="body-md">{ getBlockLabel( block ) }</Text>
+							<Stack direction="column" gap="xs" className="jp-protect-recent-blocks__request">
+								<Text variant="body-md">{ getBlockLabel( block ) }</Text>
+								{ block.uri && (
+									<code className="jp-protect-recent-blocks__uri" title={ block.uri }>
+										{ [ block.method, block.uri ].filter( Boolean ).join( ' ' ) }
+									</code>
+								) }
+								{ block.userAgent && (
+									<Text variant="body-sm" className="jp-protect-card__muted">
+										{ block.userAgent }
+									</Text>
+								) }
+							</Stack>
 							<Text variant="body-sm" className="jp-protect-card__muted">
 								<time dateTime={ block.timestamp }>
 									{ dateI18n( 'M j, g:i A', block.timestamp, undefined ) }

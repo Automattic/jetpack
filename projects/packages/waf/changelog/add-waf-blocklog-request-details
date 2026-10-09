@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Blocklog: Store the method, URI and user agent of each blocked request.
