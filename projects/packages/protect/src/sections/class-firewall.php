@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect\Sections;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
@@ -44,7 +45,11 @@ class Firewall implements Dashboard_Section {
 		return array_merge(
 			Dashboard::get_module_state( 'waf' ),
 			self::get_blocks(),
-			array( 'hasScan' => Dashboard::has_scan_plan() )
+			array(
+				'hasScan'   => Dashboard::has_scan_plan(),
+				// For "Add your current IP" on the always-allowed list; `jetpack-ip` only arrives through other packages.
+				'currentIp' => class_exists( IP_Utils::class ) ? (string) IP_Utils::get_ip() : '',
+			)
 		);
 	}
 
