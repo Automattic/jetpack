@@ -67,6 +67,36 @@ function getSiteErrorMessage( error: unknown ): string | null {
 		: null;
 }
 
+type SettingChange = { setting: keyof StatsSettings; enabled: boolean; role?: string };
+
+/**
+ * Each switch a save flipped and each role it added or removed, in the shape Odyssey Stats records.
+ *
+ * @param before - The settings the save changed.
+ * @param edits  - The saved values.
+ * @return One entry per change.
+ */
+function getSettingChanges(
+	before: StatsSettings,
+	edits: Partial< StatsSettings >
+): SettingChange[] {
+	return ( Object.keys( edits ) as ( keyof StatsSettings )[] ).flatMap( setting => {
+		const value = edits[ setting ];
+		if ( ! Array.isArray( value ) ) {
+			return [ { setting, enabled: Boolean( value ) } ];
+		}
+		const previous = before[ setting ] as string[];
+		return [
+			...value
+				.filter( role => ! previous.includes( role ) )
+				.map( role => ( { setting, enabled: true, role } ) ),
+			...previous
+				.filter( role => ! value.includes( role ) )
+				.map( role => ( { setting, enabled: false, role } ) ),
+		];
+	} );
+}
+
 /**
  * The dashboard's Settings tab: the plan usage, the Stats settings, and where to switch Stats off.
  *
@@ -105,14 +135,15 @@ export function StatsSettingsPanel(): JSX.Element {
 				);
 				return;
 			}
-			trackEvent( 'jetpack_premium_analytics_settings_save', {
-				settings: Object.keys( edits ).join( ',' ),
-			} );
+			// DataForm only renders once the settings have loaded.
+			getSettingChanges( settings as StatsSettings, edits ).forEach( change =>
+				trackEvent( 'jetpack_premium_analytics_settings_changed', change )
+			);
 			createSuccessNotice( __( 'Settings saved.', 'jetpack-premium-analytics-pkg' ), {
 				type: 'snackbar',
 			} );
 		},
-		[ createErrorNotice, createSuccessNotice, saveChange, trackEvent ]
+		[ createErrorNotice, createSuccessNotice, saveChange, settings, trackEvent ]
 	);
 
 	let form: JSX.Element;
