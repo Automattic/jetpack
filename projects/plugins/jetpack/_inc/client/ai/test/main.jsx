@@ -116,8 +116,8 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 	} );
 }
 
-// The design-system Notice mirrors its text into a hidden wp.a11y.speak live
-// region, so a bare text query matches twice. Ignore that region.
+// The page notice mirrors its text into a hidden wp.a11y.speak live region,
+// so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
 // An MCP payload for a connected site with MCP enabled: account tools make

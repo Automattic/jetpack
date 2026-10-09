@@ -177,11 +177,9 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	};
 
 	return (
-		// Notice.Root speaks its children by default; this notice appears on every load.
 		<Notice.Root
 			intent="info"
 			icon={ null }
-			spokenMessage=""
 			// The notice's middle column is `1fr`, which refuses to shrink below its
 			// contents and so pushes the close button outside a narrow sidebar.
 			style={ { gridTemplateColumns: 'auto minmax(0, 1fr) auto' } }

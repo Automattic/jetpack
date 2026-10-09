@@ -78,6 +78,8 @@ export default class SimpleNotice extends Component {
 		const body = text ? this.clearText( text ) : children;
 		const actions = text ? children : null;
 
+		// No speak() call on purpose: the legacy notice never announced, and the
+		// ones that should announce already sit in an aria-live container.
 		return (
 			<Notice.Root
 				intent={ this.getIntent() }
@@ -85,9 +87,6 @@ export default class SimpleNotice extends Component {
 				// `jp-notice`. `is-hidden` keeps `display` hiding the notice rather than
 				// unmounting it: children like NoticeActionReconnect track on mount.
 				className={ clsx( 'jp-notice', className, { 'is-hidden': ! display } ) }
-				// The legacy notice never announced. Several of these are permanent, and
-				// the ones that should announce already sit in an aria-live container.
-				spokenMessage={ null }
 			>
 				{ title ? <Notice.Title>{ title }</Notice.Title> : null }
 				{ ( body || body === 0 ) && (

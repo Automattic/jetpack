@@ -203,7 +203,7 @@ jest.mock( '@wordpress/ui', () => ( {
 		ActionLink: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 			<a href={ href }>{ children }</a>
 		),
-		CloseIcon: ( { onClick }: { onClick?: () => void } ) => (
+		CloseIconButton: ( { onClick }: { onClick?: () => void } ) => (
 			<button onClick={ onClick }>Dismiss</button>
 		),
 	},
