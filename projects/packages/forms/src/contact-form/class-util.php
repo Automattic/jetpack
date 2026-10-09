@@ -467,16 +467,20 @@ class Util {
 			$context = 'template_part';
 		}
 
-		$plugin = Contact_Form_Plugin::init();
+		$plugin      = Contact_Form_Plugin::init();
+		$event_props = array(
+			'post_id'     => $post_id,
+			'form_type'   => $form_type,
+			'context'     => $context,
+			'has_consent' => empty( $all_values['email_marketing_consent'] ) ? 0 : 1,
+		);
 
-		$plugin->record_tracks_event(
-			'jetpack_forms_message_sent',
-			array(
-				'post_id'     => $post_id,
-				'form_type'   => $form_type,
-				'context'     => $context,
-				'has_consent' => empty( $all_values['email_marketing_consent'] ) ? 0 : 1,
-			)
+		// Tracks fires a blocking pixel request, so keep it off the visitor's submission request.
+		add_action(
+			'shutdown',
+			static function () use ( $plugin, $event_props ) {
+				$plugin->record_tracks_event( 'jetpack_forms_message_sent', $event_props );
+			}
 		);
 	}
 

@@ -62,6 +62,13 @@ class Contact_Form_Plugin {
 	public static $using_contact_form_field = false;
 
 	/**
+	 * Which built-in check flagged the submission currently being processed.
+	 *
+	 * @var string 'disallowed_list', 'akismet', or '' when neither has flagged it.
+	 */
+	private $spam_verdict_source = '';
+
+	/**
 	 *
 	 * The last Feedback Post ID Erased as part of the Personal Data Eraser.
 	 * Helps with pagination.
@@ -2305,6 +2312,28 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Which built-in check flagged the submission currently being processed.
+	 *
+	 * @internal Exists only so Contact_Form::process_submission() can tell the checks apart.
+	 *
+	 * @return string 'disallowed_list', 'akismet', or '' when neither has flagged it.
+	 */
+	public function get_spam_verdict_source() {
+		return $this->spam_verdict_source;
+	}
+
+	/**
+	 * Clear the recorded verdict source before a new submission is checked.
+	 *
+	 * @internal Exists only so Contact_Form::process_submission() can tell the checks apart.
+	 *
+	 * @return void
+	 */
+	public function reset_spam_verdict_source() {
+		$this->spam_verdict_source = '';
+	}
+
+	/**
 	 * Check if a submission matches the comment disallowed list.
 	 * Attached to `jetpack_contact_form_in_comment_disallowed_list`.
 	 *
@@ -2327,6 +2356,7 @@ class Contact_Form_Plugin {
 				$form['user_agent']
 			)
 		) {
+			$this->spam_verdict_source = 'disallowed_list';
 			return true;
 		}
 
@@ -2433,7 +2463,13 @@ class Contact_Form_Plugin {
 		 * @param WP_Error|bool $result Is the submitted feedback spam.
 		 * @param array|bool $form Submitted feedback.
 		 */
-		return apply_filters( 'contact_form_is_spam_akismet', $result, $form );
+		$result = apply_filters( 'contact_form_is_spam_akismet', $result, $form );
+
+		if ( true === $result ) {
+			$this->spam_verdict_source = 'akismet';
+		}
+
+		return $result;
 	}
 
 	/**
@@ -3374,19 +3410,42 @@ class Contact_Form_Plugin {
 			require_lib( 'tracks/client' );
 			tracks_record_event( $event_user, $event_name, $event_props );
 		} else {
-			$user_connected = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
-			if ( ! $user_connected ) {
-				return;
-			}
+			$is_logged_out_visitor = empty( $event_user->ID );
 			// logged out visitor, record event with Jetpack master user.
-			if ( empty( $event_user->ID ) ) {
+			if ( $is_logged_out_visitor ) {
 				$master_user_id = Jetpack_Options::get_option( 'master_user' );
 				if ( ! empty( $master_user_id ) ) {
 					$event_user = get_userdata( $master_user_id );
 				}
 			}
 
+			/*
+			 * Check the user the event will be attributed to, not the visitor: a logged-out
+			 * form visitor is never connected, so checking them dropped every anonymous
+			 * submission before the master-user fallback above could be used.
+			 */
+			if ( ! $event_user instanceof \WP_User
+				|| ! ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( $event_user->ID )
+			) {
+				return;
+			}
+
 			$tracking = new Tracking();
+
+			if ( $is_logged_out_visitor ) {
+				/*
+				 * Skip record_user_event(): it stamps the request's IP, user agent and language
+				 * onto the event, and those describe the visitor rather than the master user the
+				 * event is attributed to. Add by hand the props it would otherwise contribute.
+				 */
+				$event_props['blog_url']        = get_option( 'siteurl' );
+				$event_props['blog_id']         = Jetpack_Options::get_option( 'id' );
+				$event_props['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
+
+				$tracking->tracks_record_event( $event_user, 'jetpack_' . $event_name, $event_props );
+				return;
+			}
+
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
 	}
