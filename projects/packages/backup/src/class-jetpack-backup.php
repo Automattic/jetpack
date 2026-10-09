@@ -562,21 +562,18 @@ class Jetpack_Backup {
 	 * A WordPress.com blip then reaches the dashboard as an empty success, which
 	 * is how a paying customer ends up looking at the first-run screen. A
 	 * WP_Error makes the REST layer answer with a status, so every caller's
-	 * existing failure path runs.
+	 * existing failure path runs. WordPress.com's reason, when its reply has one,
+	 * rides along as `data.wpcom`; unlike preflight's, these routes' callers are all
+	 * in this package, so the extra key is safe.
 	 *
-	 * @param int $status The upstream response code, already cast to an int, or 0
-	 *                    when the request never reached WordPress.com.
+	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @return WP_Error
 	 */
-	private static function get_failed_fetch_error( $status = 0 ) {
-		return new WP_Error(
+	private static function get_failed_fetch_error( $response ) {
+		return REST\Rest_Controller::upstream_error(
+			$response,
 			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
-			array(
-				// A transport failure has no status at all, and `status_header( 0 )`
-				// emits an invalid status line — so anything falsy becomes a 500.
-				'status' => $status ? $status : 500,
-			)
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' )
 		);
 	}
 
@@ -602,7 +599,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -633,7 +630,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		$state = json_decode( wp_remote_retrieve_body( $response ) );
@@ -706,7 +703,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -735,7 +732,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -914,13 +911,13 @@ class Jetpack_Backup {
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return self::get_failed_fetch_error();
+			return self::get_failed_fetch_error( $response );
 		}
 
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -968,7 +965,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -995,7 +992,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1108,7 +1105,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1135,7 +1132,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(

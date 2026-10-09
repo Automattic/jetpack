@@ -1,8 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, error as errorIcon } from '@wordpress/icons';
 import { Button, Card, Text } from '@wordpress/ui';
+import { errorCode } from '../../data/api/_helpers';
+import ErrorReference from '../error-reference';
 
 type Props = {
+	error: Error;
 	onRetry: () => void;
 	/** A retry is already in flight. */
 	isRetrying?: boolean;
@@ -18,11 +21,12 @@ type Props = {
  * retry.
  *
  * @param props            - Component props.
+ * @param props.error      - The error the capabilities query failed with.
  * @param props.onRetry    - Refetches the capabilities query.
  * @param props.isRetrying - Whether a retry is already in flight.
  * @return The rendered fallback.
  */
-export default function CapabilitiesErrorScreen( { onRetry, isRetrying = false }: Props ) {
+export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
 	return (
 		<div className="jpb-gates__stage">
 			<Card.Root className="jpb-gates__card">
@@ -39,6 +43,7 @@ export default function CapabilitiesErrorScreen( { onRetry, isRetrying = false }
 						'jetpack-backup-pkg'
 					) }
 				</Text>
+				<ErrorReference code={ errorCode( error ) } id={ null } />
 				<div className="jpb-gates__actions">
 					{ /*
 					 * `loading` keeps the button focusable: a natively disabled

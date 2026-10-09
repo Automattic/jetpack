@@ -165,10 +165,11 @@ export function buildLeaderboardChartData(
 				action: resolveAction( row, detailSearch, drillDown ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
+			// A negative value, net revenue after refunds say, draws as an empty bar.
+			currentShare: sharePercentage( Math.max( row.value, 0 ), maxValue ),
 			previousValue: row.previousValue,
 			previousShare: compared
-				? sharePercentage( row.previousValue as number, maxValue )
+				? sharePercentage( Math.max( row.previousValue as number, 0 ), maxValue )
 				: undefined,
 			delta: compared ? calculateDelta( row.value, row.previousValue as number ) : undefined,
 		};

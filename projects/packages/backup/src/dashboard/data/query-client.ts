@@ -81,6 +81,8 @@ export const keys = {
 	// descending are different rows.
 	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
 		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
+	// Every loaded page of backup sizes, as one infinite query.
+	backupSizes: () => [ 'backup', 'sizes' ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
