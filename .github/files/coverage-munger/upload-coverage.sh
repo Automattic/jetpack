@@ -26,12 +26,6 @@ mkdir coverage-data
 cp coverage/summary.tsv coverage-data/summary.tsv
 gzip -9 coverage-data/summary.tsv
 
-# We only need the combined coverage data serialized object for trunk.
-if [[ "$PR_ID" == "trunk" ]]; then
-	cp coverage/php-combined.cov coverage-data/php-combined.cov
-	gzip -9 coverage-data/php-combined.cov
-fi
-
 if compgen -G 'coverage/js-combined-*.json' &>/dev/null; then
 	echo '::group::Pnpm install'
 	pnpm install
@@ -48,7 +42,13 @@ if compgen -G 'coverage/php-combined-*.cov' &>/dev/null; then
 	echo '::endgroup::'
 
 	echo '::group::Generating PHP coverage report'
-	.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage/
+	# We only need the combined coverage data serialized object for trunk.
+	if [[ "$PR_ID" == "trunk" ]]; then
+		.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php --php coverage-data/php-combined.cov coverage/
+		gzip -9 coverage-data/php-combined.cov
+	else
+		.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage/
+	fi
 	echo '::endgroup::'
 fi
 
