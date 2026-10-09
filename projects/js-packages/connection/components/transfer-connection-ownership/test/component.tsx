@@ -211,6 +211,17 @@ describe( 'TransferConnectionOwnership', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	it( 'says so when the candidates cannot be loaded', async () => {
+		mockFetchCandidates.mockRejectedValue( new Error( 'Network down' ) );
+		render( <TransferConnectionOwnership { ...props } /> );
+
+		await expect(
+			screen.findByText( /Could not load the administrators/ )
+		).resolves.toBeInTheDocument();
+		// Not the empty state: nobody has established that there is no one to choose.
+		expect( screen.queryByText( 'No other connected administrators' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'explains the empty case rather than offering an action nobody can take', async () => {
 		mockFetchCandidates.mockResolvedValue( [] );
 		render( <TransferConnectionOwnership { ...props } /> );

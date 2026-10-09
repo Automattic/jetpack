@@ -10,6 +10,7 @@ const mockSetApiRoot = jest.fn();
 const mockSetApiNonce = jest.fn();
 const mockRecordEvent = jest.fn();
 const mockIsWoASite = jest.fn();
+const mockSetConnectionOwner = jest.fn< ( id: number ) => Promise< unknown > >();
 
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -26,6 +27,7 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 					email: 'kazz@example.com',
 				},
 			] ),
+		setConnectionOwner: mockSetConnectionOwner,
 		disconnectSite: mockDisconnectSite,
 	},
 } ) );
@@ -66,6 +68,7 @@ describe( 'ManageConnectionDialog', () => {
 		jest.clearAllMocks();
 		mockIsWoASite.mockReturnValue( false );
 		mockUnlinkUser.mockResolvedValue( undefined );
+		mockSetConnectionOwner.mockResolvedValue( { code: 'success' } );
 	} );
 
 	it( 'renders nothing when isOpen is false', () => {
@@ -125,6 +128,57 @@ describe( 'ManageConnectionDialog', () => {
 			expect(
 				screen.queryByRole( 'link', { name: /Disconnect Jetpack/ } )
 			).not.toBeInTheDocument();
+		} );
+
+		// Done is the only way out of a completed transfer: the step drops Back, the
+		// footer drops Cancel, and the dialog has no X and no Escape.
+		it( 'reports the new owner when the user leaves the completed transfer', async () => {
+			const onOwnershipTransferred = jest.fn();
+			const user = userEvent.setup();
+			render(
+				<ManageConnectionDialog
+					{ ...testProps }
+					onOwnershipTransferred={ onOwnershipTransferred }
+				/>
+			);
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
+
+			expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Cancel' } ) ).not.toBeInTheDocument();
+
+			await user.click( await screen.findByRole( 'button', { name: 'Done' } ) );
+
+			expect( onOwnershipTransferred ).toHaveBeenCalledWith( 7 );
+			expect( testProps.onClose ).not.toHaveBeenCalled();
+		} );
+
+		// The owner-disconnect warning offers transfer as the way out, and must hand over
+		// to this dialog's step rather than opening a second copy of the flow.
+		it( 'opens the step when the owner-disconnect warning offers the transfer', async () => {
+			const user = userEvent.setup();
+			render( <ManageConnectionDialog { ...testProps } /> );
+
+			await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
+			await user.click(
+				await screen.findByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+
+			await expect(
+				screen.findByRole( 'combobox', { name: /New connection owner/ } )
+			).resolves.toBeInTheDocument();
+			// The warning is gone, not sitting behind the step.
+			expect(
+				screen.queryByRole( 'dialog', { name: 'Disconnect Owner Account' } )
+			).not.toBeInTheDocument();
+			expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
 		} );
 
 		it( 'returns to the actions when the chooser is dismissed', async () => {
