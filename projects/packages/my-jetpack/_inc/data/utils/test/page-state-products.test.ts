@@ -1,31 +1,49 @@
-import { getProductSlugsWithActivePlugin, withPluginsActive } from '../page-state-products';
+import { syncPageStateWithFeatures, withPluginActiveState } from '../page-state-products';
 
-describe( 'withPluginsActive', () => {
-	it( 'marks the listed products in a copy, leaving the given items untouched', () => {
-		const items = {
-			videopress: { is_plugin_active: false },
-			social: { is_plugin_active: false },
-		} as unknown as Parameters< typeof withPluginsActive >[ 0 ];
+describe( 'withPluginActiveState', () => {
+	it.each( [ true, false ] )(
+		'sets the listed products to %s in a copy, leaving the given items untouched',
+		isActive => {
+			const items = {
+				videopress: { is_plugin_active: ! isActive },
+				social: { is_plugin_active: ! isActive },
+			} as unknown as Parameters< typeof withPluginActiveState >[ 0 ];
 
-		expect( withPluginsActive( items, [ 'videopress', 'unknown' ] ) ).toEqual( {
-			videopress: { is_plugin_active: true },
-			social: { is_plugin_active: false },
-		} );
-		expect( items.videopress.is_plugin_active ).toBe( false );
-	} );
+			expect( withPluginActiveState( items, [ 'videopress', 'unknown' ], isActive ) ).toEqual( {
+				videopress: { is_plugin_active: isActive },
+				social: { is_plugin_active: ! isActive },
+			} );
+			expect( items.videopress.is_plugin_active ).toBe( ! isActive );
+		}
+	);
 } );
 
-describe( 'getProductSlugsWithActivePlugin', () => {
+describe( 'syncPageStateWithFeatures', () => {
 	it.each( [
-		[ 'a product whose plugin is active', 'videopress', 'active', [ 'videopress' ] ],
-		[ 'not one whose plugin is off', 'videopress', 'inactive', [] ],
-		[ 'not a feature with no product', '', 'active', [] ],
-	] )( 'lists %s', ( _, product, pluginStatus, slugs ) => {
-		const state = {
-			jetpack: 'inactive',
-			features: [ { product, plugin_status: pluginStatus } ],
-		} as unknown as MainFeaturesState;
+		[ 'marks a plugin switched on', 'inactive', 'videopress', false, 'active', true ],
+		[ 'clears a plugin switched off', 'inactive', 'videopress', true, 'inactive', false ],
+		[
+			'clears a plugin no longer installed',
+			'inactive',
+			'videopress',
+			true,
+			'not-installed',
+			false,
+		],
+		[ 'keeps a plugin Jetpack also provides', 'active', 'videopress', true, 'inactive', true ],
+		[ 'ignores a feature with no product', 'inactive', '', true, 'inactive', true ],
+	] )( '%s', ( _, jetpack, product, wasActive, pluginStatus, isActive ) => {
+		window.myJetpackInitialState = {
+			products: { items: { videopress: { is_plugin_active: wasActive } } },
+		} as unknown as Window[ 'myJetpackInitialState' ];
 
-		expect( getProductSlugsWithActivePlugin( state ) ).toEqual( slugs );
+		syncPageStateWithFeatures( {
+			jetpack,
+			features: [ { product, plugin_status: pluginStatus } ],
+		} as unknown as MainFeaturesState );
+
+		expect( window.myJetpackInitialState.products.items.videopress.is_plugin_active ).toBe(
+			isActive
+		);
 	} );
 } );
