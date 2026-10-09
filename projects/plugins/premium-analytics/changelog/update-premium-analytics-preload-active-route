@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Load the dashboard faster by preloading the first screen's scripts and data, most noticeably on sites served over plain HTTP.
