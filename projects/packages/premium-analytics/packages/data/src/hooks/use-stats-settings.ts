@@ -1,6 +1,6 @@
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch, useRegistry } from '@wordpress/data';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 export type StatsSettings = {
 	admin_bar: boolean;
@@ -33,6 +33,8 @@ export function useStatsSettings() {
 	const { editedRecord, edit } = site;
 	const { saveEditedEntityRecord } = useDispatch( coreStore );
 	const registry = useRegistry();
+	// The change that last edited each setting; a failed save puts back only the settings it still owns.
+	const owners = useRef( new Map< keyof StatsSettings, symbol >() );
 
 	/**
 	 * Save a change, or put back the stored values of what it changed when the site refuses it.
@@ -42,8 +44,11 @@ export function useStatsSettings() {
 	 */
 	const saveChange = useCallback(
 		async ( values: Partial< StatsSettings > ) => {
+			const change = Symbol();
+			( Object.keys( values ) as ( keyof StatsSettings )[] ).forEach( key =>
+				owners.current.set( key, change )
+			);
 			const { wpcom_reader_views_enabled: readerViews, ...options } = values;
-			const optionKeys = Object.keys( options ) as ( keyof StatsOptions )[];
 			// Read at call time: another change may have been edited or saved since the last render.
 			const read = () => {
 				const { getEntityRecord, getEditedEntityRecord } = registry.select( coreStore );
@@ -54,7 +59,7 @@ export function useStatsSettings() {
 			};
 
 			edit( {
-				...( optionKeys.length > 0 && {
+				...( Object.keys( options ).length > 0 && {
 					stats_options: { ...read().edited.stats_options, ...options },
 				} ),
 				...( readerViews !== undefined && { wpcom_reader_views_enabled: readerViews } ),
@@ -62,6 +67,8 @@ export function useStatsSettings() {
 			try {
 				await saveEditedEntityRecord( 'root', 'site', undefined, { throwOnError: true } );
 			} catch ( error ) {
+				const isOwned = ( key: keyof StatsSettings ) => owners.current.get( key ) === change;
+				const optionKeys = ( Object.keys( options ) as ( keyof StatsOptions )[] ).filter( isOwned );
 				const { stored, edited } = read();
 				// Editing back to the stored values is how core-data drops an edit.
 				edit( {
@@ -73,9 +80,10 @@ export function useStatsSettings() {
 							),
 						},
 					} ),
-					...( readerViews !== undefined && {
-						wpcom_reader_views_enabled: stored?.wpcom_reader_views_enabled,
-					} ),
+					...( readerViews !== undefined &&
+						isOwned( 'wpcom_reader_views_enabled' ) && {
+							wpcom_reader_views_enabled: stored?.wpcom_reader_views_enabled,
+						} ),
 				} );
 				throw error;
 			}

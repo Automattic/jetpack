@@ -148,7 +148,7 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * Save a write to `stats_options` from the settings route through the Stats package, which keeps the option's internal state and administrators' access.
+	 * Save a write to `stats_options` through the Stats package, which keeps the option's internal state and administrators' access, and check that the Reader setting was stored.
 	 *
 	 * Core ignores an error from this filter, so a refusal is held for `report_update_error()`.
 	 *
@@ -158,6 +158,19 @@ final class Stats_Settings {
 	 * @return bool Whether the setting was handled.
 	 */
 	public static function update_stats_options( $updated, $name, $value ) {
+		if ( self::READER_VIEWS_OPTION === $name ) {
+			$enabled = self::sanitize_reader_views( $value );
+			update_option( self::READER_VIEWS_OPTION, $enabled );
+			if ( (int) get_option( self::READER_VIEWS_OPTION ) !== $enabled ) {
+				self::$update_error = new \WP_Error(
+					'jetpack_premium_analytics_reader_views_save_failed',
+					__( 'The WordPress.com Reader setting could not be saved.', 'jetpack-premium-analytics-pkg' ),
+					array( 'status' => 500 )
+				);
+			}
+			return true;
+		}
+
 		if ( Stats_Options::OPTION_NAME !== $name ) {
 			return $updated;
 		}
@@ -230,7 +243,8 @@ final class Stats_Settings {
 
 		$data['premium_analytics']['stats_settings'] = array(
 			'roles'        => $roles,
-			'features_url' => class_exists( 'Jetpack' ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
+			// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
+			'features_url' => class_exists( 'Jetpack' ) && '' !== menu_page_url( 'my-jetpack', false ) ? admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ) : null,
 		);
 
 		return $data;

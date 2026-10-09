@@ -100,6 +100,7 @@ class Stats_Settings_Test extends BaseTestCase {
 		remove_filter( 'rest_pre_update_setting', array( Stats_Settings::class, 'update_stats_options' ) );
 		remove_filter( 'rest_request_after_callbacks', array( Stats_Settings::class, 'report_update_error' ) );
 		remove_all_filters( 'pre_update_option_' . Stats_Options::OPTION_NAME );
+		remove_all_filters( 'pre_update_option_' . self::READER_VIEWS_OPTION );
 		remove_all_filters( 'wp_is_large_user_count' );
 		$this->reset_stats_options_cache();
 		remove_filter( 'jetpack_admin_js_script_data', array( Stats_Settings::class, 'add_script_data' ), 20 );
@@ -246,6 +247,24 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( 0, get_option( self::READER_VIEWS_OPTION ) );
 	}
 
+	public function test_reader_views_write_the_site_does_not_store_answers_with_an_error() {
+		$this->log_in_as( 'administrator' );
+		update_option( self::READER_VIEWS_OPTION, 1 );
+		add_filter(
+			'pre_update_option_' . self::READER_VIEWS_OPTION,
+			function ( $value, $old_value ) {
+				return $old_value;
+			},
+			10,
+			2
+		);
+
+		$response = $this->post_settings( array( self::READER_VIEWS_OPTION => false ) );
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertSame( 1, get_option( self::READER_VIEWS_OPTION ) );
+	}
+
 	public function test_settings_are_not_exposed_on_a_simple_site() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		unregister_setting( self::GROUP, Stats_Options::OPTION_NAME );
@@ -296,12 +315,15 @@ class Stats_Settings_Test extends BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_script_data_links_to_the_stats_feature_with_the_jetpack_plugin() {
+	public function test_script_data_links_to_the_stats_feature_when_my_jetpack_is_registered() {
 		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
 		$this->log_in_as( 'administrator' );
+		$without_my_jetpack = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
+		add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'manage_options', 'my-jetpack', '__return_null' );
 
 		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
 
+		$this->assertNull( $without_my_jetpack['features_url'] );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ), $context['features_url'] );
 	}
 }
