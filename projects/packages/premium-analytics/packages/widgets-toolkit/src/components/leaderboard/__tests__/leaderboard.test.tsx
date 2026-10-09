@@ -10,6 +10,7 @@ import userEvent from '@testing-library/user-event';
 import { setMockRouteSearch } from '../../../../../../tests/js/route-test-utils';
 import { WIDGET_ROW_LIMIT } from '../../../constants/rows';
 import { describeError } from '../../../helpers/describe-error';
+import { formatLegendLabels } from '../../../helpers/format-legend-labels';
 import { WidgetRootContext, type WidgetRootContextValue } from '../../widget-root';
 import { Leaderboard, type LeaderboardStatus } from '../leaderboard';
 import type { LeaderboardRowInput } from '../build-leaderboard-chart-data';
@@ -21,6 +22,15 @@ jest.mock( '@wordpress/route', () => {
 	);
 
 	return mockWordPressRoute;
+} );
+
+// Identity class names, so the row chrome a variant selects can be read off the rows. The
+// interop reads `__esModule` first, and a string there would make it take `.default` as the module.
+jest.mock( '../../../../../../tests/style-stub.cjs', () => {
+	return new Proxy(
+		{},
+		{ get: ( _, name ) => ( name === '__esModule' ? false : String( name ) ) }
+	);
 } );
 
 const REPORT_PARAMS = {
@@ -237,5 +247,65 @@ describe( 'Leaderboard', () => {
 		);
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+	} );
+
+	describe( 'the bars variant', () => {
+		const GIVEN_LEGEND = { primary: 'This month', comparison: 'Last month' };
+
+		it( 'draws the bars skeleton while loading', () => {
+			renderLeaderboard(
+				<Leaderboard rows={ ROWS } status={ { isLoading: true } } variant="bars" />
+			);
+
+			expect( screen.getAllByTestId( 'skeleton-bar' ) ).toHaveLength( WIDGET_ROW_LIMIT );
+		} );
+
+		it.each( [
+			[ 'the report params', undefined, formatLegendLabels( WIDGET_ROOT.reportParams ) ],
+			[ 'the labels the widget gives', GIVEN_LEGEND, GIVEN_LEGEND ],
+		] )( 'labels the period legend from %s when comparing', ( _, legend, expected ) => {
+			renderLeaderboard(
+				<Leaderboard
+					rows={ ROWS }
+					status={ { ...READY, hasComparison: true } }
+					variant="bars"
+					legend={ legend }
+				/>
+			);
+
+			expect( screen.getAllByTestId( 'legend-label' ).map( label => label.textContent ) ).toEqual( [
+				expected.primary,
+				expected.comparison,
+			] );
+		} );
+
+		it( 'names only the selected period without a comparison', () => {
+			renderLeaderboard(
+				<Leaderboard rows={ ROWS } status={ READY } variant="bars" legend={ GIVEN_LEGEND } />
+			);
+
+			expect( screen.getAllByTestId( 'legend-label' ).map( label => label.textContent ) ).toEqual( [
+				GIVEN_LEGEND.primary,
+			] );
+		} );
+
+		it( 'draws the rows without the list chrome', () => {
+			renderLeaderboard( <Leaderboard rows={ ROWS } status={ READY } variant="bars" /> );
+
+			expect( screen.getByTitle( 'Getting Started' ) ).toHaveClass( 'bars' );
+		} );
+	} );
+
+	it( 'draws no legend in the list variant', () => {
+		renderLeaderboard(
+			<Leaderboard
+				rows={ ROWS }
+				status={ { ...READY, hasComparison: true } }
+				legend={ { primary: 'This month', comparison: 'Last month' } }
+			/>
+		);
+
+		expect( screen.queryAllByTestId( 'legend-label' ) ).toHaveLength( 0 );
+		expect( screen.getByTitle( 'Getting Started' ) ).not.toHaveClass( 'bars' );
 	} );
 } );
