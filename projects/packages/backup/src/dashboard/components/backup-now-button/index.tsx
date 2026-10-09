@@ -1,16 +1,12 @@
+import { speak } from '@wordpress/a11y';
 import { useCallback, useEffect, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Notice, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { Button, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useBackups } from '../../hooks/use-backups';
-import {
-	useBackupRequested,
-	useEnqueueBackup,
-	useEnqueueFailure,
-} from '../../hooks/use-enqueue-backup';
+import { useBackupRequested, useEnqueueBackup } from '../../hooks/use-enqueue-backup';
 import { useGateState } from '../../hooks/use-gate-state';
 import { useSiteSize } from '../../hooks/use-site-size';
-import './style.scss';
 
 /**
  * Header action that asks WPCOM to back the site up now.
@@ -31,6 +27,17 @@ export default function BackupNowButton() {
 }
 
 /**
+ * Announce a failed request: focus stays on the button, and its changed description is not read.
+ *
+ * @param reason - Why the request failed.
+ */
+function announceFailure( reason: string ) {
+	const title = __( 'Could not start a backup. Please try again.', 'jetpack-backup-pkg' );
+	// The hook falls back to this same sentence when WPCOM gives no reason.
+	speak( reason && reason !== title ? `${ title } ${ reason }` : title, 'assertive' );
+}
+
+/**
  * The button itself, mounted only for a site that can press it.
  *
  * Ports legacy's label and tooltip cycle (`src/js/components/back-up-now/index.jsx`) with
@@ -41,7 +48,7 @@ export default function BackupNowButton() {
 function BackupNow() {
 	const { tracks } = useAnalytics();
 	const { backupsStopped } = useSiteSize();
-	const { state: enqueueState, enqueue, reset } = useEnqueueBackup();
+	const { state: enqueueState, errorMessage, enqueue, reset } = useEnqueueBackup();
 	const descriptionId = useId();
 
 	const isRequested = useBackupRequested();
@@ -64,7 +71,7 @@ function BackupNow() {
 	// worth knowing about.
 	const handleClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_plugin_backup_now' );
-		enqueue();
+		enqueue( announceFailure );
 	}, [ tracks, enqueue ] );
 
 	const isEnqueuing = enqueueState === 'enqueuing';
@@ -85,8 +92,11 @@ function BackupNow() {
 	} else if ( isEnqueued ) {
 		label = __( 'Backup enqueued', 'jetpack-backup-pkg' );
 		tooltip = __( 'A backup has been queued and will start shortly.', 'jetpack-backup-pkg' );
+	} else if ( enqueueState === 'error' ) {
+		// Stays enabled: the label invites a retry and the reason is one
+		// hover away. Legacy has no branch here at all.
+		tooltip = errorMessage;
 	}
-	// A failed request leaves an enabled "Back up now"; `BackupNowFailure` says why.
 
 	const disabled = isEnqueuing || isEnqueued || isBackupRunning || backupsStopped;
 
@@ -130,33 +140,5 @@ function BackupNow() {
 			</Tooltip.Trigger>
 			<Tooltip.Popup>{ tooltip }</Tooltip.Popup>
 		</Tooltip.Root>
-	);
-}
-
-/**
- * Error notice for a failed "Back up now", for the page body: the header has no room for one.
- *
- * @return The rendered notice, or null unless the latest request failed.
- */
-export function BackupNowFailure() {
-	const failure = useEnqueueFailure();
-
-	if ( ! failure ) {
-		return null;
-	}
-
-	const title = __( 'Could not start a backup. Please try again.', 'jetpack-backup-pkg' );
-	// The hook falls back to this same sentence when WPCOM gives no reason.
-	const reason = failure.message !== title ? failure.message : '';
-
-	return (
-		<Notice.Root
-			intent="error"
-			className="jpb-backup-now-failure"
-			spokenMessage={ [ title, reason ].filter( Boolean ).join( ' ' ) }
-		>
-			<Notice.Title>{ title }</Notice.Title>
-			{ reason && <Notice.Description>{ reason }</Notice.Description> }
-		</Notice.Root>
 	);
 }

@@ -25,7 +25,6 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { onlineManager } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
@@ -234,26 +233,6 @@ describe( 'Overview takeover', () => {
 		).resolves.toBeInTheDocument();
 		// ...instead of the panel claiming a first backup is coming.
 		expect( screen.queryByText( 'Generating backup…' ) ).not.toBeInTheDocument();
-	} );
-
-	// JETPACK-2965: the reason lived only in the button's tooltip.
-	it( 'reports a failed Back up now above the panel', async () => {
-		mockEndpoints( { backups: [], activity: [] } );
-		const answer = mockApiFetch.getMockImplementation();
-		mockApiFetch.mockImplementation( ( o: { path?: string } ) =>
-			o?.path?.includes( '/site/backup/enqueue' ) ? Promise.resolve( null ) : answer?.( o )
-		);
-
-		render( <OverviewStage /> );
-		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Back up now' } ) );
-
-		const failed = 'Could not start a backup. Please try again.';
-		await expect(
-			screen.findByText( failed, { ignore: '.a11y-speak-region' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.getByText( failed, { selector: '.a11y-speak-region' } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
 	} );
 } );
 

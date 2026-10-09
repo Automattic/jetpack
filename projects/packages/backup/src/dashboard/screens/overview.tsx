@@ -5,7 +5,7 @@ import { Button, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
-import BackupNowButton, { BackupNowFailure } from '../components/backup-now-button';
+import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, {
 	BackupTroubleBanner,
@@ -135,8 +135,6 @@ export default function OverviewScreen() {
 
 	return (
 		<DashboardLayout actions={ <BackupNowButton /> }>
-			{ /* Outside the body, which the first-run panel can replace wholesale. */ }
-			<BackupNowFailure />
 			<OverviewBody />
 		</DashboardLayout>
 	);
