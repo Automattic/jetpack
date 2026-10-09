@@ -34,6 +34,7 @@ import {
 	waitForAnchorBinding,
 	watchForBlockedPopup,
 } from '../utils/paypal-partner-sdk';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -491,6 +492,18 @@ export function usePayPalConnection() {
 				setIsGeneratingSignupLink( false );
 			} );
 	}, [ environment ] );
+
+	/**
+	 * Without the sandbox flag, a disconnected site connects to production only.
+	 *
+	 * The environment option outlives a disconnect, so a site that once used the
+	 * sandbox would otherwise reconnect to it with no control left to say otherwise.
+	 */
+	useEffect( () => {
+		if ( ! isConnected && environment === 'sandbox' && ! isSandboxAllowed() ) {
+			setEnvironment( 'production' );
+		}
+	}, [ isConnected, environment ] );
 
 	/**
 	 * A different environment needs a different referral link.

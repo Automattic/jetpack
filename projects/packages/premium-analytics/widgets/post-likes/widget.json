@@ -1,5 +1,6 @@
 {
 	"name": "jpa/post-likes",
+	"icon": "jpa/star-empty",
 	"title": "Latest likes",
 	"description": "The people who liked the post or page being viewed.",
 	"help": {

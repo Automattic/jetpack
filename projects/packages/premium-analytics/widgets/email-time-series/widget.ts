@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -43,7 +42,6 @@ export type EmailTimeSeriesAttributes = {
  * page, the first 30 days after the send, in daily buckets.
  */
 export default {
-	icon: envelope,
 	attributes: [
 		{
 			id: 'chartType',
