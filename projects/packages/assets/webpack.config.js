@@ -76,6 +76,15 @@ module.exports = [
 	},
 	{
 		...sharedConfig,
+		/*
+		 * This bundle pulls in @automattic/jetpack-api -> @automattic/jetpack-config, whose
+		 * `require( 'jetpackConfig' )` needs a value or it logs "jetpackConfig is missing". The
+		 * shared bundle serves every plugin, so it can't bake in a single consumer_slug; consumers
+		 * pass their own slug at runtime via `initConnectionStore( { pluginSlug } )` instead.
+		 */
+		externals: {
+			jetpackConfig: JSON.stringify( {} ),
+		},
 		entry: {
 			'jetpack-shared-stores': {
 				import: './src/js/shared-stores.js',
