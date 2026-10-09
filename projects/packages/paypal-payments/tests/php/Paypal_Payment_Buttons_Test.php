@@ -59,6 +59,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( self::SANDBOX_FLAG_FILTER );
 		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		wp_set_current_user( 0 );
@@ -93,6 +94,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Per-flag filter that forces the API-managed buttons on.
 	 */
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	private const SANDBOX_FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::SANDBOX_FLAG;
 
 	/**
 	 * The three formats that draw styled text, and the attributes each one reads.
@@ -149,6 +152,18 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertIsArray( $definition );
 		$this->assertFalse( $definition['default'] );
 		$this->assertFalse( PayPal_Payment_Buttons::is_api_managed_enabled() );
+
+		$sandbox = Feature_Flags::get( PayPal_Payment_Buttons::SANDBOX_FLAG );
+		$this->assertIsArray( $sandbox );
+		$this->assertFalse( $sandbox['default'] );
+		$this->assertFalse( PayPal_Payment_Buttons::is_sandbox_enabled() );
+	}
+
+	public function test_is_sandbox_enabled_honours_the_flag_filter() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::SANDBOX_FLAG_FILTER, '__return_true' );
+
+		$this->assertTrue( PayPal_Payment_Buttons::is_sandbox_enabled() );
 	}
 
 	public function test_is_api_managed_enabled_honours_the_flag_filter() {
@@ -164,16 +179,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$flags = PayPal_Payment_Buttons::add_editor_feature_flags( array( 'other-flag' => true ) );
 		$this->assertSame(
 			array(
-				'other-flag' => true,
+				'other-flag'                         => true,
 				PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG => false,
+				PayPal_Payment_Buttons::SANDBOX_FLAG => false,
 			),
 			$flags
 		);
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
+		add_filter( self::SANDBOX_FLAG_FILTER, '__return_true' );
 
 		$flags = PayPal_Payment_Buttons::add_editor_feature_flags( array() );
 		$this->assertTrue( $flags[ PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG ] );
+		$this->assertTrue( $flags[ PayPal_Payment_Buttons::SANDBOX_FLAG ] );
 	}
 
 	public function test_register_rest_routes_registers_nothing_while_the_flag_is_off() {

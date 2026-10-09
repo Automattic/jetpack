@@ -367,7 +367,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			).resolves.toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 				'href',
-				'admin.php?page=my-jetpack#/products'
+				'admin.php?page=my-jetpack#/features'
 			);
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
@@ -1312,6 +1312,34 @@ describe( 'AI admin page (main.jsx)', () => {
 		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
+	} );
+
+	test( 'activity log row: promises AI agent actions when the page data says the link is filtered', async () => {
+		window.jetpackAiSettings = {
+			blogId: 1,
+			activityLogUrl: 'https://example.com/activity',
+			activityLogFiltered: true,
+		};
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions taken by AI agents on your site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'activity log row: describes all actions when the page data has no filtered flag', async () => {
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions on your site.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	test( 'activity log row: absent from the MCP hub without an activityLogUrl', async () => {

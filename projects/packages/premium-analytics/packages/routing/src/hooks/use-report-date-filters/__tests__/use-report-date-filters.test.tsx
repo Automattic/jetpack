@@ -306,6 +306,19 @@ describe( 'useReportDateFilters', () => {
 		expect( mockSearch ).toMatchObject( { interval: 'week' } );
 	} );
 
+	it( 'pushes no history entry for a re-pick of the shown interval', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'day',
+		} );
+
+		act( () => result.current.onIntervalChange( 'day' ) );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
 	/*
 	 * Listing the applied range's buckets while a shorter range is drafted lets
 	 * the menu offer one the draft cannot hold; Apply then resolves the choice

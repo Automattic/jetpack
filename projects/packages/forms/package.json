@@ -76,6 +76,7 @@
 		"@wordpress/plugins": "7.55.0",
 		"@wordpress/preferences": "4.55.0",
 		"@wordpress/primitives": "4.55.0",
+		"@wordpress/react-inert-value": "1.0.0",
 		"@wordpress/route": "0.21.0",
 		"@wordpress/theme": "2.1.0",
 		"@wordpress/ui": "0.22.0",
@@ -124,7 +125,7 @@
 		"postcss-modules": "^6.0.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"sharp": "0.35.4"
+		"sharp": "0.35.5"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",

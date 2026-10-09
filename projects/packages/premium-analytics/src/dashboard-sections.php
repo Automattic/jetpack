@@ -120,7 +120,7 @@ function configure_dashboard_preview_scope() {
 }
 
 /**
- * Injects the available section slugs into JetpackScriptData.
+ * Injects the available section slugs, and whether the reader may see Stats, into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
  * choosing its redirect, so it reads the slugs from boot data instead.
@@ -131,17 +131,18 @@ function configure_dashboard_preview_scope() {
  * @return array
  */
 function inject_dashboard_sections_script_data( array $data ): array {
-	$sections = get_available_dashboard_section_slugs();
-
-	if ( null === $sections ) {
-		return $data;
-	}
-
 	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['sections'] = $sections;
+	// Surfaces outside any section, such as feedback, post to Stats endpoints.
+	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
+
+	$sections = get_available_dashboard_section_slugs();
+
+	if ( null !== $sections ) {
+		$data['premium_analytics']['sections'] = $sections;
+	}
 
 	return $data;
 }
@@ -235,13 +236,18 @@ function get_dashboard_section_schema() {
 				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
-					'with_date_comparison'     => array(
+					'with_date_comparison'         => array(
 						'description' => __( 'Whether the section supports period-over-period comparison at all. When false, no widget in the section receives comparison parameters.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),
-					'with_header_date_control' => array(
+					'with_header_date_control'     => array(
 						'description' => __( 'Whether the section header renders the date control. When false, the section widgets host their own.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_interval_control' => array(
+						'description' => __( 'Whether the section header renders the chart interval control. When false, the section charts host their own.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),

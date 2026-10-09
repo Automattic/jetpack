@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Move the WooCommerce tab to the WooCommerce stats package and rename it from Store to WooCommerce, including its URL.

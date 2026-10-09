@@ -154,29 +154,30 @@ describe( 'DateComparisonDropdown', () => {
 		expect( screen.queryByText( 'vs' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'spells the compared window out in the trigger tooltip', async () => {
-		const user = userEvent.setup();
+	describe( 'tooltip', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		render(
-			<DateComparisonDropdown
-				presets={ presets }
-				enabled
-				presetId="previous-period"
-				onPresetChange={ jest.fn() }
-				onClear={ jest.fn() }
-			/>
-		);
+		it( 'spells the compared window out in the trigger tooltip', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
+			render(
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled
+					presetId="previous-period"
+					onPresetChange={ jest.fn() }
+					onClear={ jest.fn() }
+				/>
+			);
 
-		// Skip the always-mounted description mirror; only the popup proves the hover.
-		await expect(
-			screen.findByText(
-				/June 1.+30, 2026/,
-				{ ignore: '[data-visually-hidden]' },
-				{ timeout: 3000 }
-			)
-		).resolves.toBeVisible();
+			await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+			// Skip the always-mounted description mirror; only the popup proves the hover.
+			await expect(
+				screen.findByText( /June 1.+30, 2026/, { ignore: '[data-visually-hidden]' } )
+			).resolves.toBeVisible();
+		} );
 	} );
 
 	// A URL can carry a comparison whose preset the trigger cannot name — the

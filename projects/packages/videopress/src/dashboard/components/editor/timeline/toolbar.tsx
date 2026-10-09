@@ -20,7 +20,7 @@ type Props = {
 	currentMs: number;
 	/** Master duration in ms, shown next to the editable timecode. */
 	durationMs: number;
-	/** Whether "New cut" is actionable (playhead inside the trim window). */
+	/** Whether there is room for a new cut at the playhead. */
 	canAddCut: boolean;
 	/** Called when "New cut" is pressed. */
 	onAddCut: () => void;

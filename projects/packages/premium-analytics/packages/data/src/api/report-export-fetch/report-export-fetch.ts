@@ -12,27 +12,15 @@ import type { DateType } from '../../utils/types';
 
 const REPORT_DOWNLOAD_PATH = '/jetpack-premium-analytics/v1/reports/csv-export';
 
-export interface ExportReportParams {
-	reportType: string | string[];
+/** Parameters for downloading one complete report as a CSV file. */
+export interface DownloadReportParams {
+	reportType: string;
 	from: string; // ISO 8601 date string
 	to: string; // ISO 8601 date string
 	interval?: string;
 	compareFrom?: string; // ISO 8601 date string
 	compareTo?: string; // ISO 8601 date string
-}
-
-/** Parameters for downloading one complete report as a CSV file. */
-export interface DownloadReportParams extends Omit< ExportReportParams, 'reportType' > {
-	reportType: string;
 	dateType?: DateType;
-}
-
-export interface ExportReportResponse {
-	success: boolean;
-	message: string;
-	job_ids?: Record< string, number >; // Multiple report exports
-	partial?: boolean; // Indicates if some exports failed
-	errors?: Record< string, string >; // Failed report types and their error messages
 }
 
 /** The sanitized filename used for a downloaded report. */
@@ -66,31 +54,6 @@ export function buildReportExportBody( params: DownloadReportParams ): ReportExp
 				}
 			: {} ),
 	};
-}
-
-/** Export one or more reports via email. */
-export async function exportReport( params: ExportReportParams ): Promise< ExportReportResponse > {
-	const path = '/wc/v3/woocommerce-analytics/reports/csv-export';
-
-	const body = {
-		report_type: Array.isArray( params.reportType ) ? params.reportType : [ params.reportType ],
-		from: params.from,
-		to: params.to,
-		interval: params.interval || 'day',
-		delivery_method: 'email',
-		...( params.compareFrom && params.compareTo
-			? {
-					compare_from: params.compareFrom,
-					compare_to: params.compareTo,
-				}
-			: {} ),
-	};
-
-	return apiFetch( {
-		path,
-		method: 'POST',
-		data: body,
-	} ) as Promise< ExportReportResponse >;
 }
 
 /** Request a browser download from the Premium Analytics CSV export endpoint. */

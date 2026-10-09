@@ -20,7 +20,7 @@ type ChartSegment = {
  * @param chartData - Array of chart segments with label and value
  * @return Array of segment styles with color for each segment
  */
-export function useSegmentStyles( chartData: ChartSegment[] ): SegmentStyle[] {
+export function useSegmentStyles( chartData: readonly ChartSegment[] ): SegmentStyle[] {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	return useMemo(

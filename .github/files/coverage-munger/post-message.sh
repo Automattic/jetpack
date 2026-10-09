@@ -11,8 +11,7 @@
 #
 # Optional:
 # - COVINFO: Response from jetpackcodecoverage.atomicsites.blog
-# - PHP_COVERAGE_STATUS: Status of the PHP coverage run.
-# - JS_COVERAGE_STATUS: Status of the JS coverage run.
+# - COVERAGE_STATUS: Overall status of the coverage runs. Looked up if not given.
 
 set -eo pipefail
 
@@ -48,35 +47,35 @@ else
 	echo '::endgroup::'
 fi
 
-# Use per-group statuses passed from the workflow, or query them if not passed.
-if [[ -n "$PHP_COVERAGE_STATUS" && -n "$JS_COVERAGE_STATUS" ]]; then
-	# We only need the conclusion value for finished jobs, as it'll always be non-null.
-	RUNS=$( jq -nc --arg php "$PHP_COVERAGE_STATUS" --arg js "$JS_COVERAGE_STATUS" '[ { conclusion: $php }, { conclusion: $js } ]' )
-else
+# Use the status passed from the workflow, or query the coverage runs if not passed.
+if [[ -z "$COVERAGE_STATUS" ]]; then
 	echo "::group::Looking for latest coverage runs"
-	COVERAGE_GROUPS=( php js )
+	# The `check_name` filter only matches exact names, and JS coverage is split across several jobs, so we have to filter by prefix ourselves.
 	RUNS='[]'
-	for GROUP in "${COVERAGE_GROUPS[@]}"; do
-		ENC_TEST_NAME=$( jq -nr --arg N "Code coverage (${GROUP@U})" '$N | @uri' )
-		# The check-runs endpoint can be filtered by name and defaults to grab just the latest run, which simplifies the API call.
-		J=$( curl -v -L fail \
-			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?check_name=$ENC_TEST_NAME" \
+	PAGE=1
+	while true; do
+		J=$( curl -v -L --fail \
+			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?per_page=100&page=$PAGE" \
 			--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 		)
-		RUNS=$( jq --argjson prev "$RUNS" '$prev + .check_runs' <<<"$J" )
+		RUNS=$( jq --argjson prev "$RUNS" '$prev + [ .check_runs[] | select( .name | startswith( "Code coverage (" ) ) ]' <<<"$J" )
+		if jq -e '.check_runs | length < 100' <<<"$J" &>/dev/null; then
+			break
+		fi
+		PAGE=$(( PAGE + 1 ))
 	done
 	echo "::endgroup::"
+	# Pick worst status across split coverage jobs: failure beats in-progress beats anything-else beats success.
+	R=$( jq '
+		  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
+		// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
+		// first( .[] | select( .conclusion != "success" ) )
+		// .[0]
+	' <<<"$RUNS" )
+	jq . <<<"$R"
+	COVERAGE_STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
 fi
-# Pick worst status across split coverage jobs: failure beats in-progress beats anything-else beats success.
-R=$( jq '
-	  first( .[] | select( .conclusion | IN( "failure", "timed_out", "cancelled" ) ) )
-	// first( .[] | select( .status | IN( "in_progress", "queued", "pending" ) ) )
-	// first( .[] | select( .conclusion != "success" ) )
-	// .[0]
-' <<<"$RUNS" )
-jq . <<<"$R"
-STATUS=$( jq -r '.conclusion // .status // null' <<<"$R" )
-echo "Worst run status is $STATUS"
+echo "Coverage run status is $COVERAGE_STATUS"
 
 echo '::group::Checking labels for PR'
 LABELS=$( curl -v -L --fail \
@@ -89,14 +88,14 @@ echo "::endgroup::"
 echo "::group::Setting GitHub status"
 if jq -e '.covinfo' <<<"$COVINFO" &>/dev/null; then
 	COVINFO=$( jq '.covinfo' <<<"$COVINFO" )
-	if [[ "$STATUS" != 'success' ]]; then
+	if [[ "$COVERAGE_STATUS" != 'success' ]]; then
 		COVINFO=$( jq '.state |= "pending" | .description |= "Waiting for tests to pass" | .msg |= "Cannot generate coverage summary while tests are failing. :zipper_mouth_face:\n\nPlease fix the tests, or re-run the Code coverage job if it was something being flaky."' <<<"$COVINFO" )
 	fi
 else
 	COVINFO='{"state":"error","description":"No covinfo received from server","msg":"","footer":""}'
 fi
 # If we're here from a label or unlabel event, and the CI check is still running, then no message.
-if [[ "$STATUS" == 'in_progress' ]]; then
+if [[ "$COVERAGE_STATUS" == 'in_progress' ]]; then
 	COVINFO=$( jq '.state |= "pending" | .description |= "Waiting for tests to pass" | .msg |= ""' <<<"$COVINFO" )
 fi
 # If an override label is set, override the status.
@@ -127,7 +126,7 @@ echo "::endgroup::"
 echo "::group::Looking for existing comment"
 PAGE=1
 while true; do
-	J=$( curl -v -L fail \
+	J=$( curl -v -L --fail \
 		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments?per_page=100&page=$PAGE" \
 		--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 	)

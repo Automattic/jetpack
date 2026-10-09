@@ -4,7 +4,12 @@
  * success/failure. The `mock` prefix is required for jest.mock hoisting.
  */
 const mockGetEntityRecord = jest.fn();
+const mockCurrentUserCan = jest.fn();
 const mockResolveSelect = jest.fn( () => ( { getEntityRecord: mockGetEntityRecord } ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
+} ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
 	store: 'core',
@@ -20,6 +25,16 @@ describe( 'ensureCoreSettingsReady', () => {
 		jest.resetModules();
 		mockGetEntityRecord.mockReset();
 		mockResolveSelect.mockClear();
+		mockCurrentUserCan.mockReturnValue( true );
+	} );
+
+	it( 'requests nothing for a reader the settings route would refuse', async () => {
+		mockCurrentUserCan.mockReturnValue( false );
+		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
+
+		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
+		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
+		expect( mockGetEntityRecord ).not.toHaveBeenCalled();
 	} );
 
 	it( 'memoizes the resolved promise and fetches settings only once', async () => {

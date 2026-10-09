@@ -8,6 +8,7 @@ import { Badge, Link, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { htmlspecialcharsDecode } from '../../utils.ts';
 import FieldEmail from '../field-email/index.tsx';
 import FieldFile from '../field-file/index.tsx';
 import { checkboxUncheckedFieldIcon, fieldIcons, isCheckedValue } from '../field-icons.tsx';
@@ -68,7 +69,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 				<Stack align="flex-start" direction="column" gap="sm" justify="flex-start">
 					{ ( value as string[] ).map( ( item, index ) => (
 						<Badge intent="draft" key={ index }>
-							{ item }
+							{ htmlspecialcharsDecode( String( item ) ) }
 						</Badge>
 					) ) }
 				</Stack>
@@ -81,7 +82,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		// Handle arrays (e.g., multiple choice selections but also anything else coming as array)
 		if ( Array.isArray( value ) ) {
-			return value.join( ', ' );
+			return htmlspecialcharsDecode( value.join( ', ' ) );
 		}
 
 		// Handle objects that aren't special types - convert to string representation
@@ -89,7 +90,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			return JSON.stringify( value );
 		}
 
-		const stringValue = String( value );
+		const stringValue = htmlspecialcharsDecode( String( value ) );
 
 		// Empty values are shown as a dash
 		if ( stringValue.trim() === '' ) {

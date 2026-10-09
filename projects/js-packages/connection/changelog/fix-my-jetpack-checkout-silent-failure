@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Checkout workflow: Stop the busy state and return a checkoutError when site registration or the product lookup fails, and show an error on the Required Plan connect screen.

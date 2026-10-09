@@ -33,6 +33,7 @@ class Performance_History_Entry_Test extends TestCase {
 		parent::setUp();
 		Monkey\setUp();
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+		Functions\when( '__' )->returnArg();
 		Mockery::mock( 'alias:' . Connection::class )->shouldReceive( 'wpcom_blog_id' )->andReturnUsing(
 			function () {
 				return $this->blog_id;

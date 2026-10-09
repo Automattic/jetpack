@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: Keep brackets in submitted values escaped, so they cannot run shortcodes, on WordPress versions with the new HTML sanitizer.
