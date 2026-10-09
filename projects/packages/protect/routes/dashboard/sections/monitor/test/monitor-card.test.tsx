@@ -22,7 +22,7 @@ const renderCard = (
 		<MonitorCard
 			state={ { available: true, active: true, uptimeDays: 40, userConnected: true, ...state } }
 			settings={ { settings: null, isSaving: () => false, ...settings } as ProtectSettingsData }
-			openSettings={ jest.fn() }
+			openTab={ jest.fn() }
 		/>
 	);
 

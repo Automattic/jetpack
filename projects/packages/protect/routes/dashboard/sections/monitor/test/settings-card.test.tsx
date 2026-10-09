@@ -25,7 +25,7 @@ const renderCard = ( {
 					refresh,
 				} as unknown as ProtectSettingsData
 			}
-			openSettings={ jest.fn() }
+			openTab={ jest.fn() }
 		/>
 	);
 
