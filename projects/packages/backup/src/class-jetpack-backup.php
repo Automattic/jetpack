@@ -23,7 +23,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
@@ -128,13 +127,12 @@ class Jetpack_Backup {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > Backup" renders the new
-	 * wp-build dashboard instead of the legacy React app.
+	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
-	 * Blog sticker that takes a site out of the internal preview.
+	 * Blog sticker that puts a site back on the legacy dashboard.
 	 *
 	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
@@ -1304,36 +1302,17 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the modernization filter's value, which defaults to the internal preview.
+	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since $$next-version$$ Defaults to true.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
-	}
+		$has_legacy_sticker = function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER );
 
-	/**
-	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
-	 *
-	 * The proxy is checked first, so other requests never make the connected-user lookup.
-	 *
-	 * @return bool
-	 */
-	private static function is_internal_preview() {
-		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
-			return false;
-		}
-
-		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
-			return false;
-		}
-
-		$user_data = ( new Connection_Manager() )->get_connected_user_data();
-		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
-
-		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**
