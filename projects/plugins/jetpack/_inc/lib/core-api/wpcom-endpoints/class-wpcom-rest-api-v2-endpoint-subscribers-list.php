@@ -115,10 +115,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 					'callback'            => array( $this, 'send_bounce_confirmation' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'email_subscription_id' => array(
-							'type'     => 'integer',
+						'email_address' => array(
+							'type'     => 'string',
+							'format'   => 'email',
 							'required' => true,
-							'minimum'  => 1,
 						),
 					),
 				),
@@ -534,7 +534,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			),
 			wp_json_encode(
 				array(
-					'email_subscription_id' => (int) $request->get_param( 'email_subscription_id' ),
+					'email_address' => (string) $request->get_param( 'email_address' ),
 				),
 				JSON_UNESCAPED_SLASHES
 			),

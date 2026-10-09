@@ -15,8 +15,8 @@ export function useSendBounceConfirmationMutation() {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
-	return useMutation< SendBounceConfirmationResponse, Error, number >( {
-		mutationFn: emailSubscriptionId => sendBounceConfirmation( emailSubscriptionId ),
+	return useMutation< SendBounceConfirmationResponse, Error, string >( {
+		mutationFn: emailAddress => sendBounceConfirmation( emailAddress ),
 		onSuccess: () => {
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
 			queryClient.invalidateQueries( { queryKey: [ 'subscriber-details' ] } );

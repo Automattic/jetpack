@@ -282,13 +282,13 @@ export default function SubscribersDataViews( {
 				isEligible: ( subscriber: Subscriber ) =>
 					subscriber.subscription_status_reason === 'bounced' &&
 					!! subscriber.bounce_retry?.can_retry &&
-					!! subscriber.email_subscription_id,
+					!! subscriber.email_address,
 				callback: ( items: Subscriber[] ) => {
 					const target = items[ 0 ];
-					if ( ! target?.email_subscription_id ) {
+					if ( ! target?.email_address ) {
 						return;
 					}
-					sendBounceConfirmation( target.email_subscription_id );
+					sendBounceConfirmation( target.email_address );
 				},
 			},
 			{

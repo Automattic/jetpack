@@ -151,28 +151,28 @@ function DetailRow( {
 /**
  * Bounce explanation and "Send confirmation email" button for a bounced subscriber.
  *
- * @param props                     - Component props.
- * @param props.emailSubscriptionId - Email subscription id; nothing renders without one.
- * @param props.bounceRetry         - Bounce retry state from the API.
- * @return Bounce retry block, or null without an email subscription id.
+ * @param props              - Component props.
+ * @param props.emailAddress - Subscriber email address; nothing renders without one.
+ * @param props.bounceRetry  - Bounce retry state from the API.
+ * @return Bounce retry block, or null without an email address.
  */
 function BounceRetryNotice( {
-	emailSubscriptionId,
+	emailAddress,
 	bounceRetry,
 }: {
-	emailSubscriptionId?: number;
+	emailAddress?: string;
 	bounceRetry?: BounceRetry | null;
 } ): JSX.Element | null {
 	const { mutate, isPending } = useSendBounceConfirmationMutation();
 	const canRetry = !! bounceRetry?.can_retry;
 
 	const send = useCallback( () => {
-		if ( emailSubscriptionId ) {
-			mutate( emailSubscriptionId );
+		if ( emailAddress ) {
+			mutate( emailAddress );
 		}
-	}, [ emailSubscriptionId, mutate ] );
+	}, [ emailAddress, mutate ] );
 
-	if ( ! emailSubscriptionId ) {
+	if ( ! emailAddress ) {
 		return null;
 	}
 
@@ -350,7 +350,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 					/>
 					{ subscriber.subscription_status_reason === 'bounced' ? (
 						<BounceRetryNotice
-							emailSubscriptionId={ subscriber.email_subscription_id }
+							emailAddress={ subscriber.email_address }
 							bounceRetry={ subscriber.bounce_retry }
 						/>
 					) : null }
