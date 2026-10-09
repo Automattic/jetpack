@@ -16,6 +16,7 @@ export type FirewallState = {
 	/** The last 10, newest first. */
 	recentBlocks: BlockedRequest[];
 	hasScan: boolean;
+	currentIp: string;
 };
 
 /** Undefined when PHP registered no Firewall section. */

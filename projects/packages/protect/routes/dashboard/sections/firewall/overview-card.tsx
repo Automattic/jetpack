@@ -7,6 +7,7 @@ import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import { FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
+import ManualRules from './manual-rules';
 import RecentBlocks from './recent-blocks';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
@@ -20,6 +21,7 @@ const UNAVAILABLE: FirewallState = {
 	blockedCount: null,
 	recentBlocks: [],
 	hasScan: false,
+	currentIp: '',
 };
 
 type NoticeIntent = ComponentProps< typeof Notice.Root >[ 'intent' ];
@@ -163,6 +165,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 						</Notice.Root>
 						{ result && <TestDetails result={ result } recorded={ recorded } /> }
 					</Stack>
+				</CardRow>
+			) }
+			{ active && (
+				<CardRow>
+					<ManualRules settings={ settings } openTab={ openTab } />
 				</CardRow>
 			) }
 			{ active && (

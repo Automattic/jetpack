@@ -98,6 +98,9 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 							disabled={ ! wafOn || ! rulesUsable || isSaving( AUTOMATIC_RULES ) }
 							onChange={ onAutomaticRules }
 						/>
+						<Text variant="heading-sm" render={ <h3 /> }>
+							{ __( 'Manual rules', 'jetpack-protect-pkg' ) }
+						</Text>
 						<SettingToggle
 							data={ data }
 							name="jetpack_waf_ip_block_list_enabled"
@@ -113,6 +116,24 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 									'Separate addresses or ranges with commas, spaces or new lines. Requests from them are blocked while the firewall is on.',
 									'jetpack-protect-pkg'
 								) }
+							/>
+						) }
+						<SettingToggle
+							data={ data }
+							name="jetpack_waf_ip_allow_list_enabled"
+							label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
+							disabled={ ! wafOn }
+						/>
+						{ wafOn && Boolean( settings?.jetpack_waf_ip_allow_list_enabled ) && (
+							<IpListField
+								data={ data }
+								name="jetpack_waf_ip_allow_list"
+								label={ __( 'Always-allowed IP addresses', 'jetpack-protect-pkg' ) }
+								description={ __(
+									'Separate addresses or ranges with commas, spaces or new lines. The firewall and login protection never block them.',
+									'jetpack-protect-pkg'
+								) }
+								currentIp={ state?.currentIp }
 							/>
 						) }
 						<ToggleControl
