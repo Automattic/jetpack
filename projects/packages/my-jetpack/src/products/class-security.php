@@ -195,7 +195,8 @@ class Security extends Module_Product {
 			foreach ( $purchases_data as $purchase ) {
 				if (
 					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_pro_' )
 				) {
 					return true;
 				}
