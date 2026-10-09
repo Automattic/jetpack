@@ -1,4 +1,5 @@
 Significance: patch
 Type: other
+Comment: Remove unfinished Sharing Buttons auto-add code that never ran; the Sharing & Likes package replaces it.
 
-Sharing Buttons block: Remove the unfinished code that added the block to templates, now handled by the Sharing & Likes package.
+
