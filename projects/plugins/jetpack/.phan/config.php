@@ -51,6 +51,7 @@ $config = make_phan_config(
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/class-jetpack-mu-wpcom.php', // class Jetpack_Mu_Wpcom
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/launchpad/launchpad.php', // function wpcom_launchpad_is_fse_next_steps_modal_hidden
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/wpcom-hosting-feature-page/class-wpcom-hosting-feature-page.php', // class WPCOM_Hosting_Feature_Page
 		),
 	)
 );

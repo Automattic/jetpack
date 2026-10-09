@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Test-only change: keep the admin menu order test independent of host-registered pages.
+
+

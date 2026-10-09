@@ -12,7 +12,7 @@ const globals = globalThis as unknown as { window?: Partial< Window > };
  * @param state - The state to publish, or nothing to leave the page bare.
  */
 function localize( state?: InitialState ) {
-	globals.window = { wpcomBackupInitialState: state };
+	globals.window = { wpcomHostingFeatureInitialState: state };
 }
 
 describe( 'getInitialState', () => {

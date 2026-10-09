@@ -46,7 +46,7 @@ let holdingMessages: MessageMap< HoldingMessage > | null = null;
  */
 function getGenericBlockingMessage(): string {
 	return __(
-		'This site is not currently eligible to activate backups. Please contact our support team for help.',
+		'This site is not currently eligible to activate this feature. Please contact our support team for help.',
 		'jetpack-mu-wpcom'
 	);
 }
@@ -160,7 +160,7 @@ function getHoldingMessages(): MessageMap< HoldingMessage > {
 			code: EligibilityErrors.IS_STAGING_SITE,
 			title: __( 'Create a new staging site', 'jetpack-mu-wpcom' ),
 			description: __(
-				'Backups cannot be activated for a staging site. Create a new staging site to continue.',
+				'This feature cannot be activated for a staging site. Create a new staging site to continue.',
 				'jetpack-mu-wpcom'
 			),
 		},
@@ -178,20 +178,6 @@ function getHoldingMessages(): MessageMap< HoldingMessage > {
  */
 function lookUp< T >( messages: MessageMap< T >, code: string ): T | undefined {
 	return Object.hasOwn( messages, code ) ? messages[ code as EligibilityErrorCode ] : undefined;
-}
-
-/**
- * An Atomic site below the Business plan reports both `transfer_already_exists`
- * and `no_business_plan`. The first would render a "setup in progress" notice
- * for a transfer that is not running, so suppress it and prompt to upgrade.
- *
- * @param errors - Eligibility errors.
- * @return Whether both codes are present.
- */
-export function isAtomicSiteWithoutBusinessPlan( errors: TransferError[] ) {
-	return [ EligibilityErrors.TRANSFER_ALREADY_EXISTS, EligibilityErrors.NO_BUSINESS_PLAN ].every(
-		code => errors.some( error => error.code === code )
-	);
 }
 
 /**

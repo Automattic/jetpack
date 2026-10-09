@@ -6,7 +6,6 @@ import {
 	findFirstBlockingError,
 	findHoldingErrors,
 	hasAnyBlockingError,
-	isAtomicSiteWithoutBusinessPlan,
 	needsConfirmation,
 	needsPlanUpgrade,
 } from './eligibility.ts';
@@ -132,29 +131,6 @@ describe( 'holding errors', () => {
 		const [ hold ] = findHoldingErrors( [ error( EligibilityErrors.NO_BUSINESS_PLAN ) ] );
 
 		assert.match( hold.title, /Business/ );
-	} );
-} );
-
-describe( 'the Atomic-site-below-Business special case', () => {
-	it( 'recognises the pair that would claim a transfer is running', () => {
-		assert.equal(
-			isAtomicSiteWithoutBusinessPlan( [
-				error( EligibilityErrors.TRANSFER_ALREADY_EXISTS ),
-				error( EligibilityErrors.NO_BUSINESS_PLAN ),
-			] ),
-			true
-		);
-	} );
-
-	it( 'needs both codes, not either', () => {
-		assert.equal(
-			isAtomicSiteWithoutBusinessPlan( [ error( EligibilityErrors.TRANSFER_ALREADY_EXISTS ) ] ),
-			false
-		);
-		assert.equal(
-			isAtomicSiteWithoutBusinessPlan( [ error( EligibilityErrors.NO_BUSINESS_PLAN ) ] ),
-			false
-		);
 	} );
 } );
 

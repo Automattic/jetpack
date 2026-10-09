@@ -1,12 +1,13 @@
-// Component styles for the Backup page; the page-level layout lives
-// in routes/wpcom-backup/style.scss.
+// Component styles for the hosting feature pages; the page-level layout lives
+// in each page's routes/<page>/style.scss.
 
-.wpcom-backup {
+.wpcom-hosting-feature {
 
-	&__body {
-		// Grows to fill the space between the fixed header and the pinned footer.
+	// The page layout stretches __body's direct child to fill the
+	// column, so the card sits a level deeper and keeps its height.
+	&__stage {
 		display: flex;
-		flex: 1;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		padding: var(--wpds-dimension-padding-2xl);

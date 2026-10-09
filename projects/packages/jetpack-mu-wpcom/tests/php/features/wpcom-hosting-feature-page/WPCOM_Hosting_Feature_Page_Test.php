@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Backup page.
+ * Tests for the hosting feature pages.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -8,14 +8,19 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Hosting_Feature_Page;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
- * Tests for the Backup page.
+ * Tests for the hosting feature pages. Shared behavior is exercised through the Backup page.
  */
-class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
+class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Screen ID wp-admin gives this page, from its parent and menu slug.
@@ -23,10 +28,9 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	const SCREEN_ID = 'jetpack_page_jetpack-backup';
 
 	/**
-	 * An environment that cannot prove the site has backups must not offer to
-	 * activate them.
+	 * A site whose plan lacks the feature must not be offered activation.
 	 */
-	public function test_state_defaults_to_upgrade_without_wpcom_libraries() {
+	public function test_state_is_upgrade_without_the_plan() {
 		$this->assertSame(
 			WPCOM_Backup::STATE_UPGRADE,
 			WPCOM_Backup::get_state( 1 )
@@ -34,20 +38,186 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A Simple site is never Atomic, so the page always has something to offer —
-	 * either the upgrade or the transfer that makes the plan's backups real.
+	 * Stand in for wpcom's plan lookup, with a plan that includes nothing, and its
+	 * transfer checks, on a Simple site with no transfer underway.
+	 *
+	 * @return void
 	 */
-	public function test_page_registers_on_simple() {
-		$this->assertTrue( WPCOM_Backup::should_register() );
+	public function set_up() {
+		parent::set_up();
+		// Some earlier suites never tear Brain Monkey down, and a leftover stub would block this one.
+		\Brain\Monkey\tearDown();
+		\Brain\Monkey\setUp();
+		$this->grant_feature( '' );
+		Functions\when( 'A8C\Atomic\has_site_pending_automated_transfer' )->justReturn( false );
+		Functions\when( 'A8C\Atomic\is_wpcom_atomic' )->justReturn( false );
+		Functions\when( 'A8C\Atomic\Eligibility\get_status_for_site' )->justReturn( null );
+	}
+
+	/**
+	 * Give the site exactly one plan feature.
+	 *
+	 * @param string $granted The feature the plan includes.
+	 * @return void
+	 */
+	private function grant_feature( $granted ) {
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function ( $feature ) use ( $granted ) {
+				return $granted === $feature;
+			}
+		);
+	}
+
+	/**
+	 * Each page, a feature granted on its own, and whether that unlocks the page's feature.
+	 *
+	 * @return array
+	 */
+	public static function provide_granted_features() {
+		return array(
+			'Backup with self-serve backups' => array( WPCOM_Backup::class, \WPCOM_Features::BACKUPS_SELF_SERVE, true ),
+			'Backup with self-serve Scan'    => array( WPCOM_Backup::class, \WPCOM_Features::SCAN_SELF_SERVE, false ),
+			'Protect with self-serve Scan'   => array( WPCOM_Scan::class, \WPCOM_Features::SCAN_SELF_SERVE, true ),
+			// Personal and Premium plans include SCAN but never show Scan's UI.
+			'Protect with SCAN alone'        => array( WPCOM_Scan::class, \WPCOM_Features::SCAN, false ),
+		);
+	}
+
+	/**
+	 * Each page asks the plan for its own feature, and only that one.
+	 *
+	 * @param string $page     Page class.
+	 * @param string $granted  The feature the plan includes.
+	 * @param bool   $expected Whether the page should see its feature.
+	 *
+	 * @dataProvider provide_granted_features
+	 */
+	#[DataProvider( 'provide_granted_features' )]
+	public function test_page_checks_its_own_plan_feature( $page, $granted, $expected ) {
+		$this->grant_feature( $granted );
+
+		$this->assertSame( $expected, $page::has_feature() );
+	}
+
+	/**
+	 * A Simple site with the plan is offered the transfer that switches the feature on.
+	 *
+	 * @param string $page    Page class.
+	 * @param string $feature The page's plan feature.
+	 *
+	 * @dataProvider provide_page_features
+	 */
+	#[DataProvider( 'provide_page_features' )]
+	public function test_simple_site_with_the_plan_is_offered_activation( $page, $feature ) {
+		$this->grant_feature( $feature );
+
+		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_ACTIVATE, $page::get_state( 1 ) );
+	}
+
+	/**
+	 * Starting a second transfer on top of a running one is what this state prevents.
+	 *
+	 * @param string $check The wpcom check that reports the transfer.
+	 *
+	 * @dataProvider provide_transfer_checks
+	 */
+	#[DataProvider( 'provide_transfer_checks' )]
+	public function test_simple_site_with_a_transfer_underway_is_told_to_wait( $check ) {
+		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		Functions\when( $check )->justReturn( true );
+
+		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_IN_PROGRESS, WPCOM_Backup::get_state( 1 ) );
+	}
+
+	/**
+	 * Each wpcom check that reports a transfer already underway.
+	 *
+	 * @return array
+	 */
+	public static function provide_transfer_checks() {
+		return array(
+			'Queued'                         => array( 'A8C\Atomic\has_site_pending_automated_transfer' ),
+			'Pending, active or provisioned' => array( 'A8C\Atomic\is_wpcom_atomic' ),
+		);
+	}
+
+	/**
+	 * On WoA the plan makes the feature live, so the page steps aside for the real one.
+	 *
+	 * @param string $page    Page class.
+	 * @param string $feature The page's plan feature.
+	 *
+	 * @dataProvider provide_page_features
+	 */
+	#[DataProvider( 'provide_page_features' )]
+	public function test_woa_site_with_the_plan_does_not_register_the_page( $page, $feature ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->grant_feature( $feature );
+
+		$this->assertFalse( $page::should_register() );
+	}
+
+	/**
+	 * Each page with the plan feature that unlocks it.
+	 *
+	 * @return array
+	 */
+	public static function provide_page_features() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class, \WPCOM_Features::BACKUPS_SELF_SERVE ),
+			'Protect' => array( WPCOM_Scan::class, \WPCOM_Features::SCAN_SELF_SERVE ),
+		);
+	}
+
+	/**
+	 * Every page.
+	 *
+	 * @return array
+	 */
+	public static function provide_pages() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class ),
+			'Protect' => array( WPCOM_Scan::class ),
+		);
+	}
+
+	/**
+	 * Every page, with the slug it must keep.
+	 *
+	 * @return array
+	 */
+	public static function provide_pinned_slugs() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class, 'jetpack-backup' ),
+			'Protect' => array( WPCOM_Scan::class, 'jetpack-protect' ),
+		);
+	}
+
+	/**
+	 * A Simple site is never Atomic, so the page always has something to offer —
+	 * either the upgrade or the transfer that makes the plan's feature real.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
+	 */
+	#[DataProvider( 'provide_pages' )]
+	public function test_page_registers_on_simple( $page ) {
+		$this->assertTrue( $page::should_register() );
 	}
 
 	/**
 	 * Without the plan there is still an upgrade to offer on WoA.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_page_registers_on_woa_without_the_plan() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_page_registers_on_woa_without_the_plan( $page ) {
 		Constants::set_constant( 'IS_ATOMIC', true );
 
-		$this->assertTrue( WPCOM_Backup::should_register() );
+		$this->assertTrue( $page::should_register() );
 	}
 
 	/**
@@ -70,16 +240,55 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Checkout is a detour, not a destination: a buyer who lands anywhere else has
 	 * to find their way back to finish activating what they just paid for.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_upgrade_url_returns_the_buyer_to_this_page() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_upgrade_url_returns_the_buyer_to_this_page( $page ) {
 		parse_str(
-			(string) wp_parse_url( WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' ), PHP_URL_QUERY ),
+			(string) wp_parse_url( $page::get_upgrade_url( 'example.wordpress.com' ), PHP_URL_QUERY ),
 			$args
 		);
 
-		$this->assertStringContainsString(
-			'page=' . WPCOM_Backup::MENU_SLUG,
-			rawurldecode( $args['redirect_to'] )
+		$this->assertSame( $page::get_page_url(), rawurldecode( $args['redirect_to'] ) );
+	}
+
+	/**
+	 * On WoA the purchase makes the feature live and this page steps aside, so the
+	 * buyer has to land wherever the feature is served instead.
+	 *
+	 * @param string      $page     Page class.
+	 * @param string|null $expected Where the buyer lands, or null for this page.
+	 *
+	 * @dataProvider provide_upgrade_landings
+	 */
+	#[DataProvider( 'provide_upgrade_landings' )]
+	public function test_upgrade_url_on_woa_lands_where_the_feature_is_served( $page, $expected ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+
+		parse_str(
+			(string) wp_parse_url( $page::get_upgrade_url( 'example.org' ), PHP_URL_QUERY ),
+			$args
+		);
+
+		$expected = null === $expected
+			? $page::get_page_url()
+			: str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected );
+
+		$this->assertSame( $expected, rawurldecode( $args['redirect_to'] ) );
+	}
+
+	/**
+	 * Each page, with where a WoA buyer lands, as a template over the site's `%host%`.
+	 *
+	 * @return array
+	 */
+	public static function provide_upgrade_landings() {
+		return array(
+			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
+			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
 		);
 	}
 
@@ -161,7 +370,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'wpcom_backup_admin',
+					'user_login' => 'wpcom_hosting_feature_admin',
 					'user_pass'  => 'password',
 					'role'       => 'administrator',
 				)
@@ -229,6 +438,8 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
+		WPCOM_Scan::reset();
+		\Brain\Monkey\tearDown();
 
 		parent::tear_down();
 	}
@@ -252,6 +463,28 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 			array_values( array_filter( $slugs, static fn ( $slug ) => WPCOM_Backup::MENU_SLUG === $slug ) ),
 			'The existing entry should be left exactly as it was found.'
 		);
+		$this->assertArrayNotHasKey( 4, $submenu['jetpack'][0], 'The existing entry should stay visible.' );
+	}
+
+	/**
+	 * Hidden by the page itself, since admins without a linked WordPress.com account never
+	 * load the WordPress.com menu that hides the rest of the Jetpack entries.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
+	 */
+	#[DataProvider( 'provide_pages' )]
+	public function test_registered_page_is_hidden_from_the_sidebar( $page ) {
+		global $submenu;
+
+		$this->set_up_admin_menu();
+
+		$page::register_page();
+
+		$items = array_values( array_filter( $submenu['jetpack'], static fn ( $item ) => $page::MENU_SLUG === $item[2] ) );
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'hide-if-js', $items[0][4] ?? '' );
 	}
 
 	/**
@@ -284,30 +517,54 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
-	 * "tidy" into something else.
+	 * "tidy" into something else, and links into the page depend on it.
+	 *
+	 * @param string $page Page class.
+	 * @param string $slug The slug the page must keep.
+	 *
+	 * @dataProvider provide_pinned_slugs
 	 */
-	public function test_menu_slug_matches_the_real_backup_page() {
-		$this->assertSame( 'jetpack-backup', WPCOM_Backup::MENU_SLUG );
+	#[DataProvider( 'provide_pinned_slugs' )]
+	public function test_menu_slug_is_pinned( $page, $slug ) {
+		$this->assertSame( $slug, $page::MENU_SLUG );
 	}
 
 	/**
 	 * Nothing but this connects the constant to the route's package.json, and a
 	 * mismatch degrades silently to a blank page.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_render_callback_matches_the_wp_build_page_name() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_render_callback_matches_the_wp_build_page_name( $page ) {
 		$route = (array) json_decode(
 			(string) file_get_contents(
-				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/wpcom-backup/package.json'
+				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/' . $page::WP_BUILD_PAGE . '/package.json'
 			),
 			true
 		);
-		$page  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
+		$name  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
 
-		$this->assertSame( WPCOM_Backup::WP_BUILD_PAGE, $page );
+		$this->assertSame( $page::WP_BUILD_PAGE, $name );
 		$this->assertSame(
-			WPCOM_Backup::RENDER_CALLBACK,
-			'jetpack_mu_wpcom_' . str_replace( '-', '_', $page ) . '_wp_admin_render_page'
+			$page::RENDER_CALLBACK,
+			'jetpack_mu_wpcom_' . str_replace( '-', '_', $name ) . '_wp_admin_render_page'
 		);
+	}
+
+	/**
+	 * Registration state is per page, so one page claiming its slug must not make
+	 * another alias the screen or localize state for a page it never registered.
+	 */
+	public function test_one_page_registering_does_not_make_another_own_its_slug() {
+		$this->set_up_admin_menu();
+
+		WPCOM_Backup::register_page();
+
+		$this->assertTrue( WPCOM_Backup::owns_page() );
+		$this->assertFalse( WPCOM_Scan::owns_page() );
 	}
 
 	/**
@@ -369,8 +626,14 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * The old address may not redirect yet when the flow sends the reader back.
+	 *
+	 * @param string $page     Page class.
+	 * @param string $expected Where the reader lands.
+	 *
+	 * @dataProvider provide_transfer_landings
 	 */
-	public function test_activate_url_returns_to_the_new_address_when_the_transfer_changes_it() {
+	#[DataProvider( 'provide_transfer_landings' )]
+	public function test_activate_url_lands_on_the_new_address_when_the_transfer_changes_it( $page, $expected ) {
 		$warnings = array(
 			array( 'domain_names' => null ),
 			array(
@@ -381,18 +644,28 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		parse_str( (string) wp_parse_url( WPCOM_Backup::get_activate_url( $warnings ), PHP_URL_QUERY ), $args );
+		parse_str( (string) wp_parse_url( $page::get_activate_url( $warnings ), PHP_URL_QUERY ), $args );
 
-		$this->assertSame(
-			'https://example.wpcomstaging.com/wp-admin/admin.php?page=' . WPCOM_Backup::MENU_SLUG,
-			rawurldecode( $args['redirect_to'] )
+		$this->assertSame( $expected, rawurldecode( $args['redirect_to'] ) );
+	}
+
+	/**
+	 * Each page, with where a transferred site lands.
+	 *
+	 * @return array
+	 */
+	public static function provide_transfer_landings() {
+		return array(
+			'Backup'  => array( WPCOM_Backup::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-backup' ),
+			// Calypso's Scan page until the Jetpack plugin serves jetpack-protect on WoA.
+			'Protect' => array( WPCOM_Scan::class, 'https://wordpress.com/scan/example.wpcomstaging.com' ),
 		);
 	}
 
 	/**
 	 * Only a bare hostname is swapped in, so the payload cannot redirect elsewhere.
 	 */
-	public function test_post_transfer_url_ignores_a_new_address_that_is_not_a_hostname() {
+	public function test_post_transfer_host_ignores_a_new_address_that_is_not_a_hostname() {
 		$warnings = array(
 			array(
 				'domain_names' => array(
@@ -402,7 +675,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		$this->assertSame( WPCOM_Backup::get_page_url(), WPCOM_Backup::get_post_transfer_page_url( $warnings ) );
+		$this->assertNull( WPCOM_Backup::get_post_transfer_host( $warnings ) );
 	}
 
 	/**
@@ -428,8 +701,13 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Pages are declared, not discovered: wp-build only emits a page's PHP when
 	 * it is listed in wpPlugin.pages, and an undeclared page renders blank.
+	 *
+	 * @param string $page Page class.
+	 *
+	 * @dataProvider provide_pages
 	 */
-	public function test_wp_build_page_is_declared_in_the_package_manifest() {
+	#[DataProvider( 'provide_pages' )]
+	public function test_wp_build_page_is_declared_in_the_package_manifest( $page ) {
 		$manifest = (array) json_decode(
 			(string) file_get_contents(
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'package.json'
@@ -439,7 +717,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 
 		$pages = $manifest['wpPlugin']['pages'] ?? array();
 
-		$this->assertContains( WPCOM_Backup::WP_BUILD_PAGE, $pages );
+		$this->assertContains( $page::WP_BUILD_PAGE, $pages );
 	}
 
 	/**
@@ -487,11 +765,11 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	 * Requests to admin-ajax.php are also `is_admin()`, and a stray `page` arg
 	 * there must not drag in the wp-build assets for a page that never renders.
 	 */
-	public function test_ajax_requests_are_not_backup_page_requests() {
+	public function test_ajax_requests_are_not_page_requests() {
 		$this->set_up_backup_request();
 		$GLOBALS['pagenow'] = 'admin-ajax.php';
 
-		$this->assertFalse( WPCOM_Backup::is_backup_admin_request() );
+		$this->assertFalse( WPCOM_Backup::is_page_request() );
 	}
 
 	/**
@@ -526,6 +804,60 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The activation prompt explains blockers and confirms warnings from this
+	 * payload alone, so they have to arrive in the shape it reads.
+	 */
+	public function test_activation_state_carries_the_transfer_eligibility() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		Functions\when( 'A8C\Atomic\Eligibility\get_status_for_site' )->justReturn(
+			array(
+				'is_eligible' => false,
+				'errors'      => array(
+					array(
+						'code'    => 'email_unverified',
+						'message' => 'Confirm your email address.',
+					),
+				),
+				'warnings'    => array(
+					'plugins' => array(
+						array(
+							'id'          => 'plugin_warning',
+							'description' => 'Some plugins will be deactivated.',
+							'support_url' => 'javascript:alert(1)',
+						),
+					),
+				),
+			)
+		);
+		WPCOM_Backup::register_page();
+
+		$payload = (array) $this->localized_initial_state();
+
+		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
+		$this->assertSame( '', $payload['isEligible'] );
+		$this->assertSame( 'email_unverified', $payload['errors'][0]['code'] );
+		$this->assertSame( 'plugin_warning', $payload['warnings'][0]['id'] );
+		$this->assertSame( '', $payload['warnings'][0]['support_url'], 'Only a web URL may become a link.' );
+	}
+
+	/**
+	 * A missing library is not a failed check; the transfer flow rejects the site if it must.
+	 */
+	public function test_activation_state_assumes_eligible_when_eligibility_is_unknown() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		WPCOM_Backup::register_page();
+
+		$payload = (array) $this->localized_initial_state();
+
+		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
+		$this->assertSame( '1', $payload['isEligible'] );
+	}
+
+	/**
 	 * Eligibility is fetched directly here rather than through the wpcom endpoint
 	 * that gates it, so the capability check has to be restated.
 	 */
@@ -537,7 +869,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'wpcom_backup_subscriber',
+					'user_login' => 'wpcom_hosting_feature_subscriber',
 					'user_pass'  => 'password',
 					'role'       => 'subscriber',
 				)

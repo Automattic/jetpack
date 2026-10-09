@@ -1,0 +1,39 @@
+import AdminPage from '@automattic/jetpack-components/admin-page';
+import { FeatureContext } from './feature-context.ts';
+import { ActivateScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
+import { getInitialState } from './state.ts';
+import type { FeatureConfig } from './types.ts';
+import './style.scss';
+
+/**
+ * A hosting feature page for WordPress.com Simple and WoA sites.
+ *
+ * Shown while the feature is out of reach: a Simple site has to move to our
+ * hosting platform to run it, and a WoA site may not have bought it yet.
+ *
+ * @param props        - Component props.
+ * @param props.config - The feature's copy, imagery and Tracks IDs.
+ * @return The rendered page.
+ */
+export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
+	const initialState = getInitialState();
+
+	return (
+		<FeatureContext.Provider value={ config }>
+			<AdminPage
+				className="wpcom-hosting-feature"
+				title={ config.productName }
+				subTitle={ config.subTitle }
+				unwrapped
+			>
+				<div className="wpcom-hosting-feature__body">
+					<div className="wpcom-hosting-feature__stage">
+						{ initialState.state === 'in_progress' && <InProgressScreen /> }
+						{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
+						{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }
+					</div>
+				</div>
+			</AdminPage>
+		</FeatureContext.Provider>
+	);
+}
