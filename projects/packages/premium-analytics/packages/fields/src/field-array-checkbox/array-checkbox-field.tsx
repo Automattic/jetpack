@@ -1,19 +1,16 @@
 /**
  * WordPress dependencies
  */
-import { Button, Fieldset, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { CheckboxControl, privateApis, Spinner } from '@wordpress/components';
+import { Button, Fieldset, Icon, Menu, Stack } from '@jetpack-premium-analytics/externals';
+import { CheckboxControl, Spinner } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { chevronDown } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import useElements from '../helpers/use-elements';
-import { unlock } from '../lock/unlock';
 import styles from './array-checkbox-field.module.css';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
-
-const { Menu } = unlock( privateApis );
 
 function normalizeSelectedValues( value: unknown ): string[] {
 	return Array.isArray( value ) ? value.filter( ( v ): v is string => typeof v === 'string' ) : [];
@@ -42,18 +39,6 @@ export default function ArrayCheckboxField< Item >( {
 			onChange( setValue( { item: data, value: nextValues } ) );
 		},
 		[ data, onChange, setValue ]
-	);
-
-	const onCheckboxChange = useCallback(
-		( event: React.ChangeEvent< HTMLInputElement > ) => {
-			const { value, checked } = event.target;
-			updateValues(
-				checked
-					? [ ...selectedValues, value ]
-					: selectedValues.filter( selectedValue => selectedValue !== value )
-			);
-		},
-		[ selectedValues, updateValues ]
 	);
 
 	const onCheckboxControlChange = useCallback(
@@ -98,8 +83,8 @@ export default function ArrayCheckboxField< Item >( {
 	}
 
 	return (
-		<Menu placement="bottom-end">
-			<Menu.TriggerButton
+		<Menu.Root>
+			<Menu.Trigger
 				render={
 					<Button
 						className={ styles.trigger }
@@ -112,27 +97,24 @@ export default function ArrayCheckboxField< Item >( {
 			>
 				<span className={ styles.triggerLabel }>{ label }</span>
 				<Icon className={ styles.triggerCaret } icon={ chevronDown } size={ 18 } />
-			</Menu.TriggerButton>
+			</Menu.Trigger>
 
-			<Menu.Popover>
+			<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
 				<Menu.Group>
 					{ elements.map( element => {
 						const value = String( element.value );
 						return (
 							<Menu.CheckboxItem
 								key={ value }
-								className={ styles.menuItem }
-								name={ field.id }
-								value={ value }
 								checked={ selectedValues.includes( value ) }
-								onChange={ onCheckboxChange }
+								onCheckedChange={ () => onCheckboxControlChange( value ) }
 							>
 								<Menu.ItemLabel>{ element.label }</Menu.ItemLabel>
 							</Menu.CheckboxItem>
 						);
 					} ) }
 				</Menu.Group>
-			</Menu.Popover>
-		</Menu>
+			</Menu.Popup>
+		</Menu.Root>
 	);
 }
