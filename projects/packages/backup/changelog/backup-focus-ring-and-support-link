@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: The modernized dashboard, behind a feature flag, now shows a visible focus ring on "Restore to this point" and underlines the support link.
+
