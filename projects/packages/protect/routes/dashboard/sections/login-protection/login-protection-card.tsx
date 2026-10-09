@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
-import SettingsLink from '../../components/settings-link';
+import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import type { LoginProtectionContext, ModuleState } from './types';
 import type { CardStatus } from '../../components/card';
@@ -64,16 +64,16 @@ function getStatusIntent( on: number, available: number ): CardStatus[ 'intent' 
 /**
  * The Login protection card: brute force protection, account protection and WordPress.com login.
  *
- * @param props              - The dashboard context.
- * @param props.state        - This section's state from PHP.
- * @param props.settings     - Jetpack settings, for live module state.
- * @param props.openSettings - Switches to the Settings tab.
+ * @param props          - The dashboard context.
+ * @param props.state    - This section's state from PHP.
+ * @param props.settings - Jetpack settings, for live module state.
+ * @param props.openTab  - Switches dashboard tabs, for the link to Settings.
  * @return The card, or nothing without the section's state.
  */
 export default function LoginProtectionCard( {
 	state: login,
 	settings,
-	openSettings,
+	openTab,
 }: LoginProtectionContext ) {
 	if ( ! login ) {
 		return null;
@@ -138,9 +138,9 @@ export default function LoginProtectionCard( {
 				state={ sso }
 			/>
 			<CardRow>
-				<SettingsLink onOpen={ openSettings }>
+				<TabLink tab="settings" onOpen={ openTab }>
 					{ __( 'Configure login protection', 'jetpack-protect-pkg' ) }
-				</SettingsLink>
+				</TabLink>
 			</CardRow>
 		</ProtectCard>
 	);
