@@ -90,4 +90,11 @@ class Wpcom_Feature_Flags_Simple_Gate_Test extends TestCase {
 
 		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
 	}
+
+	/**
+	 * Simple has no support session cookie; is_automattician() alone decides.
+	 */
+	public function test_nothing_blocks_saving_on_simple() {
+		$this->assertSame( '', Wpcom_Feature_Flags::get_save_block_reason() );
+	}
 }
