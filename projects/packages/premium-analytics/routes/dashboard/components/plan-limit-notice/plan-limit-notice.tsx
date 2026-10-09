@@ -12,7 +12,8 @@ import {
 import { Notice } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { statsUpgradeUrl, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -90,10 +91,10 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 	const isNear = !! status && ! status.isOver;
 	const { data: notices } = useStatsAppNotices( undefined, { enabled: isNear } );
 	const { mutate: updateNotice } = useStatsAppNoticeMutation();
-	const [ isPostponed, setIsPostponed ] = useState( false );
+	const { createErrorNotice } = useDispatch( 'core/notices' );
 	const trackEvent = useTrackEvent();
 
-	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false || isPostponed );
+	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false );
 	const statusName = status?.isOver ? 'over' : 'near';
 
 	useEffect( () => {
@@ -106,10 +107,18 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 	}, [ status, isHeld, statusName, trackEvent ] );
 
 	const postpone = useCallback( () => {
-		setIsPostponed( true );
-		updateNotice( { id: 'tier_upgrade', status: 'postponed', postponed_for: POSTPONE_SECONDS } );
+		updateNotice(
+			{ id: 'tier_upgrade', status: 'postponed', postponed_for: POSTPONE_SECONDS },
+			{
+				onError: () =>
+					createErrorNotice(
+						__( 'Couldn’t dismiss the notice. Please try again.', 'jetpack-premium-analytics-pkg' ),
+						{ type: 'snackbar' }
+					),
+			}
+		);
 		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_dismiss' );
-	}, [ updateNotice, trackEvent ] );
+	}, [ updateNotice, createErrorNotice, trackEvent ] );
 
 	const recordUpgradeClick = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_upgrade_click', {
