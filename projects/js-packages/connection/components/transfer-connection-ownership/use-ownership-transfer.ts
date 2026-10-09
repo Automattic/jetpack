@@ -18,17 +18,28 @@ export interface ConnectionOwnerCandidate {
 	email: string;
 }
 
+/** What `checkStatus` throws: an Error carrying the REST body it could not return. */
+interface ApiError {
+	message?: string;
+	response?: { code?: string; message?: string };
+}
+
 /**
  * Turn a failed transfer into something the user can act on.
  *
  * All four are reachable: the list is built when the dialog opens, so a candidate can
  * stop qualifying while it is on screen.
  *
- * @param {string} code    - Error code from the REST response.
- * @param {string} message - Error message from the REST response.
+ * The refusal code is on the thrown Error's `response`, not the Error itself: the API
+ * client puts the REST body there and keeps `message` for its own "… (Status 400)" text.
+ *
+ * @param {ApiError} err - The rejection from the API client.
  * @return {string} Message to show.
  */
-function transferErrorMessage( code: string, message: string ): string {
+function transferErrorMessage( err: ApiError ): string {
+	const code = err?.response?.code ?? '';
+	const message = err?.response?.message ?? err?.message ?? '';
+
 	switch ( code ) {
 		case 'ownership_locked':
 			return __(
@@ -142,8 +153,8 @@ export default function useOwnershipTransfer( {
 				setStep( 'done' );
 				onTransferred?.( selectedId );
 			} )
-			.catch( ( err: { code?: string; message?: string } ) => {
-				setError( transferErrorMessage( err?.code ?? '', err?.message ?? '' ) );
+			.catch( ( err: ApiError ) => {
+				setError( transferErrorMessage( err ) );
 				setIsTransferring( false );
 			} );
 	}, [ selectedId, onTransferred ] );
