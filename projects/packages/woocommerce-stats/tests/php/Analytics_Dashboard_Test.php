@@ -41,6 +41,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
+		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
@@ -63,6 +64,15 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ) );
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ) ) );
+	}
+
+	/**
+	 * The store currency lands after the sync status tracker, which replaces `premium_analytics` at 10.
+	 */
+	public function test_init_hooks_the_store_currency_after_the_sync_status_tracker() {
+		Analytics_Dashboard::init();
+
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ) ) );
 	}
 
 	/**
@@ -103,6 +113,16 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::BOOKINGS_OVER_TIME_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
+				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
+				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
+				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
+				Analytics_Dashboard::BOOKINGS_BY_STATUS_TYPE,
+				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
+				Analytics_Dashboard::TOP_PERFORMING_BOOKINGS_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);

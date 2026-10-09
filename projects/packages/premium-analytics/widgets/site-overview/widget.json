@@ -1,5 +1,6 @@
 {
 	"name": "jpa/site-overview",
+	"icon": "jpa/globe",
 	"title": "Site overview",
 	"description": "Views, visitors, likes, and comments for the selected period, with period-over-period change.",
 	"help": {

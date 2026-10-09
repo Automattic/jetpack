@@ -2,6 +2,7 @@
 import { jest } from '@jest/globals';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
+import ImageGuideAnalytics from '../src/analytics.ts';
 import { MeasurableImage } from '../src/MeasurableImage.ts';
 import { MeasurableImageStore } from '../src/stores/MeasurableImageStore.ts';
 import { commands } from '../src/stores/store.ts';
@@ -36,7 +37,8 @@ afterEach( () => {
 
 it( 'persists the toolbar toggle and emits the existing UI state event', async () => {
 	const track = jest.fn();
-	await act( async () => root.render( <AdminBarToggle href="/guide" tracksCallback={ track } /> ) );
+	ImageGuideAnalytics.setTracksCallback( track );
+	await act( async () => root.render( <AdminBarToggle href="/guide" /> ) );
 	const link = target.querySelector( 'a' );
 	expect( link ).toHaveTextContent( 'Image Guide: Active' );
 	act( () => link.dispatchEvent( new MouseEvent( 'click', { bubbles: true, cancelable: true } ) ) );
@@ -183,4 +185,66 @@ it( 'fades labels when loading finishes and restores them immediately on resume'
 	expect( target.querySelector( '.label' ) ).not.toHaveClass( 'jb-ig-label-fade' );
 	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
 	expect( target.querySelector( '.label' ) ).not.toHaveClass( 'jb-ig-label-fade' );
+} );
+
+function finishAnimation( element, animationName ) {
+	const event = new Event( 'webkitAnimationEnd', { bubbles: true } );
+	Object.defineProperty( event, 'animationName', { value: animationName } );
+	act( () => element.dispatchEvent( event ) );
+}
+
+it( 'clears a completed entrance so showing its container cannot replay it', async () => {
+	const stores = [ image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	const bubble = target.querySelector( '.interaction-area' );
+	expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+	finishAnimation( bubble, 'jb-ig-fade-in' );
+	expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+	finishAnimation( bubble, 'jb-ig-bubble-fly-in' );
+	target.style.display = 'none';
+	target.style.display = '';
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.interaction-area' ) ).toBe( bubble );
+	expect( bubble ).not.toHaveClass( 'jb-ig-bubble-fly' );
+	expect( bubble ).toHaveStyle( { animationDelay: '' } );
+} );
+
+it( 'clears a completed label fade so showing its container cannot replay it', async () => {
+	const stores = [ image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
+	const label = target.querySelector( '.label' );
+	expect( label ).toHaveClass( 'jb-ig-label-fade' );
+	finishAnimation( label, 'jb-ig-fade-in' );
+	target.style.display = 'none';
+	target.style.display = '';
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.label' ) ).toBe( label );
+	expect( label ).not.toHaveClass( 'jb-ig-label-fade' );
+} );
+
+it( 'settles cancelled entrance and label animations before showing the container again', async () => {
+	const stores = [ image() ];
+	await act( async () => root.render( <Main stores={ stores } /> ) );
+	await act( async () => commands.updateImage( stores[ 0 ].id, { loading: false } ) );
+	const bubble = target.querySelector( '.interaction-area' );
+	const label = target.querySelector( '.label' );
+	expect( bubble ).toHaveClass( 'jb-ig-bubble-fly' );
+	expect( label ).toHaveClass( 'jb-ig-label-fade' );
+	target.style.display = 'none';
+	for ( const [ element, animationName ] of [
+		[ label, 'jb-ig-fade-in' ],
+		[ bubble, 'jb-ig-bubble-fly-in' ],
+	] ) {
+		const event = new Event( 'animationcancel', { bubbles: true } );
+		Object.defineProperty( event, 'animationName', { value: animationName } );
+		act( () => element.dispatchEvent( event ) );
+	}
+	target.style.display = '';
+	await act( async () => commands.updateImage( stores[ 0 ].id, { fileWeight: { weight: 200 } } ) );
+	expect( target.querySelector( '.interaction-area' ) ).toBe( bubble );
+	expect( target.querySelector( '.label' ) ).toBe( label );
+	expect( bubble ).not.toHaveClass( 'jb-ig-bubble-fly' );
+	expect( bubble ).toHaveStyle( { animationDelay: '' } );
+	expect( label ).not.toHaveClass( 'jb-ig-label-fade' );
 } );

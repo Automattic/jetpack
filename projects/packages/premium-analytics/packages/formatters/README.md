@@ -29,7 +29,7 @@ Returns `''` for null, undefined, or NaN.
 formatMetricValue( 9876.543 ); // '9,877'
 formatMetricValue( 1500, 'number', { useMultipliers: true } ); // '1.5K'
 formatMetricValue( 234567, 'number', { useMultipliers: true } ); // '235K'
-formatMetricValue( 192088.05, 'currency' ); // '$192,088.05'
+formatMetricValue( 192088.05, 'currency' ); // '$192,088.05' on a USD store or a site without one
 formatMetricValue( 0.25, 'percentage' ); // '+25%'
 formatMetricValue( 4.75, 'average' ); // '4.75'
 formatMetricValue( 192088, 'currency', {
@@ -38,15 +38,15 @@ formatMetricValue( 192088, 'currency', {
 } ); // '192K€'
 ```
 
-| Parameter                | Type                                                  | Default                                  | Description                                    |
-| ------------------------ | ----------------------------------------------------- | ---------------------------------------- | ---------------------------------------------- |
-| `value`                  | `string \| number \| null`                            |                                          | Value to format                                |
-| `type`                   | `'number' \| 'currency' \| 'percentage' \| 'average'` | `'number'`                               | Formatting strategy                            |
-| `options.decimals`       | `number`                                              | varies by type                           | Decimal precision of the full value (0 for number, 2 for average/percentage; currency ignores it and prints its own minor units) |
-| `options.useMultipliers` | `boolean`                                             | `false`                                  | Compact notation above 999: one decimal while the mantissa has two digits (1.2K, 54.3K), none from three (234K). Locales that group by 10⁴ (ja, zh, ko) keep ICU's own units |
-| `options.markBelowPrecision` | `boolean`                                       | `false`                                  | For `number`, show a positive value that rounds to zero as `< 0.1` (at one decimal) instead of `0.0` |
-| `options.signDisplay`    | `Intl` sign mode                                      | `'auto'` (`'exceptZero'` for percentage) | Sign display                                   |
-| `options.currencyCode`   | `string`                                              | `'USD'`                                  | ISO 4217 currency code                         |
+| Parameter                    | Type                                                  | Default                                  | Description                                                                                                                                                                  |
+| ---------------------------- | ----------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `value`                      | `string \| number \| null`                            |                                          | Value to format                                                                                                                                                              |
+| `type`                       | `'number' \| 'currency' \| 'percentage' \| 'average'` | `'number'`                               | Formatting strategy                                                                                                                                                          |
+| `options.decimals`           | `number`                                              | varies by type                           | Decimal precision of the full value (0 for number, 2 for average/percentage; currency ignores it and prints its own minor units)                                             |
+| `options.useMultipliers`     | `boolean`                                             | `false`                                  | Compact notation above 999: one decimal while the mantissa has two digits (1.2K, 54.3K), none from three (234K). Locales that group by 10⁴ (ja, zh, ko) keep ICU's own units |
+| `options.markBelowPrecision` | `boolean`                                             | `false`                                  | For `number`, show a positive value that rounds to zero as `< 0.1` (at one decimal) instead of `0.0`                                                                         |
+| `options.signDisplay`        | `Intl` sign mode                                      | `'auto'` (`'exceptZero'` for percentage) | Sign display                                                                                                                                                                 |
+| `options.currencyCode`       | `string`                                              | store currency, else `'USD'`             | ISO 4217 currency code. Defaults to the WooCommerce store currency from `JetpackScriptData`, printed with the store's own symbol                                             |
 
 ## `formatDate( date, name? )`
 

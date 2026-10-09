@@ -1,13 +1,15 @@
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
 import styles from '../heatmap-chart.module.scss';
 import { HeatmapContext } from './heatmap-context';
+import { isEmptyValue } from './use-heatmap-colors';
 import type { CSSProperties, FC } from 'react';
 
 export interface HeatmapLegendProps {
-	/** Number of swatches in the scale. Default 5. */
+	/** Number of color swatches in the scale, not counting the empty-cell swatch. Default 5. */
 	steps?: number;
 	/**
 	 * `swatches` spaces the steps out as cell-sized squares; `bar` joins them
@@ -29,8 +31,9 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 	if ( ! context ) {
 		return null;
 	}
-	const { fillVars } = context;
+	const { extent, fillVars } = context;
 	const labelStyle = legend.labelStyles;
+	const showsEmptyCell = isEmptyValue( 0, extent );
 
 	return (
 		<Stack direction="row" gap="xs" align="center">
@@ -48,6 +51,15 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 				data-testid="heatmap-legend-scale"
 				className={ variant === 'bar' ? styles[ 'heatmap-chart__legend-scale--bar' ] : undefined }
 			>
+				{ showsEmptyCell && (
+					<span
+						data-testid="heatmap-legend-empty-swatch"
+						className={ clsx(
+							styles[ 'heatmap-chart__legend-swatch' ],
+							styles[ 'heatmap-chart__legend-swatch--empty' ]
+						) }
+					/>
+				) }
 				{ Array.from( { length: steps }, ( _, index ) => {
 					const intensity = steps <= 1 ? 1 : index / ( steps - 1 );
 					return (

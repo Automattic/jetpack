@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Never load on jetpack.wordpress.com, which serves the Verbum comment iframe to Atomic and self-hosted sites.

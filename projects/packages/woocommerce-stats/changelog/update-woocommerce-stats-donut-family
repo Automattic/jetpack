@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the breakdown widgets: new vs returning customer, payment status, orders fulfillment, coupon usage over time and bookings by status, all placed on the WooCommerce tab by default.
