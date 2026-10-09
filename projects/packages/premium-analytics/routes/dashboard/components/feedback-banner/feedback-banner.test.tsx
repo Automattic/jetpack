@@ -12,34 +12,11 @@ import { DASHBOARD_FEEDBACK_BANNER_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../.
 import { resetFeedbackBannerForTesting } from '../../hooks/use-feedback-banner/use-feedback-banner';
 import { FeedbackBanner } from './feedback-banner';
 
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	useTrackEvent: () => () => {},
-	// The real modal's two exits, which is all the banner reacts to.
-	FeedbackModal: ( {
-		source,
-		onSubmit,
-		onClose,
-	}: {
-		source: string;
-		onSubmit?: () => void;
-		onClose: () => void;
-	} ) => (
-		<div>
-			<span>Feedback modal from { source }</span>
-			{ /* Send and Done are two steps in the real modal: it thanks the
-			     reader in between, so the banner sees the two calls apart. */ }
-			<button type="button" onClick={ onSubmit }>
-				Send feedback
-			</button>
-			<button type="button" onClick={ onClose }>
-				Done
-			</button>
-			<button type="button" onClick={ onClose }>
-				Cancel
-			</button>
-		</div>
-	),
-} ) );
+jest.mock(
+	'@jetpack-premium-analytics/widgets-toolkit',
+	() =>
+		jest.requireActual( '../../../../tests/js/dashboard-toolkit-test-utils' ).mockDashboardToolkit
+);
 
 type PreferencesActions = {
 	set: ( scope: string, key: string, value: string | null ) => void;

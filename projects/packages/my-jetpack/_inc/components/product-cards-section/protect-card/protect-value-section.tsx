@@ -1,9 +1,9 @@
 import { QUERY_GET_PROTECT_DATA_KEY, REST_API_GET_PROTECT_DATA } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
-import { InfoTooltip } from '../../info-tooltip';
 import LoadingBlock from '../../loading-block';
 import { AutoFirewallStatus } from './auto-firewall-status';
+import { ProtectInfoPopover } from './info-popover';
 import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
 import { useLastScanText } from './use-last-scan-text';
@@ -36,37 +36,35 @@ const ProtectValueSection = () => {
 					lastScanText && <div>{ lastScanText }</div>
 				) }
 				{ ! isPluginActive && (
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
+					<ProtectInfoPopover
+						label={ lastScanText ?? '' }
+						title={ pluginsThemesTooltip.title }
+						text={ pluginsThemesTooltip.text }
 						tracksEventProps={ {
 							location: 'plugins&themes',
-							feature: 'jetpack-protect',
 							status: 'inactive',
 						} }
-					>
-						<h3>{ pluginsThemesTooltip.title }</h3>
-						<p>{ pluginsThemesTooltip.text }</p>
-					</InfoTooltip>
+					/>
 				) }
 			</div>
 			<div className="value-section">
 				<div className="value-section__scan-threats">
 					{ isLoading ? (
-						<LoadingBlock width="75px" height="50px" />
+						<LoadingBlock width="100%" height="20px" />
 					) : (
 						<ScanAndThreatStatus data={ protectData } />
 					) }
 				</div>
 				<div className="value-section__auto-firewall">
 					{ isLoading ? (
-						<LoadingBlock width="75px" height="50px" />
+						<LoadingBlock width="100%" height="20px" />
 					) : (
 						<AutoFirewallStatus data={ protectData } />
 					) }
 				</div>
 				<div className="value-section__logins-blocked">
 					{ isLoading ? (
-						<LoadingBlock width="75px" height="50px" />
+						<LoadingBlock width="100%" height="20px" />
 					) : (
 						<LoginsBlockedStatus data={ protectData } />
 					) }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+PayPal Payment Buttons: log PayPal API errors with their debug ID.

@@ -490,12 +490,12 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 	 * @param array $old_instance Old settings.
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] );
-		$new_instance['number']      = (int) $new_instance['number'];
-		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
-		$new_instance['avatar_bg']   = preg_replace( '/[^a-z0-9#]/i', '', $new_instance['avatar_bg'] );
-		$new_instance['text_bg']     = preg_replace( '/[^a-z0-9#]/i', '', $new_instance['text_bg'] );
-		$new_instance['post_types']  = array_intersect( $new_instance['post_types'], array_keys( $this->get_allowed_post_types() ) );
+		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] ?? '' );
+		$new_instance['number']      = (int) ( $new_instance['number'] ?? self::$widget_defaults['number'] );
+		$new_instance['avatar_size'] = (int) ( $new_instance['avatar_size'] ?? self::$widget_defaults['avatar_size'] );
+		$new_instance['avatar_bg']   = preg_replace( '/[^a-z0-9#]/i', '', $new_instance['avatar_bg'] ?? '' );
+		$new_instance['text_bg']     = preg_replace( '/[^a-z0-9#]/i', '', $new_instance['text_bg'] ?? '' );
+		$new_instance['post_types']  = array_intersect( $new_instance['post_types'] ?? array(), array_keys( $this->get_allowed_post_types() ) );
 
 		$this->flush_cache();
 

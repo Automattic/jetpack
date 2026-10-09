@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Forms_Abilities
  *

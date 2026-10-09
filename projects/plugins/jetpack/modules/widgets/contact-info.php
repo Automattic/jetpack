@@ -209,12 +209,12 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		public function update( $new_instance, $old_instance ) {
 
 			$instance            = array();
-			$instance['title']   = wp_kses( $new_instance['title'], array() );
-			$instance['address'] = wp_kses( $new_instance['address'], array() );
-			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
-			$instance['email']   = wp_kses( $new_instance['email'], array() );
-			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
-			$instance['apikey']  = wp_kses( $new_instance['apikey'] ?? $old_instance['apikey'], array() );
+			$instance['title']   = wp_kses( $new_instance['title'] ?? '', array() );
+			$instance['address'] = wp_kses( $new_instance['address'] ?? '', array() );
+			$instance['phone']   = wp_kses( $new_instance['phone'] ?? '', array() );
+			$instance['email']   = wp_kses( $new_instance['email'] ?? '', array() );
+			$instance['hours']   = wp_kses( $new_instance['hours'] ?? '', array() );
+			$instance['apikey']  = wp_kses( $new_instance['apikey'] ?? $old_instance['apikey'] ?? '', array() );
 
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;

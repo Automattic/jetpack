@@ -25,10 +25,11 @@ const reducer = withHistory< EditSession, EditSessionAction >( editSessionReduce
 /**
  * Keep local edits against the revision they were made on until a processing job commits.
  *
- * @param video - The attachment being edited.
+ * @param video         - The attachment being edited.
+ * @param noticeContext - Optional notice store context for an embedded editor.
  * @return The edit session, processing state, and save/restore actions.
  */
-export function useEditSession( video: LibraryItem ) {
+export function useEditSession( video: LibraryItem, noticeContext?: string ) {
 	const query = useVideoEdits( video.guid );
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
@@ -102,7 +103,7 @@ export function useEditSession( video: LibraryItem ) {
 				adopt( edits );
 				noticesRef.current.createSuccessNotice(
 					__( 'Video edits applied.', 'jetpack-videopress-pkg' ),
-					{ type: 'snackbar' }
+					{ type: 'snackbar', ...( noticeContext ? { context: noticeContext } : {} ) }
 				);
 			}
 		} else if ( ! currentBaseline ) {
@@ -116,7 +117,7 @@ export function useEditSession( video: LibraryItem ) {
 				adopt( edits );
 			}
 		}
-	}, [ query.edits, pending, adopt ] );
+	}, [ query.edits, pending, adopt, noticeContext ] );
 
 	const guardedDispatch = useCallback( ( action: HistoryAction< EditSessionAction > ) => {
 		if ( ! stateRef.current.locked && ! stateRef.current.conflict ) {
@@ -159,7 +160,7 @@ export function useEditSession( video: LibraryItem ) {
 				} else {
 					noticesRef.current.createErrorNotice(
 						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' ),
-						{ type: 'snackbar' }
+						{ type: 'snackbar', ...( noticeContext ? { context: noticeContext } : {} ) }
 					);
 				}
 			} finally {
@@ -167,7 +168,7 @@ export function useEditSession( video: LibraryItem ) {
 				setRequestPending( false );
 			}
 		},
-		[ video.guid, saveMutation, restoreMutation ]
+		[ video.guid, saveMutation, restoreMutation, noticeContext ]
 	);
 
 	const retryProcessing = async () => {
@@ -186,7 +187,7 @@ export function useEditSession( video: LibraryItem ) {
 		} catch {
 			noticesRef.current.createErrorNotice(
 				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' ),
-				{ type: 'snackbar' }
+				{ type: 'snackbar', ...( noticeContext ? { context: noticeContext } : {} ) }
 			);
 			void query.refetch();
 		} finally {
@@ -214,6 +215,7 @@ export function useEditSession( video: LibraryItem ) {
 		conflict,
 		canRetry,
 		lastAction,
+		requestPending,
 		dispatch: guardedDispatch,
 		discard,
 		submit,

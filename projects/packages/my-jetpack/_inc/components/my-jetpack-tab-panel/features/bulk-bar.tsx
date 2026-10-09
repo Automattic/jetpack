@@ -52,7 +52,7 @@ export function BulkBar( { selection }: BulkBarProps ) {
 			<Text variant="body-md" className={ styles[ 'bulk-bar__count' ] } role="status">
 				{ selectedCount
 					? count
-					: __( 'Select features to switch several at once', 'jetpack-my-jetpack' ) }
+					: __( 'Select features to activate or deactivate them together', 'jetpack-my-jetpack' ) }
 				{ pluginsHeldBack ? ` ${ heldBackNote }` : null }
 			</Text>
 			<Button

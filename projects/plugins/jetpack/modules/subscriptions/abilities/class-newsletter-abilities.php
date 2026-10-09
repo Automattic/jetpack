@@ -16,6 +16,10 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // The Subscriptions module doesn't load its Settings helpers eagerly. Pull it
 // in here so `Subscriptions_Settings::$default_reply_to` and
 // `is_valid_reply_to()` are resolvable when the abilities run.

@@ -4,14 +4,10 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import {
-	DropdownMenu,
-	Button,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { DropdownMenu, Button } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { store as coreDataStore } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
@@ -25,6 +21,7 @@ import { Badge } from '@wordpress/ui';
 import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
+import DeleteFormConfirmationModal from '../../components/delete-form-confirmation-modal';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton, { labelForScope } from '../../components/empty-spam-button';
 import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
@@ -40,6 +37,7 @@ import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
+import useFormRecord from '../../hooks/use-form-record';
 import useInboxData from '../../hooks/use-inbox-data';
 import { store as dashboardStore } from '../../store/index.js';
 import { getFormEditUrl } from '../../utils.ts';
@@ -160,20 +158,7 @@ export default function usePageHeaderDetails(
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 
-	const formRecord = useSelect(
-		select => {
-			if ( ! sourceIdNumber ) {
-				return undefined;
-			}
-			const record = select( coreDataStore ).getEntityRecord(
-				'postType',
-				'jetpack_form',
-				sourceIdNumber
-			) as { title?: { rendered?: string }; status?: string } | undefined;
-			return record;
-		},
-		[ sourceIdNumber ]
-	);
+	const formRecord = useFormRecord( sourceIdNumber );
 
 	const formTitle = useMemo( () => {
 		const rendered = formRecord?.title?.rendered || '';
@@ -706,21 +691,12 @@ export default function usePageHeaderDetails(
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
-							<ConfirmDialog
+							<DeleteFormConfirmationModal
 								key="permanent-delete-confirm"
+								isOpen={ isPermanentDeleteConfirmOpen }
 								onCancel={ closePermanentDeleteConfirm }
 								onConfirm={ confirmPermanentDelete }
-								isOpen={ isPermanentDeleteConfirmOpen }
-								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
-							>
-								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
-								<p>
-									{ __(
-										'This will permanently delete this form. This action cannot be undone.',
-										'jetpack-forms'
-									) }
-								</p>
-							</ConfirmDialog>,
+							/>,
 						]
 					: [] ),
 			];
@@ -780,21 +756,12 @@ export default function usePageHeaderDetails(
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
-							<ConfirmDialog
+							<DeleteFormConfirmationModal
 								key="permanent-delete-confirm"
+								isOpen={ isPermanentDeleteConfirmOpen }
 								onCancel={ closePermanentDeleteConfirm }
 								onConfirm={ confirmPermanentDelete }
-								isOpen={ isPermanentDeleteConfirmOpen }
-								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
-							>
-								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
-								<p>
-									{ __(
-										'This will permanently delete this form. This action cannot be undone.',
-										'jetpack-forms'
-									) }
-								</p>
-							</ConfirmDialog>,
+							/>,
 						]
 					: [] ),
 			];

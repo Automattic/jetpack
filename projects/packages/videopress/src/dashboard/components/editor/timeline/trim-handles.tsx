@@ -118,9 +118,10 @@ function StudioEditorTrimHandle( {
 			role="slider"
 			tabIndex={ 0 }
 			aria-label={
-				edge === 'start'
-					? __( 'Trim start', 'jetpack-videopress-pkg' )
-					: __( 'Trim end', 'jetpack-videopress-pkg' )
+				{
+					start: __( 'Trim start', 'jetpack-videopress-pkg' ),
+					end: __( 'Trim end', 'jetpack-videopress-pkg' ),
+				}[ edge ]
 			}
 			aria-orientation="horizontal"
 			aria-valuemin={ edge === 'start' ? 0 : session.trimStartMs }

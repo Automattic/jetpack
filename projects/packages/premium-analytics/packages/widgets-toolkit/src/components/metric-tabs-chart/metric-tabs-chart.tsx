@@ -8,7 +8,6 @@ import {
 	VisuallyHidden,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
-import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -53,8 +52,12 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
+	/** The last instant of the bucket, for a tooltip that names a week's days. */
+	endDate?: Date;
 	/** Null for a bucket with no reading, which the chart draws as a gap. */
 	value: number | null;
+	/** Read out by the tooltip in place of the missing reading, e.g. why it is missing. */
+	note?: string;
 }
 
 /**
@@ -78,6 +81,13 @@ export interface MetricTab {
 	countLabel?: CountLabel;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
+	/**
+	 * Rows the chart's tooltip reads out at the hovered date while this metric is
+	 * drawn, after the other metrics `tooltipMetrics` lists: derived figures such
+	 * as views per visitor, or the posts published that day. They never keep an
+	 * otherwise empty chart up.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
 	/**
 	 * Key of the metric to draw beside this one, visible from the start unless
 	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
@@ -233,20 +243,25 @@ function MetricChart( {
 	// is included too: the chart lists a drawn series once, so revealing it from
 	// the legend does not duplicate its row, and hiding it again lists it as a
 	// supplementary row instead. Memoised so the chart's tooltip memos hold.
+	const otherMetricExtras = useMemo(
+		(): TooltipExtraSeries[] =>
+			tooltipMetrics === 'all'
+				? metrics
+						.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
+						.map( candidate => ( {
+							label: candidate.label,
+							data: candidate.current,
+							dataFormat: candidate.dataFormat ?? dataFormat,
+							countLabel: candidate.countLabel,
+						} ) )
+				: [],
+		[ metrics, metric.key, tooltipMetrics, dataFormat ]
+	);
 	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
-		if ( tooltipMetrics !== 'all' ) {
-			return undefined;
-		}
+		const all = [ ...otherMetricExtras, ...( metric.tooltipExtras ?? [] ) ];
 
-		return metrics
-			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
-			.map( candidate => ( {
-				label: candidate.label,
-				data: candidate.current,
-				dataFormat: candidate.dataFormat ?? dataFormat,
-				countLabel: candidate.countLabel,
-			} ) );
-	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+		return tooltipMetrics === 'all' || all.length ? all : undefined;
+	}, [ otherMetricExtras, metric.tooltipExtras, tooltipMetrics ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
@@ -261,10 +276,6 @@ function MetricChart( {
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
 	}, [ metric, counterpart, chartType ] );
-	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( date, format ),
-		[]
-	);
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -340,11 +351,12 @@ function MetricChart( {
 		);
 	}
 
-	// The other metrics' hover readout keeps the graph up while any of them has data.
+	// The other metrics' hover readout keeps the graph up while any of them has
+	// data; the metric's own extras do not, being read beside its data, not data.
 	if (
 		empty &&
 		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] ) &&
-		isEmptyChartData( tooltipExtras ?? [] )
+		isEmptyChartData( otherMetricExtras )
 	) {
 		return <>{ empty }</>;
 	}
@@ -357,7 +369,6 @@ function MetricChart( {
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
@@ -371,7 +382,6 @@ function MetricChart( {
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
 			compactWhenShort

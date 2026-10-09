@@ -18,8 +18,6 @@ import { MONTHS_IN_YEAR } from '../../helpers/month-key';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './monthly-heatmap.module.scss';
 
-const TOOLTIP_STYLE = { padding: 'var(--jpa-heatmap-tooltip-padding)' };
-
 export type MonthlyHeatmapRow = {
 	year: number;
 	/**
@@ -189,8 +187,6 @@ export function MonthlyHeatmap( {
 				maxCellHeight={ MAX_CELL_HEIGHT }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
-				tooltipVariant="dark"
-				tooltipStyle={ TOOLTIP_STYLE }
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
 			>

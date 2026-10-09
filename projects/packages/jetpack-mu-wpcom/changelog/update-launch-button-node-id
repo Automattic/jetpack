@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Launch Button: Rename the admin bar node ID from `menu-id` to `launch-site`.

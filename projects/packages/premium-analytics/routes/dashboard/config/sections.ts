@@ -104,7 +104,7 @@ export function isSectionAwaitingSync(
 /**
  * Narrow a candidate slug to an available section, falling back to the first
  * section by order. A miss is a stale slug or a section unavailable now
- * (`?section=store` with WooCommerce off).
+ * (`?section=woocommerce` with WooCommerce off).
  *
  * @param value    - The candidate section slug (e.g. from the URL).
  * @param sections - The available sections, in order.

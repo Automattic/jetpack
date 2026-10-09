@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { inertValue } from '@wordpress/react-inert-value';
 import './style.scss';
 
 const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockTheme } ) => {
@@ -7,15 +8,11 @@ const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockThe
 		<>
 			<div className="wpcom_site_preview_wrapper">
 				<div className="wpcom_site_preview">
-					{ /* TODO(react-19): switch `inert="true"` to bare `inert` (boolean)
-					     when Gutenberg bumps to React 19. React 18 strips boolean
-					     `inert` and warns, so the string form is the only one that
-					     renders here today. */ }
 					<iframe
 						loading="lazy"
 						title="Site Preview"
 						src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
-						inert="true"
+						inert={ inertValue( true ) }
 					></iframe>
 				</div>
 			</div>

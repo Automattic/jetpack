@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.37
+ * Stubs automatically generated from PHPUnit 12.5.38
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -26909,7 +26909,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     {
     }
     /**
-     * @return \RecursiveIteratorIterator<Iterator<AbstractNode>>
+     * @return \RecursiveIteratorIterator<Iterator>&\Traversable<int, AbstractNode>
      */
     public function getIterator(): \RecursiveIteratorIterator
     {

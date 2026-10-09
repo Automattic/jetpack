@@ -9,6 +9,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
+import { ExternalLink } from '../external-link';
 import styles from './subscriber-list.module.scss';
 import { useFittedRosterRows } from './use-fitted-roster-rows';
 
@@ -119,18 +120,21 @@ export function SubscriberList( {
 									aria-hidden="true"
 									className={ styles.avatar }
 								/>
-								{ href ? (
+								{ ! href && <Text className={ styles.name }>{ item.name }</Text> }
+								{ href && ( item.openInNewTab ?? true ) && (
+									<ExternalLink className={ styles.name } href={ href } title={ item.name }>
+										{ item.name }
+									</ExternalLink>
+								) }
+								{ href && item.openInNewTab === false && (
 									<Link
 										className={ styles.name }
 										href={ href }
 										variant="unstyled"
-										openInNewTab={ item.openInNewTab ?? true }
 										title={ item.name }
 									>
 										{ item.name }
 									</Link>
-								) : (
-									<Text className={ styles.name }>{ item.name }</Text>
 								) }
 							</Stack>
 							{ item.secondaryText && (

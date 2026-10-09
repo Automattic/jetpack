@@ -31,12 +31,12 @@ export function FeatureLinks( { feature }: FeatureLinksProps ) {
 		>
 			{ feature.info_url ? (
 				<Link href={ feature.info_url } openInNewTab>
-					{ __( 'Feature page', 'jetpack-my-jetpack' ) }
+					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 				</Link>
 			) : null }
 			{ feature.docs_url ? (
 				<Link href={ feature.docs_url } openInNewTab>
-					{ __( 'Documentation', 'jetpack-my-jetpack' ) }
+					{ __( 'Support docs', 'jetpack-my-jetpack' ) }
 				</Link>
 			) : null }
 		</Stack>

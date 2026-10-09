@@ -8,6 +8,10 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class that adds the Jetpack Newsletter Dashboard Widget to the WordPress admin dashboard.
  */

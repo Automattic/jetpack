@@ -1,3 +1,6 @@
+// The widest the report cards grow; the header above keeps the full width.
+$report-page-sections-max-inline-size: 1440px;
+
 // The scroll container below the page header, so the tabs scroll away with
 // the content while the section header pins at its top. The scope is what
 // lets the header's pin marker reach the header beside it.
@@ -23,8 +26,9 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
-	// The page gutter the tab bar and the pinned header carry themselves.
-	padding-inline: var(--wpds-dimension-padding-2xl);
+	// The page gutter the tab bar and the pinned header carry themselves,
+	// widened on a wide screen to centre the cards at their cap.
+	padding-inline: max(var(--wpds-dimension-padding-2xl), calc((100% - #{$report-page-sections-max-inline-size}) / 2));
 	padding-block-end: var(--wpds-dimension-padding-2xl);
 
 	// Caps every layer the tables raise (sticky columns, toolbars) under the

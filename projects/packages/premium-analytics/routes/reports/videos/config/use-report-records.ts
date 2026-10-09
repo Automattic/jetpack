@@ -26,6 +26,7 @@ export function useVideosReportRecords( reportParams: ReportParams ) {
 
 	return {
 		isError: summary.primary.isError,
+		error: summary.primary.error,
 		refetch: summary.refetch,
 		rows: summary.comparisonRows?.rows ?? EMPTY_VIDEO_ROWS,
 		hasComparison: summary.hasComparison,

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Mailchimp: Save the chosen audience right away, so the block works without also saving the Writing settings.

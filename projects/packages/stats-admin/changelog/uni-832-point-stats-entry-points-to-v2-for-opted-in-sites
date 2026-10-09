@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the jetpack_stats_url filter to the admin bar views chart, the admin bar Stats menu link and the post list Views column, and deprecate jetpack_stats_post_list_column_url in its favor.

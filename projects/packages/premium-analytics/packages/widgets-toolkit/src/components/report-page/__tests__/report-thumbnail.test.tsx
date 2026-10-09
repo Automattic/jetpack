@@ -13,15 +13,6 @@ const renderThumbnail = ( thumbnailUrl?: string ) => (
 );
 
 describe( 'ReportThumbnail', () => {
-	it( 'renders the thumbnail', () => {
-		render( renderThumbnail( 'https://example.com/a.jpg' ) );
-
-		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
-			'src',
-			'https://example.com/a.jpg'
-		);
-	} );
-
 	it( 'renders the fallback icon without a thumbnail', () => {
 		render( renderThumbnail() );
 

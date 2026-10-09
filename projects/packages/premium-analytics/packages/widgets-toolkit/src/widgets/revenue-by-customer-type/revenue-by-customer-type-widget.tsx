@@ -18,7 +18,6 @@ type CustomerTypeRevenueWidgetProps = {
 	 * Optional product type filter to apply when fetching customer data.
 	 * If not provided, will show data for all product types.
 	 *
-	 * @see PHYSICAL_PRODUCTS_FILTER for physical goods (simple, variable, variation)
 	 * @see BOOKINGS_FILTER for booking products (booking, bookable-event, bookable-service)
 	 */
 	filter?: FilterCondition;
