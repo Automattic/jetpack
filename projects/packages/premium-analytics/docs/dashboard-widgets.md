@@ -129,7 +129,7 @@ Any public property of `Widget_Type`: `render_module`, `widget_module`, `present
 
 Through `register_widget_type()` the strings arrive translated and `help`, `icon` and `actions` in shape. The manifest helper translates and sanitizes them itself.
 
-An `icon` is a `jpa/<name>` reference. The client resolves it through the resolver `packages/init` registers: the dashboard's own icons first, then `@wordpress/icons` under the same kebab-case name, and an unknown name degrades to no icon. A `widget.ts` that still exports an icon element shows it while the reference resolves, and keeps it only when the resolution fails.
+An `icon` is a `jpa/<name>` reference. The client resolves it through the resolver `packages/init` registers, a lookup in the collection `packages/icons/src/resolve.ts` lists: the `@wordpress/icons` glyphs the widgets use, by kebab-case name, plus the dashboard's own illustrations where no widget names a WordPress one. Where both carry a name (`calendar`, `megaphone`, `payment`, `search`) the list holds the WordPress glyph. A name outside the list, or one in another collection, degrades to no icon; a glyph a widget needs goes into the map first. A `widget.ts` that still exports an icon element shows it while the reference resolves, and keeps it only when the resolution fails.
 
 ### Version
 

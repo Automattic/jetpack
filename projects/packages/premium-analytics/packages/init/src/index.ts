@@ -51,7 +51,9 @@ export async function init(): Promise< void > {
 
 	setupApiFetch();
 
-	// Before any widget type resolves: attributes name these types, records name their icons.
+	// Before any widget type resolves:
+	// - attributes name these types,
+	// - records name their icons.
 	registerFieldTypes();
 	registerIconResolver( resolveWidgetIcon );
 

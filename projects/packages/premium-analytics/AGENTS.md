@@ -346,9 +346,11 @@ Notes:
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
   (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
   `widget.ts` no longer declares it.
-- `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves:
-  its own icons first, then `@wordpress/icons` under the kebab-case name (`jpa/chart-bar`).
-  A widget with nothing live keeps `widget.ts` for its attribute type and exports `{}`.
+- `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
+  the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
+  name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
+  resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps
+  `widget.ts` for its attribute type and exports `{}`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
