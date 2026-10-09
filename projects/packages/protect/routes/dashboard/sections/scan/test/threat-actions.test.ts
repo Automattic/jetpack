@@ -110,4 +110,20 @@ describe( 'deleteSoftware', () => {
 		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 2 ] );
 		expect( result.current?.ignored ).toEqual( [] );
 	} );
+
+	it( 'waits for a running action on any threat in the same plugin', async () => {
+		const inPlugin = ( id: number ) => ( {
+			id,
+			title: 'Vulnerable plugin',
+			extension: { type: 'plugins' as const, slug: 'busy', name: 'Busy', version: '1.0' },
+		} );
+		setScan( current => ( { ...current, threats: [ inPlugin( 20 ), inPlugin( 21 ) ] } ) );
+		mockApiFetch.mockReset().mockReturnValue( new Promise( () => {} ) );
+		fixThreat( inPlugin( 21 ) );
+
+		const error = await deleteSoftware( inPlugin( 20 ) );
+
+		expect( error ).toMatch( /^Busy can’t be deleted while/ );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
 } );

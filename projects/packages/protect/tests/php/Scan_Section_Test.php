@@ -162,6 +162,75 @@ class Scan_Section_Test extends BaseTestCase {
 		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		wp_clean_plugins_cache( false );
 		update_option( 'active_plugins', $is_active ? array( 'protect-delete-test.php' ) : array() );
+		$result = self::delete_as_admin( 'plugins', 'protect-delete-test' );
+		$exists = file_exists( $file );
+		if ( $exists ) {
+			wp_delete_file( $file );
+		}
+
+		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
+		$this->assertSame( $is_deleted, ! $exists, 'File' );
+	}
+
+	/**
+	 * Themes, and whether the route should delete each while a child theme is active.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_delete_theme() {
+		return array(
+			'unused theme is deleted'        => array( 'protect-unused', true ),
+			'active theme is kept'           => array( 'protect-child', false ),
+			'parent of active theme is kept' => array( 'protect-parent', false ),
+		);
+	}
+
+	/**
+	 * Test that the route deletes an unused theme, but never the active theme or its parent.
+	 *
+	 * @dataProvider provider_delete_theme
+	 * @param string $slug       The theme to delete.
+	 * @param bool   $is_deleted Whether its directory should be gone.
+	 */
+	#[DataProvider( 'provider_delete_theme' )]
+	public function test_delete_software_only_deletes_unused_themes( $slug, $is_deleted ) {
+		$headers = array(
+			'protect-parent' => '',
+			'protect-child'  => "Template: protect-parent\n",
+			'protect-unused' => '',
+		);
+		foreach ( $headers as $theme => $header ) {
+			// wp_mkdir_p() refuses the test environment's theme root, whose path has `..` in it.
+			if ( ! is_dir( get_theme_root() . "/$theme" ) ) {
+				mkdir( get_theme_root() . "/$theme", 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			}
+			file_put_contents( get_theme_root() . "/$theme/style.css", "/*\nTheme Name: $theme\n{$header}*/\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		}
+		wp_clean_themes_cache( false );
+		update_option( 'template', 'protect-parent' );
+		update_option( 'stylesheet', 'protect-child' );
+
+		$result = self::delete_as_admin( 'themes', $slug );
+		$exists = is_dir( get_theme_root() . "/$slug" );
+		foreach ( array_keys( $headers ) as $theme ) {
+			if ( is_dir( get_theme_root() . "/$theme" ) ) {
+				wp_delete_file( get_theme_root() . "/$theme/style.css" );
+				rmdir( get_theme_root() . "/$theme" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			}
+		}
+
+		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
+		$this->assertSame( $is_deleted, ! $exists, 'Directory' );
+	}
+
+	/**
+	 * Ask the delete route, as an administrator, to delete a plugin or theme.
+	 *
+	 * @param string $type `plugins` or `themes`.
+	 * @param string $slug The plugin or theme.
+	 * @return array|\WP_Error
+	 */
+	private static function delete_as_admin( $type, $slug ) {
 		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'admin',
@@ -172,15 +241,8 @@ class Scan_Section_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/software/delete' );
-		$request->set_param( 'type', 'plugins' );
-		$request->set_param( 'slug', 'protect-delete-test' );
-		$result = Scan::delete_software( $request );
-		$exists = file_exists( $file );
-		if ( $exists ) {
-			wp_delete_file( $file );
-		}
-
-		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
-		$this->assertSame( $is_deleted, ! $exists, 'File' );
+		$request->set_param( 'type', $type );
+		$request->set_param( 'slug', $slug );
+		return Scan::delete_software( $request );
 	}
 }

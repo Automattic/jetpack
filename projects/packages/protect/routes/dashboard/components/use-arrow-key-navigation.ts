@@ -35,12 +35,13 @@ export default function useArrowKeyNavigation< T >(
 			) {
 				return;
 			}
+			// While an item is open the keys belong to the list, so the first or last row doesn't scroll the page.
+			event.preventDefault();
 			const index = items.findIndex( item => getId( item ) === selected );
 			// An item on another page starts from this page's first or last row.
 			const start = step > 0 ? 0 : items.length - 1;
 			const next = items[ index < 0 ? start : index + step ];
 			if ( next ) {
-				event.preventDefault();
 				open( next );
 			}
 		};
