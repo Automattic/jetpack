@@ -545,12 +545,12 @@ class REST_Connector {
 		$registration_failure = $connection->get_registration_failure();
 
 		$connection_status = array(
-			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'         => $status->in_safe_mode(), // TODO deprecate this.
-			'isRegistered'      => $connection->is_connected(),
-			'isUserConnected'   => $connection->is_user_connected(),
-			'hasConnectedOwner' => $connection->has_connected_owner(),
-			'offlineMode'       => array(
+			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isRegistered'        => $connection->is_connected(),
+			'isUserConnected'     => $connection->is_user_connected(),
+			'hasConnectedOwner'   => $connection->has_connected_owner(),
+			'offlineMode'         => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 				'url'             => $status->is_local_site(),
@@ -559,9 +559,10 @@ class REST_Connector {
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
-			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'isPublic'            => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			// Why the site could not be registered, so consumers can explain it rather than retry silently.
-			'registrationError' => null === $registration_failure ? null : array(
+			// Named apart from the JS connection store's `registrationError`, which is a live register call's failure.
+			'registrationFailure' => null === $registration_failure ? null : array(
 				'code'           => $registration_failure['error_code'],
 				'message'        => $registration_failure['error_message'],
 				'isPermanent'    => (bool) $registration_failure['terminal'],

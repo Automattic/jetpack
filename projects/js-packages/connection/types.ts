@@ -58,8 +58,8 @@ export type ConnectionScriptData = {
 			wpLocalConstant: boolean;
 		};
 		isPublic: boolean;
-		/** Why the last registration attempt failed; null when it did not. */
-		registrationError: {
+		/** Why the last registration attempt failed; null when it did not. (The store's `registrationError` is a live register call's failure instead.) */
+		registrationFailure: {
 			code: string;
 			message: string;
 			/** Whether retrying could ever succeed without the site's environment changing. */
