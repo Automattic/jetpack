@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: add the SemiCircle widget kind, which Devices and Sessions by device draw with; the widget contract is 1.8.0.

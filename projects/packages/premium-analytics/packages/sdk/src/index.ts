@@ -14,6 +14,7 @@ export {
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	ReportLink,
+	SemiCircle,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
