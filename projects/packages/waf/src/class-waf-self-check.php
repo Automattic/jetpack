@@ -29,6 +29,11 @@ class Waf_Self_Check {
 	 * @return string|false The token, or false when it could not be saved.
 	 */
 	public static function create_token( $ttl = self::TOKEN_TTL ) {
+		// With the firewall off its constants aren't defined, and the test should still run.
+		if ( defined( 'WP_CONTENT_DIR' ) ) {
+			Waf_Constants::define_waf_directory();
+		}
+
 		$dir = self::get_dir();
 		if ( ! $dir || ( ! is_dir( $dir ) && ! mkdir( $dir, 0755, true ) ) ) {
 			return false;
