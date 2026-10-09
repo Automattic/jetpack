@@ -107,7 +107,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
 		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
-		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -821,8 +821,8 @@ class Jetpack_Mu_Wpcom {
 			return true;
 		}
 
-		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
-		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
+		// Don't load any comment experience in the Reader, GlotPress, or P2.
+		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || $is_p2 || $is_forums );
 	}
 
 	/**
@@ -839,7 +839,7 @@ class Jetpack_Mu_Wpcom {
 			if ( isset( $_GET['blogid'] ) ) {
 				$blog_id = intval( $_GET['blogid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			}
-			if ( self::should_disable_comment_experience( $blog_id ) ) {
+			if ( is_admin() || self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
 
@@ -870,17 +870,22 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
-	 * carrying the rollout sticker.
+	 * Turn on the rebuilt Jetpack Comments form for every Simple site that would
+	 * get Verbum, and for an Atomic site carrying the rollout sticker.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param bool $enabled Whether it is already on.
 	 * @return bool
 	 */
-	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+	public static function enable_jetpack_comments( $enabled ) {
 		if ( $enabled ) {
 			return true;
+		}
+
+		// Checked here too, not just in the loader, because the routes gate only on this filter.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return ! self::should_disable_comment_experience( get_current_blog_id() );
 		}
 
 		$blog_id = (int) get_wpcom_blog_id();
