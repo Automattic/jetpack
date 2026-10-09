@@ -187,7 +187,7 @@ jobs:
         run: |
           [[ -f /tmp/build-memory/summary.md ]] || exit 0
           {
-            echo "### Build memory ($JOB_NAME, $(nproc) CPUs, $(awk '/MemTotal/{printf "%d", $2/1024}' /proc/meminfo) MB RAM)"
+            echo "### Build memory ($JOB_NAME, $(nproc) CPUs, $(awk '/MemTotal/{printf "%d", $2/1024}' /proc/meminfo) MB RAM) — $(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)"
             echo
             echo "| Metric | Value |"
             echo "| --- | --- |"
