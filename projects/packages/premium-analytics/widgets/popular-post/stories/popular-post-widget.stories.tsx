@@ -9,7 +9,10 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockResponse,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
@@ -123,7 +126,25 @@ export const Empty: Story = {
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/top-posts', 'empty' );
-		return () => forceStatsMockState( 'stats/top-posts', null );
+		setReportMockResponse( '/wp/v2/posts', [ { id: 1 } ] );
+		return () => {
+			forceStatsMockState( 'stats/top-posts', null );
+			setReportMockResponse( '/wp/v2/posts', null );
+		};
+	},
+};
+
+export const EmptyNoPosts: Story = {
+	render: renderPopularPost,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/top-posts', 'empty' );
+		forceStatsMockState( '/wp/v2/posts', 'empty' );
+		return () => {
+			forceStatsMockState( 'stats/top-posts', null );
+			forceStatsMockState( '/wp/v2/posts', null );
+		};
 	},
 };
 
