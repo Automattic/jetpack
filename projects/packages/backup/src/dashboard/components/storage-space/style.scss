@@ -13,6 +13,11 @@
 		display: none;
 	}
 
+	// Focused only by script, when the storage notice closes; see `.jpb-overview`.
+	&:focus {
+		outline: none;
+	}
+
 	// The meter takes the space the labels leave, and wraps when that is
 	// too little for a readable bar.
 	// Centred on the 20px usage line, not on the label's second row.

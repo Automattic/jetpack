@@ -7,6 +7,7 @@ type Target< T > = RefObject< HTMLElement | null > | ( ( element: T ) => HTMLEle
  * Hand focus on when the returned ref's element unmounts while holding it.
  *
  * Without this, focus falls to `<body>` and the next Tab starts again from the top of the page.
+ * The element is read once, on mount, so one that renders later is never handed off.
  *
  * @param target - Where focus goes: a ref, or a function of the departing element. Keep it stable.
  * @return The ref for the element that may go away.
