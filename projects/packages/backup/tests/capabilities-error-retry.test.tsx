@@ -34,6 +34,7 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 
 // The screen's title marks "the error screen is up".
 const ERROR_SCREEN = /We couldn't load your backup details/;
+const PAGE = 'VaultPress Backup';
 
 /**
  * A promise whose settlement the test controls, so a retry can be held
@@ -81,7 +82,8 @@ const unreadable = () =>
 	} );
 
 /**
- * Render the gate with a body that must never appear in these tests.
+ * Render the gate with a body that must never appear in these tests, inside a stand-in
+ * for the `<Page>` region `DashboardLayout` puts around it.
  *
  * Scoped queries rather than `screen`: the error card is a `Notice`,
  * which announces itself through `@wordpress/a11y`'s speak region — a
@@ -96,9 +98,11 @@ const unreadable = () =>
 function renderGate(): HTMLElement {
 	const { container } = render(
 		<QueryClientProvider>
-			<Gates>
-				<div>dashboard body</div>
-			</Gates>
+			<div role="region" aria-label={ PAGE } tabIndex={ -1 }>
+				<Gates>
+					<div>dashboard body</div>
+				</Gates>
+			</div>
 		</QueryClientProvider>
 	);
 	return container;
@@ -162,6 +166,17 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		expect( view.getByRole( 'button', { name: /Try again/ } ) ).toBeEnabled();
 
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
+	} );
+
+	it( 'hands focus to the page once a retry succeeds', async () => {
+		const user = userEvent.setup();
+		answerWith( [ unreadable, () => Promise.resolve( { hasBackupPlan: true, hasScan: false } ) ] );
+
+		const view = within( renderGate() );
+		await user.click( await view.findByRole( 'button', { name: /Try again/ } ) );
+		await expect( view.findByText( 'dashboard body' ) ).resolves.toBeInTheDocument();
+
+		expect( view.getByRole( 'region', { name: PAGE } ) ).toHaveFocus();
 	} );
 
 	it( 'still shows a plain spinner on the very first load', async () => {

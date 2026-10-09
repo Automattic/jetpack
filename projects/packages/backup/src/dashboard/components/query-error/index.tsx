@@ -3,9 +3,11 @@ import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import { errorCode } from '../../data/api/_helpers';
+import { useFocusHandoff } from '../../hooks/use-focus-handoff';
 import ErrorReference from '../error-reference';
 import './style.scss';
 import type { ReferenceId } from '../../types/failure-reference';
+import type { RefObject } from 'react';
 
 type Props = {
 	/** What failed, in the reader's terms. */
@@ -25,6 +27,8 @@ type Props = {
 	onRetry?: () => void;
 	/** Whether a retry is in flight. */
 	isRetrying?: boolean;
+	/** Where focus goes if the notice goes away while holding it, as after a successful retry. */
+	returnFocusTo?: RefObject< HTMLElement | null >;
 	/**
 	 * Extra class for the notice, which has no margin of its own; a caller
 	 * in ordinary flow adds its own spacing.
@@ -52,13 +56,14 @@ type Props = {
  * change, and a retry that failed again would leave the DOM
  * byte-identical to before the click, which reads as a dead control.
  *
- * @param props             - Component props.
- * @param props.title       - What failed, in the reader's terms.
- * @param props.error       - The query's error.
- * @param props.referenceId - The id of what failed, quoted beside the error code.
- * @param props.onRetry     - Refetches the failed query, when the caller can.
- * @param props.isRetrying  - Whether a retry is currently in flight.
- * @param props.className   - Extra class for the notice.
+ * @param props               - Component props.
+ * @param props.title         - What failed, in the reader's terms.
+ * @param props.error         - The query's error.
+ * @param props.referenceId   - The id of what failed, quoted beside the error code.
+ * @param props.onRetry       - Refetches the failed query, when the caller can.
+ * @param props.isRetrying    - Whether a retry is currently in flight.
+ * @param props.returnFocusTo - Where focus goes if the notice goes away while holding it.
+ * @param props.className     - Extra class for the notice.
  * @return The rendered error.
  */
 export default function QueryError( {
@@ -67,12 +72,14 @@ export default function QueryError( {
 	referenceId,
 	onRetry,
 	isRetrying = false,
+	returnFocusTo,
 	className,
 }: Props ) {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
 	const code = errorCode( error );
 	const id = referenceId ?? null;
 	const previous = useRef( { isRetrying, message } );
+	const rootRef = useFocusHandoff< HTMLDivElement >( returnFocusTo );
 
 	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
 	useEffect( () => {
@@ -84,6 +91,7 @@ export default function QueryError( {
 
 	return (
 		<Notice.Root
+			ref={ rootRef }
 			intent="error"
 			spokenMessage={ message }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }

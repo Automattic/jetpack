@@ -26,7 +26,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import RealStorageSpace, { StorageNotice } from '../src/dashboard/components/storage-space';
 import { useStorageAddonOffer } from '../src/dashboard/hooks/use-storage-addon-offer';
 import type { ReactNode } from 'react';
@@ -39,15 +39,16 @@ const SITE = 'example.wordpress.com';
 const SPEECH = '.a11y-speak-region';
 
 /**
- * The notice and the row, as the Overview places them.
+ * The notice and the row, as the Overview places and wires them.
  *
  * @return The pair.
  */
 function StorageSpace() {
+	const storageRef = useRef< HTMLElement >( null );
 	return (
 		<>
-			<StorageNotice />
-			<RealStorageSpace />
+			<StorageNotice returnFocusTo={ storageRef } />
+			<RealStorageSpace ref={ storageRef } />
 		</>
 	);
 }
@@ -506,6 +507,15 @@ describe( 'dismissal', () => {
 		mockEndpoints( { size: { size: 85 * GB } } );
 		renderWithClient( <StorageSpace /> );
 		await expect( warning( /^You are close to reaching/ ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'hands focus to the storage row when closed', async () => {
+		mockEndpoints( { size: { size: 70 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await warning( /^You are close to reaching/ );
+		await userEvent.click( closeButton() as HTMLElement );
+
+		expect( screen.getByRole( 'region', { name: 'Backup storage' } ) ).toHaveFocus();
 	} );
 
 	it( 'forgets a dismissal once usage is back to Normal', async () => {

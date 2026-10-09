@@ -236,6 +236,7 @@ function OverviewBody() {
 	} = useHasRestorePoints();
 
 	const overviewRef = useRef< HTMLDivElement >( null );
+	const storageRef = useRef< HTMLElement >( null );
 
 	// The updater form, like `clearSelected` below: an object literal replaces the
 	// search wholesale, so every future param would depend on this closure being fresh.
@@ -285,7 +286,7 @@ function OverviewBody() {
 
 	return (
 		<>
-			<StorageNotice />
+			<StorageNotice returnFocusTo={ storageRef } />
 			{ /*
 			 * A backup running on a site that already has restore points is
 			 * reported alongside the list rather than in place of it. The
@@ -318,6 +319,7 @@ function OverviewBody() {
 					error={ backupsError }
 					onRetry={ refetchBackups }
 					isRetrying={ backupsRefetching }
+					returnFocusTo={ overviewRef }
 				/>
 			) }
 			{ /*
@@ -350,6 +352,7 @@ function OverviewBody() {
 			 * your site's backup status."
 			 */ }
 			<StorageSpace
+				ref={ storageRef }
 				trailing={
 					( backupsState === 'complete' || backupsState === 'in-progress' ) && (
 						<NextScheduledBackup />
@@ -357,8 +360,8 @@ function OverviewBody() {
 				}
 			/>
 			{ /*
-			 * Where `clearSelected` puts focus once the empty state unmounts, so the
-			 * next Tab reaches the list rather than the top of the page.
+			 * Where focus goes once the empty state or the backup-status error unmounts,
+			 * so the next Tab reaches the list rather than the top of the page.
 			 */ }
 			<div
 				className="jpb-overview"
