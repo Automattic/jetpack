@@ -49,12 +49,9 @@ const TransferConfirmStep = ( {
 				<AvatarBadge name={ candidate.displayName } isIncoming />
 				<Text>
 					{ createInterpolateElement(
-						sprintf(
-							/* translators: %s: display name of the administrator taking over. */
-							__( '<name>%s</name> will become the connection owner.', 'jetpack-connection-js' ),
-							candidate.displayName
-						),
-						{ name: <strong /> }
+						/* translators: <name /> is replaced with the display name of the administrator taking over. */
+						__( '<name /> will become the connection owner.', 'jetpack-connection-js' ),
+						{ name: <strong>{ candidate.displayName }</strong> }
 					) }
 				</Text>
 			</div>

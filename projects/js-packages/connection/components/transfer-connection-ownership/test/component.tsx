@@ -211,6 +211,23 @@ describe( 'TransferConnectionOwnership', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	// The confirm step interpolates an element into a translated string; a name spliced
+	// into that string rather than passed as a child could break the parse.
+	it( 'renders a display name containing markup literally', async () => {
+		mockFetchCandidates.mockResolvedValue( [
+			{ id: 7, login: 'kazz', displayName: '<b>Kazz</b>', email: 'kazz@example.com' },
+		] );
+		const user = userEvent.setup();
+		render( <TransferConnectionOwnership { ...props } /> );
+
+		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+		await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect( screen.findByText( '<b>Kazz</b>' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
+	} );
+
 	it( 'says so when the candidates cannot be loaded', async () => {
 		mockFetchCandidates.mockRejectedValue( new Error( 'Network down' ) );
 		render( <TransferConnectionOwnership { ...props } /> );
