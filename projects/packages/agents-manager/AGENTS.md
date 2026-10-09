@@ -6,7 +6,7 @@ The frontend code lives in the Calypso repo (`packages/agents-manager/` and `app
 
 ## Concepts
 
-- **Block-editor mode** = Agents Manager replaces Big Sky's native block-editor UI. Gated by `agents_manager_enabled_in_block_editor` (hooked by Big Sky). Help Center remains available independently.
+- **Block-editor mode** = Agents Manager is the chat in the block editor. Gated by `agents_manager_enabled_in_block_editor`, which hosts hook (jetpack-mu-wpcom on WordPress.com sites, the Jetpack AI Sidebar on its surfaces). Help Center remains available independently.
 - **Requested shell** = An integration can load Agents Manager outside the block editor with `agents_manager_should_load`.
 
 ## Cross-Repo Relationship

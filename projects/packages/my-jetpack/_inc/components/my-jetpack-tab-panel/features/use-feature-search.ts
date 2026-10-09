@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { hasSearch, rankBy, searchTerms } from '../products/utils';
+import { hasSearch, rankBy, searchTerms } from './search';
 import type { FeatureState } from './feature-state';
 
 /**
  * Rank the feature list against one search term.
  *
- * Uses the Products tab's own scoring so the two searches rank the same way.
+ * Shares its scoring with the More Features search so the two rank the same way.
  *
  * @param states - Live state for every feature.
  * @param search - The search term.

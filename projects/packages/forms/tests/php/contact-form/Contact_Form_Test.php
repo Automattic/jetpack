@@ -505,7 +505,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Test value with brackets (should be escaped)
 		$bracket_value = 'This is a [test] with brackets';
 		$result        = Contact_Form::escape_and_sanitize_field_value( $bracket_value );
-		$this->assertEquals( 'This is a &#091;test&#093; with brackets', $result );
+		$this->assertEquals( 'This is a &#91;test&#93; with brackets', $result );
 
 		// Test value with HTML (should be stripped)
 		$html_value = 'This has <strong>HTML</strong> tags';
@@ -5171,6 +5171,41 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'text' ) ) );
 		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'consent' ) ) );
 		$this->assertSame( 'Ada', $this->invoke_private_static( 'get_submission_display_value', array( 'Ada', 'text' ) ) );
+	}
+
+	/**
+	 * The summary shows a stored less-than sign as typed.
+	 */
+	public function test_get_submission_display_value_shows_stored_text_as_typed() {
+		$this->assertSame( "<\f!-- note --> one", $this->invoke_private_static( 'get_submission_display_value', array( "&lt;\f!-- note --> one", 'textarea' ) ) );
+		$this->assertSame( array( 'x < 5', 'y' ), $this->invoke_private_static( 'get_submission_display_value', array( array( 'x &lt; 5', 'y' ), 'checkbox-multiple' ) ) );
+	}
+
+	/**
+	 * The notification subject reads as the text that was typed.
+	 */
+	public function test_process_submission_mail_subject_reads_as_typed() {
+		$subject = null;
+		add_filter(
+			'pre_wp_mail',
+			function ( $short_circuit, $atts ) use ( &$subject ) {
+				$subject = $atts['subject'];
+				return true;
+			},
+			1,
+			2
+		);
+
+		$this->add_field_values(
+			array(
+				'email'   => 'john@example.com',
+				'subject' => wp_slash( 'Order <b>42</b> & x < 5' ),
+			)
+		);
+		$form = new Contact_Form( array(), "[contact-field label='Email' type='email' required='1'/][contact-field label='Subject' type='subject'/]" );
+
+		$this->assertIsString( $form->process_submission() );
+		$this->assertSame( 'Order <b>42</b> & x < 5', $subject );
 	}
 
 	/**

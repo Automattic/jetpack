@@ -1,5 +1,6 @@
 {
 	"name": "jpa/top-platforms",
+	"icon": "jpa/desktop",
 	"title": "Top platforms",
 	"description": "Top browsers and operating systems your visitors use.",
 	"help": {

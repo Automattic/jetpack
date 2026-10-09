@@ -1220,6 +1220,42 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Core's dependency notice reads `requires_plugins`, so the card carries the product's
+	 * requirements, minus anything that names the product itself.
+	 */
+	public function test_requires_plugins_come_from_the_requirements() {
+		$card = Marketplace_Catalog::to_card(
+			array_merge(
+				self::PRODUCT,
+				array(
+					'requirements' => array(
+						'plugins' => array( 'woocommerce', 'woocommerce-payments', 'gravityforms', '', 7, 'woocommerce' ),
+						'themes'  => array( 'astra' ),
+					),
+				)
+			)
+		);
+
+		$this->assertSame( array( 'woocommerce', 'woocommerce-payments' ), $card['requires_plugins'] );
+		$this->assertSame( array(), Marketplace_Catalog::to_card( self::PRODUCT )['requires_plugins'] );
+	}
+
+	/**
+	 * The dependency cache only answers for slugs some product in the catalog needs.
+	 */
+	public function test_dependency_slugs_cover_the_whole_catalog() {
+		$this->seed_catalog(
+			array(
+				'a' => array( 'requires_plugins' => array( 'woocommerce', 'woocommerce-payments' ) ),
+				'b' => array( 'requires_plugins' => array( 'woocommerce', 'wp-job-manager' ) ),
+				'c' => array(),
+			)
+		);
+
+		$this->assertSame( array( 'woocommerce', 'woocommerce-payments', 'wp-job-manager' ), Marketplace_Catalog::get_dependency_slugs() );
+	}
+
+	/**
 	 * The referral URL comes through from the endpoint's own field.
 	 */
 	public function test_the_referral_url_is_read_from_the_payload() {

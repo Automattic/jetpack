@@ -411,7 +411,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Store the credentials from a connect request and check them with PayPal.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
@@ -991,7 +991,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Record whether a connect attempt succeeded.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param mixed  $result      The connect result; a WP_Error when it failed.
 	 * @param string $environment The environment the connect used.
@@ -1017,7 +1017,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Tracks properties for a created payment link, from the data sent to PayPal.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param array $resource_data The data from build_resource_data().
 	 * @return array Event properties.

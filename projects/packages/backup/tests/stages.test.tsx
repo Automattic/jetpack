@@ -112,9 +112,7 @@ describe( 'Gates', () => {
 		).resolves.toBeInTheDocument();
 		// The regression: an entitled site being told it has no plan
 		// because the request to find out failed.
-		expect(
-			screen.queryByText( "This site doesn't have an active Backup plan" )
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Add a Jetpack Backup plan' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the upsell when the site genuinely has no plan', async () => {
@@ -122,9 +120,7 @@ describe( 'Gates', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( "This site doesn't have an active Backup plan" )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Add a Jetpack Backup plan' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'shows the not-connected screen without asking WPCOM anything', async () => {

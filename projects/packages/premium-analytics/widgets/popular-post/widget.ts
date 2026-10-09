@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -21,7 +20,6 @@ export type PopularPostAttributes = {
  * comments shown for it are all-time totals.
  */
 export default {
-	icon: trendingUp,
 	attributes: [] as WidgetAttributeField< PopularPostAttributes >[],
 	example: {
 		attributes: {},

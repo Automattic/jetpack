@@ -146,6 +146,54 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * AI Launchpad sites get no My Home menu, including for users who can't open Site Setup.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_on_ai_launchpad_sites_for_every_user() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Legacy launchpad sites keep My Home for non-administrators too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_for_editors_on_legacy_sites() {
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Creates an editor, who can't open Site Setup.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_editor() {
+		return wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@example.com',
+				'role'       => 'editor',
+			)
+		);
+	}
+
+	/**
 	 * The Jetpack submenu slug for the legacy Calypso "Subscribers" link, or null when
 	 * it isn't present. `wpcom_add_jetpack_submenu()` registers
 	 * `https://wordpress.com/subscribers/<domain>` while the Newsletter modernization

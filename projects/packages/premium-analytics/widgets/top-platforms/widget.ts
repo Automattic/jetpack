@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { desktop } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type TopPlatformsAttributes = {
@@ -18,7 +17,6 @@ export type TopPlatformsAttributes = {
  * renders its control.
  */
 export default {
-	icon: desktop,
 	attributes: [
 		{
 			id: 'platformDimension',

@@ -1,7 +1,12 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
+import { createBlobURL, revokeBlobURL } from '@wordpress/blob';
+import {
+	MediaPlaceholder,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
-import { mediaUpload } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pick } from 'lodash';
@@ -29,6 +34,7 @@ export const pickRelevantMediaFiles = image => {
 
 const TiledGalleryEdit = ( {
 	attributes,
+	clientId,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -46,25 +52,78 @@ const TiledGalleryEdit = ( {
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, attributes.className );
 
 	const blockProps = useBlockProps();
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const mediaUpload = useSelect(
+		select => select( blockEditorStore ).getSettings().mediaUpload,
+		[]
+	);
 	const [ selectedImage, setSelectedImage ] = useState( null );
 	const [ changed, setChanged ] = useState(
 		'undefined' === typeof columnWidths || columnWidths?.length === 0 ? true : false
 	);
 
-	const setImages = imgs => {
+	const setImages = ( imgs, otherAttributes ) => {
 		setAttributes( {
 			images: imgs,
 			ids: imgs.map( ( { id } ) => parseInt( id, 10 ) ),
+			...otherAttributes,
 		} );
 	};
 
-	const addFiles = files => {
-		mediaUpload( {
-			allowedTypes: ALLOWED_MEDIA_TYPES,
-			filesList: files,
-			onFileChange: value =>
-				setImages( ( images || [] ).concat( value.map( pickRelevantMediaFiles ) ) ),
-			onError: noticeOperations.createErrorNotice,
+	// Upload each file on its own into a placeholder tile added up front, which keeps the selection order:
+	// client-side media processing reports one file per callback. Each result replaces its tile, found by
+	// URL, and a failure removes it. With `columnLimit`, columns follow the images left, as library selection does.
+	const addFiles = ( files, columnLimit ) => {
+		if ( ! mediaUpload ) {
+			return;
+		}
+		// Pending placeholders don't count until an upload succeeds, so rejected files keep the setting.
+		const updateImages = newImages =>
+			setImages(
+				newImages,
+				columnLimit && newImages.some( ( { id } ) => id )
+					? { columns: Math.min( newImages.length, columnLimit ) }
+					: undefined
+			);
+		const uploads = Array.from( files ).map( file => ( {
+			file,
+			placeholderUrl: createBlobURL( file ),
+		} ) );
+		setImages( [
+			...images,
+			...uploads.map( ( { placeholderUrl } ) => ( { url: placeholderUrl } ) ),
+		] );
+
+		uploads.forEach( ( { file, placeholderUrl } ) => {
+			let currentUrl = placeholderUrl;
+			// Without media, the upload failed: drop its image.
+			const updateUpload = media => {
+				revokeBlobURL( placeholderUrl );
+				const currentImages = getBlockAttributes( clientId )?.images || [];
+				const index = currentImages.findIndex( ( { url } ) => url === currentUrl );
+				// The user removed this image while it was still uploading.
+				if ( index === -1 ) {
+					return;
+				}
+				if ( ! media ) {
+					updateImages( currentImages.filter( ( img, i ) => i !== index ) );
+					return;
+				}
+				// Replace attachment fields, whose dimensions processing can change, but keep a custom link.
+				const { customLink } = currentImages[ index ];
+				const image = { ...pickRelevantMediaFiles( media ), ...( customLink && { customLink } ) };
+				currentUrl = image.url;
+				updateImages( currentImages.map( ( img, i ) => ( i === index ? image : img ) ) );
+			};
+			mediaUpload( {
+				allowedTypes: ALLOWED_MEDIA_TYPES,
+				filesList: [ file ],
+				onFileChange: ( [ media ] ) => updateUpload( media ),
+				onError: message => {
+					updateUpload();
+					noticeOperations.createErrorNotice( message );
+				},
+			} );
 		} );
 
 		setChanged( true );
@@ -87,6 +146,12 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onSelectImages = files => {
+		// Not `instanceof File`: files picked in the editor iframe come from that window's File.
+		if ( Object.prototype.toString.call( files[ 0 ] ) === '[object File]' ) {
+			addFiles( files, columns );
+			return;
+		}
+
 		const newImages = files.map( file => {
 			const existingImage = images.find(
 				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
@@ -184,6 +249,7 @@ const TiledGalleryEdit = ( {
 					name: __( 'images', 'jetpack' ),
 				} }
 				onSelect={ onSelectImages }
+				handleUpload={ false }
 				accept="image/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				multiple

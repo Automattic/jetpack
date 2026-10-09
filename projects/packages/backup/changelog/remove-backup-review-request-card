@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Remove the review-request card from the modernized dashboard, which is behind a feature flag.
+

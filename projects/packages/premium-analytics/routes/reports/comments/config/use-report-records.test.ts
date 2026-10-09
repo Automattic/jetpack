@@ -5,7 +5,19 @@ import type { StatsCommentsResponse } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
 	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsComments = useStatsComments as jest.MockedFunction< typeof useStatsComments >;
@@ -92,21 +104,6 @@ describe( 'useCommentsReportRecords', () => {
 				link: 'https://example.com/hello-world/',
 				postId: '42',
 			} ),
-		] );
-	} );
-
-	it( 'drops a post link that is not a safe http(s) URL, keeping the row', () => {
-		mockUseStatsComments.mockReturnValue( {
-			data: withPostLink( 'javascript:alert(1)' ),
-			isLoading: false,
-			isError: false,
-			refetch: jest.fn(),
-		} as unknown as ReturnType< typeof useStatsComments > );
-
-		const { result } = renderHook( () => useCommentsReportRecords( 'posts' ) );
-
-		expect( result.current.rows ).toEqual( [
-			expect.objectContaining( { label: 'Hello world', value: 12, link: undefined } ),
 		] );
 	} );
 

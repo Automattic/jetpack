@@ -9,3 +9,4 @@ import '../../packages/data/src/processing/stats/__tests__/subscribers.test';
 import '../../packages/data/src/processing/stats/__tests__/tags.test';
 import '../../packages/data/src/processing/stats/__tests__/time-series.test';
 import '../../packages/data/src/processing/stats/__tests__/top-authors.test';
+import '../../packages/data/src/hooks/__tests__/use-viewer-country.test';

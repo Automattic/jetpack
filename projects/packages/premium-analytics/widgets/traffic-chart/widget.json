@@ -1,5 +1,6 @@
 {
 	"name": "jpa/traffic-chart",
+	"icon": "jpa/trending-up",
 	"title": "Traffic summary",
 	"description": "Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.",
 	"help": {

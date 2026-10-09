@@ -1,10 +1,9 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
-import { defaultStyles as visxTooltipStyles, useTooltip } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import tooltipStyles from '../../components/tooltip/base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
 import { useIsomorphicLayoutEffect } from '../../hooks';
 import {
@@ -14,12 +13,16 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import {
+	BACKGROUND_FALLBACK,
+	CATALOG_POINTERS,
+} from '../../providers/chart-context/private/catalog-pointers';
 import { blendRgb, hexToRgb } from '../../providers/chart-context/private/perceptual-color';
+import { resolveOpaqueHex } from '../../providers/chart-context/private/resolve-opaque-hex';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
-import { createCssVariableResolver, resolveCssVariable } from '../../utils/resolve-css-var';
+import { createCssVariableResolver } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
@@ -28,10 +31,12 @@ import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-t
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
+	getHeatmapScale,
 	getValueExtent,
 	getNormalizedValue,
 	HeatmapContext,
 	HeatmapLegend,
+	isEmptyValue,
 	isPresent,
 	resolveColumnGroups,
 } from './private';
@@ -49,10 +54,6 @@ import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
 
-// Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
-// the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
-const CELL_MIX_FLOOR = 0.15;
-
 // `label` is the stylesheet's default, so it needs no modifier.
 const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
 	label: undefined,
@@ -65,11 +66,7 @@ const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
 const NO_ROW_LABELS: string[] = [];
 
-// The dark variant is painted by the `.surface` class, so its style carries no box.
-const TOOLTIP_BOX_STYLES: Record< 'light' | 'dark', CSSProperties > = {
-	light: { ...visxTooltipStyles, zIndex: TOOLTIP_Z_INDEX },
-	dark: { zIndex: TOOLTIP_Z_INDEX },
-};
+const TOOLTIP_BOX_STYLE: CSSProperties = { zIndex: TOOLTIP_Z_INDEX };
 
 // The cell's own label wins; otherwise the group, column and row labels name it.
 const cellName = ( info: HeatmapTooltipData ) =>
@@ -96,14 +93,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	gap = 'md',
 	withTooltips = false,
 	renderTooltip,
-	tooltipVariant = 'light',
 	tooltipStyle,
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const tooltipBoxStyle = tooltipStyle
-		? { ...TOOLTIP_BOX_STYLES[ tooltipVariant ], ...tooltipStyle }
-		: TOOLTIP_BOX_STYLES[ tooltipVariant ];
+		? { ...TOOLTIP_BOX_STYLE, ...tooltipStyle }
+		: TOOLTIP_BOX_STYLE;
 	const { getElementStyles, theme } = useGlobalChartsContext();
 	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
@@ -131,29 +127,37 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor,
 	} );
 
-	// The cell blend substitutes this role at the cell; this read happens at the scope
-	// element, so an override on the chart's own class makes the two disagree. CHARTS-255.
-	const chartBackgroundHex = normalizeColorToHex(
-		CATALOG_POINTERS.background,
-		scopeElement,
-		resolveCssVariable
-	);
+	// Both read at the scope element, so an override on the chart's own class reaches neither the
+	// fill scale nor the text color (CHARTS-255). See-through counts as white, as for the palette.
+	const resolveAtScope = createCssVariableResolver( scopeElement );
+	const chartBackgroundHex =
+		resolveOpaqueHex( CATALOG_POINTERS.background, resolveAtScope ) ?? BACKGROUND_FALLBACK;
+	const emptyCellHex = resolveOpaqueHex( CATALOG_POINTERS.track, resolveAtScope );
 
-	// Choose text color from the blended fill, not the raw value.
-	// If either color cannot resolve to hex, keep the stylesheet's default role.
+	// If the primary cannot resolve to hex, the stylesheet falls back to its own blend.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const cellMix =
-		isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
-			? { primary: hexToRgb( primaryHex ), background: hexToRgb( chartBackgroundHex ) }
-			: null;
+	const scale = useMemo(
+		() =>
+			isValidHexColor( primaryHex )
+				? getHeatmapScale( primaryHex, chartBackgroundHex, emptyCellHex )
+				: null,
+		[ primaryHex, chartBackgroundHex, emptyCellHex ]
+	);
+	const fillVars = useMemo(
+		() => ( {
+			'--a8c-charts-color-heatmap-primary': primaryColorHex,
+			...( scale && {
+				'--a8c-charts-color-heatmap-low': scale.low,
+				'--a8c-charts-color-heatmap-high': scale.high,
+			} ),
+		} ),
+		[ primaryColorHex, scale ]
+	);
+	// Choose text color from the fill the cell paints, mirroring .heatmap-chart__cell--filled.
 	const cellTextColor = ( intensity: number ): LabelTextColor =>
-		cellMix
+		scale
 			? pickLabelTextColorForFill(
-					blendRgb(
-						cellMix.primary,
-						cellMix.background,
-						CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity
-					),
+					blendRgb( hexToRgb( scale.high ), hexToRgb( scale.low ), intensity ),
 					labelRoles,
 					'label'
 				)
@@ -171,8 +175,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, primaryColorHex } ),
-		[ extent, primaryColorHex ]
+		() => ( { extent, fillVars } ),
+		[ extent, fillVars ]
 	);
 
 	const columns = data.length;
@@ -396,7 +400,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		)
 		.join( ' ' );
 	const gridStyle: Record< string, string | number > = {
-		'--a8c-charts-color-heatmap-primary': primaryColorHex,
+		...fillVars,
 		gridTemplateColumns: `auto ${ columnTracks }`,
 		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
 			hasGroups ? ' auto' : ''
@@ -548,7 +552,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
 										// A summary cell is on another scale, so it takes no fill.
-										const filled = present && ! column.summary;
+										const filled = present && ! column.summary && ! isEmptyValue( value, extent );
 										const normalized = filled ? getNormalizedValue( value, extent ) : 0;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const accessibleLabel = `${ cellName( info ) }: ${
@@ -624,12 +628,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
-						<BoundedTooltip
-							top={ tooltipTop }
-							left={ tooltipLeft }
-							className={ tooltipVariant === 'dark' ? tooltipStyles.surface : undefined }
-							style={ tooltipBoxStyle }
-						>
+						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft } style={ tooltipBoxStyle }>
 							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/most-popular-day",
+	"icon": "jpa/calendar",
 	"title": "Most popular day",
 	"description": "The day your site received the most views.",
 	"help": {

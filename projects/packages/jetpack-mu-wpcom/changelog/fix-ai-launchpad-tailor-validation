@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Accept AI output that leaves optional fields null or empty, retry failed network requests and list saves, show an error with Try again instead of an unsaved list, keep the wizard instead of saving the fallback list when the user leaves mid-tailoring, log why a reply was rejected, and record Tracks events for failed and abandoned saves.

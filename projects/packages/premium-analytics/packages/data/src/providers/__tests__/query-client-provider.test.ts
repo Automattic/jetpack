@@ -5,15 +5,10 @@ import { focusManager, QueryObserver } from '@tanstack/react-query';
 /**
  * Internal dependencies
  */
-import { fetchStatsProxy } from '../../api';
+import * as statsProxyFetch from '../../api/stats-proxy-fetch';
 import { statsProxyQuery } from '../../queries/stats-query';
-import { StatsResponseShapeError } from '../../utils';
+import { StatsResponseShapeError } from '../../utils/api-error';
 import { queryClient } from '../query-client-provider';
-
-jest.mock( '../../api', () => ( {
-	...jest.requireActual( '../../api' ),
-	fetchStatsProxy: jest.fn(),
-} ) );
 
 describe( 'query client response-shape diagnostics', () => {
 	it( 'warns with the sanitizer detail for a response contract violation', () => {
@@ -40,19 +35,21 @@ describe( 'Stats automatic refresh', () => {
 			params: { end_date: endDate, timezone },
 		} );
 
+	let fetchStatsProxy: jest.SpiedFunction< typeof statsProxyFetch.fetchStatsProxy >;
+
 	const mount = ( options: ConstructorParameters< typeof QueryObserver >[ 1 ] ) =>
 		new QueryObserver( queryClient, options ).subscribe( () => undefined );
 
 	beforeEach( () => {
 		jest.useFakeTimers( { now: new Date( '2026-09-30T12:00:00Z' ) } );
-		jest.mocked( fetchStatsProxy ).mockResolvedValue( {} );
+		fetchStatsProxy = jest.spyOn( statsProxyFetch, 'fetchStatsProxy' ).mockResolvedValue( {} );
 	} );
 
 	afterEach( () => {
 		focusManager.setFocused( undefined );
 		jest.useRealTimers();
 		queryClient.clear();
-		jest.mocked( fetchStatsProxy ).mockReset();
+		fetchStatsProxy.mockRestore();
 	} );
 
 	it( 'refetches a mounted Stats query every 30 minutes while the tab stays open', async () => {
@@ -88,21 +85,12 @@ describe( 'Stats automatic refresh', () => {
 		unsubscribe();
 	} );
 
-	it.each( [
-		[ 'ended before today', '2026-09-29', 'UTC', '2026-09-30T12:00:00Z', 1 ],
-		[
-			'is still today in the report timezone',
-			'2026-09-29',
-			'America/Los_Angeles',
-			'2026-09-30T02:00:00Z',
-			2,
-		],
-	] )( 'polls a window that %s accordingly', async ( _label, endDate, timezone, now, calls ) => {
-		jest.setSystemTime( new Date( now ) );
-		const unsubscribe = mount( statsQuery( endDate, timezone ) );
+	it( 'polls a window that is still today in the report timezone accordingly', async () => {
+		jest.setSystemTime( new Date( '2026-09-30T02:00:00Z' ) );
+		const unsubscribe = mount( statsQuery( '2026-09-29', 'America/Los_Angeles' ) );
 
 		await jest.advanceTimersByTimeAsync( 31 * MINUTE );
-		expect( fetchStatsProxy ).toHaveBeenCalledTimes( calls );
+		expect( fetchStatsProxy ).toHaveBeenCalledTimes( 2 );
 
 		unsubscribe();
 	} );

@@ -120,7 +120,7 @@ describe( 'LineChart', () => {
 				tooltipPlacement,
 				tooltipStyle: { backgroundColor: 'black', color: 'white', boxShadow: 'none' },
 			} );
-			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			const vertical = screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
@@ -140,59 +140,31 @@ describe( 'LineChart', () => {
 			} );
 		}
 	);
-	test.each( [
-		[
-			{ color: 'white' },
-			'rgb(255, 255, 255)',
-			'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
-			{ color: 'rgb(255, 255, 255)' },
-		],
-		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'rgb(255, 255, 255)', {} ],
-		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white', {} ],
-		[
-			{ color: 'white', background: 'black' },
-			'rgb(255, 255, 255)',
-			'black',
-			{ color: 'rgb(255, 255, 255)' },
-		],
-	] )(
-		'applies directional tooltip color defaults: %j',
-		async ( tooltipStyle, color, background, containerColorStyle ) => {
-			const user = userEvent.setup();
-			const defaults = document.createElement( 'style' );
-			defaults.textContent = `.line-chart__tooltip {
-				color: var(--a8c-charts-color-label);
-				background: var(--a8c-charts-color-surface);
-			}`;
-			renderWithTheme( { tooltipStyle } );
-			const chart = screen.getByTestId( 'line-chart' );
-			chart.appendChild( defaults );
-			chart.style.setProperty( '--a8c-charts-color-label', '#000' );
-			chart.style.setProperty( '--a8c-charts-color-label-axis', '#aaa' );
-			chart.style.setProperty( '--a8c-charts-color-surface', '#fff' );
-			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
-			await user.keyboard( '{ArrowRight}' );
+	test( 'passes a color-only tooltipStyle through with no background added', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { tooltipStyle: { color: 'white' } } );
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
 
-			const content = screen.getByTestId( 'line-chart-tooltip-content' );
-			expect( content ).toHaveStyle( {
-				color,
-				[ 'backgroundColor' in tooltipStyle ? 'background-color' : 'background' ]:
-					'background' in tooltipStyle || 'backgroundColor' in tooltipStyle
-						? background
-						: 'var(--a8c-charts-color-surface)',
-			} );
-			const container = screen.getByTestId( 'bounded-tooltip' );
-			expect( container ).toHaveStyle( {
-				...containerColorStyle,
-				[ 'background' in tooltipStyle ? 'background' : 'background-color' ]: background,
-			} );
-		}
-	);
+		const box = screen.getByTestId( 'bounded-tooltip' );
+		expect( box ).toHaveStyle( { color: 'rgb(255, 255, 255)' } );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'background' ) );
+	} );
+
+	test( 'paints a tooltipStyle background on the box, not on the default content', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { tooltipStyle: { background: 'black' } } );
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'black' } );
+		expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).not.toHaveAttribute( 'style' );
+	} );
 
 	test( 'preserves the existing tooltip colors for noncolor overrides', async () => {
 		const user = userEvent.setup();
 		renderWithTheme( { tooltipStyle: { boxShadow: 'none' } } );
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		const content = screen.getByTestId( 'line-chart-tooltip-content' );
@@ -207,13 +179,13 @@ describe( 'LineChart', () => {
 	} );
 
 	test.each( [ [ 'Escape', '{Escape}' ] ] )(
-		'returns focus to the grid after %s',
+		'returns focus to the chart after %s',
 		async ( _name, keys ) => {
 			jest.useFakeTimers();
 			try {
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -253,7 +225,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 			// Should render without crashing and show the single point
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
@@ -269,7 +241,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'tooltip reads No data for a bucket with no reading', async () => {
@@ -286,7 +258,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			const tooltip = screen.getByTestId( 'chart-tooltip-0' );
@@ -310,7 +282,7 @@ describe( 'LineChart', () => {
 
 			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent ?? '' );
@@ -333,7 +305,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -361,7 +333,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -381,7 +353,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
 		} );
 
@@ -396,7 +368,7 @@ describe( 'LineChart', () => {
 				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
 		} );
 
@@ -417,7 +389,7 @@ describe( 'LineChart', () => {
 				},
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
 		} );
 
@@ -572,9 +544,9 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const grid = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">; the axis and grid lines are plain <line> elements sharing that class.
-			const linePath = grid.querySelector( 'path.visx-line' );
+			const linePath = chart.querySelector( 'path.visx-line' );
 			const gapCount = linePath?.getAttribute( 'd' )?.match( /M/g )?.length;
 			expect( gapCount ).toBe( 2 );
 		} );
@@ -643,7 +615,7 @@ describe( 'LineChart', () => {
 			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			const html = document.body.innerHTML;
 			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
-				html.indexOf( 'role="grid"' )
+				html.indexOf( 'role="application"' )
 			);
 		} );
 	} );
@@ -833,7 +805,7 @@ describe( 'LineChart', () => {
 			expect( gradient ).toBeInTheDocument();
 
 			// Verify that the chart container exists
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( chart ).toBeInTheDocument();
 		} );
 	} );
@@ -849,7 +821,7 @@ describe( 'LineChart', () => {
 				},
 			} );
 			// The chart should render with the custom axis configuration
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -1095,7 +1067,7 @@ describe( 'LineChart', () => {
 
 			// Instead of checking styles, verify the chart renders
 			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -1633,17 +1605,26 @@ describe( 'LineChart', () => {
 		describe( 'Chart Focus and Accessibility Attributes', () => {
 			test( 'chart container has proper accessibility attributes', () => {
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
-				expect( chart ).toHaveAttribute( 'role', 'grid' );
+				expect( chart ).toHaveAttribute( 'role', 'application' );
 				expect( chart ).toHaveAttribute( 'aria-label', 'Line chart' );
+			} );
+
+			test.each( [
+				[ undefined, 'Line chart' ],
+				[ 'Views over time', 'Views over time' ],
+			] )( 'names the chart container from ariaLabel %p', ( ariaLabel, name ) => {
+				renderWithTheme( { ariaLabel } );
+				expect( screen.getByRole( 'application', { name } ) ).toBeInTheDocument();
+				expect( screen.queryByLabelText( 'XYChart' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'chart container can receive focus', async () => {
 				const user = userEvent.setup();
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -1674,7 +1655,7 @@ describe( 'LineChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { data: [ SERIES_A, SERIES_B ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 
 				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
@@ -1690,7 +1671,7 @@ describe( 'LineChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
@@ -1724,7 +1705,7 @@ describe( 'LineChart', () => {
 						],
 					} );
 
-					const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+					const chart = screen.getByRole( 'application', { name: /line chart/i } );
 					chart.focus();
 
 					// Single tab should focus on the first tooltip.
@@ -1769,7 +1750,7 @@ describe( 'LineChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 				chart.focus();
 
 				// Right arrow key should focus on the first tooltip.
@@ -1816,7 +1797,7 @@ describe( 'LineChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 				chart.focus();
 
 				// Chart should be in focus.
@@ -1847,7 +1828,7 @@ describe( 'LineChart', () => {
 
 			renderWithTheme( { renderTooltip: customTooltipRenderer } );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			chart.focus();
 
 			// Click on right arrow key to focus on the first tooltip.
@@ -2077,8 +2058,9 @@ describe( 'LineChart', () => {
 
 		const pointer = ( type: string, clientX: number, clientY: number ) => {
 			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			const chart = screen.getByRole( 'application' );
 			// eslint-disable-next-line testing-library/no-node-access
-			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			const target = chart.querySelector( 'svg > rect[fill="transparent"]' );
 			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
 		};
 
@@ -2426,7 +2408,7 @@ describe( 'LineChart', () => {
 				options: {},
 			},
 		];
-		// Bare numbers inside the plot (scoped via the chart's grid role, away from visx's
+		// Bare numbers inside the plot (scoped via the chart's application role, away from visx's
 		// off-screen text-measurement SVGs) are value-axis ticks: the series labels carry no digits
 		// and the empty-state message is text-only.
 		const numericTick = /^[\d,]+$/;
@@ -2442,7 +2424,7 @@ describe( 'LineChart', () => {
 				data: twoSeries,
 			} );
 
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 			const ticksBefore = within( chart )
 				.getAllByText( numericTick )
 				.map( el => el.textContent )
@@ -2469,7 +2451,7 @@ describe( 'LineChart', () => {
 				data: twoSeries,
 			} );
 
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 			const ticksBefore = within( chart )
 				.getAllByText( numericTick )
 				.map( el => el.textContent )
@@ -2497,7 +2479,7 @@ describe( 'LineChart', () => {
 				data: twoSeries,
 			} );
 
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 			expect( within( chart ).getAllByText( numericTick ).length ).toBeGreaterThan( 0 );
 
 			const buttons = screen.getAllByRole( 'button' );
