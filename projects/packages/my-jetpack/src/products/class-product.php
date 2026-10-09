@@ -492,6 +492,31 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
+	 * Get catalog-controlled offers for a bundle's supported billing terms.
+	 *
+	 * @since $$next-version$$
+	 * @param string[] $product_slugs Store product slugs, preferred term first.
+	 * @return array Pricing details and term choices.
+	 */
+	protected static function get_bundle_pricing( $product_slugs ) {
+		$terms = array();
+		foreach ( $product_slugs as $slug ) {
+			$term              = array_merge(
+				array(
+					'available'          => false,
+					'wpcom_product_slug' => $slug,
+				),
+				Wpcom_Products::get_product_pricing( $slug )
+			);
+			$expected_term     = str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' );
+			$term['available'] = true === $term['available'] && ( $term['product_term'] ?? '' ) === $expected_term;
+			$terms[]           = $term;
+		}
+		$available = array_values( array_filter( $terms, fn( $term ) => true === $term['available'] ) );
+		return array_merge( $available[0] ?? $terms[0], array( 'terms' => $terms ) );
+	}
+
+	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
 	 *
 	 * @return ?string

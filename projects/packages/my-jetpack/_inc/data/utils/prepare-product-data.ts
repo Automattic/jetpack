@@ -1,16 +1,15 @@
 import mapObjectKeysToCamel from './to-camel';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
-const getFullPricePerMonth = ( product: ProductCamelCase ) => {
-	return product.pricingForUi.productTerm === 'year'
-		? Math.round( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
-		: product.pricingForUi.fullPrice;
-};
+const monthsByTerm: Record< string, number > = { year: 12, 'two years': 24 };
 
-const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
-	return product.pricingForUi.productTerm === 'year'
-		? Math.round( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
-		: product.pricingForUi.discountPrice;
+const preparePricing = ( pricing: ProductCamelCase[ 'pricingForUi' ] ) => {
+	const months = monthsByTerm[ pricing.productTerm ] || 1;
+	return {
+		...pricing,
+		fullPricePerMonth: Math.round( ( pricing.fullPrice / months ) * 100 ) / 100,
+		discountPricePerMonth: Math.round( ( pricing.discountPrice / months ) * 100 ) / 100,
+	};
 };
 
 export const prepareProductData = ( product: ProductSnakeCase ) => {
@@ -23,8 +22,10 @@ export const prepareProductData = ( product: ProductSnakeCase ) => {
 	camelProduct.supportedProducts = camelProduct.supportedProducts || [];
 
 	if ( camelProduct.pricingForUi ) {
-		camelProduct.pricingForUi.fullPricePerMonth = getFullPricePerMonth( camelProduct );
-		camelProduct.pricingForUi.discountPricePerMonth = getDiscountPricePerMonth( camelProduct );
+		camelProduct.pricingForUi = preparePricing( camelProduct.pricingForUi );
+		camelProduct.pricingForUi.terms = camelProduct.pricingForUi.terms?.map( term =>
+			preparePricing( term as ProductCamelCase[ 'pricingForUi' ] )
+		);
 	}
 
 	return camelProduct;
