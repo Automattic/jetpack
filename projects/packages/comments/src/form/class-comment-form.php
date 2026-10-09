@@ -495,16 +495,16 @@ class Comment_Form {
 	}
 
 	/**
-	 * Require a comment to arrive with a nonce this site issued.
+	 * Require a logged-in reader's comment to arrive with a nonce this site issued.
 	 *
-	 * For a logged-out reader it is the same string for everybody, for up to 24
-	 * hours, so it proves the sender loaded a page from this site and nothing more.
+	 * A logged-out reader's would be the same string for everybody, which a page cache
+	 * serves past its expiry, so their comments go through core's checks alone, as core's form does.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
 	 */
 	public function verify_nonce( $comment_post_id = 0 ) {
-		if ( ! self::enabled_for_post_type( $comment_post_id ) ) {
+		if ( ! self::enabled_for_post_type( $comment_post_id ) || ! is_user_logged_in() ) {
 			return;
 		}
 
