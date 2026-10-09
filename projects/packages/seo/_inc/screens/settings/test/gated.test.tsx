@@ -93,6 +93,7 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
 		expect( screen.queryByLabelText( FRONT_PAGE_LABEL ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the front-page description on a gated site that has a legacy value', () => {

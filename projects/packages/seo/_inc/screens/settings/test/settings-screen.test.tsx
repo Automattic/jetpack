@@ -297,6 +297,43 @@ describe( 'WordPress.com Simple settings', () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 	} );
 
+	it.each( [ true, false ] )(
+		'hides the canonical card on Simple even when module availability is %s',
+		switchable => {
+			setSimpleSite();
+			const form = buildForm( { canonical_active: true, canonical_switchable: switchable } );
+
+			render( <SettingsScreen form={ form } /> );
+
+			expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Add canonical URLs to archive pages/ ) ).not.toBeInTheDocument();
+			expect( form.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [
+		[ 'woa', true ],
+		[ 'woa', false ],
+		[ 'unknown', true ],
+		[ 'unknown', false ],
+	] )( 'keeps the canonical switch functional on %s when active is %s', ( host, active ) => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
+		const form = buildForm( { canonical_active: active } );
+
+		render( <SettingsScreen form={ form } /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Add canonical URLs/i, checked: active } );
+		expect( toggle ).toBeEnabled();
+		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the module-switch callback directly.
+		fireEvent.click( toggle );
+
+		expect( form.commit ).toHaveBeenCalledWith( { canonical_active: ! active } );
+	} );
+
 	it.each( [
 		[ 'wpcom', false ],
 		[ 'woa', true ],
