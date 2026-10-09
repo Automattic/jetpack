@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Comments;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -45,12 +46,17 @@ class Tracks {
 	}
 
 	/**
-	 * Whether events may be recorded: always on WordPress.com and Atomic, and elsewhere once the owner agreed to Jetpack's terms.
+	 * Whether events may be recorded: always on WordPress.com, on Atomic outside offline mode,
+	 * and elsewhere once the owner agreed to Jetpack's terms, which offline mode also fails.
 	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return 'self_hosted' !== self::platform() || ( new Terms_Of_Service() )->has_agreed();
+		$platform = self::platform();
+
+		return 'simple' === $platform
+			|| ( 'atomic' === $platform && ! ( new Status() )->is_offline_mode() )
+			|| ( new Terms_Of_Service() )->has_agreed();
 	}
 
 	/**
@@ -125,6 +131,19 @@ class Tracks {
 	}
 
 	/**
+	 * Record a comment the form turned away, where a browser on this site sent it. Anything else is a bot,
+	 * and would cost an outbound request to record.
+	 *
+	 * @param string $reason `nonce`, or the error code the sign-in was refused with.
+	 * @return void
+	 */
+	public static function record_refusal( $reason ) {
+		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+			self::record( 'jetpack_comments_comment_refused', array( 'reason' => $reason ) );
+		}
+	}
+
+	/**
 	 * Who posted a comment through the form, and with what.
 	 *
 	 * @param int        $comment_id  The comment ID.
@@ -154,7 +173,7 @@ class Tracks {
 
 		// Paragraphs and list items come with every comment and every list.
 		$content = (string) ( $commentdata['comment_content'] ?? '' );
-		preg_match_all( '/<!-- wp:([a-z0-9-]+)/', $content, $names );
+		preg_match_all( '#<!-- wp:([a-z0-9-]+(?:/[a-z0-9-]+)?)#', $content, $names );
 		$blocks = array_diff( array_unique( $names[1] ), array( 'paragraph', 'list-item' ) );
 		sort( $blocks );
 
