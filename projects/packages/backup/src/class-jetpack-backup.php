@@ -127,7 +127,7 @@ class Jetpack_Backup {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * Defaults to true. Returning false renders the legacy React app on "Jetpack > Backup" instead.
+	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
@@ -1305,6 +1305,7 @@ class Jetpack_Backup {
 	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since $$next-version$$ Defaults to true.
 	 *
 	 * @return bool
 	 */
