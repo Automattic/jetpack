@@ -26,7 +26,7 @@ class Dashboard_Test extends BaseTestCase {
 		parent::set_up();
 		Admin_Menu::reset();
 		Dashboard::init();
-		// init() registers the real sections in src/sections, which these tests don't want.
+		// init() registers the package's real sections; each test registers its own.
 		self::reset_sections();
 	}
 

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/post-all-time-traffic",
+	"icon": "jpa/calendar",
 	"title": "All-time traffic",
 	"description": "Every month of views for the post or page being viewed, across its whole life.",
 	"help": {

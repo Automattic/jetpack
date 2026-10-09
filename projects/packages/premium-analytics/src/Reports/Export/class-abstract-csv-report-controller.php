@@ -29,11 +29,6 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	protected const DEFAULT_BATCH_LIMIT = 1000;
 
 	/**
-	 * Default date type for order-based reports.
-	 */
-	protected const DEFAULT_DATE_TYPE = 'created';
-
-	/**
 	 * Report registry instance.
 	 *
 	 * @var Report_Registry

@@ -1,5 +1,6 @@
 import { isBlobURL } from '@wordpress/blob';
 import { Button, Spinner } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { withSelect } from '@wordpress/data';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -231,7 +232,7 @@ class GalleryImageEdit extends Component {
 }
 
 export default withSelect( ( select, ownProps ) => {
-	const { getEntityRecord } = select( 'core' );
+	const { getEntityRecord } = select( coreStore );
 	const { id } = ownProps;
 
 	return {
