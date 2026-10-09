@@ -75,36 +75,29 @@ $default_matrix_vars = array(
 $matrix   = array();
 $to_split = array();
 
-$php_split_config = array(
-	'projects' => array( 'plugins/jetpack' ),
-	'generic'  => 1,
-);
-
 // Add PHP tests.
 foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
-	$to_split[] = array(
-		'name'         => "PHP tests: PHP $php WP latest (%s)",
-		'script'       => 'test-php',
-		'php'          => $php,
-		'wp'           => 'latest',
-		'timeout'      => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
-		'split_config' => $php_split_config,
+	$matrix[] = array(
+		'name'    => "PHP tests: PHP $php WP latest",
+		'script'  => 'test-php',
+		'php'     => $php,
+		'wp'      => 'latest',
+		'timeout' => 20, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
-	$phpver     = $versions['PHP_VERSION'];
-	$to_split[] = array(
-		'name'         => "PHP tests: PHP {$phpver} WP $wp (%s)",
-		'script'       => 'test-php',
-		'php'          => $phpver,
-		'wp'           => $wp,
-		'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
-		'split_config' => $php_split_config,
+	$phpver   = $versions['PHP_VERSION'];
+	$matrix[] = array(
+		'name'    => "PHP tests: PHP {$phpver} WP $wp",
+		'script'  => 'test-php',
+		'php'     => $phpver,
+		'wp'      => $wp,
+		'timeout' => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	);
 }
 
-// Add WooCommerce tests. Not split, as only Jetpack is tested with WooCommerce.
+// Add WooCommerce tests.
 $matrix[] = array(
 	'name'             => 'PHP tests: PHP 7.4 WP latest with WooCommerce',
 	'script'           => 'test-php',
@@ -115,24 +108,26 @@ $matrix[] = array(
 );
 
 // Add wpcomsh tests.
-$to_split[] = array(
-	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh (%s)',
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 8.3 WP latest with wpcomsh',
 	'script'       => 'test-php',
 	'php'          => '8.3',
 	'wp'           => 'latest',
 	'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
 	'with-wpcomsh' => true,
-	'split_config' => $php_split_config,
 );
 
-// Add PHP coverage.
+// Add PHP coverage as a split job.
 $to_split[] = array(
 	'name'         => 'Code coverage (PHP, %s)',
 	'script'       => 'test-php-coverage',
 	'wp'           => 'latest',
 	'timeout'      => 30, // 2026-09-14: Runs are at around 15 minutes each.
 	'coverage'     => true,
-	'split_config' => $php_split_config,
+	'split_config' => array(
+		'projects' => array( 'plugins/jetpack' ),
+		'generic'  => 1,
+	),
 );
 
 // Add JS tests and coverage
