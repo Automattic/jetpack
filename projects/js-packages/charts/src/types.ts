@@ -191,7 +191,7 @@ export type DataPointDate = {
 	color?: string;
 };
 
-export type LeaderboardEntry = {
+type LeaderboardEntryFields = {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
 	 */
@@ -251,14 +251,6 @@ export type LeaderboardEntry = {
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
 	/**
-	 * Set with `onClick` when the `label` holds its own link. The row's button
-	 * then sits behind the row instead of around it, so the link stays a
-	 * sibling of the button and both remain operable; give it an `ariaLabel`,
-	 * since the button no longer wraps any text.
-	 */
-	hasInteractiveLabel?: boolean;
-
-	/**
 	 * Optional accessible name for the interactive row's `<button>`. Only applies
 	 * when `onClick` is set — without it the row renders as a Fragment with no
 	 * element to receive `aria-label`. By default the button derives its name from
@@ -269,6 +261,21 @@ export type LeaderboardEntry = {
 	 */
 	ariaLabel?: string;
 };
+
+export type LeaderboardEntry = LeaderboardEntryFields &
+	(
+		| { hasInteractiveLabel?: false }
+		| {
+				/**
+				 * Set when the `label` holds its own link or button. The row's button
+				 * then sits behind the row instead of around it, so both stay operable.
+				 * Requires `onClick`, and `ariaLabel` since the button wraps no text.
+				 */
+				hasInteractiveLabel: true;
+				onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+				ariaLabel: string;
+		  }
+	);
 
 export type GradientStop = {
 	offset: string;

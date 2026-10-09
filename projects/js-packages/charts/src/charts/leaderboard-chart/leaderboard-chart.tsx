@@ -473,13 +473,13 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
 											onClick={ forwardCellClickToRowButton }
 										>
+											{ rowCells }
 											<button
 												type="button"
 												className={ styles.rowButton }
 												onClick={ entry.onClick }
 												aria-label={ entry.ariaLabel }
 											/>
-											{ rowCells }
 											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
 										</div>
 									);
