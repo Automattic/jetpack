@@ -790,7 +790,10 @@ describe( 'AI admin page (main.jsx)', () => {
 			'href',
 			'admin.php?page=my-jetpack#/connection'
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+		// The notice needs no fetch; the switches do, so wait for them.
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeDisabled();
 	} );
 
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
