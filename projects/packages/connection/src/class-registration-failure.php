@@ -51,8 +51,16 @@ class Registration_Failure {
 		'home_private_ip',
 		'site_inaccessible_403',
 		'site_requires_authorization',
-		'request_cancelled',
 	);
+
+	/**
+	 * Error code WordPress.com returns when the site hit the hourly registration rate limit.
+	 *
+	 * Never terminal: the limit resets every hour, and the counter is shared between
+	 * all sites registering under the same URL, so a site can be rate limited on its
+	 * very first attempt.
+	 */
+	const RATE_LIMITED_ERROR_CODE = 'request_cancelled';
 
 	/**
 	 * Error code suffixes marking a malformed request, which is also not retryable.
@@ -159,13 +167,20 @@ class Registration_Failure {
 		$http_status = self::extract_http_status( $error, $response );
 		$is_terminal = self::is_terminal( $error_code );
 
+		// A rate-limited response usually masks a reason WordPress.com has already
+		// returned; when that reason is terminal, keep showing it rather than
+		// replacing it with "too many attempts".
+		if ( self::RATE_LIMITED_ERROR_CODE === $error_code && null !== $previous && ! empty( $previous['terminal'] ) ) {
+			return;
+		}
+
 		$state = array(
 			'error_code'       => $error_code,
 			'error_message'    => (string) $error->get_error_message(),
 			'http_status'      => $http_status,
 			'attempts'         => $attempts,
 			'last_attempt_at'  => time(),
-			'next_retry_after' => $is_terminal ? null : time() + self::backoff_delay( $attempts, $response, $http_status ),
+			'next_retry_after' => $is_terminal ? null : time() + self::backoff_delay( $attempts, $response, $http_status, $error_code ),
 			'terminal'         => $is_terminal,
 			'fingerprint'      => self::fingerprint(),
 		);
@@ -258,10 +273,11 @@ class Registration_Failure {
 	 * @param int                 $attempts    Number of consecutive failures, including this one.
 	 * @param array|WP_Error|null $response    The raw HTTP response, when there was one.
 	 * @param int|null            $http_status The HTTP status code of the response.
+	 * @param string              $error_code  The error code of the failure.
 	 *
 	 * @return int Delay in seconds.
 	 */
-	private static function backoff_delay( $attempts, $response, $http_status ) {
+	private static function backoff_delay( $attempts, $response, $http_status, $error_code = '' ) {
 		$schedule = self::backoff_schedule();
 		$index    = min( max( $attempts, 1 ), count( $schedule ) ) - 1;
 		$delay    = $schedule[ $index ];
@@ -271,6 +287,12 @@ class Registration_Failure {
 		// default one.
 		if ( 429 === $http_status ) {
 			$delay = max( $delay, self::retry_after_seconds( $response ) );
+		}
+
+		// The registration rate limit resets hourly, but the response is a plain 400
+		// with no Retry-After header, so the window has to be assumed.
+		if ( self::RATE_LIMITED_ERROR_CODE === $error_code ) {
+			$delay = max( $delay, HOUR_IN_SECONDS );
 		}
 
 		$delay = min( $delay, self::MAX_BACKOFF );
