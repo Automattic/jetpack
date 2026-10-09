@@ -15,6 +15,40 @@ use PHPUnit\Framework\TestCase;
 class Main_Features_Test extends TestCase {
 
 	/**
+	 * Seed a launched catalog independently of other test classes' user caches.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'feature_catalog_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( is_wp_error( $user ) ? username_exists( 'feature_catalog_admin' ) : $user );
+		Wpcom_Products::reset_request_failures();
+		Wpcom_Products::reset_purchases_cache();
+		$this->own( array() );
+		$products = (object) array();
+		foreach ( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly', 'jetpack_complete', 'jetpack_complete_bi_yearly', 'jetpack_complete_monthly', 'jetpack_backup_t1_yearly' ) as $slug ) {
+			$products->$slug = (object) array(
+				'available'     => true,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' ),
+			);
+		}
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $products, JSON_UNESCAPED_SLASHES ),
+		);
+		add_filter( 'pre_http_request', $filter );
+		Wpcom_Products::get_products( true );
+		remove_filter( 'pre_http_request', $filter );
+	}
+
+	/**
 	 * Every entry carries the fields a feature card needs.
 	 */
 	public function test_every_feature_carries_the_required_fields() {
@@ -307,7 +341,7 @@ class Main_Features_Test extends TestCase {
 			foreach ( $feature['plans'] ?? array() as $plan ) {
 				$this->assertContains(
 					$plan,
-					array( 'backup', 'security', 'complete', 'growth' ),
+					array( 'backup', 'security', 'pro', 'complete', 'growth' ),
 					"Feature {$slug} lists an unknown plan: {$plan}"
 				);
 			}
@@ -360,8 +394,9 @@ class Main_Features_Test extends TestCase {
 		$features = array_column( Main_Features::get_features(), 'plans', 'slug' );
 		$backup   = array_column( $features['backup'], 'name', 'slug' );
 
-		$this->assertArrayHasKey( 'security', $backup );
-		$this->assertNotEmpty( $backup['security'] );
+		$this->assertArrayNotHasKey( 'security', $backup );
+		$this->assertArrayHasKey( 'pro', $backup );
+		$this->assertNotEmpty( $backup['pro'] );
 		$this->assertArrayHasKey( 'complete', $backup );
 		// Blaze is not sold in a bundle, so it earns no badges.
 		$this->assertSame( array(), $features['blaze'] );
@@ -634,10 +669,10 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame( '/add-backup', $upgrades['activity-log']['path'] );
 		$this->assertSame( 'Jetpack VaultPress Backup', $upgrades['activity-log']['name'] );
-		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
-		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
-		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );
-		$this->assertSame( '/add-complete', $upgrades['jetpack-forms']['path'] );
+		$this->assertSame( '/add-pro', $upgrades['newsletter']['path'] );
+		$this->assertSame( '/add-pro', $upgrades['podcast']['path'] );
+		$this->assertSame( 'Jetpack Pro', $upgrades['podcast']['name'] );
+		$this->assertSame( '/add-pro', $upgrades['jetpack-forms']['path'] );
 		$this->assertSame( '/add-akismet', $upgrades['anti-spam']['path'] );
 		$this->assertSame(
 			array(

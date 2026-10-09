@@ -31,6 +31,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
+import ProductDetailCard from '../product-detail-card';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -46,7 +47,12 @@ import styles from './style.module.scss';
 export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const bundleSlug =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const { detail: bundleDetail } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
@@ -63,23 +69,12 @@ export default function PricingInterstitial( { slug } ) {
 	// Setup checkout workflows like ProductDetailCard does
 	const { admin_url: adminUrl, suffix: siteSuffix } = getScriptData().site;
 	const paidCheckoutRedirectUrl = detail?.postActivationUrl || myJetpackCheckoutUri;
-	const bundleCheckoutRedirectUrl = bundleDetail?.postActivationUrl || myJetpackCheckoutUri;
 
 	const { run: paidCheckoutRun } = useProductCheckoutWorkflow( {
 		productSlug:
 			detail?.pricingForUi?.tiers?.upgraded?.wpcomProductSlug ||
 			detail?.pricingForUi?.wpcomProductSlug,
 		redirectUrl: paidCheckoutRedirectUrl,
-		siteSuffix,
-		adminUrl,
-		connectAfterCheckout: true,
-		from: 'my-jetpack',
-		useBlogIdSuffix: true,
-	} );
-
-	const { run: bundleCheckoutRun } = useProductCheckoutWorkflow( {
-		productSlug: bundleDetail?.pricingForUi?.wpcomProductSlug,
-		redirectUrl: bundleCheckoutRedirectUrl,
 		siteSuffix,
 		adminUrl,
 		connectAfterCheckout: true,
@@ -312,31 +307,18 @@ export default function PricingInterstitial( { slug } ) {
 		productPricing,
 	] );
 
-	const handleGetBundle = useCallback( () => {
-		if ( config?.bundle ) {
+	const handleGetBundle = useCallback(
+		( checkout, product ) => {
 			setLoadingButton( 'bundle' );
-
-			// Calculate discount for bundle
-			const bundleHasDiscount =
-				bundlePricing?.discountPricePerMonth &&
-				bundlePricing.discountPricePerMonth < bundlePricing.fullPricePerMonth;
-
-			trackProductOrBundleClick( {
-				customSlug: config.bundle,
-				ctaText: config?.tiers?.bundle?.cta,
-				tier: 'bundle',
-				hasDiscount: bundleHasDiscount || false,
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundleSlug,
+				product_slug: product.pricingForUi.wpcomProductSlug,
+				tier_selected: 'bundle',
 			} );
-			clickHandler( { checkout: bundleCheckoutRun, product: bundleDetail, tier: 'bundle' } );
-		}
-	}, [
-		trackProductOrBundleClick,
-		clickHandler,
-		bundleCheckoutRun,
-		bundleDetail,
-		config,
-		bundlePricing,
-	] );
+			clickHandler( { checkout, product, tier: 'bundle' } );
+		},
+		[ bundleSlug, recordEvent, clickHandler ]
+	);
 
 	const { update: updateInterstitialsState } = useInterstitialsState();
 
@@ -500,40 +482,18 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
-							<PricingTableHeader title={ config.tiers.bundle.name }>
-								{ bundlePricing ? (
-									<ProductPrice
-										price={ bundlePricing.fullPricePerMonth }
-										offPrice={ bundlePricing.discountPricePerMonth }
-										legend="/month, billed yearly"
-										currency={ currencyCode }
-										hidePriceFraction
-										variant="simple"
-									/>
-								) : (
-									<Spinner className={ styles.spinner } />
-								) }
-								<Button
-									className={ styles[ 'tier-cta' ] }
-									variant="outline"
-									onClick={ handleGetBundle }
-									loading={ loadingButton === 'bundle' }
-									disabled={ buttonsDisabled || isBundleLoading }
-								>
-									{ config.tiers.bundle.cta }
-								</Button>
-							</PricingTableHeader>
-							{ config.features.map( ( feature, index ) => (
-								<PricingTableItem
-									key={ index }
-									isIncluded={ feature.bundle.included }
-									label={ feature.bundle.label }
-								/>
-							) ) }
-						</PricingTableColumn>
 					</PricingTable>
 				</Col>
+				{ bundleDetail?.pricingForUi?.available === true && (
+					<Col>
+						<ProductDetailCard
+							slug={ bundleSlug }
+							isUpsell
+							onClick={ handleGetBundle }
+							isFetching={ buttonsDisabled }
+						/>
+					</Col>
+				) }
 			</Container>
 		</AdminPage>
 	);
