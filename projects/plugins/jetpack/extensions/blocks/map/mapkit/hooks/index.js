@@ -1,8 +1,7 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { select } from '@wordpress/data';
-import { useContext, useEffect, useRef, useState } from '@wordpress/element';
+import { useContext, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { debounce } from 'lodash';
 import { getLoadContext } from '../../../../shared/block-editor-asset-loader';
 import {
 	convertZoomLevelToCameraDistance,
@@ -11,6 +10,7 @@ import {
 	loadMapkitLibrary,
 	pointsToMapRegion,
 } from '../../mapkit-utils';
+import useAddressLookup from '../../use-address-lookup';
 import { MapkitContext } from '../context';
 
 const useMapkit = () => {
@@ -85,40 +85,36 @@ const useMapkitInit = ( mapkit, loaded, mapRef ) => {
 
 const useMapkitCenter = ( center, setCenter ) => {
 	const { mapkit, map } = useMapkit();
-	const memoizedCenter = useRef( center );
-	const memoizedSetCenter = useRef( setCenter );
+	const setCenterRef = useRef( setCenter );
+	setCenterRef.current = setCenter;
+	const lat = center?.lat ?? center?.latitude;
+	const lng = center?.lng ?? center?.longitude;
 
 	useEffect( () => {
-		if ( ! mapkit || ! map || ! memoizedCenter.current ) {
-			return;
-		}
-
-		const lat = memoizedCenter.current?.lat ?? memoizedCenter.current?.latitude;
-		const lng = memoizedCenter.current?.lng ?? memoizedCenter.current?.longitude;
-
-		if ( typeof lat === 'number' && typeof lng === 'number' ) {
+		if ( mapkit && map && Number.isFinite( lat ) && Number.isFinite( lng ) ) {
 			map.center = new mapkit.Coordinate( lat, lng );
 		}
-	}, [ mapkit, map, memoizedCenter ] );
+	}, [ mapkit, map, lat, lng ] );
 
 	useEffect( () => {
-		if ( ! mapkit || ! map ) {
+		if ( ! map ) {
 			return;
 		}
-
-		const changeRegion = () => {
+		const changeCenter = () => {
 			if ( map.center ) {
 				const { latitude, longitude } = map.center;
-				memoizedSetCenter.current( { lat: latitude, lng: longitude } );
+				setCenterRef.current( { lat: latitude, lng: longitude } );
 			}
 		};
-
-		map.addEventListener( 'region-change-end', debounce( changeRegion, 1000 ) );
-
+		// Region changes also fire during initialization and marker fitting.
+		// These events specifically represent user interaction.
+		map.addEventListener( 'scroll-end', changeCenter );
+		map.addEventListener( 'zoom-end', changeCenter );
 		return () => {
-			map.removeEventListener( 'region-change-end', changeRegion );
+			map.removeEventListener( 'scroll-end', changeCenter );
+			map.removeEventListener( 'zoom-end', changeCenter );
 		};
-	}, [ mapkit, map, memoizedSetCenter ] );
+	}, [ map ] );
 };
 
 const useMapkitType = mapStyle => {
@@ -259,34 +255,44 @@ const useMapkitOnMapTap = onMapTap => {
 };
 
 const useMapkitAddressLookup = ( address, onSetPointsRef ) => {
-	const { mapkit, map } = useMapkit();
-
-	useEffect( () => {
-		if ( mapkit && map && address?.length ) {
-			const geocoder = new mapkit.Geocoder();
-			geocoder.lookup( address, ( error, data ) => {
-				if ( data?.results?.length ) {
-					const place = data.results[ 0 ];
-					const title = place.formattedAddress;
-					const point = {
-						placeTitle: title,
-						title: title,
-						caption: title,
-						coordinates: {
-							longitude: place.coordinate.longitude,
-							latitude: place.coordinate.latitude,
-						},
-						// mapkit doesn't give us an id, so we'll make one containing the place name and coordinates
-						id: `${ title } ${ Number( place.coordinate.latitude ).toFixed( 2 ) } ${ Number(
-							place.coordinate.longitude
-						).toFixed( 2 ) }`,
-					};
-
-					onSetPointsRef.current( [ point ] );
-				}
-			} );
+	const { mapkit, map, points } = useMapkit();
+	const lookup = useMemo( () => {
+		if ( ! mapkit || ! map ) {
+			return null;
 		}
-	}, [ mapkit, map, address, onSetPointsRef ] );
+		return query =>
+			new Promise( ( resolve, reject ) => {
+				const geocoder = new mapkit.Geocoder();
+				geocoder.lookup( query, ( error, data ) => {
+					if ( error ) {
+						reject( error );
+						return;
+					}
+					const place = data?.results?.[ 0 ];
+					if ( ! place ) {
+						resolve( [] );
+						return;
+					}
+					const title = place.formattedAddress;
+					resolve( [
+						{
+							placeTitle: title,
+							title,
+							caption: title,
+							coordinates: {
+								longitude: place.coordinate.longitude,
+								latitude: place.coordinate.latitude,
+							},
+							id: `${ title } ${ Number( place.coordinate.latitude ).toFixed( 2 ) } ${ Number(
+								place.coordinate.longitude
+							).toFixed( 2 ) }`,
+						},
+					] );
+				} );
+			} );
+	}, [ mapkit, map ] );
+
+	useAddressLookup( address, points, lookup, result => onSetPointsRef.current( result ) );
 };
 
 export {

@@ -90,15 +90,14 @@ const MapkitComponent = forwardRef(
 					setPoints: onSetPoints,
 				} }
 			>
+				<MapkitAddressLookup address={ address } onSetPoints={ onSetPoints } />
 				{ loaded && mapkit && map ? (
 					<MapkitHelpers
-						address={ address }
 						mapCenter={ mapCenter }
 						mapStyle={ mapStyle }
 						zoom={ zoom }
 						onSetMapCenter={ onSetMapCenter }
 						onSetZoom={ onSetZoom }
-						onSetPoints={ onSetPoints }
 						points={ points }
 						markerColor={ markerColor }
 						onMarkerClick={ onMarkerClick }
@@ -132,15 +131,21 @@ const MapkitComponent = forwardRef(
 	}
 );
 
+// Stay mounted while the SDK loads so address edits made during loading are observed.
+const MapkitAddressLookup = ( { address, onSetPoints } ) => {
+	const onSetPointsRef = useRef( onSetPoints );
+	onSetPointsRef.current = onSetPoints;
+	useMapkitAddressLookup( address, onSetPointsRef );
+	return null;
+};
+
 const MapkitHelpers = memo(
 	( {
-		address = null,
 		mapCenter = {},
 		mapStyle = 'default',
 		zoom = 13,
 		onSetMapCenter = () => {},
 		onSetZoom = () => {},
-		onSetPoints = () => {},
 		points = [],
 		markerColor = 'red',
 		onMarkerClick = () => {},
@@ -150,7 +155,6 @@ const MapkitHelpers = memo(
 			useMapkit();
 		// Save these in a ref to prevent unwanted rerenders
 		const onMarkerClickRef = useRef( onMarkerClick );
-		const onSetPointsRef = useRef( onSetPoints );
 
 		const onSelect = useCallback(
 			marker => {
@@ -183,7 +187,6 @@ const MapkitHelpers = memo(
 			}
 		} );
 
-		useMapkitAddressLookup( address, onSetPointsRef );
 		return null;
 	}
 );
