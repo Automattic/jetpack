@@ -110,7 +110,7 @@ export function UpsellCallout() {
 		} );
 	}, [ tracks ] );
 
-	return (
+	const card = (
 		<div className="jp-activity-log__upsell-callout">
 			<div className="jp-activity-log__upsell-callout-content">
 				<h2 className="jp-activity-log__upsell-callout-title">
@@ -148,5 +148,11 @@ export function UpsellCallout() {
 				role="presentation"
 			/>
 		</div>
+	);
+
+	return wpcomUpgradeUrl ? (
+		<div className="jp-activity-log__upsell-callout-overlay">{ card }</div>
+	) : (
+		card
 	);
 }
