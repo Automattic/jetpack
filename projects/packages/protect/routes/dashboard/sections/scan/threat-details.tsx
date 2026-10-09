@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
+import { THREAT_PARAM, useSearchParam } from './store';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { ComponentProps, ReactNode } from 'react';
@@ -91,9 +92,11 @@ function Section( { title, children }: { title: string; children: ReactNode } ) 
 function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
-	const onIgnore = useCallback( () => ignoreThreat( threat ), [ threat ] );
-	const onUnignore = useCallback( () => unignoreThreat( threat ), [ threat ] );
-	const onFix = useCallback( () => fixThreat( threat ), [ threat ] );
+	const [ , setThreat ] = useSearchParam( THREAT_PARAM );
+	const open = useCallback( ( item: ScanThreat ) => setThreat( item.id ), [ setThreat ] );
+	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
+	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
+	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
 
 	return (
 		<div className="jp-protect-threat-details__footer">

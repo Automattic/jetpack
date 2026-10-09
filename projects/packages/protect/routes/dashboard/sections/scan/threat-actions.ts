@@ -35,24 +35,29 @@ const setBusy = ( id: string | number, busy?: ThreatActionState[ 'busy' ] ) =>
 
 type NoticeStatus = 'success' | 'info' | 'error';
 
+/** Opens a threat in the inspector. */
+type OpenThreat = ( threat: ScanThreat ) => void;
+
+type NoticeAction = { label: string; onClick: () => void };
+
 /** A translated message with `%s` for the threat's name. */
 type Template = TransformedText< `${ string }%s${ string }` >;
 
 /**
- * Show a threat's snackbar in the page's notices area, optionally with an Undo action.
+ * Show a threat's snackbar in the page's notices area, optionally with one action.
  *
  * @param threat  - The threat the message is about.
  * @param content - The finished message.
  * @param status  - The notice's kind.
- * @param undo    - Reverses what the message reports.
+ * @param action  - The snackbar's button, such as Undo.
  */
-function show( threat: ScanThreat, content: string, status: NoticeStatus, undo?: () => void ) {
+function show( threat: ScanThreat, content: string, status: NoticeStatus, action?: NoticeAction ) {
 	dispatch( noticesStore ).createNotice( status, content, {
 		type: 'snackbar',
 		id: noticeId( threat ),
 		// Stay until dismissed, so a slow action's progress doesn't vanish before it ends.
 		explicitDismiss: true,
-		actions: undo ? [ { label: __( 'Undo', 'jetpack-protect-pkg' ), onClick: undo } ] : [],
+		actions: action ? [ action ] : [],
 	} );
 }
 
@@ -62,15 +67,31 @@ function show( threat: ScanThreat, content: string, status: NoticeStatus, undo?:
  * @param threat   - The threat.
  * @param template - The message, with `%s` for the threat's name.
  * @param status   - The notice's kind.
- * @param undo     - Reverses what the message reports.
+ * @param action   - The snackbar's button, such as Undo.
  */
 function notify(
 	threat: ScanThreat,
 	template: Template,
 	status: NoticeStatus = 'success',
-	undo?: () => void
+	action?: NoticeAction
 ) {
-	show( threat, sprintf( template, describe( threat ) ), status, undo );
+	show( threat, sprintf( template, describe( threat ) ), status, action );
+}
+
+/**
+ * Say an action has started, with a button that opens the threat in the inspector.
+ *
+ * @param threat   - The threat.
+ * @param template - The message, with `%s` for the threat's name.
+ * @param open     - Opens the threat in the inspector.
+ */
+function notifyStarted( threat: ScanThreat, template: Template, open?: OpenThreat ) {
+	notify(
+		threat,
+		template,
+		'info',
+		open && { label: __( 'View', 'jetpack-protect-pkg' ), onClick: () => open( threat ) }
+	);
 }
 
 /**
@@ -115,21 +136,22 @@ export function loadIgnored(): Promise< void > {
  *
  * @param threat - The threat.
  * @param ignore - True to ignore, false to unignore.
+ * @param open   - Opens the threat in the inspector, from the notice while it runs.
  * @return Resolves once done, or once the error is shown.
  */
-function setIgnored( threat: ScanThreat, ignore: boolean ): Promise< void > {
+function setIgnored( threat: ScanThreat, ignore: boolean, open?: OpenThreat ): Promise< void > {
 	if ( isBusy( threat.id ) ) {
 		return Promise.resolve();
 	}
 	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
-	notify(
+	notifyStarted(
 		threat,
 		ignore
 			? /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 				__( 'Ignoring the threat in %s…', 'jetpack-protect-pkg' )
 			: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 				__( 'Unignoring the threat in %s…', 'jetpack-protect-pkg' ),
-		'info'
+		open
 	);
 
 	return apiFetch( {
@@ -154,7 +176,10 @@ function setIgnored( threat: ScanThreat, ignore: boolean ): Promise< void > {
 					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 						__( 'Unignored the threat in %s.', 'jetpack-protect-pkg' ),
 				'success',
-				() => setIgnored( threat, ! ignore )
+				{
+					label: __( 'Undo', 'jetpack-protect-pkg' ),
+					onClick: () => setIgnored( threat, ! ignore, open ),
+				}
 			);
 		} )
 		.catch( e =>
@@ -170,23 +195,26 @@ function setIgnored( threat: ScanThreat, ignore: boolean ): Promise< void > {
 		);
 }
 
-export const ignoreThreat = ( threat: ScanThreat ) => setIgnored( threat, true );
-export const unignoreThreat = ( threat: ScanThreat ) => setIgnored( threat, false );
+export const ignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
+	setIgnored( threat, true, open );
+export const unignoreThreat = ( threat: ScanThreat, open?: OpenThreat ) =>
+	setIgnored( threat, false, open );
 
 /**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
  *
  * @param threat - The threat.
+ * @param open   - Opens the threat in the inspector, from the notice while it runs.
  * @return Resolves once the fix has finished or failed.
  */
-export async function fixThreat( threat: ScanThreat ): Promise< void > {
+export async function fixThreat( threat: ScanThreat, open?: OpenThreat ): Promise< void > {
 	const { id } = threat;
 	if ( isBusy( id ) ) {
 		return;
 	}
 	setBusy( id, 'fixing' );
 	/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
-	notify( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), 'info' );
+	notifyStarted( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), open );
 
 	try {
 		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );

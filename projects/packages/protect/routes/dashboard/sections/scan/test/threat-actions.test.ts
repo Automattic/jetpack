@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { setScan, useScan } from '../store';
-import { deleteSoftware, ignoreThreat } from '../threat-actions';
+import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
@@ -41,6 +41,21 @@ describe( 'ignoreThreat', () => {
 } );
 
 describe( 'threat notices', () => {
+	it( 'offer View while the action runs, which opens that threat', () => {
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
+		const open = jest.fn();
+		const fixable = { ...threat, id: 10 };
+
+		fixThreat( fixable, open );
+
+		const notice = select( noticesStore )
+			.getNotices()
+			.find( item => item.id === 'jetpack-protect-threat-action-10' );
+		expect( notice ).toMatchObject( { status: 'info', content: 'Fixing the threat in a.php…' } );
+		notice.actions[ 0 ].onClick();
+		expect( open ).toHaveBeenCalledWith( fixable );
+	} );
+
 	it( 'keep one snackbar per threat, so acting on one doesn’t replace another’s', async () => {
 		mockApiFetch.mockResolvedValue( {} );
 		const other = { id: 8, title: 'Malicious code found in file: b.php' };

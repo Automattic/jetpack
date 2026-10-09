@@ -45,14 +45,14 @@ export function getThreatRowActions(
 			isPrimary: true,
 			isEligible: item =>
 				canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && fixThreat( item ),
+			callback: ( [ item ] ) => item && fixThreat( item, open ),
 		},
 		{
 			id: 'unignore',
 			label: __( 'Unignore', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			isEligible: item => canAct && item.status === 'ignored',
-			callback: ( [ item ] ) => item && unignoreThreat( item ),
+			callback: ( [ item ] ) => item && unignoreThreat( item, open ),
 		},
 		{
 			id: 'update',
@@ -83,7 +83,7 @@ export function getThreatRowActions(
 			id: 'ignore',
 			label: __( 'Ignore', 'jetpack-protect-pkg' ),
 			isEligible: item => canAct && item.status !== 'ignored' && item.status !== 'fixed',
-			callback: ( [ item ] ) => item && ignoreThreat( item ),
+			callback: ( [ item ] ) => item && ignoreThreat( item, open ),
 		},
 	];
 }
