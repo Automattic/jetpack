@@ -47,6 +47,15 @@ describe( 'TransferConnectionOwnership', () => {
 		},
 	];
 
+	// `checkStatus` throws an Error with the REST body on `response`, and its own
+	// "… (Status 400)" text on `message`. Rejecting with the body alone would let a
+	// component reading `err.code` pass while showing the raw server string in the browser.
+	const apiError = ( code: string, message: string ) => {
+		const error = new Error( `${ message } (Status 400)` );
+		Object.assign( error, { name: 'ApiError', response: { code, message } } );
+		return error;
+	};
+
 	const chooseKazz = async ( user: ReturnType< typeof userEvent.setup > ) => {
 		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
 		await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
@@ -171,11 +180,26 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( screen.queryByText( /protected owner of this connection/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'says why the transfer was refused rather than failing generically', async () => {
-		mockSetConnectionOwner.mockRejectedValue( {
-			code: 'new_owner_not_connected',
-			message: 'New owner is not connected',
-		} );
+	it.each( [
+		[ 'new_owner_not_connected', /no longer connected to WordPress\.com/ ],
+		[ 'new_owner_not_admin', /no longer an administrator/ ],
+		[ 'new_owner_is_existing_owner', /already owns this connection/ ],
+		[ 'ownership_locked', /locked and cannot be transferred/ ],
+	] )( 'says why the transfer was refused: %s', async ( code, expected ) => {
+		mockSetConnectionOwner.mockRejectedValue( apiError( code, 'Raw server text' ) );
+		const user = userEvent.setup();
+		render( <TransferConnectionOwnership { ...props } /> );
+		await chooseKazz( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+
+		await expect( screen.findByText( expected ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'falls back to what the server said when the code is one we do not map', async () => {
+		mockSetConnectionOwner.mockRejectedValue(
+			apiError( 'error_setting_new_owner', 'Could not confirm new owner.' )
+		);
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );
 		await chooseKazz( user );
@@ -183,7 +207,7 @@ describe( 'TransferConnectionOwnership', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
 		await expect(
-			screen.findByText( /no longer connected to WordPress\.com/ )
+			screen.findByText( 'Could not confirm new owner.' )
 		).resolves.toBeInTheDocument();
 	} );
 
