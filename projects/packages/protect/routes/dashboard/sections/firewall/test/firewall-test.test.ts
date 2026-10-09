@@ -2,12 +2,13 @@ import { getBlockLabel, getTestOutcome } from '../firewall-test';
 
 describe( 'getTestOutcome', () => {
 	it.each( [
-		[ 'a 403 with the firewall header is a block', 403, '403 - rule -2', 'blocked' ],
-		[ 'the header without a 403 is silent mode', 200, '403 - rule -2', 'silent' ],
-		[ 'a normal page means nothing blocked it', 200, null, 'not-blocked' ],
-		[ 'a 403 from the host is not the firewall', 403, null, 'not-blocked' ],
-	] )( '%s', ( _name, status, header, expected ) => {
-		expect( getTestOutcome( status, header ) ).toBe( expected );
+		[ 'a 403 with the firewall header is a block', 403, '403 - rule -2', true, 'blocked' ],
+		[ 'the header without a 403 is silent mode', 200, '403 - rule -2', true, 'silent' ],
+		[ 'a normal page means nothing blocked it', 200, null, true, 'not-blocked' ],
+		[ 'a 403 from the host is not the firewall', 403, null, true, 'not-blocked' ],
+		[ 'a normal page while the firewall is off is expected', 200, null, false, 'off' ],
+	] )( '%s', ( _name, status, header, active, expected ) => {
+		expect( getTestOutcome( status, header, active ) ).toBe( expected );
 	} );
 } );
 

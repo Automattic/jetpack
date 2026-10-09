@@ -4,18 +4,36 @@ import type { BlockedRequest } from './types';
 
 export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 
-export type TestOutcome = 'blocked' | 'silent' | 'not-blocked';
+/** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::RULE_ID`. */
+export const SELF_CHECK_RULE_ID = -2;
+
+export type TestOutcome = 'blocked' | 'silent' | 'not-blocked' | 'off';
+
+export type TestResult = {
+	outcome: TestOutcome;
+	/** The one-time URL the browser requested. */
+	url: string;
+	status: number;
+	statusText: string;
+	/** The `X-JetpackWAF-Blocked` header, which the firewall sends whenever it blocks. */
+	wafHeader: string | null;
+};
 
 /**
  * What the test request's response says about the firewall.
  *
  * @param status    - The response status.
- * @param wafHeader - The `X-JetpackWAF-Blocked` header, which the firewall sends whenever it blocks.
+ * @param wafHeader - The `X-JetpackWAF-Blocked` header.
+ * @param active    - Whether the firewall is on.
  * @return The outcome; a 403 without the header came from something else, such as the host.
  */
-export function getTestOutcome( status: number, wafHeader: string | null ): TestOutcome {
+export function getTestOutcome(
+	status: number,
+	wafHeader: string | null,
+	active: boolean
+): TestOutcome {
 	if ( ! wafHeader ) {
-		return 'not-blocked';
+		return active ? 'not-blocked' : 'off';
 	}
 	return status === 403 ? 'blocked' : 'silent';
 }
@@ -41,15 +59,23 @@ export function getBlockLabel( block: Pick< BlockedRequest, 'ruleId' | 'reason' 
 }
 
 /**
- * Request the one-time URL the firewall always blocks, the way a visitor would.
+ * Request the one-time URL the firewall always blocks, the way a logged-out visitor would.
  *
- * @return The outcome.
+ * @param active - Whether the firewall is on.
+ * @return What happened.
  */
-export async function runFirewallTest(): Promise< TestOutcome > {
+export async function runFirewallTest( active: boolean ): Promise< TestResult > {
 	const { url } = await apiFetch< { url: string } >( {
 		path: `${ FIREWALL_PATH }/test`,
 		method: 'POST',
 	} );
 	const response = await fetch( url, { credentials: 'omit', cache: 'no-store' } );
-	return getTestOutcome( response.status, response.headers.get( 'X-JetpackWAF-Blocked' ) );
+	const wafHeader = response.headers.get( 'X-JetpackWAF-Blocked' );
+	return {
+		outcome: getTestOutcome( response.status, wafHeader, active ),
+		url,
+		status: response.status,
+		statusText: response.statusText,
+		wafHeader,
+	};
 }

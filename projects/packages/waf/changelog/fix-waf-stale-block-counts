@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Read blocked-request counts from the database, so a persistent object cache no longer shows stale totals.

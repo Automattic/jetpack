@@ -307,12 +307,32 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Read an option the firewall writes with its own connection, which leaves the object cache stale.
+	 *
+	 * @param string $name    The option name.
+	 * @param mixed  $default The value when the option doesn't exist.
+	 * @return mixed
+	 */
+	private static function get_stored_option( $name, $default ) {
+		global $wpdb;
+
+		if ( ! isset( $wpdb ) ) {
+			return get_option( $name, $default );
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The cache is what's stale.
+		$value = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $name ) );
+
+		return null === $value ? $default : maybe_unserialize( $value );
+	}
+
+	/**
 	 * Get the total number of blocked requests for today.
 	 *
 	 * @return int
 	 */
 	public static function get_current_day_block_count() {
-		$stats = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		$stats = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
 		$today = gmdate( 'Y-m-d' );
 
 		return $stats[ $today ] ?? 0;
@@ -324,7 +344,7 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_thirty_days_block_counts() {
-		$stats        = get_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+		$stats        = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
 		$total_blocks = 0;
 
 		foreach ( $stats as $count ) {
@@ -340,7 +360,7 @@ class Waf_Blocklog_Manager {
 	 * @return int
 	 */
 	public static function get_all_time_block_count() {
-		$all_time_block_count = get_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
+		$all_time_block_count = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, false );
 
 		if ( false !== $all_time_block_count ) {
 			return intval( $all_time_block_count );
@@ -394,6 +414,14 @@ class Waf_Blocklog_Manager {
 	 * @return int The initial all-time stats value.
 	 */
 	private static function get_default_all_time_stat_value() {
+		global $wpdb;
+
+		// Inside WordPress, so connecting would load wp-config.php a second time.
+		if ( isset( $wpdb ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
+			return intval( $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" ) );
+		}
+
 		$conn = self::connect_to_wordpress_db();
 		if ( ! $conn ) {
 			return 0;
