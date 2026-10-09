@@ -23,6 +23,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const originalScriptData = window.JetpackScriptData;
 
 // The window is resolved from "now" in the site timezone, so pin both rather
 // than letting the machine's clock and zone decide what to expect.
@@ -92,6 +93,13 @@ describe( 'PopularPostWidget', () => {
 	let defaultSettings: ReturnType< typeof getSettings >;
 
 	beforeEach( () => {
+		window.JetpackScriptData = {
+			...originalScriptData,
+			site: {
+				...originalScriptData?.site,
+				admin_url: 'https://example.com/blog/wp-admin/',
+			},
+		} as typeof window.JetpackScriptData;
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockImplementation( ( options: unknown ) => {
@@ -120,6 +128,7 @@ describe( 'PopularPostWidget', () => {
 	} );
 
 	afterEach( () => {
+		window.JetpackScriptData = originalScriptData;
 		jest.useRealTimers();
 		setSettings( defaultSettings );
 	} );
@@ -186,8 +195,46 @@ describe( 'PopularPostWidget', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
 			'href',
-			'/wp-admin/post-new.php'
+			'https://example.com/blog/wp-admin/post-new.php'
 		);
+	} );
+
+	it( 'keeps Create post while the empty ranking refetches', async () => {
+		const emptyRanking = { ...topPostsResponse, summary: { postviews: [], total_views: 0 } };
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve( requestPath( options ).startsWith( '/wp/v2/posts' ) ? [] : emptyRanking )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+		await expect(
+			screen.findByRole( 'link', { name: 'Create post' } )
+		).resolves.toBeInTheDocument();
+
+		let resolveRanking!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).includes( 'stats/top-posts' )
+				? new Promise( resolve => {
+						resolveRanking = resolve;
+					} )
+				: Promise.resolve( [] )
+		);
+		let refetch!: Promise< unknown >;
+		act( () => {
+			refetch = queryClient.refetchQueries( { queryKey: [ 'stats', 'top-posts' ] } );
+		} );
+		await waitFor( () =>
+			expect( queryClient.isFetching( { queryKey: [ 'stats', 'top-posts' ] } ) ).toBe( 1 )
+		);
+
+		expect(
+			screen.getByText( "Your most-read post will show here once you've published one." )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toBeInTheDocument();
+
+		await act( async () => {
+			resolveRanking( emptyRanking );
+			await refetch;
+		} );
 	} );
 
 	it( 'keeps the no-views message when the published-post check fails', async () => {

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
 import { search } from '@jetpack-premium-analytics/icons';
 import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
@@ -76,9 +77,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
-	const noPublishedPosts = useNoPublishedPosts(
-		! authorId && ! isLoading && ! isFetching && ! isError && ! post
-	);
+	const noPublishedPosts = useNoPublishedPosts( ! authorId && ! isLoading && ! isError && ! post );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -138,7 +137,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 							action: noPublishedPosts
 								? {
 										label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
-										href: '/wp-admin/post-new.php',
+										href: getAdminUrl( 'post-new.php' ),
 									}
 								: undefined,
 						}

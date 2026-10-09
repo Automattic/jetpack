@@ -139,9 +139,15 @@ export const EmptyNoPosts: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			site: { ...scriptData?.site, admin_url: 'https://example.com/blog/wp-admin/' },
+		} as typeof window.JetpackScriptData;
 		forceStatsMockState( 'stats/top-posts', 'empty' );
 		forceStatsMockState( '/wp/v2/posts', 'empty' );
 		return () => {
+			window.JetpackScriptData = scriptData;
 			forceStatsMockState( 'stats/top-posts', null );
 			forceStatsMockState( '/wp/v2/posts', null );
 		};
