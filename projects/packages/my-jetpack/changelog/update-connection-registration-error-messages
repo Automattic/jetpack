@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: Explain why connecting failed, with the site's own explanation underneath, and record the error code and message as separate Tracks properties.

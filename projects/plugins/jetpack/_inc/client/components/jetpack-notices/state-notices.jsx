@@ -46,6 +46,7 @@ class JetpackStateNotices extends Component {
 			}
 		);
 
+	// Some codes here also have (deliberately different) copy in the connection package's getConnectScreenErrorMessage; review both when changing one.
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message;

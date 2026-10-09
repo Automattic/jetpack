@@ -3,12 +3,15 @@ import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import PageSubTitle from '../page-subtitle';
 import './style.scss';
+import type { ReactNode } from 'react';
 
 type Props = {
 	/** Starts the site-registration + user-connection flow. */
 	onConnect: () => void;
 	/** True while registration or user connection is in flight. */
 	isConnecting: boolean;
+	/** Why the last connection attempt failed, if it did. */
+	errorMessage?: ReactNode;
 };
 
 /**
@@ -21,9 +24,10 @@ type Props = {
  * @param props              - Component props.
  * @param props.onConnect    - Starts the connection flow.
  * @param props.isConnecting - Whether the connection flow is in progress.
+ * @param props.errorMessage - Why the last connection attempt failed, if it did.
  * @return The connect screen element.
  */
-export default function ConnectScreen( { onConnect, isConnecting }: Props ) {
+export default function ConnectScreen( { onConnect, isConnecting, errorMessage }: Props ) {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
@@ -39,6 +43,11 @@ export default function ConnectScreen( { onConnect, isConnecting }: Props ) {
 						'jetpack-videopress-pkg'
 					) }
 				</Text>
+				{ errorMessage && (
+					<Text className="vp-connection-gate__error" role="alert">
+						{ errorMessage }
+					</Text>
+				) }
 				<div>
 					<Button variant="solid" disabled={ isConnecting } onClick={ onConnect }>
 						{ isConnecting

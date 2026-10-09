@@ -20,6 +20,7 @@
 	"type": "module",
 	"exports": {
 		".": "./index.jsx",
+		"./connection-error-message": "./helpers/get-connect-screen-error-message.tsx",
 		"./get-user-connection-url": "./helpers/get-user-connection-url.ts",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
 		"./state/store-id": "./state/store-id.jsx",

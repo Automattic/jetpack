@@ -1,8 +1,9 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
-import type { MouseEventHandler, ReactNode } from 'react';
+import { getConnectScreenErrorMessage } from '../../../helpers/get-connect-screen-error-message';
+import type { MouseEventHandler } from 'react';
+
+export { getConnectScreenErrorMessage };
 
 export type Props = {
 	// The Connect Button label
@@ -15,52 +16,10 @@ export type Props = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
+	// The site's own explanation of the error, shown under the message
+	errorDescription?: string;
 	// Whether the site is in offline mode
 	isOfflineMode?: boolean;
-};
-
-/**
- * Maps a connection error code (and offline mode) to a user-facing message.
- *
- * @param {string}  errorCode     - The connection error code.
- * @param {boolean} isOfflineMode - Whether the site is in offline mode.
- * @return {import('react').ReactNode} The error message, or undefined if there isn't one.
- */
-export const getConnectScreenErrorMessage = (
-	errorCode?: string,
-	isOfflineMode?: boolean
-): ReactNode => {
-	// Explicit error code takes precedence over the offline mode.
-	switch ( errorCode ) {
-		case 'fail_domain_forbidden':
-		case 'fail_ip_forbidden':
-		case 'fail_domain_tld':
-		case 'fail_subdomain_wpcom':
-		case 'siteurl_private_ip':
-			return __(
-				'Your site host is on a private network. Sites can connect to WordPress.com only on public sites.',
-				'jetpack-connection-js'
-			);
-		case 'connection_disabled':
-			return __( 'This site has been suspended.', 'jetpack-connection-js' );
-	}
-
-	if ( isOfflineMode ) {
-		return createInterpolateElement(
-			__( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ),
-			{
-				a: (
-					<a
-						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-						target="_blank"
-						rel="noopener noreferrer"
-					/>
-				),
-			}
-		);
-	}
-
-	return undefined;
 };
 
 /**
@@ -77,6 +36,7 @@ function ConnectScreenAction( {
 	buttonIsLoading,
 	displayButtonError,
 	errorCode,
+	errorDescription,
 	isOfflineMode,
 }: Props ) {
 	return (
@@ -90,10 +50,15 @@ function ConnectScreenAction( {
 				{ buttonLabel }
 			</Button>
 			{ ( displayButtonError || isOfflineMode ) && (
-				<p className="jp-connection__connect-screen__error">
-					{ getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
-						__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
-				</p>
+				<div className="jp-connection__connect-screen__error">
+					<p>
+						{ getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
+							__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
+					</p>
+					{ displayButtonError && errorDescription && (
+						<p className="jp-connection__connect-screen__error-description">{ errorDescription }</p>
+					) }
+				</div>
 			) }
 		</>
 	);

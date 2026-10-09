@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Explain why connecting the site failed instead of showing a raw or generic error.

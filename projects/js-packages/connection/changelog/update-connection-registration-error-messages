@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connect screen and ConnectButton: Show clear messages for every registration failure (WordPress.com rejected or couldn't verify the site, the site's own REST request failed, or the site couldn't reach WordPress.com), with the site's own explanation underneath.
