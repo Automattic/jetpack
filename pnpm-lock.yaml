@@ -5241,6 +5241,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.30.0
         version: 6.30.0
+      '@wordpress/icons':
+        specifier: 18.0.0
+        version: 18.0.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/notices':
         specifier: 5.57.0
         version: 5.57.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5256,6 +5259,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      social-logos:
+        specifier: workspace:*
+        version: link:../../js-packages/social-logos
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*

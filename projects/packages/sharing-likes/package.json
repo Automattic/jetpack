@@ -49,11 +49,13 @@
 		"@wordpress/dataviews": "20.0.0",
 		"@wordpress/element": "9.0.0",
 		"@wordpress/i18n": "6.30.0",
+		"@wordpress/icons": "18.0.0",
 		"@wordpress/notices": "5.57.0",
 		"@wordpress/route": "0.23.0",
 		"@wordpress/ui": "0.24.0",
 		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react-dom": "18.3.1",
+		"social-logos": "workspace:*"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
