@@ -4,13 +4,13 @@ import { useSyncExternalStore } from '@wordpress/element';
 import { __, sprintf, type TransformedText } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { getThreatLabel } from './labels';
-import { SCAN_PATH, createStore, mergeScan, setScan } from './store';
+import { SCAN_PATH, createStore, getScan, mergeScan, setScan } from './store';
 import type { ScanState, ScanThreat } from './types';
 
 type FixStatus = { status: string; error?: string | null; scan?: ScanState };
 
 /** The action running on a threat, if any. */
-export type ThreatActionState = { busy?: 'fixing' | 'ignoring' | 'unignoring' };
+export type ThreatActionState = { busy?: 'fixing' | 'ignoring' | 'unignoring' | 'deleting' };
 
 const threatPath = ( id: string | number, action: string ) =>
 	`${ SCAN_PATH }/threats/${ id }/${ action }`;
@@ -286,6 +286,25 @@ export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
 	const { type, slug, name } = threat.extension ?? {};
 	const isElsewhere = ( item: ScanThreat ) =>
 		item.extension?.type !== type || item.extension?.slug !== slug;
+	const scan = getScan();
+	const ids = [ threat, ...( scan?.threats ?? [] ), ...( scan?.ignored ?? [] ) ]
+		.filter( item => ! isElsewhere( item ) )
+		.map( item => item.id );
+
+	// A fix or ignore that ends after the delete would put the deleted threats back.
+	if ( ids.some( isBusy ) ) {
+		return Promise.resolve(
+			sprintf(
+				/* translators: %s is a plugin or theme, such as "Contact Form 7". */
+				__(
+					'%s can’t be deleted while one of its threats is being fixed or ignored. Try again once that finishes.',
+					'jetpack-protect-pkg'
+				),
+				name || slug
+			)
+		);
+	}
+	ids.forEach( id => setBusy( id, 'deleting' ) );
 
 	return apiFetch( {
 		path: `${ SCAN_PATH }/software/delete`,
@@ -314,5 +333,6 @@ export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
 					__( '%s couldn’t be deleted.', 'jetpack-protect-pkg' ),
 					name || slug
 				)
-		);
+		)
+		.finally( () => ids.forEach( id => setBusy( id ) ) );
 }

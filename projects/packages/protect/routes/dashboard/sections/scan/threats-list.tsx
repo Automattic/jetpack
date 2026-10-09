@@ -4,6 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
 import ThreatMedia from './threat-media';
@@ -156,9 +157,9 @@ type ThreatsListProps = {
 export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
 	const [ view, setView ] = useState< View >( () => createThreatView( 'severity' ) );
 
-	const [ selected, setThreat ] = useSearchParam( THREAT_PARAM );
+	const [ selected ] = useSearchParam( THREAT_PARAM );
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
-	const open = useCallback( ( item: ScanThreat ) => setThreat( item.id ), [ setThreat ] );
+	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
 	const fields = useMemo(

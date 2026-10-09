@@ -50,23 +50,25 @@ function getDeleteMessage( threat: ScanThreat ): string {
  * Delete the software, then close the inspector if its threat went with it.
  *
  * @param threat - The threat.
- * @return Deletes, resolving to why it failed, or null once done.
+ * @return Deletes, resolving to `{ error }` when it failed, as AlertDialog's onConfirm takes.
  */
 function useDeleteSoftware( threat: ScanThreat | undefined ) {
 	const [ selected, setThreat ] = useSearchParam( THREAT_PARAM );
 	const scan = useScan();
 	return useCallback( async () => {
 		const error = threat ? await deleteSoftware( threat ) : null;
+		if ( error ) {
+			return { error };
+		}
 		const open = [ ...( scan?.threats ?? [] ), ...( scan?.ignored ?? [] ) ].find(
 			item => String( item.id ) === selected
 		);
 		const isOpenThreatDeleted =
 			open?.extension?.type === threat?.extension?.type &&
 			open?.extension?.slug === threat?.extension?.slug;
-		if ( ! error && open && isOpenThreatDeleted ) {
+		if ( open && isOpenThreatDeleted ) {
 			setThreat();
 		}
-		return error;
 	}, [ threat, selected, scan, setThreat ] );
 }
 
@@ -78,11 +80,7 @@ function useDeleteSoftware( threat: ScanThreat | undefined ) {
  * @return The control, or null when the software can't be deleted.
  */
 export function DeleteSoftwareButton( { threat }: { threat: ScanThreat } ) {
-	const remove = useDeleteSoftware( threat );
-	const onConfirm = useCallback( async () => {
-		const error = await remove();
-		return error ? { error } : undefined;
-	}, [ remove ] );
+	const onConfirm = useDeleteSoftware( threat );
 	if ( ! threat.extension?.actions?.delete ) {
 		return null;
 	}
@@ -121,7 +119,7 @@ export function DeleteSoftwareModal( { items, closeModal }: RenderModalProps< Sc
 		const failure = await remove();
 		setIsDeleting( false );
 		if ( failure ) {
-			setError( failure );
+			setError( failure.error );
 		} else {
 			closeModal?.();
 		}
