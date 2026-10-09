@@ -72,15 +72,19 @@ describe( 'EmailDesignSection', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'links to the email design screen the site reported', () => {
+	it( 'links to the email design screen the site reported, returning here afterwards', () => {
 		mockEmailDesignUrl( DESIGN_URL );
 
 		render( <EmailDesignSection isNewsletterEnabled /> );
 
-		expect( screen.getByRole( 'link', { name: 'Edit email design' } ) ).toHaveAttribute(
-			'href',
+		const href = new URL(
+			screen.getByRole( 'link', { name: 'Edit email design' } ).getAttribute( 'href' )
+		);
+
+		expect( href.origin + href.pathname + '?page=' + href.searchParams.get( 'page' ) ).toBe(
 			DESIGN_URL
 		);
+		expect( href.searchParams.get( 'return' ) ).toBe( window.location.href );
 	} );
 
 	it( 'offers a disabled button rather than a live link while the newsletter is off', () => {

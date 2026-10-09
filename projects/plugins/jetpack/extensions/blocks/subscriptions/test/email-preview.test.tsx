@@ -14,9 +14,13 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnection: () => ( { isUserConnected: mockIsUserConnected } ),
 } ) );
 
-// Treat the site as self-hosted so the connection gate applies.
+// Treat the site as self-hosted so the connection gate applies. `getScriptData` answers the
+// email design screen's URL; `mockEmailDesignUrl` is what each test varies.
+let mockEmailDesignUrl: string | null = null;
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => false,
+	getScriptData: () => ( { newsletter: { emailDesignUrl: mockEmailDesignUrl } } ),
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
@@ -435,5 +439,42 @@ describe( 'Test email recipient', () => {
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
 		expect( screen.getByRole( 'textbox' ) ).toBeDisabled();
+	} );
+} );
+
+describe( 'Newsletter preview: email design link', () => {
+	const DESIGN_URL = 'https://example.com/wp-admin/themes.php?page=jetpack-email-design';
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		mockEmailDesignUrl = null;
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		jest.mocked( useDispatch ).mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+	} );
+
+	it( 'offers no link on a site with no email design screen', async () => {
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( screen.queryByRole( 'link', { name: 'Edit email design' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'returns the design editor to the post being previewed', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		const href = new URL( link.getAttribute( 'href' ) );
+		expect( href.origin + href.pathname + '?page=' + href.searchParams.get( 'page' ) ).toBe(
+			DESIGN_URL
+		);
+		expect( href.searchParams.get( 'return' ) ).toBe( window.location.href );
 	} );
 } );
