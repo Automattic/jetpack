@@ -1,3 +1,5 @@
+// First, so the lazy chunks resolve against the build directory.
+import '../shared/public-path';
 import { render } from 'preact';
 import { DialogHost, mountDialog } from '../modal/host';
 import { resolveSubmitted } from '../shared/draft';

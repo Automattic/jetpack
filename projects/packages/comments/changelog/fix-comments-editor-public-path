@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the block editor and sign-in dialog on sites where a plugin combines scripts.
