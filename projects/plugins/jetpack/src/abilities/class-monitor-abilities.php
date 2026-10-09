@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 use Jetpack_IXR_Client;
+use Jetpack_Monitor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -270,14 +271,8 @@ class Monitor_Abilities extends Registrar {
 		}
 
 		if ( $desired === $current ) {
-			// Sync the user's local copy to the known-good remote value even on
-			// a no-op. The legacy
-			// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader trusts
-			// this option before falling back to a remote read, so a stale local
-			// value would let it report the wrong state. The changed=true path
-			// below mirrors the option after a write; mirroring here keeps the
-			// unchanged path self-healing too.
-			static::mirror_notifications_state( $current );
+			// Sync even on a no-op, so a stale local copy heals itself.
+			Jetpack_Monitor::save_notifications_copy( $current );
 
 			return array(
 				'enabled' => $current,
@@ -290,25 +285,13 @@ class Monitor_Abilities extends Registrar {
 			return $applied;
 		}
 
-		// Mirror the write to the user's local copy so the legacy
-		// `Jetpack_Core_Json_Api_Endpoints::get_remote_value` reader — the
-		// only other reader of this option — stays in sync with the remote state.
-		static::mirror_notifications_state( $desired );
+		// Keep the legacy REST reader's local copy in sync with the write.
+		Jetpack_Monitor::save_notifications_copy( $desired );
 
 		return array(
 			'enabled' => $desired,
 			'changed' => true,
 		);
-	}
-
-	/**
-	 * Save the current user's notification state where the legacy REST reader looks for it.
-	 *
-	 * @param bool $enabled Whether the current user receives notifications.
-	 */
-	protected static function mirror_notifications_state( bool $enabled ): void {
-		// An integer, as update_option() won't create an option whose value is `false`.
-		update_option( 'monitor_receive_notifications' . get_current_user_id(), (int) $enabled );
 	}
 
 	/**

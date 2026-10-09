@@ -41,6 +41,48 @@ class Jetpack_Monitor {
 	public function __construct() {
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
+		add_action( 'jetpack_unlinked_user', array( $this, 'delete_notifications_copy' ) );
+		add_action( 'deleted_user', array( $this, 'delete_notifications_copy' ) );
+	}
+
+	/**
+	 * Forgets a user's saved notification choice, which belongs to the WordPress.com account they had linked.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return void
+	 */
+	public function delete_notifications_copy( $user_id ) {
+		delete_option( self::notifications_copy_option_name( $user_id ) );
+	}
+
+	/**
+	 * Name of the option holding a user's local copy of their notification choice.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return string
+	 */
+	public static function notifications_copy_option_name( $user_id ) {
+		return 'monitor_receive_notifications' . (int) $user_id;
+	}
+
+	/**
+	 * Saves the current user's notification choice where Jetpack_Core_Json_Api_Endpoints::get_remote_value reads it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether the current user receives notifications.
+	 *
+	 * @return void
+	 */
+	public static function save_notifications_copy( $enabled ) {
+		// An integer: see Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( self::notifications_copy_option_name( get_current_user_id() ), (int) (bool) $enabled );
 	}
 
 	/**
@@ -82,8 +124,7 @@ class Jetpack_Monitor {
 			wp_die( sprintf( '%s: %s', esc_html( $xml->getErrorCode() ), esc_html( $xml->getErrorMessage() ) ) );
 		}
 
-		// Read by Jetpack_Core_Json_Api_Endpoints::get_remote_value. An integer, as update_option() won't create a `false` option.
-		update_option( 'monitor_receive_notifications' . get_current_user_id(), (int) (bool) $value );
+		self::save_notifications_copy( $value );
 
 		return true;
 	}

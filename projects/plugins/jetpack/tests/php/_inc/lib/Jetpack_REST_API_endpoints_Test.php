@@ -1069,6 +1069,73 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A first read saves what WordPress.com answered, and saves nothing when the lookup fails.
+	 *
+	 * @dataProvider provider_monitor_notification_lookups
+	 *
+	 * @param string|null $answer   XML-RPC boolean WordPress.com answers with, or null for a failed request.
+	 * @param string      $expected The saved copy afterwards.
+	 */
+	#[DataProvider( 'provider_monitor_notification_lookups' )]
+	public function test_settings_retrieve_monitor_notifications_remote_lookup( $answer, $expected ) {
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		add_filter(
+			'pre_http_request',
+			static function () use ( $answer ) {
+				if ( null === $answer ) {
+					return new WP_Error( 'http_request_failed', 'Could not connect.' );
+				}
+				return array(
+					'body'     => "<methodResponse><params><param><value><boolean>$answer</boolean></value></param></params></methodResponse>",
+					'response' => array( 'code' => 200 ),
+				);
+			}
+		);
+
+		$this->assertSame( '1' === $answer, $this->create_and_get_request( 'settings' )->get_data()['monitor_receive_notifications'] );
+		$this->assertSame( $expected, (string) get_option( 'monitor_receive_notifications' . $user->ID, 'not saved' ) );
+	}
+
+	public static function provider_monitor_notification_lookups() {
+		return array(
+			'subscribed'    => array( '1', '1' ),
+			'unsubscribed'  => array( '0', '0' ),
+			'failed lookup' => array( null, 'not saved' ),
+		);
+	}
+
+	/**
+	 * Unlinking or deleting a user forgets their saved Monitor email choice.
+	 *
+	 * @dataProvider provider_monitor_forgetting_hooks
+	 *
+	 * @param string $hook Action that fires with the user ID.
+	 */
+	#[DataProvider( 'provider_monitor_forgetting_hooks' )]
+	public function test_monitor_notifications_copy_is_forgotten( $hook ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/monitor.php';
+		new Jetpack_Monitor();
+		$user = $this->create_and_get_user( 'administrator' );
+		update_option( 'monitor_receive_notifications' . $user->ID, 1 );
+
+		do_action( $hook, $user->ID );
+
+		$this->assertFalse( get_option( 'monitor_receive_notifications' . $user->ID ) );
+	}
+
+	public static function provider_monitor_forgetting_hooks() {
+		return array(
+			'unlinked' => array( 'jetpack_unlinked_user' ),
+			'deleted'  => array( 'deleted_user' ),
+		);
+	}
+
+	/**
 	 * Test fetching milestone widget data.
 	 *
 	 * @since 5.5.0
