@@ -1,56 +1,85 @@
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { AlertDialog, Button, LinkButton, Stack, Text } from '@wordpress/ui';
+import { AlertDialog, Button, Notice, Stack, Text } from '@wordpress/ui';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
+import { THREAT_PARAM, useSearchParam } from './store';
+import { deleteSoftware } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { RenderModalProps } from '@wordpress/dataviews';
 
 /**
- * What deleting a theme does, for the confirmation.
+ * The confirmation's title: "Delete plugin?" or "Delete theme?".
  *
- * @param threat - A threat in an unused theme.
- * @return The message.
+ * @param threat - A threat in an inactive plugin or an unused theme.
+ * @return The title.
  */
-function getDeleteThemeMessage( threat: ScanThreat ): string {
-	return sprintf(
-		/* translators: %s is a theme name, such as "Twenty Twenty". */
-		__(
-			'%s isn’t your active theme or its parent, so deleting it doesn’t change your site. Its files are removed and can’t be restored.',
-			'jetpack-protect-pkg'
-		),
-		threat.extension?.name || getThreatLabel( threat ).subject
-	);
+export function getDeleteTitle( threat: ScanThreat ): string {
+	return threat.extension?.type === 'themes'
+		? __( 'Delete theme?', 'jetpack-protect-pkg' )
+		: __( 'Delete plugin?', 'jetpack-protect-pkg' );
 }
 
 /**
- * Go to WordPress's delete link, keeping the confirmation busy until the page changes.
+ * What deleting the software does, for the confirmation.
  *
- * @param url - The delete link.
- * @return A promise that never settles.
+ * @param threat - A threat in an inactive plugin or an unused theme.
+ * @return The message.
  */
-const goToDelete = ( url: string ) => new Promise< never >( () => window.location.assign( url ) );
+function getDeleteMessage( threat: ScanThreat ): string {
+	const name = threat.extension?.name || getThreatLabel( threat ).subject;
+	return threat.extension?.type === 'themes'
+		? sprintf(
+				/* translators: %s is a theme name, such as "Twenty Twenty". */
+				__(
+					'%s isn’t your active theme or its parent, so deleting it doesn’t change your site. Its files are removed and can’t be restored.',
+					'jetpack-protect-pkg'
+				),
+				name
+			)
+		: sprintf(
+				/* translators: %s is a plugin name, such as "Contact Form 7". */
+				__(
+					'%s isn’t active, so deleting it doesn’t change your site. Its files are removed and can’t be restored.',
+					'jetpack-protect-pkg'
+				),
+				name
+			);
+}
 
 /**
- * Delete an unused plugin or theme. WordPress confirms plugin deletions itself; themes are confirmed here.
+ * Delete the software, then close the inspector, whose threat went with it.
+ *
+ * @param threat - The threat.
+ * @return Deletes, resolving to why it failed, or null once done.
+ */
+function useDeleteSoftware( threat: ScanThreat | undefined ) {
+	const [ , setThreat ] = useSearchParam( THREAT_PARAM );
+	return useCallback( async () => {
+		const error = threat ? await deleteSoftware( threat ) : null;
+		if ( ! error ) {
+			setThreat();
+		}
+		return error;
+	}, [ threat, setThreat ] );
+}
+
+/**
+ * Delete an inactive plugin or an unused theme in place, after a confirmation.
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
  * @return The control, or null when the software can't be deleted.
  */
 export function DeleteSoftwareButton( { threat }: { threat: ScanThreat } ) {
-	const url = threat.extension?.actions?.delete;
-	const label = getSoftwareActionLabels( threat ).delete;
-	const onConfirm = useCallback( () => ( url ? goToDelete( url ) : undefined ), [ url ] );
-	if ( ! url ) {
+	const remove = useDeleteSoftware( threat );
+	const onConfirm = useCallback( async () => {
+		const error = await remove();
+		return error ? { error } : undefined;
+	}, [ remove ] );
+	if ( ! threat.extension?.actions?.delete ) {
 		return null;
 	}
-	if ( threat.extension?.type !== 'themes' ) {
-		return (
-			<LinkButton href={ url } variant="outline" tone="neutral" size="compact">
-				{ label }
-			</LinkButton>
-		);
-	}
+	const label = getSoftwareActionLabels( threat ).delete;
 	return (
 		<AlertDialog.Root onConfirm={ onConfirm }>
 			<AlertDialog.Trigger render={ <Button variant="outline" tone="neutral" size="compact" /> }>
@@ -58,8 +87,8 @@ export function DeleteSoftwareButton( { threat }: { threat: ScanThreat } ) {
 			</AlertDialog.Trigger>
 			<AlertDialog.Popup
 				intent="irreversible"
-				title={ __( 'Delete theme?', 'jetpack-protect-pkg' ) }
-				description={ getDeleteThemeMessage( threat ) }
+				title={ getDeleteTitle( threat ) }
+				description={ getDeleteMessage( threat ) }
 				confirmButtonText={ label }
 			/>
 		</AlertDialog.Root>
@@ -67,28 +96,47 @@ export function DeleteSoftwareButton( { threat }: { threat: ScanThreat } ) {
 }
 
 /**
- * The row action's confirmation for deleting an unused theme.
+ * The row action's confirmation for deleting an inactive plugin or an unused theme.
  *
  * @param props            - DataViews modal props.
  * @param props.items      - The threat, as a one-item list.
  * @param props.closeModal - Closes the confirmation.
  * @return The confirmation.
  */
-export function DeleteThemeModal( { items, closeModal }: RenderModalProps< ScanThreat > ) {
+export function DeleteSoftwareModal( { items, closeModal }: RenderModalProps< ScanThreat > ) {
 	const [ threat ] = items;
-	const url = threat?.extension?.actions?.delete;
-	const onDelete = useCallback( () => url && goToDelete( url ), [ url ] );
-	if ( ! threat || ! url ) {
+	const remove = useDeleteSoftware( threat );
+	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ error, setError ] = useState< string | null >( null );
+	const onDelete = useCallback( async () => {
+		setIsDeleting( true );
+		setError( null );
+		const failure = await remove();
+		setIsDeleting( false );
+		if ( failure ) {
+			setError( failure );
+		} else {
+			closeModal?.();
+		}
+	}, [ remove, closeModal ] );
+	if ( ! threat?.extension?.actions?.delete ) {
 		return null;
 	}
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="body-md">{ getDeleteThemeMessage( threat ) }</Text>
+			<Text variant="body-md">{ getDeleteMessage( threat ) }</Text>
+			{ error && (
+				<Notice.Root intent="error">
+					<Notice.Description>{ error }</Notice.Description>
+				</Notice.Root>
+			) }
 			<Stack direction="row" gap="sm" justify="end">
-				<Button variant="minimal" tone="neutral" onClick={ closeModal }>
+				<Button variant="minimal" tone="neutral" onClick={ closeModal } disabled={ isDeleting }>
 					{ __( 'Cancel', 'jetpack-protect-pkg' ) }
 				</Button>
-				<Button onClick={ onDelete }>{ getSoftwareActionLabels( threat ).delete }</Button>
+				<Button onClick={ onDelete } loading={ isDeleting } disabled={ isDeleting }>
+					{ getSoftwareActionLabels( threat ).delete }
+				</Button>
 			</Stack>
 		</Stack>
 	);

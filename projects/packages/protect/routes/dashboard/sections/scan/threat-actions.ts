@@ -1,8 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { useSyncExternalStore } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, type TransformedText } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, mergeScan, setScan } from './store';
 import type { ScanState, ScanThreat } from './types';
 
@@ -18,8 +19,10 @@ const threatPath = ( id: string | number, action: string ) =>
 const FIX_POLL_INTERVAL = 3000;
 const MAX_FIX_POLLS = 100;
 
-// One id for every threat action, so each snackbar replaces the last ("Ignoring…" with "Threat ignored.").
-const NOTICE_ID = 'jetpack-protect-threat-action';
+// One id per threat, so its snackbar replaces its last ("Ignoring…" with "ignored") but not another threat's.
+const noticeId = ( threat: ScanThreat ) => `jetpack-protect-threat-action-${ threat.id }`;
+
+const describe = ( threat: ScanThreat ) => getThreatLabel( threat ).subject || threat.title || '';
 
 const EMPTY: ThreatActionState = {};
 const actionStore = createStore< Record< string, ThreatActionState > >( () => ( {} ) );
@@ -30,35 +33,65 @@ const isBusy = ( id: string | number ) => !! actionStore.get()[ String( id ) ]?.
 const setBusy = ( id: string | number, busy?: ThreatActionState[ 'busy' ] ) =>
 	actionStore.set( states => ( { ...states, [ String( id ) ]: busy ? { busy } : EMPTY } ) );
 
+type NoticeStatus = 'success' | 'info' | 'error';
+
+/** A translated message with `%s` for the threat's name. */
+type Template = TransformedText< `${ string }%s${ string }` >;
+
 /**
- * Show a snackbar in the page's notices area, optionally with an Undo action.
+ * Show a threat's snackbar in the page's notices area, optionally with an Undo action.
  *
- * @param content - The message.
- * @param undo    - Reverses what the message reports.
+ * @param threat  - The threat the message is about.
+ * @param content - The finished message.
  * @param status  - The notice's kind.
+ * @param undo    - Reverses what the message reports.
  */
-function notify(
-	content: string,
-	undo?: () => void,
-	status: 'success' | 'info' | 'error' = 'success'
-) {
+function show( threat: ScanThreat, content: string, status: NoticeStatus, undo?: () => void ) {
 	dispatch( noticesStore ).createNotice( status, content, {
 		type: 'snackbar',
-		id: NOTICE_ID,
+		id: noticeId( threat ),
 		actions: undo ? [ { label: __( 'Undo', 'jetpack-protect-pkg' ), onClick: undo } ] : [],
 	} );
 }
 
 /**
+ * Show a threat's snackbar from a message that names it.
+ *
+ * @param threat   - The threat.
+ * @param template - The message, with `%s` for the threat's name.
+ * @param status   - The notice's kind.
+ * @param undo     - Reverses what the message reports.
+ */
+function notify(
+	threat: ScanThreat,
+	template: Template,
+	status: NoticeStatus = 'success',
+	undo?: () => void
+) {
+	show( threat, sprintf( template, describe( threat ) ), status, undo );
+}
+
+/**
  * End a failed action and say what went wrong.
  *
- * @param id      - The threat id.
- * @param e       - The error, whose message is shown when it has one.
- * @param message - What to say otherwise.
+ * @param threat   - The threat.
+ * @param e        - The error, whose message follows the threat's name when it has one.
+ * @param template - What to say otherwise, with `%s` for the threat's name.
  */
-function fail( id: string | number, e: unknown, message: string ) {
-	setBusy( id );
-	notify( ( e as { message?: string } )?.message || message, undefined, 'error' );
+function fail( threat: ScanThreat, e: unknown, template: Template ) {
+	setBusy( threat.id );
+	const reason = ( e as { message?: string } )?.message;
+	if ( reason ) {
+		const content = sprintf(
+			/* translators: 1: a threat, such as "Contact Form 7 (5.3.1)" or "index.php". 2: why the action failed. */
+			__( 'Threat in %1$s: %2$s', 'jetpack-protect-pkg' ),
+			describe( threat ),
+			reason
+		);
+		show( threat, content, 'error' );
+	} else {
+		notify( threat, template, 'error' );
+	}
 }
 
 const otherThan = ( threat: ScanThreat ) => ( item: ScanThreat ) =>
@@ -88,10 +121,12 @@ function setIgnored( threat: ScanThreat, ignore: boolean ): Promise< void > {
 	}
 	setBusy( threat.id, ignore ? 'ignoring' : 'unignoring' );
 	notify(
+		threat,
 		ignore
-			? __( 'Ignoring threat…', 'jetpack-protect-pkg' )
-			: __( 'Unignoring threat…', 'jetpack-protect-pkg' ),
-		undefined,
+			? /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+				__( 'Ignoring the threat in %s…', 'jetpack-protect-pkg' )
+			: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+				__( 'Unignoring the threat in %s…', 'jetpack-protect-pkg' ),
 		'info'
 	);
 
@@ -110,19 +145,25 @@ function setIgnored( threat: ScanThreat, ignore: boolean ): Promise< void > {
 			} );
 			setBusy( threat.id );
 			notify(
+				threat,
 				ignore
-					? __( 'Threat ignored.', 'jetpack-protect-pkg' )
-					: __( 'Threat unignored.', 'jetpack-protect-pkg' ),
+					? /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+						__( 'Ignored the threat in %s.', 'jetpack-protect-pkg' )
+					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+						__( 'Unignored the threat in %s.', 'jetpack-protect-pkg' ),
+				'success',
 				() => setIgnored( threat, ! ignore )
 			);
 		} )
 		.catch( e =>
 			fail(
-				threat.id,
+				threat,
 				e,
 				ignore
-					? __( 'The threat couldn’t be ignored.', 'jetpack-protect-pkg' )
-					: __( 'The threat couldn’t be unignored.', 'jetpack-protect-pkg' )
+					? /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+						__( 'The threat in %s couldn’t be ignored.', 'jetpack-protect-pkg' )
+					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+						__( 'The threat in %s couldn’t be unignored.', 'jetpack-protect-pkg' )
 			)
 		);
 }
@@ -142,17 +183,19 @@ export async function fixThreat( threat: ScanThreat ): Promise< void > {
 		return;
 	}
 	setBusy( id, 'fixing' );
-	notify( __( 'Fixing threat…', 'jetpack-protect-pkg' ), undefined, 'info' );
+	/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+	notify( threat, __( 'Fixing the threat in %s…', 'jetpack-protect-pkg' ), 'info' );
 
 	try {
 		let result = await apiFetch< FixStatus >( { path: threatPath( id, 'fix' ), method: 'POST' } );
 		for ( let polls = 0; result.status !== 'fixed' && result.status !== 'not_fixed'; polls++ ) {
 			if ( polls >= MAX_FIX_POLLS ) {
 				return fail(
-					id,
+					threat,
 					null,
+					/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 					__(
-						'The fix is taking longer than expected. Check back in a few minutes.',
+						'The fix for the threat in %s is taking longer than expected. Check back in a few minutes.',
 						'jetpack-protect-pkg'
 					)
 				);
@@ -164,19 +207,25 @@ export async function fixThreat( threat: ScanThreat ): Promise< void > {
 		mergeScan( result.scan );
 		if ( result.status === 'fixed' ) {
 			setBusy( id );
-			return notify( __( 'Threat fixed.', 'jetpack-protect-pkg' ) );
+			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+			return notify( threat, __( 'Fixed the threat in %s.', 'jetpack-protect-pkg' ) );
 		}
 		fail(
-			id,
-			null,
-			result.error ||
-				__(
-					'Jetpack couldn’t fix this threat. Contact Jetpack support for help.',
-					'jetpack-protect-pkg'
-				)
+			threat,
+			{ message: result.error },
+			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+			__(
+				'Jetpack couldn’t fix the threat in %s. Contact Jetpack support for help.',
+				'jetpack-protect-pkg'
+			)
 		);
 	} catch ( e ) {
-		fail( id, e, __( 'The fix couldn’t be started.', 'jetpack-protect-pkg' ) );
+		fail(
+			threat,
+			e,
+			/* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
+			__( 'The fix for the threat in %s couldn’t be started.', 'jetpack-protect-pkg' )
+		);
 	}
 }
 
@@ -191,4 +240,45 @@ export function useThreatAction( id: string | number ): ThreatActionState {
 		actionStore.subscribe,
 		() => actionStore.get()[ String( id ) ] ?? EMPTY
 	);
+}
+
+/**
+ * Delete the plugin or theme a threat is in, and drop every threat reported in it.
+ *
+ * @param threat - A threat in an inactive plugin or an unused theme.
+ * @return Resolves to why the delete failed, or null once it's done.
+ */
+export function deleteSoftware( threat: ScanThreat ): Promise< string | null > {
+	const { type, slug, name } = threat.extension ?? {};
+	const isElsewhere = ( item: ScanThreat ) =>
+		item.extension?.type !== type || item.extension?.slug !== slug;
+
+	return apiFetch( {
+		path: `${ SCAN_PATH }/software/delete`,
+		method: 'POST',
+		data: { type, slug },
+	} )
+		.then( () => {
+			setScan( current => ( {
+				...current,
+				threats: ( current.threats ?? [] ).filter( isElsewhere ),
+				ignored: current.ignored?.filter( isElsewhere ),
+			} ) );
+			const content = sprintf(
+				/* translators: %s is a plugin or theme, such as "Contact Form 7". */
+				__( 'Deleted %s.', 'jetpack-protect-pkg' ),
+				name || slug
+			);
+			show( threat, content, 'success' );
+			return null;
+		} )
+		.catch(
+			( e: { message?: string } ) =>
+				e?.message ||
+				sprintf(
+					/* translators: %s is a plugin or theme, such as "Contact Form 7". */
+					__( '%s couldn’t be deleted.', 'jetpack-protect-pkg' ),
+					name || slug
+				)
+		);
 }

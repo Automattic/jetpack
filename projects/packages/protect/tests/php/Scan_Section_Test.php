@@ -135,4 +135,52 @@ class Scan_Section_Test extends BaseTestCase {
 	public function test_fix_status_is_read_from_the_response( $response, $expected ) {
 		$this->assertSame( $expected, self::call( 'get_threat_fix_status', json_decode( $response ), 7 ) );
 	}
+
+	/**
+	 * Whether the plugin being deleted is active, and whether the route deletes it.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_delete_plugin() {
+		return array(
+			'inactive plugin is deleted' => array( false, true ),
+			'active plugin is kept'      => array( true, false ),
+		);
+	}
+
+	/**
+	 * Test that the route deletes an inactive plugin's files, but never an active plugin's.
+	 *
+	 * @dataProvider provider_delete_plugin
+	 * @param bool $is_active   Whether the plugin is active.
+	 * @param bool $is_deleted  Whether its file should be gone.
+	 */
+	#[DataProvider( 'provider_delete_plugin' )]
+	public function test_delete_software_only_deletes_inactive_plugins( $is_active, $is_deleted ) {
+		$file = WP_PLUGIN_DIR . '/protect-delete-test.php';
+		wp_mkdir_p( WP_PLUGIN_DIR );
+		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_clean_plugins_cache( false );
+		update_option( 'active_plugins', $is_active ? array( 'protect-delete-test.php' ) : array() );
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/software/delete' );
+		$request->set_param( 'type', 'plugins' );
+		$request->set_param( 'slug', 'protect-delete-test' );
+		$result = Scan::delete_software( $request );
+		$exists = file_exists( $file );
+		if ( $exists ) {
+			wp_delete_file( $file );
+		}
+
+		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
+		$this->assertSame( $is_deleted, ! $exists, 'File' );
+	}
 }

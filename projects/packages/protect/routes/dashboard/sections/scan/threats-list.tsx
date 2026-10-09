@@ -3,6 +3,7 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
 import ThreatMedia from './threat-media';
@@ -175,6 +176,7 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
 	);
+	useArrowKeyNavigation( data, selected, getItemId, open );
 
 	return (
 		<div className="jp-protect-threats">

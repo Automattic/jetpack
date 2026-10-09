@@ -2,8 +2,8 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
-import { useScan } from '../store';
-import { ignoreThreat } from '../threat-actions';
+import { setScan, useScan } from '../store';
+import { deleteSoftware, ignoreThreat } from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
@@ -25,13 +25,59 @@ describe( 'ignoreThreat', () => {
 		expect( result.current?.ignored ).toEqual( [ { ...threat, status: 'ignored' } ] );
 
 		const [ notice ] = select( noticesStore ).getNotices();
-		expect( notice ).toMatchObject( { type: 'snackbar', content: 'Threat ignored.' } );
+		expect( notice ).toMatchObject( { type: 'snackbar', content: 'Ignored the threat in a.php.' } );
 		await act( async () => notice.actions[ 0 ].onClick() );
 
 		expect( mockApiFetch ).toHaveBeenLastCalledWith( {
 			path: '/jetpack/v4/protect-dashboard/scan/threats/7/unignore',
 			method: 'POST',
 		} );
+		expect( result.current?.ignored ).toEqual( [] );
+	} );
+} );
+
+describe( 'threat notices', () => {
+	it( 'keep one snackbar per threat, so acting on one doesn’t replace another’s', async () => {
+		mockApiFetch.mockResolvedValue( {} );
+		const other = { id: 8, title: 'Malicious code found in file: b.php' };
+		setScan( current => ( { ...current, threats: [ threat, other ] } ) );
+
+		await act( () => ignoreThreat( { ...threat, id: 9 } ) );
+		await act( () => ignoreThreat( other ) );
+
+		expect(
+			select( noticesStore )
+				.getNotices()
+				.map( notice => notice.content )
+		).toEqual(
+			expect.arrayContaining( [ 'Ignored the threat in a.php.', 'Ignored the threat in b.php.' ] )
+		);
+	} );
+} );
+
+describe( 'deleteSoftware', () => {
+	it( 'drops every threat in the deleted plugin, and only those', async () => {
+		mockApiFetch.mockResolvedValue( { ok: true } );
+		const inPlugin = ( id: number, slug: string ) => ( {
+			id,
+			title: 'Vulnerable plugin',
+			extension: { type: 'plugins' as const, slug, name: slug, version: '1.0' },
+		} );
+		setScan( current => ( {
+			...current,
+			threats: [ inPlugin( 1, 'akismet' ), inPlugin( 2, 'hello' ), inPlugin( 3, 'akismet' ) ],
+			ignored: [ inPlugin( 4, 'akismet' ) ],
+		} ) );
+		const { result } = renderHook( () => useScan() );
+
+		await act( () => deleteSoftware( inPlugin( 1, 'akismet' ) ) );
+
+		expect( mockApiFetch ).toHaveBeenLastCalledWith( {
+			path: '/jetpack/v4/protect-dashboard/scan/software/delete',
+			method: 'POST',
+			data: { type: 'plugins', slug: 'akismet' },
+		} );
+		expect( result.current?.threats?.map( item => item.id ) ).toEqual( [ 2 ] );
 		expect( result.current?.ignored ).toEqual( [] );
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect dashboard: Delete unused plugins and themes without leaving the page, step through threats with the arrow keys, show a placeholder while Scan history loads, close threat details when switching tabs, and name the threat in each notice.

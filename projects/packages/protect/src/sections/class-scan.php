@@ -149,6 +149,27 @@ class Scan implements Dashboard_Section {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/protect-dashboard/scan/software/delete',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'delete_software' ),
+				'permission_callback' => array( Dashboard::class, 'can_manage' ),
+				'args'                => array(
+					'type' => array(
+						'type'     => 'string',
+						'enum'     => array( 'plugins', 'themes' ),
+						'required' => true,
+					),
+					'slug' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/protect-dashboard/scan/threats/(?P<id>\d+)/fix',
 			array(
 				array(
@@ -270,6 +291,40 @@ class Scan implements Dashboard_Section {
 		$threats = Dashboard_Threats::format_all( (array) ( $body->threats ?? array() ) );
 		set_transient( self::HISTORY_CACHE, $threats, 5 * MINUTE_IN_SECONDS );
 		return $threats;
+	}
+
+	/**
+	 * Delete an inactive plugin or a theme the site doesn't use, so its threats go with it.
+	 *
+	 * @param WP_REST_Request $request The request, with the extension `type` and `slug`.
+	 * @return array|WP_Error
+	 */
+	public static function delete_software( WP_REST_Request $request ) {
+		$type = $request['type'];
+		$slug = $request['slug'];
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/theme.php';
+
+		$file  = 'plugins' === $type ? ( Dashboard_Threats::get_plugin_files( get_plugins() )[ $slug ] ?? null ) : null;
+		$theme = 'themes' === $type ? wp_get_theme( $slug ) : null;
+		$theme = $theme && $theme->exists() ? $theme : null;
+		if ( ! Dashboard_Threats::can_delete( $type, $slug, $file, $theme ) ) {
+			return new WP_Error( 'software_not_deletable', __( 'This can’t be deleted here. It may be in use, or already gone.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		}
+
+		// Both return null when WordPress needs filesystem credentials, which only its own screens ask for.
+		$deleted = 'plugins' === $type ? delete_plugins( array( $file ) ) : delete_theme( $slug );
+		if ( true !== $deleted ) {
+			return new WP_Error( 'software_not_deleted', is_wp_error( $deleted ) ? $deleted->get_error_message() : __( 'WordPress couldn’t delete the files. Try deleting it from the Plugins or Themes screen.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
+		}
+
+		if ( class_exists( Status::class ) ) {
+			Scan_Status::delete_option();
+			Protect_Status::delete_option();
+		}
+		return array( 'ok' => true );
 	}
 
 	/**

@@ -1,11 +1,11 @@
 import { __ } from '@wordpress/i18n';
-import { DeleteThemeModal } from './delete-software';
+import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { getSoftwareActionLabels } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
-type LinkKey = 'update' | 'deactivate' | 'delete' | 'details';
+type LinkKey = 'update' | 'deactivate' | 'details';
 
 /**
  * A row's DataViews actions: primary ones show on hover, and the ⋯ menu lists them all.
@@ -67,18 +67,11 @@ export function getThreatRowActions(
 			callback: link( 'deactivate' ),
 		},
 		{
-			id: 'delete-plugin',
+			id: 'delete',
 			label: softwareLabel( 'delete' ),
-			isEligible: item => item.extension?.type === 'plugins' && hasLink( 'delete' )( item ),
-			// WordPress asks to confirm on the page this opens.
-			callback: link( 'delete' ),
-		},
-		{
-			id: 'delete-theme',
-			label: softwareLabel( 'delete' ),
-			modalHeader: __( 'Delete theme?', 'jetpack-protect-pkg' ),
-			isEligible: item => item.extension?.type === 'themes' && hasLink( 'delete' )( item ),
-			RenderModal: DeleteThemeModal,
+			modalHeader: ( [ item ] ) => ( item ? getDeleteTitle( item ) : '' ),
+			isEligible: item => !! item.extension?.actions?.delete,
+			RenderModal: DeleteSoftwareModal,
 		},
 		{
 			id: 'wordpress-org',
