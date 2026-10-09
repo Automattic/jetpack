@@ -7,7 +7,7 @@ import {
 	queryClient,
 } from '@jetpack-premium-analytics/data';
 import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -154,16 +154,61 @@ describe( 'PopularPostWidget', () => {
 	} );
 
 	it( 'names its own window, not the selected period, when the site has no views', async () => {
-		mockApiFetch.mockResolvedValue( {
-			...topPostsResponse,
-			summary: { postviews: [], total_views: 0 },
-		} );
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve(
+				requestPath( options ).startsWith( '/wp/v2/posts' )
+					? postContentResponse
+					: { ...topPostsResponse, summary: { postviews: [], total_views: 0 } }
+			)
+		);
 
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 
 		await expect(
 			screen.findByText( 'No post views in the last 12 months.' )
 		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Create post when the ranking and published-post responses are empty', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve(
+				requestPath( options ).startsWith( '/wp/v2/posts' )
+					? []
+					: { ...topPostsResponse, summary: { postviews: [], total_views: 0 } }
+			)
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( "Your most-read post will show here once you've published one." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/post-new.php'
+		);
+	} );
+
+	it( 'keeps the no-views message when the published-post check fails', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).startsWith( '/wp/v2/posts' )
+				? Promise.reject( { code: 'rest_forbidden', data: { status: 403 } } )
+				: Promise.resolve( {
+						...topPostsResponse,
+						summary: { postviews: [], total_views: 0 },
+					} )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'error' )
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
