@@ -1,5 +1,6 @@
 {
 	"name": "jpa/hello-world",
+	"icon": "jpa/wordpress",
 	"title": "Hello World",
 	"description": "A minimal example widget.",
 	"category": "demo",

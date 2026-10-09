@@ -5,6 +5,7 @@ import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
+import { inertValue } from '@wordpress/react-inert-value';
 import clsx from 'clsx';
 import { useId, useState } from 'react';
 /**
@@ -58,9 +59,8 @@ export function ReportChartSection( {
 			<div
 				id={ chartId }
 				className={ clsx( styles.chart, isHidden && styles.isHidden ) }
-				// React 18 strips a boolean `inert`; the string form is what renders.
 				// @ts-expect-error `inert` is not in the React 18 types.
-				inert={ isHidden ? 'true' : undefined }
+				inert={ inertValue( isHidden ) }
 			>
 				<div className={ styles.pane }>
 					<ReportPageSection className={ styles.card }>

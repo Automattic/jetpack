@@ -1,5 +1,6 @@
 {
 	"name": "jpa/post-traffic-activity",
+	"icon": "jpa/calendar",
 	"title": "Traffic activity",
 	"description": "Daily views for the post or page being viewed, as a calendar heatmap.",
 	"help": {

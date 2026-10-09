@@ -521,6 +521,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'hide_free_tier' => false ), get_option( 'subscription_options' ) );
 	}
 
+	public function test_post_sharing_options_keeps_the_label_backslashes() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+
+		$this->make_post_request( wp_json_encode( array( 'sharing_label' => 'Share \o/' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->make_post_request( wp_json_encode( array( 'sharing_button_style' => 'icon' ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertSame( 'icon', $response['updated']['sharing_button_style'] );
+		$this->assertSame( 'Share \o/', get_option( 'sharing-options' )['global']['sharing_label'] );
+	}
+
 	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */

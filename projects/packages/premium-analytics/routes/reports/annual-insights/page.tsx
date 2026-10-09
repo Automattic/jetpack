@@ -4,12 +4,10 @@
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
-	useReportRetry,
 	annualInsightsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -60,7 +58,6 @@ function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
 	const reportParams = useReportParams();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
-	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS[ 'annual-insights' ];
 
@@ -78,17 +75,13 @@ function AnnualInsightsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
-				{ records.isError ? (
-					<PageNotice
-						{ ...describeError( records.error, {
-							retryDescription: __(
-								"We couldn't load annual insights. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							onRetry: retry,
-						} ) }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load annual insights. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< StatsInsightsYear >
 						data={ records.rows }
 						fields={ fields }
@@ -98,7 +91,7 @@ function AnnualInsightsReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

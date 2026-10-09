@@ -7,7 +7,7 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
  */
 import { ExternalLink } from '../external-link';
 import { InternalLink } from '../internal-link';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type VideoTitleLinkProps = {
 	id?: number | string;
@@ -23,6 +23,8 @@ export type VideoTitleLinkProps = {
 		text?: string;
 	};
 	title?: string;
+	/** Replaces the default label text inside the link or plain wrapper. */
+	children?: ReactNode;
 };
 
 /**
@@ -36,9 +38,10 @@ export function VideoTitleLink( {
 	search,
 	classNames,
 	title,
+	children,
 }: VideoTitleLinkProps ): JSX.Element {
 	const videoId = Number( id );
-	const text = <span className={ classNames?.text }>{ label }</span>;
+	const content = children ?? <span className={ classNames?.text }>{ label }</span>;
 
 	if ( Number.isInteger( videoId ) && videoId > 0 ) {
 		return (
@@ -49,7 +52,7 @@ export function VideoTitleLink( {
 				params={ { videoId: String( videoId ) } }
 				search={ search }
 			>
-				{ text }
+				{ content }
 			</InternalLink>
 		);
 	}
@@ -61,14 +64,14 @@ export function VideoTitleLink( {
 	if ( href ) {
 		return (
 			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
-				{ text }
+				{ content }
 			</ExternalLink>
 		);
 	}
 
 	return (
 		<span className={ classNames?.plain } title={ title }>
-			{ text }
+			{ content }
 		</span>
 	);
 }

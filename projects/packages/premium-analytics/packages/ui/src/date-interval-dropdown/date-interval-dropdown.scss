@@ -1,0 +1,15 @@
+.date-interval-dropdown {
+
+	&__label {
+		white-space: nowrap;
+	}
+
+	&__caret {
+		flex: 0 0 auto;
+	}
+
+	// Read as a setting, not as a greyed-out control.
+	&__lone {
+		--wp-ui-button-foreground-color-disabled: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}

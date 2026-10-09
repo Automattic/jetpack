@@ -62,20 +62,28 @@ class Boost_Cache_Utils {
 	}
 
 	/**
-	 * Normalize the request uri so it can be used for caching purposes.
-	 * It removes the query string and the trailing slash, and characters
-	 * that might cause problems with the filesystem.
-	 *
-	 * **THIS DOES NOT SANITIZE THE VARIABLE IN ANY WAY.**
-	 * Only use it for comparison purposes or to generate an MD5 hash.
+	 * Normalize a request path, removing its query and adding a trailing slash except for existing files.
+	 * This does not sanitize filesystem paths; use it only for comparisons or cache keys.
 	 *
 	 * @param string $request_uri - The request uri to normalize.
-	 * @return string - The normalized request uri.
+	 * @return string|false The normalized request uri, or false if it is not a valid cacheable path.
 	 */
 	public static function normalize_request_uri( $request_uri ) {
-		// get path from request uri
-		$request_uri = parse_url( $request_uri, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		if ( empty( $request_uri ) ) {
+		if ( ! is_string( $request_uri ) ) {
+			return false;
+		}
+		if ( 0 === strpos( $request_uri, '/' ) ) {
+			$request_uri = '/' . ltrim( $request_uri, '/' );
+		}
+		if ( false !== strpos( $request_uri, '#' ) ) {
+			return false;
+		}
+		$raw_path    = explode( '?', $request_uri, 2 )[0];
+		$request_uri = parse_url( $raw_path, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( false === $request_uri || (string) $request_uri !== $raw_path ) {
+			return false;
+		}
+		if ( '' === $request_uri || null === $request_uri ) {
 			$request_uri = '/';
 		} elseif ( substr( $request_uri, -1 ) !== '/' && ! is_file( ABSPATH . $request_uri ) ) {
 			$request_uri .= '/';

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Agents Manager: load it in the block editor on WordPress.com sites with the WordPress Agent enabled, instead of relying on the Big Sky plugin to request it.

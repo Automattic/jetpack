@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Newsletter: Rename the task list proxy route from complete to skip. Behind the newsletter-overview feature flag, which is off in production.
+
+

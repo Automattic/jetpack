@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Replace the internal package compiler with shared webpack tooling.

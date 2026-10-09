@@ -24,6 +24,7 @@ import {
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
+import { getAccessDescription } from './newsletter-copy';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 import type { ReactElement } from 'react';
 
@@ -52,51 +53,6 @@ export function getReachForAccessLevelKey( {
 			return postHasPaywallBlock ? subscribers : paidSubscribers;
 		default:
 			return 0;
-	}
-}
-
-/**
- * Describe, in plain language, who can read the post and who receives it by email.
- *
- * Email reach is not always the same as read access: when the post contains a paywall
- * block, every subscriber is emailed the portion above the paywall, so a paid post
- * still goes out to the full list. See getAccessLabelForCopy in subscribers-affirmation.
- *
- * @param {string}  accessLevel         - Access level key, e.g. 'paid_subscribers'.
- * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
- * @return {string} Description of the current access level.
- */
-export function getAccessDescription( accessLevel: string, postHasPaywallBlock = false ): string {
-	// The unused third argument to __() keeps the two calls in each branch from being
-	// merged into a single __( cond ? a : b ) by the production minifier, which would
-	// leave a non-literal msgid and fail the i18n check.
-	switch ( accessLevel ) {
-		case accessOptions.subscribers.key:
-			return postHasPaywallBlock
-				? __(
-						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
-						'jetpack',
-						// @ts-expect-error -- Intentional extra argument; see the comment above.
-						0
-					)
-				: __(
-						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
-						'jetpack'
-					);
-		case accessOptions.paid_subscribers.key:
-			return postHasPaywallBlock
-				? __(
-						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
-						'jetpack',
-						// @ts-expect-error -- Intentional extra argument; see the comment above.
-						0
-					)
-				: __(
-						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
-						'jetpack'
-					);
-		default:
-			return __( 'Anyone can read this post. Subscribers receive it by email.', 'jetpack' );
 	}
 }
 
@@ -303,7 +259,7 @@ export function NewsletterAccessRadioButtons( {
 	// is what distinguishes the options from one another. postHasPaywallBlock is
 	// deliberately not forwarded here: it would switch the paid count to the email
 	// reach, making both options report the same total on a post with a paywall block.
-	// Who receives the email is stated in getAccessDescription instead.
+	// Who receives the email is stated in the Newsletter overview instead.
 	const subscribersReach = getReachForAccessLevelKey( {
 		accessLevel: accessOptions.subscribers.key,
 		subscribers: totalSubscribers,
@@ -349,8 +305,6 @@ export function NewsletterAccessRadioButtons( {
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
 			{ showPaywallNotice && (
-				// icon={ null } matches the mockup, which shows the notice without the
-				// intent icon @wordpress/ui would otherwise render for "info".
 				<Notice.Root intent="info" icon={ null } id={ paywallNoticeId }>
 					<Notice.Title>{ __( 'Paywall active', 'jetpack' ) }</Notice.Title>
 					<Notice.Description>
@@ -363,7 +317,7 @@ export function NewsletterAccessRadioButtons( {
 			) }
 			<fieldset role="radiogroup" className="components-radio-control">
 				<BaseControl.VisualLabel as="legend">
-					{ __( 'Who can read this post?', 'jetpack' ) }
+					{ __( 'Who can read this on your site?', 'jetpack' ) }
 				</BaseControl.VisualLabel>
 				<div className="components-radio-control__group-wrapper">
 					{ options.map( option => (
@@ -447,12 +401,32 @@ export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel
 	);
 }
 
-export function NewsletterEmailDocumentSettings() {
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+/**
+ * Turn emailing the current post to subscribers on or off, saving the change right away.
+ *
+ * @return {Function} Setter taking whether the post should be emailed.
+ */
+export function useSetSendEmail(): ( sendEmail: boolean ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
+
+	return sendEmail => {
+		setPostMeta( {
+			...postMeta,
+			// Meta value is negated, "don't send", but callers pass the truthy "send".
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! sendEmail,
+		} );
+		saveEditedEntityRecord( 'postType', postType, postId );
+	};
+}
+
+export function NewsletterEmailDocumentSettings() {
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const postId = useEntityId( 'postType', postType );
+	const setSendEmail = useSetSendEmail();
 
 	const postEmailSentState = useSelect(
 		select => {
@@ -463,16 +437,6 @@ export function NewsletterEmailDocumentSettings() {
 	);
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
-
-	const toggleSendEmail = ( checked: boolean ) => {
-		const postMetaUpdate = {
-			...postMeta,
-			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! checked,
-		};
-		setPostMeta( postMetaUpdate );
-		saveEditedEntityRecord( 'postType', postType, postId );
-	};
 
 	const isSendEmailEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
@@ -492,7 +456,7 @@ export function NewsletterEmailDocumentSettings() {
 						checked={ isSendEmailEnabled }
 						disabled={ isPostPublished || ! canEdit }
 						label={ __( 'Send this post to subscribers', 'jetpack' ) }
-						onChange={ toggleSendEmail }
+						onChange={ setSendEmail }
 					/>
 				);
 			} }

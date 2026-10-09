@@ -47,7 +47,7 @@
 		"@wordpress/data": "10.55.0",
 		"@wordpress/dataviews": "19.0.0",
 		"@wordpress/date": "5.55.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.55.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
 		"@wordpress/editor": "15.0.0",
 		"@wordpress/element": "8.7.0",
 		"@wordpress/hooks": "4.55.0",

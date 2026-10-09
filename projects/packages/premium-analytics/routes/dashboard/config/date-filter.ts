@@ -36,6 +36,7 @@ export type DateFilterOptions = {
 	with_date_comparison: boolean;
 	// Optional: a payload served before this field existed carries no placement.
 	with_header_date_control?: boolean;
+	with_header_interval_control?: boolean;
 };
 
 /**

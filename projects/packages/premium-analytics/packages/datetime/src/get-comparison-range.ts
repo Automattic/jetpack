@@ -3,7 +3,6 @@
  */
 import {
 	addDays,
-	addMonths,
 	differenceInCalendarMonths,
 	differenceInDays,
 	differenceInMilliseconds,
@@ -11,7 +10,6 @@ import {
 	endOfMonth,
 	isFirstDayOfMonth,
 	isLastDayOfMonth,
-	isSameDay,
 	startOfDay,
 	subDays,
 	subMilliseconds,
@@ -23,8 +21,8 @@ import { daysInWeek } from 'date-fns/constants';
 /**
  * Internal dependencies
  */
+import { DAY_COUNT_PRESETS, type PrimaryPresetId } from './presets/types';
 import { completeToDateRange } from './to-date-range';
-import type { PrimaryPresetId } from './presets/types';
 import type { TZDate } from '@date-fns/tz';
 
 /**
@@ -114,34 +112,45 @@ function getWeekAlignedShiftDays(
 }
 
 /**
- * Whole calendar months a day-aligned range covers, or null when it is not a
- * whole number of months. Detected by round trip against the day after the
- * range ends, and again from the start stepped back by that count: a start a
- * month step cannot undo (31 January two months back clamps to 30 November)
- * measures in days instead. Shared by the previous-period shift and its
- * label, so both take the same branch; unlike
- * `getDateRangeSpan`, a single month counts.
+ * Calendar months a day-aligned range covers from the 1st to a month end, or
+ * null. A month from mid-month (Sep 8 to Oct 7) is read as its days, so it
+ * never compares against 31. Unlike `getDateRangeSpan`, a single month counts.
  *
  * @param from - Range start.
  * @param to   - Range end.
  * @return The month count, or null.
  */
-export function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
+function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	const isDayAligned =
 		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
 
-	if ( ! isDayAligned ) {
+	if ( ! isDayAligned || ! isFirstDayOfMonth( from ) || ! isLastDayOfMonth( to ) ) {
 		return null;
 	}
 
-	const dayAfterTo = startOfDay( addDays( to, 1 ) );
-	const months = differenceInCalendarMonths( dayAfterTo, from );
+	return differenceInCalendarMonths( to, from ) + 1;
+}
 
-	if ( months < 1 || ! isSameDay( addMonths( from, months ), dayAfterTo ) ) {
+/**
+ * Whole months the previous period steps back by, or null to step by days.
+ * A "Last N days" window on whole months (Apr 1 to 30) still steps by days, or
+ * it would compare against 31 of them.
+ *
+ * @param from            - Range start.
+ * @param to              - Range end.
+ * @param primaryPresetId - The preset the range came from.
+ * @return The month count, or null.
+ */
+export function getPreviousPeriodMonthCount(
+	from: TZDate,
+	to: TZDate,
+	primaryPresetId?: PrimaryPresetId
+): number | null {
+	if ( primaryPresetId && DAY_COUNT_PRESETS.includes( primaryPresetId ) ) {
 		return null;
 	}
 
-	return isSameDay( addMonths( subMonths( from, months ), months ), from ) ? months : null;
+	return getWholeMonthCount( from, to );
 }
 
 /**
@@ -164,8 +173,8 @@ export type ComparisonRangeOptions = {
  * - A range starting on the 1st compares with the same calendar dates a month
  *   or a year earlier (a whole month with the whole month before it); any
  *   other partial-month range keeps its day count.
- * - Whole months are detected from the range shape alone, so a rolling window
- *   that happens to land on one also compares calendar-to-calendar.
+ * - A custom range from the 1st to a month end compares calendar-to-calendar; a
+ *   mid-month range or a "Last N days" preset keeps its day count.
  * - `previous-period` ends the day before the reference starts; a reference
  *   still running its final month stops as many days short, so the two windows
  *   are the same length.
@@ -259,7 +268,11 @@ export function getComparisonRangeFromPreset(
 		// on the previous calendar month, Last year on the previous calendar
 		// year — where a day-count shift would skew across unequal month and
 		// year lengths (365-day 2025 against 366-day 2024).
-		const wholeMonths = getWholeMonthCount( refFrom, completedTo );
+		const wholeMonths = getPreviousPeriodMonthCount(
+			refFrom,
+			completedTo,
+			options.primaryPresetId
+		);
 		if ( wholeMonths ) {
 			const dayAfterTo = startOfDay( addDays( completedTo, 1 ) );
 			return {

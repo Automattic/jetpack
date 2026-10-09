@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Improve escaping of form attributes.

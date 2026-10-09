@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Update `@wordpress/dependency-extraction-webpack-plugin` so `@wordpress/react-inert-value` is bundled.
+
+

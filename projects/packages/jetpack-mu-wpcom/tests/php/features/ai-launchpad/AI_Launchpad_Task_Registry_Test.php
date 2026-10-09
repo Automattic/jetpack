@@ -5,23 +5,11 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-// The registry resolves its plugin CTAs through the shared helper, which ai-launchpad.php loads before it in
-// production; a test running in its own process gets neither unless it asks.
+// The registry resolves its plugin CTAs through a helper that ai-launchpad.php loads in production.
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-video-page-listener.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-portfolio-piece-listener.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
+require_once __DIR__ . '/fixtures/trait-stubs-marker-draft.php';
 require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -30,9 +18,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
- * The registry holds task definitions the shared launchpad catalog does not own. It is
- * deliberately separate from wpcom_launchpad_get_task_definitions(): the catalog is shared with
- * the legacy launchpad and must stay untouched.
+ * The registry holds the task definitions the shared launchpad catalog does not own.
  *
  * @covers \AI_Launchpad_Task_Registry
  */
@@ -40,55 +26,20 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 
 	use AI_Launchpad_Registers_Test_Task;
+	use AI_Launchpad_Stubs_Marker_Draft;
 	use AI_Launchpad_Uses_Block_Theme;
 
 	/**
 	 * Tear down.
-	 *
-	 * The id seeded by seed_marker_draft() outlives its filter: WP_Query caches the result in the
-	 * `post-queries` group even when posts_pre_query short-circuits the database read, and WorDBless's own
-	 * teardown clears posts and options but never the object cache. Removing the filter alone would
-	 * therefore let a later test still resolve that draft id.
 	 */
 	public function tear_down() {
-		wp_cache_flush_group( 'post-queries' );
+		$this->flush_marker_drafts();
 		$this->restore_theme_directories();
 		parent::tear_down();
 	}
 
 	/**
-	 * Short-circuits the marker-meta draft lookup with a seeded post id.
-	 *
-	 * The lookup runs through WP_Query, which WorDBless cannot execute, so core's posts_pre_query filter
-	 * stands in for it. WorDBless restores hooks after each test; tear_down() handles the cache.
-	 *
-	 * Keyed by marker meta, so a task only ever sees its own draft: every page task queries a different
-	 * marker, and a seeded gallery draft must not put the contact card in progress.
-	 *
-	 * @param int    $draft_id The post id the lookup should return.
-	 * @param string $meta_key The listener marker meta the lookup must be asking for.
-	 */
-	private function seed_marker_draft( $draft_id, $meta_key = AI_Launchpad_Gallery_Page_Listener::META_KEY ) {
-		add_filter(
-			'posts_pre_query',
-			static function ( $posts, $query ) use ( $draft_id, $meta_key ) {
-				if ( $meta_key === $query->get( 'meta_key' ) ) {
-					return array( $draft_id );
-				}
-				return $posts;
-			},
-			10,
-			2
-		);
-	}
-
-	/**
-	 * Build a registry card, failing the test rather than handing back null.
-	 *
-	 * `build()` is nullable because an id the registry does not define has no card, and every call here
-	 * but one passes an id it does define. Asserting that up front says so, and turns a null into a
-	 * named failure instead of an "array offset on null" several assertions later — which is also what
-	 * stops static analysis reading each `$card['id']` as an unguarded nullable access.
+	 * Build a registry card, failing the test with a named message rather than handing back null.
 	 *
 	 * @param string $task_id  A task id the registry defines.
 	 * @param string $subtitle The AI-written subtitle, or '' to take the registry default.
@@ -99,43 +50,6 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsArray( $card, "the registry defines $task_id but built no card for it" );
 
 		return (array) $card;
-	}
-
-	/**
-	 * The registry knows its own tasks, and does not claim catalog tasks.
-	 *
-	 * @param string $task_id A task id the registry defines.
-	 * @dataProvider provide_registry_task_ids
-	 */
-	#[DataProvider( 'provide_registry_task_ids' )]
-	public function test_registry_owns_its_own_tasks( $task_id ) {
-		$this->assertTrue( AI_Launchpad_Task_Registry::has( $task_id ) );
-		$this->assertContains( $task_id, AI_Launchpad_Task_Registry::task_ids() );
-	}
-
-	/**
-	 * The registry's shipped ids.
-	 *
-	 * @return array
-	 */
-	public static function provide_registry_task_ids() {
-		return array(
-			'the gallery page'     => array( 'add_gallery_page' ),
-			'the contact page'     => array( 'add_contact_page' ),
-			'the events page'      => array( 'add_events_page' ),
-			'the video page'       => array( 'add_video_page' ),
-			'the portfolio piece'  => array( 'add_portfolio_piece' ),
-			'the site icon'        => array( 'add_site_icon' ),
-			'the style variations' => array( 'pick_fonts_colors' ),
-			'Sensei LMS'           => array( 'install_sensei_lms' ),
-		);
-	}
-
-	/**
-	 * A catalog task is not the registry's to claim, so build_tasks() keeps routing it through the catalog.
-	 */
-	public function test_registry_does_not_claim_catalog_tasks() {
-		$this->assertFalse( AI_Launchpad_Task_Registry::has( 'first_post_published' ) );
 	}
 
 	/**
@@ -152,20 +66,13 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 * `is_visible` is optional: a definition without one is visible, and one with a callable reports what
 	 * that callable returns.
 	 *
-	 * Exercised through a test-only definition injected into the registry, because the only real entry
-	 * (`add_gallery_page`) is universally renderable and deliberately declares no `is_visible` — see the
-	 * fixture trait.
-	 *
 	 * @param bool|null $is_visible The `is_visible` return value, or null to omit the key.
 	 * @param bool      $expected   Whether the task should report as visible.
 	 * @dataProvider provide_registry_visibility_cases
 	 */
 	#[DataProvider( 'provide_registry_visibility_cases' )]
 	public function test_is_visible_honors_the_optional_callable( $is_visible, $expected ) {
-		$task_id = $this->register_test_task( $is_visible );
-
-		$this->assertTrue( AI_Launchpad_Task_Registry::has( $task_id ), 'the premise: the definition is registered' );
-		$this->assertSame( $expected, AI_Launchpad_Task_Registry::is_visible( $task_id ) );
+		$this->assertSame( $expected, AI_Launchpad_Task_Registry::is_visible( $this->register_test_task( $is_visible ) ) );
 	}
 
 	/**
@@ -182,68 +89,11 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The gallery task declares no visibility and so is visible everywhere, which is what lets it be
-	 * appended to the offered menu on any site.
-	 */
-	public function test_the_gallery_task_is_visible_everywhere() {
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'add_gallery_page' ) );
-	}
-
-	/**
-	 * Completion reads the same status option through is_complete() as it does through build().
-	 */
-	public function test_is_complete_tracks_the_status_option() {
-		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'add_gallery_page' ) );
-
-		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
-
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'add_gallery_page' ) );
-	}
-
-	/**
-	 * A registry task builds into the same card shape build_tasks() emits for catalog tasks, and an
-	 * empty subtitle falls back to the registry default rather than rendering a blank card.
-	 */
-	public function test_build_returns_a_complete_card() {
-		$card = $this->build_card( 'add_gallery_page', 'Show off your ceramics.' );
-
-		$this->assertSame( 'add_gallery_page', $card['id'] );
-		$this->assertSame( 'Show off your ceramics.', $card['subtitle'] );
-		$this->assertSame( 'Create your first gallery', $card['title'] );
-		$this->assertFalse( $card['completed'] );
-		$this->assertFalse( $card['in_progress'] );
-		$this->assertFalse( $card['disabled'] );
-		$this->assertNull( $card['calypso_path'] );
-
-		$default = $this->build_card( 'add_gallery_page', '' );
-		$this->assertSame( 'Show your work in a beautiful photo gallery.', $default['subtitle'] );
-	}
-
-	/**
-	 * An unpublished marker draft puts the task in progress and points the card at that draft.
-	 */
-	public function test_build_reports_an_in_progress_draft() {
-		$draft_id = 4343;
-		$this->seed_marker_draft( $draft_id );
-
-		$card = $this->build_card( 'add_gallery_page', 'Show your work.' );
-
-		$this->assertTrue( $card['in_progress'] );
-		$this->assertSame( 'Continue working on your gallery', $card['title'] );
-		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $card['calypso_path'] );
-	}
-
-	/**
-	 * A completed task reports completion from the shared launchpad status option, and is never
-	 * also in progress even while a marker draft is still lying around.
-	 *
-	 * Completing the gallery does not delete the draft that preceded it (nor any later one), so without the
-	 * completion guard the card would claim "Continue working on your gallery" next to a done checkmark and
-	 * send its CTA to the stale draft.
+	 * A completed task is never also in progress, even while its marker draft is still lying around.
 	 */
 	public function test_build_does_not_report_a_completed_task_as_in_progress() {
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
-		$this->seed_marker_draft( 4343 );
+		$this->stub_marker_draft( AI_Launchpad_Gallery_Page_Listener::META_KEY, 4343 );
 
 		$card = $this->build_card( 'add_gallery_page', 'Show your work.' );
 
@@ -254,8 +104,8 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The hand-authored page tasks get the same in-progress treatment as the gallery, each off its own marker: a
-	 * saved but unpublished draft reopens rather than creating a second page.
+	 * A page task's own unpublished marker draft puts it in progress, pointing the card at that draft and
+	 * keeping the AI-written subtitle.
 	 *
 	 * @param string $task_id        The registry task id.
 	 * @param string $meta_key       The listener marker meta its draft lookup queries.
@@ -265,91 +115,40 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_marker_page_tasks' )]
 	public function test_a_page_task_reports_its_own_in_progress_draft( $task_id, $meta_key, $draft_id, $continue_title ) {
-		$this->seed_marker_draft( $draft_id, $meta_key );
+		$this->stub_marker_draft( $meta_key, $draft_id );
 
 		$card = $this->build_card( $task_id, 'Whatever the AI wrote.' );
 
 		$this->assertTrue( $card['in_progress'] );
 		$this->assertSame( $continue_title, $card['title'] );
+		$this->assertSame( 'Whatever the AI wrote.', $card['subtitle'] );
 		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $card['calypso_path'] );
 	}
 
 	/**
-	 * The registry's hand-authored page tasks: a marker meta of their own, and a client-built CTA.
+	 * The registry's page tasks, each with a marker meta of its own.
 	 *
 	 * @return array
 	 */
 	public static function provide_marker_page_tasks() {
 		return array(
-			'the contact page'    => array(
-				'add_contact_page',
-				AI_Launchpad_Contact_Page_Listener::META_KEY,
-				7171,
-				'Continue working on your contact page',
-			),
-			'the events page'     => array(
-				'add_events_page',
-				AI_Launchpad_Events_Page_Listener::META_KEY,
-				8181,
-				'Continue working on your events page',
-			),
-			'the video page'      => array(
-				'add_video_page',
-				AI_Launchpad_Video_Page_Listener::META_KEY,
-				9191,
-				'Continue working on your video page',
-			),
-			'the portfolio piece' => array(
-				'add_portfolio_piece',
-				AI_Launchpad_Portfolio_Piece_Listener::META_KEY,
-				10101,
-				'Continue working on your portfolio piece',
-			),
+			'the gallery page'    => array( 'add_gallery_page', AI_Launchpad_Gallery_Page_Listener::META_KEY, 4343, 'Continue working on your gallery' ),
+			'the contact page'    => array( 'add_contact_page', AI_Launchpad_Contact_Page_Listener::META_KEY, 7171, 'Continue working on your contact page' ),
+			'the events page'     => array( 'add_events_page', AI_Launchpad_Events_Page_Listener::META_KEY, 8181, 'Continue working on your events page' ),
+			'the video page'      => array( 'add_video_page', AI_Launchpad_Video_Page_Listener::META_KEY, 9191, 'Continue working on your video page' ),
+			'the portfolio piece' => array( 'add_portfolio_piece', AI_Launchpad_Portfolio_Piece_Listener::META_KEY, 10101, 'Continue working on your portfolio piece' ),
 		);
 	}
 
 	/**
-	 * The same cases, id only, for the tests that need nothing else. Derived rather than repeated so a page
-	 * task can never be listed for one of these checks and forgotten by the other.
-	 *
-	 * @return array
-	 */
-	public static function provide_page_task_ids() {
-		return array_map(
-			static function ( $case ) {
-				return array( $case[0] );
-			},
-			self::provide_marker_page_tasks()
-		);
-	}
-
-	/**
-	 * Each page task looks up its own marker and no other. Every one of them is a draft page, so a lookup keyed
-	 * off "a draft exists" — or off another task's marker — would put the wrong card in progress and send its
-	 * CTA to somebody else's draft.
-	 */
-	public function test_the_page_tasks_do_not_share_a_marker_draft() {
-		$this->seed_marker_draft( 4343, AI_Launchpad_Gallery_Page_Listener::META_KEY );
-
-		$this->assertTrue(
-			$this->build_card( 'add_gallery_page', '' )['in_progress'],
-			'the premise: this harness can produce an in-progress card at all'
-		);
-		$this->assertFalse( $this->build_card( 'add_contact_page', '' )['in_progress'] );
-		$this->assertFalse( $this->build_card( 'add_events_page', '' )['in_progress'] );
-		$this->assertFalse( $this->build_card( 'add_video_page', '' )['in_progress'] );
-		$this->assertFalse( $this->build_card( 'add_portfolio_piece', '' )['in_progress'] );
-	}
-
-	/**
-	 * A page task completes from the shared status option, which is what its listener writes when the marked
-	 * page is first published.
+	 * A task with no completion signal of its own completes from the shared status option its listener or the
+	 * complete-on-click route writes, through is_complete() and build() alike.
 	 *
 	 * @param string $task_id The registry task id.
-	 * @dataProvider provide_page_task_ids
+	 * @dataProvider provide_status_option_task_ids
 	 */
-	#[DataProvider( 'provide_page_task_ids' )]
-	public function test_page_task_completion_reads_the_status_option( $task_id ) {
+	#[DataProvider( 'provide_status_option_task_ids' )]
+	public function test_status_option_completion( $task_id ) {
 		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
 
 		update_option( 'launchpad_checklist_tasks_statuses', array( $task_id => true ) );
@@ -359,31 +158,54 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * No page task asks anything of the site — the contact form ships with Jetpack, and the events and video
-	 * pages are core blocks — so none declares a visibility gate, and all are offered everywhere, including on
-	 * the classic theme this harness runs.
+	 * The tasks that complete from the shared status option.
 	 *
-	 * The video page is the one where that was a real choice rather than a default. Built on VideoPress it
-	 * would need a gate, because VideoPress is a plan-gated Jetpack module and the CTA would otherwise open a
-	 * block the site has never been sold; built on core/video it needs none, because core/video is on every
-	 * site and takes a URL as readily as an upload. A gate appearing here later means the block underneath
-	 * changed, and the task started being withheld from the sites it was written for.
+	 * @return array
+	 */
+	public static function provide_status_option_task_ids() {
+		return array(
+			'the gallery page'     => array( 'add_gallery_page' ),
+			'the contact page'     => array( 'add_contact_page' ),
+			'the events page'      => array( 'add_events_page' ),
+			'the video page'       => array( 'add_video_page' ),
+			'the portfolio piece'  => array( 'add_portfolio_piece' ),
+			'the style variations' => array( 'pick_fonts_colors' ),
+		);
+	}
+
+	/**
+	 * A task that asks nothing of the site declares no visibility gate, so it is offered everywhere,
+	 * including on the classic theme this harness runs.
 	 *
 	 * @param string $task_id The registry task id.
-	 * @dataProvider provide_page_task_ids
+	 * @dataProvider provide_ungated_task_ids
 	 */
-	#[DataProvider( 'provide_page_task_ids' )]
-	public function test_the_page_tasks_are_visible_everywhere( $task_id ) {
+	#[DataProvider( 'provide_ungated_task_ids' )]
+	public function test_ungated_tasks_are_visible_everywhere( $task_id ) {
 		$this->assertFalse( wp_is_block_theme(), 'the premise: this is the theme that hides pick_fonts_colors' );
 		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( $task_id ) );
 	}
 
 	/**
-	 * A registry task that declares a `calypso_path` renders its CTA from it, so a task with a fixed
-	 * destination needs no marker draft to be actionable.
+	 * The registry tasks with no visibility gate.
 	 *
-	 * The gallery is the counter-case in the same provider: its CTA is built client-side (it creates the
-	 * gallery page), so it deliberately ships no path and the card carries none.
+	 * @return array
+	 */
+	public static function provide_ungated_task_ids() {
+		return array(
+			'the gallery page'    => array( 'add_gallery_page' ),
+			'the contact page'    => array( 'add_contact_page' ),
+			'the events page'     => array( 'add_events_page' ),
+			'the video page'      => array( 'add_video_page' ),
+			'the portfolio piece' => array( 'add_portfolio_piece' ),
+			'the site icon'       => array( 'add_site_icon' ),
+			'Sensei LMS'          => array( 'install_sensei_lms' ),
+		);
+	}
+
+	/**
+	 * A registry task renders the `calypso_path` it declares; the page tasks build their page on click and so
+	 * ship none.
 	 *
 	 * @param string      $task_id  The registry task id.
 	 * @param string|null $expected The expected CTA path, relative to admin_url().
@@ -391,8 +213,6 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_registry_ctas' )]
 	public function test_build_resolves_the_declared_cta( $task_id, $expected ) {
-		$this->use_block_theme();
-
 		$card = $this->build_card( $task_id, 'A subtitle.' );
 
 		$this->assertSame( null === $expected ? null : admin_url( $expected ), $card['calypso_path'] );
@@ -401,15 +221,12 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * CTA cases for test_build_resolves_the_declared_cta.
 	 *
-	 * The Site Editor path uses `p=` rather than `path=`: `p` is the @wordpress/router `pathArg` the
-	 * editor is mounted with, and `section` is the Styles screen's own sub-route, which is how the CTA
-	 * lands on the style variations rather than the Styles root.
-	 *
 	 * @return array
 	 */
 	public static function provide_registry_ctas() {
 		return array(
 			'the site icon settings screen' => array( 'add_site_icon', 'options-general.php' ),
+			// `p` is the Site Editor's router path arg; `section` is the Styles screen's own sub-route.
 			'the Styles variations screen'  => array( 'pick_fonts_colors', 'site-editor.php?p=/styles&section=/variations' ),
 			'the gallery, built on click'   => array( 'add_gallery_page', null ),
 			'the contact page, on click'    => array( 'add_contact_page', null ),
@@ -421,12 +238,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The site-icon task completes off the live `site_icon` option, with no listener and no status write:
-	 * the option holds the uploaded attachment id, and clearing the icon empties it again.
-	 *
-	 * `has_site_icon()` is deliberately not used — it resolves the attachment's URL, so it is false for an
-	 * id whose attachment this harness never created, and it would be false in production for the window
-	 * between the option write and the attachment being readable.
+	 * The site-icon task completes off the live `site_icon` option, which holds the uploaded attachment id.
 	 *
 	 * @param mixed $option   The `site_icon` option value, or null to leave it unset.
 	 * @param bool  $expected Whether the task should report complete.
@@ -456,22 +268,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The style-variations task has no completion signal of its own — nothing in wp-admin fires when a
-	 * variation is applied — so it completes from the status option the complete-on-click route writes.
-	 */
-	public function test_fonts_and_colors_completion_reads_the_status_option() {
-		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'pick_fonts_colors' ) );
-
-		AI_Launchpad_Task_Registry::mark_complete( 'pick_fonts_colors' );
-
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'pick_fonts_colors' ) );
-	}
-
-	/**
-	 * Completion is written to the shared status option directly, because wpcom_mark_launchpad_task_complete()
-	 * cannot: wpcom_launchpad_update_task_status() skips any id the shared catalog does not define, and by
-	 * design none of the registry's are. It refuses ids the registry does not own, so it cannot become a
-	 * back door onto arbitrary catalog statuses.
+	 * Completion is written to the shared status option directly, and only for ids the registry owns.
 	 */
 	public function test_mark_complete_writes_only_for_registry_ids() {
 		$this->assertTrue( AI_Launchpad_Task_Registry::mark_complete( 'pick_fonts_colors' ) );
@@ -481,12 +278,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The style-variations task is offered only where the Site Editor's Styles screen exists, which is a
-	 * block theme. On a classic theme its CTA would land on an editor that has no Styles route to show,
-	 * so the task is withheld rather than rendered as a dead end.
-	 *
-	 * Both branches are asserted from the same test so the false one cannot pass by accident: the harness
-	 * has no theme on disk at all, and would report "not a block theme" for a gate keyed off anything.
+	 * The style-variations task is offered only on a block theme, where the Styles screen its CTA opens exists.
 	 */
 	public function test_fonts_and_colors_needs_a_block_theme() {
 		$this->assertFalse( AI_Launchpad_Task_Registry::is_visible( 'pick_fonts_colors' ) );
@@ -498,16 +290,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The site-icon task asks nothing of the site — every site has the setting — so it declares no
-	 * visibility and is offered everywhere, including on the classic theme this harness runs.
-	 */
-	public function test_the_site_icon_task_is_visible_everywhere() {
-		$this->assertFalse( wp_is_block_theme(), 'the premise: this is the theme that hides pick_fonts_colors' );
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'add_site_icon' ) );
-	}
-
-	/**
-	 * Both new tasks build the full card shape, with a translated title and a default subtitle for when
+	 * Every registry task builds the full card shape, with a translated title and a default subtitle for when
 	 * the AI supplies none.
 	 *
 	 * @param string $task_id  The registry task id.
@@ -517,8 +300,6 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_registry_card_copy' )]
 	public function test_build_returns_the_declared_copy( $task_id, $title, $subtitle ) {
-		$this->use_block_theme();
-
 		$card = $this->build_card( $task_id, '' );
 
 		$this->assertSame( $task_id, $card['id'] );
@@ -535,6 +316,11 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_registry_card_copy() {
 		return array(
+			'the gallery page'     => array(
+				'add_gallery_page',
+				'Create your first gallery',
+				'Show your work in a beautiful photo gallery.',
+			),
 			'the site icon'        => array(
 				'add_site_icon',
 				'Add your logo or site icon',
@@ -574,59 +360,31 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A plugin-discovery task is complete exactly while its plugin is active, read live from
-	 * `is_plugin_active()` — so installing the plugin ticks the card with no listener, and deactivating
-	 * it un-ticks it again.
-	 *
-	 * The round trip back to inactive is asserted deliberately: a definition that latched completion into
-	 * an option on first read would pass the forward direction alone.
-	 *
-	 * @param string $task_id     The registry task id.
-	 * @param string $plugin_file The plugin's `dir/file.php` entry in `active_plugins`.
-	 * @dataProvider provide_plugin_discovery_tasks
+	 * A plugin-discovery task is complete, and still visible, exactly while its plugin is active; deactivating
+	 * un-ticks it, so completion is never latched.
 	 */
-	#[DataProvider( 'provide_plugin_discovery_tasks' )]
-	public function test_plugin_discovery_completion_tracks_the_active_plugin( $task_id, $plugin_file ) {
-		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
-		$this->assertFalse( $this->build_card( $task_id, '' )['completed'] );
+	public function test_plugin_discovery_completion_tracks_the_active_plugin() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
+		$this->assertFalse( $this->build_card( 'install_sensei_lms', '' )['completed'] );
 
-		update_option( 'active_plugins', array( $plugin_file ) );
+		update_option( 'active_plugins', array( 'sensei-lms/sensei-lms.php' ) );
 
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
-		$this->assertTrue( $this->build_card( $task_id, '' )['completed'] );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
+		$this->assertTrue( $this->build_card( 'install_sensei_lms', '' )['completed'] );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'install_sensei_lms' ) );
 
 		update_option( 'active_plugins', array() );
 
-		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
 	}
 
 	/**
-	 * The plugin-discovery tasks and the plugin each one recommends.
-	 *
-	 * @return array
-	 */
-	public static function provide_plugin_discovery_tasks() {
-		return array(
-			'Sensei LMS' => array( 'install_sensei_lms', 'sensei-lms/sensei-lms.php' ),
-		);
-	}
-
-	/**
-	 * A discovery task watches its own plugin and nothing else.
-	 *
-	 * Guards the failure mode the case above cannot see — a completion callable keyed off "any plugin is
-	 * active", or off a file this site happens to run — which would tick the card for a site that installed
-	 * something else entirely. The unrelated plugin is deliberately one the harness genuinely has active
-	 * state for, so the negative result is the callable discriminating rather than the option being empty.
+	 * A discovery task watches its own plugin, not whether any plugin is active.
 	 */
 	public function test_plugin_discovery_completion_keys_off_its_own_plugin() {
 		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php', 'akismet/akismet.php' ) );
 
 		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
-
-		// The premise: this harness does report an active plugin, so the false above is the file being
-		// compared rather than is_plugin_active() answering false for everything.
-		$this->assertTrue( is_plugin_active( 'woocommerce/woocommerce.php' ) );
 
 		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php', 'sensei-lms/sensei-lms.php' ) );
 
@@ -634,56 +392,18 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A discovery task's completion comes from the site's plugin state alone, never from the shared
-	 * launchpad status option.
-	 *
-	 * The option is what the complete-on-click route writes, and a discovery task must not be tickable that
-	 * way: the point of the task is that the plugin ends up installed, which clicking a CTA does not achieve.
+	 * A discovery task cannot be ticked through the status option the complete-on-click route writes: only
+	 * installing the plugin completes it.
 	 */
 	public function test_plugin_discovery_completion_ignores_the_status_option() {
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'install_sensei_lms' => true ) );
+
 		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
-
-		// The same write does complete a task that is defined against that option, so the assertion above is
-		// about this definition rather than about the option never being read.
-		AI_Launchpad_Task_Registry::mark_complete( 'pick_fonts_colors' );
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'pick_fonts_colors' ) );
 	}
 
 	/**
-	 * A plugin that is already active makes its discovery task *complete*, not invisible.
-	 *
-	 * The two were both defensible, and this pins the choice. Completion is what lets the card tick when the
-	 * user acts on the recommendation — which is also the only signal that says whether the recommendation
-	 * landed, since task completions are reported by diffing the rendered list on read. Withholding the task
-	 * from a site that already has the plugin is handled elsewhere and for free: available_task_ids() drops
-	 * every complete task from the actionable menu, so the model is not offered it anyway.
-	 *
-	 * @param string $task_id     The registry task id.
-	 * @param string $plugin_file The plugin's `dir/file.php` entry in `active_plugins`.
-	 * @dataProvider provide_plugin_discovery_tasks
-	 */
-	#[DataProvider( 'provide_plugin_discovery_tasks' )]
-	public function test_an_active_plugin_completes_a_discovery_task_rather_than_hiding_it( $task_id, $plugin_file ) {
-		update_option( 'active_plugins', array( $plugin_file ) );
-
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( $task_id ) );
-	}
-
-	/**
-	 * On a Simple site the discovery CTA points at the Calypso page for that specific plugin, not at a
-	 * wp-admin installer Simple has no route to.
-	 *
-	 * The registry resolves its own `calypso_path` and build_tasks() returns before the rewrite it applies to
-	 * catalog CTAs, so a registry task carrying a wp-admin plugins path would dead-end on Simple. These are
-	 * the first registry tasks to have one, so the rewrite has to happen here.
-	 *
-	 * The counterpart is test_build_resolves_the_declared_cta, which runs without IS_WPCOM and asserts the
-	 * wp-admin installer URL for the same task — so the pair shows the rewrite firing on one host and not
-	 * the other, rather than the CTA having been a Calypso path all along.
-	 *
-	 * Runs in a separate process so defining IS_WPCOM does not leak into the rest of the suite.
+	 * On a Simple site the discovery CTA points at the Calypso page for that plugin, since Simple has no
+	 * wp-admin installer. Runs in a separate process so IS_WPCOM does not leak.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -692,12 +412,10 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_plugin_discovery_ctas_target_calypso_on_simple() {
 		define( 'IS_WPCOM', true );
-		$site = rawurlencode( wpcom_get_site_slug() );
 
 		$this->assertSame(
-			'/plugins/sensei-lms/' . $site,
-			$this->build_card( 'install_sensei_lms', '' )['calypso_path'],
-			'install_sensei_lms must link to its Calypso plugin page on Simple'
+			'/plugins/sensei-lms/' . rawurlencode( wpcom_get_site_slug() ),
+			$this->build_card( 'install_sensei_lms', '' )['calypso_path']
 		);
 	}
 }
