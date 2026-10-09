@@ -32,8 +32,13 @@ export const Textarea = () => {
 
 			const textarea = textareaRef.current!;
 			const fail = ( stage: string, error: unknown ) => {
-				// A chunk that never arrived carries a `type` of missing, timeout or error.
-				const { name, type } = ( error ?? {} ) as { name?: string; type?: string };
+				// A chunk that never arrived carries a `type` of missing, timeout or error, and its URL.
+				const { name, type, request } = ( error ?? {} ) as {
+					name?: string;
+					type?: string;
+					request?: string;
+				};
+				const chunk = request?.split( '?' )[ 0 ].split( '/' ).pop();
 				setEditor( 'failed' );
 				// Link scanners focus the box from script, which is never user activation; a restored draft means a reader.
 				if ( focus && navigator.userActivation?.hasBeenActive === false ) {
@@ -43,6 +48,7 @@ export const Textarea = () => {
 					stage,
 					error: name ?? typeof error,
 					...( type ? { type } : {} ),
+					...( chunk ? { chunk } : {} ),
 				} );
 			};
 			matchTheme( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
