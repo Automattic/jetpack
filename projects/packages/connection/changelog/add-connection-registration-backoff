@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Hold back automatic WordPress.com registration attempts in offline mode, after failures that cannot be resolved by retrying, and until any Retry-After window has elapsed.
