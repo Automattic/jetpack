@@ -734,7 +734,7 @@ class Agents_Manager {
 	 * Returns minimal site data needed by AgentsManager (ID and domain only).
 	 * Uses jetpack_options['id'] on Atomic sites for the wpcom blog ID.
 	 *
-	 * @return array Site data with ID and domain.
+	 * @return array Site data with ID, domain and whether the site uses AI credits.
 	 */
 	private function get_current_site() {
 		/*
@@ -750,8 +750,27 @@ class Agents_Manager {
 		}
 
 		return array(
-			'ID'     => $site_id,
-			'domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'ID'            => $site_id,
+			'domain'        => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'usesAiCredits' => self::site_uses_ai_credits(),
 		);
+	}
+
+	/**
+	 * Whether the site uses WordPress.com AI credits, so chats can skip asking
+	 * for a balance when it doesn't.
+	 *
+	 * Simple sites join AI credits through the `ai-credit-metering` sticker, the
+	 * same check the WordPress.com credits endpoint makes. Other sites can't see
+	 * that sticker, so this is null and chats ask the endpoint.
+	 *
+	 * @return bool|null
+	 */
+	public static function site_uses_ai_credits() {
+		if ( ! Constants::is_true( 'IS_WPCOM' ) || ! function_exists( 'has_blog_sticker' ) ) {
+			return null;
+		}
+
+		return (bool) has_blog_sticker( 'ai-credit-metering', get_current_blog_id() );
 	}
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
+use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -487,6 +488,8 @@ function do_enqueue_assets() {
 		'isA11n'                => is_tracking_automattician(),
 		'isDevMode'             => jetpack_is_internal_testing_environment(),
 		'canGenerateVideoClips' => image_studio_can_generate_video_clips(),
+		// Another plugin can supply an older copy of the Agents Manager package, without this method.
+		'usesAiCredits'         => method_exists( Agents_Manager::class, 'site_uses_ai_credits' ) ? Agents_Manager::site_uses_ai_credits() : null,
 	);
 
 	wp_add_inline_script(

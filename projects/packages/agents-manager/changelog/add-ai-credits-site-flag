@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add whether the site uses AI credits to the site data, so chats can skip the balance request on sites that don't.
