@@ -1,3 +1,10 @@
+// The card body's gap; a fieldset otherwise won't shrink below its content.
 .jpb-restore-checklist {
-	row-gap: 20px;
+	gap: 16px;
+	min-inline-size: 0;
+
+	// `Fieldset.Legend` is an all-caps field label; `Text` restores the rest.
+	&__legend {
+		text-transform: none;
+	}
 }

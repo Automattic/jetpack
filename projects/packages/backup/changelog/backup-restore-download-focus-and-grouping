@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: The modernized dashboard, behind a feature flag, now keeps focus on the restore and download screens, announces a queued restore, and groups the item checkboxes under their question.
+

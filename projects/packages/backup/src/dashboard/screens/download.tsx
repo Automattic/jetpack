@@ -18,6 +18,7 @@ import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { splitFileSelection } from '../data/api/download';
 import { useDownload } from '../hooks/use-download';
 import { useGateState } from '../hooks/use-gate-state';
+import { useStepFocus } from '../hooks/use-step-focus';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
@@ -58,7 +59,11 @@ export default function DownloadScreen() {
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 	const isGateReady = gate.status === 'ready';
 	const { state, submit, submitFiles, reset } = useDownload( rewindId, isGateReady );
-	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
+	const { ref: stepHeadingRef, arm: armStepFocus } = useStepFocus( state.phase );
+	const handleGenerate = useCallback( () => {
+		armStepFocus();
+		submit( items );
+	}, [ armStepFocus, submit, items ] );
 	// An empty checklist would ask WPCOM for the *whole* archive, not for
 	// nothing — see `hasSelectedItems`.
 	const hasSelection = hasSelectedItems( items );
@@ -89,9 +94,12 @@ export default function DownloadScreen() {
 	// form. `reset()` first, because the hook keeps reporting `error`
 	// until something succeeds.
 	const handleRetry = useCallback( () => {
+		armStepFocus();
 		reset();
-		submitFiles( files );
-	}, [ reset, submitFiles, files ] );
+		if ( hasFileSelection ) {
+			submitFiles( files );
+		}
+	}, [ armStepFocus, reset, hasFileSelection, submitFiles, files ] );
 
 	// A file selection has no form stage: the screen is waiting from the
 	// moment it mounts, before the mutation has even been sent.
@@ -125,6 +133,7 @@ export default function DownloadScreen() {
 	} else if ( state.phase === 'success' ) {
 		announcement = titles.ready;
 	}
+	const isFormStep = ! hasFileSelection && state.phase === 'idle';
 
 	return (
 		<DashboardLayout>
@@ -138,7 +147,12 @@ export default function DownloadScreen() {
 						<Stack direction="row" gap="sm" align="center">
 							<Icon icon={ downloadIcon } />
 							<Stack direction="column" gap="xs">
-								<Text variant="body-lg" render={ <h2 /> }>
+								<Text
+									variant="body-lg"
+									render={ <h2 /> }
+									ref={ isFormStep ? stepHeadingRef : undefined }
+									tabIndex={ -1 }
+								>
 									{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
@@ -153,13 +167,14 @@ export default function DownloadScreen() {
 						<VisuallyHidden role="status">{ announcement }</VisuallyHidden>
 						{ ! hasFileSelection && ( state.phase === 'idle' || state.phase === 'submitting' ) && (
 							<>
-								<Text className="jpb-text-muted">
-									{ __(
+								<RestoreItemsChecklist
+									legend={ __(
 										'Choose the items you wish to include in the download:',
 										'jetpack-backup-pkg'
 									) }
-								</Text>
-								<RestoreItemsChecklist value={ items } onChange={ setItems } />
+									value={ items }
+									onChange={ setItems }
+								/>
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message
@@ -220,7 +235,11 @@ export default function DownloadScreen() {
 								) : (
 									<Spinner />
 								) }
-								<EmptyState.Title className="jpb-download__status-title">
+								<EmptyState.Title
+									className="jpb-download__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles.preparing }
 									</Text>
@@ -235,7 +254,11 @@ export default function DownloadScreen() {
 										icon={ check }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-download__status-title">
+								<EmptyState.Title
+									className="jpb-download__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles.ready }
 									</Text>
@@ -269,7 +292,11 @@ export default function DownloadScreen() {
 										icon={ errorIcon }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-download__status-title">
+								<EmptyState.Title
+									className="jpb-download__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ __( 'Could not prepare the download', 'jetpack-backup-pkg' ) }
 									</Text>
@@ -277,7 +304,7 @@ export default function DownloadScreen() {
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
-									<Button variant="solid" onClick={ hasFileSelection ? handleRetry : reset }>
+									<Button variant="solid" onClick={ handleRetry }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }
 									</Button>
 								</EmptyState.Actions>
