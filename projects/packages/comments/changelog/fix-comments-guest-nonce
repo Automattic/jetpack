@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop turning away logged-out readers' comments when the page was served from a cache older than a day.
