@@ -340,7 +340,6 @@ describe( 'BackupNowButton', () => {
 				'true'
 			)
 		);
-		// The tooltip alone never reached a screen reader.
 		expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAccessibleDescription(
 			'A backup is currently in progress.'
 		);
