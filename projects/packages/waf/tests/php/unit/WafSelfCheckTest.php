@@ -33,8 +33,12 @@ final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 	 * Remove the token file and directories.
 	 */
 	protected function tearDown(): void {
-		array_map( 'unlink', glob( WP_CONTENT_DIR . '/jetpack-waf/*' ) );
-		array_map( 'rmdir', glob( WP_CONTENT_DIR . '/*' ) );
+		foreach ( glob( WP_CONTENT_DIR . '/jetpack-waf/*' ) as $file ) {
+			unlink( $file );
+		}
+		foreach ( glob( WP_CONTENT_DIR . '/*' ) as $dir ) {
+			rmdir( $dir );
+		}
 		rmdir( WP_CONTENT_DIR );
 		unset( $_GET[ Waf_Self_Check::QUERY_PARAM ] );
 	}
@@ -69,7 +73,7 @@ final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 		$waf = $this->createMock( Waf_Runtime::class );
 		$waf->expects( $this->once() )
 			->method( 'block' )
-			->with( 'block', Waf_Self_Check::RULE_ID, Waf_Self_Check::REASON );
+			->with( 'block', (string) Waf_Self_Check::RULE_ID, Waf_Self_Check::REASON );
 
 		Waf_Self_Check::maybe_block( $waf );
 	}

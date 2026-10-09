@@ -98,7 +98,7 @@ class Waf_Self_Check {
 			return;
 		}
 
-		$waf->block( 'block', self::RULE_ID, self::REASON );
+		$waf->block( 'block', (string) self::RULE_ID, self::REASON );
 	}
 
 	/**
