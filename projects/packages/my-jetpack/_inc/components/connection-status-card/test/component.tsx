@@ -534,7 +534,7 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.user.current_user.capabilities = {};
 		} );
 
-		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
+		it( 'shows the Connection package’s diagnosis rather than the connect prompt', () => {
 			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
 			needAnAccount();
 			setConnectionStore( {
@@ -558,12 +558,13 @@ describe( 'ConnectionStatusCard', () => {
 				</Providers>
 			);
 
-			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+			expect( screen.getByText( /Jetpack Connection error/ ) ).toBeInTheDocument();
 			expect(
-				screen.getByText( 'Connect your account to unlock all the features.' )
+				screen.getByText( 'Your site is not connected to WordPress.com.' )
 			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
-			expect( screen.queryByText( /Jetpack Connection error/ ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Connect my account' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 
