@@ -1,8 +1,8 @@
-import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
-import { useConnectionState } from '../index';
+import { getManageConnection, useConnectionState } from '../index';
 import type { ConnectionErrorMap, ConnectionOwner } from '@automattic/jetpack-connection';
 
 /**
@@ -10,36 +10,52 @@ import type { ConnectionErrorMap, ConnectionOwner } from '@automattic/jetpack-co
  * untyped JS, so we declare the shape we exercise here.
  */
 interface StoreSelect {
-	getConnectionStatus: () => {
-		isRegistered: boolean;
-		isUserConnected: boolean;
-		hasConnectedOwner: boolean;
-	};
+	getConnectionStatus: () => Record< string, boolean >;
+	getIsOfflineMode: () => boolean;
 	getUserConnectionData: () => { currentUser: { id: number } };
 	getConnectionErrors: () => ConnectionErrorMap;
 	getConnectionOwner: () => ConnectionOwner | null;
 }
 
-interface StoreOverrides {
-	isUserConnected?: boolean;
+type Site = {
+	status?: Record< string, boolean >;
+	isOfflineMode?: boolean;
 	connectionErrors?: ConnectionErrorMap;
 	connectionOwner?: ConnectionOwner | null;
-}
+	isAdmin?: boolean;
+	// Whether a plugin is active whose product needs a user connection.
+	userConnectionPluginActive?: boolean;
+	skipSafeMode?: boolean;
+};
 
-const setConnectionStore = ( {
-	isUserConnected = false,
+const setSite = ( {
+	status = { isRegistered: true, isUserConnected: false, hasConnectedOwner: true },
+	isOfflineMode = false,
 	connectionErrors = {},
 	connectionOwner = null,
-}: StoreOverrides = {} ) => {
+	isAdmin = true,
+	userConnectionPluginActive = false,
+}: Site ) => {
+	window.myJetpackInitialState = {
+		products: {
+			items: {
+				search: { requires_user_connection: true, is_plugin_active: userConnectionPluginActive },
+				boost: { requires_user_connection: false, is_plugin_active: true },
+			},
+		},
+	} as unknown as typeof window.myJetpackInitialState;
+	global.JetpackScriptData = {
+		user: { current_user: { capabilities: { manage_options: isAdmin } } },
+		site: { host: 'standard' },
+	} as typeof global.JetpackScriptData;
+
 	let storeSelect: StoreSelect;
 	renderHook(
 		() => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) as StoreSelect ) ),
 		{ wrapper: Providers }
 	);
-	jest
-		.spyOn( storeSelect, 'getConnectionStatus' )
-		.mockReset()
-		.mockReturnValue( { isRegistered: true, isUserConnected, hasConnectedOwner: true } );
+	jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( status );
+	jest.spyOn( storeSelect, 'getIsOfflineMode' ).mockReset().mockReturnValue( isOfflineMode );
 	jest
 		.spyOn( storeSelect, 'getUserConnectionData' )
 		.mockReset()
@@ -72,85 +88,119 @@ const siteTokenBroken: ConnectionErrorMap = {
 	},
 };
 
-beforeAll( () => {
-	global.JetpackScriptData = {
-		user: { current_user: { capabilities: { manage_options: true } } },
-		site: { host: 'standard' },
-	};
-} );
+const siteOnly = { isRegistered: true, isUserConnected: false, hasConnectedOwner: false };
+const everything = { isRegistered: true, isUserConnected: true, hasConnectedOwner: true };
 
-/**
- * Run the card's state hook on the package's own reading of the store, which is
- * what the card passes it.
- *
- * @param {boolean} shouldAskForUserConnection - Whether to ask for a user connection.
- * @return {object} The rendered hook result.
- */
-const renderConnectionState = ( shouldAskForUserConnection = true ) =>
-	renderHook(
-		() => {
-			const { hasConnectionError, severity } = useConnectionErrorNotice();
+// Only the fields a row names, so a row can assert that a field is absent.
+const renderConnectionState = ( fields: object, skipSafeMode?: boolean ) => {
+	const state = renderHook( () => useConnectionState( { skipSafeMode } ), { wrapper: Providers } )
+		.result.current;
 
-			return useConnectionState(
-				{
-					hasConnectionError,
-					severity,
-					errorTitle: 'Jetpack Connection error: Site connection',
-				},
-				shouldAskForUserConnection
-			);
-		},
-		{ wrapper: Providers }
-	);
+	return Object.fromEntries( Object.keys( fields ).map( key => [ key, state[ key ] ] ) );
+};
 
-// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
-describe( 'useConnectionState — status while the account is still to be connected', () => {
-	it( 'softens a break only the owner can repair to a warning', () => {
-		setConnectionStore( { connectionErrors: ownerTokenBroken, connectionOwner: owner } );
+describe( 'useConnectionState', () => {
+	it.each< [ string, Site, object ] >( [
+		[
+			'unknown before the store has a status',
+			{ status: {} },
+			{ id: 'unknown', status: 'neutral', manageConnection: null },
+		],
+		[
+			'offline',
+			{ isOfflineMode: true },
+			{ id: 'offline', status: 'neutral', action: undefined, manageConnection: null },
+		],
+		[
+			'Safe Mode',
+			{ status: { ...everything, isStaging: true } },
+			{ id: 'safe-mode', status: 'warning', action: 'RESOLVE_SAFE_MODE' },
+		],
+		[
+			'the connection itself during Safe Mode, for a caller that skips it',
+			{ status: { ...everything, isStaging: true }, skipSafeMode: true },
+			{ id: 'connected', status: 'success' },
+		],
+		[
+			'not connected, for an admin',
+			{ status: { isRegistered: false } },
+			{ id: 'site-not-connected', status: 'error', action: 'CONNECT_SITE' },
+		],
+		[
+			'not connected, for a user who cannot connect it',
+			{ status: { isRegistered: false }, isAdmin: false },
+			{ id: 'site-not-connected', status: 'error', action: undefined },
+		],
+		[
+			'a live error on a connected account',
+			{ status: everything, connectionErrors: siteTokenBroken },
+			{ id: 'error', status: 'error', action: 'REPAIR', isDiagnosis: true },
+		],
+		[
+			'a live error on a site connection when nothing in use needs one',
+			{ status: siteOnly, connectionErrors: siteTokenBroken },
+			{ id: 'error', status: 'error', action: 'REPAIR', isDiagnosis: true },
+		],
+		[
+			'fully connected',
+			{ status: everything },
+			{ id: 'connected', status: 'success', action: undefined },
+		],
+		[
+			'site only, when nothing in use needs a user connection',
+			{ status: siteOnly },
+			{ id: 'site-connected', status: 'success', action: undefined },
+		],
+		[
+			'owner missing, for an admin',
+			{ status: siteOnly, userConnectionPluginActive: true },
+			{ id: 'owner-missing', status: 'warning', action: 'CONNECT_USER' },
+		],
+		[
+			'owner missing, for a non-admin',
+			{ status: siteOnly, userConnectionPluginActive: true, isAdmin: false },
+			{ id: 'owner-missing', status: 'warning', action: undefined },
+		],
+		[
+			'account not connected while the owner is',
+			{ userConnectionPluginActive: true },
+			{ id: 'user-not-connected', status: 'warning', action: 'CONNECT_USER' },
+		],
+	] )( 'reports %s', ( _, site, expected ) => {
+		setSite( site );
 
-		const { result } = renderConnectionState();
-
-		expect( result.current.status ).toBe( 'warning' );
+		expect( renderConnectionState( expected, site.skipSafeMode ) ).toEqual( expected );
 	} );
 
-	it( 'keeps a site-wide break an error', () => {
-		setConnectionStore( { connectionErrors: siteTokenBroken } );
-
-		const { result } = renderConnectionState();
-
-		expect( result.current.status ).toBe( 'error' );
-	} );
-} );
-
-describe( 'useConnectionState — a site connected without an account', () => {
+	// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
 	it.each( [
-		[ 'healthy when nothing in use needs one', false, 'success', undefined ],
-		[ 'a prompt when something in use needs one', true, 'warning', 'CONNECT_USER' ],
-	] )( 'is %s', ( _, shouldAskForUserConnection, status, action ) => {
-		setConnectionStore();
-
-		const { result } = renderConnectionState( shouldAskForUserConnection );
-
-		expect( [ result.current.status, result.current.action ] ).toEqual( [ status, action ] );
-	} );
-} );
-
-describe( 'useConnectionState — a live error with no account prompt to keep', () => {
-	it.each( [
-		[ 'on a connected account', true, true ],
-		[ 'on a site connection when nothing in use needs an account', false, false ],
+		[ 'warning', 'only the owner can repair', ownerTokenBroken, owner ],
+		[ 'error', 'breaks the whole site', siteTokenBroken, null ],
 	] )(
-		'takes the package title as its label and leaves the copy to the package %s',
-		( _, isUserConnected, shouldAskForUserConnection ) => {
-			setConnectionStore( { isUserConnected, connectionErrors: siteTokenBroken } );
+		'tints the account prompt %s when the error %s',
+		( status, _, connectionErrors, connectionOwner ) => {
+			setSite( { connectionErrors, connectionOwner, userConnectionPluginActive: true } );
 
-			const { result } = renderConnectionState( shouldAskForUserConnection );
+			const expected = { id: 'user-not-connected', status };
 
-			expect( result.current ).toEqual( {
-				label: 'Jetpack Connection error: Site connection',
-				status: 'error',
-				isDiagnosis: true,
-			} );
+			expect( renderConnectionState( expected ) ).toEqual( expected );
 		}
 	);
+} );
+
+describe( 'getManageConnection', () => {
+	it.each( [
+		[
+			'the Connectors screen where WordPress has one',
+			'https://example.com/wp-admin/options-connectors.php',
+			{ type: 'link', url: 'https://example.com/wp-admin/options-connectors.php' },
+		],
+		[ 'the connection dialog before WordPress 7.0', null, { type: 'dialog' } ],
+	] )( 'opens %s', ( _, connectorsUrl, expected ) => {
+		window.myJetpackInitialState = {
+			header: { connectorsUrl },
+		} as unknown as typeof window.myJetpackInitialState;
+
+		expect( getManageConnection() ).toEqual( expected );
+	} );
 } );

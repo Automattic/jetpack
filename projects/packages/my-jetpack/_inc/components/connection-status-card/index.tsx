@@ -141,8 +141,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const connectionErrorTrackingCallback = useConnectionErrorTracking();
 	const {
 		hasConnectionError,
-		severity,
-		errorTitle,
 		connectionErrorMessage,
 		errorGroups,
 		showSupportLink,
@@ -156,14 +154,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// Ask for a user connection when a product that needs one has its plugin active.
-	const shouldAskForUserConnection = Object.values(
-		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
-	).some( product => product?.requires_user_connection && product.is_plugin_active );
-	const state = useConnectionState(
-		{ hasConnectionError, severity, errorTitle },
-		shouldAskForUserConnection
-	);
+	// Show the connection itself during Safe Mode.
+	const state = useConnectionState( { skipSafeMode: true } );
 
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;

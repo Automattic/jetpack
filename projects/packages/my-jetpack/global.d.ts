@@ -517,6 +517,10 @@ interface Window {
 	myJetpackInitialState?: {
 		mainFeatures: MainFeaturesState | null;
 		featuresBanner: { isDismissed: boolean } | null;
+		// Optional: a plugin carrying an older copy of this package sends none.
+		header?: {
+			connectorsUrl: string | null;
+		};
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
