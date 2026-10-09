@@ -13,6 +13,15 @@
 	flex-shrink: 0;
 	gap: 16px;
 	text-align: start;
+
+	// @wordpress/ui's scale starts at 13px, which reads as fine print beside
+	// the 16px the surrounding dialog uses. Size the step from Jetpack's
+	// token instead, and keep the smaller pieces relative to it.
+	font-size: var(--font-body, 16px);
+
+	p {
+		font-size: inherit;
+	}
 }
 
 .jp-connection__transfer-ownership__avatar {
@@ -25,7 +34,7 @@
 	border-radius: 50%;
 	background-color: var(--jp-black, #000);
 	color: var(--jp-white, #fff);
-	font-size: 13px;
+	font-size: 0.875em;
 	font-weight: 600;
 
 	// Not a status colour: red, yellow and green mean something else here.
@@ -42,7 +51,12 @@
 
 .jp-connection__transfer-ownership__meta {
 	color: var(--jp-gray-50, #646970);
-	font-size: 12.5px;
+	font-size: 0.875em;
+}
+
+.jp-connection__transfer-ownership__hint {
+	font-size: 0.875em;
+	color: var(--jp-gray-50, #646970);
 }
 
 .jp-connection__transfer-ownership__error {
