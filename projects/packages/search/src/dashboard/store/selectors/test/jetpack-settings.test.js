@@ -27,6 +27,23 @@ describe( 'jetpackSettingSelectors', () => {
 		).toBe( true );
 	} );
 
+	test( 'returns stored Reader Chat brand overrides', () => {
+		const brand = { name: 'Ada', accent: '#2271b1', greeting: '' };
+
+		expect(
+			jetpackSettingSelectors.getReaderChatBrand( {
+				jetpackSettings: {
+					reader_chat_brand: brand,
+				},
+			} )
+		).toEqual( brand );
+		expect(
+			jetpackSettingSelectors.getReaderChatBrand( {
+				jetpackSettings: {},
+			} )
+		).toEqual( {} );
+	} );
+
 	describe( 'isAiAnswersEnabled', () => {
 		it( 'returns false when ai_answers_enabled is false', () => {
 			const state = { jetpackSettings: { ai_answers_enabled: false } };

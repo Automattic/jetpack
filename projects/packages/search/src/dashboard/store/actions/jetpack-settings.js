@@ -27,6 +27,7 @@ const getRollbackSettings = settings =>
 				k === 'instant_search_enabled' ||
 				k === 'experience' ||
 				k === 'reader_chat' ||
+				k === 'reader_chat_brand' ||
 				k === 'ai_answers_enabled' ||
 				k === 'search_suggestions_enabled' ||
 				k === 'override_woocommerce_search_template'
