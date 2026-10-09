@@ -30,6 +30,23 @@ describe( 'GlobalNotice', () => {
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'keeps rendering when a higher-priority notice with a title replaces an untitled one', () => {
+		const action = { label: 'Act', onClick: jest.fn() };
+		const { rerender } = render(
+			<GlobalNotice message="Incomplete install" options={ { id: 'bad', actions: [ action ] } } />
+		);
+
+		rerender(
+			<GlobalNotice
+				message="Connect"
+				title="Missing site connection"
+				options={ { id: 'missing-connection', actions: [ action ] } }
+			/>
+		);
+
+		expect( screen.getByText( 'Missing site connection' ) ).toBeInTheDocument();
+	} );
+
 	it( 'hides the close button by default', () => {
 		render( <GlobalNotice message="Body" title="Title" options={ { id: 'seo' } } /> );
 

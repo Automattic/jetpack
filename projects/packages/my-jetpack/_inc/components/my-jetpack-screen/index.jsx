@@ -56,7 +56,13 @@ export const GlobalNotice = ( { message, title, options } ) => {
 
 	return (
 		<div className={ styles.notice }>
-			<Notice.Root intent={ options.level || 'info' }>
+			{ /* A string `spokenMessage`: by default Root renderToString()s its children mid-render, running their hooks as its own. */ }
+			<Notice.Root
+				intent={ options.level || 'info' }
+				spokenMessage={ [ title, typeof message === 'string' ? message : null ]
+					.filter( Boolean )
+					.join( ' ' ) }
+			>
 				{ title && <Notice.Title>{ title }</Notice.Title> }
 				{ /* `render={ <div /> }`: `message` can carry block content, but Description defaults to a `span`. */ }
 				<Notice.Description className={ styles.message } render={ <div /> }>
