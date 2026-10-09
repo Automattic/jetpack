@@ -172,20 +172,15 @@ function BounceRetryNotice( {
 		}
 	}, [ emailSubscriptionId, mutate ] );
 
-	let note = '';
-	if ( bounceRetry?.sent_on ) {
-		note = sprintf(
-			// translators: %s: date the confirmation email was sent.
-			__( 'Confirmation email sent on %s.', 'jetpack-newsletter' ),
-			formatDate( bounceRetry.sent_on )
-		);
-	} else if ( bounceRetry?.available_on && ! canRetry ) {
-		note = sprintf(
-			// translators: %s: date after which a confirmation email can be sent.
-			__( 'You can send a confirmation email after %s.', 'jetpack-newsletter' ),
-			formatDate( bounceRetry.available_on )
-		);
-	}
+	const note = bounceRetry?.sent_on
+		? sprintf(
+				// translators: %s: date the confirmation email was sent.
+				__( 'Confirmation email sent on %s.', 'jetpack-newsletter' ),
+				formatDate( bounceRetry.sent_on )
+			)
+		: '';
+	// Hidden while the mail system still blocks the address; disabled only after a send.
+	const showButton = !! emailSubscriptionId && ( canRetry || !! note );
 
 	return (
 		<Stack direction="column" gap="sm" align="start">
@@ -195,7 +190,7 @@ function BounceRetryNotice( {
 					'jetpack-newsletter'
 				) }
 			</Text>
-			{ emailSubscriptionId ? (
+			{ showButton ? (
 				<Button
 					variant="outline"
 					tone="neutral"

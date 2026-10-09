@@ -549,7 +549,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $status >= 400 ) {
-			// Pass through wpcom's error code and data (e.g. `available_on`).
+			// Pass through wpcom's error code and data.
 			$data           = is_array( $body ) && isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : array();
 			$data['status'] = $status;
 
