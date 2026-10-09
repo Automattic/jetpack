@@ -7,7 +7,6 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
@@ -231,48 +230,41 @@ module.exports = [
 			...viewBlocksScripts,
 			...adminBlocksScripts,
 		},
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			new CopyWebpackPlugin( {
-				patterns: [
-					{
-						from: presetPath,
-						to: 'index.json',
+		output: {
+			...sharedWebpackConfig.output,
+			copy: [
+				{
+					from: presetPath,
+					filename: 'index.json',
+				},
+				{
+					from: '**/block.json',
+					filename: '[path][name][ext]',
+					context: path.join( __dirname, '../extensions/blocks' ),
+					// Automatically link scripts and styles
+					transform( content ) {
+						const metadata = JSON.parse( content.toString() );
+						const name = metadata.name.replace( 'jetpack/', '' );
+
+						if ( ! name ) {
+							return metadata;
+						}
+
+						// `editorScript` is required for block.json to be valid and WordPress.org to be able
+						// to parse it before building the page at https://wordpress.org/plugins/jetpack/.
+						// Don't add other scripts or styles while block assets are still enqueued manually
+						// in the backend.
+						const result = {
+							...metadata,
+							editorScript: `jetpack-blocks-editor`,
+						};
+
+						return JSON.stringify( result, null, 4 );
 					},
-				],
-			} ),
-			new CopyWebpackPlugin( {
-				patterns: [
-					{
-						from: '**/block.json',
-						to: '[path][name][ext]',
-						context: path.join( __dirname, '../extensions/blocks' ),
-						noErrorOnMissing: true,
-						// Automatically link scripts and styles
-						transform( content ) {
-							const metadata = JSON.parse( content.toString() );
-							const name = metadata.name.replace( 'jetpack/', '' );
-
-							if ( ! name ) {
-								return metadata;
-							}
-
-							// `editorScript` is required for block.json to be valid and WordPress.org to be able
-							// to parse it before building the page at https://wordpress.org/plugins/jetpack/.
-							// Don't add other scripts or styles while block assets are still enqueued manually
-							// in the backend.
-							const result = {
-								...metadata,
-								editorScript: `jetpack-blocks-editor`,
-							};
-
-							return JSON.stringify( result, null, 4 );
-						},
-					},
-				],
-			} ),
-			new CopyBlockEditorAssetsPlugin(),
-		],
+				},
+			],
+		},
+		plugins: [ ...sharedWebpackConfig.plugins, new CopyBlockEditorAssetsPlugin() ],
 	},
 	// Components configuration
 	{

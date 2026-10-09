@@ -2830,9 +2830,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       debug:
         specifier: 4.4.3
         version: 4.4.3
@@ -3819,9 +3816,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -4026,9 +4020,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -4589,9 +4580,6 @@ importers:
       concurrently:
         specifier: 10.0.5
         version: 10.0.5
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       jest:
         specifier: 30.5.1
         version: 30.5.1
@@ -5493,9 +5481,6 @@ importers:
       concurrently:
         specifier: 10.0.5
         version: 10.0.5
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       jest:
         specifier: 30.5.1
         version: 30.5.1
@@ -5944,9 +5929,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       react-router:
         specifier: 7.18.2
         version: 7.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6348,9 +6330,6 @@ importers:
       cookie:
         specifier: 1.0.2
         version: 1.0.2
-      copy-webpack-plugin:
-        specifier: 14.0.0
-        version: 14.0.0(webpack@5.111.1)
       date-fns:
         specifier: 4.4.0
         version: 4.4.0
@@ -13182,12 +13161,6 @@ packages:
   cookie@1.0.2:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
-
-  copy-webpack-plugin@14.0.0:
-    resolution: {integrity: sha512-3JLW90aBGeaTLpM7mYQKpnVdgsUZRExY55giiZgLuX/xTQRUs1dOCwbBnWnvY6Q6rfZoXMNwzOQJCSZPppfqXA==}
-    engines: {node: '>= 20.9.0'}
-    peerDependencies:
-      webpack: ^5.1.0
 
   core-js-compat@3.50.0:
     resolution: {integrity: sha512-XGpFGbMLHwSt74YLTKho7Ib242qi6O8MSX+sRokV4oz7iKXvQWGYZthjIhjRGMxjzVkAubBO512dKGYcefmX3Q==}
@@ -31992,15 +31965,6 @@ snapshots:
   cookie@0.7.2: {}
 
   cookie@1.0.2: {}
-
-  copy-webpack-plugin@14.0.0(webpack@5.111.1):
-    dependencies:
-      glob-parent: 6.0.2
-      normalize-path: 3.0.0
-      schema-utils: 4.5.0
-      serialize-javascript: 7.1.2
-      tinyglobby: 0.2.17
-      webpack: 5.111.1(postcss@8.5.23)(sharp@0.35.5)(webpack-cli@7.2.1)
 
   core-js-compat@3.50.0:
     dependencies:

@@ -1,7 +1,6 @@
 const webpack = require( 'webpack' );
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyPlugin = require( 'copy-webpack-plugin' );
 
 const imageGuideCopyPatterns = [
 	{
@@ -12,7 +11,7 @@ const imageGuideCopyPatterns = [
 		// Emit as `.min.css` so the concatenation serving path treats it as already
 		// minified and skips re-minification (consistent with guide.min.js). The file is
 		// already minified at build time, so re-minifying it is redundant.
-		to: 'guide.min.css',
+		filename: 'guide.min.css',
 	},
 ];
 
@@ -148,6 +147,7 @@ module.exports = [
 			clean: true,
 			// The .min.js name bypasses Boost's ES5-era PHP minifier, which corrupts modern syntax.
 			filename: 'guide.min.js',
+			copy: imageGuideCopyPatterns,
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
@@ -160,10 +160,7 @@ module.exports = [
 			},
 		},
 		node: false,
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins(),
-			new CopyPlugin( { patterns: imageGuideCopyPatterns } ),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [
