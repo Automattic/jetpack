@@ -58,6 +58,7 @@ jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	currentUserCan: () => mockIsAdmin,
 } ) );
 
