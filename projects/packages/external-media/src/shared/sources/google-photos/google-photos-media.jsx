@@ -105,7 +105,7 @@ function GooglePhotosMedia( props ) {
 	const onChangeSelection = useCallback( () => {
 		setSelectionChanged( true );
 
-		pickerSession?.id && deletePickerSession( pickerSession.id, false );
+		pickerSession?.id && deletePickerSession( pickerSession.id );
 		createPickerSession().then( newSession => {
 			newSession?.pickerUri && window.open( newSession.pickerUri );
 		} );

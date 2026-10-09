@@ -1,8 +1,7 @@
-import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
@@ -15,8 +14,7 @@ import BackupStatusBanner, {
 import DashboardLayout from '../components/dashboard-layout';
 import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
-import ReviewRequest from '../components/review-request';
-import StorageSpace from '../components/storage-space';
+import StorageSpace, { StorageNotice } from '../components/storage-space';
 import { isRestoreRowId } from '../data/normalize/restores';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
@@ -26,7 +24,8 @@ import {
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
 import { useAnalytics } from '../hooks/use-analytics';
-import { useBackups } from '../hooks/use-backups';
+import { failedAttemptReference, useBackups } from '../hooks/use-backups';
+import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
 import type { ActivitySortOrder } from '../data/api/activity-log';
@@ -203,6 +202,7 @@ function OverviewBody() {
 	// running" from "they're all failing". This second query answers that.
 	const {
 		state: backupsState,
+		backups,
 		progress,
 		isInitialBackup,
 		hasWarnings,
@@ -210,11 +210,12 @@ function OverviewBody() {
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
 	} = useBackups();
+	const isBackupRequested = useBackupRequested();
 	// Owned here, and only here. `BackupNowButton` reads the same query
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	useRefreshActivityOnBackupComplete( backupsState );
+	const finishedRuns = useRefreshActivityOnBackupComplete( backupsState, isBackupRequested );
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -272,11 +273,19 @@ function OverviewBody() {
 			restorePointsLoading || restorePointsError || restorePointsPaused || hasRestorePoints
 		)
 	) {
-		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
+		return (
+			<BackupStatusPanel
+				state={ backupsState }
+				progress={ progress }
+				isStarting={ isBackupRequested && backupsState !== 'in-progress' }
+				reference={ failedAttemptReference( backups ) }
+			/>
+		);
 	}
 
 	return (
 		<>
+			<StorageNotice />
 			{ /*
 			 * A backup running on a site that already has restore points is
 			 * reported alongside the list rather than in place of it. The
@@ -284,7 +293,9 @@ function OverviewBody() {
 			 * that element is a two-column grid above 960px, and a third
 			 * child would be auto-placed into it.
 			 */ }
-			{ backupsState === 'in-progress' && <BackupStatusBanner progress={ progress } /> }
+			{ ( backupsState === 'in-progress' || isBackupRequested ) && (
+				<BackupStatusBanner progress={ backupsState === 'in-progress' ? progress : undefined } />
+			) }
 			{ /*
 			 * The backup-state read failed. Reported here rather than as a
 			 * takeover for the same reason as the banner: whatever the
@@ -326,46 +337,25 @@ function OverviewBody() {
 			 * dashboard twice in two different shapes. `isError` is not
 			 * loading, so the terminal case still reports immediately.
 			 */ }
-			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ ! restorePointsLoading && (
+				<BackupTroubleBanner
+					state={ backupsState }
+					reference={ failedAttemptReference( backups ) }
+				/>
+			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
 			{ /*
-			 * When the next one runs, above the storage section because that is the
-			 * order legacy reads in.
-			 *
-			 * Legacy's `COMPLETE` gate, widened to include `in-progress`: legacy takes
-			 * the line down for the length of every run, where reporting both facts
-			 * side by side is the call `summarizeBackups` already made.
-			 *
-			 * `replacesOverview` above is not enough to arrange this. Its veto is up
-			 * whenever restore points are loading or errored, not only when the site
-			 * has them, and it has no branch at all for `error` or `loading` — so
-			 * without this gate a site with an undecodable backups read promised a next
-			 * run directly under "We couldn't check your site's backup status."
-			 *
-			 * The component self-hides on the other half of legacy's gate.
+			 * The storage row, with the next scheduled backup at its end. The gate stops an
+			 * errored or loading backups read promising a next run under "We couldn't check
+			 * your site's backup status."
 			 */ }
-			{ ( backupsState === 'complete' || backupsState === 'in-progress' ) && (
-				<NextScheduledBackup />
-			) }
-			{ /*
-			 * Above the list, and a sibling of the grid for the same
-			 * reason the banners are. It answers a question the list
-			 * cannot — a site whose backups have stopped because storage
-			 * ran out sees only an activity log that quietly stops — so it
-			 * belongs where that news is read first, not below the fold.
-			 *
-			 * It renders nothing until it has both a usage figure and a
-			 * limit, so on a site with no retention policy this costs a
-			 * pair of requests and no layout.
-			 */ }
-			<StorageSpace />
-			{ /*
-			 * Only on this path, never beside the takeover panel: the restore
-			 * trigger can still fire on a site whose backups have since broken, and
-			 * that reader is the wrong one to ask. Below the storage section, which
-			 * a reader whose storage is full needs to read first.
-			 */ }
-			<ReviewRequest />
+			<StorageSpace
+				trailing={
+					( backupsState === 'complete' || backupsState === 'in-progress' ) && (
+						<NextScheduledBackup />
+					)
+				}
+			/>
 			{ /*
 			 * Where `clearSelected` puts focus once the empty state unmounts, so the
 			 * next Tab reaches the list rather than the top of the page.
@@ -382,6 +372,7 @@ function OverviewBody() {
 					onSelect={ setSelected }
 					view={ view }
 					onChangeView={ rememberView }
+					finishedRuns={ finishedRuns }
 				/>
 				<RightPane
 					selectedId={ selectedId }
@@ -426,8 +417,30 @@ function RightPane( {
 	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
+	const { item, hasAnswered, error, isFetching } = useActivityById(
+		selectedId,
+		page,
+		pageSize,
+		sortOrder
+	);
+	// Paused (offline) or disabled queries never answer, and the list cannot load either.
+	if ( ! selectedId && ! error && ! hasAnswered && ! isFetching ) {
+		return null;
+	}
+	if ( ! item && ! error && ! hasAnswered ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</div>
+		);
+	}
 	if ( ! selectedId ) {
+		// The list beside this pane already reports a failed log.
+		if ( error ) {
+			return null;
+		}
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Text>{ __( 'Select an item from the list to see details.', 'jetpack-backup-pkg' ) }</Text>
@@ -443,15 +456,6 @@ function RightPane( {
 				 * each is two error notices and two buttons for one thing to fix.
 				 */ }
 				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
-			</div>
-		);
-	}
-	if ( ! item && ! hasAnswered ) {
-		return (
-			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
-				<Spinner />
-				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
 			</div>
 		);
 	}

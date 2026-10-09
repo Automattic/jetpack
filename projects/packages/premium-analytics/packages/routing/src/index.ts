@@ -33,6 +33,7 @@ export {
 	useSectionTab,
 	useDashboardLink,
 	useOpenSectionRange,
+	usePeriodHost,
 	type OpenSectionRange,
 	type ReportDateFilters,
 } from './hooks';

@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class JITM {
 
-	const PACKAGE_VERSION = '5.1.0';
+	const PACKAGE_VERSION = '5.1.1';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.
@@ -334,6 +334,8 @@ class JITM {
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
 				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
+				// Only WordPress.com and the Jetpack plugin serve wpcom/v3/jitm; elsewhere the script uses this package's own route.
+				'has_wpcom_endpoint'     => ( new Host() )->is_wpcom_simple() || class_exists( 'Jetpack' ),
 			)
 		);
 	}

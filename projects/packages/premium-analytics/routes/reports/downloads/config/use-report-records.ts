@@ -20,6 +20,7 @@ export function useDownloadsReportRecords( reportParams: ReportParams ) {
 
 	return {
 		isError: report.isError,
+		error: report.error,
 		refetch: report.refetch,
 		rows: report.comparisonRows?.rows ?? [],
 		hasComparison: report.hasComparison,

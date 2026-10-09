@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Expose the Donut widget kind and the shared WidgetStatus type through the SDK; the widget contract is 1.5.0.

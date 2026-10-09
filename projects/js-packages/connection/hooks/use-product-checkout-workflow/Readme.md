@@ -19,6 +19,9 @@ Site slug suffix to be used as part of Calypso URLs. As default, tt's defined by
 
 And it returns also an object with the following keys:
 
+#### checkoutError
+The message of the last failure (site registration or product lookup), or `null`. `run` clears it, and `hasCheckoutStarted` goes back to `false` on failure.
+
 #### run
 helper function to run the checkout process. Usually, you'd like to asign this function as to an event callback.
 

@@ -38,10 +38,10 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 2. Activate the plugin through the "Plugins" screen in WordPress.
 3. **Connect PayPal:**
    a. Go to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/).
-   b. Create a new app (or use an existing one) under **Apps & Credentials**.
+   b. Create a new app (or use an existing one) under **Apps & Credentials**, on the **Live** tab.
    c. Copy the **Client ID** and **Client Secret**.
    d. Add a PayPal Payment Buttons block in the editor and enter your credentials.
-   e. Start in **Sandbox** mode for testing, then switch to **Production** when ready.
+   e. The plugin connects to **Production** — you're ready to accept real payments.
 
 = Requirements =
 
@@ -55,13 +55,13 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 
 1. Log in to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/).
 2. Navigate to **Apps & Credentials**.
-3. Select **Sandbox** or **Live** depending on your needs.
+3. Select the **Live** tab.
 4. Click **Create App** or select an existing app.
 5. Copy the **Client ID** and **Client Secret**.
 
 = What's the difference between Sandbox and Production? =
 
-**Sandbox** is PayPal's testing environment — no real money changes hands. Use it to test your buttons before going live. **Production** processes real payments. You can switch between environments in the block editor sidebar.
+**Production** is the live environment where real customers make real purchases, and it is the only environment the plugin connects to. **Sandbox** is PayPal's testing environment where no real money changes hands; it is not offered in the block editor, so use credentials from your **Live** app.
 
 = Will my existing PayPal buttons still work after updating? =
 
@@ -81,7 +81,7 @@ Disconnecting removes your stored credentials and cached token. Existing publish
 
 = I'm seeing "not authorized for Payment Links & Buttons" — what do I do? =
 
-This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled. If you're using a sandbox account, create a new sandbox business account with full permissions.
+This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled.
 
 = Can I use this with WooCommerce? =
 

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Overview: show Stats once WordPress.com marks onboarding done, drop the separate Stats tab, and close checklist steps as they complete. Behind the newsletter-overview feature flag, which is off in production.
+
+

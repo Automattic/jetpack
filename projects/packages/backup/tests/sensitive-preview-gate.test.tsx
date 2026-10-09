@@ -58,7 +58,7 @@ const README: FileNodeFile = {
 	manifestPath: 'f5:/readme.txt',
 };
 
-const HIDDEN = 'This preview is hidden because it contains sensitive information.';
+const HIDDEN = 'The preview is hidden because it contains sensitive information.';
 const UNAVAILABLE = 'Preview unavailable for this file.';
 const SHOW = /show preview/i;
 
@@ -286,6 +286,23 @@ describe( 'sensitive preview gate', () => {
 		expect( fetchedContent() ).toBe( false );
 	} );
 
+	// Table dumps under `sql/` have no extension, only the `dd:` data-type prefix.
+	it( 'offers neither a preview nor a download for a database table dump', async () => {
+		mockEndpoints( SECRET );
+
+		renderCard( {
+			name: 'wp_users',
+			path: '/sql/wp_users',
+			type: 'file',
+			period: '1786644531',
+			manifestPath: 'dd:wp_users',
+		} );
+
+		await expect( screen.findByText( /preview unavailable/i ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( HIDDEN ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Download file' } ) ).not.toBeInTheDocument();
+	} );
+
 	// Two gated files in one tree is what makes the stale-reveal render
 	// reachable: the card is not remounted, so on the render that swaps the
 	// prop the old `revealed` is still true and the query commits enabled.
@@ -323,15 +340,17 @@ describe( 'sensitive preview gate', () => {
 		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 	} );
 
-	// The pattern matches this one too, and the map still wins.
-	it( 'refuses a wp-config.php.bak outright rather than offering a reveal', async () => {
+	// The extension is not previewable, but the path is sensitive: the box still shows.
+	it( 'hides a wp-config.php.bak behind the reveal and offers no preview', async () => {
 		mockEndpoints( SECRET );
 
 		renderCard( fileAt( '/wp-config.php.bak' ) );
 
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: /show download/i } ) );
 		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
 	} );
 

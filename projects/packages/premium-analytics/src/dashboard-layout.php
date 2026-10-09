@@ -92,7 +92,7 @@ add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupport
  * It cannot answer before `init`, without the widget type API loaded, or with nothing registered,
  * which is a checkout without a build.
  *
- * @since $$next-version$$
+ * @since 0.11.0
  *
  * @return Widget_Type_Registry|null
  */
@@ -113,7 +113,7 @@ function get_answering_widget_type_registry() {
  * Hooked before the unregistered-type check, so an instance a plugin still adds under an old
  * name survives it under the current one.
  *
- * @since $$next-version$$
+ * @since 0.11.0
  *
  * @param array $layout Default widget instances.
  * @return array The layout with current type names.

@@ -21,7 +21,7 @@
 	}
 
 	&:hover {
-		background: var(--color-surface-backdrop, #f0f0f1);
+		background: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	// wp-admin's a:focus indicator is a box-shadow drawn outside the edge,
@@ -44,7 +44,7 @@
 	&__chevron {
 		flex-shrink: 0;
 		margin-block-start: 2px;
-		color: var(--color-neutral-60, #50575e);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 		align-self: center;
 	}
 

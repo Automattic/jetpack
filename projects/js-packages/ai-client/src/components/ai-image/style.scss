@@ -30,10 +30,10 @@
 		textarea {
 			width: 100%;
 			outline: none;
-			border: 1px solid #ccc;
+			border: 1px solid var(--wpds-color-stroke-interactive-neutral);
 			border-radius: 6px;
 			padding: 12px;
-			color: var(--studio-black);
+			color: var(--wpds-color-foreground-interactive-neutral);
 		}
 
 		textarea:disabled {
@@ -76,7 +76,7 @@
 		margin-top: 32px;
 		margin-bottom: -32px;
 		padding: 8px 32px;
-		border-top: solid 1px #dcdcde;
+		border-top: solid 1px var(--wpds-color-stroke-surface-neutral);
 		height: 60px;
 
 		&__feedback-button {
@@ -90,7 +90,7 @@
 		.icon {
 			width: 20px;
 			height: 20px;
-			color: var(--studio-gray-20);
+			color: var(--wpds-color-foreground-content-neutral-weak);
 			margin-left: 4px;
 		}
 	}

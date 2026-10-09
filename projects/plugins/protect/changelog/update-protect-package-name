@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Rename the plugin's Composer package to automattic/jetpack-protect-plugin, freeing the name for a new package.
+
+

@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { Icon, listView, reusableBlock } from '@wordpress/icons';
+import { Icon, formatListNumbered } from '@wordpress/icons';
+import scissors from '../../src/client/components/icons/scissors';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
 
@@ -29,13 +30,13 @@ export default function EditorOperationsPanel( {
 		{
 			id: 'trim' as const,
 			label: __( 'Trim & cut', 'jetpack-videopress-pkg' ),
-			icon: reusableBlock,
+			icon: scissors,
 			enabled: isTrimCutEnabled(),
 		},
 		{
 			id: 'chapters' as const,
 			label: __( 'Chapters', 'jetpack-videopress-pkg' ),
-			icon: listView,
+			icon: formatListNumbered,
 			enabled: isChaptersEditorEnabled(),
 		},
 	];

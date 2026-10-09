@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Inject WPDS design-token fallbacks during legacy dashboard CSS builds.

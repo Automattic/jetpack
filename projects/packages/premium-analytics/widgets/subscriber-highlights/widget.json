@@ -1,5 +1,6 @@
 {
 	"name": "jpa/subscriber-highlights",
+	"icon": "jpa/backup",
 	"title": "Subscriber highlights",
 	"description": "Your all-time subscribers and social followers, plus a paid and free breakdown or how many you had 30, 60, and 90 days ago.",
 	"help": {

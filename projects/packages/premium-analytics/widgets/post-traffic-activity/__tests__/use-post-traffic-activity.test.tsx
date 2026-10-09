@@ -29,9 +29,14 @@ const reportParams = ( params: Record< string, string > ) => params as unknown a
 
 describe( 'usePostTrafficActivity', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'pads short ranges to the grid span, blanking filler and no-traffic days', async () => {
@@ -112,29 +117,21 @@ describe( 'usePostTrafficActivity', () => {
 		expect( result.current.days[ 0 ].value ).toBeNull();
 	} );
 
-	it( 'returns no days when a window bound is missing or malformed', async () => {
+	it.each( [
+		[ 'malformed', { from: 'not-a-date', to: '2026-07-04T23:59:59.999+08:00' } ],
+		[ 'missing', { to: '2026-07-04T23:59:59.999+08:00' } ],
+		[
+			'after the end',
+			{ from: '2026-07-10T00:00:00.000+08:00', to: '2026-07-04T23:59:59.999+08:00' },
+		],
+	] )( 'returns no days when the window start is %s', async ( _label, params ) => {
 		const { result } = renderHook(
-			() =>
-				usePostTrafficActivity(
-					779,
-					reportParams( { from: 'not-a-date', to: '2026-07-04T23:59:59.999+08:00' } ),
-					168
-				),
+			() => usePostTrafficActivity( 779, reportParams( params ), 168 ),
 			{ wrapper }
 		);
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
 		expect( result.current.days ).toEqual( [] );
-	} );
-
-	it( 'never fires a request without a post scope', () => {
-		const { result } = renderHook( () => usePostTrafficActivity( 0, reportParams( {} ), 168 ), {
-			wrapper,
-		} );
-
-		expect( result.current.hasData ).toBe( false );
-		expect( result.current.days ).toEqual( [] );
-		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );

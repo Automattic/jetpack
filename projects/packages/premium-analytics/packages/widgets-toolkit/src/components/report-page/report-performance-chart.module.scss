@@ -1,8 +1,0 @@
-/* Anchors the absolutely positioned loading overlay. The height must be fixed:
- * the chart fills its container, and an unbounded element would let it
- * grow past the card and bleed over the sections below. */
-.chart {
-	position: relative;
-	height: 300px;
-	overflow: hidden;
-}

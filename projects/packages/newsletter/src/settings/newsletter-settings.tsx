@@ -10,6 +10,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,6 +19,7 @@ import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { getLinkedSectionId, scrollToSection } from './anchors';
 import { fetchSettings, updateSettings } from './api';
 import { getNewsletterScriptData } from './script-data';
 import {
@@ -237,6 +239,20 @@ export function NewsletterSettingsBody( {
 				setIsLoading( false );
 			} );
 	}, [] );
+
+	// The sections only exist once settings have loaded, after the router's own
+	// hash scroll has run, so jump to a linked section (e.g. `#subscriptions`) here.
+	const hasScrolledToHash = useRef( false );
+	useEffect( () => {
+		if ( isLoading || ! data || hasScrolledToHash.current ) {
+			return;
+		}
+		hasScrolledToHash.current = true;
+		const sectionId = getLinkedSectionId();
+		if ( sectionId ) {
+			scrollToSection( sectionId );
+		}
+	}, [ isLoading, data ] );
 
 	// Keep the module cache in sync with local state so optimistic edits,
 	// saves, and reverts all carry over to the next mount — a returning visitor

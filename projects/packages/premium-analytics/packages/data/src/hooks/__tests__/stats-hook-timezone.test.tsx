@@ -14,6 +14,7 @@ import { useStatsSingleVideo } from '../use-stats-single-video';
 import type { StatsEmailTimeSeriesParams } from '../use-stats-email-time-series';
 import type { ReactNode } from 'react';
 
+jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),
 	reportingTimeZone: jest.fn( () => 'America/New_York' ),

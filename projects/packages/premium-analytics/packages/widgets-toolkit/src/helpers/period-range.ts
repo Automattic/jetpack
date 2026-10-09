@@ -7,6 +7,7 @@ import {
 	startOfDayTZ,
 	toLocalTZ,
 	type DateRange,
+	type IntervalType,
 } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
@@ -73,4 +74,39 @@ export function yearRange( year: number, bounds: PeriodBounds ): Required< DateR
 	);
 
 	return clampToLife( bucket, bounds );
+}
+
+/**
+ * The chart bucket holding `date`, cut to the window the chart draws. `null` for
+ * an hourly bucket, the finest reading there is, or one outside the window.
+ *
+ * @param date     - A date inside the bucket.
+ * @param interval - The bucket size the chart drew.
+ * @param window   - The range the chart draws.
+ * @param bounds   - The site zone the bucket is cut in, and the clock capping it.
+ * @return The range to apply, or `null`.
+ */
+export function bucketRange(
+	date: Date,
+	interval: IntervalType,
+	window: DateRange,
+	bounds: Omit< PeriodBounds, 'lifeStartsAt' >
+): Required< DateRange > | null {
+	const { timeZone, now } = bounds;
+	// Re-anchored to the site zone: `drillDateRange` closes a bucket on the clock of the date it gets.
+	const bucket = drillDateRange(
+		toLocalTZ( date, timeZone ),
+		interval,
+		toLocalTZ( now, timeZone )
+	);
+
+	if ( ! bucket?.from || ! bucket.to ) {
+		return null;
+	}
+
+	// An edge bucket is usually partial; opening it whole would widen the report past the window.
+	const from = window.from && bucket.from < window.from ? window.from : bucket.from;
+	const to = window.to && bucket.to > window.to ? window.to : bucket.to;
+
+	return from.getTime() < to.getTime() ? { from, to } : null;
 }

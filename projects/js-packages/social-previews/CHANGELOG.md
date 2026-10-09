@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.14] - 2026-10-05
+### Changed
+- Update dependencies. [#52349]
+
 ## [3.3.13] - 2026-09-28
 ### Changed
 - Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
@@ -270,6 +274,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.3.14]: https://github.com/Automattic/social-previews/compare/v3.3.13...v3.3.14
 [3.3.13]: https://github.com/Automattic/social-previews/compare/v3.3.12...v3.3.13
 [3.3.12]: https://github.com/Automattic/social-previews/compare/v3.3.11...v3.3.12
 [3.3.11]: https://github.com/Automattic/social-previews/compare/v3.3.10...v3.3.11

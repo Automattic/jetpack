@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Dashboard: Expose the CSV download action of the linked report through the SDK; the widget contract is 1.3.0.

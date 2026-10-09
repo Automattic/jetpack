@@ -96,7 +96,7 @@ describe( 'PieSemiCircleChart', () => {
 
 		await user.hover( firstSegment );
 
-		// Wait for tooltip to be visible - it should show in the BaseTooltip component
+		// Wait for tooltip to be visible - it should show the default label: value content
 		const tooltip = await screen.findByRole( 'tooltip' );
 		expect( tooltip ).toHaveTextContent( 'MacOS' );
 

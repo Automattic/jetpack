@@ -51,7 +51,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_resolve_goal' ) ) {
 	 * to install WooCommerce at GET.
 	 *
 	 * The payload is the fallback and only covers one race: the wizard PUT is fire-and-forget in
-	 * wizard/wizard.tsx, so a prewarmed tailor can land before the option is written. The output schema
+	 * wizard/wizard.tsx, so the tailor can land before the option is written. The output schema
 	 * has already validated the payload's goal against the same six slugs.
 	 *
 	 * @param array $payload The AI output payload — the persisted one on read, the incoming one at PUT.

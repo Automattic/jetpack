@@ -17,10 +17,43 @@ export {
 export { getVideosReportQueryParams, videosCsvExporter } from './videos';
 export {
 	aggregateAuthorRows,
+	authorPostsCsvExporter,
 	authorsCsvExporter,
 	getAuthorName,
 	getAuthorsReportQueryParams,
 	type AuthorRow,
 } from './authors';
 export { aggregateClickRows, clicksCsvExporter, type ClickRow } from './clicks';
-export { flattenReferrerRows, referrersCsvExporter, type ReferrerRecord } from './referrers';
+export {
+	flattenReferrerRows,
+	getReferrerSpamDomain,
+	referrersCsvExporter,
+	type ReferrerRecord,
+} from './referrers';
+export { annualInsightsCsvExporter } from './annual-insights';
+export { commentsAuthorsCsvExporter, commentsPostsCsvExporter, toCommentRows } from './comments';
+export { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from './emails';
+export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
+export {
+	LOCATIONS_GEO_MODES,
+	buildLocationRows,
+	getLocationColumnLabel,
+	getLocationsReportQueryParams,
+	getLocationsReportSection,
+	getLocationsScopeParams,
+	locationsCsvExporter,
+	supportsLocationsCountryFilter,
+	type LocationRow,
+	type LocationsReportSection,
+	type LocationsScope,
+} from './locations';
+export {
+	aggregateUtmRows,
+	getUtmDimensionLabel,
+	getUtmDimensionOptions,
+	getUtmReportQueryParams,
+	getUtmReportSection,
+	utmCsvExporters,
+	type UtmReportRow,
+	type UtmReportSection,
+} from './utm';

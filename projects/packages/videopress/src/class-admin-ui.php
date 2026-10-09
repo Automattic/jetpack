@@ -8,16 +8,9 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Terms_Of_Service;
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\VideoPress\Status as VideoPress_Status;
 
 /**
@@ -49,8 +42,7 @@ class Admin_UI {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > VideoPress" renders the new
-	 * wp-build dashboard instead of the legacy React app.
+	 * When this filter returns false, no "Jetpack > VideoPress" menu is registered.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_videopress';
 
@@ -147,17 +139,25 @@ class Admin_UI {
 	}
 
 	/**
-	 * Select the dashboard render callback: the modernized wp-build render function
-	 * when modernization is on and it's available (loaded by maybe_load_wp_build()),
-	 * otherwise the legacy React root. Shared by enable_menu() (standalone/Atomic)
-	 * and add_wp_admin_submenu() (wpcom Simple).
+	 * Select the dashboard render callback, or null when the dashboard can't render.
 	 *
-	 * @return string|array Callback for Admin_Menu::add_menu()/add_submenu_page().
+	 * The wp-build render function is only loaded on the VideoPress page itself (see
+	 * maybe_load_wp_build()), so it is only checked there; other admin pages still
+	 * register the menu item.
+	 *
+	 * @return string|null Callback for Admin_Menu::add_menu()/add_submenu_page().
 	 */
 	private static function get_dashboard_render_callback() {
-		return self::is_modernized() && function_exists( 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page' )
-			? 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page'
-			: array( __CLASS__, 'plugin_settings_page' );
+		if ( ! self::is_modernized() ) {
+			return null;
+		}
+
+		$callback = 'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_render_page';
+		if ( self::is_videopress_admin_request() && ! function_exists( $callback ) ) {
+			return null;
+		}
+
+		return $callback;
 	}
 
 	/**
@@ -190,6 +190,9 @@ class Admin_UI {
 	 */
 	private static function enable_dashboard_menu() {
 		$callback = self::get_dashboard_render_callback();
+		if ( null === $callback ) {
+			return;
+		}
 
 		$page_suffix = Admin_Menu::add_menu(
 			// "VideoPress" is a product name, do not translate.
@@ -275,24 +278,16 @@ class Admin_UI {
 	 * Called from wpcom-admin-menu.php at a late priority (999999), once the Jetpack
 	 * parent menu exists. On Simple enable_menu() is skipped (see init()), so this is
 	 * the only place the submenu is registered there. The callback mirrors enable_menu():
-	 * the wp-build render function when modernized and available (loaded by
-	 * maybe_load_wp_build() at admin_menu:1, which runs first), otherwise the legacy root.
+	 * the wp-build render function (loaded by maybe_load_wp_build() at admin_menu:1,
+	 * which runs first), and no menu when the dashboard can't render.
 	 *
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
-		// Unlike standalone/Atomic, Simple has no working fallback: the legacy
-		// React dashboard's data layer rides videopress/v1, which never reaches
-		// the REST dispatcher there. With modernization off (e.g. a site outside
-		// the staged rollout), register no menu rather than a dead page. The
-		// function_exists half of the callback selection can't gate this — the
-		// wp-build render function is only loaded on the VideoPress page itself,
-		// and the menu must register on every admin page.
-		if ( ! self::is_modernized() ) {
+		$callback = self::get_dashboard_render_callback();
+		if ( null === $callback ) {
 			return;
 		}
-
-		$callback = self::get_dashboard_render_callback();
 
 		$page_suffix = add_submenu_page(
 			'jetpack',
@@ -349,15 +344,6 @@ class Admin_UI {
 	}
 
 	/**
-	 * Main plugin settings page.
-	 */
-	public static function plugin_settings_page() {
-		?>
-			<div id="jetpack-videopress-root"></div>
-		<?php
-	}
-
-	/**
 	 * Remove extra fields from Attachment details modal
 	 *
 	 * @return void
@@ -371,130 +357,52 @@ class Admin_UI {
 	}
 
 	/**
-	 * Returns whether we are in condition to track to use
-	 * Analytics functionality like Tracks, MC, or GA.
-	 */
-	public static function can_use_analytics() {
-		$status     = new Status();
-		$connection = new Connection_Manager();
-		$tracking   = new Tracking( 'jetpack', $connection );
-
-		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
-	}
-
-	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
 		// so it only fires on the VideoPress admin page — no need to re-check the page here.
-		if ( self::is_modernized() ) {
-			Admin_Menu::enqueue_design_tokens();
+		Admin_Menu::enqueue_design_tokens();
 
-			// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
-			// mixin to the dashboard body so every route inherits the proper
-			// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
-			// footer) regardless of whether it uses DashboardLayout. Without this,
-			// non-tabbed routes (e.g. Video details) would only get the layout
-			// after a sibling route's chunk happened to inject the same CSS.
-			// Pick the flipped build ourselves on RTL locales rather than leaning on
-			// `wp_style_add_data( …, 'rtl', 'replace' )`: core resolves that by
-			// rewriting `index.css` to `index-rtl.css` (hyphenated) *and* dropping
-			// the LTR tag, but webpack emits the flipped file as `index.rtl.css`
-			// (dotted, the same convention `Assets::register_script()`'s `css_path`
-			// follows). The hyphenated file never exists, so RTL sites used to load
-			// no shell stylesheet at all — the layout flex chain never formed and
-			// the dashboard rendered as a blank page.
-			$shell_dir  = dirname( __DIR__ ) . '/build/dashboard-shell/';
-			$shell_file = is_rtl() && file_exists( $shell_dir . 'index.rtl.css' ) ? 'index.rtl.css' : 'index.css';
-			if ( file_exists( $shell_dir . $shell_file ) ) {
-				wp_register_style(
-					'jetpack-videopress-dashboard-shell',
-					plugins_url( 'build/dashboard-shell/' . $shell_file, __DIR__ ),
-					array(),
-					(string) filemtime( $shell_dir . $shell_file )
-				);
-				wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
-			}
-
-			// The Video details screen's thumbnail editor opens the WordPress
-			// media library (via window.wp.media) for the "Upload image"
-			// action, so the media scripts must be present here too.
-			wp_enqueue_media();
-
-			// The i18n loader is registered on every admin page by jetpack-assets but
-			// only enqueued when depended on; the esbuild bundles don't pull it in.
-			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-				wp_enqueue_script( 'wp-jp-i18n-loader' );
-			}
-
-			// Beyond the shell stylesheet and the media library, wp-build
-			// manages its own enqueue pipeline. The legacy script, initial
-			// state, and tracking are all intentionally skipped for the
-			// wp-build dashboard.
-			return;
+		// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
+		// mixin to the dashboard body so every route inherits the proper
+		// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
+		// footer) regardless of whether it uses DashboardLayout. Without this,
+		// non-tabbed routes (e.g. Video details) would only get the layout
+		// after a sibling route's chunk happened to inject the same CSS.
+		// Pick the flipped build ourselves on RTL locales rather than leaning on
+		// `wp_style_add_data( …, 'rtl', 'replace' )`: core resolves that by
+		// rewriting `index.css` to `index-rtl.css` (hyphenated) *and* dropping
+		// the LTR tag, but webpack emits the flipped file as `index.rtl.css`
+		// (dotted, the same convention `Assets::register_script()`'s `css_path`
+		// follows). The hyphenated file never exists, so RTL sites used to load
+		// no shell stylesheet at all — the layout flex chain never formed and
+		// the dashboard rendered as a blank page.
+		$shell_dir  = dirname( __DIR__ ) . '/build/dashboard-shell/';
+		$shell_file = is_rtl() && file_exists( $shell_dir . 'index.rtl.css' ) ? 'index.rtl.css' : 'index.css';
+		if ( file_exists( $shell_dir . $shell_file ) ) {
+			wp_register_style(
+				'jetpack-videopress-dashboard-shell',
+				plugins_url( 'build/dashboard-shell/' . $shell_file, __DIR__ ),
+				array(),
+				(string) filemtime( $shell_dir . $shell_file )
+			);
+			wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 		}
 
-		Assets::register_script(
-			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
-			'../build/admin/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
-		);
-		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
-
-		// Required for Media Library access
+		// The Video details screen's thumbnail editor opens the WordPress
+		// media library (via window.wp.media) for the "Upload image"
+		// action, so the media scripts must be present here too.
 		wp_enqueue_media();
 
-		// Required for Analytics.
-		if ( self::can_use_analytics() ) {
-			Tracking::register_tracks_functions_scripts( true );
+		// The i18n loader is registered on every admin page by jetpack-assets but
+		// only enqueued when depended on; the esbuild bundles don't pull it in.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
-		// Initial JS state including JP Connection data.
-		Connection_Initial_State::render_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
-		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
-	}
-
-	/**
-	 * Render the initial state into a JavaScript variable.
-	 *
-	 * @return string
-	 */
-	public static function render_initial_state() {
-		return 'var jetpackVideoPressInitialState=' . wp_json_encode( self::initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
-	}
-
-	/**
-	 * Get the initial state data for hydrating the React UI.
-	 *
-	 * @return array
-	 */
-	public static function initial_state() {
-		return array(
-			'apiRoot'                => esc_url_raw( rest_url() ),
-			'apiNonce'               => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'      => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'adminUrl'               => self::get_admin_page_url(),
-			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
-			'paidFeatures'           => array(
-				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
-				// Check videopress-1tb-storage (Jetpack) or videopress (WordPress.com).
-				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' )
-					|| ( ( new Host() )->is_wpcom_platform() && wpcom_site_has_feature( 'videopress' ) ),
-				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
-			),
-			'siteSuffix'             => ( new Status() )->get_site_suffix(),
-			'productData'            => Plan::get_product(),
-			'productPrice'           => Plan::get_product_price(),
-			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
-			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
-			'initialState'           => Data::get_initial_state(),
-			'contentNonce'           => wp_create_nonce( 'videopress-content-nonce' ),
-		);
+		// Beyond the shell stylesheet and the media library, wp-build
+		// manages its own enqueue pipeline.
 	}
 
 	/**

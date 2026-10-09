@@ -22,8 +22,8 @@
 		padding: 8px 12px;
 		position: sticky;
 		top: -24px;
-		background: #fff;
-		border-bottom: 1px solid #dcdcde;
+		background: var(--wpds-color-background-surface-neutral-strong);
+		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
 	}
 
 	&__title-wrapper {

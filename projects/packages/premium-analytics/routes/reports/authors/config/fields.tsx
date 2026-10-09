@@ -43,7 +43,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 	return [
 		{
 			id: 'author',
-			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Author', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => ( item.isGroup ? getAuthorName( item.label ) : item.label ),

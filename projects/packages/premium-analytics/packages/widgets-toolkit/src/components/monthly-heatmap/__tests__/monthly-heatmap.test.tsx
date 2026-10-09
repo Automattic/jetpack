@@ -28,8 +28,14 @@ const LABELS = {
 };
 
 describe( 'MonthlyHeatmap', () => {
+	const originalResizeObserver = globalThis.ResizeObserver;
+
 	beforeAll( () => {
 		( globalThis as { ResizeObserver?: unknown } ).ResizeObserver = ResizeObserverStub;
+	} );
+
+	afterAll( () => {
+		globalThis.ResizeObserver = originalResizeObserver;
 	} );
 
 	it( 'lays the years out newest first under the month names and a Totals column', () => {

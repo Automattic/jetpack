@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { category } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /** No configurable attributes; the empty record allows host-provided fields. */
@@ -13,7 +12,6 @@ export type TagsAttributes = Record< never, never >;
  * have no single archive URL and drill down to their members instead.
  */
 export default {
-	icon: category,
 	attributes: [] as WidgetAttributeField< TagsAttributes >[],
 	example: {
 		attributes: {},

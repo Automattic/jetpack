@@ -45,6 +45,9 @@ interface Subscription_Service {
 	 * Given a token (this could be from a cookie, a querystring, or some other means)
 	 * can the visitor see the premium content?
 	 *
+	 * Implementations may accept an optional third `$post_id` for checks outside the loop. It is not
+	 * declared here because existing two-argument implementers would then fatal as incompatible.
+	 *
 	 * @param array  $valid_plan_ids .
 	 * @param string $access_level .
 	 *

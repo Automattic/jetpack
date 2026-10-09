@@ -111,10 +111,37 @@ describe( 'groupMoreFeatures', () => {
 		).toContain( 'monitor' );
 	} );
 
-	it( 'searches regardless of the filter', () => {
+	it( 'searches regardless of the filter, returning one unlabelled group', () => {
 		const found = filterMoreFeatures( grouped, 'active', 'monitor' );
 
-		expect( slugsOf( found ) ).toEqual( [ [ 'Security', [ 'monitor' ] ] ] );
+		expect( slugsOf( found ) ).toEqual( [ [ '', [ 'monitor' ] ] ] );
+	} );
+
+	it( 'ranks results across groups rather than within each one', () => {
+		// 'zeta' is an exact name match in Analytics; Security's 'sso' only matches its
+		// description, so group order must not float it above the better match.
+		const ranked = filterMoreFeatures(
+			groupMoreFeatures(
+				features,
+				[
+					{ label: 'Security', modules: [ 'sso' ] },
+					{ label: 'Analytics', modules: [ 'zeta' ] },
+				],
+				{ ...modules, sso: mod( 'sso', { description: 'zeta' } ) },
+				{ social: 'publicize' },
+				{},
+				new Set()
+			),
+			'all',
+			'zeta'
+		);
+
+		expect( ranked ).toHaveLength( 1 );
+		expect( ranked[ 0 ].states.map( state => state.feature.slug ) ).toEqual( [ 'zeta', 'sso' ] );
+	} );
+
+	it( 'drops the search results entirely when nothing matches', () => {
+		expect( filterMoreFeatures( grouped, 'all', 'nothingmatchesthis' ) ).toEqual( [] );
 	} );
 } );
 
