@@ -58,7 +58,8 @@ class Dashboard_Threats {
 				'type'    => $type,
 				'icon'    => 'plugins' === $type ? self::get_plugin_icon( $site, $slug ) : ( $theme && $theme->get_screenshot() ? $theme->get_screenshot() : null ),
 				'state'   => self::get_state( $type, $file, $theme ),
-				'actions' => self::get_actions( $site, $type, $slug, $file, $theme ),
+				// A fixed threat no longer calls for deleting what it was in.
+				'actions' => array_diff_key( self::get_actions( $site, $type, $slug, $file, $theme ), 'fixed' === ( $threat->status ?? null ) ? array( 'delete' => true ) : array() ),
 			) : null,
 		);
 	}
@@ -150,7 +151,7 @@ class Dashboard_Threats {
 	 */
 	private static function get_state( $type, $file, $theme ) {
 		if ( 'plugins' === $type && $file ) {
-			return is_plugin_active( $file ) ? 'active' : 'inactive';
+			return self::has_active_plugin( $file ) ? 'active' : 'inactive';
 		}
 		if ( 'themes' === $type && $theme ) {
 			if ( get_stylesheet() === $theme->get_stylesheet() ) {
@@ -159,6 +160,23 @@ class Dashboard_Threats {
 			return get_template() === $theme->get_stylesheet() ? 'parent' : 'inactive';
 		}
 		return null;
+	}
+
+	/**
+	 * Whether the plugin, or another plugin in its folder, is active, since deleting it removes the whole folder.
+	 *
+	 * @param string $file The plugin's file.
+	 * @return bool
+	 */
+	private static function has_active_plugin( $file ) {
+		$folder = dirname( $file );
+		$files  = '.' === $folder ? array( $file ) : array_keys( get_plugins( '/' . $folder ) );
+		foreach ( $files as $name ) {
+			if ( is_plugin_active( '.' === $folder ? $name : $folder . '/' . $name ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

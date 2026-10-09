@@ -195,6 +195,58 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A threat's status, and whether it offers to delete the inactive plugin it's in.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_delete_action() {
+		return array(
+			'current threat offers delete' => array( 'current', true ),
+			'ignored threat offers delete' => array( 'ignored', true ),
+			'fixed threat does not'        => array( 'fixed', false ),
+		);
+	}
+
+	/**
+	 * Test that only a threat that still applies offers to delete its plugin.
+	 *
+	 * @dataProvider provider_delete_action
+	 * @param string $status   The threat's status.
+	 * @param bool   $expected Whether Delete is offered.
+	 */
+	#[DataProvider( 'provider_delete_action' )]
+	public function test_delete_action( $status, $expected ) {
+		$file = WP_PLUGIN_DIR . '/protect-state-test.php';
+		wp_mkdir_p( WP_PLUGIN_DIR );
+		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect State Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		wp_clean_plugins_cache( false );
+		update_option( 'active_plugins', array() );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$threat = Dashboard_Threats::format(
+			(object) array(
+				'status'    => $status,
+				'extension' => (object) array(
+					'slug' => 'protect-state-test',
+					'type' => 'plugin',
+				),
+			)
+		);
+		wp_delete_file( $file );
+		wp_set_current_user( 0 );
+
+		$this->assertSame( $expected, ! empty( $threat['extension']['actions']['delete'] ) );
+	}
+
+	/**
 	 * Test format().
 	 *
 	 * @dataProvider provider_format

@@ -39,7 +39,7 @@ function getDeleteMessage( threat: ScanThreat ): string {
 		: sprintf(
 				/* translators: %s is a plugin name, such as "Contact Form 7". */
 				__(
-					'%s isn’t active, so deleting it doesn’t change your site. Its files are removed and can’t be restored.',
+					'%s isn’t active. Deleting it removes its files and any data it saved, such as its settings. This can’t be undone.',
 					'jetpack-protect-pkg'
 				),
 				name

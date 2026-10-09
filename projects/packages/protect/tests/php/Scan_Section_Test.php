@@ -137,35 +137,50 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Whether the plugin being deleted is active, and whether the route deletes it.
+	 * Plugin files, the active ones, the slug to delete, and whether the route deletes it.
 	 *
 	 * @return array[]
 	 */
 	public static function provider_delete_plugin() {
+		$folder = array( 'protect-folder/a.php', 'protect-folder/b.php' );
 		return array(
-			'inactive plugin is deleted' => array( false, true ),
-			'active plugin is kept'      => array( true, false ),
+			'inactive plugin is deleted'            => array( array( 'protect-delete-test.php' ), array(), 'protect-delete-test', true ),
+			'active plugin is kept'                 => array( array( 'protect-delete-test.php' ), array( 'protect-delete-test.php' ), 'protect-delete-test', false ),
+			'folder of inactive plugins is deleted' => array( $folder, array(), 'protect-folder', true ),
+			'folder with an active plugin is kept'  => array( $folder, array( 'protect-folder/a.php' ), 'protect-folder', false ),
 		);
 	}
 
 	/**
-	 * Test that the route deletes an inactive plugin's files, but never an active plugin's.
+	 * Test that the route deletes an inactive plugin's files, but never a folder holding an active plugin.
 	 *
 	 * @dataProvider provider_delete_plugin
-	 * @param bool $is_active   Whether the plugin is active.
-	 * @param bool $is_deleted  Whether its file should be gone.
+	 * @param string[] $files      Plugin files to install.
+	 * @param string[] $active     The active ones.
+	 * @param string   $slug       The plugin to delete.
+	 * @param bool     $is_deleted Whether its files should be gone.
 	 */
 	#[DataProvider( 'provider_delete_plugin' )]
-	public function test_delete_software_only_deletes_inactive_plugins( $is_active, $is_deleted ) {
-		$file = WP_PLUGIN_DIR . '/protect-delete-test.php';
-		wp_mkdir_p( WP_PLUGIN_DIR );
-		file_put_contents( $file, "<?php\n/**\n * Plugin Name: Protect Delete Test\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	public function test_delete_software_only_deletes_inactive_plugins( $files, $active, $slug, $is_deleted ) {
+		foreach ( $files as $file ) {
+			// wp_mkdir_p() refuses the test environment's plugin root, whose path has `..` in it.
+			if ( ! is_dir( dirname( WP_PLUGIN_DIR . "/$file" ) ) ) {
+				mkdir( dirname( WP_PLUGIN_DIR . "/$file" ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			}
+			file_put_contents( WP_PLUGIN_DIR . "/$file", "<?php\n/**\n * Plugin Name: $file\n */\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		}
 		wp_clean_plugins_cache( false );
-		update_option( 'active_plugins', $is_active ? array( 'protect-delete-test.php' ) : array() );
-		$result = self::delete_as_admin( 'plugins', 'protect-delete-test' );
-		$exists = file_exists( $file );
-		if ( $exists ) {
-			wp_delete_file( $file );
+		update_option( 'active_plugins', $active );
+
+		$result = self::delete_as_admin( 'plugins', $slug );
+		$exists = file_exists( WP_PLUGIN_DIR . '/' . $files[0] );
+		foreach ( $files as $file ) {
+			if ( file_exists( WP_PLUGIN_DIR . "/$file" ) ) {
+				wp_delete_file( WP_PLUGIN_DIR . "/$file" );
+			}
+		}
+		if ( is_dir( WP_PLUGIN_DIR . '/protect-folder' ) ) {
+			rmdir( WP_PLUGIN_DIR . '/protect-folder' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 		}
 
 		$this->assertSame( $is_deleted, ! is_wp_error( $result ), 'Result' );
