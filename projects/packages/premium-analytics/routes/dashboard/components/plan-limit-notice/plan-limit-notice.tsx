@@ -9,7 +9,7 @@ import {
 	useStatsAppPlanUsage,
 	type StatsAppPlanUsage,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton, Notice } from '@jetpack-premium-analytics/externals';
+import { Notice } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { statsUpgradeUrl, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
@@ -160,15 +160,9 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 
 			{ upgradeHref && (
 				<Notice.Actions>
-					<LinkButton
-						href={ upgradeHref }
-						variant="solid"
-						tone="neutral"
-						size="compact"
-						onClick={ recordUpgradeClick }
-					>
+					<Notice.ActionLink href={ upgradeHref } onClick={ recordUpgradeClick }>
 						{ __( 'Upgrade plan', 'jetpack-premium-analytics-pkg' ) }
-					</LinkButton>
+					</Notice.ActionLink>
 				</Notice.Actions>
 			) }
 
