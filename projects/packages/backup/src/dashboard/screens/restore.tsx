@@ -14,6 +14,7 @@ import {
 import { Link, useParams } from '@wordpress/route';
 import { Button, Card, EmptyState, ButtonLink, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
+import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useGateState } from '../hooks/use-gate-state';
@@ -312,6 +313,7 @@ export default function RestoreScreen() {
 									{ state.message ||
 										__( 'Some items could not be restored.', 'jetpack-backup-pkg' ) }
 								</EmptyState.Description>
+								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
 									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
@@ -377,6 +379,7 @@ export default function RestoreScreen() {
 										{ state.detail }
 									</Text>
 								) }
+								<ErrorReference { ...state.reference } />
 								<Link to="/">{ __( 'Back to overview', 'jetpack-backup-pkg' ) }</Link>
 							</Stack>
 						) }
@@ -399,6 +402,7 @@ export default function RestoreScreen() {
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
+								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ reset }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }

@@ -1314,6 +1314,34 @@ describe( 'AI admin page (main.jsx)', () => {
 		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
 	} );
 
+	test( 'activity log row: promises AI agent actions when the page data says the link is filtered', async () => {
+		window.jetpackAiSettings = {
+			blogId: 1,
+			activityLogUrl: 'https://example.com/activity',
+			activityLogFiltered: true,
+		};
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions taken by AI agents on your site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'activity log row: describes all actions when the page data has no filtered flag', async () => {
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions on your site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
 	test( 'activity log row: absent from the MCP hub without an activityLogUrl', async () => {
 		window.jetpackAiSettings = { blogId: 1 };
 		window.location.hash = '';

@@ -24,7 +24,7 @@ import {
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
 import { useAnalytics } from '../hooks/use-analytics';
-import { useBackups } from '../hooks/use-backups';
+import { failedAttemptReference, useBackups } from '../hooks/use-backups';
 import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
@@ -202,6 +202,7 @@ function OverviewBody() {
 	// running" from "they're all failing". This second query answers that.
 	const {
 		state: backupsState,
+		backups,
 		progress,
 		isInitialBackup,
 		hasWarnings,
@@ -277,6 +278,7 @@ function OverviewBody() {
 				state={ backupsState }
 				progress={ progress }
 				isStarting={ isBackupRequested && backupsState !== 'in-progress' }
+				reference={ failedAttemptReference( backups ) }
 			/>
 		);
 	}
@@ -335,7 +337,12 @@ function OverviewBody() {
 			 * dashboard twice in two different shapes. `isError` is not
 			 * loading, so the terminal case still reports immediately.
 			 */ }
-			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ ! restorePointsLoading && (
+				<BackupTroubleBanner
+					state={ backupsState }
+					reference={ failedAttemptReference( backups ) }
+				/>
+			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
 			{ /*
 			 * The storage row, with the next scheduled backup at its end. The gate stops an

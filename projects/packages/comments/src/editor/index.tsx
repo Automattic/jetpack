@@ -31,8 +31,8 @@ import { unregisterFormatType } from '@wordpress/rich-text';
 import { registerEmbedBlock } from './embed';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
-import type { EditorLabels } from '../shared/types';
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { BoundaryProps, EditorProps, WritingAreaProps } from './types';
+import type { KeyboardEvent } from 'react';
 
 import './style.scss';
 
@@ -58,20 +58,6 @@ const settings = {
 	supportsLayout: false,
 };
 
-type EditorProps = {
-	initialContent: string;
-	/** The editor's own strings, translated in PHP. */
-	labels: EditorLabels;
-	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
-	focus?: () => number;
-	placeholder: string;
-	onChange: ( content: string ) => void;
-	/** The editor broke; the caller brings its textarea back. */
-	onError: () => void;
-};
-
-type BoundaryProps = { onError: () => void; children: ReactNode };
-
 // A render error would otherwise leave an empty box where the textarea was.
 class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 	state = { failed: false };
@@ -88,6 +74,21 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 		return this.state.failed ? null : this.props.children;
 	}
 }
+
+// A draft from the editor is block markup; anything else is plain text for one paragraph.
+const toBlocks = ( content: string, placeholder: string ) =>
+	content.includes( '<!-- wp:' )
+		? parse( content )
+		: [
+				createBlock( 'core/paragraph', {
+					placeholder,
+					content: content
+						.trim()
+						.replace( /&/g, '&amp;' )
+						.replace( /</g, '&lt;' )
+						.replace( /\n/g, '<br>' ),
+				} ),
+			];
 
 // The reader reached into the textarea to get here, so the caret goes where they put it.
 const FocusOnMount = ( { offset }: { offset: () => number } ) => {
@@ -110,8 +111,6 @@ const FocusOnMount = ( { offset }: { offset: () => number } ) => {
 
 	return null;
 };
-
-type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNode };
 
 // The undo and redo shortcuts, which live in the post editor, not the block editor.
 const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
@@ -140,19 +139,7 @@ const Editor = ( {
 	onChange,
 }: Omit< EditorProps, 'onError' > ) => {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
-		// A draft from the editor is block markup; anything else is plain text for one paragraph.
-		const blocks = initialContent.includes( '<!-- wp:' )
-			? parse( initialContent )
-			: [
-					createBlock( 'core/paragraph', {
-						placeholder,
-						content: initialContent
-							.trim()
-							.replace( /&/g, '&amp;' )
-							.replace( /</g, '&lt;' )
-							.replace( /\n/g, '<br>' ),
-					} ),
-				];
+		const blocks = toBlocks( initialContent, placeholder );
 
 		return { past: [], present: { blocks, markup: serialize( blocks ) }, future: [], editedAt: 0 };
 	} );
@@ -226,7 +213,7 @@ const Editor = ( {
  * @param props     - Editor props.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
-	registerEmbedBlock( props.labels );
+	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
 	createRoot( container ).render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />

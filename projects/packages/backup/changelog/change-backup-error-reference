@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: The modernized dashboard, behind a feature flag, also shows a copyable error code and related ID under each error.
+
+Include WordPress.com's error reason in failed backup REST responses.

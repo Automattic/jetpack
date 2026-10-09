@@ -12,6 +12,7 @@ import {
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Card, EmptyState, ButtonLink, Spinner, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
+import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { splitFileSelection } from '../data/api/download';
@@ -274,6 +275,7 @@ export default function DownloadScreen() {
 									</Text>
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
+								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ hasFileSelection ? handleRetry : reset }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }

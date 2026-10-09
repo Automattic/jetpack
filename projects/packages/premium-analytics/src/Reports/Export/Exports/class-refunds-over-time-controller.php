@@ -110,15 +110,4 @@ class Refunds_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 			'total_items_refunded',
 		);
 	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-		);
-	}
 }

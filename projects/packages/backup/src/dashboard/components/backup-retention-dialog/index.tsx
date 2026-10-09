@@ -1,4 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, ButtonLink, Notice, SelectControl, Stack } from '@wordpress/ui';
@@ -7,7 +6,7 @@ import {
 	isRetentionOption,
 	type RetentionDays,
 } from '../../data/api/backup-retention';
-import { GIGABYTE, MEGABYTE, TERABYTE } from '../../data/storage-units';
+import { formatStorageSize } from '../../data/storage-units';
 import useAdminMenuWidth from '../../hooks/use-admin-menu-width';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
@@ -50,24 +49,6 @@ function optionLabel( days: RetentionDays ): string {
 }
 
 const LONGEST = RETENTION_OPTIONS[ RETENTION_OPTIONS.length - 1 ];
-
-/**
- * A byte count in the units storage is sold in, e.g. `12.4GB` or `1.5TB`; MB below 1GB.
- *
- * @param bytes - The amount.
- * @return The amount, abbreviated as legacy does.
- */
-function sizeText( bytes: number ): string {
-	const options = { numberFormatOptions: { maximumFractionDigits: 1 } };
-
-	if ( bytes < GIGABYTE ) {
-		return `${ formatNumber( bytes / MEGABYTE ) }MB`;
-	}
-
-	return bytes >= TERABYTE
-		? `${ formatNumber( bytes / TERABYTE, options ) }TB`
-		: `${ formatNumber( bytes / GIGABYTE, options ) }GB`;
-}
 
 /**
  * Picks how many days of backups WordPress.com keeps, buying storage when a choice needs it.
@@ -250,8 +231,8 @@ export default function BackupRetentionDialog( {
 										? sprintf(
 												/* translators: %1$s: estimated storage, e.g. "45.2GB". %2$s: the site's storage limit, e.g. "10GB". */
 												__( 'Needs about %1$s of your %2$s.', 'jetpack-backup-pkg' ),
-												sizeText( spaceNeeded ),
-												sizeText( storageLimit )
+												formatStorageSize( spaceNeeded ),
+												formatStorageSize( storageLimit )
 											)
 										: undefined
 								}
