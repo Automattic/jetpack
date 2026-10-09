@@ -277,18 +277,6 @@ unset, and once the single template is saved with a block on one side, moving it
 to the other side adds nothing there. Tests that call `apply_block_hooks_to_content()`
 with plain `insert_hooked_blocks` miss all of this; go through `get_block_template()`.
 
-**The gate never asks the block registry.** `like` and `sharing-buttons` are in
-`Jetpack_Gutenberg::$lazy_blocks`: on plain front-end requests they register
-on first render, after core has built the template, so a registry check would
-always fail there. As with Newsletter's Subscribe placement, the callbacks check
-the conditions the blocks load under instead: a block theme,
-`Environment::jetpack_blocks_load()`, the legacy feature showing no buttons, and
-`likes_supported()` for the Like block. The lazy loader then registers the
-inserted blocks as they render. Sites that drop Jetpack's blocks with the
-`jetpack_gutenberg` filter, or one of these two with
-`jetpack_set_available_extensions`, still get them hooked; that gap is accepted.
-Keep both blocks lazy.
-
 **Never resolve a template inside a callback.** Building a template applies
 block hooks, so `get_block_template()`, `Environment::single_template_editor_url()`
 and the sections' `state()` all recurse from there. Read options and site facts
