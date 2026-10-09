@@ -5,7 +5,7 @@ export const googlePoint2Mapbox = google_point =>
 				// Legacy point, supported here to avoid block deprecation.
 				lat: google_point.latitude || 0,
 				lng: google_point.longitude || 0,
-			};
+		  };
 
 export function getMapBounds( mapboxgl, points ) {
 	const bounds = new mapboxgl.LngLatBounds();
@@ -15,15 +15,19 @@ export function getMapBounds( mapboxgl, points ) {
 	return bounds;
 }
 
-export function fitMapToBounds( map, bounds ) {
-	map.fitBounds( bounds, {
-		padding: {
-			top: 80,
-			bottom: 80,
-			left: 40,
-			right: 40,
+export function fitMapToBounds( map, bounds, eventData ) {
+	map.fitBounds(
+		bounds,
+		{
+			padding: {
+				top: 80,
+				bottom: 80,
+				left: 40,
+				right: 40,
+			},
 		},
-	} );
+		eventData
+	);
 }
 
 export function setMarkerHTML( el, markerColor ) {

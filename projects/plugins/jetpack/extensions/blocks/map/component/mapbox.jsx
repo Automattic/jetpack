@@ -14,6 +14,9 @@ import { resizeMapContainer } from '../utils';
 import InfoWindow from './info-window';
 import MapMarker from './map-marker';
 
+// Tag derived viewport changes so their events cannot create persistent edits.
+const VIEWPORT_SYNC = { jetpackViewportSync: true };
+
 export class MapBoxComponent extends Component {
 	// Lifecycle
 	constructor() {
@@ -207,17 +210,17 @@ export class MapBoxComponent extends Component {
 		const mapEl = this.mapRef.current;
 
 		resizeMapContainer( mapEl, mapHeight );
-		map.resize();
+		map.resize( VIEWPORT_SYNC );
 		this.setBoundsByMarkers();
 	};
 	updateZoom = () => {
 		const { zoom } = this.props;
 		const { map } = this.state;
 
-		map.setZoom( zoom );
+		map.setZoom( zoom, VIEWPORT_SYNC );
 	};
 	setBoundsByMarkers = () => {
-		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
+		const { admin, onSetZoom, points, zoom } = this.props;
 		const { map, activeMarker, mapboxgl, zoomControl, boundsSetProgrammatically } = this.state;
 		if ( ! map ) {
 			return;
@@ -238,11 +241,10 @@ export class MapBoxComponent extends Component {
 		}
 
 		const bounds = getMapBounds( mapboxgl, points );
-		onSetMapCenter( bounds.getCenter() );
 
 		// If there are multiple points, zoom is determined by the area they cover, and zoom control is removed.
 		if ( points.length > 1 ) {
-			fitMapToBounds( map, bounds );
+			fitMapToBounds( map, bounds, VIEWPORT_SYNC );
 			this.setState( { boundsSetProgrammatically: true } );
 			try {
 				map.removeControl( zoomControl );
@@ -252,16 +254,16 @@ export class MapBoxComponent extends Component {
 			return;
 		}
 		// If there is only one point, center map around it.
-		map.setCenter( bounds.getCenter() );
+		map.setCenter( bounds.getCenter(), VIEWPORT_SYNC );
 
 		// If the number of markers has just changed from > 1 to 1, set an arbitrary tight zoom, which feels like the original default.
 		if ( boundsSetProgrammatically ) {
 			const newZoom = 12;
-			map.setZoom( newZoom );
+			map.setZoom( newZoom, VIEWPORT_SYNC );
 			onSetZoom( newZoom );
 		} else {
 			// If there are one (or zero) points, and this is not a recent change, respect user's chosen zoom.
-			map.setZoom( parseInt( zoom, 10 ) );
+			map.setZoom( parseInt( zoom, 10 ), VIEWPORT_SYNC );
 		}
 		map.addControl( zoomControl );
 		this.setState( { boundsSetProgrammatically: false } );
@@ -345,13 +347,15 @@ export class MapBoxComponent extends Component {
 			showCompass: false,
 			showZoom: true,
 		} );
-		map.on( 'zoomend', () => {
-			this.props.onSetZoom( map.getZoom() );
+		map.on( 'zoomend', event => {
+			if ( ! event.jetpackViewportSync ) {
+				this.props.onSetZoom( map.getZoom() );
+			}
 		} );
-		map.on( 'moveend', () => {
+		map.on( 'moveend', event => {
 			const { onSetMapCenter, points } = this.props;
 			// If there are no markers, user repositioning controls map center. If there are markers, set programmatically.
-			if ( points.length < 1 ) {
+			if ( points.length < 1 && ! event.jetpackViewportSync ) {
 				onSetMapCenter( map.getCenter() );
 			}
 		} );
@@ -379,7 +383,7 @@ export class MapBoxComponent extends Component {
 					}
 				}
 				this.mapRef.current.addEventListener( 'alignmentChanged', this.debouncedSizeMap );
-				map.resize();
+				map.resize( VIEWPORT_SYNC );
 				onMapLoaded();
 				this.setState( { loaded: true } );
 				window.addEventListener( 'resize', this.debouncedSizeMap );

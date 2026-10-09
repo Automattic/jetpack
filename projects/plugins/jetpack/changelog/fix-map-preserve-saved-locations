@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: Preserve saved locations when opening the editor and prevent stale address lookups from overwriting newer edits.
