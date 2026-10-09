@@ -153,10 +153,12 @@ const OwnerCandidateList = ( {
 				) }
 			</Text>
 
+			{ /* A Notice rather than styled text: it arrives after an async failure, and
+			     Notice announces itself so the user is not left waiting on nothing. */ }
 			{ error && (
-				<Text render={ <p /> } className="jp-connection__transfer-ownership__error">
-					{ error }
-				</Text>
+				<Notice.Root intent="error">
+					<Notice.Description>{ error }</Notice.Description>
+				</Notice.Root>
 			) }
 		</div>
 	);
