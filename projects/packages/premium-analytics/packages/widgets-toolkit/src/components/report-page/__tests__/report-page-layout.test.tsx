@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 /**
@@ -74,7 +74,11 @@ describe( 'ReportPageLayout', () => {
 
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
 		const panelProps = dateFiltersPanelMock.mock.calls[ 0 ][ 0 ];
-		expect( panelProps ).toEqual( expect.objectContaining( dateFilters ) );
+		expect( panelProps ).toMatchObject( {
+			...dateFilters,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+			allTimeStartsOnServer: true,
+		} );
 		// The interval control stays hidden; the staged interval still rides along for the dashboard.
 		expect( panelProps.withIntervalControl ).toBeUndefined();
 	} );

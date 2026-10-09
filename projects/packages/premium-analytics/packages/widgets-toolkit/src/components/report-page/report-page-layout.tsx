@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 import { createContext, useContext } from 'react';
@@ -47,7 +48,13 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 		<div className={ styles.root }>
 			{ tabs }
 			<SectionHeader title={ title } pinned>
-				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
+				{ dateFilters ? (
+					<DateFiltersPanel
+						{ ...dateFilters }
+						presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME }
+						allTimeStartsOnServer
+					/>
+				) : null }
 			</SectionHeader>
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
 				<div className={ styles.sections }>{ children }</div>

@@ -13,6 +13,7 @@ import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 import type { LocationsGeoMode } from '../components/locations-geo-chart';
 
@@ -113,6 +114,7 @@ export function getLocationsReportQueryParams(
 		period: 'day',
 		geoMode: LOCATIONS_GEO_MODES[ section ],
 		...getLocationsScopeParams( scope ),
+		...getReportWindowParams( reportParams ),
 	};
 }
 

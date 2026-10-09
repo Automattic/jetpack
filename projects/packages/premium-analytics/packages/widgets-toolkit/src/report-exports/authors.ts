@@ -22,6 +22,7 @@ import { cleanForSlug } from '@wordpress/url';
  * Internal dependencies
  */
 import { getPostsCsvColumns } from './posts';
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
@@ -167,8 +168,16 @@ export function getAuthorName( name: string ): string {
 	return name;
 }
 
-/** The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does. */
+/**
+ * The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does.
+ * WPCOM caps all time at the three years classic Stats shows.
+ */
 export function getAuthorsReportQueryParams( reportParams: ReportParams ): StatsReportParams {
+	return { ...reportParams, max: 0, ...getReportWindowParams( reportParams ) };
+}
+
+/** One author's posts over the author page's own window, shared by its widget and its CSV. */
+export function getAuthorPostsQueryParams( reportParams: ReportParams ): StatsReportParams {
 	return { ...reportParams, max: 0 };
 }
 
@@ -212,9 +221,10 @@ export function authorPostsCsvExporter(
 		// A name with only punctuation slugs to nothing; the id still names the file.
 		filenamePrefix: `author-${ cleanForSlug( authorName ) || authorId }-posts`,
 		hasDateRange: true,
+		datesAllTime: true,
 		fetchItems: async reportParams =>
 			findAuthorRow(
-				await fetchStatsTopAuthorsRows( getAuthorsReportQueryParams( reportParams ) ),
+				await fetchStatsTopAuthorsRows( getAuthorPostsQueryParams( reportParams ) ),
 				authorId
 			)?.children ?? [],
 		toCsvRows: items => items,

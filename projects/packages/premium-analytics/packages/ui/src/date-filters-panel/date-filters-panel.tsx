@@ -51,8 +51,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * The periods the menu offers. Defaults to every selectable preset; a detail
-	 * page adds all time (`DETAIL_SURFACE_PRESETS`). The menu keeps its own
-	 * order whatever order they arrive in, so its grouping by scale holds.
+	 * or report page adds all time (`MENU_SURFACE_PRESETS_WITH_ALL_TIME`). The menu keeps
+	 * its own order whatever order they arrive in, so its grouping by scale holds.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 
@@ -61,6 +61,9 @@ export type DateFiltersPanelProps = {
 	 * `presetIds` includes it.
 	 */
 	allTimeStart?: Date;
+
+	/** Whether WPCOM picks where all time starts; see `DatePeriodDropdown`. */
+	allTimeStartsOnServer?: boolean;
 
 	/**
 	 * Whether to offer Custom range at the end of the menu. On by default; a
@@ -140,6 +143,7 @@ export function DateFiltersPanel( {
 	comparisonPresetId,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer,
 	withCustomRange = true,
 	withIntervalControl = false,
 	interval,
@@ -285,6 +289,7 @@ export function DateFiltersPanel( {
 						onOpenChange={ clearDraft }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
+						allTimeStartsOnServer={ allTimeStartsOnServer }
 						withCustomRange={ withCustomRange }
 						attentionId={ attentionId }
 					/>

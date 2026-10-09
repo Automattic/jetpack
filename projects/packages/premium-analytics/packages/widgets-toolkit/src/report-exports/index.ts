@@ -20,6 +20,7 @@ export {
 	authorPostsCsvExporter,
 	authorsCsvExporter,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	type AuthorRow,
 } from './authors';
