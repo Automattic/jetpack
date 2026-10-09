@@ -260,15 +260,53 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_is_terminal() {
 		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_private_ip' ) );
-		$this->assertTrue( Registration_Failure::is_terminal( 'request_cancelled' ) );
 		$this->assertTrue( Registration_Failure::is_terminal( 'secret_1_missing' ) );
 		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_malformed' ) );
 
 		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible' ) );
 		$this->assertFalse( Registration_Failure::is_terminal( 'wpcom_5??' ) );
 		$this->assertFalse( Registration_Failure::is_terminal( 'too_many_requests' ) );
+		// The rate limit resets hourly and its counter is shared between sites on
+		// the same URL, so it must never block a site permanently.
+		$this->assertFalse( Registration_Failure::is_terminal( 'request_cancelled' ) );
 		// Codes the client does not know about could be temporary, so they are retried.
 		$this->assertFalse( Registration_Failure::is_terminal( 'some_future_error' ) );
+	}
+
+	/**
+	 * Test that the hourly rate limit backs off for at least its window, despite
+	 * the response carrying no Retry-After header.
+	 */
+	public function test_rate_limit_backs_off_for_at_least_an_hour() {
+		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
+
+		$before = time();
+		$this->manager->try_registration();
+
+		$state = $this->recorded_failure();
+
+		$this->assertFalse( $state['terminal'] );
+		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $state['next_retry_after'] );
+		// The window may be padded with jitter, but not stretched beyond it.
+		$this->assertLessThanOrEqual( time() + HOUR_IN_SECONDS + 360, $state['next_retry_after'] );
+	}
+
+	/**
+	 * Test that being rate limited does not replace a stored terminal failure.
+	 *
+	 * The rate limit usually masks a reason WordPress.com has already returned, so
+	 * the stored reason should keep being shown.
+	 */
+	public function test_rate_limit_does_not_overwrite_a_terminal_failure() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+
+		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
+		$this->manager->register();
+
+		$state = $this->recorded_failure();
+		$this->assertSame( 'siteurl_private_ip', $state['error_code'] );
+		$this->assertTrue( $state['terminal'] );
 	}
 
 	/**
