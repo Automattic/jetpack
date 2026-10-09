@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,11 +9,16 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { PlanLimitNotice } from './plan-limit-notice';
+import { PlanLimitNotice, resetPlanLimitNoticeForTesting } from './plan-limit-notice';
 
+jest.mock(
+	'@automattic/jetpack-analytics',
+	() => jest.requireActual( '../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
+);
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
 type Usage = { views_count: number; views_limit: number | null };
 type Notices = { tier_upgrade?: boolean };
@@ -75,6 +81,8 @@ describe( 'PlanLimitNotice', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		queryClient.clear();
+		resetPlanLimitNoticeForTesting();
+		recordEvent.mockClear();
 		mockApiFetch.mockReset();
 		setHost( 'jetpack' );
 	} );
@@ -144,6 +152,45 @@ describe( 'PlanLimitNotice', () => {
 				method: 'POST',
 				data: { id: 'tier_upgrade', status: 'postponed', postponed_for: 604800 },
 			} )
+		);
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_plan_limit_notice_dismiss',
+			undefined
+		);
+	} );
+
+	it( 'records one view per page load, though every section tab mounts the notice', async () => {
+		mockEndpoints( { views_count: 11480, views_limit: 10000 } );
+
+		const { unmount } = await renderNotice();
+		unmount();
+		await renderNotice();
+
+		const views = recordEvent.mock.calls.filter(
+			( [ name ] ) => name === 'jetpack_premium_analytics_plan_limit_notice_view'
+		);
+		expect( views ).toEqual( [
+			[ 'jetpack_premium_analytics_plan_limit_notice_view', { status: 'over' } ],
+		] );
+	} );
+
+	it.each( [
+		[ 'near', 9120 ],
+		[ 'over', 11480 ],
+	] )( 'records an upgrade click from the %s notice', async ( status, views_count ) => {
+		mockEndpoints( { views_count, views_limit: 10000 } );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await renderNotice();
+		// jsdom cannot follow the link to another page.
+		const stopNavigation = ( event: Event ) => event.preventDefault();
+		document.addEventListener( 'click', stopNavigation );
+
+		await user.click( screen.getByRole( 'link', { name: 'Upgrade plan' } ) );
+
+		document.removeEventListener( 'click', stopNavigation );
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_plan_limit_notice_upgrade_click',
+			{ status }
 		);
 	} );
 
