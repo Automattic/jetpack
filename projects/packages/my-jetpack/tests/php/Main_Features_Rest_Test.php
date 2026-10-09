@@ -295,12 +295,15 @@ class Main_Features_Rest_Test extends TestCase {
 				Products\Protect::do_product_specific_activation( true, true );
 				$this->assertFalse( get_option( 'jetpack-protect_activated' ) );
 			} else {
-				$this->send_bulk(
+				$response = $this->send_bulk(
 					array(
 						'active'  => true,
 						'modules' => array( $module ),
 					)
 				);
+				if ( ! $active ) {
+					$this->assertSame( 'Could not be switched on: unavailable in Offline mode.', $response->get_data()['failed'][0]['message'] );
+				}
 			}
 			$this->assertSame( $active, ( new \Automattic\Jetpack\Modules() )->is_active( $module ) );
 			$this->assertSame( $active ? array( $module ) : array(), $activation_attempts );
