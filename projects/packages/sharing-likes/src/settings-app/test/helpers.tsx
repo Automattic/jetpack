@@ -44,6 +44,7 @@ export function setScriptData( overrides: Partial< SharingLikesScriptData > = {}
 			settings: baseSettings,
 			placement_choices: placementChoices,
 			multibyte_supported: true,
+			private_site: false,
 			...overrides,
 		},
 	};

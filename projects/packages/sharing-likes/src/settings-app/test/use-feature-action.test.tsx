@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { queryKeys, useServices, useSettings, useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
+import { useSaveServices } from '../data/use-save-services';
 import { useSaveSetting } from '../data/use-save-setting';
 import {
 	apiCalls,
@@ -12,7 +13,7 @@ import {
 	snackbarMessages,
 	wrapperFor,
 } from './helpers';
-import type { Settings, Status } from '../types';
+import type { Services, Settings, Status } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -179,6 +180,55 @@ describe( 'useFeatureAction', () => {
 
 		await act( async () => {
 			resolvePut( { ...baseSettings, button_style: 'icon' } );
+			await saved;
+		} );
+	} );
+
+	it( 'keeps a queued order when the action before it reads services again', async () => {
+		const services: Services = {
+			visible: [ 'facebook', 'x' ],
+			hidden: [],
+			services: [
+				{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
+				{ id: 'x', name: 'X', custom: false, deprecated: false },
+			],
+		};
+		let resolvePut!: ( value: Services ) => void;
+		const put = new Promise< Services >( resolve => ( resolvePut = resolve ) );
+		mockApiFetch.mockImplementation( ( { method, path } ) => {
+			if ( method === 'POST' ) {
+				return Promise.resolve( baseStatus );
+			}
+			if ( method === 'PUT' ) {
+				return put;
+			}
+			return Promise.resolve( path?.endsWith( '/services' ) ? services : baseSettings );
+		} );
+		const queryClient = createTestQueryClient();
+		queryClient.setQueryData( queryKeys.services, services );
+		const { result } = renderHook(
+			() => {
+				useSettings();
+				useServices( true );
+				return { action: useFeatureAction(), save: useSaveServices() };
+			},
+			{ wrapper: wrapperFor( queryClient ) }
+		);
+
+		let saved: Promise< unknown > = Promise.resolve();
+		act( () => {
+			result.current.action.run( 'likes', 'activate' );
+			saved = result.current.save( { visible: [ 'x', 'facebook' ], hidden: [] } );
+		} );
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
+
+		expect( queryClient.getQueryData< Services >( queryKeys.services )?.visible ).toEqual( [
+			'x',
+			'facebook',
+		] );
+
+		await act( async () => {
+			resolvePut( { ...services, visible: [ 'x', 'facebook' ] } );
 			await saved;
 		} );
 	} );
