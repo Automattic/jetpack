@@ -70,9 +70,9 @@ const TiledGalleryEdit = ( {
 		} );
 	};
 
-	// One upload per file, each into a slot reserved up front: client-side media processing reports
-	// each file separately rather than the whole batch, so each callback updates only its own image.
-	// With `columnLimit`, clamp columns to the images left once each upload settles, as library selection does.
+	// Upload each file on its own into a placeholder tile added up front, which keeps the selection order:
+	// client-side media processing reports one file per callback. Each result replaces its tile, found by
+	// URL, and a failure removes it. With `columnLimit`, columns follow the images left, as library selection does.
 	const addFiles = ( files, columnLimit ) => {
 		if ( ! mediaUpload ) {
 			return;
