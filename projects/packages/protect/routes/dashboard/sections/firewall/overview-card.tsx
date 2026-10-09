@@ -1,23 +1,61 @@
+import apiFetch from '@wordpress/api-fetch';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Button, Notice, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
-import type { FirewallContext, FirewallState } from './types';
+import { FIREWALL_PATH, runFirewallTest } from './firewall-test';
+import RecentBlocks from './recent-blocks';
+import type { TestOutcome } from './firewall-test';
+import type { BlockedRequest, FirewallContext, FirewallState } from './types';
+import type { ComponentProps } from 'react';
+import './style.scss';
 
 const UNAVAILABLE: FirewallState = {
 	available: false,
 	active: false,
 	blockedCount: null,
+	recentBlocks: [],
 	hasScan: false,
+};
+
+type NoticeIntent = ComponentProps< typeof Notice.Root >[ 'intent' ];
+
+const OUTCOMES: Record< TestOutcome | 'error', { intent: NoticeIntent; message: () => string } > = {
+	blocked: {
+		intent: 'success',
+		message: () =>
+			__( 'The firewall blocked the test request. It’s working.', 'jetpack-protect-pkg' ),
+	},
+	silent: {
+		intent: 'warning',
+		message: () =>
+			__(
+				'The firewall caught the test request but let it through, because it’s only logging requests.',
+				'jetpack-protect-pkg'
+			),
+	},
+	'not-blocked': {
+		intent: 'error',
+		message: () =>
+			__(
+				'The test request wasn’t blocked. The firewall may not be running on this site.',
+				'jetpack-protect-pkg'
+			),
+	},
+	error: {
+		intent: 'error',
+		message: () => __( 'The firewall test couldn’t run. Try again.', 'jetpack-protect-pkg' ),
+	},
 };
 
 const formatCount = ( count: number ) =>
 	new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
 
 /**
- * The firewall's Overview card: its on/off state and how many requests it has blocked.
+ * The firewall's Overview card: its on/off state, blocked requests and a test that it's working.
  *
  * @param props          - The dashboard context.
  * @param props.state    - The firewall's state from page load.
@@ -28,6 +66,29 @@ const formatCount = ( count: number ) =>
 export default function FirewallOverviewCard( { state, settings, openTab }: FirewallContext ) {
 	const firewall = state ?? UNAVAILABLE;
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
+	const [ blocks, setBlocks ] = useState( {
+		blockedCount: firewall.blockedCount,
+		recentBlocks: firewall.recentBlocks ?? [],
+	} );
+	const [ isTesting, setIsTesting ] = useState( false );
+	const [ outcome, setOutcome ] = useState< TestOutcome | 'error' | null >( null );
+
+	const runTest = useCallback( async () => {
+		setIsTesting( true );
+		setOutcome( null );
+		try {
+			setOutcome( await runFirewallTest() );
+			setBlocks(
+				await apiFetch< { blockedCount: number | null; recentBlocks: BlockedRequest[] } >( {
+					path: `${ FIREWALL_PATH }/blocks`,
+				} )
+			);
+		} catch {
+			setOutcome( current => current ?? 'error' );
+		} finally {
+			setIsTesting( false );
+		}
+	}, [] );
 
 	if ( ! firewall.available ) {
 		return (
@@ -56,12 +117,19 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					? { label: __( 'On', 'jetpack-protect-pkg' ), intent: 'stable' }
 					: { label: __( 'Off', 'jetpack-protect-pkg' ), intent: 'draft' }
 			}
+			actions={
+				active && (
+					<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
+						{ __( 'Test firewall', 'jetpack-protect-pkg' ) }
+					</Button>
+				)
+			}
 		>
 			<CardRow>
 				{ active ? (
 					<Stat
 						label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
-						value={ firewall.blockedCount === null ? '—' : formatCount( firewall.blockedCount ) }
+						value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
 					/>
 				) : (
 					<Text variant="body-md">
@@ -72,6 +140,18 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					</Text>
 				) }
 			</CardRow>
+			{ outcome && (
+				<CardRow>
+					<Notice.Root intent={ OUTCOMES[ outcome ].intent }>
+						<Notice.Description>{ OUTCOMES[ outcome ].message() }</Notice.Description>
+					</Notice.Root>
+				</CardRow>
+			) }
+			{ active && (
+				<CardRow>
+					<RecentBlocks blocks={ blocks.recentBlocks } />
+				</CardRow>
+			) }
 			<CardRow>
 				<TabLink tab="settings" onOpen={ openTab }>
 					{ active

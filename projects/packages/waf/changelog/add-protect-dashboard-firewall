@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a one-time test request the firewall always blocks, and a reader for recently blocked requests.

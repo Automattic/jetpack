@@ -350,6 +350,45 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Get the most recent blocked requests, newest first. The table keeps only the last 100.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $limit How many to return.
+	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string}> Timestamps are ISO 8601 UTC.
+	 */
+	public static function get_recent_blocks( $limit = 10 ) {
+		global $wpdb;
+
+		$suppress = $wpdb->suppress_errors();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table, read on demand.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT log_id, timestamp, rule_id, reason FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
+				$limit
+			),
+			ARRAY_A
+		);
+		$wpdb->suppress_errors( $suppress );
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $row ) {
+				return array(
+					'id'        => (int) $row['log_id'],
+					'timestamp' => str_replace( ' ', 'T', $row['timestamp'] ) . 'Z',
+					'ruleId'    => (int) $row['rule_id'],
+					'reason'    => (string) $row['reason'],
+				);
+			},
+			$rows
+		);
+	}
+
+	/**
 	 * Compute the initial all-time stats value.
 	 *
 	 * @return int The initial all-time stats value.

@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Protect: Add the Firewall section to the Protect dashboard, with blocked-request totals and firewall settings.
+Protect: Add the Firewall section to the Protect dashboard, with blocked-request totals, recently blocked requests, a firewall test and firewall settings.

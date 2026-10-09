@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add the Firewall section to the Protect dashboard, with blocked-request totals and firewall settings.
+Add the Firewall section to the Protect dashboard, with blocked-request totals, recently blocked requests, a firewall test and firewall settings.
