@@ -89,6 +89,16 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Jetpack's blocks load on this site, as `Jetpack_Gutenberg::should_load()` decides
+	 * before its `jetpack_gutenberg` filter: the Blocks module, and a connection or offline mode.
+	 *
+	 * True on Simple without asking for modules or a connection, both of which it lacks.
+	 */
+	public static function jetpack_blocks_load(): bool {
+		return self::module_active( 'blocks' ) && self::legacy_sharing_supported();
+	}
+
+	/**
 	 * Whether this site can have Like buttons at all.
 	 *
 	 * The Likes module declares `Requires Connection: Yes`, so without a

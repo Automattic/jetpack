@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes;
 
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
 use Automattic\Jetpack\Sharing_Likes\REST\Endpoints;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
@@ -38,6 +39,9 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
+		remove_all_filters( 'hooked_block_types' );
+		remove_all_filters( 'hooked_block_' . Hooked_Blocks::SHARING_BLOCK );
+		remove_all_filters( 'hooked_block_' . Hooked_Blocks::LIKE_BLOCK );
 		$this->forget_initialization();
 
 		parent::tear_down();
@@ -62,12 +66,13 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * `is_admin()` is false here, as it is in the REST requests that serve the routes and the admin-menu endpoint.
 	 */
-	public function test_wires_up_the_routes_screen_and_form_handler_outside_wp_admin(): void {
+	public function test_wires_up_the_routes_screen_form_handler_and_template_placements_outside_wp_admin(): void {
 		Initializer::init();
 
 		$this->assertNotFalse( has_action( 'rest_api_init', array( Endpoints::class, 'register_routes' ) ) );
 		$this->assertNotFalse( has_action( 'admin_menu', array( Settings_Page::class, 'register_menu' ) ) );
 		$this->assertNotFalse( has_action( 'admin_init', array( Post_Handler::class, 'maybe_handle' ) ) );
+		$this->assertNotFalse( has_filter( 'hooked_block_types', array( Hooked_Blocks::class, 'hook_block_types' ) ) );
 	}
 
 	public function test_runs_once_per_request(): void {
