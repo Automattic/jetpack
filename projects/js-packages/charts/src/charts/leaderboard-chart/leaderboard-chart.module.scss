@@ -193,7 +193,8 @@ $focus-ring-width: var(--wpds-border-width-focus);
 			var(--wpds-motion-easing-subtle);
 	}
 
-	&:hover,
+	// A layered row's own link or button does not advertise the drill-down.
+	&:hover:not(:has(:is(a, button):not(.rowButton):hover)),
 	&:focus-visible,
 	&:has(> .rowButton:focus-visible) {
 
@@ -215,7 +216,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	}
 
 	// In RTL the value slides toward the inline start the other way (rightward).
-	[dir="rtl"] &:hover .valueContainer,
+	[dir="rtl"] &:hover:not(:has(:is(a, button):not(.rowButton):hover)) .valueContainer,
 	[dir="rtl"] &:focus-visible .valueContainer,
 	[dir="rtl"] &:has(> .rowButton:focus-visible) .valueContainer {
 		transform: translateX(var(--a8c-charts-dimension-leaderboard-bar-hover-inset));
@@ -233,15 +234,20 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	}
 }
 
-// A row whose label holds a link: the button fills the row behind its cells,
-// which let clicks through to it, and only the label's links sit above it.
+// A row whose label holds a link: the button follows the cells for tab order
+// but is layered beneath them, and the cells pass clicks through except on the
+// label's own links and buttons. The label's isolate traps their z-index, so
+// layering the cells is what keeps them above the button.
 .layeredRow {
+	isolation: isolate;
 
-	> :not(.rowButton) {
+	> :not(.rowButton, .chevron) {
+		position: relative;
+		z-index: 1;
 		pointer-events: none;
 	}
 
-	a {
+	:is(a, button):not(.rowButton) {
 		position: relative;
 		z-index: 1;
 		pointer-events: auto;
@@ -256,6 +262,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	border: 0;
 	background: none;
 	cursor: pointer;
+	z-index: 0;
 
 	&:focus-visible {
 		border-radius: var(--wpds-border-radius-sm);

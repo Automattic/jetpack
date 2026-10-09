@@ -435,20 +435,24 @@ export const InteractiveLabel: StoryObj< InteractiveLabelStoryArgs > = {
 		hasInteractiveLabel: {
 			control: 'boolean',
 			description:
-				'Set on every row. On: the row button sits behind the row and the name link beside it. Off: the link is nested inside the row button.',
+				'Set on every row. On: the row button sits behind the row and the name link beside it. Off: the link is nested inside the row button, which is invalid HTML.',
 		},
 	},
 	render: ( { hasInteractiveLabel, data, ...args } ) => (
 		<LeaderboardChartWithOverlayLabel
 			{ ...args }
-			data={ data.map( entry => ( { ...entry, hasInteractiveLabel } ) ) }
+			data={ data.map( ( { onClick, ariaLabel, ...entry } ) =>
+				hasInteractiveLabel && onClick && ariaLabel
+					? { ...entry, onClick, ariaLabel, hasInteractiveLabel }
+					: { ...entry, onClick, ariaLabel }
+			) }
 		/>
 	),
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'A row that drills down and also links its label. With `hasInteractiveLabel`, clicking the name fires only `label-link-click` and clicking anywhere else on the row fires only `leaderboard-item-click`; Tab reaches the row button, then the link. Turn it off to see the link nested in the button, where clicking the name fires both.',
+					'A row that drills down and also links its label. With `hasInteractiveLabel`, clicking the name fires only `label-link-click` and clicking anywhere else on the row fires only `leaderboard-item-click`; Tab reaches the link, then the row button. Turn it off to see the invalid markup it replaces: the link nested in the button, where clicking the name fires both.',
 			},
 		},
 	},
