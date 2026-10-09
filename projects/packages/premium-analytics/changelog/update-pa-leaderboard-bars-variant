@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: add the bars variant of the Leaderboard widget kind, which draws both periods as bars under a period legend; the widget contract is 1.6.0.

@@ -10,6 +10,7 @@ import userEvent from '@testing-library/user-event';
 import { setMockRouteSearch } from '../../../../../../tests/js/route-test-utils';
 import { WIDGET_ROW_LIMIT } from '../../../constants/rows';
 import { describeError } from '../../../helpers/describe-error';
+import { formatLegendLabels } from '../../../helpers/format-legend-labels';
 import { WidgetRootContext, type WidgetRootContextValue } from '../../widget-root';
 import { Leaderboard, type LeaderboardStatus } from '../leaderboard';
 import type { LeaderboardRowInput } from '../build-leaderboard-chart-data';
@@ -238,5 +239,52 @@ describe( 'Leaderboard', () => {
 		);
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+	} );
+
+	describe( 'the bars variant', () => {
+		const GIVEN_LEGEND = { primary: 'This month', comparison: 'Last month' };
+
+		it( 'draws the bars skeleton while loading', () => {
+			renderLeaderboard(
+				<Leaderboard rows={ ROWS } status={ { isLoading: true } } variant="bars" />
+			);
+
+			expect( screen.getAllByTestId( 'skeleton-bar' ) ).toHaveLength( WIDGET_ROW_LIMIT );
+		} );
+
+		it.each( [
+			[ 'the report params', undefined, formatLegendLabels( WIDGET_ROOT.reportParams ) ],
+			[ 'the labels the widget gives', GIVEN_LEGEND, GIVEN_LEGEND ],
+		] )( 'labels the period legend from %s when comparing', ( _, legend, expected ) => {
+			renderLeaderboard(
+				<Leaderboard
+					rows={ ROWS }
+					status={ { ...READY, hasComparison: true } }
+					variant="bars"
+					legend={ legend }
+				/>
+			);
+
+			expect( screen.getAllByTestId( 'legend-label' ).map( label => label.textContent ) ).toEqual( [
+				expected.primary,
+				expected.comparison,
+			] );
+		} );
+
+		it.each( [
+			[ 'without a comparison', 'bars' as const, false ],
+			[ 'in the list variant', 'list' as const, true ],
+		] )( 'draws no legend %s', ( _, variant, hasComparison ) => {
+			renderLeaderboard(
+				<Leaderboard
+					rows={ ROWS }
+					status={ { ...READY, hasComparison } }
+					variant={ variant }
+					legend={ GIVEN_LEGEND }
+				/>
+			);
+
+			expect( screen.queryAllByTestId( 'legend-label' ) ).toHaveLength( 0 );
+		} );
 	} );
 } );
