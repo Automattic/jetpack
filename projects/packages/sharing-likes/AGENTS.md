@@ -48,6 +48,14 @@ The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
 plugin.
 
+The React screen is the exception: behind `rsm_jetpack_ui_modernization_sharing_likes`
+(off by default), `Settings_App` swaps the menu callback for the wp-build app.
+`src/settings-app/` holds it whole, the PHP loader with the TS/TSX and SCSS (only
+`routes/` and `packages/init/` sit at the root, where wp-build requires them); a
+later JS surface gets its own sibling directory. The screen takes Newsletter's
+Jetpack chrome on purpose. It reads `JetpackScriptData.sharing_likes` for its first
+render and saves through `src/rest/`.
+
 ## Per-post switches
 
 `Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
@@ -73,8 +81,10 @@ redeclare them there.
 
 ## What the package may depend on
 
-Composer dependencies only: `jetpack-connection` (which also supplies
-`Jetpack_Options`) and `jetpack-status` (which also supplies `Modules`). Never
+Composer dependencies only: `jetpack-assets` (for `jetpack_admin_js_script_data`),
+`jetpack-connection` (which also supplies `Jetpack_Options`), `jetpack-status`
+(which also supplies `Modules`) and `jetpack-wp-build-polyfills` (for the React
+screen). Never
 `require` a plugin file or call a plugin function unguarded.
 
 Two plugin classes are still used opportunistically because the code that defines
@@ -170,7 +180,9 @@ the top of the page, `sharing_global_options` at the end of the services table,
 `sharing_show_buttons_on_row_start` / `_end` around the placement row. All four
 are now documented here rather than in `modules/sharedaddy/sharing.php`, which no
 longer fires any of them. Nothing in the monorepo hooks
-`pre_admin_screen_sharing` either; it fires for third parties only.
+`pre_admin_screen_sharing` either; it fires for third parties only. The React
+screen fires none of them; it is opt-in, and CM-945 handles their deprecation
+before it becomes the default.
 
 `Services_Config::global_options()` is where that action fires. The rows it
 returns close the services table: the screen's own two first, `Sharing_Resources`

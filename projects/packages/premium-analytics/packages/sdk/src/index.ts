@@ -18,7 +18,6 @@ export {
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
-	chartTypeAttributeField,
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,

@@ -56,7 +56,8 @@ const renderBulk = () => {
 	);
 };
 
-const settled = ( failed: unknown[] = [] ) => Promise.resolve( { state: {}, failed } );
+const settled = ( failed: unknown[] = [] ) =>
+	Promise.resolve( { state: { features: [] }, failed } );
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -128,6 +129,25 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( mockError ).not.toHaveBeenCalled();
 	} );
 
+	it( 'records the plugins the batch switched on in the page state, for readers outside the Features tab', async () => {
+		window.myJetpackInitialState = {
+			products: { items: { videopress: { is_plugin_active: false } } },
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		mockApiFetch.mockImplementation( () =>
+			Promise.resolve( {
+				state: { features: [ { product: 'videopress', plugin_status: 'active' } ] },
+				failed: [],
+			} )
+		);
+		const { result } = renderBulk();
+
+		await act( () =>
+			result.current.bulk.run( [ pluginState( 'jetpack-videopress', 'inactive' ) ], true )
+		);
+
+		expect( window.myJetpackInitialState.products.items.videopress.is_plugin_active ).toBe( true );
+	} );
+
 	it( 'holds every row at the asked-for value until the batch and the modules have landed', async () => {
 		let answer: ( value: unknown ) => void = () => undefined;
 		let refreshed: ( value: boolean ) => void = () => undefined;
@@ -154,7 +174,7 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( result.current.bulk.isRunning ).toBe( true );
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-		await act( async () => answer( { state: {}, failed: [] } ) );
+		await act( async () => answer( { state: { features: [] }, failed: [] } ) );
 
 		// The response is in, but the modules store has not caught up yet.
 		expect( result.current.requested ).toEqual( bothHeld );

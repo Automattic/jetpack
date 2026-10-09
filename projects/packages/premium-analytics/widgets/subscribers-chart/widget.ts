@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __, _n } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -13,7 +12,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -73,13 +72,18 @@ export type SubscribersChartAttributes = Partial< ReportParamsFieldAttributes > 
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: people,
 	attributes: [
 		reportParamsAttributeField< SubscribersChartAttributes >( {
 			grain: SUBSCRIBERS_GRAIN,
 			offersComparison: false,
 		} ),
-		chartTypeAttributeField(),
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		// A getter: the host reads it on every render, and the default can change after load.

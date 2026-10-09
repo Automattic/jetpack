@@ -131,10 +131,26 @@ describe( 'OverviewBody', () => {
 	} );
 
 	it.each( [
-		[ 'shows Stats and remembers it', true, 'subscriber-stats-chart', '1' ],
-		[ 'keeps the onboarding view', false, 'onboarding-checklist', null ],
-	] )( '%s when WP.com reports complete: %s', async ( _, complete, testId, stored ) => {
-		mockApiFetch.mockResolvedValue( { id: 'onboarding', complete, tasks: [] } );
+		[
+			'shows Stats and remembers it once complete',
+			{ complete: true },
+			'subscriber-stats-chart',
+			'1',
+		],
+		[
+			'shows Stats without remembering it while hidden',
+			{ complete: true, hidden: true },
+			'subscriber-stats-chart',
+			null,
+		],
+		[
+			'keeps the onboarding view while incomplete',
+			{ complete: false },
+			'onboarding-checklist',
+			null,
+		],
+	] )( '%s', async ( _, listState, testId, stored ) => {
+		mockApiFetch.mockResolvedValue( { id: 'onboarding', ...listState, tasks: [] } );
 		renderOverview();
 
 		await expect( screen.findByTestId( testId ) ).resolves.toBeInTheDocument();

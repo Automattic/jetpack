@@ -18,6 +18,7 @@ export declare function describeError( ...args: any[] ): any;
 // The states a widget kind takes from its widget. Not exported: no consumer names them, a kind's
 // props carry them.
 type WidgetStateError = {
+	title?: string;
 	description: string;
 	actions?: Array< { label: string; onClick: () => void } >;
 };
@@ -87,9 +88,8 @@ export type DonutProps = {
 	format?: DataFormat;
 };
 
-// Widget attributes.
+// Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
-export declare function chartTypeAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;
 export type ReportParamsFieldAttributes = any;
 export type ReportGrain = any;
