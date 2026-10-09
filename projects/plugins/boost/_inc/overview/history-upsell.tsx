@@ -52,7 +52,6 @@ export default function HistoryUpsell( { range, dayCount, isVisible = true }: Pr
 		<Notice.Root
 			intent="info"
 			icon={ lockOutline }
-			spokenMessage={ null }
 			className="jetpack-boost-overview__history-upsell"
 		>
 			<Notice.Description>
