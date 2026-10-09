@@ -77,5 +77,8 @@ describe( 'TransferOwnershipDialog', () => {
 
 		expect( onTransferred ).toHaveBeenCalledWith( 7 );
 		expect( testProps.onClose ).not.toHaveBeenCalled();
+		// Gone immediately: the refresh is a page load, and the dialog would otherwise
+		// stay on screen until it lands.
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 } );

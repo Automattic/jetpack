@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import SharedHelpFooter from '../shared/help-footer';
 import TransferConnectionOwnership from '../transfer-connection-ownership';
 import './style.scss';
 
@@ -41,11 +42,15 @@ const TransferOwnershipDialog = ( {
 }: TransferOwnershipDialogProps ) => {
 	const title = __( 'Transfer connection ownership', 'jetpack-connection-js' );
 	const [ newOwnerId, setNewOwnerId ] = useState< number | null >( null );
+	const [ isDismissed, setIsDismissed ] = useState( false );
 
 	// Not `onClose`: the dialog behind still offers owner-only actions to someone who
 	// has just stopped being the owner.
 	const handleDismiss = useCallback( () => {
 		if ( newOwnerId ) {
+			// Unmount first: the refresh is a page load, and the modal would otherwise sit
+			// there re-rendering until it lands.
+			setIsDismissed( true );
 			onTransferred?.( newOwnerId );
 			return;
 		}
@@ -54,7 +59,8 @@ const TransferOwnershipDialog = ( {
 	}, [ newOwnerId, onTransferred, onClose ] );
 
 	return (
-		isOpen && (
+		isOpen &&
+		! isDismissed && (
 			<Modal
 				title=""
 				contentLabel={ title }
@@ -72,6 +78,9 @@ const TransferOwnershipDialog = ( {
 						onTransferred={ setNewOwnerId }
 						onDismiss={ handleDismiss }
 					/>
+				</div>
+				<div className="jp-connection__transfer-dialog__footer">
+					<SharedHelpFooter namespace="jp-connection__disconnect-dialog" />
 				</div>
 			</Modal>
 		)
