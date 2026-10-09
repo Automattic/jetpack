@@ -11,16 +11,8 @@
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
+import { BlockControls, InspectorControls, URLInput, useBlockProps } from '@wordpress/block-editor';
 import {
-	BlockControls,
-	InspectorControls,
-	MediaUpload,
-	MediaUploadCheck,
-	URLInput,
-	useBlockProps,
-} from '@wordpress/block-editor';
-import {
-	BaseControl,
 	Button,
 	CheckboxControl,
 	CustomSelectControl,
@@ -247,7 +239,6 @@ export default function ApiManagedEdit( {
 		productDescription,
 		productId,
 		imageUrl,
-		imageId,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -1194,58 +1185,6 @@ export default function ApiManagedEdit( {
 							: undefined
 					}
 				/>
-
-				<div className="jetpack-paypal-payment-buttons__image-field">
-					<BaseControl.VisualLabel>
-						{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
-					</BaseControl.VisualLabel>
-					{ imageUrl ? (
-						<div className="jetpack-paypal-payment-buttons__image-preview">
-							<img src={ imageUrl } alt={ productName || '' } />
-							<div className="jetpack-paypal-payment-buttons__image-actions">
-								<MediaUploadCheck>
-									<MediaUpload
-										onSelect={ media =>
-											setAttributes( { imageUrl: media.url, imageId: media.id } )
-										}
-										allowedTypes={ [ 'image' ] }
-										value={ imageId }
-										render={ ( { open } ) => (
-											<Button variant="secondary" onClick={ open } size="small">
-												{ __( 'Replace', 'jetpack-paypal-payments' ) }
-											</Button>
-										) }
-									/>
-								</MediaUploadCheck>
-								<Button
-									variant="link"
-									isDestructive
-									onClick={ () => setAttributes( { imageUrl: undefined, imageId: undefined } ) }
-									size="small"
-								>
-									{ __( 'Remove', 'jetpack-paypal-payments' ) }
-								</Button>
-							</div>
-						</div>
-					) : (
-						<MediaUploadCheck>
-							<MediaUpload
-								onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
-								allowedTypes={ [ 'image' ] }
-								value={ imageId }
-								render={ ( { open } ) => (
-									<Button
-										variant="secondary"
-										onClick={ open }
-										className="jetpack-paypal-payment-buttons__upload-button"
-									>
-										{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
-									</Button>
-								) }
-							/>
-						</MediaUploadCheck>
-					) }
-				</div>
 			</PanelBody>
 			{ /* A closed panel renders no children, so open it when an option needs
 			     fixing - otherwise the error is invisible on a saved button. */ }

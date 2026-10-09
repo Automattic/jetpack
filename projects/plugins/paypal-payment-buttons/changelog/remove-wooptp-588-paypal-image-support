@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the product image field from the block editor form until PayPal payment links can carry an image; blocks that already hold one keep showing it.

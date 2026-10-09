@@ -150,10 +150,6 @@ jest.mock( '../../../src/paypal-payment-buttons/utils/toast', () => ( {
 	toast: ( ...args ) => mockToast( ...args ),
 } ) );
 
-// What the media library hands back. jsdom has none, so the MediaUpload mock
-// passes this to onSelect.
-const mockSelectedMedia = { url: 'https://example.com/chosen.png', id: 42 };
-
 // Mock WordPress block-editor.
 jest.mock( '@wordpress/block-editor', () => ( {
 	store: { name: 'core/block-editor' },
@@ -229,10 +225,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 			{ values || 'radius' }
 		</button>
 	),
-	// open() calls onSelect straight away so the block's handler runs.
-	MediaUpload: ( { onSelect, render: renderProp } ) =>
-		renderProp( { open: () => onSelect( mockSelectedMedia ) } ),
-	MediaUploadCheck: ( { children } ) => <>{ children }</>,
 	// Like TextControl, className and help sit on the BaseControl wrapper, not the input.
 	// URLInput takes no onBlur - the form catches that on a wrapper of its own. The testid
 	// differs from `control-` so a test can tell a URL field from a text field. Ids by
@@ -2559,7 +2551,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Product Image (optional)' ) ).toBeInTheDocument();
 		} );
 
 		it( 'records no wizard events on a connected site', async () => {
@@ -6565,58 +6556,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByTestId( 'control-Description (optional)' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
-		} );
-
-		it( 'saves the image the merchant chooses', async () => {
-			const user = userEvent.setup();
-			renderForm( {} );
-
-			await user.click( await screen.findByText( 'Upload Image' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				imageUrl: 'https://example.com/chosen.png',
-				imageId: 42,
-			} );
-		} );
-
-		it( 'saves the replacement image', async () => {
-			const user = userEvent.setup();
-			renderForm( { imageUrl: 'https://example.com/previous.png', imageId: 7 } );
-
-			await user.click( await screen.findByText( 'Replace' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				imageUrl: 'https://example.com/chosen.png',
-				imageId: 42,
-			} );
-		} );
-
-		it( 'clears the image the merchant removes', async () => {
-			const user = userEvent.setup();
-			renderForm( { imageUrl: 'https://example.com/previous.png', imageId: 7 } );
-			await formIsUp();
-
-			// Customer notes and option groups have Remove buttons of their own.
-			await user.click( details().getByText( 'Remove' ) );
-
-			// toStrictEqual, because an assertion that only calls for undefined
-			// values would be met by setAttributes( {} ) too.
-			expect( setAttributes.mock.lastCall[ 0 ] ).toStrictEqual( {
-				imageUrl: undefined,
-				imageId: undefined,
-			} );
-		} );
-
-		// The image stays on the site, so any address works.
-		it( 'shows an http image without a warning', async () => {
-			renderForm( { imageUrl: 'http://example.com/previous.png', imageId: 7 } );
-			await formIsUp();
-
-			expect( details().getByRole( 'img', { name: 'Test Widget' } ) ).toHaveAttribute(
-				'src',
-				'http://example.com/previous.png'
-			);
-			expect( details().queryByTestId( 'notice' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
