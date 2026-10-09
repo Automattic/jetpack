@@ -668,15 +668,18 @@ describe( 'LeaderboardChart', () => {
 
 	describe( 'grid gaps', () => {
 		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
-		const grid = () => document.querySelector( '[data-leaderboard-grid]' );
+		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
 
 		it( 'hands the catalog role to the grid', () => {
 			render( <LeaderboardChart data={ mockData } /> );
 
-			expect( grid() ).toHaveStyle( {
-				gridRowGap: 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)',
-				gridColumnGap: 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)',
-			} );
+			// Grid writes its gaps into custom properties and reads them from a stylesheet.
+			expect( grid().style.getPropertyValue( '--wp-components-grid-row-gap' ) ).toBe(
+				'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)'
+			);
+			expect( grid().style.getPropertyValue( '--wp-components-grid-column-gap' ) ).toBe(
+				'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)'
+			);
 		} );
 	} );
 } );
