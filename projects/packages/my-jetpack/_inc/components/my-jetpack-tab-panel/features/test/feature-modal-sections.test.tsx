@@ -196,6 +196,21 @@ describe( 'FeaturePaid', () => {
 		);
 	} );
 
+	it( 'keeps a plan name as text in offline Features', () => {
+		const previous = window.myJetpackInitialState;
+		window.myJetpackInitialState = { ...previous, isOfflineFeatures: true };
+		try {
+			render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+
+			expect( screen.getByText( /Included in/ ) ).toHaveTextContent(
+				'Included in Jetpack Complete'
+			);
+			expect( screen.queryByRole( 'link', { name: 'Jetpack Complete' } ) ).not.toBeInTheDocument();
+		} finally {
+			window.myJetpackInitialState = previous;
+		}
+	} );
+
 	it( 'links to the upgrade for a feature that sells on its own, returning to it after checkout', () => {
 		render( <UpgradeButton state={ installedPlugin } /> );
 

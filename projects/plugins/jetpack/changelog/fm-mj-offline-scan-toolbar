@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Scan: Stop contacting WordPress.com for Scan status while the site is in offline mode.

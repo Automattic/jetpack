@@ -18,7 +18,8 @@ type PlanLinkProps = {
 };
 
 /**
- * A plan name, linked to its pricing page unless the site is already on that plan.
+ * A plan name, linked to its pricing page unless the site has the plan or offline Features,
+ * which serves no purchase route, is open.
  *
  * @param {PlanLinkProps} props       - The component props.
  * @param {object}        props.plan  - The plan's slug, display name, and whether the site has it.
@@ -32,8 +33,7 @@ function PlanLink( { plan, state }: PlanLinkProps ) {
 		[ plan.slug, state, tracking ]
 	);
 
-	// Nothing to sell a site the plan already covers, the same reason Upgrade is gone.
-	if ( plan.owned ) {
+	if ( isOfflineFeatures() || plan.owned ) {
 		return <>{ plan.name }</>;
 	}
 

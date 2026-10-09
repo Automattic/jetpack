@@ -8,9 +8,12 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
+use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 use Automattic\Jetpack\Scan\Admin_Sidebar_Link;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Automattic\Jetpack\VideoPress\Admin_UI;
+use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Class Jetpack_Admin_Menu_Test
  */
@@ -53,6 +56,100 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'id' );
 		Jetpack_Options::delete_option( 'blog_token' );
 		Jetpack_Options::delete_option( 'user_tokens' );
+	}
+
+	/**
+	 * Check the Scan toolbar's offline policy.
+	 *
+	 * @dataProvider scan_toolbar_offline_modes
+	 * @param bool $offline Whether the site is offline.
+	 */
+	#[DataProvider( 'scan_toolbar_offline_modes' )]
+	public function test_scan_toolbar_respects_offline_mode( $offline ) {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Jetpack Scan is currently not supported on multisite.' );
+		}
+
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-bar-notice.php';
+		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
+
+		$offline_filter = $offline ? '__return_true' : '__return_false';
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+
+		$instance = new ReflectionProperty( Admin_Bar_Notice::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$previous = $instance->getValue();
+		$instance->setValue( null, null );
+		foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'admin_bar_menu' ) as $hook ) {
+			remove_all_actions( $hook );
+		}
+
+		try {
+			$this->assertTrue( Jetpack::is_connection_ready() );
+			Admin_Bar_Notice::instance();
+			foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts' ) as $hook ) {
+				wp_dequeue_script( Admin_Bar_Notice::SCRIPT_NAME );
+				do_action( $hook );
+				$this->assertSame( ! $offline, wp_script_is( Admin_Bar_Notice::SCRIPT_NAME, 'enqueued' ) );
+			}
+			$bar = new WP_Admin_Bar();
+			do_action( 'admin_bar_menu', $bar );
+			$this->assertSame( ! $offline, null !== $bar->get_node( 'jetpack-scan-notice' ) );
+		} finally {
+			$instance->setValue( null, $previous );
+			wp_dequeue_script( Admin_Bar_Notice::SCRIPT_NAME );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+			StatusCache::clear();
+		}
+	}
+
+	/**
+	 * Offline states for the Scan toolbar.
+	 *
+	 * @return array Offline and connected cold-cache cases.
+	 */
+	public static function scan_toolbar_offline_modes() {
+		return array(
+			'offline'              => array( true ),
+			'connected cold cache' => array( false ),
+		);
+	}
+
+	/**
+	 * Check the Scan sidebar refresh's offline policy.
+	 *
+	 * @dataProvider scan_toolbar_offline_modes
+	 * @param bool $offline Whether the site is offline.
+	 */
+	#[DataProvider( 'scan_toolbar_offline_modes' )]
+	public function test_scan_sidebar_refresh_respects_offline_mode( $offline ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+		$offline_filter = $offline ? '__return_true' : '__return_false';
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+		delete_transient( 'jetpack_rewind_state' );
+		wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+
+		$refresh = new ReflectionMethod( Admin_Sidebar_Link::class, 'maybe_refresh_transient_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$refresh->setAccessible( true );
+		}
+		try {
+			$this->assertTrue( Jetpack::is_connection_ready() );
+			$refresh->invoke( new Admin_Sidebar_Link() );
+			$this->assertSame( ! $offline, false !== wp_next_scheduled( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK ) );
+		} finally {
+			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+			StatusCache::clear();
+		}
 	}
 
 	/**
