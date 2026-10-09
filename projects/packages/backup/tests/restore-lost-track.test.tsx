@@ -86,14 +86,14 @@ beforeEach( () => {
 /**
  * Wait for the lost-track message.
  *
- * `findAllBy` rather than `findBy`: `Notice` mirrors its content into
- * `@wordpress/a11y`'s live region, so the text is legitimately in the
- * document twice and a single-match query throws.
+ * The notice itself, not its copy in `@wordpress/a11y`'s live region: the
+ * region outlives the render that spoke into it, so an earlier test's
+ * announcement would match before this restore has even started.
  */
 async function findMessage() {
 	await expect(
-		screen.findAllByText( /We've lost track of this restore/ )
-	).resolves.not.toHaveLength( 0 );
+		screen.findByText( /We've lost track of this restore/, { ignore: '.a11y-speak-region' } )
+	).resolves.toBeInTheDocument();
 }
 
 /**
@@ -138,8 +138,8 @@ describe( 'a restore that has gone out of sight', () => {
 		expect( screen.getByText( 'Could not reach WordPress.com.' ) ).toBeInTheDocument();
 	} );
 
-	// Not an error: we cannot see the restore, not know it failed. `Notice.Root`
-	// speaks `error` assertively and `warning` politely, so check the live regions.
+	// Not an error: we cannot see the restore, not know it failed. A warning is
+	// spoken politely where an error would be assertive, so check the live regions.
 	it( 'warns rather than reporting a failure', async () => {
 		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
 		render( <RestoreStage /> );

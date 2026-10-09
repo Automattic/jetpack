@@ -1,5 +1,6 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { createInterpolateElement } from '@wordpress/element';
+import { speak } from '@wordpress/a11y';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { cloudUpload } from '@wordpress/icons';
 import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
@@ -30,14 +31,13 @@ export default function BackupStatusBanner( { progress }: Props ) {
 	const isStarting = progress === undefined;
 	const readySoon = __( 'Your backup will be ready soon', 'jetpack-backup-pkg' );
 
+	// Constant, so a progress poll never re-announces the notice.
+	useEffect( () => {
+		speak( readySoon, 'polite' );
+	}, [ readySoon ] );
+
 	return (
-		<Notice.Root
-			className="jpb-backup-status-banner"
-			intent="info"
-			icon={ cloudUpload }
-			// Constant, so a progress poll never re-announces the notice.
-			spokenMessage={ readySoon }
-		>
+		<Notice.Root className="jpb-backup-status-banner" intent="info" icon={ cloudUpload }>
 			<Notice.Title className="jpb-backup-status-banner__title">
 				{ isStarting
 					? __( 'Generating backup…', 'jetpack-backup-pkg' )

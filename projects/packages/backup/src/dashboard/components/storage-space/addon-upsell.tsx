@@ -1,5 +1,6 @@
 import { formatCurrency } from '@automattic/number-formatters';
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { speak } from '@wordpress/a11y';
+import { createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ButtonLink, Notice } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
@@ -192,6 +193,16 @@ export default function StorageAddonUpsell( {
 	}, [ analytics, site ] );
 
 	const copy = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, sizeText );
+	const isWarning =
+		usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical;
+	const spokenMessage = copy ? [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) : '';
+	const politeness = isWarning ? 'polite' : 'assertive';
+
+	useEffect( () => {
+		if ( spokenMessage ) {
+			speak( spokenMessage, politeness );
+		}
+	}, [ spokenMessage, politeness ] );
 
 	if ( ! copy ) {
 		return null;
@@ -202,15 +213,9 @@ export default function StorageAddonUpsell( {
 		slug !== null && monthlyPrice !== null && currencyCode !== null && site !== undefined
 			? storageAddonCheckoutUrl( slug, site )
 			: null;
-	const isWarning =
-		usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical;
 
 	return (
-		<Notice.Root
-			intent={ isWarning ? 'warning' : 'error' }
-			className="jpb-storage-notice"
-			spokenMessage={ [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) }
-		>
+		<Notice.Root intent={ isWarning ? 'warning' : 'error' } className="jpb-storage-notice">
 			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (
