@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Fix the "Learn what to do" link in the failure notice looking oversized next to the surrounding text on the modernized dashboard.
