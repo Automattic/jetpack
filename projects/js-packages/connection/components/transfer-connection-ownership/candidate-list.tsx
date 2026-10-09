@@ -89,7 +89,11 @@ const OwnerCandidateList = ( {
 								<Link
 									openInNewTab
 									href={ getRedirectUrl(
-										'why-the-wordpress-com-connection-is-important-for-jetpack'
+										'why-the-wordpress-com-connection-is-important-for-jetpack',
+										{
+											anchor:
+												'i-want-to-get-the-most-out-of-jetpack-how-do-i-connect-my-wordpress-com-account',
+										}
 									) }
 								/>
 							),
@@ -137,7 +141,11 @@ const OwnerCandidateList = ( {
 							<Link
 								openInNewTab
 								href={ getRedirectUrl(
-									'why-the-wordpress-com-connection-is-important-for-jetpack'
+									'why-the-wordpress-com-connection-is-important-for-jetpack',
+									{
+										anchor:
+											'i-want-to-get-the-most-out-of-jetpack-how-do-i-connect-my-wordpress-com-account',
+									}
 								) }
 							/>
 						),
