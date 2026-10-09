@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+JSON API: Save the brute force protection allow list sent to the site settings endpoint.
