@@ -65,9 +65,11 @@ const TransferConnectionOwnership = ( {
 				<TransferDoneStep candidate={ selectedCandidate } />
 
 				<Stack direction="row" align="center" justify="flex-end" gap="sm">
-					<Button variant="solid" onClick={ onDismiss }>
-						{ __( 'Done', 'jetpack-connection-js' ) }
-					</Button>
+					{ onDismiss && (
+						<Button variant="solid" onClick={ onDismiss }>
+							{ __( 'Done', 'jetpack-connection-js' ) }
+						</Button>
+					) }
 				</Stack>
 			</div>
 		);

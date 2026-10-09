@@ -193,7 +193,9 @@ describe( 'TransferConnectionOwnership', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
-		await expect( screen.findByText( expected ) ).resolves.toBeInTheDocument();
+		// findAllBy: the error Notice also announces itself into the a11y-speak region,
+		// which is the point of it being a Notice.
+		await expect( screen.findAllByText( expected ) ).resolves.not.toHaveLength( 0 );
 	} );
 
 	it( 'falls back to what the server said when the code is one we do not map', async () => {
@@ -207,8 +209,8 @@ describe( 'TransferConnectionOwnership', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
 		await expect(
-			screen.findByText( 'Could not confirm new owner.' )
-		).resolves.toBeInTheDocument();
+			screen.findAllByText( 'Could not confirm new owner.' )
+		).resolves.not.toHaveLength( 0 );
 	} );
 
 	// The confirm step interpolates an element into a translated string; a name spliced
@@ -228,13 +230,34 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
 	} );
 
+	// The chooser already hides its dismiss without a callback; the success step has to
+	// match, or a consumer handling completion itself gets a button that does nothing.
+	it( 'offers no action on the success step when there is nothing to dismiss to', async () => {
+		const onTransferred = jest.fn();
+		const user = userEvent.setup();
+		render(
+			<TransferConnectionOwnership
+				apiRoot={ props.apiRoot }
+				apiNonce={ props.apiNonce }
+				onTransferred={ onTransferred }
+			/>
+		);
+
+		await chooseKazz( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+
+		await waitFor( () => expect( onTransferred ).toHaveBeenCalledWith( 7 ) );
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'says so when the candidates cannot be loaded', async () => {
 		mockFetchCandidates.mockRejectedValue( new Error( 'Network down' ) );
 		render( <TransferConnectionOwnership { ...props } /> );
 
 		await expect(
-			screen.findByText( /Could not load the administrators/ )
-		).resolves.toBeInTheDocument();
+			screen.findAllByText( /Could not load the administrators/ )
+		).resolves.not.toHaveLength( 0 );
 		// Not the empty state: nobody has established that there is no one to choose.
 		expect( screen.queryByText( 'No other connected administrators' ) ).not.toBeInTheDocument();
 	} );
