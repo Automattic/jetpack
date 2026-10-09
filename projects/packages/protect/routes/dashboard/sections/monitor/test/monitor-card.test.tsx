@@ -117,7 +117,7 @@ describe( 'MonitorCard', () => {
 					settings={
 						{ settings: live, isSaving: () => false, refresh } as unknown as ProtectSettingsData
 					}
-					openSettings={ jest.fn() }
+					openTab={ jest.fn() }
 				/>
 			);
 		};
