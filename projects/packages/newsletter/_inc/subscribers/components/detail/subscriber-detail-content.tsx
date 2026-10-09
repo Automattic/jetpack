@@ -152,9 +152,9 @@ function DetailRow( {
  * Bounce explanation and "Send confirmation email" button for a bounced subscriber.
  *
  * @param props                     - Component props.
- * @param props.emailSubscriptionId - Email subscription id; the button is hidden without one.
+ * @param props.emailSubscriptionId - Email subscription id; nothing renders without one.
  * @param props.bounceRetry         - Bounce retry state from the API.
- * @return Bounce retry block.
+ * @return Bounce retry block, or null when no retry can be offered.
  */
 function BounceRetryNotice( {
 	emailSubscriptionId,
@@ -162,7 +162,7 @@ function BounceRetryNotice( {
 }: {
 	emailSubscriptionId?: number;
 	bounceRetry?: BounceRetry | null;
-} ): JSX.Element {
+} ): JSX.Element | null {
 	const { mutate, isPending } = useSendBounceConfirmationMutation();
 	const canRetry = !! bounceRetry?.can_retry;
 
@@ -180,7 +180,9 @@ function BounceRetryNotice( {
 			)
 		: '';
 	// Hidden while the mail system still blocks the address; disabled only after a send.
-	const showButton = !! emailSubscriptionId && ( canRetry || !! note );
+	if ( ! emailSubscriptionId || ( ! canRetry && ! note ) ) {
+		return null;
+	}
 
 	return (
 		<Stack direction="column" gap="sm" align="start">
@@ -190,18 +192,16 @@ function BounceRetryNotice( {
 					'jetpack-newsletter'
 				) }
 			</Text>
-			{ showButton ? (
-				<Button
-					variant="outline"
-					tone="neutral"
-					size="compact"
-					loading={ isPending }
-					disabled={ isPending || ! canRetry }
-					onClick={ send }
-				>
-					{ __( 'Send confirmation email', 'jetpack-newsletter' ) }
-				</Button>
-			) : null }
+			<Button
+				variant="outline"
+				tone="neutral"
+				size="compact"
+				loading={ isPending }
+				disabled={ isPending || ! canRetry }
+				onClick={ send }
+			>
+				{ __( 'Send confirmation email', 'jetpack-newsletter' ) }
+			</Button>
 			{ note ? <Text variant="body-sm">{ note }</Text> : null }
 		</Stack>
 	);
