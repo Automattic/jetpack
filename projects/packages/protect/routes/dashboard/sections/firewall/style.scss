@@ -16,3 +16,21 @@
 		}
 	}
 }
+
+.jp-protect-firewall-test {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding-inline-start: 20px;
+
+	&__code {
+		margin: 0;
+		padding: 8px;
+		border-radius: 2px;
+		background: var(--wpds-color-background-surface-neutral-weak);
+		font-size: 12px;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+}

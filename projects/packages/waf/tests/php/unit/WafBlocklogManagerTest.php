@@ -75,4 +75,52 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 		$filtered_stats = Waf_Blocklog_Manager::filter_last_30_days( $stats );
 		$this->assertEquals( $expected_stats, $filtered_stats );
 	}
+
+	/**
+	 * The firewall writes the counts around the object cache, so reads must skip a stale cached option.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testCountsReadTheStoredValueNotTheCachedOption() {
+		$today = gmdate( 'Y-m-d' );
+		add_test_option( Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, 2 );
+		add_test_option( Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array( $today => 2 ) );
+
+		$GLOBALS['wpdb'] = new class( $today ) {
+			/** @var array */
+			private $rows;
+
+			/**
+			 * @param string $today Today's date.
+			 */
+			public function __construct( $today ) {
+				$this->rows = array(
+					Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => '3',
+					Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        => serialize( array( $today => 3 ) ),
+				);
+			}
+
+			/** @var string */
+			public $options = 'wp_options';
+
+			/**
+			 * @param string $query Query.
+			 * @param mixed  ...$args Arguments.
+			 */
+			public function prepare( $query, ...$args ) {
+				return $args[0];
+			}
+
+			/**
+			 * @param string $option_name The prepared option name.
+			 */
+			public function get_var( $option_name ) {
+				return $this->rows[ $option_name ] ?? null;
+			}
+		};
+
+		$this->assertSame( 3, Waf_Blocklog_Manager::get_all_time_block_count() );
+		$this->assertSame( 3, Waf_Blocklog_Manager::get_current_day_block_count() );
+	}
 }
