@@ -1123,7 +1123,8 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$user = $this->create_and_get_user( 'administrator' );
 		update_option( 'monitor_receive_notifications' . $user->ID, 1 );
 
-		do_action( $hook, $user->ID );
+		// Core's `deleted_user` passes three arguments, and its own multisite callback requires them.
+		do_action( $hook, $user->ID, null, $user );
 
 		$this->assertFalse( get_option( 'monitor_receive_notifications' . $user->ID ) );
 	}
