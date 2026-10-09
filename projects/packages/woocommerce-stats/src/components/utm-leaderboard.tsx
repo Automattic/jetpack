@@ -9,7 +9,7 @@ import {
 	type LeaderboardRowInput,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { useMemo, type ComponentProps } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,8 +23,6 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type UtmLeaderboardProps = {
 	/** The order attribution dimension the sales split by. */
 	view: OrderAttributionView;
-	/** The icon of the empty state. */
-	emptyIcon: ComponentProps< typeof Leaderboard >[ 'empty' ][ 'icon' ];
 };
 
 /**
@@ -35,7 +33,7 @@ type UtmLeaderboardProps = {
  * @param {UtmLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function UtmLeaderboard( { view, emptyIcon }: UtmLeaderboardProps ) {
+export function UtmLeaderboard( { view }: UtmLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo( () => ( { ...reportParams, view } ), [ reportParams, view ] );
 	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
@@ -70,10 +68,6 @@ export function UtmLeaderboard( { view, emptyIcon }: UtmLeaderboardProps ) {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: emptyIcon,
-				description: __( 'No attribution data in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 			maxRows={ UTM_ROW_LIMIT }
 			format={ CURRENCY_FORMAT }
 		/>

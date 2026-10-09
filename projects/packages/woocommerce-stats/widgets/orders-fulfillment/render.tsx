@@ -10,7 +10,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { box } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -87,10 +86,6 @@ function OrdersFulfillment() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: box,
-				description: __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 		/>
 	);
 }

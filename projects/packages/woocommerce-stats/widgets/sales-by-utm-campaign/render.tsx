@@ -5,7 +5,6 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { megaphone } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -27,7 +26,7 @@ export default function SalesByUtmCampaignRender( {
 }: WidgetRenderProps< SalesByUtmCampaignRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<UtmLeaderboard view="campaign" emptyIcon={ megaphone } />
+			<UtmLeaderboard view="campaign" />
 		</WidgetRoot>
 	);
 }

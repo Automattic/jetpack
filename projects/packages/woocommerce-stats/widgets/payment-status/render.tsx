@@ -11,7 +11,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { payment } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -83,10 +82,6 @@ function PaymentStatus() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: payment,
-				description: __( 'No order revenue in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 			format={ CURRENCY_FORMAT }
 		/>
 	);

@@ -36,7 +36,6 @@ function GrossSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType 
 			field="orders_value_gross"
 			label={ __( 'Gross sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
-			emptyText={ __( 'No sales in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load gross sales. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Use the dashboard's generic empty state for a period with no data, instead of a copy and icon per widget.

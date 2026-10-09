@@ -36,7 +36,6 @@ function AverageOrderValue( { chartType }: { chartType?: ChartDisplayChartType }
 			field="average_order_value"
 			label={ __( 'Average order value', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
-			emptyText={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load average order value. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'
