@@ -14,6 +14,7 @@
 		"@jetpack-premium-analytics/site-sync": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
+		"@wordpress/a11y": "4.57.0",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/components": "42.0.0",

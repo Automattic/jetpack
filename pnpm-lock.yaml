@@ -3097,6 +3097,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.15.5
         version: 5.102.8(react@18.3.1)
+      '@wordpress/a11y':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/admin-ui':
         specifier: 2.12.0
         version: 2.12.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3658,6 +3661,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
+      '@wordpress/a11y':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/admin-ui':
         specifier: 2.12.0
         version: 2.12.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4201,6 +4207,9 @@ importers:
       '@visx/scale':
         specifier: 4.0.0
         version: 4.0.0
+      '@wordpress/a11y':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/admin-ui':
         specifier: 2.12.0
         version: 2.12.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4903,6 +4912,9 @@ importers:
       '@microsoft/fetch-event-source':
         specifier: 2.0.1
         version: 2.0.1
+      '@wordpress/a11y':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/api-fetch':
         specifier: 7.57.0
         version: 7.57.0
@@ -5357,6 +5369,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
+      '@wordpress/a11y':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/admin-ui':
         specifier: 2.12.0
         version: 2.12.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5944,6 +5959,9 @@ importers:
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
+      '@wordpress/a11y':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/admin-ui':
         specifier: 2.12.0
         version: 2.12.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

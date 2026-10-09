@@ -43,6 +43,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-videopress/init": "link:packages/init",
 		"@tanstack/react-query": "5.102.8",
+		"@wordpress/a11y": "4.57.0",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/base-styles": "13.3.0",

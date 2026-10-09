@@ -58,6 +58,7 @@
 		"@jetpack-premium-analytics/widgets-toolkit": "link:packages/widgets-toolkit",
 		"@tanstack/react-query": "5.102.8",
 		"@visx/scale": "4.0.0",
+		"@wordpress/a11y": "4.57.0",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/boot": "0.24.0",
