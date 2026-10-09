@@ -4,20 +4,7 @@ export {
 	RevenueByCustomerTypeWidget,
 	BookingsRevenueByCustomerTypeWidget,
 } from './revenue-by-customer-type';
-export { NewVsReturningCustomerWidget } from './new-vs-returning-customer';
 export { SalesByDeviceWidget } from './sales-by-device';
-export { SalesByUtmWidget } from './sales-by-utm';
 export { SessionsByDeviceWidget } from './sessions-by-device';
-export { BookingsByAttendanceWidget } from './bookings-by-attendance';
 export { TotalReturnsWidget } from './total-returns';
-export {
-	TopPerformingProductLeaderboardWidget,
-	type TopPerformingProductLeaderboardWidgetProps,
-	TopPerformingProductsWidget,
-	type TopPerformingProductsWidgetProps,
-	TopPerformingBookingsWidget,
-	type TopPerformingBookingsWidgetProps,
-} from './product-leaderboard';
-export { CouponUseWidget } from './coupon-use';
-export { OrdersFulfillmentWidget } from './orders-fulfillment';
 export { VisitorsByLocationWidget } from './visitors-by-location';

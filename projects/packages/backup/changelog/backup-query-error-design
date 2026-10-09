@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Error notice restyle in the modernized dashboard, which is behind a feature flag.
+
+

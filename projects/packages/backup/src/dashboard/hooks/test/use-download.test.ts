@@ -121,6 +121,25 @@ describe( 'useDownload', () => {
 		);
 	} );
 
+	it( 'names the backup and the code when the download never starts', async () => {
+		mockedApiFetch.mockRejectedValue( {
+			code: 'download_initiate_failed',
+			message: 'Could not prepare the download.',
+			data: { status: 500, wpcom: { code: 'rewind_error' } },
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+
+		await waitFor( () =>
+			expect( result.current.state ).toMatchObject( {
+				phase: 'error',
+				reference: { code: 'rewind_error', id: { kind: 'backup', value: REWIND_ID } },
+			} )
+		);
+	} );
+
 	it( "surfaces WPCOM's reason when the download fails", async () => {
 		respondWith( {
 			id: 4321,
@@ -140,6 +159,7 @@ describe( 'useDownload', () => {
 				phase: 'error',
 				// Carried inside a translated frame rather than shown raw.
 				message: 'Download failed: Archive expired',
+				reference: { code: null, id: { kind: 'download', value: 4321 } },
 			} )
 		);
 	} );

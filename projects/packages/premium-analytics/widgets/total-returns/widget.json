@@ -1,5 +1,6 @@
 {
 	"name": "jpa/total-returns",
+	"icon": "jpa/chart-bar",
 	"title": "Total returns",
 	"description": "Shows refunds and net sales over the selected time period.",
 	"help": {

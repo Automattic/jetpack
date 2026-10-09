@@ -8,12 +8,9 @@ Dashboard widget components for Jetpack Premium Analytics.
 | ------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
 | `ConversionRateWidget`         | `MetricWithComparison`                          | Funnel conversion rate metric                     |
 | `RevenueByCustomerTypeWidget`  | `BarChart`                                      | Revenue breakdown by customer type                |
-| `NewVsReturningCustomerWidget` | `DonutChart`                                    | Customer counts by new vs returning               |
 | `SalesByCouponWidget`          | `SemiCircleChart`                               | Coupon sales for all product types                |
-| `SalesByDeviceWidget`          | `DonutChart`                                    | Sales breakdown by device type                    |
-| `TotalReturnsWidget`           | `DonutChart`                                    | Returns/refunds for all product types             |
-| `TopPerformingProductsWidget`  | `LeaderboardChart`                              | Top products by revenue                           |
-| `TopPerformingBookingsWidget`  | `LeaderboardChart`                              | Top bookings by revenue                           |
+| `SalesByDeviceWidget`          | `BarChart`                                      | Sales breakdown by device type                    |
+| `TotalReturnsWidget`           | `BarChart`                                      | Returns/refunds for all product types             |
 
 ## Chart Components
 
@@ -28,10 +25,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 ## Common Utilities
 
 Shared code is located in `common/`:
-
-### Styles
-
-- `donut-widget.module.scss` - Container styles for DonutChart widgets
 
 ### Hooks
 

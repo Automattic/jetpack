@@ -85,7 +85,7 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'Orders Over Time', $c->get_report_label() );
 		$this->assertSame( 'reports/orders/by-date', $c->get_data_endpoint() );
 		$this->assertSame( 1000, $c->get_batch_limit() );
-		$this->assertSame( array( 'date_type' => 'created' ), $c->get_additional_params() );
+		$this->assertSame( array(), $c->get_additional_params() );
 	}
 
 	public function test_orders_column_headers_use_interval_label() {
@@ -180,8 +180,7 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'reports/orders-by-product-type/by-date', $c->get_data_endpoint() );
 		$this->assertSame(
 			array(
-				'date_type' => 'created',
-				'filters'   => array(
+				'filters' => array(
 					array(
 						'key'     => 'product_type',
 						'compare' => 'IN',
@@ -246,10 +245,9 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'reports/products', $c->get_data_endpoint() );
 		$this->assertSame(
 			array(
-				'date_type' => 'created',
-				'orderby'   => 'product_gross_revenue',
-				'order'     => 'desc',
-				'limit'     => 100,
+				'orderby' => 'product_gross_revenue',
+				'order'   => 'desc',
+				'limit'   => 100,
 			),
 			$c->get_additional_params()
 		);

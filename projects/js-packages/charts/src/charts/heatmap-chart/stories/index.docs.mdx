@@ -289,7 +289,7 @@ Pass `width` and `height` to bypass the responsive wrapper and render at an exac
 
 ## Composition API — Legend
 
-Add a legend by placing `<HeatmapChart.Legend />` as a child. The legend renders a gradient scale from the lightest to the fullest shade, labelled with the value range.
+Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less and More labels, the legend shows a swatch in the empty-cell color, then the scale from the lightest to the fullest shade. With negative values a zero is a filled step, so the empty-cell swatch is left out.
 
 <Canvas of={ HeatmapStories.WithCompositionLegend } />
 

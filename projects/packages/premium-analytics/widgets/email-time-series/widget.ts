@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { envelope } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -42,8 +42,15 @@ export type EmailTimeSeriesAttributes = {
  * page, the first 30 days after the send, in daily buckets.
  */
 export default {
-	icon: envelope,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
+	attributes: [
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',

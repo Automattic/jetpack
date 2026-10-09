@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop turning away logged-out readers' comments when a cached page's form has expired.

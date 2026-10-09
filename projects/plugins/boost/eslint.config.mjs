@@ -23,9 +23,7 @@ export default defineConfig(
 				'error',
 				{
 					ignore: [
-						// Image guide doesn't have a `jetpack:src` entry, so it needs to be built to work and may not be when linting.
-						// And since it uses svelte, if we did want to add a `jetpack:src` entry then we'd also need to teach Boost's webpack config how to build svelte files. Sigh.
-						// Easier to just ignore it for this rule.
+						// Image Guide exports built files, which may be absent when linting.
 						'^@automattic/jetpack-image-guide$',
 					],
 				},
