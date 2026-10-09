@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsTags } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, useStatsTags } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -64,14 +64,15 @@ describe( 'useTagsReportRecords', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'requests more rows than the endpoint would return by default', () => {
-		renderHook( () => useTagsReportRecords() );
+	it( 'requests the report window with more rows than the endpoint returns by default', () => {
+		const reportParams = getDefaultQueryParams();
+		renderHook( () => useTagsReportRecords( reportParams ) );
 
-		expect( mockUseStatsTags ).toHaveBeenCalledWith( { max: 1000 } );
+		expect( mockUseStatsTags ).toHaveBeenCalledWith( { ...reportParams, max: 1000 } );
 	} );
 
 	it( 'returns the normalized rows', () => {
-		const { result } = renderHook( () => useTagsReportRecords() );
+		const { result } = renderHook( () => useTagsReportRecords( getDefaultQueryParams() ) );
 
 		expect( result.current.rows ).toEqual( [
 			expect.objectContaining( { labelText: 'Recipes', value: 1240 } ),

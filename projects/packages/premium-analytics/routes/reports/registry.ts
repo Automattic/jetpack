@@ -146,7 +146,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	},
 	tags: {
 		id: 'tags',
-		dashboardSection: 'insights',
+		dashboardSection: 'traffic',
 		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './tags/page' ),
 	},

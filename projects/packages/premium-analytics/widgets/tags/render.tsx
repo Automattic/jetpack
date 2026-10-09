@@ -17,6 +17,7 @@ import {
 	sharePercentage,
 	tagRowGlyph,
 	useWidgetDrillDown,
+	useWidgetRootContext,
 	ExporterCsvDownloadButton,
 	tagsCsvExporter,
 	type LeaderboardChartData,
@@ -25,6 +26,7 @@ import {
 import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -68,7 +70,9 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 }
 
 function TagsInner() {
+	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
+		reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} );
 
@@ -196,8 +200,11 @@ function TagsInner() {
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
 	return (
-		<WidgetRoot attributes={ attributes }>
-			<TagsInner />
-		</WidgetRoot>
+		// `stats/tags` reports one period, so the widget never offers the comparison.
+		<ReportScopeProvider offersComparison={ false }>
+			<WidgetRoot attributes={ attributes }>
+				<TagsInner />
+			</WidgetRoot>
+		</ReportScopeProvider>
 	);
 }

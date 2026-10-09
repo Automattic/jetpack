@@ -621,39 +621,52 @@ describe( 'Stats query factories', () => {
 
 	// The endpoint rewrites `max < 1` back to its default of 10 rather than reading
 	// it as "all rows", so a `0` must not reach it.
-	it( 'leaves a non-positive tags max off the request', () => {
-		expect( statsTagsQuery( { max: 0 } ).queryKey ).toEqual( [
+	it( 'sends the tags window as date and start_date, with max only when positive', () => {
+		const query = statsTagsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			max: 0,
+		} );
+
+		expect( query.queryKey ).toEqual( [
 			'stats',
 			'tags',
 			'1.1',
 			'stats/tags',
 			'GET',
-			{},
+			{ period: 'day', date: '2026-06-07', start_date: '2026-06-01', summarize: 1 },
 			undefined,
 			'tags',
 			'UTC',
 		] );
+		expect(
+			statsTagsQuery( { from: '2026-06-01', to: '2026-06-07', interval: 'day', max: 10 } )
+				.queryKey[ 5 ]
+		).toEqual( {
+			period: 'day',
+			date: '2026-06-07',
+			start_date: '2026-06-01',
+			max: 10,
+			summarize: 1,
+		} );
 	} );
 
-	// A date would change the cache key without changing a row. `StatsTagsParams`
-	// already rejects one, so this spreads past the type to cover untyped callers.
-	it( 'never sends a date on the tags query, whatever the selected period', () => {
-		const tagsQueryKey = ( period: Record< string, unknown > ) =>
-			statsTagsQuery( { max: 10, ...period } ).queryKey;
-		const maxOnly = [
-			'stats',
-			'tags',
-			'1.1',
-			'stats/tags',
-			'GET',
-			{ max: 10 },
-			undefined,
-			'tags',
-			'UTC',
-		];
+	// One ranking pass whatever the length: per-day keeps 50 posts a day and one
+	// pass keeps 50 for the window, so switching by length would make a longer
+	// range count fewer posts than a shorter one.
+	it.each( [
+		[ '1 day', '2026-06-01', '2026-06-01' ],
+		[ '31 days', '2026-06-01', '2026-07-01' ],
+		[ '365 days', '2025-07-02', '2026-07-01' ],
+	] )( 'summarizes the tags query at every length (%s)', ( _label, from, to ) => {
+		const params = statsTagsQuery( { from, to, interval: 'day' } ).queryKey[ 5 ] as Record<
+			string,
+			unknown
+		>;
 
-		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
-		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
+		expect( params.summarize ).toBe( 1 );
+		expect( params.days ).toBeUndefined();
 	} );
 
 	it( 'builds devices query keys from the selected device property', () => {

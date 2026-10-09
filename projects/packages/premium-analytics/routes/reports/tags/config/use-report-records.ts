@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsTags, type StatsTagsItem } from '@jetpack-premium-analytics/data';
+import {
+	useStatsTags,
+	type ReportParams,
+	type StatsTagsItem,
+} from '@jetpack-premium-analytics/data';
 import { TAGS_REPORT_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
@@ -16,12 +20,13 @@ export function getTagRowId( item: StatsTagsItem ): string {
 }
 
 /**
- * Fetch the Tags & categories rows.
+ * Fetch the Tags & categories rows for the report window.
  *
+ * @param reportParams - The report's date window.
  * @return Table rows and fetch state.
  */
-export function useTagsReportRecords() {
-	const tags = useStatsTags( { max: TAGS_REPORT_ROW_LIMIT } );
+export function useTagsReportRecords( reportParams: ReportParams ) {
+	const tags = useStatsTags( { ...reportParams, max: TAGS_REPORT_ROW_LIMIT } );
 	const rows = useMemo< StatsTagsItem[] >(
 		() => tags.data?.data?.[ 0 ]?.items ?? [],
 		[ tags.data ]
