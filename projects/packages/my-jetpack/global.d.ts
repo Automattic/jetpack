@@ -613,6 +613,16 @@ interface Window {
 						available: boolean;
 						wpcom_product_slug: string;
 						wpcom_free_product_slug?: string;
+						terms?: Array< {
+							available: boolean;
+							wpcom_product_slug: string;
+							product_term?: string;
+							currency_code?: string;
+							full_price?: number;
+							discount_price?: number;
+							full_price_per_month?: number;
+							discount_price_per_month?: number;
+						} >;
 						product_term: string;
 						currency_code: string;
 						full_price: number;

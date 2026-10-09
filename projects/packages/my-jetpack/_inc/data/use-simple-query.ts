@@ -13,17 +13,20 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  * GET requests. For anything else - use useSimpleMutation.
  *
  * @template T The type of data expected from the query function.
- * @param {object}                                                                     params                - The parameters for executing the query.
- * @param {string}                                                                     params.name           - A unique name for the query, used as part of the query key.
- * @param {APIFetchOptions}                                                            params.query          - The options to be passed to the API fetch function.
- * @param {Pick<UseQueryOptions<T,WP_Error>, 'enabled' | 'gcTime' | 'refetchOnMount'>} [params.options]      - Optional. Query options from react-query, currently supports only the 'enabled', 'gcTime' and 'refetchOnMount' options.
- * @param {string}                                                                     [params.errorMessage] - Optional. A custom error message that can be displayed if the query fails.
+ * @param {object}                                                                                                                  params                - The parameters for executing the query.
+ * @param {string}                                                                                                                  params.name           - A unique name for the query, used as part of the query key.
+ * @param {APIFetchOptions}                                                                                                         params.query          - The options to be passed to the API fetch function.
+ * @param {Pick<UseQueryOptions<T,WP_Error>, 'enabled' | 'gcTime' | 'refetchOnMount' | 'refetchInterval' | 'refetchOnWindowFocus'>} [params.options]      - Optional React Query options.
+ * @param {string}                                                                                                                  [params.errorMessage] - Optional. A custom error message that can be displayed if the query fails.
  * @return {import('@tanstack/react-query').UseQueryResult<T>} The result object from the useQuery hook, containing data and state information about the query (e.g., isLoading, isError).
  */
 type QueryParams< T > = {
 	name: string;
 	query: APIFetchOptions< true >;
-	options?: Pick< UseQueryOptions< T, WP_Error >, 'enabled' | 'gcTime' | 'refetchOnMount' >;
+	options?: Pick<
+		UseQueryOptions< T, WP_Error >,
+		'enabled' | 'gcTime' | 'refetchOnMount' | 'refetchInterval' | 'refetchOnWindowFocus'
+	>;
 	errorMessage?: string;
 };
 

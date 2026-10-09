@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+
 /**
  * Pro reuses Complete's product installation and activation.
  */
@@ -102,15 +104,50 @@ class Pro extends Complete {
 	}
 
 	/**
-	 * Keep Pro unavailable for new purchases.
+	 * Catalog-controlled yearly and two-year offers.
 	 *
 	 * @return array
 	 */
 	public static function get_pricing_for_ui() {
-		return array(
-			'available'          => false,
-			'wpcom_product_slug' => static::get_wpcom_product_slug(),
-		);
+		if ( ! method_exists( static::class, 'get_bundle_pricing' ) ) {
+			return array(
+				'available'          => false,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+			);
+		}
+		$pricing = static::get_bundle_pricing( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ) );
+		// Complete changes are support-assisted; recognition does not create a downgrade offer.
+		if ( Complete::has_paid_plan_for_product() || static::has_purchase_requiring_support() ) {
+			$pricing['available'] = false;
+			foreach ( $pricing['terms'] as &$term ) {
+				$term['available'] = false;
+			}
+		}
+		return $pricing;
+	}
+
+	/**
+	 * Preserve subscriptions that Pro cannot replace through standard checkout.
+	 *
+	 * @return bool
+	 */
+	private static function has_purchase_requiring_support() {
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		if ( ! is_array( $purchases ) ) {
+			return false;
+		}
+		foreach ( $purchases as $purchase ) {
+			$slug = $purchase->product_slug;
+			if ( false !== strpos( $slug, '_free' ) ) {
+				continue;
+			}
+			foreach ( array( 'jetpack_search', 'jetpack_stats', 'jetpack_backup_t2_', 'jetpack_backup_realtime', 'jetpack_security_t2_', 'jetpack_security_realtime', 'jetpack_monitor' ) as $prefix ) {
+				if ( str_starts_with( $slug, $prefix ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

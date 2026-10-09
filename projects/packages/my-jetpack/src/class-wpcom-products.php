@@ -138,7 +138,13 @@ class Wpcom_Products {
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 
 		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			if ( is_object( $products ) ) {
+				return $products;
+			}
+			$error = new WP_Error( 'invalid_wpcom_products', __( 'Unable to read the products list from WordPress.com', 'jetpack-my-jetpack' ) );
+			static::set_request_failure( $request_label, $error );
+			return $error;
 		} else {
 			$error = new WP_Error(
 				'failed_to_fetch_wpcom_products',
@@ -159,7 +165,7 @@ class Wpcom_Products {
 	private static function build_check_hash() {
 		static $has_user_data_fetch_error = false;
 
-		$hash_string = 'check_hash_';
+		$hash_string = 'check_hash_' . Jetpack_Options::get_option( 'id' ) . '_' . get_user_locale();
 		$connection  = new Connection_Manager();
 
 		if ( $connection->is_connected() ) {
@@ -211,7 +217,7 @@ class Wpcom_Products {
 		}
 
 		$cache_date = get_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, true );
-		return time() - (int) $cache_date > DAY_IN_SECONDS;
+		return time() - (int) $cache_date > 5 * MINUTE_IN_SECONDS;
 	}
 
 	/**
@@ -244,7 +250,15 @@ class Wpcom_Products {
 		if ( is_wp_error( $products ) ) {
 			// Let's see if we have it cached.
 			$cached = self::get_products_from_cache();
-			if ( ! empty( $cached ) ) {
+			if ( is_object( $cached ) ) {
+				// Keep last-known prices, but never sell from a failed catalog refresh.
+				$cached = clone $cached;
+				foreach ( $cached as $slug => $product ) {
+					if ( is_object( $product ) ) {
+						$cached->$slug            = clone $product;
+						$cached->$slug->available = false;
+					}
+				}
 				return $cached;
 			} else {
 				return $products;
@@ -279,7 +293,7 @@ class Wpcom_Products {
 	 */
 	public static function get_product_pricing( $product_slug ) {
 		$product = self::get_product( $product_slug );
-		if ( empty( $product ) ) {
+		if ( ! is_object( $product ) || ! isset( $product->cost ) || ! isset( $product->currency_code ) || ! isset( $product->product_term ) || ! is_numeric( $product->cost ) || $product->cost < 0 ) {
 			return array();
 		}
 
@@ -296,6 +310,7 @@ class Wpcom_Products {
 		}
 
 		$pricing = array(
+			'available'             => isset( $product->available ) && true === $product->available,
 			'currency_code'         => $product->currency_code,
 			'full_price'            => $cost,
 			'discount_price'        => $discount_price,
