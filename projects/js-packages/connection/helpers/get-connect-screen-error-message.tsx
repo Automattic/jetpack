@@ -21,8 +21,9 @@ export const getRegistrationErrorCode = (
 	if ( ! registrationError ) {
 		return undefined;
 	}
-	if ( registrationError.response?.code ) {
-		return registrationError.response.code;
+	const code: unknown = registrationError.response?.code;
+	if ( typeof code === 'string' && code ) {
+		return code;
 	}
 	return typeof registrationError.name === 'string' ? registrationError.name : undefined;
 };
@@ -196,8 +197,12 @@ export const getConnectScreenErrorMessage = (
 		case 'connection_reset':
 		case 'bad_redirect_url':
 			return unreachableMessage();
-		case 'xml_rpc-32700':
 		case 'xml_rpc-32601':
+			return __(
+				'Your site didn’t respond to Jetpack’s connection request through xmlrpc.php. A security plugin or your hosting provider may be blocking or replacing XML-RPC. Allow xmlrpc.php, then try again.',
+				'jetpack-connection-js'
+			);
+		case 'xml_rpc-32700':
 			return __(
 				'WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins, then connect again.',
 				'jetpack-connection-js'
