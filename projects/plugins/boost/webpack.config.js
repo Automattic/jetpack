@@ -145,10 +145,8 @@ module.exports = [
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			path: path.resolve( './app/modules/image-guide/dist' ),
-			// Ship as `.min.js` so Boost's own concatenation serving path treats it as
-			// already-minified and skips re-minification. The MatthiasMullie PHP minifier
-			// is ES5-era and silently corrupts the Svelte/ES6 template literals in this
-			// bundle; webpack/Terser has already minified it at build time.
+			clean: true,
+			// The .min.js name bypasses Boost's ES5-era PHP minifier, which corrupts modern syntax.
 			filename: 'guide.min.js',
 		},
 		optimization: {

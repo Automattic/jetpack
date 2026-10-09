@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: React 19 recognizes `popoverTarget` and `popoverTargetAction`, and rejects `popovertarget` and `popovertargetaction`, while React 18 needs the latter as it doesn't recognize the former. So supply whichever is appropriate at runtime based on the React version.
+
+

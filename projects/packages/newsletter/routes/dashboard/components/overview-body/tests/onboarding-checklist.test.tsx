@@ -212,7 +212,7 @@ describe( 'OnboardingChecklist', () => {
 			)
 		);
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: `${ LIST_PATH }/tasks/subscribe_form/complete`,
+			path: `${ LIST_PATH }/tasks/subscribe_form/skip`,
 			method: 'POST',
 		} );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {

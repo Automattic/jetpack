@@ -14,6 +14,8 @@ export type OnboardingTaskList = {
 	id: string;
 	// Whether onboarding is done, so the Overview shows Stats.
 	complete?: boolean;
+	// Complete only because a WP.com rule hides it (e.g. Site Setup); it shows again later.
+	hidden?: boolean;
 	tasks: Array< { id: OnboardingTaskId; complete: boolean } >;
 };
 
@@ -44,8 +46,8 @@ export function isOnboardingDone( taskList: OnboardingTaskList ): boolean {
 }
 
 /**
- * Whether this browser has already seen onboarding done. Completion is final on WP.com, so a done
- * onboarding never needs asking about again.
+ * Whether this browser has already seen onboarding done. Completion from its tasks is final on
+ * WP.com, so a done onboarding never needs asking about again.
  *
  * @return Whether onboarding is stored as done.
  */
@@ -62,14 +64,14 @@ export function isStoredOnboardingDone(): boolean {
 }
 
 /**
- * Remember onboarding once WP.com reports it done. Individual tasks are not stored, so an open
- * checklist always shows WP.com's current answer.
+ * Remember onboarding once WP.com reports it done, but not while it is only hidden. Individual
+ * tasks are not stored, so an open checklist always shows WP.com's current answer.
  *
  * @param taskList - Task list from WP.com.
  */
 function storeIfOnboardingDone( taskList: OnboardingTaskList ): void {
 	const key = getStorageKey();
-	if ( ! key || ! isOnboardingDone( taskList ) ) {
+	if ( ! key || ! isOnboardingDone( taskList ) || taskList.hidden ) {
 		return;
 	}
 	try {
@@ -92,16 +94,16 @@ export async function fetchOnboardingTasks(): Promise< OnboardingTaskList > {
 }
 
 /**
- * Mark an onboarding task complete by hand, remembering when onboarding is done. Completion is final.
+ * Skip an onboarding task, remembering when onboarding is done. A skipped task counts as complete.
  *
- * @param taskId - Task to complete.
+ * @param taskId - Task to skip.
  * @return The updated onboarding task list.
  */
-export async function completeOnboardingTask(
+export async function skipOnboardingTask(
 	taskId: OnboardingTaskId
 ): Promise< OnboardingTaskList > {
 	const taskList = await apiFetch< OnboardingTaskList >( {
-		path: `${ ONBOARDING_PATH }/tasks/${ taskId }/complete`,
+		path: `${ ONBOARDING_PATH }/tasks/${ taskId }/skip`,
 		method: 'POST',
 	} );
 	storeIfOnboardingDone( taskList );

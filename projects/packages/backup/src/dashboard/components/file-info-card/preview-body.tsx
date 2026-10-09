@@ -2,6 +2,8 @@ import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, unseen } from '@wordpress/icons';
 import { Button, Stack, Text } from '@wordpress/ui';
+import { errorCode } from '../../data/api/_helpers';
+import ErrorReference from '../error-reference';
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
@@ -81,9 +83,12 @@ export default function PreviewBody( {
 	}
 	if ( error ) {
 		return (
-			<Text variant="body-sm" className="jpb-text-muted">
-				{ __( 'Preview could not be loaded for this file.', 'jetpack-backup-pkg' ) }
-			</Text>
+			<Stack direction="column" gap="xs">
+				<Text variant="body-sm" className="jpb-text-muted">
+					{ __( 'Preview could not be loaded for this file.', 'jetpack-backup-pkg' ) }
+				</Text>
+				<ErrorReference code={ errorCode( error ) } id={ null } />
+			</Stack>
 		);
 	}
 	// Deliberately not the unpreviewable-extension wording: the extension said

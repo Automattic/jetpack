@@ -1,5 +1,6 @@
 {
 	"name": "jpa/email-time-series",
+	"icon": "jpa/envelope",
 	"title": "Email performance",
 	"description": "A single email's opens or clicks over time since it was sent.",
 	"help": {

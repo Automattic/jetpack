@@ -4,9 +4,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { cloudUpload } from '@wordpress/icons';
 import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
+import ErrorReference from '../error-reference';
 import { ContactSupportLine } from './index';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
+import type { FailureReference } from '../../types/failure-reference';
 
 type Props = {
 	/** Completion of the running backup, 0–100. Omit while the backup is requested but not yet reported. */
@@ -68,11 +70,18 @@ export default function BackupStatusBanner( { progress }: Props ) {
  * `/backups` window really can be wrong about `no-good-backups` — without
  * paying for that caution in silence.
  *
- * @param props       - Component props.
- * @param props.state - Derived backup state.
+ * @param props           - Component props.
+ * @param props.state     - Derived backup state.
+ * @param props.reference - What to quote to support when backups are failing.
  * @return The rendered banner, or null when the state needs no report.
  */
-export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
+export function BackupTroubleBanner( {
+	state,
+	reference,
+}: {
+	state: BackupsState;
+	reference?: FailureReference | null;
+} ) {
 	// Written as two whole returns rather than one banner with ternaries
 	// inside it. Partly because they say different things — `will-retry`
 	// is not yet a problem the reader has to solve, since WPCOM retries on
@@ -109,6 +118,7 @@ export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
 			<Text variant="body-sm">
 				<ContactSupportLine />
 			</Text>
+			{ reference && <ErrorReference { ...reference } /> }
 		</Stack>
 	);
 }
