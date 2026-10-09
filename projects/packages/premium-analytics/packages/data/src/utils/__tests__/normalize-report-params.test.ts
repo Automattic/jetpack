@@ -198,19 +198,6 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	/*
-	 * Edge case – date_type is preserved from search.
-	 */
-	it( 'preserves date_type from search', () => {
-		const result = normalizeReportParams( {
-			from: FRESH_FROM,
-			to: FRESH_TO,
-			date_type: 'paid',
-		} );
-
-		expect( result.date_type ).toBe( 'paid' );
-	} );
-
-	/*
 	 * Edge case – chart period is preserved from search.
 	 */
 	it( 'preserves period from search', () => {
@@ -223,16 +210,14 @@ describe( 'normalizeReportParams', () => {
 		expect( result.period ).toBe( 'week' );
 	} );
 
-	/*
-	 * Edge case – date_type defaults to "created".
-	 */
-	it( 'defaults date_type to created', () => {
+	it( 'drops date_type, even when search has one', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
+			date_type: 'created',
 		} );
 
-		expect( result.date_type ).toBe( 'created' );
+		expect( result ).not.toHaveProperty( 'date_type' );
 	} );
 
 	/*
