@@ -2661,6 +2661,21 @@ class Manager {
 	}
 
 	/**
+	 * Forget the last registration failure, so the next automatic attempt is not
+	 * held back by it.
+	 *
+	 * For consumers that trigger registration through code that cannot pass the
+	 * `$force` flag to `try_registration()`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function clear_registration_failure() {
+		Registration_Failure::clear();
+	}
+
+	/**
 	 * Adds a parameter to the register request body
 	 *
 	 * @since 1.26.0

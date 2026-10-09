@@ -82,6 +82,21 @@ $manager = new Manager( 'plugin-slug' );
 $manager->try_registration();
 ```
 
+#### Registration failures and automatic retries
+
+`try_registration()` remembers why the last attempt failed. Failures that cannot resolve on their own (for example, WordPress.com cannot reach the site because it is on a private address) are not retried automatically; other failures are retried on a backoff schedule. While a failure stands, `try_registration()` returns the remembered `WP_Error` — same code and message, with `'suppressed' => true` in its error data — without making a request. In offline mode it returns an `offline_mode` error without making a request.
+
+If your call is the direct result of a user action (a click on a Connect button), pass the `$force` flag so it is never held back:
+```
+$manager->try_registration( true, true );
+```
+
+To show the user why the site is not connected, or to clear the state through some other explicit action:
+```
+$failure = $manager->get_registration_failure(); // array|null
+$manager->clear_registration_failure();
+```
+
 You can then connect the user, meaning that the user will be redirected to Calypso to authorize their WPCOM users:
 ```
 $manager->connect_user();
