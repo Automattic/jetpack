@@ -34,8 +34,10 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	search_engines_visible: true,
 	site_is_private: false,
 	sitemap_active: false,
+	sitemap_switchable: true,
 	sitemap_url: '',
 	canonical_active: false,
+	canonical_switchable: true,
 	schema: SEEDED_SCHEMA,
 };
 
