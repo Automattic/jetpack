@@ -1,13 +1,16 @@
 /**
  * External dependencies
  */
-import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
+import { Button, EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './chart-empty-state.module.scss';
+
+export type EmptyStateAction =
+	{ label: string; href: string; target?: '_blank' } | { label: string; onClick: () => void };
 
 export type ChartEmptyStateProps = {
 	/**
@@ -19,6 +22,8 @@ export type ChartEmptyStateProps = {
 	 * @default "We couldn’t find results for this time period."
 	 */
 	text?: string;
+	/** One action under the description. */
+	action?: EmptyStateAction;
 };
 
 /**
@@ -27,6 +32,7 @@ export type ChartEmptyStateProps = {
 export function ChartEmptyState( {
 	icon = search,
 	text = __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' ),
+	action,
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>
@@ -34,6 +40,19 @@ export function ChartEmptyState( {
 			     different states keep the same vertical rhythm. */ }
 			{ icon && <Icon size={ 40 } className={ styles.icon } icon={ icon } /> }
 			<EmptyState.Description>{ text }</EmptyState.Description>
+			{ action && (
+				<EmptyState.Actions>
+					{ 'href' in action ? (
+						<LinkButton variant="outline" href={ action.href } target={ action.target }>
+							{ action.label }
+						</LinkButton>
+					) : (
+						<Button type="button" variant="outline" onClick={ action.onClick }>
+							{ action.label }
+						</Button>
+					) }
+				</EmptyState.Actions>
+			) }
 		</EmptyState.Root>
 	);
 }

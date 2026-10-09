@@ -163,6 +163,19 @@ export const EmptyCustom: Story = {
 	},
 };
 
+export const EmptyWithAction: Story = {
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
+		empty: {
+			description: 'You haven’t published any posts yet.',
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
+		},
+		children: <MockChart />,
+	},
+};
+
 /**
  * Error on a short tile (below the 140px body breakpoint): the container query
  * hides the glyph so the text-only state stays vertically centered inside the

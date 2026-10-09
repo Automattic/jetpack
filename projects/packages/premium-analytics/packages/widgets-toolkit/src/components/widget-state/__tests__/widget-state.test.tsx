@@ -3,6 +3,7 @@
  */
 import { search } from '@jetpack-premium-analytics/icons';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { chartBar } from '@wordpress/icons';
 import { useLayoutEffect, useState } from 'react';
 /**
@@ -171,6 +172,66 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows a custom empty action only while the widget has no results', () => {
+		const empty = {
+			description: 'No posts here.',
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
+		};
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/post-new.php'
+		);
+
+		rerender(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+	} );
+
+	it( 'runs the empty action button when clicked', async () => {
+		const onClick = jest.fn();
+		render(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { action: { label: 'Build URL', onClick } } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		await userEvent
+			.setup( { advanceTimers: jest.advanceTimersByTime } )
+			.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
+		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'opens an empty action link in a new tab', () => {
+		render(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { action: { label: 'Learn more', href: 'https://example.org', target: '_blank' } } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		const link = screen.getByRole( 'link', { name: /Learn more/ } );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'renders the error state with an action button', () => {
