@@ -1,25 +1,17 @@
 /**
- * External dependencies
- */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import {
-	DonutChartSkeleton,
-	Legend,
+	SemiCircle,
 	WIDGET_ROW_LIMIT,
 	describeError,
-	SemiCircleChart,
 	WidgetRoot,
-	WidgetState,
-	useSegmentStyles,
 	useWidgetRootContext,
-	type LegendItem,
 	type ReportParamsFieldAttributes,
-	type SemiCircleChartData,
+	type SemiCircleSegmentInput,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -51,62 +43,31 @@ function DevicesInner() {
 		deviceProperty: 'screensize',
 	} );
 
-	const chartData: SemiCircleChartData = data.map( item => ( {
-		label: item.displayLabel,
-		value: toRatio( item.percentage ),
-	} ) );
-
-	const segmentStyles = useSegmentStyles( chartData );
-
-	const legendData: LegendItem[] = data.map( item => ( {
-		label: item.displayLabel,
-		value: toRatio( item.percentage ),
-		displayValue: formatMetricValue(
-			toRatio( item.percentage ),
-			PERCENTAGE_DATA_FORMAT.type,
-			PERCENTAGE_DATA_FORMAT.options
-		),
-		comparison:
-			hasComparison && item.previousPercentage !== undefined
-				? toRatio( item.previousPercentage )
-				: undefined,
-	} ) );
-	const styledLegendData = legendData.map( ( item, index ) => ( {
-		...item,
-		color: segmentStyles[ index ]?.color,
-	} ) );
+	const segments = useMemo< SemiCircleSegmentInput[] >(
+		() =>
+			data.map( item => ( {
+				label: item.displayLabel,
+				value: toRatio( item.percentage ),
+				previousValue:
+					item.previousPercentage === undefined ? undefined : toRatio( item.previousPercentage ),
+			} ) ),
+		[ data ]
+	);
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				isError={ isError }
-				isEmpty={ data.length === 0 }
-				error={ describeError( error, {
-					retryDescription: __(
-						"We couldn't load device data. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: refetch,
-				} ) }
-				renderLoading={ <DonutChartSkeleton /> }
-			>
-				<div className={ styles.chartWrap }>
-					<div className={ styles.chartShell }>
-						<SemiCircleChart
-							chartData={ chartData }
-							styles={ segmentStyles }
-							showLegend={ false }
-							showMetric={ false }
-							withTooltips
-							dataFormat={ PERCENTAGE_DATA_FORMAT }
-						/>
-						<Legend items={ styledLegendData } withComparison={ hasComparison } />
-					</div>
-				</div>
-			</WidgetState>
-		</div>
+		<SemiCircle
+			segments={ segments }
+			status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+			error={ describeError( error, {
+				retryDescription: __(
+					"We couldn't load device data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				onRetry: refetch,
+			} ) }
+			format={ PERCENTAGE_DATA_FORMAT }
+			withTotal={ false }
+		/>
 	);
 }
 

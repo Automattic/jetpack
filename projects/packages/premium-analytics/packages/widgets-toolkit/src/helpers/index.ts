@@ -13,10 +13,6 @@ export {
 	type ColorableItem,
 } from './segment-styles';
 export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
-export {
-	buildSessionsByDeviceData,
-	type SessionsByDeviceData,
-} from './build-sessions-by-device-data';
 export { buildTotalReturnsData, type TotalReturnsData } from './build-total-returns-data';
 export { formatLegendLabels } from './format-legend-labels';
 export { calculateDelta } from './calculate-delta';
