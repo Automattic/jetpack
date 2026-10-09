@@ -75,10 +75,11 @@ class Jetpack_Email_Design_Editor {
 		$url = self::get_url();
 
 		// The `return` arg is what sends the editor's back button here rather than to the
-		// dashboard; {@see self::exit_url()} is where it is read and validated.
+		// dashboard; {@see self::exit_url()} is where it is read and validated. Encoded first
+		// because `add_query_arg()` does not: the settings URL's own `&` would end the value.
 		$data['newsletter']['emailDesignUrl'] = '' === $url
 			? null
-			: add_query_arg( 'return', Newsletter_Urls::get_newsletter_settings_url(), $url );
+			: add_query_arg( 'return', rawurlencode( Newsletter_Urls::get_newsletter_settings_url() ), $url );
 
 		return $data;
 	}

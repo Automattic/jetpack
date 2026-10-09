@@ -340,14 +340,17 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
 
+		// Parsed rather than rebuilt from the same calls the implementation makes: an expectation
+		// that composes the URL the same way cannot fail on how the URL is composed.
+		parse_str( (string) wp_parse_url( $data['newsletter']['emailDesignUrl'], PHP_URL_QUERY ), $args );
+
+		$this->assertSame( Jetpack_Email_Design_Editor::PAGE_SLUG, $args['page'] );
 		$this->assertSame(
-			add_query_arg(
-				'return',
-				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url(),
-				menu_page_url( Jetpack_Email_Design_Editor::PAGE_SLUG, false )
-			),
-			$data['newsletter']['emailDesignUrl']
+			\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url(),
+			$args['return'],
+			'The whole settings URL has to survive as one query arg.'
 		);
+		$this->assertSame( array( 'page', 'return' ), array_keys( $args ), 'No part of it may leak out as its own arg.' );
 	}
 
 	/**
