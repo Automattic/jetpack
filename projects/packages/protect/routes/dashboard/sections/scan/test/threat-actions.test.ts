@@ -30,6 +30,7 @@ describe( 'ignoreThreat', () => {
 			explicitDismiss: false,
 			content: 'Ignored the threat in a.php.',
 		} );
+		expect( notice.icon ).toBeTruthy();
 		await act( async () => notice.actions[ 0 ].onClick() );
 
 		expect( mockApiFetch ).toHaveBeenLastCalledWith( {
@@ -54,6 +55,7 @@ describe( 'threat notices', () => {
 		expect( notice ).toMatchObject( {
 			status: 'info',
 			explicitDismiss: true,
+			icon: null,
 			content: 'Fixing the threat in a.php…',
 		} );
 

@@ -1,7 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
-import { useSyncExternalStore } from '@wordpress/element';
+import { createElement, useSyncExternalStore } from '@wordpress/element';
 import { __, sprintf, type TransformedText } from '@wordpress/i18n';
+import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { getThreatLabel } from './labels';
 import { SCAN_PATH, createStore, getScan, mergeScan, setScan } from './store';
@@ -23,6 +24,12 @@ const MAX_FIX_POLLS = 100;
 const noticeId = ( threat: ScanThreat ) => `jetpack-protect-threat-action-${ threat.id }`;
 
 const describe = ( threat: ScanThreat ) => getThreatLabel( threat ).subject || threat.title || '';
+
+// The store types `icon` as a string, but the snackbar renders any node; currentColor keeps it white.
+const SUCCESS_ICON = createElement( Icon, {
+	icon: check,
+	fill: 'currentColor',
+} ) as unknown as string;
 
 const EMPTY: ThreatActionState = {};
 const actionStore = createStore< Record< string, ThreatActionState > >( () => ( {} ) );
@@ -57,6 +64,7 @@ function show( threat: ScanThreat, content: string, status: NoticeStatus, action
 		id: noticeId( threat ),
 		// Progress and errors stay until dismissed, so they can't vanish before the action ends.
 		explicitDismiss: status !== 'success',
+		icon: status === 'success' ? SUCCESS_ICON : null,
 		actions: action ? [ action ] : [],
 	} );
 }
