@@ -615,7 +615,14 @@ test.each( [
 				<Overview isVisible onHeaderActionChange={ () => {} } />
 			</div>
 		);
-		await waitFor( () => expect( region ).toHaveTextContent( message ) );
+		if ( source === 'offline' ) {
+			// Static page state: opening the Overview is not news.
+			// eslint-disable-next-line jest/no-conditional-expect
+			expect( region ).toBeEmptyDOMElement();
+		} else {
+			// eslint-disable-next-line jest/no-conditional-expect
+			await waitFor( () => expect( region ).toHaveTextContent( message ) );
+		}
 	} finally {
 		view?.unmount();
 		scoreHook?.mockRestore();

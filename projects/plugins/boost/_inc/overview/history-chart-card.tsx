@@ -2,6 +2,7 @@ import { BarChart, GlobalChartsProvider } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
+import { speak } from '@wordpress/a11y';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
@@ -289,6 +290,15 @@ export default function HistoryChartCard( {
 			setLastSelected( null );
 		}
 	}, [ selected, highlight, hoverOpen, keyboardOpen ] );
+	const errorAnnouncement =
+		isError && ! isLoading && isVisible
+			? __( 'Failed to load performance history', 'jetpack-boost' )
+			: '';
+	useEffect( () => {
+		if ( errorAnnouncement ) {
+			speak( errorAnnouncement, 'assertive' );
+		}
+	}, [ errorAnnouncement ] );
 	// The chart drops its highlight shortly after the pointer leaves the plot, so while the hover
 	// trigger holds the popover open, keep showing the day the pointer left from.
 	const shown = selected ?? ( hoverOpen && ! highlight ? lastSelected : null );
@@ -313,12 +323,7 @@ export default function HistoryChartCard( {
 		);
 	} else if ( isError && ! isLoading ) {
 		content = (
-			<Notice.Root
-				intent="error"
-				spokenMessage={
-					isVisible ? __( 'Failed to load performance history', 'jetpack-boost' ) : ''
-				}
-			>
+			<Notice.Root intent="error">
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error?.message }</Notice.Description>
 				<Notice.Actions>

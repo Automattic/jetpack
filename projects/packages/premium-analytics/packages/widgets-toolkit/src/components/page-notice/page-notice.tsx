@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { Notice } from '@jetpack-premium-analytics/externals';
+import { speak } from '@wordpress/a11y';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,9 +25,15 @@ export interface PageNoticeProps extends Pick< WidgetStateError, 'description' |
  * @return The page notice.
  */
 export function PageNotice( { intent = 'error', description, actions, link }: PageNoticeProps ) {
+	// The description alone: the notice's children would trail the action labels.
+	useEffect( () => {
+		if ( description ) {
+			speak( description, intent === 'error' ? 'assertive' : 'polite' );
+		}
+	}, [ description, intent ] );
+
 	return (
-		// The default announcement (children) would trail the action labels.
-		<Notice.Root intent={ intent } spokenMessage={ description }>
+		<Notice.Root intent={ intent }>
 			<Notice.Description>{ description }</Notice.Description>
 			{ ( !! actions?.length || link ) && (
 				<Notice.Actions>

@@ -235,14 +235,8 @@ export default function PageNotice( props ) {
 
 	const { title, description, action } = content;
 
-	// Announce a plain string: the default serializes children mid-render, which
-	// corrupts the Notice's own hook order when the children change shape.
 	return (
-		<Notice.Root
-			intent="warning"
-			className="jetpack-ai-admin__page-notice"
-			spokenMessage={ [ title, description ].filter( Boolean ).join( ' ' ) }
-		>
+		<Notice.Root intent="warning" className="jetpack-ai-admin__page-notice">
 			{ title && <Notice.Title>{ title }</Notice.Title> }
 			{ description && <Notice.Description>{ description }</Notice.Description> }
 			{ action && (

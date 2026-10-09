@@ -265,9 +265,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				siteTitle={ siteTitle }
 				siteEditUrl={ siteEditUrl }
 			>
-				{ /* Polite: the user is waiting on this result, not interrupted by it. The description
-				changes after a failed retry, which announces it again. */ }
-				<Notice.Root intent="error" politeness="polite">
+				<Notice.Root intent="error">
 					<Notice.Title>
 						{ __( "We couldn't save your checklist.", 'jetpack-mu-wpcom' ) }
 					</Notice.Title>

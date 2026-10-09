@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Drop the Notice props that @wordpress/ui no longer supports, keeping the announcements the tests cover.
+

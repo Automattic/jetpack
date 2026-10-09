@@ -55,7 +55,7 @@ export default function StudioEditorStatusBanner( {
 		intent = 'info';
 	}
 	return (
-		<Notice.Root intent={ intent } className="vp-video-editor__notice" spokenMessage={ message }>
+		<Notice.Root intent={ intent } className="vp-video-editor__notice">
 			<Notice.Description>
 				{ message }
 				{ processing && ! conflict && (

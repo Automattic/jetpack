@@ -59,9 +59,6 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Null, not omitted: the default is the children, which `Notice.Root` serializes
-			// mid-render, corrupting hook order. Drop with the prop (WordPress/gutenberg#82737).
-			spokenMessage={ null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

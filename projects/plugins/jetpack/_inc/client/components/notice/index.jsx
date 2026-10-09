@@ -85,9 +85,6 @@ export default class SimpleNotice extends Component {
 				// `jp-notice`. `is-hidden` keeps `display` hiding the notice rather than
 				// unmounting it: children like NoticeActionReconnect track on mount.
 				className={ clsx( 'jp-notice', className, { 'is-hidden': ! display } ) }
-				// The legacy notice never announced. Several of these are permanent, and
-				// the ones that should announce already sit in an aria-live container.
-				spokenMessage={ null }
 			>
 				{ title ? <Notice.Title>{ title }</Notice.Title> : null }
 				{ ( body || body === 0 ) && (

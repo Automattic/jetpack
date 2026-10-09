@@ -1,6 +1,7 @@
+import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -62,6 +63,23 @@ export default function RestoreScreen() {
 	// their checklist is missing.
 	const shownRewindId =
 		adopted && isValidRewindId( adopted.rewindId ) ? adopted.rewindId : rewindId;
+
+	const warnings: Partial< Record< string, string > > = {
+		unconfirmed: __(
+			"We didn't hear back from WordPress.com. Checking whether your restore started…",
+			'jetpack-backup-pkg'
+		),
+		'lost-track': __(
+			"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
+			'jetpack-backup-pkg'
+		),
+	};
+	const warning = warnings[ state.phase ];
+	useEffect( () => {
+		if ( warning ) {
+			speak( warning, 'polite' );
+		}
+	}, [ warning ] );
 
 	// A malformed id can only produce a failed restore, so the screen
 	// offers the way back and nothing else — see `InvalidRewindId`.
@@ -331,12 +349,7 @@ export default function RestoreScreen() {
 						{ state.phase === 'unconfirmed' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __(
-											"We didn't hear back from WordPress.com. Checking whether your restore started…",
-											'jetpack-backup-pkg'
-										) }
-									</Notice.Description>
+									<Notice.Description>{ warnings.unconfirmed }</Notice.Description>
 								</Notice.Root>
 								{ state.detail && (
 									<Text variant="body-sm" className="jpb-text-muted">
@@ -365,12 +378,7 @@ export default function RestoreScreen() {
 						{ state.phase === 'lost-track' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __(
-											"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
-											'jetpack-backup-pkg'
-										) }
-									</Notice.Description>
+									<Notice.Description>{ warnings[ 'lost-track' ] }</Notice.Description>
 								</Notice.Root>
 								{ state.detail && (
 									<Text variant="body-sm" className="jpb-text-muted">

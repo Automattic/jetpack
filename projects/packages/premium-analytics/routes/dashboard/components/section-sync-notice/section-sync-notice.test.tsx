@@ -115,7 +115,7 @@ describe( 'SectionSyncNotice', () => {
 		expect( liveRegion ).not.toHaveTextContent( 'still syncing' );
 	} );
 
-	it( 'does not announce every percentage update', () => {
+	it( 'does not announce the syncing state or its progress', () => {
 		const { rerender } = render(
 			<SectionSyncNotice
 				percentage={ 40 }
@@ -124,12 +124,6 @@ describe( 'SectionSyncNotice', () => {
 				isRetrying={ false }
 			/>
 		);
-
-		const liveRegion = screen.getByText(
-			'Your store data is still syncing. The numbers below are incomplete until it finishes.',
-			{ selector: '#a11y-speak-polite' }
-		);
-		expect( liveRegion ).not.toHaveTextContent( '40%' );
 		rerender(
 			<SectionSyncNotice
 				percentage={ 41 }
@@ -138,17 +132,10 @@ describe( 'SectionSyncNotice', () => {
 				isRetrying={ false }
 			/>
 		);
-		rerender(
-			<SectionSyncNotice
-				percentage={ 42 }
-				hasError={ false }
-				onRetry={ noop }
-				isRetrying={ false }
-			/>
-		);
 
-		expect( liveRegion ).not.toHaveTextContent( '41%' );
-		expect( liveRegion ).not.toHaveTextContent( '42%' );
+		expect(
+			screen.queryByText( /still syncing/, { selector: '.a11y-speak-region' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'survives the switch to the retry state and back', () => {

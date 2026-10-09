@@ -29,13 +29,7 @@ export default function BackupStatusBanner( { progress }: Props ) {
 	const readySoon = __( 'Your backup will be ready soon', 'jetpack-backup-pkg' );
 
 	return (
-		<Notice.Root
-			className="jpb-backup-status-banner"
-			intent="info"
-			icon={ cloudUpload }
-			// Constant, so a progress poll never re-announces the notice.
-			spokenMessage={ readySoon }
-		>
+		<Notice.Root className="jpb-backup-status-banner" intent="info" icon={ cloudUpload }>
 			<Notice.Title className="jpb-backup-status-banner__title">
 				{ isStarting
 					? __( 'Generating backup…', 'jetpack-backup-pkg' )

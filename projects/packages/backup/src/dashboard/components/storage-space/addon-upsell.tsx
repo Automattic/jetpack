@@ -206,11 +206,7 @@ export default function StorageAddonUpsell( {
 		usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical;
 
 	return (
-		<Notice.Root
-			intent={ isWarning ? 'warning' : 'error' }
-			className="jpb-storage-notice"
-			spokenMessage={ [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) }
-		>
+		<Notice.Root intent={ isWarning ? 'warning' : 'error' } className="jpb-storage-notice">
 			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (

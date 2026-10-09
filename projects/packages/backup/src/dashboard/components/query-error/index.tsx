@@ -65,7 +65,11 @@ export default function QueryError( {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
 	const previous = useRef( { isRetrying, message } );
 
-	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
+	useEffect( () => {
+		speak( message, 'assertive' );
+	}, [ message ] );
+
+	// The effect above only speaks when the message changes, so a retry that fails the same way is silent.
 	useEffect( () => {
 		if ( previous.current.isRetrying && ! isRetrying && previous.current.message === message ) {
 			speak( message, 'assertive' );
@@ -76,7 +80,6 @@ export default function QueryError( {
 	return (
 		<Notice.Root
 			intent="error"
-			spokenMessage={ message }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
 			<Notice.Title>{ title }</Notice.Title>

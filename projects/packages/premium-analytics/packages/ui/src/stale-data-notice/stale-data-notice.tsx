@@ -1,5 +1,6 @@
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { Notice } from '@jetpack-premium-analytics/externals';
+import { speak } from '@wordpress/a11y';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 
@@ -40,6 +41,16 @@ export function StaleDataNotice( {
 	className,
 }: StaleDataNoticeProps ) {
 	const age = useAgeSince( updatedAt );
+	// A fixed announcement, not `message`: the ageing label would interrupt a screen reader every minute.
+	useEffect( () => {
+		speak(
+			__(
+				"Couldn't refresh. The numbers on screen may be out of date.",
+				'jetpack-premium-analytics-pkg'
+			),
+			'polite'
+		);
+	}, [] );
 	// Below a minute the relative label counts seconds, down to "0 seconds ago".
 	const message =
 		age < TICK_MS
@@ -54,16 +65,7 @@ export function StaleDataNotice( {
 				);
 
 	return (
-		// A fixed announcement, not `message`: the ageing label would interrupt a
-		// screen reader every minute, and the default (children) would trail Retry's label.
-		<Notice.Root
-			intent="warning"
-			className={ className }
-			spokenMessage={ __(
-				"Couldn't refresh. The numbers on screen may be out of date.",
-				'jetpack-premium-analytics-pkg'
-			) }
-		>
+		<Notice.Root intent="warning" className={ className }>
 			<Notice.Description>{ message }</Notice.Description>
 			{ onRetry && (
 				<Notice.Actions>

@@ -1,5 +1,6 @@
 import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api';
 import { useQueryClient } from '@tanstack/react-query';
+import { speak } from '@wordpress/a11y';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -42,28 +43,48 @@ type Props = {
 	onHeaderActionChange: ( action: ReactNode ) => void;
 };
 
+function Announce( {
+	message,
+	politeness,
+}: {
+	message: string;
+	politeness: 'polite' | 'assertive';
+} ) {
+	useEffect( () => {
+		if ( message ) {
+			speak( message, politeness );
+		}
+	}, [ message, politeness ] );
+	return null;
+}
+
 export default function Overview( props: Props ) {
 	const fallbackRef = useRef< HTMLDivElement >( null );
 	const focusFallback = useCallback( () => fallbackRef.current?.focus(), [] );
 	return (
 		<ErrorBoundary
 			fallback={ error => (
-				<Notice.Root
-					ref={ fallbackRef }
-					className="jetpack-boost-overview__fallback"
-					tabIndex={ -1 }
-					intent="error"
-					spokenMessage={
-						props.isVisible !== false
-							? __( 'Unable to display performance scores', 'jetpack-boost' )
-							: ''
-					}
-				>
-					<Notice.Title>
-						{ __( 'Unable to display performance scores', 'jetpack-boost' ) }
-					</Notice.Title>
-					<Notice.Description>{ error.message }</Notice.Description>
-				</Notice.Root>
+				<>
+					<Announce
+						message={
+							props.isVisible !== false
+								? __( 'Unable to display performance scores', 'jetpack-boost' )
+								: ''
+						}
+						politeness="assertive"
+					/>
+					<Notice.Root
+						ref={ fallbackRef }
+						className="jetpack-boost-overview__fallback"
+						tabIndex={ -1 }
+						intent="error"
+					>
+						<Notice.Title>
+							{ __( 'Unable to display performance scores', 'jetpack-boost' ) }
+						</Notice.Title>
+						<Notice.Description>{ error.message }</Notice.Description>
+					</Notice.Root>
+				</>
 			) }
 		>
 			<OverviewContent { ...props } focusFallback={ focusFallback } />
@@ -229,12 +250,7 @@ function OverviewContent( {
 	if ( ! online ) {
 		return (
 			<div className="jetpack-boost-overview">
-				<Notice.Root
-					intent="info"
-					spokenMessage={
-						isVisible ? __( 'Website is not publicly available', 'jetpack-boost' ) : ''
-					}
-				>
+				<Notice.Root intent="info">
 					<Notice.Title>
 						{ __( 'Website is not publicly available', 'jetpack-boost' ) }
 					</Notice.Title>
@@ -278,18 +294,21 @@ function OverviewContent( {
 				isVisible={ isVisible }
 			/>
 			{ modules.isError && (
-				<Notice.Root
-					intent="error"
-					spokenMessage={ isVisible ? __( 'Failed to load module settings', 'jetpack-boost' ) : '' }
-				>
-					<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
-					<Notice.Description>{ modules.error.message }</Notice.Description>
-					<Notice.Actions>
-						<Notice.ActionButton onClick={ () => modules.refetch() }>
-							{ __( 'Try again', 'jetpack-boost' ) }
-						</Notice.ActionButton>
-					</Notice.Actions>
-				</Notice.Root>
+				<>
+					<Announce
+						message={ isVisible ? __( 'Failed to load module settings', 'jetpack-boost' ) : '' }
+						politeness="assertive"
+					/>
+					<Notice.Root intent="error">
+						<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
+						<Notice.Description>{ modules.error.message }</Notice.Description>
+						<Notice.Actions>
+							<Notice.ActionButton onClick={ () => modules.refetch() }>
+								{ __( 'Try again', 'jetpack-boost' ) }
+							</Notice.ActionButton>
+						</Notice.Actions>
+					</Notice.Root>
+				</>
 			) }
 			{ needsUpgrade ? (
 				canOfferUpgrade() && (

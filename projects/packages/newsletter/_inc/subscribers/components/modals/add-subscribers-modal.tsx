@@ -290,16 +290,14 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 		return null;
 	}
 
-	// Each variant carries a `key` (remount instead of reusing the previous variant's hook
-	// state) and an explicit string `spokenMessage` — Notice.Root otherwise renderToString()s
-	// its children mid-render, which corrupts hook order when they include action buttons.
+	// Each variant carries a `key` so it remounts instead of reusing the previous variant's hook state.
 	if ( ! jobs.some( job => isJobStale( job ) ) ) {
 		const inProgressMessage = __(
 			'Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.',
 			'jetpack-newsletter'
 		);
 		return (
-			<Notice.Root key="import-in-progress" intent="info" spokenMessage={ inProgressMessage }>
+			<Notice.Root key="import-in-progress" intent="info">
 				<Notice.Description>{ inProgressMessage }</Notice.Description>
 			</Notice.Root>
 		);
@@ -313,11 +311,7 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 			'jetpack-newsletter'
 		);
 		return (
-			<Notice.Root
-				key="import-stale-support"
-				intent="warning"
-				spokenMessage={ contactSupportMessage }
-			>
+			<Notice.Root key="import-stale-support" intent="warning">
 				<Notice.Description>{ contactSupportMessage }</Notice.Description>
 				<Notice.Actions>
 					<Notice.ActionLink
@@ -336,7 +330,7 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 		'jetpack-newsletter'
 	);
 	return (
-		<Notice.Root key="import-stale" intent="warning" spokenMessage={ staleMessage }>
+		<Notice.Root key="import-stale" intent="warning">
 			<Notice.Description>{ staleMessage }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionButton onClick={ handleCancelImport } loading={ resetMutation.isPending }>

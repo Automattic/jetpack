@@ -38,9 +38,7 @@ export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element 
 	return (
 		<>
 			{ isVisible && (
-				// The sentence alone: the default would trail the button and the
-				// dismiss label after it, which is not what the notice has to say.
-				<Notice.Root intent="info" spokenMessage={ message } className={ styles.banner }>
+				<Notice.Root intent="info" className={ styles.banner }>
 					<Notice.Description>{ message }</Notice.Description>
 
 					<Notice.Actions>
