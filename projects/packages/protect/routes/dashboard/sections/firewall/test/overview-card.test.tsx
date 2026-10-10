@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
+import { check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { runFirewallTest } from '../firewall-test';
 import FirewallOverviewCard from '../overview-card';
@@ -49,6 +50,7 @@ describe( 'FirewallOverviewCard', () => {
 			type: 'snackbar',
 			content: 'The firewall blocked the test request. It’s working.',
 			explicitDismiss: true,
+			icon: expect.objectContaining( { props: expect.objectContaining( { icon: check } ) } ),
 		} );
 		await act( async () => notice.actions[ 0 ].onClick() );
 

@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { shield } from '@wordpress/icons';
+import { Icon, check, closeSmall, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
@@ -30,9 +30,16 @@ const NOTICE_ID = 'jetpack-protect-firewall-test';
 
 type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
-const OUTCOMES: Record< TestOutcome | 'error', { status: NoticeStatus; message: () => string } > = {
+// Icon SVGs default to black; currentColor picks up the snackbar's light text.
+const snackbarIcon = ( icon: JSX.Element ) => <Icon icon={ icon } fill="currentColor" />;
+
+const OUTCOMES: Record<
+	TestOutcome | 'error',
+	{ status: NoticeStatus; message: () => string; icon?: JSX.Element }
+> = {
 	blocked: {
 		status: 'success',
+		icon: snackbarIcon( check ),
 		message: () =>
 			__( 'The firewall blocked the test request. It’s working.', 'jetpack-protect-pkg' ),
 	},
@@ -46,6 +53,7 @@ const OUTCOMES: Record< TestOutcome | 'error', { status: NoticeStatus; message: 
 	},
 	'not-blocked': {
 		status: 'error',
+		icon: snackbarIcon( closeSmall ),
 		message: () =>
 			__(
 				'The test request wasn’t blocked. The firewall may not be running on this site.',
@@ -62,6 +70,7 @@ const OUTCOMES: Record< TestOutcome | 'error', { status: NoticeStatus; message: 
 	},
 	error: {
 		status: 'error',
+		icon: snackbarIcon( closeSmall ),
 		message: () => __( 'The firewall test couldn’t run. Try again.', 'jetpack-protect-pkg' ),
 	},
 };
@@ -72,11 +81,19 @@ const OUTCOMES: Record< TestOutcome | 'error', { status: NoticeStatus; message: 
  * @param status    - The notice's kind.
  * @param content   - The message.
  * @param learnMore - Opens the test's steps; the result has it, progress doesn't.
+ * @param icon      - A check when the firewall blocked the test, an X when it failed.
  */
-function notify( status: NoticeStatus, content: string, learnMore?: () => void ) {
+function notify(
+	status: NoticeStatus,
+	content: string,
+	learnMore?: () => void,
+	icon?: JSX.Element
+) {
 	dispatch( noticesStore ).createNotice( status, content, {
 		type: 'snackbar',
 		id: NOTICE_ID,
+		// @ts-expect-error -- Typed as a string, but the snackbar renders any element.
+		icon,
 		// Results stay until dismissed, so there's time to read them and open Learn more.
 		explicitDismiss: status !== 'info' || !! learnMore,
 		actions: learnMore
@@ -126,10 +143,10 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			setRecorded(
 				fresh.recentBlocks.some( block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID )
 			);
-			const { status, message } = OUTCOMES[ testResult.outcome ];
-			notify( status, message(), () => setDetailsOpen( true ) );
+			const { status, message, icon } = OUTCOMES[ testResult.outcome ];
+			notify( status, message(), () => setDetailsOpen( true ), icon );
 		} catch {
-			notify( OUTCOMES.error.status, OUTCOMES.error.message() );
+			notify( OUTCOMES.error.status, OUTCOMES.error.message(), undefined, OUTCOMES.error.icon );
 		} finally {
 			setIsTesting( false );
 		}
