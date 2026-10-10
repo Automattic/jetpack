@@ -33,8 +33,6 @@ Extends `Connection_Health_Test_Base` with all the connection-specific tests. It
 | `test__check_if_connected` | Site is connected to WordPress.com |
 | `test__master_user_exists_on_site` | Connection owner exists locally |
 | `test__master_user_can_manage_options` | Connection owner is an administrator |
-| `test__outbound_http` | Outbound HTTP requests work |
-| `test__outbound_https` | Outbound HTTPS requests work |
 | `test__identity_crisis` | No URL mismatch with WordPress.com |
 | `test__connection_token_health` | Connection tokens are valid |
 | `test__wpcom_connection_test` | WordPress.com can reach the site. Also keeps the `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` connection errors in sync: a result carrying one of those codes reports the matching error, a passing result clears both (see [error handling](error-handling.md)) |

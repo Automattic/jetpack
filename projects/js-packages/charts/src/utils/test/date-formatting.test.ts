@@ -1,15 +1,5 @@
 import { createDateFormatter, createZonedClock, sanitizeFormatting } from '../date-formatting';
 
-// The `jetpack-js-tools` console guard registers the matcher but ships no types for it.
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace jest {
-		interface Matchers< R > {
-			toHaveWarned(): R;
-		}
-	}
-}
-
 describe( 'createDateFormatter', () => {
 	it( 'renders an invalid date rather than throwing', () => {
 		const format = createDateFormatter(

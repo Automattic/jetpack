@@ -22,6 +22,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { invalidateResolution: jest.fn() } ),
@@ -32,7 +33,7 @@ jest.mock( '@wordpress/data', () => ( {
 	dispatch: jest.fn(),
 } ) );
 
-jest.mock( '../../products/use-all-jetpack-modules', () => ( {
+jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false } ),
 } ) );
 
@@ -230,6 +231,44 @@ describe( 'useMainFeatures', () => {
 } );
 
 describe( 'useFeaturePlugin', () => {
+	it.each( [
+		[ 'on', 'activate', 'inactive', 'active' ],
+		[ 'off', 'deactivate', 'active', 'inactive' ],
+	] as const )(
+		'records a plugin it switches %s in the page state, for readers outside the Features tab',
+		async ( _, action, before, after ) => {
+			const videopress = {
+				...buildFeature( 'videopress', 'jetpack-videopress' ),
+				product: 'videopress',
+				plugin_status: before,
+			} as MainFeature;
+			window.myJetpackInitialState = {
+				mainFeatures: { jetpack: 'inactive', features: [ videopress ] },
+				products: { items: { videopress: { is_plugin_active: before === 'active' } } },
+			} as unknown as Window[ 'myJetpackInitialState' ];
+			mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+				method === 'POST'
+					? Promise.resolve( {
+							jetpack: 'inactive',
+							features: [ { ...videopress, plugin_status: after } ],
+						} )
+					: new Promise( () => undefined )
+			);
+			const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+			const { result } = renderHook( () => useFeaturePlugin( 'jetpack-videopress', 'VideoPress' ), {
+				wrapper: wrapper( client ),
+			} );
+
+			act( () => result.current.run( action ) );
+
+			await waitFor( () =>
+				expect( window.myJetpackInitialState.products.items.videopress.is_plugin_active ).toBe(
+					after === 'active'
+				)
+			);
+		}
+	);
+
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
 		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
 

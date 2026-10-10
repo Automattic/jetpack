@@ -12,12 +12,17 @@ export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
 	hasScores: boolean;
+	isRunning: boolean;
 	scores: SpeedScoresSet;
 };
 
 const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string() ) } );
 
-export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true ) {
+export function useSpeedScores(
+	refreshState?: ScoreRefreshState,
+	enabled = true,
+	onUserRunComplete?: () => void
+) {
 	const { online } = Jetpack_Boost.site;
 	const initial = cornerstonePagesSchema.safeParse(
 		window.jetpack_boost_ds?.cornerstone_pages_properties?.value
@@ -33,40 +38,70 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 	const [ state, setState ] = useState< SpeedScoreState >( {
 		status: online ? 'loading' : 'offline',
 		hasScores: false,
+		isRunning: false,
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
-	const requestController = useRef< AbortController >();
-	const lastConfig = useRef< string >();
+	const acceptedUserRun = useRef< string >( undefined );
+	const requestController = useRef< AbortController >( undefined );
+	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
 		++requestId.current;
 		requestController.current?.abort();
 	}, [] );
 	const refresh = useCallback(
-		async ( regenerate = false ) => {
+		async ( regenerate = false, { userStarted = false } = {} ) => {
 			if ( ! online || ! enabled ) {
 				return;
+			}
+			if ( regenerate || acceptedUserRun.current !== url ) {
+				acceptedUserRun.current = undefined;
 			}
 			cancelPending();
 			const id = requestId.current;
 			const controller = new AbortController();
 			requestController.current = controller;
-			setState( previous => ( { ...previous, status: 'loading', error: undefined } ) );
+			setState( previous => ( {
+				...previous,
+				status: 'loading',
+				isRunning:
+					regenerate ||
+					acceptedUserRun.current === url ||
+					( previous.status === 'loading' && previous.isRunning ),
+				error: undefined,
+			} ) );
 			try {
 				const scores = await requestSpeedScores(
 					regenerate,
 					wpApiSettings.root,
 					url,
 					wpApiSettings.nonce,
-					{ signal: controller.signal }
+					{
+						signal: controller.signal,
+						// A run started elsewhere (another tab, before a subpage visit) is still a run.
+						onPending: () => {
+							if ( id === requestId.current ) {
+								if ( regenerate && userStarted ) {
+									acceptedUserRun.current = url;
+								}
+								setState( previous => ( { ...previous, isRunning: true } ) );
+							}
+						},
+					}
 				);
 				if ( id === requestId.current && scores ) {
-					setState( { status: 'loaded', hasScores: true, scores } );
+					const completedUserRun = ( regenerate && userStarted ) || acceptedUserRun.current === url;
+					acceptedUserRun.current = undefined;
+					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
+					if ( completedUserRun ) {
+						onUserRunComplete?.();
+					}
 				}
 			} catch ( cause ) {
 				if ( id !== requestId.current ) {
 					return;
 				}
+				acceptedUserRun.current = undefined;
 				const error = standardizeError(
 					cause ?? {},
 					__( 'Error requesting speed scores', 'jetpack-boost' )
@@ -74,17 +109,24 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 				recordBoostEvent( 'speed_score_request_error', {
 					error_message: castToString( error.message ),
 				} );
-				setState( previous => ( { ...previous, status: 'error', error } ) );
+				setState( previous => ( { ...previous, status: 'error', isRunning: false, error } ) );
 			}
 		},
-		[ online, url, enabled, cancelPending ]
+		[ online, url, enabled, cancelPending, onUserRunComplete ]
 	);
 
 	useEffect( () => {
 		if ( online && enabled ) {
 			refresh();
+		} else if ( online && ! enabled ) {
+			setState( previous => ( previous.isRunning ? { ...previous, isRunning: false } : previous ) );
 		} else if ( ! online ) {
-			setState( previous => ( { ...previous, status: 'offline', error: undefined } ) );
+			setState( previous => ( {
+				...previous,
+				status: 'offline',
+				isRunning: false,
+				error: undefined,
+			} ) );
 		}
 		return cancelPending;
 	}, [ online, enabled, refresh, cancelPending ] );

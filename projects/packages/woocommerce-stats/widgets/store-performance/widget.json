@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/store-performance",
+	"icon": "jpa/store",
+	"title": "Store performance",
+	"description": "Shows key store performance metrics at a glance.",
+	"help": {
+		"content": "Shows key store performance metrics at a glance."
+	},
+	"category": "store",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

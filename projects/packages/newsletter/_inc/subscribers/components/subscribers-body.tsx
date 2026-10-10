@@ -9,7 +9,7 @@ import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import SubscribersDataViews from './subscribers-data-views';
 import type { Subscriber } from '../data/types';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 installDataViewsFooterI18n();
 

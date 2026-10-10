@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Stop generation from logging administrators out on more site configurations.

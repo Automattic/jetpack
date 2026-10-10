@@ -1,6 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { useSearch } from '@wordpress/route';
-import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
+import {
+	createReportOriginSearch,
+	toReportOriginWindowParams,
+} from '@jetpack-premium-analytics/routing';
 import { useDetailBreadcrumbs } from './use-detail-breadcrumbs';
 
 jest.mock( '@wordpress/route', () => ( {
@@ -12,14 +15,18 @@ const mockUseSearch = useSearch as jest.MockedFunction< typeof useSearch >;
 const REPORT_WINDOW = { from: '2026-06-01', to: '2026-06-16' };
 
 /**
- * Point the mocked router at a search object, optionally carrying an origin.
+ * Point the mocked router at a detail page on all time that was opened from
+ * `REPORT_WINDOW`, optionally carrying an origin.
  *
  * @param report  - The referring report id.
  * @param section - The referring report's section.
  */
 function mockSearch( report?: string, section?: string ) {
 	mockUseSearch.mockReturnValue( {
-		...REPORT_WINDOW,
+		from: '2020-03-04',
+		to: '2026-06-16',
+		preset: 'all-time',
+		...toReportOriginWindowParams( REPORT_WINDOW ),
 		post_id: '42',
 		...( report ? createReportOriginSearch( report, section ) : {} ),
 	} as never );

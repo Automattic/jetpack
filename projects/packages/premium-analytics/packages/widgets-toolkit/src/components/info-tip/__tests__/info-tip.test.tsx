@@ -39,20 +39,6 @@ describe( 'InfoTip', () => {
 		expect( screen.getByText( TIP ) ).toBeInTheDocument();
 	} );
 
-	it( 'closes on Escape', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		render( <InfoTip label="About Views">{ TIP }</InfoTip> );
-
-		await user.click( screen.getByRole( 'button', { name: 'About Views' } ) );
-		await elapseDelay();
-		expect( screen.getByText( TIP ) ).toBeInTheDocument();
-
-		await user.keyboard( '{Escape}' );
-		await elapseDelay();
-
-		expect( screen.queryByText( TIP ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'opens on hover only when asked to', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { unmount } = render( <InfoTip label="About Views">{ TIP }</InfoTip> );

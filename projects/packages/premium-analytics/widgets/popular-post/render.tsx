@@ -11,6 +11,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useDashboardOriginSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -69,6 +70,7 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 
 function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { reportParams } = useWidgetRootContext();
+	const dashboardOrigin = useDashboardOriginSearch();
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
@@ -96,6 +98,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	// Ranked over this card's window, not the host's.
 	const detailSearch = {
 		...range,
+		...dashboardOrigin,
 		...createReportOriginSearch(
 			authorId ? 'authors' : 'posts',
 			authorId ? undefined : 'posts-pages'

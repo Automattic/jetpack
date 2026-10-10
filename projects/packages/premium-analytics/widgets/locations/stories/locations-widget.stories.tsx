@@ -98,7 +98,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Locations" widget. Shows visitor views by country, region, or city, with country drill-down into regions, using the global dashboard date range. The Countries/Regions/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
+					'The "Locations" widget. Shows visitor views by country, region, or city, with drill-down from a country into its regions and from a region into its cities, using the global dashboard date range. The Countries/Regions/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
 			},
 		},
 	},

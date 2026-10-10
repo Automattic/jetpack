@@ -15,6 +15,13 @@ export type GeoRegion = 'world' | ( string & {} );
  */
 export type GeoResolution = 'countries' | 'provinces' | 'metros';
 
+/**
+ * How the map plots its rows.
+ * - 'regions': Shades each area the rows name
+ * - 'markers': Draws a sized, colored circle per row; a row can name a place or give `[ latitude, longitude ]` as its first two columns
+ */
+export type GeoDisplayMode = 'regions' | 'markers';
+
 export interface GeoChartError {
 	id?: string;
 	message?: string;
@@ -48,6 +55,11 @@ export interface GeoChartProps extends Pick<
 	 * @default 'countries'
 	 */
 	resolution?: GeoResolution;
+	/**
+	 * How the map plots its rows: shaded areas, or one marker per row.
+	 * @default 'regions'
+	 */
+	displayMode?: GeoDisplayMode;
 	/**
 	 * ISO 3166-1 alpha-2 code of the country whose viewpoint sets the disputed borders
 	 * (e.g., 'IN' draws Kashmir as India shows it). Google's default borders apply when omitted.

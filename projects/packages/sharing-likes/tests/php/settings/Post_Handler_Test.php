@@ -536,6 +536,17 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A form rendered before the site went offline must not switch the module off on its way back.
+	 */
+	public function test_comment_likes_save_leaves_the_module_alone_offline(): void {
+		$this->given_offline_mode();
+
+		$active = $this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertSame( array( 'likes', 'comment-likes' ), $active );
+	}
+
+	/**
 	 * Count `sharing_admin_update` over one save claiming the given sections.
 	 *
 	 * @param string[] $sections Sections the form claims.
@@ -692,6 +703,21 @@ class Post_Handler_Test extends BaseTestCase {
 
 		$this->assertSame( 'icon', $saved['button_style'] );
 		$this->assertSame( array( 'page' ), $saved['show'] );
+	}
+
+	/**
+	 * The screen has no "Open links in" field, so a save must not reset a choice made elsewhere.
+	 */
+	public function test_sharing_save_keeps_the_stored_open_links(): void {
+		update_option( 'sharing-options', array( 'global' => array( 'open_links' => 'new' ) ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_SHARING ), array( 'button_style' => 'icon' ) ) );
+
+		$saved = $GLOBALS['sharing_likes_test_global_options'];
+		unset( $GLOBALS['sharing_likes_test_global_options'] );
+
+		$this->assertSame( 'new', $saved['open_links'] );
 	}
 
 	/**

@@ -8,9 +8,10 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { withViewportMatch } from '@wordpress/viewport';
+import { getAllowedEmbedUrl } from '../../shared/is-allowed-embed-url';
 import metadata from './block.json';
 import GoogleCalendarInspectorControls from './controls';
-import { URL_REGEX, parseEmbed } from './utils';
+import { GOOGLE_CALENDAR_ALLOWED_HOSTS, parseEmbed } from './utils';
 
 const icon = getBlockIconComponent( metadata );
 
@@ -66,7 +67,7 @@ export function GoogleCalendarEdit( props ) {
 
 		const newAttributes = parseEmbed( editedEmbed.trim() );
 
-		if ( ! URL_REGEX.test( newAttributes.url ) ) {
+		if ( ! getAllowedEmbedUrl( newAttributes.url, GOOGLE_CALENDAR_ALLOWED_HOSTS ) ) {
 			setErrorNotice();
 			return;
 		}
@@ -95,7 +96,9 @@ export function GoogleCalendarEdit( props ) {
 	const defaultClassName = getBlockDefaultClassName( name );
 	const iframeHeight = isMobile ? '300' : height;
 
-	const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" height="${ iframeHeight }"></iframe>`;
+	const embedUrl = getAllowedEmbedUrl( url, GOOGLE_CALENDAR_ALLOWED_HOSTS );
+
+	const html = `<iframe src="${ embedUrl }" style="border:0" scrolling="no" frameborder="0" height="${ iframeHeight }"></iframe>`;
 
 	const permissionsLink = (
 		<Link openInNewTab href="https://en.support.wordpress.com/google-calendar/">
@@ -116,7 +119,7 @@ export function GoogleCalendarEdit( props ) {
 
 	let content;
 
-	if ( editingUrl || ! url ) {
+	if ( editingUrl || ! embedUrl ) {
 		const supportLink = isWpcomPlatformSite()
 			? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
 			: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';

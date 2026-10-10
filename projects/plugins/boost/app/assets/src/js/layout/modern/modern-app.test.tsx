@@ -5,6 +5,7 @@ import {
 	LOCATION_CHANGE_EVENT,
 	SETTINGS_SLOT_ID,
 	SUBPAGE_SLOT_ID,
+	SPEED_TEST_COMPLETE_EVENT,
 } from '../../../../../../_inc/runtime-contract';
 import ModernApp from './modern-app';
 
@@ -29,10 +30,17 @@ jest.mock( '$features/critical-css/critical-css-context/critical-css-context-pro
 	__esModule: true,
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
-jest.mock( './modern-settings', () => ( {
-	__esModule: true,
-	default: ( { hidden }: { hidden?: boolean } ) => <div data-testid="settings" hidden={ hidden } />,
-} ) );
+jest.mock( './modern-settings', () => {
+	const NoticeManager = jest.requireActual( '$features/notice/manager' ).default;
+	return {
+		__esModule: true,
+		default: ( { hidden, active = true }: { hidden?: boolean; active?: boolean } ) => (
+			<div data-testid="settings" data-active={ String( active ) } hidden={ hidden }>
+				<NoticeManager />
+			</div>
+		),
+	};
+} );
 jest.mock( './modern-subpage', () => {
 	const { navigateTo, settingsUrl } =
 		jest.requireActual< typeof import( '$lib/modern/routes' ) >( '$lib/modern/routes' );
@@ -73,7 +81,10 @@ const renderApp = () => {
 
 	return {
 		slots,
-		...render( <ModernApp subpageSlot={ slots.subpage } />, { container: slots.settings } ),
+		...render( <ModernApp subpageSlot={ slots.subpage } />, {
+			container: slots.settings,
+			reactStrictMode: true,
+		} ),
 	};
 };
 
@@ -87,6 +98,35 @@ describe( 'ModernApp', () => {
 
 	afterEach( () => {
 		document.body.innerHTML = '';
+	} );
+
+	it( 'delivers one completion snackbar across roots and cleans up its StrictMode listener', () => {
+		const addListener = jest.spyOn( window, 'addEventListener' );
+		const removeListener = jest.spyOn( window, 'removeEventListener' );
+		try {
+			const { slots, unmount } = renderApp();
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			expect( within( slots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength( 1 );
+			unmount();
+			const registered = addListener.mock.calls.filter(
+				( [ event ] ) => event === SPEED_TEST_COMPLETE_EVENT
+			);
+			const removed = removeListener.mock.calls.filter(
+				( [ event ] ) => event === SPEED_TEST_COMPLETE_EVENT
+			);
+			expect( registered ).toHaveLength( 2 );
+			expect( removed ).toEqual( registered );
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			const { slots: remountedSlots } = renderApp();
+			expect( within( remountedSlots.settings ).queryByText( 'Speed test complete.' ) ).toBeNull();
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			expect(
+				within( remountedSlots.settings ).getAllByText( 'Speed test complete.' )
+			).toHaveLength( 1 );
+		} finally {
+			addListener.mockRestore();
+			removeListener.mockRestore();
+		}
 	} );
 
 	it( 'renders Settings in the slot it mounts into, leaving the sub-page slot empty', () => {
@@ -104,6 +144,16 @@ describe( 'ModernApp', () => {
 
 		expect( within( slots.subpage ).getByText( 'cache-debug-log' ) ).toBeTruthy();
 		expect( within( slots.settings ).getByTestId( 'settings' ) ).toBe( settingsNode );
+	} );
+
+	it( 'deactivates Settings exposure on a subpage and reactivates it on return', () => {
+		const { slots } = renderApp();
+		const settings = within( slots.settings ).getByTestId( 'settings' );
+		expect( settings.dataset.active ).toBe( 'true' );
+		goTo( '#/cache-debug-log' );
+		expect( settings.dataset.active ).toBe( 'false' );
+		goTo( SETTINGS_ARG );
+		expect( settings.dataset.active ).toBe( 'true' );
 	} );
 
 	it( 'renders one sub-page at a time', () => {

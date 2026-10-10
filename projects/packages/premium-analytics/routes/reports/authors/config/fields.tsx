@@ -3,17 +3,20 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	MetricWithComparison,
+	PostDetailLink,
+	getAuthorName,
+	type AuthorRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
-import type { AuthorRow } from './aggregate';
 import type { Field } from '@jetpack-premium-analytics/externals';
 import type { SyntheticEvent } from 'react';
 
-const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
 const DEFAULT_AVATAR_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><circle cx="25" cy="25" r="25" fill="%23e5e7eb"/></svg>';
 const VIEWS_DATA_FORMAT = {
@@ -31,20 +34,6 @@ function handleAvatarError( event: SyntheticEvent< HTMLImageElement > ): void {
 }
 
 /**
- * Resolve the author name shown and searched in the table.
- *
- * @param name - The raw author name.
- * @return The localized author display name.
- */
-export function getAuthorName( name: string ): string {
-	if ( ! name || name === UNTRACKED_AUTHORS_SENTINEL ) {
-		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
-	}
-
-	return name;
-}
-
-/**
  * DataViews field config for the Authors records table.
  *
  * @param withComparison - Whether to render available period-over-period deltas.
@@ -54,7 +43,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 	return [
 		{
 			id: 'author',
-			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Author', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => ( item.isGroup ? getAuthorName( item.label ) : item.label ),

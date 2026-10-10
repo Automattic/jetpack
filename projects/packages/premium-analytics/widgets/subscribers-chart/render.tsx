@@ -3,6 +3,7 @@
  */
 import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -15,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useSubscribersChart, {
@@ -117,7 +118,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
-				isEmpty={ state.current.length === 0 }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
@@ -135,6 +135,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					baseline="padded"
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>
@@ -145,7 +146,7 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
-	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+	const reportParams = attributes.reportParams ?? defaultReportParams();
 
 	return (
 		<ReportScopeProvider offersComparison={ false }>

@@ -2,7 +2,7 @@
 
 The Ads section of the Premium Analytics dashboard: the section registration, its default layout, and the three widget types the section renders, built here with wp-build and resolved against the dashboard's shared modules through its import map.
 
-The package decides nothing about who gets Ads. The WordAds module of the Jetpack plugin calls `Analytics_Dashboard::init()` outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes WordAds.
+The package decides nothing about who gets Ads. The WordAds module of the Jetpack plugin calls `Analytics_Dashboard::init()` outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes WordAds and the site has it on.
 
 ## Using this package in your WordPress plugin
 

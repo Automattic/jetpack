@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Show report load errors in a notice across the report, without Retry when access is denied. Show access denied on author, post, and video details as an error.

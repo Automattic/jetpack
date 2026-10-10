@@ -13,7 +13,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -73,24 +73,9 @@ function WordAdsEarningsHistoryReport() {
 					<ReportLink
 						report="earnings"
 						section="adjustments"
-						ariaLabel={ sprintf(
-							/* translators: %d: number of adjustment rows in the site's earnings history. */
-							_n(
-								'%d adjustment, view adjustments history',
-								'%d adjustments, view adjustments history',
-								adjustmentCount,
-								'jetpack-ads-pkg'
-							),
-							adjustmentCount
-						) }
+						label={ __( 'Adjustments', 'jetpack-ads-pkg' ) }
 					>
-						<Badge intent="high">
-							{ sprintf(
-								/* translators: %d: number of adjustment rows in the site's earnings history. */
-								_n( '%d adjustment', '%d adjustments', adjustmentCount, 'jetpack-ads-pkg' ),
-								adjustmentCount
-							) }
-						</Badge>
+						<Badge intent="none">{ String( adjustmentCount ) }</Badge>
 					</ReportLink>
 				) }
 			</WidgetFooter>

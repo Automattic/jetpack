@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the page header's bottom padding on dashboards that have a tabs strip.

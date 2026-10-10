@@ -1,7 +1,7 @@
 import ConnectionGate from './connection-gate';
 import PricingGate from './pricing-gate';
 import type { SocialGateType } from './use-social-gate';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 /**
  * Presentational gate switch for the Social dashboard. The decision lives in

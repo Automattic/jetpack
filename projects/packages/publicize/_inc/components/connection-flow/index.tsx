@@ -8,6 +8,7 @@ import { store as socialStore } from '../../social-store';
 import { PlatformInput } from './platform-input';
 import { SelectPlatform } from './select-platform';
 import type { ConnectionFlowStep } from '../../social-store/types';
+import type { JSX } from 'react';
 
 /**
  * Placeholder body shown until a step's own component lands. Each of M2-01…04

@@ -4,8 +4,8 @@ A registered dashboard widget is a folder under `widgets/`, auto-discovered by c
 (no registration):
 
 - `package.json` — workspace package for the lazy-loaded render bundle.
-- `widget.json` — static metadata (name, title, description, help, category, presentation).
-- `widget.ts` — live, non-serializable metadata (default export: icon, attributes, example).
+- `widget.json` — static metadata (name, icon, title, description, help, category, presentation).
+- `widget.ts` — live, non-serializable metadata (default export: attributes, example). The icon is a `widget.json` reference, `jpa/<name>`, resolved against the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case name plus the dashboard's own illustrations. A name outside that list resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps the file for its attribute type and exports `{}`.
 - `render.tsx` — default-export React component.
 - `style.module.css` — optional; CSS Modules, tokens from `@wordpress/theme` (`--wpds-*`).
 
@@ -97,6 +97,6 @@ without them still falls back to it — the section date state this widget no lo
 follows. So the outer component defaults the attribute
 (`attributes.reportParams ?? DEFAULT_REPORT_PARAMS`) and wraps `WidgetRoot` in the scope
 its body supports (`<ReportScopeProvider offersComparison={ false }>` for a report with
-no comparison). `widgets/wordads-chart-tabs/` is the reference.
+no comparison). `projects/packages/ads/widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

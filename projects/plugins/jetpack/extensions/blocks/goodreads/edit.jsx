@@ -2,11 +2,13 @@ import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-util
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, SandBox, Button, Spinner, withNotices } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
+import { escapeAttribute } from '@wordpress/escape-html';
 import { __, _x } from '@wordpress/i18n';
+import { getAllowedEmbedUrl } from '../../shared/is-allowed-embed-url';
 import metadata from './block.json';
 import { GoodreadsBlockControls, GoodreadsInspectorControls } from './controls';
 import useFetchGoodreadsData from './hooks/use-fetch-goodreads-data';
-import { createGoodreadsEmbedLink } from './utils';
+import { GOODREADS_ALLOWED_HOSTS, createGoodreadsEmbedLink } from './utils';
 
 const GoodreadsEdit = props => {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
@@ -18,6 +20,7 @@ const GoodreadsEdit = props => {
 	const { isFetchingData, goodreadsUserId, isError } = useFetchGoodreadsData( url );
 	const { goodreadsId, widgetId, link, style } = attributes;
 	const hasSyncedRef = useRef( false );
+	const embedLink = getAllowedEmbedUrl( link, GOODREADS_ALLOWED_HOSTS );
 
 	useEffect( () => {
 		if ( isFetchingData ) {
@@ -144,8 +147,8 @@ const GoodreadsEdit = props => {
 
 		const html = `
 		<style> [class^=gr_custom_container_] { border: 1px solid gray; border-radius: 10px; margin: auto; padding: 0 5px 10px 5px; background-color: #fff; color: #000; width: 300px; }  [class^=gr_custom_header_] { border-bottom: 1px solid gray; width: 100%; padding: 10px 0; margin: auto; text-align: center; font-size: 120%; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin: auto; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_each_container_] { width: 100%; clear: both; margin-bottom: 10px; overflow: auto; padding-bottom: 4px; border-bottom: 1px solid #aaa; }  [class^=gr_custom_book_container_] { overflow: hidden; height: 60px; float: left; margin-right: 6px; width: 39px; }  [class^=gr_custom_author_] { font-size: 10px; }  [class^=gr_custom_tags_] { font-size: 10px; color: gray; }  [class^=gr_custom_rating_] { float: right; }  [class^=gr_grid_book_container] { float: left; width: 98px; height: 160px; padding: 0 0; overflow: hidden; }  [class^=gr_grid_book_container] img { height: 100%; width: 100%; }  a { text-decoration: none; }  a:hover { text-decoration: underline; }  img { max-width: 100%; }</style>
-		<script src="${ link }"></script>
-      	<div id="${ id }"></div>
+		<script src="${ embedLink }"></script>
+      	<div id="${ escapeAttribute( id ?? '' ) }"></div>
     	`;
 
 		return (
@@ -160,7 +163,10 @@ const GoodreadsEdit = props => {
 
 	if ( isResolvingUrl ) {
 		content = renderLoading();
-	} else if ( attributes.goodreadsId ) {
+	} else if ( goodreadsId && ! link ) {
+		// The embed link is minted by an effect, so a freshly resolved profile has none for a frame.
+		content = renderLoading();
+	} else if ( goodreadsId && embedLink ) {
 		content = (
 			<>
 				<InspectorControls>

@@ -73,6 +73,10 @@ jest.mock( 'components/search-suggestions-control', () => props => {
 } );
 
 jest.mock( 'components/upsell-nudge', () => () => <div data-testid="instant-search-upsell" /> );
+jest.mock( 'hooks/use-activate-search-free', () => () => ( {
+	run: jest.fn(),
+	isActivating: false,
+} ) );
 
 jest.mock( 'store', () => ( {
 	STORE_ID: 'jetpack-search-plugin',

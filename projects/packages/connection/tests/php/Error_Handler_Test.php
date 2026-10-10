@@ -135,6 +135,32 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A user-token write clears the stored owner error, mirroring an owner re-authorization:
+	 * update_user_token() fires jetpack_updated_user_token, which delete_all_errors() listens on.
+	 */
+	public function test_user_token_write_clears_stored_owner_error() {
+		// WorDBless restores a $wp_filter snapshot taken before the singleton was first built,
+		// dropping its constructor-registered hooks. Rebuild it so the production wiring is live.
+		( new \ReflectionProperty( Error_Handler::class, 'instance' ) )->setValue( null, null );
+		$this->error_handler = Error_Handler::get_instance();
+
+		$this->assertNotFalse(
+			has_action( 'jetpack_updated_user_token', array( $this->error_handler, 'delete_all_errors' ) ),
+			'Error_Handler must listen on jetpack_updated_user_token for this wiring to hold.'
+		);
+
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		$this->error_handler->report_error(
+			$this->get_sample_error( 'invalid_connection_owner', 1, Error_Handler::ERROR_TYPE_LOCAL_STATE )
+		);
+		$this->assertArrayHasKey( 'invalid_connection_owner', $this->error_handler->get_stored_errors() );
+
+		( new Tokens() )->update_user_token( 1, 'secret.1', true );
+
+		$this->assertSame( array(), $this->error_handler->get_stored_errors() );
+	}
+
+	/**
 	 * Test storing errors
 	 */
 	public function test_store_multiple_error_codes() {

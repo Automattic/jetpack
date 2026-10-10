@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugins: Show Marketplace plugins as core's plugin cards, with Purchase in place of Install Now and the price in the card's bottom strip.

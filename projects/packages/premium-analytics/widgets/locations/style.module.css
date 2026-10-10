@@ -6,12 +6,8 @@
 	overflow: hidden;
 }
 
-.backLink {
+.trail {
 	order: 1;
-	align-self: center;
-	min-inline-size: 0;
-	margin-inline-end: auto;
-	margin-block-end: 0;
 }
 
 .content {
@@ -82,7 +78,7 @@
 		align-items: stretch;
 	}
 
-	.backLink {
+	.trail {
 		order: 2;
 	}
 

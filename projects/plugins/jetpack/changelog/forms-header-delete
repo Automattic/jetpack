@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix error notices shown after deleting or trashing a form, even though it succeeded.

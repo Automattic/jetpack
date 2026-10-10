@@ -12,6 +12,7 @@ import useConfigValue from '../../../hooks/use-config-value';
 import { CONFIG_STORE } from '../../../store/config/index.ts';
 import { getFormEditUrl } from '../../utils.ts';
 import type { ConfigSelectors } from '../../../store/config/types.ts';
+import type { JSX } from 'react';
 
 type EditFormButtonProps = {
 	formId: number;

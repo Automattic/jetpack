@@ -1,6 +1,7 @@
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, media } from '@wordpress/icons';
+import clsx from 'clsx';
 import { isGutenbergKit } from '../utils/is-gutenberg-kit';
 import MediaSources from './media-sources';
 
@@ -49,7 +50,9 @@ function MediaButtonMenu( props ) {
 		<>
 			<Dropdown
 				placement="bottom-start"
-				className="jetpack-external-media-button-menu__dropdown"
+				className={ clsx( 'jetpack-external-media-button-menu__dropdown', {
+					'is-featured-image': isFeatured,
+				} ) }
 				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) => {
 					// override original button only when it's a simple button with text, or a featured image

@@ -100,6 +100,9 @@ const BackupCard = props => {
 
 	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed;
 
+	// The module only switches the dashboard, so a plan holder's backups keep running with it off.
+	const isModuleOff = status === PRODUCT_STATUSES.MODULE_DISABLED;
+
 	// Build support URL with pre-filled subject and site URL
 	const supportUrl = getRedirectUrl( 'jetpack-backup-support-reactivate', {
 		site: siteUrl,
@@ -112,7 +115,7 @@ const BackupCard = props => {
 		<ProductCard
 			{ ...props }
 			slug={ productSlug }
-			Description={ ( isError || isDeactivated ) && noDescription }
+			Description={ ( isError || isDeactivated || isModuleOff ) && noDescription }
 			admin={ isDeactivated ? false : props.admin }
 		>
 			{ isBackupFailedReasonLoading && <LoadingBlock height="75px" width="100%" /> }
@@ -128,6 +131,18 @@ const BackupCard = props => {
 								{
 									a: <Link openInNewTab href={ supportUrl } />,
 								}
+							) }
+						</Text>
+					</div>
+				</div>
+			) }
+			{ isModuleOff && (
+				<div className={ styles.backupErrorContainer }>
+					<div className={ styles.contentContainer }>
+						<Text variant="body-sm">
+							{ __(
+								'Your backups are still running. Activate Backup to browse and restore them from your WordPress dashboard.',
+								'jetpack-my-jetpack'
 							) }
 						</Text>
 					</div>

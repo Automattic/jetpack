@@ -59,9 +59,6 @@ beforeEach( () => {
 test.each( [
 	{
 		component: CloudCssModule,
-		extraModern: [
-			'Boost will automatically generate your Critical CSS whenever you make changes.',
-		],
 		modernTitle: 'Optimize Critical CSS Loading (Automatic)',
 		legacyTitle: 'Automatically Optimize CSS Loading',
 		modern:

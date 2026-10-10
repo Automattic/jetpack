@@ -12,8 +12,10 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
+	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
+	fileDownloadsCsvExporter,
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
@@ -133,7 +135,7 @@ export function FileDownloadsLeaderboard( {
 
 function FileDownloadsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -168,6 +170,11 @@ function FileDownloadsInner() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="downloads" />
+				<ExporterCsvDownloadButton
+					exporter={ fileDownloadsCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

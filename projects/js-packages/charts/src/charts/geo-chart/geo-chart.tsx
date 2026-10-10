@@ -130,6 +130,7 @@ function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
  * @param props.height            - Height of the chart in pixels
  * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
  * @param props.resolution        - Resolution level ('countries', 'provinces', or 'metros')
+ * @param props.displayMode       - Plot rows as shaded areas ('regions') or markers ('markers')
  * @param props.domain            - Country code whose viewpoint sets the disputed borders
  * @param props.onError           - Optional callback for Google Charts errors
  * @param props.className         - Additional CSS class name for the chart container
@@ -143,6 +144,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	height,
 	region = 'world',
 	resolution = 'countries',
+	displayMode = 'regions',
 	domain,
 	onError,
 	renderPlaceholder,
@@ -264,6 +266,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		() => ( {
 			...( region !== 'world' && { region } ),
 			...( resolution !== 'countries' && { resolution } ),
+			...( displayMode !== 'regions' && { displayMode } ),
 			...( domain && { domain } ),
 			colorAxis: { colors: [ lightColorHex, fullColorHex ] },
 			backgroundColor: backgroundColorHex,
@@ -276,6 +279,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		[
 			region,
 			resolution,
+			displayMode,
 			domain,
 			lightColorHex,
 			fullColorHex,

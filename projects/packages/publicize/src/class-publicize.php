@@ -59,45 +59,45 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Force user connection before showing the Publicize UI.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts the Publicize UI.
+	 * @deprecated 0.88.0 Settings > Sharing no longer hosts the Publicize UI.
 	 *
 	 * @return void
 	 */
 	public function force_user_connection() {
-		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-0.88.0' );
 	}
 
 	/**
 	 * Show a warning when Publicize does not have a connection.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts the Publicize UI.
+	 * @deprecated 0.88.0 Settings > Sharing no longer hosts the Publicize UI.
 	 *
 	 * @return void
 	 */
 	public function admin_page_warning() {
-		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-0.88.0' );
 	}
 
 	/**
 	 * Show error on settings page if applicable.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts connection errors.
+	 * @deprecated 0.88.0 Settings > Sharing no longer hosts connection errors.
 	 *
 	 * @return void
 	 */
 	public function admin_page_load() {
-		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-0.88.0' );
 	}
 
 	/**
 	 * Display an error message.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts connection errors.
+	 * @deprecated 0.88.0 Settings > Sharing no longer hosts connection errors.
 	 *
 	 * @return void
 	 */
 	public function display_connection_error() {
-		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-0.88.0' );
 	}
 
 	/**

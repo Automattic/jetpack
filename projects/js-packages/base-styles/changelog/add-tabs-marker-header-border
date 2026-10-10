@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Drop the page header's bottom border on dashboards whose tabs strip is not the shared one.

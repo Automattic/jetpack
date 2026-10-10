@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack AI: avoid an unnecessary request when loading the editor.

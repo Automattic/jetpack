@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\VideoPress_Video;
 
+use Automattic\Jetpack\VideoPress\Channel as VideoPress_Pkg_Channel;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,6 +59,13 @@ function register_videopress_blocks( $playlist_metadata_file = null, $latest_vid
 }
 // Ignore the empty argument supplied by do_action( 'init' ) so metadata uses the package default.
 add_action( 'init', __NAMESPACE__ . '\register_videopress_blocks', 10, 0 );
+
+// The channel feature ( video durations and views, Query Loop filters, channel block
+// bindings ) registers itself on init when the theme opts in; WordPress.com does not
+// run the package initializer, so it starts here as well.
+if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel', 'init' ) ) {
+	VideoPress_Pkg_Channel::init();
+}
 
 // Register the `v6-video-frame-poster` extension.
 add_action(

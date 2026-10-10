@@ -54,6 +54,31 @@ function buildPostsByDay( start: string ) {
 	return postsByDay;
 }
 
+/**
+ * A deterministic series shaped like most blogs: a post on about a third of the
+ * days, nearly always just one, so most cells sit at the bottom of the scale.
+ *
+ * @param start - First day, `yyyy-MM-dd`.
+ * @return Posts per day for the days from `start` to the range end.
+ */
+function buildMostlySinglePostsByDay( start: string ) {
+	const postsByDay: Record< string, number > = {};
+	const day = new Date( `${ start }T00:00:00Z` );
+	const end = new Date( `${ RANGE_END }T00:00:00Z` );
+
+	const nextRandom = seededRandom( 516 );
+
+	for ( ; day.getTime() <= end.getTime(); day.setUTCDate( day.getUTCDate() + 1 ) ) {
+		const roll = nextRandom();
+		if ( roll < 0.7 ) {
+			continue;
+		}
+		postsByDay[ day.toISOString().slice( 0, 10 ) ] = roll < 0.95 ? 1 : 2;
+	}
+
+	return postsByDay;
+}
+
 interface MonthCalendarHeatmapStoryControls {
 	/** How many months to draw, ending with September 2026. */
 	months: number;
@@ -63,23 +88,23 @@ interface MonthCalendarHeatmapStoryControls {
 	tileHeight: number;
 }
 
-function renderMonthCalendarHeatmap( {
-	months,
-	tileWidth,
-	tileHeight,
-}: MonthCalendarHeatmapStoryControls ) {
-	const start = rangeStart( months );
+const renderWithPosts =
+	( buildValueByDay: ( start: string ) => Record< string, number > ) =>
+	( { months, tileWidth, tileHeight }: MonthCalendarHeatmapStoryControls ) => {
+		const start = rangeStart( months );
 
-	return (
-		<WidgetCard width={ `${ tileWidth }px` } height={ `${ tileHeight }px` }>
-			<MonthCalendarHeatmap
-				valueByDay={ buildPostsByDay( start ) }
-				range={ { start, end: RANGE_END } }
-				{ ...LABELS }
-			/>
-		</WidgetCard>
-	);
-}
+		return (
+			<WidgetCard width={ `${ tileWidth }px` } height={ `${ tileHeight }px` }>
+				<MonthCalendarHeatmap
+					valueByDay={ buildValueByDay( start ) }
+					range={ { start, end: RANGE_END } }
+					{ ...LABELS }
+				/>
+			</WidgetCard>
+		);
+	};
+
+const renderMonthCalendarHeatmap = renderWithPosts( buildPostsByDay );
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MonthCalendarHeatmap',
@@ -137,4 +162,13 @@ export const Scrolling: Story = {
 export const ShortTile: Story = {
 	render: renderMonthCalendarHeatmap,
 	args: { ...DEFAULT_ARGS, tileHeight: 140 },
+};
+
+/**
+ * Most days with a post have just one, so most cells take the lowest step of the
+ * scale, which still has to stand out from the empty days around it.
+ */
+export const MostlySinglePosts: Story = {
+	render: renderWithPosts( buildMostlySinglePostsByDay ),
+	args: DEFAULT_ARGS,
 };

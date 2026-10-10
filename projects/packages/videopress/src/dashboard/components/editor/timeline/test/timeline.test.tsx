@@ -21,8 +21,8 @@ it( 'keeps source coordinates left-to-right inside an RTL editor', () => {
 	const onSeek = jest.fn();
 	const session = editSessionReducer( createEditSession( 10000 ), {
 		type: 'ADD_CUT',
-		atMs: 2000,
-		halfSpanMs: 1000,
+		atMs: 1000,
+		durationMs: 2000,
 		id: 'a',
 	} );
 	render(
@@ -105,5 +105,33 @@ it( 'does not offer another cut when only the minimum output remains', () => {
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
+	);
+} );
+
+it.each( [
+	[ 950, true ],
+	[ 1000, true ],
+	[ 2000, true ],
+	[ 3000, false ],
+] )( 'updates New cut availability at %i beside an existing cut', async ( currentMs, disabled ) => {
+	const dispatch = jest.fn();
+	render(
+		<Timeline
+			session={ {
+				...createEditSession( 10000 ),
+				cuts: [ { id: 'a', startMs: 1000, endMs: 3000 } ],
+			} }
+			dispatch={ dispatch }
+			currentMs={ currentMs }
+			onSeek={ jest.fn() }
+			onTogglePlay={ jest.fn() }
+			playing={ false }
+		/>
+	);
+	const button = screen.getByRole( 'button', { name: 'New cut' } );
+	expect( button.getAttribute( 'aria-disabled' ) === 'true' ).toBe( disabled );
+	await userEvent.setup().click( button );
+	expect( dispatch.mock.calls ).toEqual(
+		disabled ? [] : [ [ { type: 'ADD_CUT', atMs: currentMs } ] ]
 	);
 } );

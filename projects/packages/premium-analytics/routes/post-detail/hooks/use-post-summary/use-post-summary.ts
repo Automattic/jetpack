@@ -6,7 +6,7 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { POST_URL_SEARCH_PARAM } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 
 export type PostSummary = {
@@ -22,8 +22,12 @@ export type PostSummary = {
 	url?: string;
 	/** Whether the underlying stats request is still resolving. */
 	isLoading: boolean;
-	/** Whether the underlying stats request failed. */
+	/** Whether the stats request failed without a post to show. */
 	isError: boolean;
+	/** The failed request's error, for `describeError` to tell access denied from a retryable failure. */
+	error: unknown;
+	/** Re-runs the failed request, for the error state's Retry action. */
+	refetch: () => void;
 };
 
 /**
@@ -69,8 +73,13 @@ function useCarriedPostUrl(): string | undefined {
 export function usePostSummary( postId: number ): PostSummary {
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
-	const { data, isLoading, isError } = useStatsPost( { postId, fields: [ 'post' ] } );
+	const { data, isLoading, isPending, isPaused, isError, error, refetch } = useStatsPost( {
+		postId,
+		fields: [ 'post' ],
+	} );
 	const post = data?.post;
+	// A failed background refetch keeps the loaded post, so only a missing one is an error.
+	const hasFailed = isError && ! post;
 	const type = post?.post_type;
 	const imageUrl = usePostThumbnail( postId, type );
 
@@ -100,6 +109,9 @@ export function usePostSummary( postId: number ): PostSummary {
 	);
 
 	const carriedUrl = useCarriedPostUrl();
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
 	return {
 		title: post?.post_title,
@@ -112,7 +124,10 @@ export function usePostSummary( postId: number ): PostSummary {
 		// The entity permalink is authoritative; the carried URL only covers the
 		// post types core data cannot resolve.
 		url: url ?? carriedUrl,
-		isLoading,
-		isError,
+		// React Query calls a first load paused offline or in a hidden tab not loading.
+		isLoading: isLoading || ( isPending && isPaused ),
+		isError: hasFailed,
+		error: hasFailed ? error : null,
+		refetch: retry,
 	};
 }

@@ -19,6 +19,13 @@ use Automattic\Jetpack\Status\Host;
  */
 class Action_Bar {
 	/**
+	 * Transient caching whether the site has published enough posts to show Subscribe.
+	 *
+	 * @var string
+	 */
+	const ENOUGH_POSTS_TRANSIENT = 'jetpack_action_bar_has_enough_posts';
+
+	/**
 	 * Whether the class has been initialized.
 	 *
 	 * @var bool
@@ -30,7 +37,7 @@ class Action_Bar {
 	 *
 	 * Simple only for now. Yields to the copy wpcom still ships in mu-plugins, so the two never load together.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -53,7 +60,7 @@ class Action_Bar {
 	/**
 	 * Register the bar's hooks unless wpcom's mu-plugin copy is loaded.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 */
 	public static function load() {
 		if ( function_exists( 'wpcom_actionbar_enqueue_scripts' ) ) {
@@ -62,6 +69,7 @@ class Action_Bar {
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ), 101 );
 		add_action( 'admin_init', array( __CLASS__, 'settings_field' ) );
+		add_action( 'transition_post_status', array( __CLASS__, 'flush_published_posts_count' ), 10, 3 );
 
 		add_action( 'wp_ajax_fold_actionbar', array( __CLASS__, 'fold' ) );
 		add_action( 'wp_ajax_nopriv_fold_actionbar', array( __CLASS__, 'fold' ) );
@@ -86,7 +94,7 @@ class Action_Bar {
 		 *
 		 * WordPress.com hooks this to keep the bar off its internal sites and off sites marked deleted, spam, archived, or parked.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param bool $enabled Whether to load the bar. Default true.
 		 */
@@ -125,13 +133,16 @@ class Action_Bar {
 		// Render this in the user's language.
 		self::switch_to_user_locale();
 
-		$status_message = false;
+		$status_message    = false;
+		$status_subscribed = false;
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Status flag set by the subscribe.wordpress.com redirect.
 		$blogsub = isset( $_GET['blogsub'] ) ? sanitize_key( wp_unslash( $_GET['blogsub'] ) ) : '';
 		switch ( $blogsub ) {
 			case 'confirming':
-				$status_message  = '<h3>' . __( 'Thanks', 'jetpack-newsletter' ) . '</h3>';
-				$status_message .= '<div>' .
+				$status_subscribed = true;
+				$status_message    = '<h3>' . __( 'Thanks', 'jetpack-newsletter' ) . '</h3>';
+				$status_message   .= '<div>' .
 					wp_kses(
 						sprintf(
 							/* translators: %s is the URL of the support contact page. */
@@ -147,7 +158,8 @@ class Action_Bar {
 					'</div>';
 				break;
 			case 'subscribed':
-				$status_message = '<div>' . __( 'You’re already subscribed to this site!', 'jetpack-newsletter' ) . '</div>';
+				$status_subscribed = true;
+				$status_message    = '<div>' . __( 'You’re already subscribed to this site!', 'jetpack-newsletter' ) . '</div>';
 				break;
 			case 'flooded':
 				$status_message =
@@ -155,15 +167,17 @@ class Action_Bar {
 					sprintf(
 						/* translators: %s is a link with its text (Subscription Manager) translated separately */
 						__( 'You already have several pending email subscriptions. Approve or delete a few through your %s before attempting to subscribe to more blogs.', 'jetpack-newsletter' ),
-						'<a href="https://subscribe.wordpress.com/">' . __( 'Subscription Manager', 'jetpack-newsletter' ) . '</a>'
+						'<a href="https://subscribe.wordpress.com/" target="_blank" rel="noopener noreferrer">' . __( 'Subscription Manager', 'jetpack-newsletter' ) . '</a>'
 					) .
 					'</div>';
 				break;
 			case 'pending':
-				$status_message = '<div>' . __( 'You already have a pending subscription, we just sent you another email, click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don’t get it', 'jetpack-newsletter' ) . '</div>';
+				$status_subscribed = true;
+				$status_message    = '<div>' . __( 'You already have a pending subscription, we just sent you another email, click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don’t get it', 'jetpack-newsletter' ) . '</div>';
 				break;
 			case 'confirmed':
-				$status_message = '<div>' . __( 'Congrats, you’re subscribed! You’ll get an email with the details of your subscription and an unsubscribe link', 'jetpack-newsletter' ) . '</div>';
+				$status_subscribed = true;
+				$status_message    = '<div>' . __( 'Congrats, you’re subscribed! You’ll get an email with the details of your subscription and an unsubscribe link', 'jetpack-newsletter' ) . '</div>';
 				break;
 		}
 
@@ -184,6 +198,7 @@ class Action_Bar {
 			'nonce'            => wp_create_nonce( 'manage_subscription' ),
 			'isLoggedIn'       => is_user_logged_in(),
 			'statusMessage'    => $status_message,
+			'statusSubscribed' => $status_subscribed,
 			'subsEmailDefault' => self::email_default( $current_user ),
 			'proxyScriptUrl'   => 'https://s0.wp.com/wp-content/js/wpcom-proxy-request.js?ver=20211021',
 		);
@@ -239,6 +254,31 @@ class Action_Bar {
 				script.src = ' . $js_url . ';
 				document.body.appendChild( script );
 			} );'
+		);
+	}
+
+	/**
+	 * Where the bar's post stats link goes.
+	 *
+	 * @param int    $post_id           The post.
+	 * @param int    $site_id           The site's blog ID.
+	 * @param string $site_slug         The site slug in Calypso URLs.
+	 * @param bool   $use_calypso_links Whether the site links to Calypso instead of wp-admin.
+	 * @return string
+	 */
+	private static function get_post_stats_url( $post_id, $site_id, $site_slug, $use_calypso_links ) {
+		$url = $use_calypso_links
+			? sprintf( 'https://wordpress.com/stats/post/%d/%s', $post_id, $site_slug )
+			: admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, $site_id ) );
+
+		/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+		return apply_filters(
+			'jetpack_stats_url',
+			$url,
+			array(
+				'view' => 'post',
+				'id'   => $post_id,
+			)
 		);
 	}
 
@@ -308,11 +348,51 @@ class Action_Bar {
 		/**
 		 * Filters whether logged-out visitors get the bar and its follow actions.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param bool $disabled Whether to disable. Defaults to true on VIP sites with logged-out follow off.
 		 */
 		return (bool) apply_filters( 'wpcom_disable_logged_out_follow', $disabled );
+	}
+
+	/**
+	 * Whether the site has published enough posts for a Subscribe button to make sense.
+	 *
+	 * @return bool
+	 */
+	private static function has_enough_posts() {
+		$has_enough_posts = get_transient( self::ENOUGH_POSTS_TRANSIENT );
+		if ( false === $has_enough_posts ) {
+			// Stored as 1/0: a cached false would read as a cache miss.
+			$has_enough_posts = (int) wp_count_posts( 'post' )->publish >= 2 ? 1 : 0;
+			set_transient( self::ENOUGH_POSTS_TRANSIENT, $has_enough_posts, DAY_IN_SECONDS );
+		}
+
+		return (bool) $has_enough_posts;
+	}
+
+	/**
+	 * Clear the cached Subscribe answer when a post enters or leaves the published state.
+	 *
+	 * @since 0.17.2
+	 *
+	 * @param string         $new_status New post status.
+	 * @param string         $old_status Old post status.
+	 * @param \WP_Post|mixed $post Post object.
+	 */
+	public static function flush_published_posts_count( $new_status, $old_status, $post ) {
+		if ( ! $post instanceof \WP_Post ) {
+			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
+			return;
+		}
+
+		if (
+			'post' === $post->post_type
+			&& $new_status !== $old_status
+			&& ( 'publish' === $new_status || 'publish' === $old_status )
+		) {
+			delete_transient( self::ENOUGH_POSTS_TRANSIENT );
+		}
 	}
 
 	/**
@@ -629,11 +709,7 @@ class Action_Bar {
 				}
 			}
 
-			if ( $should_use_calypso_links ) {
-				$stats_link = sprintf( 'https://wordpress.com/stats/post/%d/%s', $post_id, $site_slug );
-			} else {
-				$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, $site_id ) );
-			}
+			$stats_link = self::get_post_stats_url( $post_id, $site_id, $site_slug, $should_use_calypso_links );
 		}
 
 		$referer = '';
@@ -644,7 +720,7 @@ class Action_Bar {
 		$can_comment           = is_single() && ! post_password_required( $post_id ) && comments_open( $post_id );
 		$can_reblog            = is_single() && self::can_reblog( $site_id, $post_id );
 		$can_edit_current_view = $can_edit_post || $can_customize_site;
-		$show_follow           = $can_follow && ! $can_edit_current_view;
+		$show_follow           = $can_follow && ! $can_edit_current_view && self::has_enough_posts();
 
 		$followers = '';
 		if ( $show_follow && ! $is_logged_in ) {

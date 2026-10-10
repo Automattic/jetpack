@@ -9,7 +9,8 @@ export type FeatureActionType = 'install' | 'activate' | 'deactivate';
 export type BulkActionType = 'activate' | 'deactivate';
 
 /** What emptied the grid, in the order the empty states are checked. */
-export type EmptyStateReason = 'no-catalog' | 'search' | 'active' | 'inactive' | 'none';
+export type EmptyStateReason =
+	'no-catalog' | 'search' | 'active' | 'inactive' | 'included' | 'none';
 
 /** The way out an empty state offers, whichever one it is showing. */
 export type EmptyStateAction = 'reload' | 'support_search' | 'explore_all';
@@ -50,6 +51,7 @@ type FeaturesTrackingContextType = {
 	trackModalView: ( state: FeatureState, trigger: ModalTrigger ) => void;
 	trackModalClose: ( state: FeatureState ) => void;
 	trackManageClick: ( state: FeatureState ) => void;
+	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
 	trackBulkAction: ( params: BulkActionParams ) => void;
 	trackEmptyStateView: ( reason: EmptyStateReason ) => void;
@@ -196,6 +198,18 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
+	// Leaves for a pricing page, so the event has to be away before it does.
+	const trackPlanClick = useCallback(
+		( state: FeatureState, plan: string ) => {
+			recordEvent( 'jetpack_myjetpack_features_plan_click', {
+				plan,
+				...featureProps( state ),
+				...context,
+			} );
+		},
+		[ context, recordEvent ]
+	);
+
 	// Recorded from the click, so an abandoned or failed switch still says what was asked
 	// for. The status it carries is the one the click was made against.
 	const trackFeatureAction = useCallback(
@@ -259,6 +273,7 @@ export function FeaturesTrackingProvider( {
 			trackModalView,
 			trackModalClose,
 			trackManageClick,
+			trackPlanClick,
 			trackFeatureAction,
 			trackBulkAction,
 			trackEmptyStateView,
@@ -273,6 +288,7 @@ export function FeaturesTrackingProvider( {
 			trackManageClick,
 			trackModalClose,
 			trackModalView,
+			trackPlanClick,
 			trackSearch,
 			trackViewChange,
 		]

@@ -7,6 +7,9 @@
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 class Display_Critical_CSS {
+	// Leave room for later head metadata within a bounded crawler response.
+	const MAX_CSS_BYTES = 512 * KB_IN_BYTES;
+	const HEAD_PRIORITY = 7;
 
 	/**
 	 * @var string The Critical CSS to display.
@@ -14,10 +17,31 @@ class Display_Critical_CSS {
 	protected $css;
 
 	/**
-	 * @param string $css
+	 * @param string      $css CSS payload, excluding the optional debug key comment.
+	 * @param string|null $key Provider key for debug output.
 	 */
-	public function __construct( $css ) {
-		$this->css = $css;
+	public function __construct( $css, $key = null ) {
+		$this->css = strlen( $css ) > self::MAX_CSS_BYTES ? '' : $css;
+		if ( $this->css && null !== $key && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$this->css = "/* Critical CSS Key: {$key} */\n" . $this->css;
+		}
+	}
+
+	/**
+	 * Register inline output and stylesheet optimization for usable Critical CSS.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function register_hooks() {
+		if ( ! $this->css ) {
+			return;
+		}
+
+		// Follow the title and precede core's stylesheet links and their inline overrides.
+		add_action( 'wp_head', array( $this, 'display_critical_css' ), self::HEAD_PRIORITY );
+		add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
+		add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
+		Admin_Bar_Compatibility::init();
 	}
 
 	/**

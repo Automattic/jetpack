@@ -12,10 +12,10 @@ use Automattic\Jetpack\WordAds\Analytics_Dashboard;
  * Hands the Ads section and its widget types to the Premium Analytics dashboard.
  *
  * The section, its layout and the widgets live in the jetpack-ads package; this class decides
- * that a site running the module gets them. On the WordPress.com platform jetpack-mu-wpcom decides
- * by plan feature and this registrant stays out.
+ * that a site running the module gets them. On the WordPress.com platform jetpack-mu-wpcom decides,
+ * by plan feature and WordAds being on, and this registrant stays out.
  *
- * @since $$next-version$$
+ * @since 16.3
  */
 class WordAds_Premium_Analytics {
 
@@ -25,7 +25,7 @@ class WordAds_Premium_Analytics {
 	 * @return void
 	 */
 	public static function init() {
-		// Simple and Atomic decide by plan feature, from jetpack-mu-wpcom.
+		// Simple and Atomic decide by plan feature and WordAds being on, from jetpack-mu-wpcom.
 		if ( ( new Host() )->is_wpcom_platform() ) {
 			return;
 		}

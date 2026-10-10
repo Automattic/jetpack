@@ -39,7 +39,7 @@ class Generator {
 	/**
 	 * Terminate generation requests that redirect to the login page.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 *
 	 * @param string|false $location The path or URL to redirect to.
 	 * @return string|false
@@ -59,7 +59,7 @@ class Generator {
 	 * begins, so the redirect can still be replaced here. A gate that redirects before this guard is
 	 * installed on plugins_loaded stays out of reach.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 */
 	public function block_login_redirect_header() {
 		if ( headers_sent() || ! self::login_redirect_in_headers( headers_list() ) ) {
@@ -289,7 +289,7 @@ class Generator {
 	 * Generation renders as a logged-out user, so a request carrying the query parameter anywhere else -
 	 * wp-admin, wp-login.php, REST - could log an administrator out of a page they merely opened.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 *
 	 * @return bool
 	 */
@@ -313,7 +313,7 @@ class Generator {
 	 * REST_REQUEST is only defined on parse_request, long after this class is set up on
 	 * plugins_loaded, so read the request itself rather than the constant.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 *
 	 * @return bool
 	 */

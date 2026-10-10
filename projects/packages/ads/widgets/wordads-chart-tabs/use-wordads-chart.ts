@@ -43,6 +43,8 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 					dataFormat: metric.dataFormat,
 					countLabel: metric.countLabel,
 					zone: timezone,
+					// A day's numbers arrive once it ends in UTC, so its zeros until then are not readings.
+					pendingLabel: __( 'Not counted yet. WordAds updates once a day.', 'jetpack-ads-pkg' ),
 				} ),
 				// Only CPM goes null, when nothing was served: a ratio of nothing, not a zero.
 				...( primaryData?.summary[ metric.id ] === null
@@ -61,7 +63,6 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 		// `placeholderData` keeps the previous chart while `isError` flips true; gate
 		// the error on having nothing to show, as `useTrafficChart` does.
 		isError: isError && ! primaryData?.data?.length,
-		isEmpty: primaryData !== undefined && ! primaryData.data?.length,
 		refetch,
 	};
 }

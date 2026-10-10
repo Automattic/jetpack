@@ -9,6 +9,7 @@ import { plugins } from '@wordpress/icons';
  */
 import { isValidSalesforceOrgId } from '../../blocks/contact-form/components/jetpack-integrations-modal/helpers/salesforce.tsx';
 import type { Integration } from '../../types/index.ts';
+import type { JSX } from 'react';
 
 type FormAttributes = {
 	jetpackCRM?: boolean;

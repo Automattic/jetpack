@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: The modernized dashboard, behind a feature flag, now announces a failed Back up now to screen readers and keeps the button focused.
+

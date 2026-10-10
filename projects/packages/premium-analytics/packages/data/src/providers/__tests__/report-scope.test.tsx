@@ -8,9 +8,15 @@ import { render, screen } from '@testing-library/react';
 import { ReportScopeProvider, useReportScope } from '../report-scope';
 
 function ScopeProbe() {
-	const { offersComparison } = useReportScope();
+	const { offersComparison, openPeriod } = useReportScope();
 
-	return <span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>;
+	return (
+		<>
+			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
+			<span>comparison: { String( offersComparison ) }</span>
+			<span>{ openPeriod ? 'opens a period' : 'no period' }</span>
+		</>
+	);
 }
 
 describe( 'useReportScope', () => {
@@ -30,5 +36,18 @@ describe( 'useReportScope', () => {
 		);
 
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps what an outer provider declared when an inner one adds to it', () => {
+		render(
+			<ReportScopeProvider offersComparison={ false }>
+				<ReportScopeProvider openPeriod={ jest.fn() }>
+					<ScopeProbe />
+				</ReportScopeProvider>
+			</ReportScopeProvider>
+		);
+
+		expect( screen.getByText( 'comparison: false' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'opens a period' ) ).toBeInTheDocument();
 	} );
 } );

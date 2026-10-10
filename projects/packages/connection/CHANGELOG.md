@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.9.1] - 2026-10-06
+### Security
+- Limit the data returned by the site data endpoint. [#53240]
+
+## [9.9.0] - 2026-10-05
+### Added
+- Connectors: Show when the connection owner is protected or still needs confirming. [#52980] [#53025]
+- Connectors card: Let the confirmed owner release ownership, so another administrator can confirm it instead. [#53028]
+- Let a connected administrator confirm they are the protected owner from the Connectors card. [#52980]
+- Owner: Let the confirmed owner hand the site to another administrator, which releases the site's protected ownership. [#53028]
+
+### Changed
+- Update package dependencies. [#52999]
+
+### Fixed
+- Site Health: Stop reporting false connection failures, and stop prompting a reconnect when the WordPress.com connection test is inconclusive. [#52916]
+
+## [9.8.1] - 2026-09-29
+### Changed
+- Protected owner: Ask WordPress.com over the REST API rather than XML-RPC. [#52928]
+
+### Fixed
+- Only let a user who can set up the site connection (`jetpack_connect`) become the connection owner when authorizing while the owner slot is vacant; other users link as secondary users. [#52880]
+- Reconnect: Refresh only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt. [#52851]
+
+## [9.8.0] - 2026-09-28
+### Added
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
+- Reconcile the protected owner against WordPress.com when a user connects. [#52712]
+
+### Changed
+- Ask WordPress.com to record the protected owner before anchoring it on the site. [#52551]
+- Let users without admin access reconnect their own broken account from the connection error notice. [#52718]
+
 ## [9.7.0] - 2026-09-23
 ### Added
 - Add protected owner fields and a default UI filter to the connection initial state. [#52535]
@@ -2105,6 +2139,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.9.1]: https://github.com/Automattic/jetpack-connection/compare/v9.9.0...v9.9.1
+[9.9.0]: https://github.com/Automattic/jetpack-connection/compare/v9.8.1...v9.9.0
+[9.8.1]: https://github.com/Automattic/jetpack-connection/compare/v9.8.0...v9.8.1
+[9.8.0]: https://github.com/Automattic/jetpack-connection/compare/v9.7.0...v9.8.0
 [9.7.0]: https://github.com/Automattic/jetpack-connection/compare/v9.6.0...v9.7.0
 [9.6.0]: https://github.com/Automattic/jetpack-connection/compare/v9.5.0...v9.6.0
 [9.5.0]: https://github.com/Automattic/jetpack-connection/compare/v9.4.0...v9.5.0

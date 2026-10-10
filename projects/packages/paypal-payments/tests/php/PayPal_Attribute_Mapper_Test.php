@@ -862,9 +862,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * The product image comes back from the payment, so the GET route can show it.
+	 * The product image stays on the site, so the mapper ignores image_url.
 	 */
-	public function test_api_response_to_attributes_reads_the_image_url() {
+	public function test_api_response_to_attributes_ignores_the_image_url() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
 			array(
 				'id'         => 'PLB-TEST123',
@@ -877,7 +877,8 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 			)
 		);
 
-		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
+		$this->assertSame( 'Widget', $attributes['productName'] );
+		$this->assertArrayNotHasKey( 'imageUrl', $attributes );
 	}
 
 	/**

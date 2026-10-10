@@ -1,27 +1,17 @@
 /**
- * External dependencies
- */
-import { downloadReport, type ReportParams } from '@jetpack-premium-analytics/data';
-import { useContext } from 'react';
-/**
  * Internal dependencies
  */
-import { WidgetRootContext } from '../widget-root';
+import {
+	useServerReportCsvAction,
+	type UseServerReportCsvActionOptions,
+} from './csv-download-action';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
-import { isCsvExportEnabled } from './is-csv-export-enabled';
-import { toDownloadReportParams } from './to-download-report-params';
 
-export type ReportCsvDownloadButtonProps = Omit< CsvDownloadButtonProps, 'onDownload' > & {
-	/**
-	 * A report key supported by the ported WooCommerce Analytics export endpoint.
-	 */
-	reportType: string;
-
-	/**
-	 * Optional report parameters. Defaults to the surrounding WidgetRoot context.
-	 */
-	reportParams?: ReportParams;
-};
+export type ReportCsvDownloadButtonProps = Omit<
+	CsvDownloadButtonProps,
+	'onDownload' | 'label' | 'icon'
+> &
+	UseServerReportCsvActionOptions;
 
 /**
  * Download a complete server-generated report as CSV.
@@ -33,27 +23,18 @@ export function ReportCsvDownloadButton( {
 	reportParams,
 	...buttonProps
 }: ReportCsvDownloadButtonProps ) {
-	const context = useContext( WidgetRootContext );
+	const action = useServerReportCsvAction( { reportType, reportParams } );
 
-	if ( ! isCsvExportEnabled() ) {
-		return null;
-	}
-
-	const resolvedReportParams = reportParams ?? context?.reportParams;
-	if ( ! resolvedReportParams ) {
-		if ( process.env.NODE_ENV !== 'production' ) {
-			// eslint-disable-next-line no-console -- Surface a developer integration error without taking down the widget.
-			console.warn( 'ReportCsvDownloadButton requires reportParams or a surrounding WidgetRoot.' );
-		}
+	if ( ! action ) {
 		return null;
 	}
 
 	return (
 		<CsvDownloadButton
 			{ ...buttonProps }
-			onDownload={ () =>
-				downloadReport( toDownloadReportParams( reportType, resolvedReportParams ) )
-			}
+			label={ action.label }
+			icon={ action.icon }
+			onDownload={ action.callback }
 		/>
 	);
 }

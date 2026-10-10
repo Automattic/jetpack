@@ -55,3 +55,12 @@
 		line-height: var(--wpds-typography-line-height-sm);
 	}
 }
+
+.well .info-icon {
+	display: flex;
+	margin-inline: var(--wpds-dimension-gap-sm);
+
+	svg {
+		display: block;
+	}
+}

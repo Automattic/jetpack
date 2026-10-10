@@ -6,6 +6,7 @@ import { Button } from '@wordpress/ui';
 import { recordTracksEvent } from '../lib/tracks';
 import SelfOnlyNudge from './self-only-nudge';
 import type { JetpackBlogId } from '../lib/site';
+import type { JSX } from 'react';
 
 type Props = {
 	blogId: JetpackBlogId | null;

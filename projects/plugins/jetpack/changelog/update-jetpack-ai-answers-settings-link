@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: Link the AI Answers row to the Search settings page only where that page is available, and to the docs otherwise, so hosts that remove the page keep the toggle without a dead link.

@@ -146,7 +146,6 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `line_items[].unit_amount.currency_code` | string | Yes | — | ISO currency code |
 | `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
 | `line_items[].quantity` | string | No | `1` | Quantity |
-| `line_items[].image_url` | string | No | — | Product image URL. HTTPS only; PayPal ignores images outside its own type and size limits |
 | `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
 | `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
 | `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
@@ -301,4 +300,4 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 6. On 401/403, token is refreshed and request retried once
 7. On 500/502/503, request retried up to 3 times with exponential backoff
 
-**BN Code:** The PayPal-Partner-Attribution-Id header is **not** supported on the Pay Links & Buttons API. Partner attribution is applied via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time. This parameter is not visible in WordPress REST API responses.
+**BN Code:** The PayPal-Partner-Attribution-Id header is **not** supported on the Pay Links & Buttons API. Partner attribution is applied via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time. This parameter is not visible in WordPress REST API responses. Sandbox accounts are issued a different BN code: while the site is connected to the sandbox, the `jetpack_paypal_sandbox_partner_attribution_id` filter overrides it (the production code is not filterable).

@@ -23,10 +23,6 @@ const CloudCssModule = () => {
 		'<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.',
 		'jetpack-boost'
 	);
-	const modernRegenerationHelp = __(
-		'Boost will automatically generate your Critical CSS whenever you make changes.',
-		'jetpack-boost'
-	);
 	const isModern = useModuleSurface() === 'row';
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const regenerateCssAction = useRegenerateCriticalCssAction();
@@ -50,14 +46,9 @@ const CloudCssModule = () => {
 							),
 						} ) }
 					</p>
-					<p>
-						{ createInterpolateElement(
-							isModern ? modernRegenerationHelp : legacyRegenerationHelp,
-							{
-								b: <strong />,
-							}
-						) }
-					</p>
+					{ ! isModern && (
+						<p>{ createInterpolateElement( legacyRegenerationHelp, { b: <strong /> } ) }</p>
+					) }
 				</>
 			}
 		>

@@ -10,6 +10,7 @@ import MediaSourceMenuItem from './media-source-menu-item';
 import styles from './styles.module.scss';
 import { MediaSourceMenuProps } from './types';
 import { getMediaSourceOptions } from './utils/media-source-options';
+import type { JSX } from 'react';
 
 /**
  * MediaSourceMenu component

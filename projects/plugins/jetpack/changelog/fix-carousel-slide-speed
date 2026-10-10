@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Carousel: Shorten the slide transition, and disable it entirely under prefers-reduced-motion.

@@ -49,10 +49,20 @@ describe( 'report origin search params', () => {
 			extraParams: { section: 'email-opens' },
 		} );
 
-		expect( updateSearch( { from: '2026-06-01', post_id: '42', section: 'archives' } ) ).toEqual( {
+		expect( updateSearch( { from: '2026-06-01', period: 'week', section: 'archives' } ) ).toEqual( {
 			from: '2026-06-01',
 			ref: 'emails',
 			section: 'email-opens',
+		} );
+	} );
+
+	it( 'carries the dashboard tab to return to into the detail link', () => {
+		const updateSearch = createDetailLinkSearch( { report: 'posts' } );
+
+		expect( updateSearch( { from: '2026-06-01', ds: 'insights' } ) ).toEqual( {
+			from: '2026-06-01',
+			ds: 'insights',
+			ref: 'posts',
 		} );
 	} );
 } );

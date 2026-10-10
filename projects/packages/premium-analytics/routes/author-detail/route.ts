@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -71,7 +72,11 @@ export const route = {
 				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 			);
 			delete reportParams.post_id;
-			const seeded: Record< string, unknown > = { ...reportParams, author_id: authorId };
+			const seeded: Record< string, unknown > = {
+				...reportParams,
+				...pickDashboardOriginParams( currentSearch ),
+				author_id: authorId,
+			};
 
 			throw redirect( {
 				to: '/author/$authorId',

@@ -83,4 +83,40 @@ describe( 'useVideoDetailsForm', () => {
 		expect( result.current.values.description ).toBe( 'Other cut' );
 		expect( result.current.isDirty ).toBe( false );
 	} );
+
+	it( 'preserves upload edits on registration while adopting server defaults for untouched fields', () => {
+		const { result, rerender } = renderHook(
+			item => useVideoDetailsForm( item, { uploadId: 'upload-1' } ),
+			{ initialProps: makeLibraryItem( { id: 'upload-1', title: 'draft' } ) }
+		);
+		act( () => result.current.update( { title: 'Saved draft' } ) );
+		rerender( makeLibraryItem( { id: '42', title: 'Saved draft', displayEmbed: true } ) );
+		expect( result.current.values ).toMatchObject( { title: 'Saved draft', displayEmbed: true } );
+		expect( result.current.isDirty ).toBe( false );
+	} );
+
+	it( 'keeps edits made during the attachment fetch, including a return to the original title', () => {
+		const { result, rerender } = renderHook(
+			item => useVideoDetailsForm( item, { uploadId: 'upload-1' } ),
+			{ initialProps: makeLibraryItem( { id: 'upload-1', title: 'draft' } ) }
+		);
+		act( () => result.current.update( { title: 'Saved draft' } ) );
+		act( () => result.current.update( { title: 'draft' } ) );
+		rerender( makeLibraryItem( { id: '42', title: 'Saved draft' } ) );
+		expect( result.current.values.title ).toBe( 'draft' );
+		expect( result.current.isDirty ).toBe( true );
+		rerender( makeLibraryItem( { id: '43', title: 'Other video' } ) );
+		expect( result.current.values.title ).toBe( 'Other video' );
+		expect( result.current.isDirty ).toBe( false );
+	} );
+
+	it( 'carries a draft restored from the queue through registration', () => {
+		const { result, rerender } = renderHook(
+			item => useVideoDetailsForm( item, { uploadId: 'upload-1', draft: { title: 'Restored' } } ),
+			{ initialProps: makeLibraryItem( { id: 'upload-1', title: 'Restored' } ) }
+		);
+		rerender( makeLibraryItem( { id: '42', title: 'Restored' } ) );
+		expect( result.current.values.title ).toBe( 'Restored' );
+		expect( result.current.isDirty ).toBe( false );
+	} );
 } );

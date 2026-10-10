@@ -204,7 +204,9 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Channel::init();
 		Playlist_Index::init();
+		Analytics_Dashboard::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -726,7 +728,10 @@ class Initializer {
 
 		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
 
-		return self::render_videopress_playlist_block( $block_attributes, $content, $block );
+		// Dynamic playlists have no title of their own, so no heading either.
+		unset( $block_attributes['playlistTitle'], $block_attributes['showPlaylistTitle'] );
+
+		return self::render_videopress_playlist_block( $block_attributes, '', $block );
 	}
 
 	/**
@@ -865,7 +870,7 @@ class Initializer {
 	 * Video Playlist block render callback.
 	 *
 	 * @param array          $block_attributes Block attributes.
-	 * @param string         $content          Current block markup.
+	 * @param string         $content          Rendered inner blocks: the title heading, when there is one.
 	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
@@ -893,6 +898,12 @@ class Initializer {
 			? $block_attributes['layout']
 			: 'side-rail';
 
+		$show_player = $enabled( 'showPlayer' );
+		// A hidden player can still be revealed by the first click on an entry.
+		$reveal_player  = ! $show_player
+			&& isset( $block_attributes['entryClickAction'] )
+			&& 'show-player' === $block_attributes['entryClickAction'];
+		$has_player     = $show_player || $reveal_player;
 		$show_thumbnail = $enabled( 'showThumbnail' );
 		$show_title     = $enabled( 'showTitle' );
 		$show_res       = $enabled( 'showResolution' );
@@ -904,6 +915,9 @@ class Initializer {
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
 		if ( $enabled( 'darkPlayer', false ) ) {
 			$classes[] = 'is-dark';
+		}
+		if ( ! $show_player ) {
+			$classes[] = 'hide-player';
 		}
 		if ( ! $show_thumbnail ) {
 			$classes[] = 'hide-thumbnails';
@@ -982,26 +996,55 @@ class Initializer {
 				? sprintf( '<span class="videopress-playlist__entry-duration">%s</span>', esc_html( $timecode ) )
 				: '';
 
+			if ( $has_player ) {
+				$is_current  = $show_player && 0 === $index;
+				$entry_open  = sprintf(
+					'<button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">',
+					$is_current ? ' is-current' : '',
+					$is_current ? ' aria-current="true"' : '',
+					esc_attr( $entry['guid'] ),
+					esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details ),
+					esc_attr( $progress )
+				);
+				$entry_close = '</button>';
+			} else {
+				// No player to load the video into: the entry opens its VideoPress page instead.
+				$entry_open = sprintf(
+					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
+					/**
+					 * Filters where a playlist entry opens when the block has no player.
+					 *
+					 * @since 0.55.0
+					 *
+					 * @param string $url  The video's page on videopress.com.
+					 * @param string $guid The video GUID.
+					 */
+					esc_url( apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] ) ),
+					esc_attr( $entry['guid'] ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details )
+				);
+				$entry_close = '</a>';
+			}
+
 			$items .= sprintf(
-				'<li class="videopress-playlist__entry"><button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">' .
-					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%15$s%11$s</span>' .
-					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%12$s</span><span class="videopress-playlist__entry-meta">%13$s%14$s</span></span>' .
-					'</button></li>',
-				0 === $index ? ' is-current' : '',
-				0 === $index ? ' aria-current="true"' : '',
-				esc_attr( $entry['guid'] ),
-				esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
-				esc_attr( $title ),
-				esc_attr( $position ),
-				esc_attr( $details ),
-				esc_attr( $progress ),
+				'<li class="videopress-playlist__entry">%1$s' .
+					'%2$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%3$s</span>%4$s%5$s</span>' .
+					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span></span>' .
+					'%9$s</li>',
+				$entry_open,
 				$number_markup,
 				esc_html__( 'Playing', 'jetpack-videopress-pkg' ),
+				$lock_markup,
 				$time_markup,
 				esc_html( $title ),
 				$resolution_markup,
 				$duration_markup,
-				$lock_markup
+				$entry_close
 			);
 		}
 
@@ -1030,15 +1073,28 @@ class Initializer {
 			)
 			: '';
 
-		$stage_markup = sprintf(
-			'<div class="videopress-playlist__stage">' .
-				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
-			esc_attr( $first_title ),
-			esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
-			$now_markup
-		);
+		if ( $show_player ) {
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage">' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
+				esc_attr( $first_title ),
+				esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
+				$now_markup
+			);
+		} elseif ( $reveal_player ) {
+			// No src: nothing loads until the view script reveals the stage on a click.
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage" hidden>' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" allowfullscreen allow="clipboard-write"></iframe></div></div>%2$s',
+				esc_attr( $first_title ),
+				$now_markup
+			);
+		} else {
+			// Without a player only the grid layout's runtime line remains of the stage.
+			$stage_markup = $now_markup;
+		}
 
-		$progress_markup = '' !== $total_timecode
+		$progress_markup = $has_player && '' !== $total_timecode
 			? sprintf(
 				'<span class="videopress-playlist__list-progress">%s</span>',
 				/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
@@ -1052,7 +1108,9 @@ class Initializer {
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--rail">%1$s</span>' .
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--strip">%2$s</span>%3$s%4$s</div>' .
 				'<ol class="videopress-playlist__entries">%5$s</ol></div>',
-			esc_html__( 'Up next', 'jetpack-videopress-pkg' ),
+			$show_player
+				? esc_html__( 'Up next', 'jetpack-videopress-pkg' )
+				: esc_html__( 'Playlist', 'jetpack-videopress-pkg' ),
 			/* translators: %s: number of videos in the playlist, e.g. "5 videos". */
 			esc_html( sprintf( __( 'Playlist — %s', 'jetpack-videopress-pkg' ), $count_label ) ),
 			$list_meta_markup,
@@ -1091,9 +1149,19 @@ class Initializer {
 
 		$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra_attributes );
 
+		// The Heading inner block saved with the post; an empty title renders none.
+		$playlist_title = isset( $block_attributes['playlistTitle'] ) && is_string( $block_attributes['playlistTitle'] )
+			? trim( $block_attributes['playlistTitle'] )
+			: '';
+		$content        = is_string( $content ) ? trim( $content ) : '';
+		$heading_markup = $enabled( 'showPlaylistTitle' ) && '' !== $playlist_title && '' !== $content
+			? '<div class="videopress-playlist__heading">' . $content . '</div>'
+			: '';
+
 		return sprintf(
-			'<figure %1$s><div class="videopress-playlist__body">%2$s%3$s</div></figure>',
+			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s%4$s</div></figure>',
 			$wrapper_attributes,
+			$heading_markup,
 			$stage_markup,
 			$list_markup
 		);

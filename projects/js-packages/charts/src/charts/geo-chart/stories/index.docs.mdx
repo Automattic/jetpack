@@ -245,6 +245,26 @@ Alternatively, you can use two-letter ISO country codes:
 
 For a complete list of country codes, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
 
+## Markers
+
+Set `displayMode` to `'markers'` to draw a circle per row instead of shading areas. Each marker is sized and colored by its value, which suits data finer than a country, such as cities. A row can name a place, or give its position as latitude and longitude in the first two columns, followed by an optional label and the value:
+
+<Canvas of={ GeoChartStories.CityMarkers } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		displayMode="markers"
+		data={ [
+			[ 'Latitude', 'Longitude', 'City', 'Views' ],
+			[ 18.5204, 73.8567, 'Pune', 5650 ],
+			[ 51.5074, -0.1278, 'London', 1200 ],
+		] }
+	/>` }
+/>
+
+Coordinates place a marker without a lookup; a place name needs Google to geocode it, which requires a Maps API key.
+
 ## Interactive Features
 
 ### Hover Tooltips

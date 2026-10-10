@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -19,6 +21,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -29,6 +32,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -45,7 +49,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -110,7 +116,11 @@ describe( 'PostViewsWidget', () => {
 		mockApiFetch.mockReset();
 	} );
 
-	it( 'charts the window as a single zero-filled Views series', async () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'charts the window as a single zero-filled Views series, handing the chart its no-results state', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
 		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
@@ -127,6 +137,9 @@ describe( 'PostViewsWidget', () => {
 		// defaults to bars.
 		expect( metrics[ 0 ].value ).toBe( 12 );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect(
+			within( chart ).getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/post/779' );
@@ -213,16 +226,26 @@ describe( 'PostViewsWidget', () => {
 		).toHaveLength( 0 );
 	} );
 
-	it( 'shows the error state with a Retry action when the fetch fails', async () => {
+	it( 'refetches the post views when Retry is clicked after a failed fetch', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		// A non-retryable 403 so React Query surfaces the error immediately
 		// instead of after the retry backoff.
 		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		const statsPostCalls = () =>
+			mockApiFetch.mock.calls.filter( call =>
+				( call[ 0 ].path as string ).includes( 'stats/post' )
+			);
 
 		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		await expect(
 			screen.findByText( /couldn't load this post's views/ )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		expect( statsPostCalls() ).toHaveLength( 1 );
+
+		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		await waitFor( () => expect( statsPostCalls() ).toHaveLength( 2 ) );
 	} );
 } );

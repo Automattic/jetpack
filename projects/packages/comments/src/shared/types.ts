@@ -1,15 +1,10 @@
-export type Commenter = {
+import type { LocaleData } from '@wordpress/i18n';
+
+export type Details = {
 	author: string;
 	email: string;
 	url: string;
 };
-
-export type CurrentUser = {
-	avatarUrl: string;
-	commentingAs: string;
-};
-
-export type Provider = 'wordpress' | 'google' | 'facebook';
 
 export type ConnectUrl = {
 	url: string;
@@ -18,42 +13,67 @@ export type ConnectUrl = {
 };
 
 export type Passport = {
-	provider: Provider;
 	name: string;
 	avatar: string;
 };
 
+export type CheckpointResult =
+	( Passport & { code: string } ) | { error: string } | { cancelled: true };
+
+/**
+ * Who is commenting. A popup sign-in's `code` is set until the comment posts and
+ * the passport takes over; a guest's details are in `details`.
+ */
+export type Commenter =
+	| { kind: 'user'; name: string }
+	| ( Passport & { kind: 'wordpress'; code: string | null } )
+	| { kind: 'guest' }
+	| { kind: 'unknown' };
+
 export type IdentitySettings = {
 	blogId: number;
-	providers: Provider[];
-	connect: Partial< Record< Provider, ConnectUrl > >;
+	canSignIn: boolean;
+	connect: ConnectUrl | null;
+	connectUrl: string;
+	emailUrl: string;
 	origin: string;
 	codeField: string;
 	passportField: string;
 	displayCookie: string;
+	cookieHash: string;
 	cookiePath: string;
 	cookieDomain: string;
 	defaultAvatar: string;
-	refreshUrl: string;
 	logoutUrl: string;
 	logoutAction: string;
 };
 
-/**
- * Who the reader signed in as through the popup, or the passport that brought
- * them back. `code` is set until the comment posts and the passport takes over.
- */
-export type SignedIn = Passport & {
-	code: string | null;
+/** The editor's accessible names, translated in PHP, and the embed preview route: empty where embeds are off. */
+export type EditorLabels = {
+	blockTools: string;
+	addBlock: string;
+	embedUrl: string;
+};
+
+/** A subscribe checkbox the host draws itself, posted under the host's own field name. */
+export type Subscription = {
+	name: string;
+	label: string;
+	checked: boolean;
 };
 
 export type FormSettings = {
 	postId: number;
 	loginUrl: string;
 	logoutUrl: string;
-	submitId: string;
-	submitName: string;
-	submitLabel: string;
+	submit: {
+		id: string;
+		name: string;
+		class: string;
+		wrapClass: string;
+		label: string;
+	};
+	subscriptions: Subscription[];
 };
 
 export type Strings = {
@@ -64,41 +84,68 @@ export type Strings = {
 	replyPlaceholder: string;
 	name: string;
 	email: string;
-	emailPlaceholder: string;
+	emailHint: string;
+	emailHasAccount: string;
 	website: string;
-	websitePlaceholder: string;
-	guestPrompt: string;
-	mustLogInPrompt: string;
-	logIn: string;
-	guestPromptRequired: string;
+	intro: string;
+	continueAsGuest: string;
+	postWithoutSaving: string;
+	save: string;
 	saveDetails: string;
-	logOut: string;
-	logInOrProvide: string;
-	logInOrProvideReply: string;
-	logInOptional: string;
-	logInOptionalReply: string;
-	logInToReply: string;
-	signedInAs: string;
-	cancel: string;
-	settings: string;
 	close: string;
-	providers: Record< Provider | 'mail', string >;
+	manageSubscriptions: string;
+	mustLogIn: string;
+	logIn: string;
+	logInWithWordPress: string;
+	logOut: string;
+	change: string;
+	editProfile: string;
+	addYourName: string;
+	cancel: string;
 	signInFailed: string;
+	tooLong: string;
 	signInRateLimited: string;
 };
 
 export type Settings = {
+	/** The package version that rendered the page, checked against the bundle's before it takes over. */
+	version: string;
+	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
-	showCookiesConsent: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
+	/** Whether the block editor replaces the textarea. */
+	blocks: boolean;
+	/** Core's translations of the editor strings a commenter meets; empty in English. */
+	editorLocale: LocaleData;
+	editor: EditorLabels;
+	/** Empty when the site shows no avatars. */
+	avatarUrl: string;
+	site: { name: string; iconUrl: string };
+	/** Empty where the host offers no subscriptions. */
+	manageSubscriptionsUrl: string;
+	/** Null where usage events are off. */
+	tracks: { platform: string } | null;
 	strings: Strings;
-	commenter: Commenter;
-	user: CurrentUser | null;
+	commenter: Details;
+	/** Empty `editProfileUrl` for a user who may not edit their own profile. */
+	user: { name: string; editProfileUrl: string } | null;
 	identity: IdentitySettings;
 };
 
 declare global {
 	const JetpackComments: Settings;
+	const JETPACK_COMMENTS_VERSION: string;
+
+	interface Window {
+		/** Core's translations for the editor, handed over before the chunk loads. */
+		jetpackCommentsEditorLocale?: LocaleData;
+		/** The editor's strings on the edit-comment screen, translated in PHP. */
+		jetpackCommentsEditorLabels?: EditorLabels;
+		/** The comment on the edit-comment screen, as the editor writes it. */
+		jetpackCommentsEditorContent?: string;
+		/** The Tracks queue, which w.js drains. */
+		_tkq?: unknown[];
+	}
 }

@@ -35,6 +35,7 @@ import type {
 	WordPressAgentNoticePlacement,
 	WordPressAgentNoticeProps,
 } from './types';
+import type { JSX } from 'react';
 
 export const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
 export const AGENT_SUPPORT_FEATURE = 'ai-sidebar-agent-support';

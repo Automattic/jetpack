@@ -282,19 +282,19 @@ class Twitter_Cards {
 	/**
 	 * Adds settings section and field.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing renders the field itself.
+	 * @deprecated 0.3.0 Settings > Sharing renders the field itself.
 	 */
 	public static function settings_init() {
-		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
 	 * Add global sharing options.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing renders the field itself.
+	 * @deprecated 0.3.0 Settings > Sharing renders the field itself.
 	 */
 	public static function sharing_global_options() {
-		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
@@ -316,19 +316,19 @@ class Twitter_Cards {
 	/**
 	 * Output the settings field.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing renders the field itself.
+	 * @deprecated 0.3.0 Settings > Sharing renders the field itself.
 	 */
 	public static function settings_field() {
-		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
 	 * Validate the settings submission.
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing saves the field itself.
+	 * @deprecated 0.3.0 Settings > Sharing saves the field itself.
 	 */
 	public static function settings_validate() {
-		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::save' );
+		_deprecated_function( __METHOD__, 'post-media-0.3.0', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::save' );
 	}
 
 	/**

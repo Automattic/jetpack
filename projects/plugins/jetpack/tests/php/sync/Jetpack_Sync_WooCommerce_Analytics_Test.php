@@ -4,6 +4,8 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
+use Automattic\WooCommerce\Caches\OrderCache;
+use Automattic\WooCommerce\Utilities\OrderUtil;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
@@ -135,6 +137,90 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * A partial refund followed by a full refund does not double-count the returns amount (woocommerce/woocommerce#66320).
+	 */
+	public function test_partial_then_full_refund_does_not_double_count_returns() {
+		$this->skip_before_woocommerce( '11.1' );
+		$order = $this->create_completed_refundable_order();
+
+		$partial = $this->refund(
+			$order,
+			20.00,
+			array(
+				array_key_first( $order->get_items() ) => array(
+					'qty'          => 2,
+					'refund_total' => 20.00,
+				),
+			)
+		);
+		$full    = $this->refund( $order, (float) $order->get_total() - (float) $order->get_total_refunded() );
+		$full->update_meta_data( '_refund_type', 'full' );
+		$full->save_meta_data();
+		$this->clear_order_cache( $full->get_id() );
+
+		$partial_row = $this->get_synced_order_stats_matching_core( $partial->get_id() );
+		$full_row    = $this->get_synced_order_stats_matching_core( $full->get_id() );
+
+		$this->assertEqualsWithDelta( -55.00, $partial_row['net_total'] + $partial_row['tax_total'] + $partial_row['shipping_total'] + $full_row['net_total'] + $full_row['tax_total'] + $full_row['shipping_total'], 0.02 );
+		$this->assertEqualsWithDelta( -40.00, $partial_row['net_total'] + $full_row['net_total'], 0.02 );
+	}
+
+	/**
+	 * A sole lump-sum refund of the whole order without a refund type takes its amounts from the order (woocommerce/woocommerce#64106).
+	 */
+	public function test_lump_sum_full_refund_without_refund_type_uses_parent_net_total() {
+		$this->skip_before_woocommerce( '10.9' );
+		$order  = $this->create_completed_refundable_order();
+		$refund = $this->refund( $order, (float) $order->get_total() );
+		$refund->delete_meta_data( '_refund_type' );
+		$refund->save_meta_data();
+		$this->clear_order_cache( $refund->get_id() );
+
+		$row = $this->get_synced_order_stats_matching_core( $refund->get_id() );
+
+		$this->assertEqualsWithDelta( -40.00, $row['net_total'], 0.02 );
+	}
+
+	/**
+	 * A lump-sum refund of a never-paid order has no paid or completed date from WooCommerce 11.2 (woocommerce/woocommerce#67710).
+	 */
+	public function test_refund_of_never_paid_order_matches_core_dates() {
+		$order = $this->create_refundable_order();
+		$order->set_status( 'failed' );
+		$order->save();
+
+		// Setting the status to "refunded" fires wc_order_fully_refunded(), creating the lump-sum refund.
+		$order->update_status( 'refunded' );
+		$refunds = $order->get_refunds();
+		$this->assertCount( 1, $refunds );
+
+		// Before 11.2 core backfills both dates; matching core's row covers that case.
+		$row = $this->get_synced_order_stats_matching_core( reset( $refunds )->get_id() );
+
+		if ( version_compare( WC_VERSION, '11.2', '>=' ) ) {
+			$this->assertNull( $row['date_paid'] );
+			$this->assertNull( $row['date_completed'] );
+		}
+	}
+
+	/**
+	 * A refund's paid and completed dates follow core's stored row, which keeps the dates an older WooCommerce wrote.
+	 */
+	public function test_refund_dates_follow_stored_order_stats_row() {
+		global $wpdb;
+
+		$order  = $this->create_completed_refundable_order();
+		$refund = $this->refund( $order, (float) $order->get_total() );
+		OrderStatsDataStore::sync_order( $refund->get_id() );
+
+		$wpdb->update( "{$wpdb->prefix}wc_order_stats", array( 'date_paid' => null ), array( 'order_id' => $refund->get_id() ) );
+		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $refund->get_id() )['order_stats'];
+
+		$this->assertNull( $synced['date_paid'] );
+		$this->assertEquals( $synced['date_created'], $synced['date_completed'] );
+	}
+
+	/**
 	 * Incremental Analytics sync emits the expanded reports payload for a real order.
 	 */
 	public function test_incremental_sync_emits_real_order_payload() {
@@ -183,6 +269,118 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$this->assertArrayHasKey( $order->get_id(), $action['orders'] );
 		$this->assertSame( $order->get_id(), $action['orders'][ $order->get_id() ]['order_stats']['order_id'] );
 		$this->assertSame( 3.5, (float) $action['orders'][ $order->get_id() ]['order_tax_data'][0]['total_tax'] );
+	}
+
+	/**
+	 * Create a pending order as WooCommerce's WC_Helper_Order::create_order() does: 4 x $10 product + $10 shipping.
+	 *
+	 * @return WC_Order
+	 */
+	private function create_refundable_order() {
+		$product_item = new WC_Order_Item_Product();
+		$product_item->set_product( WC_Helper_Product::create_simple_product() );
+		$product_item->set_quantity( 4 );
+		$product_item->set_subtotal( '40' );
+		$product_item->set_total( '40' );
+
+		$shipping_item = new WC_Order_Item_Shipping();
+		$shipping_item->set_total( '10' );
+
+		$order = wc_create_order( array( 'status' => 'pending' ) );
+		$order->add_item( $product_item );
+		$order->add_item( $shipping_item );
+		$order->set_shipping_total( '10' );
+		$order->set_total( '50' );
+		$order->save();
+
+		return $order;
+	}
+
+	/**
+	 * Create a completed order with the full-refund data format on: net 40 + tax 5 + shipping 10 = 55.
+	 *
+	 * @return WC_Order
+	 */
+	private function create_completed_refundable_order() {
+		update_option( 'woocommerce_db_version', '10.2.0' );
+		update_option( 'woocommerce_analytics_uses_old_full_refund_data', 'no' );
+
+		$order = $this->create_refundable_order();
+		$order->set_cart_tax( '5.00' );
+		$order->set_total( '55.00' );
+		$order->save();
+		$order->update_status( 'completed' );
+
+		return $order;
+	}
+
+	/**
+	 * Refund an order.
+	 *
+	 * @param WC_Order $order      Order.
+	 * @param float    $amount     Refund amount.
+	 * @param array    $line_items Refunded line items.
+	 * @return WC_Order_Refund
+	 */
+	private function refund( $order, $amount, $line_items = array() ) {
+		$refund = wc_create_refund(
+			array(
+				'order_id'   => $order->get_id(),
+				'amount'     => $amount,
+				'line_items' => $line_items,
+			)
+		);
+		$this->assertInstanceOf( WC_Order_Refund::class, $refund );
+
+		return $refund;
+	}
+
+	/**
+	 * Drop an order from WooCommerce's order cache after changing its meta directly.
+	 *
+	 * @param int $order_id Order ID.
+	 */
+	private function clear_order_cache( $order_id ) {
+		if ( OrderUtil::orders_cache_usage_is_enabled() ) {
+			wc_get_container()->get( OrderCache::class )->remove( $order_id );
+		}
+	}
+
+	/**
+	 * Get an order's synced order stats, asserting they match the row core writes for it, except the status.
+	 *
+	 * @param int $order_id Order or refund ID.
+	 * @return array The synced order stats.
+	 */
+	private function get_synced_order_stats_matching_core( $order_id ) {
+		global $wpdb;
+
+		OrderStatsDataStore::sync_order( $order_id );
+		$core_row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}wc_order_stats WHERE order_id = %d", $order_id ), ARRAY_A );
+		$synced   = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order_id )['order_stats'];
+
+		$this->assertIsArray( $core_row );
+
+		$this->assertSame( (int) $core_row['num_items_sold'], $synced['num_items_sold'] );
+		foreach ( array( 'total_sales', 'tax_total', 'shipping_total', 'net_total' ) as $column ) {
+			$this->assertEqualsWithDelta( (float) $core_row[ $column ], (float) $synced[ $column ], 0.001, $column );
+		}
+		foreach ( array( 'date_created', 'date_paid', 'date_completed' ) as $column ) {
+			$this->assertSame( $core_row[ $column ], null === $synced[ $column ] ? null : substr( $synced[ $column ]->date, 0, 19 ), $column );
+		}
+
+		return $synced;
+	}
+
+	/**
+	 * Skip the test on WooCommerce versions older than the given one.
+	 *
+	 * @param string $version WooCommerce version.
+	 */
+	private function skip_before_woocommerce( $version ) {
+		if ( version_compare( WC_VERSION, $version, '<' ) ) {
+			$this->markTestSkipped( "Requires WooCommerce $version or later." );
+		}
 	}
 
 	/**

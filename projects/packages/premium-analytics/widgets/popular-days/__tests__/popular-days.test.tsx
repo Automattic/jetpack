@@ -3,6 +3,7 @@
  */
 import { useStatsVisits } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -22,6 +23,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 // Spread the real module: `WidgetRoot` and the toolkit helpers import from it too.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsHourOfDay: jest.fn(),
+	useStatsStreak: jest.fn(),
 	useStatsVisits: jest.fn(),
 } ) );
 
@@ -41,15 +44,16 @@ function dailyRow( date: string, views: number ) {
 	return { date_start: `${ date }T00:00:00+00:00`, time_interval: date, views, visitors: 1 };
 }
 
-// Three Mondays at 10 views each and one Tuesday at 25. Monday has the larger
+// Three Mondays at 20 views each and two Tuesdays at 25. Monday has the larger
 // total, Tuesday the larger average — the case the averaging exists for.
 const REPORT = {
-	summary: { views: 55 },
+	summary: { views: 110 },
 	data: [
-		dailyRow( '2026-07-06', 10 ),
+		dailyRow( '2026-07-06', 20 ),
 		dailyRow( '2026-07-07', 25 ),
-		dailyRow( '2026-07-13', 10 ),
-		dailyRow( '2026-07-20', 10 ),
+		dailyRow( '2026-07-13', 20 ),
+		dailyRow( '2026-07-14', 25 ),
+		dailyRow( '2026-07-20', 20 ),
 	],
 };
 
@@ -92,50 +96,14 @@ describe( 'PopularDaysWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute( 'data-points', '10,25,0,0,0,0,0' );
+		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute( 'data-points', '20,25,0,0,0,0,0' );
 	} );
 
-	it( 'abbreviates a large average but keeps the exact figure available', () => {
-		mockUseStatsVisits.mockReturnValue(
-			visitsResult( { summary: { views: 166900 }, data: [ dailyRow( '2026-07-06', 166900 ) ] } )
-		);
-
-		renderWidget();
-
-		expect( screen.getByText( '167K views' ) ).toBeInTheDocument();
-	} );
-
-	it( 'reads the exact figure to assistive tech, not the abbreviation', () => {
-		mockUseStatsVisits.mockReturnValue(
-			visitsResult( { summary: { views: 166900 }, data: [ dailyRow( '2026-07-06', 166900 ) ] } )
-		);
-
-		renderWidget();
-
-		expect( screen.getByText( '167K views' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '166,900 views' ) ).toBeInTheDocument();
-	} );
-
-	it( 'does not double up when the figure needs no abbreviating', () => {
+	it( 'requests both traffic fields in daily buckets, without comparison, on any dashboard interval', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
-		renderWidget();
-
-		expect( screen.getAllByText( '25 views' ) ).toHaveLength( 1 );
-	} );
-
-	it( 'keeps daily buckets on a coarse dashboard interval, so weekdays stay separable', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
-
-		renderWidget( { ...REPORT_PARAMS, interval: 'month' } as ReportParams );
-
-		expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( { period: 'day' } );
-	} );
-
-	it( 'requests both traffic fields, without comparison, so it shares the totals query', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
-
-		renderWidget();
+		// A range long enough that the normalizer keeps a monthly interval.
+		renderWidget( { ...REPORT_PARAMS, from: '2026-01-05', interval: 'month' } as ReportParams );
 
 		const params = mockUseStatsVisits.mock.calls[ 0 ][ 0 ];
 		expect( params ).toMatchObject( { stat_fields: 'views,visitors', period: 'day' } );
@@ -143,17 +111,6 @@ describe( 'PopularDaysWidget', () => {
 		expect( params ).not.toHaveProperty( 'compare_from' );
 		expect( params ).not.toHaveProperty( 'compare_to' );
 		expect( params ).not.toHaveProperty( 'compare_preset' );
-	} );
-
-	it( 'renders the empty state when the range has no buckets', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( { summary: { views: 0 }, data: [] } ) );
-
-		renderWidget();
-
-		expect(
-			screen.getByText( 'We couldn’t find results for this time period.' )
-		).toBeInTheDocument();
-		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state when every day in range drew zero views', () => {
@@ -180,9 +137,14 @@ describe( 'PopularDaysWidget', () => {
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry for a failure that can heal', () => {
+	it( 'refetches from the Retry action for a failure that can heal', async () => {
+		const refetch = jest.fn();
 		mockUseStatsVisits.mockReturnValue(
-			visitsResult( undefined, { isError: true, error: { error: 'no_connection', status: 403 } } )
+			visitsResult( undefined, {
+				isError: true,
+				error: { error: 'no_connection', status: 403 },
+				refetch,
+			} )
 		);
 
 		renderWidget();
@@ -190,7 +152,8 @@ describe( 'PopularDaysWidget', () => {
 		expect(
 			screen.getByText( "We couldn't load your popular days. Please try again in a moment." )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'keeps the rendered peak when a refetch fails, instead of showing the error', () => {

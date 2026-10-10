@@ -53,11 +53,11 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 			8   => null,
 			7   => false,
 			0   => false,
-			-1  => false,
-			-29 => false,
-			-30 => false,
-			-59 => false,
-			-60 => false,
+			-1  => true,
+			-29 => true,
+			-30 => true,
+			-59 => true,
+			-60 => true,
 		);
 		foreach ( $cases as $days => $is_dismissible ) {
 			$this->set_purchase( $days );
@@ -68,9 +68,7 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 		$this->set_reverted( 15 );
 		$this->assertTrue( wpcom_expiry_notices_frontend_banner_is_due() );
-		$data = wpcom_expiry_notices_frontend_banner_data();
-		$this->assertNotNull( $data );
-		$this->assertTrue( $data['is_dismissible'] );
+		$this->assertNotNull( wpcom_expiry_notices_frontend_banner_data() );
 
 		$this->set_reverted( 30 );
 		$this->assertFalse( wpcom_expiry_notices_frontend_banner_is_due() );
@@ -80,7 +78,7 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$cases = array(
 			// days => [ text prefix, CTA, dismiss ].
 			5  => array( 'Your plan expires in 5 days. ', true, false ),
-			-5 => array( 'Your plan has expired. Your site will move', true, false ),
+			-5 => array( 'Your plan has expired. Your site will move', true, true ),
 		);
 		foreach ( $cases as $days => list( $prefix, $has_cta, $has_dismiss ) ) {
 			$this->set_purchase( $days );
@@ -101,8 +99,6 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'additional storage', $html );
 		$this->assertStringNotContainsString( '<strong>', $html );
 		$this->assertStringNotContainsString( '/checkout/', $html );
-		$this->assertTrue( str_contains( $html, 'wpcom-expiry-frontend-banner__dismiss' ) );
-		$this->assertTrue( str_contains( $html, 'wpcom-expiry-frontend-banner--dismissible' ) );
 
 		$this->set_purchase( 45 );
 		$this->assertSame( '', $this->render() );
@@ -152,7 +148,6 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( -45 );
 		$html = $this->render();
 		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__cta', $html );
-		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__dismiss', $html );
 	}
 
 	public function test_the_script_carries_the_track_props(): void {

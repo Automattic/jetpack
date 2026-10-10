@@ -3,6 +3,7 @@
  */
 import {
 	type ChartDisplayChartType,
+	ChartEmptyState,
 	chartInterval,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -15,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { defaultReportParams } from './default-report-params';
 import { WORDADS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
@@ -38,7 +39,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 		WORDADS_GRAIN.periods
 	);
 
-	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
+	const { metrics, isLoading, isFetching, isError, refetch } = useWordAdsChart(
 		reportParams,
 		period
 	);
@@ -49,7 +50,6 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
-				isEmpty={ isEmpty }
 				error={ {
 					description: __(
 						"We couldn't load WordAds data. Please try again in a moment.",
@@ -66,6 +66,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 					groupLabel={ __( 'WordAds metric', 'jetpack-ads-pkg' ) }
 					// As the classic chart: one hover reads out all three, whichever tab is up.
 					tooltipMetrics="all"
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>
@@ -74,7 +75,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	// Unsaved instances must not fall back to the section's URL date range.
-	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+	const reportParams = attributes.reportParams ?? defaultReportParams();
 
 	return (
 		// Scope the widget body before WidgetRoot strips unsupported comparison params;

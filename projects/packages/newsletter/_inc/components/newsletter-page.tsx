@@ -7,9 +7,9 @@ import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
-export type NewsletterTab = 'overview' | 'stats' | 'subscribers' | 'settings';
+export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
 
 type Props = {
 	activeTab: NewsletterTab;
@@ -39,7 +39,6 @@ const PRODUCT_NAME = 'Newsletter'; /** "Newsletter" is a product name, do not tr
 
 const SUBTITLES: Record< NewsletterTab, () => string > = {
 	overview: () => __( 'View a summary of your newsletter.', 'jetpack-newsletter' ),
-	stats: () => __( 'Follow how your subscriber audience is growing.', 'jetpack-newsletter' ),
 	subscribers: () => __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ),
 	settings: () =>
 		__(
@@ -91,8 +90,7 @@ export default function NewsletterPage( {
 		( next: string | null ) => {
 			if (
 				( next === 'overview' && ! overviewEnabled ) ||
-				( next === 'stats' && ! overviewEnabled ) ||
-				( next !== 'overview' && next !== 'stats' && next !== 'subscribers' && next !== 'settings' )
+				( next !== 'overview' && next !== 'subscribers' && next !== 'settings' )
 			) {
 				return;
 			}
@@ -138,9 +136,6 @@ export default function NewsletterPage( {
 						<Tabs.List variant="minimal">
 							{ overviewEnabled ? (
 								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-newsletter' ) }</Tabs.Tab>
-							) : null }
-							{ overviewEnabled ? (
-								<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-newsletter' ) }</Tabs.Tab>
 							) : null }
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>

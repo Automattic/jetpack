@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Notices: Stop a dismissed notice from coming back for up to 5 minutes when the dashboard fetches notices while the dismissal is still being saved.

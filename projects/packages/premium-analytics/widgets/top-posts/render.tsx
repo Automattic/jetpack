@@ -8,26 +8,27 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
+	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
-	RowsCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	archivesCsvExporter,
 	buildLeaderboardRow,
 	calculateDelta,
+	getArchiveGroupLabel,
+	getArchiveTypeLabel,
 	getCombinedPeriodMax,
+	postsPagesCsvExporter,
 	safeHttpUrl,
 	sharePercentage,
-	useReportCsvExport,
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
-	withComparisonColumns,
-	type CsvColumn,
 	type LeaderboardChartData,
 	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
@@ -173,7 +174,7 @@ type TopPostsLeaderboardProps = {
 	onDrillDown?: ( row: TopPostRow ) => void;
 	/**
 	 * Shared report-window parameters carried into the post-detail route, so
-	 * the detail page opens on the date range the widget is showing.
+	 * its breadcrumbs return to the date range the widget is showing.
 	 */
 	detailSearch?: Record< string, unknown >;
 };
@@ -236,7 +237,7 @@ function TopPostsReport() {
 
 	// Row matching, capping, and comparison-overlap gating live in the data
 	// layer's merge helper (see AGENTS.md), which appends the homepage entry on top of `max`.
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
@@ -244,39 +245,6 @@ function TopPostsReport() {
 		origin: { report: 'posts', section: 'posts-pages' },
 	} );
 	const withComparison = hasComparison;
-
-	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
-	// client-side "Download CSV" (bounded to the rows already in the browser).
-	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >(
-		() =>
-			withComparisonColumns(
-				[
-					{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-					{
-						label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-						getValue: row => row.value,
-						getPreviousValue: row => row.previousValue,
-					},
-					{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
-					{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
-				],
-				withComparison
-			),
-		[ withComparison ]
-	);
-
-	// Stats queries keep placeholder rows during a refetch; the shared hook hides
-	// export until rows belong to the active date range.
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows,
-		filenamePrefix: 'top-posts',
-		range: reportParams,
-		status: { isLoading, isFetching, isError },
-	} );
 
 	return (
 		<>
@@ -308,59 +276,14 @@ function TopPostsReport() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
-				{ canExport && (
-					<RowsCsvDownloadButton columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) }
+				<ExporterCsvDownloadButton
+					exporter={ postsPagesCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);
-}
-
-/**
- * Human-readable labels for the archive-type keys the WPCOM `stats/archives`
- * report groups by. Types the API may add later fall back to the raw key.
- */
-function archiveTypeLabel( archiveType: string ): string {
-	// Mirrors Calypso's `getArchiveKeyLabel` (state/stats/lists/utils.js); `post_type`
-	// is PA-only — Calypso capitalizes it instead.
-	switch ( archiveType ) {
-		case 'author':
-			return __( 'Authors', 'jetpack-premium-analytics-pkg' );
-		case 'cat':
-			return __( 'Categories', 'jetpack-premium-analytics-pkg' );
-		case 'err':
-			return __( 'Error', 'jetpack-premium-analytics-pkg' );
-		case 'home':
-			// Defensive: `skip_archives=1` normally keeps `home` out of this report (it's
-			// filtered in the Archives view); matches the server title if one slips through.
-			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics-pkg' );
-		case 'search':
-			return __( 'Searches', 'jetpack-premium-analytics-pkg' );
-		case 'tag':
-			return __( 'Tags', 'jetpack-premium-analytics-pkg' );
-		case 'tax':
-			return __( 'Taxonomies', 'jetpack-premium-analytics-pkg' );
-		case 'date':
-			return __( 'Dates', 'jetpack-premium-analytics-pkg' );
-		case 'multiple':
-			return __( 'Aggregated', 'jetpack-premium-analytics-pkg' );
-		case 'other':
-			return __( 'Others', 'jetpack-premium-analytics-pkg' );
-		case 'post_type':
-			return __( 'Post types', 'jetpack-premium-analytics-pkg' );
-		default:
-			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
-	}
-}
-
-/**
- * Humanize an intermediate group label from the API (e.g. the taxonomy key
- * `post_tag` → "Post tag", `topics` → "Topics"). Leaf labels — search
- * phrases, term names — are never passed through this.
- */
-function humanizeArchiveGroupLabel( label: string ): string {
-	const spaced = label.replace( /_/g, ' ' );
-	return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
 }
 
 /**
@@ -376,9 +299,9 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 
 		let label = rawLabel;
 		if ( isTopLevel ) {
-			label = archiveTypeLabel( rawLabel );
+			label = getArchiveTypeLabel( rawLabel );
 		} else if ( children ) {
-			label = humanizeArchiveGroupLabel( rawLabel );
+			label = getArchiveGroupLabel( rawLabel );
 		}
 
 		return {
@@ -403,7 +326,7 @@ function ArchivesReport() {
 
 	// Row matching (per level, so same-named terms under different parents can't
 	// cross-match), capping, and comparison gating live in the merge helper (see AGENTS.md).
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsArchives( reportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -473,31 +396,43 @@ function ArchivesReport() {
 		);
 
 	return (
-		<div className={ styles.content }>
-			{ backLink }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// As above: keep the drilled rows visible through a transient refetch
-				// failure and only surface the error when there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ activeRows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load archives. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-			>
-				<TopPostsLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ handleDrillDown }
+		<>
+			<div className={ styles.content }>
+				{ backLink }
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// As above: keep the drilled rows visible through a transient refetch
+					// failure and only surface the error when there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ activeRows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load archives. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<TopPostsLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ handleDrillDown }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="archives" />
+				<ExporterCsvDownloadButton
+					exporter={ archivesCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -511,16 +446,7 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				{ contentView === 'archives' ? (
-					<>
-						<ArchivesReport />
-						<WidgetFooter>
-							<ReportLink report="posts" section="archives" />
-						</WidgetFooter>
-					</>
-				) : (
-					<TopPostsReport />
-				) }
+				{ contentView === 'archives' ? <ArchivesReport /> : <TopPostsReport /> }
 			</div>
 		</WidgetRoot>
 	);

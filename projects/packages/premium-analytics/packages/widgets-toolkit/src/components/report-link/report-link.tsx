@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { Link } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { Link as RouteLink } from '@wordpress/route';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
+import { InternalLink } from '../internal-link';
 import styles from './report-link.module.scss';
 import type { ReactNode } from 'react';
 
@@ -39,7 +38,7 @@ export type ReportLinkProps = {
 	className?: string;
 
 	/**
-	 * Rendered in place of the label, e.g. a badge; the hover underline is dropped for it.
+	 * Rendered after the label, e.g. a count badge; the hover underline stays on the label.
 	 */
 	children?: ReactNode;
 };
@@ -61,20 +60,26 @@ export function ReportLink( {
 	children,
 }: ReportLinkProps ) {
 	const search = useWidgetNavigationSearch( { section } );
+	const text = label ?? __( 'View all', 'jetpack-premium-analytics-pkg' );
 
 	return (
-		<Link
-			render={
-				<RouteLink
-					to="/reports/$report"
-					params={ { report } as unknown as never }
-					search={ search as unknown as never }
-				/>
-			}
+		<InternalLink
+			to="/reports/$report"
+			params={ { report } }
+			search={ search }
+			variant="default"
 			className={ clsx( styles.reportLink, children && styles.hasContent, className ) }
-			aria-label={ ariaLabel }
+			ariaLabel={ ariaLabel }
 		>
-			{ children ?? label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ) }
-		</Link>
+			{ children ? (
+				<>
+					<span className={ styles.label }>{ text }</span>
+					{ /* Keeps the accessible name "Adjustments 2" rather than "Adjustments2". */ }{ ' ' }
+					{ children }
+				</>
+			) : (
+				text
+			) }
+		</InternalLink>
 	);
 }

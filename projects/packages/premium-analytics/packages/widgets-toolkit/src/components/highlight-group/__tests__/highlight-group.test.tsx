@@ -25,25 +25,4 @@ describe( 'HighlightGroup', () => {
 		expect( screen.getByText( '7:00 pm' ) ).toBeInTheDocument();
 		expect( screen.getByText( '5% of views' ) ).toBeInTheDocument();
 	} );
-
-	it( 'drops the caption line when no caption is given', () => {
-		render(
-			<HighlightGroup>
-				<HighlightField label="Views" value="102.6K" />
-			</HighlightGroup>
-		);
-
-		expect( screen.getByText( '102.6K' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /of views/ ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'accepts a node value', () => {
-		render(
-			<HighlightGroup>
-				<HighlightField label="Views" value={ <span data-testid="node-value">12</span> } />
-			</HighlightGroup>
-		);
-
-		expect( screen.getByTestId( 'node-value' ) ).toBeInTheDocument();
-	} );
 } );

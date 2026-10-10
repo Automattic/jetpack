@@ -14,6 +14,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -246,5 +247,8 @@ class Jetpack_Comment_Likes {
 		return $content . $like_button;
 	}
 }
+
+// Comment likes follow the per-post Likes switch, so the block editor needs it without the Likes module.
+Post_Likes_Switch::init();
 
 Jetpack_Comment_Likes::init();

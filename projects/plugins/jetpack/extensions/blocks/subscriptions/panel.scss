@@ -1,3 +1,5 @@
+@use "@automattic/color-studio/dist/color-variables" as studio;
+
 .jetpack-subscribe-pre-publish-panel,
 .jetpack-subscribe-post-publish-panel {
 
@@ -27,7 +29,7 @@
 			margin-top: 0;
 
 			&.is-info {
-				border-inline-start-color: #fff;
+				border-inline-start-color: studio.$studio-white;
 
 				a {
 					text-decoration: underline;
@@ -52,7 +54,7 @@
 
 	// Jetpack green, kept faint so body copy stays readable.
 	15% {
-		background-color: rgba(6, 158, 8, 0.12);
+		background-color: rgba(studio.$studio-jetpack-green-40, 0.12);
 	}
 }
 
@@ -82,6 +84,101 @@
 .jetpack-newsletter-settings-sidebar {
 
 	.jetpack-subscribe-email-document-setting {
-		margin-bottom: 1em;
+		margin-block-end: 1em;
 	}
+}
+
+.jetpack-newsletter-settings-sidebar__email-buttons .components-button {
+	justify-content: center;
+	width: 100%;
+}
+
+/*
+ * Newsletter categories panel
+ */
+.jetpack-newsletter-categories-panel__setup-button {
+	justify-content: center;
+	width: 100%;
+}
+
+.jetpack-newsletter-categories-panel__fieldset {
+	margin-block: 16px;
+}
+
+.jetpack-newsletter-categories-panel__legend {
+	margin-block-end: 12px;
+	padding: 0;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+.jetpack-newsletter-categories-panel__list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&.is-scrollable {
+		max-height: 240px;
+		margin-block-start: 12px;
+		overflow-y: auto;
+	}
+}
+
+.jetpack-newsletter-settings-sidebar__email-buttons .components-button {
+	justify-content: center;
+	width: 100%;
+}
+
+/**
+ * Newsletter overview panel
+ */
+.jetpack-newsletter-overview__title-audience {
+	margin-inline-start: 4px;
+	font-weight: 400;
+}
+
+.jetpack-newsletter-overview {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	p {
+		margin: 0;
+	}
+}
+
+.jetpack-newsletter-overview__main {
+	font-size: 14px;
+}
+
+.jetpack-newsletter-overview__details {
+	color: studio.$studio-gray-40;
+	font-size: 12px;
+}
+
+.jetpack-newsletter-overview__categories {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		margin: 0;
+		padding: 2px 8px;
+		border: 1px solid studio.$studio-gray-5;
+		border-radius: 4px;
+		font-size: 12px;
+	}
+}
+
+.jetpack-newsletter-overview__full-width.components-button {
+	justify-content: center;
+	width: 100%;
+}
+
+.jetpack-newsletter-overview__settings-link.components-button {
+	align-self: flex-start;
 }

@@ -38,7 +38,7 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
-src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
+src/dashboard-sections.php              # section API: registry helpers, section script data, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
@@ -91,7 +91,8 @@ Add widget types from another plugin: hook `jetpack_premium_analytics_register_w
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
 that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
 registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
-action once; `src/widget-types.php` registers the package's own build manifest the same way.
+action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
+that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
 `docs/dashboard-widgets.md` walks through the path.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
@@ -103,6 +104,15 @@ call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEac
 a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
 driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
 See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
+
+### Test runs that cost more than one pass
+
+- `test-tz` reruns the suites listed in `tests/jest.tz.config.cjs` in two more timezones. List a
+  suite there only if one of its tests fails outside UTC when the machine zone leaks in (e.g.
+  `Date.UTC` → `new Date`) and no test fails under UTC. Prove it with a mutant before adding one.
+- CI runs suites grouped (`tests/groups/README.md`). Removing or merging a member means updating
+  its group import. A path argument runs ungrouped. To keep CI's grouping, match the group file:
+  `pnpm run test --testPathPatterns=<group file>` (no `--`, which turns the flag into a filter).
 
 ## API
 
@@ -151,7 +161,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `invalidates` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -168,16 +178,13 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
-customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
-override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
-overrides that per section — `__return_true` gives a development or test site the whole dashboard.
-The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
-`docs/dashboard-sections.md`.
+Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
+opt-in, the WooCommerce tab also needs the `premium-analytics-store-section` feature flag, off by default; see
+`docs/dashboard-sections.md`. The tab itself registers from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
-`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
-scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+`premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
+tab out of reach: each report declares the tab it belongs to, and `getReportDefinition()` treats one
 behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
 `authors`) rather than declaring a tab.
 
@@ -312,7 +319,7 @@ lazy-loaded by the dashboard at runtime.
 > module paths as provisional rather than a long-term API.
 
 > **Legacy note.** Widgets currently under `packages/widgets-toolkit/src/widgets/*` (e.g.
-> `sales-by-coupon`, `sales-by-utm`) predate this layout and are scheduled to be migrated.
+> `sales-by-coupon`, `sales-by-device`) predate this layout and are scheduled to be migrated.
 > Do not use them as templates for new work — follow the structure and story template below
 > instead.
 
@@ -328,8 +335,8 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, title, description, help, category, presentation)
-├── widget.ts                               # runtime-only definition (icon, attributes, example)
+├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
+├── widget.ts                               # runtime-only definition (attributes, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -339,8 +346,13 @@ Notes:
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
   (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
   `widget.ts` no longer declares it.
+- `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
+  the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
+  name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
+  resolves to nothing, so add it to the map before naming it. A widget with nothing live keeps
+  `widget.ts` for its attribute type and exports `{}`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
-  `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
+  `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
 - Per-widget React/`@wordpress/*` dependencies go in the widget's own `package.json` using
   `link:` for internal packages (e.g.
@@ -622,8 +634,9 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   real `WidgetDashboard` through the shared story helper instead.
 - Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
   `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
-  `widget.ts` default export carries only `icon`, `attributes`, and `example`. Stories read
-  those declarative fields from `widget.json` via `createStoryWidgetType()`.
+  `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
+  `widget.json` reference. Stories read the declarative fields from `widget.json` via
+  `createStoryWidgetType()`, which resolves the icon the way the host does.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
   and imported in `render.tsx`; render-only types may compose that imported shape with host
   fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
@@ -632,6 +645,11 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   typecheck. Use `Record< never, never >` instead.
 - Dropping `attributes` at the `<WidgetRoot>` boundary — this discards host-provided
   `reportParams` and makes date/comparison Storybook controls misleading.
+- Setting the period of the surface a widget sits on by writing the URL (`useReportDateFilters`,
+  `useStagedSearch`) — call `useReportScope().openPeriod` instead. The host owns the period: it
+  commits the range and draws the date control's attention to it. A host that offers none leaves
+  `openPeriod` undefined, so the click must degrade to inert. Opening another dashboard section
+  over a range is `useOpenSectionRange`.
 - Writing `<button>` without an explicit `type` — the HTML default is `type="submit"`, which
   can fire accidental form submissions. Use `type="button"` for non-submit actions.
 - Do not use inline `style={{ … }}` props in production widget render files — all widget
@@ -686,7 +704,13 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 **Loading / error / empty state**
 
-Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
+A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
+component owns the states, the skeleton, the shares and deltas, and the detail-link window
+(`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
+segments and the hook's status; it owns the states, the total, the legend and the deltas
+(the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
+Everything else renders its states through
+`<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
 shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
@@ -725,11 +749,10 @@ area. Notes:
 - `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
   params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
   (WOOA7S-1934). Nothing unmounts, so children keep their own state and keyboard focus.
-- Every other branch _does_ unmount the children, and a drill-down reaches the skeleton by
-  definition (it changes the params). `<WidgetState>` catches the focus that would otherwise fall
-  to `<body>` and parks it on its own root, so the next Tab continues from the widget instead of
-  the top of the page. Widgets need do nothing for this, but drill-down rows must be real
-  focusable controls for it to have anything to catch.
+- Every other branch _does_ unmount the children. `<WidgetState>` catches the focus that would
+  otherwise fall to `<body>` and parks it on its own root, so the next Tab continues from the
+  widget instead of the top of the page. Widgets need do nothing for this, but drill-down rows
+  must be real focusable controls for it to have anything to catch.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
@@ -746,9 +769,9 @@ area. Notes:
 
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
-> migrated to `<WidgetState>` — follow the contract above, not those widgets.
-> `widgets/search-terms/render.tsx` is the reference. (A `ReportWidget` wrapper that removes the
-> remaining per-widget state boilerplate is a planned follow-up.)
+> migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
+> `<Leaderboard>` is that wrapper, and `<Donut>` for a breakdown; the other widget kinds get theirs
+> as follow-ups.
 
 **Comparison data**
 
@@ -836,6 +859,9 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
   leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
   label — at the 370px tile a long name ellipsizes where the compact form left it room.
+- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the combined-period
+  denominator, the deltas and the row builder for you. The notes below are for the few widgets
+  that must drive `LeaderboardChart` themselves.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in

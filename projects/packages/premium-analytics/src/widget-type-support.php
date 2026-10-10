@@ -19,10 +19,10 @@ if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
 }
 
 /**
- * Widget types that only have data on a site running VideoPress.
+ * Widget types that only have data on a site running VideoPress. The Top videos widget is not
+ * listed: the VideoPress package registers it, and decides where.
  */
 const VIDEOPRESS_WIDGET_TYPES = array(
-	'jpa/videopress',
 	'jpa/video-detail-views-performance',
 	'jpa/video-detail-embeds',
 );

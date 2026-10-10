@@ -5,6 +5,7 @@ import { getFixerState, getDetailedFixerAction } from '@automattic/jetpack-scan'
 import FixerStateNotice from './fixer-state-notice.tsx';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 /**
  * ThreatActions component

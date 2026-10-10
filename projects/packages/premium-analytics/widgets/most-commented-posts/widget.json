@@ -1,5 +1,6 @@
 {
 	"name": "jpa/most-commented-posts",
+	"icon": "jpa/comment",
 	"title": "All-time most commented posts",
 	"description": "The posts and pages that receive the most comments.",
 	"help": {

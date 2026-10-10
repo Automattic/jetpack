@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the retired Publicize services from Keyring_Helper::SERVICES, leaving Google Site Verification as the only service connected from the site.

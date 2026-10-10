@@ -22,5 +22,14 @@
 		&--on-light {
 			fill: var(--a8c-charts-color-label, #1e1e1e);
 		}
+
+		// Neither role reaches AA on this slice; see pickLabelTextColor.
+		&--black {
+			fill: #000;
+		}
+
+		&--white {
+			fill: #fff;
+		}
 	}
 }

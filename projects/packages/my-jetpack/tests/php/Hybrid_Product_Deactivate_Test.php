@@ -22,6 +22,8 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_Error;
 
+require_once __DIR__ . '/class-moduleless-hybrid-product.php';
+
 /**
  * Unit tests for Hybrid_Product::deactivate().
  *
@@ -63,20 +65,8 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 		// short-circuited by the missing-Jetpack branch.
 		require_once WP_PLUGIN_DIR . '/jetpack/jetpack.php';
 
-		// Register the modules the Hybrid_Product subclasses care about
-		// as "available" so Modules::get_active() doesn't filter them out.
-		Jetpack_Options::update_option(
-			'available_modules',
-			array(
-				JETPACK__VERSION => array(
-					'videopress' => '1.0',
-					'search'     => '1.0',
-					'protect'    => '1.0',
-					'publicize'  => '1.0',
-					'stats'      => '1.0',
-				),
-			)
-		);
+		// A filter, not the available_modules option, since Modules::get_available() memoizes its first caller.
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
 
 		$user_id = wp_insert_user(
 			array(
@@ -102,6 +92,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * clears WorDBless state.
 	 */
 	public function tearDown(): void {
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
 		if ( null !== $this->pre_deactivate_listener ) {
 			remove_action( 'jetpack_pre_deactivate_module', $this->pre_deactivate_listener );
 			$this->pre_deactivate_listener = null;
@@ -134,6 +125,26 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	/**
+	 * Registers the modules the Hybrid_Product subclasses declare as available.
+	 *
+	 * @param array $modules Available modules: slug => version.
+	 * @return array
+	 */
+	public function add_available_modules( $modules ) {
+		return array_merge(
+			$modules,
+			array(
+				'backup'     => '1.0',
+				'videopress' => '1.0',
+				'search'     => '1.0',
+				'protect'    => '1.0',
+				'publicize'  => '1.0',
+				'stats'      => '1.0',
+			)
+		);
+	}
+
+	/**
 	 * Mark a module as active in the Jetpack active_modules option.
 	 *
 	 * @param string $module Module slug.
@@ -155,6 +166,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 */
 	public static function provide_hybrid_subclasses_with_modules() {
 		return array(
+			'backup'     => array( Backup::class, 'backup' ),
 			'videopress' => array( Videopress::class, 'videopress' ),
 			'search'     => array( Search::class, 'search' ),
 			'protect'    => array( Protect::class, 'protect' ),
@@ -191,7 +203,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 
 	/**
 	 * When the Jetpack module is already inactive, ::deactivate() must
-	 * skip the module branch entirely — the is_active() gate is what
+	 * skip the module branch entirely — the saved-and-active gate is what
 	 * prevents a spurious jetpack_pre_deactivate_module action.
 	 */
 	public function test_deactivate_skips_modules_deactivate_when_module_inactive() {
@@ -206,6 +218,43 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 			$this->pre_deactivate_calls,
 			'Modules::deactivate() must not be called when the module was already inactive.'
 		);
+	}
+
+	public function test_deactivate_succeeds_when_a_saved_module_is_unavailable() {
+		$this->set_module_active( 'backup' );
+		$drop_backup = static function ( $modules ) {
+			unset( $modules['backup'] );
+			return $modules;
+		};
+		add_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
+
+		try {
+			$this->assertFalse( ( new Modules() )->is_active( 'backup' ) );
+			$result = Backup::deactivate();
+		} finally {
+			remove_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+		$this->assertArrayNotHasKey( 'backup', $this->pre_deactivate_calls );
+	}
+
+	public function test_deactivate_succeeds_when_its_standalone_plugin_forces_the_module_on() {
+		$force = static function ( $modules ) {
+			return array_merge( $modules, array( 'videopress' ) );
+		};
+		add_filter( 'jetpack_active_modules', $force );
+
+		try {
+			$this->assertTrue( ( new Modules() )->is_active( 'videopress' ) );
+			$result = Videopress::deactivate();
+		} finally {
+			remove_filter( 'jetpack_active_modules', $force );
+		}
+
+		$this->assertTrue( $result );
+		$this->assertArrayNotHasKey( 'videopress', $this->pre_deactivate_calls );
 	}
 
 	/**
@@ -253,17 +302,11 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	/**
-	 * A Hybrid_Product subclass with an empty $module_name (Backup
-	 * inherits null from Product) must not touch the Modules API and
-	 * must not error.
+	 * A Hybrid_Product subclass with an empty $module_name must not touch
+	 * the Modules API and must not error.
 	 */
 	public function test_deactivate_noop_for_module_name_empty() {
-		$this->assertEmpty(
-			Backup::$module_name,
-			'Precondition: Backup should have an empty $module_name for this test to be meaningful.'
-		);
-
-		$result = Backup::deactivate();
+		$result = Moduleless_Hybrid_Product::deactivate();
 
 		$this->assertTrue( $result );
 		$this->assertSame(

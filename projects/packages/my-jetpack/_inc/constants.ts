@@ -5,6 +5,7 @@ export const MY_JETPACK_PRODUCT_CHECKOUT = 'my-jetpack-product-checkout';
 
 export const MyJetpackRoutes = {
 	Home: '/:section',
+	Features: '/features',
 	Connection: '/connection',
 	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',
@@ -93,7 +94,12 @@ export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'c
  * deactivating them from My Jetpack must force a full page load so that UI is
  * re-rendered with the new state.
  */
-export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-ai', 'jetpack-forms', 'videopress' ];
+export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [
+	'backup',
+	'jetpack-ai',
+	'jetpack-forms',
+	'videopress',
+];
 
 /**
  * Non-paid here means that the module is available for free users,
@@ -144,6 +150,7 @@ export const JETPACK_NON_PAID_MODULES = [
 ] as const;
 
 export const JETPACK_PAID_MODULES = [
+	'backup',
 	'publicize',
 	'search',
 	'stats',

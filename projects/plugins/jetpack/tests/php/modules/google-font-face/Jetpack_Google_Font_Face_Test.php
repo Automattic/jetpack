@@ -7,8 +7,6 @@
 
 use PHPUnit\Framework\Attributes\DataProvider;
 
-require_once JETPACK__PLUGIN_DIR . 'modules/google-fonts/current/class-jetpack-google-font-face.php';
-
 /**
  * Tests for Jetpack_Google_Font_Face.
  */
@@ -27,16 +25,37 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		require_once JETPACK__PLUGIN_DIR . 'modules/google-fonts/current/load-google-fonts.php';
+		add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json' );
+		add_filter( 'wp_theme_json_data_theme', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
+		add_filter( 'wp_theme_json_data_user', 'jetpack_unregister_deprecated_google_fonts_from_theme_json_data' );
+		add_filter(
+			'pre_jetpack_get_google_fonts_data',
+			static function () {
+				return array( 'fontFamilies' => array() );
+			}
+		);
 		$this->google_font_face = new Jetpack_Google_Font_Face();
-		WP_Theme_JSON_Resolver::clean_cached_data();
+		self::clean_theme_json_caches();
 	}
 
 	/**
 	 * Clears theme data between tests.
 	 */
 	public function tear_down() {
-		WP_Theme_JSON_Resolver::clean_cached_data();
+		self::clean_theme_json_caches();
 		parent::tear_down();
+	}
+
+	/**
+	 * Clears the core and Gutenberg theme JSON resolver caches.
+	 */
+	private static function clean_theme_json_caches() {
+		WP_Theme_JSON_Resolver::clean_cached_data();
+		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
+		}
 	}
 
 	/**
@@ -102,7 +121,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Prints the selected theme font, including when its slug aliases its family name.
+	 * Prints the selected catalogue font, including when its slug differs from its family name.
 	 *
 	 * @dataProvider data_global_font_usage
 	 * @param string $theme       Theme to test.
@@ -160,38 +179,47 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 			static function ( $theme_json ) use ( $styles ) {
 				$data           = $theme_json->get_data();
 				$data['styles'] = $styles;
-				$data['settings']['typography']['fontFamilies'] = array(
-					array(
-						'name'       => 'Detection Test Font',
-						'slug'       => 'body',
-						'fontFamily' => '"Detection Test Font", sans-serif',
-						'fontFace'   => array(
-							array(
-								'fontFamily' => 'Detection Test Font',
-								'fontStyle'  => 'normal',
-								'fontWeight' => '100 900',
-								'src'        => 'file:./assets/fonts/detection-test.woff2',
-							),
-						),
-					),
-					array(
-						'name'       => 'Unused Test Font',
-						'slug'       => 'unused',
-						'fontFamily' => 'Unused Test Font',
-						'fontFace'   => array(
-							array(
-								'fontFamily' => 'Unused Test Font',
-								'src'        => 'https://example.org/unused-test.woff2',
-							),
-						),
-					),
-				);
+				$data['settings']['typography']['fontFamilies'] = array();
 				$class = get_class( $theme_json );
 				return new $class( $data, 'theme' );
 			},
 			100
 		);
-		WP_Theme_JSON_Resolver::clean_cached_data();
+		add_filter(
+			'pre_jetpack_get_google_fonts_data',
+			static function () {
+				return array(
+					'fontFamilies' => array(
+						array(
+							'name'       => 'Detection Test Font',
+							'slug'       => 'body',
+							'fontFamily' => '"Detection Test Font", sans-serif',
+							'fontFace'   => array(
+								array(
+									'fontFamily' => 'Detection Test Font',
+									'fontStyle'  => 'normal',
+									'fontWeight' => '100 900',
+									'src'        => 'https://example.org/detection-test.woff2',
+								),
+							),
+						),
+						array(
+							'name'       => 'Unused Test Font',
+							'slug'       => 'unused',
+							'fontFamily' => 'Unused Test Font',
+							'fontFace'   => array(
+								array(
+									'fontFamily' => 'Unused Test Font',
+									'src'        => 'https://example.org/unused-test.woff2',
+								),
+							),
+						),
+					),
+				);
+			},
+			100
+		);
+		self::clean_theme_json_caches();
 	}
 
 	/**
@@ -210,12 +238,12 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Asserts that the bundled font is emitted and unused fonts remain excluded.
+	 * Asserts that only the selected catalogue font is emitted.
 	 */
 	private function assert_selected_font_output() {
 		$output = $this->get_font_output();
 		$this->assertStringContainsString( '@font-face', $output );
-		$this->assertStringContainsString( get_theme_file_uri( 'assets/fonts/detection-test.woff2' ), $output );
+		$this->assertStringContainsString( 'https://example.org/detection-test.woff2', $output );
 		$this->assertStringNotContainsString( 'unused-test.woff2', $output );
 	}
 }

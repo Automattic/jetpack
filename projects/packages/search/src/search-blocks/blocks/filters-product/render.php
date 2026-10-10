@@ -13,6 +13,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 <div <?php echo wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'jetpack-search-filters-product' ) ) ); ?>>
