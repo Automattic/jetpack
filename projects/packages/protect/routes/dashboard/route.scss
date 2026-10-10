@@ -49,6 +49,15 @@ body.toplevel_page_jetpack-protect {
 		margin: 0;
 	}
 
+	// Intro text above a card's first row, at the card's padding.
+	&__intro {
+		padding-block-end: 16px;
+
+		p {
+			margin: 0;
+		}
+	}
+
 	// A compact button's height, so headers without one match.
 	&__header-end {
 		min-block-size: var(--wpds-dimension-size-md);
