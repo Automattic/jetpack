@@ -1,4 +1,4 @@
-import { search } from '@wordpress/icons';
+import { postAuthor } from '@wordpress/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart } from '../../chart-bar';
 import { WidgetState } from '../widget-state';
@@ -137,29 +137,28 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows. Renders no icon by default — a widget opts in via
- * `empty.icon` with its own neutral glyph, distinct from the error state.
+ * Resolved with no rows for the selected period, with no `empty` passed: the
+ * generic magnifier glyph and "We couldn’t find results for this time period."
  */
 export const Empty: Story = {
 	args: {
 		isLoading: false,
 		isError: false,
 		isEmpty: true,
-		empty: { description: 'No traffic recorded for this period.' },
 		children: <MockChart />,
 	},
 };
 
 /**
- * Empty state with an opt-in icon at a regular tile height (above the 140px
- * short-tile breakpoint): the glyph renders above the text.
+ * A widget's own empty state, for a case the generic copy does not describe
+ * (here a scope prompt). It renders the icon it names, or none.
  */
-export const EmptyWithIcon: Story = {
+export const EmptyCustom: Story = {
 	args: {
 		isLoading: false,
 		isError: false,
 		isEmpty: true,
-		empty: { icon: search, description: 'No traffic recorded for this period.' },
+		empty: { icon: postAuthor, description: 'Open an author to see their top posts here.' },
 		children: <MockChart />,
 	},
 };
@@ -185,16 +184,15 @@ export const ErrorShortTile: Story = {
 };
 
 /**
- * Empty (with an opt-in icon) on a short tile: same degradation as the error
+ * The generic empty state on a short tile: same degradation as the error
  * state — the glyph hides and the text stays vertically centered.
  */
-export const EmptyShortTileWithIcon: Story = {
+export const EmptyShortTile: Story = {
 	parameters: { widgetCardHeight: '180px' },
 	args: {
 		isLoading: false,
 		isError: false,
 		isEmpty: true,
-		empty: { icon: search, description: 'No traffic recorded for this period.' },
 		children: <MockChart />,
 	},
 };

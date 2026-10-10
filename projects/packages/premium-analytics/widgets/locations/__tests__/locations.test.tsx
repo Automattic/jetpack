@@ -1,8 +1,13 @@
 /**
  * External dependencies
  */
-import { LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { queryClient } from '@jetpack-premium-analytics/data';
+import {
+	LeaderboardChart,
+	LocationsGeoChart,
+	locationsCsvExporter,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -42,10 +47,16 @@ jest.mock( '@wordpress/route', () => ( {
 
 // The map loads Google Charts asynchronously, and what it draws is covered by
 // its own tests; here only the props the widget hands it matter.
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
-} ) );
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+	return {
+		...actual,
+		LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
+		locationsCsvExporter: jest.fn( actual.locationsCsvExporter ),
+		// Spied, because CSS modules resolve to nothing here and its `loading` dimming is a class.
+		LeaderboardChart: jest.fn( actual.LeaderboardChart ),
+	};
+} );
 
 // Typed off the hook so the mocked state and the rows passed to
 // `mockReturnValue` are type-checked rather than cast away.
@@ -63,10 +74,17 @@ const LOADING_STATE: LocationViewsState = {
 
 const mockUseLocationViews = jest.fn( () => LOADING_STATE );
 const locationsGeoChartMock = jest.mocked( LocationsGeoChart );
+const locationsCsvExporterMock = jest.mocked( locationsCsvExporter );
 
 /** Read the props of the map's latest render. */
 function lastMapProps() {
 	return locationsGeoChartMock.mock.calls[ locationsGeoChartMock.mock.calls.length - 1 ][ 0 ];
+}
+
+/** Read the props of the leaderboard's latest render. */
+function lastLeaderboardProps() {
+	const { calls } = jest.mocked( LeaderboardChart ).mock;
+	return calls[ calls.length - 1 ][ 0 ];
 }
 
 jest.mock( '../use-location-views', () => ( {
@@ -80,13 +98,58 @@ describe( 'LocationsWidget', () => {
 		mockUseLocationViews.mockReturnValue( LOADING_STATE );
 	} );
 
-	it( 'links to the Locations report', () => {
-		render( <LocationsWidget attributes={ {} } /> );
+	// The map waits for the country, so the lookup has to be under way before the
+	// rows arrive or it delays the map.
+	it( "starts the viewer's country lookup while the rows are still loading", () => {
+		queryClient.clear();
+		// jsdom has no `fetch`, so there is nothing for `jest.spyOn()` to wrap.
+		// eslint-disable-next-line jest/prefer-spy-on
+		globalThis.fetch = jest.fn( () => new Promise< Response >( () => {} ) );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/locations' )
-		);
+		try {
+			render( <LocationsWidget attributes={ {} } /> );
+
+			expect( globalThis.fetch ).toHaveBeenCalledWith(
+				'https://public-api.wordpress.com/geo/',
+				expect.anything()
+			);
+			expect( locationsGeoChartMock ).not.toHaveBeenCalled();
+		} finally {
+			delete ( globalThis as { fetch?: unknown } ).fetch;
+		}
+	} );
+
+	it( 'offers no download while the rows on screen are still loading', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+			],
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers no download when the period has no rows', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			isLoading: false,
+			isFetching: false,
+		} );
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -99,23 +162,26 @@ describe( 'LocationsWidget', () => {
 			<LocationsWidget attributes={ geoGranularity === 'default' ? {} : { geoGranularity } } />
 		);
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( `section=${ section }` )
-		);
+		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' );
+		expect( href ).toContain( '/reports/locations' );
+		expect( href ).toContain( `section=${ section }` );
 	} );
 
-	// Regions mode is worldwide; only the country drill-down scopes it.
-	it( 'requests unfiltered region rows in Regions mode', () => {
-		render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+	it.each( [ 'toString', 'cities' ] )(
+		'falls back to Countries for the stored granularity %s',
+		geoGranularity => {
+			render( <LocationsWidget attributes={ { geoGranularity } as never } /> );
 
-		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { geoMode: 'region', countryFilter: undefined } )
-		);
-	} );
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { geoMode: 'country' } )
+			);
+			expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'section=countries' )
+			);
+		}
+	);
 
-	// Without the reset, the drill-down survives the trip through Regions and
-	// Countries mode comes back scoped to one country instead of listing them all.
 	it( 'drops a drilled-down country when switching to Regions', async () => {
 		mockUseLocationViews.mockReturnValue( {
 			...LOADING_STATE,
@@ -140,7 +206,7 @@ describe( 'LocationsWidget', () => {
 		);
 
 		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { geoMode: 'region', countryFilter: 'US' } )
+			expect.objectContaining( { geoMode: 'region', filter: { country: 'US' } } )
 		);
 		expect( lastMapProps() ).toMatchObject( {
 			mode: 'region',
@@ -153,7 +219,7 @@ describe( 'LocationsWidget', () => {
 		rerender( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
 
 		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { geoMode: 'region', countryFilter: undefined } )
+			expect.objectContaining( { geoMode: 'region', filter: undefined } )
 		);
 		// Regions mode keeps the map alongside the leaderboard, worldwide again.
 		expect( screen.getByTestId( 'geo-chart' ) ).toBeInTheDocument();
@@ -162,7 +228,217 @@ describe( 'LocationsWidget', () => {
 		rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
 
 		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
+			expect.objectContaining( { geoMode: 'country', filter: undefined } )
 		);
+	} );
+
+	it( 'lists an unknown country without mapping or drilling down', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+				{
+					key: ':Unknown',
+					label: 'Unknown',
+					countryCode: '',
+					countryFull: 'Unknown',
+					value: 4,
+					region: '',
+				},
+			],
+			isLoading: false,
+			isFetching: false,
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ {} } /> );
+
+		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'View regions in United States' } )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'View regions in Unknown' } )
+		).not.toBeInTheDocument();
+		expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'US' } ) ] );
+	} );
+
+	describe( 'region drill-down', () => {
+		const ROWS_BY_MODE: Record< string, LocationViewsState[ 'data' ] > = {
+			country: [ locationRow( 'United States' ) ],
+			region: [ locationRow( 'Minnesota' ) ],
+			city: [ locationRow( 'Saint Cloud' ) ],
+		};
+
+		function locationRow( label: string ): LocationViewsState[ 'data' ][ number ] {
+			return {
+				key: `US:${ label }`,
+				label,
+				countryCode: 'US',
+				countryFull: 'United States',
+				value: 10,
+				region: '',
+			};
+		}
+
+		beforeEach( () => {
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
+				...LOADING_STATE,
+				data: ROWS_BY_MODE[ geoMode ],
+				isLoading: false,
+				isFetching: false,
+				hasData: true,
+			} ) ) as unknown as () => LocationViewsState );
+		} );
+
+		it( 'drills from a country to a region to its cities, and back one level at a time', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'city',
+					filter: { country: 'US', region: 'Minnesota' },
+				} )
+			);
+			expect( lastMapProps() ).toMatchObject( {
+				mode: 'city',
+				focusCountry: { code: 'US', name: 'United States' },
+			} );
+			expect( screen.queryByRole( 'button', { name: /View cities in/ } ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Minnesota' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Minnesota/ } ) ).not.toBeInTheDocument();
+
+			const countryBackLink = screen.getByRole( 'button', {
+				name: 'View regions in United States',
+			} );
+			expect( countryBackLink ).toHaveTextContent( 'United States' );
+			await userEvent.click( countryBackLink );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'region',
+					filter: { country: 'US', region: undefined },
+				} )
+			);
+			expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /United States/ } ) ).not.toBeInTheDocument();
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { geoMode: 'country', filter: undefined } )
+			);
+		} );
+
+		it( 'drills from Regions mode straight to a region’s cities, and back to all regions', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'city',
+					filter: { country: 'US', region: 'Minnesota' },
+				} )
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'region',
+					filter: undefined,
+				} )
+			);
+		} );
+
+		it( 'scopes the download to the place the widget is drilled into', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'regions', {
+				country: 'US',
+				region: undefined,
+			} );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'cities', {
+				country: 'US',
+				region: 'Minnesota',
+			} );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
+		} );
+
+		it( 'keeps the previous level dimmed and inert while the next loads, and moves the map on', async () => {
+			// `placeholderData` hands back the previous level's rows until the new ones arrive.
+			let isPending = false;
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
+				...LOADING_STATE,
+				data: ROWS_BY_MODE[ isPending ? 'country' : geoMode ],
+				isLoading: isPending,
+				isFetching: isPending,
+				hasData: true,
+			} ) ) as unknown as () => LocationViewsState );
+			const { rerender } = render(
+				<LocationsWidget attributes={ { geoGranularity: 'country' } } />
+			);
+
+			isPending = true;
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+
+			expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
+			const staleList = screen.getByTestId( 'leaderboard-chart-container' );
+			expect( staleList ).toHaveTextContent( 'United States' );
+			// eslint-disable-next-line testing-library/no-node-access -- jsdom does not honour `inert`, so the attribute itself is the assertion.
+			expect( staleList.closest( '[inert]' ) ).not.toBeNull();
+			expect( lastLeaderboardProps().loading ).toBe( true );
+			expect( within( staleList ).queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( lastMapProps() ).toMatchObject( {
+				mode: 'region',
+				focusCountry: { code: 'US', name: 'United States' },
+				rows: [],
+			} );
+
+			isPending = false;
+			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			const freshRow = screen.getByRole( 'button', { name: 'View cities in Minnesota' } );
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			expect( freshRow.closest( '[inert]' ) ).toBeNull();
+			expect( lastLeaderboardProps().loading ).toBe( false );
+			expect( lastMapProps().rows ).toEqual( [
+				expect.objectContaining( { label: 'Minnesota' } ),
+			] );
+		} );
+
+		it( 'offers no drill-down in Cities mode', () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'city' } } /> );
+
+			expect( screen.queryByRole( 'button', { name: /^View / } ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

@@ -48,6 +48,7 @@ trait Section_Environment {
 		remove_filter( 'stylesheet', array( $this, 'pin_stylesheet' ) );
 		remove_filter( 'template', array( $this, 'pin_stylesheet' ) );
 		$this->given_connection( false );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		wp_clean_themes_cache();
 
@@ -124,6 +125,14 @@ trait Section_Environment {
 		}
 
 		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Put the site in offline mode, which leaves any connection's tokens in place.
+	 */
+	protected function given_offline_mode(): void {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
 	}
 
 	/**

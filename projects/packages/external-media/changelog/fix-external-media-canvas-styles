@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Load the editor stylesheet in the block editor canvas so the media button in block placeholders keeps its layout.

@@ -9,6 +9,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
+import { ExternalLink } from '../external-link';
 import styles from './subscriber-list.module.scss';
 import { useFittedRosterRows } from './use-fitted-roster-rows';
 
@@ -33,6 +34,11 @@ export type SubscriberListItem = {
 	 */
 	href?: string | null;
 	/**
+	 * Open `href` in a new tab. Pass false for links that stay in wp-admin.
+	 * @default true
+	 */
+	openInNewTab?: boolean;
+	/**
 	 * Right-aligned secondary text, e.g. a relative "since" time.
 	 */
 	secondaryText?: string;
@@ -41,8 +47,8 @@ export type SubscriberListItem = {
 export type SubscriberListProps = {
 	items?: SubscriberListItem[];
 	emptyStateText?: string;
-	/** Rows beyond `items`, counted into the "N more" footer. */
-	moreCount?: number;
+	/** Rows beyond `items`; null when unknown, so the "N more" footer counts only hidden rows. */
+	moreCount?: number | null;
 	/**
 	 * Show only the whole rows that fit the available height, rather than letting the
 	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
@@ -70,14 +76,15 @@ export function SubscriberList( {
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, moreCount > 0 );
+	const knownMoreCount = moreCount ?? 0;
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, knownMoreCount > 0 );
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
 	// Include fetched rows hidden by the fitting logic.
-	const hiddenCount = moreCount + ( items.length - fittedCount );
+	const hiddenCount = knownMoreCount + ( items.length - fittedCount );
 
 	return (
 		<Stack
@@ -113,18 +120,21 @@ export function SubscriberList( {
 									aria-hidden="true"
 									className={ styles.avatar }
 								/>
-								{ href ? (
+								{ ! href && <Text className={ styles.name }>{ item.name }</Text> }
+								{ href && ( item.openInNewTab ?? true ) && (
+									<ExternalLink className={ styles.name } href={ href } title={ item.name }>
+										{ item.name }
+									</ExternalLink>
+								) }
+								{ href && item.openInNewTab === false && (
 									<Link
 										className={ styles.name }
 										href={ href }
 										variant="unstyled"
-										openInNewTab
 										title={ item.name }
 									>
 										{ item.name }
 									</Link>
-								) : (
-									<Text className={ styles.name }>{ item.name }</Text>
 								) }
 							</Stack>
 							{ item.secondaryText && (

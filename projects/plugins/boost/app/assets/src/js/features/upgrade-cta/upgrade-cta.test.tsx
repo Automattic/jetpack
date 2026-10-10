@@ -1,7 +1,6 @@
 /* eslint-disable jest-dom/prefer-in-document -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { cloneElement as mockCloneElement } from 'react';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import InterstitialModalCTA from './interstitial-modal-cta';
 
@@ -14,7 +13,6 @@ jest.mock(
 	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
 	() => ''
 );
-jest.mock( './license-key-link', () => () => null );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 jest.mock( '$lib/stores/pricing', () => ( {
 	usePricing: () => ( { priceAfter: 120, currencyCode: 'USD' } ),
@@ -28,19 +26,13 @@ beforeEach( () => {
 } );
 
 test.each( [ 'critical-css', 'image-cdn', 'cornerstone-10-pages' ] )(
-	'%s notice opens the Boost interstitial with unchanged tracking and no price',
+	'%s legacy notice opens the Boost interstitial with unchanged tracking',
 	identifier => {
-		render(
-			<ModuleSurfaceProvider value="row">
-				<InterstitialModalCTA identifier={ identifier } description="Upgrade description." />
-			</ModuleSurfaceProvider>
-		);
-		expect(
-			screen.getByText( 'Upgrade description.', { selector: 'span' } ).parentElement?.className
-		).toContain( 'is-info' );
-		expect( screen.queryByText( /per month|\$10/ ) ).toBeNull();
+		render( <InterstitialModalCTA identifier={ identifier } description="Upgrade description." /> );
 		// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Upgrade now' } ) );
+		fireEvent.click(
+			screen.getByRole( 'button', { name: /Upgrade now only \$10\.00 per month/ } )
+		);
 		expect( mockOpenModal ).toHaveBeenCalledWith( 'boost' );
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'upsell_cta_from_settings_page_in_plugin', {
 			identifier,
@@ -55,12 +47,10 @@ test( 'keeps the legacy monthly price', () => {
 	).toBeTruthy();
 } );
 
-test( 'hides the modern upsell on offline sites', () => {
+test( 'hides the legacy upsell on offline sites', () => {
 	Jetpack_Boost.site.online = false;
-	render(
-		<ModuleSurfaceProvider value="row">
-			<InterstitialModalCTA identifier="critical-css" description="Upgrade description." />
-		</ModuleSurfaceProvider>
-	);
-	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).toBeNull();
+	render( <InterstitialModalCTA identifier="critical-css" description="Upgrade description." /> );
+	expect(
+		screen.queryByRole( 'button', { name: /Upgrade now only \$10\.00 per month/ } )
+	).toBeNull();
 } );

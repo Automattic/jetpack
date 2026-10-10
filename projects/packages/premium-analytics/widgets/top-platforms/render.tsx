@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { device } from '@jetpack-premium-analytics/icons';
 /**
  * WordPress dependencies
  */
@@ -99,10 +98,6 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: device,
-					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart

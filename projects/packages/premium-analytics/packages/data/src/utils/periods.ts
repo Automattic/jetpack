@@ -66,7 +66,7 @@ export function defaultPeriodForInterval< P extends StatsPeriod >(
  * finer than the range allows: an hours-only chart on a month-long range would
  * list `hour`. Returning empty instead would make `chartInterval` partial.
  *
- * @param intervals - The buckets the range allows, finest first.
+ * @param intervals - The buckets the range allows, default first.
  * @param allowed   - The periods this widget offers, in any order.
  * @return The buckets to list, in the order given.
  */
@@ -105,5 +105,7 @@ export function chartInterval< P extends StatsPeriod >(
 		periods
 	);
 
-	return defaultPeriodForInterval( params.interval, [ first, ...rest ] );
+	// No stored bucket means the range default, which leads the list without
+	// being its finest: a year-long range defaults to months over weeks.
+	return defaultPeriodForInterval( params.interval ?? first, [ first, ...rest ] );
 }

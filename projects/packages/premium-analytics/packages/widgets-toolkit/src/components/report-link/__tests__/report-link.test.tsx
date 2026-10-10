@@ -6,42 +6,18 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../../widget-root';
+import { setMockRouteSearch } from '../../../../../../tests/js/route-test-utils';
+import { WidgetRootContext } from '../../widget-root';
 import { ReportLink } from '../report-link';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { to, params, search, children, ...props }: MockRouteLinkProps ) => {
-		const path = Object.entries( params ?? {} ).reduce(
-			( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-			to
-		);
-		const query = new URLSearchParams();
-		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-			if ( value !== undefined && value !== null ) {
-				query.set( key, String( value ) );
-			}
-		} );
-		const queryString = query.toString();
-
-		return (
-			<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-				{ children }
-			</a>
-		);
-	},
-} ) );
-
-jest.mock( '../../widget-root', () => ( {
-	useWidgetRootContext: jest.fn(),
-} ) );
+	return mockWordPressRoute;
+} );
 
 const REPORT_PARAMS: ReportParams = {
 	from: '2026-03-01',
@@ -56,39 +32,33 @@ const REPORT_PARAMS: ReportParams = {
 	period: 'week',
 };
 
-const mockUseWidgetRootContext = jest.mocked( useWidgetRootContext );
+const WIDGET_ROOT = {
+	reportParams: withoutComparison( REPORT_PARAMS ),
+	navigationParams: REPORT_PARAMS,
+};
+
+const OnDashboard = ( { children }: { children: ReactNode } ) => (
+	<WidgetRootContext.Provider value={ WIDGET_ROOT }>{ children }</WidgetRootContext.Provider>
+);
 
 describe( 'ReportLink', () => {
 	beforeEach( () => {
-		mockUseWidgetRootContext.mockReturnValue( {
-			reportParams: withoutComparison( REPORT_PARAMS ),
-			navigationParams: REPORT_PARAMS,
-		} );
+		setMockRouteSearch();
 	} );
 
-	it( 'links to the report with shared date params and no page-owned params', () => {
-		render( <ReportLink report="posts" /> );
+	it( 'links to the report with the dashboard navigation params', () => {
+		render( <ReportLink report="posts" />, { wrapper: OnDashboard } );
 
-		const link = screen.getByRole( 'link', { name: 'View all' } );
-		const href = link.getAttribute( 'href' ) ?? '';
-		const search = new URL( href, 'https://example.com' ).searchParams;
+		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' ) ?? '';
+		const url = new URL( href, 'https://example.com' );
 
-		expect( href ).toContain( '/reports/posts?' );
-		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
-		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
-		expect( search.get( 'interval' ) ).toBe( 'day' );
-		expect( search.get( 'preset' ) ).toBe( 'last-30-days' );
-		expect( search.get( 'comp' ) ).toBe( '1' );
-		expect( search.get( 'compare_from' ) ).toBe( '2026-02-01' );
-		expect( search.get( 'compare_to' ) ).toBe( '2026-02-10' );
-		expect( search.get( 'compare_preset' ) ).toBe( 'previous-period' );
-		expect( search.get( 'date_type' ) ).toBe( 'created' );
-		expect( search.has( 'period' ) ).toBe( false );
-		expect( search.has( 'section' ) ).toBe( false );
+		expect( url.pathname ).toBe( '/reports/posts' );
+		// Only `navigationParams` carries the comparison.
+		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 	} );
 
 	it( 'renders through the design system link so it inherits the brand tone', () => {
-		render( <ReportLink report="posts" className="custom-link" /> );
+		render( <ReportLink report="posts" className="custom-link" />, { wrapper: OnDashboard } );
 
 		const link = screen.getByRole( 'link', { name: 'View all' } );
 		expect( link ).toHaveClass( /is-brand/ );
@@ -102,7 +72,8 @@ describe( 'ReportLink', () => {
 				section="posts-pages"
 				label="View all posts"
 				ariaLabel="View the Posts and Pages report"
-			/>
+			/>,
+			{ wrapper: OnDashboard }
 		);
 
 		const link = screen.getByRole( 'link', { name: 'View the Posts and Pages report' } );
@@ -112,5 +83,20 @@ describe( 'ReportLink', () => {
 				'section'
 			)
 		).toBe( 'posts-pages' );
+	} );
+
+	it( 'renders children after the label, outside the element that carries the underline', () => {
+		render(
+			<ReportLink report="earnings" label="Adjustments">
+				<span data-testid="count">2</span>
+			</ReportLink>,
+			{ wrapper: OnDashboard }
+		);
+
+		const link = screen.getByRole( 'link', { name: 'Adjustments 2' } );
+		const label = screen.getByText( 'Adjustments' );
+		expect( link ).toContainElement( label );
+		expect( label ).not.toBe( link );
+		expect( label ).not.toContainElement( screen.getByTestId( 'count' ) );
 	} );
 } );

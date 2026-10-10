@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class JITM {
 
-	const PACKAGE_VERSION = '5.0.6';
+	const PACKAGE_VERSION = '5.1.1';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.
@@ -123,7 +123,7 @@ class JITM {
 	 * A screen that opted out through `jetpack_display_jitms_on_screen` has nothing
 	 * to keep, so it stays silent.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.1.0
 	 *
 	 * @return void
 	 */
@@ -147,7 +147,7 @@ class JITM {
 	 * Matched by class: `prepare_jitms()` hooks the cached instance and
 	 * `get_instance()` builds a fresh one, so comparing objects would miss.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.1.0
 	 *
 	 * @param string $hook Hook name.
 	 * @return array<int, array<int, array{function: callable, accepted_args: int}>>
@@ -334,6 +334,8 @@ class JITM {
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
 				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
+				// Only WordPress.com and the Jetpack plugin serve wpcom/v3/jitm; elsewhere the script uses this package's own route.
+				'has_wpcom_endpoint'     => ( new Host() )->is_wpcom_simple() || class_exists( 'Jetpack' ),
 			)
 		);
 	}

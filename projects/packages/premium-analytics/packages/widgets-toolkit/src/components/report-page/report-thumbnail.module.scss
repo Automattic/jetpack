@@ -1,0 +1,7 @@
+.placeholder {
+	display: grid;
+	place-items: center;
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

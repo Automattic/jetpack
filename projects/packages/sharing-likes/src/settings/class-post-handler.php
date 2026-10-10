@@ -9,8 +9,6 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
-use Automattic\Jetpack\Modules;
-
 /**
  * Processes the screen's form submissions.
  *
@@ -56,10 +54,10 @@ final class Post_Handler {
 
 		switch ( $action ) {
 			case 'activate-likes':
-				$redirect = self::activate_module( 'likes', Likes_Section::NONCE_ACTION );
+				$redirect = self::activate_feature( Placement_Section::FEATURE_LIKES, Likes_Section::NONCE_ACTION );
 				break;
 			case 'activate-sharing':
-				$redirect = self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
+				$redirect = self::activate_feature( Placement_Section::FEATURE_SHARING, Sharing_Section::NONCE_ACTION );
 				break;
 			case 'switch-to-block-likes':
 				$redirect = self::switch_likes_to_block();
@@ -81,66 +79,29 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Stop producing legacy sharing buttons, so the block can take over.
-	 *
-	 * This is a migration, not the section's off switch: it is what the Jetpack
-	 * dashboard's "Switch to the … block" button does, and it leaves the block
-	 * itself untouched. Simple has no module to deactivate, so it removes every
-	 * service instead, which the services list can undo.
+	 * Hand the Sharing buttons over to the block.
 	 *
 	 * @return string URL to send the browser back to.
 	 */
 	private static function switch_sharing_to_block(): string {
 		check_admin_referer( Sharing_Section::NONCE_ACTION );
 
-		if ( Environment::is_simple_site() ) {
-			self::remove_all_sharing_services();
-		} else {
-			( new Modules() )->deactivate( 'sharedaddy' );
-		}
+		Feature_Actions::switch_to_block( Placement_Section::FEATURE_SHARING );
 
 		return self::redirect_url( true );
 	}
 
 	/**
-	 * The Like buttons counterpart of `switch_sharing_to_block()`.
-	 *
-	 * On Simple it turns off Likes and Reblogs for every post, since the legacy
-	 * widget renders for either. Posts that opted in individually keep their
-	 * buttons, and Comment Likes has no block to move to, so it is left alone.
+	 * Hand the Like buttons over to the block.
 	 *
 	 * @return string URL to send the browser back to.
 	 */
 	private static function switch_likes_to_block(): string {
 		check_admin_referer( Likes_Section::NONCE_ACTION );
 
-		if ( Environment::is_simple_site() ) {
-			update_option( 'disabled_likes', 1 );
-			update_option( 'disabled_reblogs', 1 );
-		} else {
-			( new Modules() )->deactivate( 'likes' );
-		}
+		Feature_Actions::switch_to_block( Placement_Section::FEATURE_LIKES );
 
 		return self::redirect_url( true );
-	}
-
-	/**
-	 * Leave sharedaddy no services to render.
-	 */
-	private static function remove_all_sharing_services(): void {
-		// Preferred over writing the option, because wpcom hooks the state change it announces.
-		if ( class_exists( 'Sharing_Service' ) ) {
-			( new \Sharing_Service() )->set_blog_services( array(), array() );
-			return;
-		}
-
-		update_option(
-			'sharing-services',
-			array(
-				'visible' => array(),
-				'hidden'  => array(),
-			)
-		);
 	}
 
 	/**
@@ -154,7 +115,8 @@ final class Post_Handler {
 	private static function save_settings(): string {
 		check_admin_referer( Settings_Form::NONCE_ACTION );
 
-		$sections = Settings_Form::posted_sections();
+		$sections           = Settings_Form::posted_sections();
+		$comment_likes_held = true;
 
 		// Before placement, because the services save rebuilds the global options it lives in.
 		if ( in_array( Settings_Form::SECTION_SHARING, $sections, true ) ) {
@@ -169,8 +131,8 @@ final class Post_Handler {
 			self::save_likes();
 		}
 
-		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::is_simple_site() ) {
-			self::save_comment_likes();
+		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::likes_supported() ) {
+			$comment_likes_held = self::save_comment_likes();
 		}
 
 		// Once, from whichever section rendered `Services_Config::global_options()`; never both.
@@ -178,7 +140,9 @@ final class Post_Handler {
 			self::save_global_options( $sections );
 		}
 
-		return self::redirect_url( true );
+		return $comment_likes_held
+			? self::redirect_url( true )
+			: add_query_arg( Settings_Page::COMMENT_LIKES_UNCHANGED, '1', self::redirect_url( true ) );
 	}
 
 	/**
@@ -204,75 +168,43 @@ final class Post_Handler {
 	 */
 	private static function save_sharing_options(): void {
 		// The section renders only when this class is loaded, but the request can claim it regardless.
-		if ( ! class_exists( 'Sharing_Service' ) ) {
+		if ( ! Sharing_Options::is_available() ) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- verified by the caller; set_global_options() validates each field.
-		$data = $_POST;
-
-		// set_global_options() rebuilds the global array from defaults, so a payload with no `show` would clear placement.
-		if ( ! isset( $data['show'] ) ) {
-			$data['show'] = Placement_Section::selected_post_types();
-		}
-
-		( new \Sharing_Service() )->set_global_options( $data );
+		Sharing_Options::update( $_POST );
 	}
 
 	/**
 	 * Save the Like buttons settings.
 	 */
 	private static function save_likes(): void {
-		if ( 'off' === self::posted_choice( 'wpl_default' ) ) {
-			update_option( 'disabled_likes', 1 );
-		} else {
-			delete_option( 'disabled_likes' );
-		}
+		Likes_Options::set_likes_enabled( 'off' !== self::posted_choice( 'wpl_default' ) );
 
 		if ( Environment::is_simple_site() ) {
-			if ( 'off' === self::posted_choice( 'jetpack_reblogs_enabled' ) ) {
-				update_option( 'disabled_reblogs', 1 );
-			} else {
-				delete_option( 'disabled_reblogs' );
-			}
-
-			self::save_comment_likes();
+			Likes_Options::set_reblogs_enabled( 'off' !== self::posted_choice( 'jetpack_reblogs_enabled' ) );
 		}
 	}
 
 	/**
-	 * Save the Comment Likes checkbox, which WordPress.com Simple alone renders.
+	 * Save the Comment Likes checkbox.
+	 *
+	 * @return bool Whether Comment Likes now match the checkbox.
 	 */
-	private static function save_comment_likes(): void {
+	private static function save_comment_likes(): bool {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
-		update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
+		return Comment_Likes_Section::update( ! empty( $_POST['jetpack_comment_likes_enabled'] ) );
 	}
 
 	/**
 	 * Save where the buttons appear.
 	 */
 	private static function save_placement(): void {
-		$options = get_option( 'sharing-options' );
-		if ( ! is_array( $options ) ) {
-			$options = array();
-		}
-
-		// Sites carry a malformed `global` (see #6121), and writing into it in place
-		// would fatal where the services save, which rebuilds it wholesale, does not.
-		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
-			$options['global'] = array();
-		}
-
-		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
-		$allowed[] = 'index';
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- verified by the caller; the values are checked against an allowlist below.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- verified by the caller; update() checks the values against an allowlist.
 		$posted = isset( $_POST['show'] ) && is_array( $_POST['show'] ) ? wp_unslash( $_POST['show'] ) : array();
-		$posted = array_filter( $posted, 'is_scalar' );
 
-		$options['global']['show'] = array_values( array_intersect( $posted, $allowed ) );
-
-		update_option( 'sharing-options', $options );
+		Placement_Section::update( $posted );
 	}
 
 	/**
@@ -302,20 +234,16 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Turn a module back on, then reload the screen.
+	 * Turn a feature back on, then reload the screen.
 	 *
-	 * Reached only from the OFF variant, where no block route exists and nothing
-	 * else on the site will bring the feature back. Sites that can use the block
-	 * are not offered it, matching the Jetpack dashboard.
-	 *
-	 * @param string $module       Module slug.
+	 * @param string $feature      One of the `Placement_Section::FEATURE_*` constants.
 	 * @param string $nonce_action Nonce action the submitting section uses.
 	 * @return string URL to send the browser back to.
 	 */
-	private static function activate_module( string $module, string $nonce_action ): string {
+	private static function activate_feature( string $feature, string $nonce_action ): string {
 		check_admin_referer( $nonce_action );
 
-		( new Modules() )->activate( $module, false, false );
+		Feature_Actions::activate( $feature );
 
 		return self::redirect_url( false );
 	}

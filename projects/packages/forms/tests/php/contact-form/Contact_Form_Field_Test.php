@@ -378,6 +378,39 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A quote in the wrapper classes stays inside the class attribute.
+	 */
+	public function test_field_wrapper_classes_are_escaped_in_class_attribute() {
+		$classes = "x' data-extra='1";
+		$field   = $this->get_new_field_instance(
+			array(
+				'type'                => 'text',
+				'id'                  => 'wrapper-classes',
+				'fieldwrapperclasses' => $classes,
+			)
+		);
+
+		$html = $field->render();
+
+		// No element gains a data-extra attribute.
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		while ( $processor->next_tag() ) {
+			$this->assertNull( $processor->get_attribute( 'data-extra' ) );
+		}
+
+		// The value is kept, escaped, inside a single class attribute.
+		$processor = new \WP_HTML_Tag_Processor( $html );
+		$found     = false;
+		while ( $processor->next_tag( array( 'tag_name' => 'DIV' ) ) ) {
+			if ( str_contains( (string) $processor->get_attribute( 'class' ), $classes ) ) {
+				$found = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found, 'The wrapper class attribute should contain the escaped value.' );
+	}
+
+	/**
 	 * Hidden fields can drive conditional logic, so the browser store must register them.
 	 */
 	public function test_render_hidden_field_registers_its_value_with_interactivity() {

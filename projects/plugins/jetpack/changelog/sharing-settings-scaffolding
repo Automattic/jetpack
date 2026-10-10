@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Moves the Settings > Sharing screen into the jetpack-sharing-likes package; the user-facing changes ship under sharing-settings-owns-its-screen.
-
-

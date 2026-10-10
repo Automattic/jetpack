@@ -5,6 +5,7 @@ import { useRemoveCompMutation } from '../../data/use-comp-mutation';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
 import { recordTracksEvent } from '../../lib/tracks';
 import type { Subscriber } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	pending: { subscriber: Subscriber; compId: number; planTitle?: string } | null;

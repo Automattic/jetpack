@@ -76,6 +76,40 @@ describe( 'requestSpeedScores', () => {
 		] );
 	} );
 
+	it( 'reports a pending measurement once before polling', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValueOnce( { status: 'pending' } ).mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onPending }
+		);
+		await jest.advanceTimersByTimeAsync( 0 );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+		expect( post ).toHaveBeenCalledTimes( 1 );
+		await jest.advanceTimersByTimeAsync( 5000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not report pending when scores are ready', async () => {
+		post.mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{
+				onPending,
+			}
+		);
+		expect( onPending ).not.toHaveBeenCalled();
+	} );
+
 	it( 'does not request scores when already cancelled', async () => {
 		const controller = new AbortController();
 		controller.abort();
@@ -210,6 +244,11 @@ describe( 'getScoreLetter', () => {
 		expect( getScoreLetter( 45, 50 ) ).toBe( 'D' );
 		expect( getScoreLetter( 26, 30 ) ).toBe( 'E' );
 		expect( getScoreLetter( 0, 0 ) ).toBe( 'F' );
+		expect( getScoreLetter( 25, 25 ) ).toBe( 'F' );
+		expect( getScoreLetter( 35, 35 ) ).toBe( 'E' );
+		expect( getScoreLetter( 50, 50 ) ).toBe( 'D' );
+		expect( getScoreLetter( 90, 90 ) ).toBe( 'B' );
+		expect( getScoreLetter( 91, 91 ) ).toBe( 'A' );
 	} );
 } );
 

@@ -10,7 +10,7 @@ import { API_BASE } from '../utils/api-base';
 import { deleteExistingLink, removeExistingLink } from '../utils/existing-links';
 import { getResourceAttributeUpdates, isBookkeeping, isSameValue } from '../utils/resource-sync';
 import { recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
-import { isNotFound } from '../utils/validation';
+import { getUserFriendlyError, isNotFound } from '../utils/validation';
 
 /**
  * The PayPal payment resource this block points at: reading it back and
@@ -37,6 +37,8 @@ export function usePayPalResource( {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const [ linkDeleted, setLinkDeleted ] = useState( false );
 	const [ paymentChanged, setPaymentChanged ] = useState( false );
+	// PayPal's message for a read that failed for any reason but a deleted payment.
+	const [ readError, setReadError ] = useState( '' );
 	// What PayPal holds, with the site's own embed count - the details view reads it.
 	const [ resource, setResource ] = useState( null );
 
@@ -54,6 +56,7 @@ export function usePayPalResource( {
 		// warning about a payment that is gone has to clear too.
 		setLinkDeleted( false );
 		setPaymentChanged( false );
+		setReadError( '' );
 
 		// Above the early return: the block rendered even when there is no payment to fetch.
 		recordBlockMounted( clientId );
@@ -101,9 +104,14 @@ export function usePayPalResource( {
 				setAttributes( updates );
 			} )
 			// A payment deleted on PayPal is re-created when the post is next saved,
-			// so the merchant is told before that happens.
+			// so the merchant is told before that happens. Any other failure holds the
+			// save back until the read succeeds, so the merchant is told about that too.
 			.catch( err => {
-				if ( cancelled || ! isNotFound( err ) ) {
+				if ( cancelled ) {
+					return;
+				}
+				if ( ! isNotFound( err ) ) {
+					setReadError( getUserFriendlyError( err ) );
 					return;
 				}
 				// A 404 counts as the read, so the save can run and re-create the payment.
@@ -158,6 +166,7 @@ export function usePayPalResource( {
 		resource,
 		isBusy,
 		linkDeleted,
+		readError,
 		paymentChanged,
 		dismissPaymentChanged,
 		handleDeleteButton,

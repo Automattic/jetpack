@@ -15,6 +15,12 @@ import {
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+// PayPal's certification checklist prescribes this sentence for every disconnect confirmation.
+const disconnectWarning = __(
+	'Disconnecting your PayPal account will prevent you from offering PayPal services and products on your website. Do you wish to continue?',
+	'jetpack-paypal-payments'
+);
+
 /**
  * The delete confirmation. PayPal cannot pause or restore a payment link, so
  * the merchant has to acknowledge that before the delete button is enabled.
@@ -82,6 +88,7 @@ export function LogOutDialog( { onConfirm, onCancel } ) {
 			size="medium"
 			className="jetpack-paypal-payment-buttons__log-out-dialog"
 		>
+			<p>{ disconnectWarning }</p>
 			<p>
 				{ __(
 					'You won’t be able to add, edit, or view payment buttons while using WordPress after you log out of PayPal.',
@@ -198,13 +205,14 @@ export default function ConfirmDialogs( {
 					onCancel={ () => setShowDisconnectConfirm( false ) }
 				>
 					<div className="jetpack-paypal-payment-buttons__confirm-body">
-						<p>
-							{ __(
-								'This disconnects PayPal for the whole site, not just this block.',
-								'jetpack-paypal-payments'
-							) }
-						</p>
+						<p>{ disconnectWarning }</p>
 						<ul>
+							<li>
+								{ __(
+									'This disconnects PayPal for the whole site, not just this block.',
+									'jetpack-paypal-payments'
+								) }
+							</li>
 							<li>
 								{ __(
 									'Every payment button on this site will need PayPal reconnected before it can be edited or deleted.',

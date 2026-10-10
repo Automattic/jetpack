@@ -26,6 +26,13 @@ jest.mock( '../../onboarding-modal', () => ( {
 	default: () => null,
 } ) );
 
+// Same reason: the guard reaches react-query via useUpload. Its own behavior
+// is covered by use-upload-unload-guard's tests.
+jest.mock( '../../../hooks/use-upload-unload-guard', () => ( {
+	__esModule: true,
+	useUploadUnloadGuard: jest.fn(),
+} ) );
+
 const mockUseNavigate = useNavigate as jest.Mock;
 const mockConnectionError = ConnectionError as jest.Mock;
 const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunction<

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: The modernized dashboard, behind a feature flag, now keeps focus when a notice or retry goes away and announces status changes once.
+

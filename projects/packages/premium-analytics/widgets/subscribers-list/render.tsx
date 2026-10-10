@@ -30,7 +30,7 @@ import styles from './style.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-/** Base URL for the site's subscriber management pages. */
+/** Base URL for the site's subscriber pages on WordPress.com or Jetpack Cloud. */
 function getSubscribersBaseUrl() {
 	// Only wp-admin supplies the slug; other mounts get no link.
 	const siteSlug = getSiteData()?.suffix;
@@ -46,6 +46,18 @@ function getSubscribersBaseUrl() {
 	return `${ host }/subscribers/${ siteSlug }`;
 }
 
+/** Newsletter Subscribers tab URL with one subscriber's details open. */
+function getSubscriberTabUrl( subscribersUrl: string, subscriptionId: number ) {
+	const url = new URL( subscribersUrl, window.location.href );
+	// The Newsletter page reads its route and search only from `p`.
+	const [ path, query = '' ] = ( url.searchParams.get( 'p' ) ?? '/' ).split( '?' );
+	const routeSearch = new URLSearchParams( query );
+	routeSearch.set( 'subscriber', String( subscriptionId ) );
+	url.searchParams.set( 'p', `${ path }?${ routeSearch }` );
+
+	return url.toString();
+}
+
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
  * renders.
@@ -54,7 +66,21 @@ function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
 ): SubscriberListItem[] {
 	const items = getStatsReportItems( report );
-	const subscribersBaseUrl = getSubscribersBaseUrl();
+	// Null when subscribers are managed off wp-admin or the user cannot open the tab.
+	const subscribersUrl = getScriptData()?.newsletter?.subscribersUrl;
+	const subscribersBaseUrl = subscribersUrl ? null : getSubscribersBaseUrl();
+
+	const getHref = ( subscriptionId?: number ) => {
+		if ( ! subscriptionId ) {
+			return null;
+		}
+
+		if ( subscribersUrl ) {
+			return getSubscriberTabUrl( subscribersUrl, subscriptionId );
+		}
+
+		return subscribersBaseUrl ? `${ subscribersBaseUrl }/${ subscriptionId }` : null;
+	};
 
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two
@@ -64,10 +90,8 @@ function toSubscriberItems(
 		avatarUrl: item.icon,
 		// `link` is unreliable: the subscriber's own site on some payloads, a
 		// user-ID Calypso link that 404s on others.
-		href:
-			subscribersBaseUrl && item.subscription_id
-				? `${ subscribersBaseUrl }/${ item.subscription_id }`
-				: null,
+		href: getHref( item.subscription_id ),
+		openInNewTab: ! subscribersUrl,
 		secondaryText: formatRelativeSince( item.date_subscribed ),
 	} ) );
 }

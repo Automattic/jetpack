@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Card, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import type { SocialNotesConfig } from '../../social-store/types';
+import type { JSX } from 'react';
 
 /**
  * Content creation card — Social Notes toggle + per-feature options.

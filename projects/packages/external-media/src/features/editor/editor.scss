@@ -60,6 +60,12 @@
 	display: initial;
 }
 
+// Let the featured image picker fill the dropdown, not shrink to fit.
+.jetpack-external-media-button-menu__dropdown.is-featured-image > * {
+	flex-grow: 1;
+	min-inline-size: 0;
+}
+
 .block-editor-inserter__media-panel .components-search-control input[type="search"].components-search-control__input[placeholder~="Google"] {
 	display: none;
 

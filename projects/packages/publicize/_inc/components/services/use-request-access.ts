@@ -1,8 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { store } from '../../social-store';
 import { requestExternalAccess } from '../../utils';
 import { SupportedService } from './types';
@@ -40,7 +40,7 @@ export type RequestAccessArgs = {
  * @return - Function to request access
  */
 export function useRequestAccess( { service, onConfirm }: RequestAccessOptions ) {
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const validateInputs = useConnectInputValidation();
 
@@ -51,7 +51,9 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 	return useCallback(
 		// Resolves to true when the connect popup opened, false on any early failure.
 		async ( formData: FormData, options: RequestAccessArgs = {} ): Promise< boolean > => {
-			const reportError = options.onError ?? createErrorNotice;
+			const reportError =
+				options.onError ??
+				( ( message: string ) => createErrorNotice( message, { type: 'snackbar' } ) );
 
 			let connectUrl = service.url;
 

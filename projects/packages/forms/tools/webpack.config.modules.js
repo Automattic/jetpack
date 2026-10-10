@@ -50,9 +50,6 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 					type: 'module',
 				},
 			},
-			experiments: {
-				outputModule: true,
-			},
 			optimization: {
 				...jetpackWebpackConfig.optimization,
 			},

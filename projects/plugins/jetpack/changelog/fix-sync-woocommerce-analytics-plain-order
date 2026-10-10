@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Fix store data failing to sync when WooCommerce Analytics is turned off.

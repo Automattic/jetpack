@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Keyring: Stop passing Settings > Sharing as the return page of a connection request.

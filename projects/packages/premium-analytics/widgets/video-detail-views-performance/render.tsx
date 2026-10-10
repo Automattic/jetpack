@@ -3,6 +3,7 @@
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -81,6 +82,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					dataFormat={ COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

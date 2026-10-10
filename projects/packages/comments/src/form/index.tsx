@@ -1,146 +1,62 @@
-import clsx from 'clsx';
 import { render } from 'preact';
-import { useContext, useEffect, useRef } from 'preact/hooks';
-import { CommentingAs, Identity } from '../identity';
+import { DialogHost, mountDialog } from '../modal/host';
+import { resolveSubmitted } from '../shared/draft';
 import { CommentSignals, createSignals } from '../shared/state';
-import { CommentField } from './comment-field';
-import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
-import { SubmitButton } from './submit-button';
+import { recordEvent } from '../shared/tracks';
+import { CommentForm } from './comment-form';
 import type { FormSettings } from '../shared/types';
 
 import './style.scss';
+// Here, not with the dialog: its shadow root links this page's stylesheet.
+import '../modal/style.scss';
 
-type CommentFormProps = {
-	form: HTMLFormElement;
-};
+// A page cache can pair settings from an older release with this bundle. The
+// mount holds a plain form for that case, for a browser without form-associated
+// custom elements, and for a script that never runs.
+if (
+	JetpackComments.version !== JETPACK_COMMENTS_VERSION ||
+	! ( 'attachInternals' in HTMLElement.prototype )
+) {
+	document
+		.querySelectorAll( '.jetpack-comments' )
+		.forEach( element => element.classList.add( 'is-plain' ) );
+	recordEvent( 'jetpack_comments_plain_form', {
+		reason: JetpackComments.version !== JETPACK_COMMENTS_VERSION ? 'version' : 'browser',
+	} );
+} else {
+	if ( ! customElements.get( 'jetpack-comments-dialog' ) ) {
+		customElements.define( 'jetpack-comments-dialog', DialogHost );
+	}
 
-// Long enough to stop a synchronous write landing on every keystroke, short
-// enough that a reader who navigates away mid-sentence keeps it.
-const DRAFT_DEBOUNCE_MS = 300;
+	document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
+		const form = element.closest( 'form' );
 
-const CommentForm = ( { form }: CommentFormProps ) => {
-	const { formSettings, commentParent, commentValue, isEmptyComment, isSavingComment, isTrayOpen } =
-		useContext( CommentSignals );
-	const isSubmitting = useRef( false );
-
-	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
-	useEffect( () => {
-		if ( ! isEmptyComment.value ) {
-			isTrayOpen.value = true;
-		}
-	}, [ isEmptyComment.value, isTrayOpen ] );
-
-	useEffect( () => {
-		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
-
-		if ( ! parentInput ) {
+		if ( ! form ) {
 			return;
 		}
 
-		const readParent = () => {
-			commentParent.value = Number( parentInput.value ) || 0;
-		};
+		let formSettings: FormSettings;
 
-		readParent();
+		try {
+			// `||`: wp_json_encode() gives false on bad input, which arrives as an empty attribute.
+			formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
+		} catch {
+			return;
+		}
 
-		// #comment_parent is a hidden input, whose `value` IDL attribute writes
-		// straight through to the content attribute, so the assignment core's
-		// comment-reply.js makes is one this sees.
-		const observer = new MutationObserver( readParent );
-		observer.observe( parentInput, { attributes: true, attributeFilter: [ 'value' ] } );
+		// Before the signals read the draft, so a comment that landed is not offered back.
+		resolveSubmitted( formSettings.postId );
 
-		return () => observer.disconnect();
-	}, [ form, commentParent ] );
+		const signals = createSignals( formSettings );
 
-	useEffect( () => {
-		const timer = setTimeout(
-			() => saveDraft( formSettings.postId, commentValue.value ),
-			DRAFT_DEBOUNCE_MS
+		element.replaceChildren();
+		element.classList.add( 'is-mounted' );
+		render(
+			<CommentSignals.Provider value={ signals }>
+				<CommentForm form={ form } />
+			</CommentSignals.Provider>,
+			element
 		);
-
-		return () => clearTimeout( timer );
-	}, [ formSettings, commentValue.value ] );
-
-	useEffect( () => {
-		const onSubmit = () => {
-			if ( isSubmitting.current ) {
-				return;
-			}
-
-			isSubmitting.current = true;
-			isSavingComment.value = true;
-			// Kept, not cleared: the server can still turn this away.
-			saveDraft( formSettings.postId, commentValue.peek() );
-			markSubmitted( formSettings.postId );
-		};
-
-		const onPageShow = ( event: PageTransitionEvent ) => {
-			if ( event.persisted ) {
-				isSubmitting.current = false;
-				isSavingComment.value = false;
-			}
-		};
-
-		// Flush whatever the debounce above is still holding. Safe for bfcache in
-		// a way beforeunload is not.
-		const onPageHide = () => saveDraft( formSettings.postId, commentValue.peek() );
-
-		form.addEventListener( 'submit', onSubmit );
-		window.addEventListener( 'pageshow', onPageShow );
-		window.addEventListener( 'pagehide', onPageHide );
-
-		return () => {
-			form.removeEventListener( 'submit', onSubmit );
-			window.removeEventListener( 'pageshow', onPageShow );
-			window.removeEventListener( 'pagehide', onPageHide );
-		};
-	}, [ form, formSettings, isSavingComment, commentValue ] );
-
-	return (
-		<>
-			<CommentField />
-			{ ! JetpackComments.isLoggedIn && (
-				<div
-					id={ `jetpack-comments-tray-${ formSettings.postId }` }
-					className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
-				>
-					<div>
-						<Identity />
-					</div>
-				</div>
-			) }
-			<div className="jetpack-comments__footer">
-				<CommentingAs />
-				<SubmitButton />
-			</div>
-		</>
-	);
-};
-
-document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
-	const form = element.closest( 'form' );
-
-	if ( ! form ) {
-		return;
-	}
-
-	let formSettings: FormSettings;
-
-	try {
-		// `||` rather than `??`: wp_json_encode() returns false on bad input, which
-		// reaches the attribute as an empty string that JSON.parse() would throw on.
-		formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
-	} catch {
-		return;
-	}
-
-	// Before the signals read the draft, so a comment that landed is not offered back.
-	resolveSubmitted( formSettings.postId );
-
-	render(
-		<CommentSignals.Provider value={ createSignals( formSettings ) }>
-			<CommentForm form={ form } />
-		</CommentSignals.Provider>,
-		element
-	);
-} );
+		mountDialog( form, signals );
+	} );
+}

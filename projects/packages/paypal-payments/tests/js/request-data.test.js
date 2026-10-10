@@ -88,7 +88,6 @@ describe( 'buildRequestData', () => {
 					name: 'Widget',
 					description: 'A fine widget.',
 					product_id: 'SKU-1',
-					image_url: 'https://example.com/widget.png',
 					variants: {
 						dimensions: [
 							{
@@ -155,11 +154,15 @@ describe( 'buildRequestData', () => {
 		expect( item ).not.toHaveProperty( 'variants' );
 	} );
 
-	it( 'leaves the image out when the block has none', () => {
-		const item = buildRequestData( { ...attributes, imageUrl: undefined }, true ).line_items[ 0 ];
-
-		expect( item ).not.toHaveProperty( 'image_url' );
-	} );
+	// The image stays on the site.
+	it.each( [ 'https://example.com/widget.png', 'http://example.com/widget.png', undefined ] )(
+		'leaves the image out when it is %p',
+		imageUrl => {
+			expect(
+				buildRequestData( { ...attributes, imageUrl }, true ).line_items[ 0 ]
+			).not.toHaveProperty( 'image_url' );
+		}
+	);
 
 	// PayPal renders its own label to the buyer, so the merchant's string goes
 	// nowhere - and requiring one threw the whole tax away.

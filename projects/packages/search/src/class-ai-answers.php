@@ -92,29 +92,25 @@ class AI_Answers {
 	}
 
 	/**
-	 * Whether the site-wide AI gates currently allow AI Answers — the reporting
-	 * predicate.
+	 * Whether the site-wide AI checks allow AI Answers, regardless of its saved setting.
 	 *
-	 * The Jetpack plugin enforces the AI master switch and the host's AI opt-out
-	 * through the `jetpack_search_ai_answers_enabled` filter; probing the chain
-	 * with `true` reads that verdict without depending on the plugin. Sites with
-	 * no gate registered (e.g. standalone Search) report on.
+	 * Probe the feature filter for additional restrictions from the Jetpack plugin.
 	 *
 	 * @since 8.0.0
 	 *
 	 * @return bool
 	 */
 	public static function is_master_enabled() {
-		// Where enforcement hasn't rolled out, report ungated so no master-off
-		// UI shows before the switch itself does. Remove at public launch.
+		if ( ! self::should_enforce_master() ) {
+			return false;
+		}
+
+		// Ignore the saved master switch where its controls have not launched.
 		if ( ! self::is_master_rollout_active() ) {
 			return true;
 		}
 
-		// ANDed with the computed predicate so reporting can never be more
-		// permissive than enforcement — e.g. a Simple request where the plugin's
-		// filter never registered, or plugin/package version skew.
-		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true ) && self::should_enforce_master();
+		return (bool) apply_filters( 'jetpack_search_ai_answers_enabled', true );
 	}
 
 	/**
@@ -136,18 +132,20 @@ class AI_Answers {
 	}
 
 	/**
-	 * Whether this package should enforce the master switch — the rollout-scoped
-	 * enforcement predicate behind the block gate.
+	 * Whether the AI filter and the site's master switch allow AI Answers.
 	 *
-	 * Mirrors `Jetpack_AI_Settings::is_master_enabled()` in the Jetpack plugin —
-	 * the source of truth, unreferenceable from standalone installs. Computed
-	 * rather than filtered so no plugin can flip a gate that must hold.
+	 * Mirrors Jetpack_AI_Settings without requiring the Jetpack plugin on standalone Search sites.
 	 *
 	 * @since 8.0.0
 	 *
-	 * @return bool True when Jetpack AI is on, or when the site has no master switch.
+	 * @return bool Whether site-wide AI restrictions allow AI Answers.
 	 */
 	public static function should_enforce_master() {
+		/** This filter is documented in projects/plugins/jetpack/_inc/lib/class-jetpack-ai-settings.php */
+		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+			return false;
+		}
+
 		if ( ! self::is_master_rollout_active() ) {
 			return true;
 		}

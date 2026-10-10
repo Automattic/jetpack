@@ -12,6 +12,7 @@ import {
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -74,8 +75,7 @@ type EmailTimeSeriesReportProps = {
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
- * params are ignored (no period-over-period here) but left in the URL so
- * dashboard state survives the round trip.
+ * params are ignored: there is no period-over-period view here.
  */
 function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -136,7 +136,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			},
 		];
 	}, [ chartReport, field, metric, active.timezone ] );
-	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
 
 	return (
 		<div className={ styles.root }>
@@ -144,7 +143,8 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				isLoading={ active.isLoading }
 				isFetching={ active.isFetching }
 				isError={ active.isError }
-				isEmpty={ ! hasSelection || ! hasPoints }
+				// The timeline zero-fills every bucket of a window without opens or clicks, so that emptiness is judged inside the chart; only a missing email empties the widget.
+				isEmpty={ ! hasSelection }
 				error={ {
 					description: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
@@ -154,12 +154,10 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				} }
 				empty={ {
 					icon: reports,
-					description: hasSelection
-						? __( 'No activity for this email in this period.', 'jetpack-premium-analytics-pkg' )
-						: __(
-								'Open an email report to see its timeline here.',
-								'jetpack-premium-analytics-pkg'
-							),
+					description: __(
+						'Open an email report to see its timeline here.',
+						'jetpack-premium-analytics-pkg'
+					),
 				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.
@@ -169,6 +167,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

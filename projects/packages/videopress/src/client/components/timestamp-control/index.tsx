@@ -309,7 +309,7 @@ export const TimestampControl = ( props: TimestampControlProps ): ReactElement =
 		renderTooltip,
 	} = props;
 
-	const debounceTimer = useRef< ReturnType< typeof setTimeout > >();
+	const debounceTimer = useRef< ReturnType< typeof setTimeout > >( undefined );
 	const [ controledValue, setControledValue ] = useState( value );
 
 	useEffect( () => {

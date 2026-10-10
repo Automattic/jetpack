@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI Launchpad: sync the Site Setup state to WordPress.com, so the sites list reflects a setup that was skipped or completed on the site.

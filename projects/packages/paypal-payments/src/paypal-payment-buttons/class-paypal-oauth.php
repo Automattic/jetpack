@@ -330,6 +330,16 @@ class PayPal_OAuth {
 	}
 
 	/**
+	 * Whether the site can call PayPal: with its own credentials, or through
+	 * WordPress.com for a referred seller.
+	 *
+	 * @return bool
+	 */
+	public static function is_connected() {
+		return self::has_credentials() || PayPal_Partner_Onboarding::is_platform_managed();
+	}
+
+	/**
 	 * Delete stored PayPal credentials and cached token.
 	 *
 	 * @return bool True on success, false on failure.
@@ -547,28 +557,37 @@ class PayPal_OAuth {
 	 * @return true|\WP_Error True if the account has API access, WP_Error on 403.
 	 */
 	public static function validate_api_access() {
-		$token = self::get_access_token();
-		if ( is_wp_error( $token ) ) {
-			return $token;
-		}
+		$probe = '/v1/checkout/payment-resources?page_size=1';
 
-		$url = self::get_base_url() . '/v1/checkout/payment-resources?page_size=1';
+		if ( PayPal_Partner_Onboarding::is_platform_managed() ) {
+			$response = PayPal_Platform_Client::request( 'GET', $probe );
 
-		$response = wp_remote_get(
-			$url,
-			array(
-				'timeout' => 15,
-				'headers' => array(
-					'Authorization' => 'Bearer ' . $token,
-					'Content-Type'  => 'application/json',
-					'Accept'        => 'application/json',
-				),
-			)
-		);
+			// WordPress.com refusing to act for this seller is as final as PayPal's own 403.
+			if ( is_wp_error( $response ) ) {
+				return 403 === (int) ( $response->get_error_data()['status'] ?? 0 ) ? $response : true;
+			}
+		} else {
+			$token = self::get_access_token();
+			if ( is_wp_error( $token ) ) {
+				return $token;
+			}
 
-		// Network-level failures are non-blocking.
-		if ( is_wp_error( $response ) ) {
-			return true;
+			$response = wp_remote_get(
+				self::get_base_url() . $probe,
+				array(
+					'timeout' => 15,
+					'headers' => array(
+						'Authorization' => 'Bearer ' . $token,
+						'Content-Type'  => 'application/json',
+						'Accept'        => 'application/json',
+					),
+				)
+			);
+
+			// Network-level failures are non-blocking.
+			if ( is_wp_error( $response ) ) {
+				return true;
+			}
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
@@ -580,10 +599,15 @@ class PayPal_OAuth {
 
 		// 403 — the app lacks Payment Links & Buttons access.
 		if ( 403 === $status_code ) {
-			$message = __(
-				'Your PayPal app does not have access to Payment Links & Buttons. In the PayPal Developer Dashboard, open your app settings and enable the "Payment Links & Buttons" feature, then try connecting again.',
-				'jetpack-paypal-payments'
-			);
+			$message = PayPal_Partner_Onboarding::is_platform_managed()
+				? __(
+					'PayPal did not grant this site access to Payment Links & Buttons for your account. Please try connecting again and accept every permission PayPal asks for.',
+					'jetpack-paypal-payments'
+				)
+				: __(
+					'Your PayPal app does not have access to Payment Links & Buttons. In the PayPal Developer Dashboard, open your app settings and enable the "Payment Links & Buttons" feature, then try connecting again.',
+					'jetpack-paypal-payments'
+				);
 
 			// PayPal's own diagnosis beats our guess; the debug_id is what their
 			// support and status tooling resolve.
@@ -616,9 +640,9 @@ class PayPal_OAuth {
 	 * @return array {
 	 *     Connection status information.
 	 *
-	 *     @type bool   $connected                   Whether credentials are stored.
+	 *     @type bool   $connected                   Whether the site can call PayPal.
 	 *     @type string $environment                 Current environment ('sandbox' or 'production').
-	 *     @type string $onboarding_method           How the merchant connected, when that is known.
+	 *     @type string $onboarding_method           'partner_referrals' for a referred seller without pasted credentials.
 	 *     @type string $merchant_id                 The merchant's PayPal ID, when that is known.
 	 *     @type string $account_email               The merchant's PayPal email, when that is known.
 	 *     @type bool   $partner_referrals_available Whether this site can start onboarding through WordPress.com.
@@ -626,14 +650,13 @@ class PayPal_OAuth {
 	 */
 	public static function get_connection_status() {
 		$status = array(
-			'connected'   => self::has_credentials(),
+			'connected'   => self::is_connected(),
 			'environment' => self::get_environment(),
 		);
 
 		// Include onboarding method if connected via Partner Referrals.
-		$method = get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, '' );
-		if ( ! empty( $method ) ) {
-			$status['onboarding_method'] = $method;
+		if ( PayPal_Partner_Onboarding::is_platform_managed() ) {
+			$status['onboarding_method'] = PayPal_Partner_Onboarding::ONBOARDING_METHOD;
 		}
 
 		$merchant_id = get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, '' );

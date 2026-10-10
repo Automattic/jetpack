@@ -15,4 +15,8 @@
 
 use Automattic\Jetpack\Newsletter\Reader_Link;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Reader_Link::init();

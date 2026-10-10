@@ -1,4 +1,5 @@
-import { Spinner } from '@wordpress/components';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { useGateState } from '../../hooks/use-gate-state';
 import CapabilitiesErrorScreen from './capabilities-error';
 import NoBackupPlanScreen from './no-backup-plan';
@@ -33,8 +34,11 @@ export default function Gates( { children }: Props ) {
 
 	if ( gate.status === 'loading' ) {
 		return (
-			<div className="jpb-gates__skeleton">
+			<div className="jpb-gates__skeleton" aria-busy="true">
 				<Spinner />
+				<VisuallyHidden>
+					{ __( 'Loading your backup details…', 'jetpack-backup-pkg' ) }
+				</VisuallyHidden>
 			</div>
 		);
 	}

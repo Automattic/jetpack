@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { useFeedbackBanner } from '../../hooks/use-feedback-banner';
 import styles from './feedback-banner.module.scss';
+import type { JSX } from 'react';
 
 type FeedbackBannerProps = {
 	/**

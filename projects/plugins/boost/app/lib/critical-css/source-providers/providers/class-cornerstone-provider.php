@@ -96,7 +96,7 @@ class Cornerstone_Provider extends Provider {
 	 * @inheritdoc
 	 */
 	public static function describe_key( $_key ) {
-		return __( 'Cornerstone page', 'jetpack-boost' );
+		return __( 'Cornerstone Page', 'jetpack-boost' );
 	}
 
 	/**

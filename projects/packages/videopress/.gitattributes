@@ -19,3 +19,4 @@ global.d.ts       production-exclude
 packages/**       production-exclude
 routes/**         production-exclude
 /wordpress-augmentations.d.ts  production-exclude
+widgets/**       production-exclude

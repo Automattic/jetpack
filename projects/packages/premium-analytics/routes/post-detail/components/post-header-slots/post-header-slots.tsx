@@ -116,8 +116,18 @@ export function postHeaderSlots( {
 		};
 	}
 
-	// A failed summary reaches here with no title, and the page still owes the
-	// reader an `h1`.
+	// Matches the video header: a failed summary has no title or window to state.
+	if ( summary.isError ) {
+		return {
+			visual,
+			title:
+				type === 'page'
+					? __( 'Page unavailable', 'jetpack-premium-analytics-pkg' )
+					: __( 'Post unavailable', 'jetpack-premium-analytics-pkg' ),
+		};
+	}
+
+	// A post saved without a title still owes the reader an `h1`.
 	const fallbackTitle =
 		type === 'page'
 			? __( 'Untitled page', 'jetpack-premium-analytics-pkg' )

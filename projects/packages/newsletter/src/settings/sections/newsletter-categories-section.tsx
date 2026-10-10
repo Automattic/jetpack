@@ -25,6 +25,7 @@ import {
 } from './creatable-categories-control';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 import type { CreatableCategoryContextValue } from './creatable-categories-control';
+import type { JSX } from 'react';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;

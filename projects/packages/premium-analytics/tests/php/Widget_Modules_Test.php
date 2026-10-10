@@ -108,4 +108,47 @@ class Widget_Modules_Test extends TestCase {
 		$this->assertSame( 'plugin-domain', $records['plugin/catalog-location']['textdomain'] );
 		$this->assertSame( 'https://example.org/plugin/build/i18n-manifest.json', $records['plugin/catalog-location']['i18n_manifest'] );
 	}
+
+	/**
+	 * Every record says which former names its type answers to, so the client can render a
+	 * layout saved before a rename.
+	 */
+	public function test_records_carry_the_former_names() {
+		register_widget_type(
+			'plugin/renamed',
+			array(
+				'render_module' => 'plugin/widgets/renamed/render',
+				'former_names'  => array( 'plugin/old-name' ),
+			)
+		);
+		register_widget_type( 'plugin/never-renamed', array( 'render_module' => 'plugin/widgets/never-renamed/render' ) );
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertSame( array( 'plugin/old-name' ), $records['plugin/renamed']['former_names'] );
+		$this->assertNull( $records['plugin/never-renamed']['former_names'] );
+		$this->assertArrayNotHasKey( 'plugin/old-name', $records );
+	}
+
+	/**
+	 * The former names reach the client as a list, whatever shape the registrant passed: a keyed array
+	 * would serialize as an object and break the rename map.
+	 */
+	public function test_records_publish_the_former_names_as_a_list() {
+		register_widget_type(
+			'plugin/renamed-twice',
+			array(
+				'render_module' => 'plugin/widgets/renamed-twice/render',
+				'former_names'  => array(
+					5 => 'plugin/old-a',
+					9 => 'plugin/old-a',
+					2 => 'plugin/old-b',
+				),
+			)
+		);
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertSame( array( 'plugin/old-a', 'plugin/old-b' ), $records['plugin/renamed-twice']['former_names'] );
+	}
 }

@@ -594,4 +594,19 @@ class Data_Test extends BaseTestCase {
 
 		delete_option( 'videopress_inline_player_enabled' );
 	}
+
+	/**
+	 * Test that sharing follows each video by default and honors the site-wide override.
+	 */
+	public function test_share_menu_disabled_option() {
+		delete_option( 'videopress_share_menu_disabled' );
+		$this->assertFalse( Data::get_videopress_share_menu_disabled() );
+		$this->assertFalse( Data::get_videopress_settings()['videopress_share_menu_disabled'] );
+
+		update_option( 'videopress_share_menu_disabled', true );
+		$this->assertTrue( Data::get_videopress_share_menu_disabled() );
+		$this->assertTrue( Data::get_videopress_settings()['videopress_share_menu_disabled'] );
+
+		delete_option( 'videopress_share_menu_disabled' );
+	}
 }

@@ -4,6 +4,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { dispatch, select } from '@wordpress/data';
@@ -71,16 +72,15 @@ function payPalBlocks() {
 }
 
 /**
- * Whether the site is connected to PayPal.
+ * The site's PayPal connection.
  *
- * @return {Promise<boolean>} False on any failure: no connection, nothing to sync.
+ * @return {Promise<?Object>} The `/connection` response, or null if the request fails.
  */
 async function isConnected() {
 	try {
-		const status = await apiFetch( { path: `${ API_BASE }/connection` } );
-		return !! status?.connected;
+		return await apiFetch( { path: `${ API_BASE }/connection` } );
 	} catch {
-		return false;
+		return null;
 	}
 }
 
@@ -98,6 +98,8 @@ export function registerSaveSync( isEnabled ) {
 	// The success message, shown after the next post save that succeeds. It stays set through
 	// a failed post save, since PayPal already has the change.
 	let savedMessage = null;
+	// The environment for the button_updated event, set with the update message.
+	let updatedEnvironment = null;
 
 	addFilter(
 		'editor.preSavePost',
@@ -112,7 +114,10 @@ export function registerSaveSync( isEnabled ) {
 			if ( ! blocks.length ) {
 				return edits;
 			}
-			if ( ! ( await isConnected() ) ) {
+
+			const connection = await isConnected();
+
+			if ( ! connection?.connected ) {
 				return edits;
 			}
 
@@ -146,8 +151,10 @@ export function registerSaveSync( isEnabled ) {
 			// it is. The create message replaces a pending update message, and stays until shown.
 			if ( saved.includes( true ) ) {
 				savedMessage = __( 'Payment link successfully created.', 'jetpack-paypal-payments' );
+				updatedEnvironment = null;
 			} else if ( saved.length && ! savedMessage ) {
 				savedMessage = __( 'Payment link changes saved.', 'jetpack-paypal-payments' );
+				updatedEnvironment = connection.environment;
 			}
 
 			if ( ! changed ) {
@@ -174,7 +181,13 @@ export function registerSaveSync( isEnabled ) {
 			}
 
 			toast( 'success', savedMessage, 'jetpack-paypal-saved' );
+			if ( updatedEnvironment ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_button_updated', {
+					environment: updatedEnvironment,
+				} );
+			}
 			savedMessage = null;
+			updatedEnvironment = null;
 		}
 	);
 

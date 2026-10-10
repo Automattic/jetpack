@@ -1,0 +1,11 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"lib": [ "ES2022", "DOM", "DOM.Iterable" ]
+	},
+	// `strictNullChecks` would be useful here, but `app.tsx` imports
+	// @automattic/jetpack-components, whose source is not written for it and
+	// reports ~30 errors under it. Turn it on only once that package can take it.
+	"include": [ "js/**/*" ]
+}

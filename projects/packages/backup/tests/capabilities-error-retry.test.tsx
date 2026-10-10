@@ -32,11 +32,9 @@ import QueryClientProvider from '../src/dashboard/providers/query-client-provide
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const UPSTREAM_REASON = "Could not read this site's plan details.";
-// Matched as a pattern, not an exact string: `Notice` renders a
-// visually-hidden "Error notice" label inside the same content element,
-// so no single node's text equals the message on its own.
-const REASON_SHOWN = /Could not read this site's plan details/;
+// The screen's title marks "the error screen is up".
+const ERROR_SCREEN = /We couldn't load your backup details/;
+const PAGE = 'VaultPress Backup';
 
 /**
  * A promise whose settlement the test controls, so a retry can be held
@@ -79,12 +77,13 @@ function answerWith( outcomes: Array< () => Promise< unknown > > ) {
 const unreadable = () =>
 	Promise.reject( {
 		code: 'capabilities_unreadable',
-		message: UPSTREAM_REASON,
+		message: "Could not read this site's plan details.",
 		data: { status: 500 },
 	} );
 
 /**
- * Render the gate with a body that must never appear in these tests.
+ * Render the gate with a body that must never appear in these tests, inside a stand-in
+ * for the `<Page>` region `DashboardLayout` puts around it.
  *
  * Scoped queries rather than `screen`: the error card is a `Notice`,
  * which announces itself through `@wordpress/a11y`'s speak region — a
@@ -99,9 +98,11 @@ const unreadable = () =>
 function renderGate(): HTMLElement {
 	const { container } = render(
 		<QueryClientProvider>
-			<Gates>
-				<div>dashboard body</div>
-			</Gates>
+			<div role="region" aria-label={ PAGE } tabIndex={ -1 }>
+				<Gates>
+					<div>dashboard body</div>
+				</Gates>
+			</div>
 		</QueryClientProvider>
 	);
 	return container;
@@ -127,12 +128,12 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		answerWith( [ unreadable, () => pending.promise ] );
 
 		const view = within( renderGate() );
-		await expect( view.findByText( REASON_SHOWN ) ).resolves.toBeInTheDocument();
+		await expect( view.findByText( ERROR_SCREEN ) ).resolves.toBeInTheDocument();
 
 		await user.click( view.getByRole( 'button', { name: /Try again/ } ) );
 
 		// The whole point: the page did not blank.
-		expect( view.getByText( REASON_SHOWN ) ).toBeInTheDocument();
+		expect( view.getByText( ERROR_SCREEN ) ).toBeInTheDocument();
 		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
 
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
@@ -147,7 +148,7 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		answerWith( [ unreadable, () => pending.promise ] );
 
 		const view = within( renderGate() );
-		await expect( view.findByText( REASON_SHOWN ) ).resolves.toBeInTheDocument();
+		await expect( view.findByText( ERROR_SCREEN ) ).resolves.toBeInTheDocument();
 
 		const button = view.getByRole( 'button', { name: /Try again/ } );
 		await user.click( button );
@@ -167,7 +168,18 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
 	} );
 
-	it( 'still shows a plain spinner on the very first load', async () => {
+	it( 'hands focus to the page once a retry succeeds', async () => {
+		const user = userEvent.setup();
+		answerWith( [ unreadable, () => Promise.resolve( { hasBackupPlan: true, hasScan: false } ) ] );
+
+		const view = within( renderGate() );
+		await user.click( await view.findByRole( 'button', { name: /Try again/ } ) );
+		await expect( view.findByText( 'dashboard body' ) ).resolves.toBeInTheDocument();
+
+		expect( view.getByRole( 'region', { name: PAGE } ) ).toHaveFocus();
+	} );
+
+	it( 'still shows the loading state on the very first load', async () => {
 		// The loading branch is first-load-only now, so it must still fire
 		// when there is genuinely nothing to show yet.
 		const pending = deferred< unknown >();
@@ -175,7 +187,8 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 
 		const view = within( renderGate() );
 
-		expect( view.queryByText( REASON_SHOWN ) ).not.toBeInTheDocument();
+		expect( view.getByText( 'Loading your backup details…' ) ).toBeInTheDocument();
+		expect( view.queryByText( ERROR_SCREEN ) ).not.toBeInTheDocument();
 		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
 
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );

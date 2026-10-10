@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the submit button inside the comment box in themes that offset it.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Export getUserConnectionUrl from a subpath that bundlers without SCSS support can import.

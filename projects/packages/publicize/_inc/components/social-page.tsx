@@ -12,7 +12,7 @@ import useSocialGate from './social-gate/use-social-gate';
 // consume to paint per-service brand colours.
 import 'social-logos/colors.css';
 import './social-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type SocialTab = 'overview' | 'settings';
 

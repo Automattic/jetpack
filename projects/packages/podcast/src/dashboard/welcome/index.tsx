@@ -15,6 +15,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
 import { Button, LinkButton } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
+import type { JSX } from 'react';
 import './style.scss';
 
 interface WelcomeProps {

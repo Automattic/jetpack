@@ -11,7 +11,7 @@ import CleanCSS from 'clean-css';
  * @return {[ string, string[] ]} - Minified CSS and a list of errors returned.
  */
 export function minifyCss( css: string ): [ string, string[] ] {
-	const result = new CleanCSS().minify( css );
+	const result = new CleanCSS( { inline: [ 'none' ] } ).minify( css );
 
 	if ( ! result.styles ) {
 		return [ css, result.errors ];

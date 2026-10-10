@@ -8,16 +8,30 @@ import { renderHook } from '@testing-library/react';
  */
 import { useCommentFollowersReportRecords } from './use-report-records';
 
-// Only the data hook is faked; the pure helpers keep their real implementations
-// so the flattening behaviour under test is not mocked away.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
 	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const useAllPagesMock = jest.mocked( useStatsCommentFollowersAllPages );
 
 describe( 'useCommentFollowersReportRecords', () => {
+	beforeEach( () => {
+		useAllPagesMock.mockReset();
+	} );
+
 	it( 'separates the All Posts summary from post rows', () => {
 		const refetch = jest.fn();
 		useAllPagesMock.mockReturnValue( {

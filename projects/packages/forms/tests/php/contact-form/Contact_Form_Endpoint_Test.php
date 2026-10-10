@@ -675,6 +675,300 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Inserts a feedback post with the given status for the bulk delete tests.
+	 *
+	 * @param string $status Post status.
+	 * @return int Post ID.
+	 */
+	private function insert_feedback_with_status( $status ) {
+		return wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => $status,
+				'post_title'   => 'Response ' . $status,
+				'post_content' => '{}',
+			)
+		);
+	}
+
+	/**
+	 * Runs a DELETE /feedback/trash request and returns every SQL query it issued.
+	 *
+	 * @param array $params Request params.
+	 * @return array{0: \WP_REST_Response, 1: string[]}
+	 */
+	private function dispatch_trash_and_capture_queries( $params ) {
+		$queries = array();
+		$capture = function ( $results, $query ) use ( &$queries ) {
+			$queries[] = $query;
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
+
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
+
+		$feedback_queries = array_values(
+			array_filter(
+				$queries,
+				function ( $query ) {
+					return strpos( $query, "post_type = 'feedback'" ) !== false;
+				}
+			)
+		);
+
+		return array( $response, $feedback_queries );
+	}
+
+	public function test_delete_feedback_trash_rejects_post_ids_with_no_valid_ids() {
+		$spam_id = $this->insert_feedback_with_status( 'spam' );
+
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'spam' );
+		$request->set_param( 'post_ids', array( 0, -5 ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertNotNull( get_post( $spam_id ), 'Spam must survive a post_ids list with no valid IDs.' );
+	}
+
+	public function test_delete_feedback_trash_post_ids_stay_within_status() {
+		$spam_id  = $this->insert_feedback_with_status( 'spam' );
+		$inbox_id = $this->insert_feedback_with_status( 'publish' );
+
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status'   => 'spam',
+				'post_ids' => array( $spam_id, $inbox_id ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotEmpty( $queries );
+		$this->assertStringContainsString( "post_status = 'spam'", $queries[0] );
+		$this->assertStringContainsString( "ID IN ({$spam_id},{$inbox_id})", $queries[0] );
+		$this->assertNotNull( get_post( $inbox_id ), 'An inbox response must not be deleted through status=spam.' );
+	}
+
+	public function test_delete_feedback_trash_post_ids_ignore_filters() {
+		$spam_id = $this->insert_feedback_with_status( 'spam' );
+
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status'   => 'spam',
+				'post_ids' => array( $spam_id ),
+				'search'   => 'ignoredneedle',
+				'is_test'  => true,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotEmpty( $queries );
+		foreach ( $queries as $query ) {
+			$this->assertStringNotContainsString( 'ignoredneedle', $query );
+			$this->assertStringNotContainsString( Feedback::IS_TEST_META_KEY, $query );
+		}
+	}
+
+	public function test_delete_feedback_trash_applies_filters_to_query() {
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status'    => 'spam',
+				'search'    => 'ohkzmneedle',
+				'parent'    => 7,
+				'after'     => '2026-09-01T00:00:00',
+				'is_unread' => true,
+				'is_test'   => true,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotEmpty( $queries );
+		$this->assertStringContainsString( 'ohkzmneedle', $queries[0] );
+		$this->assertStringContainsString( 'post_parent = 7', $queries[0] );
+		$this->assertStringContainsString( '2026-09-01', $queries[0] );
+		$this->assertStringContainsString( "comment_status = 'open'", $queries[0] );
+		$this->assertStringContainsString( Feedback::IS_TEST_META_KEY, $queries[0] );
+		$this->assertStringContainsString( "meta_value = '1'", $queries[0] );
+	}
+
+	public function test_delete_feedback_trash_form_preview_filter_excludes_real_responses() {
+		list( , $queries ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status'  => 'spam',
+				'is_test' => false,
+			)
+		);
+
+		$this->assertNotEmpty( $queries );
+		$this->assertStringContainsString( Feedback::IS_TEST_META_KEY, $queries[0] );
+		$this->assertStringContainsString( 'IS NULL', $queries[0] );
+	}
+
+	public function test_delete_feedback_trash_limit_caps_the_query_and_reports_has_more() {
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status' => 'spam',
+				'limit'  => 2,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( 'LIMIT 0, 2', $queries[0] );
+		$this->assertArrayHasKey( 'has_more', $response->get_data() );
+		$this->assertIsBool( $response->get_data()['has_more'] );
+	}
+
+	public function test_delete_feedback_trash_without_limit_keeps_full_batches() {
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries( array( 'status' => 'spam' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( 'LIMIT 0, 1000', $queries[0] );
+		$this->assertFalse( $response->get_data()['has_more'] );
+	}
+
+	public function test_delete_feedback_trash_rejects_out_of_range_limit() {
+		foreach ( array( 0, 5001 ) as $limit ) {
+			$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+			$request->set_param( 'status', 'spam' );
+			$request->set_param( 'limit', $limit );
+
+			$this->assertSame( 400, $this->server->dispatch( $request )->get_status(), "limit={$limit}" );
+		}
+	}
+
+	public function test_delete_feedback_trash_limit_deletes_in_chunks_until_nothing_is_left() {
+		$ids = array(
+			$this->insert_feedback_with_status( 'spam' ),
+			$this->insert_feedback_with_status( 'spam' ),
+			$this->insert_feedback_with_status( 'spam' ),
+		);
+
+		// WorDBless runs no SQL, so serve the remaining IDs, honoring the batch size.
+		$inject = function ( $posts, $query ) use ( $ids ) {
+			if ( 'feedback' !== $query->get( 'post_type' ) ) {
+				return $posts;
+			}
+			$remaining = array_values( array_filter( $ids, 'get_post' ) );
+			return array_slice( $remaining, 0, (int) $query->get( 'posts_per_page' ) );
+		};
+		add_filter( 'posts_pre_query', $inject, 10, 2 );
+
+		$chunks = array();
+		for ( $i = 0; $i < 3; $i++ ) {
+			$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+			$request->set_param( 'status', 'spam' );
+			$request->set_param( 'limit', 2 );
+			$chunks[] = $this->server->dispatch( $request )->get_data();
+			if ( ! end( $chunks )['has_more'] ) {
+				break;
+			}
+		}
+
+		remove_filter( 'posts_pre_query', $inject, 10 );
+
+		$this->assertSame(
+			array(
+				array(
+					'deleted'  => 2,
+					'has_more' => true,
+				),
+				array(
+					'deleted'  => 1,
+					'has_more' => false,
+				),
+			),
+			$chunks
+		);
+		$this->assertSame( array(), array_filter( $ids, 'get_post' ) );
+	}
+
+	public function test_delete_feedback_trash_failure_reports_progress_and_removes_source_filter_hooks() {
+		$deletable = $this->insert_feedback_with_status( 'spam' );
+		$blocked   = $this->insert_feedback_with_status( 'spam' );
+
+		// WorDBless runs no SQL, so hand the delete loop its IDs directly.
+		$inject    = function ( $posts, $query ) use ( $deletable, $blocked ) {
+			return 'feedback' === $query->get( 'post_type' ) ? array( $deletable, $blocked ) : $posts;
+		};
+			$block = function ( $check, $post ) use ( $blocked ) {
+				return $post->ID === $blocked ? false : $check;
+			};
+			add_filter( 'posts_pre_query', $inject, 10, 2 );
+			add_filter( 'pre_delete_post', $block, 10, 2 );
+
+			$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+			$request->set_param( 'status', 'spam' );
+			$request->set_param( 'source', 42 );
+			$response = $this->server->dispatch( $request );
+
+			remove_filter( 'posts_pre_query', $inject, 10 );
+			remove_filter( 'pre_delete_post', $block, 10 );
+
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 1, $response->get_data()['deleted'] );
+
+			$found_source_sql = false;
+			$capture          = function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			};
+			add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
+			$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
+			remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
+
+			$this->assertFalse( $found_source_sql, 'Source filter must not leak past a failed delete.' );
+	}
+
+	public function test_delete_feedback_trash_failure_names_the_trash_flow() {
+		$trashed = $this->insert_feedback_with_status( 'trash' );
+		$inject  = function ( $posts, $query ) use ( $trashed ) {
+			return 'feedback' === $query->get( 'post_type' ) ? array( $trashed ) : $posts;
+		};
+		add_filter( 'posts_pre_query', $inject, 10, 2 );
+		add_filter( 'pre_delete_post', '__return_false' );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' ) );
+
+		remove_filter( 'posts_pre_query', $inject, 10 );
+		remove_filter( 'pre_delete_post', '__return_false' );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Failed to empty trash.', $response->get_data()['error'] );
+		$this->assertSame( 0, $response->get_data()['deleted'] );
+	}
+
+	public function test_delete_feedback_trash_removes_source_filter_hooks() {
+		list( $response ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status' => 'spam',
+				'source' => 42,
+			)
+		);
+		$this->assertSame( 200, $response->get_status() );
+
+		$found_source_sql = false;
+		$capture          = function ( $results, $query ) use ( &$found_source_sql ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$found_source_sql = true;
+			}
+			return $results;
+		};
+			add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
+			$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
+			remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
+
+			$this->assertFalse( $found_source_sql, 'Source filter must not leak past the delete request.' );
+	}
+
+	/**
 	 * Test bulk actions with invalid action
 	 */
 	public function test_bulk_actions_invalid_action() {

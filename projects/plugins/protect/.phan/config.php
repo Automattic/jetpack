@@ -4,7 +4,7 @@
  * default configuration. Command-line arguments will be applied
  * after this file is read.
  *
- * @package automattic/jetpack-protect
+ * @package automattic/jetpack-protect-plugin
  */
 
 // Require base config.

@@ -29,8 +29,8 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Drives Product::get_status() across the plan matrix.
  *
- * The status asserted here is the value the REST API ships to the Products page, which
- * the card turns into its primary action. The status-to-action half of that contract is
+ * The status asserted here is the value the REST API ships to each product card, which
+ * turns it into its primary action. The status-to-action half of that contract is
  * covered by _inc/components/action-button/test/plan-matrix.test.tsx, and the two halves
  * are pinned to a shared vocabulary by Status_Vocabulary_Parity_Test.
  *
@@ -94,6 +94,7 @@ class Plan_Matrix_Test extends TestCase {
 	 */
 	private const AVAILABLE_MODULES = array(
 		'ai'           => '1.0',
+		'backup'       => '1.0',
 		'contact-form' => '1.0',
 		'protect'      => '1.0',
 		'publicize'    => '1.0',
@@ -123,16 +124,16 @@ class Plan_Matrix_Test extends TestCase {
 			'direct/off'           => Products::STATUS_INACTIVE,
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
-		// Backup runs from the Jetpack plugin, so its standalone plugin's state never gates it.
+		// Backup runs from the Jetpack plugin behind its module, so its standalone plugin's state never gates it.
 		'backup'        => array(
 			'none/plugin_absent'   => Products::STATUS_NEEDS_PLAN,
 			'none/off'             => Products::STATUS_NEEDS_PLAN,
 			'none/on'              => Products::STATUS_NEEDS_PLAN,
-			'bundle/plugin_absent' => Products::STATUS_ACTIVE,
-			'bundle/off'           => Products::STATUS_ACTIVE,
+			'bundle/plugin_absent' => Products::STATUS_MODULE_DISABLED,
+			'bundle/off'           => Products::STATUS_MODULE_DISABLED,
 			'bundle/on'            => Products::STATUS_ACTIVE,
-			'direct/plugin_absent' => Products::STATUS_ACTIVE,
-			'direct/off'           => Products::STATUS_ACTIVE,
+			'direct/plugin_absent' => Products::STATUS_MODULE_DISABLED,
+			'direct/off'           => Products::STATUS_MODULE_DISABLED,
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
 		'boost'         => array(
@@ -238,7 +239,7 @@ class Plan_Matrix_Test extends TestCase {
 	private const KNOWN_BROKEN = array();
 
 	/**
-	 * Every product that renders a card on the Products page.
+	 * Every product that renders a product card.
 	 *
 	 * @return array<string, class-string<Product>>
 	 */
@@ -283,7 +284,8 @@ class Plan_Matrix_Test extends TestCase {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( $user_id, 'test.test.' . $user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
-		Jetpack_Options::update_option( 'available_modules', array( JETPACK__VERSION => self::AVAILABLE_MODULES ) );
+		// A filter, not the available_modules option, since Modules::get_available() memoizes its first caller.
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
 
 		/*
 		 * get_site_features_from_wpcom() memoizes a WP_Error in a static on its first failed
@@ -295,9 +297,20 @@ class Plan_Matrix_Test extends TestCase {
 	}
 
 	/**
+	 * Registers the modules the matrix reads as available.
+	 *
+	 * @param array $modules Available modules: slug => version.
+	 * @return array
+	 */
+	public function add_available_modules( $modules ) {
+		return array_merge( $modules, self::AVAILABLE_MODULES );
+	}
+
+	/**
 	 * Returning the environment into its initial state.
 	 */
 	public function tearDown(): void {
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_available_modules' ) );
 		$this->uninstall_standalone_plugins();
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$active_modules = array();
@@ -313,7 +326,7 @@ class Plan_Matrix_Test extends TestCase {
 	}
 
 	/**
-	 * The status the Products page shows for one cell of the plan matrix.
+	 * The status a product card shows for one cell of the plan matrix.
 	 *
 	 * @param string $slug       Product slug.
 	 * @param string $ownership  One of the OWNERSHIP_* constants.

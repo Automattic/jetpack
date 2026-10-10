@@ -24,9 +24,9 @@
 	.jp-static-block {
 		display: block;
 		margin-top: 24px;
-		background: var(--wpds-color-background-surface-neutral-strong, #fff);
-		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
-		border-radius: var(--wpds-border-radius-lg, 8px);
+		background: var(--wpds-color-background-surface-neutral-strong);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
 
 		.jp-static-block-body {
 			padding: 0 24px 20px;

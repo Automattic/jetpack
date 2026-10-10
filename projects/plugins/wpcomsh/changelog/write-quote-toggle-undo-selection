@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Keep selected text highlighted when turning a quote on or off, and let Undo reverse turning a quote off.

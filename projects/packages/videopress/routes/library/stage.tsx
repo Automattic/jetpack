@@ -1,9 +1,10 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { DropZone, Tooltip } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
 import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
@@ -25,6 +26,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
+import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
@@ -159,13 +161,21 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 
 	// Shared multi-file entry point for the DropZone, the header "Upload
 	// video" file picker, and (via the same hook) the welcome modal's CTA.
 	// Enforces the free-tier cap up front so no path can sneak past the limit
 	// the picker button guards.
-	const handleFilesSelected = useUploadIntake();
+	const onUploadsStarted = useCallback(
+		( ids: string[] ) => {
+			if ( ids.length === 1 ) {
+				openVideoDetails( ids[ 0 ] );
+			}
+		},
+		[ openVideoDetails ]
+	);
+	const handleFilesSelected = useUploadIntake( onUploadsStarted );
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -181,12 +191,10 @@ const StageInner = () => {
 	// The factory owns the in-flight progress map (re-entry guard + overlay
 	// snapshots, chunk progress folded in) and reacts via the mutateAsync
 	// promise; see promote-local.ts for why.
-	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
-	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
-	// the factory (emptying its in-flight state) on each render — including the
-	// renders its own publishes trigger. All captured deps are stable: the
-	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
-	// referentially stable in TanStack v5, and state setters never change.
+	// Deliberately created ONCE per stage instance: the in-flight map lives
+	// in this closure, so a fresh factory would forget mid-promote rows.
+	// Captured deps are stable (useDispatch notice creators, mutateAsync,
+	// state setters).
 	const [ promoteLocal ] = useState( () =>
 		createPromoteLocal( {
 			promote: uploadFromLibrary,
@@ -224,7 +232,7 @@ const StageInner = () => {
 							),
 							ids.length
 						),
-						{ id: noticeId, explicitDismiss: true }
+						{ id: noticeId, explicitDismiss: true, type: 'snackbar' }
 					);
 					// React via the mutateAsync promise, not mutate-level callbacks:
 					// those are dropped if another delete starts while this one is in
@@ -247,7 +255,7 @@ const StageInner = () => {
 								),
 								ids.length
 							),
-							{ id: noticeId }
+							{ id: noticeId, type: 'snackbar' }
 						);
 					} catch ( error ) {
 						// Unknown error shape → assume nothing was deleted.
@@ -266,7 +274,7 @@ const StageInner = () => {
 								),
 								failedIds.size
 							),
-							{ id: noticeId }
+							{ id: noticeId, type: 'snackbar' }
 						);
 					}
 					setDeletingIds( prev => {
@@ -298,7 +306,8 @@ const StageInner = () => {
 										),
 										succeeded.length,
 										PRIVACY_LABELS[ privacy ]
-									)
+									),
+									{ type: 'snackbar' }
 								);
 								return;
 							}
@@ -310,7 +319,8 @@ const StageInner = () => {
 										'Failed to update privacy for the selected videos.',
 										failed.length,
 										'jetpack-videopress-pkg'
-									)
+									),
+									{ type: 'snackbar' }
 								);
 								return;
 							}
@@ -324,11 +334,14 @@ const StageInner = () => {
 									),
 									succeeded.length,
 									failed.length
-								)
+								),
+								{ type: 'snackbar' }
 							);
 						} )
 						.catch( () => {
-							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ) );
+							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ), {
+								type: 'snackbar',
+							} );
 						} );
 				},
 			} ),
@@ -350,48 +363,36 @@ const StageInner = () => {
 		const listedIds = new Set( items.map( item => item.id ) );
 		const inFlight: LibraryItem[] = uploadQueue
 			// A finished upload keeps its row until the listing has the attachment.
-			.filter( u => ! ( u.mediaId && listedIds.has( u.mediaId ) ) )
-			.map( u => ( {
-				id: u.id,
-				guid: '',
-				type: 'local' as const,
-				title: u.file.name.replace( /\.[^.]+$/, '' ),
-				filename: u.file.name,
-				thumbnailUrl: null,
-				durationSeconds: 0,
-				uploadDate: new Date().toISOString(),
-				privacy: 'site-default' as LibraryItemPrivacy,
-				isPrivate: false,
-				fileSizeBytes: u.file.size,
-				upload: {
-					status: u.status === 'failed' ? ( 'failed' as const ) : ( 'uploading' as const ),
-					progress: Math.round( u.progress * 100 ),
-					failureReason:
-						u.status === 'failed' ? classifyUploadFailure( u, hasConnectionError ) : undefined,
-				},
-				description: '',
-				rating: 'G' as LibraryItem[ 'rating' ],
-				displayEmbed: false,
-				allowDownloads: false,
-				shortcode: '',
-				isProcessing: false,
-				orientation: null,
-				tracks: [],
-			} ) );
+			.filter(
+				u =>
+					! ( u.mediaId && listedIds.has( u.mediaId ) && ! u.detailsError && ! u.isSavingDetails )
+			)
+			.map( u => {
+				const item = uploadToLibraryItem( u );
+				if ( u.status === 'failed' ) {
+					item.upload.failureReason = classifyUploadFailure( u, hasConnectionError );
+				}
+				return item;
+			} );
 		// Overlay an in-flight state on items currently being promoted from
 		// local-storage to VideoPress or being deleted, so the title-cell
 		// pill and the thumbnail overlay reflect the operation without
 		// needing a parallel signal at every render site.
-		const overlaid = items.map( item => {
-			const promoting = promotingProgress.get( item.id );
-			if ( promoting !== undefined ) {
-				return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
-			}
-			if ( deletingIds.has( item.id ) ) {
-				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
-			}
-			return item;
-		} );
+		const retainedIds = new Set(
+			uploadQueue.filter( u => u.detailsError || u.isSavingDetails ).map( u => u.mediaId )
+		);
+		const overlaid = items
+			.filter( item => ! retainedIds.has( item.id ) )
+			.map( item => {
+				const promoting = promotingProgress.get( item.id );
+				if ( promoting !== undefined ) {
+					return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
+				}
+				if ( deletingIds.has( item.id ) ) {
+					return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
+				}
+				return item;
+			} );
 		return [ ...inFlight, ...overlaid ];
 	}, [ uploadQueue, items, promotingProgress, deletingIds, hasConnectionError ] );
 
@@ -490,6 +491,7 @@ const StageInner = () => {
 					<>
 						<input
 							ref={ filePickerRef }
+							aria-label={ __( 'Choose videos', 'jetpack-videopress-pkg' ) }
 							type="file"
 							accept="video/*"
 							// The capped free tier can only ever host `limit` videos, so

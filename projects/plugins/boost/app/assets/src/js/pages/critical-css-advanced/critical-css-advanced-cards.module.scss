@@ -1,3 +1,18 @@
 .collapse {
 	overflow: hidden;
 }
+
+// wp-admin.scss sizes and colours every `p`; core sets its line height.
+.cards p {
+	color: inherit;
+}
+
+.description {
+	// Sizes the jetpack-components buttons inside, such as "See error message".
+	--font-body: var(--wpds-typography-font-size-md);
+
+	p {
+		font-size: inherit;
+		line-height: inherit;
+	}
+}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin bar: Add the Stats chart from admin_bar_menu, so the admin-bar REST endpoint returns it too.

@@ -52,7 +52,7 @@ export function useSyncStatus( {
 	const failureCountRef = useRef( 0 );
 	// Hold the latest `poll` in a ref so the interval always calls the current
 	// closure, keeping the interval stable across `poll` identity changes.
-	const pollRef = useRef< () => void >();
+	const pollRef = useRef< () => void >( undefined );
 
 	const clearPolling = useCallback( () => {
 		if ( intervalRef.current ) {

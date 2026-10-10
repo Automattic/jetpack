@@ -6,6 +6,7 @@ import { Icon, MenuItem } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { check } from '@wordpress/icons';
 import { MediaSourceOption, MediaSourceType } from './types';
+import type { JSX } from 'react';
 
 /**
  * Props for MediaSourceMenuItem component

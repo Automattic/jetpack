@@ -2,12 +2,15 @@ import { useModuleSurface } from '$features/module/surface';
 import ExceptPanel from './except-panel';
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
-import { useState } from 'react';
+import { chevronDown, chevronUp } from '@wordpress/icons';
+import { IconButton } from '@wordpress/ui';
+import { useId, useState } from 'react';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import type { TracksEventProperties } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
 	children: ReactNode;
@@ -19,6 +22,7 @@ type CollapsibleMetaProps = {
 	headerText?: string;
 	compactHeader?: boolean;
 	tracksEvent?: string;
+	tracksEventProps?: TracksEventProperties;
 	extraButtons?: ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
 };
@@ -34,13 +38,15 @@ const CollapsibleMeta = ( {
 	summary = null,
 	toggleText = '',
 	tracksEvent = '',
+	tracksEventProps = {},
 	extraButtons = null,
 	headerText = '',
 	compactHeader = false,
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const surface = useModuleSurface();
+	const isRow = useModuleSurface() === 'row';
+	const contentId = useId();
 
 	const onToggle = () => {
 		const newIsExpanded = ! isExpanded;
@@ -49,11 +55,12 @@ const CollapsibleMeta = ( {
 		if ( tracksEvent !== '' ) {
 			recordBoostEvent( tracksEvent, {
 				status: newIsExpanded ? 'open' : 'close',
+				...tracksEventProps,
 			} );
 		}
 	};
 
-	if ( surface === 'row' && exceptions ) {
+	if ( isRow && exceptions ) {
 		return (
 			<ExceptPanel
 				exceptions={ exceptions }
@@ -73,18 +80,31 @@ const CollapsibleMeta = ( {
 	const sectionHeader = (
 		<div className={ clsx( styles.header, { [ styles[ 'compact-header' ] ]: compactHeader } ) }>
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
-			<div className={ styles.actions }>
+			<div className={ clsx( styles.actions, { [ styles[ 'row-actions' ] ]: isRow } ) }>
 				{ extraButtons && extraButtons }{ ' ' }
-				<Button
-					variant="link"
-					size="small"
-					weight="regular"
-					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-					className={ styles[ 'edit-button' ] }
-					onClick={ onToggle }
-				>
-					{ toggleText }
-				</Button>
+				{ isRow ? (
+					<IconButton
+						icon={ isExpanded ? chevronUp : chevronDown }
+						label={ toggleText }
+						size="small"
+						variant="minimal"
+						tone="neutral"
+						aria-expanded={ isExpanded }
+						aria-controls={ contentId }
+						onClick={ onToggle }
+					/>
+				) : (
+					<Button
+						variant="link"
+						size="small"
+						weight="regular"
+						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
+						className={ styles[ 'edit-button' ] }
+						onClick={ onToggle }
+					>
+						{ toggleText }
+					</Button>
+				) }
 			</div>
 		</div>
 	);
@@ -96,7 +116,15 @@ const CollapsibleMeta = ( {
 	return (
 		<div className={ styles[ 'collapsible-meta' ] }>
 			{ sectionHeader }
-			{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
+			{ isRow ? (
+				<div id={ contentId } hidden={ ! isExpanded }>
+					{ isExpanded && children }
+				</div>
+			) : (
+				<>
+					{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
+				</>
+			) }
 		</div>
 	);
 };

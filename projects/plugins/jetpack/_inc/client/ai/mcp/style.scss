@@ -10,7 +10,7 @@
 		box-shadow: none;
 
 		&:hover {
-			background: var(--color-surface-backdrop, #f0f0f1);
+			background: var(--wpds-color-background-surface-neutral-weak);
 		}
 
 		// Remove default Button border
@@ -18,9 +18,9 @@
 			box-shadow: none;
 		}
 
-		// Row decoration icons (Read / Write) — neutral gray to match Calypso
+		// Row decoration icons (Read / Write).
 		svg.jetpack-ai-mcp__row-icon {
-			fill: var(--color-neutral-70, #3c434a);
+			fill: var(--wpds-color-foreground-content-neutral);
 		}
 	}
 
@@ -51,7 +51,7 @@
 		}
 
 		&:hover {
-			background: var(--color-surface-backdrop, #f0f0f1);
+			background: var(--wpds-color-background-surface-neutral-weak);
 		}
 	}
 
@@ -76,7 +76,7 @@
 	&__connect-row-chevron {
 		flex-shrink: 0;
 		margin-top: 2px;
-		color: var(--color-neutral-60, #50575e);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	&__badge-content {
@@ -154,7 +154,7 @@
 	// Divider between sub-groups within an expanded group card.
 	// Containers on both sides provide equal padding so spacing is symmetric.
 	&__sub-divider {
-		border-top: 1px solid var(--color-border-subtle, #dcdcde);
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
 		margin: 0;
 	}
 
@@ -174,7 +174,7 @@
 	&__how-it-works-steps {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: var(--wpds-dimension-gap-lg, 16px);
+		gap: var(--wpds-dimension-gap-lg);
 
 		@media (min-width: 600px) {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -184,17 +184,17 @@
 	&__how-it-works-step {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr);
-		column-gap: var(--wpds-dimension-gap-lg, 16px);
-		row-gap: var(--wpds-dimension-gap-xs, 4px);
-		padding-block-start: var(--wpds-dimension-padding-lg, 16px);
-		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+		column-gap: var(--wpds-dimension-gap-lg);
+		row-gap: var(--wpds-dimension-gap-xs);
+		padding-block-start: var(--wpds-dimension-padding-lg);
+		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 
 		@media (min-width: 600px) {
 			grid-template-columns: minmax(0, 1fr);
-			padding-block: var(--wpds-dimension-padding-lg, 16px);
+			padding-block: var(--wpds-dimension-padding-lg);
 			border-block-start: 0;
-			padding-inline-start: var(--wpds-dimension-padding-lg, 16px);
-			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+			padding-inline-start: var(--wpds-dimension-padding-lg);
+			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		}
 
 		&:first-child {
@@ -210,12 +210,12 @@
 
 		@media (min-width: 600px) {
 			grid-row: auto;
-			margin-block: 0 var(--wpds-dimension-gap-sm, 8px);
+			margin-block: 0 var(--wpds-dimension-gap-sm);
 		}
 	}
 
 	&__how-it-works-description {
-		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// Callout card shared by the plan upsell and the connect-account card.
@@ -230,9 +230,9 @@
 		gap: 24px;
 		margin: 24px auto 0;
 		padding: 24px;
-		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		border-radius: 4px;
-		background-color: var(--wpds-color-background-surface-neutral, #fff);
+		background-color: var(--wpds-color-background-surface-neutral);
 
 		@media (min-width: 600px) {
 			flex-direction: row;
@@ -255,12 +255,12 @@
 		font-size: 20px;
 		line-height: 1.3;
 		font-weight: 500;
-		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__upsell-callout-description {
 		margin: 0;
-		color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// The <Button variant="primary"> provides its own styling; align it to
@@ -308,7 +308,7 @@ ol.jetpack-ai-mcp-setup__steps {
 
 	&__code {
 		font-size: 12px;
-		background: var(--color-neutral-5, #f0f0f1);
+		background: var(--wpds-color-background-surface-neutral-weak);
 		padding: 1px 4px;
 		border-radius: 2px;
 	}

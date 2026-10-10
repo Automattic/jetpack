@@ -1,3 +1,4 @@
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { runLocalGenerator } from './generate-critical-css';
 import type { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
 
@@ -135,6 +136,28 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 			( [ , errors ] ) => errors[ 0 ].type === 'UnknownError'
 		);
 		expect( allUnknown ).toBe( true );
+	} );
+
+	it( 'excludes rejected CSS from success telemetry and preserves the server provider errors', async () => {
+		mockGenerateCriticalCSS.mockResolvedValue( [ '.top{color:red}' ] );
+		const callbacks = makeCallbacks();
+		callbacks.setProviderCss.mockResolvedValueOnce( false ).mockResolvedValueOnce( true );
+		runLocalGenerator(
+			[ makeProvider( 'provider_a' ), makeProvider( 'provider_b' ) ],
+			'nonce',
+			callbacks
+		);
+		await callbacks.finished;
+		expect( callbacks.setProviderErrors ).not.toHaveBeenCalled();
+		expect( recordBoostEvent ).toHaveBeenLastCalledWith(
+			'critical_css_success',
+			expect.objectContaining( {
+				block_count: 1,
+				error_count: 1,
+				average_size: 15,
+				max_size: 15,
+			} )
+		);
 	} );
 
 	it( 'marks only the page the site answered with its login gate', async () => {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard policy: the composition feature flag and its script-data bridge.
+ * Dashboard policy: the dashboard feature flags and the composition flag's script-data bridge.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -15,9 +15,9 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 const DASHBOARD_COMPOSITION_FLAG = 'premium-analytics-dashboard-composition';
 
 /**
- * Name of the feature flag that shows Automatticians every section of a preview-scoped dashboard.
+ * Name of the feature flag that shows the Store section.
  */
-const DASHBOARD_A11N_ALL_SECTIONS_FLAG = 'premium-analytics-a11n-all-sections';
+const DASHBOARD_STORE_SECTION_FLAG = 'premium-analytics-store-section';
 
 /**
  * Registers the dashboard feature flags.
@@ -31,17 +31,17 @@ function register_dashboard_feature_flags() {
 	Feature_Flags::register(
 		DASHBOARD_COMPOSITION_FLAG,
 		array(
-			'default'     => false,
+			'default'     => true,
 			'description' => 'Offer adding, removing and resetting widgets on the analytics dashboard, on top of moving and resizing them.',
 			'owner'       => 'jetpack-premium-analytics',
 		)
 	);
 
 	Feature_Flags::register(
-		DASHBOARD_A11N_ALL_SECTIONS_FLAG,
+		DASHBOARD_STORE_SECTION_FLAG,
 		array(
 			'default'     => false,
-			'description' => 'Show Automatticians every dashboard section on a site limited to the customer preview. Site owners keep the preview.',
+			'description' => 'Show the Store tab on the analytics dashboard of sites running WooCommerce.',
 			'owner'       => 'jetpack-premium-analytics',
 		)
 	);
@@ -57,26 +57,24 @@ function is_dashboard_composition_enabled() {
 }
 
 /**
- * Whether the current visitor is an Automattician.
- *
- * Defers to the gate behind WordPress.com's feature flag screen, so a support session on Atomic
- * does not count. False wherever jetpack-mu-wpcom is not loaded, which includes every self-hosted site.
+ * Whether the dashboard shows the Store section.
  *
  * @return bool
  */
-function is_automattician_viewer() {
-	$gate = '\\Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Wpcom_Feature_Flags';
-
-	return class_exists( $gate ) && method_exists( $gate, 'is_a11n' ) && (bool) $gate::is_a11n();
+function is_dashboard_store_section_enabled() {
+	return Feature_Flags::is_enabled( DASHBOARD_STORE_SECTION_FLAG );
 }
 
 /**
- * Whether the current visitor sees every section of a preview-scoped dashboard.
+ * No-op kept for older copies of the package, whose dashboard-sections.php calls it after
+ * skipping its include of this file.
+ *
+ * @deprecated 0.10.0 The preview scope it opened is gone.
  *
  * @return bool
  */
 function is_dashboard_unlocked_for_a11n() {
-	return Feature_Flags::is_enabled( DASHBOARD_A11N_ALL_SECTIONS_FLAG ) && is_automattician_viewer();
+	return false;
 }
 
 /**

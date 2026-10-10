@@ -8,7 +8,6 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getDefaultReportParams,
-	getStoreInfo,
 	hasComparisonEnabled,
 	normalizeReportParams,
 	type StatsPeriod,
@@ -30,13 +29,13 @@ import {
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, type DateControlTriggerProps } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './report-params-field.module.css';
+import { WIDGET_HEADER_TRIGGER_PROPS } from '../helpers/widget-header-trigger';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -45,21 +44,14 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * modules can consume it through this package's script module: the toolkit is
  * bundled-from-source and its scss graph cannot enter the widget metadata build.
  *
- * `getStoreInfo()` is imported rather than read from context because the control
- * renders as host chrome outside the widget tree, where `WidgetRootContext` is
- * unreachable.
+ * The control renders as host chrome outside the widget tree, where `WidgetRootContext`
+ * is unreachable, so it reads the default preset from `getDefaultPreset()` instead.
  */
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
-};
-
-// The host draws a widget's header fields compact.
-const WIDGET_HEADER_TRIGGER_PROPS: DateControlTriggerProps = {
-	size: 'compact',
-	className: styles.trigger,
 };
 
 /**
@@ -96,9 +88,8 @@ type ReportParamsFieldOptions = {
 /**
  * The params a widget that owns its date range starts on, clamped to its grain.
  *
- * The store default follows how long the site has been live, so a site launched
- * today starts on `today` — a window a widget whose report has no sub-daily
- * bucket does not offer, and would draw as a single point.
+ * The default follows the reader's header preset, which can be one the widget does
+ * not offer, such as `today`: a report with no sub-daily bucket draws it as one point.
  *
  * @param grain           - How fine the widget's report is.
  * @param grain.presetIds - The windows the widget offers.
@@ -113,7 +104,7 @@ export function defaultReportParamsForGrain( { presetIds }: ReportGrain = {} ): 
 }
 
 // A widget saved before the field existed carries no params; the picker falls
-// back to the store defaults through `normalizeReportParams`.
+// back to the default preset through `normalizeReportParams`.
 const NO_REPORT_PARAMS: ReportParams = {};
 
 /**
@@ -196,8 +187,7 @@ function ReportParamsControl( {
 		revert,
 	} = useStagedValue< ReportParams >( committed, saveReportParams );
 
-	const { launchedDate } = getStoreInfo();
-	const defaultPreset = getDefaultPreset( launchedDate );
+	const defaultPreset = getDefaultPreset();
 
 	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 

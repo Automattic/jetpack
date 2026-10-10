@@ -1,6 +1,6 @@
 import { useModuleSurface } from '$features/module/surface';
 import { useEffect, useState } from 'react';
-import { Button } from '@automattic/jetpack-components';
+import SaveButton from '$features/ui/save-button/save-button';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -142,13 +142,11 @@ const RenderBlockingJsMeta = () => {
 						code: <code />,
 					} ) }
 				</div>
-				<Button
+				<SaveButton
 					disabled={ serverValue === inputValue }
 					className={ styles.button }
 					onClick={ save }
-				>
-					{ __( 'Save', 'jetpack-boost' ) }
-				</Button>
+				/>
 			</div>
 		</div>
 	);
