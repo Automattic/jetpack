@@ -89,7 +89,7 @@ const formatCount = ( count: number ) =>
 	new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
 
 /**
- * The firewall's Overview card: its on/off state, blocked requests and a test that shows it working.
+ * The firewall's Overview card: blocked requests, and a test that shows the firewall working.
  *
  * @param props          - The dashboard context.
  * @param props.state    - The firewall's state from page load.
@@ -155,11 +155,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		<ProtectCard
 			icon={ shield }
 			title={ title }
-			status={
-				active
-					? { label: __( 'On', 'jetpack-protect-pkg' ), intent: 'stable' }
-					: { label: __( 'Off', 'jetpack-protect-pkg' ), intent: 'draft' }
-			}
 			actions={
 				<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
 					{ __( 'Test firewall', 'jetpack-protect-pkg' ) }
