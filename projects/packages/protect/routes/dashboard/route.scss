@@ -11,6 +11,11 @@ body.toplevel_page_jetpack-protect {
 	// Dialogs portal into <body>, under the admin menu (z-index 9990)
 	// unless lifted.
 	--wp-ui-dialog-z-index: 100000;
+
+	// Icon SVGs default to black, unreadable on the dark snackbar.
+	.components-snackbar__icon svg {
+		fill: currentColor;
+	}
 }
 
 .jp-protect-dashboard__body {
