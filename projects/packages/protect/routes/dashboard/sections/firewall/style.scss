@@ -1,0 +1,112 @@
+.jp-protect-blocks-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	text-align: start;
+
+	th,
+	td {
+		padding-block: 10px;
+		padding-inline: 0 16px;
+		border-block-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+		text-align: start;
+		vertical-align: middle;
+	}
+
+	th {
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	tbody tr:last-child td {
+		border-block-end: 0;
+	}
+
+	&__when,
+	&__reason {
+		white-space: nowrap;
+	}
+
+	// The badge resets white-space itself.
+	&__reason > * {
+		white-space: nowrap;
+	}
+
+	&__client {
+		white-space: nowrap;
+	}
+
+	// Takes the spare width; long URIs are cut, in full on hover.
+	&__request {
+		inline-size: 100%;
+		max-inline-size: 0;
+
+		code {
+			display: block;
+			overflow: hidden;
+			padding: 0;
+			background: none;
+			font-size: 12px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	@media (max-width: 600px) {
+
+		thead {
+			display: none;
+		}
+
+		tr {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 4px 16px;
+			padding-block: 10px;
+			border-block-end:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		tbody tr:last-child {
+			border-block-end: 0;
+		}
+
+		td {
+			padding: 0;
+			border: 0;
+		}
+
+		&__request,
+		&__client {
+			grid-column: 1 / -1;
+			max-inline-size: none;
+		}
+
+		td.is-empty {
+			display: none;
+		}
+	}
+}
+
+.jp-protect-firewall-test {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding-inline-start: 20px;
+
+	&__code {
+		margin: 0;
+		padding: 8px;
+		border-radius: 2px;
+		background: var(--wpds-color-background-surface-neutral-weak);
+		font-size: 12px;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+}

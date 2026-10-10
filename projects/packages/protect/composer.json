@@ -15,6 +15,7 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
+		"automattic/jetpack-waf": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {

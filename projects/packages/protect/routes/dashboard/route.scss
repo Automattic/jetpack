@@ -7,6 +7,15 @@ body.jetpack_page_jetpack-protect,
 body.toplevel_page_jetpack-protect {
 
 	@include jetpack-admin-page-layout-wp-build;
+
+	// Dialogs portal into <body>, under the admin menu (z-index 9990)
+	// unless lifted.
+	--wp-ui-dialog-z-index: 100000;
+
+	// Icon SVGs default to black, unreadable on the dark snackbar.
+	.components-snackbar__icon svg {
+		fill: currentColor;
+	}
 }
 
 .jp-protect-dashboard__body {
@@ -38,6 +47,15 @@ body.toplevel_page_jetpack-protect {
 
 	&__title {
 		margin: 0;
+	}
+
+	// Intro text above a card's first row, at the card's padding.
+	&__intro {
+		padding-block-end: 16px;
+
+		p {
+			margin: 0;
+		}
 	}
 
 	// A compact button's height, so headers without one match.

@@ -1,6 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+
+// One id, so a burst of saves shows one snackbar.
+const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
 
 /** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
 export type ProtectSettings = Record< string, unknown >;
@@ -89,6 +94,10 @@ export default function useProtectSettings(): ProtectSettingsData {
 
 			try {
 				await apiFetch( { path, method: 'POST', data: patch } );
+				dispatch( noticesStore ).createSuccessNotice(
+					__( 'Settings updated.', 'jetpack-protect-pkg' ),
+					{ type: 'snackbar', id: SAVED_NOTICE_ID }
+				);
 			} catch ( e ) {
 				const rolledBack = { ...settingsRef.current };
 				keys.forEach( key => {
