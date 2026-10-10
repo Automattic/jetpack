@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Keep the subscribe modal visible on wide screens.
