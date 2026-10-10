@@ -147,10 +147,20 @@ HTML;
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		if ( $this->should_user_see_overlay() ) {
-			wp_enqueue_style( 'subscribe-overlay-css', plugins_url( 'subscribe-overlay.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'subscribe-overlay-js', plugins_url( 'subscribe-overlay.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+		$should_user_see_overlay = $this->should_user_see_overlay();
+
+		// Subscriber email links carry this read-only marker, so no nonce is required.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $should_user_see_overlay && ! isset( $_GET['jetpack_skip_subscription_popup'] ) ) {
+			return;
 		}
+
+		if ( $should_user_see_overlay ) {
+			wp_enqueue_style( 'subscribe-overlay-css', plugins_url( 'subscribe-overlay.css', __FILE__ ), array(), JETPACK__VERSION );
+		}
+
+		// The script also records the subscriber signal from email links, so it loads either way.
+		wp_enqueue_script( 'subscribe-overlay-js', plugins_url( 'subscribe-overlay.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 	}
 
 	/**

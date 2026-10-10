@@ -103,6 +103,13 @@ class Jetpack_Subscribe_Modal {
 					'modalInterval'        => ( $modal_interval * HOUR_IN_SECONDS * 1000 ),
 				)
 			);
+			return;
+		}
+
+		// Subscriber email links carry this read-only marker, so no nonce is required.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['jetpack_skip_subscription_popup'] ) ) {
+			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 		}
 	}
 
