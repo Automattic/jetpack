@@ -1,5 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import useProtectSettings from '../use-protect-settings';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -42,8 +44,31 @@ const settingsRequests = () =>
 		( [ { path, method } ] ) => path === '/jetpack/v4/settings' && method !== 'POST'
 	);
 
+const snackbars = () =>
+	select( noticesStore )
+		.getNotices()
+		.filter( notice => notice.type === 'snackbar' )
+		.map( notice => notice.content );
+
 describe( 'useProtectSettings', () => {
-	beforeEach( () => mockApiFetch.mockReset() );
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		select( noticesStore )
+			.getNotices()
+			.forEach( notice => dispatch( noticesStore ).removeNotice( notice.id ) );
+	} );
+
+	it.each( [
+		[ 'confirms a save', Promise.resolve( {} ), [ 'Settings updated.' ] ],
+		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [] ],
+	] )( '%s in a snackbar', async ( _name, post, expected ) => {
+		respondWith( { post } );
+		const { result } = renderHook( () => useProtectSettings() );
+
+		await act( () => result.current.save( { list: 'new' } ) );
+
+		expect( snackbars() ).toEqual( expected );
+	} );
 
 	it.each( [
 		[ 'restores a key that had a value', { list: 'old' }, { list: 'old' } ],
