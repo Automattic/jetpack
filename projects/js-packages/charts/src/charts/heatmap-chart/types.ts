@@ -78,6 +78,8 @@ export interface HeatmapChartProps extends Omit<
 	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
+	/** Compact mode only: grow the cells to fill the chart's box, wrapping the column groups onto more rows when that makes them larger. Default false. */
+	fitCells?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
 	showValues?: boolean;
 	/**
