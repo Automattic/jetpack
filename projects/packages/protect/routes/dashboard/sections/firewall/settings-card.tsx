@@ -64,102 +64,122 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 		[ save ]
 	);
 
-	return (
-		<ProtectCard icon={ shield } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
-			<CardRow>
-				{ waf?.waf_supported === false ? (
+	if ( waf?.waf_supported === false ) {
+		return (
+			<ProtectCard icon={ shield } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
+				<CardRow>
 					<Text variant="body-md">
 						{ __( 'The firewall isn’t available on your site’s hosting.', 'jetpack-protect-pkg' ) }
 					</Text>
-				) : (
-					<Stack direction="column" gap="md">
-						<SettingToggle
-							data={ data }
-							name="waf"
-							label={ __( 'Turn on the firewall', 'jetpack-protect-pkg' ) }
-							help={ __(
-								'Blocks malicious requests before they reach your site.',
-								'jetpack-protect-pkg'
-							) }
-						/>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __( 'Automatic firewall rules', 'jetpack-protect-pkg' ) }
-							help={ [
-								__(
-									'Protect your site against untrusted traffic sources with automatic security rules.',
-									'jetpack-protect-pkg'
-								),
-								rulesNote,
-							]
-								.filter( Boolean )
-								.join( ' ' ) }
-							checked={ rulesUsable && Boolean( settings?.[ AUTOMATIC_RULES ] ) }
-							disabled={ ! wafOn || ! rulesUsable || isSaving( AUTOMATIC_RULES ) }
-							onChange={ onAutomaticRules }
-						/>
-						<Text variant="heading-sm" render={ <h3 /> }>
-							{ __( 'Manual rules', 'jetpack-protect-pkg' ) }
-						</Text>
-						<SettingToggle
-							data={ data }
-							name="jetpack_waf_ip_block_list_enabled"
-							label={ __( 'Block specific IP addresses', 'jetpack-protect-pkg' ) }
-							disabled={ ! wafOn }
-						/>
-						{ wafOn && Boolean( settings?.jetpack_waf_ip_block_list_enabled ) && (
-							<IpListField
-								data={ data }
-								name="jetpack_waf_ip_block_list"
-								label={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
-								description={ __(
-									'Separate addresses or ranges with commas, spaces or new lines. Requests from them are blocked while the firewall is on.',
-									'jetpack-protect-pkg'
-								) }
-							/>
+				</CardRow>
+			</ProtectCard>
+		);
+	}
+
+	return (
+		<ProtectCard icon={ shield } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
+			<div className="jp-protect-card__intro">
+				<Text variant="body-md" render={ <p /> }>
+					{ __( 'Block malicious requests before they reach your site.', 'jetpack-protect-pkg' ) }
+				</Text>
+			</div>
+			<CardRow>
+				<SettingToggle
+					data={ data }
+					name="waf"
+					label={ __( 'Enable firewall', 'jetpack-protect-pkg' ) }
+					help={ __(
+						'Inspects every request against Jetpack’s firewall rules.',
+						'jetpack-protect-pkg'
+					) }
+				/>
+			</CardRow>
+			<CardRow>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Automatic firewall rules', 'jetpack-protect-pkg' ) }
+					help={ [
+						__(
+							'Rules for newly discovered attacks, kept up to date for you.',
+							'jetpack-protect-pkg'
+						),
+						rulesNote,
+					]
+						.filter( Boolean )
+						.join( ' ' ) }
+					checked={ rulesUsable && Boolean( settings?.[ AUTOMATIC_RULES ] ) }
+					disabled={ ! wafOn || ! rulesUsable || isSaving( AUTOMATIC_RULES ) }
+					onChange={ onAutomaticRules }
+				/>
+			</CardRow>
+			<CardRow>
+				<Stack direction="column" gap="md">
+					<SettingToggle
+						data={ data }
+						name="jetpack_waf_ip_block_list_enabled"
+						label={ __( 'Block these IP addresses', 'jetpack-protect-pkg' ) }
+						help={ __(
+							'Requests from these addresses never reach your site.',
+							'jetpack-protect-pkg'
 						) }
-						<SettingToggle
+						disabled={ ! wafOn }
+					/>
+					{ wafOn && Boolean( settings?.jetpack_waf_ip_block_list_enabled ) && (
+						<IpListField
 							data={ data }
-							name="jetpack_waf_ip_allow_list_enabled"
-							label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
-							disabled={ ! wafOn }
+							name="jetpack_waf_ip_block_list"
+							label={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
 						/>
-						{ wafOn && Boolean( settings?.jetpack_waf_ip_allow_list_enabled ) && (
-							<IpListField
-								data={ data }
-								name="jetpack_waf_ip_allow_list"
-								label={ __( 'Always-allowed IP addresses', 'jetpack-protect-pkg' ) }
-								description={ __(
-									'Separate addresses or ranges with commas, spaces or new lines. The firewall and login protection never block them.',
-									'jetpack-protect-pkg'
-								) }
-								currentIp={ state?.currentIp }
-							/>
+					) }
+				</Stack>
+			</CardRow>
+			<CardRow>
+				<Stack direction="column" gap="md">
+					<SettingToggle
+						data={ data }
+						name="jetpack_waf_ip_allow_list_enabled"
+						label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+						help={ __(
+							'Prevent Jetpack’s security features from blocking specific IP addresses.',
+							'jetpack-protect-pkg'
 						) }
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __( 'Share basic data with Jetpack', 'jetpack-protect-pkg' ) }
-							help={ __(
-								'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
-								'jetpack-protect-pkg'
-							) }
-							checked={ Boolean( settings?.[ SHARE_DATA ] ) }
-							disabled={ ! wafOn || isSaving( SHARE_DATA ) }
-							onChange={ onShareData }
+						disabled={ ! wafOn }
+					/>
+					{ wafOn && Boolean( settings?.jetpack_waf_ip_allow_list_enabled ) && (
+						<IpListField
+							data={ data }
+							name="jetpack_waf_ip_allow_list"
+							label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+							currentIp={ state?.currentIp }
 						/>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __( 'Share detailed data with Jetpack', 'jetpack-protect-pkg' ) }
-							help={ __(
-								'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
-								'jetpack-protect-pkg'
-							) }
-							checked={ Boolean( settings?.[ SHARE_DEBUG_DATA ] ) }
-							disabled={ ! wafOn || isSaving( SHARE_DEBUG_DATA ) }
-							onChange={ onShareDebugData }
-						/>
-					</Stack>
-				) }
+					) }
+				</Stack>
+			</CardRow>
+			<CardRow>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Share basic data with Jetpack', 'jetpack-protect-pkg' ) }
+					help={ __(
+						'Allow Jetpack to collect basic data from blocked requests to improve firewall protection and accuracy.',
+						'jetpack-protect-pkg'
+					) }
+					checked={ Boolean( settings?.[ SHARE_DATA ] ) }
+					disabled={ ! wafOn || isSaving( SHARE_DATA ) }
+					onChange={ onShareData }
+				/>
+			</CardRow>
+			<CardRow>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Share detailed data with Jetpack', 'jetpack-protect-pkg' ) }
+					help={ __(
+						'Allow Jetpack to collect detailed data from blocked requests to enhance firewall protection and accuracy.',
+						'jetpack-protect-pkg'
+					) }
+					checked={ Boolean( settings?.[ SHARE_DEBUG_DATA ] ) }
+					disabled={ ! wafOn || isSaving( SHARE_DEBUG_DATA ) }
+					onChange={ onShareDebugData }
+				/>
 			</CardRow>
 		</ProtectCard>
 	);
