@@ -1,4 +1,5 @@
 export {
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	type DetailPageHeaderSlots,

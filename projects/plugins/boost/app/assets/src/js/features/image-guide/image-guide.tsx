@@ -1,8 +1,20 @@
+import { useModuleSurface } from '$features/module/surface';
 import Module from '$features/module/module';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 
 const ImageGuide = () => {
+	const legacyDescription = __(
+		`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
+		'jetpack-boost'
+	);
+	const modernDescription = __(
+		'Shows image size information as you browse, helping you spot images that may be too large.',
+		'jetpack-boost'
+	);
+	const legacyTitle = __( 'Image Guide', 'jetpack-boost' );
+	const modernTitle = __( 'Enable image guide', 'jetpack-boost' );
+	const isModern = useModuleSurface() === 'row';
 	const { canResizeImages } = Jetpack_Boost;
 
 	/**
@@ -16,16 +28,11 @@ const ImageGuide = () => {
 	return (
 		<Module
 			slug="image_guide"
-			title={ __( 'Image Guide', 'jetpack-boost' ) }
+			title={ isModern ? modernTitle : legacyTitle }
 			onDisable={ resetImageGuideState }
 			description={
 				<>
-					<p>
-						{ __(
-							`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
-							'jetpack-boost'
-						) }
-					</p>
+					<p>{ isModern ? modernDescription : legacyDescription }</p>
 				</>
 			}
 		>

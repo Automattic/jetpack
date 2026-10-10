@@ -1,0 +1,53 @@
+{
+	"title": "Jetpack Forms Heroes",
+	"h1": "Jetpack Forms heroes",
+	"lede": "One sentence on what this set is and how it is built.",
+	"footer": "One sentence under the last piece. Press R to replay the nearest one.",
+	"date": "September 2026",
+	"fonts": "family=Inter:wght@400;500;600",
+
+	"pieces": [
+		{
+			"id": "fr",
+			"name": "Response lands",
+			"lede": "What the piece shows, and why it is shaped this way.",
+
+			"width": 1280,
+			"height": 820,
+
+			"css": "piece-fr.css",
+			"markup": "piece-fr.html",
+
+			"vars": {
+				"t-open": "0.35s",
+				"t-press": "4.6s",
+				"t-land": "5.75s"
+			},
+
+			"assets": { "plate": "plate.webp" },
+			"weight": [ "plate.webp" ],
+
+			"spec": [
+				{
+					"dt": "Beats",
+					"beats": [
+						[ "0.35s", "the card rises" ],
+						[ "4.6s", "cursor presses Send" ],
+						[ "5.75s", "the row lands" ]
+					]
+				},
+				{ "dt": "Weight", "dd": "{weight}", "small": "one WebP; everything else is DOM and CSS" },
+				{
+					"dt": "Made of",
+					"dd": "HTML + CSS keyframes",
+					"small": "live text, no JS in the animation"
+				},
+				{
+					"dt": "Source",
+					"dd": "A live Jetpack site",
+					"small": "the real dashboard; only the rows are redrawn"
+				}
+			]
+		}
+	]
+}

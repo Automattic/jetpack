@@ -26,6 +26,8 @@ permissions:
 env:
   FORCE_COLOR: 1
   USE_CLOUDFLARE_TUNNEL: ${{ case( vars.E2E_TUNNEL_TYPE == 'cloudflare', '1', '' ) }}
+  # Trade some archive size for much faster compression.
+  XZ_OPT: -3 -T0
 
 jobs:
   create-test-matrix:
@@ -141,7 +143,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Creating artifact"
-          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf "$BUILD_GROUP.tar.xz" --verbatim-files-from --files-from=-
+          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar --xz -cvvf "$BUILD_GROUP.tar.xz" --verbatim-files-from --files-from=-
           echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
@@ -149,8 +151,6 @@ jobs:
         with:
           path: ${{ matrix.buildGroup }}.tar.xz
           retention-days: 1
-          # Already compressed.
-          compression-level: 0
           archive: false
 
   e2e-tests:
@@ -184,7 +184,7 @@ jobs:
         env:
           BUILD_GROUP: ${{ matrix.buildGroup }}
         run: |
-          tar -xvvf "$BUILD_GROUP.tar.xz" .
+          tar --xz -xvvf "$BUILD_GROUP.tar.xz" .
 
       - name: Setup tools
         uses: $/.github/actions/tool-setup
@@ -355,6 +355,23 @@ jobs:
               .addBreak()
               .addRaw('Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.', true)
               .write()
+
+      - name: Download test artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          # Without this we'd also pull the build-cache tarballs, which this job has no use for.
+          pattern: test-output-*
+          path: test-output
+
+      - name: Upload CTRF report
+        continue-on-error: true
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.A8C_TEST_REPORTS_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.A8C_TEST_REPORTS_S3_SECRET_ACCESS_KEY }}
+          S3_ROOT: ${{ secrets.A8C_TEST_REPORTS_S3_ROOT }}
+        run: |
+          # One report per matrix job, each named with the run's timestamp.
+          find test-output -name 'ctrf-report-*.json' -type f -exec aws s3 cp {} "$S3_ROOT/reports/ctrf/jetpack/" \;
 
   slack-notification:
     name: "Slack notification"

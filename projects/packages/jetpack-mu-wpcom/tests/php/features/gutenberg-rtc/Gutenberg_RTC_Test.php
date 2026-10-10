@@ -153,14 +153,16 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that RTC can be enabled when the site has the RTC feature and Gutenberg is available.
+	 * Tests that RTC stays off even when the site has the RTC feature and Gutenberg is available.
+	 *
+	 * The rollout is switched off on WordPress.com (DOTCOM-18664).
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_enable_rtc_returns_true_with_rtc_feature_and_gutenberg() {
+	public function test_enable_rtc_returns_false_with_rtc_feature_and_gutenberg() {
 		define( 'IS_WPCOM', true );
 		define( 'GUTENBERG_VERSION', '22.7.0' );
 
@@ -168,7 +170,29 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		Functions\expect( 'wpcom_site_has_feature' )->andReturn( true );
 
+		$this->assertFalse( wpcom_enable_rtc() );
+	}
+
+	/**
+	 * Tests that the rollout can be restored through the filter, with the original gating intact.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_rtc_returns_true_when_rollout_filter_is_enabled() {
+		define( 'IS_WPCOM', true );
+		define( 'GUTENBERG_VERSION', '22.7.0' );
+
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 Chrome/120.0.0.0';
+
+		Functions\expect( 'wpcom_site_has_feature' )->andReturn( true );
+		add_filter( 'wpcom_rtc_rollout_enabled', '__return_true' );
+
 		$this->assertTrue( wpcom_enable_rtc() );
+
+		remove_filter( 'wpcom_rtc_rollout_enabled', '__return_true' );
 	}
 
 	// ─── wpcom_is_rtc_http_polling_rollout ───────────────────────────

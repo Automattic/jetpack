@@ -92,8 +92,9 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 * `no_videopress`: the returned attachments should not be VideoPress videos
 	 *                  (off-Simple: no videopress_guid meta; on Simple: not a
 	 *                  member of wpcom's videos table)
-	 * `videopress_has_guid`: (WPCOM only) restrict results to VideoPress videos
-	 *                        (members of wpcom's videos table)
+	 * `videopress_has_guid`: restrict results to VideoPress videos (off-Simple:
+	 *                        the video/videopress mime; on Simple: members of
+	 *                        wpcom's videos table)
 	 * `videopress_only_videos`: (WPCOM only) restrict results to video attachments
 	 * `videopress_privacy_setting`: restrict by privacy (0/1/2). Off-Simple this
 	 *                               is a comma list; on Simple it's a single
@@ -110,6 +111,15 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 
 		if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
 			$args['meta_query'] = array();
+		}
+
+		/*
+		 * Unlike the `mime_type` param, this doesn't depend on video/videopress
+		 * being an allowed upload mime, which the media endpoint silently
+		 * requires before it narrows by mime at all.
+		 */
+		if ( isset( $request['videopress_has_guid'] ) ) {
+			$args['post_mime_type'] = 'video/videopress';
 		}
 
 		/* To ignore all VideoPress videos, select only attachments without videopress_guid meta field */

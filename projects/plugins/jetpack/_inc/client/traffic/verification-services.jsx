@@ -9,6 +9,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportLink from 'components/support-link';
 import TextInput from 'components/text-input';
 import GoogleVerificationService from './verification-services/google';
 
@@ -114,7 +115,12 @@ export class VerificationServicesComponent extends Component {
 							),
 							{
 								b: <strong />,
-								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
+								support: (
+									<SupportLink
+										href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) }
+										wpcomLink="https://wordpress.com/support/site-verification-services/"
+									/>
+								),
 								google: (
 									<Link
 										openInNewTab

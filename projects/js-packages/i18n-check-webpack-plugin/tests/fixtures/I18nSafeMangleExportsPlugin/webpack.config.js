@@ -8,6 +8,7 @@ module.exports = [
 		node: false,
 		output: {
 			filename: 'control.js',
+			library: 'Test',
 		},
 		optimization: {
 			concatenateModules: false,
@@ -21,6 +22,7 @@ module.exports = [
 		node: false,
 		output: {
 			filename: 'plugin.js',
+			library: 'Test',
 		},
 		optimization: {
 			concatenateModules: false,

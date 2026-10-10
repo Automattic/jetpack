@@ -151,8 +151,8 @@
 			.twitter-preview__quote-tweet-overlay {
 				position: absolute;
 				top: 0;
-				left: 0;
-				right: 0;
+				inset-inline-start: 0;
+				inset-inline-end: 0;
 				bottom: 0;
 				opacity: 0;
 			}
@@ -174,7 +174,7 @@
 					grid-template-columns: 125px auto;
 
 					.twitter-preview__card-body {
-						border-left: 1px solid #e1e8ed;
+						border-inline-start: 1px solid #e1e8ed;
 						height: 100%;
 					}
 
@@ -202,7 +202,7 @@
 				text-decoration: none;
 				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 				color: #000;
-				text-align: left;
+				text-align: start;
 				overflow: hidden;
 				display: flex;
 				flex-direction: column;

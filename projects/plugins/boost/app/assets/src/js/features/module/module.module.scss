@@ -85,4 +85,9 @@
 			margin-block-start: var(--wpds-dimension-gap-xs);
 		}
 	}
+
+	// Space a notice after the copy like the row's own children.
+	> * + :not(p) {
+		margin-block-start: var(--wpds-dimension-gap-md);
+	}
 }

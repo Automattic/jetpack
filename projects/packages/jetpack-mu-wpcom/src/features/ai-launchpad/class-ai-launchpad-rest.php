@@ -21,6 +21,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	const MIN_VALID_TASKS = 4;
 
+	/**
+	 * Caps on the client-reported `validation_errors` that reach the `tailored` Logstash record. The client applies
+	 * the same caps; these are the ones that hold for any caller.
+	 */
+	const MAX_VALIDATION_ERRORS       = 4;
+	const MAX_VALIDATION_ERROR_LENGTH = 400;
+
 	// `woo_launch_site`, `link_in_bio_launched`, and `videopress_launched` stay valid launch tasks so a stray AI
 	// emission passes PUT validation rather than failing the whole list into the deterministic fallback. It is
 	// normalized to `site_launched` as it is persisted (see update_tailored) and again on read (see build_tasks,
@@ -260,7 +267,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'sanitize_callback' => 'sanitize_textarea_field',
 						),
 						'locale'      => array(
-							'description'       => 'The user locale.',
+							'description'       => 'The site language the AI writes the drafts and page intros in.',
+							'type'              => 'string',
+							'default'           => 'en',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'ui_locale'   => array(
+							'description'       => 'The account language the AI writes the task subtitles in.',
 							'type'              => 'string',
 							'default'           => 'en',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -339,23 +352,23 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_tailored' ),
 					'permission_callback' => array( $this, 'can_write' ),
 					'args'                => array(
-						'source'        => array(
+						'source'            => array(
 							'description' => 'Whether the payload came from the AI or the deterministic fallback. Query parameter; the JSON body must match the agent output schema exactly.',
 							'type'        => 'string',
 							'enum'        => array( 'ai', 'fallback' ),
 							'default'     => 'ai',
 						),
-						'duration_ms'   => array(
+						'duration_ms'       => array(
 							'description' => 'Client-measured tailoring duration in milliseconds, for the tailored Logstash record.',
 							'type'        => 'integer',
 							'minimum'     => 0,
 						),
-						'attempts'      => array(
+						'attempts'          => array(
 							'description' => 'How many jetpack-ai-query attempts the client made, for the tailored Logstash record.',
 							'type'        => 'integer',
 							'minimum'     => 0,
 						),
-						'ai_session_id' => array(
+						'ai_session_id'     => array(
 							'description'       => 'Client-minted id for this tailoring run, carried by every Tracks event fired afterwards.',
 							'type'              => 'string',
 							'default'           => '',
@@ -368,10 +381,55 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'sanitize_callback' => 'sanitize_key',
 							'validate_callback' => 'rest_validate_request_arg',
 						),
+						'validation_errors' => array(
+							'description'       => 'Why each failed jetpack-ai-query attempt failed, one entry per attempt (schema paths and rule names, never values), for the tailored Logstash record.',
+							'type'              => 'array',
+							'items'             => array( 'type' => 'string' ),
+							'default'           => array(),
+							// Sanitized down rather than validated: a malformed diagnostic must never cost the
+							// user their tailored list.
+							'sanitize_callback' => array( self::class, 'sanitize_validation_errors' ),
+						),
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Sanitizes the client-reported jetpack-ai-query failure reasons for the `tailored` Logstash record.
+	 *
+	 * The client sends only schema paths and rule names. This keeps it that way for any caller: anything that is
+	 * not a string is dropped, every reason is reduced to the characters such a path and rule use (no quotes, so no
+	 * quoted value survives), each is cut to MAX_VALIDATION_ERROR_LENGTH, and at most MAX_VALIDATION_ERRORS are kept.
+	 *
+	 * @param mixed $value The raw param value.
+	 * @return string[] The sanitized reasons.
+	 */
+	public static function sanitize_validation_errors( $value ) {
+		if ( is_string( $value ) ) {
+			$value = array( $value );
+		}
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$reasons = array();
+		foreach ( $value as $reason ) {
+			if ( ! is_string( $reason ) ) {
+				continue;
+			}
+			$reason = trim( substr( (string) preg_replace( '/[^A-Za-z0-9_.$\[\]:;<>= -]/', '', $reason ), 0, self::MAX_VALIDATION_ERROR_LENGTH ) );
+			if ( '' === $reason ) {
+				continue;
+			}
+			$reasons[] = $reason;
+			if ( count( $reasons ) >= self::MAX_VALIDATION_ERRORS ) {
+				break;
+			}
+		}
+
+		return $reasons;
 	}
 
 	/**
@@ -457,6 +515,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
+			// The language this request is translated into, which is the reader's own. Task subtitles
+			// follow it, since they are read here and never published.
+			'user_language'      => determine_locale(),
 			// Site context the client needs for the launch-task CTA, the preview thumbnail/title, and wizard prefill.
 			'site'               => array(
 				'url'         => home_url(),
@@ -464,6 +525,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'description' => get_bloginfo( 'description' ),
 				// Block themes open the Site Editor; classic themes fall back to the Customizer.
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
+				// The site language, which the AI output and the copy written into pages follow.
+				'language'    => wpcom_ai_launchpad_site_locale(),
+				'copy'        => wpcom_ai_launchpad_site_copy(),
 			),
 		);
 	}
@@ -716,6 +780,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'site_name'    => $request['site_name'],
 			'description'  => $request['description'],
 			'locale'       => $request['locale'],
+			'ui_locale'    => $request['ui_locale'],
 			'generated_at' => time(),
 		);
 
@@ -835,7 +900,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 
 		// After the writes, so the observed rendered list is the fresh one.
-		$this->log_tailoring( $ai_output, $raw_task_ids, $request['duration_ms'], $request['attempts'], array_column( $rendered_tasks, 'id' ) );
+		$this->log_tailoring( $ai_output, $raw_task_ids, $request['duration_ms'], $request['attempts'], array_column( $rendered_tasks, 'id' ), (array) $request['validation_errors'] );
 
 		// The analytics bookkeeping stays out of responses, mirroring get_data().
 		unset( $ai_output['tracked_completed'] );
@@ -853,9 +918,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * @param int|null      $duration_ms  Client-measured tailoring duration, or null when not sent.
 	 * @param int|null      $attempts     Client-reported jetpack-ai-query attempt count, or null when not sent.
 	 * @param string[]|null $rendered_ids The rendered task ids, when the caller already computed them.
+	 * @param string[]      $validation_errors Why each failed jetpack-ai-query attempt failed, already sanitized.
 	 * @return void
 	 */
-	private function log_tailoring( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
+	private function log_tailoring( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null, $validation_errors = array() ) {
 		try {
 			/**
 			 * Gates the tailoring observation event sent to Logstash. Checked before the event
@@ -870,7 +936,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash(
 				'atomic_ai_launchpad',
 				'tailored',
-				$this->tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms, $attempts, $rendered_ids )
+				$this->tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms, $attempts, $rendered_ids, $validation_errors )
 			);
 		} catch ( \Throwable $e ) {
 			unset( $e );
@@ -884,20 +950,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * rendered ids, and their delta — `dropped` is what the unknown-id filter and the visibility gate removed, `added`
 	 * is what synthetics and the backfill floor put in. The delta is diffed post-remap so a selected id that renders
 	 * under its working equivalent does not read as a drop plus an addition. The raw wizard title/description are
-	 * never included, and the inferred fields that can echo the user's own words near-verbatim are stripped:
-	 * `brand_name` restates the title and `tagline` is drafted from the description.
+	 * never included, and the one inferred field that echoes the user's own words near-verbatim is stripped:
+	 * `brand_name` restates the title.
 	 *
 	 * @param array         $ai_output    The persisted AI output envelope.
 	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
 	 * @param int|null      $duration_ms  Client-measured tailoring duration, or null when not sent.
 	 * @param int|null      $attempts     Client-reported jetpack-ai-query attempt count, or null when not sent.
 	 * @param string[]|null $rendered_ids The rendered task ids, when the caller already computed them.
+	 * @param string[]      $validation_errors Why each failed jetpack-ai-query attempt failed, already sanitized.
 	 * @return array
 	 */
-	private function tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
+	private function tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null, $validation_errors = array() ) {
 		// Schema-validated on the write path, so `inferred` is always present here.
 		$inferred = $ai_output['payload']['inferred'];
-		unset( $inferred['brand_name'], $inferred['tagline'] );
+		unset( $inferred['brand_name'] );
 
 		$rendered = $rendered_ids ?? array_column( $this->get_current_tasks(), 'id' );
 		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );
@@ -917,6 +984,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 		if ( null !== $attempts ) {
 			$extra['attempts'] = (int) $attempts;
+		}
+		// Only when an attempt failed, so a first-try success keeps the record's usual shape.
+		if ( ! empty( $validation_errors ) ) {
+			$extra['validation_errors'] = array_values( $validation_errors );
 		}
 
 		return $extra;
@@ -1096,7 +1167,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Read endpoint backing the client's availability-aware tailoring: the task ids that will render for the given
-	 * goal. Fetched before the AI call (which the wizard prewarms), so the prompt offers only renderable tasks.
+	 * goal. Fetched before the AI call, so the prompt offers only renderable tasks.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { assertChartsScopeEmitted } from '../assert-charts-scope-emitted';
 
 const CATALOG =
-	':where(.a8c-charts-scope){--a8c-charts-color-grid:var(--wpds-color-stroke-surface-neutral,#dbdbdb)}';
+	':where(.a8c-charts-scope,.a8c-charts-tooltip-scope){--a8c-charts-color-grid:var(--wpds-color-stroke-surface-neutral,#dbdbdb)}';
 
 const distWith = ( css: string ): string => {
 	const dir = mkdtempSync( join( tmpdir(), 'charts-scope-guard-' ) );
@@ -31,7 +31,7 @@ describe( 'assertChartsScopeEmitted', () => {
 					':root{--a8c-charts-color-grid:var(--wpds-color-stroke-surface-neutral,#dbdbdb)}'
 				)
 			)
-		).toThrow( /:where\(\.a8c-charts-scope\)/ );
+		).toThrow( /:where\(\.a8c-charts-scope, \.a8c-charts-tooltip-scope\)/ );
 	} );
 
 	it( 'fails when the catalog is declared on :root as well', () => {

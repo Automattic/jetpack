@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/average-order-value",
+	"icon": "jpa/chart-bar",
+	"title": "Average order value",
+	"description": "Track the average value of each order over a set period of time.",
+	"help": {
+		"content": "Track the average value of each order over a set period of time."
+	},
+	"category": "orders",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

@@ -55,7 +55,8 @@
 	width: 1.25rem;
 	height: 0.25rem;
 
-	margin: 0 0.625rem 0 0;
+	margin-block: 0;
+	margin-inline: 0 0.625rem;
 
 	background-image: radial-gradient(circle at 0.125rem 0.125rem, vars.$facebook-preview-light-text-color 2px, transparent 0);
 	background-size: 0.5rem 0.25rem;

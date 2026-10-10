@@ -1,6 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
+import { store as coreStore } from '@wordpress/core-data';
+import { select as defaultSelect, dispatch as defaultDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { store as noticesStore } from '@wordpress/notices';
 import { store as socialStore } from '../../';
+import { SUPPORTED_SERVICES_MOCK } from '../../../utils/test-constants';
 import { connections, createRegistryWithStores as createRegistry } from '../../../utils/test-utils';
 import { setConnections, toggleConnection } from '../connection-data';
 
@@ -236,6 +240,139 @@ describe( 'Social store actions: connectionData', () => {
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 			expect( connectionsFromMetaBeforeRefresh ).toEqual( connectionsFromMetaAfterRefresh );
+		} );
+	} );
+
+	describe( 'reconnect', () => {
+		const connectionsPath = '/wpcom/v2/publicize/connections';
+		const connectionId = connections[ 0 ].connection_id;
+
+		const keyringResult = {
+			ID: 1234,
+			service: 'facebook',
+			external_ID: 'fb-user-1',
+			external_name: 'FB User',
+			additional_external_users: [
+				{ external_ID: 'page-1', external_name: 'Page 1', external_profile_picture: '' },
+			],
+		};
+
+		let fetchRequests;
+
+		/**
+		 * Create a registry with the services list and the Facebook connection being reconnected.
+		 *
+		 * @param {string} externalId - External ID saved on the Facebook connection.
+		 * @param {string} status     - Status the connections refresh reports.
+		 * @return {import('@wordpress/data').WPDataRegistry} Registry.
+		 */
+		async function setupReconnect( externalId, status = 'ok' ) {
+			fetchRequests = [];
+
+			apiFetch.setFetchHandler( async request => {
+				fetchRequests.push( request );
+
+				if ( request.method === 'POST' && request.path.startsWith( connectionsPath ) ) {
+					return { connection_id: connectionId };
+				}
+
+				if ( request.path.startsWith( connectionsPath ) ) {
+					return [ { ...connections[ 0 ], external_id: 'page-1', status } ];
+				}
+
+				throw { code: 'unknown_path', message: `Unknown path: ${ request.path }` };
+			} );
+
+			const registry = createRegistryWithStores();
+			const core = registry.dispatch( coreStore );
+
+			await core.addEntities( [
+				{ kind: 'wpcom/v2', name: 'publicize/services', baseURL: '/wpcom/v2/publicize/services' },
+			] );
+			await core.receiveEntityRecords(
+				'wpcom/v2',
+				'publicize/services',
+				SUPPORTED_SERVICES_MOCK,
+				true
+			);
+			await core.finishResolution( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
+
+			registry
+				.dispatch( socialStore )
+				.setReconnectingAccount( { ...connections[ 0 ], external_id: externalId } );
+
+			return registry;
+		}
+
+		const lastNotice = () => defaultSelect( noticesStore ).getNotices().at( -1 );
+
+		beforeEach( () => {
+			defaultSelect( noticesStore )
+				.getNotices()
+				.forEach( notice => defaultDispatch( noticesStore ).removeNotice( notice.id ) );
+		} );
+
+		it( 'hands a connection with no Page saved to the account picker', async () => {
+			const registry = await setupReconnect( 'fb-user-1', 'broken' );
+
+			const handled = await registry.dispatch( socialStore ).completeReconnect( keyringResult );
+
+			expect( handled ).toBe( false );
+			expect( fetchRequests ).toEqual( [] );
+			expect( registry.select( socialStore ).getReconnectingAccount() ).toBeDefined();
+			expect( registry.select( socialStore ).reconnectNeedsAccountSelection( keyringResult ) ).toBe(
+				true
+			);
+		} );
+
+		it( 'saves the selected Page on the existing connection', async () => {
+			const registry = await setupReconnect( 'fb-user-1' );
+
+			await registry.dispatch( socialStore ).reconnectWithAccount( connectionId, 'page-1' );
+
+			expect( fetchRequests[ 0 ] ).toMatchObject( {
+				method: 'POST',
+				path: expect.stringContaining( `${ connectionsPath }/${ connectionId }` ),
+				data: { external_user_ID: 'page-1' },
+			} );
+			expect( registry.select( socialStore ).getConnections() ).toEqual( [
+				expect.objectContaining( { connection_id: connectionId, external_id: 'page-1' } ),
+			] );
+			expect( registry.select( socialStore ).getReconnectingAccount() ).toBeUndefined();
+			expect( lastNotice().content ).toBe( 'Account reconnected successfully.' );
+		} );
+
+		it( 'reports an error when saving the selected Page fails', async () => {
+			const registry = await setupReconnect( 'fb-user-1' );
+
+			apiFetch.setFetchHandler( async () => {
+				throw { code: 'insert_error', message: 'Not your Page.' };
+			} );
+
+			await registry.dispatch( socialStore ).reconnectWithAccount( connectionId, 'page-2' );
+
+			expect( registry.select( socialStore ).getReconnectingAccount() ).toBeUndefined();
+			expect( registry.select( socialStore ).getUpdatingConnections() ).toEqual( [] );
+			expect( lastNotice().content ).toBe( 'Error updating account. Not your Page.' );
+		} );
+
+		it( 'reconnects a connection with a Page saved in place', async () => {
+			const registry = await setupReconnect( 'page-1' );
+
+			const handled = await registry.dispatch( socialStore ).completeReconnect( keyringResult );
+
+			expect( handled ).toBe( true );
+			expect( registry.select( socialStore ).getReconnectingAccount() ).toBeUndefined();
+			expect( lastNotice().content ).toBe( 'Account reconnected successfully.' );
+		} );
+
+		it( 'does not handle a different account', async () => {
+			const registry = await setupReconnect( 'page-9' );
+
+			const handled = await registry.dispatch( socialStore ).completeReconnect( keyringResult );
+
+			expect( handled ).toBe( false );
+			expect( fetchRequests ).toEqual( [] );
 		} );
 	} );
 } );

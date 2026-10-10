@@ -4,7 +4,7 @@ import { useDeepMemo } from '../../../hooks';
 import { CATALOG_POINTERS } from '../../../providers/chart-context/private/catalog-pointers';
 import type { BandScale } from './band-scale';
 import type { DataPointDate } from '../../../types';
-import type { BandHighlightSelection } from '../bar-chart';
+import type { BandHighlightSelection } from '../types';
 
 type Props = {
 	visible: boolean;
@@ -41,6 +41,8 @@ export function BandHighlight( { visible, horizontal, onChange }: Props ) {
 		}
 		return {
 			datum: nearest.datum as DataPointDate,
+			key: nearest.key,
+			index: nearest.index,
 			x: horizontal ? ( margin?.left ?? 0 ) : position,
 			y: horizontal ? position : ( margin?.top ?? 0 ),
 			width: horizontal ? innerWidth : scale.bandwidth(),

@@ -70,8 +70,7 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 
 /**
  * Map an author's merged posts (aligned across periods by the Stats data
- * layer, including posts that only existed in the comparison period) onto the
- * drill-down row shape.
+ * layer) onto the drill-down row shape.
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
 	const maxValue = getCombinedPeriodMax(

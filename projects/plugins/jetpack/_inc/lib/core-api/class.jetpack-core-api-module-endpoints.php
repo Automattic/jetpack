@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Status;
@@ -92,6 +93,14 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 		}
 
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
+			if ( ! Jetpack::is_module_active( $module_slug ) ) {
+				return new WP_Error(
+					'module_forced',
+					esc_html__( 'The requested Jetpack module is disabled by your host or site administrator, so it stays off.', 'jetpack' ),
+					array( 'status' => 409 )
+				);
+			}
+
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -153,7 +162,18 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
-		if ( Jetpack::deactivate_module( $module_slug ) ) {
+		$deactivated = Jetpack::deactivate_module( $module_slug );
+
+		// A module that was never saved as active leaves nothing to change, so check the outcome.
+		if ( Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error(
+				'module_forced',
+				esc_html__( 'The requested Jetpack module is enabled by your host or site administrator, so it stays on.', 'jetpack' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( $deactivated ) {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -263,7 +283,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		$failed    = array();
 
 		foreach ( $request['modules'] as $module ) {
-			if ( Jetpack::activate_module( $module, false, false ) ) {
+			if ( Jetpack::activate_module( $module, false, false ) && Jetpack::is_module_active( $module ) ) {
 				$activated[] = $module;
 			} else {
 				$failed[] = $module;
@@ -856,6 +876,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'sharing_label':
 				case 'show':
 					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
+						break;
+					}
+
+					if ( method_exists( Sharing_Options::class, 'update' ) ) {
+						$updated = Sharing_Options::update( array( $option => 'sharing_label' === $option ? wp_slash( $value ) : $value ) );
 						break;
 					}
 

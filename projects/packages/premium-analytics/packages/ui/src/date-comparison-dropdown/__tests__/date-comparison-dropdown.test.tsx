@@ -1,6 +1,7 @@
 import { TZDate } from '@date-fns/tz';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import type { ComparisonDateRangePreset } from '../../use-comparison-date-presets';
 
@@ -10,12 +11,14 @@ const presets: ComparisonDateRangePreset[] = [
 		label: 'Previous period',
 		shortLabel: 'Prev. period',
 		range: { from: new TZDate( '2026-06-01', 'UTC' ), to: new TZDate( '2026-06-30', 'UTC' ) },
+		aliases: [],
 	},
 	{
 		id: 'previous-month',
 		label: 'Previous month',
 		shortLabel: 'Prev. month',
 		range: { from: new TZDate( '2026-05-01', 'UTC' ), to: new TZDate( '2026-05-31', 'UTC' ) },
+		aliases: [ 'previous-period-match-day-of-week' ],
 	},
 ];
 
@@ -52,6 +55,30 @@ describe( 'DateComparisonDropdown', () => {
 		expect( onPresetChange ).toHaveBeenCalledWith( 'previous-month' );
 	} );
 
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'opens on No comparison while nothing is compared', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+
+			render(
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled={ false }
+					onPresetChange={ jest.fn() }
+					onClear={ jest.fn() }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toHaveFocus()
+			);
+		} );
+	} );
+
 	it( 'collapses into a trigger naming the active preset', async () => {
 		const onClear = jest.fn();
 		const user = userEvent.setup();
@@ -76,6 +103,28 @@ describe( 'DateComparisonDropdown', () => {
 		// The way back out is the same menu the `+` opens.
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
 		expect( onClear ).toHaveBeenCalled();
+	} );
+
+	// A folded preset stays in the URL so it can come back on the next range
+	// change; meanwhile the entry naming its window is the one checked.
+	it( 'checks the entry a folded preset is listed under', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled
+				presetId="previous-period-match-day-of-week"
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'button', { name: 'Previous month' } );
+		expect( trigger ).toHaveTextContent( 'Prev. month' );
+
+		await user.click( trigger );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Previous month' } ) ).toBeChecked();
 	} );
 
 	it( 'marks an active comparison with a vs prefix', () => {
@@ -105,24 +154,30 @@ describe( 'DateComparisonDropdown', () => {
 		expect( screen.queryByText( 'vs' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'spells the compared window out in the trigger tooltip', async () => {
-		const user = userEvent.setup();
+	describe( 'tooltip', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		render(
-			<DateComparisonDropdown
-				presets={ presets }
-				enabled
-				presetId="previous-period"
-				onPresetChange={ jest.fn() }
-				onClear={ jest.fn() }
-			/>
-		);
+		it( 'spells the compared window out in the trigger tooltip', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
+			render(
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled
+					presetId="previous-period"
+					onPresetChange={ jest.fn() }
+					onClear={ jest.fn() }
+				/>
+			);
 
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( /June 1.+30, 2026/ );
+			await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+			// Skip the always-mounted description mirror; only the popup proves the hover.
+			await expect(
+				screen.findByText( /June 1.+30, 2026/, { ignore: '[data-visually-hidden]' } )
+			).resolves.toBeVisible();
+		} );
 	} );
 
 	// A URL can carry a comparison whose preset the trigger cannot name — the
@@ -166,5 +221,55 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( trigger );
 		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
 		expect( onPresetChange ).not.toHaveBeenCalled();
+
+		// The Button drops clicks but not keys, so the arrow shortcut is shut apart.
+		act( () => trigger.focus() );
+		await user.keyboard( '{ArrowDown}' );
+		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens its menu on ArrowDown', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		act( () => screen.getByRole( 'button', { name: 'Compare' } ).focus() );
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();
+	} );
+
+	// Picking the first comparison gives the trigger its tooltip; the trigger must
+	// survive that, or focus returns to a detached node and drops to the page.
+	it( 'keeps focus on the trigger when a pick gives it a tooltip', async () => {
+		const user = userEvent.setup();
+
+		function Host() {
+			const [ presetId, setPresetId ] = useState< 'previous-period' | undefined >();
+
+			return (
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled={ !! presetId }
+					presetId={ presetId }
+					onPresetChange={ () => setPresetId( 'previous-period' ) }
+					onClear={ () => setPresetId( undefined ) }
+				/>
+			);
+		}
+
+		render( <Host /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous period' } ) );
+
+		expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toHaveFocus();
 	} );
 } );

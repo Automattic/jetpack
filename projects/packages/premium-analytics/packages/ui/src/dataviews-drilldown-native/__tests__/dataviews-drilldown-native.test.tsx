@@ -185,38 +185,43 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.queryByText( 'Google Search' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'reveals a match that sits under a folded parent when searching', async () => {
-		const user = userEvent.setup();
-		renderTable( { collapsible: true, defaultExpanded: 'none' } );
+	describe( 'searching', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		await user.type( screen.getByRole( 'searchbox' ), 'Google Search' );
+		it( 'reveals a match that sits under a folded parent when searching', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderTable( { collapsible: true, defaultExpanded: 'none' } );
 
-		await expect( screen.findByText( 'Google Search' ) ).resolves.toBeInTheDocument();
-		// The ancestors come back as context, not as a flat result list.
-		expect( screen.getByText( 'Search Engines' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Google' ) ).toBeInTheDocument();
-		// A branch the search never touched stays folded.
-		expect( screen.queryByText( 'Facebook' ) ).not.toBeInTheDocument();
-		// A forced-open ancestor is still a group, so it keeps its control and
-		// its state — it just cannot be used to write a fold yet.
-		const forced = screen.getByRole( 'button', { name: 'Search Engines' } );
-		expect( forced ).toHaveAttribute( 'aria-expanded', 'true' );
-		expect( forced ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( screen.getByRole( 'button', { name: 'Google' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+			await user.type( screen.getByRole( 'searchbox' ), 'Google Search' );
 
-		// Clicking it writes nothing, so clearing the search folds everything
-		// back instead of surfacing a fold the reader never saw take effect.
-		await user.click( forced );
-		await user.clear( screen.getByRole( 'searchbox' ) );
+			await expect( screen.findByText( 'Google Search' ) ).resolves.toBeInTheDocument();
+			// The ancestors come back as context, not as a flat result list.
+			expect( screen.getByText( 'Search Engines' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Google' ) ).toBeInTheDocument();
+			// A branch the search never touched stays folded.
+			expect( screen.queryByText( 'Facebook' ) ).not.toBeInTheDocument();
+			// A forced-open ancestor is still a group, so it keeps its control and
+			// its state — it just cannot be used to write a fold yet.
+			const forced = screen.getByRole( 'button', { name: 'Search Engines' } );
+			expect( forced ).toHaveAttribute( 'aria-expanded', 'true' );
+			expect( forced ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByRole( 'button', { name: 'Google' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 
-		await waitFor( () => expect( screen.queryByText( 'Google' ) ).not.toBeInTheDocument() );
-		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toHaveAttribute(
-			'aria-expanded',
-			'false'
-		);
+			// Clicking it writes nothing, so clearing the search folds everything
+			// back instead of surfacing a fold the reader never saw take effect.
+			await user.click( forced );
+			await user.clear( screen.getByRole( 'searchbox' ) );
+
+			await waitFor( () => expect( screen.queryByText( 'Google' ) ).not.toBeInTheDocument() );
+			expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toHaveAttribute(
+				'aria-expanded',
+				'false'
+			);
+		} );
 	} );
 
 	it( 'counts only the visible rows when paginating', async () => {

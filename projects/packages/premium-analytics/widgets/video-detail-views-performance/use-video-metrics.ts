@@ -8,9 +8,15 @@ import {
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { toDay, type DataFormat, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	HOURS_DATA_FORMAT,
+	toDay,
+	type CountLabel,
+	type DataFormat,
+	type MetricTab,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import {
 	addDays,
 	eachDayOfInterval,
@@ -53,11 +59,6 @@ export interface VideoMetricsState {
 export const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
-};
-
-const HOURS_FORMAT: DataFormat = {
-	type: 'number',
-	options: { decimals: 1 },
 };
 
 const RATE_FORMAT: DataFormat = {
@@ -205,7 +206,7 @@ function playWeightedRetention(
 /**
  * Fetches metric tabs via one `stats/video/{id}` `statType=all` report,
  * headlined by the response's canonical totals (falling back to bucketed
- * sums). Comparison params are ignored but left in the URL for round-trip state.
+ * sums). Comparison params are ignored: the video page has no period-over-period view.
  */
 export default function useVideoMetrics(
 	videoId: number,
@@ -234,7 +235,8 @@ export default function useVideoMetrics(
 			label: string,
 			points: StatsSingleVideoDataPoint[],
 			serverTotal: number | undefined,
-			dataFormat: DataFormat
+			dataFormat: DataFormat,
+			countLabel?: CountLabel
 		): MetricTab => {
 			const current = toBucketPoints( buckets, bucketTotals( points, buckets ), timezone );
 			return {
@@ -243,6 +245,7 @@ export default function useVideoMetrics(
 				value: serverTotal ?? current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 				dataFormat,
+				countLabel,
 			};
 		};
 
@@ -252,7 +255,10 @@ export default function useVideoMetrics(
 				__( 'Views', 'jetpack-premium-analytics-pkg' ),
 				playsSeries,
 				total?.plays,
-				COUNT_FORMAT
+				COUNT_FORMAT,
+				count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' )
 			),
 		];
 
@@ -265,7 +271,10 @@ export default function useVideoMetrics(
 					__( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 					data.series.impressions,
 					total?.impressions,
-					COUNT_FORMAT
+					COUNT_FORMAT,
+					count =>
+						/* translators: %s: number of impressions. */
+						_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' )
 				)
 			);
 		}
@@ -276,7 +285,7 @@ export default function useVideoMetrics(
 					__( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 					data.series.watch_time,
 					total?.watch_time,
-					HOURS_FORMAT
+					HOURS_DATA_FORMAT
 				)
 			);
 		}

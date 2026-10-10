@@ -275,7 +275,7 @@ class Jetpack_Copy_Post {
 	 * @param int     $target_post_id Target post ID.
 	 * @return array Modified post data.
 	 */
-	public function copy_footnotes( $data, $source_post, $target_post_id ) {
+	public function copy_footnotes( $data, $source_post, $target_post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for backward compatibility.
 		$footnotes_json = get_post_meta( $source_post->ID, 'footnotes', true );
 
 		if ( '' === $footnotes_json ) {
@@ -311,8 +311,8 @@ class Jetpack_Copy_Post {
 			$data['post_content'] = str_replace( 'id="' . $old_id . '"', 'id="' . $new_id . '"', $data['post_content'] );
 		}
 
-		// Save the footnotes meta with new IDs.
-		update_post_meta( $target_post_id, 'footnotes', wp_json_encode( $footnotes, JSON_UNESCAPED_SLASHES ) );
+		// Saved by wp_update_post() in update_content(), which slashes $data to match update_post_meta()'s unslashing.
+		$data['meta_input']['footnotes'] = wp_json_encode( $footnotes, JSON_UNESCAPED_SLASHES );
 
 		return $data;
 	}

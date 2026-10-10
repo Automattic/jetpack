@@ -12,8 +12,8 @@
  * the active theme's button styles (colors, typography, border-radius),
  * unless the Styles tab overrides them with an inline style. No PayPal
  * branding on the button itself — the hosted payment page handles
- * payment method selection. "Powered by PayPal" sits below the button
- * when the merchant turns it on.
+ * payment method selection. "Powered by PayPal" shows below the button
+ * by default.
  *
  * @package automattic/jetpack-paypal-payments
  * @since 0.9.0
@@ -27,11 +27,13 @@ $font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans,
 $paypal-blue: #0070ba;
 
 .jetpack-paypal-button {
-	// Defaults only — Border Settings overrides margin with an inline style here.
-	// Width and the stroke go on the button or the QR frame.
+	// Defaults. Inline styles override them: margin on the QR card, Width on
+	// the button card.
 	max-width: 400px;
 	margin: 24px 0;
 	font-family: $font-stack;
+	// Long unbroken names and labels wrap to fit a narrow card.
+	overflow-wrap: anywhere;
 }
 
 // ---------------------------------------------------------------
@@ -102,11 +104,13 @@ $paypal-blue: #0070ba;
 // The .wp-element-button class applies the active theme's button
 // styles (background, color, font, border-radius, padding) so the
 // button blends with the rest of the site. We only add minimal
-// overrides for layout and text-decoration.
+// overrides for layout and text-decoration. border-box keeps the theme's
+// padding and any stroke inside the width, so a 100% button fits the block.
 .jetpack-paypal-button__checkout-link {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-sizing: border-box;
 	width: 100%;
 	text-align: center;
 	text-decoration: none;
@@ -114,11 +118,11 @@ $paypal-blue: #0070ba;
 }
 
 // The Outline style, after core's button block plus the hover states.
-// 1px like extensions/blocks/button/view.scss, so an Outline button does not
-// sit larger than a Fill one, and no padding override so the theme keeps
-// sizing it. currentColor stops the theme's filled-button text color leaving
-// the label invisible; a color set in the Styles tab comes through inline
-// and wins.
+// 1px like extensions/blocks/button/view.scss, and inside the width, so an
+// Outline button is as wide as a Fill one. No padding override, so the
+// theme keeps sizing it. currentColor stops the theme's filled-button text
+// color leaving the label invisible; a color set in the Styles tab comes
+// through inline and wins.
 // The hover/focus/active copies stop the theme repainting the background.
 .jetpack-paypal-button__checkout-link.is-style-outline {
 
@@ -142,12 +146,23 @@ $paypal-blue: #0070ba;
 }
 
 .jetpack-paypal-button__attribution {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 2px;
 	margin: 8px 0 0;
 	padding: 0;
-	text-align: center;
-	font-size: 11px;
-	color: #757575;
+	font-size: 10px;
+	letter-spacing: -0.01em;
 	line-height: 1.5;
+}
+
+// PayPal's wordmark file, unmodified. Sized by height so it keeps its
+// proportions.
+.jetpack-paypal-button__logo {
+	flex-shrink: 0;
+	width: auto;
+	height: 15px;
 }
 
 // Variant options display.
@@ -219,8 +234,12 @@ $paypal-blue: #0070ba;
 	max-width: 320px;
 }
 
+// Shrinks to 3rem like core's Search block input, so the row fits narrow
+// columns. border-box keeps the padding and border inside that minimum.
 .jetpack-paypal-button__qr-link-input {
 	flex: 1;
+	box-sizing: border-box;
+	min-width: 3rem;
 	font-size: 12px;
 	padding: 6px 8px;
 	border: 1px solid #ddd;

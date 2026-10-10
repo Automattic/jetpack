@@ -82,7 +82,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) );
 
 		// Clean up filters tests may add.
-		remove_all_filters( 'agents_manager_use_unified_experience' );
+		remove_all_filters( 'agents_manager_should_load' );
 		remove_all_filters( 'agents_manager_variant' );
 
 		// Restore any filesystem global a test stubbed out.
@@ -111,7 +111,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	private function enable_preservation() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 	}
 
 	/**
@@ -327,7 +327,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		set_current_screen( 'dashboard' );
 		$this->cache_open_state( true );
 
-		// No unified experience filter added -> no active variant -> no app loaded.
+		// No integration requests the shell, so there is no active variant.
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
@@ -342,7 +342,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'agents_manager_variant',
 			static function () {
-				return 'wp-admin-disconnected';
+				return 'gutenberg-disconnected';
 			}
 		);
 

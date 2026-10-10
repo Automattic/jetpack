@@ -62,7 +62,7 @@ export function OnboardingWelcomeModal( {
 					</div>
 					<Stack direction="column" gap="md">
 						<Dialog.Title>
-							{ __( 'Welcome to the new Traffic page', 'jetpack-premium-analytics-pkg' ) }
+							{ __( 'Welcome to the new Stats', 'jetpack-premium-analytics-pkg' ) }
 						</Dialog.Title>
 						<Dialog.Description>
 							{ __(

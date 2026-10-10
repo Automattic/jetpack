@@ -1,5 +1,5 @@
 # Jetpack Performance Testing Environment
-# Single WordPress instance with simulated Jetpack connection for LCP measurement.
+# Matched WordPress instances with connected and deactivated Jetpack for Dashboard measurement.
 # Plugin is mounted from ../plugin (cloned from jetpack-production mirror).
 #
 # Ports are assigned dynamically by Docker. Use 'docker compose port <service> 80' to discover.
@@ -18,7 +18,7 @@ services:
     networks:
       - jetpack-perf
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-prootpassword']
       interval: 5s
       timeout: 5s
       retries: 20
@@ -29,7 +29,7 @@ services:
   wordpress-jetpack-connected:
     image: wordpress:7.0-php8.2-apache
     ports:
-      - "80"  # Dynamic port - use 'docker compose port wordpress-jetpack-connected 80' to discover
+      - '127.0.0.1::80' # Dynamic port - use 'docker compose port wordpress-jetpack-connected 80' to discover
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: db
@@ -37,13 +37,35 @@ services:
       WORDPRESS_DB_PASSWORD: rootpassword
       WORDPRESS_DB_NAME: wp_jetpack_connected
       WORDPRESS_TABLE_PREFIX: wp_
-      WORDPRESS_DEBUG: "false"
+      WORDPRESS_DEBUG: 'false'
       # Simulated latency in milliseconds (configurable)
       WPCOM_SIMULATED_LATENCY_MS: ${WPCOM_SIMULATED_LATENCY_MS:-200}
     volumes:
       - wp_jetpack_connected:/var/www/html
       - ../plugin:/var/www/html/wp-content/plugins/jetpack:ro
-      # Mount the mu-plugin for connection simulation
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+    networks:
+      - jetpack-perf
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Dashboard control: same plugin files, without activation or connection simulation.
+  wordpress-no-jetpack:
+    image: wordpress:7.0-php8.2-apache
+    ports:
+      - '127.0.0.1::80'
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WORDPRESS_DB_NAME: wp_no_jetpack
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_DEBUG: 'false'
+    volumes:
+      - wp_no_jetpack:/var/www/html
+      - ../plugin:/var/www/html/wp-content/plugins/jetpack:ro
       - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
     networks:
       - jetpack-perf
@@ -54,12 +76,15 @@ services:
   # WP-CLI for setup operations
   wpcli:
     image: wordpress:cli-2.10-php8.2
-    user: "33:33"  # Match www-data UID from WordPress Debian image
+    user: '33:33' # Match www-data UID from WordPress Debian image
     volumes:
       - wp_jetpack_connected:/var/www/html/jetpack-connected
       - ./setup-wordpress.sh:/usr/local/bin/setup-wordpress.sh:ro
       - ../plugin:/var/www/html/jetpack-connected/wp-content/plugins/jetpack:ro
       - ./mu-plugins:/var/www/html/jetpack-connected/wp-content/mu-plugins:ro
+      - wp_no_jetpack:/var/www/html/no-jetpack
+      - ../plugin:/var/www/html/no-jetpack/wp-content/plugins/jetpack:ro
+      - ./mu-plugins:/var/www/html/no-jetpack/wp-content/mu-plugins:ro
     networks:
       - jetpack-perf
     depends_on:
@@ -67,6 +92,9 @@ services:
         condition: service_healthy
       wordpress-jetpack-connected:
         condition: service_started
+      wordpress-no-jetpack:
+        condition: service_started
+        required: false
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: root
@@ -75,7 +103,7 @@ services:
       WP_ADMIN_PASS: ${WP_ADMIN_PASS:-password}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.com}
     # Run setup and exit
-    command: ["sh", "/usr/local/bin/setup-wordpress.sh"]
+    command: ['sh', '/usr/local/bin/setup-wordpress.sh']
 
 networks:
   jetpack-perf:
@@ -84,3 +112,4 @@ networks:
 volumes:
   db_data:
   wp_jetpack_connected:
+  wp_no_jetpack:

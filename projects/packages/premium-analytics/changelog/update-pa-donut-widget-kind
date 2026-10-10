@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets toolkit: Add a Donut component that renders a breakdown with its total, legend, deltas and states; the five WooCommerce donut widgets use it.

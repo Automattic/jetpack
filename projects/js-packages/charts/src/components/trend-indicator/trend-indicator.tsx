@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import styles from './trend-indicator.module.scss';
 import type { TrendIndicatorProps, TrendDirection } from './types';
+import type { JSX } from 'react';
 
 const DIRECTION_LABELS: Record< TrendDirection, string > = {
 	up: 'Increase',

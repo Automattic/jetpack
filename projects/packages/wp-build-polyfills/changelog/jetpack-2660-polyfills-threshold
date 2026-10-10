@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Apply polyfills and a higher WordPress version threshold that register() receives after the polyfills are already registered, instead of silently ignoring them.

@@ -1,0 +1,15 @@
+/* Inline, so the cell keeps the badge at the column's end; flex blockifies the
+ * badge, so every status stands the same full height. */
+.root {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+/* The reason leads the explanation in bold; the popover title is hidden, so
+ * this is the only heading the reader sees. */
+.reason {
+	display: block;
+	margin-block-end: var(--wpds-dimension-gap-xs);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}

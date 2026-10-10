@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	type DetailPageHeaderSlots,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
@@ -10,9 +14,9 @@ import { video } from '@wordpress/icons';
  */
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
+import styles from './video-header-slots.module.scss';
 import type { VideoSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
-import type { DetailPageHeaderSlots } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type VideoHeaderSlotsArgs = {
 	summary: VideoSummary;
@@ -33,9 +37,14 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
 	const hidePoster = useCallback( () => setFailedPosterUrl( posterUrl ), [ posterUrl ] );
 
 	return posterUrl && posterUrl !== failedPosterUrl ? (
-		<img src={ posterUrl } alt="" onError={ hidePoster } />
+		<span className={ styles.poster }>
+			<img src={ posterUrl } alt="" onError={ hidePoster } />
+			<span className={ styles.playOverlay }>
+				<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
+			</span>
+		</span>
 	) : (
-		<Icon icon={ video } size={ 28 } />
+		<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
 	);
 }
 
@@ -54,7 +63,7 @@ export function videoHeaderSlots( {
 	summary,
 	performanceRange,
 }: VideoHeaderSlotsArgs ): DetailPageHeaderSlots {
-	const glyph = <Icon icon={ video } size={ 28 } />;
+	const glyph = <Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
 	// The title lands on its own request, so the header would otherwise read as
 	// blank until well after the grid has drawn (WOOA7S-2059).

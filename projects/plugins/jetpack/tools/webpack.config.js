@@ -2,7 +2,6 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const { glob } = require( 'glob' );
-const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -178,7 +177,7 @@ module.exports = [
 			// Some of the package's strings ship with the textdomain left as a
 			// `__i18n_text_domain__` placeholder. Unreplaced it is a free variable, so those
 			// strings throw a ReferenceError when their component renders.
-			new webpack.DefinePlugin( {
+			new jetpackWebpackConfig.webpack.DefinePlugin( {
 				__i18n_text_domain__: JSON.stringify( 'jetpack' ),
 			} ),
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {

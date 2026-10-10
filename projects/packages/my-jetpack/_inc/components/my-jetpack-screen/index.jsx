@@ -1,13 +1,8 @@
 /*
  * External dependencies
  */
-import {
-	ActionButton,
-	AdminPage,
-	Col,
-	Container,
-	GlobalNotices,
-} from '@automattic/jetpack-components';
+import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
@@ -28,10 +23,10 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
+import { useReplayPendingNotice } from '../../utils/pending-notice';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
@@ -202,11 +197,10 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						<GlobalNotices />
 						{ ! isNewUser && (
 							<Container horizontalSpacing={ 0 }>
 								<Col>
-									<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+									<JitmSlot />
 								</Col>
 							</Container>
 						) }

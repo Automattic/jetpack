@@ -173,7 +173,7 @@ type DataFormat = {
 **Examples:**
 
 ```tsx
-import { ComparativeLineChart, getFormatByMetricKey } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 // Simple line chart with currency formatting
 <ComparativeLineChart
@@ -223,13 +223,13 @@ import { ComparativeLineChart, getFormatByMetricKey } from '@jetpack-premium-ana
 // Using helper for predefined metric formats
 <ComparativeLineChart
   series={ series }
-  dataFormat={ getFormatByMetricKey( 'total_sales' ) }
+  dataFormat={ { type: 'currency' } }
 />
 ```
 
 **Bar variant:** for the same comparative time series drawn as bars, use `ComparativeBarChart`. It
 takes the same series shape and date alignment, but reads its styling from the chart theme instead
-of a `styles` prop, so it must render inside a `GlobalChartsProvider`. See
+of a `styles` prop. Both variants must render inside a `GlobalChartsProvider`. See
 `src/components/chart-comparative-bar/README.md`.
 
 ---
@@ -251,48 +251,6 @@ Internal chart tooltip component used by `ComparativeLineChart`. Displays format
 ---
 
 ## Helpers
-
-### getFormatByMetricKey
-
-Returns the appropriate `DataFormat` configuration for a given metric key.
-
-**Signature:**
-
-```tsx
-function getFormatByMetricKey( metricKey: MetricKey ): DataFormat;
-```
-
-**Supported Metrics:**
-
-- `orders_no` - Number format
-- `total_sales` - Currency format
-- `average_order_value` - Currency format
-- `avg_items` - Average format
-- `orders_value_net` - Currency format
-- `orders_value_gross` - Currency format
-- `coupons` - Currency format
-- `profit_margin` - Currency format
-- `visitors` - Number format with multipliers
-
-**Example:**
-
-```tsx
-import { getFormatByMetricKey, ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
-
-<ComparativeLineChart
-  series={ ordersSeries }
-  dataFormat={ getFormatByMetricKey( 'total_sales' ) }
-/>
-// Returns: { type: 'currency' }
-
-<ComparativeLineChart
-  series={ visitorsSeries }
-  dataFormat={ getFormatByMetricKey( 'visitors' ) }
-/>
-// Returns: { type: 'number', options: { useMultipliers: true, decimals: 0 } }
-```
-
----
 
 ### applyThemeStylesToSeries
 
@@ -331,33 +289,6 @@ const styledSeries = applyThemeStylesToSeries( series, chartTheme );
 
 ---
 
-### formatOrderMetric
-
-Creates a formatter function for a specific order metric.
-
-**Signature:**
-
-```tsx
-function formatOrderMetric(
-	metricKey: MetricKey,
-	options?: FormatMetricValueOptions
-): ( value: number ) => string;
-```
-
-**Example:**
-
-```tsx
-import { formatOrderMetric } from '@jetpack-premium-analytics/widgets-toolkit';
-
-const formatter = formatOrderMetric( 'total_sales' );
-formatter( 1234.56 ); // Returns: "$1,234.56"
-
-const visitorFormatter = formatOrderMetric( 'visitors' );
-visitorFormatter( 15000 ); // Returns: "15K"
-```
-
----
-
 ## Types
 
 ### DataFormat
@@ -373,28 +304,6 @@ type DataFormat = {
 	};
 };
 ```
-
-### MetricKey
-
-Union type of all supported metric keys.
-
-```tsx
-type OrderMetricKey =
-	| 'orders_no'
-	| 'total_sales'
-	| 'average_order_value'
-	| 'avg_items'
-	| 'orders_value_net'
-	| 'orders_value_gross'
-	| 'coupons'
-	| 'profit_margin';
-
-type VisitorsMetricKey = 'visitors';
-
-type MetricKey = OrderMetricKey | VisitorsMetricKey;
-```
-
----
 
 ## Styling
 

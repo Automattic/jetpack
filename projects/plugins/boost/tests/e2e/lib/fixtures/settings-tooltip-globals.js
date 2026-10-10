@@ -1,6 +1,8 @@
 /* global window */
 // Must run before the data-sync and My Jetpack clients are evaluated, so it is the entry's first import.
-window.Jetpack_Boost = { site: { online: true, url: 'http://boost-settings.test' } };
+window.Jetpack_Boost = {
+	site: { online: true, myJetpack: true, url: 'http://boost-settings.test' },
+};
 window.jetpack_boost_ds = {
 	rest_api: { value: 'http://boost-settings.test/wp-json', nonce: 'fixture' },
 	premium_features: { value: [], nonce: 'fixture' },

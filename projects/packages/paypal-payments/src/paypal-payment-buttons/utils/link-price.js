@@ -27,7 +27,7 @@ export function linkPrice( { price, currencyCode, variantsEnabled, variants } = 
 	const code = currencyCode || 'USD';
 
 	if ( ! hasVariantPricing( variantsEnabled, variants ) ) {
-		return `${ price ?? '' }`.trim() === '' ? '' : formatPrice( `${ price }`.trim(), code );
+		return formatPrice( `${ price ?? '' }`.trim(), code );
 	}
 
 	const lowest = getLowestVariantPrice( variants );

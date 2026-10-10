@@ -43,6 +43,7 @@ function proceed_p {
 	if color_supported; then
 		PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
 	fi
+	[[ "${JETPACK_SILENCE_ALERTS:-0}" == 0 ]] && PROMPT=$'\a'"$PROMPT"
 
 	while read -r -s -n 1 -p "$PROMPT" OK; do
 		echo "${OK:-$DEF}"

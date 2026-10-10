@@ -75,8 +75,8 @@ export default function Player( {
 	preview,
 	isRequestingEmbedPreview,
 }: PlayerProps ): ReactElement {
-	const mainWrapperRef = useRef< HTMLDivElement >();
-	const videoWrapperRef = useRef< HTMLDivElement >();
+	const mainWrapperRef = useRef< HTMLDivElement >( undefined );
+	const videoWrapperRef = useRef< HTMLDivElement >( undefined );
 
 	const { maxWidth, caption, videoRatio, align } = attributes;
 
@@ -90,7 +90,7 @@ export default function Player( {
 	// With the shared bundle the player mounts in the page and its container keeps the ratio itself.
 	const inlinePlayerConfig = getInlinePlayerConfig();
 	const isInline = !! inlinePlayerConfig;
-	const inlinePlayerRef = useRef< HTMLDivElement >();
+	const inlinePlayerRef = useRef< HTMLDivElement >( undefined );
 
 	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState<
 		number | string

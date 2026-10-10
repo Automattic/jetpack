@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: Use the default chart interval when switching to a different preset, instead of keeping the previous preset's.

@@ -11,6 +11,7 @@ import {
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
+	sanitizeStatsAuthorResponse,
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
@@ -41,6 +42,7 @@ import {
 	sanitizeStatsWordAdsEarningsResponse,
 	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
+import { getStatsRefetchInterval } from '../utils/refetch-interval';
 import { resolveReportTimeZone } from '../utils/report-timezone';
 import {
 	reportParamsToStatsQueryParams,
@@ -71,6 +73,7 @@ type StatsReportQuerySettings = {
 
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
+	author: sanitizeStatsAuthorResponse,
 	post: sanitizeStatsPostResponse,
 	postComments: sanitizeStatsPostCommentsResponse,
 	postLikes: sanitizeStatsPostLikesResponse,
@@ -124,6 +127,12 @@ export type StatsQueryConfig< TSanitizer extends StatsSanitizerKey = StatsSaniti
 	sanitizer?: TSanitizer;
 	sanitizerParams?: StatsQueryParams;
 	enabled?: boolean;
+
+	/**
+	 * The window's end, for an endpoint whose `date` is not the end. `null` when
+	 * the request has none, which keeps the query polling.
+	 */
+	windowEnd?: string | null;
 };
 
 export function statsProxyQuery< TSanitizer extends StatsSanitizerKey >(
@@ -175,6 +184,11 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 			} );
 		},
 		enabled,
+		refetchInterval: () =>
+			getStatsRefetchInterval(
+				config.windowEnd === undefined ? apiParams.date : config.windowEnd,
+				timezone
+			),
 		placeholderData: previousData => previousData,
 	};
 }

@@ -9,7 +9,7 @@ import { format, subDays } from 'date-fns';
 import { getPeriodsBetweenInclusive, reportParamsToStatsQueryParams } from '../utils/stats-params';
 import { statsProxyQuery } from './stats-query';
 import type { StatsReportParams, StatsReportQueryOptions } from './stats-query';
-import type { StatsPeriod } from '../utils/stats-params';
+import type { StatsPeriod, StatsQueryParams } from '../utils/stats-params';
 
 export const statsSubscribersDefaultStatFields = 'subscribers,subscribers_paid';
 
@@ -35,7 +35,8 @@ function toSubscribersUnit( period?: string ): StatsSubscribersUnit {
 export type StatsSubscribersCountsParams = Record< string, never >;
 
 export const statsSubscribersQuery = (
-	params: StatsSubscribersParams
+	params: StatsSubscribersParams,
+	sanitizerParams?: StatsQueryParams
 ): StatsReportQueryOptions< 'subscribers' > =>
 	statsProxyQuery( {
 		name: 'subscribers',
@@ -49,6 +50,7 @@ export const statsSubscribersQuery = (
 			stat_fields: params.stat_fields ?? statsSubscribersDefaultStatFields,
 		},
 		sanitizer: 'subscribers',
+		sanitizerParams,
 	} );
 
 /**
@@ -69,9 +71,13 @@ export const statsSubscribersReportQuery = (
 	const quantity =
 		startDate && endDate ? getPeriodsBetweenInclusive( unit, startDate, endDate ) : 1;
 
-	// Reuse the endpoint config; only gate on a resolved range end.
+	// Reuse the endpoint config; only gate on a resolved range end. The sanitizer
+	// reads the range start to label a partial first bucket.
 	return {
-		...statsSubscribersQuery( { unit, quantity, date: endDate ?? '' } ),
+		...statsSubscribersQuery(
+			{ unit, quantity, date: endDate ?? '' },
+			startDate ? { start_date: startDate } : undefined
+		),
 		enabled: !! endDate,
 	};
 };

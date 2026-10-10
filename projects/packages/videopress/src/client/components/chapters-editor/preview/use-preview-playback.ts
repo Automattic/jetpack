@@ -1,16 +1,5 @@
 /**
- * Playback state for the chapters editors' preview player.
- *
- * Owns { currentMs, playing, durationMs } for a <video> element. While
- * playing, a requestAnimationFrame loop reads `currentTime` directly (smooth
- * playhead instead of the ~4Hz `timeupdate` event); reaching the media's end
- * fires the element's own 'ended' event, which pauses the state machine.
- *
- * Adapted from the Studio editor's preview-playback hook with the edit
- * session's skip engine removed: chapters play the video as-is (identity
- * playback), so the per-frame resolver had nothing left to resolve.
- *
- * All millisecond values are integers on the video's timeline.
+ * Playback state and transport controls for a video editing preview.
  */
 import { __, _x } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -39,7 +28,18 @@ export interface PreviewVideoElement {
 /**
  * Options for {@link usePreviewPlayback}.
  */
+export interface PlaybackResolution {
+	seekTo?: number;
+	ended?: boolean;
+}
+
 export interface UsePreviewPlaybackOptions {
+	/** Instance-specific DOM fallback when the router replaces the ref-owning fiber. */
+	videoElementId?: string;
+	/** Resolve edited playback while running; paused seeks remain unrestricted. */
+	resolvePlayback?: ( currentMs: number ) => PlaybackResolution;
+	/** Position to restart from when the edited output ends. */
+	restartMs?: number;
 	/**
 	 * Duration to report before the element's metadata loads (e.g. from the
 	 * media REST item), in ms. The element's own metadata wins once known.
@@ -57,6 +57,8 @@ export interface PreviewPlayback {
 	playing: boolean;
 	/** Media duration in ms (metadata, or the fallback until it loads). */
 	durationMs: number;
+	/** Whether the attached source has loaded its metadata. */
+	hasMetadata: boolean;
 	/** Callback ref: attach to the <video> element (or null to detach). */
 	attachVideo: ( element: PreviewVideoElement | null ) => void;
 	/** Start playback; restarts from the beginning when at the end. */
@@ -108,6 +110,8 @@ function elementMs( element: PreviewVideoElement ): number {
  */
 export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): PreviewPlayback {
 	const { fallbackDurationMs = 0 } = options;
+	const optionsRef = useRef( options );
+	optionsRef.current = options;
 
 	const [ currentMs, setCurrentMs ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
@@ -118,20 +122,21 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 	const videoRef = useRef< PreviewVideoElement | null >( null );
 	const detachRef = useRef< ( () => void ) | null >( null );
 	const frameRef = useRef< number | null >( null );
+	const playRequestRef = useRef( 0 );
 
-	// Resolve the element lazily: prefer the callback-ref value, but fall back
-	// to the DOM. The router's fiber juggling has been observed leaving a live
-	// instance whose ref callback ran against a sibling fiber, so the ref can
-	// be empty while the element is right there on the page.
 	const getVideo = useCallback( (): PreviewVideoElement | null => {
 		if ( videoRef.current ) {
 			return videoRef.current;
 		}
-		if ( typeof document !== 'undefined' ) {
-			return document.querySelector< HTMLVideoElement >( '[data-testid="chapters-preview-video"]' );
+		if ( typeof document === 'undefined' ) {
+			return null;
 		}
-		return null;
+		const id = optionsRef.current.videoElementId;
+		return id
+			? ( document.getElementById( id ) as HTMLVideoElement | null )
+			: document.querySelector< HTMLVideoElement >( '[data-testid="chapters-preview-video"]' );
 	}, [] );
+
 	// Mirrors of state so the rAF loop and stable callbacks always read
 	// fresh values without re-subscribing element listeners.
 	const playingRef = useRef( false );
@@ -158,6 +163,7 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 	}, [] );
 
 	const markPaused = useCallback( () => {
+		playRequestRef.current++;
 		playingRef.current = false;
 		setPlaying( false );
 		stopLoop();
@@ -179,7 +185,18 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 				markPaused();
 				return;
 			}
-			setCurrentMs( elementMs( video ) );
+			let ms = elementMs( video );
+			const resolution = optionsRef.current.resolvePlayback?.( ms );
+			if ( resolution?.seekTo !== undefined ) {
+				ms = resolution.seekTo;
+				video.currentTime = ms / 1000;
+			}
+			setCurrentMs( ms );
+			if ( resolution?.ended ) {
+				video.pause();
+				markPaused();
+				return;
+			}
 			frameRef.current = requestAnimationFrame( tickFrame );
 		},
 		[ markPaused ]
@@ -196,11 +213,14 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 			if ( videoRef.current === element ) {
 				return;
 			}
+			playRequestRef.current++;
 			detachRef.current?.();
 			detachRef.current = null;
 			stopLoop();
 			videoRef.current = element;
 			playingRef.current = false;
+			setMetadataDurationMs( null );
+			setPlaybackError( null );
 
 			if ( ! element ) {
 				setPlaying( false );
@@ -214,12 +234,7 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 				setPlaybackError( null );
 				startLoop();
 			};
-			const onPause = () => {
-				playingRef.current = false;
-				setPlaying( false );
-				stopLoop();
-				syncTime();
-			};
+			const onPause = markPaused;
 			const onLoadedMetadata = () => {
 				if ( Number.isFinite( element.duration ) && element.duration > 0 ) {
 					setMetadataDurationMs( Math.round( element.duration * 1000 ) );
@@ -227,6 +242,7 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 				}
 			};
 			const onError = () => {
+				markPaused();
 				setPlaybackError( mediaErrorMessage( element.error ?? null ) );
 			};
 			element.addEventListener( 'play', onPlay );
@@ -278,49 +294,77 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 				onPlay();
 			}
 		},
-		[ startLoop, stopLoop ]
+		[ markPaused, startLoop, stopLoop ]
 	);
+
+	// Recover listeners and metadata along with the element after a router ref handoff.
+	useEffect( () => {
+		const video = getVideo();
+		if ( video && video !== videoRef.current ) {
+			attachVideo( video );
+		}
+	} );
 
 	const play = useCallback( () => {
 		const video = getVideo();
 		if ( ! video ) {
 			return;
 		}
-		// Replay from the beginning when the media has ended (the identity
-		// equivalent of the Studio player's replay-from-trim-start).
+		const { resolvePlayback, restartMs = 0 } = optionsRef.current;
+		let ms = elementMs( video );
+		let resolution = resolvePlayback?.( ms );
 		const bound = durationRef.current;
-		if ( bound > 0 && elementMs( video ) >= bound ) {
-			video.currentTime = 0;
-			setCurrentMs( 0 );
+		if ( resolution?.ended || ( ! resolvePlayback && bound > 0 && ms >= bound ) ) {
+			ms = restartMs;
+			resolution = resolvePlayback?.( ms );
 		}
-		// Drive state from the play() promise, not the 'play' event (events
-		// before the pipeline wakes can be dropped entirely). On rejection,
-		// surface the reason instead of failing silently.
-		video
-			.play()
-			?.then( () => {
-				playingRef.current = true;
-				setPlaying( true );
-				setPlaybackError( null );
-				readDuration();
-				startLoop();
-			} )
-			.catch( ( error: unknown ) => {
-				const name = error instanceof Error ? error.name : '';
-				// _x (not __) for the second branch: Terser merges a ternary of
-				// two identical calls into one call with a ternary argument,
-				// which the i18n extractor can't see through.
-				setPlaybackError(
-					name === 'NotSupportedError'
-						? __( 'This video format is not supported by the browser.', 'jetpack-videopress-pkg' )
-						: _x(
-								'Playback could not be started.',
-								'chapters preview player error',
-								'jetpack-videopress-pkg'
-							)
-				);
-			} );
-	}, [ readDuration, startLoop ] );
+		ms = resolution?.seekTo ?? ms;
+		if ( ms !== elementMs( video ) ) {
+			video.currentTime = ms / 1000;
+			setCurrentMs( ms );
+		}
+		if ( resolution?.ended ) {
+			return;
+		}
+
+		const request = ++playRequestRef.current;
+		const onStarted = () => {
+			if ( request !== playRequestRef.current || video !== getVideo() || video.paused ) {
+				return;
+			}
+			playingRef.current = true;
+			setPlaying( true );
+			setPlaybackError( null );
+			readDuration();
+			startLoop();
+		};
+		const onFailure = ( error: unknown ) => {
+			if ( request !== playRequestRef.current || video !== getVideo() ) {
+				return;
+			}
+			markPaused();
+			const name = error instanceof Error ? error.name : '';
+			setPlaybackError(
+				name === 'NotSupportedError'
+					? __( 'This video format is not supported by the browser.', 'jetpack-videopress-pkg' )
+					: _x(
+							'Playback could not be started.',
+							'video preview player error',
+							'jetpack-videopress-pkg'
+						)
+			);
+		};
+		try {
+			const requestPromise = video.play();
+			if ( requestPromise ) {
+				requestPromise.then( onStarted, onFailure );
+			} else {
+				onStarted();
+			}
+		} catch ( error ) {
+			onFailure( error );
+		}
+	}, [ markPaused, readDuration, startLoop ] );
 
 	const pause = useCallback( () => {
 		getVideo()?.pause();
@@ -336,6 +380,9 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 	}, [ play, pause ] );
 
 	const seekTo = useCallback( ( ms: number ) => {
+		if ( ! Number.isFinite( ms ) ) {
+			return;
+		}
 		const bound = durationRef.current;
 		let clamped = Math.max( 0, Math.round( ms ) );
 		if ( bound > 0 ) {
@@ -353,6 +400,7 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 	// consumers that never hand the element back.
 	useEffect( () => {
 		return () => {
+			playRequestRef.current++;
 			detachRef.current?.();
 			detachRef.current = null;
 			videoRef.current = null;
@@ -364,6 +412,7 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 		currentMs,
 		playing,
 		durationMs,
+		hasMetadata: metadataDurationMs !== null,
 		attachVideo,
 		play,
 		pause,

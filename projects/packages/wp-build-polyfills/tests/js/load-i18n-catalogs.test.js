@@ -462,6 +462,99 @@ describe( 'loadBundleI18nCatalog', () => {
 	} );
 } );
 
+describe( 'loadI18nManifest', () => {
+	const FOREIGN_MANIFEST_URL =
+		'https://example.org/wp-content/plugins/jetpack/vendor/automattic/jetpack-wordads/build/i18n-manifest.json?ver=0.1.0';
+	const FOREIGN_BUNDLE = 'build/widgets/chart-tabs/render.js';
+
+	it( 'caches the manifest under its domain so on-demand bundle loads can find it', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		const requests = installFetch( { bundles: [ FOREIGN_BUNDLE ] } );
+		const api = await import( HELPER );
+
+		await api.loadI18nManifest( 'jetpack-wordads-pkg', FOREIGN_MANIFEST_URL );
+
+		assert.deepEqual(
+			requests.map( r => r.url ),
+			[ FOREIGN_MANIFEST_URL ],
+			'fetches the manifest at the URL given'
+		);
+		assert.deepEqual( calls, [], 'downloads no catalog by itself' );
+
+		await api.loadBundleI18nCatalog( 'jetpack-wordads-pkg', FOREIGN_BUNDLE );
+
+		assert.deepEqual( calls, [ [ FOREIGN_BUNDLE, 'jetpack-wordads-pkg', 'plugin' ] ] );
+		assert.deepEqual( warnings, [] );
+	} );
+
+	it( 'publishes the manifest before it resolves, so a bundle load right after it waits rather than skips', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		installFetch( { bundles: [ FOREIGN_BUNDLE ] } );
+		const api = await import( HELPER );
+
+		api.loadI18nManifest( 'jetpack-wordads-pkg', FOREIGN_MANIFEST_URL );
+		await api.loadBundleI18nCatalog( 'jetpack-wordads-pkg', FOREIGN_BUNDLE );
+
+		assert.deepEqual( calls, [ [ FOREIGN_BUNDLE, 'jetpack-wordads-pkg', 'plugin' ] ] );
+	} );
+
+	it( "fetches a domain's manifest once, keeping the first bundle set on a repeat call", async () => {
+		installLoader( () => Promise.resolve() );
+		const requests = installFetch( { bundles: [ FOREIGN_BUNDLE ] } );
+		const api = await import( HELPER );
+
+		await api.loadI18nManifest( 'jetpack-wordads-pkg', FOREIGN_MANIFEST_URL );
+		await api.loadI18nManifest( 'jetpack-wordads-pkg', FOREIGN_MANIFEST_URL + '&other=1' );
+
+		assert.equal( requests.length, 1 );
+	} );
+
+	it( "keeps the bundle set boot loaded for the page's own domain", async () => {
+		installLoader( () => Promise.resolve() );
+		const requests = installFetch( { bundles: [ 'build/routes/a/content.js' ] } );
+		const api = await import( HELPER );
+
+		await api.loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+		await api.loadI18nManifest( 'jetpack-test', MANIFEST_URL );
+
+		assert.equal(
+			requests.length,
+			1,
+			'no second manifest request for a domain boot already cached'
+		);
+	} );
+
+	it( 'resolves silently when the manifest is missing, and warns on other failures', async () => {
+		installLoader( () => Promise.resolve() );
+		installFetch( new Error( 'HTTP request failed: 404 Not Found' ) );
+		const api = await import( HELPER );
+		await api.loadI18nManifest( 'jetpack-wordads-pkg', FOREIGN_MANIFEST_URL );
+		assert.deepEqual( warnings, [] );
+
+		delete globalThis.window;
+		installLoader( () => Promise.resolve() );
+		installFetch( new Error( 'HTTP request failed: 500 Internal Server Error' ) );
+		await api.loadI18nManifest( 'jetpack-other-pkg', FOREIGN_MANIFEST_URL );
+		assert.equal( warnings.length, 1 );
+		assert.match( warnings[ 0 ], /Failed to load the i18n manifest for "jetpack-other-pkg"/ );
+	} );
+
+	it( 'does nothing for the en_US locale or an invalid URL', async () => {
+		installLoader( () => Promise.resolve(), { locale: 'en_US' } );
+		const requests = installFetch( { bundles: [ FOREIGN_BUNDLE ] } );
+		const api = await import( HELPER );
+
+		await api.loadI18nManifest( 'jetpack-wordads-pkg', FOREIGN_MANIFEST_URL );
+		assert.equal( requests.length, 0 );
+
+		delete globalThis.window;
+		installLoader( () => Promise.resolve() );
+		await api.loadI18nManifest( 'jetpack-wordads-pkg', 'http://[bad' );
+		assert.equal( requests.length, 0 );
+		assert.match( warnings[ 0 ], /Invalid i18n manifest URL/ );
+	} );
+} );
+
 describe( 'download slot watchdog', () => {
 	/**
 	 * Let every already-queued microtask and immediate run. `setImmediate` is

@@ -7,6 +7,7 @@ import { safeHTML } from '@wordpress/dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical, trash } from '@wordpress/icons';
 import type { FeedbackComment } from '../../../types';
+import type { JSX } from 'react';
 
 export type CommentItemProps = {
 	comment: FeedbackComment;

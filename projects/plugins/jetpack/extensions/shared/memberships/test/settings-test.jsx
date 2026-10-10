@@ -1,11 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from '../constants';
 import {
-	getAccessDescription,
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
+} from '../constants';
+import {
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessRadioButtons,
@@ -114,47 +118,6 @@ describe( 'getReachForAccessLevelKey', () => {
 	} );
 } );
 
-describe( 'getAccessDescription', () => {
-	test( 'describes open access for everybody', () => {
-		expect( getAccessDescription( 'everybody' ) ).toBe(
-			'Anyone can read this post. Subscribers receive it by email.'
-		);
-	} );
-
-	test( 'describes the subscriber preview for subscribers', () => {
-		expect( getAccessDescription( 'subscribers' ) ).toBe(
-			'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.'
-		);
-	} );
-
-	test( 'says only paid subscribers are emailed when there is no paywall block', () => {
-		expect( getAccessDescription( 'paid_subscribers' ) ).toBe(
-			'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.'
-		);
-	} );
-
-	// With a paywall block the email goes to every subscriber, because free subscribers
-	// still receive the portion above the paywall. The copy has to say so explicitly,
-	// otherwise it reads as though only paid subscribers are emailed.
-	test( 'says all subscribers are emailed when a paywall block is present', () => {
-		expect( getAccessDescription( 'paid_subscribers', true ) ).toBe(
-			'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.'
-		);
-	} );
-
-	test( 'scopes the subscribers description to the paywall when one is present', () => {
-		expect( getAccessDescription( 'subscribers', true ) ).toBe(
-			'Only subscribers can read the content below the paywall. Subscribers receive it by email.'
-		);
-	} );
-
-	test( 'falls back to the open description for an unknown access level', () => {
-		expect( getAccessDescription( undefined ) ).toBe(
-			'Anyone can read this post. Subscribers receive it by email.'
-		);
-	} );
-} );
-
 describe( 'NewsletterAccessRadioButtons', () => {
 	const mockSetPostMeta = jest.fn();
 
@@ -202,7 +165,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 	test( 'labels the radio group with the question it answers', () => {
 		renderPanel();
 		expect(
-			screen.getByRole( 'radiogroup', { name: /who can read this post\?/i } )
+			screen.getByRole( 'radiogroup', { name: /who can read this on your site\?/i } )
 		).toBeInTheDocument();
 	} );
 
@@ -224,7 +187,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		renderPanel( { accessLevel: 'subscribers' } );
 		expect(
 			screen.getByText(
-				'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.'
+				'Only subscribers can read it on your site. Others see a preview and can subscribe.'
 			)
 		).toBeInTheDocument();
 	} );
@@ -312,6 +275,28 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			expect(
 				screen.queryByRole( 'link', { name: /turn on paid subscribers/i } )
 			).not.toBeInTheDocument();
+		} );
+
+		test( 'saves the chosen tier as a number', async () => {
+			const user = userEvent.setup();
+			const tierProducts = [
+				{ id: 1, title: 'Basic', price: 5, interval: '1 month' },
+				{ id: 2, title: 'Premium', price: 10, interval: '1 month' },
+			];
+			mockUseEntityProp.mockReturnValue( [
+				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 2 },
+				mockSetPostMeta,
+			] );
+
+			renderPanel( { accessLevel: 'paid_subscribers' }, { tierProducts } );
+
+			expect( screen.getByRole( 'radio', { name: 'Premium' } ) ).toBeChecked();
+
+			await user.click( screen.getByRole( 'radio', { name: 'Basic' } ) );
+
+			expect( mockSetPostMeta ).toHaveBeenCalledWith(
+				expect.objectContaining( { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 1 } )
+			);
 		} );
 	} );
 
@@ -461,21 +446,16 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 	const createMockSelect =
 		( { blocks = [] } = {} ) =>
 		store => {
-			if ( store === 'jetpack/membership-products' ) {
+			if ( store === membershipProductsStore ) {
 				return {
 					isApiStateLoading: () => false,
 					getConnectUrl: () => null,
-					getNewsletterTierProducts: () => [],
-				};
-			}
-			if ( store === 'core/block-editor' ) {
-				return { getBlocks: () => blocks };
-			}
-			if ( store === membershipProductsStore ) {
-				return {
 					getSubscriberCounts: () => ( { totalSubscribers: 10, paidSubscribers: 2 } ),
 					getNewsletterTierProducts: () => [],
 				};
+			}
+			if ( store === blockEditorStore ) {
+				return { getBlocks: () => blocks };
 			}
 			if ( store === editorStore ) {
 				return {
@@ -575,7 +555,27 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		await expect(
-			screen.findByLabelText( /Send as email to subscribers/i )
+			screen.findByRole( 'checkbox', { name: 'Send this post to subscribers' } )
 		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'turning the toggle off stores "don’t email" in post meta and saves the post', async () => {
+		const user = userEvent.setup();
+		const setPostMeta = jest.fn();
+		mockUseEntityProp.mockReturnValue( [ {}, setPostMeta ] );
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		const toggle = screen.getByRole( 'checkbox', { name: 'Send this post to subscribers' } );
+		expect( toggle ).toBeChecked();
+
+		await user.click( toggle );
+
+		expect( setPostMeta ).toHaveBeenCalledWith( {
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true,
+		} );
+		expect( mockSaveEditedEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', 1 );
 	} );
 } );

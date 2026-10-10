@@ -29,3 +29,19 @@ export type RawBackupSchedule = {
 export async function fetchBackupSchedule(): Promise< RawBackupSchedule > {
 	return apiCall< RawBackupSchedule >( { path: apiPath( '/site/backup/schedule' ) } );
 }
+
+/**
+ * Change the hour WordPress.com backs this site up.
+ *
+ * @param hour - Hour of the day, 0–23, in UTC.
+ * @return The bridge's confirmation.
+ */
+export async function updateBackupSchedule(
+	hour: number
+): Promise< { ok: true; scheduled_hour: number } > {
+	return apiCall( {
+		path: apiPath( '/site/backup/schedule' ),
+		method: 'POST',
+		data: { schedule_hour: hour },
+	} );
+}

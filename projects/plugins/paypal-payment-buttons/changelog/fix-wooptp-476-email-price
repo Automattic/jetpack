@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+The Send via Email card now shows the right price for links priced per option. Before, it showed just "$".

@@ -15,7 +15,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -234,7 +233,7 @@ function wpcom_write_enqueue_post_publish_survey_assets() {
 			'responseId' => wp_generate_uuid4(),
 			'variant'    => $is_write_first ? 'write_first' : 'returning',
 			'source'     => wpcom_write_survey_source(),
-			'blogId'     => wpcom_write_survey_blog_id(),
+			'blogId'     => wpcom_write_wpcom_blog_id(),
 		)
 	);
 }
@@ -291,19 +290,6 @@ function wpcom_write_render_post_publish_survey() {
 add_action( 'wp_footer', 'wpcom_write_render_post_publish_survey' );
 
 /**
- * The wpcom blog ID, which Atomic's local `get_current_blog_id()` is not.
- *
- * @return int Blog ID, or 0 when the site has no wpcom identity.
- */
-function wpcom_write_survey_blog_id() {
-	if ( ! class_exists( Connection_Manager::class ) ) {
-		return 0;
-	}
-
-	return (int) Connection_Manager::get_site_id( true );
-}
-
-/**
  * Store a survey response in wpcom's central `marketing_survey_responses` table.
  *
  * Host-dependent transport, mirroring Common\wpcom_record_tracks_event(): Simple
@@ -326,7 +312,7 @@ function wpcom_write_store_survey_response( $responses ) {
 
 	// The endpoint keys both its capability check and the stored row off `site_id`,
 	// and Atomic's local blog ID is 1 — it has to be the wpcom one.
-	$blog_id = wpcom_write_survey_blog_id();
+	$blog_id = wpcom_write_wpcom_blog_id();
 
 	if ( ! class_exists( Client::class ) || ! $blog_id ) {
 		return false;
@@ -476,7 +462,7 @@ function wpcom_write_ajax_submit_survey() {
 					'response_id' => $responses['response_id'],
 					'entry_point' => $responses['entry_point'],
 					'variant'     => $responses['variant'],
-					'blog_id'     => wpcom_write_survey_blog_id(),
+					'blog_id'     => wpcom_write_wpcom_blog_id(),
 				)
 			);
 		}

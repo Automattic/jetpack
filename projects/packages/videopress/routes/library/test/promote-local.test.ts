@@ -53,7 +53,9 @@ describe( 'createPromoteLocal', () => {
 		expect( deps.promote ).toHaveBeenCalledWith(
 			expect.objectContaining( { id: '9', onProgress: expect.any( Function ) } )
 		);
-		expect( deps.createSuccessNotice ).toHaveBeenCalledWith( 'Video uploaded to VideoPress.' );
+		expect( deps.createSuccessNotice ).toHaveBeenCalledWith( 'Video uploaded to VideoPress.', {
+			type: 'snackbar',
+		} );
 		expect( deps.createErrorNotice ).not.toHaveBeenCalled();
 		expect( snapshots ).toEqual( [ [ [ '9', 0 ] ], [] ] );
 	} );
@@ -80,7 +82,8 @@ describe( 'createPromoteLocal', () => {
 		await flush();
 
 		expect( deps.createErrorNotice ).toHaveBeenCalledWith(
-			'Failed to upload video to VideoPress: 403: Invalid Mime'
+			'Failed to upload video to VideoPress: 403: Invalid Mime',
+			{ type: 'snackbar' }
 		);
 	} );
 
@@ -90,7 +93,8 @@ describe( 'createPromoteLocal', () => {
 		await flush();
 
 		expect( deps.createErrorNotice ).toHaveBeenCalledWith(
-			'Failed to upload video to VideoPress.'
+			'Failed to upload video to VideoPress.',
+			{ type: 'snackbar' }
 		);
 		// The overlay still tears down on failure.
 		expect( snapshots ).toEqual( [ [ [ '9', 0 ] ], [] ] );

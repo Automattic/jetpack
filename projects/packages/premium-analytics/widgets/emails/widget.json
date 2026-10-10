@@ -1,5 +1,6 @@
 {
 	"name": "jpa/stats-emails",
+	"icon": "jpa/envelope",
 	"title": "Latest emails sent",
 	"description": "Opens or clicks, with their rates, for your latest emails.",
 	"help": {

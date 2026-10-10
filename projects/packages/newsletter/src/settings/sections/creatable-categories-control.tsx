@@ -28,6 +28,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { error as errorIcon } from '@wordpress/icons';
 import { createCategory } from '../api';
 import type { NewsletterSettings, WordPressCategory } from '../types';
+import type { JSX } from 'react';
 
 /**
  * Sentinel prefixing the "create" suggestion's value. Lets us distinguish the

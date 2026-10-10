@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE } from '../../constants';
-import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { loadMyJetpackHomePage } from '../my-jetpack-tab-panel/products/reload-page';
+import { setPendingSuccessNotice } from '../../utils/pending-notice';
+import { loadMyJetpackHomePage } from '../../utils/reload-page';
 
 /**
  * Start a full page load back to the My Jetpack overview after activating a

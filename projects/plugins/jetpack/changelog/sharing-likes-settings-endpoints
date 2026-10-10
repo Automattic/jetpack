@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: Stop Settings > Sharing from resetting sharing links to open in the same window.

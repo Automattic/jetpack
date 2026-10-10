@@ -14,3 +14,4 @@ yalc.lock
 .cache/
 /build
 /packages/*/build-module
+/routes/**/.content-entry.js

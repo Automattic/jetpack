@@ -12,6 +12,8 @@ const SUMMARY: PostSummary = {
 	url: 'https://example.com/hello-world',
 	isLoading: false,
 	isError: false,
+	error: null,
+	refetch: () => {},
 };
 
 // UTC-anchored: the sentence renders in the site zone, so a browser-local
@@ -71,10 +73,23 @@ describe( 'postHeaderSlots', () => {
 	it.each( [
 		[ 'post', 'Untitled post' ],
 		[ 'page', 'Untitled page' ],
-	] )( 'names an unresolved %s so the page keeps its heading', ( type, heading ) => {
-		renderHeader( { summary: { ...SUMMARY, type, title: undefined, isError: true } } );
+	] )( 'names an untitled %s so the page keeps its heading', ( type, heading ) => {
+		renderHeader( { summary: { ...SUMMARY, type, title: '' } } );
 
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
+	} );
+
+	it.each( [
+		[ 'post', 'Post unavailable' ],
+		[ 'page', 'Page unavailable' ],
+	] )( 'states neither a title nor a window for a %s that failed to load', ( type, heading ) => {
+		renderHeader( {
+			summary: { ...SUMMARY, type, title: undefined, isError: true },
+			performanceRange: PERFORMANCE_RANGE,
+		} );
+
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
+		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'marks the text cell busy only while the summary resolves', () => {

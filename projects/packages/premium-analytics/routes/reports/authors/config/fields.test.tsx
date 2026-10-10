@@ -7,7 +7,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getAuthorsFields } from './fields';
-import type { AuthorRow } from './aggregate';
+import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const author: AuthorRow = {
 	id: 'id:42',
@@ -35,13 +35,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	foreign: 'drop-me',
-} );
-
 /**
  * Mount an Authors table field's render component.
  *
@@ -63,6 +56,15 @@ function renderField( fieldId: 'author' | 'views', item: AuthorRow, withComparis
 }
 
 describe( 'authors fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'renders the author name with its avatar', () => {
 		renderField( 'author', author );
 
@@ -108,11 +110,6 @@ describe( 'authors fields', () => {
 		expect( authorField?.getValue?.( { item: author } as never ) ).toBe( 'Ada Lovelace' );
 		expect( authorField?.getValue?.( { item: post } as never ) ).toBe( 'Analytical Engine' );
 		expect( authorField?.enableGlobalSearch ).toBe( true );
-	} );
-
-	it( 'formats the views field for display', () => {
-		renderField( 'views', author );
-		expect( screen.getByText( author.views.toLocaleString() ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the views delta when a comparison row is available', () => {

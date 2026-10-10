@@ -12,6 +12,7 @@ type Props = {
 	onChange: ( partial: { title?: string; description?: string } ) => void;
 	onOpenChapters: () => void;
 	confirmNavigation?: () => boolean;
+	showChapters?: boolean;
 };
 
 /**
@@ -32,6 +33,7 @@ type Props = {
  * @param props.onOpenChapters    - Opens the chapters help modal.
  * @param props.confirmNavigation - Dirty-form guard forwarded to the chapters
  *                                deep link (same guard the sub-nav uses).
+ * @param props.showChapters      - Whether chapter controls are available.
  * @return The card element.
  */
 export default function VideoDetailsCard( {
@@ -41,6 +43,7 @@ export default function VideoDetailsCard( {
 	onChange,
 	onOpenChapters,
 	confirmNavigation,
+	showChapters = true,
 }: Props ): ReactElement {
 	return (
 		<Card.Root>
@@ -75,12 +78,14 @@ export default function VideoDetailsCard( {
 						onChange={ next => onChange( { description: next } ) }
 						rows={ 5 }
 					/>
-					<ChaptersSummary
-						video={ video }
-						description={ description }
-						onOpenHelp={ onOpenChapters }
-						confirmNavigation={ confirmNavigation }
-					/>
+					{ showChapters && (
+						<ChaptersSummary
+							video={ video }
+							description={ description }
+							onOpenHelp={ onOpenChapters }
+							confirmNavigation={ confirmNavigation }
+						/>
+					) }
 				</Stack>
 			</Card.Content>
 		</Card.Root>

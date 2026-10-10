@@ -68,7 +68,12 @@ export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-ter
 export { buildPostContentResponse } from './post-content';
 export { mockSingleVideoData } from './single-video';
 export { mockTagsData } from './tags';
-export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';
+export {
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
+	mockTopAuthorsData,
+	mockTopAuthorsComparisonData,
+} from './top-authors';
 
 export { mockSiteSummary } from './site-summary';
 

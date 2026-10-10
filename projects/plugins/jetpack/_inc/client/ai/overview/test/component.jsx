@@ -276,27 +276,27 @@ describe( 'AiOverview', () => {
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
-	test( 'not connected: explains the connection instead of an API error, and skips the fetch', async () => {
-		// Without a connection the usage endpoint can only fail, and a red
-		// "Unable to fetch the requested data." is the wrong story to tell —
-		// say what's actually wrong and don't make the request at all.
-		render( <AiOverview { ...PROPS } blogId={ 0 } /> );
+	test( 'activity log: promises AI agent actions when the link is filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered /> );
 
 		await expect(
-			screen.findByText( 'Jetpack is not connected to WordPress.com.', IGNORE_A11Y )
+			screen.findByText( 'Review recent actions taken by AI agents on your site.' )
 		).resolves.toBeInTheDocument();
-		// Same next step the Features view offers, so the two tabs agree.
-		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack#/connection'
-		);
-		expect( apiFetch ).not.toHaveBeenCalled();
-		// A bare `blogId &&` guard would print the 0 itself.
-		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
-		// The rest of the tab is still useful while disconnected.
-		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Walkthrough videos' ) ).toBeInTheDocument();
+	} );
+
+	test( 'activity log: describes all actions when the link is not filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered={ false } /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions on your site.' )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Review recent actions taken by AI agents on your site.' )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'activity log: absent without the MCP preconditions', async () => {
@@ -308,12 +308,9 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'host AI off: a notice replaces the usage card and no upgrade is offered', async () => {
-		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
+	test( 'usage cannot be loaded: no card, and no request that could only fail', async () => {
+		render( <AiOverview { ...PROPS } canLoadUsage={ false } /> );
 
-		expect(
-			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
-		).toBeInTheDocument();
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
@@ -321,30 +318,15 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
 	} );
 
-	test( 'host AI off: the notice renders above the assistant banner', () => {
-		dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', false );
-		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
+	test( 'no notice: the card is there from the first paint and asks straight away', () => {
+		// A held promise keeps the fetch in flight, so this is the first frame.
+		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
 
-		// getAllByText returns matches in document order.
-		const [ first, second ] = screen.getAllByText(
-			/Jetpack AI is not available for this site\.|Do more on your site with AI\./,
-			IGNORE_A11Y
-		);
-		expect( first ).toHaveTextContent( 'Jetpack AI is not available for this site.' );
-		expect( second ).toHaveTextContent( 'Do more on your site with AI.' );
-	} );
+		render( <AiOverview { ...PROPS } /> );
 
-	test( 'user account not linked: explains the account, does not fetch', async () => {
-		render( <AiOverview { ...PROPS } isUserConnected={ false } /> );
-
-		expect(
-			screen.getByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
-		).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to see your AI usage.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
-		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
-		expect( apiFetch ).not.toHaveBeenCalled();
+		// The placeholder holds the card's space rather than the layout moving later.
+		expect( speak ).toHaveBeenCalledWith( 'Loading your AI usage…', 'polite' );
+		expect( apiFetch ).toHaveBeenCalled();
 	} );
 
 	test( 'activity log: absent without an activityLogUrl', async () => {
@@ -462,17 +444,6 @@ describe( 'AiOverview', () => {
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
 		}
 	} );
-	test( 'tracks: records the overview view once on mount', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [
-			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: 'overview' },
-		] );
-	} );
-
 	test( 'tracks: a video card click records the video slug', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -487,6 +458,25 @@ describe( 'AiOverview', () => {
 				is_test: 'false',
 				link_type: 'video',
 				link: 'jetpack-ai-hub-overview-video-connect-claude',
+			},
+		] );
+	} );
+
+	test( 'tracks: an Activity log click records whether the link is filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Activity log/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'activity_log',
+				link: 'activity_log',
+				filtered: 'true',
 			},
 		] );
 	} );

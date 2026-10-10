@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Stop showing wp-admin notices, such as the plan expiry banner, behind the editor header.

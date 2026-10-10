@@ -132,8 +132,7 @@ trait Expiry_Notices_Fixtures {
 	/**
 	 * The site's one plan purchase, expiring the given number of days from now.
 	 *
-	 * Half a day of slack: the state floors whole days at read time, so an
-	 * expiry at exactly N days becomes N-1 a second later.
+	 * Dated at the start of a UTC day, as billing stores it.
 	 *
 	 * @param int    $days_until_expiry Negative for a plan that has lapsed.
 	 * @param bool   $auto_renew        Whether the customer left auto-renew on.
@@ -144,7 +143,7 @@ trait Expiry_Notices_Fixtures {
 			(object) array(
 				'product_slug'           => $slug,
 				'product_type'           => 'bundle',
-				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
+				'expiry_date'            => gmdate( 'Y-m-d', time() + ( $days_until_expiry * DAY_IN_SECONDS ) ) . 'T00:00:00+00:00',
 				'user_allows_auto_renew' => $auto_renew,
 				'subscription_id'        => $this->subscription_id,
 			),

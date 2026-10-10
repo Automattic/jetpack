@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync store analytics to WordPress.com whether or not WooCommerce order attribution is enabled.

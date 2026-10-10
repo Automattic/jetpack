@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { getAnnualInsightsFields } from './annual-insights/config/fields';
+import { getAuthorsFields } from './authors/config/fields';
 import { getClicksFields } from './clicks/config/fields';
 import { getCommentFollowersFields } from './comment-followers/config/fields';
 import { getCommentsFields } from './comments/config/fields';
@@ -26,8 +27,9 @@ import type { Field } from '@jetpack-premium-analytics/externals';
  * @param fields - Report table fields.
  * @param id     - Numeric field identifier.
  * @param item   - Report table row.
+ * @return The Testing Library render result.
  */
-function renderCountField< Item >( fields: Field< Item >[], id: string, item: Item ) {
+function renderCountField( fields: Field< never >[], id: string, item: object ) {
 	const field = fields.find( candidate => candidate.id === id );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field component.
 	const FieldComponent = field?.render;
@@ -36,99 +38,81 @@ function renderCountField< Item >( fields: Field< Item >[], id: string, item: It
 		throw new Error( `Count field ${ id } is unavailable` );
 	}
 
-	render( <FieldComponent item={ item } field={ field as never } /> );
+	return render( <FieldComponent item={ item as never } field={ field as never } /> );
 }
 
 describe( 'report table count fields', () => {
+	beforeEach( () => {
+		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
+			throw new Error( 'Browser-locale formatting should not be used' );
+		} );
+	} );
+
 	afterEach( () => {
 		jest.restoreAllMocks();
 	} );
 
-	it( 'uses the shared formatter while preserving full counts', () => {
-		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
-			throw new Error( 'Browser-locale formatting should not be used' );
-		} );
+	it.each( [
+		[ 'Posts views', getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } ],
+		[ 'Archives views', getArchivesFields(), 'views', { views: 12345 } ],
+		[ 'Authors views', getAuthorsFields(), 'views', { views: 12345 } ],
+		[ 'Subscribers', getCommentFollowersFields(), 'subscribers', { followers: 12345 } ],
+		[ 'Videos plays', getVideosFields(), 'plays', { plays: 12345 } ],
+		[ 'Videos impressions', getVideosFields(), 'impressions', { impressions: 12345 } ],
+		[ 'Downloads', getDownloadsFields(), 'downloads', { downloads: 12345 } ],
+		[ 'Clicks', getClicksFields(), 'clicks', { clicks: 12345 } ],
+		[ 'Comments', getCommentsFields( 'authors' ), 'comments', { value: 12345 } ],
+		[ 'Tags views', getTagsFields(), 'views', { value: 12345 } ],
+		[ 'Referrers views', getReferrerFields(), 'views', { views: 12345 } ],
+		[ 'Search terms views', getSearchTermsFields(), 'views', { views: 12345 } ],
+		[ 'UTM views', getUtmFields( 'source-medium' ), 'views', { views: 12345 } ],
+		[ 'Emails opens', getEmailsFields(), 'opens', { opens: 12345 } ],
+		[ 'Locations views', getLocationFields(), 'views', { views: 12345 } ],
+		[ 'Annual insights posts', getAnnualInsightsFields(), 'total_posts', { total_posts: 12345 } ],
+	] as [ string, Field< never >[], string, object ][] )(
+		'renders the %s count in full with the shared formatter',
+		( _column, fields, id, item ) => {
+			const { container } = renderCountField( fields, id, item );
 
-		renderCountField( getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } as never );
-		renderCountField( getArchivesFields(), 'views', { views: 12345 } as never );
-		renderCountField( getCommentFollowersFields(), 'subscribers', { followers: 12345 } as never );
-		renderCountField( getVideosFields(), 'plays', { plays: 12345 } as never );
-		renderCountField( getVideosFields(), 'impressions', { impressions: 12345 } as never );
-		renderCountField( getDownloadsFields(), 'downloads', { downloads: 12345 } as never );
-		renderCountField( getClicksFields(), 'clicks', { clicks: 12345 } as never );
-		renderCountField( getCommentsFields( 'authors' ), 'comments', { value: 12345 } as never );
-		renderCountField( getTagsFields(), 'views', { value: 12345 } as never );
-		renderCountField( getReferrerFields(), 'views', { views: 12345 } as never );
-		renderCountField( getSearchTermsFields(), 'views', { views: 12345 } as never );
-		renderCountField( getUtmFields( 'source-medium' ), 'views', { views: 12345 } as never );
-		renderCountField( getEmailsFields(), 'opens', { opens: 12345 } as never );
-		renderCountField( getLocationFields(), 'views', { views: 12345 } as never );
-		renderCountField( getAnnualInsightsFields(), 'total_posts', {
-			total_posts: 12345,
-		} as never );
+			expect( container ).toHaveTextContent( /^12,345$/ );
+		}
+	);
 
-		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 15 );
-	} );
+	// Legacy keeps one decimal on averages, except words per post.
+	it.each( [
+		[ 'avg_comments', 4, /^4\.0$/ ],
+		[ 'avg_images', 2, /^2\.0$/ ],
+		[ 'avg_words', 1234.4, /^1,234$/ ],
+	] )(
+		'renders the Annual insights %s average to the legacy precision',
+		( id, value, expected ) => {
+			const { container } = renderCountField( getAnnualInsightsFields() as Field< never >[], id, {
+				[ id ]: value,
+			} );
 
-	it( 'formats Emails rates with the shared formatter', () => {
-		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
-			throw new Error( 'Browser-locale formatting should not be used' );
-		} );
+			expect( container ).toHaveTextContent( expected );
+		}
+	);
 
-		// The summary endpoint reports rates as 0–100, not 0–1.
-		renderCountField( getEmailsFields(), 'opens_rate', {
-			opens_rate: 66.666,
-			opens: 100,
-			unique_opens: 66,
-			total_sends: 99,
-		} as never );
+	it.each( [
+		[
+			'an open rate that is not attributable',
+			'opens_rate',
+			{ opens_rate: 0, opens: 5, unique_opens: 0, total_sends: 100 },
+		],
+		[
+			'an open rate on an email with no recorded sends',
+			'opens_rate',
+			{ opens_rate: 0, opens: 0, unique_opens: 0, total_sends: 0 },
+		],
+		[
+			'a click rate that is not attributable',
+			'clicks_rate',
+			{ clicks_rate: 0, clicks: 1, unique_clicks: 0, opens: 10, unique_opens: 8, total_sends: 100 },
+		],
+	] )( 'renders an em dash for %s', ( _case, id, item ) => {
+		const { container } = renderCountField( getEmailsFields() as Field< never >[], id, item );
 
-		// Rounded to two decimals, unsigned — not `+66.67%`.
-		expect( screen.getByText( '66.67%' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders an em dash for a rate that is not attributable', () => {
-		renderCountField( getEmailsFields(), 'opens_rate', {
-			opens_rate: 0,
-			opens: 5,
-			unique_opens: 0,
-			total_sends: 100,
-		} as never );
-
-		expect( screen.getByText( '—' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders an em dash for a rate on an email with no recorded sends', () => {
-		renderCountField( getEmailsFields(), 'opens_rate', {
-			opens_rate: 0,
-			opens: 0,
-			unique_opens: 0,
-			total_sends: 0,
-		} as never );
-
-		expect( screen.getByText( '—' ) ).toBeInTheDocument();
-	} );
-
-	it( 'formats Annual insights averages with the shared formatter', () => {
-		jest.spyOn( Number.prototype, 'toLocaleString' ).mockImplementation( () => {
-			throw new Error( 'Browser-locale formatting should not be used' );
-		} );
-
-		// Legacy keeps a trailing `.0` on whole-number averages.
-		renderCountField( getAnnualInsightsFields(), 'avg_comments', { avg_comments: 4 } as never );
-
-		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders the Annual insights image average to one decimal', () => {
-		renderCountField( getAnnualInsightsFields(), 'avg_images', { avg_images: 4 } as never );
-
-		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders the Annual insights words-per-post average whole, as legacy does', () => {
-		renderCountField( getAnnualInsightsFields(), 'avg_words', { avg_words: 1234.4 } as never );
-
-		expect( screen.getByText( '1,234' ) ).toBeInTheDocument();
+		expect( container ).toHaveTextContent( /^—$/ );
 	} );
 } );

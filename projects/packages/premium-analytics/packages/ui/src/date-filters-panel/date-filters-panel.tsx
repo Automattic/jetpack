@@ -20,6 +20,7 @@ import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
 import './date-filters-panel.scss';
 
@@ -121,6 +122,9 @@ export type DateFiltersPanelProps = {
 	 */
 	disabled?: boolean;
 
+	/** The look of every trigger in the row, e.g. compact in a widget header. */
+	triggerProps?: DateControlTriggerProps;
+
 	/** Passed to the period trigger; see `DatePeriodDropdown`. */
 	attentionId?: DatePeriodDropdownProps[ 'attentionId' ];
 };
@@ -156,6 +160,7 @@ export function DateFiltersPanel( {
 	canApply = true,
 	timeZone,
 	disabled = false,
+	triggerProps,
 	attentionId,
 }: DateFiltersPanelProps ) {
 	/*
@@ -180,20 +185,24 @@ export function DateFiltersPanel( {
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
-	 * Tracks whether the picker popover is open so the comparison label mirrors
-	 * it: previews the draft range while open, reverts to applied when closed
-	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
+	 * The draft's preset, caught on its way out through `onChange`. Cleared on
+	 * every open and close, so the comparison previews only a draft the picker
+	 * has staged, measured by that draft's own preset.
 	 */
-	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
-	const comparisonSourceRange = isPrimaryPickerOpen ? range : ( appliedRange ?? range );
-	// The draft's preset never reaches the panel, so an open draft is measured
-	// as read; the applied preset decides how a to-date window is measured.
-	const comparisonSourcePresetId = isPrimaryPickerOpen ? undefined : validatedAppliedPresetId;
-
-	// Available comparison presets, derived from whichever primary range the
-	// picker is currently reflecting (draft while open, applied while closed)
-	// and from its preset, which decides how a to-date window is measured.
+	const [ draft, setDraft ] = useState< { presetId?: PrimaryPresetId } | null >( null );
+	const comparisonSourceRange = draft ? range : ( appliedRange ?? range );
+	const comparisonSourcePresetId = draft ? draft.presetId : validatedAppliedPresetId;
 	const presets = useComparisonDatePresets( comparisonSourceRange, comparisonSourcePresetId );
+
+	const stageDraft = useCallback(
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
+			setDraft( { presetId: nextPresetId } );
+			onChange( nextRange, nextPresetId );
+		},
+		[ onChange ]
+	);
+
+	const clearDraft = useCallback( () => setDraft( null ), [] );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
@@ -218,6 +227,7 @@ export function DateFiltersPanel( {
 				presetId={ validatedComparisonPresetId }
 				label={ comparisonLabel }
 				disabled={ disabled }
+				triggerProps={ triggerProps }
 				onPresetChange={ presetChange }
 				onClear={ clearComparison }
 			/>
@@ -229,6 +239,7 @@ export function DateFiltersPanel( {
 			disabled,
 			presetChange,
 			presets,
+			triggerProps,
 			validatedComparisonPresetId,
 		]
 	);
@@ -240,10 +251,11 @@ export function DateFiltersPanel( {
 					options={ intervalOptions }
 					value={ interval }
 					disabled={ disabled }
+					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, disabled, onIntervalChange ]
+		[ withIntervalControl, interval, intervalOptions, disabled, triggerProps, onIntervalChange ]
 	);
 
 	return (
@@ -263,13 +275,14 @@ export function DateFiltersPanel( {
 							onChange( nextRange, nextPresetId );
 							onApply();
 						} }
-						onChange={ onChange }
+						onChange={ stageDraft }
 						onApply={ onApply }
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
 						disabled={ disabled }
-						onOpenChange={ setIsPrimaryPickerOpen }
+						triggerProps={ triggerProps }
+						onOpenChange={ clearDraft }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
 						withCustomRange={ withCustomRange }

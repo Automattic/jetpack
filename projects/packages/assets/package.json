@@ -23,7 +23,7 @@
 		"concurrently": "10.0.5",
 		"jest": "30.5.1",
 		"md5-es": "1.8.2",
-		"webpack": "5.107.2",
+		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"
 	}
 }

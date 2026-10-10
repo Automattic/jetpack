@@ -1,0 +1,11 @@
+{
+	"name": "jpa/author-performance",
+	"icon": "jpa/seen",
+	"title": "Author performance",
+	"description": "Views, likes and comments for the author being viewed over the selected period.",
+	"help": {
+		"content": "This author’s views over the selected period, with the likes and comments their posts received in it. Views include the author’s pages and other content, as in the Authors report."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

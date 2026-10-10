@@ -6,7 +6,7 @@
 	position: relative;
 	margin-bottom: 0;
 	padding: rem.convert(16px) rem.convert(24px);
-	padding-right: rem.convert(72px);
+	padding-inline-end: rem.convert(72px);
 
 	p {
 		font-size: typography.$font-body-small;
@@ -34,7 +34,9 @@
 	.jp-form-setting-explanation {
 		color: colors.$gray-text-min;
 		display: block;
-		margin: rem.convert(5px) rem.convert(14px) rem.convert(5px) 0;
+		margin-block: rem.convert(5px);
+		margin-inline-start: 0;
+		margin-inline-end: rem.convert(14px);
 		font-size: typography.$font-body-small;
 		font-style: italic;
 		font-weight: 400;
@@ -51,7 +53,7 @@
 
 	.jp-support-info {
 		top: rem.convert(18px);
-		right: rem.convert(28px);
+		inset-inline-end: rem.convert(28px);
 
 		+ p {
 			margin-top: 2px;
@@ -64,7 +66,7 @@
 	}
 
 	.form-toggle__switch {
-		float: left;
+		float: inline-start;
 		margin-top: 2px;
 	}
 

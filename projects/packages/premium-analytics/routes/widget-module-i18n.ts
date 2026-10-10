@@ -19,7 +19,10 @@
 /**
  * External dependencies
  */
-import { loadBundleI18nCatalog } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import {
+	loadBundleI18nCatalog,
+	loadI18nManifest,
+} from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
 import type {
@@ -35,7 +38,64 @@ import type {
  */
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
-const TEXT_DOMAIN = 'jetpack-premium-analytics-pkg';
+/**
+ * Text domain of the package's own widget bundles. The fallback for a record
+ * that carries none: an older server publishes no `textdomain`, and every
+ * widget type it knows is the package's own.
+ */
+const DEFAULT_TEXT_DOMAIN = 'jetpack-premium-analytics-pkg';
+
+/**
+ * A widget module record with the fields that locate its bundles' catalogs:
+ * the text domain the bundles are stamped with, and the i18n manifest of the
+ * build that serves them. A plugin registering widget types from its own build
+ * declares both; the package's own records declare the domain alone, since
+ * boot has already loaded their manifest.
+ */
+export type WidgetModuleI18nRecord = WidgetModuleRecord & {
+	textdomain?: string | null;
+	i18n_manifest?: string | null;
+};
+
+/**
+ * Where a widget bundle's catalog lives: the domain it is registered under,
+ * and the manifest of its build when that build is not the page's own.
+ */
+export interface WidgetModuleCatalog {
+	domain: string;
+	manifestUrl: string | null;
+}
+
+const DEFAULT_CATALOG: WidgetModuleCatalog = { domain: DEFAULT_TEXT_DOMAIN, manifestUrl: null };
+
+/**
+ * The catalog location a record declares, with the package's own as fallback.
+ *
+ * @param record - A widget module record from the `/widget-modules` REST route.
+ * @return Domain and manifest of the record's bundles.
+ */
+function recordCatalog( record: WidgetModuleI18nRecord ): WidgetModuleCatalog {
+	if ( ! record.textdomain ) {
+		return DEFAULT_CATALOG;
+	}
+	return { domain: record.textdomain, manifestUrl: record.i18n_manifest || null };
+}
+
+/**
+ * Make sure the manifest of a catalog's build is cached, so the bundle's own
+ * catalog can be found. The page's own build needs nothing: boot loaded its
+ * manifest. Fire-and-forget on purpose — the loader publishes the manifest
+ * before it resolves, and the catalog load that follows waits for it under its
+ * own bound, so a stalled manifest fetch cannot wedge an import.
+ *
+ * @param catalog - Where the bundle's catalog lives.
+ */
+function ensureCatalogManifest( catalog: WidgetModuleCatalog ): void {
+	if ( catalog.manifestUrl ) {
+		// Never rejects.
+		loadI18nManifest( catalog.domain, catalog.manifestUrl );
+	}
+}
 
 /**
  * Bound on the metadata-catalog preload. More generous than the loader's
@@ -96,19 +156,20 @@ function onIdle( callback: () => void ): () => void {
 }
 
 /**
- * Widget script-module ids as registered by `build/widgets.php`:
- * `jetpack-premium-analytics/widgets/{widget-dir-name}/render` and
- * `…/widget`. The corresponding bundles land at
+ * Widget script-module ids as wp-build's generated `build/widgets.php`
+ * registers them: `{handle-prefix}/widgets/{widget-dir-name}/render` and
+ * `…/widget`. The prefix is the build's own, so a plugin's widgets match like
+ * the package's. The corresponding bundles land at
  * `build/widgets/{widget-dir-name}/{render,widget}.js`, which is the
- * package-relative path format the build's i18n manifest lists.
+ * build-relative path format the build's i18n manifest lists.
  */
-const WIDGET_MODULE_ID = /^jetpack-premium-analytics\/widgets\/([^/]+)\/(render|widget)$/;
+const WIDGET_MODULE_ID = /^[^/@][^/]*\/widgets\/([^/]+)\/(render|widget)$/;
 
 /**
  * Map a widget script-module id to the bundle path its catalog is keyed by.
  *
  * @param moduleId - A script-module id from the page import map.
- * @return The package-relative bundle path, or `null` when the id is not a widget module.
+ * @return The build-relative bundle path, or `null` when the id is not a widget module.
  */
 export function widgetModuleBundlePath( moduleId: string ): string | null {
 	const match = WIDGET_MODULE_ID.exec( moduleId );
@@ -118,44 +179,121 @@ export function widgetModuleBundlePath( moduleId: string ): string | null {
 /**
  * `import()` a widget module, installing its translation catalog first.
  *
- * Drop-in for `WidgetDashboard`'s `resolveWidgetModule` prop, replacing the
- * default bare `import()`.
+ * The package's own catalog location is assumed unless the caller passes the
+ * one its record declares; `createWidgetModuleResolver()` does that per record
+ * and is what the dashboards hand to `WidgetDashboard`.
  *
  * @param moduleId     - The script-module id to import.
  * @param importModule - The import implementation; a parameter so tests can observe ordering.
+ * @param catalog      - Where the bundle's catalog lives.
  * @return The imported module.
  */
 export function resolveWidgetModuleWithI18n(
 	moduleId: string,
 	importModule: ( id: string ) => Promise< WidgetModule > = id =>
-		import( /* webpackIgnore: true */ id )
+		import( /* webpackIgnore: true */ id ),
+	catalog: WidgetModuleCatalog = DEFAULT_CATALOG
 ): Promise< WidgetModule > {
 	const bundlePath = widgetModuleBundlePath( moduleId );
 	if ( ! bundlePath ) {
 		return importModule( moduleId );
 	}
+	ensureCatalogManifest( catalog );
 	// A missing catalog resolves and the widget renders in English, and a
 	// stalled download resolves after a bounded wait — so this should not
 	// reject. If one ever escapes, import the module anyway: a widget that
 	// never loads at all is worse than an untranslated one.
-	return loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath )
+	return loadBundleI18nCatalog( catalog.domain, bundlePath )
 		.catch( () => undefined )
 		.then( () => importModule( moduleId ) );
 }
 
 /**
- * Metadata (`widget.js`) bundle paths for a set of widget records, skipping
- * records with no widget module and ids that are not widget modules.
+ * A `resolveWidgetModule` for a set of widget records, loading each module's
+ * catalog from where its record says it lives.
+ *
+ * Drop-in for `WidgetDashboard`'s `resolveWidgetModule` prop, replacing the
+ * default bare `import()`. A module no record claims is imported the way the
+ * package's own would be.
+ *
+ * @param records      - Widget module records from the `/widget-modules` REST route.
+ * @param importModule - The import implementation; a parameter so tests can observe ordering.
+ * @return The resolver.
+ */
+export function createWidgetModuleResolver(
+	records: WidgetModuleI18nRecord[] | null | undefined,
+	importModule?: ( id: string ) => Promise< WidgetModule >
+): ( moduleId: string ) => Promise< WidgetModule > {
+	const catalogs = new Map< string, WidgetModuleCatalog >();
+	for ( const record of records ?? [] ) {
+		const catalog = recordCatalog( record );
+		if ( record.render_module ) {
+			catalogs.set( record.render_module, catalog );
+		}
+		if ( record.widget_module ) {
+			catalogs.set( record.widget_module, catalog );
+		}
+	}
+	return moduleId =>
+		resolveWidgetModuleWithI18n( moduleId, importModule, catalogs.get( moduleId ) );
+}
+
+/**
+ * `createWidgetModuleResolver()` as a hook, rebuilt only when the records do.
+ *
+ * `WidgetDashboard` caches each widget's lazy component with the resolver it
+ * first rendered with, so a resolver that changes identity costs nothing but a
+ * context update; and by the time a widget renders its records are on hand,
+ * because the widget types come from them.
+ *
+ * @param records - Widget module records, or `null`/`undefined` while loading.
+ * @return The resolver.
+ */
+export function useWidgetModuleResolver(
+	records: WidgetModuleI18nRecord[] | null | undefined
+): ( moduleId: string ) => Promise< WidgetModule > {
+	return useMemo( () => createWidgetModuleResolver( records ), [ records ] );
+}
+
+/**
+ * A metadata (`widget.js`) bundle and where its catalog lives.
+ */
+interface MetadataBundle {
+	bundlePath: string;
+	catalog: WidgetModuleCatalog;
+}
+
+/**
+ * Metadata (`widget.js`) bundles for a set of widget records, skipping records
+ * with no widget module and ids that are not widget modules.
  *
  * @param records - Widget module records from the `/widget-modules` REST route.
- * @return The package-relative bundle paths, in record order.
+ * @return The bundles, in record order.
  */
-function metadataBundlePaths( records: WidgetModuleRecord[] ): string[] {
-	return records
-		.map( record =>
-			record.widget_module ? widgetModuleBundlePath( record.widget_module ) : null
-		)
-		.filter( ( bundlePath ): bundlePath is string => bundlePath !== null );
+function metadataBundles( records: WidgetModuleI18nRecord[] ): MetadataBundle[] {
+	const bundles: MetadataBundle[] = [];
+	for ( const record of records ) {
+		const bundlePath = record.widget_module ? widgetModuleBundlePath( record.widget_module ) : null;
+		if ( bundlePath ) {
+			bundles.push( { bundlePath, catalog: recordCatalog( record ) } );
+		}
+	}
+	return bundles;
+}
+
+/**
+ * Install one metadata bundle's catalog, with the manifest of its build cached first.
+ *
+ * @param bundle - The bundle.
+ * @return Resolves once the catalog is installed (or has fallen back to English).
+ */
+function loadMetadataCatalog( bundle: MetadataBundle ): Promise< void > {
+	ensureCatalogManifest( bundle.catalog );
+	return loadBundleI18nCatalog(
+		bundle.catalog.domain,
+		bundle.bundlePath,
+		METADATA_CATALOG_TIMEOUT_MS
+	);
 }
 
 /**
@@ -169,12 +307,10 @@ function metadataBundlePaths( records: WidgetModuleRecord[] ): string[] {
  * @param records - Widget module records from the `/widget-modules` REST route.
  * @return Resolves once every catalog is installed (or has fallen back to English).
  */
-export function preloadWidgetModuleCatalogs( records: WidgetModuleRecord[] ): Promise< void > {
-	return Promise.all(
-		metadataBundlePaths( records ).map( bundlePath =>
-			loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath, METADATA_CATALOG_TIMEOUT_MS )
-		)
-	).then( () => undefined );
+export function preloadWidgetModuleCatalogs( records: WidgetModuleI18nRecord[] ): Promise< void > {
+	return Promise.all( metadataBundles( records ).map( loadMetadataCatalog ) ).then(
+		() => undefined
+	);
 }
 
 /**
@@ -192,18 +328,14 @@ export function preloadWidgetModuleCatalogs( records: WidgetModuleRecord[] ): Pr
  * @param records - Widget module records from the `/widget-modules` REST route.
  * @return Resolves once every catalog is installed (or has fallen back to English).
  */
-export async function warmWidgetModuleCatalogs( records: WidgetModuleRecord[] ): Promise< void > {
-	const bundlePaths = metadataBundlePaths( records );
-	for ( let index = 0; index < bundlePaths.length; index += WARM_BATCH_SIZE ) {
+export async function warmWidgetModuleCatalogs(
+	records: WidgetModuleI18nRecord[]
+): Promise< void > {
+	const bundles = metadataBundles( records );
+	for ( let index = 0; index < bundles.length; index += WARM_BATCH_SIZE ) {
 		// Sequential on purpose — the whole point is to not have the next batch
 		// sitting in the queue while this one drains.
-		await Promise.all(
-			bundlePaths
-				.slice( index, index + WARM_BATCH_SIZE )
-				.map( bundlePath =>
-					loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath, METADATA_CATALOG_TIMEOUT_MS )
-				)
-		);
+		await Promise.all( bundles.slice( index, index + WARM_BATCH_SIZE ).map( loadMetadataCatalog ) );
 	}
 }
 
@@ -268,7 +400,7 @@ export interface UseWidgetTypesWithI18nOptions {
  * @return The resolved widget types and whether resolution is still in progress.
  */
 export function useWidgetTypesWithI18n(
-	records: WidgetModuleRecord[] | null | undefined,
+	records: WidgetModuleI18nRecord[] | null | undefined,
 	options: UseWidgetTypesWithI18nOptions = {}
 ): readonly [ WidgetType[], boolean ] {
 	const { visibleNames, includeAll = false } = options;
@@ -331,7 +463,7 @@ export function useWidgetTypesWithI18n(
 		// names leaves the scope alone, which is the cumulative behaviour.
 	}, [ records, resolveAll, isScoped, layoutKnown, neededNames ] );
 
-	const [ readyRecords, setReadyRecords ] = useState< WidgetModuleRecord[] | null >( null );
+	const [ readyRecords, setReadyRecords ] = useState< WidgetModuleI18nRecord[] | null >( null );
 
 	useEffect( () => {
 		if ( ! scopedRecords || scopedRecords.length === 0 ) {
@@ -388,7 +520,7 @@ export function useWidgetTypesWithI18n(
 	// Gate by identity: only the exact records array whose preload finished is
 	// handed over, so a records update closes the gate until its own preload
 	// completes — and loading/empty records need no state round-trip at all.
-	let gatedRecords: WidgetModuleRecord[] | null;
+	let gatedRecords: WidgetModuleI18nRecord[] | null;
 	if ( ! scopedRecords || scopedRecords.length === 0 ) {
 		gatedRecords = scopedRecords ?? null;
 	} else {

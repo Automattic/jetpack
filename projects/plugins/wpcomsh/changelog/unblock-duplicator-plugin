@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Incompatible Plugins: unblock Duplicator (duplicator/duplicator.php). Version 5.0.3 added WordPress.com managed host detection and resolved all previous compatibility issues.

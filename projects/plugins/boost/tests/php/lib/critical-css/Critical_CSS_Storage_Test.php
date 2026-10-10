@@ -7,12 +7,19 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync\Data_Sync_Schema;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_CSS;
 use Automattic\Jetpack_Boost\Lib\Storage_Post_Type;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 use Automattic\Jetpack_Boost\Tests\Lib\Mocks\Boost_POI_Test_Gadget;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../mocks/class-boost-poi-test-gadget.php';
+require_once __DIR__ . '/Display_Critical_CSS_Test.php';
+require_once dirname( __DIR__, 4 ) . '/wp-js-data-sync.php';
 
 /**
  * Class Critical_CSS_Storage_Test
@@ -159,6 +166,152 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertSame( 'core_front_page', $result['key'] );
 		$this->assertSame( $css, $result['css'] );
+	}
+
+	/**
+	 * Both delivery entry points report oversized CSS without storing it or marking success.
+	 *
+	 * @dataProvider provide_delivery_budget_cases
+	 * @param string $css      CSS payload.
+	 * @param bool   $accepted Whether the payload fits the budget.
+	 */
+	#[DataProvider( 'provide_delivery_budget_cases' )]
+	public function test_delivery_budget_reports_provider_errors( $css, $accepted ) {
+		jetpack_boost_register_option( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
+		foreach ( array( 'local', 'cloud' ) as $delivery ) {
+			$key      = 'budget_' . $delivery;
+			$urls     = array( home_url( '/one' ), home_url( '/two' ) );
+			$provider = array(
+				'key'           => $key,
+				'label'         => 'Fixture',
+				'urls'          => $urls,
+				'success_ratio' => 1,
+			);
+			$state    = new Critical_CSS_State();
+			$state->prepare_request()->set_pending_providers( array( $provider ) )->save();
+			( new Critical_CSS_Storage() )->store_css( $key, '.old{color:red}' );
+			$request = new \WP_REST_Request( 'POST' );
+			if ( 'local' === $delivery ) {
+				$response = ( new Set_Provider_CSS() )->handle(
+					array(
+						'key' => $key,
+						'css' => $css,
+					),
+					$request
+				);
+			} else {
+				$request->set_body_params(
+					array(
+						'success'   => true,
+						'providers' => array(
+							$key => array(
+								'success' => true,
+								'data'    => array( 'css' => $css ),
+							),
+						),
+					)
+				);
+				$response = ( new Update_Cloud_CSS() )->response( $request );
+			}
+			$this->assertSame( 'cloud' === $delivery || $accepted, $response['success'] );
+			$saved = $state->get();
+			$this->assertIsArray( $saved );
+			$provider = $saved['providers'][0];
+			$stored   = ( new Critical_CSS_Storage() )->get_css( array( $key ) );
+			if ( $accepted ) {
+				$this->assertSame( 'success', $provider['status'] );
+				$this->assertSame( str_replace( '__JB_XMLNS__', 'xmlns', $css ), $stored['css'] );
+			} else {
+				$this->assertFalse( $stored );
+				$this->assertSame( 'error', $provider['status'] );
+				$this->assertSame( $urls, array_column( $provider['errors'], 'url' ) );
+				$this->assertSame( array( 'PayloadTooLargeError', 'PayloadTooLargeError' ), array_column( $provider['errors'], 'type' ) );
+			}
+			$state->clear();
+		}
+	}
+
+	/**
+	 * Unknown local providers report rejection instead of silently acknowledging it.
+	 */
+	public function test_rejected_delivery_reports_unknown_provider() {
+		jetpack_boost_register_option( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
+		$state = new Critical_CSS_State();
+		$state->prepare_request()->set_pending_providers( array() )->save();
+		$css      = str_repeat( ' ', 512 * KB_IN_BYTES + 1 );
+		$request  = new \WP_REST_Request( 'POST' );
+		$response = ( new Set_Provider_CSS() )->handle(
+			array(
+				'key' => 'missing',
+				'css' => $css,
+			),
+			$request
+		);
+		$this->assertFalse( $response['success'] );
+		$this->assertNotEmpty( $response['error'] );
+		$this->assertSame( 'error', $response['state']['status'] );
+
+		$state->clear();
+	}
+
+	/**
+	 * Unknown oversized Cloud providers do not block later results or leave stored CSS.
+	 */
+	public function test_cloud_unknown_oversized_provider_does_not_abort_delivery() {
+		jetpack_boost_register_option( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
+		$state = new Critical_CSS_State();
+		$state->prepare_request()->set_pending_providers(
+			array(
+				array(
+					'key'           => 'known',
+					'label'         => 'Fixture',
+					'urls'          => array( home_url( '/' ) ),
+					'success_ratio' => 1,
+				),
+			)
+		)->save();
+		$storage = new Critical_CSS_Storage();
+		$storage->store_css( 'unknown', '.old{color:red}' );
+		$request = new \WP_REST_Request( 'POST' );
+		$request->set_body_params(
+			array(
+				'success'   => true,
+				'providers' => array(
+					'unknown' => array(
+						'success' => true,
+						'data'    => array( 'css' => str_repeat( ' ', 512 * KB_IN_BYTES + 1 ) ),
+					),
+					'known'   => array(
+						'success' => true,
+						'data'    => array( 'css' => '.new{color:blue}' ),
+					),
+				),
+			)
+		);
+		$response = ( new Update_Cloud_CSS() )->response( $request );
+		$this->assertTrue( $response['success'] );
+		$this->assertFalse( $storage->get_css( array( 'unknown' ) ) );
+		$this->assertSame(
+			array(
+				'key' => 'known',
+				'css' => '.new{color:blue}',
+			),
+			$storage->get_css( array( 'known' ) )
+		);
+		$saved = $state->get();
+		$this->assertIsArray( $saved );
+		$this->assertSame( 'generated', $saved['status'] );
+		$this->assertSame( 'success', $saved['providers'][0]['status'] );
+		$state->clear();
+	}
+
+	/**
+	 * Byte boundaries shared by local and cloud delivery.
+	 *
+	 * @return array
+	 */
+	public static function provide_delivery_budget_cases() {
+		return Display_Critical_CSS_Test::provide_css_budget_cases();
 	}
 
 	/**

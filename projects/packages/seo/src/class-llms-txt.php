@@ -286,7 +286,7 @@ class Llms_Txt {
 			}
 			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $teaser ) ), 30, '' );
 		} else {
-			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post->post_content ) ), 30, '' );
+			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( get_the_excerpt( $post ) ) ), 30, '' );
 		}
 
 		// Collapse whitespace so a link line stays on one row.

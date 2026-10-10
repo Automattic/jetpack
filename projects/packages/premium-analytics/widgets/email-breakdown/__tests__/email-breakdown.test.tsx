@@ -42,14 +42,15 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM fieldless all-time shapes the sanitizer reads. Each endpoint
-// returns only its own payload key, as in Calypso.
+// Raw all-time shapes as WPCOM returns them: each endpoint returns only its own
+// payload key, with `fields` naming the `[ label, count ]` columns.
 const COUNTRY_RESPONSE = {
 	countries: {
 		data: [
 			[ 'US', 1840 ],
 			[ 'GB', 720 ],
 		],
+		fields: [ 'country', 'opens_count' ],
 	},
 	'countries-info': {
 		US: { country_full: 'United States' },
@@ -59,17 +60,23 @@ const COUNTRY_RESPONSE = {
 
 // `some-other-internal` aggregates into the catch-all row and outranks every
 // other row, so the fixture proves that row is pinned last, not merely sorted last.
+// `user_link` counts the same clicks the user-content endpoint lists by URL.
 const INTERNAL_LINKS_RESPONSE = {
 	links: {
 		data: [
+			[ 'user_link', 512 ],
 			[ 'post-url', 640 ],
 			[ 'some-other-internal', 900 ],
 		],
+		fields: [ 'link_desc', 'clicks_count' ],
 	},
 };
 
 const USER_CONTENT_LINKS_RESPONSE = {
-	'user-content-links': { data: [ [ 'https://example.com/spring-sale', 512 ] ] },
+	'user-content-links': {
+		data: [ [ 'https://example.com/spring-sale', 512 ] ],
+		fields: [ 'url', 'clicks_count' ],
+	},
 };
 
 /**
@@ -95,7 +102,18 @@ describe( 'EmailBreakdownWidget', () => {
 		mockResizeObserverWidth = 1200;
 	} );
 
-	it( 'renders the opens-by-country breakdown for the selected email', async () => {
+	it.each( [
+		[
+			'renders the opens-by-country breakdown for the selected email',
+			{},
+			'stats/opens/emails/1234/country',
+		],
+		[
+			'reads the clicks endpoint for dimension views when metric is clicks',
+			{ metric: 'clicks' as const },
+			'stats/clicks/emails/1234/country',
+		],
+	] )( '%s', async ( _title, metricAttributes, endpoint ) => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
 		render(
@@ -103,6 +121,7 @@ describe( 'EmailBreakdownWidget', () => {
 				attributes={ {
 					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
 					view: 'countries',
+					...metricAttributes,
 				} }
 			/>
 		);
@@ -111,26 +130,7 @@ describe( 'EmailBreakdownWidget', () => {
 		expect( screen.getByText( 'United Kingdom' ) ).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/opens/emails/1234/country' );
-	} );
-
-	it( 'reads the clicks endpoint for dimension views when metric is clicks', async () => {
-		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
-
-		render(
-			<EmailBreakdownWidget
-				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
-					view: 'countries',
-					metric: 'clicks',
-				} }
-			/>
-		);
-
-		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/country' );
+		expect( requestedPath ).toContain( endpoint );
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
@@ -141,6 +141,7 @@ describe( 'EmailBreakdownWidget', () => {
 					`C${ index }`,
 					rowCount - index,
 				] ),
+				fields: [ 'country', 'clicks_count' ],
 			},
 			'countries-info': Object.fromEntries(
 				Array.from( { length: rowCount }, ( _, index ) => [
@@ -210,8 +211,11 @@ describe( 'EmailBreakdownWidget', () => {
 		// Known internal link types are mapped to display labels; unknown ones are
 		// aggregated into "Other".
 		expect( screen.getByText( 'Post URL' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'post-url' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'user_link' ) ).not.toBeInTheDocument();
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
+		expect( screen.getByText( '900' ) ).toBeInTheDocument();
 
 		// The catch-all row stays pinned last despite holding the highest value.
 		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
@@ -292,7 +296,9 @@ describe( 'EmailBreakdownWidget', () => {
 		// Built by concatenation so the literal does not trip the no-script-url lint rule.
 		const unsafeUrl = 'javascript' + ':alert(1)';
 		mockApiFetch.mockImplementation(
-			linksViewFetchMock( { 'user-content-links': { data: [ [ unsafeUrl, 99 ] ] } } )
+			linksViewFetchMock( {
+				'user-content-links': { data: [ [ unsafeUrl, 99 ] ], fields: [ 'url', 'clicks_count' ] },
+			} )
 		);
 
 		render(

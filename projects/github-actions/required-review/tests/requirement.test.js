@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 
-// Reroute `core.info` through `console.info` so `@wordpress/jest-console` can be used.
+// Reroute `core.info` through `console.info` so the `jetpack-js-tools` console matchers can be used.
 // Nothing else here is currently used.
 jest.unstable_mockModule( '@actions/core', () => ( {
 	info: console.info, // eslint-disable-line no-console

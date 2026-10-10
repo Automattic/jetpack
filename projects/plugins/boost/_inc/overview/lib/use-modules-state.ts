@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
 import { isCriticalCssEnabled } from '../../../app/assets/src/js/features/critical-css/lib/is-critical-css-enabled';
@@ -53,6 +53,19 @@ export function parseDataSyncEnvelope( response: unknown ): unknown {
 
 export function isSiteOnline(): boolean {
 	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.online;
+}
+
+export function isMyJetpackAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.myJetpack === true;
+}
+
+export function isAddLicenseAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.addLicense === true;
+}
+
+// The upgrade flow lives in My Jetpack, which offline and filtered-off sites cannot open.
+export function canOfferUpgrade(): boolean {
+	return isSiteOnline() && isMyJetpackAvailable();
 }
 
 export async function requestDataSync(
@@ -126,15 +139,15 @@ function useGenerationState( key: 'critical_css_state' | 'lcp_state', enabled: b
 		bootstrap === undefined ? undefined : generationSchemas[ key ].safeParse( bootstrap );
 	return useQuery( {
 		queryKey: [ key ],
-		queryFn: async () => generationSchemas[ key ].parse( await requestDataSync( key ) ),
+		queryFn:
+			bootstrap === undefined
+				? async () => generationSchemas[ key ].parse( await requestDataSync( key ) )
+				: skipToken,
+		staleTime: Infinity,
+		refetchOnMount: false,
+		refetchOnWindowFocus: false,
 		initialData: initial?.success ? initial.data : undefined,
 		enabled: enabled && isSiteOnline(),
-		refetchInterval: query => {
-			if ( ! enabled || ! isSiteOnline() ) {
-				return false;
-			}
-			return query.state.data?.status === 'pending' ? 2000 : 30000;
-		},
 	} );
 }
 

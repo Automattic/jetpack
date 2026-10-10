@@ -20,6 +20,13 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 		compare_from?: string;
 		compare_to?: string;
 	} ) => String( params.comp ) === '1' && !! params.compare_from && !! params.compare_to,
+	withDefaultComparison: jest.fn( ( params: Record< string, unknown > ) => ( {
+		...params,
+		comp: '1',
+		compare_from: '2026-05-16T00:00:00',
+		compare_to: '2026-05-31T23:59:59',
+		compare_preset: 'previous-period',
+	} ) ),
 	withoutComparison: ( params: Record< string, unknown > ) => {
 		const next = { ...params };
 		delete next.comp;
@@ -99,6 +106,7 @@ describe( 'dashboard route.beforeLoad', () => {
 	// seed into the URL it writes.
 	it( 'drops stray comparison params from the seed', async () => {
 		const search = await seededSearch( {
+			...settledSearch,
 			comp: '1',
 			compare_preset: 'previous-period',
 			section: 'store',
@@ -107,6 +115,16 @@ describe( 'dashboard route.beforeLoad', () => {
 		expect( search ).toMatchObject( { section: 'store' } );
 		expect( search ).not.toHaveProperty( 'comp' );
 		expect( search ).not.toHaveProperty( 'compare_preset' );
+	} );
+
+	it( 'seeds the previous-period comparison on a fresh load', async () => {
+		const search = await seededSearch( { section: 'traffic' } );
+
+		expect( search ).toMatchObject( {
+			section: 'traffic',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
 	} );
 
 	it( 'keeps a complete comparison through the seed', async () => {

@@ -19,6 +19,7 @@ module.exports = Object.entries( filters ).map( ( [ k, v ] ) => ( {
 		...jetpackWebpackConfig.output,
 		filename: k + '/[name].js',
 		chunkFilename: k + '/[name].js',
+		library: 'Test',
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,

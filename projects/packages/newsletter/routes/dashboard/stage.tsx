@@ -1,8 +1,9 @@
 import analytics from '@automattic/jetpack-analytics';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-connection-url';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
@@ -37,8 +38,8 @@ function getRedirectUri(): string | undefined {
  * active-tab indicator slides between tabs instead of remounting on each
  * route hop.
  *
- * Active tab is read from `?tab=`. Overview is the default; the other tabs
- * load via `?tab=subscribers` and `?tab=settings`. Inactive panels stay empty so we don't pay
+ * Active tab is read from `?tab=`. Overview is the default, and shows Stats once onboarding is done;
+ * the other tabs load via `?tab=subscribers` and `?tab=settings`. Inactive panels stay empty so we don't pay
  * for the other view's data fetching until the user opens it.
  *
  * @return Stage content.
@@ -83,6 +84,16 @@ const Stage = () => {
 	const canManageSubscribers =
 		isSimpleSite() || ( isRegistered && hasConnectedOwner && isUserConnected );
 
+	const settingsHasConnectedOwner = isSimpleSite() || hasConnectedOwner;
+	const connectUrl = useMemo(
+		() =>
+			getUserConnectionUrl( {
+				from: 'jetpack-newsletter',
+				redirect_url: getRedirectUri(),
+			} ),
+		[]
+	);
+
 	// `handleRegisterSite` registers the site if needed and then connects the
 	// user; on an already-registered site it connects the user directly.
 	const handleConnect = useCallback( () => {
@@ -111,10 +122,12 @@ const Stage = () => {
 		if ( lastTrackedTab.current === activeTab ) {
 			return;
 		}
+		const previousTab = lastTrackedTab.current;
 		lastTrackedTab.current = activeTab;
 		analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
 			site_type: getSiteType(),
 			tab: activeTab,
+			...( previousTab ? { previous_tab: previousTab } : {} ),
 		} );
 	}, [ activeTab ] );
 
@@ -155,11 +168,21 @@ const Stage = () => {
 										{ activeTab === 'subscribers' ? subscribersPanel : null }
 									</Tabs.Panel>
 									<Tabs.Panel value="settings">
-										{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
+										{ activeTab === 'settings' ? (
+											<NewsletterSettingsBody
+												isModernized
+												hasConnectedOwner={ settingsHasConnectedOwner }
+												connectUrl={ connectUrl }
+											/>
+										) : null }
 									</Tabs.Panel>
 								</>
 							) : (
-								<NewsletterSettingsBody isModernized />
+								<NewsletterSettingsBody
+									isModernized
+									hasConnectedOwner={ settingsHasConnectedOwner }
+									connectUrl={ connectUrl }
+								/>
 							) }
 						</NewsletterPage>
 					);

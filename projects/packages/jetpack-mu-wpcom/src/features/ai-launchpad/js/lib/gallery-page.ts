@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { paragraphsToBlocks } from './paragraph-blocks.ts';
+import { headingBlock, paragraphsToBlocks } from './paragraph-blocks.ts';
+import type { SiteCopy } from './types.ts';
 
 interface CreatedPage {
 	id: number;
@@ -34,14 +35,6 @@ interface CreatedPage {
  * ~2.7 MB fetch off the CTA path — the library was downloaded before the page could be created.
  */
 
-// Untranslated placeholder heading, in the same class as the "About", "Gallery", "Contact", "Upcoming
-// events" and "Watch" ones: jetpack-mu-wpcom's JS strings are not extracted for translation, and the AI
-// intro beside it is English-only for now. The user lands in the editor on it, which is where it gets
-// changed. An invitation rather than a label, because the page title is already "Gallery" and a heading
-// repeating it says nothing — the pattern flow carried a whole de-duplication pass for exactly that.
-const HEADING_BLOCK =
-	'<!-- wp:heading --><h2 class="wp-block-heading">Take a look</h2><!-- /wp:heading -->';
-
 /**
  * One empty gallery block, and nothing in it.
  *
@@ -75,15 +68,18 @@ const GALLERY_BLOCK =
  * @param intro   - The AI-written opening line, or undefined for an output persisted before
  *                `page_intros` existed and for a run where the model omitted the key. The page is
  *                then created without an intro paragraph — the gallery block is what the task is for.
+ * @param copy    - The site-language copy for the title and heading. The heading is an invitation
+ *                rather than a label, because the title already says "Gallery".
  * @param fetcher - Injectable request handler, so the node:test suite can stub the REST call.
  * @return The created page id and its editor URL.
  */
 export async function createGalleryPage(
 	intro: string | undefined,
+	copy: Pick< SiteCopy, 'gallery_page_title' | 'gallery_page_heading' >,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
 	const line = intro?.trim();
-	const blocks = [ HEADING_BLOCK ];
+	const blocks = [ headingBlock( copy.gallery_page_heading ) ];
 	if ( line ) {
 		// Through the shared helper, so the AI text is escaped exactly as the About and first-post
 		// drafts escape theirs.
@@ -95,10 +91,8 @@ export async function createGalleryPage(
 		path: '/wp/v2/pages',
 		method: 'POST',
 		data: {
-			// Untranslated placeholder title, like core's "Auto Draft" and the About/Contact/Events/Videos
-			// pages. Unchanged from the pattern flow, which used it for the same reason: the pattern's own
-			// name ("Gallery: Two columns…") was never a useful page title.
-			title: 'Gallery',
+			// Placeholder title, like core's "Auto Draft" and the About/Contact/Events/Videos pages.
+			title: copy.gallery_page_title,
 			content: blocks.join( '\n\n' ),
 			status: 'draft',
 			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.

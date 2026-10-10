@@ -1,4 +1,5 @@
-import type { ConnectionErrorGroup } from '../../hooks/use-connection-error-notice/types';
+import type { ConnectionErrorSeverity } from '../../hooks/use-connection-error-notice/types';
+import type { ConnectionErrorDetailsProps } from '../connection-error-details/types';
 import type { ReactElement } from 'react';
 
 export interface ActionItem {
@@ -9,13 +10,16 @@ export interface ActionItem {
 	variant?: 'primary' | 'secondary';
 }
 
-export interface ConnectionErrorNoticeProps {
-	message?: string | ReactElement;
+/**
+ * The notice's own chrome, plus everything `ConnectionErrorDetails` renders
+ * inside it at the notice's default type scale.
+ */
+export interface ConnectionErrorNoticeProps extends Omit< ConnectionErrorDetailsProps, 'variant' > {
 	context?: string | ReactElement;
 	restoreConnectionCallback?: ( () => void ) | null;
 	isRestoringConnection?: boolean;
 	restoreConnectionError?: string | null;
 	actions?: ActionItem[];
-	errorGroups?: ConnectionErrorGroup[];
-	showSupportLink?: boolean;
+	/** How the notice reads to this viewer; `warning` for a break only somebody else can repair. */
+	severity?: ConnectionErrorSeverity;
 }

@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MutationObserver, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
 	act,
 	fireEvent,
@@ -12,18 +12,23 @@ import {
 } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { useViewportMatch } from '@wordpress/compose';
+import { dateI18n } from '@wordpress/date';
 import { useState } from 'react';
 import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import { observeLegacyModulesState } from './lib/modules-state-bridge';
 import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
-import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
 import type { ReactNode } from 'react';
+
+declare const require: {
+	resolve: ( id: string, options?: { paths: string[] } ) => string;
+};
 
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
@@ -38,6 +43,18 @@ const { queryClient: legacyQueryClient } = jest.requireActual(
 	'@automattic/jetpack-react-data-sync-client'
 );
 jest.mock( '@wordpress/api-fetch' );
+jest.mock(
+	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } ),
+	() => {
+		const actual = jest.requireActual(
+			require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } )
+		);
+		return { ...actual, speak: jest.fn( actual.speak ) };
+	}
+);
+const mockSpeak = jest.requireMock(
+	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } )
+).speak;
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useViewportMatch: jest.fn(),
@@ -86,7 +103,7 @@ beforeEach( () => {
 	jest.clearAllMocks();
 	jest.mocked( useViewportMatch ).mockReturnValue( false );
 	Object.assign( window, {
-		Jetpack_Boost: { site: { url: 'https://example.org', online: true } },
+		Jetpack_Boost: { site: { url: 'https://example.org', online: true, myJetpack: true } },
 		wpApiSettings: { root: 'https://example.org/wp-json/', nonce: 'wp-nonce' },
 		jetpack_boost_ds: {
 			rest_api: { value: 'https://example.org/wp-json/jetpack-boost-ds', nonce: 'wp-nonce' },
@@ -109,25 +126,50 @@ beforeEach( () => {
 	} ) );
 } );
 
+const queryClients: QueryClient[] = [];
+
+function createQueryClient() {
+	const client = new QueryClient( {
+		defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+	} );
+	queryClients.push( client );
+	return client;
+}
+
+afterEach( () => {
+	queryClients.forEach( client => client.clear() );
+	queryClients.length = 0;
+} );
+
 function queryWrapper() {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	return ( { children }: { children: React.ReactNode } ) => (
 		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
 	);
 }
 
-function OverviewWithHeader( { isVisible }: { isVisible?: boolean } ) {
+function OverviewWithHeader( {
+	isVisible,
+	scoresEnabled,
+}: {
+	isVisible?: boolean;
+	scoresEnabled?: boolean;
+} ) {
 	const [ action, setAction ] = useState< ReactNode >( null );
 	return (
 		<>
 			<header>{ action }</header>
-			<Overview isVisible={ isVisible } onHeaderActionChange={ setAction } />
+			<Overview
+				isVisible={ isVisible }
+				scoresEnabled={ scoresEnabled }
+				onHeaderActionChange={ setAction }
+			/>
 		</>
 	);
 }
 
 function renderOverview() {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const view = render(
 		<QueryClientProvider client={ client }>
 			<OverviewWithHeader />
@@ -136,21 +178,371 @@ function renderOverview() {
 	return { ...view, client };
 }
 
+describe( 'score bar', () => {
+	let intersect: IntersectionObserverCallback;
+	const disconnect = jest.fn();
+	const observer = jest.fn( ( callback: IntersectionObserverCallback ) => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect };
+	} );
+	const original = window.IntersectionObserver;
+
+	beforeEach( () => {
+		window.IntersectionObserver = observer as unknown as typeof IntersectionObserver;
+	} );
+
+	afterEach( () => {
+		window.IntersectionObserver = original;
+	} );
+
+	async function renderDashboard() {
+		const client = createQueryClient();
+		const onHeaderActionChange = jest.fn();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div className="jp-admin-page__page">
+					<header data-testid="dashboard-header">Boost header</header>
+					<div style={ { overflowY: 'auto' } } data-testid="dashboard-scroller">
+						<Overview isVisible={ isVisible } onHeaderActionChange={ onHeaderActionChange } />
+					</div>
+				</div>
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( true ) );
+		await expect( screen.findByRole( 'region', { name: 'Desktop' } ) ).resolves.toBeVisible();
+		return { hide: () => view.rerender( dashboard( false ) ) };
+	}
+
+	const entry = ( isIntersecting: boolean, bottom: number ) =>
+		( {
+			isIntersecting,
+			boundingClientRect: { bottom },
+			rootBounds: { top: 100 },
+		} ) as IntersectionObserverEntry;
+
+	const report = ( ...entries: IntersectionObserverEntry[] ) =>
+		act( () => intersect( entries, {} as IntersectionObserver ) );
+
+	test( 'renders into a slot between the header and the scroller it observes', async () => {
+		await renderDashboard();
+		const scroller = screen.getByTestId( 'dashboard-scroller' );
+		// eslint-disable-next-line testing-library/no-node-access
+		const slot = screen.getByTestId( 'dashboard-header' ).nextElementSibling;
+		expect( slot ).toHaveClass( 'jetpack-boost-score-bar-slot' );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( slot?.nextElementSibling ).toBe( scroller );
+		expect( observer ).toHaveBeenCalledWith( expect.any( Function ), {
+			root: scroller,
+			threshold: 0,
+		} );
+		report( entry( false, 39 ) );
+		expect( slot ).toContainElement( screen.getByTestId( 'score-bar' ) );
+	} );
+
+	test( 'shows only while the latest entry has the card above the scroller', async () => {
+		await renderDashboard();
+		report( entry( false, 1200 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( true, 364 ), entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		report( entry( false, 39 ), entry( true, 364 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+	} );
+
+	test( 'removes the bar, its slot and the observer when the Overview is hidden', async () => {
+		const { hide } = await renderDashboard();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		hide();
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( screen.getByTestId( 'dashboard-header' ).nextElementSibling ).toBe(
+			screen.getByTestId( 'dashboard-scroller' )
+		);
+		expect( disconnect ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
+test( 'shows the stock button loading treatment while a user speed test runs', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let finish!: ( value: typeof scores ) => void;
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			finish = resolve;
+		} )
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	await act( async () => finish( scores ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
+			/__is-loading$/
+		)
+	);
+} );
+
+test( 'announces a user run through the card status without a second button announcement', async () => {
+	const { container } = renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	mockSpeak.mockClear();
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce( new Promise( () => {} ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	await waitFor( () => expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' ) );
+	expect( mockSpeak ).not.toHaveBeenCalled();
+} );
+
+test( 'shows a run already in progress when the Overview opens', async () => {
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( ( _force, _root, _url, _nonce, options ) => {
+			options?.onPending?.();
+			return new Promise( () => {} );
+		} );
+	const { container } = renderOverview();
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+} );
+
+test( 'clears the busy button after a rejected speed test request', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let rejectRequest!: ( error: Error ) => void;
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( ( _, reject ) => {
+			rejectRequest = reject;
+		} )
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	await act( async () => rejectRequest( new Error( 'Service unavailable' ) ) );
+	await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
+		/__is-loading$/
+	);
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'false'
+	);
+} );
+
+test( 'announces one user-run success without announcing the initial score load', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce failure and announces a successful user retry', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce an automatic module-change refresh', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const { client } = renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		await act( async () => {
+			await client.cancelQueries();
+		} );
+		act( () =>
+			client.setQueryData( [ 'modules_state' ], {
+				performance_history: { available: true, active: true },
+				defer_js: { available: true, active: true },
+			} )
+		);
+		await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ), {
+			timeout: 4000,
+		} );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test.each( [ 'failed', 'delayed', 'accepted' ] )(
+	'only announces an observed successful refresh across a subpage visit: %s',
+	async scenario => {
+		const completed = jest.fn();
+		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
+		const originalFetch = globalThis.fetch;
+		const response = {
+			ok: true,
+			text: async () => JSON.stringify( { status: 'success', scores } ),
+		};
+		let resolveRefresh!: ( value: typeof response ) => void;
+		let rejectRefresh!: ( error: Error ) => void;
+		const post = jest.fn().mockResolvedValue( response );
+		globalThis.fetch = post;
+		jest
+			.mocked( requestSpeedScores )
+			.mockImplementation(
+				jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
+			);
+		window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+		try {
+			const client = createQueryClient();
+			const dashboard = ( open: boolean ) => (
+				<QueryClientProvider client={ client }>
+					<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+				</QueryClientProvider>
+			);
+			const view = render( dashboard( false ) );
+			await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+			post.mockImplementationOnce(
+				() =>
+					new Promise( ( resolve, reject ) => {
+						resolveRefresh = resolve;
+						rejectRefresh = reject;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			expect( post ).toHaveBeenLastCalledWith(
+				expect.stringContaining( '/speed-scores/refresh' ),
+				expect.objectContaining( { method: 'post' } )
+			);
+			if ( scenario === 'accepted' ) {
+				await act( async () =>
+					resolveRefresh( {
+						ok: true,
+						text: async () => JSON.stringify( { status: 'pending' } ),
+					} )
+				);
+			}
+			expect( completed ).not.toHaveBeenCalled();
+			view.rerender( dashboard( true ) );
+			if ( scenario === 'failed' ) {
+				await act( async () => rejectRefresh( new Error( 'Network unavailable' ) ) );
+			}
+			view.rerender( dashboard( false ) );
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'false'
+				)
+			);
+			expect( post ).toHaveBeenLastCalledWith(
+				expect.stringMatching( /\/speed-scores$/ ),
+				expect.objectContaining( { method: 'post' } )
+			);
+			expect( completed ).toHaveBeenCalledTimes( scenario === 'accepted' ? 1 : 0 );
+			if ( scenario === 'delayed' ) {
+				await act( async () => resolveRefresh( response ) );
+			}
+			expect( completed ).toHaveBeenCalledTimes( scenario === 'accepted' ? 1 : 0 );
+		} finally {
+			window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+			if ( hadFetch ) {
+				globalThis.fetch = originalFetch;
+			} else {
+				Reflect.deleteProperty( globalThis, 'fetch' );
+			}
+		}
+	}
+);
+
+test( 'a later subpage visit after a completed user run does not announce again', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const client = createQueryClient();
+		const dashboard = ( open: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( false ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		const before = jest.mocked( requestSpeedScores ).mock.calls.length;
+		view.rerender( dashboard( true ) );
+		view.rerender( dashboard( false ) );
+		await waitFor( () =>
+			expect( jest.mocked( requestSpeedScores ).mock.calls ).toHaveLength( before + 1 )
+		);
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'false'
+			)
+		);
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
 test( 'contains a render failure with the Overview error fallback', () => {
 	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
 		throw new Error( 'Score rendering failed' );
 	} );
 	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	let view: ReturnType< typeof renderOverview > | undefined;
 	try {
-		renderOverview();
+		view = renderOverview();
 		expect(
 			screen.getByText( 'Unable to display performance scores', { selector: 'span' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 	} finally {
+		view?.unmount();
 		scoreHook.mockRestore();
 		consoleError.mockRestore();
+		view?.client.clear();
 	}
 } );
 
@@ -194,12 +586,13 @@ test.each( [
 					: fetch( options )
 			);
 	}
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const wrapper = ( { children }: { children: React.ReactNode } ) => (
 		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
 	);
+	let view: ReturnType< typeof render > | undefined;
 	try {
-		const { rerender } = render(
+		view = render(
 			<div hidden>
 				<Overview isVisible={ false } onHeaderActionChange={ () => {} } />
 			</div>,
@@ -217,13 +610,14 @@ test.each( [
 		} );
 		expect( region ).toBeEmptyDOMElement();
 		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-		rerender(
+		view.rerender(
 			<div>
 				<Overview isVisible onHeaderActionChange={ () => {} } />
 			</div>
 		);
 		await waitFor( () => expect( region ).toHaveTextContent( message ) );
 	} finally {
+		view?.unmount();
 		scoreHook?.mockRestore();
 		consoleError?.mockRestore();
 		client.clear();
@@ -231,18 +625,26 @@ test.each( [
 } );
 
 test( 'moves focus from Run speed test to the error fallback when a render failure removes it', async () => {
-	const { client, rerender } = renderOverview();
-	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
-	const action = screen.getByRole( 'button', { name: 'Run speed test' } );
-	act( () => action.focus() );
-	fireEvent.click( action );
-	await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ) );
-	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveFocus();
-	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
-		throw new Error( 'Score rendering failed' );
-	} );
-	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	const { client, rerender, unmount } = renderOverview();
+	let scoreHook: jest.SpyInstance | undefined;
+	let consoleError: jest.SpyInstance | undefined;
 	try {
+		await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'false'
+			)
+		);
+		const action = screen.getByRole( 'button', { name: 'Run speed test' } );
+		act( () => action.focus() );
+		fireEvent.click( action );
+		await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ) );
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveFocus();
+		scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+			throw new Error( 'Score rendering failed' );
+		} );
+		consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		rerender(
 			<QueryClientProvider client={ client }>
 				<OverviewWithHeader />
@@ -253,14 +655,15 @@ test( 'moves focus from Run speed test to the error fallback when a render failu
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( fallback.closest( '[tabindex="-1"]' ) ).toHaveFocus();
 	} finally {
-		scoreHook.mockRestore();
-		consoleError.mockRestore();
+		unmount();
+		scoreHook?.mockRestore();
+		consoleError?.mockRestore();
 		client.clear();
 	}
 } );
 
 test( 'leaves focus alone when a render failure removes Run speed test without focus', async () => {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const dashboard = () => (
 		<QueryClientProvider client={ client }>
 			<button>Overview</button>
@@ -268,21 +671,24 @@ test( 'leaves focus alone when a render failure removes Run speed test without f
 		</QueryClientProvider>
 	);
 	const view = render( dashboard() );
-	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
-	const tab = screen.getByRole( 'button', { name: 'Overview' } );
-	act( () => tab.focus() );
-	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
-		throw new Error( 'Score rendering failed' );
-	} );
-	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	let scoreHook: jest.SpyInstance | undefined;
+	let consoleError: jest.SpyInstance | undefined;
 	try {
+		await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+		const tab = screen.getByRole( 'button', { name: 'Overview' } );
+		act( () => tab.focus() );
+		scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+			throw new Error( 'Score rendering failed' );
+		} );
+		consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		view.rerender( dashboard() );
 		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
 		expect( tab ).toHaveFocus();
 	} finally {
-		scoreHook.mockRestore();
-		consoleError.mockRestore();
+		view.unmount();
+		scoreHook?.mockRestore();
+		consoleError?.mockRestore();
 		client.clear();
 	}
 } );
@@ -294,7 +700,8 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		false,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	await waitFor( () =>
@@ -309,14 +716,15 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		)
 	);
 	expect(
 		jest
 			.mocked( recordBoostEvent )
 			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
-	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
+	).toEqual( [ [ 'speed_score_refresh_clicked', { source: 'header' } ] ] );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
 	await waitFor( () =>
 		expect( invalidate ).toHaveBeenCalledWith(
@@ -326,7 +734,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 } );
 
 test( 'offers Run speed test in the page header only while the Overview is visible', async () => {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const dashboard = ( isVisible: boolean ) => (
 		<QueryClientProvider client={ client }>
 			<OverviewWithHeader isVisible={ isVisible } />
@@ -357,143 +765,221 @@ test( 'offers Run speed test in the page header only while the Overview is visib
 	}
 } );
 
-test( 'ignores legacy polls and refetches only the key written by the legacy cache', async () => {
-	window.jetpack_boost_ds!.modules_state!.value = {
-		critical_css: { available: true, active: true },
-		performance_history: { available: true, active: true },
-	};
-	window.jetpack_boost_ds!.critical_css_state = { nonce: 'css-nonce', value: undefined };
-	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
-	jest
-		.mocked( apiFetch )
-		.mockImplementation( options =>
-			options.url?.endsWith( '/critical-css-state' )
-				? Promise.resolve( { status: 'success', JSON: { status: 'generated', updated: 1 } } )
-				: fetch( options )
-		);
-	legacyQueryClient.clear();
-	legacyQueryClient.setQueryData( [ 'critical_css_state' ], { status: 'generated', updated: 1 } );
-	const stopObserving = observeLegacyModulesState( legacyQueryClient );
-	const { client } = renderOverview();
-	try {
-		await waitFor( () =>
-			expect( client.getQueryState( [ 'critical_css_state' ] )?.dataUpdateCount ).toBe( 1 )
-		);
-		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-		jest.mocked( apiFetch ).mockClear();
-		await act( async () => {
-			await legacyQueryClient.fetchQuery( {
-				queryKey: [ 'critical_css_state' ],
-				queryFn: async () => ( { status: 'generated', updated: 1 } ),
-			} );
-		} );
-		expect( apiFetch ).not.toHaveBeenCalled();
-
-		act( () => {
-			legacyQueryClient.setQueryData( [ 'critical_css_state' ], {
-				status: 'generated',
-				updated: 2,
-			} );
-		} );
-		await waitFor( () =>
-			expect( client.getQueryState( [ 'critical_css_state' ] )?.dataUpdateCount ).toBe( 2 )
-		);
-		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
-		expect( apiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( { url: expect.stringContaining( '/critical-css-state' ) } )
-		);
-	} finally {
-		stopObserving();
+test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
+	'relays %s polls and writes without refetching',
+	async key => {
+		const status = key === 'critical_css_state' ? 'generated' : 'analyzed';
+		window.jetpack_boost_ds!.modules_state!.value = {
+			[ key === 'critical_css_state' ? 'critical_css' : 'lcp' ]: { available: true, active: true },
+			performance_history: { available: true, active: true },
+		};
+		window.jetpack_boost_ds![ key ] = { nonce: 'css-nonce', value: undefined };
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest
+			.mocked( apiFetch )
+			.mockImplementation( options =>
+				options.url?.endsWith( key.replace( /_/g, '-' ) )
+					? Promise.resolve( { status: 'success', JSON: { status, updated: 1 } } )
+					: fetch( options )
+			);
 		legacyQueryClient.clear();
-	}
-} );
+		legacyQueryClient.setQueryData( [ key ], { status, updated: 1 } );
+		const stopObserving = observeLegacyModulesState( legacyQueryClient );
+		const { client } = renderOverview();
+		try {
+			await waitFor( () => expect( client.getQueryState( [ key ] )?.dataUpdateCount ).toBe( 1 ) );
+			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+			jest.mocked( apiFetch ).mockClear();
+			await act( async () => {
+				await legacyQueryClient.fetchQuery( {
+					queryKey: [ key ],
+					queryFn: async () => ( { status: 'pending', updated: 2 } ),
+				} );
+			} );
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( client.getQueryData( [ key ] ) ).toEqual( { status: 'pending', updated: 2 } );
 
-test( 'regenerates scores after a Settings toggle and return to the mounted Overview', async () => {
-	const initialModules = {
-		performance_history: { available: true, active: true },
-		defer_js: { available: true, active: false },
-	};
-	let savedModules = initialModules;
-	window.jetpack_boost_ds!.modules_state!.value = initialModules;
-	legacyQueryClient.clear();
-	const stopObserving = observeLegacyModulesState( legacyQueryClient );
-	const hadFetch = Object.hasOwn( globalThis, 'fetch' );
-	if ( ! hadFetch ) {
-		Object.defineProperty( globalThis, 'fetch', {
-			configurable: true,
-			writable: true,
-			value: jest.fn(),
-		} );
-	}
-	const fetchSpy = jest.spyOn( globalThis, 'fetch' ).mockImplementation( async ( url, options ) => {
-		if ( options.method === 'POST' ) {
-			savedModules = JSON.parse( options.body as string ).JSON;
+			act( () => {
+				legacyQueryClient.setQueryData( [ key ], {
+					status,
+					updated: 3,
+				} );
+			} );
+			await waitFor( () => expect( client.getQueryState( [ key ] )?.dataUpdateCount ).toBe( 3 ) );
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( client.getQueryData( [ key ] ) ).toEqual( { status, updated: 3 } );
+		} finally {
+			stopObserving();
+			legacyQueryClient.clear();
 		}
-		return {
-			ok: true,
-			text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
-		} as Response;
-	} );
-	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
-	jest
-		.mocked( apiFetch )
-		.mockImplementation( options =>
-			options.url?.endsWith( '/modules-state' )
-				? Promise.resolve( { status: 'success', JSON: savedModules } )
-				: fetch( options )
-		);
-	function SettingsToggle() {
-		const [ state, setState ] = useSingleModuleState( 'defer_js' );
-		return (
-			<button onClick={ () => setState( ! state?.active ) }>Defer Non-Essential JavaScript</button>
-		);
 	}
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
-	const dashboard = ( isOverview: boolean ) => (
-		<>
-			<div hidden={ ! isOverview }>
-				<QueryClientProvider client={ client }>
-					<Overview isVisible={ isOverview } onHeaderActionChange={ () => {} } />
-				</QueryClientProvider>
-			</div>
-			<div hidden={ isOverview }>
-				<QueryClientProvider client={ legacyQueryClient }>
-					<SettingsToggle />
-				</QueryClientProvider>
-			</div>
-		</>
-	);
-	const view = render( dashboard( true ) );
-	try {
-		await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
-		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-		view.rerender( dashboard( false ) );
-		jest.mocked( requestSpeedScores ).mockResolvedValue( {
-			...scores,
-			current: { desktop: 95, mobile: 85 },
+);
+
+test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', 'unrelated save' ] )(
+	'syncs a Settings toggle with %s without extra fetches and refreshes scores',
+	async scenario => {
+		const initialModules = {
+			performance_history: { available: true, active: true },
+			defer_js: { available: true, active: false },
+		};
+		let savedModules = initialModules;
+		let finishSave!: () => void;
+		const pendingSave = new Promise< void >( resolve => {
+			finishSave = resolve;
 		} );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
-		await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
-		view.rerender( dashboard( true ) );
-		await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
-		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-			true,
-			wpApiSettings.root,
-			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
-		);
-	} finally {
-		stopObserving();
-		view.unmount();
-		client.clear();
+		let finishStaleGet!: ( value: { status: string; JSON: typeof initialModules } ) => void;
+		const staleGet = new Promise< { status: string; JSON: typeof initialModules } >( resolve => {
+			finishStaleGet = resolve;
+		} );
+		let holdGet = false;
+		window.jetpack_boost_ds!.modules_state!.value = initialModules;
 		legacyQueryClient.clear();
-		fetchSpy.mockRestore();
+		const stopObserving = observeLegacyModulesState( legacyQueryClient );
+		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
 		if ( ! hadFetch ) {
-			Reflect.deleteProperty( globalThis, 'fetch' );
+			Object.defineProperty( globalThis, 'fetch', {
+				configurable: true,
+				writable: true,
+				value: jest.fn(),
+			} );
+		}
+		const fetchSpy = jest
+			.spyOn( globalThis, 'fetch' )
+			.mockImplementation( async ( url, options ) => {
+				if ( options.method === 'POST' ) {
+					if ( scenario === 'delayed save' || scenario === 'unrelated save' ) {
+						await pendingSave;
+					}
+					savedModules = JSON.parse( options.body as string ).JSON;
+					if ( scenario === 'normalized save' ) {
+						savedModules.defer_js.available = false;
+					}
+				}
+				return {
+					ok: true,
+					text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
+				} as Response;
+			} );
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest
+			.mocked( apiFetch )
+			.mockImplementation( options =>
+				options.url?.endsWith( '/modules-state' )
+					? holdGet
+						? staleGet
+						: Promise.resolve( { status: 'success', JSON: savedModules } )
+					: fetch( options )
+			);
+		function SettingsToggle() {
+			const [ state, setState ] = useSingleModuleState( 'defer_js' );
+			return (
+				<button onClick={ () => setState( ! state?.active ) }>
+					Defer Non-Essential JavaScript
+				</button>
+			);
+		}
+		const client = createQueryClient();
+		const dashboard = ( isOverview: boolean ) => (
+			<>
+				<div hidden={ ! isOverview }>
+					<QueryClientProvider client={ client }>
+						<Overview isVisible={ isOverview } onHeaderActionChange={ () => {} } />
+					</QueryClientProvider>
+				</div>
+				<div hidden={ isOverview }>
+					<QueryClientProvider client={ legacyQueryClient }>
+						<SettingsToggle />
+					</QueryClientProvider>
+				</div>
+			</>
+		);
+		const view = render( dashboard( true ) );
+		try {
+			await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+			view.rerender( dashboard( false ) );
+			if ( scenario === 'stale GET' ) {
+				holdGet = true;
+				act( () => {
+					void client.refetchQueries( { queryKey: [ 'modules_state' ] } );
+				} );
+			}
+			await waitFor( () =>
+				expect( client.isFetching( { queryKey: [ 'modules_state' ] } ) ).toBe(
+					scenario === 'stale GET' ? 1 : 0
+				)
+			);
+			fetchSpy.mockClear();
+			jest.mocked( apiFetch ).mockClear();
+			jest.mocked( requestSpeedScores ).mockResolvedValue( {
+				...scores,
+				current: { desktop: 95, mobile: 85 },
+			} );
+			jest.useFakeTimers();
+			fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
+			await waitFor( () => expect( fetchSpy ).toHaveBeenCalledTimes( 1 ) );
+			if ( scenario === 'unrelated save' ) {
+				await act( async () => {
+					await new MutationObserver( legacyQueryClient, {
+						mutationFn: async () => undefined,
+					} ).mutate();
+				} );
+				// eslint-disable-next-line jest/no-conditional-expect
+				expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( initialModules );
+			}
+			if ( scenario === 'delayed save' ) {
+				await act( async () => {
+					await jest.advanceTimersByTimeAsync( 2500 );
+				} );
+			}
+			expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+			await act( async () => finishSave() );
+			await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
+			await waitFor( () =>
+				expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules )
+			);
+			if ( scenario === 'stale GET' ) {
+				await act( async () => {
+					finishStaleGet( { status: 'success', JSON: initialModules } );
+				} );
+			}
+			view.rerender( dashboard( true ) );
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 2000 );
+			} );
+			await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible() );
+			expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules );
+			expect( fetchSpy ).toHaveBeenCalledTimes( 1 );
+			expect( fetchSpy ).toHaveBeenCalledWith(
+				expect.stringContaining( '/modules-state/set' ),
+				expect.objectContaining( { method: 'POST' } )
+			);
+			expect(
+				jest
+					.mocked( apiFetch )
+					.mock.calls.filter( ( [ options ] ) => options.url?.endsWith( '/modules-state' ) )
+			).toHaveLength( 0 );
+			expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+			expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+				true,
+				wpApiSettings.root,
+				Jetpack_Boost.site.url,
+				wpApiSettings.nonce,
+				expect.objectContaining( { signal: expect.any( AbortSignal ) } )
+			);
+		} finally {
+			jest.useRealTimers();
+			stopObserving();
+			view.unmount();
+			client.clear();
+			legacyQueryClient.clear();
+			fetchSpy.mockRestore();
+			if ( ! hadFetch ) {
+				Reflect.deleteProperty( globalThis, 'fetch' );
+			}
 		}
 	}
-} );
+);
 
 test( 'keeps offline sites out of score and Data Sync requests', async () => {
 	Jetpack_Boost.site.online = false;
@@ -532,14 +1018,81 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		true,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	expect(
 		jest
 			.mocked( recordBoostEvent )
 			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
-	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
+	).toEqual( [ [ 'speed_score_refresh_clicked', { source: 'score_card' } ] ] );
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
+} );
+
+test( 'shows calculating after Run speed test and replaces it with new scores', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let resolveRefresh: ( value: typeof scores ) => void = () => {};
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			resolveRefresh = resolve;
+		} )
+	);
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
+	expect( screen.getByText( '91' ).closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
+		'jetpack-boost-overview__score-row--hidden'
+	);
+	await act( async () => resolveRefresh( { ...scores, current: { desktop: 95, mobile: 85 } } ) );
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 95 );
+	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 85 );
+} );
+
+test( 'keeps scores visible and focused while re-enabling cached reads', async () => {
+	const client = createQueryClient();
+	const dashboard = ( scoresEnabled: boolean ) => (
+		<QueryClientProvider client={ client }>
+			<Overview scoresEnabled={ scoresEnabled } onHeaderActionChange={ () => {} } />
+		</QueryClientProvider>
+	);
+	const { rerender } = render( dashboard( true ) );
+	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+	rerender( dashboard( false ) );
+	const trigger = screen.getByRole( 'button', { name: 'How the overall grade is calculated' } );
+	act( () => trigger.focus() );
+	let resolveRead: ( value: typeof scores ) => void = () => {};
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			resolveRead = resolve;
+		} )
+	);
+	rerender( dashboard( true ) );
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		false,
+		wpApiSettings.root,
+		Jetpack_Boost.site.url,
+		wpApiSettings.nonce,
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
+	);
+	expect( screen.getByText( '91' ) ).toBeVisible();
+	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toBeVisible();
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( trigger ).toHaveFocus();
+	// eslint-disable-next-line testing-library/no-node-access
+	const scoreRow = trigger.closest( '[aria-busy]' );
+	expect( scoreRow ).toHaveAttribute( 'aria-busy', 'true' );
+	await act( async () => resolveRead( scores ) );
+	expect( scoreRow ).toHaveAttribute( 'aria-busy', 'false' );
+	expect( trigger ).toHaveFocus();
+	expect( screen.getByText( '91' ) ).toBeVisible();
 } );
 
 test( 'retains loaded scores and Run speed test alongside a subsequent score error', async () => {
@@ -564,8 +1117,11 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 			'true'
 		)
 	);
-	expect( screen.getByText( '91' ) ).toBeVisible();
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
+	expect( screen.getByText( '91' ).closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
+		'jetpack-boost-overview__score-row--hidden'
+	);
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	await act( async () => rejectRefresh( new Error( 'Refresh failed' ) ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();
 	expect( screen.getByText( '91' ) ).toBeInTheDocument();
@@ -587,6 +1143,13 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 		)
 	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 3 ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
 	await waitFor( () => expect( screen.queryByText( 'Refresh failed' ) ).not.toBeInTheDocument() );
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
 } );
@@ -598,63 +1161,12 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Testing site speed' } ) ).not.toHaveAttribute(
+		'value'
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-} );
-
-test.each( [
-	[ 40, 'Poor' ],
-	[ 60, 'Could improve' ],
-	[ 90, 'Good' ],
-] as const )( 'renders score %i with its tier, bar, and delta', ( score, tier ) => {
-	render(
-		<ScoreCard
-			icon={ null }
-			label="Desktop"
-			value={ score }
-			score={ score }
-			noBoost={ score - 10 }
-		/>
-	);
-	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
-	expect( screen.getByText( '+10 points compared with Boost disabled' ) ).toBeInTheDocument();
-	expect( screen.getByText( tier ) ).toBeInTheDocument();
-} );
-
-test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
-	render( <ScoreCards scores={ scores } /> );
-	const trigger = within( screen.getByRole( 'region', { name: 'Overall' } ) ).getByRole( 'button', {
-		name: 'How the overall grade is calculated',
-	} );
-	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-	fireEvent.click( trigger );
-	const tooltip = await screen.findByRole( 'dialog' );
-	expect( tooltip ).toHaveTextContent(
-		'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.'
-	);
-	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
-	fireEvent.keyDown( tooltip, { key: 'Escape' } );
-	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
-	expect( trigger ).toHaveFocus();
-} );
-
-test( 'hides a negative baseline delta while preserving the current measured bar', () => {
-	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
-	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
-	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
-} );
-
-test( 'hides stale and absent baselines while preserving measured scores', () => {
-	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	expect( screen.getByText( /\+10 points/ ) ).toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
-	expect( screen.getByText( '91' ) ).toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 } );
 
 test( 'shows the free history upgrade without requesting history', async () => {
@@ -663,6 +1175,10 @@ test( 'shows the free history upgrade without requesting history', async () => {
 	};
 	renderOverview();
 	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
+	expect(
+		screen.getByText( 'Learn more about your site performance over time.', { exact: false } )
+	).toBeInTheDocument();
+	expect( screen.queryByTestId( 'history-chart' ) ).not.toBeInTheDocument();
 	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
@@ -670,6 +1186,46 @@ test( 'shows the free history upgrade without requesting history', async () => {
 		} )
 	);
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Show score history preview' } ) ).toHaveAttribute(
+		'aria-expanded',
+		'false'
+	);
+	expect( screen.queryByRole( 'application' ) ).not.toBeInTheDocument();
+} );
+
+test( 'omits the history notice when My Jetpack is unavailable on a free site', async () => {
+	window.Jetpack_Boost.site.myJetpack = false;
+	window.jetpack_boost_ds!.modules_state!.value = {
+		performance_history: { available: false, active: false },
+	};
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+	await waitFor( () =>
+		expect(
+			screen.queryByRole( 'button', { name: 'Show score history preview' } )
+		).not.toBeInTheDocument()
+	);
+	expect(
+		screen.queryByText( 'Learn more about your site performance over time.', { exact: false } )
+	).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByTestId( 'history-chart' ) ).not.toBeInTheDocument();
+	expect( apiFetch ).not.toHaveBeenCalledWith(
+		expect.objectContaining( {
+			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',
+		} )
+	);
+} );
+
+test( 'keeps the paid history chart when My Jetpack is unavailable', async () => {
+	window.Jetpack_Boost.site.myJetpack = false;
+	window.jetpack_boost_ds!.modules_state!.value = {
+		performance_history: { available: true, active: true },
+	};
+	renderOverview();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+	expect( screen.getByRole( 'heading', { name: /Last \d+ days/ } ) ).toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
 } );
 
 test( 'retains the free history state when a modules refetch fails with a fresh-start alert', async () => {
@@ -696,17 +1252,40 @@ test( 'retains the free history state when a modules refetch fails with a fresh-
 test.each( [
 	{
 		scoresAt: undefined,
+		currentDays: 0,
 		copy: 'No scores recorded before the feature was unlocked.',
 	},
-	{ scoresAt: 1, copy: 'No scores recorded for this day.' },
-	{ scoresAt: 3, copy: 'No scores recorded for this day.' },
-	{ scoresAt: 6, copy: 'No scores recorded for this day.' },
+	{
+		scoresAt: undefined,
+		currentDays: 2,
+		copy: 'No scores recorded before the feature was unlocked.',
+	},
+	{ scoresAt: 1, currentDays: 0, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 3, currentDays: 0, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 6, currentDays: 0, copy: 'No scores recorded for this day.' },
 ] )(
-	'checks six older windows in one request when history opens empty (scores in window $scoresAt)',
-	async ( { scoresAt, copy } ) => {
+	'checks older history when the window opens empty ($currentDays current days, older window $scoresAt)',
+	async ( { scoresAt, currentDays, copy } ) => {
 		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 		jest.mocked( apiFetch ).mockImplementation( options => {
 			const window = options.data?.JSON;
+			if (
+				options.url?.endsWith( '/performance-history/set' ) &&
+				currentDays === 2 &&
+				window.startDate === getHistoryWindow( 0 ).startDate
+			) {
+				return Promise.resolve( {
+					status: 'success',
+					JSON: {
+						...window,
+						periods: [
+							recordedPeriod( window.endDate - 2 * 86400000 ),
+							recordedPeriod( window.endDate - 86400000 ),
+						],
+						annotations: [],
+					},
+				} );
+			}
 			if (
 				options.url?.endsWith( '/performance-history/set' ) &&
 				scoresAt !== undefined &&
@@ -771,21 +1350,101 @@ test.each( [
 					},
 				} )
 			);
-			const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
+			const charts = await screen.findAllByRole( 'application', { name: 'Bar chart' } );
 			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-			await expect( screen.findByText( copy ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( copy );
 			expect(
 				screen
 					.getByRole( 'button', { name: 'Previous 30 days' } )
 					.getAttribute( 'aria-disabled' ) === 'true'
 			).toBe( scoresAt === undefined );
 			expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Show score history preview' } )
+			).not.toBeInTheDocument();
 		} finally {
 			geometry.mockRestore();
 			globalThis.ResizeObserver = resizeObserver;
 		}
 	}
 );
+
+test( 'labels empty days as locked only after older history absence is confirmed', async () => {
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	let completeOlderHistory: () => void;
+	jest.mocked( apiFetch ).mockImplementation( options => {
+		if ( options.url?.endsWith( '/performance-history/set' ) ) {
+			const range = options.data.JSON;
+			if ( range.checkOlderWindows ) {
+				return new Promise( resolve => {
+					completeOlderHistory = () =>
+						resolve( { status: 'success', JSON: { ...range, periods: [], annotations: [] } } );
+				} );
+			}
+			return Promise.resolve( {
+				status: 'success',
+				JSON: {
+					...range,
+					periods: [ recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 ) ],
+					annotations: [],
+				},
+			} );
+		}
+		return fetch( options );
+	} );
+	const geometry = jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
+		x: 0,
+		y: 0,
+		top: 0,
+		left: 0,
+		right: 800,
+		bottom: 300,
+		width: 800,
+		height: 300,
+		toJSON: () => ( {} ),
+	} );
+	const resizeObserver = globalThis.ResizeObserver;
+	globalThis.ResizeObserver = class {
+		constructor( private callback: ResizeObserverCallback ) {}
+		observe( target: Element ) {
+			this.callback(
+				[ { target, contentRect: target.getBoundingClientRect() } as ResizeObserverEntry ],
+				this
+			);
+		}
+		unobserve() {}
+		disconnect() {}
+	};
+	try {
+		renderOverview();
+		await waitFor( () => expect( completeOlderHistory ).toBeDefined() );
+		const charts = await screen.findAllByRole( 'application', { name: 'Bar chart' } );
+		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+			'No scores recorded for this day.'
+		);
+		expect(
+			screen.queryByText( 'No scores recorded before the feature was unlocked.' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		await act( async () => completeOlderHistory() );
+		await waitFor( () =>
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+				'No scores recorded before the feature was unlocked.'
+			)
+		);
+		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} finally {
+		geometry.mockRestore();
+		globalThis.ResizeObserver = resizeObserver;
+	}
+} );
 
 test( 'keeps the older-history check cached when a speed test reloads scores', async () => {
 	const requests = ( offset: number ) =>
@@ -810,51 +1469,158 @@ test( 'keeps the older-history check cached when a speed test reloads scores', a
 	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 0, 0, 0, 0, 0, 1 ] );
 } );
 
-test( 'does not request older history while the fresh-start notice hides the chart', async () => {
+test( 'shows a single-day header and disables Previous for a first-slot record with no older history', async () => {
 	window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	jest.mocked( apiFetch ).mockImplementation( options => {
+		if ( options.url?.endsWith( '/performance-history/set' ) ) {
+			const range = options.data.JSON;
+			return Promise.resolve( {
+				status: 'success',
+				JSON: {
+					...range,
+					periods:
+						range.startDate === getHistoryWindow( 0 ).startDate
+							? [ recordedPeriod( getHistoryWindow( 0 ).startDate ) ]
+							: [],
+					annotations: [],
+				},
+			} );
+		}
+		return fetch( options );
+	} );
 	const { client } = renderOverview();
-	await expect(
-		screen.findByText( /Jetpack Boost premium has been activated/ )
-	).resolves.toBeInTheDocument();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-	expect( apiFetch ).not.toHaveBeenCalledWith(
+	expect(
+		screen.getByText( dateI18n( 'M j, Y', getHistoryWindow( 0 ).startDate, false ) )
+	).toBeInTheDocument();
+	expect( apiFetch ).toHaveBeenCalledWith(
 		expect.objectContaining( {
-			data: { JSON: expect.objectContaining( { startDate: getHistoryWindow( 6 ).startDate } ) },
+			data: { JSON: expect.objectContaining( { checkOlderWindows: true } ) },
 		} )
 	);
+	expect(
+		screen.queryByText( /Jetpack Boost premium has been activated/ )
+	).not.toBeInTheDocument();
+	const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
+	expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+	jest.mocked( apiFetch ).mockClear();
+	fireEvent.click( previous );
+	expect( apiFetch ).not.toHaveBeenCalled();
 } );
 
-test( 'debounces optimization changes and waits for generation to finish', async () => {
-	jest.useFakeTimers();
-	try {
-		const { result, rerender, unmount } = renderHook(
-			state => speedScores.useSpeedScores( state ),
-			{
-				initialProps: { config: 'modules-active:1,updated:10', isPending: false },
-				wrapper: queryWrapper(),
+test.each( [ 'pending', 'error' ] )(
+	'keeps the range and disables Previous only while the older-history check is pending (%s)',
+	async status => {
+		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+		const period = recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 );
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest.mocked( apiFetch ).mockImplementation( options => {
+			if ( options.url?.endsWith( '/performance-history/set' ) ) {
+				const range = options.data.JSON;
+				if ( range.checkOlderWindows ) {
+					return status === 'pending'
+						? new Promise( () => {} )
+						: Promise.reject( new Error( 'Older history unavailable' ) );
+				}
+				return Promise.resolve( {
+					status: 'success',
+					JSON: { ...range, periods: [ period ], annotations: [] },
+				} );
 			}
-		);
-		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
-		rerender( { config: 'modules-active:1,updated:20', isPending: true } );
-		act( () => jest.advanceTimersByTime( 2000 ) );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-		rerender( { config: 'modules-active:1,updated:20', isPending: false } );
-		act( () => jest.advanceTimersByTime( 1999 ) );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-		await act( async () => {
-			jest.advanceTimersByTime( 1 );
+			return fetch( options );
 		} );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
-		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-			true,
-			wpApiSettings.root,
-			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+		const { client } = renderOverview();
+		await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect(
+				client.getQueryCache().find( {
+					queryKey: [ 'performance_history', 'older' ],
+					exact: false,
+				} )?.state.status
+			).toBe( status )
 		);
-		unmount();
-	} finally {
-		jest.useRealTimers();
+		const { startDate, endDate } = getHistoryWindow( 0 );
+		expect(
+			screen.getByText(
+				`${ dateI18n( 'M j', startDate, false ) } – ${ dateI18n( 'M j, Y', endDate, false ) }`
+			)
+		).toBeInTheDocument();
+		const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
+		expect( previous ).toHaveAttribute( 'aria-disabled', String( status === 'pending' ) );
+		jest.mocked( apiFetch ).mockClear();
+		fireEvent.click( previous );
+		await waitFor( () =>
+			expect( jest.mocked( apiFetch ).mock.calls.length > 0 ).toBe( status === 'error' )
+		);
 	}
+);
+
+test.each( [ 'pending', 'error' ] )(
+	'keeps loading history paging disabled with a date range when initial history is %s',
+	async status => {
+		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest.mocked( apiFetch ).mockImplementation( options => {
+			if ( options.url?.endsWith( '/performance-history/set' ) ) {
+				return status === 'pending'
+					? new Promise( () => {} )
+					: Promise.reject( new Error( 'History unavailable' ) );
+			}
+			return fetch( options );
+		} );
+		const { client } = renderOverview();
+		const { startDate, endDate } = getHistoryWindow( 0 );
+		await waitFor( () =>
+			expect( client.getQueryState( [ 'performance_history', startDate, endDate ] )?.status ).toBe(
+				status
+			)
+		);
+		expect(
+			screen.getByText(
+				`${ dateI18n( 'M j', startDate, false ) } – ${ dateI18n( 'M j, Y', endDate, false ) }`
+			)
+		).toBeInTheDocument();
+		const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
+		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		jest.mocked( apiFetch ).mockClear();
+		fireEvent.click( previous );
+		expect( apiFetch ).not.toHaveBeenCalled();
+	}
+);
+
+test( 'enables multi-day history paging with a date range without checking older history', async () => {
+	const { startDate, endDate } = getHistoryWindow( 0 );
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	jest.mocked( apiFetch ).mockImplementation( options => {
+		if ( options.url?.endsWith( '/performance-history/set' ) ) {
+			return Promise.resolve( {
+				status: 'success',
+				JSON: {
+					...options.data.JSON,
+					periods: [ recordedPeriod( startDate ), recordedPeriod( startDate + 86400000 ) ],
+					annotations: [],
+				},
+			} );
+		}
+		return fetch( options );
+	} );
+	const { client } = renderOverview();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+	expect(
+		screen.getByText(
+			`${ dateI18n( 'M j', startDate, false ) } – ${ dateI18n( 'M j, Y', endDate, false ) }`
+		)
+	).toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'false'
+	);
+	expect(
+		jest.mocked( apiFetch ).mock.calls.some( ( [ options ] ) => options.data?.JSON?.olderWindows )
+	).toBe( false );
 } );
 
 test( 'passes the history server error message to the notice', async () => {
@@ -889,7 +1655,11 @@ const decreasedScores = {
 test( 'shows a score decrease with guidance and persists permanent dismissal', async () => {
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).toBeVisible()
+	);
 	expect( screen.getByRole( 'link', { name: /Read the guide/ } ) ).toHaveAttribute(
 		'href',
 		expect.stringContaining( 'boost-improve-site-speed-score' )
@@ -904,15 +1674,25 @@ test( 'shows a score decrease with guidance and persists permanent dismissal', a
 			} )
 		)
 	);
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).not.toBeVisible()
+	);
 } );
 
 test( 'temporarily closes the score decrease without persisting dismissal', async () => {
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
-	fireEvent.click( screen.getByRole( 'link', { name: 'Dismiss' } ) );
-	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).toBeVisible()
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+	expect(
+		screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+	).not.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
@@ -960,12 +1740,12 @@ test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => 
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
 	const { rerender } = render( <PopOut scoreChange={ -20 } /> );
 	expect( useLegacyAlertState ).toHaveBeenCalledWith( 'score_decrease' );
-	expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible();
+	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).toBeVisible();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
 	expect( dismiss ).toHaveBeenCalledTimes( 1 );
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
 	rerender( <PopOut scoreChange={ -20 } /> );
-	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
+	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).not.toBeVisible();
 } );
 
 test( 'reports module request errors independently and retries only modules', async () => {
@@ -1042,7 +1822,10 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 				failPrevious = false;
 				return Promise.reject( new Error( 'Previous window unavailable' ) );
 			}
-			const periods = [ recordedPeriod( options.data.JSON.startDate ) ];
+			const periods = [
+				recordedPeriod( options.data.JSON.startDate ),
+				recordedPeriod( options.data.JSON.startDate + 86400000 ),
+			];
 			return Promise.resolve( { status: 'success', JSON: { ...options.data.JSON, periods } } );
 		}
 		return fetch( options );
@@ -1108,4 +1891,180 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 		unmount();
 		client.clear();
 	}
+} );
+
+test.each( [ 'Dismiss', 'Rate the Plugin', 'Do not show me again' ] )(
+	'returns focus to the Overview heading before %s hides the prompt',
+	async label => {
+		jest.mocked( requestSpeedScores ).mockResolvedValue( {
+			...scores,
+			current: { desktop: 90, mobile: 90 },
+		} );
+		renderOverview();
+		const prompt = await screen.findByRole( 'heading', { name: 'Your site got faster' } );
+		const action = screen.getByRole( label === 'Rate the Plugin' ? 'link' : 'button', {
+			name: new RegExp( label ),
+		} );
+		act( () => action.focus() );
+		expect( action ).toHaveFocus();
+		fireEvent.click( action );
+		expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
+		await waitFor( () => expect( prompt ).not.toBeVisible() );
+	}
+);
+
+test( 'legacy rating preserves the threshold boundary, destination and both tracking events', () => {
+	const dismiss = jest.fn();
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
+	const { rerender } = render( <PopOut scoreChange={ 5 } /> );
+	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
+	expect( recordBoostEvent ).not.toHaveBeenCalled();
+	rerender( <PopOut scoreChange={ 6 } /> );
+	expect( screen.getByRole( 'heading', { name: 'Your site got faster' } ) ).toBeVisible();
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_alert_shown', {
+		score_direction: 'up',
+	} );
+	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
+	expect( rating ).toHaveAttribute(
+		'href',
+		'https://jetpack.com/redirect/?source=boost-rate-plugin'
+	);
+	fireEvent.click( rating );
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
+	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'speed_score_alert_cta_clicked', {
+		score_direction: 'up',
+	} );
+	expect( dismiss ).toHaveBeenCalledTimes( 1 );
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
+	rerender( <PopOut scoreChange={ 6 } /> );
+	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
+} );
+
+test.each( [ 'animationend', 'animationcancel' ] )(
+	'consumes the ready signal on %s and keeps saved scores static across hidden toggles',
+	async eventType => {
+		const client = createQueryClient();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div hidden={ ! isVisible }>
+					<OverviewWithHeader isVisible={ isVisible } />
+				</div>
+			</QueryClientProvider>
+		);
+		const { rerender } = render( dashboard( true ) );
+		const desktop = await screen.findByRole( 'region', { name: 'Desktop' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The score row receives the shared entry signal.
+		const row = desktop.closest( '.jetpack-boost-overview__score-row' )!;
+		const completeRun = async () => {
+			let complete!: ( value: typeof scores ) => void;
+			jest.mocked( requestSpeedScores ).mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						complete = resolve;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			await act( async () => complete( scores ) );
+		};
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		await completeRun();
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		fireEvent(
+			row,
+			Object.assign( new Event( eventType, { bubbles: true } ), {
+				animationName: 'jetpack-boost-score-entry',
+			} )
+		);
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		rerender( dashboard( false ) );
+		rerender( dashboard( true ) );
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		await completeRun();
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		rerender( dashboard( false ) );
+		rerender( dashboard( true ) );
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	}
+);
+
+test( 'shares one ready signal with the condensed bar and does not replay it on scroll remount', async () => {
+	/* eslint-disable testing-library/no-node-access */
+	let intersect!: IntersectionObserverCallback;
+	const original = window.IntersectionObserver;
+	window.IntersectionObserver = jest.fn( callback => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect: jest.fn() };
+	} ) as unknown as typeof IntersectionObserver;
+	const client = createQueryClient();
+	const { unmount } = render(
+		<QueryClientProvider client={ client }>
+			<div className="jp-admin-page__page">
+				<header>Boost header</header>
+				<div style={ { overflowY: 'auto' } }>
+					<OverviewWithHeader />
+				</div>
+			</div>
+		</QueryClientProvider>
+	);
+	try {
+		const desktop = await screen.findByRole( 'region', { name: 'Desktop' } );
+		const row = desktop.closest( '.jetpack-boost-overview__score-row' )!;
+		const scroll = ( above: boolean ) =>
+			act( () =>
+				intersect(
+					[
+						{
+							isIntersecting: ! above,
+							boundingClientRect: { bottom: above ? 0 : 300 },
+							rootBounds: { top: 100 },
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				)
+			);
+		const completeRun = async () => {
+			let complete!: ( value: typeof scores ) => void;
+			jest.mocked( requestSpeedScores ).mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						complete = resolve;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			await act( async () => complete( scores ) );
+		};
+		scroll( true );
+		let bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		await completeRun();
+		const overall = bar.querySelector( '.jetpack-boost-score-bar__overall' )!;
+		expect( overall ).toHaveClass( 'jetpack-boost-score-ready' );
+		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		fireEvent(
+			overall,
+			Object.assign( new Event( 'animationend', { bubbles: true } ), {
+				animationName: 'jetpack-boost-score-entry',
+			} )
+		);
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		scroll( false );
+		scroll( true );
+		bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		await completeRun();
+		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
+		scroll( false );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		scroll( true );
+		bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	} finally {
+		unmount();
+		window.IntersectionObserver = original;
+	}
+	/* eslint-enable testing-library/no-node-access */
 } );

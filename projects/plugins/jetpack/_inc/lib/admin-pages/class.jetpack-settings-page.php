@@ -45,13 +45,15 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		 * is never registered.
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
+			$position = defined( Admin_Menu::class . '::POSITION_FIRST_FALLBACK' ) ? Admin_Menu::POSITION_FIRST_FALLBACK : -5;
+
 			return Admin_Menu::add_menu(
 				__( 'Jetpack Settings', 'jetpack' ),
 				__( 'Modules', 'jetpack' ),
 				'jetpack_manage_modules',
 				'jetpack_modules',
 				array( $this, 'render' ),
-				Admin_Menu::POSITION_FIRST_FALLBACK
+				$position
 			);
 		}
 

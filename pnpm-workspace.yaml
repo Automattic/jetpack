@@ -7,6 +7,7 @@ packages:
   - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
+  - tools/port-verification
   - .github/files/coverage-munger
 
 engineStrict: true
@@ -44,7 +45,6 @@ trustPolicyExclude:
   - chokidar@4.0.3
 
   # Packages where newer majors have provenance but we're still on an older one.
-  - rollup@3.30.0
   - rxjs@7.8.2
   - semver@6.3.1
 
@@ -71,6 +71,11 @@ blockExoticSubdeps: true
 ignoredOptionalDependencies:
   - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
   - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
+
+audit:
+  ignore:
+    # "OMG it can throw an exception" is not a real vulnerability. See also https://github.com/github/advisory-database/pull/10132
+    - GHSA-vfj7-8cjw-p6xm
 
 # Dependencies needing patching.
 patchedDependencies:

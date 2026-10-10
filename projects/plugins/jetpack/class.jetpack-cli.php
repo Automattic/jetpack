@@ -592,6 +592,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$module = Jetpack::get_module( $module_slug );
 				Jetpack::log( 'activate', $module_slug );
 				if ( Jetpack::activate_module( $module_slug, false, false ) ) {
+					if ( ! Jetpack::is_module_active( $module_slug ) ) {
+						/* translators: %s is the name of a Jetpack module */
+						WP_CLI::error( sprintf( __( '%s is disabled by your host or site administrator, so it stays off.', 'jetpack' ), $module['name'] ) );
+					}
 					/* translators: %s is the name of a Jetpack module */
 					WP_CLI::success( sprintf( __( '%s has been activated.', 'jetpack' ), $module['name'] ) );
 				} else {
@@ -608,6 +612,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$module = Jetpack::get_module( $module_slug );
 				Jetpack::log( 'deactivate', $module_slug );
 				Jetpack::deactivate_module( $module_slug );
+				if ( Jetpack::is_module_active( $module_slug ) ) {
+					/* translators: %s is the name of a Jetpack module */
+					WP_CLI::error( sprintf( __( '%s is enabled by your host or site administrator, so it stays on.', 'jetpack' ), $module['name'] ) );
+				}
 				/* translators: %s is the name of a Jetpack module */
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
 				break;

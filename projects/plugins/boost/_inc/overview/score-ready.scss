@@ -1,0 +1,17 @@
+@media (prefers-reduced-motion: no-preference) {
+
+	.jetpack-boost-score-ready {
+		animation: jetpack-boost-score-entry var(--wpds-motion-duration-xl) var(--wpds-motion-easing-expressive);
+	}
+
+	@keyframes jetpack-boost-score-entry {
+
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
+	}
+}

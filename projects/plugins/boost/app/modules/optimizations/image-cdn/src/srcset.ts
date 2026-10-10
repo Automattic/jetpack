@@ -86,9 +86,16 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 		! img.getAttribute( 'width' ) ||
 		! img.getAttribute( 'height' ) ||
 		! img.srcset ||
-		! img.src ||
-		! img.src.includes( '.wp.com' )
+		! img.src
 	) {
+		return;
+	}
+
+	try {
+		if ( ! new URL( img.src ).hostname.endsWith( '.wp.com' ) ) {
+			return;
+		}
+	} catch {
 		return;
 	}
 

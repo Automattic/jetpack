@@ -1,0 +1,21 @@
+.pending {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	inline-size: 100%;
+
+	.progress {
+		inline-size: 100%;
+		block-size: var(--wpds-dimension-size-5xs);
+		border-radius: var(--wpds-border-radius-md);
+
+		// Keep while core still animates under reduced motion.
+		@media (prefers-reduced-motion: reduce) {
+
+			> div {
+				animation: none;
+				inset-inline-start: 25%;
+			}
+		}
+	}
+}

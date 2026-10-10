@@ -8,21 +8,19 @@ import { getTypeKeyForBlockName } from './util/block-types.js';
 /**
  * The panel UI, and everything it pulls in, in a chunk of its own.
  *
- * While the feature is off the filter below is never registered, so this component never
- * renders and the browser never requests the chunk: none of the panel, its controls, its
- * operator labels or its stylesheet is parsed or executed in the editor. That is the point of
- * splitting it — code that never reaches the editor cannot break it.
- *
- * A static import would defeat that: webpack would fold all of it into the main editor bundle
- * regardless of the flag.
+ * It renders only for a selected field on a site whose plan includes the feature, so the
+ * browser never requests the chunk otherwise. A static import would fold all of it into the
+ * main editor bundle.
  */
 const ConditionalLogicPanel = lazy( () => import( './components/panel.jsx' ) );
 
+// Its counterpart for a site without the plan, split out the same way.
+const ConditionalLogicUpsell = lazy( () => import( './components/upsell-panel.jsx' ) );
+
 export const FILTER_NAMESPACE = 'jetpack/forms-conditional-logic';
 
-// Matches Jetpack_Forms::CONDITIONAL_LOGIC_FLAG, registered with the jetpack-feature-flags
-// package and bridged into the editor's feature-flag map.
-export const FEATURE_FLAG = 'forms-conditional-logic';
+// Matches Jetpack_Forms::CONDITIONAL_LOGIC_FEATURE, bridged into the editor's feature-flag map.
+const CONDITIONAL_LOGIC_FEATURE = 'form-conditional-logic';
 
 /**
  * Whether a block should carry the conditional-logic panel.
@@ -64,11 +62,18 @@ export const withConditionalLogic = createHigherOrderComponent(
 				     chunk loads. It arrives on the first field block selected and is cached
 				     from then on. */ }
 				<Suspense fallback={ null }>
-					<ConditionalLogicPanel
-						clientId={ props.clientId }
-						attributes={ props.attributes }
-						setAttributes={ props.setAttributes }
-					/>
+					{ hasFeatureFlag( CONDITIONAL_LOGIC_FEATURE ) ? (
+						<ConditionalLogicPanel
+							clientId={ props.clientId }
+							attributes={ props.attributes }
+							setAttributes={ props.setAttributes }
+						/>
+					) : (
+						<ConditionalLogicUpsell
+							blockName={ props.name }
+							conditionalLogic={ props.attributes.conditionalLogic }
+						/>
+					) }
 				</Suspense>
 			</>
 		);
@@ -88,12 +93,6 @@ export const withConditionalLogic = createHigherOrderComponent(
  * @return {boolean} True when this call registered the filter, false when it was already there.
  */
 export const registerConditionalLogicFilter = () => {
-	// Off by default while the feature is in testing. The same switch gates the PHP runtime,
-	// so the editor can never offer conditions the front end would ignore.
-	if ( ! hasFeatureFlag( FEATURE_FLAG ) ) {
-		return false;
-	}
-
 	if ( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ) {
 		return false;
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Expiry notices: Avoid a fatal error on the front end when another plugin or theme disables the WordPress.com banners.

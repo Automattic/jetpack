@@ -1,6 +1,6 @@
 import { Center } from '../center';
 import styles from './svg-empty-state.module.scss';
-import type { FC, ReactNode } from 'react';
+import type { JSX, FC, ReactNode } from 'react';
 
 interface SvgEmptyStateProps {
 	/** X coordinate of the center point */

@@ -8,6 +8,7 @@ import type {
 	JetpackSocialOptions,
 	SIGSettings,
 } from '../../utils/types';
+import type { JSX } from 'react';
 
 /**
  * Media source types

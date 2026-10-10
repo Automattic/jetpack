@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.11.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -195,8 +195,8 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The posts and pages list tables link their views column here.
-		Post_List_Link::register();
+		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
+		Stats_Links::register();
 	}
 
 	/**
@@ -228,6 +228,8 @@ class Analytics {
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
 	 * a bool, and one capability check.
 	 *
+	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
 	 */
@@ -235,7 +237,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'can_view'  => Capabilities::current_user_can_view_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -285,8 +287,7 @@ class Analytics {
 
 		Sync_Status_Tracker::configure();
 
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
 		Sync_Configuration::register();
 	}
 
@@ -342,7 +343,10 @@ class Analytics {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
-		configure_dashboard_preview_scope();
+		// An older copy of the package may have loaded dashboard-sections.php under the previous name.
+		if ( function_exists( __NAMESPACE__ . '\\configure_dashboard_sections_script_data' ) ) {
+			configure_dashboard_sections_script_data();
+		}
 
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
@@ -384,6 +388,7 @@ class Analytics {
 		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
+			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 
