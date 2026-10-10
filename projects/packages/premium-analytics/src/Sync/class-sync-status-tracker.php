@@ -24,12 +24,16 @@ class Sync_Status_Tracker {
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
 	/**
-	 * Default sync-module names whose end-of-sync event flips the milestone. Provided by
-	 * WooCommerce Analytics, which registers a custom full-sync module under this key.
+	 * First full-sync start timestamps, keyed by analytics module name.
+	 */
+	const ANALYTICS_SYNC_STARTED_OPTION = 'jetpack_premium_analytics_analytics_sync_started';
+
+	/**
+	 * Consumer packages register their analytics module names through the sync-module filter.
 	 *
 	 * @var string[]
 	 */
-	const ANALYTICS_SYNC_MODULES = array( 'woocommerce_analytics' );
+	const ANALYTICS_SYNC_MODULES = array();
 
 	/**
 	 * Action hook fired once when the analytics milestone flips. Consumer plugins
@@ -54,6 +58,7 @@ class Sync_Status_Tracker {
 	 */
 	public static function configure() {
 		add_action( 'jetpack_sync_processed_actions', array( self::class, 'on_sync_processed_actions' ) );
+		add_action( 'jetpack_full_sync_start', array( self::class, 'on_full_sync_start' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'inject_script_data' ) );
 		add_filter( 'rest_post_dispatch', array( self::class, 'enrich_sync_status_response' ), 10, 3 );
 	}
@@ -116,11 +121,9 @@ class Sync_Status_Tracker {
 	 */
 	public static function get_analytics_sync_modules(): array {
 		/**
-		 * Filter the sync-module names whose end-of-sync flips the analytics
-		 * milestone. Consumer plugins that register custom full-sync modules
-		 * can add their module keys here.
+		 * Filter the analytics module names whose starts are tracked and whose completion sets the milestone.
 		 *
-		 * @param string[] $module_names Default: array( 'woocommerce_analytics' ).
+		 * @param string[] $module_names Default: empty array.
 		 */
 		return (array) apply_filters( 'jetpack_premium_analytics_sync_modules', self::ANALYTICS_SYNC_MODULES );
 	}
@@ -140,14 +143,7 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		$config = isset( $full_status['config'] ) ? (array) $full_status['config'] : array();
-		$active = array_filter(
-			self::get_analytics_sync_modules(),
-			static function ( $module_name ) use ( $config ) {
-				return ! empty( $config[ $module_name ] );
-			}
-		);
-		if ( ! $active ) {
+		if ( ! self::includes_analytics_module( $full_status['config'] ?? array() ) ) {
 			return;
 		}
 
@@ -173,6 +169,56 @@ class Sync_Status_Tracker {
 		 * @param array $full_status Final full-sync status (with `finished` timestamp).
 		 */
 		do_action( self::MILESTONE_ACTION, $full_status );
+	}
+
+	/**
+	 * Record each analytics module's first full-sync start.
+	 *
+	 * @param array|mixed $config Sync configuration of the full sync that began.
+	 * @return void
+	 */
+	public static function on_full_sync_start( $config ): void {
+		$config   = (array) $config;
+		$previous = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		$started  = $previous;
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( ! empty( $config[ $module_name ] ) && empty( $started[ $module_name ] ) ) {
+				$started[ $module_name ] = time();
+			}
+		}
+
+		if ( $started !== $previous ) {
+			update_option( self::ANALYTICS_SYNC_STARTED_OPTION, $started );
+		}
+	}
+
+	/**
+	 * Whether the given module's full sync has ever started on this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $module_name Sync module name.
+	 * @return bool
+	 */
+	public static function has_module_full_sync_started( string $module_name ): bool {
+		$started = (array) get_option( self::ANALYTICS_SYNC_STARTED_OPTION, array() );
+		return (int) ( $started[ $module_name ] ?? 0 ) > 0;
+	}
+
+	/**
+	 * Whether a full-sync configuration covers an analytics module.
+	 *
+	 * @param array|mixed $config Full-sync configuration, keyed by module name.
+	 * @return bool
+	 */
+	private static function includes_analytics_module( $config ): bool {
+		$config = (array) $config;
+		foreach ( self::get_analytics_sync_modules() as $module_name ) {
+			if ( ! empty( $config[ $module_name ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

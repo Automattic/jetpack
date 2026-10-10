@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Delay order analytics sync until the WooCommerce tab is available and its full sync starts.

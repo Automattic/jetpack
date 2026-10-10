@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 class Sync_Status_Tracker_Test extends TestCase {
 
 	private const FULL_STATUS_WITH_ANALYTICS = array(
-		'config' => array( 'woocommerce_analytics' => true ),
+		'config' => array( 'first_analytics' => true ),
 	);
 
 	/**
@@ -28,6 +29,13 @@ class Sync_Status_Tracker_Test extends TestCase {
 	#[Before]
 	public function set_up() {
 		\WorDBless\Options::init()->clear_options();
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'first_analytics';
+				return $modules;
+			}
+		);
 	}
 
 	/**
@@ -38,6 +46,8 @@ class Sync_Status_Tracker_Test extends TestCase {
 		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
 		remove_all_actions( Sync_Status_Tracker::MILESTONE_ACTION );
 		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
+		delete_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION );
+		remove_all_actions( 'jetpack_full_sync_start' );
 		\WorDBless\Options::init()->clear_options();
 	}
 
@@ -154,6 +164,86 @@ class Sync_Status_Tracker_Test extends TestCase {
 		);
 
 		$this->assertSame( 1730000000, (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION ) );
+	}
+
+	public static function provide_full_sync_configs(): array {
+		return array(
+			'analytics full sync'          => array( array( 'first_analytics' => 1 ), true ),
+			'full sync without analytics'  => array( array( 'posts' => 1 ), false ),
+			'disabled analytics module'    => array( array( 'first_analytics' => 0 ), false ),
+			'full sync with no config yet' => array( null, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_full_sync_configs
+	 *
+	 * @param array|null $config   Config of the full sync that began.
+	 * @param bool       $expected Whether the analytics full sync counts as started.
+	 */
+	#[DataProvider( 'provide_full_sync_configs' )]
+	public function test_full_sync_start_marks_analytics_sync_started_only_for_analytics_configs( $config, bool $expected ) {
+		Sync_Status_Tracker::configure();
+		do_action( 'jetpack_full_sync_start', $config, array() );
+
+		$this->assertSame( $expected, Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+	}
+
+	public function test_later_full_sync_without_analytics_keeps_analytics_sync_started() {
+		Sync_Status_Tracker::on_full_sync_start( array( 'first_analytics' => 1 ) );
+		Sync_Status_Tracker::on_full_sync_start( array( 'posts' => 1 ) );
+
+		$this->assertTrue( Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+	}
+
+	public function test_unregistered_module_does_not_get_a_start_record() {
+		remove_all_filters( 'jetpack_premium_analytics_sync_modules' );
+		Sync_Status_Tracker::on_full_sync_start( array( 'first_analytics' => 1 ) );
+
+		$this->assertFalse( Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+	}
+
+	public function test_second_module_start_does_not_mark_the_first_module_as_started() {
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'second_analytics';
+				return $modules;
+			}
+		);
+		Sync_Status_Tracker::on_full_sync_start( array( 'second_analytics' => 1 ) );
+
+		$this->assertTrue( Sync_Status_Tracker::has_module_full_sync_started( 'second_analytics' ) );
+		$this->assertFalse( Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+
+		Sync_Status_Tracker::on_full_sync_start( array( 'first_analytics' => 1 ) );
+
+		$this->assertTrue( Sync_Status_Tracker::has_module_full_sync_started( 'first_analytics' ) );
+		$this->assertTrue( Sync_Status_Tracker::has_module_full_sync_started( 'second_analytics' ) );
+	}
+
+	public function test_completed_module_does_not_mark_another_module_as_started() {
+		add_filter(
+			'jetpack_premium_analytics_sync_modules',
+			static function ( $modules ) {
+				$modules[] = 'second_analytics';
+				return $modules;
+			}
+		);
+		Sync_Status_Tracker::on_full_sync_start( array( 'first_analytics' => 1 ) );
+		Sync_Status_Tracker::maybe_set_milestone(
+			self::FULL_STATUS_WITH_ANALYTICS,
+			array( array( 'jetpack_full_sync_end', array(), 0, 1730000123 ) )
+		);
+
+		$this->assertFalse( Sync_Status_Tracker::has_module_full_sync_started( 'second_analytics' ) );
+	}
+
+	public function test_repeated_full_sync_keeps_the_first_start_timestamp() {
+		update_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION, array( 'first_analytics' => 1730000123 ) );
+		Sync_Status_Tracker::on_full_sync_start( array( 'first_analytics' => 1 ) );
+
+		$this->assertSame( array( 'first_analytics' => 1730000123 ), get_option( Sync_Status_Tracker::ANALYTICS_SYNC_STARTED_OPTION ) );
 	}
 
 	public function test_script_data_reports_zero_before_milestone() {
