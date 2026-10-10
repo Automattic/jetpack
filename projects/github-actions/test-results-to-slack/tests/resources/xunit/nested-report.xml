@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="API tests" tests="2" errors="1">
+	<testsuite name="Users">
+		<testcase classname="API" name="returns a user" time="0.004">
+			<error type="TypeError"><![CDATA[Cannot read properties of undefined]]></error>
+		</testcase>
+		<testcase classname="API" name="returns no user" time="0.002" />
+	</testsuite>
+</testsuites>
