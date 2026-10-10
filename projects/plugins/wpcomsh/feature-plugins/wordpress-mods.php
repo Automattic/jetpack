@@ -125,6 +125,63 @@ function wpcomsh_upgrade_transferred_db() {
 add_action( 'muplugins_loaded', 'wpcomsh_upgrade_transferred_db' );
 
 /**
+ * Whether core's DB upgrade should be run on this request.
+ *
+ * @return bool
+ */
+function wpcomsh_should_upgrade_db_after_restore() {
+	global $wp_db_version;
+
+	// Core upgrades multisite on its own rather than prompting, and the prompt
+	// only ever appears on a regular admin request.
+	if ( is_multisite() || ! is_admin() || wp_doing_ajax() || wp_installing() ) {
+		return false;
+	}
+
+	// A DB from newer core sitting on older files means the restore itself was
+	// mismatched. Upgrading would only walk `db_version` backwards, so leave it.
+	$current_db_version = (int) get_option( 'db_version' );
+	if ( $current_db_version >= (int) $wp_db_version ) {
+		return false;
+	}
+
+	// One attempt per core DB version. Clears itself when core next bumps
+	// $wp_db_version.
+	return (int) get_option( 'wpcomsh_db_upgrade_attempted' ) !== (int) $wp_db_version;
+}
+
+/**
+ * Runs core's DB upgrade when a restore leaves `db_version` behind.
+ *
+ * A restore can write a stale `db_version` into `wp_options` while the core
+ * files on disk are current. Core then redirects every admin request to
+ * wp-admin/upgrade.php and waits for someone to click "Update WordPress
+ * Database". Do it for them, before that check runs.
+ *
+ * @return void
+ */
+function wpcomsh_maybe_upgrade_db_after_restore() {
+	global $wp_db_version;
+
+	if ( ! wpcomsh_should_upgrade_db_after_restore() ) {
+		return;
+	}
+
+	// Recorded before the upgrade runs: if it fatals, retrying on every admin
+	// request would wedge the site, and a stuck prompt is the better failure.
+	update_option( 'wpcomsh_db_upgrade_attempted', (int) $wp_db_version, false /* Do not autoload. */ );
+
+	// Preserve the previous version for troubleshooting.
+	update_option( 'wpcomsh_db_version_before_restore_upgrade', (int) get_option( 'db_version' ), false /* Do not autoload. */ );
+
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+	// Re-reads `db_version` itself and no-ops if it is already current.
+	wp_upgrade();
+}
+add_action( 'wp_loaded', 'wpcomsh_maybe_upgrade_db_after_restore' );
+
+/**
  * Logs wp_die() calls.
  *
  * @param string|WP_Error $message Error message or WP_Error object.
