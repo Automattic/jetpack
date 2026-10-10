@@ -9,7 +9,6 @@ import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import { FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
-import ManualRules from './manual-rules';
 import RecentBlocks from './recent-blocks';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
@@ -23,7 +22,6 @@ const UNAVAILABLE: FirewallState = {
 	recentBlocks: [],
 	hasScan: false,
 	currentIp: '',
-	manualRules: { blockList: '', blockListEnabled: false, allowList: '', allowListEnabled: false },
 	sharesData: false,
 };
 
@@ -190,15 +188,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					open={ detailsOpen }
 					onOpenChange={ setDetailsOpen }
 				/>
-			) }
-			{ active && (
-				<CardRow>
-					<ManualRules
-						rules={ firewall.manualRules ?? UNAVAILABLE.manualRules }
-						settings={ settings }
-						openTab={ openTab }
-					/>
-				</CardRow>
 			) }
 			{ active && (
 				<CardRow>

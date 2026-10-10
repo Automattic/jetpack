@@ -11,13 +11,6 @@ export type BlockedRequest = {
 	userAgent?: string;
 };
 
-export type ManualRulesState = {
-	blockList: string;
-	blockListEnabled: boolean;
-	allowList: string;
-	allowListEnabled: boolean;
-};
-
 export type FirewallState = {
 	available: boolean;
 	active: boolean;
@@ -27,8 +20,6 @@ export type FirewallState = {
 	recentBlocks: BlockedRequest[];
 	hasScan: boolean;
 	currentIp: string;
-	/** The IP lists the firewall enforces, as of page load. */
-	manualRules: ManualRulesState;
 	/** Whether the firewall keeps its request log ("Share basic data"). */
 	sharesData: boolean;
 };

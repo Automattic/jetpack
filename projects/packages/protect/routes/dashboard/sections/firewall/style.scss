@@ -110,15 +110,3 @@
 		overflow-wrap: anywhere;
 	}
 }
-
-.jp-protect-manual-rules__list {
-	display: flex;
-	justify-content: space-between;
-	gap: 16px;
-}
-
-.jp-protect-manual-rules__ips {
-	min-inline-size: 0;
-	overflow-wrap: anywhere;
-	text-align: end;
-}

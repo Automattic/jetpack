@@ -21,7 +21,6 @@ const props = {
 		recentBlocks: [],
 		hasScan: false,
 		currentIp: '',
-		manualRules: { blockList: '', blockListEnabled: false, allowList: '', allowListEnabled: false },
 		sharesData: false,
 	},
 	settings: { settings: null },
