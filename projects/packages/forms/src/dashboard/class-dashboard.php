@@ -95,7 +95,7 @@ class Dashboard {
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
-	 * @deprecated $$next-version$$ The legacy dashboard bundle was removed.
+	 * @deprecated 8.2.0 The legacy dashboard bundle was removed.
 	 */
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 

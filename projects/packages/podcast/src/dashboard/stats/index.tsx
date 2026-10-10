@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { EmptyState, Stack } from '@wordpress/ui';
 import EpisodeStats from './components/episode-stats';
 import PeriodControl, { getPeriodHeading } from './components/period-control';
 import StatsByApp from './components/stats-by-app';
@@ -161,17 +162,22 @@ const Stats = () => {
 			) }
 
 			{ ! isError && isEmpty && (
-				<div className="podcast__empty-state">
-					<h2 className="podcast__section-heading">
-						{ __( 'No downloads yet.', 'jetpack-podcast' ) }
-					</h2>
-					<p>
-						{ __(
-							'Share your show on your favorite podcast apps to start collecting data here.',
-							'jetpack-podcast'
-						) }
-					</p>
-				</div>
+				<Stack
+					direction="column"
+					align="center"
+					justify="center"
+					style={ { paddingBlock: '64px', paddingInline: '16px' } }
+				>
+					<EmptyState.Root>
+						<EmptyState.Title>{ __( 'No downloads yet.', 'jetpack-podcast' ) }</EmptyState.Title>
+						<EmptyState.Description>
+							{ __(
+								'Share your show on your favorite podcast apps to start collecting data here.',
+								'jetpack-podcast'
+							) }
+						</EmptyState.Description>
+					</EmptyState.Root>
+				</Stack>
 			) }
 
 			{ ! isError && ! isEmpty && (

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Profile Settings: Point the WordPress.com links on wp-admin/profile.php to the matching my.wordpress.com settings pages.

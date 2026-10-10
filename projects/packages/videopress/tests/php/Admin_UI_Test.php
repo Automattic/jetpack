@@ -28,7 +28,6 @@ class Admin_UI_Test extends BaseTestCase {
 		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ), 1 );
 		remove_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'restore_screen_id_after_wp_build' ) );
-		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_UI::class, 'hide_jitms_on_wp_build_dashboard' ) );
 		remove_all_actions( 'load-jetpack_page_' . Admin_UI::ADMIN_PAGE_SLUG );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		$this->set_admin_menu_items( array() );
@@ -293,9 +292,9 @@ class Admin_UI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Simple registration opts the screen add_submenu_page() returns out of JITMs, and no other.
+	 * The Simple registration hooks admin_init on the screen add_submenu_page() returns.
 	 */
-	public function test_add_wp_admin_submenu_opts_its_screen_out_of_jitms() {
+	public function test_add_wp_admin_submenu_registers_its_load_action() {
 		$this->mock_connected_user();
 		// Stands in for the Jetpack parent menu wpcom-admin-menu.php creates.
 		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
@@ -303,27 +302,55 @@ class Admin_UI_Test extends BaseTestCase {
 		Admin_UI::add_wp_admin_submenu();
 
 		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-videopress', array( Admin_UI::class, 'admin_init' ) ) );
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
-		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
 	}
 
 	/**
-	 * Self-hosted, only the wp-build dashboard opts out of JITMs.
+	 * With modernization off, the dashboard menu item is not registered.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_enable_menu_opts_out_of_jitms_only_for_the_wp_build_dashboard() {
+	public function test_enable_menu_registers_no_dashboard_when_not_modernized() {
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		add_filter( Admin_UI::MODERNIZATION_FILTER, '__return_false' );
+		Admin_UI::enable_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
+	}
+
+	/**
+	 * On the VideoPress page, a missing wp-build render function yields no callback.
+	 */
+	public function test_dashboard_callback_is_null_on_the_page_when_the_build_is_missing() {
+		$method = new \ReflectionMethod( Admin_UI::class, 'get_dashboard_render_callback' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertIsString( $method->invoke( null ) );
+
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = Admin_UI::ADMIN_PAGE_SLUG;
+		$this->assertNull( $method->invoke( null ) );
+	}
+
+	/**
+	 * Both dashboards render the JITM slot, so neither opts its screen out.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_menu_keeps_jitms_on_both_dashboards() {
 		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
 
 		Admin_UI::enable_menu();
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
-		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
 
-		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_UI::class, 'hide_jitms_on_wp_build_dashboard' ) );
 		add_filter( Admin_UI::MODERNIZATION_FILTER, '__return_false' );
 
 		Admin_UI::enable_menu();

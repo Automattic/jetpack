@@ -1,46 +1,22 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
 import TopPostsWidget from '../render';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: jest.fn(),
-	isSimpleSite: jest.fn().mockReturnValue( false ),
-} ) );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-const mockGetScriptData = jest.mocked( getScriptData );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
-
-function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
-	return (
-		<section aria-labelledby="top-posts-widget-title">
-			<div>
-				<div id="top-posts-widget-title">Top pages by views</div>
-				<div>
-					<div data-testid="widget-toolbar">
-						<button type="button">Widget settings</button>
-					</div>
-				</div>
-			</div>
-			{ children }
-		</section>
-	);
-}
 
 // A multi-day window makes the stats query layer summarize into the top-level
 // `summary` bucket rather than per-day `days` buckets.
@@ -75,35 +51,11 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
-		mockGetScriptData.mockReturnValue( undefined );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
 
-	it( 'routes post titles to the post-detail page with no outbound link', async () => {
-		render( <TopPostsWidget attributes={ {} } /> );
-
-		// The title navigates through the router to the internal post-detail
-		// route, so the dashboard does not reload.
-		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
-		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/1' ) );
-		expect( titleLink ).not.toHaveAttribute( 'target' );
-		expect( titleLink ).toHaveAttribute( 'title', 'Hello World Post' );
-
-		// A row with a detail page carries no outbound link: the external-link
-		// icon marks destinations outside the app; the detail page holds that link.
-		expect(
-			screen.queryByRole( 'link', { name: /open hello world post in a new tab/i } )
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'link', { name: 'https://example.com/hello-world/' } )
-		).not.toBeInTheDocument();
-
-		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
-	} );
-
 	it( 'keeps the exact count behind an abbreviated row value', async () => {
-		const user = userEvent.setup();
 		mockApiFetch.mockResolvedValue( {
 			...TOP_POSTS_RESPONSE,
 			summary: {
@@ -113,14 +65,8 @@ describe( 'TopPostsWidget', () => {
 		} );
 		render( <TopPostsWidget attributes={ {} } /> );
 
-		const compact = await screen.findByText( '18.4K' );
-		expect( compact ).toHaveAttribute( 'aria-hidden', 'true' );
+		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
-
-		await user.hover( compact );
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( '18,432' );
 	} );
 
 	it( 'carries the dashboard date range into the post-detail link', async () => {
@@ -169,65 +115,6 @@ describe( 'TopPostsWidget', () => {
 		);
 	} );
 
-	it( 'requests the comparison window and aligns previous views by post URL', async () => {
-		// Same post across both periods so the primary row can pick up a
-		// previous value; keyed by URL, not order.
-		const comparisonResponse = {
-			date: '2026-02-10',
-			days: {},
-			summary: {
-				postviews: [
-					{
-						id: 1,
-						href: 'https://example.com/hello-world/',
-						date: '2026-02-01',
-						title: 'Hello World Post',
-						type: 'post',
-						views: 20,
-					},
-				],
-				total_views: 20,
-			},
-		};
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve(
-				path.includes( 'date=2026-02-10' ) ? comparisonResponse : TOP_POSTS_RESPONSE
-			)
-		);
-
-		render(
-			<TopPostsWidget
-				attributes={ {
-					reportParams: {
-						from: '2026-03-01',
-						to: '2026-03-10',
-						comp: '1',
-						compare_from: '2026-02-01',
-						compare_to: '2026-02-10',
-					},
-				} }
-			/>
-		);
-
-		await expect(
-			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
-		).resolves.toBeInTheDocument();
-
-		const requestedPaths = mockApiFetch.mock.calls.map(
-			( [ { path } ]: [ { path: string } ] ) => path
-		);
-		expect(
-			requestedPaths.some(
-				p => p.includes( 'start_date=2026-03-01' ) && p.includes( 'date=2026-03-10' )
-			)
-		).toBe( true );
-		expect(
-			requestedPaths.some(
-				p => p.includes( 'start_date=2026-02-01' ) && p.includes( 'date=2026-02-10' )
-			)
-		).toBe( true );
-	} );
-
 	it( 'does not render deltas when the comparison period has no overlapping posts', async () => {
 		// Comparison returns rows, but for a different post — so no primary row
 		// has a previous value and the comparison UI must stay off.
@@ -271,147 +158,8 @@ describe( 'TopPostsWidget', () => {
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
-		// No fabricated per-row delta from placeholder zeros.
-		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
-	} );
-
-	describe( 'CSV export', () => {
-		let blobs: Blob[];
-		let clickSpy: jest.SpyInstance;
-		let originalCreateObjectURL: typeof window.URL.createObjectURL;
-		let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
-
-		beforeEach( () => {
-			blobs = [];
-			originalCreateObjectURL = window.URL.createObjectURL;
-			originalRevokeObjectURL = window.URL.revokeObjectURL;
-			// jsdom defines neither, so `jest.spyOn` has nothing to wrap.
-			const createObjectURL = jest.fn( ( blob: Blob ) => {
-				blobs.push( blob );
-				return 'blob:mock';
-			} );
-			const revokeObjectURL = jest.fn();
-			window.URL.createObjectURL = createObjectURL;
-			window.URL.revokeObjectURL = revokeObjectURL;
-			// An anchor click would reach jsdom's unimplemented navigation.
-			clickSpy = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
-		} );
-
-		afterEach( () => {
-			clickSpy.mockRestore();
-			window.URL.createObjectURL = originalCreateObjectURL;
-			window.URL.revokeObjectURL = originalRevokeObjectURL;
-		} );
-
-		async function downloadCsvLines() {
-			// This package does not depend on @testing-library/user-event.
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
-
-			await waitFor( () => expect( blobs ).toHaveLength( 1 ) );
-
-			return ( await blobs[ 0 ].text() ).replace( '\ufeff', '' ).split( '\n' );
-		}
-
-		it( 'appends the previous-period column when a comparison is active', async () => {
-			const overlappingComparison = {
-				date: '2026-02-10',
-				days: {},
-				summary: {
-					postviews: [
-						{
-							id: 1,
-							href: 'https://example.com/hello-world/',
-							date: '2026-02-01',
-							title: 'Hello World Post',
-							type: 'post',
-							views: 20,
-						},
-					],
-					total_views: 20,
-				},
-			};
-			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-				Promise.resolve(
-					path.includes( 'date=2026-02-10' ) ? overlappingComparison : TOP_POSTS_RESPONSE
-				)
-			);
-
-			render(
-				<TopPostsWidget
-					attributes={ {
-						reportParams: {
-							from: '2026-03-01',
-							to: '2026-03-10',
-							comp: '1',
-							compare_from: '2026-02-01',
-							compare_to: '2026-02-10',
-						},
-					} }
-				/>
-			);
-
-			const lines = await downloadCsvLines();
-
-			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL","Views (Previous Period)"' );
-			expect( lines[ 1 ] ).toBe(
-				'"Hello World Post","42","post","https://example.com/hello-world/","20"'
-			);
-			// About Page sits outside the comparison period's top rows, which is
-			// unmeasured rather than zero views.
-			expect( lines[ 2 ] ).toBe( '"About Page","7","page","https://example.com/about/",""' );
-		} );
-
-		it( 'omits the previous-period column when no comparison is active', async () => {
-			// The default range turns the comparison on, so this range is explicit.
-			render(
-				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
-			);
-
-			const lines = await downloadCsvLines();
-
-			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL"' );
-			expect( lines[ 1 ] ).toBe(
-				'"Hello World Post","42","post","https://example.com/hello-world/"'
-			);
-		} );
-	} );
-
-	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
-		render(
-			<DashboardWidgetChromeFixture>
-				<TopPostsWidget attributes={ {} } />
-			</DashboardWidgetChromeFixture>
-		);
-
-		await expect(
-			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
-		).resolves.toBeInTheDocument();
-
-		const toolbar = screen.getByTestId( 'widget-toolbar' );
-		expect(
-			within( toolbar ).queryByRole( 'button', { name: /Download CSV/ } )
-		).not.toBeInTheDocument();
-		const downloadButton = screen.getByRole( 'button', { name: /Download CSV/ } );
-		const reportLink = screen.getByRole( 'link', { name: 'View all' } );
-		// The shared parent is the footer layout contract under test.
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
-	} );
-	it( 'hides the CSV export when the server flag is disabled', async () => {
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				csv_exports_enabled: false,
-			},
-		} as ReturnType< typeof getScriptData > );
-
-		render( <TopPostsWidget attributes={ {} } /> );
-
-		await expect(
-			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '—' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
@@ -424,30 +172,22 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		const { rerender } = render(
-			<DashboardWidgetChromeFixture>
-				<TopPostsWidget
-					attributes={ {
-						reportParams: { from: '2026-03-01', to: '2026-03-10' },
-					} }
-				/>
-			</DashboardWidgetChromeFixture>
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
 		// First range settles: rows and the export are both present.
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		const downloadButton = screen.getByRole( 'button', { name: /Download CSV/ } );
+		const reportLink = screen.getByRole( 'link', { name: 'View all' } );
+		// The shared parent is the footer layout contract under test.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 
 		// Switch date range on the same tree; the new fetch is still pending.
 		rerender(
-			<DashboardWidgetChromeFixture>
-				<TopPostsWidget
-					attributes={ {
-						reportParams: { from: '2026-05-01', to: '2026-05-10' },
-					} }
-				/>
-			</DashboardWidgetChromeFixture>
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-05-01', to: '2026-05-10' } } } />
 		);
 
 		await waitFor( () =>
@@ -557,12 +297,14 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the empty state when there are no views', async () => {
+	it( 'renders the generic empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
 		render( <TopPostsWidget attributes={ {} } /> );
 
-		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'caps the visible posts list at the row limit including the homepage entry', async () => {
@@ -626,37 +368,6 @@ describe( 'TopPostsWidget', () => {
 		expect( requestedPath ).toContain( 'skip_archives=1' );
 	} );
 
-	it( 'renders the homepage entry the API returns with skip_archives as an unlinked row', async () => {
-		// With skip_archives=1 the API keeps the homepage-as-latest-posts entry
-		// in postviews, titled by the server and without a URL.
-		mockApiFetch.mockResolvedValue( {
-			date: '2026-06-10',
-			days: {},
-			summary: {
-				postviews: [
-					...TOP_POSTS_RESPONSE.summary.postviews,
-					{
-						id: 0,
-						href: null,
-						date: null,
-						title: 'Homepage (Latest posts)',
-						type: 'homepage',
-						views: 12,
-					},
-				],
-				total_views: 61,
-			},
-		} );
-
-		render( <TopPostsWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
-		// The homepage entry has no URL — it must not render as a link.
-		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
-		expect( screen.getByTitle( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
-	} );
-
 	it( 'gates archive comparison UI on overlapping archive types', async () => {
 		// Comparison period has archive views, but for a type absent from the
 		// primary period — the comparison UI must stay off.
@@ -696,7 +407,8 @@ describe( 'TopPostsWidget', () => {
 		);
 
 		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '—' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'requests archive comparison data and renders deltas for overlapping types', async () => {

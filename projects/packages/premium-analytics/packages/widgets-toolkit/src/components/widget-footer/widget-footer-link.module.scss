@@ -1,0 +1,6 @@
+@use "../../styles/footer-link" as *;
+
+.footerLink {
+
+	@include footer-link;
+}

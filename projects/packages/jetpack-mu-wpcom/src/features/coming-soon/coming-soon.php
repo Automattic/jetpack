@@ -129,6 +129,7 @@ function render_fallback_coming_soon_page() {
 
 	// Disable WP scripts, likes, social og meta, cookie banner.
 	remove_action( 'wp_enqueue_scripts', 'wpcom_actionbar_enqueue_scripts', 101 );
+	add_filter( 'jetpack_action_bar_enabled', '__return_false' );
 	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	remove_action( 'wp_head', 'header_js', 5 );

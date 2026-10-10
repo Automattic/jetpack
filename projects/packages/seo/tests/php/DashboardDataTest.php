@@ -1,7 +1,6 @@
 <?php
 /**
- * Tests for the dashboard's data builders: the payload shapes each tab
- * hydrates from and the durable-option reads behind them.
+ * Tests for the dashboard's data builders and live module state.
  *
  * @package automattic/jetpack-seo
  */
@@ -9,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Dashboard_Data
@@ -30,6 +30,8 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
 		delete_option( 'advanced_seo_title_formats' );
 		delete_option( 'jetpack_ai_seo_enabled' );
+		delete_option( 'jetpack_seo_sitemap_enabled' );
+		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_ai_seo_enabled' );
 
@@ -197,68 +199,50 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * Reads the durable sitemap option without consulting the live module state
-	 * when the option is present (set or explicitly off).
+	 * @dataProvider provide_module_states
+	 * @param bool $sitemaps Whether sitemaps are active.
+	 * @param bool $canonical Whether canonical URLs are active.
 	 */
-	public function test_is_sitemap_enabled_reads_durable_option() {
-		$modules = new \Automattic\Jetpack\Modules();
-
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		$this->assertTrue( $this->invoke_private( Dashboard_Data::class, 'is_sitemap_enabled', $modules ) );
-
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '' );
-		$this->assertFalse( $this->invoke_private( Dashboard_Data::class, 'is_sitemap_enabled', $modules ) );
-
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
-	}
-
-	/**
-	 * Reads the durable canonical-urls option without consulting the live module state
-	 * when the option is present (set or explicitly off).
-	 */
-	public function test_is_canonical_enabled_reads_durable_option() {
-		$modules = new \Automattic\Jetpack\Modules();
-
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '1' );
-		$this->assertTrue( $this->invoke_private( Dashboard_Data::class, 'is_canonical_enabled', $modules ) );
-
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
-		$this->assertFalse( $this->invoke_private( Dashboard_Data::class, 'is_canonical_enabled', $modules ) );
-
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
-	}
-
-	/**
-	 * The Settings bootstrap sources `sitemap_active` / `canonical_active` from the durable
-	 * options, so the module toggles hydrate correctly without reading live module state.
-	 */
-	public function test_get_settings_data_reads_module_toggles_from_options() {
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
+	#[DataProvider( 'provide_module_states' )]
+	public function test_dashboard_follows_modules_despite_conflicting_obsolete_options( $sitemaps, $canonical ) {
+		update_option( 'jetpack_seo_sitemap_enabled', ! $sitemaps );
+		update_option( 'jetpack_seo_canonical_urls_enabled', ! $canonical );
 		add_filter(
 			'jetpack_active_modules',
-			static function ( $modules ) {
-				$modules[] = 'verification-tools';
-				return $modules;
+			static function () use ( $sitemaps, $canonical ) {
+				return array_keys(
+					array_filter(
+						array(
+							'sitemaps'           => $sitemaps,
+							'canonical-urls'     => $canonical,
+							'verification-tools' => true,
+						)
+					)
+				);
 			}
 		);
 
 		$settings = Dashboard_Data::get_settings_data();
+		$overview = Dashboard_Data::get_overview_data();
 
-		$this->assertArrayHasKey( 'sitemap_active', $settings );
-		$this->assertArrayHasKey( 'canonical_active', $settings );
-		$this->assertArrayHasKey( 'verification_tools_active', $settings );
-		$this->assertArrayHasKey( 'schema', $settings );
+		$this->assertSame( $sitemaps, $settings['sitemap_active'] );
+		$this->assertSame( $sitemaps, $overview['site_visibility']['sitemap_active'] );
+		$this->assertSame( $canonical, $settings['canonical_active'] );
+		$this->assertTrue( $settings['verification_tools_active'] );
 		$this->assertArrayHasKey( 'organization', $settings['schema'] );
 		$this->assertArrayHasKey( 'defaults', $settings['schema'] );
-		$this->assertTrue( $settings['sitemap_active'] );
-		$this->assertFalse( $settings['canonical_active'] );
-		$this->assertTrue( $settings['verification_tools_active'] );
+	}
 
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	/**
+	 * @return array Module activation combinations.
+	 */
+	public static function provide_module_states() {
+		return array(
+			'both active'    => array( true, true ),
+			'both inactive'  => array( false, false ),
+			'sitemaps only'  => array( true, false ),
+			'canonical only' => array( false, true ),
+		);
 	}
 
 	/**

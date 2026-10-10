@@ -203,7 +203,9 @@ class Inline_Player_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-videopress-facade="1"', $html );
 		$this->assertStringContainsString( '<button type="button" class="jetpack-videopress-player__facade" aria-label="Play video: My &lt;clip&gt;">', $html );
 		$this->assertStringContainsString( '<img class="jetpack-videopress-player__facade-poster" src="https://example.com/poster.jpg" alt="" decoding="async" fetchpriority="high">', $html );
-		$this->assertStringContainsString( 'jetpack-videopress-player__facade-play', $html );
+		$this->assertStringContainsString( 'jetpack-videopress-player__facade-scrim', $html );
+		$this->assertStringContainsString( '<span class="jetpack-videopress-player__facade-play" aria-hidden="true"><svg viewBox="0 0 22 22"', $html );
+		$this->assertStringContainsString( '</button><span class="jetpack-videopress-player__facade-spinner" role="status" aria-live="polite" aria-label="Loading…"><span></span></span></div>', $html );
 		$this->assertStringContainsString( '&quot;muted&quot;:true', $html );
 
 		// The player bundle is left for the boot script to fetch on click; its URLs travel in the config.
@@ -219,6 +221,8 @@ class Inline_Player_Test extends BaseTestCase {
 		$this->assertTrue( wp_style_is( Inline_Player::BOOT_HANDLE, 'enqueued' ) );
 		$inline_css = implode( "\n", (array) wp_styles()->get_data( Inline_Player::BOOT_HANDLE, 'after' ) );
 		$this->assertStringContainsString( '.jetpack-videopress-player__facade-poster{', $inline_css );
+		$this->assertStringContainsString( '.is-loading .jetpack-videopress-player__facade-spinner{display:flex}', $inline_css );
+		$this->assertStringContainsString( '@keyframes jetpack-videopress-spin', $inline_css );
 
 		// A second facade lazy-loads its poster and does not repeat the styles.
 		$second = Inline_Player::render( 'ghiJKL34', array(), null, array( 'poster' => 'https://example.com/two.jpg' ) );

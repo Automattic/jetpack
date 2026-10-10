@@ -142,19 +142,19 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance          = array();
-		$instance['title'] = wp_kses( $new_instance['title'], array() );
+		$instance['title'] = wp_kses( $new_instance['title'] ?? '', array() );
 		if ( $instance['title'] === $this->default_title ) {
 			$instance['title'] = false; // Store as false in case of language change.
 		}
 
-		$instance['number'] = (int) $new_instance['number'];
+		$instance['number'] = (int) ( $new_instance['number'] ?? 0 );
 		if ( ! in_array( $instance['number'], array( 10, 50 ), true ) ) {
 			$instance['number'] = 10;
 		}
 
-		$instance['include_likers']     = (bool) $new_instance['include_likers'];
-		$instance['include_followers']  = (bool) $new_instance['include_followers'];
-		$instance['include_commenters'] = (bool) $new_instance['include_commenters'];
+		$instance['include_likers']     = ! empty( $new_instance['include_likers'] );
+		$instance['include_followers']  = ! empty( $new_instance['include_followers'] );
+		$instance['include_commenters'] = ! empty( $new_instance['include_commenters'] );
 
 		delete_transient( "$this->id-v2-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'] );
 
@@ -170,6 +170,15 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
+		$args     = wp_parse_args(
+			$args,
+			array(
+				'before_widget' => '',
+				'after_widget'  => '',
+				'before_title'  => '',
+				'after_title'   => '',
+			)
+		);
 		$instance = wp_parse_args(
 			$instance,
 			array(

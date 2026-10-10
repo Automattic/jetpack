@@ -17,6 +17,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use Jetpack_Options;
 use function add_action;
 use function add_filter;
@@ -222,11 +223,7 @@ class Jetpack_Activity_Log {
 		// render function exists before the menu callback runs, and its
 		// enqueue pipeline/polyfills stay off every other admin page.
 		if ( self::is_activity_log_admin_request() ) {
-			// Hooked either side of load_wp_build(), so the alias holds only for the generated
-			// enqueue check it registers at the same priority.
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-			self::load_wp_build();
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+			self::load_wp_build_with_screen_alias();
 		}
 
 		// The menu item must appear on every admin page, but the generated
@@ -337,6 +334,30 @@ class Jetpack_Activity_Log {
 	}
 
 	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
 	 * Alias the current screen id to the wp-build page slug.
 	 *
 	 * The wp-build-generated enqueue callback only fires when the screen id
@@ -345,7 +366,7 @@ class Jetpack_Activity_Log {
 	 * the user-facing URL. Hooked only for the Activity Log request, so this
 	 * never affects any other screen.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.4.1 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -362,7 +383,7 @@ class Jetpack_Activity_Log {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.1
 	 *
 	 * @return void
 	 */
@@ -392,7 +413,7 @@ class Jetpack_Activity_Log {
 	 *
 	 * Fetching a JITM records a view, so one the page hides would still be counted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.1
 	 *
 	 * @param bool   $show      Whether to show JITMs on the screen.
 	 * @param string $screen_id The screen ID.

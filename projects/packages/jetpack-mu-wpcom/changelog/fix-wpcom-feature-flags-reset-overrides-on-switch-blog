@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Feature Flags: read a site's flag overrides per blog, so a flag resolved on WordPress.com's public API answers for the requested site rather than the blog the process started on.

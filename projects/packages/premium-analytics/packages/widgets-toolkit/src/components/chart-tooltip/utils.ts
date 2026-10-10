@@ -1,4 +1,14 @@
 /**
+ * Internal dependencies
+ */
+import type { DataFormat } from '../../types';
+
+/** The tooltip is where a compact chart value gets spelled out in full. */
+export function exactFormatOf( dataFormat: DataFormat ): DataFormat {
+	return { ...dataFormat, options: { ...dataFormat.options, useMultipliers: false } };
+}
+
+/**
  * Generic chart datum entry type from visx tooltip data.
  * Both line and bar charts use this structure.
  */

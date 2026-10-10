@@ -52,8 +52,8 @@ export type UsePopularPostScope = {
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
 	/**
-	 * The window the winner was ranked over. The card's detail link opens on it,
-	 * so the post's own page reports on the period the card's title names.
+	 * The window the winner was ranked over, which the card's detail link
+	 * carries for the post page's breadcrumbs to return to.
 	 */
 	range: PopularPostRange;
 	isLoading: boolean;

@@ -249,6 +249,51 @@ class Partner_Coupon_Test extends TestCase {
 	}
 
 	/**
+	 * The purge runs where the redemption screen can show, and nowhere else.
+	 *
+	 * @dataProvider dataprovider_purge_pages
+	 *
+	 * @param string $page   The `page` query param.
+	 * @param bool   $purged Whether the expired coupon should be purged.
+	 */
+	#[DataProvider( 'dataprovider_purge_pages' )]
+	public function test_maybe_purge_coupon_runs_only_where_the_screen_shows( $page, $purged ) {
+		$this->setup_coupon();
+		Jetpack_Options::update_options(
+			array(
+				'id'                          => 1234,
+				'blog_token'                  => 'asdasd.123123',
+				Partner_Coupon::$added_option => strtotime( '-31 days' ),
+			)
+		);
+		( new Connection\Manager() )->reset_connection_status();
+		$_GET['page'] = $page;
+
+		try {
+			Partner_Coupon::get_instance()->maybe_purge_coupon( 'jetpack' );
+
+			$this->assertSame( $purged, false === Partner_Coupon::get_coupon() );
+		} finally {
+			unset( $_GET['page'] );
+			Jetpack_Options::delete_option( array( 'id', 'blog_token', Partner_Coupon::$coupon_option, Partner_Coupon::$added_option ) );
+			( new Connection\Manager() )->reset_connection_status();
+		}
+	}
+
+	/**
+	 * DataProvider: pages and whether an expired coupon is purged there.
+	 *
+	 * @return array[]
+	 */
+	public static function dataprovider_purge_pages() {
+		return array(
+			'legacy dashboard' => array( 'jetpack', true ),
+			'My Jetpack'       => array( 'my-jetpack', true ),
+			'another page'     => array( 'stats', false ),
+		);
+	}
+
+	/**
 	 * Purge coupon: verify remote availability check is respected.
 	 *
 	 * @dataProvider dataprovider_availability_check_scenarios

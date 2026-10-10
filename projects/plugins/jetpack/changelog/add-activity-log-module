@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Activity Log: make it a Jetpack module so it can be turned on and off from My Jetpack, hiding the sidebar entry when off.

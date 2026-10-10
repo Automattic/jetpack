@@ -1,7 +1,7 @@
 import { Tooltip } from '@wordpress/components';
 import { Icon, globe } from '@wordpress/icons';
 import { getTranslatedCountryName } from '../../../util/country-names-translated.js';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 import './style.scss';
 
 type TextWithFlagProps = {

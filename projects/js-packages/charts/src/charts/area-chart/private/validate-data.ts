@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { isInvalidReading } from '../../private/readings';
 import type { DataPoint, DataPointDate, SeriesData } from '../../../types';
 
 /**
@@ -19,9 +20,7 @@ export const validateData = ( data: SeriesData[] ) => {
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			( point: DataPointDate | DataPoint ) =>
-				isNaN( point.value as number ) ||
-				point.value === null ||
-				point.value === undefined ||
+				isInvalidReading( point.value, { allowMissing: false } ) ||
 				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
 		)
 	);

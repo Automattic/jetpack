@@ -23,6 +23,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import CopyClipboardButton from '../../dashboard/components/copy-clipboard-button';
+import type { JSX } from 'react';
 import './embed-form-modal.scss';
 
 type EmbedFormModalProps = {

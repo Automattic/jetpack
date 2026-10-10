@@ -2,13 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { globe } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
- * Internal dependencies
- */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Identifier persisted in the widget's `metrics` attribute for each metric
@@ -45,14 +39,12 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
  * doubles as the defaults applied to new instances.
  */
 export default {
-	icon: globe,
 	attributes: [
 		{
 			id: 'metrics',
 			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
+			type: 'jpa/array-checkbox',
 			relevance: 'high',
-			Edit: ArrayCheckboxField,
 			elements: SITE_OVERVIEW_METRICS.map( metric => ( {
 				value: metric.id,
 				label: metric.label,

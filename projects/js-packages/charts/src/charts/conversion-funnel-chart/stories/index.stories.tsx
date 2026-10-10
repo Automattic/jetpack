@@ -225,18 +225,7 @@ export const CustomRenderProps: Story = {
 			</div>
 		),
 		renderTooltip: ( { step } ) => (
-			<div
-				style={ {
-					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-					borderRadius: '12px',
-					padding: '16px 20px',
-					color: 'white',
-					fontFamily: 'Inter, sans-serif',
-					boxShadow: '0 8px 32px rgba(118, 75, 162, 0.3)',
-					border: 'none',
-					minWidth: '200px',
-				} }
-			>
+			<div style={ { minWidth: '200px' } }>
 				<div
 					style={ {
 						fontSize: '11px',
@@ -274,6 +263,14 @@ export const CustomRenderProps: Story = {
 				</div>
 			</div>
 		),
+		tooltipStyle: {
+			background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+			borderRadius: '12px',
+			padding: '16px 20px',
+			color: 'white',
+			fontFamily: 'Inter, sans-serif',
+			boxShadow: '0 8px 32px rgba(118, 75, 162, 0.3)',
+		},
 	},
 	decorators: [ Story => <Story /> ],
 };

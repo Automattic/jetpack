@@ -4,6 +4,7 @@ import { chevronDown, chevronUp, Icon } from '@wordpress/icons';
 import { useState, useCallback, useContext } from 'react';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 /**
  * ThreatTechnicalDetails component

@@ -245,10 +245,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
+		'jetpack_sso_require_two_step',
 		'apm_enabled',
 		'wpcom_ai_launchpad_enabled',
 		'wpcom_ai_launchpad_dismissed',
 		'wpcom_ai_launchpad_completed',
+		'wpcom_ai_launchpad_no_guidance',
 	);
 
 	/**
@@ -321,6 +323,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
+		'jetpack_sso_require_two_step',
 		'apm_enabled',
 	);
 
@@ -1026,6 +1029,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_recovery_mode_status':
 					$options[ $key ] = $site->get_jetpack_recovery_mode_status();
 					break;
+				case 'jetpack_sso_require_two_step':
+					$options[ $key ] = $site->get_jetpack_sso_require_two_step();
+					break;
 				case 'apm_enabled':
 					$options[ $key ] = $site->get_apm_enabled();
 					break;
@@ -1037,6 +1043,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'wpcom_ai_launchpad_completed':
 					$options[ $key ] = $site->is_ai_launchpad_completed();
+					break;
+				case 'wpcom_ai_launchpad_no_guidance':
+					$options[ $key ] = $site->is_ai_launchpad_no_guidance();
 					break;
 			}
 		}

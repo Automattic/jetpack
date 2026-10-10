@@ -453,3 +453,33 @@ export const CustomShape: Story = {
 		shape: 'circle',
 	},
 };
+
+export const ComparisonItem: Story = {
+	render: () => (
+		<LineChart
+			withGradientFill={ false }
+			width={ 600 }
+			height={ 300 }
+			data={ [
+				{ ...lineChartData[ 0 ], group: 'desktop' },
+				{
+					...lineChartData[ 1 ],
+					label: 'Previous desktop',
+					group: 'desktop',
+					options: { type: 'comparison' },
+				},
+			] }
+			legend={ { collapseGroups: true, comparisonItem: 'Desktop', interactive: true } }
+		>
+			<LineChart.Legend interactive />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The comparison item deliberately shares the metric label. Only the solid metric item toggles the two series; the dashed comparison item stays visible.',
+			},
+		},
+	},
+};

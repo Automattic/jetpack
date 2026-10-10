@@ -43,6 +43,8 @@ import {
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -802,6 +804,28 @@ function buildFollowersResponse( max: number ) {
 }
 
 /**
+ * The mocked subscriber totals on `day`, shared by `stats/subscribers` and `subscribers/counts` so the two agree.
+ *
+ * @param day - The day to total.
+ * @return Email and WordPress.com subscribers, and paid subscribers.
+ */
+function mockSubscribersOn( day: Date ) {
+	// Anchor growth to a fixed day so totals stay in a realistic range and stay
+	// continuous across the current/previous windows.
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	const absDay = Math.floor( day.getTime() / DAY_MS );
+	// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
+	// the previous-period series stays out of phase and its dashed line diverges visibly.
+	const trend = ( absDay - anchorDay ) * 9;
+	const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
+	const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
+	const paid = mockSitePaidSubscribers
+		? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
+		: 0;
+	return { subscribers, paid };
+}
+
+/**
  * Builds the stats/subscribers time-series response. Values are anchored to each
  * bucket's absolute date so the current window trends above the previous one
  * (continuous across both windows, wavy so the comparison overlay reads clearly);
@@ -814,10 +838,6 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 	const unit = query.get( 'unit' ) || 'day';
 	const quantity = Math.max( 1, Math.min( 60, parseInt( query.get( 'quantity' ) || '30', 10 ) ) );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
-
-	// Anchor growth to a fixed day so totals stay in a realistic range and stay
-	// continuous across the current/previous windows.
-	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
 	const stepDays = unit === 'week' ? 7 : 1;
 
 	const rows = Array.from( { length: quantity }, ( _, index ) => {
@@ -843,15 +863,7 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
-		const absDay = Math.floor( bucket.getTime() / DAY_MS );
-		// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
-		// the previous-period series stays out of phase and its dashed line diverges visibly.
-		const trend = ( absDay - anchorDay ) * 9;
-		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
-		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
-		const paid = mockSitePaidSubscribers
-			? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
-			: 0;
+		const { subscribers, paid } = mockSubscribersOn( bucket );
 
 		return [ period, subscribers, paid ];
 	} );
@@ -1016,7 +1028,16 @@ function buildVisitsResponse( query: URLSearchParams ) {
 			comments: Math.max( 0, Math.round( views * 0.03 + 3 * Math.cos( absDay / 6 ) ) ),
 		};
 
-		return [ period, ...fields.map( field => values[ field ] ?? 0 ) ];
+		// A post every third bucket, two on every ninth, so the tooltip's posts row shows.
+		const postTitles = [ 'Spring recipes', 'Weekend reading' ].slice(
+			i % 9 === 0 ? 0 : 1,
+			i % 3 === 0 ? 2 : 1
+		);
+
+		return [
+			period,
+			...fields.map( field => ( field === 'post_titles' ? postTitles : ( values[ field ] ?? 0 ) ) ),
+		];
 	} );
 
 	return {
@@ -1148,6 +1169,23 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 		};
 	}
 
+	// Single-author detail — `stats/author/{id}`, over a window or, with `num=-1`, all time.
+	const statsAuthor = subPath.match( /^\/author\/(\d+)$/ );
+	if ( statsAuthor ) {
+		const today = new Date().toISOString().slice( 0, 10 );
+		const allTime = getQueryParam( requestPath, 'num' ) === '-1';
+		const period = getQueryParam( requestPath, 'period' );
+
+		return buildAuthorStatsData(
+			Number( statsAuthor[ 1 ] ),
+			allTime
+				? MOCK_AUTHOR_FIRST_CONTENT_DAY
+				: ( getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 ) ?? today ),
+			getQueryParam( requestPath, 'date' )?.slice( 0, 10 ) ?? today,
+			period === 'week' || period === 'month' || period === 'year' ? period : 'day'
+		);
+	}
+
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return buildSingleVideoResponse( requestPath );
@@ -1187,10 +1225,11 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
-		case '/top-authors':
+		case '/top-authors': {
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		}
 		case '/tags':
 			// The Stats `tags` endpoint has no comparison period, so the same
 			// primary fixture is returned for every request.
@@ -1330,19 +1369,57 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	const endDate = getQueryParam( requestPath, 'end_date' ) ?? getQueryParam( requestPath, 'date' );
 	const date = endDate ?? new Date().toISOString().slice( 0, 10 );
 	const factor = playsFactorForWindow( endDate );
-	const videos = [
-		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820, hours: 72.4 },
-		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640, hours: 51.8 },
-		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980, hours: 38.2 },
-		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410, hours: 27.6 },
-		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9 },
-		{ post_id: 106, title: 'Weekly Recap', plays: 540, hours: 10.7 },
-		{ post_id: 107, title: '', plays: 320, hours: 6.1 },
+	const posterFor = ( id: number ) => `https://picsum.photos/seed/jpa-video-${ id }/640/360`;
+	const videos: Array< {
+		post_id: number;
+		title: string;
+		plays: number;
+		hours: number;
+		poster?: string | null;
+	} > = [
+		{
+			post_id: 101,
+			title: 'Getting Started Walkthrough',
+			plays: 3820,
+			hours: 72.4,
+			poster: posterFor( 101 ),
+		},
+		{
+			post_id: 102,
+			title: 'Product Launch Highlights',
+			plays: 2640,
+			hours: 51.8,
+			poster: posterFor( 102 ),
+		},
+		{
+			post_id: 103,
+			title: 'Customer Story: Acme Co.',
+			plays: 1980,
+			hours: 38.2,
+			poster: posterFor( 103 ),
+		},
+		{
+			post_id: 104,
+			title: 'How-To: Advanced Settings',
+			plays: 1410,
+			hours: 27.6,
+			poster: posterFor( 104 ),
+		},
+		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9, poster: null },
+		{
+			post_id: 106,
+			title: 'Weekly Recap',
+			plays: 540,
+			hours: 10.7,
+			poster: 'https://videos.files.wordpress.com/jpa-missing/poster.jpg',
+		},
+		{ post_id: 107, title: '', plays: 320, hours: 6.1, poster: posterFor( 107 ) },
 	];
 	const rows = videos.map( video => ( {
 		post_id: video.post_id,
 		title: video.title,
 		url: `https://example.com/video/${ video.post_id }/`,
+		...( video.poster !== undefined ? { poster: video.poster } : {} ),
 		plays: Math.round( video.plays * factor ),
 		impressions: Math.round( video.plays * factor * 1.8 ),
 		watch_time: Number( ( video.hours * factor ).toFixed( 1 ) ),
@@ -1539,7 +1616,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
-		return buildStatsSubscribersCountsData( mockSitePaidSubscribers );
+		return buildStatsSubscribersCountsData( mockSubscribersOn( new Date() ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {

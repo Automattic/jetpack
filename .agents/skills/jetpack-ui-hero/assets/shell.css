@@ -1,0 +1,314 @@
+/* Page chrome for a hero showcase, carried over from the Jetpack AI heroes page
+		so a new set sits beside it: green-40 identity, green-50 on white. */
+:root {
+	--ground: #fff;
+	--surface: #f6f7f7;
+	--rule: #dcdcde;
+	--ink: #101517;
+	--ink-strong: #101517;
+	--muted: #646970;
+	--accent: #069e08;
+	--accent-ink: #008710;
+	--accent-pressed: #005b18;
+	--stage: #fff;
+	--stage-dot: #dcdcde;
+	--sans:
+		"Inter",
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		"Roboto",
+		sans-serif;
+	--mono: "Menlo", "Consolas", monaco, monospace;
+
+	/* wp-admin's own stack, so redrawn UI matches the plate underneath it */
+	--wp:
+		-apple-system,
+		system-ui,
+		"Segoe UI",
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		"Helvetica Neue",
+		sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	:root:not([data-theme="light"]) {
+		--ground: #101517;
+		--surface: #1d2327;
+		--rule: #2c3338;
+		--ink: #e7e8ea;
+		--ink-strong: #fff;
+		--muted: #a7aaad;
+		--accent-ink: #64ca43;
+	}
+}
+
+:root[data-theme="dark"] {
+	--ground: #101517;
+	--surface: #1d2327;
+	--rule: #2c3338;
+	--ink: #e7e8ea;
+	--ink-strong: #fff;
+	--muted: #a7aaad;
+	--accent-ink: #64ca43;
+}
+
+body {
+	margin: 0;
+	background: var(--ground);
+	color: var(--ink);
+	font: 15px/1.6 var(--sans);
+	-webkit-font-smoothing: antialiased;
+	text-wrap: pretty;
+}
+
+main {
+	max-width: 1040px;
+	margin: 0 auto;
+	padding: 56px 24px 96px;
+}
+
+header {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 24px;
+	align-items: end;
+	padding-bottom: 28px;
+	border-bottom: 1px solid var(--rule);
+}
+
+.brand {
+	display: block;
+	height: 40px;
+	margin: -8px 0 20px -8px;
+}
+
+.brand img {
+	height: 100%;
+	width: auto;
+	display: block;
+}
+
+.brand .dark {
+	display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	:root:not([data-theme="light"]) .brand .light {
+		display: none;
+	}
+
+	:root:not([data-theme="light"]) .brand .dark {
+		display: block;
+	}
+}
+
+:root[data-theme="dark"] .brand .light {
+	display: none;
+}
+
+:root[data-theme="dark"] .brand .dark {
+	display: block;
+}
+
+header h1 {
+	font: 600 44px/1.1 var(--sans);
+	color: var(--ink-strong);
+	margin: 0;
+	letter-spacing: -0.02em;
+	text-wrap: balance;
+}
+
+header p {
+	margin: 8px 0 0;
+	color: var(--muted);
+	max-width: 58ch;
+}
+
+.meta {
+	font-size: 12px;
+	color: var(--muted);
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.meta b {
+	color: var(--ink);
+	font-weight: 600;
+}
+
+section.piece {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 20px;
+	padding: 48px 0;
+	border-bottom: 1px solid var(--rule);
+}
+
+.piece h2 {
+	font: 600 30px/1.2 var(--sans);
+	color: var(--ink-strong);
+	margin: 0;
+	letter-spacing: -0.01em;
+	text-wrap: balance;
+}
+
+.piece .lede {
+	margin: 6px 0 0;
+	color: var(--muted);
+	max-width: 62ch;
+}
+
+.head {
+	display: flex;
+	justify-content: space-between;
+	align-items: end;
+	gap: 24px;
+	flex-wrap: wrap;
+}
+
+.head button {
+	font: 600 14px var(--sans);
+	color: #fff;
+	background: var(--accent-ink);
+	border: 0;
+	border-radius: 4px;
+	padding: 10px 16px;
+	cursor: pointer;
+	display: inline-flex;
+	gap: 8px;
+	align-items: center;
+	transition: background-color 100ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.head button:hover {
+	background: var(--accent-pressed);
+}
+
+.head button:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.head button kbd {
+	font: 500 11px var(--sans);
+	color: #fff;
+	border: 1px solid rgba(255, 255, 255, 0.45);
+	border-radius: 2px;
+	padding: 0 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	:root:not([data-theme="light"]) .head button {
+		background: var(--accent);
+	}
+}
+
+:root[data-theme="dark"] .head button {
+	background: var(--accent);
+}
+
+.stage {
+	background: var(--stage);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	padding: clamp(12px, 3vw, 40px);
+	overflow: hidden;
+	background-image: radial-gradient(var(--stage-dot) 0.6px, transparent 0.7px);
+	background-size: 14px 14px;
+}
+
+.stage.is-idle .scene,
+.stage.is-idle .scene * {
+	animation-play-state: paused !important;
+}
+
+/* A centred grid item makes width:min(100%,…) resolve against an indefinite
+		track; one block wrapper centred by margin is unambiguous. */
+.stage > div {
+	width: 100%;
+	max-width: 1280px;
+	margin-inline: auto;
+	position: relative;
+}
+
+.stage > div > .scene {
+	position: absolute;
+	inset: 0 auto auto 0;
+	transform-origin: 0 0;
+}
+
+.stage > div > .scene > * {
+	position: absolute;
+}
+
+dl.spec {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 16px 28px;
+	margin: 4px 0 0;
+}
+
+dl.spec div {
+	border-top: 2px solid var(--accent);
+	padding-top: 10px;
+}
+
+dl.spec dt {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--muted);
+	margin: 0 0 4px;
+}
+
+dl.spec dd {
+	margin: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+dl.spec dd small {
+	display: block;
+	color: var(--muted);
+}
+
+ol.beats {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 8px 20px;
+	font-size: 13px;
+}
+
+ol.beats li {
+	display: grid;
+	grid-template-columns: 48px 1fr;
+	gap: 8px;
+}
+
+ol.beats li span {
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+
+footer {
+	padding-top: 28px;
+	color: var(--muted);
+	font-size: 13px;
+	max-width: 70ch;
+}
+
+footer code {
+	font: 12px var(--mono);
+	background: var(--surface);
+	border: 1px solid var(--rule);
+	border-radius: 2px;
+	padding: 1px 5px;
+}

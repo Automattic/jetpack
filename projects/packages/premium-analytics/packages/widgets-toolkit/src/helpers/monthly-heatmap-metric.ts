@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { SelectField } from '@jetpack-premium-analytics/fields';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { formatDailyViewCount, formatViewCount } from './format-view-count';
 import type { MonthlyHeatmapProps } from '../components/monthly-heatmap';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -44,11 +43,16 @@ export function monthlyHeatmapMetricAttributeField<
 	return {
 		id: 'metric',
 		label: _x( 'Metric', 'label for the views metric selector', 'jetpack-premium-analytics-pkg' ),
-		type: 'text',
+		type: 'jpa/select',
 		relevance: 'high',
-		Edit: SelectField,
 		elements: MONTHLY_HEATMAP_METRICS.map( ( { id, label } ) => ( { value: id, label } ) ),
 	} as WidgetAttributeField< Attributes >;
+}
+
+// The one-line tooltip carries the figure alone; the scale labels name the
+// unit, so the average is rounded here rather than read as "1.4 views".
+function formatCellValue( value: number ): string {
+	return formatMetricValue( Math.round( value ), 'number', { decimals: 0 } );
 }
 
 /**
@@ -64,7 +68,7 @@ export function monthlyHeatmapLabels(
 
 	if ( metric === 'average' ) {
 		return {
-			formatValue: formatDailyViewCount,
+			formatValue: formatCellValue,
 			emptyLabel,
 			lessLabel: __( 'Fewer views per day', 'jetpack-premium-analytics-pkg' ),
 			moreLabel: __( 'More views per day', 'jetpack-premium-analytics-pkg' ),
@@ -72,7 +76,7 @@ export function monthlyHeatmapLabels(
 	}
 
 	return {
-		formatValue: formatViewCount,
+		formatValue: formatCellValue,
 		emptyLabel,
 		lessLabel: __( 'Fewer views', 'jetpack-premium-analytics-pkg' ),
 		moreLabel: __( 'More views', 'jetpack-premium-analytics-pkg' ),

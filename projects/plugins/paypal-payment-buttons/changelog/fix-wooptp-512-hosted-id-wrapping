@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show a payment link's hosted ID without its PLB- prefix in the block settings sidebar, so it no longer wraps.

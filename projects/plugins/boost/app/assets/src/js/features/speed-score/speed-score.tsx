@@ -61,7 +61,7 @@ const SpeedScore = () => {
 	}, [ site.online, status ] );
 
 	const handleClickRefresh = () => {
-		recordBoostEvent( 'speed_score_refresh_clicked', {} );
+		recordBoostEvent( 'speed_score_refresh_clicked', { source: 'score_card' } );
 		loadScore( true );
 	};
 

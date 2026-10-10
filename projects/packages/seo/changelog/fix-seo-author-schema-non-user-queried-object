@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix author schema describing the wrong user on sites that use a third-party author plugin.

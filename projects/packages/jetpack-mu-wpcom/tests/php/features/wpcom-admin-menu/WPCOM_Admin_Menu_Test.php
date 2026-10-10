@@ -8,6 +8,9 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
@@ -72,8 +75,122 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		delete_option( 'wpcom_admin_interface' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_enabled' );
+		delete_option( 'wpcom_ai_launchpad_dismissed' );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * The My Home menu URL, or null when the item isn't registered.
+	 *
+	 * @return string|null
+	 */
+	private function get_my_home_menu_slug() {
+		global $menu;
+
+		foreach ( $menu as $item ) {
+			if ( isset( $item[2] ) && str_starts_with( $item[2], 'https://wordpress.com/home/' ) ) {
+				return $item[2];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * My Home is registered by default.
+	 *
+	 * Runs in a separate process: elsewhere in the suite, Brain Monkey mocks
+	 * `wpcom_ai_launchpad_is_eligible()`, which `wpcom_add_my_home_menu()` also calls for real.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_by_default() {
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * No-guidance sites get no My Home menu at all.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_for_no_guidance_sites() {
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Skipping the AI Launchpad wizard also counts as no-guidance: no My Home menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_after_skipping_the_ai_launchpad() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * AI Launchpad sites get no My Home menu, including for users who can't open Site Setup.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_on_ai_launchpad_sites_for_every_user() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Legacy launchpad sites keep My Home for non-administrators too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_for_editors_on_legacy_sites() {
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Creates an editor, who can't open Site Setup.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_editor() {
+		return wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@example.com',
+				'role'       => 'editor',
+			)
+		);
 	}
 
 	/**
@@ -144,6 +261,166 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			$this->get_legacy_subscribers_submenu_slug(),
 			'The legacy Subscribers submenu must be retired when the modernization gate is on.'
 		);
+	}
+
+	/**
+	 * The Jetpack submenu item registered under the given slug, or null when absent.
+	 *
+	 * @param string $slug Submenu slug.
+	 * @return array|null
+	 */
+	private function get_jetpack_submenu_item( string $slug ) {
+		global $submenu;
+
+		foreach ( $submenu['jetpack'] ?? array() as $item ) {
+			if ( isset( $item[2] ) && $slug === $item[2] ) {
+				return $item;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Registers a stand-in for the native Activity Log page that the
+	 * `jetpack-activity-log` package adds under Jetpack on `admin_menu`.
+	 */
+	private function register_native_activity_log_page() {
+		add_submenu_page( 'jetpack', 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null' );
+	}
+
+	/**
+	 * Admin interface values an Atomic site can use.
+	 *
+	 * @return array
+	 */
+	public static function admin_interface_provider() {
+		return array(
+			'default (Calypso) interface' => array( 'calypso' ),
+			'wp-admin interface'          => array( 'wp-admin' ),
+		);
+	}
+
+	/**
+	 * Atomic sites keep the native Activity Log page and do not get the Calypso link,
+	 * whichever admin interface they use.
+	 *
+	 * @param string $admin_interface Value of the `wpcom_admin_interface` option.
+	 *
+	 * @dataProvider admin_interface_provider
+	 */
+	#[DataProvider( 'admin_interface_provider' )]
+	public function test_jetpack_submenu_keeps_native_activity_log_on_atomic( $admin_interface ) {
+		\Jetpack_Options::update_option( 'id', 200 );
+		update_option( 'wpcom_admin_interface', $admin_interface );
+		$this->register_native_activity_log_page();
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
+			'The Calypso Activity Log link must not be added when the native page is registered.'
+		);
+
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringNotContainsString(
+			'hide-if-js',
+			$native_item[4] ?? '',
+			'The native Activity Log page must stay visible.'
+		);
+	}
+
+	/**
+	 * When the native Activity Log page is not registered (for example, the user is not
+	 * connected), an Atomic site behaves like a self-hosted site: no Calypso link is added.
+	 */
+	public function test_jetpack_submenu_does_not_link_to_calypso_activity_log_when_native_page_is_missing() {
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+		$this->assertNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
+			'The Calypso Activity Log link must not be added on Atomic sites.'
+		);
+	}
+
+	/**
+	 * Simple sites keep the Calypso Activity Log link and hide the native page.
+	 *
+	 * Runs in a separate process because `wpcom_add_jetpack_submenu()` detects Simple
+	 * sites through the real `IS_WPCOM` constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_links_activity_log_to_calypso_on_simple_sites() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		// The class fixtures may not exist in the isolated process, so set up an admin
+		// here: `add_submenu_page()` drops items the current user cannot access.
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'simple_admin_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'simple_admin@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		$this->register_native_activity_log_page();
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNotNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . $domain ),
+			'Simple sites must keep the Calypso Activity Log link.'
+		);
+
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringContainsString(
+			'hide-if-js',
+			$native_item[4] ?? '',
+			'Simple sites must hide the native Activity Log page.'
+		);
+	}
+
+	/**
+	 * The Jetpack plugin's `jetpack-backup` page is hidden from the sidebar but stays registered.
+	 */
+	public function test_jetpack_submenu_hides_the_wp_admin_backup_page() {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = $this->get_jetpack_submenu_item( 'jetpack-backup' );
+
+		$this->assertNotNull( $item );
+		$this->assertStringContainsString( 'hide-if-js', $item[4] ?? '' );
+	}
+
+	/**
+	 * The Calypso Backup link stays visible.
+	 */
+	public function test_jetpack_submenu_keeps_the_calypso_backup_link_visible() {
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = $this->get_jetpack_submenu_item( 'https://wordpress.com/backup/' . self::$domain );
+
+		$this->assertNotNull( $item );
+		$this->assertStringNotContainsString( 'hide-if-js', $item[4] ?? '' );
 	}
 
 	/**
@@ -289,6 +566,42 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			admin_url(),
 			$this->capture_retired_marketing_page_redirect( 'wpcom-marketing-tools\\' ),
 			'The slug must still match once the added slashes are stripped.'
+		);
+	}
+
+	/**
+	 * WoA can pair mu-wpcom with a Jetpack that serves Settings at either address.
+	 *
+	 * @dataProvider provide_settings_addresses
+	 *
+	 * @param string $address Which Settings address the Jetpack plugin registers.
+	 */
+	#[DataProvider( 'provide_settings_addresses' )]
+	public function test_jetpack_submenu_orders_settings_at_either_address( $address ) {
+		global $submenu;
+		\Jetpack_Options::update_option( 'id', 200 );
+		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
+			array( 'Settings', 'manage_options', $settings_slug ),
+		);
+
+		wpcom_add_jetpack_submenu();
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( $settings_slug, $slugs, true ) );
+	}
+
+	/**
+	 * Settings addresses across Jetpack releases.
+	 *
+	 * @return array
+	 */
+	public static function provide_settings_addresses() {
+		return array(
+			'hash on page=jetpack'  => array( 'legacy' ),
+			'page=jetpack-settings' => array( 'own' ),
 		);
 	}
 }

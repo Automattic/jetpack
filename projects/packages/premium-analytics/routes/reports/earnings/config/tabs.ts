@@ -20,17 +20,14 @@ const earningsReportTabs = defineReportTabs< EarningsReportTabId >(
 		{
 			id: 'wordads',
 			getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Earnings history report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'sponsored',
 			getLabel: () => __( 'Sponsored content history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Sponsored content history report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'adjustments',
 			getLabel: () => __( 'Adjustments history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Adjustments history report', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID
@@ -49,18 +46,5 @@ export const getEarningsReportTabs = earningsReportTabs.getTabs;
  */
 export const resolveSection = earningsReportTabs.resolve;
 
-/** Heading for the active tab's section. */
-export const getTabTitle = earningsReportTabs.getTabTitle;
-
-/**
- * Whether a tab's rows carry an Ads Served count.
- *
- * Only the WordAds bucket records pageviews; sponsored and adjustment rows are
- * amounts alone.
- *
- * @param tab - The active Earnings report tab.
- * @return Whether to show the Ads Served column and its note.
- */
-export function hasAdsServed( tab: EarningsReportTabId ): boolean {
-	return tab === 'wordads';
-}
+/** Get the translated label for a tab, which also heads its section. */
+export const getTabLabel = earningsReportTabs.getTabLabel;

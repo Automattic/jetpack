@@ -11,6 +11,7 @@
 	// Core Spinner ships a default `margin: 5px 11px 0` that nudges it off the
 	// text baseline; reset it and set only the trailing gap.
 	:global(.components-spinner) {
-		margin: 0 calc(var(--spacing-base) * 2) 0 0; // 0 | 16px | 0 | 0
+		margin-block: 0;
+		margin-inline: 0 calc(var(--spacing-base) * 2); // 0 | 16px
 	}
 }

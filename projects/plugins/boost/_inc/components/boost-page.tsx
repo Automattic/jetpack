@@ -1,28 +1,17 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { __ } from '@wordpress/i18n';
-import { Tabs } from '@wordpress/ui';
 import clsx from 'clsx';
 import './boost-page.scss';
 import type { ReactNode } from 'react';
-import type { Tab } from '../runtime-contract';
 
 type Props = {
-	activeTab: Tab;
 	isSubpage: boolean;
-	onTabChange: ( tab: string | null ) => void;
 	children: ReactNode;
 	subpage: ReactNode;
 	actions?: ReactNode;
 };
 
-export default function BoostPage( {
-	activeTab,
-	isSubpage,
-	onTabChange,
-	children,
-	subpage,
-	actions,
-}: Props ) {
+export default function BoostPage( { isSubpage, children, subpage, actions }: Props ) {
 	return (
 		<AdminPage
 			className={ clsx( 'jetpack-boost-page', { 'jetpack-boost-page--subpage': isSubpage } ) }
@@ -34,19 +23,11 @@ export default function BoostPage( {
 			showFooter={ ! isSubpage }
 		>
 			<div hidden={ isSubpage }>
-				<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-						<Tabs.List variant="minimal">
-							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-boost' ) }</Tabs.Tab>
-							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-boost' ) }</Tabs.Tab>
-						</Tabs.List>
-					</div>
-					<div className="jetpack-boost-page__content">
-						{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
-						<div id="jp-admin-notices" className="jetpack-boost-page__notices" />
-						{ children }
-					</div>
-				</Tabs.Root>
+				<div className="jetpack-boost-page__content">
+					{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
+					<div id="jp-admin-notices" className="jetpack-boost-page__notices" />
+					{ children }
+				</div>
 			</div>
 			{ subpage }
 		</AdminPage>

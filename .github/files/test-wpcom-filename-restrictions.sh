@@ -52,6 +52,7 @@ function onexit {
 		OUTPUT+=( "💣 The testing script exited unexpectedly." )
 	fi
 	gh_set_output info "$( printf "%s\n" "${OUTPUT[@]}" )"
+	printf "%s\n" "${OUTPUT[@]}" >> "$GITHUB_STEP_SUMMARY"
 }
 trap "onexit" EXIT
 

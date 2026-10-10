@@ -24,8 +24,6 @@ return make_phan_config(
 			// DO NOT add references to files in other packages like this! Generally packages should be listed in composer.json 'require'.
 			// If there are truly optional dependencies or circular dependencies that can't be cleaned up, one package may list the
 			// other in 'require-dev' and `extra.dependencies.test-only' instead. See packages/config for an example.
-			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',                                 // class Jetpack
-			__DIR__ . '/../../../plugins/jetpack/_inc/lib/admin-pages/class.jetpack-admin-page.php', // class Jetpack_Admin_Page
 			__DIR__ . '/../../../plugins/jetpack/modules/subscriptions.php',                         // class Jetpack_Subscriptions
 			__DIR__ . '/../../../plugins/jetpack/functions.global.php',                              // function jetpack_render_tos_blurb
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin

@@ -1,5 +1,5 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a value one language drops fails a test in the other. `target` says which element the declarations belong on: the QR card takes margin, the frame inside it takes Width and the stroke. textCases run three times on the PHP side — as the QR caption, the payment link and the button face — because one helper serves all three, and a branch that forgets to call it would otherwise pass. rejected* are values neither side emits — refused outright, or dropped because they draw nothing on their own; the canvas has to drop them too, or a block pasted in code view renders in the editor and disappears on publish. buttonCases are the button's own: its background, its width and border going on the button rather than the card, and the Outline style dropping the background so an inline declaration cannot beat the stylesheet.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a value one language drops fails a test in the other. `target` says which element the declarations belong on: the QR card takes margin, the frame inside it takes Width and the stroke, and the button card takes Width alone. textCases run three times on the PHP side — as the QR caption, the payment link and the button face — because one helper serves all three, and a branch that forgets to call it would otherwise pass. rejected* are values neither side emits — refused outright, or dropped because they draw nothing on their own; the canvas has to drop them too, or a block pasted in code view renders in the editor and disappears on publish. buttonCases are the button's own: its background, its border going on the button while Width goes on the card, and the Outline style dropping the background so an inline declaration cannot beat the stylesheet.",
 	"cases": [
 		{
 			"name": "a spacing preset",
@@ -111,6 +111,41 @@
 			},
 			"declarations": {
 				"width": "75%",
+				"max-width": "100%"
+			}
+		},
+		{
+			"name": "width on the button card, the border dropped",
+			"target": "buttonCard",
+			"attributes": {
+				"blockWidth": "75%",
+				"style": {
+					"border": {
+						"radius": "6px",
+						"width": "2px"
+					}
+				}
+			},
+			"declarations": {
+				"width": "75%",
+				"max-width": "100%"
+			}
+		},
+		{
+			"name": "a margin left over from QR is dropped, the width beside it kept",
+			"target": "buttonCard",
+			"attributes": {
+				"blockWidth": "150px",
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "8px"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"width": "150px",
 				"max-width": "100%"
 			}
 		},
@@ -566,7 +601,7 @@
 			}
 		},
 		{
-			"name": "width and border go on the button",
+			"name": "border goes on the button, width on the card",
 			"attributes": {
 				"blockWidth": "75%",
 				"style": {
@@ -578,8 +613,6 @@
 				}
 			},
 			"declarations": {
-				"width": "75%",
-				"max-width": "100%",
 				"border-radius": "6px",
 				"border-width": "2px",
 				"border-style": "solid",

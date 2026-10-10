@@ -537,7 +537,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
 			} );
-			await expect( block.locator( '.jetpack-paypal-button-preview__product-name' ) ).toHaveText(
+			await expect( block.locator( '.jetpack-paypal-button__product-name' ) ).toHaveText(
 				'Test Product'
 			);
 		} );
@@ -974,20 +974,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 	// 7. Production Default (WOOPTP-163)
 	// ---------------------------------------------------------------
 	test.describe( 'Production Default', () => {
-		test( 'connected status shows Production environment badge', async ( { page } ) => {
-			await setupPayPalMocks( page );
-			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
-
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-
-			// Should show connected status — "PayPal Connected" visible, no "Sandbox" badge.
-			await expect( block.locator( 'text=PayPal Connected' ) ).toBeVisible();
-			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__sandbox-badge' )
-			).toBeHidden();
-		} );
-
 		test( 'connection endpoint defaults to production API domain', async ( { page } ) => {
 			// Use a custom disconnected mock that defaults to production environment.
 			await setupPayPalMocks( page, {

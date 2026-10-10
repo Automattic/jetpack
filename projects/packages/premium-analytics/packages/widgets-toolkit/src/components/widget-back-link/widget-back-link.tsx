@@ -23,7 +23,12 @@ export type WidgetBackLinkProps = {
 	ariaLabel?: string;
 
 	/**
-	 * Optional class for widget-specific layout tweaks.
+	 * Optional name of the current view, shown after the link as a breadcrumb.
+	 */
+	current?: string;
+
+	/**
+	 * Optional class for widget-specific layout tweaks, set on the outermost element.
 	 */
 	className?: string;
 };
@@ -37,17 +42,32 @@ export function WidgetBackLink( {
 	label,
 	onClick,
 	ariaLabel = label,
+	current,
 	className,
 }: WidgetBackLinkProps ) {
-	return (
+	const link = (
 		<Button
 			variant="unstyled"
 			onClick={ onClick }
 			aria-label={ ariaLabel }
-			className={ clsx( styles.backLink, className ) }
+			className={ clsx( styles.backLink, ! current && className ) }
 		>
 			<Icon icon={ chevronLeft } size={ 20 } className={ styles.icon } />
 			<span className={ styles.label }>{ label }</span>
 		</Button>
+	);
+
+	if ( ! current ) {
+		return link;
+	}
+
+	return (
+		<div className={ clsx( styles.trail, className ) }>
+			{ link }
+			<span className={ styles.separator } aria-hidden="true">
+				/
+			</span>
+			<span className={ styles.current }>{ current }</span>
+		</div>
 	);
 }

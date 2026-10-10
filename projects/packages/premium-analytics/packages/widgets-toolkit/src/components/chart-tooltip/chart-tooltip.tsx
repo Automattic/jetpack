@@ -2,15 +2,15 @@
  * External dependencies
  */
 import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
-import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
-import { isChartDatumEntry } from './utils';
+import { exactFormatOf, isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/** Swatch box per indicator type; a supplementary row's spacer takes the width. */
+/** Swatch box per indicator type. */
 const INDICATOR_SIZE = {
 	line: { width: 16, height: 15 },
 	rect: { width: 8, height: 8 },
@@ -31,16 +31,16 @@ export type TooltipStyle = {
 };
 
 type DatumWithLabel = { label: string };
-type DatumWithValue = { value: number };
+type DatumWithValue = { value: number | null };
 
-// The default extractors assume the common datum shape; charts with other
-// shapes (dates on line charts, for one) pass their own via `getLabel`.
+// The default extractors assume the common datum shape; a chart with another
+// shape passes its own via `getLabel`.
 function defaultGetLabel( datum: unknown ): string {
 	return ( datum as DatumWithLabel ).label ?? '';
 }
 
-function defaultGetValue( datum: unknown ): number {
-	return ( datum as DatumWithValue ).value;
+function defaultGetValue( datum: unknown ): number | null {
+	return ( datum as DatumWithValue ).value ?? null;
 }
 
 export type ChartTooltipProps< TDatum = unknown > = {
@@ -54,38 +54,59 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	/** One style per series, indexed by series position. */
 	seriesStyles: TooltipStyle[];
 
-	/**
-	 * Series keys in the same order as `seriesStyles`, pairing a row with its style by
-	 * key rather than position — charts emit rows in their own order, so a positional
-	 * lookup hands rows the wrong swatch. Omit when rows arrive in series order.
-	 */
-	seriesKeys?: string[];
-
 	indicatorType: 'line' | 'rect';
 
 	/**
-	 * Rows read out for context rather than drawn, keyed by row key: no series
-	 * swatch, and a format of their own where the chart's does not fit them (a
-	 * count listed beside currencies). `undefined` keeps the chart's format.
+	 * `value` is the row's value spelled out in full; `rawValue` picks a plural
+	 * form. Both are null for a bucket with no reading.
 	 */
-	supplementaryRows?: Record< string, DataFormat | undefined >;
+	getLabel?: (
+		datum: TDatum,
+		index: number,
+		key: string,
+		value: string | null,
+		rawValue: number | null
+	) => string;
 
-	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
-
-	getValue?: ( datum: TDatum ) => number;
+	getValue?: ( datum: TDatum ) => number | null;
 };
 
+export function SeriesIndicator( {
+	indicatorType,
+	style,
+}: {
+	indicatorType: ChartTooltipProps[ 'indicatorType' ];
+	style: TooltipStyle;
+} ) {
+	const { stroke, ...lineShapeStyle } = style;
+
+	return indicatorType === 'line' ? (
+		<LineShape
+			fill={ stroke || 'currentColor' }
+			width={ INDICATOR_SIZE.line.width }
+			height={ INDICATOR_SIZE.line.height }
+			style={ lineShapeStyle }
+		/>
+	) : (
+		<RectShape
+			fill={ stroke || 'currentColor' }
+			height={ INDICATOR_SIZE.rect.height }
+			width={ INDICATOR_SIZE.rect.width }
+			style={ { opacity: lineShapeStyle.opacity } }
+		/>
+	);
+}
+
 /**
- * Self-contained chart tooltip. Indicators use the chart library's own
- * `LineShape` / `RectShape` so they match the series they describe.
+ * Chart tooltip for label/value rows, one per series. Indicators use the chart
+ * library's own `LineShape` / `RectShape` so they match the series they
+ * describe. Date-bucketed charts use `DatedTooltip` instead.
  */
 export function ChartTooltip< TDatum >( {
 	tooltipData,
 	dataFormat,
 	seriesStyles,
-	seriesKeys,
 	indicatorType,
-	supplementaryRows,
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
 }: ChartTooltipProps< TDatum > ) {
@@ -100,60 +121,30 @@ export function ChartTooltip< TDatum >( {
 	}
 
 	return (
-		<Stack direction="column" className={ styles.tooltip } gap="xs">
+		<Stack direction="column" gap="xs">
 			{ datumEntries.map( ( entry, index ) => {
 				if ( ! isChartDatumEntry< TDatum >( entry ) ) {
 					return null;
 				}
 
-				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
-
-				if ( supplementaryRows && entry.key in supplementaryRows ) {
-					return (
-						<TooltipRow
-							key={ entry.key }
-							// Holds the swatch's width, so the labels stay aligned.
-							indicator={
-								<span
-									className={ styles.indicatorSpacer }
-									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
-									aria-hidden="true"
-								/>
-							}
-							label={ label }
-							value={ value }
-							dataFormat={ supplementaryRows[ entry.key ] ?? dataFormat }
-						/>
-					);
-				}
-
-				// No positional fallback once `seriesKeys` is given: that lookup is the bug
-				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
-				const style = seriesKeys
-					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
-					: seriesStyles[ index ];
-				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
+				const exactFormat = exactFormatOf( dataFormat );
+				const label = getLabel(
+					entry.datum,
+					index,
+					entry.key,
+					value === null ? null : formatMetricValue( value, exactFormat.type, exactFormat.options ),
+					value
+				);
 
 				return (
 					<TooltipRow
 						key={ entry.key }
 						indicator={
-							indicatorType === 'line' ? (
-								<LineShape
-									fill={ stroke || 'currentColor' }
-									width={ INDICATOR_SIZE.line.width }
-									height={ INDICATOR_SIZE.line.height }
-									style={ lineShapeStyle }
-								/>
-							) : (
-								<RectShape
-									fill={ stroke || 'currentColor' }
-									height={ INDICATOR_SIZE.rect.height }
-									width={ INDICATOR_SIZE.rect.width }
-									style={ { opacity: lineShapeStyle.opacity } }
-								/>
-							)
+							<SeriesIndicator
+								indicatorType={ indicatorType }
+								style={ seriesStyles[ index ] || seriesStyles[ 0 ] }
+							/>
 						}
 						label={ label }
 						value={ value }

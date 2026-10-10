@@ -1,6 +1,7 @@
 import { useParentSize } from '@visx/responsive';
 import clsx from 'clsx';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useIsomorphicLayoutEffect } from '../../../hooks';
 import { ChartScopeContext } from '../../../providers/chart-scope';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
@@ -32,10 +33,6 @@ export type ResponsiveConfig = {
 	 */
 	resizeDebounceTime?: number;
 };
-
-// useLayoutEffect on the client (so containment is resolved before paint, no flash),
-// useEffect on the server to avoid React's SSR warning.
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /**
  * A higher-order component that provides responsive dimensions

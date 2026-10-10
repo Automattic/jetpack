@@ -37,11 +37,10 @@ class Dashboard_Support_Routes {
 	 * Deferred here (rest_api_init), not run from register() itself: register()
 	 * runs on every request that boots this package, and on WPCOM Simple that's
 	 * every request across all of WPCOM's public-api process, most of which
-	 * never dispatch a Premium Analytics route. default-dashboard-sections.php
-	 * hydrates the section registry at file scope, which should not run before
-	 * WordPress has decided this request is actually dispatching a REST route.
-	 * widget-modules.php hydrates the widget type registry itself, lazily,
-	 * only when its REST callback or the boot-deps filter actually runs.
+	 * never dispatch a Premium Analytics route. Both registries hydrate lazily,
+	 * on their first read: the section registry fires its registration action
+	 * then, and widget-modules.php hydrates the widget type registry only when
+	 * its REST callback or the boot-deps filter actually runs.
 	 *
 	 * @return void
 	 */
@@ -64,9 +63,14 @@ class Dashboard_Support_Routes {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
+		// Copies from before dashboard-sections.php loaded the policy file leave it unloaded.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+			require_once __DIR__ . '/dashboard-policy.php';
+		}
 
-		// These routes are gated on the dashboard capability, and WPCOM Simple boots
-		// this class standalone, without going through Analytics::init().
+		// These routes are gated on the dashboard capability and read the dashboard flags, and
+		// WPCOM Simple boots this class standalone, without going through Analytics::init().
+		register_dashboard_feature_flags();
 		Capabilities::register();
 
 		register_widget_modules_rest_route();

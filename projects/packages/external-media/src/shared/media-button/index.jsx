@@ -6,6 +6,7 @@ import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
 
 const isFeaturedImage = props =>
+	props.featuredImageFlow ||
 	props.unstableFeaturedImageFlow ||
 	( props.modalClass && props.modalClass.indexOf( 'featured-image' ) !== -1 );
 const isReplaceMenu = props => props.multiple === undefined && ! isFeaturedImage( props );

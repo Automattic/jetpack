@@ -1,4 +1,4 @@
-import type { AboutPageDraft, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
+import type { AboutPageDraft, TailoredOutput, FirstPostDraft, SiteCopy } from '../lib/types.ts';
 
 /**
  * A single enriched task: AI subtitle merged with the catalog's title,
@@ -36,6 +36,10 @@ export interface SiteData {
 	description?: string;
 	// The appearance-editor URL (Site Editor on block themes, Customizer on classic).
 	edit_url?: string | null;
+	// The site language (WordPress locale), which the AI output is written in.
+	language?: string;
+	// Copy written into the site's posts and pages, translated into the site language.
+	copy?: SiteCopy;
 }
 
 /** The slice of the `GET /ai-launchpad/` response the tailored list renders from. */
@@ -47,6 +51,8 @@ export interface LaunchpadData {
 	site?: SiteData;
 	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
 	wizard?: { goal?: string } | null;
+	// The account language of the admin reading the page, which the AI writes task subtitles in.
+	user_language?: string;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

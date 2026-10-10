@@ -58,6 +58,7 @@ class Callables extends Module {
 		'jetpack_sync_error_idc',
 		'paused_plugins',
 		'paused_themes',
+		'blog_public', // Callable is jetpack_site_visibility; privacy has to travel as fast as the option.
 
 	);
 
@@ -85,6 +86,7 @@ class Callables extends Module {
 		'home'                   => 'home_url',
 		'siteurl'                => 'site_url',
 		'jetpack_active_modules' => 'active_modules',
+		'blog_public'            => 'jetpack_site_visibility',
 	);
 
 	/**

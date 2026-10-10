@@ -276,6 +276,8 @@ export default function TimelineShell( {
 		<div className="vp-chapters-timeline" data-testid="chapters-timeline">
 			{ toolbar( context ) }
 			<div
+				// Source time and pointer coordinates increase from the physical left in every locale.
+				dir="ltr"
 				className={
 					'vp-chapters-timeline__scroller' +
 					( locked ? ' vp-chapters-timeline__scroller--locked' : '' )

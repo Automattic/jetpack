@@ -55,7 +55,8 @@ const RedeemPartnerCouponPreConnection = props => {
 					__( 'Set up & redeem %s', 'jetpack-partner-coupon' ),
 					partnerCoupon.product.title
 				) }
-				redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
+				// Calypso reads partnerCoupon from this URL to skip to checkout; keep it after `page`.
+				redirectUri={ `admin.php?page=my-jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
 				connectionStatus={ connectionStatus }
 			>
 				<p>

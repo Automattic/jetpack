@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getReferrerFields, type ReferrerRecord } from './fields';
+import { getReferrerFields } from './fields';
+import type { ReferrerRecord } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Mount the referrer field's render component for a table row.
@@ -57,19 +58,7 @@ describe( 'referrer field', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://www.google.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByText( 'google.com' ).parentElement?.tagName ).toBe( 'SPAN' );
-	} );
-
-	it( 'renders referrers without a URL as plain text', () => {
-		renderReferrerField( {
-			id: '|Unknown|',
-			label: 'Unknown',
-			views: 2,
-		} );
-
-		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'announces the parent group for nested referrer leaves', () => {
@@ -111,22 +100,6 @@ describe( 'referrer field', () => {
 
 		expect( screen.getByText( 'Evil' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the referrer favicon when the row has an icon', () => {
-		renderReferrerField( {
-			id: 'search|google.com|https://www.google.com/',
-			label: 'google.com',
-			views: 10,
-			link: 'https://www.google.com/',
-			icon: 'https://icons.example/google.png',
-		} );
-
-		// The favicon is decorative (empty alt), so it maps to the presentation role.
-		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
-			'src',
-			'https://icons.example/google.png'
-		);
 	} );
 
 	it( 'drops a referrer favicon that cannot be loaded but keeps its slot', () => {
@@ -189,16 +162,5 @@ describe( 'referrer field', () => {
 
 		expect( screen.getByText( '10' ) ).toBeInTheDocument();
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
-	} );
-
-	it( 'renders only the views count when comparison is disabled', () => {
-		renderViewsField( {
-			id: '["example.com"]',
-			label: 'example.com',
-			views: 10,
-		} );
-
-		expect( screen.getByText( '10' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 } );

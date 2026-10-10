@@ -4,13 +4,16 @@ import { MutationObserver, QueryClient } from '@tanstack/react-query';
 import { useGettingStarted } from '../../../app/assets/src/js/lib/stores/getting-started';
 import { ONBOARDING_CHANGE_EVENT } from '../../runtime-contract';
 import {
+	MODULES_SAVE_META,
 	observeLegacyModulesState,
+	observeLegacyOnboarding,
 	ONBOARDING_SAVE_META,
 	OVERVIEW_MODULES_CHANGE_EVENT,
 } from './modules-state-bridge';
 
 let client: QueryClient;
-let unsubscribe: () => void;
+let unsubscribeModules: () => void;
+let unsubscribeOnboarding: () => void;
 const onChange = jest.fn();
 const onOnboardingChange = jest.fn();
 const onboardingValues = () =>
@@ -22,11 +25,13 @@ beforeEach( () => {
 	onOnboardingChange.mockClear();
 	window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
 	window.addEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
-	unsubscribe = observeLegacyModulesState( client );
+	unsubscribeModules = observeLegacyModulesState( client );
+	unsubscribeOnboarding = observeLegacyOnboarding( client );
 } );
 
 afterEach( () => {
-	unsubscribe();
+	unsubscribeModules();
+	unsubscribeOnboarding();
 	window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
 	window.removeEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
 	client.clear();
@@ -37,9 +42,26 @@ test.each( [ 'modules_state', 'critical_css_state', 'lcp_state' ] )(
 	key => {
 		client.setQueryData( [ key ], {} );
 		expect( onChange ).toHaveBeenCalledTimes( 1 );
-		expect( onChange ).toHaveBeenCalledWith( expect.objectContaining( { detail: key } ) );
+		expect( onChange ).toHaveBeenCalledWith(
+			expect.objectContaining( { detail: { key, data: {} } } )
+		);
 	}
 );
+
+test.each( [ 'critical_css_state', 'lcp_state' ] )( 'relays polled results for %s', async key => {
+	const data = { status: 'pending', updated: 1 };
+	await client.fetchQuery( {
+		queryKey: [ key ],
+		queryFn: async () => ( { status: 'pending', updated: 1 } ),
+	} );
+	expect( onChange ).toHaveBeenCalledTimes( 1 );
+	expect( onChange ).toHaveBeenCalledWith( expect.objectContaining( { detail: { key, data } } ) );
+} );
+
+test( 'does not relay fetched modules_state results', async () => {
+	await client.fetchQuery( { queryKey: [ 'modules_state' ], queryFn: async () => ( {} ) } );
+	expect( onChange ).not.toHaveBeenCalled();
+} );
 
 test( 'does not relay updates to unrelated keys', () => {
 	client.setQueryData( [ 'performance_history' ], {} );
@@ -52,6 +74,40 @@ test( 'does not relay non-success updates', () => {
 	onChange.mockClear();
 	client.invalidateQueries( { queryKey: [ 'modules_state' ] } );
 	expect( onChange ).not.toHaveBeenCalled();
+} );
+
+test( 'holds modules through unrelated saves and emits reverted state after a failed save', async () => {
+	const initial = { defer_js: { active: false, available: true } };
+	const optimistic = { defer_js: { active: true, available: true } };
+	client.setQueryData( [ 'modules_state' ], initial );
+	onChange.mockClear();
+	let callsAfterRevert: number;
+	let failSave: ( error: Error ) => void = () => undefined;
+	const save = new MutationObserver( client, {
+		meta: MODULES_SAVE_META,
+		mutationFn: () => new Promise< void >( ( _, reject ) => ( failSave = reject ) ),
+		onMutate: () => client.setQueryData( [ 'modules_state' ], optimistic ),
+		onError: () => {
+			client.setQueryData( [ 'modules_state' ], initial );
+			callsAfterRevert = onChange.mock.calls.length;
+		},
+	} )
+		.mutate()
+		.catch( () => undefined );
+	await Promise.resolve();
+
+	expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( optimistic );
+	expect( onChange ).not.toHaveBeenCalled();
+	await new MutationObserver( client, { mutationFn: async () => undefined } ).mutate();
+	expect( onChange ).not.toHaveBeenCalled();
+	failSave( new Error( 'Save failed' ) );
+	await save;
+
+	expect( callsAfterRevert ).toBe( 0 );
+	expect( onChange ).toHaveBeenCalledTimes( 1 );
+	expect( onChange ).toHaveBeenCalledWith(
+		expect.objectContaining( { detail: { key: 'modules_state', data: initial } } )
+	);
 } );
 
 test( 'reports getting_started after every successful write or read', async () => {
@@ -150,7 +206,7 @@ test.each( [ true, false ] )(
 			getting_started: { value: true, nonce: 'test' },
 		};
 		queryClient.clear();
-		const stop = observeLegacyModulesState( queryClient );
+		const stop = observeLegacyOnboarding( queryClient );
 		let resolveSave: ( value: Response ) => void;
 		let rejectSave: ( error: Error ) => void;
 		const originalFetch = globalThis.fetch;

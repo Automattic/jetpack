@@ -6,6 +6,7 @@ import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
 import {
@@ -24,7 +25,7 @@ import { Ads } from './ads';
  * @param {object} props - Component props.
  * @return {import('react').Component} Feature description and CTA.
  */
-function EarnFeatureButton( props ) {
+export function EarnFeatureButton( props ) {
 	const {
 		buttonText,
 		featureConstant = '',
@@ -33,15 +34,20 @@ function EarnFeatureButton( props ) {
 		infoDescription,
 		supportLink,
 		wpcomSupportLink,
+		wpcomInfoLink,
 		title,
 	} = props;
 
-	const trackButtonClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( {
-			target: `visit-${ featureName }`,
-			feature: 'earn',
-		} );
-	}, [ featureName ] );
+	const trackButtonClick = useCallback(
+		event => {
+			analytics.tracks.recordJetpackClick( {
+				target: `visit-${ featureName }`,
+				feature: 'earn',
+			} );
+			openWpcomSupportDoc( event, wpcomInfoLink );
+		},
+		[ featureName, wpcomInfoLink ]
+	);
 
 	return (
 		<SettingsCard
@@ -65,7 +71,7 @@ function EarnFeatureButton( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackButtonClick }
-				href={ infoLink }
+				href={ getSupportUrl( infoLink, wpcomInfoLink ) }
 				target="_blank"
 			>
 				{ buttonText }
@@ -164,6 +170,7 @@ function Earn( props ) {
 					supportLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
 					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
+					wpcomInfoLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoDescription={ __(
 						'Accept credit card payments via PayPal for physical products, services, donations, or support of your creative work.',
 						'jetpack'

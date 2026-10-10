@@ -25,7 +25,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PostCommentsRenderAttributes = PostCommentsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >;
 
-/** How many comments to list; `found` feeds the "N more" footer. */
+/** How many comments to list. */
 const COMMENTS_SHOWN = 10;
 
 /**
@@ -54,7 +54,6 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	const found = data?.found ?? 0;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
@@ -85,7 +84,10 @@ function PostCommentsInner() {
 							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />
+				<SubscriberList
+					items={ items }
+					moreCount={ data?.found === undefined ? null : Math.max( 0, data.found - items.length ) }
+				/>
 			</WidgetState>
 		</div>
 	);

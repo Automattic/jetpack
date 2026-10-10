@@ -5,6 +5,7 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
+import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import { useEffect, StrictMode } from 'react';
 import type { JSX } from 'react';
 import { getPageViewEventName, recordBoostEvent } from '$lib/utils/analytics';
@@ -102,7 +103,9 @@ export default () => {
 	return (
 		<StrictMode>
 			<DataSyncProvider>
-				<Main />
+				<CriticalCssProvider>
+					<Main />
+				</CriticalCssProvider>
 			</DataSyncProvider>
 		</StrictMode>
 	);

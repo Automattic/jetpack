@@ -1,8 +1,9 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useCopyToClipboard } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Card, Field, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
@@ -23,8 +24,8 @@ const linkForVideo = ( video: LibraryItem ): string => {
  * `@wordpress/compose`'s `useCopyToClipboard` (clipboard.js under the hood)
  * so it falls back to `document.execCommand('copy')` on non-secure origins —
  * the native `navigator.clipboard` API is undefined on plain HTTP, which
- * the dev environments here run on. Posts a success snackbar via the
- * dashboard's GlobalNotices store on every successful copy.
+ * the dev environments here run on. Posts a success snackbar via core
+ * notices on every successful copy.
  *
  * @param props            - Component props.
  * @param props.text       - The string to write to the clipboard on click.
@@ -39,14 +40,15 @@ const CopyIconButton = ( {
 	text: string;
 	fieldLabel: string;
 } ): ReactElement => {
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice } = useDispatch( noticesStore );
 	const ref = useCopyToClipboard( text, () =>
 		createSuccessNotice(
 			sprintf(
 				/* translators: %s: name of the copied field, e.g. "Link to video". */
 				__( '%s copied to clipboard.', 'jetpack-videopress-pkg' ),
 				fieldLabel
-			)
+			),
+			{ type: 'snackbar' }
 		)
 	);
 	return (

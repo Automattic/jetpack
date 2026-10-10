@@ -11,13 +11,16 @@ domReady( function() {
     /*
      * The wpcom/v3 route above is served by WordPress.com on Simple sites and by the
      * Jetpack plugin on connected self-hosted sites. Standalone Jetpack plugins ship
-     * this script but not that route, so fall back to the one this package registers
+     * this script but not that route, so they use the one this package registers
      * for itself in Rest_Api_Endpoints.
      */
     const JITM_FALLBACK_ENDPOINT_URL = `/jetpack/v4/jitm`;
 
-    // The route that answered last, reused for dismissals and later fetches.
-    let jitmEndpointUrl = JITM_ENDPOINT_URL;
+    // Only an explicit "no" skips the wpcom route; a config without the flag keeps the old default.
+    const hasWpcomEndpoint = window.jitm_config?.has_wpcom_endpoint ?? true;
+
+    // The route in use, reused for dismissals and later fetches. A 404 still demotes it to the fallback.
+    let jitmEndpointUrl = hasWpcomEndpoint ? JITM_ENDPOINT_URL : JITM_FALLBACK_ENDPOINT_URL;
 
     const isMissingRoute = function(error) {
         return !!error && ('rest_no_route' === error.code || 404 === error?.data?.status);
@@ -389,6 +392,12 @@ domReady( function() {
                 message_path = message_path.replace(
                     'jetpack_page_my-jetpack',
                     'jetpack_page_my-jetpack' + hash
+                );
+            } else if (message_path.includes('jetpack_page_jetpack-settings:')) {
+                // wpcom's Settings rules still name the old page=jetpack screen.
+                message_path = message_path.replace(
+                    'jetpack_page_jetpack-settings:',
+                    'toplevel_page_jetpack' + (hash || '_settings') + ':'
                 );
             } else if ('_dashboard' !== hash) {
                 message_path = message_path.replace(

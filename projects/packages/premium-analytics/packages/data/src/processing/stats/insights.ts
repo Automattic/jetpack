@@ -117,6 +117,29 @@ function readShare( value: unknown ): number | undefined {
 	return parsed !== undefined && parsed >= 0 && parsed <= 100 ? Math.round( parsed ) : undefined;
 }
 
+/**
+ * Reads one peak (its index and share of views) as a unit.
+ *
+ * A share of 0 is the endpoint's default for a window with no views, and its
+ * index is just the first empty bucket.
+ *
+ * @param index - Raw peak index.
+ * @param max   - Highest index the field may take.
+ * @param share - Raw share of views.
+ * @return The parts that are measurements; empty when the window had no views.
+ */
+function readPeak(
+	index: unknown,
+	max: number,
+	share: unknown
+): { index?: number; share?: number } {
+	if ( readNumber( share ) === 0 ) {
+		return {};
+	}
+
+	return { index: readIndex( index, max ), share: readShare( share ) };
+}
+
 function normalizeHourlyViews( hourlyViews: unknown ): StatsInsightsHourlyViews {
 	const payload = coerceStatsRecord( hourlyViews );
 
@@ -127,17 +150,23 @@ function normalizeHourlyViews( hourlyViews: unknown ): StatsInsightsHourlyViews 
 
 export function sanitizeStatsInsightsResponse( response: unknown ): StatsInsightsResponse {
 	const payload = coerceStatsRecord( response );
-	const dayOfWeek = readIndex( payload.highest_day_of_week, 6 );
-	const hourOfDay = readIndex( payload.highest_hour, 23 );
-	const percent = readShare( payload.highest_day_percent );
-	const hourPercent = readShare( payload.highest_hour_percent );
+	const { index: dayOfWeek, share: percent } = readPeak(
+		payload.highest_day_of_week,
+		6,
+		payload.highest_day_percent
+	);
+	const { index: hourOfDay, share: hourPercent } = readPeak(
+		payload.highest_hour,
+		23,
+		payload.highest_hour_percent
+	);
 
-	// Every field stands or falls on its own. One report feeds two widgets — the
-	// peak highlights and Year in review's per-year totals — so a site with years
-	// but no peak day must not lose its years to the missing peak. A missing hour
-	// is not midnight and a missing share is not 0%: either coercion reads as a
-	// real answer rather than an absent one. Which highlights an absent field
-	// hides is the widget's call, not this one's.
+	// Each peak and the year totals stand or fall on their own. One report feeds
+	// two widgets — the peak highlights and Year in review's per-year totals — so
+	// a site with years but no peak day must not lose its years to the missing
+	// peak. A missing hour is not midnight and a missing share is not 0%: either
+	// coercion reads as a real answer rather than an absent one. Which highlights
+	// an absent field hides is the widget's call, not this one's.
 	return {
 		...( dayOfWeek === undefined ? {} : { dayOfWeek } ),
 		...( percent === undefined ? {} : { percent } ),

@@ -67,17 +67,17 @@ describe( 'isOpenSubscriberRemoved', () => {
 } );
 
 describe( 'getSubscribedAt', () => {
-	it( 'prefers the wpcom date and pins the naive list timestamp to UTC', () => {
+	it( 'picks the earlier date and pins the naive list timestamp to UTC', () => {
 		const subscriber = makeSubscriber( {
 			wpcom_date_subscribed: '2026-07-28 19:02:09',
 			email_date_subscribed: '2020-01-01 00:00:00',
 		} );
-		expect( getSubscribedAt( subscriber ) ).toBe( '2026-07-28 19:02:09+00:00' );
+		expect( getSubscribedAt( subscriber ) ).toBe( '2020-01-01T00:00:00+00:00' );
 	} );
 
 	it( 'falls back to the email date for email-only subscribers', () => {
 		const subscriber = makeSubscriber( { email_date_subscribed: '2026-06-12 08:30:00' } );
-		expect( getSubscribedAt( subscriber ) ).toBe( '2026-06-12 08:30:00+00:00' );
+		expect( getSubscribedAt( subscriber ) ).toBe( '2026-06-12T08:30:00+00:00' );
 	} );
 
 	it( 'reads `date_subscribed` from the individual-subscriber payload', () => {

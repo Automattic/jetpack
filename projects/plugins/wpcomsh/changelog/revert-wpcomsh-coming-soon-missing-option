@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Coming Soon: Revert the platform Coming Soon fallback for sites without a wpcom_public_coming_soon option row. It put launched sites whose platform value was stale into Coming Soon.

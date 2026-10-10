@@ -1,7 +1,15 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildMetricTab } from '../build-metric-tab';
+
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'buildMetricTab', () => {
 	it( 'reads the headline from summary, not by re-summing the data points', () => {
@@ -34,6 +42,36 @@ describe( 'buildMetricTab', () => {
 		expect( tab.dataFormat ).toBe( dataFormat );
 	} );
 
+	it( 'passes countLabel through unchanged', () => {
+		const tab = buildMetricTab( {
+			primary: { summary: { views: 1 }, data: [] },
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			countLabel: views,
+			zone: 'UTC',
+		} );
+
+		expect( tab.countLabel ).toBe( views );
+	} );
+
+	it( "carries a row's date_end as the point's endDate", () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 10 },
+				data: [ { date_start: '2026-09-21T00:00:00', date_end: '2026-09-27T23:59:59', views: 10 } ],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current[ 0 ].endDate?.toISOString() ).toBe( '2026-09-27T23:59:59.000Z' );
+	} );
+
 	it( 'maps one point per row, oldest first, with a real Date', () => {
 		const tab = buildMetricTab( {
 			primary: {
@@ -55,6 +93,49 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current[ 1 ].value ).toBe( 20 );
 		expect( tab.current[ 0 ].date ).toBeInstanceOf( Date );
 		expect( tab.current[ 0 ].date.getTime() ).toBeLessThan( tab.current[ 1 ].date.getTime() );
+	} );
+
+	it( 'keeps a null reading as a gap and still reads a missing field as zero', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { cpm: 4 },
+				data: [
+					{ date_start: '2026-05-01', cpm: null },
+					{ date_start: '2026-05-02', cpm: 0 },
+					{ date_start: '2026-05-03' },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'cpm',
+			label: 'CPM',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
+	} );
+
+	it( 'carries the pending label as the note of a row the report flags pending', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { revenue: 3 },
+				data: [
+					{ date_start: '2026-06-01', revenue: 3 },
+					{ date_start: '2026-06-02', revenue: null, pending: true },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'revenue',
+			label: 'Revenue',
+			zone: 'UTC',
+			pendingLabel: 'Not counted yet.',
+		} );
+
+		expect( tab.current.map( point => [ point.value, point.note ] ) ).toEqual( [
+			[ 3, undefined ],
+			[ null, 'Not counted yet.' ],
+		] );
 	} );
 
 	it( 'includes real previous-period values when comparison is on and has rows', () => {
@@ -104,23 +185,6 @@ describe( 'buildMetricTab', () => {
 	// Bucket stamps carry a nominal offset that must be dropped; these cases are
 	// the only guard against reading a bucket in the wrong zone.
 	describe( 'bucket stamps are anchored in the site zone', () => {
-		// Pinned west of UTC — under a UTC runner the correct and buggy readings
-		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		beforeAll( () => {
-			env.TZ = 'America/Los_Angeles';
-		} );
-		afterAll( () => {
-			// Assigning `undefined` to an env var sets the literal string "undefined";
-			// an unset variable has to be deleted back off.
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		} );
-
 		const dateOf = ( dateStart: string ) =>
 			buildMetricTab( {
 				primary: { summary: { views: 1 }, data: [ { date_start: dateStart, views: 1 } ] },

@@ -1,9 +1,12 @@
 import { JSONSchema } from '$lib/utils/json-types';
 import { z } from 'zod';
 
-const HttpErrorPattern = z.custom< `HttpError-${ number }` >( val => {
+// Login-gated pages dismiss under their own key, so the suffix is part of the stored value.
+const HttpErrorPattern = z.custom<
+	`HttpError-${ number }` | `HttpError-${ number }-login-required`
+>( val => {
 	if ( typeof val !== 'string' ) return false;
-	return /^HttpError-\d+$/.test( val );
+	return /^HttpError-\d+(-login-required)?$/.test( val );
 } );
 
 const CriticalCssErrorType = z.union( [

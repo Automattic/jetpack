@@ -20,14 +20,28 @@ const LineChartGlyph: FC< LineChartGlyphProps > = ( {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	if ( ! xScale || ! yScale ) return null;
 
-	if ( data.data.length === 0 ) return null;
+	// Skip buckets with no reading so the edge glyph lands on the nearest real one.
+	const hasFiniteY = ( datum: ( typeof data.data )[ number ] ) => {
+		const scaledY = yScale( accessors.yAccessor( datum ) );
+		return typeof scaledY === 'number' && Number.isFinite( scaledY );
+	};
 
-	const point = position === 'start' ? data.data[ 0 ] : data.data[ data.data.length - 1 ];
+	const point =
+		position === 'start' ? data.data.find( hasFiniteY ) : data.data.findLast( hasFiniteY );
+
+	if ( ! point ) return null;
 
 	const x = xScale( accessors.xAccessor( point ) );
 	const y = yScale( accessors.yAccessor( point ) );
 
-	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
+	if (
+		typeof x !== 'number' ||
+		typeof y !== 'number' ||
+		! Number.isFinite( x ) ||
+		! Number.isFinite( y )
+	) {
+		return null;
+	}
 
 	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
 

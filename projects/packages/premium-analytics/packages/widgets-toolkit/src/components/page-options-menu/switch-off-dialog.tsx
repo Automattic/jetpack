@@ -24,8 +24,9 @@ type SwitchOffDialogProps = {
 };
 
 /**
- * Confirms switching the new Traffic tab off, and asks why on the way out; nothing is
- * required. On confirmation it writes the opt-in off and sends the reader to classic Stats.
+ * Confirms switching the new Stats off, and asks why on the way out;
+ * nothing is required. On confirmation it writes the opt-in off and sends the reader to
+ * classic Stats.
  *
  * @param {SwitchOffDialogProps} props         - Component props.
  * @param {Function}             props.onClose - Called once the reader dismisses the dialog.
@@ -59,10 +60,7 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 			await disableDashboard();
 		} catch ( error ) {
 			// eslint-disable-next-line no-console -- the notice names no cause, so the code goes where a report can find it
-			console.error(
-				'Switching the new Traffic tab off failed:',
-				getApiErrorCode( error ) ?? error
-			);
+			console.error( 'Switching the new Stats off failed:', getApiErrorCode( error ) ?? error );
 			setHasFailed( true );
 			setIsSwitchingOff( false );
 			return;
@@ -97,11 +95,11 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 					<Stack direction="column" gap="lg">
 						<Stack direction="column" gap="md">
 							<Dialog.Title>
-								{ __( 'Switch off the new Traffic tab?', 'jetpack-premium-analytics-pkg' ) }
+								{ __( 'Switch off the new Stats?', 'jetpack-premium-analytics-pkg' ) }
 							</Dialog.Title>
 							<Dialog.Description>
 								{ __(
-									"You'll go back to your current Stats. You can switch the new Traffic tab on again from the Modules Visibility setting.",
+									"You'll go back to your current Stats. You can switch the new Stats on again from the Modules Visibility setting.",
 									'jetpack-premium-analytics-pkg'
 								) }
 							</Dialog.Description>
@@ -113,7 +111,7 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 							comment={ comment }
 							onCommentChange={ setComment }
 							question={ __(
-								'Before you go — is the new Traffic tab ready to replace the old one?',
+								'Before you go — is the new Stats ready to replace the old one?',
 								'jetpack-premium-analytics-pkg'
 							) }
 						/>

@@ -1,10 +1,11 @@
+import { StrictMode } from 'react';
 import * as WPElement from '@wordpress/element';
 import Main from './main';
 import ModernApp from '$layout/modern/modern-app';
 import { detectMode, LEGACY_ROOT_ID, waitForSlots } from '$lib/modern/mode';
 
 /**
- * Render today's dashboard into the root PHP gives it.
+ * Render the legacy dashboard into the root PHP gives it.
  */
 function renderLegacy() {
 	const container = document.getElementById( LEGACY_ROOT_ID );
@@ -27,7 +28,13 @@ function renderLegacy() {
 async function renderModern() {
 	const slots = await waitForSlots();
 
-	WPElement.createRoot( slots.settings ).render( <ModernApp subpageSlot={ slots.subpage } /> );
+	// StrictMode must be the root element to re-run mount effects in development in React 19.
+	// See https://react.dev/reference/react/StrictMode#enabling-strict-mode-for-a-part-of-the-app
+	WPElement.createRoot( slots.settings ).render(
+		<StrictMode>
+			<ModernApp subpageSlot={ slots.subpage } />
+		</StrictMode>
+	);
 }
 
 function render() {

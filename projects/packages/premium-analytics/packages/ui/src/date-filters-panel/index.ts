@@ -1,1 +1,1 @@
-export { DateFiltersPanel } from './date-filters-panel';
+export { DateFiltersPanel, type DateFiltersPanelProps } from './date-filters-panel';

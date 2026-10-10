@@ -1,18 +1,13 @@
 /**
  * Preferences identifiers shared by the dashboard hooks and mirrored on the
- * server.
- *
- * Centralized so the preferences scope and keys can be renamed in one place —
- * e.g. to fully isolate Premium Analytics' stored preferences from the core
- * dashboard's.
+ * server. The scope lives in `@jetpack-premium-analytics/data`, whose default
+ * preset reads it.
  */
 
-/**
- * Preferences scope under which the dashboard layout and grid settings
- * are stored. Mirrors the scope the server-side default injection writes
- * to.
- */
-export const DASHBOARD_PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
+export { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+
+/** Re-exported from the widgets toolkit, whose feedback modal cannot import this route. */
+export { DASHBOARD_SECTION_LAYOUTS_KEY } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /** Preferences key holding the dashboard grid settings. */
 export const DASHBOARD_GRID_SETTINGS_KEY = 'dashboardGridSettings';

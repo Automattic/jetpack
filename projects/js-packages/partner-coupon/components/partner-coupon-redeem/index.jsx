@@ -13,6 +13,7 @@ const PartnerCouponRedeem = props => {
 		siteRawUrl,
 		tracksUserData,
 		analytics,
+		onRemindMeLater,
 	} = props;
 
 	if ( connectionStatus.hasConnectedOwner ) {
@@ -24,6 +25,7 @@ const PartnerCouponRedeem = props => {
 				siteRawUrl={ siteRawUrl }
 				tracksUserData={ !! tracksUserData }
 				analytics={ analytics }
+				onRemindMeLater={ onRemindMeLater }
 			/>
 		);
 	}
@@ -53,6 +55,7 @@ PartnerCouponRedeem.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
 	tracksUserData: PropTypes.bool.isRequired,
 	analytics: PropTypes.object,
+	onRemindMeLater: PropTypes.func,
 };
 
 export default PartnerCouponRedeem;

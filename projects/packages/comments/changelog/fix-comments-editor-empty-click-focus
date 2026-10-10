@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Focus the comment editor when a reader clicks the box before it loads, or clicks anywhere in an empty box.

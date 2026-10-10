@@ -1,3 +1,4 @@
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -8,6 +9,7 @@ import {
 	medalCountsData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -160,6 +162,43 @@ export const PerPointColors: Story = {
 			},
 		},
 	},
+};
+
+export const DatumClasses: Story = {
+	args: {
+		width: 600,
+		height: 300,
+		data: [
+			{
+				label: 'Scores',
+				data: [
+					{ label: 'Empty', value: 0 },
+					{ label: 'Recorded', value: 80 },
+				],
+			},
+		],
+		barClassName: datum => ( datum.value === 0 ? 'bar-story-empty' : undefined ),
+		withTooltips: true,
+		tooltipStyle: { padding: 'var(--wpds-dimension-padding-lg)' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Use per-datum classes to keep zero-value marks visible and tooltipStyle to customize the tooltip box.',
+			},
+		},
+	},
+	render: args => (
+		<>
+			<style>
+				{
+					'.bar-story-empty { height: var(--wpds-dimension-gap-xs); translate: 0 calc(-1 * var(--wpds-dimension-gap-xs)); }'
+				}
+			</style>
+			<BarChart { ...args } />
+		</>
+	),
 };
 
 export const BandHighlight: Story = {
@@ -439,10 +478,7 @@ export const ErrorStates: Story = {
 						data={ [
 							{
 								label: 'Invalid Series',
-								data: [
-									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
-									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
-								],
+								data: [ { date: new Date( 'invalid' ), value: 10 } ],
 								options: {},
 							},
 						] }
@@ -649,6 +685,94 @@ export const ZeroValueComparison: Story = {
 	},
 };
 
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: Story = {
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+		showZeroValues: true,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
+		},
+	},
+};
+
+export const SteadyValues: Story = {
+	args: {
+		...Default.args,
+		data: steadyTrafficData,
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+SteadyValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'A week of 921 to 989 views a day, a 7% swing. The value axis starts at zero, so the bars read as steady; fitted to the data they would swing between empty and full. Pass `options.yScale.zero: false` to fit the axis instead.',
+		},
+	},
+};
+
+const wholeNumberRangeData: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: Story = {
+	args: {
+		...Default.args,
+		data: wholeNumberRangeData,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which isn't a whole-number range.
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
+			},
+		},
+	},
+};
+
 // Data with long categorical labels to demonstrate overlapping issue
 const longLabelData = [
 	{
@@ -821,6 +945,81 @@ export const PaintedYAxis: Story = {
 			description: {
 				story:
 					'Each axis has its own pair of catalog roles, set in CSS anywhere inside the provider tree. The y pair resolves to `none` by default, which is what leaves that axis carrying tick labels and nothing else; declaring either one paints that part. The x pair — `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick-x` — is untouched here, which is why the x axis is identical in both charts. Nothing reaches any of these through the `theme` prop; colors are CSS.',
+			},
+		},
+	},
+};
+
+const radiusSeries: SeriesData[] = [
+	{ ...timeAxisSeries( yearlyPoints )[ 0 ], group: 'views' },
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: yearlyPoints.map( ( [ date, value ] ) => ( { date, value: value - 12 } ) ),
+	},
+];
+
+const findBars = ( panel: HTMLElement ) =>
+	waitFor( () => {
+		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
+		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
+		if ( ! primary ) {
+			throw new Error( 'No bar rendered yet.' );
+		}
+		return { primary, comparison };
+	} );
+
+export const BarRadius: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div data-testid="bar-radius-default">
+				<h3 style={ { marginBottom: '4px' } }>Default</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>0</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+			<div
+				data-testid="bar-radius-rounded"
+				style={
+					{
+						'--a8c-charts-border-radius-bar-chart': 'var(--wpds-border-radius-sm)',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Rounded</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>--wpds-border-radius-sm</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+		</div>
+	),
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const square = await findBars( canvas.getByTestId( 'bar-radius-default' ) );
+		const rounded = await findBars( canvas.getByTestId( 'bar-radius-rounded' ) );
+		const radius = getComputedStyle( rounded.primary )
+			.getPropertyValue( '--a8c-charts-border-radius-bar-chart' )
+			.trim();
+
+		await expect( getComputedStyle( square.primary ).rx ).toBe( '0px' );
+		await expect( getComputedStyle( square.comparison ).rx ).toBe( '0px' );
+		await expect( radius ).not.toBe( '0px' );
+		await expect( getComputedStyle( rounded.primary ).rx ).toBe( radius );
+		await expect( getComputedStyle( rounded.comparison ).rx ).toBe( radius );
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role anywhere inside the provider tree to round their corners.',
 			},
 		},
 	},

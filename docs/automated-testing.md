@@ -7,6 +7,7 @@ Types of tests
 - Javascript tests for Gutenberg blocks
 - E2E tests for plugins
 
+- [What a test must earn](#what-a-test-must-earn)
 - [PHPUnit tests](#phpunit-tests)
   - [Unit tests](#unit-tests)
   - [Integration tests](#integration-tests)
@@ -16,6 +17,28 @@ Types of tests
 - [E2E tests](#e2e-tests)
 
 Refer to [Monorepo docs](/docs/monorepo.md#Testing) for information on how tests are integrated into monorepo pipelines.
+
+## What a test must earn
+
+Writing a test is cheap; keeping it is not. It runs in every CI job, every reviewer reads it, and every refactor has to get past it. Before adding or keeping a test, ask:
+
+> **If this test were deleted, which realistic bug would ship?**
+
+No answer: delete it. Another test catches the same bug and protects the same contract: keep one.
+
+A test earns its place when it fails when behavior breaks, stays green through a correct refactor, covers something no other test covers, and tests our code rather than a dependency's. Test each behavior once, at the lowest layer where it is observable. Tests at two layers that fail on the same bug are not duplicates when they protect different contracts, such as a library's API and our wiring of it.
+
+| Low-value shape | Instead |
+| --- | --- |
+| Same assertion repeated across tests or files | Keep one, where the behavior lives |
+| One test per input on the same branch | One `it.each` / data provider |
+| Asserts internal calls, class names, or markup | Assert what a caller or user observes |
+| Asserts a type, fixture shape, or constant | Let the type checker do it |
+| Re-tests `@wordpress/*` or another dependency | Test our wiring of it |
+| Runs in a costly setup it does not need (extra timezone, full render) | Move it to the cheap setup |
+| Written to raise coverage | Coverage shows what ran, not what was checked |
+
+Keep regression tests for fixed bugs, and favor logic-heavy code: date math, data transforms, parsing, permissions. When unsure a test can fail, break the code on purpose and run it.
 
 ## PHPUnit tests
 

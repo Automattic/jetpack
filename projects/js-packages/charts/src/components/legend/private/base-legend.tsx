@@ -16,7 +16,7 @@ import { ChartInstanceContext } from '../../../charts/private/chart-instance-con
 import { useTextTruncation } from '../../../hooks';
 import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
 import { useStandaloneScopeClass } from '../../../providers/chart-scope';
-import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
+import { valueOrIdentity, valueOrIdentityString } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendItem, BaseLegendProps } from '../types';
 
@@ -123,7 +123,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
 			labelFormat = valueOrIdentity,
-			labelTransform = labelTransformFactory,
+			labelTransform,
 			itemStyles,
 			itemClassName,
 			labelStyles,
@@ -154,11 +154,22 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const chartInstanceContext = useContext( ChartInstanceContext );
 		const standaloneScopeClass = useStandaloneScopeClass();
 
+		// Keep duplicate labels: a static comparison item can share a metric's name.
+		const domain = items.map( item => item.label );
 		const legendScale = scaleOrdinal( {
-			domain: items.map( item => item.label ),
+			domain,
 			range: items.map( item => item.color ),
 		} );
-		const domain = legendScale.domain();
+		const defaultLabelTransform = useCallback< NonNullable< BaseLegendProps[ 'labelTransform' ] > >(
+			( { labelFormat: format } ) =>
+				( datum, index ) => ( {
+					datum,
+					index,
+					text: String( format( datum, index ) ),
+					value: items[ index ].color,
+				} ),
+			[ items ]
+		);
 
 		const getShapeStyle = useCallback(
 			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
@@ -178,8 +189,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ interactive, chartId, context ]
 		);
 
-		// Visibility is display state, not interaction state: a series hidden
-		// programmatically must read as hidden even when the legend cannot be clicked.
+		// Disabling interaction for the whole legend still preserves its series' visibility state.
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => {
 				if ( chartInstanceContext?.isSeriesVisible ) {
@@ -195,18 +205,18 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Create event handlers to avoid inline arrow functions
 		const createClickHandler = useCallback(
-			( seriesLabels: string[] ) => {
-				if ( ! interactive ) {
+			( seriesLabels: string[], itemInteractive: boolean ) => {
+				if ( ! itemInteractive ) {
 					return undefined;
 				}
 				return () => handleLegendClick( seriesLabels );
 			},
-			[ interactive, handleLegendClick ]
+			[ handleLegendClick ]
 		);
 
 		const createKeyDownHandler = useCallback(
-			( seriesLabels: string[] ) => {
-				if ( ! interactive ) {
+			( seriesLabels: string[], itemInteractive: boolean ) => {
+				if ( ! itemInteractive ) {
 					return undefined;
 				}
 				return ( event: KeyboardEvent ) => {
@@ -216,18 +226,20 @@ export const BaseLegend: ForwardRefExoticComponent<
 					}
 				};
 			},
-			[ interactive, handleLegendClick ]
+			[ handleLegendClick ]
 		);
 
 		const flexAlignment = ALIGNMENT_TO_FLEX[ alignment ] ?? 'center';
+		const staticItemRole = interactive ? undefined : 'listitem';
 
 		return render ? (
 			render( items )
 		) : (
 			<LegendOrdinal
 				scale={ legendScale }
+				domain={ domain }
 				labelFormat={ labelFormat }
-				labelTransform={ labelTransform }
+				labelTransform={ labelTransform ?? defaultLabelTransform }
 			>
 				{ labels => (
 					<Stack
@@ -248,16 +260,18 @@ export const BaseLegend: ForwardRefExoticComponent<
 							const seriesLabels = matchedItem?.seriesLabels?.length
 								? matchedItem.seriesLabels
 								: [ label.text ];
-							const visible = isSeriesVisible( seriesLabels[ 0 ] );
-							const handleClick = createClickHandler( seriesLabels );
-							const handleKeyDown = createKeyDownHandler( seriesLabels );
+							const visible =
+								matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
+							const itemInteractive = interactive && matchedItem?.interactive !== false;
+							const handleClick = createClickHandler( seriesLabels, itemInteractive );
+							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive );
 
 							return (
 								<LegendItem
 									className={ clsx(
 										'visx-legend-item',
 										styles[ 'legend-item' ],
-										interactive && styles[ 'legend-item--interactive' ],
+										itemInteractive && styles[ 'legend-item--interactive' ],
 										! visible && styles[ 'legend-item--inactive' ],
 										itemClassName
 									) }
@@ -271,14 +285,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 									}
 									onClick={ handleClick }
 									onKeyDown={ handleKeyDown }
-									role={ interactive ? 'button' : 'listitem' }
-									tabIndex={ interactive ? 0 : undefined }
-									aria-pressed={ interactive ? visible : undefined }
+									// A static item in an interactive legend has no list to belong to.
+									role={ itemInteractive ? 'button' : staticItemRole }
+									tabIndex={ itemInteractive ? 0 : undefined }
+									aria-pressed={ itemInteractive ? visible : undefined }
 									aria-label={ getLegendItemAriaLabel(
 										label.text,
 										matchedItem?.value,
 										visible,
-										interactive
+										itemInteractive
 									) }
 								>
 									{ items[ i ]?.renderGlyph ? (

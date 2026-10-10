@@ -38,7 +38,9 @@
 }
 
 .jp-related-posts-preview__title {
-	margin: 0 0 rem.convert(11px) rem.convert(8px);
+	margin-block: 0 rem.convert(11px);
+	margin-inline-start: rem.convert(8px);
+	margin-inline-end: 0;
 	font-size: rem.convert(11px);
 	font-weight: 600;
 }

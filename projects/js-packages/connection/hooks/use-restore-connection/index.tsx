@@ -14,6 +14,16 @@ interface ConnectionStoreDispatch {
 }
 
 /**
+ * Reduce a rejected API request to the text the notice shows; `@automattic/jetpack-api` rejects with an `Error`.
+ *
+ * @param {unknown} error - The rejection reason.
+ * @return {string} The error message.
+ */
+function toErrorMessage( error: unknown ): string {
+	return error instanceof Error ? error.message : String( error );
+}
+
+/**
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
  *
@@ -59,8 +69,8 @@ export default function useRestoreConnection() {
 
 					return connectionStatusData;
 				} )
-				.catch( ( error: string ) => {
-					setRestoreConnectionError( error );
+				.catch( ( error: unknown ) => {
+					setRestoreConnectionError( toErrorMessage( error ) );
 					setIsRestoringConnection( false );
 
 					throw error;

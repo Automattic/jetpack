@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a services manager to the React version of Settings > Sharing: reorder, add and remove sharing buttons, and create, edit and delete custom services.

@@ -6,9 +6,7 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
-import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEvent, useViewportMatch } from '@wordpress/compose';
-import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -17,7 +15,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Badge, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Link, Notice, Stack, Text } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -26,6 +24,7 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import { RESPONSES_PER_PAGE, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
+import useFormRecord from '../../src/dashboard/hooks/use-form-record.ts';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
 import { writeColumnPreference } from '../../src/dashboard/response-column-preferences.ts';
@@ -101,6 +100,16 @@ function getItemId( item: unknown ): string {
 }
 
 /**
+ * Cuts a string to a character limit and appends an ellipsis.
+ *
+ * @param value - The text to shorten.
+ * @param limit - The most characters to keep before the ellipsis.
+ * @return The text, shortened and ellipsized only when it is over the limit.
+ */
+const truncateTail = ( value: string, limit: number ): string =>
+	value.length > limit ? `${ value.slice( 0, limit ) }…` : value;
+
+/**
  * Styles an element with bold font weight when it represents an unread item.
  * If the element is a string, it will be wrapped in a span tag with the appropriate styling.
  *
@@ -119,7 +128,7 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
 	}
 
 	// If element is already a React element, clone it and add the fontWeight style
-	if ( React.isValidElement( element ) ) {
+	if ( React.isValidElement< { style?: React.CSSProperties } >( element ) ) {
 		return React.cloneElement( element, {
 			style: { ...( element.props.style || {} ), fontWeight: 600 },
 		} as React.HTMLAttributes< HTMLElement > );
@@ -553,9 +562,7 @@ function StageInner() {
 							{ styleUnreadValue(
 								<Stack direction="column" gap="xs">
 									<Stack direction="row" align="center" gap="xs">
-										<Text ellipsizeMode="tail" limit={ 50 } truncate>
-											{ displayName }
-										</Text>
+										<Text>{ truncateTail( displayName, 50 ) }</Text>
 										{ item.is_test && (
 											<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
 												{ __( 'Test', 'jetpack-forms' ) }
@@ -563,8 +570,8 @@ function StageInner() {
 										) }
 									</Stack>
 									{ showEmail && (
-										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
-											{ item.author_email }
+										<Text className="jp-forms__inbox-from-email" variant="body-sm">
+											{ truncateTail( item.author_email, 50 ) }
 										</Text>
 									) }
 								</Stack>,
@@ -755,21 +762,8 @@ function StageInner() {
 
 	// On a single-form view, surface a persistent warning when the form isn't
 	// collecting its responses anywhere (email + saving off, no integration).
-	const isFormNotCollecting = useSelect(
-		select => {
-			if ( ! isSingleFormView ) {
-				return false;
-			}
-			const form = select( coreStore ).getEntityRecord(
-				'postType',
-				'jetpack_form',
-				sourceIdNumber,
-				{ context: 'edit' }
-			) as { is_collecting_responses?: boolean } | undefined;
-			return form ? form.is_collecting_responses === false : false;
-		},
-		[ isSingleFormView, sourceIdNumber ]
-	);
+	const singleForm = useFormRecord( isSingleFormView ? sourceIdNumber : null );
+	const isFormNotCollecting = singleForm?.is_collecting_responses === false;
 
 	// Link to the form editor, where the author can set up a response destination.
 	const formEditUrl = useMemo(

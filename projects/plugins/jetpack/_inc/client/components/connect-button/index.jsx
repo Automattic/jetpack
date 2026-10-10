@@ -4,7 +4,6 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { getFragment } from '@wordpress/url';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -55,7 +54,6 @@ export class ConnectButton extends Component {
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
-		autoOpenInDisconnectRoute: PropTypes.bool,
 		rna: PropTypes.bool,
 		compact: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
@@ -66,7 +64,6 @@ export class ConnectButton extends Component {
 		from: '',
 		asLink: false,
 		connectInPlace: true,
-		autoOpenInDisconnectRoute: false,
 		rna: false,
 		compact: false,
 		isConnectionOwner: false,
@@ -75,8 +72,7 @@ export class ConnectButton extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			showModal:
-				props.autoOpenInDisconnectRoute && '#/disconnect' === getFragment( window.location.href ),
+			showModal: false,
 			showOwnerDisconnectDialog: false,
 		};
 	}

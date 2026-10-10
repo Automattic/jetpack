@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import { CopyCodeRow } from './copy-code-row';
+import type { JSX } from 'react';
 
 export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-form-embed-code-panel';
 

@@ -13,7 +13,10 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
+use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
+use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
 
 /**
  * Class to bootstrap the Jetpack Stats plugin.
@@ -88,6 +91,7 @@ class Jetpack_Stats_Plugin {
 		 * `Stats_Admin\Main` registers the dashboard itself while the site has no connection,
 		 * and the Jetpack plugin registers it from `modules/stats.php` once the Stats module
 		 * loads. That leaves the connected site without the Jetpack plugin to this plugin.
+		 * The Jetpack plugin also adds the admin bar chart, the Posts column and the dashboard widget.
 		 */
 		if ( self::is_jetpack_plugin_active() ) {
 			return;
@@ -95,6 +99,11 @@ class Jetpack_Stats_Plugin {
 
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			Stats_Dashboard::init();
+			if ( ( new Modules() )->is_active( 'stats' ) ) {
+				Stats_Admin_Bar::init();
+				Admin_Post_List_Column::register();
+			}
+			add_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) );
 		}
 	}
 

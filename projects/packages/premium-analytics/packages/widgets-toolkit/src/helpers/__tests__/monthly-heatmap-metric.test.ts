@@ -17,10 +17,10 @@ describe( 'monthlyHeatmapLabels', () => {
 		const total = monthlyHeatmapLabels( 'total' );
 		const average = monthlyHeatmapLabels( 'average' );
 
-		expect( total.formatValue( 2 ) ).toBe( '2 views' );
+		expect( total.formatValue( 2033 ) ).toBe( '2,033' );
 		expect( total.lessLabel ).toBe( 'Fewer views' );
 		expect( total.moreLabel ).toBe( 'More views' );
-		expect( average.formatValue( 2 ) ).toBe( '2 views per day' );
+		expect( average.formatValue( 1.5 ) ).toBe( '2' );
 		expect( average.lessLabel ).toBe( 'Fewer views per day' );
 		expect( average.moreLabel ).toBe( 'More views per day' );
 		expect( average.emptyLabel ).toBe( total.emptyLabel );

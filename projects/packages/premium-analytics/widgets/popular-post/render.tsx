@@ -11,6 +11,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useDashboardOriginSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -69,6 +70,7 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 
 function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { reportParams } = useWidgetRootContext();
+	const dashboardOrigin = useDashboardOriginSearch();
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
@@ -96,6 +98,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	// Ranked over this card's window, not the host's.
 	const detailSearch = {
 		...range,
+		...dashboardOrigin,
 		...createReportOriginSearch(
 			authorId ? 'authors' : 'posts',
 			authorId ? undefined : 'posts-pages'
@@ -115,15 +118,18 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: trendingUp,
-				description: authorId
-					? __(
-							'No views recorded for this author’s posts in this period.',
-							'jetpack-premium-analytics-pkg'
-						)
-					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
-			} }
+			// The site-wide card ranks over a pinned window, not the selected period, so the generic "this time period" copy would point at the wrong range.
+			empty={
+				authorId
+					? undefined
+					: {
+							icon: trendingUp,
+							description: __(
+								'No post views in the last 12 months.',
+								'jetpack-premium-analytics-pkg'
+							),
+						}
+			}
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
 			{ post && (

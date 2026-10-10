@@ -7,6 +7,7 @@ import { useMemo, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 /**
  * ToggleGroupControl component for filtering threats by status.

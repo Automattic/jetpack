@@ -3,6 +3,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _x, isRTL } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
+import type { JSX } from 'react';
 import './self-only-nudge.scss';
 
 type Props = {

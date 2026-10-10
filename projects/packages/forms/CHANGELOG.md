@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.0] - 2026-10-05
+### Added
+- Add conditional logic to form fields, available on WordPress.com Business plans and higher and on all Jetpack sites. [#52783]
+
+### Changed
+- Make the Delete spam button act on the selected responses or the current filter, show how many responses it will delete, and delete large queues in chunks with progress. [#48130]
+- Update package dependencies. [#52999]
+
+### Fixed
+- Dashboard: Start the Delete permanently and Mark as spam confirmations on Cancel, so pressing Enter no longer permanently deletes a form or marks a response as spam. [#53027]
+- Dashboard: Start the Empty trash and Delete spam confirmations on Cancel and show Delete in red, so pressing Enter no longer permanently deletes every response in that folder. [#52979]
+
+## [8.2.2] - 2026-09-29
+### Fixed
+- Dashboard: Stop logging a console error about missing Jetpack configuration. [#52809]
+
+## [8.2.1] - 2026-09-28
+### Changed
+- Dashboard: Replace experimental layout and text components with their `@wordpress/ui` equivalents. [#52492]
+
+### Fixed
+- Detect Jetpack CRM installs that use a custom plugin folder or file name. [#52725]
+- Remove the duplicate divider between the dashboard header and the tabs. [#52641]
+- Rating field: Cap the scale when rendering a form or a response so a malformed value cannot exhaust memory. [#52007]
+- Show Jetpack in-dashboard messages on the Forms dashboard. [#52641]
+
+### Removed
+- Dashboard: Remove an unused integrations modal. [#52492]
+
+## [8.2.0] - 2026-09-21
+### Added
+- Conditional logic: Add a "Done" button to the rules dialog. [#52347]
+
+### Changed
+- Conditional logic: Open the Conditional logic panel by default on a field that has conditions. [#52347]
+- Dashboard: Reopen on the last tab used instead of always the default. [#52249]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Deprecated
+- Dashboard: Deprecate `Dashboard::SCRIPT_HANDLE`. [#52296]
+
+### Removed
+- Dashboard: Remove the legacy dashboard code and the deprecated `Dashboard_View_Switch` class. [#52296]
+
+### Fixed
+- Dashboard: Open the Forms tab when it is requested directly instead of falling back to Responses. [#52249]
+
 ## [8.1.0] - 2026-09-15
 ### Changed
 - Form editor: Add additional analytics to welcome guide. [#52148]
@@ -2738,6 +2786,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.3.0]: https://github.com/automattic/jetpack-forms/compare/v8.2.2...v8.3.0
+[8.2.2]: https://github.com/automattic/jetpack-forms/compare/v8.2.1...v8.2.2
+[8.2.1]: https://github.com/automattic/jetpack-forms/compare/v8.2.0...v8.2.1
+[8.2.0]: https://github.com/automattic/jetpack-forms/compare/v8.1.0...v8.2.0
 [8.1.0]: https://github.com/automattic/jetpack-forms/compare/v8.0.3...v8.1.0
 [8.0.3]: https://github.com/automattic/jetpack-forms/compare/v8.0.2...v8.0.3
 [8.0.2]: https://github.com/automattic/jetpack-forms/compare/v8.0.1...v8.0.2

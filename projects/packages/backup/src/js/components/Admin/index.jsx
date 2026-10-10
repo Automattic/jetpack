@@ -131,7 +131,7 @@ const Admin = () => {
 						<Container horizontalSpacing={ 0 }>
 							{ hasConnectionError && (
 								<Col className="jetpack-connection-verified-error">
-									<ConnectionError />
+									<ConnectionError trackingContext="backup" />
 								</Col>
 							) }
 							<Col>

@@ -14,7 +14,7 @@ module.exports = {
 		...coverageConfig.collectCoverageFrom,
 		'!<rootDir>/_inc/overview/jest.config.cjs',
 	],
-	// Reuse shared transforms without the optional jest-console setup.
+	// Shared transforms, plus the `import.meta.url` Babel plugin.
 	transform: {
 		...baseConfig.transform,
 		'\\.m?[jt]sx?$': [

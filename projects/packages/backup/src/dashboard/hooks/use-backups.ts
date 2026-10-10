@@ -4,8 +4,10 @@ import { fetchBackups, type RawBackupEntry } from '../data/api/backups';
 import { normalizeBackups } from '../data/normalize/backups';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useBackupRequested } from './use-enqueue-backup';
 import { useStickyError } from './use-sticky-error';
 import type { Backup, BackupsState } from '../types/backup';
+import type { FailureReference } from '../types/failure-reference';
 
 /**
  * How often to re-read the backup list while something is expected to
@@ -34,6 +36,12 @@ export type BackupsSummary = {
 	 * restore point. Drives first-run copy.
 	 */
 	isInitialBackup: boolean;
+	/**
+	 * Whether the backup that made `state` `complete` finished with some
+	 * files missing. Only meaningful while `state` is `complete`; false
+	 * otherwise.
+	 */
+	hasWarnings: boolean;
 };
 
 /**
@@ -101,18 +109,22 @@ function clampPercent( percent: number ): number {
  */
 export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	if ( backups.length === 0 ) {
-		return { state: 'no-backups', progress: 0, isInitialBackup: true };
+		return { state: 'no-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
 	}
 
 	// WPCOM returns newest first, and only the newest attempt can be running.
 	const newest = backups[ 0 ];
-	const hasUsableBackup = backups.some( isUsableBackup );
+	// Not necessarily `newest`: a failed attempt can sit ahead of the
+	// usable backup that actually makes the site "complete".
+	const latestUsableBackup = backups.find( isUsableBackup );
+	const hasUsableBackup = Boolean( latestUsableBackup );
 
 	if ( newest.status === 'started' ) {
 		return {
 			state: 'in-progress',
 			progress: clampPercent( newest.percent ),
 			isInitialBackup: ! hasUsableBackup,
+			hasWarnings: false,
 		};
 	}
 
@@ -120,14 +132,39 @@ export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	// A site with restore points and one failed attempt behind it is
 	// still, from the user's point of view, backed up.
 	if ( ! hasUsableBackup && isWillRetryStatus( newest.status ) ) {
-		return { state: 'will-retry', progress: 0, isInitialBackup: true };
+		return { state: 'will-retry', progress: 0, isInitialBackup: true, hasWarnings: false };
 	}
 
-	if ( hasUsableBackup ) {
-		return { state: 'complete', progress: 0, isInitialBackup: false };
+	if ( latestUsableBackup ) {
+		return {
+			state: 'complete',
+			progress: 0,
+			isInitialBackup: false,
+			hasWarnings: latestUsableBackup.hasWarnings,
+		};
 	}
 
-	return { state: 'no-good-backups', progress: 0, isInitialBackup: true };
+	return { state: 'no-good-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
+}
+
+/**
+ * What the reader quotes to support while backups are failing: the newest attempt.
+ *
+ * Its status is the code, unless it finished: a finished attempt that is still
+ * unusable failed for a reason the status does not name.
+ *
+ * @param backups - Normalized backups, newest first.
+ * @return The reference, or null when there is no attempt to name.
+ */
+export function failedAttemptReference( backups: Backup[] ): FailureReference | null {
+	const newest = backups[ 0 ];
+	if ( ! newest ) {
+		return null;
+	}
+	return {
+		code: newest.status !== 'finished' ? newest.status : null,
+		id: { kind: 'attempt', value: newest.id },
+	};
 }
 
 /**
@@ -152,15 +189,6 @@ function pollInterval(
 	const { state } = summarizeBackups( normalizeBackups( data ) );
 	return state === 'no-backups' || state === 'in-progress' ? BACKUPS_POLL_INTERVAL_MS : false;
 }
-
-type Args = {
-	/**
-	 * Keep polling regardless of the derived state. Used between
-	 * enqueuing a backup and WPCOM publishing a record for it, a window
-	 * in which nothing in the response says "something is coming".
-	 */
-	forcePoll?: boolean;
-};
 
 type Result = BackupsSummary & {
 	backups: Backup[];
@@ -192,17 +220,17 @@ type Result = BackupsSummary & {
  * Every consumer mounts only behind a `ready` gate verdict, so this never fetches — or
  * polls — for a site that cannot use the answer; `useCanQueryWpcom` is the backstop.
  *
- * @param args           - Hook args.
- * @param args.forcePoll - Poll regardless of derived state.
  * @return The derived state plus the normalized list.
  */
-export function useBackups( { forcePoll = false }: Args = {} ): Result {
+export function useBackups(): Result {
 	const enabled = useCanQueryWpcom();
+	// Polls while a requested backup is not yet reported, wherever this hook is mounted.
+	const isRequested = useBackupRequested();
 	const query = useQuery( {
 		queryKey: keys.backups(),
 		queryFn: fetchBackups,
 		enabled,
-		refetchInterval: ( { state } ) => pollInterval( state.data, forcePoll ),
+		refetchInterval: ( { state } ) => pollInterval( state.data, isRequested ),
 	} );
 
 	const { data, refetch } = query;
@@ -229,10 +257,11 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 				state: error ? 'error' : 'loading',
 				progress: 0,
 				isInitialBackup: false,
+				hasWarnings: false,
 			};
 		}
 		if ( ! Array.isArray( data ) ) {
-			return { state: 'error', progress: 0, isInitialBackup: false };
+			return { state: 'error', progress: 0, isInitialBackup: false, hasWarnings: false };
 		}
 		return summarizeBackups( backups );
 	}, [ data, error, backups ] );

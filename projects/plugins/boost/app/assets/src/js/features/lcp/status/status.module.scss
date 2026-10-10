@@ -34,6 +34,49 @@
 			}
 		}
 	}
+}
+
+.well {
+
+	@include mixins.settings-well();
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+
+	.summary {
+		flex-grow: 1;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+.pending {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+
+	.progress {
+		inline-size: 100%;
+		block-size: var(--wpds-dimension-size-5xs);
+		border-radius: var(--wpds-border-radius-md);
+
+		// Hold the indicator still; Core only slows it.
+		// `> div` is ProgressBar's internal indicator.
+		@media (prefers-reduced-motion: reduce) {
+
+			> div {
+				animation: none;
+				inset-inline-start: 25%;
+			}
+		}
+	}
+}
+
+.status,
+.well {
 
 	button {
 

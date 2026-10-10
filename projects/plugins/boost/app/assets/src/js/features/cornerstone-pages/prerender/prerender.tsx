@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 
 import { Link } from '@wordpress/ui';
 
@@ -78,45 +78,30 @@ type BypassPatternsExampleProps = {
 };
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
-	const [ show, setShow ] = useState( false );
 	const tooltipLayer = useTooltipLayer();
 
 	return (
-		<div className={ styles[ 'warning-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'warning-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'prerender_warning_message_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
-				{ children }
-			</a>
-			<div className={ styles[ 'warning-tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-end"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					popoverClassName={ styles[ 'warning-tooltip' ] }
-					{ ...tooltipLayer }
-				>
-					<strong>{ __( 'Warning', 'jetpack-boost' ) }</strong>
-					<br />
-					{ __(
-						'Prerendering pages can be unsafe if the pages are not properly configured. JavaScript will execute on the prerendered page. This can lead to unexpected behavior if not handled correctly.',
-						'jetpack-boost'
-					) }
-					<br />
-					{ createInterpolateElement( __( '<link>Learn more</link>', 'jetpack-boost' ), {
-						link: <Link openInNewTab href={ unsafeSpeculationRulesLink } />,
-					} ) }
-				</IconTooltip>
-			</div>
-		</div>
+		<IconTooltip
+			trigger={ children }
+			className={ styles[ 'warning-trigger' ] }
+			onTriggerClick={ () => recordBoostEvent( 'prerender_warning_message_clicked', {} ) }
+			placement="bottom-end"
+			popoverAnchorStyle="wrapper"
+			offset={ -10 }
+			popoverClassName={ styles[ 'warning-tooltip' ] }
+			{ ...tooltipLayer }
+		>
+			<strong>{ __( 'Warning', 'jetpack-boost' ) }</strong>
+			<br />
+			{ __(
+				'Prerendering pages can be unsafe if the pages are not properly configured. JavaScript will execute on the prerendered page. This can lead to unexpected behavior if not handled correctly.',
+				'jetpack-boost'
+			) }
+			<br />
+			{ createInterpolateElement( __( '<link>Learn more</link>', 'jetpack-boost' ), {
+				link: <Link openInNewTab href={ unsafeSpeculationRulesLink } />,
+			} ) }
+		</IconTooltip>
 	);
 };
 

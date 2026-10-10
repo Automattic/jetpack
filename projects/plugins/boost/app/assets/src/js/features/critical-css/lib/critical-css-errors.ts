@@ -120,19 +120,42 @@ export function groupErrorsByFrequency( errors: CriticalCssErrorDetails[] ): Err
 }
 
 /**
+ * Whether this error is an HTTP error carrying the status the site answered with.
+ *
+ * @param {CriticalCssErrorDetails} error
+ */
+function hasHttpStatus( error: CriticalCssErrorDetails ): boolean {
+	return (
+		error.type === 'HttpError' &&
+		typeof error.meta === 'object' &&
+		error.meta !== null &&
+		'code' in error.meta
+	);
+}
+
+/**
+ * The key an HTTP error groups and dismisses under.
+ *
+ * Login-gated pages carry their own key. Grouping and dismissal have to derive it the same way,
+ * or dismissing one group hides the other.
+ *
+ * @param {CriticalCssErrorDetails} error
+ */
+function httpErrorKey( error: CriticalCssErrorDetails ): string {
+	const loginGated = error.meta.login_required === true ? '-login-required' : '';
+
+	return error.type + '-' + castToString( error.meta.code, '' ) + loginGated;
+}
+
+/**
  * Figures out a grouping key for the given Critical CSS error. Used to group
  * "like" errors - such as HTTP errors with the same code, or by type.
  *
  * @param {CriticalCssErrorDetails} error
  */
 export function groupKey( error: CriticalCssErrorDetails ) {
-	if (
-		error.type === 'HttpError' &&
-		typeof error.meta === 'object' &&
-		error.meta !== null &&
-		'code' in error.meta
-	) {
-		return error.type + '-' + castToString( error.meta.code, '' );
+	if ( hasHttpStatus( error ) ) {
+		return httpErrorKey( error );
 	}
 
 	if ( error.type === 'UnknownError' ) {
@@ -150,13 +173,8 @@ type RecommendationsResult = {
 type ErrorsByType = Record< Critical_CSS_Error_Type, CriticalCssErrorDetails[] >;
 
 export function getErrorTypeKey( error: CriticalCssErrorDetails ): Critical_CSS_Error_Type {
-	if (
-		error.type === 'HttpError' &&
-		typeof error.meta === 'object' &&
-		error.meta !== null &&
-		'code' in error.meta
-	) {
-		return `HttpError-${ error.meta.code }` as Critical_CSS_Error_Type;
+	if ( hasHttpStatus( error ) ) {
+		return httpErrorKey( error ) as Critical_CSS_Error_Type;
 	}
 	return error.type;
 }

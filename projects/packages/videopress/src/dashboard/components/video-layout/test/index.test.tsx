@@ -55,11 +55,11 @@ describe( 'VideoLayout', () => {
 		expect( notice.compareDocumentPosition( tabList ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
-	it( 'renders the notice with no props, so it matches the dashboard tabs', () => {
+	it( 'renders the notice with only the tracking context, so it matches the dashboard tabs', () => {
 		renderLayout();
 
 		expect( mockConnectionError ).toHaveBeenCalled();
-		expect( mockConnectionError.mock.calls[ 0 ][ 0 ] ).toEqual( {} );
+		expect( mockConnectionError.mock.calls[ 0 ][ 0 ] ).toEqual( { trackingContext: 'videopress' } );
 	} );
 
 	it( 'leaves no notice behind when the connection is healthy', () => {

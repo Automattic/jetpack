@@ -13,7 +13,7 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 $config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
+		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'gutenberg', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
 		// CI analyses an unbuilt checkout, so the generated wp-build PHP is absent there.
 		// Exclude it locally too, or the `function_exists()` guards that reference it read as
 		// unused suppressions on a built checkout only.

@@ -7,7 +7,7 @@ import type { ReactElement } from 'react';
 // Hoisted to module scope as separate statements so each variant stays its
 // own `__()` call with a string-literal argument — an inline ternary would be
 // folded by terser into `__( cond ? 'a' : 'b', domain )`, which breaks POT
-// extraction (see the VIDP-245 note in client/admin/components/admin-page).
+// extraction.
 const FREE_PLAN_MESSAGE = __(
 	'You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.',
 	'jetpack-videopress-pkg'

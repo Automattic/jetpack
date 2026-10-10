@@ -8,6 +8,7 @@ import { useCallback } from '@wordpress/element';
  */
 import type { NewsletterSettings } from '../types';
 import type { DataFormControlProps } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 /**
  * Generic `Edit` control for DataForm fields with `elements`, rendering

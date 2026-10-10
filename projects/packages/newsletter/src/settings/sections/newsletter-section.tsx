@@ -15,6 +15,7 @@ import { Card, Link } from '@wordpress/ui';
 import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface NewsletterSectionProps {
 	data: NewsletterSettings;

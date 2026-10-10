@@ -18,13 +18,13 @@
 
 .bluesky-preview__card-text {
 	border-bottom-width: 1px;
-	border-left-width: 1px;
-	border-right-width: 1px;
+	border-inline-start-width: 1px;
+	border-inline-end-width: 1px;
 	flex: 1 1 0%;
 	padding: 8px 14px;
 	border-color: rgb(212, 219, 226);
-	border-bottom-right-radius: 8px;
-	border-bottom-left-radius: 8px;
+	border-end-end-radius: 8px;
+	border-end-start-radius: 8px;
 }
 
 .bluesky-preview__card-title {

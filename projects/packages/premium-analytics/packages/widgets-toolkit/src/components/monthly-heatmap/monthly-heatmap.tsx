@@ -164,6 +164,7 @@ export function MonthlyHeatmap( {
 				}
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
+				inline
 			/>
 		),
 		[ columns, emptyLabel, formatValue ]
@@ -191,7 +192,7 @@ export function MonthlyHeatmap( {
 			>
 				{ /* Wrapped so the scale sits centred: the chart lays its trailing content out full width. */ }
 				<Stack direction="row" justify="center">
-					<HeatmapChart.Legend lessLabel={ lessLabel } moreLabel={ moreLabel } />
+					<HeatmapChart.Legend variant="bar" lessLabel={ lessLabel } moreLabel={ moreLabel } />
 				</Stack>
 			</HeatmapChart>
 		</div>

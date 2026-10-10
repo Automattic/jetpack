@@ -5,7 +5,7 @@ import { type Threat } from '@automattic/jetpack-scan';
 import ThreatSeverityBadge from '../threat-severity-badge/index.tsx';
 import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation.tsx';
-import type { ComponentProps } from 'react';
+import type { JSX, ComponentProps } from 'react';
 
 interface ThreatModalContextType {
 	closeModal: () => void;

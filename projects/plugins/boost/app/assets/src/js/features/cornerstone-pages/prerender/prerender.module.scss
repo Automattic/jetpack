@@ -21,24 +21,11 @@
 	margin-top: 10px;
 }
 
-.warning-wrapper {
-	position: relative;
-	display: inline;
-
-	.warning-button {
-		position: relative;
-		z-index: 10;
-	}
-
-	.warning-tooltip-wrapper {
-		position: absolute;
-		top: 0;
-		left: -20px;
-		z-index: 9;
-	}
-}
-
 .warning-tooltip:global(.icon-tooltip-container) :global(.components-popover__content) {
 	width: 400px;
 	color: var(--jp-black);
+}
+
+.warning-trigger :global(.icon-tooltip-anchor) {
+	inset-inline-start: -20px;
 }

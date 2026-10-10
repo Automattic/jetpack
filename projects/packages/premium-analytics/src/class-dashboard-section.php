@@ -103,14 +103,18 @@ final class Dashboard_Section {
 	 *   section, not just the chrome.
 	 * - `with_header_date_control`: false hands the control to the section's widgets, which may
 	 *   save the range onto the widget instance rather than the URL.
+	 * - `with_header_interval_control`: false drops the chart interval control from the header, for
+	 *   a section whose charts each save their own.
 	 *
 	 * @since 0.3.0
 	 * @since 0.5.0 Added `with_header_date_control`.
+	 * @since $$next-version$$ Added `with_header_interval_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
-		'with_date_comparison'     => true,
-		'with_header_date_control' => true,
+		'with_date_comparison'         => true,
+		'with_header_date_control'     => true,
+		'with_header_interval_control' => true,
 	);
 
 	/**
@@ -123,11 +127,11 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
-	 * Availability flag or callback.
+	 * Availability flag or callback; null when the registration declared none.
 	 *
-	 * @var bool|callable
+	 * @var bool|callable|null
 	 */
-	private $is_available = true;
+	private $is_available = null;
 
 	/**
 	 * Default layout array or callback.
@@ -170,10 +174,9 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
-		// The preview scope is about the rollout rather than the site, so it sits ahead of the
-		// section's own check.
-		if ( ! is_dashboard_section_in_preview_scope( $this->dashboard_name, $this->slug ) ) {
-			return false;
+		// Before sections decided who opens the dashboard, Stats access was the outer gate.
+		if ( null === $this->is_available ) {
+			return Capabilities::current_user_can_view_stats();
 		}
 
 		if ( is_callable( $this->is_available ) ) {
@@ -184,7 +187,7 @@ final class Dashboard_Section {
 	}
 
 	/**
-	 * Returns the section's default widget layout.
+	 * Returns the section's default widget layout, run through the default-layout filter.
 	 *
 	 * @return array Array of widget instances.
 	 */
@@ -192,6 +195,23 @@ final class Dashboard_Section {
 		$layout = is_callable( $this->default_layout )
 			? call_user_func( $this->default_layout, $this )
 			: $this->default_layout;
+		$layout = is_array( $layout ) ? array_values( $layout ) : array();
+
+		/**
+		 * Filters a dashboard section's default widget layout.
+		 *
+		 * Each entry matches the dashboard's widget instance shape: `uuid`, `type`, optional
+		 * `attributes`, optional `placement`. Runs for every section, so a callback adding an
+		 * instance to one switches on `$section_id`.
+		 *
+		 * @since 0.8.0 Runs from the section, with its declared layout and its
+		 *                         namespaced id; it received an empty array and any alias before.
+		 *
+		 * @param array             $layout     The section's declared default widget instances.
+		 * @param string            $section_id Namespaced section identifier, e.g. `analytics/traffic`.
+		 * @param Dashboard_Section $section    The section.
+		 */
+		$layout = apply_filters( DASHBOARD_DEFAULT_LAYOUT_FILTER, $layout, $this->id, $this );
 
 		return is_array( $layout ) ? array_values( $layout ) : array();
 	}
@@ -253,8 +273,9 @@ final class Dashboard_Section {
 			$options = array_merge( $this->date_filter_options, $args['date_filter_options'] );
 
 			$this->date_filter_options = array(
-				'with_date_comparison'     => (bool) $options['with_date_comparison'],
-				'with_header_date_control' => (bool) $options['with_header_date_control'],
+				'with_date_comparison'         => (bool) $options['with_date_comparison'],
+				'with_header_date_control'     => (bool) $options['with_header_date_control'],
+				'with_header_interval_control' => (bool) $options['with_header_interval_control'],
 			);
 		}
 

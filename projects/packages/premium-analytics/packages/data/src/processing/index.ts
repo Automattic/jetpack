@@ -3,6 +3,7 @@ export * from './customers';
 export * from './products';
 export * from './visitors';
 export * from './visitors-by-location';
+export * from './author';
 export * from './latest-post';
 export * from './stats';
 

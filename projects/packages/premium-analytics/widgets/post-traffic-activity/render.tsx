@@ -24,6 +24,7 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -142,6 +143,7 @@ function PostTrafficActivityInner() {
 							: __( 'No data', 'jetpack-premium-analytics-pkg' )
 					}
 					formatValue={ formatViewCount }
+					icon={ seen }
 				/>
 			);
 		},

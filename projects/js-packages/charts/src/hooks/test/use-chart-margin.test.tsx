@@ -282,16 +282,20 @@ describe( 'useChartMargin', () => {
 			expect( result.current.left ).toBe( 60 );
 		} );
 
-		it( 'reserves nothing for a hidden x axis', () => {
+		it.each( [ 'bottom', 'top' ] )( 'reserves nothing for a hidden %s x axis', orientation => {
 			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: 60 } );
+			const largeLabels = { axisLabel: { fontSize: 16 }, tickLength: 10 } as unknown as never;
+			const theme = {
+				...baseTheme,
+				axisStyles: { ...baseTheme.axisStyles, x: { top: largeLabels, bottom: largeLabels } },
+			} as XYChartTheme;
 
 			const { result } = renderHook( () =>
-				useChartMargin( 300, datedXOptions( { display: false } ), data, baseTheme )
+				useChartMargin( 300, datedXOptions( { display: false, orientation } ), data, theme )
 			);
 
 			expect( mockGetEdgeTickWidths ).not.toHaveBeenCalled();
-			expect( result.current.right ).toBe( 20 );
-			expect( result.current.left ).toBe( 51 );
+			expect( result.current ).toEqual( { top: 10, right: 20, bottom: 10, left: 51 } );
 		} );
 	} );
 
@@ -352,6 +356,41 @@ describe( 'useChartMargin', () => {
 			const { result } = renderHook( () => useChartMargin( 300, options, data, baseTheme ) );
 
 			expect( result.current.left ).toBe( 20 );
+		} );
+
+		it( 'measures ticks from readings that exist', () => {
+			const partialData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ date: new Date( '2024-01-01' ), value: null },
+						{ date: new Date( '2024-01-02' ), value: 100 },
+						{ date: new Date( '2024-01-03' ), value: 200 },
+					],
+				},
+			];
+
+			renderHook( () => useChartMargin( 300, optionsBase, partialData, baseTheme ) );
+
+			const ticks = mockGetLongestTickWidth.mock.calls[ 0 ][ 0 ] as number[];
+			expect( Math.min( ...ticks ) ).toBe( 100 );
+		} );
+
+		it( 'measures a unit range when no bucket has a reading', () => {
+			const allNullData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ date: new Date( '2024-01-01' ), value: null },
+						{ date: new Date( '2024-01-02' ), value: null },
+					],
+				},
+			];
+
+			renderHook( () => useChartMargin( 300, optionsBase, allNullData, baseTheme ) );
+
+			const ticks = mockGetLongestTickWidth.mock.calls[ 0 ][ 0 ] as number[];
+			expect( Math.max( ...ticks ) ).toBe( 1 );
 		} );
 	} );
 
