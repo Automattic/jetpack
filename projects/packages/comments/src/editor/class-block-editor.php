@@ -246,39 +246,82 @@ class Block_Editor {
 		// The exact string core wrote, so a body another filter rewrote is left alone, not half replaced.
 		$raw = wp_specialchars_decode( $comment->comment_content );
 
-		// No comment passed, so embeds stay links: an email has no frames, and no send should fetch oEmbeds.
-		return str_replace( $raw, self::to_text( self::render( $comment->comment_content ) ), $message );
+		// Pruned as if saving, which keeps how a list counts and leaves an embed as its URL, fetching nothing.
+		$text = self::blocks_to_text( self::allowed( parse_blocks( $comment->comment_content ) ) );
+
+		return str_replace( $raw, $text, $message );
 	}
 
 	/**
-	 * Rendered comment HTML as the plain text core's email body holds.
+	 * The comment's blocks as the plain text core's email body holds.
 	 *
-	 * @param string $html Rendered comment HTML.
+	 * @param array $blocks Parsed blocks, pruned to the ones the editor offers.
+	 * @param int   $depth  How far inside nested lists these blocks sit.
 	 * @return string
 	 */
-	private static function to_text( $html ) {
+	private static function blocks_to_text( array $blocks, $depth = 0 ) {
+		$parts = array();
+
+		foreach ( $blocks as $block ) {
+			if ( 'core/list' === $block['blockName'] ) {
+				$parts[] = self::list_to_text( $block, $depth );
+				continue;
+			}
+
+			if ( 'core/quote' === $block['blockName'] ) {
+				// The marker WordPress.com's own comment emails use, so a quote still reads as one.
+				$lines   = explode( "\n", self::blocks_to_text( $block['innerBlocks'], $depth ) );
+				$parts[] = implode( "\n", array_map( fn( $line ) => rtrim( '> ' . $line ), $lines ) );
+				continue;
+			}
+
+			$text = self::inline_to_text( $block['innerHTML'] );
+
+			if ( '' !== $text ) {
+				$parts[] = $text;
+			}
+		}
+
+		return implode( "\n\n", $parts );
+	}
+
+	/**
+	 * A list's items, each marked the way the list is set to count.
+	 *
+	 * @param array $list  A core/list block.
+	 * @param int   $depth How far inside nested lists this list sits.
+	 * @return string
+	 */
+	private static function list_to_text( array $list, $depth ) {
+		$attrs    = is_array( $list['attrs'] ) ? $list['attrs'] : array();
+		$items    = $list['innerBlocks'];
+		$ordered  = ! empty( $attrs['ordered'] );
+		$reversed = $ordered && ! empty( $attrs['reversed'] );
+		$first    = isset( $attrs['start'] ) ? (int) $attrs['start'] : ( $reversed ? count( $items ) : 1 );
+		$indent   = str_repeat( '  ', $depth );
+		$lines    = array();
+
+		foreach ( $items as $i => $item ) {
+			$marker = $ordered ? ( $first + $i * ( $reversed ? -1 : 1 ) ) . '. ' : '* ';
+			$nested = self::blocks_to_text( $item['innerBlocks'], $depth + 1 );
+			$line   = $indent . $marker . self::inline_to_text( $item['innerHTML'] );
+
+			$lines[] = '' === $nested ? $line : $line . "\n" . $nested;
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * One block's markup as the text it reads like.
+	 *
+	 * @param string $html The block's inner HTML.
+	 * @return string
+	 */
+	private static function inline_to_text( $html ) {
 		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
-		// The markers WordPress.com's own comment emails use, so a quote still reads as one.
-		$html = (string) preg_replace_callback( '#<blockquote[^>]*>(.*?)</blockquote>#is', array( __CLASS__, 'quote_to_text' ), $html );
-		$html = (string) preg_replace( '#<li[^>]*>#i', '* ', $html );
-		$html = (string) preg_replace( '#</li>#i', "\n", $html );
-		$html = (string) preg_replace( '#</(?:p|div|figure|blockquote|pre|ul|ol)>#i', "\n\n", $html );
-		$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' );
 
-		return trim( (string) preg_replace( '#\n{3,}#', "\n\n", $text ) );
-	}
-
-	/**
-	 * A blockquote's lines, each marked as quoted. Leaves entities alone for the one pass in to_text().
-	 *
-	 * @param array $quote Match of the blockquote and its contents.
-	 * @return string
-	 */
-	private static function quote_to_text( array $quote ) {
-		$inner = (string) preg_replace( '#</(?:p|div|ul|ol|pre|li)>#i', "\n", $quote[1] );
-		$lines = array_map( 'trim', explode( "\n", trim( wp_strip_all_tags( $inner ) ) ) );
-
-		return "\n\n> " . implode( "\n> ", $lines ) . "\n\n";
+		return trim( html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' ) );
 	}
 
 	/**
