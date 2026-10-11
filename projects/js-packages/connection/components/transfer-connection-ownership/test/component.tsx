@@ -120,35 +120,24 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( mockSetConnectionOwner ).not.toHaveBeenCalled();
 	} );
 
-	it( 'reports the transfer as soon as it lands, before the user leaves', async () => {
+	it( 'reports the transfer as soon as it lands', async () => {
 		const onTransferred = jest.fn();
-		const onDismiss = jest.fn();
 		const user = userEvent.setup();
-		render(
-			<TransferConnectionOwnership
-				{ ...props }
-				onTransferred={ onTransferred }
-				onDismiss={ onDismiss }
-			/>
-		);
+		render( <TransferConnectionOwnership { ...props } onTransferred={ onTransferred } /> );
 
 		await chooseKazz( user );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
 		await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
-		// The surface has to learn about this before the user leaves, which they may do
-		// without pressing Done.
 		await waitFor( () => expect( onTransferred ).toHaveBeenCalledWith( 7 ) );
-		expect( onDismiss ).not.toHaveBeenCalled();
 
 		// findAllBy: Notice also announces itself into the a11y-speak live region.
 		await expect( screen.findAllByText( /is now the connection owner/ ) ).resolves.not.toHaveLength(
 			0
 		);
-
-		await user.click( screen.getByRole( 'button', { name: 'Done' } ) );
-		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
+		// Leaving is the surrounding surface's business, so the step offers no way out.
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'warns a protected owner what the transfer costs before they commit', async () => {
@@ -228,27 +217,6 @@ describe( 'TransferConnectionOwnership', () => {
 
 		await expect( screen.findByText( '<b>Kazz</b>' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
-	} );
-
-	// The chooser already hides its dismiss without a callback; the success step has to
-	// match, or a consumer handling completion itself gets a button that does nothing.
-	it( 'offers no action on the success step when there is nothing to dismiss to', async () => {
-		const onTransferred = jest.fn();
-		const user = userEvent.setup();
-		render(
-			<TransferConnectionOwnership
-				apiRoot={ props.apiRoot }
-				apiNonce={ props.apiNonce }
-				onTransferred={ onTransferred }
-			/>
-		);
-
-		await chooseKazz( user );
-		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
-
-		await waitFor( () => expect( onTransferred ).toHaveBeenCalledWith( 7 ) );
-		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'says so when the candidates cannot be loaded', async () => {

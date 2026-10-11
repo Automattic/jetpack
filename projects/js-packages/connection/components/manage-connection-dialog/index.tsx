@@ -60,15 +60,6 @@ interface ManageConnectionDialogProps {
 	onDisconnected?: () => void;
 	/** The callback to be called upon user unlink success. */
 	onUnlinked: () => void;
-	/**
-	 * The callback to be called once ownership has moved and the user leaves the step.
-	 *
-	 * The consumer is expected to close this dialog or refresh its own state: the
-	 * connection store holds the owner and `isMaster` from page load and cannot be
-	 * refreshed, so whatever stays on screen is describing an owner the user no longer
-	 * is. Defaults to reloading for that reason.
-	 */
-	onOwnershipTransferred?: ( newOwnerId: number ) => void;
 	/** The context in which this component is being used. */
 	context?: string;
 	/** An object representing the connected user. */
@@ -94,7 +85,6 @@ const ManageConnectionDialog = ( {
 	connectedPlugins,
 	onDisconnected,
 	onUnlinked,
-	onOwnershipTransferred,
 	context = 'jetpack-dashboard',
 	connectedUser = {}, // Pass empty object to avoid undefined errors.
 	connectedSiteId,
@@ -236,24 +226,16 @@ const ManageConnectionDialog = ( {
 		setTransferView( { status: 'transferred', newOwnerId } );
 	}, [] );
 
-	// After a transfer there is nothing to go back to: the actions behind belong to an
-	// owner the user no longer is, so leaving the step refreshes instead. Read the owner
-	// out before resetting; the setter does not change what this closure captured.
 	const leaveTransfer = useCallback( () => {
-		const transferredTo = 'transferred' === transferView?.status ? transferView.newOwnerId : null;
-
 		setTransferView( null );
+	}, [] );
 
-		if ( null === transferredTo ) {
-			return;
-		}
-
-		if ( onOwnershipTransferred ) {
-			onOwnershipTransferred( transferredTo );
-		} else {
-			window.location.reload();
-		}
-	}, [ transferView, onOwnershipTransferred ] );
+	// Separate statements, not a ternary: the minifier folds two `__()` calls in one
+	// expression into a single call with a non-literal argument, which i18n-check rejects.
+	let footerDismissLabel: string = __( 'Cancel', 'jetpack-connection-js' );
+	if ( transferView ) {
+		footerDismissLabel = __( 'Back', 'jetpack-connection-js' );
+	}
 
 	const heading = transferView
 		? __( 'Transfer connection ownership', 'jetpack-connection-js' )
@@ -288,8 +270,6 @@ const ManageConnectionDialog = ( {
 									apiRoot={ apiRoot }
 									apiNonce={ apiNonce }
 									onTransferred={ recordNewOwner }
-									onDismiss={ leaveTransfer }
-									dismissLabel={ __( 'Back', 'jetpack-connection-js' ) }
 								/>
 							) }
 							{ ! transferView &&
@@ -330,12 +310,12 @@ const ManageConnectionDialog = ( {
 								/>
 							) }
 						</div>
-						{ /* The step carries its own Back and Done; a dialog-wide Cancel beside
-						     them would also close without the refresh a transfer needs. */ }
+						{ /* Leaving the step is the dialog's business, not the step's: from the
+						     transfer view this returns to the actions, not out of the dialog. */ }
 						<HelpFooter
-							onClose={ onClose }
+							onClose={ transferView ? leaveTransfer : onClose }
 							disabled={ isControlsDisabled }
-							showDismiss={ ! transferView }
+							dismissLabel={ footerDismissLabel }
 						/>
 
 						<DisconnectDialog
@@ -371,29 +351,27 @@ interface HelpFooterProps {
 	onClose: () => void;
 	/** Whether the cancel button is disabled. */
 	disabled?: boolean;
-	/** Whether to offer the dismiss button. A view with its own actions should not. */
-	showDismiss?: boolean;
+	/** Label for the dismiss button, which depends on where it takes the user. */
+	dismissLabel: string;
 }
 
-const HelpFooter = ( { onClose, disabled, showDismiss = true }: HelpFooterProps ) => {
+const HelpFooter = ( { onClose, disabled, dismissLabel }: HelpFooterProps ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
 			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-9 md-col-span-7 sm-col-span-3">
 				{ /* TODO add click tracks */ }
 				<SharedHelpFooter namespace="jp-connection__manage-dialog" />
 			</div>
-			{ showDismiss && (
-				<div className="jp-connection__manage-dialog__button-wrap lg-col-span-3 md-col-span-1 sm-col-span-1">
-					<Button
-						variant="outline"
-						onClick={ onClose }
-						className="jp-connection__manage-dialog__btn-dismiss"
-						disabled={ disabled }
-					>
-						{ __( 'Cancel', 'jetpack-connection-js' ) }
-					</Button>
-				</div>
-			) }
+			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-3 md-col-span-1 sm-col-span-1">
+				<Button
+					variant="outline"
+					onClick={ onClose }
+					className="jp-connection__manage-dialog__btn-dismiss"
+					disabled={ disabled }
+				>
+					{ dismissLabel }
+				</Button>
+			</div>
 		</div>
 	);
 };

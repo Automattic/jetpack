@@ -2,9 +2,11 @@
  * External dependencies
  */
 import restApi from '@automattic/jetpack-api';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
+import { STORE_ID } from '../../state/store';
 import type { ConnectionOwnerCandidate } from './types';
 
 /** What `checkStatus` throws: an Error carrying the REST body it could not return. */
@@ -88,6 +90,7 @@ export default function useOwnershipTransfer( {
 	const [ isTransferring, setIsTransferring ] = useState( false );
 	const [ step, setStep ] = useState< TransferStep >( 'choose' );
 	const [ error, setError ] = useState( '' );
+	const { setConnectionOwner } = useDispatch( STORE_ID );
 
 	useRestApiInit( apiRoot, apiNonce );
 
@@ -129,28 +132,33 @@ export default function useOwnershipTransfer( {
 		setStep( 'choose' );
 	}, [] );
 
+	const selectedCandidate = candidates?.find( c => c.id === selectedId ) ?? null;
+
 	const transfer = useCallback( () => {
-		if ( ! selectedId ) {
+		if ( ! selectedCandidate ) {
 			return;
 		}
+
+		const { id, displayName } = selectedCandidate;
 
 		setIsTransferring( true );
 		setError( '' );
 
 		restApi
-			.setConnectionOwner( selectedId )
+			.setConnectionOwner( id )
 			.then( () => {
 				setIsTransferring( false );
 				setStep( 'done' );
-				onTransferred?.( selectedId );
+				// Tell the store who owns the connection now, so every surface reading it
+				// stops describing an owner the user no longer is.
+				setConnectionOwner( { id, displayName } );
+				onTransferred?.( id );
 			} )
 			.catch( ( err: ApiError ) => {
 				setError( transferErrorMessage( err ) );
 				setIsTransferring( false );
 			} );
-	}, [ selectedId, onTransferred ] );
-
-	const selectedCandidate = candidates?.find( c => c.id === selectedId ) ?? null;
+	}, [ selectedCandidate, onTransferred, setConnectionOwner ] );
 
 	return {
 		candidates,

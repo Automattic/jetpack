@@ -130,69 +130,11 @@ describe( 'ManageConnectionDialog', () => {
 			).not.toBeInTheDocument();
 		} );
 
-		// Done is the only way out of a completed transfer: the step drops Back, the
-		// footer drops Cancel, and the dialog has no X and no Escape.
-		it( 'reports the new owner when the user leaves the completed transfer', async () => {
-			const onOwnershipTransferred = jest.fn();
-			const user = userEvent.setup();
-			render(
-				<ManageConnectionDialog
-					{ ...testProps }
-					onOwnershipTransferred={ onOwnershipTransferred }
-				/>
-			);
-
-			await user.click(
-				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
-			);
-			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
-			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
-			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
-
-			expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: 'Cancel' } ) ).not.toBeInTheDocument();
-
-			await user.click( await screen.findByRole( 'button', { name: 'Done' } ) );
-
-			expect( onOwnershipTransferred ).toHaveBeenCalledWith( 7 );
-			expect( testProps.onClose ).not.toHaveBeenCalled();
-		} );
-
-		// The owner-disconnect warning offers transfer as the way out, and must hand over
-		// to this dialog's step rather than opening a second copy of the flow.
-		it( 'opens the step when the owner-disconnect warning offers the transfer', async () => {
+		it( 'tells the store who owns the connection now', async () => {
+			const onTransferred = jest.fn();
 			const user = userEvent.setup();
 			render( <ManageConnectionDialog { ...testProps } /> );
 
-			await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
-			await user.click(
-				await screen.findByRole( 'link', { name: /Transfer ownership to another admin/ } )
-			);
-
-			await expect(
-				screen.findByRole( 'combobox', { name: /New connection owner/ } )
-			).resolves.toBeInTheDocument();
-			// The warning is gone, not sitting behind the step.
-			expect(
-				screen.queryByRole( 'dialog', { name: 'Disconnect Owner Account' } )
-			).not.toBeInTheDocument();
-			expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
-		} );
-
-		// A consumer that handles the transfer itself may leave the dialog open. Reopening
-		// must start from the action list, or Back would re-fire the transfer callback.
-		it( 'forgets the completed transfer once the user has left the step', async () => {
-			const onOwnershipTransferred = jest.fn();
-			const user = userEvent.setup();
-			const { rerender } = render(
-				<ManageConnectionDialog
-					{ ...testProps }
-					onOwnershipTransferred={ onOwnershipTransferred }
-				/>
-			);
-
 			await user.click(
 				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
 			);
@@ -200,28 +142,17 @@ describe( 'ManageConnectionDialog', () => {
 			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
 			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
-			await user.click( await screen.findByRole( 'button', { name: 'Done' } ) );
-			expect( onOwnershipTransferred ).toHaveBeenCalledTimes( 1 );
 
-			// The consumer did not close the dialog, so it is still open on the actions.
-			rerender(
-				<ManageConnectionDialog
-					{ ...testProps }
-					onOwnershipTransferred={ onOwnershipTransferred }
-				/>
-			);
+			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
+			expect( onTransferred ).not.toHaveBeenCalled();
+
+			// Back returns to the actions rather than closing the dialog or reloading.
+			await user.click( await screen.findByRole( 'button', { name: 'Back' } ) );
 
 			await expect(
 				screen.findByRole( 'link', { name: /Disconnect Jetpack/ } )
 			).resolves.toBeInTheDocument();
-
-			// Going back in and straight out again must not report a second transfer.
-			await user.click(
-				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
-			);
-			await user.click( await screen.findByRole( 'button', { name: 'Back' } ) );
-
-			expect( onOwnershipTransferred ).toHaveBeenCalledTimes( 1 );
+			expect( testProps.onClose ).not.toHaveBeenCalled();
 		} );
 
 		it( 'returns to the actions when the chooser is dismissed', async () => {
