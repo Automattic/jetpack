@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -22,7 +22,7 @@ export interface TransferDoneStepProps {
  * @return {import('react').ReactNode} The TransferDoneStep component.
  */
 const TransferDoneStep = ( { candidate }: TransferDoneStepProps ) => (
-	<div className="jp-connection__transfer-ownership">
+	<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">
 		<CandidateIdentity
 			displayName={ candidate.displayName }
 			login={ candidate.login }
@@ -41,7 +41,7 @@ const TransferDoneStep = ( { candidate }: TransferDoneStepProps ) => (
 				) }
 			</Notice.Description>
 		</Notice.Root>
-	</div>
+	</Stack>
 );
 
 export default TransferDoneStep;

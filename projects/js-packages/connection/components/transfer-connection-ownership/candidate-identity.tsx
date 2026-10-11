@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -58,11 +59,16 @@ export interface CandidateIdentityProps {
  * @return {import('react').ReactNode} The CandidateIdentity component.
  */
 const CandidateIdentity = ( { displayName, login, email }: CandidateIdentityProps ) => (
-	<div className="jp-connection__transfer-ownership__identity">
+	<Stack
+		direction="row"
+		align="center"
+		gap="md"
+		className="jp-connection__transfer-ownership__identity"
+	>
 		<AvatarBadge name={ displayName } isIncoming />
-		<span className="jp-connection__transfer-ownership__who">
-			<strong>{ displayName }</strong>
-			<span className="jp-connection__transfer-ownership__meta">
+		<Stack direction="column" className="jp-connection__transfer-ownership__who">
+			<Text render={ <strong /> }>{ displayName }</Text>
+			<Text className="jp-connection__transfer-ownership__meta">
 				{ email
 					? sprintf(
 							/* translators: %1$s: user login. %2$s: user email address. */
@@ -71,9 +77,9 @@ const CandidateIdentity = ( { displayName, login, email }: CandidateIdentityProp
 							email
 						)
 					: login }
-			</span>
-		</span>
-	</div>
+			</Text>
+		</Stack>
+	</Stack>
 );
 
 export default CandidateIdentity;

@@ -4,7 +4,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Notice, SelectControl, Text } from '@wordpress/ui';
+import { Link, Notice, SelectControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -66,7 +66,7 @@ const OwnerCandidateList = ( {
 
 	if ( isEmpty ) {
 		return (
-			<div className="jp-connection__transfer-ownership">
+			<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">
 				<Notice.Root intent="warning">
 					<Notice.Title>
 						{ __( 'No other connected administrators', 'jetpack-connection-js' ) }
@@ -100,7 +100,7 @@ const OwnerCandidateList = ( {
 						}
 					) }
 				</Text>
-			</div>
+			</Stack>
 		);
 	}
 
@@ -112,7 +112,7 @@ const OwnerCandidateList = ( {
 	}
 
 	return (
-		<div className="jp-connection__transfer-ownership">
+		<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">
 			<Text render={ <p /> }>
 				{ __(
 					"Choose a connected administrator to take over this site's connection to WordPress.com.",
@@ -160,7 +160,7 @@ const OwnerCandidateList = ( {
 					<Notice.Description>{ error }</Notice.Description>
 				</Notice.Root>
 			) }
-		</div>
+		</Stack>
 	);
 };
 

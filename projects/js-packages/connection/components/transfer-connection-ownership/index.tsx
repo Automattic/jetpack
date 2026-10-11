@@ -61,7 +61,7 @@ const TransferConnectionOwnership = ( {
 
 	if ( 'done' === step && selectedCandidate ) {
 		return (
-			<div className="jp-connection__transfer-ownership-form">
+			<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership-form">
 				<TransferDoneStep candidate={ selectedCandidate } />
 
 				<Stack direction="row" align="center" justify="flex-end" gap="sm">
@@ -71,20 +71,19 @@ const TransferConnectionOwnership = ( {
 						</Button>
 					) }
 				</Stack>
-			</div>
+			</Stack>
 		);
 	}
 
 	if ( 'confirm' === step && selectedCandidate ) {
+		// "anyway" acknowledges the warning above it on a protected-owner site.
 		let confirmLabel: string = __( 'Transfer ownership', 'jetpack-connection-js' );
-		if ( isTransferring ) {
-			confirmLabel = __( 'Transferring…', 'jetpack-connection-js' );
-		} else if ( isProtectedOwner ) {
+		if ( isProtectedOwner ) {
 			confirmLabel = __( 'Transfer anyway', 'jetpack-connection-js' );
 		}
 
 		return (
-			<div className="jp-connection__transfer-ownership-form">
+			<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership-form">
 				<TransferConfirmStep
 					candidate={ selectedCandidate }
 					isProtectedOwner={ isProtectedOwner }
@@ -95,11 +94,16 @@ const TransferConnectionOwnership = ( {
 					<Button variant="minimal" onClick={ back } disabled={ isTransferring }>
 						{ __( 'Back', 'jetpack-connection-js' ) }
 					</Button>
-					<Button variant="solid" onClick={ transfer } disabled={ isTransferring }>
+					<Button
+						variant="solid"
+						onClick={ transfer }
+						loading={ isTransferring }
+						loadingAnnouncement={ __( 'Transferring ownership…', 'jetpack-connection-js' ) }
+					>
 						{ confirmLabel }
 					</Button>
 				</Stack>
-			</div>
+			</Stack>
 		);
 	}
 
@@ -110,7 +114,7 @@ const TransferConnectionOwnership = ( {
 	}
 
 	return (
-		<div className="jp-connection__transfer-ownership-form">
+		<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership-form">
 			<OwnerCandidateList
 				candidates={ candidates }
 				selectedId={ selectedId }
@@ -130,7 +134,7 @@ const TransferConnectionOwnership = ( {
 					</Button>
 				) }
 			</Stack>
-		</div>
+		</Stack>
 	);
 };
 

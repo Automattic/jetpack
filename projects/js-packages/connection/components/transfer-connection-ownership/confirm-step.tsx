@@ -5,7 +5,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Notice, Text } from '@wordpress/ui';
+import { Link, Notice, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -36,8 +36,13 @@ const TransferConfirmStep = ( {
 	const currentOwnerName = getScriptData()?.user?.current_user?.display_name ?? '';
 
 	return (
-		<div className="jp-connection__transfer-ownership">
-			<div className="jp-connection__transfer-ownership__handover">
+		<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">
+			<Stack
+				direction="row"
+				align="center"
+				gap="md"
+				className="jp-connection__transfer-ownership__handover"
+			>
 				{ currentOwnerName && (
 					<>
 						<AvatarBadge name={ currentOwnerName } />
@@ -54,7 +59,7 @@ const TransferConfirmStep = ( {
 						{ name: <strong>{ candidate.displayName }</strong> }
 					) }
 				</Text>
-			</div>
+			</Stack>
 
 			<ul className="jp-connection__transfer-ownership__outcomes">
 				<li>
@@ -126,7 +131,7 @@ const TransferConfirmStep = ( {
 					<Notice.Description>{ error }</Notice.Description>
 				</Notice.Root>
 			) }
-		</div>
+		</Stack>
 	);
 };
 
