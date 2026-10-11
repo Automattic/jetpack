@@ -39,6 +39,14 @@ interface ManageConnectionUser {
 	};
 }
 
+/**
+ * Which view the dialog is showing, and — once there is one — who took ownership.
+ *
+ * One value rather than two: a separate "did it complete" flag could outlive the view
+ * that set it, and a stale one would re-fire the transfer callback on the next open.
+ */
+type TransferView = { status: 'choosing' } | { status: 'transferred'; newOwnerId: number };
+
 interface ManageConnectionDialogProps {
 	/** The modal title. */
 	title?: string;
@@ -54,8 +62,11 @@ interface ManageConnectionDialogProps {
 	onUnlinked: () => void;
 	/**
 	 * The callback to be called once ownership has moved and the user leaves the step.
-	 * Defaults to reloading: the transfer changes what the current user may do, so a
-	 * consumer that does nothing here would leave owner-only actions on screen.
+	 *
+	 * The consumer is expected to close this dialog or refresh its own state: the
+	 * connection store holds the owner and `isMaster` from page load and cannot be
+	 * refreshed, so whatever stays on screen is describing an owner the user no longer
+	 * is. Defaults to reloading for that reason.
 	 */
 	onOwnershipTransferred?: ( newOwnerId: number ) => void;
 	/** The context in which this component is being used. */
@@ -94,8 +105,7 @@ const ManageConnectionDialog = ( {
 	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
 	const [ unlinkError, setUnlinkError ] = useState( '' );
 	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
-	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
-	const [ newOwnerId, setNewOwnerId ] = useState< number | null >( null );
+	const [ transferView, setTransferView ] = useState< TransferView | null >( null );
 
 	/**
 	 * Initialize the REST API.
@@ -212,32 +222,40 @@ const ManageConnectionDialog = ( {
 
 	const openTransferDialog = useCallback( ( e?: MouseEvent< HTMLElement > ) => {
 		e && e.preventDefault();
-		setIsTransferOpen( true );
+		setTransferView( { status: 'choosing' } );
 	}, [] );
 
 	// Transferring is the way out of the owner-disconnect warning, so hand the user to
 	// that flow rather than running a second copy of it inside the warning.
 	const openTransferFromOwnerDialog = useCallback( () => {
 		setIsOwnerDisconnectDialogOpen( false );
-		setIsTransferOpen( true );
+		setTransferView( { status: 'choosing' } );
+	}, [] );
+
+	const recordNewOwner = useCallback( ( newOwnerId: number ) => {
+		setTransferView( { status: 'transferred', newOwnerId } );
 	}, [] );
 
 	// After a transfer there is nothing to go back to: the actions behind belong to an
-	// owner the user no longer is, so leaving the step refreshes instead.
+	// owner the user no longer is, so leaving the step refreshes instead. Read the owner
+	// out before resetting; the setter does not change what this closure captured.
 	const leaveTransfer = useCallback( () => {
-		if ( newOwnerId ) {
-			if ( onOwnershipTransferred ) {
-				onOwnershipTransferred( newOwnerId );
-			} else {
-				window.location.reload();
-			}
+		const transferredTo = 'transferred' === transferView?.status ? transferView.newOwnerId : null;
+
+		setTransferView( null );
+
+		if ( null === transferredTo ) {
 			return;
 		}
 
-		setIsTransferOpen( false );
-	}, [ newOwnerId, onOwnershipTransferred ] );
+		if ( onOwnershipTransferred ) {
+			onOwnershipTransferred( transferredTo );
+		} else {
+			window.location.reload();
+		}
+	}, [ transferView, onOwnershipTransferred ] );
 
-	const heading = isTransferOpen
+	const heading = transferView
 		? __( 'Transfer connection ownership', 'jetpack-connection-js' )
 		: title;
 
@@ -265,16 +283,16 @@ const ManageConnectionDialog = ( {
 									'jetpack-connection-js'
 								) }
 							</Text>
-							{ isTransferOpen && (
+							{ transferView && (
 								<TransferConnectionOwnership
 									apiRoot={ apiRoot }
 									apiNonce={ apiNonce }
-									onTransferred={ setNewOwnerId }
+									onTransferred={ recordNewOwner }
 									onDismiss={ leaveTransfer }
 									dismissLabel={ __( 'Back', 'jetpack-connection-js' ) }
 								/>
 							) }
-							{ ! isTransferOpen &&
+							{ ! transferView &&
 								isCurrentUserAdmin &&
 								connectedUser.currentUser?.isConnected &&
 								connectedUser.currentUser?.isMaster && (
@@ -286,7 +304,7 @@ const ManageConnectionDialog = ( {
 										disabled={ isControlsDisabled }
 									/>
 								) }
-							{ ! isTransferOpen && connectedUser.currentUser?.isConnected && (
+							{ ! transferView && connectedUser.currentUser?.isConnected && (
 								<>
 									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
 									<ManageConnectionActionCard
@@ -302,7 +320,7 @@ const ManageConnectionDialog = ( {
 									/>
 								</>
 							) }
-							{ ! isTransferOpen && isCurrentUserAdmin && ! isWoASite() && (
+							{ ! transferView && isCurrentUserAdmin && ! isWoASite() && (
 								<ManageConnectionActionCard
 									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 									onClick={ openDisconnectDialog }
@@ -317,7 +335,7 @@ const ManageConnectionDialog = ( {
 						<HelpFooter
 							onClose={ onClose }
 							disabled={ isControlsDisabled }
-							showDismiss={ ! isTransferOpen }
+							showDismiss={ ! transferView }
 						/>
 
 						<DisconnectDialog

@@ -181,6 +181,49 @@ describe( 'ManageConnectionDialog', () => {
 			expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
 		} );
 
+		// A consumer that handles the transfer itself may leave the dialog open. Reopening
+		// must start from the action list, or Back would re-fire the transfer callback.
+		it( 'forgets the completed transfer once the user has left the step', async () => {
+			const onOwnershipTransferred = jest.fn();
+			const user = userEvent.setup();
+			const { rerender } = render(
+				<ManageConnectionDialog
+					{ ...testProps }
+					onOwnershipTransferred={ onOwnershipTransferred }
+				/>
+			);
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+			await user.click( await screen.findByRole( 'button', { name: 'Done' } ) );
+			expect( onOwnershipTransferred ).toHaveBeenCalledTimes( 1 );
+
+			// The consumer did not close the dialog, so it is still open on the actions.
+			rerender(
+				<ManageConnectionDialog
+					{ ...testProps }
+					onOwnershipTransferred={ onOwnershipTransferred }
+				/>
+			);
+
+			await expect(
+				screen.findByRole( 'link', { name: /Disconnect Jetpack/ } )
+			).resolves.toBeInTheDocument();
+
+			// Going back in and straight out again must not report a second transfer.
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await user.click( await screen.findByRole( 'button', { name: 'Back' } ) );
+
+			expect( onOwnershipTransferred ).toHaveBeenCalledTimes( 1 );
+		} );
+
 		it( 'returns to the actions when the chooser is dismissed', async () => {
 			const user = userEvent.setup();
 			render( <ManageConnectionDialog { ...testProps } /> );
