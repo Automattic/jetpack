@@ -118,9 +118,6 @@ describe( 'ManageConnectionDialog', () => {
 
 			// One dialog, renamed — a second modal would mean two focus traps.
 			expect( screen.getAllByRole( 'dialog' ) ).toHaveLength( 1 );
-			// The step owns the actions: a dialog-wide Cancel here would close without
-			// the refresh a completed transfer needs.
-			expect( screen.queryByRole( 'button', { name: 'Cancel' } ) ).not.toBeInTheDocument();
 			expect(
 				screen.getByRole( 'dialog', { name: 'Transfer connection ownership' } )
 			).toBeInTheDocument();
@@ -146,16 +143,32 @@ describe( 'ManageConnectionDialog', () => {
 			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
 			expect( onTransferred ).not.toHaveBeenCalled();
 
-			// Back returns to the actions rather than closing the dialog or reloading.
-			await user.click( await screen.findByRole( 'button', { name: 'Back' } ) );
+			// The task is finished, so the exit closes the dialog rather than going back.
+			expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+			await user.click( await screen.findByRole( 'button', { name: 'Close' } ) );
 
-			await expect(
-				screen.findByRole( 'link', { name: /Disconnect Jetpack/ } )
-			).resolves.toBeInTheDocument();
-			expect( testProps.onClose ).not.toHaveBeenCalled();
+			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( 'returns to the actions when the chooser is dismissed', async () => {
+		// Two controls reading "Back" would be ambiguous: the step's moves a step, the
+		// dialog's leaves the flow entirely.
+		it( 'does not offer two different Backs on the confirm step', async () => {
+			const user = userEvent.setup();
+			render( <ManageConnectionDialog { ...testProps } /> );
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+			// The step's Back moves a step; the dialog's exit closes the dialog.
+			expect( screen.getAllByRole( 'button', { name: 'Back' } ) ).toHaveLength( 1 );
+			expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'leaves the dialog when the chooser is dismissed', async () => {
 			const user = userEvent.setup();
 			render( <ManageConnectionDialog { ...testProps } /> );
 
@@ -165,12 +178,32 @@ describe( 'ManageConnectionDialog', () => {
 			await expect(
 				screen.findByRole( 'combobox', { name: /New connection owner/ } )
 			).resolves.toBeInTheDocument();
-			await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+			expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		// Reopening has to start on the actions, not on whatever step was last seen.
+		it( 'forgets the step once the dialog has closed', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <ManageConnectionDialog { ...testProps } /> );
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await expect(
+				screen.findByRole( 'combobox', { name: /New connection owner/ } )
+			).resolves.toBeInTheDocument();
+
+			rerender( <ManageConnectionDialog { ...testProps } isOpen={ false } /> );
+			rerender( <ManageConnectionDialog { ...testProps } /> );
 
 			await expect(
 				screen.findByRole( 'link', { name: /Disconnect Jetpack/ } )
 			).resolves.toBeInTheDocument();
-			expect( testProps.onClose ).not.toHaveBeenCalled();
+			expect(
+				screen.queryByRole( 'combobox', { name: /New connection owner/ } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'hides "Disconnect Jetpack" on a WoA site even for an admin', () => {

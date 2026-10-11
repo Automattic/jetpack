@@ -7,7 +7,7 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Text } from '@wordpress/ui';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 /**
  * Internal dependencies
@@ -226,15 +226,20 @@ const ManageConnectionDialog = ( {
 		setTransferView( { status: 'transferred', newOwnerId } );
 	}, [] );
 
-	const leaveTransfer = useCallback( () => {
-		setTransferView( null );
-	}, [] );
+	// Closing from anywhere starts the next open on the action list, so a finished
+	// transfer cannot come back as the first thing the user sees.
+	useEffect( () => {
+		if ( ! isOpen ) {
+			setTransferView( null );
+		}
+	}, [ isOpen ] );
 
-	// Separate statements, not a ternary: the minifier folds two `__()` calls in one
-	// expression into a single call with a non-literal argument, which i18n-check rejects.
+	// The dialog's own exit, which always closes it. It cannot read "Back": the step
+	// has its own Back, and this does something else. Statements rather than a ternary
+	// — the minifier folds two `__()` calls into one with a non-literal argument.
 	let footerDismissLabel: string = __( 'Cancel', 'jetpack-connection-js' );
-	if ( transferView ) {
-		footerDismissLabel = __( 'Back', 'jetpack-connection-js' );
+	if ( 'transferred' === transferView?.status ) {
+		footerDismissLabel = __( 'Close', 'jetpack-connection-js' );
 	}
 
 	const heading = transferView
@@ -313,7 +318,7 @@ const ManageConnectionDialog = ( {
 						{ /* Leaving the step is the dialog's business, not the step's: from the
 						     transfer view this returns to the actions, not out of the dialog. */ }
 						<HelpFooter
-							onClose={ transferView ? leaveTransfer : onClose }
+							onClose={ onClose }
 							disabled={ isControlsDisabled }
 							dismissLabel={ footerDismissLabel }
 						/>
