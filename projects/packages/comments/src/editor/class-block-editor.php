@@ -52,6 +52,9 @@ class Block_Editor {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
+		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
+		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
+		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		// The edit-comment screen, for a comment that holds blocks.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
@@ -224,6 +227,58 @@ class Block_Editor {
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
 		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed ) ) );
+	}
+
+	/**
+	 * Core's comment email, with the comment's block markup replaced by the text it draws.
+	 *
+	 * @param string $message    The email body.
+	 * @param int    $comment_id The comment the email is about.
+	 * @return string
+	 */
+	public static function render_in_email( $message, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
+			return $message;
+		}
+
+		// The exact string core wrote, so a body another filter rewrote is left alone, not half replaced.
+		$raw = wp_specialchars_decode( $comment->comment_content );
+
+		// No comment passed, so embeds stay links: an email has no frames, and no send should fetch oEmbeds.
+		return str_replace( $raw, self::to_text( self::render( $comment->comment_content ) ), $message );
+	}
+
+	/**
+	 * Rendered comment HTML as the plain text core's email body holds.
+	 *
+	 * @param string $html Rendered comment HTML.
+	 * @return string
+	 */
+	private static function to_text( $html ) {
+		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
+		// The markers WordPress.com's own comment emails use, so a quote still reads as one.
+		$html = (string) preg_replace_callback( '#<blockquote[^>]*>(.*?)</blockquote>#is', array( __CLASS__, 'quote_to_text' ), $html );
+		$html = (string) preg_replace( '#<li[^>]*>#i', '* ', $html );
+		$html = (string) preg_replace( '#</li>#i', "\n", $html );
+		$html = (string) preg_replace( '#</(?:p|div|figure|blockquote|pre|ul|ol)>#i', "\n\n", $html );
+		$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' );
+
+		return trim( (string) preg_replace( '#\n{3,}#', "\n\n", $text ) );
+	}
+
+	/**
+	 * A blockquote's lines, each marked as quoted. Leaves entities alone for the one pass in to_text().
+	 *
+	 * @param array $quote Match of the blockquote and its contents.
+	 * @return string
+	 */
+	private static function quote_to_text( array $quote ) {
+		$inner = (string) preg_replace( '#</(?:p|div|ul|ol|pre|li)>#i', "\n", $quote[1] );
+		$lines = array_map( 'trim', explode( "\n", trim( wp_strip_all_tags( $inner ) ) ) );
+
+		return "\n\n> " . implode( "\n> ", $lines ) . "\n\n";
 	}
 
 	/**
