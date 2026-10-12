@@ -29,7 +29,8 @@ describe( 'matchesFilter', () => {
 	it.each< [ string, FeatureState[ 'control' ] ] >( [
 		[ 'module', { kind: 'module', module: { available: true, override: 'inactive' } as never } ],
 		[ 'installed plugin', { kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' } ],
-	] )( 'excludes a host-forced-off %s from Available but keeps it under All', ( _, control ) => {
+		[ 'plugin install', { kind: 'install-plugin', plugin: 'jetpack-search', blocked: 'disabled' } ],
+	] )( 'excludes a blocked %s from Available but keeps it under All', ( _, control ) => {
 		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
 		state.control = control;
 		expect( matchesFilter( state, 'available' ) ).toBe( false );

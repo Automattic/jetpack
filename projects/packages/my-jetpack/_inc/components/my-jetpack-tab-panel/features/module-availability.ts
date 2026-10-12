@@ -100,6 +100,10 @@ export function isFeatureAvailable( state: FeatureState ): boolean {
 	const { control } = state;
 	return (
 		! state.pending &&
+		( control.kind !== 'install-jetpack' || ! control.blocked ) &&
+		( control.kind !== 'install-plugin' ||
+			! control.blocked ||
+			Boolean( control.runsWithoutPlugin ) ) &&
 		( control.kind !== 'module' || control.module.override !== 'inactive' ) &&
 		( control.kind !== 'plugin' || control.override !== 'inactive' ) &&
 		! getFeatureUnavailableReason( state )
