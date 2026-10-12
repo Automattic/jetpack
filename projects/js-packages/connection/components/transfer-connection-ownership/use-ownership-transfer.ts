@@ -109,8 +109,17 @@ export default function useOwnershipTransfer( {
 		restApi
 			.fetchConnectionOwnerCandidates()
 			.then( ( result: unknown ) => {
-				if ( ! ignore ) {
-					setCandidates( Array.isArray( result ) ? ( result as ConnectionOwnerCandidate[] ) : [] );
+				if ( ignore ) {
+					return;
+				}
+
+				const list = Array.isArray( result ) ? ( result as ConnectionOwnerCandidate[] ) : [];
+
+				setCandidates( list );
+
+				// Nothing to choose between, so choose it.
+				if ( 1 === list.length ) {
+					setSelectedId( list[ 0 ].id );
 				}
 			} )
 			.catch( () => {

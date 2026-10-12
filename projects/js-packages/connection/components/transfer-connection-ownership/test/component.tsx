@@ -78,6 +78,18 @@ describe( 'TransferConnectionOwnership', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'chooses the only administrator there is', async () => {
+		mockFetchCandidates.mockResolvedValue( [ candidates[ 0 ] ] );
+		render( <TransferConnectionOwnership { ...props } /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Continue' } )
+		).resolves.not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'combobox', { name: /New connection owner/ } ) ).toHaveTextContent(
+			'Kazz'
+		);
+	} );
+
 	it( 'cannot continue until somebody is chosen', async () => {
 		render( <TransferConnectionOwnership { ...props } /> );
 		await expect(

@@ -8,7 +8,7 @@
 
 	&__content {
 		background: var(--jp-white-off);
-		padding: 80px;
+		padding: 2rem 1rem;
 		text-align: center;
 		display: flex;
 		flex-direction: column;
@@ -20,6 +20,13 @@
 			font-size: var(--font-title-large);
 			font-weight: 700;
 			line-height: 1.2;
+		}
+	}
+
+	@media (min-width: 600px) {
+
+		.jp-connection__manage-dialog__content {
+			padding: 80px;
 		}
 	}
 
