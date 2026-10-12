@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, useContext, useEffect, useMemo, useRef } from 'react';
+import { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Chart, type GoogleChartPackages, type ReactGoogleChartEvent } from 'react-google-charts';
 /**
  * Internal dependencies
@@ -156,6 +156,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const scopeElement = useChartScopeElement();
 	const containerRef = useRef< HTMLDivElement >( null );
 	const reportedErrorIdsRef = useRef< Set< string > >( new Set() );
+	const [ isLoaded, setIsLoaded ] = useState( false );
 
 	// The ChartWrapper `error` event does not fire for every draw failure —
 	// notably not when GeoChart's asynchronous map-file load fails (e.g.
@@ -198,7 +199,9 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		return () => observer.disconnect();
 	}, [ onError ] );
 
-	// Render loading placeholder
+	// The placeholder renders outside TooltipTheme so consumer content keeps the host theme; `loader` would put it inside.
+	const handleLoad = useCallback( () => setIsLoaded( true ), [] );
+
 	const loadingPlaceholder = (
 		<Center
 			className={ clsx( 'geo-chart', styles.container, className ) }
@@ -323,6 +326,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			data-testid="geo-chart"
 			style={ { width, height } }
 		>
+			{ ! isLoaded && loadingPlaceholder }
 			<TooltipTheme>
 				<Chart
 					chartType="GeoChart"
@@ -332,7 +336,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 					data={ sanitizedData }
 					options={ options }
 					chartEvents={ chartEvents }
-					loader={ loadingPlaceholder }
+					onLoad={ handleLoad }
 				/>
 			</TooltipTheme>
 		</Center>
