@@ -25,6 +25,18 @@ const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-marketplace-tab';
 const WPCOM_THEMES_TAB_PER_PAGE = 100;
 
 /**
+ * Query args a theme's demo site reads to render as a preview, as the Calypso showcase passes them.
+ *
+ * Without these the demo site shows its own "get this theme on WordPress.com" promos inside the
+ * preview, and counts the view in the demo site's stats.
+ */
+const WPCOM_THEMES_TAB_PREVIEW_ARGS = array(
+	'demo'          => 'true',
+	'iframe'        => 'true',
+	'theme_preview' => 'true',
+);
+
+/**
  * Registers the feature flag.
  *
  * @return void
@@ -265,6 +277,8 @@ function wpcom_themes_tab_to_catalog_theme( $theme ) {
 		return null;
 	}
 
+	$demo_uri = (string) ( $theme['demo_uri'] ?? '' );
+
 	return array(
 		'slug'           => $theme['id'],
 		'name'           => (string) ( $theme['name'] ?? $theme['id'] ),
@@ -272,6 +286,6 @@ function wpcom_themes_tab_to_catalog_theme( $theme ) {
 		'description'    => (string) ( $theme['description'] ?? '' ),
 		'version'        => (string) ( $theme['version'] ?? '' ),
 		'screenshot_url' => (string) ( $theme['screenshot'] ?? '' ),
-		'preview_url'    => (string) ( $theme['demo_uri'] ?? '' ),
+		'preview_url'    => '' === $demo_uri ? '' : add_query_arg( WPCOM_THEMES_TAB_PREVIEW_ARGS, $demo_uri ),
 	);
 }

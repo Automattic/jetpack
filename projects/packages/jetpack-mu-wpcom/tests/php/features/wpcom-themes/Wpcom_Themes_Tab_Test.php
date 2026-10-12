@@ -177,7 +177,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'STAX', $theme->name );
 		$this->assertSame( 'Organic Themes', $theme->author['display_name'] );
 		$this->assertSame( self::THEME['screenshot'], $theme->screenshot_url );
-		$this->assertSame( self::THEME['demo_uri'], $theme->preview_url );
+		// The demo site renders as a preview, without its own promos, given these args.
+		$this->assertSame( self::THEME['demo_uri'] . '?demo=true&iframe=true&theme_preview=true', $theme->preview_url );
 	}
 
 	/**
@@ -268,7 +269,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertCount( 1, $result->themes );
 		$this->assertSame( 'organic-stax', $result->themes[0]->slug );
-		$this->assertSame( self::THEME['demo_uri'], $result->themes[0]->preview_url );
+		$this->assertSame( self::THEME['demo_uri'] . '?demo=true&iframe=true&theme_preview=true', $result->themes[0]->preview_url );
 		// One request by slug, rather than paging through the whole catalog to find it.
 		$this->assertCount( 1, $this->requests );
 		$this->assertStringContainsString( '/rest/v1.2/themes/organic-stax', $this->requests[0] );
