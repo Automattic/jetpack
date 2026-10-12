@@ -43,6 +43,9 @@ class WPCom_Themes_Tiers {
 	/**
 	 * Whether this site's plan includes a tier.
 	 *
+	 * Necessary but not sufficient for the partner tier, which every paid plan includes while each
+	 * partner theme still needs its own subscription that no plan feature reports.
+	 *
 	 * @param string $tier Tier slug.
 	 * @return bool False when the platform cannot answer, so an unknown host offers nothing.
 	 */
