@@ -1,4 +1,5 @@
 import { CheckboxControl } from '@wordpress/components';
+import { useMergeRefs } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
@@ -349,7 +350,17 @@ export default function FileBrowser( {
 	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
-	const [ panelRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
+	const [ narrowRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
+	const panelRef = useRef< HTMLDivElement >( null );
+	// Spread on the root in both branches, so it is one element that outlives the error notice and can take its focus.
+	const rootProps = {
+		className: 'jpb-file-browser',
+		ref: useMergeRefs( [ narrowRef, panelRef ] ),
+		'data-rewind-id': rewindId,
+		tabIndex: -1,
+		role: 'group',
+		'aria-label': __( 'Files in this backup', 'jetpack-backup-pkg' ),
+	};
 	const {
 		children: rootsData,
 		isLoading: rootsLoading,
@@ -493,20 +504,21 @@ export default function FileBrowser( {
 	// replace the whole browser. A failed background refresh still has its rows and keeps the tree.
 	if ( rootsError && ! rootsData ) {
 		return (
-			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
+			<div { ...rootProps }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
 					referenceId={ { kind: 'backup', value: rewindId } }
 					onRetry={ refetchRoots }
 					isRetrying={ rootsFetching }
+					returnFocusTo={ panelRef }
 				/>
 			</div>
 		);
 	}
 
 	return (
-		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
+		<div { ...rootProps }>
 			<div className={ layoutClassName } style={ layoutStyle }>
 				<div className="jpb-file-browser__main">
 					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
