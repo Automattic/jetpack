@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d341abb3f79b92e1b4e6b716e29d0557",
+    "content-hash": "9f68db4ac4fc9e7ee85d70a6d7c817f3",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1598,16 +1598,16 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v8.3.1",
+            "version": "v8.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "b689c5c78eebc5e56258a6c7469872e5c183efad"
+                "reference": "3bc54df7ef9cf3c97946e48fd11041a49e2bce49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/b689c5c78eebc5e56258a6c7469872e5c183efad",
-                "reference": "b689c5c78eebc5e56258a6c7469872e5c183efad",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/3bc54df7ef9cf3c97946e48fd11041a49e2bce49",
+                "reference": "3bc54df7ef9cf3c97946e48fd11041a49e2bce49",
                 "shasum": ""
             },
             "require": {
@@ -1662,9 +1662,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v8.3.1"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v8.3.2"
             },
-            "time": "2026-10-12T14:58:38+00:00"
+            "time": "2026-10-12T17:18:01+00:00"
         },
         {
             "name": "automattic/jetpack-image-cdn",
@@ -3537,16 +3537,16 @@
         },
         {
             "name": "automattic/jetpack-videopress",
-            "version": "v0.55.0.2",
+            "version": "v0.55.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-videopress.git",
-                "reference": "3028d8ff898fbfca45a1619d7d3a8a44e7c55056"
+                "reference": "8499f9b83a834e42ef09579a89969f39aab73455"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-videopress/zipball/3028d8ff898fbfca45a1619d7d3a8a44e7c55056",
-                "reference": "3028d8ff898fbfca45a1619d7d3a8a44e7c55056",
+                "url": "https://api.github.com/repos/Automattic/jetpack-videopress/zipball/8499f9b83a834e42ef09579a89969f39aab73455",
+                "reference": "8499f9b83a834e42ef09579a89969f39aab73455",
                 "shasum": ""
             },
             "require": {
@@ -3598,9 +3598,9 @@
             ],
             "description": "VideoPress package",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-videopress/tree/v0.55.0.2"
+                "source": "https://github.com/Automattic/jetpack-videopress/tree/v0.55.0.3"
             },
-            "time": "2026-10-12T14:59:08+00:00"
+            "time": "2026-10-12T17:18:26+00:00"
         },
         {
             "name": "automattic/jetpack-waf",
