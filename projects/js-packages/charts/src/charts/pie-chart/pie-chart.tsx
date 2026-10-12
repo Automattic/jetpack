@@ -324,7 +324,7 @@ const PieChartInternal = ( {
 		selectedArc,
 		getSegmentHandlers,
 		getKeyboardTooltipAnchor,
-		outputProps,
+		selectionOutputProps,
 		chartProps,
 	} = usePieKeyboardNavigation( {
 		navigationArcs,
@@ -521,7 +521,7 @@ const PieChartInternal = ( {
 								) }
 							</svg>
 							<PieSelectionOutput
-								{ ...outputProps }
+								{ ...selectionOutputProps }
 								keyboardTooltipAnchor={
 									selectedArc &&
 									getKeyboardTooltipAnchor( centerX, centerY, path.centroid( selectedArc ) )

@@ -117,7 +117,7 @@ export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentag
 		selectedArc,
 		getSegmentHandlers,
 		getKeyboardTooltipAnchor,
-		outputProps: {
+		selectionOutputProps: {
 			withTooltips,
 			selectedIndex,
 			selectedData: selectedArc?.data,

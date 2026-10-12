@@ -298,7 +298,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		selectedArc,
 		getSegmentHandlers,
 		getKeyboardTooltipAnchor,
-		outputProps,
+		selectionOutputProps,
 		chartProps,
 	} = usePieKeyboardNavigation( {
 		navigationArcs,
@@ -465,7 +465,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								) }
 							</svg>
 							<PieSelectionOutput
-								{ ...outputProps }
+								{ ...selectionOutputProps }
 								keyboardTooltipAnchor={
 									selectedArc &&
 									getKeyboardTooltipAnchor( width / 2, height, path.centroid( selectedArc ) )
