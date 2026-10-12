@@ -250,7 +250,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	/**
 	 * Create a separate build holding only widget-primitives, as another plugin's copy would.
 	 *
-	 * @param string|null $package_version Bundled package version, or null for a build without version.php.
+	 * @param string|null $package_version Bundled package version, or null for a build without `package_version`.
 	 * @param string      $asset_version   Asset hash, to tell the registrations apart.
 	 * @return string The build directory.
 	 */
@@ -258,13 +258,11 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$dir = $this->build_dir . '-' . $asset_version;
 		mkdir( $dir . '/modules/widget-primitives', 0755, true );
 		$this->extra_build_dirs[] = $dir;
+		$package_version_php      = null === $package_version ? '' : ", 'package_version' => '$package_version'";
 		file_put_contents(
 			$dir . '/modules/widget-primitives/index.asset.php',
-			"<?php return array('dependencies' => array(), 'version' => '$asset_version', 'module_dependencies' => array());"
+			"<?php return array('dependencies' => array(), 'version' => '$asset_version', 'module_dependencies' => array()$package_version_php);"
 		);
-		if ( null !== $package_version ) {
-			file_put_contents( $dir . '/modules/widget-primitives/version.php', "<?php return '$package_version';" );
-		}
 		return $dir;
 	}
 
@@ -936,7 +934,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A build without version.php predates the file and counts as older, whichever order it loads in.
+	 * A build without `package_version` predates it and counts as older, whichever order it loads in.
 	 */
 	public function test_register_modules_copy_without_version_counts_as_older() {
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();

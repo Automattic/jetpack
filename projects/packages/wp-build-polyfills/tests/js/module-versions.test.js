@@ -15,12 +15,15 @@ const modules = {
 };
 
 for ( const [ name, packageName ] of Object.entries( modules ) ) {
-	test( `build/modules/${ name }/version.php returns the bundled ${ packageName } version`, () => {
-		const file = path.join( packageRoot, 'build/modules', name, 'version.php' );
+	test( `build/modules/${ name }/index.asset.php carries the bundled ${ packageName } version`, () => {
+		const asset = fs.readFileSync(
+			path.join( packageRoot, 'build/modules', name, 'index.asset.php' ),
+			'utf8'
+		);
 		const expected = JSON.parse(
 			fs.readFileSync( localRequire.resolve( `${ packageName }/package.json` ), 'utf8' )
 		).version;
 
-		assert.equal( fs.readFileSync( file, 'utf8' ), `<?php return '${ expected }';\n` );
+		assert.ok( asset.includes( `'package_version' => '${ expected }'` ) );
 	} );
 }

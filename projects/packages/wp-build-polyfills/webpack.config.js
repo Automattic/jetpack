@@ -108,45 +108,6 @@ function resolvePackageVersion( packageName ) {
 	return JSON.parse( readFileSync( pkgPath, 'utf8' ) ).version;
 }
 
-/**
- * Emit `version.php` next to a module build, returning the bundled package version.
- *
- * WP_Build_Polyfills reads it to keep the newest copy when several plugins register the module.
- */
-class ModuleVersionPlugin {
-	/**
-	 * Remember the version to emit.
-	 *
-	 * @param {string} version - The bundled package version.
-	 */
-	constructor( version ) {
-		this.version = version;
-	}
-
-	/**
-	 * Hook the asset emission into the compilation.
-	 *
-	 * @param {import('webpack').Compiler} compiler - The webpack compiler.
-	 */
-	apply( compiler ) {
-		const { RawSource } = compiler.webpack.sources;
-		compiler.hooks.thisCompilation.tap( 'ModuleVersionPlugin', compilation => {
-			compilation.hooks.processAssets.tap(
-				{
-					name: 'ModuleVersionPlugin',
-					stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
-				},
-				() => {
-					compilation.emitAsset(
-						'version.php',
-						new RawSource( `<?php return '${ this.version }';\n` )
-					);
-				}
-			);
-		} );
-	}
-}
-
 // ── Shared config ───────────────────────────────────────────────────────────
 
 // Files inside upstream @wordpress packages that import a helper from
@@ -328,8 +289,9 @@ const VENDOR_EXTERNALS = {
 };
 
 class PolyfillModulePlugin {
-	constructor( { skipPackage } ) {
+	constructor( { skipPackage, packageVersion } ) {
 		this.skipPackage = skipPackage;
+		this.packageVersion = packageVersion;
 	}
 
 	apply( compiler ) {
@@ -452,6 +414,9 @@ class PolyfillModulePlugin {
 								parts.push( `'module_dependencies' => array(${ modDepsPhp })` );
 							}
 							parts.push( `'version' => '${ hash }'` );
+							if ( this.packageVersion ) {
+								parts.push( `'package_version' => '${ this.packageVersion }'` );
+							}
 
 							const assetContent = `<?php return array(${ parts.join( ', ' ) });\n`;
 							const assetFilename = jsFile.replace( /\.m?js$/i, '.asset.php' );
@@ -501,8 +466,10 @@ const esmConfigs = modulePolyfills.map( polyfill => ( {
 			DependencyExtractionPlugin: false,
 			...disabledPlugins,
 		} ),
-		new PolyfillModulePlugin( { skipPackage: polyfill.packageName } ),
-		new ModuleVersionPlugin( resolvePackageVersion( polyfill.packageName ) ),
+		new PolyfillModulePlugin( {
+			skipPackage: polyfill.packageName,
+			packageVersion: resolvePackageVersion( polyfill.packageName ),
+		} ),
 	],
 } ) );
 

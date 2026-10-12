@@ -396,11 +396,10 @@ class WP_Build_Polyfills {
 				&& null !== $gutenberg_version
 				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'], $gutenberg_version );
 
-			// Builds before this file carry no version and count as older than any that does.
-			$version_file = $build_dir . '/modules/' . $name . '/version.php';
-			$version      = file_exists( $version_file ) ? require $version_file : null;
-			$replace      = $gutenberg_too_old;
-			$record       = false;
+			// Builds without `package_version` predate it and count as older than any that does.
+			$version = $asset['package_version'] ?? null;
+			$replace = $gutenberg_too_old;
+			$record  = false;
 
 			if ( ! empty( $data['newest_copy_wins'] ) ) {
 				if ( array_key_exists( $module_id, $registered_versions ) ) {
