@@ -6,7 +6,13 @@ import { store as noticesStore } from '@wordpress/notices';
 import { configures, type Feature, type Status } from '../types';
 import { runFeatureAction, type FeatureAction } from './api';
 import { errorMessage } from './error-message';
-import { FEATURE_ACTION_KEY, MUTATION_SCOPE, SAVE_SETTING_KEY, queryKeys } from './queries';
+import {
+	FEATURE_ACTION_KEY,
+	MUTATION_SCOPE,
+	SAVE_SERVICES_KEY,
+	SAVE_SETTING_KEY,
+	queryKeys,
+} from './queries';
 import type { QueryClient } from '@tanstack/react-query';
 
 export type { FeatureAction };
@@ -60,9 +66,15 @@ export function useFeatureAction() {
 					? undefined
 					: queryClient.invalidateQueries( { queryKey: queryKeys.settings } ),
 				// The list is still mounted until React re-renders, and the route answers 409 once Sharing stops configuring.
+				// A pending services save brings fresh lists too, as with settings above.
 				queryClient.invalidateQueries( {
 					queryKey: queryKeys.services,
-					refetchType: ! error && sharingConfigures( queryClient ) ? 'active' : 'none',
+					refetchType:
+						! error &&
+						sharingConfigures( queryClient ) &&
+						queryClient.isMutating( { mutationKey: SAVE_SERVICES_KEY } ) === 0
+							? 'active'
+							: 'none',
 				} ),
 			] ),
 	} );

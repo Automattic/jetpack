@@ -47,6 +47,7 @@ async function submitSearchQuery( page: Page, query: string ): Promise< void > {
 test.describe( 'Instant Search', () => {
 	test.beforeAll( async ( { searchUtils } ) => {
 		await searchUtils.clearSearchPlanInfo();
+		await searchUtils.seedSearchPlanInfo();
 		await searchUtils.activateModule( 'search' );
 		await searchUtils.enableInstantSearch();
 		await searchUtils.searchAutoConfig();
