@@ -36,6 +36,7 @@ import {
 	people,
 	currencyDollar,
 	cautionFilled as warning,
+	styles,
 } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import './email-preview.scss';
@@ -431,6 +432,7 @@ const PreviewAccessSelector = ( {
  */
 const EmailDesignLink = ( { postId }: { postId: number } ) => {
 	const { tracks } = useAnalytics();
+	const isBelowLarge = useViewportMatch( 'large', '<' );
 	const emailDesignUrl = getScriptData()?.newsletter?.emailDesignUrl;
 
 	const handleClick = useCallback( () => {
@@ -443,9 +445,27 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 		return null;
 	}
 
+	const label = __( 'Edit email design', 'jetpack' );
+
+	// Below `large` the header is already shedding: the device selector drops its desktop option
+	// there. A text label on top of that clips the modal title, so this becomes its icon.
+	if ( isBelowLarge ) {
+		return (
+			<Link
+				openInNewTab
+				href={ emailDesignUrl }
+				onClick={ handleClick }
+				aria-label={ label }
+				title={ label }
+			>
+				<Icon icon={ styles } />
+			</Link>
+		);
+	}
+
 	return (
 		<Link openInNewTab href={ emailDesignUrl } onClick={ handleClick }>
-			{ __( 'Edit email design', 'jetpack' ) }
+			{ label }
 		</Link>
 	);
 };

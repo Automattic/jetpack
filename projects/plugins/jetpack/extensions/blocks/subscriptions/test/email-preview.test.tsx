@@ -18,6 +18,15 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 // email design screen's URL; `mockEmailDesignUrl` is what each test varies.
 let mockEmailDesignUrl: string | null = null;
 
+// `useViewportMatch( 'large', '<' )` — true in the band where the header sheds labels.
+let mockIsBelowLarge = false;
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useViewportMatch: ( breakpoint: string, operator?: string ) =>
+		breakpoint === 'large' && operator === '<' ? mockIsBelowLarge : false,
+} ) );
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => false,
 	getScriptData: () => ( { newsletter: { emailDesignUrl: mockEmailDesignUrl } } ),
@@ -35,12 +44,13 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
-	Link: ( { children, href, openInNewTab, onClick } ) => (
+	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel } ) => (
 		<a
 			href={ href }
 			target={ openInNewTab ? '_blank' : undefined }
 			rel={ openInNewTab ? 'noreferrer' : undefined }
 			onClick={ onClick }
+			aria-label={ ariaLabel }
 		>
 			{ children }
 		</a>
@@ -458,6 +468,7 @@ describe( 'Newsletter preview: email design link', () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
 		mockEmailDesignUrl = null;
+		mockIsBelowLarge = false;
 		jest.mocked( useSelect ).mockImplementation( () => 123 );
 		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
@@ -487,5 +498,22 @@ describe( 'Newsletter preview: email design link', () => {
 
 		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	/**
+	 * A text label here pushed the modal title out of the header on a site that also shows the
+	 * paid-audience toggle, so below `large` the link becomes its icon — the band where the
+	 * device selector is already shedding its desktop option.
+	 */
+	it( 'drops to an icon where the header runs out of room', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+		mockIsBelowLarge = true;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		expect( link ).toHaveTextContent( '' );
 	} );
 } );
