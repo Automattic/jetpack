@@ -326,203 +326,89 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.3.1 - 2026-10-12
-#### Bug fixes
-- Forms: Restore scrolling on the standalone single response page so long responses are no longer cut off.
-
-### 16.3 - 2026-10-06
-#### Major Enhancements
-- Dashboard: Remove the legacy At a Glance dashboard and Recommendations assistant.
-
+### 16.4-a.1 - 2026-10-12
 #### Enhancements
-- Activity Log: Make Activity Log a Jetpack module so it can be turned on and off from My Jetpack, hiding the sidebar entry when off.
-- Activity Log: Show the connection error notice only when a connection error has been recorded.
-- Admin Menu: Hide feature menu items from sidebar when features are turned off.
-- AI: Add a "How it works" guide to the top of the MCP and Connectors tab.
-- AI: Add ChatGPT and Codex setup instructions to the MCP agent setup page.
-- AI: Hide the legacy AI panel once a site is eligible to turn on the WordPress Agent, and offer to open or enable the Agent in its place.
-- AI: Load the "Scheduled tasks" tab only when it is opened, so the AI page loads less code.
-- AI: Point the Cursor setup instructions on the MCP agent setup page at the WordPress.com plugin on the Cursor Marketplace.
-- AI: Point the disconnected-site notice at documentation instead of a connect link when the current user cannot connect the site, as on VIP and multisite.
-- AI: Serve the Jetpack AI page through the standard Jetpack admin frame.
-- AI: Show one notice explaining why Jetpack AI is unavailable, worded the same on the Overview and AI Features tabs.
-- AI: Use WordPress Design System colors in the AI admin, assistant, and image generator.
-- Backup: Show the VaultPress Backup dashboard in wp-admin, instead of linking out to Jetpack Cloud.
-- Charts: Show Stats, Newsletter, Social, Podcast and VideoPress chart tooltips on the dark WordPress design system tooltip surface.
-- Connection: Show an admin notice and a clearer Site Health result when WordPress.com cannot verify the site's SSL certificate.
-- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com.
-- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor.
-- Donations Form: Replace the "Accept Donations with Stripe" modal with a link to Stripe's donation requirements.
-- External Media: Update the Pexels logo in the media source menu.
-- Forms: Make the Delete spam button act on selected responses or the current filter, show how many responses will be deleted, and empty large spam or trash folders in chunks with progress.
-- Forms: Reopen the dashboard on the last tab used instead of always the default.
-- Forms: Show or hide a field based on the answer to another field, on WordPress.com Business plans and higher.
-- Likes: Give Comment Likes their own section on Settings > Sharing, and suggest the Like block on block themes even when Comment Likes are on.
-- Likes: Guide block-theme users from legacy Like buttons to the Like block in Jetpack Settings and My Jetpack.
-- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
-- My Jetpack: Show product cards flat, without a drop shadow.
-- My Jetpack: Show the dashboard in the new rounded admin page frame.
-- My Jetpack: Show the Features tab in place of the Products tab, and link the footer's modules links to its list view.
-- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
-- Newsletter: Add a "Freshly Pressed" tab to the Daily Writing Prompt dashboard widget, listing the posts WordPress.com is currently featuring.
-- Newsletter: Format stats metrics and open/click rates with locale-aware number formatters.
-- Newsletter: List the enabled pop-up, overlay, and floating button below the footer when editing a template in the Site Editor.
-- Newsletter: Redesign the Jetpack Newsletter sidebar with Email, Newsletter categories, and Audience panels.
-- Newsletter: Sync the active theme's colors and typography so post emails can match the site's design.
-- Notices: Render Jetpack admin and My Jetpack dashboard notices with the WordPress design system Notice component.
-- Partner Coupons: Move coupon redemption from the legacy dashboard to My Jetpack.
-- PayPal Payment Buttons: Use PayPal's official logos, unmodified, and match the connect wizard to the design.
-- Plugins page: Ask for optional feedback when deactivating Jetpack.
-- Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.
-- Search: Show the dashboard in the new rounded admin page frame.
-- Search: Skip the $0 checkout when activating the free Search plan.
-- Settings: Move the Settings page to its own admin page in the new Jetpack admin frame; existing links redirect there.
-- Settings: Open support links as WordPress.com support docs inside the Help Center on WordPress.com sites.
-- Sharing: Group "Disable CSS and JS" with the sharing button settings, and hide it while sharing buttons are off.
-- Sharing settings: Give "Show buttons on" a section of its own.
-- Sharing settings: Keep the sharing buttons configuration available on block themes, alongside the recommendation to use the Sharing Buttons block.
-- Sharing settings: Show the Sharing and Like buttons sections whichever features are active, each with its own save button.
-- Stats: Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry.
-- Stats: Move the Stats settings to a new Settings tab in the Stats dashboard, and link to it from Jetpack Settings.
-- Stats: Recognize the standalone Jetpack Stats plugin in My Jetpack, and install it when Stats is activated there.
-- Tooltips: Keep focus on information icons when their tooltips open, and announce the content to screen readers.
-- Tooltips: Show a focus ring on information icons after clicking them.
-- VideoPress: Add a "Learn more" support link to the admin page.
-- VideoPress: Add a "Show player" setting to the playlist blocks; when off, clicking a video opens it on VideoPress.
-- VideoPress: Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings.
-- VideoPress: Add an All Playlists block that lists every Video Playlist published on the site as a grid or a list.
-- VideoPress: Add a setting to render players from one shared player script instead of one frame per video.
-- VideoPress: Add a setting to turn off sharing for every video on the site.
-- VideoPress: Add support for editing video details while uploads are in progress.
-- VideoPress: Add title and description settings to the Video Playlist block.
-- VideoPress: Give every video its own page for themes that support it, and add a "Show the video being viewed" option to the video block.
-- VideoPress: Show the Video Playlist block's title as an editable heading above the playlist, with a setting to turn it off.
-- VideoPress: Show video library thumbnails in a 16:9 aspect ratio.
-- VideoPress: Use the shared in-page player on sites that return `false` from the `jetpack_videopress_player_use_iframe` filter, instead of one inline script per video.
-- VideoPress: Warn in the caption manager when a private video's preview may not play.
-- Zoom Scheduler: Add a block that embeds Zoom Scheduler booking pages, available on all plans.
+- Account Protection: Stop turning the feature on automatically for new connections and upgrades from versions before 14.5. Sites where it is already on keep it on.
+- AI: Open the Activity log filtered to actions AI agents took, and link Simple sites to the WordPress.com Activity log.
+- AI: Show the Overview and AI Features views on WordPress VIP sites.
+- Blocks: Use WordPress Design System colors in the editor.
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account.
+- Editor: Let writers know when the featured image is also in the post, and hide it on the post where the theme supports that.
+- My Jetpack: List VaultPress Backup among the plans that include Activity Log history, simplify the Search paid-plan wording, and show the ad-free, customizable VideoPress player as included in the free plan.
+- My Jetpack: Remove the Products page and open Features from links to it. Point the footer's Modules link and Help's All Jetpack modules link back to the Modules page.
+- Newsletter: Add a Newsletter overview panel to the editor that explains who gets the post by email and who can read it on the site.
+- Newsletter: Add an Overview tab with an onboarding checklist that guides you through setting up your newsletter.
+- Newsletter: Add a subscribers proxy route for sending a confirmation email to bounced subscribers.
+- Newsletter: pick a readable text color to go with the email button background you choose.
+- Omnibar: Return the Reader, Notifications, and Launch site nodes from the admin-bar endpoint.
+- Podcast: Add a toggle to hide the author in the Podcast Episode block.
+- Premium Analytics: Add a line or bar chart type control to the WooCommerce report widgets.
+- Premium Analytics: Add a Mark as spam action, with Undo, to the Referrers report.
+- Premium Analytics: Add a Settings tab to the dashboard, where site owners can see their plan usage and change the Stats settings, and open it from the "Manage Stats settings" link in Settings › Traffic when Stats v2 is on.
+- Premium Analytics: Add likes, comments and an all-time traffic table to the author detail page, and count an author's views even when they rank below the top 20 authors.
+- Premium Analytics: Add video thumbnails to the VideoPress widget, and link the Videos report thumbnails to the video detail page.
+- Premium Analytics: Cap the cards on report pages at a centered 1440px column on wide screens, so each row's label and numbers stay close enough to read together.
+- Premium Analytics: Compare the dashboard with the previous period by default.
+- Premium Analytics: Draw today's WordAds bucket as not yet counted for Ads Served and Revenue, as for CPM, and say so in the tooltip.
+- Premium Analytics: Label WooCommerce visitor counts as Store visitors, so they aren't confused with Jetpack Stats visitors.
+- Premium Analytics: Let shop managers open the dashboard to read the store reports.
+- Premium Analytics: Link author names in Popular authors and the Authors report to the author's page.
+- Premium Analytics: Make the days in Monthly posting activity larger, growing with the card and wrapping the months onto two rows in the default layout.
+- Premium Analytics: Mark the Comments Subscribers and File downloads report links as opening in a new tab.
+- Premium Analytics: Move the Top tags & categories widget to the Traffic tab, where it and its report follow the date picker.
+- Premium Analytics: Move the Traffic summary's grouping control (by days, weeks or months) into the chart itself, which remembers your choice.
+- Premium Analytics: Open on the last 7 days, or on the range you last picked in Stats, and remember a range you apply.
+- Premium Analytics: Open the dashboard from the admin bar Stats links when it is enabled.
+- Premium Analytics: Open the dashboard on the WooCommerce tab when WooCommerce is active.
+- Premium Analytics: Rename the Store tab to WooCommerce, including its URL.
+- Premium Analytics: Rename the Videos, Clicks, Authors and Locations report CSV headers to match the table columns.
+- Premium Analytics: Show chart tooltips with dark text on a light background.
+- Premium Analytics: Show hours watched and retention rate on the Videos report, and name the Videos, Clicks, Authors and Locations columns as in Stats.
+- Premium Analytics: Show the date once in chart tooltips, read each row as value then metric, and list the comparison period in a second column.
+- Premium Analytics: Show the empty-cell color at the start of heatmap legends such as Posting activity.
+- Premium Analytics: Use a 2px corner radius on chart bars.
+- SSO: When a site requires two-step authentication and your WordPress.com account doesn't have it, the login screen now names your account and links straight to two-step setup.
+- VideoPress: Add an introductory video to the first-run welcome modal.
+- VideoPress: Add trim and cut editing to the video block toolbar and clarify the editor tool icons.
 
 #### Bug fixes
-- Admin: Hide default WordPress admin notices and load design tokens on Jetpack pages that non-admin users open before the site is connected or while it is in offline mode.
-- Admin: Hide masthead links when My Jetpack is unavailable.
-- Admin: Match the Jetpack menu logo's first paint to the active admin color scheme.
-- AI: Avoid an unnecessary request when loading the editor.
-- AI: Disable feature toggles when custom code forces AI off.
-- AI: Hide feature links when code turns AI features off, as when the site owner turns them off.
-- AI: Show the "Learn more" link when SEO settings are unavailable.
-- AI: Turn off AI SEO and Search AI Answers when the `jetpack_ai_enabled` filter returns false.
-- AI blocks: Show a consistent placeholder in the editor when Jetpack AI is turned off.
-- Blocks: Align the premium block upgrade banner with its text on narrow screens.
-- Blocks: Show the selected style in the Calendly and Eventbrite style pickers.
-- Blocks: Show upgrade nudges for paid blocks and SEO settings in the editor's brand colors instead of pink.
-- Calendly: Make the block preview interactive in the editor once the block is selected.
-- Charts: Fix keyboard focus and tooltip selection.
-- Charts: Fix unreadable axis labels in high-contrast (forced colors) mode.
-- Charts: Stop the first and last dates on a chart's horizontal axis from being cut off.
-- Comments API: Return the real total in `found` when a post's comments are filtered by type or date, instead of -1.
-- Connection: Fix a stale connection error notice that could persist on healthy sites.
-- Connection: Hide connection error notices from users who cannot fix the connection.
-- Connection: Let users without admin access reconnect their own broken account from the connection error notice.
-- Connection: Limit the data returned by the site data endpoint.
-- Connection: Reconnect only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt.
-- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good.
-- Connection: Show a connection break only its owner can repair as a warning to other users, not an error.
-- Connection: Stop Site Health from reporting false connection failures, and stop prompting a reconnect when the WordPress.com connection test is inconclusive.
-- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
-- Content Guidelines: Fix the AI button alignment and the loading shimmer after recent Gutenberg changes.
-- Copy Post: Fix footnotes containing links being lost when duplicating a post.
-- CRM: Keep the site owner on My Jetpack after activating Jetpack CRM, instead of sending them to CRM's full-screen setup wizard.
-- Dashboards: Show Jetpack in-dashboard messages on the modernized product dashboards again.
-- Dashboards: Stop the frame from flashing while loading and when switching admin pages.
-- Donations: Fix the donate button rendering as a cross shape on themes that apply block-level styles to `.wp-block-button__link`.
-- Editor: Stop offering to activate the legacy Likes and Sharing buttons modules on block themes, where the corresponding blocks should be added to a template instead.
-- External Media: Fix the width of the Select Media button in narrow block placeholders, such as the Media & Text block.
-- External Media: Improve validation of imported media URLs.
-- External Media: Make the featured image picker fill the sidebar width.
-- Firewall: Avoid a fatal error for visitors on the IP block list when the firewall runs before WordPress.
-- Firewall: Fix blank Jetpack admin pages when the standalone mode bootstrap loads from an older copy of the plugin.
-- Fix Jetpack admin pages and Jetpack blocks in the editor failing to load on WordPress.com-hosted sites.
-- Footer: Hide the "Products" and "Help" links when My Jetpack is unavailable.
-- Forms: Cap the rating scale when rendering a form or a response so a malformed value cannot exhaust memory.
-- Forms: Detect Jetpack CRM installs that use a custom plugin folder or file name.
-- Forms: Improve sanitization of submitted values and escaping of form attributes.
-- Forms: Open the Forms tab when it is requested directly instead of falling back to Responses.
-- Forms: Prevent extra forms from being created when the block placeholder is clicked more than once.
-- Forms: Start the Delete permanently and Mark as spam confirmations on Cancel, so pressing Enter no longer permanently deletes a form or marks a response as spam.
-- Forms: Start the Empty trash and Delete spam confirmations on Cancel and show Delete in red, so pressing Enter no longer permanently deletes every response in that folder.
-- Goodreads: Fix the block rendering empty on the front end of WordPress.com Simple sites.
-- Google Fonts: Detect fonts followed by fallback families so selected fonts render on the front end.
-- Google Fonts: Preserve theme and user font sources and process only needed catalog font faces on the front end.
-- Google Photos: Show an error with a retry option when the picker cannot be opened, instead of loading indefinitely.
-- Gravatar Hovercards: Display extra profile details as plain text.
-- Heartbeat: Prevent fatal errors when another plugin loads an older Connection package.
-- Jetpack Manage: Only show the sidebar link to agency accounts.
-- Likes: Hide the "Loading…" placeholder from the widget itself, so it disappears even when the Likes stylesheet fails to load.
-- Likes: Let Comment Likes be turned on for a single post in the block editor while Like buttons are off.
-- Likes: Load like buttons that a late page reflow brings into view, instead of waiting for the reader to scroll.
-- Mailchimp: Save the chosen audience right away, so the block works without also saving the Writing settings.
-- Mailchimp: Show progress and explain what is missing when re-checking the connection from the block.
-- Media API: Improve validation of requested media items.
-- Memberships: Improve access checks for tier-restricted content.
-- Modules: Report an error instead of success when WP-CLI or the REST API switches a module the host or site administrator has forced on or off.
-- Modules: Show other plugins' admin notices above the module list instead of inside it.
-- My Jetpack: Fix overlapping and misaligned stats on the Protect card.
-- My Jetpack: Fix the page failing to load for users who can edit posts but have no Jetpack menu, such as editors on unconnected sites.
-- My Jetpack: Offer to activate Search, rather than to buy a plan, when the site already owns it and the module is switched off.
-- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
-- My Jetpack: Restore the link from the stats card heading and chart to the Stats page.
-- My Jetpack: Show switches instead of purchase links for owned products whose modules are turned off.
-- My Jetpack: Stretch the tab content background to the full height of the page.
-- Newsletter: Fix the "Send a test email" modal stacking its address field above the Send button.
-- Newsletter: Open settings links on the Settings tab.
-- Newsletter: Restrict posts to subscribers when a Paywall block is saved outside the block editor.
-- Newsletter: Show an error with a retry button when subscriber details fail to load.
-- Newsletter: Show the earliest subscription date for subscribers with both an email and a WordPress.com subscription.
-- Newsletter: Show the warning when no site owner is connected to WordPress.com.
-- PayPal Payment Buttons: Spell "PayPal" with its own capitalization in the connect wizard headings and the wordmark's alt text.
-- Podcast: Draw the daily downloads chart's gridlines at the same days as its labels.
-- Reader: Show the body of a reposted comment instead of an empty quote.
-- Search: Fix AI Search errors showing a generic server error instead of the real cause.
-- Search: Fix a leaked scroll handler in Instant Search that could trigger stray page loads after several searches.
-- Search: Keep the AI Answers preview hidden when answers are turned off.
-- Search: Require a paid Search plan to enable and display Site Chat.
-- Search: Show an upgrade prompt when editing the AI Search block on sites without a paid Search plan.
-- Search: Show the AI Answer disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off.
-- Search: Show the connection error at the top of the dashboard on every tab.
-- Search: Start the experience switch and Restore default confirmations on Cancel, so pressing Enter no longer switches the search experience or deletes a customized template.
-- Search: Stop offering Search blocks in the Overlay search sidebar's widget inserter, and flag any already there.
-- Security: Improve handling of request parameters in Infinite Scroll.
-- Security: Improve login verification in Account Protection.
-- Security: Improve validation of stored block attributes.
-- SEO: Fix Sitemap and Canonical URLs status to reflect the active modules.
-- SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com.
-- SEO: Respect excerpt filters in generated `llms.txt` summaries.
-- Sharing: Open the post template instead of the template list when linking to the Site Editor.
-- Sharing Buttons block: Use an unpredictable name for share popups, matching the classic sharing buttons.
-- Simple Payments: Improve permission checks for orders.
-- Site Verification: Reject invalid verification codes instead of reporting a successful save.
-- Slideshow: Render slide captions as plain text.
-- Social: Fix publishing failing with a share message database error, which also prevented newsletters and social shares from being sent.
-- Social: Let a Facebook or Instagram connection with no Page or account saved pick one when reconnecting.
-- Social: Pre-fill the Bluesky handle field when reconnecting an account.
-- Social: Show contextual messages on the dashboard again.
-- Social: Show each number on the traffic chart's value axis once when visit counts are small.
-- Stats: Draw the My Jetpack stats chart's gridlines only at whole numbers when counts are small.
-- Stats: Prevent bar charts from flickering between the hovered bar and the keyboard-selected bar.
-- Stats: Stop showing free-plan paywalls in wp-admin on sites whose plans already include those stats.
-- Stats: Stop the pricing grid from coming back after choosing "Start for free".
-- Tooltips: Make information tooltips open from the keyboard and close on Escape.
-- VideoPress: Ask before deleting videos, and warn before leaving the page while an upload is running.
-- VideoPress: Fix a just-uploaded video briefly showing up a second time as a local video in the Library.
-- VideoPress: Fix private video playback on sites using WPML.
-- VideoPress: Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions.
-- VideoPress: Fix upgrades on WordPress.com sites by offering the Business plan.
-- VideoPress: Keep the dashboard views trend chart's comparison lines distinguishable, including for color-blind viewers.
-- VideoPress: Keep the video editor footer at the bottom of the page.
-- VideoPress: Offer an upgrade action in the video block when uploads require a paid plan.
-- VideoPress: Prevent the empty library prompt from appearing while videos are loading.
-- VideoPress: Show specific validation messages for chapters entered in video descriptions.
-- VideoPress: Strengthen authorization for private video playback.
+- Backup: Stop the Get VaultPress Backup button from staying busy when setup fails.
+- Brute Force Protection: Let new users set their password from a blocked IP, and stop sending recovery emails to accounts that have not set one yet.
+- Carousel: Remove the hidden "Loading Comments..." text from pages when the carousel comments area is turned off.
+- Charts: Announce line, area and bar charts correctly to screen readers.
+- Forms: Fix error notices shown after deleting or trashing a form, even though it succeeded.
+- Forms: Keep brackets in submitted values escaped, so they cannot run shortcodes, on WordPress versions with the new HTML sanitizer.
+- Google Photos: Show a reconnect prompt when the Google connection is rejected, explain when the Google account has no Google Photos set up, and start a new picker session when the saved one no longer exists.
+- Likes: Keep Like buttons on custom post types on new sites until you choose where buttons appear.
+- My Jetpack: Stop showing an empty account avatar on the Overview connection card when nothing in use needs a user connection.
+- Newsletter: Allow comping subscribers who don't have a WordPress.com account.
+- Newsletter: Avoid a fatal error when an older copy of the Newsletter package is loaded during an update.
+- Newsletter: Detect paid newsletter plans by their tier type as well as the mailing list setting.
+- Premium Analytics: Compare Last 30 days and custom ranges starting mid-month with the same number of days right before them.
+- Premium Analytics: Draw attention to the date control when a click on the Traffic summary chart sets the period.
+- Premium Analytics: Drop the URL column from the comment authors CSV, since its links only worked on the site and could expose guest commenters' email addresses.
+- Premium Analytics: Fix chart tooltips wrapping into a narrow column on WordPress.com, and metric tab text showing through a tooltip.
+- Premium Analytics: Fix Returns in the WooCommerce reports for a full refund after a partial refund, and for refunds of orders that were never paid.
+- Premium Analytics: Fix value axis labels piling up at the left edge of a summary bar chart resized to one row.
+- Premium Analytics: Follow the WooCommerce Analytics date type setting in store reports instead of always using the order creation date.
+- Premium Analytics: Label a partial first or last week on the Traffic, Subscribers, and ads charts with the selected range's own start or end date.
+- Premium Analytics: Let one-row summary charts, such as the default Store performance tile, show their tooltip by drawing them as sparklines without axes.
+- Premium Analytics: Make donut and semi-circle chart widgets such as Devices reachable by keyboard, and name them for screen readers.
+- Premium Analytics: Make low values in heatmaps such as Posting activity easier to tell apart from empty cells, and show zero counts as empty.
+- Premium Analytics: Pair each week with its matching week in a year-ago weekly comparison, and show the days each week covers in the Traffic and ads chart tooltips.
+- Premium Analytics: Reports: show the Referrers, Clicks, Authors and UTM tables at one weight on every row, so the chevron alone marks a row that expands.
+- Premium Analytics: Show a video watched for a few minutes as "< 0.1" hours, not 0.0, on the Videos report and video detail page.
+- Premium Analytics: Show store revenue and other money values in the store's currency instead of always US dollars.
+- Search: Avoid requesting the Search plan in offline mode.
+- Sharing: Keep backslashes in the sharing label when changing sharing settings from WordPress.com or the Jetpack dashboard.
+- Sharing: Stop Settings > Sharing from resetting sharing links to open in the same window.
+- Stats: Show view counts in the Pages list, and any list with more than 100 posts, instead of leaving them blank.
+- Tiled Gallery: Keep every image when uploading several at once with client-side media processing enabled.
+- VideoPress: Keep the editing preview on retained footage when playback reaches a trim or trailing cut.
+- VideoPress: Remove legacy Flash player support so videos using the `flashonly` shortcode option display again.
+- VideoPress: Scroll the timeline while dragging cuts beyond the visible area.
+- VideoPress: Show an error and stop the Get VideoPress button from staying busy when checkout cannot start.
+- VideoPress: Start new cuts at the playhead, or end there when it is at the end of the video, and keep a gap from existing cuts.
 
 --------
 

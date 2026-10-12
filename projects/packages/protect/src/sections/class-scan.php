@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Vulnerability results, from Scan on a paid plan or Protect's free daily check, and on-demand scans.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Scan implements Dashboard_Section {
 
@@ -394,7 +394,7 @@ class Scan implements Dashboard_Section {
 			/**
 			 * Fires after the Protect dashboard enqueues a scan on WordPress.com.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.1.0
 			 */
 			do_action( 'jetpack_protect_dashboard_scan_started' );
 		}

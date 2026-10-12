@@ -477,7 +477,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "6bf10704aa6241cf7d03a212d94e12ef109a15fc"
+                "reference": "6c19dbaf7da010b15490efcd28d1876ddc316f1f"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -514,7 +514,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.9.x-dev"
+                    "dev-trunk": "9.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -902,7 +902,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "5a8b96825a9c54783eee62594c8dcf3d601f801e"
+                "reference": "0954cb35ae0422cd6677f673a4b0022e580ec125"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -934,7 +934,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 }
             },
             "autoload": {
@@ -1092,7 +1092,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "9d2c199732027364c672b1dc26ddfc18b28eaf5c"
+                "reference": "3e8e7d610f1b5fa1b3c4cc59da64f99f50f41965"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1121,7 +1121,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.22.x-dev"
+                    "dev-trunk": "0.23.x-dev"
                 },
                 "textdomain": "jetpack-stats-pkg"
             },

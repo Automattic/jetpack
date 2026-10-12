@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.9.0';
+	const PACKAGE_VERSION = '6.9.1';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -715,7 +715,7 @@ class Initializer {
 			/**
 			 * Temporarily expose the local Features seed without enabling offline entry.
 			 *
-			 * @since $$next-version$$
+			 * @since 6.9.1
 			 * @param bool $enabled Whether to expose the seed. Default false.
 			 */
 			&& apply_filters( 'jetpack_my_jetpack_offline_features', false )

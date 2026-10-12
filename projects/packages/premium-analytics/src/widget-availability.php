@@ -167,7 +167,7 @@ add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrab
  * Split from the hook callback so both branches are testable without a user.
  *
  * @since 0.1.0
- * @since $$next-version$$ Added `$can_view_stats`.
+ * @since 0.12.0 Added `$can_view_stats`.
  *
  * @param array $widget_candidates      Manifest candidates, each with a `category`.
  * @param bool  $can_view_store_reports Whether the reader may see the store reports.

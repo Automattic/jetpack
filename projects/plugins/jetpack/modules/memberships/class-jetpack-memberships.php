@@ -832,7 +832,7 @@ class Jetpack_Memberships {
 	/**
 	 * Check the post's subscription requirement without granting access for editing it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int|null $post_id Explicit post ID, or the loop post when omitted.
 	 * @return bool Whether the visitor meets the post's subscription requirement.

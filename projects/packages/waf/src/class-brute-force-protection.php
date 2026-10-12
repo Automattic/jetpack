@@ -887,7 +887,7 @@ class Brute_Force_Protection {
 	 *
 	 * Core moves the key from the link into a cookie on the first request, so both are checked.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.29.3
 	 *
 	 * @return bool
 	 */

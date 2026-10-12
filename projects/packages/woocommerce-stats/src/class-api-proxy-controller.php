@@ -23,7 +23,7 @@ use WP_REST_Server;
  * For now it carries its own forward. The route has the shape of the proxy controller the
  * connection package is getting, so this class can shrink to a registration on it.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Api_Proxy_Controller {
 

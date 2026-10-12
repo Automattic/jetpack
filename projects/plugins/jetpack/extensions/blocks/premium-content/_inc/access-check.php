@@ -271,7 +271,7 @@ function current_visitor_can_access( $attributes, $block ) {
  *
  * Playback callers must use visitor_has_subscription_access_to_plan_ids() to exclude editorial access.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param array    $selected_plan_ids Plan ids the content is gated behind.
  * @param int|null $post_id           Post the gated content belongs to. Defaults to the loop post, so
@@ -286,7 +286,7 @@ function visitor_can_access_plan_ids( $selected_plan_ids, $post_id = null ) {
 /**
  * Check the required plans without granting access for editing the embedding post.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param array    $selected_plan_ids Required plan IDs from the stored content.
  * @param int|null $post_id           Post to check, or the loop post when omitted.
@@ -299,7 +299,7 @@ function visitor_has_subscription_access_to_plan_ids( $selected_plan_ids, $post_
 /**
  * Evaluate subscription plans for rendering or strict playback authorization.
  *
- * @since $$next-version$$
+ * @since 16.4
  *
  * @param array    $selected_plan_ids   Required subscription plan IDs.
  * @param int|null $post_id             Post to check.
