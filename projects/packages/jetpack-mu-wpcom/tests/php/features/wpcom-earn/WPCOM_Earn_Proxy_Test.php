@@ -184,13 +184,24 @@ class WPCOM_Earn_Proxy_Test extends \WorDBless\BaseTestCase {
 	public function test_route_registers_on_atomic_only() {
 		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_Earn::FLAG, '__return_true' );
 		$hook = array( WPCOM_Earn_Proxy::class, 'register_routes' );
+		// init() bails without a build, which CI does not produce before running PHP tests.
+		$page = get_class(
+			new class() extends WPCOM_Earn {
+				/** @return bool */
+				public static function has_build() {
+					return true;
+				}
+			}
+		);
 
-		WPCOM_Earn::init();
+		$page::init();
 		$this->assertFalse( has_action( 'rest_api_init', $hook ) );
 
 		Constants::set_constant( 'IS_ATOMIC', true );
-		WPCOM_Earn::init();
+		$page::init();
 		$this->assertNotFalse( has_action( 'rest_api_init', $hook ) );
+
+		remove_all_actions( 'admin_menu', WPCOM_Earn::REGISTER_PRIORITY );
 	}
 
 	public function test_site_endpoints_are_forwarded_under_the_site_and_per_user_ones_are_not() {
