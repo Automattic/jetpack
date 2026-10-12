@@ -39,7 +39,6 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/jetpack-premium-analytics-icons": "link:../premium-analytics/packages/icons",
 		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-videopress/init": "link:packages/init",

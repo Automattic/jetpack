@@ -16,10 +16,11 @@ const mockUseStatsVideoPlays = jest.fn();
 const mockDescribeError = jest.fn();
 const mockUseEntityRecords = jest.fn();
 const mockCanUser = jest.fn();
+const mockHasFinishedResolution = jest.fn();
 const mockIsSimpleSite = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( { site: { admin_url: 'https://example.com/blog/wp-admin/' } } ),
+	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
 	isSimpleSite: () => mockIsSimpleSite(),
 } ) );
 
@@ -29,8 +30,11 @@ jest.mock( '@wordpress/core-data', () => ( {
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: ( selector: ( select: () => { canUser: typeof mockCanUser } ) => unknown ) =>
-		selector( () => ( { canUser: mockCanUser } ) ),
+	useSelect: ( selector: ( select: () => Record< string, jest.Mock > ) => unknown ) =>
+		selector( () => ( {
+			canUser: mockCanUser,
+			hasFinishedResolution: mockHasFinishedResolution,
+		} ) ),
 } ) );
 
 // The SDK has no implementation outside the dashboard, so the suite stands in for it.
@@ -87,8 +91,10 @@ describe( 'Top videos widget', () => {
 		jest.clearAllMocks();
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays() );
 		mockDescribeError.mockReturnValue( { description: 'Described.' } );
-		mockUseEntityRecords.mockReturnValue( { records: null, status: 'IDLE' } );
+		// What the hook returns while disabled.
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: false } );
 		mockCanUser.mockReturnValue( true );
+		mockHasFinishedResolution.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
 	} );
 
@@ -223,7 +229,7 @@ describe( 'Top videos widget', () => {
 
 	it( 'offers general media upload and hides the footer when no VideoPress media exists', () => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
-		mockUseEntityRecords.mockReturnValue( { records: [], status: 'SUCCESS' } );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
 
 		render( <TopVideos attributes={ {} } /> );
 
@@ -245,7 +251,7 @@ describe( 'Top videos widget', () => {
 
 	it( 'keeps the widget loading while the empty library check is pending', () => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
-		mockUseEntityRecords.mockReturnValue( { records: null, status: 'RESOLVING' } );
+		mockUseEntityRecords.mockReturnValue( { records: null, hasResolved: false } );
 
 		render( <TopVideos attributes={ {} } /> );
 
@@ -256,6 +262,7 @@ describe( 'Top videos widget', () => {
 	it( 'keeps the widget loading while upload permission is unresolved', () => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockCanUser.mockReturnValue( undefined );
+		mockHasFinishedResolution.mockReturnValue( false );
 
 		render( <TopVideos attributes={ {} } /> );
 
@@ -271,7 +278,7 @@ describe( 'Top videos widget', () => {
 	it( 'uses the Simple-site video filter before concluding that the library is empty', () => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockIsSimpleSite.mockReturnValue( true );
-		mockUseEntityRecords.mockReturnValue( { records: [], status: 'SUCCESS' } );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
 
 		render( <TopVideos attributes={ {} } /> );
 
@@ -285,23 +292,29 @@ describe( 'Top videos widget', () => {
 	} );
 
 	it.each( [
-		[ 'an existing video', { records: [ { id: 42 } ], status: 'SUCCESS' } ],
-		[ 'a failed media query', { records: null, status: 'ERROR' } ],
+		[ 'an existing video', { records: [ { id: 42 } ], hasResolved: true } ],
+		[ 'a failed media query', { records: null, hasResolved: true } ],
 	] )( 'keeps the generic empty state and footer for %s', ( _, media ) => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockUseEntityRecords.mockReturnValue( media );
 
 		render( <TopVideos attributes={ {} } /> );
 
+		expect( leaderboardProps().status.isLoading ).toBe( false );
 		expect( leaderboardProps().empty ).toBeUndefined();
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the generic empty state without querying media when the user cannot upload', () => {
+	it.each( [
+		[ 'the user cannot upload', false ],
+		[ 'the permission request fails', undefined ],
+	] )( 'keeps the generic empty state without querying media when %s', ( _, canUser ) => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
-		mockCanUser.mockReturnValue( false );
+		mockCanUser.mockReturnValue( canUser );
 
 		render( <TopVideos attributes={ {} } /> );
+
+		expect( leaderboardProps().status.isLoading ).toBe( false );
 
 		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
 			'postType',

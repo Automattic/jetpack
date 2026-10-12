@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { search } from '@automattic/jetpack-premium-analytics-icons';
 import {
 	ExporterCsvDownloadButton,
 	Leaderboard,
@@ -13,7 +12,7 @@ import {
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -89,12 +88,22 @@ function TopVideosReport() {
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = isLoading || primary.isPending;
 	const hasNoPlays = ! isInitialLoading && ! isError && rows.length === 0;
-	const canUpload = useSelect(
-		select => hasNoPlays && select( coreStore ).canUser( 'create', 'media' ),
+	const { canUpload, isCheckingPermission } = useSelect(
+		select => {
+			if ( ! hasNoPlays ) {
+				return { canUpload: false, isCheckingPermission: false };
+			}
+			const { canUser, hasFinishedResolution } = select( coreStore );
+			return {
+				canUpload: canUser( 'create', 'media' ) === true,
+				// A failed permission request finishes without a value.
+				isCheckingPermission: ! hasFinishedResolution( 'canUser', [ 'create', 'media' ] ),
+			};
+		},
 		[ hasNoPlays ]
 	);
-	const checkMedia = hasNoPlays && canUpload === true;
-	const { records: videos, status: mediaStatus } = useEntityRecords< { id: number } >(
+	// A failed request resolves with `records: null`, never with an error status.
+	const { records: videos, hasResolved: hasCheckedMedia } = useEntityRecords< { id: number } >(
 		'postType',
 		'attachment',
 		{
@@ -103,13 +112,10 @@ function TopVideosReport() {
 			videopress_has_guid: 1,
 			...( isSimpleSite() ? { videopress_only_videos: 1 } : {} ),
 		},
-		{ enabled: checkMedia }
+		{ enabled: canUpload }
 	);
-	const isCheckingMedia =
-		( hasNoPlays && canUpload === undefined ) ||
-		( checkMedia && ! videos && mediaStatus !== 'ERROR' );
-	const hasNoVideos = checkMedia && mediaStatus === 'SUCCESS' && videos?.length === 0;
-	const adminUrl = getScriptData()?.site?.admin_url;
+	const isCheckingMedia = isCheckingPermission || ( canUpload && ! hasCheckedMedia );
+	const hasNoVideos = canUpload && videos?.length === 0;
 
 	return (
 		<Leaderboard
@@ -133,14 +139,11 @@ function TopVideosReport() {
 			empty={
 				hasNoVideos
 					? {
-							icon: search,
 							description: __( 'You don’t have videos uploaded yet.', 'jetpack-videopress-pkg' ),
-							action: adminUrl
-								? {
-										label: __( 'Upload video', 'jetpack-videopress-pkg' ),
-										href: `${ adminUrl }media-new.php`,
-									}
-								: undefined,
+							action: {
+								label: __( 'Upload video', 'jetpack-videopress-pkg' ),
+								href: getAdminUrl( 'media-new.php' ),
+							},
 						}
 					: undefined
 			}
