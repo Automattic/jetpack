@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { starEmpty } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -20,7 +19,6 @@ export type PostLikesAttributes = Record< never, never >;
  * shown. The list is a lifetime roster and is not date-scoped.
  */
 export default {
-	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostLikesAttributes >[],
 	example: {
 		attributes: {},

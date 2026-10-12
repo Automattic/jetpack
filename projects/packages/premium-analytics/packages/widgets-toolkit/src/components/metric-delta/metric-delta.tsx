@@ -52,6 +52,11 @@ export type MetricDeltaProps = {
 	 * @default 'number'
 	 */
 	absoluteFormat?: 'number' | 'currency';
+
+	/**
+	 * Currency of a `currency` absolute value; defaults to the store currency.
+	 */
+	currencyCode?: string;
 };
 
 function calculatePercentageChange( current: number, previous: number ): number | null {
@@ -78,6 +83,7 @@ export function MetricDelta( {
 	justify = 'center',
 	showAbsolute = false,
 	absoluteFormat = 'number',
+	currencyCode,
 }: MetricDeltaProps ) {
 	const absoluteChange = current - previous;
 	const percentageChange = calculatePercentageChange( current, previous );
@@ -96,7 +102,7 @@ export function MetricDelta( {
 
 	let displayValue: string;
 	if ( showAbsolute ) {
-		displayValue = formatMetricValue( absoluteChange, absoluteFormat );
+		displayValue = formatMetricValue( absoluteChange, absoluteFormat, { currencyCode } );
 		if ( absoluteChange > 0 ) {
 			displayValue = `+${ displayValue }`;
 		}

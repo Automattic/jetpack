@@ -36,7 +36,8 @@ class Identity {
 				'canSignIn'     => false,
 				'connect'       => null,
 				'connectUrl'    => Checkpoint_Endpoint::route_url( Checkpoint_Endpoint::CONNECT_ROUTE ),
-				'emailUrl'      => Checkpoint_Endpoint::route_url( Checkpoint_Endpoint::EMAIL_ROUTE ),
+				// Empty off Simple, where Checkpoint_Endpoint::email() can only answer no.
+				'emailUrl'      => function_exists( 'is_email_wp_emails' ) ? Checkpoint_Endpoint::route_url( Checkpoint_Endpoint::EMAIL_ROUTE ) : '',
 				'origin'        => 'https://public-api.wordpress.com',
 				'codeField'     => Checkpoint::CODE_FIELD,
 				'passportField' => Checkpoint::PASSPORT_FIELD,

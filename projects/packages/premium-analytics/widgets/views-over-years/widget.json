@@ -1,5 +1,6 @@
 {
 	"name": "jpa/views-over-years",
+	"icon": "jpa/seen",
 	"title": "Views over years",
 	"description": "Every month of views across the whole site, one row per year.",
 	"help": {

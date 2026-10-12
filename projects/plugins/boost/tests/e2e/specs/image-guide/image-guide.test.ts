@@ -29,6 +29,20 @@ test.describe( 'Image Guide', () => {
 		boostUtils,
 		page,
 	} ) => {
+		const pageErrors: string[] = [];
+		const failedAssets: string[] = [];
+		const guideAssetPath = '/app/modules/image-guide/dist/guide.min.';
+		page.on( 'pageerror', error => pageErrors.push( error.message ) );
+		page.on( 'requestfailed', request => {
+			if ( request.url().includes( guideAssetPath ) ) {
+				failedAssets.push( request.url() );
+			}
+		} );
+		page.on( 'response', response => {
+			if ( response.url().includes( guideAssetPath ) && response.status() >= 400 ) {
+				failedAssets.push( response.url() );
+			}
+		} );
 		await boostUtils.activateBoostModule( 'image_guide' );
 		await boostUtils.executeWpCommand(
 			'plugin activate e2e-appended-image/e2e-appended-image.php'
@@ -49,6 +63,15 @@ test.describe( 'Image Guide', () => {
 			page.locator( '.jetpack-boost-guide .guide' ),
 			'Image Guide UI item should be present'
 		).toBeVisible();
+
+		await expect( page.locator( '#jetpack-boost-guide-js' ).first() ).toHaveAttribute(
+			'src',
+			/\/app\/modules\/image-guide\/dist\/guide\.min\.js(?:\?|$)/
+		);
+		await expect( page.locator( '#jetpack-boost-guide-css' ) ).toHaveAttribute(
+			'href',
+			/\/app\/modules\/image-guide\/dist\/guide\.min\.css(?:\?|$)/
+		);
 
 		const toggle = page.locator( '#jetpack-boost-guide-bar' );
 		const initialBubbles = await page.locator( '.interaction-area' ).count();
@@ -73,5 +96,8 @@ test.describe( 'Image Guide', () => {
 		await page.reload();
 		await expect( toggle ).toHaveText( 'Image Guide: Active' );
 		await expect( page.locator( '.jetpack-boost-guide .guide' ) ).toBeVisible();
+		await expect( page.locator( '#jetpack-boost-guide-css' ) ).toHaveCount( 1 );
+		expect( failedAssets ).toEqual( [] );
+		expect( pageErrors ).toEqual( [] );
 	} );
 } );

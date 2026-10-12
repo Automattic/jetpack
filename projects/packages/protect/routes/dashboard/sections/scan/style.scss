@@ -1,0 +1,227 @@
+.jp-protect-card {
+
+	// Full-bleed rows whose contents set their own padding.
+	&__row.jp-protect-card__stats,
+	&__row.jp-protect-card__threats {
+		padding: 0;
+	}
+
+	&__row.jp-protect-card__stats {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+
+		> * {
+			padding: 20px var(--wp-ui-card-padding);
+		}
+
+		> * + * {
+			border-inline-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+
+			> * + * {
+				border-inline-start: 0;
+				border-block-start:
+					var(--wpds-border-width-xs) solid
+					var(--wpds-color-stroke-surface-neutral);
+			}
+		}
+	}
+
+	&__row.jp-protect-card__threats {
+		padding-block-end: 8px;
+	}
+}
+
+.jp-protect-scanning {
+	padding-block: 64px;
+	text-align: center;
+
+	&__title {
+		margin: 0;
+		font-weight: 500;
+	}
+
+	&__bar {
+		position: relative;
+		overflow: hidden;
+		inline-size: min(100%, 432px);
+		block-size: 2px;
+		background: var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__fill {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		inline-size: 0;
+		background: var(--wpds-color-foreground-content-neutral);
+		transition: inline-size 0.6s ease-out;
+	}
+
+	&__bar.is-indeterminate &__fill {
+		inline-size: 40%;
+		animation: jp-protect-scanning-slide 1.6s ease-in-out infinite;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		&__fill {
+			transition: none;
+		}
+
+		&__bar.is-indeterminate &__fill {
+			inline-size: 100%;
+			animation: none;
+			opacity: 0.4;
+		}
+	}
+}
+
+@keyframes jp-protect-scanning-slide {
+
+	from {
+		transform: translateX(-100%);
+	}
+
+	to {
+		transform: translateX(250%);
+	}
+}
+
+.jp-protect-safe {
+	padding-block: 32px;
+	text-align: center;
+
+	&__details {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+.jp-protect-scan-button__popover {
+	max-inline-size: 300px;
+}
+
+.jp-protect-threat-media {
+	display: block;
+	flex-shrink: 0;
+	border-radius: var(--wpds-border-radius-sm);
+	object-fit: cover;
+
+	&.is-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+}
+
+.jp-protect-threat-details {
+
+	&__section {
+		padding: 24px;
+
+		& + & {
+			border-block-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+	}
+
+	&__heading {
+		margin: 0;
+	}
+
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		li {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+			align-items: flex-start;
+		}
+	}
+
+	&__code {
+		margin: 0;
+		padding: 16px;
+		overflow-x: auto;
+		border-radius: var(--wpds-border-radius-sm);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		font-family: Menlo, Consolas, monospace;
+		font-size: 13px;
+		line-height: 1.6;
+	}
+
+	&__line {
+		display: block;
+		white-space: pre;
+	}
+
+	&__footer {
+		position: sticky;
+		inset-block-end: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 16px 24px;
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+		background: var(--wpds-color-background-surface-neutral);
+	}
+
+	// Not while disabled: loading hides the text to show only its spinner.
+	&__ignore:not([data-disabled]) {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	&__line-number {
+		display: inline-block;
+		min-inline-size: 2.5em;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		user-select: none;
+	}
+}
+
+.jp-protect-threats {
+
+	&__filter {
+		padding: 12px var(--wp-ui-card-padding, 24px);
+	}
+
+	&__title {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: start;
+		cursor: pointer;
+
+		&:hover span {
+			text-decoration: underline;
+		}
+
+		strong {
+			font-weight: 600;
+		}
+	}
+
+	&__nowrap {
+		white-space: nowrap;
+	}
+}

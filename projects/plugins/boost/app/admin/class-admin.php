@@ -102,6 +102,18 @@ class Admin {
 	 * @return bool Whether modernization is enabled for this admin request.
 	 */
 	private static function is_modern_dashboard() {
+		return self::is_modernization_enabled() && is_admin();
+	}
+
+	/**
+	 * Whether the modern dashboard is enabled.
+	 *
+	 * @return bool Whether modernization is enabled.
+	 */
+	public static function is_modernization_enabled() {
+		// Keep the call below on one line: replace-next-version-tag.sh only rewrites the version there.
+		$message = __( 'The legacy Jetpack Boost dashboard will be removed in a future release.', 'jetpack-boost' );
+
 		/**
 		 * Filters whether to load the modern Boost dashboard.
 		 *
@@ -109,22 +121,20 @@ class Admin {
 		 *
 		 * @since 4.7.1
 		 * @since 4.8.0 Defaults to true.
+		 * @deprecated $$next-version$$ The legacy dashboard will be removed in a future release.
 		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
 		 */
-		return apply_filters( self::MODERNIZATION_FILTER, true ) && is_admin();
+		return (bool) apply_filters_deprecated( self::MODERNIZATION_FILTER, array( true ), '$$next-version$$', '', $message );
 	}
 
 	/**
 	 * Load the modern dashboard only on a Boost admin request that has not filtered it off.
 	 */
 	private function maybe_load_wp_build() {
-		if ( ! self::is_modern_dashboard() ) {
-			return;
-		}
-
+		// Check the page first, so a site hooking the deprecated filter is only warned on Boost's screen.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		if ( JETPACK_BOOST_SLUG !== $page || ! $this->dashboard_build_is_available() ) {
+		if ( JETPACK_BOOST_SLUG !== $page || ! self::is_modern_dashboard() || ! $this->dashboard_build_is_available() ) {
 			return;
 		}
 

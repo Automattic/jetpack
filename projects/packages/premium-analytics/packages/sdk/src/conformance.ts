@@ -17,3 +17,9 @@ type Probe = { summary: Record< string, number > };
 
 export const useReportConforms: typeof Api.useReport< Probe > =
 	null as unknown as typeof Facade.useReport< Probe >;
+
+// And when the facade's `Donut` stops accepting the props the contract declares.
+export const donutConforms: typeof Api.Donut = null as unknown as typeof Facade.Donut;
+
+// And when the facade's `Funnel` stops accepting the props the contract declares.
+export const funnelConforms: typeof Api.Funnel = null as unknown as typeof Facade.Funnel;

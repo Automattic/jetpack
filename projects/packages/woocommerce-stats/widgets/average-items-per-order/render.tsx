@@ -4,6 +4,7 @@
 import {
 	useWidgetRootContext,
 	WidgetRoot,
+	type ChartDisplayChartType,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
@@ -21,14 +22,17 @@ type AverageItemsPerOrderRenderAttributes = AverageItemsPerOrderAttributes &
 /**
  * Average items per order of the orders report, read under the widget root for its report params.
  *
+ * @param {object}                props             - The component props.
+ * @param {ChartDisplayChartType} [props.chartType] - How the series is drawn.
  * @return {JSX.Element} The chart.
  */
-function AverageItemsPerOrder() {
+function AverageItemsPerOrder( { chartType }: { chartType?: ChartDisplayChartType } ) {
 	const { reportParams } = useWidgetRootContext();
 
 	return (
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
+			chartType={ chartType }
 			field="avg_items"
 			label={ __( 'Average items per order', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'average' } }
@@ -52,7 +56,7 @@ export default function AverageItemsPerOrderRender( {
 }: WidgetRenderProps< AverageItemsPerOrderRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AverageItemsPerOrder />
+			<AverageItemsPerOrder chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

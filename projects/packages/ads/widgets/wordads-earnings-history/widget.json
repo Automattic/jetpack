@@ -1,5 +1,6 @@
 {
 	"name": "wordads/earnings-history",
+	"icon": "jpa/receipt",
 	"title": "WordAds earnings",
 	"description": "Your WordAds earnings by period, with amounts and payment status.",
 	"help": {

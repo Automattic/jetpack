@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/net-sales-over-time",
+	"icon": "jpa/chart-bar",
 	"title": "Net sales over time",
 	"description": "Monitor your total revenue after discounts, returns, or adjustments over a set period of time.",
 	"help": {

@@ -44,6 +44,8 @@ const stubs = [
 		'focal-point-picker',
 		'font-size-picker',
 		'gradient-picker',
+		// The new Menu, which DropdownMenu does not use.
+		'menu',
 		'modal',
 		'navigator',
 		'palette-edit',
@@ -79,7 +81,9 @@ const stubs = [
 	...[ 'autocomplete', 'combobox', 'searchable-chip-select', 'searchable-select', 'select' ].map(
 		name => `@wordpress/ui/build-module/form/primitives/${ name }/index.mjs`
 	),
-	'@wordpress/ui/build-module/tabs/index.mjs',
+	...[ 'tabs', 'tooltip', 'form', 'link', 'button' ].map(
+		name => `@wordpress/ui/build-module/${ name }/index.mjs`
+	),
 	'@wordpress/block-editor/build-module/components/block-tools/empty-block-inserter.mjs',
 	// Scrolls the page to keep a moved block in place, which jumps a page with a small editor.
 	'@wordpress/block-editor/build-module/components/use-moving-animation/index.mjs',

@@ -25,15 +25,37 @@ const Providers = ( { children }: { children: ReactNode } ) => (
 const renderDonut = ( ui: ReactNode ) => render( ui, { wrapper: Providers } );
 
 describe( 'Donut', () => {
-	it( 'renders the total in the center and a legend row per segment', () => {
-		renderDonut( <Donut segments={ SEGMENTS } status={ READY } /> );
+	it.each( [ 'ring', 'half-ring' ] as const )(
+		'renders the total and a legend row per segment as a %s',
+		variant => {
+			renderDonut( <Donut segments={ SEGMENTS } status={ READY } variant={ variant } /> );
 
-		expect( screen.getByText( '5K' ) ).toBeInTheDocument();
-		// By title: the chart also writes each label into its hidden text-measurement node.
-		expect( screen.getByTitle( 'Returning' ) ).toBeInTheDocument();
-		expect( screen.getByText( '3.8K' ) ).toBeInTheDocument();
-		expect( screen.getByTitle( 'New' ) ).toBeInTheDocument();
-		expect( screen.getByText( '1.2K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '5K' ) ).toBeInTheDocument();
+			// By title: the chart also writes each label into its hidden text-measurement node.
+			expect( screen.getByTitle( 'Returning' ) ).toBeInTheDocument();
+			expect( screen.getByText( '3.8K' ) ).toBeInTheDocument();
+			expect( screen.getByTitle( 'New' ) ).toBeInTheDocument();
+			expect( screen.getByText( '1.2K' ) ).toBeInTheDocument();
+		}
+	);
+
+	it( 'draws no total for shares', () => {
+		renderDonut(
+			<Donut
+				segments={ [
+					{ label: 'Mobile', value: 0.76 },
+					{ label: 'Desktop', value: 0.24 },
+				] }
+				status={ READY }
+				format={ { type: 'percentage', options: { decimals: 1 } } }
+				variant="half-ring"
+				withTotal={ false }
+			/>
+		);
+
+		expect( screen.getByTitle( 'Mobile' ) ).toBeInTheDocument();
+		expect( screen.getByText( /76/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( /100/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the deltas only while the comparison period is on', () => {

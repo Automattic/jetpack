@@ -29,7 +29,6 @@ export const REPORT_DATE_PARAM_KEYS = [
 	'to',
 	'interval',
 	'preset',
-	'date_type',
 	'compare_from',
 	'compare_to',
 	'compare_preset',
@@ -91,10 +90,8 @@ export function toReportOriginWindowParams(
 
 	if ( ! isAllTime ) {
 		const rebuilt = normalizeReportParams( origin as NormalizeInput );
-		for ( const key of [ 'interval', 'date_type' ] as const ) {
-			if ( linked[ key ] !== undefined && linked[ key ] !== rebuilt[ key ] ) {
-				origin[ key ] = linked[ key ];
-			}
+		if ( linked.interval !== undefined && linked.interval !== rebuilt.interval ) {
+			origin.interval = linked.interval;
 		}
 	}
 

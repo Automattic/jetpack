@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page layout: let consumers override the scrolling middle's children again, which the JITM slot exclusion had out-ranked.
