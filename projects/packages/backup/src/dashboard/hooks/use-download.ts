@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { errorCode } from '../data/api/_helpers';
+import { ApiError, errorCode } from '../data/api/_helpers';
 import { fetchDownloadStatus, initiateDownload, initiateFileDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
 import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
@@ -27,6 +27,22 @@ type Result = {
 };
 
 const POLL_INTERVAL_MS = 1500;
+
+/**
+ * Whether a failed poll is a refusal that retrying cannot fix.
+ *
+ * The bridge forwards an upstream 4xx as-is in `data.status`. Network
+ * errors and 5xx stay temporary, as do 408 and 429.
+ *
+ * @param error - The rejection from the status poll.
+ * @return True for a 4xx other than 408 and 429.
+ */
+function isPermanentPollError( error: unknown ): boolean {
+	const status = error instanceof ApiError ? ( error.data as { status?: unknown } )?.status : null;
+	return (
+		typeof status === 'number' && status >= 400 && status < 500 && status !== 408 && status !== 429
+	);
+}
 
 /**
  * Real `useDownload` driving the modernized Download screen via the
@@ -77,6 +93,9 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		// No reading yet is not a reason to stop: the first poll may simply have failed.
 		refetchInterval: query => {
 			const status = query.state.data?.status;
+			if ( isPermanentPollError( query.state.error ) ) {
+				return false;
+			}
 			return status === undefined || status === 'running' ? POLL_INTERVAL_MS : false;
 		},
 	} );
@@ -135,6 +154,14 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 				: __( 'Download failed.', 'jetpack-backup-pkg' ),
 			// Upstream reports this one in prose only, so there is no code to quote.
 			reference: { code: null, id: referenceId },
+		};
+	} else if ( downloadId !== null && isPermanentPollError( statusQuery.error ) ) {
+		state = {
+			phase: 'error',
+			message:
+				statusQuery.error?.message ||
+				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
+			reference: { code: errorCode( statusQuery.error ), id: referenceId },
 		};
 	} else if ( downloadId !== null ) {
 		state = {

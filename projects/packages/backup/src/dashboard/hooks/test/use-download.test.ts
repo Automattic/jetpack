@@ -167,6 +167,7 @@ describe( 'useDownload', () => {
 
 describe( 'useDownload — a status poll that fails', () => {
 	let pollFails = false;
+	let pollStatus: number | null = null;
 	let failedCalls = 0;
 	const running = {
 		id: 4321,
@@ -180,10 +181,19 @@ describe( 'useDownload — a status poll that fails', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		pollFails = false;
+		pollStatus = null;
 		failedCalls = 0;
 		mockedApiFetch.mockImplementation( ( options: { method?: string } ) => {
 			if ( options?.method === 'POST' ) {
 				return Promise.resolve( { id: 4321 } );
+			}
+			if ( pollStatus !== null ) {
+				failedCalls++;
+				return Promise.reject( {
+					code: 'download_status_fetch_failed',
+					message: 'Could not fetch download status.',
+					data: { status: pollStatus },
+				} );
 			}
 			if ( pollFails ) {
 				failedCalls++;
@@ -295,5 +305,32 @@ describe( 'useDownload — a status poll that fails', () => {
 			await advance( 1500 );
 		}
 		expect( failedCalls ).toBe( 6 );
+	} );
+
+	it( 'shows the error at once and stops polling on a 4xx', async () => {
+		const result = await startAndReadOnce();
+
+		pollStatus = 404;
+		await advance( 1500 );
+		await advance( 1500 );
+		expect( result.current.state ).toMatchObject( {
+			phase: 'error',
+			message: 'Could not fetch download status.',
+		} );
+
+		const calls = mockedApiFetch.mock.calls.length;
+		await advance( 10_000 );
+		expect( mockedApiFetch.mock.calls ).toHaveLength( calls );
+	} );
+
+	it( 'treats a 502 as temporary', async () => {
+		const result = await startAndReadOnce();
+
+		pollStatus = 502;
+		for ( let i = 0; i < 10 && ! ( 'reconnecting' in result.current.state ); i++ ) {
+			await advance( 1500 );
+			expect( result.current.state.phase ).toBe( 'progress' );
+		}
+		expect( result.current.state ).toMatchObject( { phase: 'progress', reconnecting: true } );
 	} );
 } );
