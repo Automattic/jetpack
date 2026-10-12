@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Premium Analytics: Name each metric's comparison period in chart legends, such as "Views (Prev. 30 days)", in both line and bar charts.
