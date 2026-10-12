@@ -63,10 +63,10 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Stubs an eligible user on an eligible site, with the given parts replaced.
 	 *
-	 * The default is a two-day-old Simple site on the Free plan, an English user, no stickers,
-	 * no dismissal, and a user ExPlat assigns to the treatment.
+	 * The default is a two-day-old Simple site on the Free plan, an English administrator, no
+	 * stickers, no dismissal, and a user ExPlat assigns to the treatment.
 	 *
-	 * @param array $overrides Any of: is_simple, purchases, registered, locale, stickers, preferences, variation.
+	 * @param array $overrides Any of: is_simple, purchases, registered, locale, stickers, preferences, variation, role.
 	 */
 	private function stub_site( array $overrides = array() ) {
 		$state = array_merge(
@@ -78,6 +78,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 				'stickers'    => array(),
 				'preferences' => array(),
 				'variation'   => 'treatment',
+				'role'        => 'administrator',
 			),
 			$overrides
 		);
@@ -91,7 +92,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 			array(
 				'user_login' => 'difm_offer_admin',
 				'user_pass'  => 'dummy_pass',
-				'role'       => 'administrator',
+				'role'       => $state['role'],
 				'locale'     => $state['locale'],
 			)
 		);
@@ -283,10 +284,13 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_failed_checks() {
 		return array(
+			'an Author, not an admin'    => array( array( 'role' => 'author' ) ),
 			'not a Simple site'          => array( array( 'is_simple' => false ) ),
 			'Business plan'              => array( array( 'purchases' => array( self::plan( 'business-bundle' ) ) ) ),
 			'eight days old'             => array( array( 'registered' => gmdate( 'Y-m-d H:i:s', self::NOW - 8 * DAY_IN_SECONDS ) ) ),
 			'no registered date'         => array( array( 'registered' => '0000-00-00 00:00:00' ) ),
+			'no blog details'            => array( array( 'registered' => null ) ),
+			'empty registered date'      => array( array( 'registered' => '' ) ),
 			'German user'                => array( array( 'locale' => 'de' ) ),
 			'A4A dev site'               => array( array( 'stickers' => array( 'a4a-is-dev-site' ) ) ),
 			'DIFM Lite in progress'      => array( array( 'stickers' => array( 'difm-lite-in-progress' ) ) ),
@@ -315,14 +319,35 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_passed_checks() {
 		return array(
+			// Literal slugs, copied from Calypso's ELIGIBLE_PLAN_SLUGS: rows built from the constant
+			// would only repeat it back and could not catch a typo in it.
 			'Personal trial'               => array( array( 'purchases' => array( self::plan( 'wp-personal-bundle-free-trial-monthly' ) ) ) ),
+			'Personal monthly'             => array( array( 'purchases' => array( self::plan( 'personal-bundle-monthly' ) ) ) ),
+			'Personal yearly'              => array( array( 'purchases' => array( self::plan( 'personal-bundle' ) ) ) ),
+			'Personal two-year'            => array( array( 'purchases' => array( self::plan( 'personal-bundle-2y' ) ) ) ),
+			'Personal three-year'          => array( array( 'purchases' => array( self::plan( 'personal-bundle-3y' ) ) ) ),
+			'Premium monthly'              => array( array( 'purchases' => array( self::plan( 'value_bundle_monthly' ) ) ) ),
+			'Premium yearly'               => array( array( 'purchases' => array( self::plan( 'value_bundle' ) ) ) ),
 			'Premium two-year'             => array( array( 'purchases' => array( self::plan( 'value_bundle-2y' ) ) ) ),
+			'Premium three-year'           => array( array( 'purchases' => array( self::plan( 'value_bundle-3y' ) ) ) ),
 			'a non-plan purchase'          => array(
 				array(
 					'purchases' => array(
 						(object) array(
 							'product_slug' => 'wp_titan_mail_premium_monthly',
 							'product_type' => 'titan-mail',
+							'expiry_date'  => '2027-01-01 00:00:00',
+						),
+					),
+				),
+			),
+			// No product_type, so only the bundle filter keeps the slug fallback from reading
+			// "premium" in the slug as a Premium plan.
+			'an untyped add-on purchase'   => array(
+				array(
+					'purchases' => array(
+						(object) array(
+							'product_slug' => 'wp_titan_mail_premium_monthly',
 							'expiry_date'  => '2027-01-01 00:00:00',
 						),
 					),

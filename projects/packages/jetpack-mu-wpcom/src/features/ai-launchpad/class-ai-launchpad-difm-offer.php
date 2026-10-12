@@ -109,6 +109,12 @@ class AI_Launchpad_Difm_Offer {
 	 * @return bool
 	 */
 	private static function is_eligible( $now ) {
+		// The REST route only needs edit_posts, but the page that shows the banner needs
+		// manage_options. Without this, an Author who calls the route would join the experiment.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
 		// Eligible plans never run on Atomic, and the checks below read Simple-only data.
 		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			return false;
@@ -161,6 +167,11 @@ class AI_Launchpad_Difm_Offer {
 
 		$details    = get_blog_details( get_current_blog_id() );
 		$registered = is_object( $details ) && isset( $details->registered ) ? (string) $details->registered : '';
+		// strtotime( ' UTC' ) returns the current time, so a missing date would read as a new site.
+		if ( '' === $registered ) {
+			return false;
+		}
+
 		$created_at = strtotime( $registered . ' UTC' );
 
 		// A never-set registered date is all zeros, which parses to a time before the epoch.

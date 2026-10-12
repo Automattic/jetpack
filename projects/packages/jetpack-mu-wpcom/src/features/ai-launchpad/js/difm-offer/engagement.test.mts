@@ -6,7 +6,12 @@ import {
 	selectionLength,
 	TEXT_SELECT_EVENT,
 } from './engagement.ts';
-import { difmOfferTracksProps, recordDifmOfferEvent } from './tracks.ts';
+import {
+	DISMISSED_PREFERENCE,
+	difmOfferTracksProps,
+	dismissalRequest,
+	recordDifmOfferEvent,
+} from './tracks.ts';
 
 describe( 'selectionLength', () => {
 	it( 'counts the selected characters inside the banner', () => {
@@ -180,5 +185,23 @@ describe( 'recordDifmOfferEvent', () => {
 
 		const [ , , props ] = win.window._tkq?.[ 0 ] as [ string, string, Record< string, unknown > ];
 		assert.equal( props.use_beacon, true );
+	} );
+} );
+
+describe( 'dismissalRequest', () => {
+	it( 'stores the dismissal in the preference the Calypso surfaces read', () => {
+		const now = new Date( '2026-10-12T19:36:31.453Z' );
+
+		assert.deepEqual( dismissalRequest( now ), {
+			path: '/wpcom/v2/me/preferences',
+			method: 'POST',
+			global: true,
+			data: {
+				calypso_preferences: {
+					'hosting-dashboard-difm-offer-dismissed': '2026-10-12T19:36:31.453Z',
+				},
+			},
+		} );
+		assert.equal( DISMISSED_PREFERENCE, 'hosting-dashboard-difm-offer-dismissed' );
 	} );
 } );

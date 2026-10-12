@@ -49,3 +49,27 @@ export function recordDifmOfferEvent(
 	window._tkq = window._tkq || [];
 	window._tkq.push( [ 'recordEvent', eventName, props ] );
 }
+
+/**
+ * The preference key the Calypso surfaces share, so one dismissal hides the offer everywhere.
+ * The server reads the same key in AI_Launchpad_Difm_Offer::DISMISSED_PREFERENCE.
+ */
+export const DISMISSED_PREFERENCE = 'hosting-dashboard-difm-offer-dismissed';
+
+/**
+ * The request that stores the dismissal.
+ *
+ * `global` keeps WordPress.com's wp-admin request bridge from scoping this user endpoint to the
+ * site.
+ *
+ * @param now - The dismissal time.
+ * @return The apiFetch options.
+ */
+export function dismissalRequest( now: Date ) {
+	return {
+		path: '/wpcom/v2/me/preferences',
+		method: 'POST',
+		global: true,
+		data: { calypso_preferences: { [ DISMISSED_PREFERENCE ]: now.toISOString() } },
+	};
+}

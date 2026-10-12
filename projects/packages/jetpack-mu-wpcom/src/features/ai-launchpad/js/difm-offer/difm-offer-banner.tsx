@@ -9,15 +9,13 @@ import {
 	DISMISS_EVENT,
 	IMPRESSION_EVENT,
 	difmOfferTracksProps,
+	dismissalRequest,
 	recordDifmOfferEvent,
 	type DifmOfferTracksProps,
 } from './tracks.ts';
 import type { RefObject } from 'react';
 
 import './style.scss';
-
-// Shared with the Calypso banners, so one dismissal hides the offer on every surface and site.
-const DISMISSED_PREFERENCE = 'hosting-dashboard-difm-offer-dismissed';
 
 /** The offer the server returns in `difm_offer` when the banner may show. */
 export interface DifmOffer {
@@ -125,15 +123,8 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 	const handleDismiss = () => {
 		recordDifmOfferEvent( DISMISS_EVENT, tracksProps );
 		onDismiss();
-		// `global` keeps WordPress.com's wp-admin request bridge from scoping this user
-		// endpoint to the site. A failed write only means the offer can show again.
-		const request = {
-			path: '/wpcom/v2/me/preferences',
-			method: 'POST',
-			global: true,
-			data: { calypso_preferences: { [ DISMISSED_PREFERENCE ]: new Date().toISOString() } },
-		};
-		apiFetch( request ).catch( () => {} );
+		// A failed write only means the offer can show again.
+		apiFetch( dismissalRequest( new Date() ) ).catch( () => {} );
 	};
 
 	return (
