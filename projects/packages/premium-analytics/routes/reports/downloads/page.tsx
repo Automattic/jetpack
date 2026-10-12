@@ -93,7 +93,7 @@ function DownloadsReport(): JSX.Element {
 				/>
 			}
 		>
-			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>
 				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
 						data={ records.rows }

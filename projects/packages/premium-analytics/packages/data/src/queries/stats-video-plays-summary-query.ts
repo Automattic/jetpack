@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { isAllTimeNum, reportParamsToStatsQueryParams } from '../utils/stats-params';
+import { reportParamsToStatsQueryParams } from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -25,8 +25,6 @@ export const statsVideoPlaysSummaryQuery = (
 		params: {
 			period: 'day',
 			...( rangeParams.start_date ? { start_date: rangeParams.start_date } : {} ),
-			// Without a start date or `num`, WPCOM sums zero days.
-			...( isAllTimeNum( rangeParams.num ) ? { num: -1 } : {} ),
 			...( endDate ? { date: endDate } : {} ),
 			max: 0,
 			summarize: 1,

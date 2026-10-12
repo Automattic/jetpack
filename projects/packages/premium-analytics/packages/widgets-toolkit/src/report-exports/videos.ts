@@ -11,18 +11,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
 /** The Videos report's query: the complete-stats summary of every video in the window. */
 export function getVideosReportQueryParams( reportParams: ReportParams ): StatsReportParams {
-	return {
-		...reportParams,
-		max: 0,
-		summarize: 1,
-		complete_stats: 1,
-		...getReportWindowParams( reportParams ),
-	};
+	return { ...reportParams, max: 0, summarize: 1, complete_stats: 1 };
 }
 
 export const videosCsvExporter: ReportCsvExporter<

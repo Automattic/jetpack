@@ -21,7 +21,6 @@ describe( 'report query params', () => {
 		[ 'summarized', getSummarizedReportQueryParams ],
 		[ 'Posts', getPostsReportQueryParams ],
 		[ 'Authors', getAuthorsReportQueryParams ],
-		[ 'Videos', getVideosReportQueryParams ],
 		[
 			'Locations',
 			( params: ReportParams ) => getLocationsReportQueryParams( params, 'countries' ),
@@ -32,5 +31,9 @@ describe( 'report query params', () => {
 		expect( build( { ...ALL_TIME, preset: 'last-7-days' } as ReportParams ) ).not.toHaveProperty(
 			'num'
 		);
+	} );
+
+	it( 'keeps Videos on its dated window, as `stats/video-plays` reads a negative num as one day', () => {
+		expect( getVideosReportQueryParams( ALL_TIME ) ).not.toHaveProperty( 'num' );
 	} );
 } );

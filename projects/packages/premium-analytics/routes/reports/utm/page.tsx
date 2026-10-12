@@ -115,6 +115,7 @@ function UtmReport(): JSX.Element {
 				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< UtmReportRow >

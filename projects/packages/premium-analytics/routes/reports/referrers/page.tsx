@@ -106,7 +106,7 @@ function ReferrersReport(): JSX.Element {
 				/>
 			}
 		>
-			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }

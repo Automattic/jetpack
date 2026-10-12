@@ -109,7 +109,7 @@ function ClicksReport(): JSX.Element {
 				/>
 			}
 		>
-			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters } withAllTime>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< ClickRow >
 						data={ records.rows }
