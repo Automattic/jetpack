@@ -1,9 +1,12 @@
-import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { mixHexColors } from '../../../utils/color-utils';
-import { getHeatmapScale, HEATMAP_HIGH_CONTRAST } from '../private/heatmap-scale';
+import {
+	getHeatmapScale,
+	HEATMAP_HIGH_CONTRAST,
+	HEATMAP_LOW_CONTRAST,
+} from '../private/heatmap-scale';
 
-// The wp-admin scheme colors, then the pre-7.0 ones, which include a sunrise below 3:1 on white.
+// The wp-admin scheme colors, then the pre-7.0 ones.
 const PRIMARIES = [
 	'#007cba',
 	'#3858e9',
@@ -22,17 +25,17 @@ describe.each( [
 	[ 'dark', '#242424', '#272727' ],
 ] )( 'getHeatmapScale on a %s background', ( _mode, background, emptyCell ) => {
 	it.each( PRIMARIES )(
-		'keeps the lowest step of %s at 3:1 against the background and empty cell, no further',
+		'keeps the lowest step of %s at 2:1 against the background and empty cell, no further',
 		primary => {
 			const { low } = getHeatmapScale( primary, background, emptyCell );
 			const contrasts = [ contrastRatio( low, background ), contrastRatio( low, emptyCell ) ];
 
-			expect( Math.min( ...contrasts ) ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
-			expect( Math.min( ...contrasts ) ).toBeLessThan( MIN_BACKGROUND_CONTRAST + 0.1 );
+			expect( Math.min( ...contrasts ) ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			expect( Math.min( ...contrasts ) ).toBeLessThan( HEATMAP_LOW_CONTRAST + 0.1 );
 		}
 	);
 
-	it.each( PRIMARIES )( 'runs the scale of %s out to 9:1', primary => {
+	it.each( PRIMARIES )( 'runs the scale of %s out to 6:1', primary => {
 		const { high } = getHeatmapScale( primary, background );
 
 		expect( contrastRatio( high, background ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
@@ -40,7 +43,7 @@ describe.each( [
 } );
 
 describe( 'getHeatmapScale', () => {
-	it( 'keeps a primary already past 9:1 as the high end', () => {
+	it( 'keeps a primary already past 6:1 as the high end', () => {
 		expect( getHeatmapScale( '#1d2327', '#ffffff' ).high ).toBe( '#1d2327' );
 	} );
 
@@ -49,13 +52,13 @@ describe( 'getHeatmapScale', () => {
 		[ '#ffd000', '#767676' ],
 		[ '#3858e9', '#808080' ],
 		[ '#1e1e1e', '#999999' ],
-	] )( 'keeps every step of %s at 3:1 on a mid-gray %s', ( primary, background ) => {
+	] )( 'keeps every step of %s at 2:1 on a mid-gray %s', ( primary, background ) => {
 		const { low, high } = getHeatmapScale( primary, background );
 
 		for ( let step = 0; step <= 20; step++ ) {
 			expect(
 				contrastRatio( mixHexColors( low, high, step / 20 ), background )
-			).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
+			).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
 		}
 	} );
 
@@ -72,7 +75,21 @@ describe( 'getHeatmapScale', () => {
 		}
 	);
 
-	it( 'ends on black or white when the background leaves no room for 9:1', () => {
+	it.each( [
+		[ '#ffffff', '#959595' ],
+		[ '#ffffff', '#cccccc' ],
+		[ '#1e1e1e', '#555555' ],
+	] )(
+		'keeps the ends apart and in order on %s with a %s empty cell',
+		( background, emptyCell ) => {
+			const { low, high } = getHeatmapScale( '#3858e9', background, emptyCell );
+
+			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			expect( contrastRatio( low, background ) ).toBeLessThan( contrastRatio( high, background ) );
+		}
+	);
+
+	it( 'ends on black or white when the background leaves no room for 6:1', () => {
 		expect( getHeatmapScale( '#3858e9', '#808080' ).high ).toBe( '#000000' );
 	} );
 } );
