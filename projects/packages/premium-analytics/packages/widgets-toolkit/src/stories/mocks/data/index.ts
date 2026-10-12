@@ -69,7 +69,8 @@ export { buildPostContentResponse } from './post-content';
 export { mockSingleVideoData } from './single-video';
 export { mockTagsData } from './tags';
 export {
-	buildTopAuthorsDaysData,
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 } from './top-authors';

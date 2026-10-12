@@ -1,5 +1,6 @@
 {
 	"name": "jpa/plan-usage",
+	"icon": "jpa/percent",
 	"title": "Plan usage",
 	"description": "How your billable views compare to your plan's monthly limit.",
 	"help": {

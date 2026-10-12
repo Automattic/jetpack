@@ -8,11 +8,9 @@ import {
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../tests/js/notice-test-utils';
 import { useClicksReportRecords } from './clicks/config';
 import ClicksReportPage from './clicks/page';
 import { useCommentFollowersReportRecords } from './comment-followers/config';
@@ -112,7 +110,6 @@ type PageCase = {
 	records: ( state: RecordsState ) => unknown;
 	row: unknown;
 	tableProps: Record< string, unknown >;
-	retryCopy: string;
 };
 
 const folded = { collapsible: true, defaultExpanded: 'none' };
@@ -125,7 +122,6 @@ const clicks: PageCase = {
 	records: state => state,
 	row: { id: 'wordpress.org', clickedUrl: 'wordpress.org', isGroup: true, clicks: 42 },
 	tableProps: folded,
-	retryCopy: "We couldn't load clicks. Please try again in a moment.",
 };
 
 const searchTerms: PageCase = {
@@ -136,7 +132,6 @@ const searchTerms: PageCase = {
 	records: ( { isError, refetch, ...table } ) => ( { isError, refetch, table } ),
 	row: { id: 'jetpack search', term: 'jetpack search', views: 42 },
 	tableProps: {},
-	retryCopy: "We couldn't load search terms. Please try again in a moment.",
 };
 
 const downloads: PageCase = {
@@ -153,7 +148,6 @@ const downloads: PageCase = {
 		children: null,
 	},
 	tableProps: {},
-	retryCopy: "We couldn't load file downloads. Please try again in a moment.",
 };
 
 const utm: PageCase = {
@@ -164,7 +158,6 @@ const utm: PageCase = {
 	records: state => state,
 	row: { id: 'utm_source=newsletter', label: 'newsletter', isGroup: true, views: 42 },
 	tableProps: folded,
-	retryCopy: "We couldn't load UTM data. Please try again in a moment.",
 };
 
 /**
@@ -224,23 +217,6 @@ describe( 'dated report pages', () => {
 			);
 		}
 	);
-
-	it.each( [ clicks, searchTerms, downloads, utm ] )(
-		'$name replaces the table with an error that refetches on Retry',
-		async page => {
-			const refetch = jest.fn();
-			mockRecords( page, { isError: true, refetch } );
-
-			render( <page.Page /> );
-
-			expect( getNoticeText( page.retryCopy ) ).toBeInTheDocument();
-			expect( page.table ).not.toHaveBeenCalled();
-
-			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-			expect( refetch ).toHaveBeenCalledTimes( 1 );
-		}
-	);
 } );
 
 describe( 'CommentFollowersReportPage', () => {
@@ -269,26 +245,6 @@ describe( 'CommentFollowersReportPage', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-	} );
-
-	it( 'replaces cached rows with an error that refetches on Retry', async () => {
-		// React Query keeps the last successful data when a background refetch
-		// fails, so rows and an error state coexist. The error must still show.
-		const refetch = jest.fn();
-		useRecordsMock.mockReturnValue(
-			buildRecords( { rows: [ helloWorld ], allPostsFollowers: 20, isError: true, refetch } )
-		);
-
-		render( <CommentFollowersReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load subscribers. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
-
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'shows the All Posts summary and rows on success', () => {

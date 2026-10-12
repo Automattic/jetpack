@@ -519,6 +519,128 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * `/subscribers/comp` needs exactly one subscriber identifier.
+	 *
+	 * @param array $payload Request body.
+	 * @dataProvider provider_invalid_comp_subscribers
+	 */
+	#[DataProvider( 'provider_invalid_comp_subscribers' )]
+	public function test_comp_requires_exactly_one_subscriber_identifier( $payload ) {
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/comp' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'subscribers_comp_invalid_subscriber', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Identifier combinations the comp route rejects.
+	 *
+	 * @return array
+	 */
+	public static function provider_invalid_comp_subscribers() {
+		return array(
+			'neither' => array( array( 'plan_id' => 51 ) ),
+			'both'    => array(
+				array(
+					'user_id' => 229907063,
+					'email'   => 'reader@example.com',
+					'plan_id' => 51,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Comping an email-only subscriber puts the percent-encoded address in the identifier segment
+	 * of the upstream comps path.
+	 */
+	public function test_comp_forwards_encoded_email_as_upstream_identifier() {
+		$captured = '';
+		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured ) {
+			$captured = $url;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'id' => 9 ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/comp' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'email'   => 'reader+tag@example.com',
+					'plan_id' => 51,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString(
+			'/memberships/comps/reader%2Btag%40example.com/51',
+			$captured
+		);
+	}
+
+	/**
+	 * A numeric identifier still forwards as the bare user id.
+	 */
+	public function test_comp_forwards_user_id_as_upstream_identifier() {
+		$captured = '';
+		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured ) {
+			$captured = $url;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'id' => 9 ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/comp' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'user_id' => 229907063,
+					'plan_id' => 51,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( '/memberships/comps/229907063/51', $captured );
+	}
+
+	/**
 	 * `/subscribers/individual` requires either a subscription_id or a user_id — without both,
 	 * there's nothing to fetch.
 	 */

@@ -7,16 +7,14 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	LOCATIONS_GEO_MODES,
-	PageNotice,
-	describeError,
 	ReportLocationsMap,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
-	useReportRetry,
 	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -104,7 +102,6 @@ export default function LocationsReportPage(): JSX.Element {
 	}
 	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() =>
 			getLocationFields(
@@ -162,22 +159,6 @@ export default function LocationsReportPage(): JSX.Element {
 	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
 	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load locations. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
-
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -196,29 +177,33 @@ export default function LocationsReportPage(): JSX.Element {
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ tableReplacement ?? (
-					<>
-						{ showMap && (
-							<ReportLocationsMap
-								rows={ geoRows }
-								mode={ LOCATIONS_GEO_MODES[ activeTab ] }
-								focusCountry={ focusCountry }
-								isLoading={ tableIsLoading }
-							/>
-						) }
-						<ReportRecordsTable< LocationRow >
-							key={ activeTab }
-							data={ records.table.rows }
-							fields={ fields }
-							getItemId={ getLocationRowId }
-							isLoading={ records.table.isLoading }
-							isFetching={ records.table.isFetching }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-							onChangeView={ handleChangeView }
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load locations. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ showMap && (
+						<ReportLocationsMap
+							rows={ geoRows }
+							mode={ LOCATIONS_GEO_MODES[ activeTab ] }
+							focusCountry={ focusCountry }
+							isLoading={ tableIsLoading }
 						/>
-					</>
-				) }
+					) }
+					<ReportRecordsTable< LocationRow >
+						key={ activeTab }
+						data={ records.table.rows }
+						fields={ fields }
+						getItemId={ getLocationRowId }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+						onChangeView={ handleChangeView }
+					/>
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

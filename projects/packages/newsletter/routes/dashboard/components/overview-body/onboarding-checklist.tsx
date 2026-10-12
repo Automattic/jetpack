@@ -20,7 +20,7 @@ import {
 import clsx from 'clsx';
 import { SUBSCRIPTIONS_SECTION_ID } from '../../../../src/settings/anchors';
 import {
-	completeOnboardingTask,
+	skipOnboardingTask,
 	ONBOARDING_TASKS_QUERY_KEY,
 	onboardingTasksQueryOptions,
 	type OnboardingTaskId,
@@ -60,7 +60,7 @@ function recordChecklistClick( step: OnboardingTaskId, action: 'primary' | 'skip
  * @param props.stepId        - Checklist step slug.
  * @param props.primaryAction - Primary button label.
  * @param props.isSkipping    - Whether this step's Skip request is in flight.
- * @param props.onSkip        - Complete the step by hand.
+ * @param props.onSkip        - Skip the step.
  * @return The action buttons.
  */
 function ChecklistActions( {
@@ -163,7 +163,7 @@ const STEPS: ChecklistStep[] = [
  * @param props.completed    - Ids of the completed steps.
  * @param props.isRefreshing - Whether WP.com is being asked for a fresher list.
  * @param props.skippingStep - Step whose Skip request is in flight, if any.
- * @param props.onSkip       - Complete a step by hand.
+ * @param props.onSkip       - Skip a step.
  * @return The checklist steps.
  */
 function ChecklistSteps( {
@@ -353,7 +353,7 @@ export default function OnboardingChecklist(): JSX.Element {
 	const queryClient = useQueryClient();
 	const tasksQuery = useQuery( onboardingTasksQueryOptions );
 	const skipMutation = useMutation( {
-		mutationFn: completeOnboardingTask,
+		mutationFn: skipOnboardingTask,
 		onSuccess: ( taskList: OnboardingTaskList ) => {
 			queryClient.setQueryData( ONBOARDING_TASKS_QUERY_KEY, taskList );
 		},

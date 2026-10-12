@@ -127,11 +127,11 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
-	 * Availability flag or callback.
+	 * Availability flag or callback; null when the registration declared none.
 	 *
-	 * @var bool|callable
+	 * @var bool|callable|null
 	 */
-	private $is_available = true;
+	private $is_available = null;
 
 	/**
 	 * Default layout array or callback.
@@ -174,6 +174,11 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
+		// Before sections decided who opens the dashboard, Stats access was the outer gate.
+		if ( null === $this->is_available ) {
+			return Capabilities::current_user_can_view_stats();
+		}
+
 		if ( is_callable( $this->is_available ) ) {
 			return (bool) call_user_func( $this->is_available, $this );
 		}

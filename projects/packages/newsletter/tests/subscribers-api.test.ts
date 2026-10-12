@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
+	addComp,
 	addSubscribers,
 	fetchNewsletterCategories,
 	fetchSubscribedNewsletterCategories,
@@ -108,5 +109,31 @@ describe( 'addSubscribers', () => {
 		await addSubscribers( [ 'reader@example.com' ], [] );
 
 		expect( requestedOptions().data ).not.toHaveProperty( 'categories' );
+	} );
+} );
+
+describe( 'addComp', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockApiFetch.mockResolvedValue( {} );
+	} );
+
+	it( 'POSTs a user id for a subscriber with a wpcom account', async () => {
+		await addComp( { user_id: 229907063, plan_id: 51, no_expiration: true } );
+
+		expect( requestedOptions().path ).toBe( '/wpcom/v2/subscribers/comp' );
+		expect( requestedOptions().method ).toBe( 'POST' );
+		expect( requestedOptions().data ).toEqual( {
+			user_id: 229907063,
+			plan_id: 51,
+			no_expiration: true,
+		} );
+	} );
+
+	it( 'POSTs an email and no user id for an email-only subscriber', async () => {
+		await addComp( { email: 'reader@example.com', plan_id: 51 } );
+
+		expect( requestedOptions().data ).toEqual( { email: 'reader@example.com', plan_id: 51 } );
+		expect( requestedOptions().data ).not.toHaveProperty( 'user_id' );
 	} );
 } );

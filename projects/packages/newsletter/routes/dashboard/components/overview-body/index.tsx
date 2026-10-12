@@ -76,8 +76,8 @@ function OnboardingView(): JSX.Element {
 
 /**
  * Render the content of the Newsletter Overview tab: Stats once WP.com marks onboarding as done,
- * the onboarding view until then. A done onboarding is remembered in localStorage, since it can
- * never reopen, so later visits go straight to Stats without asking WP.com.
+ * the onboarding view until then. A done onboarding is remembered in localStorage, so later visits
+ * go straight to Stats without asking WP.com.
  *
  * @return The Overview tab content.
  */

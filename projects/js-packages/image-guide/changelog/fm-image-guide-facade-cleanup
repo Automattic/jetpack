@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove the unused internal facade and expand store/controller tests.
+
+

@@ -132,7 +132,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Visitors by location" widget. Fetches the visitors report and displays where store visitors are located geographically.',
+					'The "Store visitors by location" widget. Fetches the visitors report and displays where store visitors are located geographically.',
 			},
 		},
 	},

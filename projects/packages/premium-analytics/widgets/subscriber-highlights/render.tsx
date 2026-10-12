@@ -199,8 +199,6 @@ function SubscriberHighlightsReport() {
 				isFetching={ counts.isFetching || past.isFetching || monthAgo.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
 				isError={ countsFailed || ( showsHistory && past.isError && ! hasHistory ) }
-				// Highlights have no empty state: a missing current count shows zero, a missing past count its placeholder.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load subscriber highlights. Please try again in a moment.",

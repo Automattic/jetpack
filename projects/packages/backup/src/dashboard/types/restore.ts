@@ -1,3 +1,5 @@
+import type { FailureReference } from './failure-reference';
+
 export type RestoreItems = {
 	themes: boolean;
 	plugins: boolean;
@@ -80,6 +82,9 @@ export function hasSelectedItems( items: RestoreItems ): boolean {
  * shown beneath the shared message rather than replacing it — why we
  * stopped seeing the restore is worth reporting, but it is not the
  * headline.
+ *
+ * `reference` is what the reader quotes to support on the phases that can
+ * end there.
  */
 export type RestoreState =
 	| { phase: 'checking' }
@@ -89,6 +94,6 @@ export type RestoreState =
 	| { phase: 'unconfirmed'; detail: string | null }
 	| { phase: 'progress'; percent: number; message: string }
 	| { phase: 'success' }
-	| { phase: 'success-with-errors'; message: string }
-	| { phase: 'lost-track'; detail: string | null }
-	| { phase: 'error'; message: string };
+	| { phase: 'success-with-errors'; message: string; reference: FailureReference }
+	| { phase: 'lost-track'; detail: string | null; reference: FailureReference }
+	| { phase: 'error'; message: string; reference: FailureReference };

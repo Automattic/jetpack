@@ -5,6 +5,7 @@ import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
+import { canCompSubscriber } from '../lib/comp-eligibility';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
@@ -235,13 +236,13 @@ export default function SubscribersDataViews( {
 			{
 				id: 'comp',
 				label: __( 'Comp a subscription', 'jetpack-newsletter' ),
-				// Needs a wpcom user id to attach the comp to, plus a paid product to comp onto —
-				// otherwise the modal is a dead-end that only reports "no paid plans".
-				// `canShowCompAction` comes from a single table-level fetch (see above: true when
-				// products exist or the fetch errored, false while loading or on a genuinely empty
-				// site), so this stays cheap per row. The modal still handles the per-subscriber
-				// "already comped on every plan" edge case.
-				isEligible: ( subscriber: Subscriber ) => !! subscriber.user_id && canShowCompAction,
+				// Needs a paid product to comp onto, otherwise the modal is a dead-end that only
+				// reports "no paid plans". `canShowCompAction` comes from a single table-level fetch
+				// (see above: true when products exist or the fetch errored, false while loading or
+				// on a genuinely empty site), so this stays cheap per row. The modal still handles
+				// the per-subscriber "already comped on every plan" edge case.
+				isEligible: ( subscriber: Subscriber ) =>
+					canCompSubscriber( subscriber ) && canShowCompAction,
 				callback: ( items: Subscriber[] ) => {
 					const target = items[ 0 ];
 					if ( ! target ) {

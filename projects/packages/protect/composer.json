@@ -6,6 +6,9 @@
 	"require": {
 		"php": ">=7.4",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-protect-models": "@dev",
+		"automattic/jetpack-protect-status": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
@@ -41,6 +44,12 @@
 		],
 		"test-php-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

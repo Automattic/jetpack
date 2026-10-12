@@ -43,7 +43,8 @@ import {
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
-	buildTopAuthorsDaysData,
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -1168,6 +1169,23 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 		};
 	}
 
+	// Single-author detail — `stats/author/{id}`, over a window or, with `num=-1`, all time.
+	const statsAuthor = subPath.match( /^\/author\/(\d+)$/ );
+	if ( statsAuthor ) {
+		const today = new Date().toISOString().slice( 0, 10 );
+		const allTime = getQueryParam( requestPath, 'num' ) === '-1';
+		const period = getQueryParam( requestPath, 'period' );
+
+		return buildAuthorStatsData(
+			Number( statsAuthor[ 1 ] ),
+			allTime
+				? MOCK_AUTHOR_FIRST_CONTENT_DAY
+				: ( getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 ) ?? today ),
+			getQueryParam( requestPath, 'date' )?.slice( 0, 10 ) ?? today,
+			period === 'week' || period === 'month' || period === 'year' ? period : 'day'
+		);
+	}
+
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return buildSingleVideoResponse( requestPath );
@@ -1208,19 +1226,6 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
 		case '/top-authors': {
-			// The author detail chart asks for period buckets; everything else summarizes.
-			const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
-			const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
-			if ( getQueryParam( requestPath, 'summarize' ) === '0' && startDate && endDate ) {
-				const period = getQueryParam( requestPath, 'period' );
-
-				return buildTopAuthorsDaysData(
-					startDate,
-					endDate,
-					period === 'week' || period === 'month' ? period : 'day'
-				);
-			}
-
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;

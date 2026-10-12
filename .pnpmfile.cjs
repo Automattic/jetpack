@@ -122,12 +122,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependency.
-	// https://github.com/egoist/rollup-plugin-postcss/issues/469
-	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
-	}
-
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
 	// https://github.com/ajv-validator/ajv-formats/issues/80
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
