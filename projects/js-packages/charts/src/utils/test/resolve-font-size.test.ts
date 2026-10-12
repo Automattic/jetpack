@@ -29,7 +29,7 @@ describe( 'resolveFontSize', () => {
 			expect( resolveFontSize( '+12px' ) ).toBe( 12 );
 		} );
 
-		it.each( [ '12.px', '12.', '-12px', '-.5' ] )(
+		it.each( [ '12.px', '12.', '-12px', '-.5', '9'.repeat( 400 ) + 'px' ] )(
 			'rejects %p, which is not a valid font size',
 			val => {
 				expect( resolveFontSize( val ) ).toBeUndefined();
