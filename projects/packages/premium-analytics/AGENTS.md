@@ -63,9 +63,6 @@ jetpack build --deps packages/premium-analytics
 wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
 them first — use it after merging trunk or when charts exports look stale.
 
-Playwright E2E tests for the dashboard bundled in Jetpack live in
-`projects/plugins/premium-analytics/tests/e2e`; its README shows how to run them locally.
-
 ### Storybook serves the built artifact of some internal packages
 
 Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
