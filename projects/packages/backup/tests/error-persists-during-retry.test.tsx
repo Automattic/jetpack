@@ -203,7 +203,7 @@ describe( 'query error', () => {
 } );
 
 describe( 'activity list', () => {
-	it( 'keeps the reason and shows the retry as busy while it runs', async () => {
+	it( 'keeps the reason and shows the retry as busy while it runs, then hands focus on', async () => {
 		mockApiFetch.mockRejectedValue( {
 			code: 'activity_log_fetch_failed',
 			message: 'Service unavailable',
@@ -248,6 +248,8 @@ describe( 'activity list', () => {
 
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Service unavailable' ) ).not.toBeInTheDocument();
+		// The focused button went with the notice; without a handoff, focus is on `<body>`.
+		expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toHaveFocus();
 	} );
 } );
 

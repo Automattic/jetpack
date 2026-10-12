@@ -20,6 +20,7 @@ import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
+import { useStepFocus } from '../hooks/use-step-focus';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
@@ -51,7 +52,15 @@ export default function RestoreScreen() {
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 
 	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
-	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
+	const { ref: stepHeadingRef, arm: armStepFocus } = useStepFocus( state.phase );
+	const handleConfirm = useCallback( () => {
+		armStepFocus();
+		submit( items );
+	}, [ armStepFocus, submit, items ] );
+	const handleRetry = useCallback( () => {
+		armStepFocus();
+		reset();
+	}, [ armStepFocus, reset ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
@@ -93,11 +102,13 @@ export default function RestoreScreen() {
 	const restorePoint = rewindIdToIso( shownRewindId );
 	const titles = {
 		checking: __( 'Checking for a restore in progress…', 'jetpack-backup-pkg' ),
+		queued: __( 'Your restore is queued and will begin automatically.', 'jetpack-backup-pkg' ),
 		progress: __( 'Restoring from backup…', 'jetpack-backup-pkg' ),
 		success: __( 'Restore complete.', 'jetpack-backup-pkg' ),
 		'success-with-errors': __( 'Restore finished with errors', 'jetpack-backup-pkg' ),
 	};
 	const announcement = titles[ state.phase as keyof typeof titles ] ?? '';
+	const isFormStep = state.phase === 'idle' || state.phase === 'checking';
 
 	return (
 		<DashboardLayout>
@@ -111,7 +122,12 @@ export default function RestoreScreen() {
 						<Stack direction="row" gap="sm" align="center">
 							<Icon icon={ backupIcon } />
 							<Stack direction="column" gap="xs">
-								<Text variant="body-lg" render={ <h2 /> }>
+								<Text
+									variant="body-lg"
+									render={ <h2 /> }
+									ref={ isFormStep ? stepHeadingRef : undefined }
+									tabIndex={ -1 }
+								>
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
@@ -146,10 +162,12 @@ export default function RestoreScreen() {
 										) }
 									</Notice.Description>
 								</Notice.Root>
-								<Text className="jpb-text-muted jpb-restore__label">
-									{ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }
-								</Text>
-								<RestoreItemsChecklist value={ items } onChange={ setItems } />
+								<RestoreItemsChecklist
+									legend={ __( 'Choose the items you wish to restore:', 'jetpack-backup-pkg' ) }
+									legendClassName="jpb-restore__label"
+									value={ items }
+									onChange={ setItems }
+								/>
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message
@@ -205,12 +223,13 @@ export default function RestoreScreen() {
 									className="jpb-restore__bar"
 									aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
 								/>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
-										{ __(
-											'Your restore is queued and will begin automatically.',
-											'jetpack-backup-pkg'
-										) }
+										{ titles.queued }
 									</Text>
 								</EmptyState.Title>
 							</EmptyState.Root>
@@ -229,7 +248,11 @@ export default function RestoreScreen() {
 								 * Scoped to the title, not the block: the percentage and message
 								 * below change on every 5s poll and would re-announce with it.
 								 */ }
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles.progress }
 									</Text>
@@ -289,7 +312,11 @@ export default function RestoreScreen() {
 										icon={ check }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles.success }
 									</Text>
@@ -315,7 +342,11 @@ export default function RestoreScreen() {
 										icon={ caution }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ titles[ 'success-with-errors' ] }
 									</Text>
@@ -344,7 +375,7 @@ export default function RestoreScreen() {
 						{ state.phase === 'unconfirmed' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>
+									<Notice.Description ref={ stepHeadingRef } tabIndex={ -1 }>
 										{ __(
 											"We didn't hear back from WordPress.com. Checking whether your restore started…",
 											'jetpack-backup-pkg'
@@ -378,7 +409,9 @@ export default function RestoreScreen() {
 						{ state.phase === 'lost-track' && (
 							<Stack direction="column" gap="sm">
 								<Notice.Root intent="warning">
-									<Notice.Description>{ lostTrack }</Notice.Description>
+									<Notice.Description ref={ stepHeadingRef } tabIndex={ -1 }>
+										{ lostTrack }
+									</Notice.Description>
 								</Notice.Root>
 								{ state.detail && (
 									<Text variant="body-sm" className="jpb-text-muted">
@@ -402,7 +435,11 @@ export default function RestoreScreen() {
 										icon={ errorIcon }
 									/>
 								</EmptyState.Visual>
-								<EmptyState.Title className="jpb-restore__status-title">
+								<EmptyState.Title
+									className="jpb-restore__status-title"
+									ref={ stepHeadingRef }
+									tabIndex={ -1 }
+								>
 									<Text variant="body-xl" render={ <span /> }>
 										{ __( 'Restore failed', 'jetpack-backup-pkg' ) }
 									</Text>
@@ -410,7 +447,7 @@ export default function RestoreScreen() {
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
 								<EmptyState.Actions>
-									<Button variant="solid" onClick={ reset }>
+									<Button variant="solid" onClick={ handleRetry }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }
 									</Button>
 								</EmptyState.Actions>

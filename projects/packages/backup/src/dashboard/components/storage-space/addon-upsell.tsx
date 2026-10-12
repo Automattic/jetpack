@@ -6,10 +6,11 @@ import { ButtonLink, Notice } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
+import { useFocusHandoff } from '../../hooks/use-focus-handoff';
 import { useStorageAddonOffer } from '../../hooks/use-storage-addon-offer';
 import { storageAddonCheckoutUrl } from './checkout-url';
 import type { StorageUsageLevelName } from '../../data/storage-usage-levels';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 /**
  * The notice's title and body for a level, or null when the level has nothing to say.
@@ -148,6 +149,8 @@ type Props = {
 	minDaysOfBackupsAllowed: number | null;
 	/** Present only for a dismissible level. */
 	onDismiss?: () => void;
+	/** Where focus goes if the notice goes away while holding it, as on closing it. */
+	returnFocusTo: RefObject< HTMLElement | null >;
 };
 
 /**
@@ -163,6 +166,7 @@ type Props = {
  * @param props.daysOfBackupsSaved      - Days of history held, or null when unreported.
  * @param props.minDaysOfBackupsAllowed - Fewest days the plan will ever keep, or null.
  * @param props.onDismiss               - Closes the notice; omit for a level that cannot close.
+ * @param props.returnFocusTo           - Where focus goes if the notice goes away while holding it.
  * @return The notice, or null when this level has nothing to say.
  */
 export default function StorageAddonUpsell( {
@@ -172,8 +176,10 @@ export default function StorageAddonUpsell( {
 	daysOfBackupsSaved,
 	minDaysOfBackupsAllowed,
 	onDismiss,
+	returnFocusTo,
 }: Props ) {
 	const site = useSiteSuffix();
+	const noticeRef = useFocusHandoff< HTMLDivElement >( returnFocusTo );
 	const analytics = useAnalytics();
 	const { slug, sizeText, monthlyPrice, currencyCode } = useStorageAddonOffer(
 		storageUsed,
@@ -195,7 +201,9 @@ export default function StorageAddonUpsell( {
 	const copy = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, sizeText );
 	const isWarning =
 		usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical;
-	const spokenMessage = copy ? [ copy.title, copy.body ].filter( Boolean ).join( ' ' ) : '';
+	// Without the size, which arrives later: a changed message would be announced a second time.
+	const spoken = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, null );
+	const spokenMessage = [ spoken?.title, spoken?.body ].filter( Boolean ).join( ' ' );
 	const politeness = isWarning ? 'polite' : 'assertive';
 
 	useEffect( () => {
@@ -215,7 +223,11 @@ export default function StorageAddonUpsell( {
 			: null;
 
 	return (
-		<Notice.Root intent={ isWarning ? 'warning' : 'error' } className="jpb-storage-notice">
+		<Notice.Root
+			ref={ noticeRef }
+			intent={ isWarning ? 'warning' : 'error' }
+			className="jpb-storage-notice"
+		>
 			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (
