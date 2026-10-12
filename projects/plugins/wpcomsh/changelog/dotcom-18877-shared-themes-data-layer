@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Themes: read the WordPress.com themes api, cache and mapper from jetpack-mu-wpcom rather than keeping a second copy.
