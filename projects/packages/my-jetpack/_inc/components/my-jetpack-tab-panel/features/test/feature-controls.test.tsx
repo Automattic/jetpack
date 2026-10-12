@@ -1,3 +1,4 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
@@ -11,7 +12,9 @@ const mockRun = jest.fn();
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	...jest.requireActual( '@automattic/jetpack-connection' ),
-	getUserConnectionUrl: () => '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true',
+	getUserConnectionUrl: jest.fn(
+		() => '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
+	),
 } ) );
 
 // What a click has asked of the module, when a test wants it to differ from the store.
@@ -61,6 +64,7 @@ const forcedModule = {
 
 beforeEach( () => {
 	mockRun.mockClear();
+	( getUserConnectionUrl as jest.Mock ).mockClear();
 	mockAskedFor = null;
 	mockBusy = false;
 	mockInstallError = null;
@@ -482,11 +486,13 @@ describe( 'account connection controls', () => {
 	it( 'shows the status, reason and direct connection link on the card', () => {
 		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 		expect( screen.getByText( 'Account needed' ) ).toBeInTheDocument();
+		expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
+			redirect_url: expect.stringContaining( '#/features' ),
+		} );
 		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
-			'href',
-			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
-		);
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your account for Boost' } )
+		).toHaveAttribute( 'href', '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true' );
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
 	} );
@@ -500,10 +506,9 @@ describe( 'account connection controls', () => {
 		);
 		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
-			'href',
-			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
-		);
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your account for Boost' } )
+		).toHaveAttribute( 'href', '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true' );
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

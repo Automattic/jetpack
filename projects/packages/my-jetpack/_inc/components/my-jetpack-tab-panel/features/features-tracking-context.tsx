@@ -51,6 +51,7 @@ type FeaturesTrackingContextType = {
 	trackModalView: ( state: FeatureState, trigger: ModalTrigger ) => void;
 	trackModalClose: ( state: FeatureState ) => void;
 	trackManageClick: ( state: FeatureState ) => void;
+	trackConnectClick: ( state: FeatureState, origin: FeatureActionOrigin ) => void;
 	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
 	trackBulkAction: ( params: BulkActionParams ) => void;
@@ -198,6 +199,18 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
+	const trackConnectClick = useCallback(
+		( state: FeatureState, origin: FeatureActionOrigin ) => {
+			recordEvent( 'jetpack_myjetpack_feature_fixconnection_click', {
+				origin,
+				...when( 'product', state.feature.product || '' ),
+				...featureProps( state ),
+				...context,
+			} );
+		},
+		[ context, recordEvent ]
+	);
+
 	// Leaves for a pricing page, so the event has to be away before it does.
 	const trackPlanClick = useCallback(
 		( state: FeatureState, plan: string ) => {
@@ -273,6 +286,7 @@ export function FeaturesTrackingProvider( {
 			trackModalView,
 			trackModalClose,
 			trackManageClick,
+			trackConnectClick,
 			trackPlanClick,
 			trackFeatureAction,
 			trackBulkAction,
@@ -280,6 +294,7 @@ export function FeaturesTrackingProvider( {
 			trackEmptyStateClick,
 		} ),
 		[
+			trackConnectClick,
 			trackBulkAction,
 			trackEmptyStateClick,
 			trackEmptyStateView,

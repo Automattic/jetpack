@@ -9,7 +9,7 @@ import {
 	useFeaturesNeedsAccount,
 } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureUnavailableReason, getModuleStatus } from './module-availability';
 import {
 	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
 	compareModulesByName,
@@ -59,7 +59,12 @@ export function getModuleFeatureState(
 		isSwitching: asked !== undefined,
 		control: { kind: 'module', module: $module },
 	};
-	if ( needsAccount && $module.requires_user_connection ) {
+	if (
+		needsAccount &&
+		$module.requires_user_connection &&
+		! $module.override &&
+		! getModuleStatus( $module ).isMultisiteBlocked
+	) {
 		return getAccountNeededState( state.feature, undefined, $module );
 	}
 	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;

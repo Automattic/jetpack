@@ -143,7 +143,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	);
 
 	if ( control.kind === 'connect-account' ) {
-		return <ConnectAccountButton />;
+		return <ConnectAccountButton state={ state } origin="modal" />;
 	}
 
 	return (

@@ -331,6 +331,34 @@ describe( 'Features tab modal tracking', () => {
 } );
 
 describe( 'Feature action tracking', () => {
+	it.each( [ 'card', 'modal', 'more_features' ] as const )(
+		'records the connection click from %s before navigating',
+		async origin => {
+			const state = buildState( { kind: 'connect-account' } );
+			state.feature.product = 'boost';
+			renderTracked(
+				origin === 'modal' ? (
+					<FeatureModalActions state={ state } />
+				) : (
+					<FeatureAction state={ state } origin={ origin } />
+				)
+			);
+			const link = screen.getByRole( 'link', { name: 'Connect your account for Boost' } );
+			link.addEventListener( 'click', event => event.preventDefault() );
+			await userEvent.click( link );
+			expect( recordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( lastEvent( 'jetpack_myjetpack_feature_fixconnection_click' ) ).toMatchObject( {
+				origin,
+				product: 'boost',
+				feature_slug: 'boost',
+				control_kind: 'connect-account',
+				current_filter: 'all',
+				view: 'grid',
+				event_version: 1,
+			} );
+		}
+	);
+
 	it( 'records an install from the card, and says it came from the card', async () => {
 		renderTracked(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />

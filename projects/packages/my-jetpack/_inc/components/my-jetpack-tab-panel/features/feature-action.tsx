@@ -1,7 +1,8 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { FormToggle } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
@@ -153,7 +154,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 	switch ( control.kind ) {
 		case 'connect-account':
-			return <ConnectAccountButton />;
+			return <ConnectAccountButton state={ state } origin={ origin } />;
 		case 'module': {
 			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( getForcedReason( state ) ) {
@@ -227,11 +228,32 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 /**
  * Open the existing account connection flow from a feature.
  *
+ * @param props        - The component props.
+ * @param props.state  - The feature's live state.
+ * @param props.origin - Where the connection link is shown.
  * @return The connection link.
  */
-export function ConnectAccountButton() {
+export function ConnectAccountButton( {
+	state,
+	origin = 'card',
+}: Pick< FeatureActionProps, 'state' | 'origin' > ) {
+	const tracking = useFeaturesTracking();
+	const onClick = useCallback(
+		() => tracking?.trackConnectClick( state, origin ),
+		[ origin, state, tracking ]
+	);
 	return (
-		<LinkButton href={ getUserConnectionUrl() } variant="outline" size="compact">
+		<LinkButton
+			href={ getUserConnectionUrl( { redirect_url: getMyJetpackUrl( '#/features' ) } ) }
+			variant="outline"
+			size="compact"
+			onClick={ onClick }
+			aria-label={ sprintf(
+				/* translators: %s is the feature name. */
+				__( 'Connect your account for %s', 'jetpack-my-jetpack' ),
+				state.feature.name
+			) }
+		>
 			{ __( 'Connect your account', 'jetpack-my-jetpack' ) }
 		</LinkButton>
 	);

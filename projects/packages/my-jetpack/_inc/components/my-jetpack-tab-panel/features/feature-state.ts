@@ -222,8 +222,14 @@ export function resolveFeatureState(
 		jetpack === 'active' && ungatedSlug && ! productModules[ feature.product ]
 			? modules?.[ ungatedSlug ]
 			: undefined;
+	const accountModule = $module || gatedModule;
+	const connectionCanHelp =
+		! feature.plugin_override &&
+		( ! accountModule ||
+			( ! accountModule.override && ! getModuleStatus( accountModule ).isMultisiteBlocked ) );
 	if (
 		needsAccount &&
+		connectionCanHelp &&
 		( $module?.requires_user_connection ||
 			gatedModule?.requires_user_connection ||
 			feature.product === 'social' ||
@@ -395,6 +401,7 @@ export function useFeaturesNeedsAccount(): boolean {
 			if ( offline ) {
 				return false;
 			}
+			// useMyJetpackConnection needs connection initial state, which the offline entry does not render.
 			const store = select( CONNECTION_STORE ) as unknown as {
 				getConnectionStatus?: () => { isRegistered: boolean; hasConnectedOwner: boolean };
 				getIsOfflineMode?: () => boolean;

@@ -2,6 +2,7 @@ import { PRODUCT_STATUSES } from '../../../../constants';
 import { getFeatureManageUrl, getForcedReason, resolveFeatureState } from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
 import { isFeatureAvailable } from '../module-availability';
+import { getModuleFeatureState } from '../use-more-features';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -463,3 +464,34 @@ describe( 'account-dependent features', () => {
 		expect( isFeatureAvailable( state ) ).toBe( false );
 	} );
 } );
+
+it.each( [ [ 'publicize', 'social' ] ] )(
+	'keeps a host-forced-off %s blocked before asking for an account',
+	( module, product ) => {
+		const blocked = buildModule( {
+			module,
+			activated: false,
+			available: false,
+			requires_user_connection: true,
+			override: 'inactive',
+		} );
+		const state = resolveFeatureState(
+			buildFeature( {
+				module,
+				product,
+				in_jetpack: true,
+				plugin: 'jetpack-social',
+				plugin_status: 'active',
+			} ),
+			'active',
+			undefined,
+			{ [ module ]: blocked },
+			PRODUCT_MODULES,
+			false,
+			true
+		);
+		expect( state.control.kind ).toBe( 'module' );
+		expect( getForcedReason( state ) ).toBe( 'Disabled by your host or site administrator' );
+		expect( getModuleFeatureState( blocked, {}, true ).control.kind ).toBe( 'module' );
+	}
+);
