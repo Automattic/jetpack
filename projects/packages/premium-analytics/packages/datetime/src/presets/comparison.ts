@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getSettings } from '@wordpress/date';
-import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { __, _n, _nx, _x, sprintf } from '@wordpress/i18n';
 import { differenceInCalendarDays } from 'date-fns';
 /**
  * Internal dependencies
@@ -37,6 +37,11 @@ export type ComparisonOption = {
 	 * filter row and cannot grow with the language.
 	 */
 	shortLabel: string;
+	/**
+	 * Abbreviated name a chart legend repeats after each metric, e.g.
+	 * "Prev. 30 days", "Sep", "2025".
+	 */
+	legendLabel: string;
 	range: Required< DateRange >;
 	/**
 	 * Presets resolving to this same window, listed under this option rather
@@ -102,82 +107,164 @@ function getMatchDayOfWeekLabel( siblingLabel: string ): string {
 	);
 }
 
+/** The length of a previous window, in the unit its name reads in. */
+type PreviousSpan = { unit: 'hour' | 'day' | 'month' | 'year'; count: number };
+
 /**
- * Label for the previous-period option, spelling out the length of the window
- * it mirrors. Follows the same whole-months branch as the range math, so the
- * label never contradicts the window it names.
+ * A previous window measured in hours or days, whatever month shape the range
+ * has: the weekday-aligned period shifts a whole February by four weeks, not a
+ * month, so it must not read "Previous month".
+ *
+ * @param reference - The applied range the comparison mirrors.
+ * @return The span.
+ */
+function getPreviousSpan( reference: Required< DateRange > ): PreviousSpan {
+	const span = getDateRangeSpan( reference );
+
+	if ( span?.unit === 'hour' ) {
+		return { unit: 'hour', count: span.value };
+	}
+
+	return { unit: 'day', count: differenceInCalendarDays( reference.to, reference.from ) + 1 };
+}
+
+/**
+ * The previous-period window, following the same whole-months branch as the
+ * range math, so its name never contradicts the window it names.
  *
  * @param reference       - The applied range the comparison mirrors.
  * @param primaryPresetId - The preset the range came from.
- * @return The label.
+ * @return The span.
  */
-function getPreviousPeriodLabel(
+function getPreviousPeriodSpan(
 	reference: Required< DateRange >,
 	primaryPresetId?: PrimaryPresetId
-): string {
+): PreviousSpan {
 	const wholeMonths = getPreviousPeriodMonthCount( reference.from, reference.to, primaryPresetId );
-
-	if ( wholeMonths === 1 ) {
-		return __( 'Previous month', 'jetpack-premium-analytics-pkg' );
-	}
 
 	if (
 		wholeMonths &&
 		wholeMonths >= MIN_WHOLE_MONTHS_FOR_YEARS &&
 		wholeMonths % MONTHS_PER_YEAR === 0
 	) {
-		const years = wholeMonths / MONTHS_PER_YEAR;
-		return sprintf(
-			/* translators: %d: number of years covered by the selected date range. */
-			_n( 'Previous %d year', 'Previous %d years', years, 'jetpack-premium-analytics-pkg' ),
-			years
-		);
+		return { unit: 'year', count: wholeMonths / MONTHS_PER_YEAR };
 	}
 
 	if ( wholeMonths ) {
-		return sprintf(
-			/* translators: %d: number of months covered by the selected date range. */
-			_n( 'Previous %d month', 'Previous %d months', wholeMonths, 'jetpack-premium-analytics-pkg' ),
-			wholeMonths
-		);
+		return { unit: 'month', count: wholeMonths };
 	}
 
-	return getPreviousSpanLabel( reference );
+	return getPreviousSpan( reference );
 }
 
 /**
- * Label for a previous window measured in hours or days, whatever month shape
- * the range has: the weekday-aligned period shifts a whole February by four
- * weeks, not a month, so it must not read "Previous month".
+ * Name a previous window in full, as the comparison menu lists it.
  *
- * @param reference - The applied range the comparison mirrors.
- * @return The label.
+ * @param span       - The window's length.
+ * @param span.unit
+ * @param span.count
+ * @return The name.
  */
-function getPreviousSpanLabel( reference: Required< DateRange > ): string {
-	const span = getDateRangeSpan( reference );
-
-	if ( span?.unit === 'hour' ) {
-		if ( span.value === 1 ) {
-			return __( 'Previous hour', 'jetpack-premium-analytics-pkg' );
-		}
-		return sprintf(
-			/* translators: %d: number of hours covered by the selected date range. */
-			_n( 'Previous %d hour', 'Previous %d hours', span.value, 'jetpack-premium-analytics-pkg' ),
-			span.value
-		);
+function formatPreviousSpan( { unit, count }: PreviousSpan ): string {
+	switch ( unit ) {
+		case 'hour':
+			return count === 1
+				? __( 'Previous hour', 'jetpack-premium-analytics-pkg' )
+				: sprintf(
+						/* translators: %d: number of hours covered by the selected date range. */
+						_n( 'Previous %d hour', 'Previous %d hours', count, 'jetpack-premium-analytics-pkg' ),
+						count
+					);
+		case 'month':
+			return count === 1
+				? __( 'Previous month', 'jetpack-premium-analytics-pkg' )
+				: sprintf(
+						/* translators: %d: number of months covered by the selected date range. */
+						_n( 'Previous %d month', 'Previous %d months', count, 'jetpack-premium-analytics-pkg' ),
+						count
+					);
+		case 'year':
+			return sprintf(
+				/* translators: %d: number of years covered by the selected date range. */
+				_n( 'Previous %d year', 'Previous %d years', count, 'jetpack-premium-analytics-pkg' ),
+				count
+			);
+		default:
+			return count === 1
+				? __( 'Previous day', 'jetpack-premium-analytics-pkg' )
+				: sprintf(
+						/* translators: %d: number of days covered by the selected date range. */
+						_n( 'Previous %d day', 'Previous %d days', count, 'jetpack-premium-analytics-pkg' ),
+						count
+					);
 	}
+}
 
-	const days = differenceInCalendarDays( reference.to, reference.from ) + 1;
-
-	if ( days === 1 ) {
-		return __( 'Previous day', 'jetpack-premium-analytics-pkg' );
+/**
+ * Name a previous window as a chart legend abbreviates it.
+ *
+ * @param span       - The window's length.
+ * @param span.unit
+ * @param span.count
+ * @return The abbreviation.
+ */
+function abbreviatePreviousSpan( { unit, count }: PreviousSpan ): string {
+	switch ( unit ) {
+		case 'hour':
+			return count === 1
+				? _x( 'Prev. hour', 'comparison legend label', 'jetpack-premium-analytics-pkg' )
+				: sprintf(
+						/* translators: %d: number of hours. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+						_nx(
+							'Prev. %d hour',
+							'Prev. %d hours',
+							count,
+							'comparison legend label',
+							'jetpack-premium-analytics-pkg'
+						),
+						count
+					);
+		case 'month':
+			return count === 1
+				? _x( 'Prev. month', 'comparison legend label', 'jetpack-premium-analytics-pkg' )
+				: sprintf(
+						/* translators: %d: number of months. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+						_nx(
+							'Prev. %d month',
+							'Prev. %d months',
+							count,
+							'comparison legend label',
+							'jetpack-premium-analytics-pkg'
+						),
+						count
+					);
+		case 'year':
+			return sprintf(
+				/* translators: %d: number of years. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+				_nx(
+					'Prev. %d year',
+					'Prev. %d years',
+					count,
+					'comparison legend label',
+					'jetpack-premium-analytics-pkg'
+				),
+				count
+			);
+		default:
+			return count === 1
+				? _x( 'Prev. day', 'comparison legend label', 'jetpack-premium-analytics-pkg' )
+				: sprintf(
+						/* translators: %d: number of days. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+						_nx(
+							'Prev. %d day',
+							'Prev. %d days',
+							count,
+							'comparison legend label',
+							'jetpack-premium-analytics-pkg'
+						),
+						count
+					);
 	}
-
-	return sprintf(
-		/* translators: %d: number of days covered by the selected date range. */
-		_n( 'Previous %d day', 'Previous %d days', days, 'jetpack-premium-analytics-pkg' ),
-		days
-	);
 }
 
 /**
@@ -223,10 +310,53 @@ function getOptionLabel(
 	}
 
 	if ( id === COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {
-		return getMatchDayOfWeekLabel( getPreviousSpanLabel( reference ) );
+		return getMatchDayOfWeekLabel( formatPreviousSpan( getPreviousSpan( reference ) ) );
 	}
 
-	return getPreviousPeriodLabel( reference, primaryPresetId );
+	return formatPreviousSpan( getPreviousPeriodSpan( reference, primaryPresetId ) );
+}
+
+/**
+ * Abbreviated label for an option, as a chart legend repeats it after each
+ * metric: the month or year alone where the menu names one.
+ *
+ * @param id              - The comparison preset.
+ * @param reference       - The applied range.
+ * @param comparison      - The resolved comparison range.
+ * @param primaryPresetId - The preset the applied range came from.
+ * @return The abbreviation.
+ */
+function getLegendLabel(
+	id: ComparisonPresetId,
+	reference: Required< DateRange >,
+	comparison: Required< DateRange >,
+	primaryPresetId?: PrimaryPresetId
+): string {
+	if ( id === COMPARISON_PREVIOUS_WEEK ) {
+		return SHORT_LABELS[ COMPARISON_PREVIOUS_WEEK ]();
+	}
+
+	if ( id === COMPARISON_PREVIOUS_MONTH ) {
+		return getSettings().l10n.monthsShort[ comparison.from.getMonth() ];
+	}
+
+	if ( id === COMPARISON_PREVIOUS_YEAR ) {
+		return String( comparison.from.getFullYear() );
+	}
+
+	if ( id === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
+		return _x( 'Prev. year, weekday', 'comparison legend label', 'jetpack-premium-analytics-pkg' );
+	}
+
+	if ( id === COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {
+		return sprintf(
+			/* translators: %s: an abbreviated previous period, e.g. "Prev. 8 days". The suffix says it starts on the same weekday. */
+			_x( '%s, weekday', 'comparison legend label', 'jetpack-premium-analytics-pkg' ),
+			abbreviatePreviousSpan( getPreviousSpan( reference ) )
+		);
+	}
+
+	return abbreviatePreviousSpan( getPreviousPeriodSpan( reference, primaryPresetId ) );
 }
 
 /**
@@ -296,6 +426,12 @@ export function getComparisonOptions(
 			id,
 			label: getOptionLabel( id, { from: refFrom, to: refTo }, resolved, options.primaryPresetId ),
 			shortLabel: SHORT_LABELS[ id ](),
+			legendLabel: getLegendLabel(
+				id,
+				{ from: refFrom, to: refTo },
+				resolved,
+				options.primaryPresetId
+			),
 			range: resolved,
 			aliases: [],
 		} );
