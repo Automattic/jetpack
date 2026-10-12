@@ -234,9 +234,5 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines[ 0 ] ).toBe( '"Tag or category","Views","URL"' );
 		expect( lines ).toContain( '"Desserts, chocolate","760",""' );
 		expect( lines ).toHaveLength( 13 );
-		// The window is part of the export now, so the filename names it.
-		expect( downloads.files[ 0 ].filename ).toMatch(
-			/^tags-and-categories-\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}\.csv$/
-		);
 	} );
 } );

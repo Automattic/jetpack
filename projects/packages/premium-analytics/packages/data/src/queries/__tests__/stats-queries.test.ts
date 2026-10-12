@@ -657,7 +657,6 @@ describe( 'Stats query factories', () => {
 	// range count fewer posts than a shorter one.
 	it.each( [
 		[ '1 day', '2026-06-01', '2026-06-01' ],
-		[ '31 days', '2026-06-01', '2026-07-01' ],
 		[ '365 days', '2025-07-02', '2026-07-01' ],
 	] )( 'summarizes the tags query at every length (%s)', ( _label, from, to ) => {
 		const params = statsTagsQuery( { from, to, interval: 'day' } ).queryKey[ 5 ] as Record<

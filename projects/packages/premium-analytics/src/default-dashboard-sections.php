@@ -278,7 +278,8 @@ function get_insights_section_default_layout() {
 			3,
 			2
 		),
-		// Row 6: most commented posts + shares (Simple only) + most commented authors.
+		// Row 6: most commented posts + most commented authors fill the row, so shares
+		// (Simple only) opens row 7 instead of pushing authors down with a gap on both rows.
 		get_dashboard_default_widget_instance(
 			'default-most-commented-posts-widget-instance',
 			'jpa/most-commented-posts',
@@ -287,17 +288,17 @@ function get_insights_section_default_layout() {
 			2
 		),
 		get_dashboard_default_widget_instance(
-			'default-shares-widget-instance',
-			'jpa/shares',
+			'default-most-commented-authors-widget-instance',
+			'jpa/most-commented-authors',
 			9,
-			1,
+			2,
 			2
 		),
 		get_dashboard_default_widget_instance(
-			'default-most-commented-authors-widget-instance',
-			'jpa/most-commented-authors',
+			'default-shares-widget-instance',
+			'jpa/shares',
 			10,
-			2,
+			1,
 			2
 		),
 	);

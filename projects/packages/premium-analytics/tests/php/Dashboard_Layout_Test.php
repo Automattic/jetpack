@@ -464,8 +464,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 2, 6 ),
 				'default-views-over-years-widget-instance' => array( 'jpa/views-over-years', 3, 2, 7 ),
 				'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
-				'default-shares-widget-instance'           => array( 'jpa/shares', 1, 2, 9 ),
-				'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 10 ),
+				'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 9 ),
+				'default-shares-widget-instance'           => array( 'jpa/shares', 1, 2, 10 ),
 			),
 			$layout
 		);
