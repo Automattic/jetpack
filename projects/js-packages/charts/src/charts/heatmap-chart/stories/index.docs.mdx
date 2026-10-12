@@ -11,7 +11,7 @@ Visualize values across a two-dimensional matrix of cells on a sequential color 
 
 ## Overview
 
-The Heatmap Chart renders a CSS Grid of colored cells where color intensity maps to cell value. The scale is derived from the resolved primary color and the chart background, so its lowest step keeps 2:1 contrast against the background and the empty cells in any theme. It is suitable for activity matrices, time-based frequency data, and any dataset with two categorical axes.
+The Heatmap Chart renders a CSS Grid of colored cells where color intensity maps to cell value. The scale is derived from the resolved primary color and the chart background, so its lowest step keeps 2:1 contrast against the background in any theme, and against the empty cells unless their color sits too close to the highest step. It is suitable for activity matrices, time-based frequency data, and any dataset with two categorical axes.
 
 <Source
 	language="jsx"

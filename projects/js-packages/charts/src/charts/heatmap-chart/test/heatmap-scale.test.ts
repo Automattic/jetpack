@@ -52,9 +52,11 @@ describe( 'getHeatmapScale', () => {
 		[ '#ffd000', '#767676' ],
 		[ '#3858e9', '#808080' ],
 		[ '#1e1e1e', '#999999' ],
-	] )( 'keeps every step of %s at 2:1 on a mid-gray %s', ( primary, background ) => {
+		[ '#ffd000', '#8a8a8a' ],
+	] )( 'keeps every step of %s at 2:1 on a mid-gray %s, ends apart', ( primary, background ) => {
 		const { low, high } = getHeatmapScale( primary, background );
 
+		expect( low ).not.toBe( high );
 		for ( let step = 0; step <= 20; step++ ) {
 			expect(
 				contrastRatio( mixHexColors( low, high, step / 20 ), background )

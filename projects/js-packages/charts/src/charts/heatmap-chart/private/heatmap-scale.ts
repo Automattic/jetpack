@@ -1,7 +1,7 @@
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { mixHexColors, relativeLuminance } from '../../../utils/color-utils';
 
-/** Contrast the lowest step keeps against the background, the empty cell and the highest step. */
+/** Contrast the lowest step keeps against the background, the highest step and, where it can, the empty cell. */
 export const HEATMAP_LOW_CONTRAST = 2;
 
 /** Contrast the highest step aims for against the background, so the steps stay apart. */
@@ -19,8 +19,8 @@ const ramp = ( from: string, to: string ) =>
 	Array.from( { length: STEPS + 1 }, ( _, step ) => mixHexColors( from, to, step / STEPS ) );
 
 /**
- * The two ends of the heatmap fill scale: 2:1 against the background, the empty cell and the
- * high end at the low end, toward 6:1 against the background at the high end.
+ * The two ends of the heatmap fill scale: 2:1 against the background, the high end and, where it
+ * can, the empty cell at the low end, toward 6:1 against the background at the high end.
  *
  * @param primary    - The resolved primary color, as six-digit hex.
  * @param background - The resolved chart background, as six-digit hex.
