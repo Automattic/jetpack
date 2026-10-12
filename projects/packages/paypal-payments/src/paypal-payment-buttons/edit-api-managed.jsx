@@ -170,11 +170,6 @@ const SHIPPING_MODES = [
 	{ key: 'FREE', name: __( 'Free shipping', 'jetpack-paypal-payments' ) },
 ];
 
-const helpAddress = __(
-	'Requires customer to add shipping address during checkout',
-	'jetpack-paypal-payments'
-);
-
 /**
  * What a screen reader hears for a select with an error under it.
  *
@@ -1433,6 +1428,15 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 
+				{ /* Shipping address */ }
+				<ToggleControl
+					label={ __( 'Shipping address', 'jetpack-paypal-payments' ) }
+					help={ __( 'Collect during checkout', 'jetpack-paypal-payments' ) }
+					checked={ !! collectShippingAddress }
+					onChange={ value => setAttributes( { collectShippingAddress: value } ) }
+					disabled={ isBusy }
+				/>
+
 				{ /* Shipping fees */ }
 				<ToggleControl
 					label={ __( 'Shipping fees', 'jetpack-paypal-payments' ) }
@@ -1510,15 +1514,6 @@ export default function ApiManagedEdit( {
 						) }
 					</>
 				) }
-
-				{ /* Shipping address */ }
-				<CheckboxControl
-					label={ __( 'Collect shipping address', 'jetpack-paypal-payments' ) }
-					help={ helpAddress }
-					checked={ !! collectShippingAddress }
-					onChange={ value => setAttributes( { collectShippingAddress: value } ) }
-					disabled={ isBusy }
-				/>
 
 				{ /* Handling fee */ }
 				<ToggleControl

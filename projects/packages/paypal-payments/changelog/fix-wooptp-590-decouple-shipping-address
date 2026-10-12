@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Payment Buttons: Allow collecting a shipping address without a shipping fee, and require it for tax or shipping from PayPal settings.
+Payment Buttons: Collect the shipping address without a shipping fee, from its own "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on.

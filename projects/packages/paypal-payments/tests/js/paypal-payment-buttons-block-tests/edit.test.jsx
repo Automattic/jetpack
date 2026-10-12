@@ -499,6 +499,7 @@ jest.mock( '@wordpress/components', () => ( {
 		/>
 	),
 	// Ids per instance - the notes repeat the 'Required' label.
+	// The prefix tells a checkbox from a toggle.
 	CheckboxControl: ( { label, checked, onChange, help, disabled } ) => {
 		const id = `checkbox-${ mockReact.useId() }`;
 		return (
@@ -5366,7 +5367,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openSavedForm();
 		}
 
-		it( 'hides the fee select and shows the fees help and address checkbox with shipping fees off', async () => {
+		it( 'hides the fee select and shows the fees help and address toggle with shipping fees off', async () => {
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
 			expect( screen.getByLabelText( 'Shipping fees' ) ).not.toBeChecked();
@@ -5375,22 +5376,51 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
 
-			const box = screen.getByLabelText( 'Collect shipping address' );
+			const toggle = screen.getByLabelText( 'Shipping address' );
 
-			expect( box ).not.toBeChecked();
-			expect( box ).toBeEnabled();
+			expect( toggle ).not.toBeChecked();
+			expect( toggle ).toBeEnabled();
 			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
-		// The checkbox is outside the fee settings, so every mode shows it.
+		// The address toggle is outside the fee settings, so every mode shows it.
 		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
-			'offers the address checkbox in %s mode',
+			'offers the address toggle in %s mode',
 			async shippingMode => {
 				await renderShipping( { shippingMode, collectShippingAddress: true } );
 
-				expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeInTheDocument();
+				expect( screen.getByLabelText( 'Shipping address' ) ).toBeInTheDocument();
 			}
 		);
+
+		// The toggle mock renders a checkbox input, and getAllByRole returns them in page order.
+		it.each( [
+			[ 'on', true ],
+			[ 'off', false ],
+		] )(
+			'puts the address toggle above the fees toggle in Checkout Options, with shipping fees %s',
+			async ( _label, shippingEnabled ) => {
+				await renderShipping( { shippingEnabled } );
+
+				const toggles = within( panel( 'Checkout Options' ) ).getAllByRole( 'checkbox' );
+
+				expect( toggles.map( toggle => toggle.labels[ 0 ].textContent ) ).toEqual( [
+					'Add customer note',
+					'Let customers set quantity',
+					'Add tax',
+					'Shipping address',
+					'Shipping fees',
+					'Add handling fee',
+					'Add discount',
+				] );
+			}
+		);
+
+		it( 'renders the address as a toggle', async () => {
+			await renderShipping();
+
+			expect( screen.getByLabelText( 'Shipping address' ).id ).toMatch( /^toggle-/ );
+		} );
 
 		it.each( [
 			[ 'PROFILE', 'Use shipping from my PayPal settings' ],
@@ -5686,13 +5716,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					collectShippingAddress: false,
 				} );
 
-				const box = screen.getByLabelText( 'Collect shipping address' );
+				const toggle = screen.getByLabelText( 'Shipping address' );
 
-				expect( box ).not.toBeChecked();
-				expect( box ).toBeEnabled();
-				expect(
-					screen.getByText( 'Requires customer to add shipping address during checkout' )
-				).toBeInTheDocument();
+				expect( toggle ).not.toBeChecked();
+				expect( toggle ).toBeEnabled();
+				expect( screen.getByText( 'Collect during checkout' ) ).toBeInTheDocument();
 				expect( addressErrorUnder( 'control-Tax type' ) ).toHaveClass(
 					'jetpack-paypal-payment-buttons__field-error'
 				);
@@ -5721,7 +5749,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( addressErrorUnder( 'control-Shipping fee' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__field-error'
 			);
-			expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeEnabled();
+			expect( screen.getByLabelText( 'Shipping address' ) ).toBeEnabled();
 		} );
 
 		// A screen reader hears the error with the selected option.
@@ -5815,18 +5843,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'on', true ],
 			[ 'off', false ],
 		] )(
-			'writes the address preference when the box is ticked, with shipping fees %s',
+			'writes the address preference when the toggle is turned on, with shipping fees %s',
 			async ( _label, shippingEnabled ) => {
 				const user = userEvent.setup();
 				await renderShipping( { shippingEnabled } );
 
-				await user.click( screen.getByLabelText( 'Collect shipping address' ) );
+				await user.click( screen.getByLabelText( 'Shipping address' ) );
 
 				expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
 			}
 		);
 
-		it( 'lets the address be unticked with shipping fees and tax off', async () => {
+		it( 'lets the address be turned off with shipping fees and tax off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingEnabled: false,
@@ -5835,12 +5863,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				collectShippingAddress: true,
 			} );
 
-			const box = screen.getByLabelText( 'Collect shipping address' );
+			const toggle = screen.getByLabelText( 'Shipping address' );
 
-			expect( box ).toBeChecked();
-			expect( box ).toBeEnabled();
+			expect( toggle ).toBeChecked();
+			expect( toggle ).toBeEnabled();
 
-			await user.click( box );
+			await user.click( toggle );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: false } );
 		} );
