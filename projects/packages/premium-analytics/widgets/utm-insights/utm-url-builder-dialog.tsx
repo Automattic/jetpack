@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import { Button, Dialog } from '@jetpack-premium-analytics/externals';
-import { TextControl } from '@wordpress/components';
+import { Button, Dialog, InputControl, Notice } from '@jetpack-premium-analytics/externals';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './utm-url-builder-dialog.module.scss';
+
+const COPY_NOTICE_ID = 'jetpack-premium-analytics-utm-url-copy';
 
 type UtmValues = {
 	destination: string;
@@ -17,34 +19,44 @@ type UtmValues = {
 	medium: string;
 };
 
-function buildTrackedUrl( { destination, campaign, source, medium }: UtmValues ): string | null {
+function parseDestination( destination: string ): URL | null {
 	const address = destination.trim();
 	if ( ! /^https?:\/\//i.test( address ) ) {
 		return null;
 	}
 
 	try {
-		const url = new URL( address );
-		const parameters = {
-			utm_campaign: campaign.trim(),
-			utm_source: source.trim(),
-			utm_medium: medium.trim(),
-		};
-		if ( ! Object.values( parameters ).some( Boolean ) ) {
-			return null;
-		}
-
-		for ( const [ key, value ] of Object.entries( parameters ) ) {
-			url.searchParams.delete( key );
-			if ( value ) {
-				url.searchParams.set( key, value );
-			}
-		}
-
-		return url.toString();
+		return new URL( address );
 	} catch {
 		return null;
 	}
+}
+
+function buildTrackedUrl(
+	url: URL | null,
+	{ campaign, source, medium }: Omit< UtmValues, 'destination' >
+): string | null {
+	if ( ! url ) {
+		return null;
+	}
+
+	const parameters = {
+		utm_campaign: campaign.trim(),
+		utm_source: source.trim(),
+		utm_medium: medium.trim(),
+	};
+	if ( ! Object.values( parameters ).some( Boolean ) ) {
+		return null;
+	}
+
+	for ( const [ key, value ] of Object.entries( parameters ) ) {
+		url.searchParams.delete( key );
+		if ( value ) {
+			url.searchParams.set( key, value );
+		}
+	}
+
+	return url.toString();
 }
 
 export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
@@ -54,12 +66,18 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		source: '',
 		medium: '',
 	} );
-	const [ copyState, setCopyState ] = useState< 'idle' | 'copied' | 'failed' >( 'idle' );
-	const trackedUrl = buildTrackedUrl( values );
+	const { createSuccessNotice } = useDispatch( 'core/notices' );
+	const [ hasCopyFailed, setHasCopyFailed ] = useState( false );
+	const destinationUrl = parseDestination( values.destination );
+	const isDestinationInvalid = values.destination.trim() !== '' && ! destinationUrl;
+	const trackedUrl = buildTrackedUrl( destinationUrl, values );
+	const copyFailedMessage = __(
+		'Could not copy the URL. Select it and copy it manually.',
+		'jetpack-premium-analytics-pkg'
+	);
 
 	const setField = useCallback( ( field: keyof UtmValues, value: string ) => {
 		setValues( current => ( { ...current, [ field ]: value } ) );
-		setCopyState( 'idle' );
 	}, [] );
 	const setDestination = useCallback(
 		( value: string ) => setField( 'destination', value ),
@@ -87,11 +105,17 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 
 		try {
 			await navigator.clipboard.writeText( trackedUrl );
-			setCopyState( 'copied' );
 		} catch {
-			setCopyState( 'failed' );
+			setHasCopyFailed( true );
+			return;
 		}
-	}, [ trackedUrl ] );
+		// A snackbar renders under an open dialog, so the dialog closes first.
+		onClose();
+		createSuccessNotice( __( 'Copied URL to clipboard.', 'jetpack-premium-analytics-pkg' ), {
+			id: COPY_NOTICE_ID,
+			type: 'snackbar',
+		} );
+	}, [ createSuccessNotice, onClose, trackedUrl ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -109,28 +133,36 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 									'jetpack-premium-analytics-pkg'
 								) }
 							</p>
-							<TextControl
+							<InputControl
 								label={ __( 'Destination URL', 'jetpack-premium-analytics-pkg' ) }
 								type="url"
 								value={ values.destination }
-								onChange={ setDestination }
+								onValueChange={ setDestination }
+								description={
+									isDestinationInvalid
+										? __(
+												'Enter a full URL that starts with https:// or http://.',
+												'jetpack-premium-analytics-pkg'
+											)
+										: undefined
+								}
 							/>
-							<TextControl
+							<InputControl
 								label={ __( 'UTM campaign', 'jetpack-premium-analytics-pkg' ) }
 								value={ values.campaign }
-								onChange={ setCampaign }
+								onValueChange={ setCampaign }
 								placeholder={ __( 'e.g. promotion', 'jetpack-premium-analytics-pkg' ) }
 							/>
-							<TextControl
+							<InputControl
 								label={ __( 'UTM source', 'jetpack-premium-analytics-pkg' ) }
 								value={ values.source }
-								onChange={ setSource }
+								onValueChange={ setSource }
 								placeholder={ __( 'e.g. newsletter', 'jetpack-premium-analytics-pkg' ) }
 							/>
-							<TextControl
+							<InputControl
 								label={ __( 'UTM medium', 'jetpack-premium-analytics-pkg' ) }
 								value={ values.medium }
-								onChange={ setMedium }
+								onValueChange={ setMedium }
 								placeholder={ __( 'e.g. email, social', 'jetpack-premium-analytics-pkg' ) }
 							/>
 							<div className={ styles.result }>
@@ -143,26 +175,10 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 										) }
 								</div>
 							</div>
-							<Button
-								variant="outline"
-								size="compact"
-								disabled={ ! trackedUrl }
-								onClick={ copyUrl }
-							>
-								{ __( 'Copy to clipboard', 'jetpack-premium-analytics-pkg' ) }
-							</Button>
-							{ copyState === 'failed' && (
-								<p role="alert">
-									{ __(
-										'Could not copy the URL. Select it above and copy it manually.',
-										'jetpack-premium-analytics-pkg'
-									) }
-								</p>
-							) }
-							{ copyState === 'copied' && (
-								<p role="status">
-									{ __( 'Copied to clipboard.', 'jetpack-premium-analytics-pkg' ) }
-								</p>
+							{ hasCopyFailed && (
+								<Notice.Root intent="error" spokenMessage={ copyFailedMessage }>
+									<Notice.Description>{ copyFailedMessage }</Notice.Description>
+								</Notice.Root>
 							) }
 						</div>
 						<aside className={ styles.help }>
@@ -212,6 +228,11 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 						</aside>
 					</div>
 				</Dialog.Content>
+				<Dialog.Footer>
+					<Button variant="solid" size="compact" disabled={ ! trackedUrl } onClick={ copyUrl }>
+						{ __( 'Copy to clipboard', 'jetpack-premium-analytics-pkg' ) }
+					</Button>
+				</Dialog.Footer>
 			</Dialog.Popup>
 		</Dialog.Root>
 	);

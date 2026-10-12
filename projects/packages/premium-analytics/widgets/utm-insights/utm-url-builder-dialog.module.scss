@@ -13,10 +13,6 @@
 	p {
 		margin-block: 0;
 	}
-
-	> button {
-		justify-self: start;
-	}
 }
 
 .result {
@@ -34,7 +30,7 @@
 		padding: var(--wpds-dimension-gap-sm);
 		border-radius: var(--wpds-border-radius-sm);
 		background: var(--wpds-color-background-surface-neutral-weak);
-		overflow-wrap: anywhere;
+		word-break: break-all;
 	}
 }
 

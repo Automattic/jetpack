@@ -78,6 +78,7 @@ export {
 	Icon,
 	IconButton,
 	Input,
+	InputControl,
 	Link,
 	Menu,
 	Notice,
