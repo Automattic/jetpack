@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
-import { announce } from '../../data/announce';
+import { announce, cancelAnnouncement } from '../../data/announce';
 import { errorCode } from '../../data/api/_helpers';
 import { useFocusHandoff } from '../../hooks/use-focus-handoff';
 import ErrorReference from '../error-reference';
@@ -96,6 +96,15 @@ export default function QueryError( {
 		}
 		previous.current = { isRetrying, message };
 	}, [ isRetrying, message, silent, source ] );
+
+	useEffect(
+		() => () => {
+			cancelAnnouncement( source );
+			// Forgotten too, so StrictMode's remount speaks again what this cleanup withdrew.
+			previous.current = { isRetrying: false, message: '' };
+		},
+		[ source ]
+	);
 
 	return (
 		<Notice.Root

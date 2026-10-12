@@ -3,8 +3,9 @@ import { speak } from '@wordpress/a11y';
 /** How long a message waits for others to join it. */
 export const ANNOUNCE_WINDOW_MS = 500;
 
-const queue = new Map< unknown, string >();
-let assertive = false;
+type Politeness = 'polite' | 'assertive';
+
+const queue = new Map< unknown, { message: string; politeness: Politeness } >();
 let timer: ReturnType< typeof setTimeout > | null = null;
 
 /**
@@ -19,20 +20,35 @@ let timer: ReturnType< typeof setTimeout > | null = null;
  */
 export function announce(
 	message: string,
-	politeness: 'polite' | 'assertive' = 'polite',
+	politeness: Politeness = 'polite',
 	source: unknown = message
 ): void {
-	queue.set( source, message );
-	assertive = assertive || politeness === 'assertive';
+	// Deleted first: `set()` on a waiting source keeps its old place, not its arrival order.
+	queue.delete( source );
+	queue.set( source, { message, politeness } );
 	if ( timer ) {
 		return;
 	}
 	timer = setTimeout( () => {
-		const text = [ ...new Set( queue.values() ) ].join( ' ' );
-		const live = assertive ? 'assertive' : 'polite';
+		const entries = [ ...queue.values() ];
 		clearQueue();
-		speak( text, live );
+		speak(
+			[ ...new Set( entries.map( entry => entry.message ) ) ].join( ' ' ),
+			entries.some( entry => entry.politeness === 'assertive' ) ? 'assertive' : 'polite'
+		);
 	}, ANNOUNCE_WINDOW_MS );
+}
+
+/**
+ * Withdraw a message that is still waiting, as when the notice it describes goes away.
+ *
+ * @param source - Who asked for it, as passed to `announce()`.
+ */
+export function cancelAnnouncement( source: unknown ): void {
+	queue.delete( source );
+	if ( ! queue.size ) {
+		clearQueue();
+	}
 }
 
 /** Forget whatever is waiting, along with its timer. */
@@ -41,7 +57,6 @@ function clearQueue(): void {
 		clearTimeout( timer );
 	}
 	queue.clear();
-	assertive = false;
 	timer = null;
 }
 

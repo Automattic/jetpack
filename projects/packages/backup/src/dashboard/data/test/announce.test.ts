@@ -2,7 +2,7 @@ jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 // Imports must come after the jest.mock factory above.
 import { speak } from '@wordpress/a11y';
-import { ANNOUNCE_WINDOW_MS, announce } from '../announce';
+import { ANNOUNCE_WINDOW_MS, announce, cancelAnnouncement } from '../announce';
 
 beforeEach( () => {
 	jest.useFakeTimers();
@@ -26,11 +26,26 @@ describe( 'announce', () => {
 		);
 	} );
 
-	it( 'lets a newer message replace one its source left waiting', () => {
+	it( 'lets a newer message replace one its source left waiting, in arrival order', () => {
 		announce( 'Load failed. Service unavailable', 'assertive', 'notice' );
+		announce( 'Your backup is ready.' );
 		announce( 'Load failed. Timed out', 'assertive', 'notice' );
 		jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS );
 
-		expect( speak ).toHaveBeenCalledWith( 'Load failed. Timed out', 'assertive' );
+		expect( speak ).toHaveBeenCalledWith(
+			'Your backup is ready. Load failed. Timed out',
+			'assertive'
+		);
+	} );
+
+	it( 'drops a withdrawn message and its urgency, and speaks the rest', () => {
+		announce( "We couldn't load this backup's files.", 'assertive', 'notice' );
+		announce( 'Your backup is ready.' );
+		cancelAnnouncement( 'notice' );
+		jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS );
+
+		expect( ( speak as jest.Mock ).mock.calls ).toEqual( [
+			[ 'Your backup is ready.', 'polite' ],
+		] );
 	} );
 } );
