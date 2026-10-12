@@ -213,6 +213,7 @@ export function resolveFeatureState(
 	modulesLoading = false,
 	needsAccount = false
 ): FeatureState {
+	// Wait before the account branch: module overrides and multisite blocks are still unknown.
 	if ( feature.in_jetpack && jetpack === 'active' && modulesLoading ) {
 		return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 	}
