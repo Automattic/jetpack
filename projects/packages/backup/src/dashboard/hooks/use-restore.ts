@@ -78,6 +78,8 @@ type DeriveInput = {
 	pollFailures: number;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
+	/** Whether the restores collection has been read successfully since submitting. */
+	restoresRead: boolean;
 };
 
 /**
@@ -107,6 +109,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 		pollFailures,
 		data,
 		lostTrack,
+		restoresRead,
 	} = input;
 
 	if ( errorMessage ) {
@@ -146,6 +149,14 @@ function deriveState( input: DeriveInput ): RestoreState {
 						message: __( 'Restore failed.', 'jetpack-backup-pkg' ),
 						reference: { code: null, id: { kind: 'restore', value: settledOutcome.restoreId } },
 					};
+		}
+		// A collection we could not read has not shown that nothing started.
+		if ( lostTrack && ! restoresRead ) {
+			return {
+				phase: 'lost-track',
+				detail: unconfirmed,
+				reference: { code: failureCode, id: referenceId },
+			};
 		}
 		if ( lostTrack ) {
 			return {
@@ -400,6 +411,16 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		refetchInterval: recovering ? POLL_INTERVAL_MS : false,
 	} );
 
+	// Latched: a later unreadable read must not take back an earlier good one.
+	const [ restoresRead, setRestoresRead ] = useState( false );
+	const restoresData = restoresQuery.data;
+	const restoresUpdatedAt = restoresQuery.dataUpdatedAt;
+	useEffect( () => {
+		if ( aliveAt !== null && Array.isArray( restoresData ) && restoresUpdatedAt >= aliveAt ) {
+			setRestoresRead( true );
+		}
+	}, [ aliveAt, restoresData, restoresUpdatedAt ] );
+
 	const recoveredId = useMemo( () => {
 		if ( ! needsId || startedRewindId === null ) {
 			return null;
@@ -505,6 +526,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		setStartedRewindId( null );
 		setAliveAt( null );
 		setLostTrack( false );
+		setRestoresRead( false );
 		lastSeenUpdateAt.current = 0;
 		resetMutation();
 	}, [ resetMutation ] );
@@ -526,6 +548,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		pollFailures,
 		data: statusQuery.data,
 		lostTrack,
+		restoresRead,
 	} );
 
 	return {

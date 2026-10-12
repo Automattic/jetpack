@@ -1106,6 +1106,32 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 		expect( result.current.state.phase ).toBe( 'error' );
 	} );
 
+	// A read that fails, or that WordPress.com answers with a bare `null`,
+	// has not shown that nothing started. Saying so would deny a restore
+	// that may be running.
+	it.each( [
+		[ 'answers with null', () => Promise.resolve( null ) ],
+		[ 'rejects', () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) ],
+	] )( 'does not say nothing started when the restores list %s', async ( _label, readRestores ) => {
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.reject( TIMEOUT );
+			}
+			return ( options?.path ?? '' ).includes( '/restores' )
+				? readRestores()
+				: Promise.resolve( statusPayload() );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'unconfirmed' );
+		await advance( 5 * 60_000 + 1000 );
+
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+	} );
+
 	/**
 	 * Force `navigator.onLine`, restoring it afterwards.
 	 *
