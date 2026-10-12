@@ -1,0 +1,26 @@
+// Imported by the page frame rather than per route, so every
+// route bundles the layout.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Scoped to the body class so the layout cannot leak onto other Jetpack pages.
+body.jetpack_page_jetpack-earn {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+.wpcom-earn {
+
+	// Sized to its full content height, so the sticky tab strip
+	// stays pinned the whole way down.
+	&__tabs {
+		display: flex;
+		flex: 0 0 auto;
+		flex-direction: column;
+	}
+
+	// The unwrapped page pads only its header; align the content with it.
+	&__content {
+		padding: var(--wpds-dimension-padding-2xl);
+	}
+}

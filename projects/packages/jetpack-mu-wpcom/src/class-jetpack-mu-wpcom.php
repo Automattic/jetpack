@@ -126,6 +126,11 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
 		}
 
+		// The Monetize page replaces Calypso's Earn page on both platforms.
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_earn' ) );
+		}
+
 		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
@@ -892,6 +897,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_backup() {
 		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';
+	}
+
+	/**
+	 * Load the Monetize page on WordPress.com Simple and WoA sites.
+	 */
+	public static function load_wpcom_earn() {
+		require_once __DIR__ . '/features/wpcom-earn/wpcom-earn.php';
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a Monetize page to wp-admin on WordPress.com sites, behind the earn-wp-build feature flag.
