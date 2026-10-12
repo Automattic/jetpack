@@ -112,7 +112,14 @@ const connectionOwner = ( state = null, action ) => {
  * `null` is the initial value on purpose. The server withholds all three from a viewer who
  * cannot manage the connection, and "cannot say" must not read as "no".
  */
-const hasProtectedOwner = ( state = null ) => state;
+const hasProtectedOwner = ( state = null, action ) => {
+	switch ( action.type ) {
+		case SET_CONNECTION_OWNER:
+			return null;
+		default:
+			return state;
+	}
+};
 
 const requiresProtectedOwner = ( state = null ) => state;
 

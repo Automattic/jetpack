@@ -44,6 +44,14 @@ describe( 'setConnectionOwner', () => {
 		expect( data.connectionOwner ).toBe( 'Kazz' );
 	} );
 
+	it( 'stops answering whether the owner is the protected owner', () => {
+		const id = storeWith( { ...initialState, hasProtectedOwner: true }, 'test/owner-protected' );
+
+		dispatch( id ).setConnectionOwner( { id: 7, displayName: 'Kazz' } );
+
+		expect( select( id ).getHasProtectedOwner() ).toBeNull();
+	} );
+
 	it( 'leaves the rest of the user connection data alone', () => {
 		const id = storeWith( initialState, 'test/owner-untouched' );
 
