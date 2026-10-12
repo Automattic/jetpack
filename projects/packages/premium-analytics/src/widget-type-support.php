@@ -28,13 +28,6 @@ const VIDEOPRESS_WIDGET_TYPES = array(
 );
 
 /**
- * Widget types that surface plan usage and upgrade prompts.
- */
-const PLAN_USAGE_WIDGET_TYPES = array(
-	'jpa/plan-usage',
-);
-
-/**
  * Period widgets whose chart reads the section's date range.
  */
 const PERIOD_WIDGET_TYPES = array(
@@ -63,12 +56,9 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	// Plan usage lives on the dashboard's Settings tab, not in a widget.
-	$unsupported = PLAN_USAGE_WIDGET_TYPES;
-
 	// Temporary: the period widgets are held back on every site until product decides
 	// whether they return or go (WOOA7S-2020). Their code stays.
-	$unsupported = array_merge( $unsupported, PERIOD_WIDGET_TYPES );
+	$unsupported = PERIOD_WIDGET_TYPES;
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.

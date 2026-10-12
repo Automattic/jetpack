@@ -51,6 +51,7 @@ export {
 	Donut,
 	type DonutProps,
 	type DonutSegmentInput,
+	Funnel,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -103,6 +104,8 @@ export {
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	AuthorDetailLink,
+	authorDetailLinkProps,
 	HighlightField,
 	HighlightGroup,
 	type HighlightFieldProps,
@@ -321,8 +324,6 @@ export {
 	type MonthlyHeatmapMetric,
 	monthlyHeatmapLifeStart,
 	bucketRange,
-	getOverLimitMessage,
-	getPlanUpgradeUrl,
 	monthRange,
 	yearRange,
 	type PeriodBounds,
@@ -339,7 +340,6 @@ export {
 	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
-	usePlanUsage,
 	useWidgetNavigationSearch,
 	useSegmentStyles,
 	useSeriesStyles,
@@ -362,7 +362,6 @@ export {
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	SessionsByDeviceWidget,
 } from './widgets';
 
 /**
