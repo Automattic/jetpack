@@ -101,8 +101,8 @@ export interface MetricTab {
 	counterpartKey?: string;
 	/** Start the counterpart hidden, so the legend offers it as a one-click comparison. */
 	counterpartHidden?: boolean;
-	/** Draw in a dark shade of the accent rather than a palette color, so a pair reads as one color family. */
-	shade?: 'dark';
+	/** Draw in the accent, or a dark shade of it, rather than a palette color picked in render order. */
+	shade?: 'accent' | 'dark';
 	/**
 	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
@@ -281,13 +281,14 @@ function MetricChart( {
 
 	// The first palette color is the admin accent.
 	const { getElementStyles } = useGlobalChartsContext();
-	const darkShade = useMemo(
-		() => mixHexColors( getElementStyles( { index: 0 } ).color, '#000000', DARK_SHADE_BLEND ),
-		[ getElementStyles ]
-	);
+	const shades = useMemo( () => {
+		const accent = getElementStyles( { index: 0 } ).color;
+
+		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
+	}, [ getElementStyles ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const strokeFor = ( { shade }: MetricTab ) => ( shade === 'dark' ? darkShade : undefined );
+		const strokeFor = ( { shade }: MetricTab ) => ( shade ? shades[ shade ] : undefined );
 		const active = buildSeries( metric, chartType, strokeFor( metric ) );
 
 		if ( ! counterpart ) {
@@ -299,7 +300,7 @@ function MetricChart( {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType, darkShade ] );
+	}, [ metric, counterpart, chartType, shades ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 

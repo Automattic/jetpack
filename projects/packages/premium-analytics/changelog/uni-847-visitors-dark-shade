@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Traffic summary: Draw Visitors in a dark shade of the admin color instead of a contrasting color.
+Traffic summary: Draw every metric in the admin color, with Visitors in a dark shade of it instead of a contrasting color.

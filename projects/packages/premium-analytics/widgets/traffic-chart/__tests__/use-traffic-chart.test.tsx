@@ -135,6 +135,12 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 1 ].value ).toBe( 1500 );
 		expect( metrics[ 2 ].value ).toBe( 20 );
 		expect( metrics[ 3 ].value ).toBe( 50 );
+		expect( metrics.map( metric => metric.shade ) ).toEqual( [
+			'accent',
+			'dark',
+			'accent',
+			'accent',
+		] );
 	} );
 
 	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {

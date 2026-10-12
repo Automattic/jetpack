@@ -186,7 +186,7 @@ export default function useTrafficChart(
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
-					shade: 'shade' in metric ? metric.shade : undefined,
+					shade: metric.shade,
 					tooltipExtras:
 						readsTraffic && trafficTooltipExtras.length ? trafficTooltipExtras : undefined,
 				};

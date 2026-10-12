@@ -54,8 +54,8 @@ export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
  * Metric tabs in display order; id doubles as the `stat_fields` value. Views
  * and Visitors pair via `counterpartId` (unavailable at the hourly bucket);
  * `counterpartId` is typed to the id set so a typo can't silently drop the pairing.
- * Visitors starts with Views hidden, since Views' scale would flatten its line,
- * and keeps a dark shade of the accent on either tab, as in classic Stats.
+ * Visitors starts with Views hidden, since Views' scale would flatten its line.
+ * Every metric takes the accent and Visitors a dark shade of it, as in classic Stats.
  */
 export const TRAFFIC_CHART_METRICS = [
 	{
@@ -65,6 +65,7 @@ export const TRAFFIC_CHART_METRICS = [
 			/* translators: %s: number of views. */
 			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 		counterpartId: 'visitors',
+		shade: 'accent',
 	},
 	{
 		id: 'visitors',
@@ -82,6 +83,7 @@ export const TRAFFIC_CHART_METRICS = [
 		countLabel: count =>
 			/* translators: %s: number of comments. */
 			_n( '%s Comment', '%s Comments', count, 'jetpack-premium-analytics-pkg' ),
+		shade: 'accent',
 	},
 	{
 		id: 'likes',
@@ -89,6 +91,7 @@ export const TRAFFIC_CHART_METRICS = [
 		countLabel: count =>
 			/* translators: %s: number of likes. */
 			_n( '%s Like', '%s Likes', count, 'jetpack-premium-analytics-pkg' ),
+		shade: 'accent',
 	},
 ] as const satisfies readonly {
 	id: TrafficChartMetricId;
@@ -96,7 +99,7 @@ export const TRAFFIC_CHART_METRICS = [
 	countLabel: CountLabel;
 	counterpartId?: TrafficChartMetricId;
 	counterpartHidden?: boolean;
-	shade?: 'dark';
+	shade: 'accent' | 'dark';
 }[];
 
 /**
