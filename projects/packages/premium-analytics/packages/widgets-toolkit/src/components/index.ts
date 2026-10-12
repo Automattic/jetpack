@@ -65,6 +65,7 @@ export {
 	type LeaderboardStatus,
 } from './leaderboard';
 export { Donut, type DonutProps, type DonutSegmentInput } from './donut';
+export { Columns, type ColumnsProps, type ColumnInput } from './columns';
 export {
 	BarChart,
 	BarChartSkeleton,
