@@ -156,12 +156,17 @@ class Current_Plan {
 			'plans'    => array(
 				'jetpack_complete',
 				'jetpack_complete_monthly',
+				'jetpack_complete_bi_yearly',
 				'vip',
 			),
 			'supports' => array(
 				'field-file', // Forms
 				'social-image-generator',
 			),
+		),
+		'pro'      => array(
+			'plans'    => array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly', 'jetpack_pro_monthly' ),
+			'supports' => array(),
 		),
 	);
 
@@ -339,7 +344,7 @@ class Current_Plan {
 			if ( ! isset( $module ) || ! is_array( $module ) ) {
 				continue;
 			}
-			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
+			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) || ( 'pro' === $plan['class'] && in_array( 'complete', $module['plan_classes'], true ) ) ) {
 				$supports[] = $module_slug;
 			}
 		}
