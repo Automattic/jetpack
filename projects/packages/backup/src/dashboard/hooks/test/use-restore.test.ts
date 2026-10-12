@@ -1392,8 +1392,10 @@ describe( 'useRestore — a status poll that fails mid-restore', () => {
 		const result = await startAndReadOnce();
 
 		pollFails = true;
-		await advance( 6 * 60_000 );
+		await advance( 5 * 60_000 - 1000 );
+		expect( result.current.state.phase ).toBe( 'progress' );
 
+		await advance( 2000 + POLL_INTERVAL_MS );
 		expect( result.current.state.phase ).toBe( 'lost-track' );
 	} );
 } );

@@ -12,6 +12,7 @@ export const RECONNECT_AFTER_FAILURES = 3;
  */
 export function usePollFailures( errorUpdatedAt: number, dataUpdatedAt: number ): number {
 	const [ failures, setFailures ] = useState( 0 );
+	// Do not reorder: the reset must run after the increment on mount.
 	useEffect( () => {
 		setFailures( count => ( errorUpdatedAt === 0 ? 0 : count + 1 ) );
 	}, [ errorUpdatedAt ] );

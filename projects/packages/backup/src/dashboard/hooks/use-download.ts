@@ -74,7 +74,11 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
 		enabled: downloadId !== null && enabled,
-		refetchInterval: query => ( query.state.data?.status === 'running' ? POLL_INTERVAL_MS : false ),
+		// No reading yet is not a reason to stop: the first poll may simply have failed.
+		refetchInterval: query => {
+			const status = query.state.data?.status;
+			return status === undefined || status === 'running' ? POLL_INTERVAL_MS : false;
+		},
 	} );
 	const failedPolls = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 
@@ -131,15 +135,6 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 				: __( 'Download failed.', 'jetpack-backup-pkg' ),
 			// Upstream reports this one in prose only, so there is no code to quote.
 			reference: { code: null, id: referenceId },
-		};
-	} else if ( downloadId !== null && statusQuery.error && statusQuery.data?.status !== 'running' ) {
-		// Nothing in progress to keep showing, so surface the failure.
-		state = {
-			phase: 'error',
-			message:
-				statusQuery.error.message ||
-				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
-			reference: { code: errorCode( statusQuery.error ), id: referenceId },
 		};
 	} else if ( downloadId !== null ) {
 		state = {

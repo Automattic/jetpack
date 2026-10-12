@@ -253,4 +253,47 @@ describe( 'useDownload — a status poll that fails', () => {
 		await advance( 3000 );
 		expect( result.current.state ).toEqual( { phase: 'progress', percent: 40 } );
 	} );
+
+	it( 'keeps polling and never errors when the first reads fail', async () => {
+		pollFails = true;
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+
+		for ( let i = 0; i < 10 && ! ( 'reconnecting' in result.current.state ); i++ ) {
+			await advance( 1500 );
+			expect( result.current.state.phase ).toBe( 'progress' );
+		}
+		expect( failedCalls ).toBeGreaterThanOrEqual( 3 );
+		expect( result.current.state ).toEqual( {
+			phase: 'progress',
+			percent: 0,
+			reconnecting: true,
+		} );
+
+		pollFails = false;
+		await advance( 3000 );
+		expect( result.current.state ).toEqual( { phase: 'progress', percent: 40 } );
+	} );
+
+	// Production retries a failed read once, so one failed poll is two calls.
+	it( 'counts a poll as one failure after its retry', async () => {
+		const client = new QueryClient( {
+			defaultOptions: { queries: { retry: 1 }, mutations: { retry: false } },
+		} );
+		const wrapper = ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client }, children );
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+		await advance( 10 );
+		await advance( 10 );
+		await advance( 10 );
+		expect( result.current.state ).toEqual( { phase: 'progress', percent: 40 } );
+
+		pollFails = true;
+		for ( let i = 0; i < 20 && ! ( 'reconnecting' in result.current.state ); i++ ) {
+			await advance( 1500 );
+		}
+		expect( failedCalls ).toBe( 6 );
+	} );
 } );
