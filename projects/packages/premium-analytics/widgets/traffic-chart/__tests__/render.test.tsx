@@ -99,6 +99,13 @@ describe( 'TrafficChart chart type', () => {
 
 		expect( drawnChartType() ).toBe( 'bar' );
 	} );
+
+	it( 'draws the selected metric in the accent and its pair in a dark shade', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		const calls = mockMetricTabsChart.mock.calls;
+		expect( calls[ calls.length - 1 ][ 0 ].accentColors ).toBe( true );
+	} );
 } );
 
 describe( 'TrafficChart inherited Stats v1 choice', () => {

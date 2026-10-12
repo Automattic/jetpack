@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Premium Analytics: Show every Traffic summary metric in the admin color, with Visitors in a darker shade of it instead of a contrasting color.
+Premium Analytics: Show the selected Traffic summary metric in the admin color, and Views or Visitors beside it in a darker shade instead of a contrasting color.

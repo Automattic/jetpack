@@ -42,7 +42,7 @@ const MIN_TAB_WIDTH = 120;
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
 
-/** How far a `dark` metric's color moves from the accent toward black; interim until UNI-847 settles the shades. */
+/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
 const DARK_SHADE_BLEND = 0.5;
 
 /** The pointer-event payload both comparative charts report. */
@@ -101,8 +101,6 @@ export interface MetricTab {
 	counterpartKey?: string;
 	/** Start the counterpart hidden, so the legend offers it as a one-click comparison. */
 	counterpartHidden?: boolean;
-	/** Draw in the accent, or a dark shade of it, rather than a palette color picked in render order. */
-	shade?: 'accent' | 'dark';
 	/**
 	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
@@ -172,6 +170,11 @@ export interface MetricTabsChartProps {
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
+	/**
+	 * Draw the selected metric in the admin accent and its counterpart in a dark
+	 * shade of it, rather than palette colors assigned in render order.
+	 */
+	accentColors?: boolean;
 }
 
 /**
@@ -242,6 +245,7 @@ function MetricChart( {
 	onDatumClick,
 	baseline,
 	empty,
+	accentColors,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -254,6 +258,7 @@ function MetricChart( {
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 	empty?: ReactNode;
+	accentColors?: boolean;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
@@ -282,20 +287,22 @@ function MetricChart( {
 	// The first palette color is the admin accent.
 	const { getElementStyles } = useGlobalChartsContext();
 	const shades = useMemo( () => {
-		const accent = getElementStyles( { index: 0 } ).color;
+		if ( ! accentColors ) {
+			return undefined;
+		}
 
+		const accent = getElementStyles( { index: 0 } ).color;
 		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
-	}, [ getElementStyles ] );
+	}, [ accentColors, getElementStyles ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const strokeFor = ( { shade }: MetricTab ) => ( shade ? shades[ shade ] : undefined );
-		const active = buildSeries( metric, chartType, strokeFor( metric ) );
+		const active = buildSeries( metric, chartType, shades?.accent );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType, strokeFor( counterpart ) );
+		const paired = buildSeries( counterpart, chartType, shades?.dark );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
@@ -492,6 +499,7 @@ export function MetricTabsChart( {
 	tooltipMetrics = 'active',
 	baseline,
 	empty,
+	accentColors,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -589,6 +597,7 @@ export function MetricTabsChart( {
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						empty={ empty }
+						accentColors={ accentColors }
 					/>
 				</div>
 			</div>
@@ -662,6 +671,7 @@ export function MetricTabsChart( {
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
 							empty={ empty }
+							accentColors={ accentColors }
 						/>
 					) }
 				</div>
@@ -711,6 +721,7 @@ export function MetricTabsChart( {
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						empty={ empty }
+						accentColors={ accentColors }
 					/>
 				</Tabs.Panel>
 			) ) }

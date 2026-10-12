@@ -484,27 +484,26 @@ describe( 'MetricTabsChart', () => {
 		[ 'line', mockLineSpy ],
 		[ 'bar', mockBarSpy ],
 	] as const )(
-		'draws each metric and its previous period in its shade of the accent on either tab (%s)',
+		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
 		( chartType, spy ) => {
 			render(
 				<MetricTabsChart
-					metrics={ [
-						{ ...VIEWS, shade: 'accent' },
-						{ ...VISITORS, shade: 'dark' },
-					] }
+					metrics={ [ VIEWS, VISITORS ] }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					accentColors
 				/>
 			);
 			const strokes = ( label: string ) =>
 				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
-
 			// The mocked accent `#3858E9`, and that halfway to black.
-			expect( strokes( 'Views' ) ).toEqual( [ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ] );
+			const expected = [ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ];
+
+			expect( strokes( 'Views' ) ).toEqual( expected );
 			// This package does not depend on @testing-library/user-event.
 			// eslint-disable-next-line testing-library/prefer-user-event
 			fireEvent.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
-			expect( strokes( 'Visitors' ) ).toEqual( [ '#1c2c75', '#1c2c75', '#3858E9', '#3858E9' ] );
+			expect( strokes( 'Visitors' ) ).toEqual( expected );
 		}
 	);
 

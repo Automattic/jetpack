@@ -119,6 +119,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					tickResolution={ period }
 					onDatumClick={ openBucket }
 					empty={ <ChartEmptyState /> }
+					accentColors
 				/>
 			</WidgetState>
 		</div>
