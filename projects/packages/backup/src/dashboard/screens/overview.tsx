@@ -461,7 +461,7 @@ function RightPane( {
 				 * Neither the upstream reason nor a retry: the list beside this pane
 				 * reports the activity feed's failure with both, and a second copy of
 				 * each is two error notices and two buttons for one thing to fix.
-				 * Silent too: it mounts with the list's notice, and the later `speak()` would win.
+				 * Silent too: spoken beside the list's notice, it would only repeat the failure.
 				 */ }
 				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } silent />
 			</div>

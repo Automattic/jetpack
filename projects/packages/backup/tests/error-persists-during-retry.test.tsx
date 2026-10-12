@@ -43,6 +43,7 @@ import { useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import QueryError from '../src/dashboard/components/query-error';
+import { ANNOUNCE_WINDOW_MS } from '../src/dashboard/data/announce';
 import { queryClient } from '../src/dashboard/data/query-client';
 import { useBackups } from '../src/dashboard/hooks/use-backups';
 import { useStickyError } from '../src/dashboard/hooks/use-sticky-error';
@@ -172,6 +173,9 @@ describe( 'useStickyError', () => {
 } );
 
 describe( 'query error', () => {
+	beforeEach( () => jest.useFakeTimers() );
+	afterEach( () => jest.useRealTimers() );
+
 	it.each( [
 		[ 'the same message', 'Service unavailable' ],
 		[ 'a different message', 'Timed out' ],
@@ -184,6 +188,7 @@ describe( 'query error', () => {
 				isRetrying
 			/>
 		);
+		act( () => jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS ) );
 		( speak as jest.Mock ).mockClear();
 
 		rerender(
@@ -194,6 +199,7 @@ describe( 'query error', () => {
 				isRetrying={ false }
 			/>
 		);
+		act( () => jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS ) );
 
 		const spoken = ( speak as jest.Mock ).mock.calls.filter(
 			( [ text ] ) => text === `Load failed ${ next }`
@@ -217,11 +223,11 @@ describe( 'activity list', () => {
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
 
 		// Exact match: the default spoken text would also carry "Try again".
-		expect(
-			screen.getByText( "We couldn't load your site's activity. Service unavailable", {
+		await expect(
+			screen.findByText( "We couldn't load your site's activity. Service unavailable", {
 				selector: '.a11y-speak-region',
 			} )
-		).toBeInTheDocument();
+		).resolves.toBeInTheDocument();
 
 		const retry = deferred< unknown >();
 		mockApiFetch.mockImplementation( () => retry.promise );
