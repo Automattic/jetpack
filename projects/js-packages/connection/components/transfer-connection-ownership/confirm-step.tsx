@@ -66,7 +66,7 @@ const TransferConfirmStep = ( {
 					{ sprintf(
 						/* translators: %s: display name of the administrator taking over. */
 						__(
-							"%s's WordPress.com account will power site-level features.",
+							'%s will own the data WordPress.com stores for this site.',
 							'jetpack-connection-js'
 						),
 						candidate.displayName
@@ -105,20 +105,16 @@ const TransferConfirmStep = ( {
 			<Notice.Root intent="info">
 				<Notice.Description>
 					{ createInterpolateElement(
-						__(
-							'Site-level features keep running under the new owner. <link>Learn about connection ownership</link>',
-							'jetpack-connection-js'
+						sprintf(
+							/* translators: %s: display name of the administrator taking over. */
+							__(
+								'%s also becomes the main point of contact for support about that data. <link>Learn about the connection owner</link>',
+								'jetpack-connection-js'
+							),
+							candidate.displayName
 						),
 						{
-							link: (
-								<Link
-									openInNewTab
-									href={ getRedirectUrl(
-										'why-the-wordpress-com-connection-is-important-for-jetpack',
-										{ anchor: 'user-roles-and-the-wordpress-com-connection' }
-									) }
-								/>
-							),
+							link: <Link openInNewTab href={ getRedirectUrl( 'jetpack-support-primary-user' ) } />,
 						}
 					) }
 				</Notice.Description>
