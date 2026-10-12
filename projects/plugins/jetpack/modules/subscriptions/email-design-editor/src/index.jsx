@@ -191,7 +191,7 @@ export function buildEditorConfig( bundle, data ) {
  * Appended to `styles` rather than replacing it: WordPress.com ships the email's own stylesheet
  * through that same array, and the package reads the whole of it.
  *
- * The one rule so far hides the featured image. `core/post-featured-image` is a core block, so
+ * Both rules target the featured image. `core/post-featured-image` is a core block, so
  * WordPress.com deliberately leaves it out of `blocks` — sending core definitions would replace
  * this site's working implementations with placeholders — and no `preview_html` can reach it.
  * Only WordPress.com knows whether a send carries the image, so the bundle reports that instead.
@@ -201,18 +201,23 @@ export function buildEditorConfig( bundle, data ) {
  * @return {object} The settings, with any extra canvas rules appended.
  */
 function withCanvasStyles( settings, bundle ) {
+	const styles = [
+		...( Array.isArray( settings.styles ) ? settings.styles : [] ),
+
+		// Mirrors the reset a send inlines (the package's `content.css`), which the canvas never
+		// loads: without `height: auto` the image is squashed against its own height attribute.
+		{ css: '.wp-block-post-featured-image img { max-width: 100%; height: auto; }' },
+	];
+
 	// Strictly false. A bundle from before WordPress.com reported this omits the key, and hiding
 	// the image on that reading would be a regression on every blog that does send one.
 	if ( false !== bundle?.shows_featured_image ) {
-		return settings;
+		return { ...settings, styles };
 	}
 
 	return {
 		...settings,
-		styles: [
-			...( Array.isArray( settings.styles ) ? settings.styles : [] ),
-			{ css: '.wp-block-post-featured-image { display: none; }' },
-		],
+		styles: [ ...styles, { css: '.wp-block-post-featured-image { display: none; }' } ],
 	};
 }
 

@@ -455,7 +455,10 @@ describe( 'Email design editor entry point', () => {
 			// describe the installation rather than the design. Losing them is what
 			// leaves the site's own CSS in the canvas.
 			expect( mountedEditorProps().config.editorSettings ).toEqual( {
-				styles: [ { css: 'body{}' } ],
+				styles: [
+					{ css: 'body{}' },
+					{ css: expect.stringContaining( 'wp-block-post-featured-image' ) },
+				],
 				allowedIframeStyleHandles: [ 'wp-block-library' ],
 				__unstableResolvedAssets: { styles: '' },
 				isFullScreenForced: true,
@@ -506,14 +509,33 @@ describe( 'Email design editor entry point', () => {
 
 		it.each( [
 			[ 'says sends carry one', true ],
+			[ 'says sends carry none', false ],
 			[ 'does not say either way', undefined ],
-		] )( 'leaves the featured image alone when WordPress.com %s', async ( _label, shows ) => {
+		] )( 'sizes the featured image when WordPress.com %s', async ( _label, shows ) => {
 			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: shows } ) );
 			window.JetpackEmailDesignEditor = pageData();
 
 			await loadEntryPoint();
 
-			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [ { css: 'body{}' } ] );
+			// A send inlines this same reset, so the canvas shrinks an oversized image and leaves
+			// a small one alone, exactly as the email does.
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: expect.stringContaining( 'max-width: 100%; height: auto;' ),
+			} );
+		} );
+
+		it.each( [
+			[ 'says sends carry one', true ],
+			[ 'does not say either way', undefined ],
+		] )( 'leaves the featured image showing when WordPress.com %s', async ( _label, shows ) => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: shows } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).not.toContainEqual( {
+				css: expect.stringContaining( 'display: none' ),
+			} );
 		} );
 
 		it( 'does not pass the bundle through in its own shape', async () => {
