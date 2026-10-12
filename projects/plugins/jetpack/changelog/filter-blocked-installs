@@ -1,4 +1,3 @@
 Significance: patch
 Type: bugfix
-
-My Jetpack: Leave features you can't install out of the Available filter.
+Comment: Refine the Available filter before its initial release.

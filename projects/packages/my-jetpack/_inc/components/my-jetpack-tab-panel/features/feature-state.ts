@@ -213,6 +213,10 @@ export function resolveFeatureState(
 	modulesLoading = false,
 	needsAccount = false
 ): FeatureState {
+	if ( feature.in_jetpack && jetpack === 'active' && modulesLoading ) {
+		return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
+	}
+
 	const moduleSlug = getFeatureModuleSlug( feature, productModules );
 	const $module =
 		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
@@ -248,12 +252,6 @@ export function resolveFeatureState(
 	}
 
 	if ( feature.in_jetpack && jetpack === 'active' ) {
-		// Answering from an empty module list would offer to install a plugin for a
-		// feature Jetpack is already running.
-		if ( modulesLoading ) {
-			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
-		}
-
 		const moduleStatus = $module && getModuleStatus( $module );
 		if (
 			$module &&

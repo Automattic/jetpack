@@ -148,6 +148,10 @@ $band-ground: #f8f8f8;
 	.feature-item--account-needed {
 		flex-wrap: wrap;
 
+		&.feature-item--static .feature-item__text {
+			flex-basis: 100%;
+		}
+
 		.feature-action-slot {
 			flex-basis: 100%;
 			justify-content: flex-start;

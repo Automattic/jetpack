@@ -50,8 +50,12 @@ const state = ( jetpack: MainFeaturePluginStatus ) =>
 	( { jetpack, features: [ social ] } ) as MainFeaturesState;
 
 describe( 'useFeatureStates', () => {
-	it( 'waits for the modules rather than offering to install what Jetpack already runs', () => {
-		mockModules.mockReturnValue( { modules: {}, isLoading: true } );
+	it.each( [
+		[ 'loading modules', true, true ],
+		[ 'no modules and no connected owner', false, false ],
+	] )( 'keeps the action pending with %s', ( _, hasConnectedOwner, isLoading ) => {
+		mockConnection.mockReturnValue( { isRegistered: true, hasConnectedOwner } );
+		mockModules.mockReturnValue( { modules: {}, isLoading } );
 
 		const { result } = renderHook( () => useFeatureStates( state( 'active' ) ) );
 
