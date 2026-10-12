@@ -4,11 +4,15 @@ import { salesByProduct } from '../../stories/sample-data';
 import { AreaChartUnresponsive } from '../area-chart';
 import { BarChartUnresponsive } from '../bar-chart';
 import { BarListChartUnresponsive } from '../bar-list-chart';
+import { GeoChartUnresponsive } from '../geo-chart';
 import { HeatmapChart } from '../heatmap-chart';
 import { LineChartUnresponsive } from '../line-chart';
 import { PieChartUnresponsive } from '../pie-chart';
 import { PieSemiCircleChartUnresponsive } from '../pie-semi-circle-chart';
+import type { GeoData } from '../../types';
 import type { ReactElement } from 'react';
+
+jest.mock( 'react-google-charts', () => ( { Chart: () => <div /> } ) );
 
 const series = [
 	{
@@ -23,6 +27,13 @@ const series = [
 const slices = [
 	{ label: 'MacOS', value: 30, valueDisplay: '30', percentage: 60 },
 	{ label: 'Linux', value: 20, valueDisplay: '20', percentage: 40 },
+];
+
+const geoData: GeoData = [
+	[ 'Country', 'Value' ],
+	[ 'US', 100 ],
+	[ 'CA', 50 ],
+	[ 'GB', 25 ],
 ];
 
 const heatmapData = [
@@ -86,6 +97,14 @@ const CHARTS: [ string, string, string, ( ariaLabel?: string ) => ReactElement ]
 		'Semi-circle chart',
 		ariaLabel => (
 			<PieSemiCircleChartUnresponsive data={ slices } width={ 300 } ariaLabel={ ariaLabel } />
+		),
+	],
+	[
+		'geo',
+		'img',
+		'Geo chart',
+		ariaLabel => (
+			<GeoChartUnresponsive data={ geoData } width={ 800 } height={ 400 } ariaLabel={ ariaLabel } />
 		),
 	],
 	[
