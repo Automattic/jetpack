@@ -199,14 +199,19 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * Give this process a sticker reader that answers for the named stickers.
 	 *
 	 * @param string[] $stickers The stickers this site carries.
+	 * @param bool     $atomic   Whether to run as Atomic, where a reader is trusted.
 	 * @return void
 	 */
-	private function stub_site_stickers( array $stickers ) {
+	private function stub_site_stickers( array $stickers, $atomic = true ) {
 		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 			$this->markTestSkipped( 'The real wpcomsh reader is loaded here, and it answers from Atomic data this environment has none of.' );
 		}
 
 		$GLOBALS['jetpack_test_site_stickers'] = $stickers;
+
+		if ( $atomic ) {
+			define( 'IS_ATOMIC', true );
+		}
 
 		require_once __DIR__ . '/../../files/mock-wpcomsh-site-sticker.php';
 	}
@@ -288,6 +293,47 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
 
 		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * Off Atomic, wpcomsh ships a blank `Atomic_Persistent_Data` and its reader answers false for
+	 * every sticker -- so trusting it there would pin the flag off on a Jurassic Ninja or local
+	 * site whose only way in is the flag.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_sticker_reader_off_atomic_does_not_decide_the_flag() {
+		$this->stub_site_stickers( array(), false );
+
+		Jetpack_Email_Design_Editor::init();
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * The screen can initialize before wpcomsh has loaded, and calling a reader that is not
+	 * there yet is a fatal -- so the platform alone is not enough to go on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_atomic_without_a_loaded_reader_falls_back_to_the_flag() {
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			$this->markTestSkipped( 'This process already has a sticker reader, so there is no absent one to call.' );
+		}
+
+		define( 'IS_ATOMIC', true );
+
+		Jetpack_Email_Design_Editor::init();
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
 	}
 
 	/**

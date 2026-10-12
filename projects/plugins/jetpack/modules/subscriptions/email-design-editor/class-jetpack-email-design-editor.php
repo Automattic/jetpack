@@ -124,14 +124,17 @@ class Jetpack_Email_Design_Editor {
 	 * Answer the flag from the Atomic sticker, where there is one to read.
 	 *
 	 * The incoming value is dropped rather than widened: on Atomic the sticker is the whole
-	 * switch, so removing it has to close the screen even where the flag was forced on.
-	 * `function_exists()` is checked per call because wpcomsh may load after this file.
+	 * switch, so removing it has to close the screen even where the flag was forced on. The
+	 * platform is checked as well as the reader, because wpcomsh ships a blank
+	 * `Atomic_Persistent_Data` off Atomic -- there the reader answers false for every sticker,
+	 * which would pin the flag off on a site whose only way in is the flag. Both are checked
+	 * per call, because wpcomsh may load after this file.
 	 *
 	 * @param bool $enabled Whether the flag is enabled so far.
 	 * @return bool
 	 */
 	public static function filter_flag_from_sticker( $enabled ) {
-		if ( ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 			return (bool) $enabled;
 		}
 
