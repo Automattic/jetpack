@@ -199,7 +199,6 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		return () => observer.disconnect();
 	}, [ onError ] );
 
-	// The placeholder renders outside TooltipTheme so consumer content keeps the host theme; `loader` would put it inside.
 	const handleLoad = useCallback( () => setIsLoaded( true ), [] );
 
 	const loadingPlaceholder = (
@@ -326,7 +325,9 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			data-testid="geo-chart"
 			style={ { width, height } }
 		>
+			{ /* Outside TooltipTheme, so a custom placeholder keeps the host theme; `loader` would put it inside. */ }
 			{ ! isLoaded && loadingPlaceholder }
+			{ /* Every `--wpds-*` read inside resolves for the dark tooltip; map colors must keep coming from scopeElement. */ }
 			<TooltipTheme>
 				<Chart
 					chartType="GeoChart"
