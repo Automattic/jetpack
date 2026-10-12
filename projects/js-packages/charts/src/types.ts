@@ -711,6 +711,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	className?: string;
 	/**
+	 * Accessible name of the chart. Name it after what it shows, and give each chart on a page a different name. Each chart type has a localized default, such as "Line chart".
+	 */
+	ariaLabel?: string;
+	/**
 	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */
 	width?: number;

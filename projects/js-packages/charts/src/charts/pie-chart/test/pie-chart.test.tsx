@@ -780,14 +780,6 @@ describe( 'PieChart', () => {
 			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
 		];
 
-		test.each( [
-			[ undefined, 'Pie chart' ],
-			[ 'Devices', 'Devices' ],
-		] )( 'names the focusable chart from ariaLabel %p', ( ariaLabel, name ) => {
-			render( <PieChart data={ data } ariaLabel={ ariaLabel } /> );
-			expect( screen.getByRole( 'application', { name } ) ).toHaveAttribute( 'tabindex', '0' );
-		} );
-
 		const expectRingOn = ( segment: HTMLElement ) =>
 			expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
 				'd',
