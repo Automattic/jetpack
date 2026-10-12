@@ -160,12 +160,12 @@ function getPreviousPeriodSpan(
 /**
  * Name a previous window in full, as the comparison menu lists it.
  *
- * @param span       - The window's length.
- * @param span.unit
- * @param span.count
+ * @param span - The window's length.
  * @return The name.
  */
-function formatPreviousSpan( { unit, count }: PreviousSpan ): string {
+function formatPreviousSpan( span: PreviousSpan ): string {
+	const { unit, count } = span;
+
 	switch ( unit ) {
 		case 'hour':
 			return count === 1
@@ -203,12 +203,12 @@ function formatPreviousSpan( { unit, count }: PreviousSpan ): string {
 /**
  * Name a previous window as a chart legend abbreviates it.
  *
- * @param span       - The window's length.
- * @param span.unit
- * @param span.count
+ * @param span - The window's length.
  * @return The abbreviation.
  */
-function abbreviatePreviousSpan( { unit, count }: PreviousSpan ): string {
+function abbreviatePreviousSpan( span: PreviousSpan ): string {
+	const { unit, count } = span;
+
 	switch ( unit ) {
 		case 'hour':
 			return count === 1
@@ -357,6 +357,23 @@ function getLegendLabel(
 	}
 
 	return abbreviatePreviousSpan( getPreviousPeriodSpan( reference, primaryPresetId ) );
+}
+
+/**
+ * The option a comparison preset selects, including one folded into another
+ * option as an alias.
+ *
+ * @param options - Options from `getComparisonOptions`.
+ * @param id      - The comparison preset.
+ * @return The option, or undefined when the range does not offer it.
+ */
+export function findComparisonOption< T extends Pick< ComparisonOption, 'id' | 'aliases' > >(
+	options: readonly T[],
+	id: string
+): T | undefined {
+	return options.find(
+		option => option.id === id || ( option.aliases as readonly string[] ).includes( id )
+	);
 }
 
 /**

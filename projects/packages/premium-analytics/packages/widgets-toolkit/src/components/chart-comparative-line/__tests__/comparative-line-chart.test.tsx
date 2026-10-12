@@ -103,7 +103,7 @@ type RecordedLineProps = {
 	defaultHiddenSeries?: readonly string[];
 	legend: {
 		collapseGroups: boolean;
-		comparisonItem: ( metric: string ) => string;
+		comparisonSeriesItems: ( metric: string ) => string;
 		interactive: boolean;
 	};
 	margin?: Record< string, number >;
@@ -338,7 +338,7 @@ describe( 'ComparativeLineChart', () => {
 		);
 
 		expect( recordedProps().legend ).toMatchObject( { collapseGroups: true, interactive: false } );
-		expect( recordedProps().legend.comparisonItem( 'Views' ) ).toBe( 'Views (2025)' );
+		expect( recordedProps().legend.comparisonSeriesItems( 'Views' ) ).toBe( 'Views (2025)' );
 	} );
 
 	it( "heads the tooltip with the point's date in the site's timezone", () => {

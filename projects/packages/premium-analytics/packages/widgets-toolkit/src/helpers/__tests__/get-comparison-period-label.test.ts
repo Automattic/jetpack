@@ -1,21 +1,20 @@
 /**
  * Internal dependencies
  */
-import { formatLegendLabels } from '../format-legend-labels';
 import { getComparisonPeriodLabel } from '../get-comparison-period-label';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
-// Shaped like normalized params: each end is an instant, `to` the last moment of its day.
 const WEEK = {
 	from: '2026-10-05T00:00:00Z',
 	to: '2026-10-11T23:59:59.999Z',
 	interval: 'day',
 } as const;
 
+const SEP = '\u2009\u2013\u2009';
+
 describe( 'getComparisonPeriodLabel', () => {
 	it.each( [
 		[ 'previous-period', '2026-09-28', '2026-10-04', 'Prev. 7 days' ],
-		// A week back resolves to the same window, so the menu folds it into the previous period.
 		[ 'previous-week', '2026-09-28', '2026-10-04', 'Prev. 7 days' ],
 		[ 'previous-month', '2026-09-05', '2026-09-11', 'Sep' ],
 		[ 'previous-year', '2025-10-05', '2025-10-11', '2025' ],
@@ -31,7 +30,6 @@ describe( 'getComparisonPeriodLabel', () => {
 		expect( getComparisonPeriodLabel( params ) ).toBe( expected );
 	} );
 
-	// September is a whole month, so only the preset tells a 30-day window from a month.
 	it.each( [
 		[ 'last-30-days', '2026-08-02', 'Prev. 30 days' ],
 		[ 'last-month', '2026-08-01', 'Prev. month' ],
@@ -50,15 +48,38 @@ describe( 'getComparisonPeriodLabel', () => {
 		expect( getComparisonPeriodLabel( params ) ).toBe( expected );
 	} );
 
-	it( 'falls back to the comparison range without a preset', () => {
+	it.each( [
+		[
+			'without a preset',
+			undefined,
+			'2026-09-28',
+			'2026-10-04',
+			`September 28${ SEP }October 4, 2026`,
+		],
+		[
+			'for a preset the range does not offer',
+			'custom',
+			'2026-09-28',
+			'2026-10-04',
+			`September 28${ SEP }October 4, 2026`,
+		],
+		[
+			'when the preset no longer resolves to the queried window',
+			'previous-month',
+			'2026-08-05',
+			'2026-08-11',
+			`August 5${ SEP }11, 2026`,
+		],
+	] )( 'falls back to the comparison range %s', ( _case, preset, from, to, expected ) => {
 		const params = {
 			...WEEK,
 			comp: '1',
-			compare_from: '2026-09-28',
-			compare_to: '2026-10-04',
+			compare_from: from,
+			compare_to: to,
+			compare_preset: preset,
 		} as ReportParams;
 
-		expect( getComparisonPeriodLabel( params ) ).toBe( formatLegendLabels( params ).comparison );
+		expect( getComparisonPeriodLabel( params ) ).toBe( expected );
 	} );
 
 	it( 'names nothing without a comparison', () => {

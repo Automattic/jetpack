@@ -214,6 +214,12 @@ legend repeats after each metric ("Prev. 7 days", "Jul", "2024").
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted
 
+#### `findComparisonOption( options, id )`
+
+The option a comparison preset selects from `getComparisonOptions`, matching
+either its `id` or one of its `aliases`. Returns `undefined` when the range
+does not offer that preset.
+
 ### Range Measurement
 
 #### `getDateRangeSpan( range? )`

@@ -110,14 +110,7 @@ const VISITORS: MetricTab = {
 	counterpartKey: 'views',
 };
 
-/**
- * Normalized params for a week compared with the given window, the shape a widget root hands down.
- *
- * @param preset - The comparison preset.
- * @param from   - First day of the comparison.
- * @param to     - Last day of the comparison.
- * @return The params.
- */
+/** Params for the week of 2026-10-05 compared with the given window. */
 const comparedWith = ( preset: string, from: string, to: string ) =>
 	( {
 		from: '2026-10-05T00:00:00Z',
@@ -508,7 +501,6 @@ describe( 'MetricTabsChart', () => {
 			'2025',
 			'Prev. 7 days',
 		] );
-		// The chart seeds hidden series once per chart ID, keyed by series label.
 		expect( after.chartId ).toBe( before.chartId );
 		expect( after.series.map( item => item.label ) ).toEqual(
 			before.series.map( item => item.label )
@@ -517,27 +509,27 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'line chart', mockLineSpy, undefined, undefined ],
-		[ 'bar chart', mockBarSpy, 'bar', undefined ],
-		[ 'narrow dropdown layout', mockLineSpy, undefined, 100 ],
+		[ 'line chart', mockLineSpy, [ VIEWS, VISITORS ], undefined, undefined ],
+		[ 'bar chart', mockBarSpy, [ VIEWS, VISITORS ], 'bar', undefined ],
+		[ 'narrow dropdown layout', mockLineSpy, [ VIEWS, VISITORS ], undefined, 100 ],
+		[ 'single metric', mockLineSpy, [ VIEWS ], undefined, undefined ],
 	] as const )(
-		'hands an explicit comparison label, over the widget, to the %s',
-		( _layout, spy, chartType, width ) => {
+		"hands the widget's comparison name to the %s",
+		( _layout, spy, metrics, chartType, width ) => {
 			setMockChartWidth( width );
 			render(
 				<WidgetRootContext.Provider
 					value={ { reportParams: comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) } }
 				>
 					<MetricTabsChart
-						metrics={ [ VIEWS, VISITORS ] }
+						metrics={ [ ...metrics ] }
 						dataFormat={ DATA_FORMAT }
 						chartType={ chartType }
-						comparisonLabel="Custom"
 					/>
 				</WidgetRootContext.Provider>
 			);
 
-			expect( recordedPropsFor( spy, 'Views' ).comparisonLabel ).toBe( 'Custom' );
+			expect( recordedPropsFor( spy, 'Views' ).comparisonLabel ).toBe( '2025' );
 		}
 	);
 

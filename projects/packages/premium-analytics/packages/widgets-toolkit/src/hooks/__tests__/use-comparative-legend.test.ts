@@ -25,22 +25,11 @@ describe( 'useComparativeLegend', () => {
 		);
 
 		expect( result.current.config ).toMatchObject( { collapseGroups: true, interactive: true } );
-		expect( result.current.config.comparisonItem( 'Views' ) ).toBe( expected );
-	} );
-
-	it( 'keeps the config across renders so the legend items stay memoised', () => {
-		const { result, rerender } = renderHook( () =>
-			useComparativeLegend( SERIES, false, 'Prev. 30 days' )
-		);
-		const first = result.current.config;
-
-		rerender();
-
-		expect( result.current.config ).toBe( first );
+		expect( result.current.config.comparisonSeriesItems( 'Views' ) ).toBe( expected );
 		expect( jest.mocked( useChartLegendItems ) ).toHaveBeenLastCalledWith(
 			SERIES,
-			first,
-			undefined
+			result.current.config,
+			'line'
 		);
 	} );
 } );

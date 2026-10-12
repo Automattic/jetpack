@@ -168,11 +168,6 @@ export interface MetricTabsChartProps {
 	 */
 	baseline?: ChartBaseline;
 	/**
-	 * Names the comparison in the legend, e.g. "Prev. 30 days". Defaults to the
-	 * comparison the surrounding widget applies.
-	 */
-	comparisonLabel?: string;
-	/**
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
@@ -481,14 +476,13 @@ export function MetricTabsChart( {
 	onDatumClick,
 	tooltipMetrics = 'active',
 	baseline,
-	comparisonLabel,
 	empty,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 	const reportParams = useContext( WidgetRootContext )?.reportParams;
-	const resolvedComparisonLabel = useMemo(
-		() => comparisonLabel ?? ( reportParams && getComparisonPeriodLabel( reportParams ) ),
-		[ comparisonLabel, reportParams ]
+	const comparisonLabel = useMemo(
+		() => reportParams && getComparisonPeriodLabel( reportParams ),
+		[ reportParams ]
 	);
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
@@ -584,7 +578,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
-						comparisonLabel={ resolvedComparisonLabel }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</div>
@@ -658,7 +652,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
-							comparisonLabel={ resolvedComparisonLabel }
+							comparisonLabel={ comparisonLabel }
 							empty={ empty }
 						/>
 					) }
@@ -708,7 +702,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
-						comparisonLabel={ resolvedComparisonLabel }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</Tabs.Panel>

@@ -4,6 +4,7 @@
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	dateToISOStringWithLocalTZ,
+	findComparisonOption,
 	getComparisonOptions,
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -75,10 +76,7 @@ export function deriveComparisonRange( opts: ReportParams ):
 	// range offers it again; one the range cannot offer at all — or an id from
 	// an old link — falls back to the previous period, which every range offers.
 	const option =
-		( presetId &&
-			options.find(
-				candidate => candidate.id === presetId || candidate.aliases.includes( presetId )
-			) ) ||
+		( presetId && findComparisonOption( options, presetId ) ) ||
 		options.find( candidate => candidate.id === 'previous-period' );
 
 	if ( ! option ) {

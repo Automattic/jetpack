@@ -112,7 +112,7 @@ function recordedProps(): {
 	defaultHiddenSeries?: readonly string[];
 	legend: {
 		collapseGroups: boolean;
-		comparisonItem: ( metric: string ) => string;
+		comparisonSeriesItems: ( metric: string ) => string;
 		interactive: boolean;
 	};
 	gridVisibility?: string;
@@ -413,7 +413,7 @@ describe( 'ComparativeBarChart', () => {
 		);
 
 		expect( recordedProps().legend ).toMatchObject( { collapseGroups: true, interactive: false } );
-		expect( recordedProps().legend.comparisonItem( 'Views' ) ).toBe( 'Views (2025)' );
+		expect( recordedProps().legend.comparisonSeriesItems( 'Views' ) ).toBe( 'Views (2025)' );
 	} );
 
 	it( 'abbreviates the y axis ticks', () => {

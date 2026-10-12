@@ -29,9 +29,9 @@ export function useComparativeLegend(
 ) {
 	const config = useMemo(
 		() => ( {
-			collapseGroups: true as const,
+			collapseGroups: true,
 			interactive,
-			comparisonItem: ( metric: string ) =>
+			comparisonSeriesItems: ( metric: string ) =>
 				sprintf(
 					/* translators: 1: metric name, e.g. "Views"; 2: comparison period, e.g. "Prev. 30 days". */
 					__( '%1$s (%2$s)', 'jetpack-premium-analytics-pkg' ),
