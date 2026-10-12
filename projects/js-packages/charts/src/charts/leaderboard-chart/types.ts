@@ -4,7 +4,6 @@ import { BaseChartProps, LeaderboardEntry } from '../../types';
 export interface LeaderboardChartProps extends Pick<
 	BaseChartProps< LeaderboardEntry >,
 	| 'className'
-	| 'data'
 	| 'showLegend'
 	| 'legend'
 	| 'chartId'
@@ -14,6 +13,12 @@ export interface LeaderboardChartProps extends Pick<
 	| 'gap'
 	| 'animation'
 > {
+	/**
+	 * Entries to display. Declared here rather than picked, since the base type
+	 * would split the entry union into one array type per member.
+	 */
+	data: LeaderboardEntry[];
+
 	/**
 	 * Whether to show comparison data
 	 */

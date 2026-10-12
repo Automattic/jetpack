@@ -52,6 +52,9 @@ class Block_Editor {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
+		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
+		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
+		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		// The edit-comment screen, for a comment that holds blocks.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
@@ -224,6 +227,101 @@ class Block_Editor {
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
 		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed ) ) );
+	}
+
+	/**
+	 * Core's comment email, with the comment's block markup replaced by the text it draws.
+	 *
+	 * @param string $message    The email body.
+	 * @param int    $comment_id The comment the email is about.
+	 * @return string
+	 */
+	public static function render_in_email( $message, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
+			return $message;
+		}
+
+		// The exact string core wrote, so a body another filter rewrote is left alone, not half replaced.
+		$raw = wp_specialchars_decode( $comment->comment_content );
+
+		// Pruned as if saving, which keeps how a list counts and leaves an embed as its URL, fetching nothing.
+		$text = self::blocks_to_text( self::allowed( parse_blocks( $comment->comment_content ) ) );
+
+		return str_replace( $raw, $text, $message );
+	}
+
+	/**
+	 * The comment's blocks as the plain text core's email body holds.
+	 *
+	 * @param array $blocks Parsed blocks, pruned to the ones the editor offers.
+	 * @param int   $depth  How far inside nested lists these blocks sit.
+	 * @return string
+	 */
+	private static function blocks_to_text( array $blocks, $depth = 0 ) {
+		$parts = array();
+
+		foreach ( $blocks as $block ) {
+			if ( 'core/list' === $block['blockName'] ) {
+				$parts[] = self::list_to_text( $block, $depth );
+				continue;
+			}
+
+			if ( 'core/quote' === $block['blockName'] ) {
+				// The marker WordPress.com's own comment emails use, so a quote still reads as one.
+				$lines   = explode( "\n", self::blocks_to_text( $block['innerBlocks'], $depth ) );
+				$parts[] = implode( "\n", array_map( fn( $line ) => rtrim( '> ' . $line ), $lines ) );
+				continue;
+			}
+
+			$text = self::inline_to_text( $block['innerHTML'] );
+
+			if ( '' !== $text ) {
+				$parts[] = $text;
+			}
+		}
+
+		return implode( "\n\n", $parts );
+	}
+
+	/**
+	 * A list's items, each marked the way the list is set to count.
+	 *
+	 * @param array $list  A core/list block.
+	 * @param int   $depth How far inside nested lists this list sits.
+	 * @return string
+	 */
+	private static function list_to_text( array $list, $depth ) {
+		$attrs    = is_array( $list['attrs'] ) ? $list['attrs'] : array();
+		$items    = $list['innerBlocks'];
+		$ordered  = ! empty( $attrs['ordered'] );
+		$reversed = $ordered && ! empty( $attrs['reversed'] );
+		$first    = isset( $attrs['start'] ) ? (int) $attrs['start'] : ( $reversed ? count( $items ) : 1 );
+		$indent   = str_repeat( '  ', $depth );
+		$lines    = array();
+
+		foreach ( $items as $i => $item ) {
+			$marker = $ordered ? ( $first + $i * ( $reversed ? -1 : 1 ) ) . '. ' : '* ';
+			$nested = self::blocks_to_text( $item['innerBlocks'], $depth + 1 );
+			$line   = $indent . $marker . self::inline_to_text( $item['innerHTML'] );
+
+			$lines[] = '' === $nested ? $line : $line . "\n" . $nested;
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * One block's markup as the text it reads like.
+	 *
+	 * @param string $html The block's inner HTML.
+	 * @return string
+	 */
+	private static function inline_to_text( $html ) {
+		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
+
+		return trim( html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' ) );
 	}
 
 	/**

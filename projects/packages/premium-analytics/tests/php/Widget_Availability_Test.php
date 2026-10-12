@@ -88,10 +88,6 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/plan-usage',
-				'category' => 'stats',
-			),
-			array(
 				'name'     => 'jpa/total-views',
 				'category' => 'stats',
 			),
@@ -226,14 +222,6 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Plan usage is held back regardless of host or features.
-	 */
-	public function test_type_policy_removes_plan_usage_everywhere() {
-		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( false, false ) );
-		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( true, true ) );
-	}
-
-	/**
 	 * The period widgets are held back regardless of host or features (WOOA7S-2020).
 	 */
 	public function test_type_policy_removes_period_widgets_everywhere() {
@@ -337,19 +325,8 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every held plan-usage type names a real manifest, so a renamed or moved widget
-	 * cannot lift the hold while the absence assertions above stay green.
-	 */
-	public function test_plan_usage_widget_types_match_the_manifest() {
-		$names = $this->manifest_widget_names();
-
-		foreach ( PLAN_USAGE_WIDGET_TYPES as $held ) {
-			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
-		}
-	}
-
-	/**
-	 * Same guard for the held period widgets: each names a real manifest.
+	 * Every held period type names a real manifest, so a renamed or moved widget
+	 * cannot lift the hold while the absence assertions stay green.
 	 */
 	public function test_period_widget_types_match_the_manifest() {
 		$names = $this->manifest_widget_names();
@@ -689,7 +666,6 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$this->assertContains( 'jpa/file-downloads', $names );
 		$this->assertContains( 'jpa/shares', $names );
-		$this->assertNotContains( 'jpa/plan-usage', $names, 'The plan-usage hold applies on Simple too.' );
 	}
 
 	/**
