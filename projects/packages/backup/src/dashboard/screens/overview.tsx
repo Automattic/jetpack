@@ -27,6 +27,7 @@ import { useAnalytics } from '../hooks/use-analytics';
 import { failedAttemptReference, isUsableBackup, useBackups } from '../hooks/use-backups';
 import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
+import { useRevealDetail } from '../hooks/use-reveal-detail';
 import { isBackupItem } from '../types/activity';
 import type { ActivitySortOrder } from '../data/api/activity-log';
 import type { View } from '@wordpress/dataviews';
@@ -244,17 +245,19 @@ function OverviewBody() {
 	} = useHasRestorePoints();
 
 	const overviewRef = useRef< HTMLDivElement >( null );
+	const revealDetail = useRevealDetail( overviewRef, selectedId );
 	const storageRef = useRef< HTMLElement >( null );
 
 	// The updater form, like `clearSelected` below: an object literal replaces the
 	// search wholesale, so every future param would depend on this closure being fresh.
 	const setSelected = useCallback(
 		( id: string ) => {
+			revealDetail( id );
 			navigate( {
 				search: ( previous: OverviewSearch ) => ( { ...previous, selected: id } ),
 			} as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ navigate, revealDetail ]
 	);
 
 	// The stale id lives in the URL, so the dead end survives a reload without this.
