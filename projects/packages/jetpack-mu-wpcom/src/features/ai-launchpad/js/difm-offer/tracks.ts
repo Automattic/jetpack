@@ -14,7 +14,7 @@ export interface DifmOfferTracksProps {
 	upsell_id: string;
 	upsell_feature_id: string;
 	variation: string;
-	// Calypso's Banner adds these to its impression, click and dismiss events. It passes no
+	// Calypso's Banner adds these to its impression and click events. It passes no
 	// `feature` for this offer, so there is no `cta_feature`.
 	cta_name: string;
 	cta_size: 'regular';

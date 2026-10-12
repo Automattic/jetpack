@@ -98,8 +98,16 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		Functions\when( 'get_user_attribute' )->justReturn( $state['preferences'] );
-		Functions\when( 'ExPlat\assign_current_user' )->justReturn( $state['variation'] );
+		Functions\when( 'get_user_attribute' )->alias(
+			function ( $id, $key ) use ( $user_id, $state ) {
+				return $user_id === $id && 'calypso_preferences' === $key ? $state['preferences'] : false;
+			}
+		);
+		Functions\when( 'ExPlat\assign_current_user' )->alias(
+			function ( $experiment ) use ( $state ) {
+				return AI_Launchpad_Difm_Offer::EXPERIMENT === $experiment ? $state['variation'] : null;
+			}
+		);
 	}
 
 	/**
