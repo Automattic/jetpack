@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Name the Store performance chart after its widget, so screen readers can tell the charts on a dashboard apart.
+Name each widget chart after its widget, so screen readers can tell the charts on a dashboard apart.
