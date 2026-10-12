@@ -245,3 +245,36 @@ describe( 'A selection nobody chose', () => {
 		expect( view.state.location.search ).toEqual( {} );
 	} );
 } );
+
+describe( 'Going Back past the first row chosen', () => {
+	it( 'shows the newest backup again, and forgets the rows picked since', async () => {
+		const view = renderApp();
+		const third = rewindId( 2 );
+		const fifth = rewindId( 4 );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: named( third ) } ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: named( fifth ) } ) );
+		await waitFor( () => expect( view.state.location.search ).toEqual( { selected: fifth } ) );
+
+		await act( async () => {
+			view.history.back();
+		} );
+		await waitFor( () => expect( view.state.location.search ).toEqual( { selected: third } ) );
+		await act( async () => {
+			view.history.back();
+		} );
+
+		await expect(
+			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
+		).resolves.toBeInTheDocument();
+		expect( view.state.location.search ).toEqual( {} );
+
+		await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ } ) );
+		await userEvent.click( await screen.findByRole( 'link', { name: /Back to overview/ } ) );
+
+		await expect(
+			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
+		).resolves.toBeInTheDocument();
+		expect( view.state.location.search ).toEqual( {} );
+	} );
+} );
