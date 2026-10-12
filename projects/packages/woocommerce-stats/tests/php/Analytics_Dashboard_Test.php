@@ -113,6 +113,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				Analytics_Dashboard::CONVERSION_RATE_TYPE,
 				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
 				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
 				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
