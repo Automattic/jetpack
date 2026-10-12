@@ -17,6 +17,8 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
+	ExporterCsvDownloadButton,
+	emailsCsvExporter,
 	type DataFormat,
 	type MetricListItem,
 	type ReportParamsFieldAttributes,
@@ -276,6 +278,11 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="emails" />
+				<ExporterCsvDownloadButton
+					exporter={ emailsCsvExporter }
+					status={ { isLoading, isFetching, isError: rows.length === 0 && isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</div>
 	);

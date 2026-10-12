@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsVisits, type StatsVisitsParams } from '@jetpack-premium-analytics/data';
+import {
+	useStatsAuthorAllTime,
+	useStatsVisits,
+	type StatsVisitsParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	localTZDate,
 	parseSiteDateTime,
@@ -44,17 +48,58 @@ function readMonthKey( label: string ): MonthKey | null {
 }
 
 /**
- * Every month of the site's views, one row per year. All-time regardless of
- * the section's year filter: one `stats/visits` request at `unit=month` over
- * the site's whole history, then one at `unit=day` over the first month with views.
+ * The rows for monthly buckets, opening the first month on its first day when
+ * that day falls inside it.
  *
- * @param metric - Which number each cell reports.
+ * @param buckets - The month buckets.
+ * @param metric  - Which number each cell reports.
+ * @param today   - The site's current day, `yyyy-MM-dd`.
+ * @param opensAt - The first day, as a site-zone instant.
+ * @return The rows and where their life starts.
+ */
+function buildRows(
+	buckets: MonthBucket[],
+	metric: MonthlyHeatmapMetric,
+	today: string,
+	opensAt: Date | undefined
+) {
+	// A site-zone instant, so its getters read the site's calendar, as `today` does.
+	const opensOn: DayKey | undefined = opensAt && {
+		year: opensAt.getFullYear(),
+		month: opensAt.getMonth(),
+		day: opensAt.getDate(),
+	};
+	const rows = buildViewsOverYearsRows( buckets, metric, parseISO( today ), opensOn );
+
+	return { rows, lifeStartsAt: monthlyHeatmapLifeStart( rows, opensAt, reportingTimeZone() ) };
+}
+
+const NO_ROWS = { rows: [], lifeStartsAt: undefined };
+
+/**
+ * Today on the site's own calendar; one reading, so a render across midnight
+ * cannot split the window and the rows.
+ *
+ * @return The site's current day, `yyyy-MM-dd`.
+ */
+function useSiteToday(): string {
+	return format( localTZDate(), DATE_FORMAT );
+}
+
+/**
+ * Every month of the site's views: one `stats/visits` request at `unit=month`
+ * over the site's whole history, then one at `unit=day` over the first month
+ * with views.
+ *
+ * @param metric  - Which number each cell reports.
+ * @param enabled - Whether to read anything.
  * @return The rows and the requests' state.
  */
-export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): ViewsOverYearsState {
-	// Read in the site timezone so the months fall on the site's own calendar;
-	// one reading, so a render across midnight cannot split the window and the rows.
-	const today = format( localTZDate(), DATE_FORMAT );
+function useSiteViewsOverYears(
+	metric: MonthlyHeatmapMetric,
+	enabled: boolean
+): ViewsOverYearsState {
+	const today = useSiteToday();
 
 	const params = useMemo< StatsVisitsParams >(
 		() => ( {
@@ -67,7 +112,9 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		[ today ]
 	);
 
-	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
+	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params, {
+		enabled,
+	} );
 
 	const buckets = useMemo(
 		() =>
@@ -100,7 +147,7 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		};
 	}, [ firstMonth, today ] );
 
-	const firstMonthDays = useStatsVisits( firstMonthParams, { enabled: !! firstMonth } );
+	const firstMonthDays = useStatsVisits( firstMonthParams, { enabled: enabled && !! firstMonth } );
 
 	const opensAt = useMemo( () => {
 		const firstDay = ( firstMonthDays.primary.data?.data ?? [] ).find(
@@ -110,25 +157,11 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		return parseSiteDateTime( firstDay?.time_interval );
 	}, [ firstMonthDays.primary.data ] );
 
-	const { rows, lifeStartsAt } = useMemo( () => {
-		// Without a response there is no row to draw, not a site without views.
-		if ( ! primary.data ) {
-			return { rows: [], lifeStartsAt: undefined };
-		}
-
-		// A site-zone instant, so its getters read the site's calendar, as `today` does.
-		const opensOn: DayKey | undefined = opensAt && {
-			year: opensAt.getFullYear(),
-			month: opensAt.getMonth(),
-			day: opensAt.getDate(),
-		};
-		const built = buildViewsOverYearsRows( buckets, metric, parseISO( today ), opensOn );
-
-		return {
-			rows: built,
-			lifeStartsAt: monthlyHeatmapLifeStart( built, opensAt, reportingTimeZone() ),
-		};
-	}, [ primary.data, buckets, metric, today, opensAt ] );
+	// Without a response there is no row to draw, not a site without views.
+	const { rows, lifeStartsAt } = useMemo(
+		() => ( primary.data ? buildRows( buckets, metric, today, opensAt ) : NO_ROWS ),
+		[ primary.data, buckets, metric, today, opensAt ]
+	);
 
 	// Only the averages wait for the first day, and only until that request first settles:
 	// a failed one refetches on focus with no data, which would pull the rows back into the skeleton.
@@ -147,4 +180,61 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		error,
 		refetch,
 	};
+}
+
+/**
+ * Every month of one author's views: the `stats/author` all-time request, whose
+ * first day opens the first month.
+ *
+ * @param metric   - Which number each cell reports.
+ * @param authorId - The author's user ID; `0` reads nothing.
+ * @param enabled  - Whether to read anything.
+ * @return The rows and the request's state.
+ */
+function useAuthorViewsOverYears(
+	metric: MonthlyHeatmapMetric,
+	authorId: number,
+	enabled: boolean
+): ViewsOverYearsState {
+	const today = useSiteToday();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsAuthorAllTime(
+		authorId,
+		{ enabled: enabled && authorId > 0 }
+	);
+
+	const { rows, lifeStartsAt } = useMemo( () => {
+		if ( ! data ) {
+			return NO_ROWS;
+		}
+
+		const buckets = data.data.flatMap( ( row ): MonthBucket[] => {
+			const month = readMonthKey( row.period );
+
+			return month ? [ { month, views: row.views } ] : [];
+		} );
+
+		return buildRows( buckets, metric, today, parseSiteDateTime( data.startDate ?? undefined ) );
+	}, [ data, metric, today ] );
+
+	return { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch };
+}
+
+/**
+ * Every month of views, one row per year, all-time regardless of the page's
+ * period: the site's, or with an author, theirs.
+ *
+ * @param metric   - Which number each cell reports.
+ * @param authorId - Scopes the table to one author, reading nothing while it is `0`;
+ *                 omitted, the table reads the whole site.
+ * @return The rows and the requests' state.
+ */
+export default function useViewsOverYears(
+	metric: MonthlyHeatmapMetric,
+	authorId?: number
+): ViewsOverYearsState {
+	const isAuthorScoped = authorId !== undefined;
+	const site = useSiteViewsOverYears( metric, ! isAuthorScoped );
+	const author = useAuthorViewsOverYears( metric, authorId ?? 0, isAuthorScoped );
+
+	return isAuthorScoped ? author : site;
 }

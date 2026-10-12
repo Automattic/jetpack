@@ -36,7 +36,8 @@ class Identity {
 				'canSignIn'     => false,
 				'connect'       => null,
 				'connectUrl'    => Checkpoint_Endpoint::route_url( Checkpoint_Endpoint::CONNECT_ROUTE ),
-				'emailUrl'      => Checkpoint_Endpoint::route_url( Checkpoint_Endpoint::EMAIL_ROUTE ),
+				// Empty off Simple, where Checkpoint_Endpoint::email() can only answer no.
+				'emailUrl'      => function_exists( 'is_email_wp_emails' ) ? Checkpoint_Endpoint::route_url( Checkpoint_Endpoint::EMAIL_ROUTE ) : '',
 				'origin'        => 'https://public-api.wordpress.com',
 				'codeField'     => Checkpoint::CODE_FIELD,
 				'passportField' => Checkpoint::PASSPORT_FIELD,
@@ -54,7 +55,11 @@ class Identity {
 		if ( is_user_logged_in() ) {
 			$user                  = wp_get_current_user();
 			$settings['avatarUrl'] = html_entity_decode( (string) get_avatar_url( $user->ID, array( 'size' => 80 ) ), ENT_QUOTES );
-			$settings['user']      = array( 'name' => $user->display_name );
+			$settings['user']      = array(
+				'name'           => $user->display_name,
+				// Empty for a user who may not edit their own profile, as core's link would be.
+				'editProfileUrl' => get_edit_user_link(),
+			);
 
 			return $settings;
 		}

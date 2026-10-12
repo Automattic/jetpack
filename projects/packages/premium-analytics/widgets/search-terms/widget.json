@@ -1,5 +1,6 @@
 {
 	"name": "jpa/search-terms",
+	"icon": "jpa/search",
 	"title": "Top searched terms",
 	"description": "The search terms visitors use to find your site.",
 	"help": {

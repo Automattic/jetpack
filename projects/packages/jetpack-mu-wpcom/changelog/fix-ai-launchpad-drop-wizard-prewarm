@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Tailor the setup list only when the wizard is finished, instead of on every typing pause.

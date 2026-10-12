@@ -36,8 +36,8 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			// The alias carries the mock's "UTM" card title; the registry's
 			// global "UTM Insights" title is owned by the copy spreadsheet work.
 			type: 'jpa/utm-insights--utm',
-			// No "View all" action: this page is the terminal page, and the
-			// site-wide UTM report would drop this post's scope.
+			// No "View all" or "Download CSV": this page is the terminal page, and
+			// the site-wide UTM report would drop this post's scope.
 			attributes: { utmDimension: 'utm_source,utm_medium', showReportLink: false },
 			placement: { width: 1, height: 2, order: 5 },
 		},

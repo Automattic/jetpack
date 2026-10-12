@@ -4,6 +4,7 @@
 import {
 	aggregateStatsDrilldownRows,
 	fetchStatsTopAuthorsRows,
+	findAuthorRow,
 	type ReportParams,
 	type StatsReportParams,
 	type StatsDrilldownItemContext,
@@ -16,9 +17,11 @@ import {
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { getPostsCsvColumns } from './posts';
 import type { ReportCsvExporter } from './types';
 
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
@@ -193,9 +196,28 @@ export const authorsCsvExporter: ReportCsvExporter< AuthorRow, AuthorRow > = {
 	toCsvRows: items => items,
 	getColumns: () => [
 		{
-			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Author', 'jetpack-premium-analytics-pkg' ),
 			getValue: getAuthorCsvLabel,
 		},
 		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 	],
 };
+
+/** One author's posts from the Authors report, for the author page, which has no report of its own. */
+export function authorPostsCsvExporter(
+	authorId: number,
+	authorName: string
+): ReportCsvExporter< StatsTopAuthorsPostComparisonItem, StatsTopAuthorsPostComparisonItem > {
+	return {
+		// A name with only punctuation slugs to nothing; the id still names the file.
+		filenamePrefix: `author-${ cleanForSlug( authorName ) || authorId }-posts`,
+		hasDateRange: true,
+		fetchItems: async reportParams =>
+			findAuthorRow(
+				await fetchStatsTopAuthorsRows( getAuthorsReportQueryParams( reportParams ) ),
+				authorId
+			)?.children ?? [],
+		toCsvRows: items => items,
+		getColumns: () => getPostsCsvColumns< StatsTopAuthorsPostComparisonItem >(),
+	};
+}

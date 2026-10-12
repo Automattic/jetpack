@@ -2,35 +2,47 @@ import { __ } from '@wordpress/i18n';
 import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
-	'all' | 'active' | 'inactive' | 'essential' | 'security' | 'complete' | 'growth';
+	'all' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
 
-const PLANS = [ 'security', 'complete', 'growth' ];
+const PLANS = [ 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
-	[ 'all', 'active', 'inactive', 'essential', ...PLANS ].includes( value );
+	[ 'all', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
 
 /**
  * The filters offered as pills, in the order they are shown.
  *
- * Complete earns no pill of its own, but it is a valid filter a plan badge can select —
- * so it joins the list while it is the active one, or the narrow layout's select, built
- * from this list, would have nothing to show for what is filtering the grid.
+ * Included in plan earns no pill of its own, but a link can still select it — so it joins
+ * the list while it is the active one, or the narrow layout's select would have nothing to
+ * show. A visit that arrived on it is about what the site owns, so it swaps the category
+ * pills for that one.
  *
- * @param active - The filter in play, if any.
+ * @param active    - The filter in play, if any.
+ * @param ownedView - Whether the visit arrived on Included in plan.
  * @return One entry per filter, each with its label.
  */
 export const getFeatureFilters = (
-	active?: FeatureFilter
+	active?: FeatureFilter,
+	ownedView = false
 ): Array< { value: FeatureFilter; label: string } > => [
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
-	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
-	{ value: 'security', label: __( 'Security', 'jetpack-my-jetpack' ) },
-	{ value: 'growth', label: __( 'Growth', 'jetpack-my-jetpack' ) },
-	...( 'complete' === active
-		? [ { value: 'complete' as FeatureFilter, label: __( 'Complete', 'jetpack-my-jetpack' ) } ]
+	...( ownedView || 'included' === active
+		? [
+				{
+					value: 'included' as FeatureFilter,
+					label: __( 'Included in plan', 'jetpack-my-jetpack' ),
+				},
+			]
 		: [] ),
+	...( ownedView
+		? []
+		: [
+				{ value: 'essential' as FeatureFilter, label: __( 'Essential', 'jetpack-my-jetpack' ) },
+				{ value: 'security' as FeatureFilter, label: __( 'Security', 'jetpack-my-jetpack' ) },
+				{ value: 'growth' as FeatureFilter, label: __( 'Growth', 'jetpack-my-jetpack' ) },
+			] ),
 ];
 
 /**
@@ -51,6 +63,10 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 
 	if ( filter === 'inactive' ) {
 		return state.status !== 'active';
+	}
+
+	if ( filter === 'included' ) {
+		return Boolean( state.feature.included );
 	}
 
 	if ( PLANS.includes( filter ) ) {

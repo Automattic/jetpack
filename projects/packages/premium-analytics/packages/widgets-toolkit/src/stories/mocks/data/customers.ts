@@ -103,8 +103,6 @@ export const mockCustomersEmptyData: MockCustomersResponse = {
 /**
  * Mock data for Customers By Date endpoint
  *
- * Used by: NewVsReturningCustomerWidget
- *
  * Response structure matches:
  * - summary: CustomersByDateSummary (includes customer counts)
  * - data: CustomersByDateItem[]

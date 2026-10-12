@@ -31,6 +31,7 @@ export function useAuthorsReportRecords( reportParams: ReportParams ) {
 
 	return {
 		isError: authors.isError,
+		error: authors.error,
 		refetch: authors.refetch,
 		rows,
 		hasComparison: authors.hasComparison,

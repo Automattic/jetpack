@@ -17,6 +17,8 @@ import {
 	sharePercentage,
 	tagRowGlyph,
 	useWidgetDrillDown,
+	ExporterCsvDownloadButton,
+	tagsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -178,6 +180,11 @@ function TagsInner() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="tags" />
+				<ExporterCsvDownloadButton
+					exporter={ tagsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ data.length }
+				/>
 			</WidgetFooter>
 		</Stack>
 	);

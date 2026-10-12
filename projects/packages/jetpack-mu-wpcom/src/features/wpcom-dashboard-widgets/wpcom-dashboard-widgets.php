@@ -62,17 +62,14 @@ function load_wpcom_dashboard_widgets() {
 	$checklist_slug    = get_option( 'site_intent' );
 
 	// The AI Launchpad's Site Setup screen supersedes this widget: showing both surfaces two
-	// different checklists under the same name. Eligibility covers dismissal, so a user who
-	// dismissed the AI Launchpad gets this widget back.
+	// different checklists under the same name. Dismissing the AI Launchpad now means
+	// no-guidance (see below), not a fallback to this widget.
 	$has_ai_launchpad = function_exists( 'wpcom_ai_launchpad_is_eligible' )
 		&& wpcom_ai_launchpad_is_eligible();
 
-	// The no_guidance launchpad-personalization variation gets no launchpad surface at all.
-	// Unlike the ai_launchpad arm above, there is no dismissal fallback: dismissing nothing
-	// cannot bring the widget back.
-	require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
-	$is_no_guidance =
-		'no_guidance' === \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
+	// No-guidance sites get no launchpad surface; unlike the AI Launchpad there is no dismissal fallback.
+	require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
+	$is_no_guidance = wpcom_launchpad_is_no_guidance();
 
 	if (
 		defined( 'IS_WPCOM' ) && IS_WPCOM &&

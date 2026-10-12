@@ -2,12 +2,15 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
+import widget from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -16,13 +19,10 @@ jest.mock( '../use-traffic-chart' );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
 
-// The click lands in the date-filter controller, so a recorder stands in for it.
-const mockDrillDown = jest.fn();
-jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	useReportDateFilters: () => ( {
-		drillDown: ( ...args: unknown[] ) => mockDrillDown( ...args ),
-	} ),
-} ) );
+setSettings( {
+	...getSettings(),
+	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+} );
 
 // The chart itself is not this file's subject: `useTrafficChart` resolves the
 // bucket. The stand-in records props so the click handler can be driven.
@@ -75,7 +75,6 @@ function drawnChartType(): string {
 beforeEach( () => {
 	window.localStorage.clear();
 	mockGetScriptData.mockReturnValue( { site: { wpcom: { blog_id: 123 } } } as never );
-	mockDrillDown.mockClear();
 	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
 	mockUseTrafficChart.mockReturnValue( {
@@ -99,16 +98,6 @@ describe( 'TrafficChart chart type', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
 
 		expect( drawnChartType() ).toBe( 'bar' );
-	} );
-
-	it( 'keeps a saved choice', () => {
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'day' ), chartType: 'line' } }
-			/>
-		);
-
-		expect( drawnChartType() ).toBe( 'line' );
 	} );
 } );
 
@@ -170,23 +159,65 @@ describe( 'TrafficChart inherited Stats v1 choice', () => {
 	} );
 } );
 
-describe( 'TrafficChart bucket size', () => {
-	it.each( [ 'hour', 'day', 'week', 'month' ] )( 'follows the page interval: %s', interval => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( interval ) } } /> );
+describe( 'Traffic chart type switch', () => {
+	function chartTypeSwitchValue( item: { chartType?: 'line' | 'bar' } ) {
+		const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
+		return ( field as unknown as { getValue: ( args: { item: object } ) => unknown } ).getValue( {
+			item,
+		} );
+	}
 
-		expect( requestedBucket() ).toBe( interval );
+	it( 'shows bars when nothing is saved', () => {
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'bar' );
 	} );
 
-	// `year` is the only interval the dashboard still offers that this chart has
-	// no bucket for, so it is what reaches the clamp to the coarsest offered.
-	it( 'resolves a page interval this chart cannot draw to one it can', () => {
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
+	it( 'shows a saved choice', () => {
+		expect( chartTypeSwitchValue( { chartType: 'line' } ) ).toBe( 'line' );
+	} );
 
-		expect( requestedBucket() ).toBe( 'month' );
+	it( 'shows the choice Stats v1 saved when nothing is saved here', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
+
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
+	} );
+} );
+
+describe( 'TrafficChart bucket size', () => {
+	it.each( [
+		[ 'week', 'day' ],
+		[ 'month', 'week' ],
+	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
+		render(
+			<TrafficChartRender attributes={ { reportParams: reportParams( range ), chartInterval } } />
+		);
+
+		expect( requestedBucket() ).toBe( chartInterval );
+	} );
+
+	it( "draws the range's default bucket, not the page's, when none is saved", () => {
+		render(
+			<TrafficChartRender
+				attributes={ {
+					reportParams: { ...RANGE_FOR_INTERVAL.day, interval: 'week' } as ReportParams,
+				} }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'day' );
+	} );
+
+	it( 'clamps a saved bucket the range rules out', () => {
+		render(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'hour' ), chartInterval: 'week' } }
+			/>
+		);
+
+		expect( requestedBucket() ).toBe( 'hour' );
 	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
-	// layout can still carry it, and it must not override the page.
+	// layout can still carry it, and it must not override the range's bucket.
 	it( 'ignores a granularity persisted before the widget dropped the control', () => {
 		const staleAttributes = {
 			reportParams: reportParams( 'month' ),
@@ -198,33 +229,52 @@ describe( 'TrafficChart bucket size', () => {
 
 		expect( requestedBucket() ).toBe( 'month' );
 	} );
-
-	// The widget resolves this from `reportParams` alone, so it cannot need a
-	// host setter — and cannot dirty the saved layout just by rendering.
-	it( 'writes nothing, whatever it is handed', () => {
-		const setAttributes = jest.fn();
-
-		render(
-			<TrafficChartRender
-				attributes={ { reportParams: reportParams( 'month' ) } }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		expect( setAttributes ).not.toHaveBeenCalled();
-	} );
 } );
 
 describe( 'TrafficChart drill-down', () => {
-	// A yearly page draws in months here, so the click must name the month:
-	// left to the page interval, a click on March would open the whole year.
-	it( 'names the bucket size it drew, not the page interval', () => {
+	// A multi-year range draws in months here, so the click must open the month:
+	// left to the page interval, a click on February would open the whole year.
+	it( 'sets the period to the bar it drew, not the page interval', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } />
+			</ReportScopeProvider>
+		);
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-02-01T00:00:00.000Z' ),
+			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'cuts an edge bar to the window it drew', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender
+					attributes={ {
+						reportParams: { from: '2026-02-10', to: '2026-06-30' } as ReportParams,
+						chartInterval: 'month',
+					} }
+				/>
+			</ReportScopeProvider>
+		);
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-02-10T00:00:00.000Z' ),
+			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'leaves the bars inert on a surface with no period to set', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 
-		const clicked = new Date( '2026-02-14T00:00:00.000Z' );
-		chartClickHandler()( clicked );
-
-		expect( mockDrillDown ).toHaveBeenCalledWith( clicked, 'month' );
+		expect( chartClickHandler() ).toBeUndefined();
 	} );
 } );
 

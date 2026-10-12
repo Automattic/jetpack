@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\IP\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -19,6 +20,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 8.7.0
  */
 class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
+
+	/**
+	 * Maximum number of redirect hops to follow when downloading a media file.
+	 *
+	 * Matches WordPress's default `redirection` limit, so media URLs that redirect
+	 * to a CDN keep resolving exactly as before.
+	 *
+	 * @var int
+	 */
+	const MAX_REDIRECTS = 5;
+
+	/**
+	 * Seconds a media download may take, redirects included.
+	 *
+	 * @var int
+	 */
+	const DOWNLOAD_TIMEOUT = 300;
 
 	/**
 	 * Media argument schema for /copy endpoint.
@@ -736,6 +754,9 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	/**
 	 * Downloads a remote media file into a temporary file for sideloading.
 	 *
+	 * The URL is checked against Utils::url_is_public() before the fetch and again
+	 * on every redirect hop, the same rule the resolve-redirect endpoint applies.
+	 *
 	 * The remote file is streamed into a randomly-named temporary file created by
 	 * wp_tempnam(). The caller-supplied name is never used for the temporary file
 	 * itself; it is only applied — and validated by WordPress — later, when the
@@ -749,6 +770,12 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	public function get_download_url( $guid ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
+		$url = isset( $guid['url'] ) && is_string( $guid['url'] ) ? $guid['url'] : '';
+
+		if ( ! $this->url_is_public( $url ) ) {
+			return $this->download_failed_error();
+		}
+
 		$tmp_name = wp_tempnam();
 		if ( ! $tmp_name ) {
 			return new WP_Error(
@@ -758,31 +785,116 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			);
 		}
 
-		$response = wp_safe_remote_get(
-			$guid['url'],
-			array(
-				'timeout'  => 300,
-				'stream'   => true,
-				'filename' => $tmp_name,
-			)
-		);
+		$result = $this->stream_to_temp_file( $url, $tmp_name );
 
-		if ( is_wp_error( $response ) ) {
+		if ( is_wp_error( $result ) ) {
 			wp_delete_file( $tmp_name );
-			$response->add_data( array( 'status' => 400 ) );
-			return $response;
 		}
 
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			wp_delete_file( $tmp_name );
-			return new WP_Error(
-				'rest_upload_error',
-				__( 'Could not download the media file.', 'jetpack' ),
-				array( 'status' => 400 )
+		return $result;
+	}
+
+	/**
+	 * Streams an already-validated URL into a temporary file, following redirects.
+	 *
+	 * Each hop is fetched with `redirection => 0` and re-checked with
+	 * Utils::url_is_public() before the next request. The caller owns $tmp_name and
+	 * deletes it when this returns an error.
+	 *
+	 * @param string $url      Validated URL to download.
+	 * @param string $tmp_name Path of the temporary file to stream into.
+	 * @return string|\WP_Error $tmp_name on success, WP_Error on failure.
+	 */
+	private function stream_to_temp_file( $url, $tmp_name ) {
+		// One budget for the whole chain: WordPress used to apply the timeout across
+		// the redirects it followed itself, and following them here must not multiply
+		// how long a single import can hold a request open.
+		$deadline = microtime( true ) + self::DOWNLOAD_TIMEOUT;
+
+		for ( $hop = 0; $hop <= self::MAX_REDIRECTS; $hop++ ) {
+			$remaining = (int) ceil( $deadline - microtime( true ) );
+			if ( $remaining < 1 ) {
+				return $this->download_failed_error();
+			}
+
+			$response = wp_safe_remote_get(
+				$url,
+				array(
+					'timeout'     => $remaining,
+					'stream'      => true,
+					'filename'    => $tmp_name,
+					// Do not let WordPress follow redirects for us; we validate each hop first.
+					'redirection' => 0,
+				)
 			);
+
+			if ( is_wp_error( $response ) ) {
+				return $this->download_failed_error();
+			}
+
+			$status = (int) wp_remote_retrieve_response_code( $response );
+
+			if ( $status < 300 || $status >= 400 ) {
+				return 200 === $status ? $tmp_name : $this->download_failed_error();
+			}
+
+			// Budget exhausted: stop before validating a destination we will never fetch.
+			if ( self::MAX_REDIRECTS === $hop ) {
+				break;
+			}
+
+			$location = wp_remote_retrieve_header( $response, 'location' );
+
+			// Multiple Location headers: follow the last, as core does.
+			if ( is_array( $location ) ) {
+				$location = end( $location );
+			}
+
+			// Location may be relative; resolve it against the current URL.
+			$next_url = is_string( $location ) && '' !== $location
+				? WP_Http::make_absolute_url( $location, $url )
+				: '';
+
+			if ( ! is_string( $next_url ) || ! $this->url_is_public( $next_url ) ) {
+				return $this->download_failed_error();
+			}
+
+			$url = $next_url;
 		}
 
-		return $tmp_name;
+		return $this->download_failed_error();
+	}
+
+	/**
+	 * Checks whether a URL is a public destination for a media download.
+	 *
+	 * An older jetpack-ip without url_is_public() may win the autoloader; that case
+	 * falls back to core's check, the same one wp_safe_remote_get() applies.
+	 *
+	 * @param string $url URL to check.
+	 * @return bool
+	 */
+	private function url_is_public( $url ) {
+		if ( method_exists( Utils::class, 'url_is_public' ) ) {
+			return Utils::url_is_public( $url );
+		}
+
+		return (bool) wp_http_validate_url( $url );
+	}
+
+	/**
+	 * Builds the WP_Error returned when a media file cannot be downloaded.
+	 *
+	 * Every failed download shares this one generic error.
+	 *
+	 * @return WP_Error
+	 */
+	private function download_failed_error() {
+		return new WP_Error(
+			'rest_upload_error',
+			__( 'Could not download the media file.', 'jetpack' ),
+			array( 'status' => 400 )
+		);
 	}
 
 	/**

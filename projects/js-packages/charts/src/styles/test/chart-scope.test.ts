@@ -127,7 +127,7 @@ describe( 'chart scope catalog', () => {
 			expect( mediaRules[ 0 ].cssRules ).toHaveLength( 1 );
 
 			const rule = mediaRules[ 0 ].cssRules[ 0 ] as CSSStyleRule;
-			expect( rule.selectorText ).toBe( ':where(.a8c-charts-scope)' );
+			expect( rule.selectorText ).toBe( ':where(.a8c-charts-scope, .a8c-charts-tooltip-scope)' );
 			expect(
 				Object.fromEntries(
 					Array.from( rule.style ).map( property => [
@@ -171,8 +171,8 @@ describe( 'chart scope catalog', () => {
 		expect( documented.get( token )?.fallback ).toEqual( declared.get( token )?.fallback );
 	} );
 
-	it( 'scopes the catalog to :where(.a8c-charts-scope) rather than :root', () => {
-		expect( stylesheet ).toMatch( /:where\(\.a8c-charts-scope\)\s*{/ );
+	it( 'scopes the catalog to the chart and tooltip scope classes rather than :root', () => {
+		expect( stylesheet ).toMatch( /:where\(\.a8c-charts-scope, \.a8c-charts-tooltip-scope\)\s*{/ );
 		expect( stylesheet ).not.toMatch( /(^|\s):root\s*{/ );
 	} );
 

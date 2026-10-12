@@ -285,8 +285,7 @@ class Comment_Form {
 			'postId'        => $post_id,
 			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			// None on WordPress.com, where the site's session is the reader's whole WordPress.com login.
-			'logoutUrl'     => is_user_logged_in() && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
 				'id'        => $args['id_submit'] ?? 'submit',
 				'name'      => $args['name_submit'] ?? 'submit',
@@ -315,17 +314,18 @@ class Comment_Form {
 				$fields    = array(
 					'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
 					'email'  => array( __( 'Email', 'jetpack-comments' ), 'email', $commenter['comment_author_email'], $required ),
-					'url'    => array( __( 'Website', 'jetpack-comments' ), 'url', $commenter['comment_author_url'], false ),
+					'url'    => array( __( 'Website', 'jetpack-comments' ), 'text', $commenter['comment_author_url'], false ),
 				);
 
 				foreach ( $fields as $name => list( $label, $type, $value, $is_required ) ) {
 					$plain .= sprintf(
-						'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s /></p>',
+						'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s%6$s /></p>',
 						$name,
 						esc_html( $label ),
 						$type,
 						esc_attr( $value ),
-						$is_required ? ' required' : ''
+						$is_required ? ' required' : '',
+						'url' === $name ? ' maxlength="200"' : ''
 					);
 				}
 			}
@@ -403,7 +403,6 @@ class Comment_Form {
 		if ( ! $this->settings_printed ) {
 			$strings = array(
 				'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
-				'blockTools'          => __( 'Block tools', 'jetpack-comments' ),
 				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
 				/* translators: The empty comment box's placeholder. The form adds "..." after it. */
@@ -415,20 +414,19 @@ class Comment_Form {
 				'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
 				'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
 				'website'             => __( 'Website (optional)', 'jetpack-comments' ),
-				'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
-				'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
+				'intro'               => __( 'Enter your name and email to comment.', 'jetpack-comments' ),
 				'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
 				'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 				'save'                => __( 'Save', 'jetpack-comments' ),
-				'saveDetails'         => __( 'Save my name, email, and website for the next time I comment.', 'jetpack-comments' ),
+				'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
 				'close'               => __( 'Close', 'jetpack-comments' ),
-				'options'             => __( 'Options', 'jetpack-comments' ),
-				'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
 				'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
 				'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 				'logIn'               => __( 'Log in', 'jetpack-comments' ),
 				'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
 				'logOut'              => __( 'Log out', 'jetpack-comments' ),
+				'change'              => _x( 'Change', 'edit the name and email a comment posts under', 'jetpack-comments' ),
+				'editProfile'         => __( 'Edit profile', 'jetpack-comments' ),
 				'addYourName'         => __( 'Add your name', 'jetpack-comments' ),
 				'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 				'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
@@ -448,49 +446,39 @@ class Comment_Form {
 			$lengths = wp_get_comment_fields_max_lengths();
 			$style   = wp_styles()->query( self::HANDLE );
 
-			// Where a reader manages subscriptions: the Reader for a WordPress.com account, the
-			// email portal for anyone else. Only where the Newsletter offers them on this form;
-			// Simple stores an option's "off" as an empty string, Jetpack as 0.
+			// Where a reader manages subscriptions to this site, which sends a WordPress.com account
+			// to the Reader and anyone else to the email portal. Only where the Newsletter offers them
+			// on this form; Simple stores an option's "off" as an empty string, Jetpack as 0.
 			$offered = false;
 			foreach ( array( 'stb_enabled', 'stc_enabled' ) as $option ) {
 				$offered = $offered || ! in_array( get_option( $option, 1 ), array( '', '0', 0 ), true );
 			}
 
-			$reader = 'https://wordpress.com/reader/subscriptions?s=' . rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
-			$manage = array(
-				'url'         => '',
-				'byEmail'     => true,
-				'signedInUrl' => '',
-			);
-
+			$manage = '';
 			if ( $offered && ( function_exists( 'subscription_comment_form' ) || class_exists( 'Jetpack_Subscriptions' ) ) ) {
-				// On WordPress.com, a logged-in reader is a WordPress.com account.
-				$by_account = defined( 'IS_WPCOM' ) && IS_WPCOM && is_user_logged_in();
-				$manage     = array(
-					'url'         => $by_account ? $reader : 'https://subscribe.wordpress.com/',
-					'byEmail'     => ! $by_account,
-					'signedInUrl' => $reader,
-				);
+				$manage = 'https://subscribe.wordpress.com/?site=' . rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
 			}
 
 			// Everything the app needs that only PHP knows.
 			$settings = array_merge(
 				array(
-					'version'             => Comments::PACKAGE_VERSION,
+					'version'                => Comments::PACKAGE_VERSION,
 					// The dialog's shadow root links it again; page styles stop at that boundary.
 					// Decoded: WordPress.com's static-file filter joins its query with &amp;.
-					'styleUrl'            => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
-					'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
-					'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-					'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-					'blocks'              => Block_Editor::is_enabled(),
-					'editorLocale'        => Block_Editor::is_enabled() ? Block_Editor::locale_data() : (object) array(),
-					'site'                => array(
+					'styleUrl'               => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
+					'requireNameEmail'       => (bool) get_option( 'require_name_email' ),
+					'mustLogIn'              => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+					'maxLength'              => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+					'blocks'                 => Block_Editor::is_enabled(),
+					'editorLocale'           => Block_Editor::is_enabled() ? Block_Editor::locale_data() : (object) array(),
+					'editor'                 => Block_Editor::labels(),
+					'site'                   => array(
 						'name'    => get_bloginfo( 'name' ),
 						'iconUrl' => (string) get_site_icon_url( 64 ),
 					),
-					'manageSubscriptions' => $manage,
-					'strings'             => $strings,
+					'manageSubscriptionsUrl' => $manage,
+					'tracks'                 => Tracks::is_enabled() ? array( 'platform' => Tracks::platform() ) : null,
+					'strings'                => $strings,
 				),
 				Identity::settings()
 			);
@@ -508,16 +496,16 @@ class Comment_Form {
 	}
 
 	/**
-	 * Require a comment to arrive with a nonce this site issued.
+	 * Require a logged-in reader's comment to arrive with a nonce this site issued.
 	 *
-	 * For a logged-out reader it is the same string for everybody, for up to 24
-	 * hours, so it proves the sender loaded a page from this site and nothing more.
+	 * A logged-out reader's would be the same string for everybody, which a page cache
+	 * serves past its expiry, so their comments go through core's checks alone, as core's form does.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
 	 */
 	public function verify_nonce( $comment_post_id = 0 ) {
-		if ( ! self::enabled_for_post_type( $comment_post_id ) ) {
+		if ( ! self::enabled_for_post_type( $comment_post_id ) || ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -548,6 +536,11 @@ class Comment_Form {
 			if ( $valid ) {
 				return;
 			}
+		}
+
+		// A stale nonce is what a page cache costs real readers.
+		if ( '' !== $nonce ) {
+			Tracks::record_refusal( 'nonce' );
 		}
 
 		wp_die(

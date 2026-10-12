@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { InstallButton, JetpackButton } from './feature-action';
+import { UpgradeButton } from './feature-paid';
 import { getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { useFeaturePlugin } from './use-main-features';
@@ -120,8 +121,8 @@ type FeatureModalActionsProps = {
 };
 
 /**
- * What the modal offers to do with a feature: Open once it is running, and the button
- * that switches it, installs its plugin, or installs Jetpack.
+ * What the modal offers to do with a feature: Open once it is running, the button that
+ * switches it, installs its plugin, or installs Jetpack, and Upgrade where a plan sells more.
  *
  * @param {FeatureModalActionsProps} props       - The component props.
  * @param {FeatureState}             props.state - Live state for the feature.
@@ -182,6 +183,8 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 			{ control.kind === 'install-jetpack' && ! control.blocked ? (
 				<JetpackButton state={ state } origin="modal" installed={ control.installed } />
 			) : null }
+
+			<UpgradeButton state={ state } />
 		</>
 	);
 }

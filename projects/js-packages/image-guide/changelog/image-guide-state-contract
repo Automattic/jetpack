@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move state and analytics off Svelte stores without changing the Image Guide UI.
+
+Add @wordpress/data dependency and React peer dependencies.

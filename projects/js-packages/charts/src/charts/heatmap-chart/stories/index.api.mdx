@@ -7,7 +7,8 @@ import { Meta } from '@storybook/addon-docs/blocks';
 ## HeatmapChart
 
 Main component for rendering a two-dimensional heatmap. Cells are laid out with CSS Grid
-and shaded with CSS `color-mix`, so the scale adapts to the chart background.
+and shaded on a scale derived from the primary color and the chart background, so its
+lowest step keeps 3:1 contrast against that background and the empty cells.
 
 **Props:**
 
@@ -19,15 +20,16 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `keyboardNavigation` | `'grid' \| 'calendar'` | `'grid'` | How the arrow keys move the selection. `grid` steps across the whole grid. `calendar` reads each column group as a page: Left/Right by one cell, wrapping to the next row and then the next group; Up/Down by one row, into the neighboring group past the edge; Page Up/Down to the same slot of the neighboring group, or its nearest cell after it. |
 | `ariaLabel` | `string` | `'Heatmap chart'` | Accessible name of the grid. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
+| `fitCells` | `boolean` | `false` | Compact mode only: grow the cells to fill the chart's box, wrapping the column groups onto more rows when that gives larger cells. The theme's `compactCellSize` is the floor: when no row count reaches it, the grid keeps one row of groups at that size and overflows. Needs a box with a definite height. Columns outside every group keep the groups on one row. Ignored, with a warning, outside compact mode or when a column is a summary. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
 | `maxCellWidth` | `number` | - | Maximum cell width in pixels in non-compact mode. Cells stop growing at this width while narrower containers may still shrink them. |
 | `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
-| `primaryColor` | `string` | palette | Color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
+| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
-| `tooltipVariant` | `'light' \| 'dark'` | `'light'` | The tooltip box: the plain white box, or the package's dark tooltip surface (themed through `--a8c-charts-color-tooltip-surface`). |
-| `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the variant's own; tighten the padding of a one-line tooltip, for example. |
+| `tooltipVariant` | `'light' \| 'dark'` | - | **Deprecated.** Every tooltip draws on the package tooltip surface; this prop has no effect. |
+| `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the surface's own; tighten the padding of a one-line tooltip, for example. |
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
 | `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |
@@ -51,7 +53,7 @@ Sub-component that renders a sequential gradient scale from the lightest to the 
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `steps` | `number` | `5` | Number of color swatches in the scale. |
+| `steps` | `number` | `5` | Number of color swatches in the scale, not counting the empty-cell swatch. |
 | `variant` | `'swatches' \| 'bar'` | `'swatches'` | `swatches` spaces the steps out as cell-sized squares; `bar` joins them into one continuous band with rounded ends. |
 | `lessLabel` | `string` | `'Less'` | Label shown to the left of the swatches. |
 | `moreLabel` | `string` | `'More'` | Label shown to the right of the swatches. |
@@ -95,7 +97,7 @@ A single cell in the heatmap.
 type HeatmapCell = {
 	/** Per-cell label used in the tooltip / accessible name. */
 	label?: string;
-	/** Numeric value. Use null to mark an empty / missing cell. */
+	/** Numeric value. Use null to mark an empty / missing cell; a zero also paints as empty unless some value is negative. */
 	value: number | null;
 	/**
 	 * Leave the cell's grid slot empty: nothing is painted and the cell is

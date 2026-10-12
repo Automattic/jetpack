@@ -92,6 +92,25 @@ describe( 'MoreFeatures', () => {
 		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
 	} );
 
+	it( 'drops the headings when the rows are search results', () => {
+		setSiteEditor( { isBlockTheme: false } );
+
+		render(
+			<MoreFeatures
+				groups={ [ { label: 'Engagement', states: [ getModuleFeatureState( sharing, {} ) ] } ] }
+				selection={ selection }
+				jetpack="active"
+				isSearching
+			/>
+		);
+
+		expect( screen.getByText( sharing.name ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'Engagement' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'More Features' } ) ).toHaveClass(
+			'screen-reader-text'
+		);
+	} );
+
 	it( 'renders the modules under their heading with nothing to open', () => {
 		setSiteEditor( { isBlockTheme: false } );
 

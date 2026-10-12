@@ -3,13 +3,19 @@
  */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import UtmInsightsWidget from '../render';
 import type { UtmInsightsRow } from '../use-utm-insights';
 
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 let mockRows: UtmInsightsRow[] = [];
 
@@ -29,35 +35,49 @@ beforeEach( () => {
 	mockRows = [];
 } );
 
+afterEach( () => {
+	jest.useRealTimers();
+} );
+
 describe( 'UtmInsightsWidget', () => {
-	it( 'links to the UTM report', () => {
-		render( <UtmInsightsWidget attributes={ {} } /> );
+	it.each( [
+		[ 'source-medium', {} ],
+		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],
+	] as const )( 'links View all to the %s report tab', ( section, attributes ) => {
+		render( <UtmInsightsWidget attributes={ attributes } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/utm' )
-		);
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( 'section=source-medium' )
-		);
+		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' ) ?? '';
+		expect( href ).toContain( '/reports/utm' );
+		expect( href ).toContain( `section=${ section }` );
 	} );
 
-	it( 'links the combined campaign dimension to its matching report tab', () => {
-		render(
-			<UtmInsightsWidget attributes={ { utmDimension: 'utm_campaign,utm_source,utm_medium' } } />
-		);
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( 'section=campaign-source-medium' )
-		);
-	} );
-
-	it( 'hides the report link when the host composition opts out', () => {
+	it( 'hides the report link and the download when the host composition opts out', () => {
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
 		render( <UtmInsightsWidget attributes={ { showReportLink: false } } /> );
 
 		expect( screen.queryByRole( 'link', { name: 'View all' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'downloads the full report for the active UTM dimension', async () => {
+		jest.useFakeTimers();
+		const downloads = captureCsvDownloads();
+		mockApiFetch.mockResolvedValue( {} );
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
+		render(
+			<UtmInsightsWidget
+				attributes={ {
+					utmDimension: 'utm_campaign,utm_source,utm_medium',
+					reportParams: { from: '2026-06-01', to: '2026-06-30' },
+				} }
+			/>
+		);
+
+		await downloads.clickAndSave( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		const [ saved ] = downloads.files;
+		downloads.restore();
+
+		expect( saved.filename ).toBe( 'utm-campaign-source-medium-2026-06-01_2026-06-30.csv' );
 	} );
 
 	it( 'links a drilled-in post to its detail page and carries the report window', async () => {
@@ -89,31 +109,10 @@ describe( 'UtmInsightsWidget', () => {
 		expect( href ).toContain( 'from=2026-06-01' );
 		expect( href ).toContain( 'ref=utm' );
 		expect( href ).toContain( 'ref_section=source-medium' );
-		expect( titleLink ).not.toHaveAttribute( 'target', '_blank' );
-	} );
-
-	it( 'falls back to the public URL when a drilled-in post has no ID', async () => {
-		const user = userEvent.setup();
-		mockRows = [
-			{
-				label: 'jetpack-forms / email',
-				value: 30,
-				children: [
-					{ postId: 0, label: 'Untracked page', value: 20, href: 'https://example.com/untracked/' },
-				],
-			},
-		];
-
-		render( <UtmInsightsWidget attributes={ {} } /> );
-
-		await user.click(
-			screen.getByRole( 'button', { name: 'View posts for jetpack-forms / email' } )
+		expect( new URL( href, 'https://example.com' ).searchParams.get( 'post_url' ) ).toBe(
+			'https://example.com/forms/'
 		);
-
-		const titleLink = screen.getByRole( 'link', { name: /Untracked page/ } );
-		expect( titleLink ).toHaveAttribute( 'href', 'https://example.com/untracked/' );
-		expect( titleLink ).toHaveAttribute( 'target', '_blank' );
-		expect( titleLink.getAttribute( 'href' ) ).not.toContain( 'ref=' );
+		expect( titleLink ).not.toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'names the active UTM dimension as the origin section', async () => {

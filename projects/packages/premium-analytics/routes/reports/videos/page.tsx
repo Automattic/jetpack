@@ -5,13 +5,12 @@ import { type StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/d
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
 	ExporterCsvAction,
 	videosCsvExporter,
-	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -22,7 +21,12 @@ import { type JSX } from 'react';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getVideosFields, useVideosReportRecords } from './config';
+import {
+	getVideosFields,
+	isVideoRowClickable,
+	renderVideoRowLink,
+	useVideosReportRecords,
+} from './config';
 
 const ROUTE_FROM = route.path;
 
@@ -56,6 +60,8 @@ const RECORDS_VIEW = {
 		styles: {
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
+			watch_time: { align: 'end' as const },
+			retention_rate: { align: 'end' as const },
 		},
 	},
 };
@@ -68,7 +74,6 @@ const RECORDS_VIEW = {
 function VideosReport(): JSX.Element {
 	const reportParams = useReportParams();
 	const records = useVideosReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
@@ -76,17 +81,6 @@ function VideosReport(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.videos;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -102,7 +96,13 @@ function VideosReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load videos. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
 						data={ records.rows }
 						fields={ fields }
@@ -111,8 +111,10 @@ function VideosReport(): JSX.Element {
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
+						isItemClickable={ isVideoRowClickable }
+						renderItemLink={ renderVideoRowLink }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

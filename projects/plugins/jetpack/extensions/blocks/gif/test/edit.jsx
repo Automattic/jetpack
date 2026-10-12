@@ -23,7 +23,7 @@ const defaultProps = {
 const GIPHY_DATA = [
 	{
 		id: '9',
-		embed_url: 'pony',
+		embed_url: 'https://giphy.com/embed/9',
 		images: {
 			downsized_still: {
 				url: 'chips',
@@ -36,7 +36,7 @@ const GIPHY_DATA = [
 	},
 	{
 		id: '99',
-		embed_url: 'horsey',
+		embed_url: 'https://giphy.com/embed/99',
 		images: {
 			downsized_still: {
 				url: 'fish',
@@ -137,6 +137,27 @@ describe( 'GifEdit', () => {
 		expect( container.querySelector( 'figcaption' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper iframe' ) ).toBeInTheDocument();
+	} );
+
+	describe( 'does not embed stored urls that are not allowed', () => {
+		test.each( [
+			[ 'javascript scheme', 'javascript:void(0)' ],
+			[ 'mixed-case javascript scheme', 'JavaScript:void(0)' ],
+			[ 'data scheme', 'data:text/html,hello' ],
+			[ 'non-Giphy https host', 'https://other.example.com/embed/9' ],
+			[ 'longer host with the same prefix', 'https://giphy.com.other.example.com/embed/9' ],
+			[ 'not HTTPS', 'http://giphy.com/embed/9' ],
+		] )( 'does not render an iframe for %s', ( _label, giphyUrl ) => {
+			const newProps = { ...defaultProps, attributes: { ...defaultAttributes, giphyUrl } };
+			const { container } = render( <GifEdit { ...newProps } /> );
+
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			expect( container.querySelector( 'iframe' ) ).not.toBeInTheDocument();
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-gif_placeholder' )
+			).toBeInTheDocument();
+		} );
 	} );
 
 	test( 'does not reset giphyUrl if giphyUrl is already set', () => {

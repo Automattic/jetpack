@@ -497,10 +497,16 @@ type MainFeature = {
 	plugin_override: '' | 'active' | 'inactive';
 	free_highlights: string[];
 	paid_highlights: string[];
+	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
 	upgrade: { path: string; name: string };
+	// Whether the site already pays for the feature, directly or through a bundle.
+	included?: boolean;
+	// What to expect after turning it on, such as picking a plan.
+	setup_note?: string;
 	screenshot: string;
-	plans: Array< { slug: string; name: string } >;
+	// `owned` is per plan: a site on Growth owns that one and can still buy Complete.
+	plans: Array< { slug: string; name: string; owned?: boolean } >;
 	info_url: string;
 	docs_url: string;
 	product: string;

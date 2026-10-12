@@ -33,6 +33,7 @@ use WC_Coupon;
 use WC_DateTime;
 use WC_Order;
 use WC_Order_Factory;
+use WC_Order_Refund;
 use WC_Tax;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -678,6 +679,7 @@ class WooCommerce_Analytics extends Module {
 			return $order_stats_data_from_db;
 		}
 
+		$order_stats_item         = null;
 		$order_fulfillment_status = null;
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
@@ -710,29 +712,91 @@ class WooCommerce_Analytics extends Module {
 			'fulfillment_status' => $order_fulfillment_status,
 		);
 
+		// Mirrors the refund block of WooCommerce's Orders\Stats\DataStore::update().
 		if ( 'shop_order_refund' === $order->get_type() ) {
 			$parent_order = wc_get_order( $order->get_parent_id() );
-			if ( $parent_order ) {
+			// Refunds attach to the original order. Skip if the parent is another refund.
+			if ( $parent_order && ! $parent_order instanceof WC_Order_Refund ) {
 				$order_stats_data['parent_id'] = $parent_order->get_id();
+				// Unlike core, keep the refund's own status: the WooCommerce Analytics plugin writes it back to core's row.
 
-				$refund_type = $order->get_meta( '_refund_type' );
-				if ( 'full' === $refund_type && self::uses_new_full_refund_data() ) {
-					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
+				$refund_type               = $order->get_meta( '_refund_type' );
+				$uses_new_full_refund_data = self::uses_new_full_refund_data();
+				$use_parent_refund_amounts = $uses_new_full_refund_data && (
+					'full' === $refund_type
+					|| self::should_split_full_refund_using_parent_order( $order, $parent_order )
+				);
+				if ( $use_parent_refund_amounts ) {
 					$order_stats_data['num_items_sold'] = -1 * self::get_num_items_sold( $parent_order );
+					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
 					$order_stats_data['net_total']      = -1 * self::get_net_total( $parent_order );
 					$order_stats_data['shipping_total'] = -1 * (float) $parent_order->get_shipping_total();
+
+					// Subtract what earlier refunds recorded, so this row only holds the remainder.
+					foreach ( $parent_order->get_refunds() as $prior_refund ) {
+						if ( $prior_refund->get_id() === $order->get_id() ) {
+							continue;
+						}
+						$order_stats_data['num_items_sold'] -= self::get_num_items_sold( $prior_refund );
+						$order_stats_data['tax_total']      -= (float) $prior_refund->get_total_tax();
+						$order_stats_data['net_total']      -= self::get_net_total( $prior_refund );
+						$order_stats_data['shipping_total'] -= (float) $prior_refund->get_shipping_total();
+					}
 				}
 			}
-			/**
-			 * Set date_completed and date_paid the same as date_created to avoid problems
-			 * when they are being used to sort the data, as refunds don't have them filled
-			 */
-			$date_created_gmt                   = self::datetime_to_object( $order->get_date_created() );
-			$order_stats_data['date_completed'] = $date_created_gmt;
-			$order_stats_data['date_paid']      = $date_created_gmt;
+			// Refunds have no paid or completed date; backfill each from date_created, but only where the parent has it.
+			// Follow core's stored row when there is one: rows an older WooCommerce wrote keep their dates, and the checksum compares both.
+			$order_stats_item ??= $this->get_order_stats_item( $order->get_id() );
+			if ( $order_stats_item ) {
+				$has_date_completed = null !== $order_stats_item['date_completed'];
+				$has_date_paid      = null !== $order_stats_item['date_paid'];
+			} else {
+				$dates_follow_parent = $parent_order instanceof WC_Order && self::refund_dates_follow_parent();
+				$has_date_completed  = ! $dates_follow_parent || $parent_order->get_date_completed();
+				$has_date_paid       = ! $dates_follow_parent || $parent_order->get_date_paid();
+			}
+			$order_stats_data['date_completed'] = $has_date_completed ? $order_stats_data['date_created'] : null;
+			$order_stats_data['date_paid']      = $has_date_paid ? $order_stats_data['date_created'] : null;
 		}
 
 		return $order_stats_data;
+	}
+
+	/**
+	 * Whether WooCommerce leaves a refund's paid and completed dates empty when its parent order has none.
+	 *
+	 * @return bool
+	 */
+	private static function refund_dates_follow_parent() {
+		return defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '11.2', '>=' );
+	}
+
+	/**
+	 * Whether this refund is a single lump-sum refund for the full order. Copied from WooCommerce's Orders\Stats\DataStore, where it is protected.
+	 *
+	 * @param WC_Abstract_Order $refund       Refund order.
+	 * @param WC_Abstract_Order $parent_order Parent order (not a refund).
+	 * @return bool
+	 */
+	private static function should_split_full_refund_using_parent_order( $refund, $parent_order ) {
+		// The parent must be the original order, not another refund.
+		if ( ! $parent_order instanceof WC_Order || 'shop_order_refund' === $parent_order->get_type() ) {
+			return false;
+		}
+
+		if ( self::get_num_items_sold( $refund ) > 0 ) {
+			return false;
+		}
+
+		$parent_refunds = $parent_order->get_refunds();
+		if ( 1 !== count( $parent_refunds ) ) {
+			return false;
+		}
+
+		$refund_total = wc_format_decimal( abs( (float) $refund->get_total() ) );
+		$order_total  = wc_format_decimal( (float) $parent_order->get_total() );
+
+		return $refund_total === $order_total;
 	}
 
 	/**
@@ -756,7 +820,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get number of items sold among all orders.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return int
 	 */
 	protected static function get_num_items_sold( $order ) {
@@ -773,7 +837,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get the net amount from an order without shipping, tax, or refunds.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_net_total( $order ) {

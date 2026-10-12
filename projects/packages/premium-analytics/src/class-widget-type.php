@@ -169,7 +169,7 @@ class Widget_Type {
 	 * Names this widget type registered under before the current one, so a layout persisted
 	 * with an old name keeps rendering it. Null when the type was never renamed.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @var string[]|null
 	 */

@@ -32,8 +32,8 @@ const PX_PER_MS = 0.1;
 function sessionWithCut(): EditSession {
 	return editSessionReducer( createEditSession( 10000 ), {
 		type: 'ADD_CUT',
-		atMs: 5000,
-		halfSpanMs: 1000,
+		atMs: 4000,
+		durationMs: 2000,
 		id: 'cut-a',
 	} );
 }
@@ -46,14 +46,14 @@ function sessionWithCut(): EditSession {
 function sessionWithTwoCuts(): EditSession {
 	const withA = editSessionReducer( createEditSession( 10000 ), {
 		type: 'ADD_CUT',
-		atMs: 1500,
-		halfSpanMs: 500,
+		atMs: 1000,
+		durationMs: 1000,
 		id: 'cut-a',
 	} );
 	return editSessionReducer( withA, {
 		type: 'ADD_CUT',
-		atMs: 5000,
-		halfSpanMs: 1000,
+		atMs: 4000,
+		durationMs: 2000,
 		id: 'cut-b',
 	} );
 }
@@ -296,8 +296,8 @@ describe( 'StudioEditorCutSegment', () => {
 		// A second cut at [7000, 7500] provides the trailing-edge target.
 		const session = editSessionReducer( sessionWithCut(), {
 			type: 'ADD_CUT',
-			atMs: 7250,
-			halfSpanMs: 250,
+			atMs: 7000,
+			durationMs: 500,
 			id: 'cut-b',
 		} );
 		const { dispatch } = renderOverlay( session );

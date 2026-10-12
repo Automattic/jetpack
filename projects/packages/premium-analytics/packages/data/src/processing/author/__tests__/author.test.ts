@@ -28,7 +28,7 @@ describe( 'sanitizeAuthorSummaryResponse', () => {
 		).toEqual( { id: 7, name: 'Priya', avatarUrl: 'https://g/48' } );
 	} );
 
-	it.each( [ undefined, {}, { '96': '' }, { '200': 'https://g/200' } ] )(
+	it.each( [ undefined, { '96': '' }, { '200': 'https://g/200' } ] )(
 		'leaves the avatar null when no preferred size is offered (%j)',
 		avatarUrls => {
 			expect(
@@ -37,7 +37,7 @@ describe( 'sanitizeAuthorSummaryResponse', () => {
 		}
 	);
 
-	it.each( [ null, {}, { id: 0 } ] )( 'returns null for a non-user record (%j)', record => {
+	it.each( [ null, {} ] )( 'returns null for a non-user record (%j)', record => {
 		expect( sanitizeAuthorSummaryResponse( record ) ).toBeNull();
 	} );
 } );

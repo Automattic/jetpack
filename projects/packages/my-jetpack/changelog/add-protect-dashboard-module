@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Offer the Protect switch through Jetpack when the Protect Dashboard feature flag is on.

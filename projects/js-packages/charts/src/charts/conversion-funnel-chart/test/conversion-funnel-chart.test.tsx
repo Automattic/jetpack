@@ -427,8 +427,27 @@ describe( 'ConversionFunnelChart', () => {
 				index: 1,
 				top: expect.any( Number ),
 				left: expect.any( Number ),
-				className: 'tooltip-wrapper',
 			} );
+		} );
+
+		it( 'exposes the tooltip content with role="tooltip"', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart' );
+		} );
+
+		it( 'merges tooltipStyle onto the tooltip box', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } tooltipStyle={ { background: 'purple' } } />
+			);
+
+			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+
+			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'purple' } );
 		} );
 
 		it( 'disables tooltip when renderTooltip returns null', async () => {

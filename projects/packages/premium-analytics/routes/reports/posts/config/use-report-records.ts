@@ -43,6 +43,7 @@ export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams
 
 	return {
 		isError: activeReport.isError,
+		error: activeReport.error,
 		refetch: activeReport.refetch,
 		posts: {
 			rows: postRows,

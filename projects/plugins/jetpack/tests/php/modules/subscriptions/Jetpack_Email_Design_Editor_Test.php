@@ -368,6 +368,31 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Core buffers `wp_print_footer_scripts()` to collect the canvas assets, so the dialog is
+	 * captured and injected into the canvas — where its own stylesheet is stripped, leaving it
+	 * permanently visible over the email. NL-957.
+	 */
+	public function test_the_resolved_assets_leave_the_auth_check_dialog_out_of_the_canvas() {
+		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		$assets   = $this->call_private( 'get_resolved_assets', array( array( 'wp-block-library-css' ) ) );
+		$restored = has_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
+
+		remove_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		$this->assertStringNotContainsString( 'wp-auth-check', $assets['scripts'] );
+		$this->assertSame( 5, $restored, 'The dialog was dropped from the page it belongs on.' );
+	}
+
+	public function test_the_resolved_assets_do_not_add_a_dialog_the_screen_never_had() {
+		remove_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		$this->call_private( 'get_resolved_assets', array( array() ) );
+
+		$this->assertFalse( has_action( 'wp_print_footer_scripts', 'wp_auth_check_html' ) );
+	}
+
 	public function test_the_iframe_settings_name_the_handles_they_were_filtered_against() {
 		$settings = $this->call_private( 'get_iframe_asset_settings' );
 

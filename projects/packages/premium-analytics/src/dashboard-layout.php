@@ -32,12 +32,12 @@ const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_def
 /**
  * Builds a widget instance for a section's default layout.
  *
- * @param string $uuid       Widget instance UUID.
- * @param string $type       Widget type.
- * @param int    $order      Widget placement order.
- * @param int    $width      Widget placement width.
- * @param int    $height     Widget placement height.
- * @param array  $attributes Optional widget attributes.
+ * @param string     $uuid       Widget instance UUID.
+ * @param string     $type       Widget type.
+ * @param int        $order      Widget placement order.
+ * @param int|'full' $width      Column span, or 'full' to span the grid.
+ * @param int        $height     Widget placement height.
+ * @param array      $attributes Optional widget attributes.
  * @return array Widget instance.
  */
 function get_dashboard_default_widget_instance(
@@ -92,7 +92,7 @@ add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupport
  * It cannot answer before `init`, without the widget type API loaded, or with nothing registered,
  * which is a checkout without a build.
  *
- * @since $$next-version$$
+ * @since 0.11.0
  *
  * @return Widget_Type_Registry|null
  */
@@ -113,7 +113,7 @@ function get_answering_widget_type_registry() {
  * Hooked before the unregistered-type check, so an instance a plugin still adds under an old
  * name survives it under the current one.
  *
- * @since $$next-version$$
+ * @since 0.11.0
  *
  * @param array $layout Default widget instances.
  * @return array The layout with current type names.

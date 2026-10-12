@@ -18,6 +18,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import paypalWordmark from '../images/paypal-wordmark-color.svg';
 import {
 	getButtonStyle,
 	getMarginStyle,
@@ -260,7 +261,17 @@ function ButtonPreview( {
 							__( 'Powered by %s', 'jetpack-paypal-payments' ),
 							'<logo />'
 						),
-						{ logo: <span className="jetpack-paypal-button__logo">PayPal</span> }
+						{
+							logo: (
+								<img
+									className="jetpack-paypal-button__logo"
+									src={ paypalWordmark }
+									alt="PayPal"
+									width="42"
+									height="15"
+								/>
+							),
+						}
 					) }
 				</p>
 			) }

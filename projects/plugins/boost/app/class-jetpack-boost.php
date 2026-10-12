@@ -40,7 +40,9 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Storage;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage\File_Storage;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_LCP_Analysis;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -200,6 +202,19 @@ class Jetpack_Boost {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation();
+		}
+
+		if ( ! get_option( 'jetpack_boost_page_cache_uri_keys' ) ) {
+			$home_url  = home_url();
+			$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
+			if ( is_string( $home_host ) ) {
+				$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
+				if ( is_int( $home_port ) ) {
+					$home_host .= ':' . $home_port;
+				}
+				( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
+			}
+			update_option( 'jetpack_boost_page_cache_uri_keys', 1, false );
 		}
 
 		$page_cache = new Module( new Page_Cache() );

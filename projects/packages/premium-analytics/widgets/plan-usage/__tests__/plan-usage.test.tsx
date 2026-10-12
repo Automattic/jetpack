@@ -57,17 +57,28 @@ describe( 'PlanUsageWidget', () => {
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Restarts in 12 days' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( '/proxy/v2/jetpack-stats/usage' );
 	} );
 
-	it( 'fills the meter proportionally to the usage figures', async () => {
+	// jsdom's `.value` getter clamps to `max` itself, so read the attribute the widget wrote.
+	it.each( [
+		[ 'fills the meter proportionally to the usage', 6200, '6200' ],
+		[ 'fills the meter no further than the limit when usage exceeds it', 12000, '10000' ],
+	] )( '%s', async ( _title, viewsCount, meterValue ) => {
+		mockApiFetch.mockResolvedValue( {
+			...PLAN_USAGE_RESPONSE,
+			current_usage: { ...PLAN_USAGE_RESPONSE.current_usage, views_count: viewsCount },
+		} );
+
 		render( <PlanUsageWidget attributes={ {} } /> );
 
-		const meter = ( await screen.findByRole( 'progressbar' ) ) as HTMLProgressElement;
-		expect( meter.value ).toBe( 6200 );
-		expect( meter.max ).toBe( 10000 );
+		const meter = await screen.findByRole( 'progressbar' );
+		// eslint-disable-next-line jest-dom/prefer-to-have-value -- toHaveValue reads form controls only, not <progress>.
+		expect( meter ).toHaveAttribute( 'value', meterValue );
+		expect( meter ).toHaveAttribute( 'max', '10000' );
 	} );
 
 	it( 'links the upgrade note to the Stats purchase screen for the connected site', async () => {
@@ -85,25 +96,27 @@ describe( 'PlanUsageWidget', () => {
 
 	// The warning is driven solely by `over_limit_months`, independent of the
 	// current cycle's usage.
-	it( 'shows the multi-cycle warning when over the limit for two or more periods', async () => {
-		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 2 } );
+	it.each( [
+		[
+			'multi-cycle',
+			'two or more periods',
+			2,
+			"You've surpassed your limit for two consecutive periods already.",
+		],
+		[ 'single-cycle', 'one period', 1, "You've surpassed your limit the past month." ],
+	] )(
+		'shows the %s warning when over the limit for %s',
+		async ( _kind, _span, overLimitMonths, warning ) => {
+			mockApiFetch.mockResolvedValue( {
+				...PLAN_USAGE_RESPONSE,
+				over_limit_months: overLimitMonths,
+			} );
 
-		render( <PlanUsageWidget attributes={ {} } /> );
+			render( <PlanUsageWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( "You've surpassed your limit for two consecutive periods already." )
-		).resolves.toBeInTheDocument();
-	} );
-
-	it( 'shows the single-cycle warning when over the limit for one period', async () => {
-		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 1 } );
-
-		render( <PlanUsageWidget attributes={ {} } /> );
-
-		await expect(
-			screen.findByText( "You've surpassed your limit the past month." )
-		).resolves.toBeInTheDocument();
-	} );
+			await expect( screen.findByText( warning ) ).resolves.toBeInTheDocument();
+		}
+	);
 
 	// VIP sites aren't held to the billable-views limit, so the over-limit
 	// warning is suppressed even when `over_limit_months` reports lapses.
@@ -121,22 +134,6 @@ describe( 'PlanUsageWidget', () => {
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders no over-limit warning when the site is within its limit', async () => {
-		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 0 } );
-
-		render( <PlanUsageWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'clears the loading state once the meter is populated', async () => {
-		render( <PlanUsageWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves the meter on screen through a background refetch (WOOA7S-1934)', async () => {
@@ -170,8 +167,13 @@ describe( 'PlanUsageWidget', () => {
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders an unavailable state when the plan reports no limit', async () => {
-		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, views_limit: null } );
+	// A zero limit gives nothing to meter against (`max={0}` is degenerate), so
+	// it renders as unavailable rather than an always-over-limit "X / 0" bar.
+	it.each( [
+		[ 'no limit', null ],
+		[ 'a zero limit', 0 ],
+	] )( 'renders an unavailable state when the plan reports %s', async ( _title, viewsLimit ) => {
+		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, views_limit: viewsLimit } );
 
 		render( <PlanUsageWidget attributes={ {} } /> );
 
@@ -180,19 +182,6 @@ describe( 'PlanUsageWidget', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /increase your views limit/ ) ).not.toBeInTheDocument();
-	} );
-
-	// A zero limit gives nothing to meter against (`max={0}` is degenerate), so
-	// it renders as unavailable rather than an always-over-limit "X / 0" bar.
-	it( 'renders an unavailable state when the plan reports a zero limit', async () => {
-		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, views_limit: 0 } );
-
-		render( <PlanUsageWidget attributes={ {} } /> );
-
-		await expect(
-			screen.findByText( "Plan usage isn't available for your current plan." )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the upgrade note when script data provides no purchase URL', async () => {

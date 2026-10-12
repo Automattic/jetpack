@@ -173,6 +173,7 @@ class Defaults {
 		'videopress_player_preload_disabled',
 		'videopress_playlist_index',
 		'videopress_private_enabled_for_site',
+		'videopress_share_menu_disabled',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
 		'wordads_cmp_enabled',
@@ -836,7 +837,6 @@ class Defaults {
 		'hc_wpcom_id_sig',
 		'jetpack_comment_identity_avatar',
 		'jetpack_comment_identity_id',
-		'jetpack_comment_identity_provider',
 		'protocol',
 	);
 

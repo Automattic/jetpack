@@ -8,10 +8,9 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Initializer;
 use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch;
-use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config;
-use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -278,14 +277,14 @@ class Sharing_Admin {
 /**
  * Callback to get the value for the jetpack_sharing_enabled field.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value() instead.
+ * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value() instead.
  *
  * @param array $post The post object.
  *
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value' );
 	return Post_Sharing_Switch::get_value( $post );
 }
 
@@ -293,7 +292,7 @@ function jetpack_post_sharing_get_value( array $post ) {
  * Callback to set sharing_disabled post_meta when the
  * jetpack_sharing_enabled field is updated.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value() instead.
+ * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value() instead.
  *
  * @param bool    $enable_sharing Should sharing be enabled on this post.
  * @param WP_Post $post_object    The post object.
@@ -301,17 +300,17 @@ function jetpack_post_sharing_get_value( array $post ) {
  * @return int|bool
  */
 function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value' );
 	return Post_Sharing_Switch::update_value( $enable_sharing, $post_object );
 }
 
 /**
  * Add Sharing post_meta to the REST API Post response.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field() instead.
+ * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field() instead.
  */
 function jetpack_post_sharing_register_rest_field() {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field' );
 	Post_Sharing_Switch::register_rest_field();
 }
 
@@ -327,11 +326,10 @@ function sharing_admin_init() {
 
 	$sharing_admin = new Sharing_Admin();
 
-	// load-jetpack.php registers the screen everywhere else, but does not run on
-	// WordPress.com Simple, where this file is the only Sharing code loaded.
+	// load-jetpack.php sets the package up everywhere else, but does not run on WordPress.com
+	// Simple, where this file is the only Sharing code loaded, public-api requests included.
 	if ( ( new Host() )->is_wpcom_simple() ) {
-		Settings_Page::init();
-		Post_Handler::init();
+		Initializer::init();
 	}
 }
 

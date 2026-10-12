@@ -17,6 +17,11 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
 const WPCOM_MARKETPLACE_SEARCH_LIMIT = 2;
 
 /**
+ * Transient prefix for a dependency's name, as WordPress.org gives it.
+ */
+const WPCOM_MARKETPLACE_DEPENDENCY_PREFIX = 'wpcom_marketplace_dependency_';
+
+/**
  * Hooks the cards in on the first page of the Add Plugins screen.
  *
  * Core's live search runs through admin-ajax.php but sets this same screen first, so one
@@ -36,6 +41,8 @@ function wpcom_marketplace_cards_start( $screen ) {
 	add_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results', 10, 3 );
 	add_filter( 'plugin_install_action_links', 'wpcom_marketplace_card_action_links', 10, 2 );
 	add_filter( 'plugin_install_description', 'wpcom_marketplace_card_description_markup', 10, 2 );
+	add_filter( 'plugins_api', 'wpcom_marketplace_cached_dependency', 11, 3 );
+	add_filter( 'plugins_api_result', 'wpcom_marketplace_remember_dependency', 10, 3 );
 	add_action( 'admin_enqueue_scripts', 'wpcom_marketplace_card_assets' );
 }
 add_action( 'current_screen', 'wpcom_marketplace_cards_start' );
@@ -174,17 +181,113 @@ function wpcom_marketplace_card_description_markup( $description, $plugin ) {
 	}
 
 	$installed = 'install' !== install_plugin_install_status( $plugin )['status'];
+	$referral  = Marketplace_Catalog::is_referral( $plugin );
+
+	// Checkout installs everything a product needs, so its card says so rather than core's "required".
+	$requires_label = '';
+	if ( ! $installed && ! $referral && ! empty( $plugin['requires_plugins'] ) ) {
+		$requires_label = sprintf( ' data-requires-label="%s"', esc_attr__( 'Additional plugins will be installed', 'jetpack-mu-wpcom' ) );
+	}
 
 	// The data attributes are what the tab's Tracks and kept details modals read off a card.
 	return sprintf(
-		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s">%s</template>',
+		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s"%s>%s</template>',
 		esc_html__( 'WordPress.com Marketplace', 'jetpack-mu-wpcom' ),
 		esc_html( wpcom_marketplace_card_description( $plugin ) ),
 		esc_attr( (string) ( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ?? '' ) ),
-		Marketplace_Catalog::is_referral( $plugin ) ? 'true' : 'false',
+		$referral ? 'true' : 'false',
 		$installed ? 'true' : 'false',
+		$requires_label,
 		wpcom_marketplace_card_strip( $plugin ) // Built from escaped parts.
 	);
+}
+
+/**
+ * The dependency a plugin API call is naming for core's dependency notice, if any.
+ *
+ * Core's notice asks with the slug alone, once per dependency per card. The details modal
+ * asks the same way, so it is told apart by its hook and keeps WordPress.org's full answer.
+ * WP_Plugin_Dependencies asks with `fields` set, and keeps its own cache.
+ *
+ * @param string $action Plugin API action.
+ * @param object $args   Plugin API arguments.
+ * @return string The dependency's slug, or an empty string when the call is anything else.
+ */
+function wpcom_marketplace_dependency_lookup( $action, $args ) {
+	if ( 'plugin_information' !== $action || ! is_object( $args ) || empty( $args->slug ) || isset( $args->fields ) ) {
+		return '';
+	}
+
+	if ( doing_action( 'install_plugins_pre_plugin-information' ) ) {
+		return '';
+	}
+
+	$slug = (string) $args->slug;
+
+	return in_array( $slug, Marketplace_Catalog::get_dependency_slugs(), true ) ? $slug : '';
+}
+
+/**
+ * Answers core's dependency notice from what WordPress.org said last time.
+ *
+ * Without this, a site without WooCommerce asks WordPress.org about it once for every
+ * WooCommerce extension card, while the tab renders.
+ *
+ * @param false|object|WP_Error $result Result so far.
+ * @param string                $action Plugin API action.
+ * @param object                $args   Plugin API arguments.
+ * @return false|object|WP_Error
+ */
+function wpcom_marketplace_cached_dependency( $result, $action, $args ) {
+	if ( false !== $result ) {
+		return $result;
+	}
+
+	$slug = wpcom_marketplace_dependency_lookup( $action, $args );
+	if ( '' === $slug ) {
+		return $result;
+	}
+
+	$cached = get_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . $slug );
+	if ( is_array( $cached ) ) {
+		return (object) $cached;
+	}
+
+	// A lookup that just failed is not retried for every card. Core then shows the bare slug.
+	if ( 'unavailable' === $cached ) {
+		return new WP_Error( 'wpcom_marketplace_dependency_unavailable', $slug );
+	}
+
+	return $result;
+}
+
+/**
+ * Keeps WordPress.org's name for a dependency, for wpcom_marketplace_cached_dependency().
+ *
+ * @param object|WP_Error $result Plugin API response.
+ * @param string          $action Plugin API action.
+ * @param object          $args   Plugin API arguments.
+ * @return object|WP_Error
+ */
+function wpcom_marketplace_remember_dependency( $result, $action, $args ) {
+	$slug = wpcom_marketplace_dependency_lookup( $action, $args );
+	if ( '' === $slug || false !== get_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . $slug ) ) {
+		return $result;
+	}
+
+	if ( is_object( $result ) && ! is_wp_error( $result ) && ! empty( $result->name ) ) {
+		$entry = array(
+			'name'    => (string) $result->name,
+			'slug'    => $slug,
+			'version' => (string) ( $result->version ?? '' ),
+		);
+
+		set_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . $slug, $entry, DAY_IN_SECONDS );
+	} elseif ( is_wp_error( $result ) ) {
+		set_transient( WPCOM_MARKETPLACE_DEPENDENCY_PREFIX . $slug, 'unavailable', Marketplace_Catalog::MISS_CACHE_TTL );
+	}
+
+	return $result;
 }
 
 /**

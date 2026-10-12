@@ -1,3 +1,4 @@
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -944,6 +945,81 @@ export const PaintedYAxis: Story = {
 			description: {
 				story:
 					'Each axis has its own pair of catalog roles, set in CSS anywhere inside the provider tree. The y pair resolves to `none` by default, which is what leaves that axis carrying tick labels and nothing else; declaring either one paints that part. The x pair — `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick-x` — is untouched here, which is why the x axis is identical in both charts. Nothing reaches any of these through the `theme` prop; colors are CSS.',
+			},
+		},
+	},
+};
+
+const radiusSeries: SeriesData[] = [
+	{ ...timeAxisSeries( yearlyPoints )[ 0 ], group: 'views' },
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: yearlyPoints.map( ( [ date, value ] ) => ( { date, value: value - 12 } ) ),
+	},
+];
+
+const findBars = ( panel: HTMLElement ) =>
+	waitFor( () => {
+		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
+		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
+		if ( ! primary ) {
+			throw new Error( 'No bar rendered yet.' );
+		}
+		return { primary, comparison };
+	} );
+
+export const BarRadius: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div data-testid="bar-radius-default">
+				<h3 style={ { marginBottom: '4px' } }>Default</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>0</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+			<div
+				data-testid="bar-radius-rounded"
+				style={
+					{
+						'--a8c-charts-border-radius-bar-chart': 'var(--wpds-border-radius-sm)',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Rounded</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>--wpds-border-radius-sm</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+		</div>
+	),
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const square = await findBars( canvas.getByTestId( 'bar-radius-default' ) );
+		const rounded = await findBars( canvas.getByTestId( 'bar-radius-rounded' ) );
+		const radius = getComputedStyle( rounded.primary )
+			.getPropertyValue( '--a8c-charts-border-radius-bar-chart' )
+			.trim();
+
+		await expect( getComputedStyle( square.primary ).rx ).toBe( '0px' );
+		await expect( getComputedStyle( square.comparison ).rx ).toBe( '0px' );
+		await expect( radius ).not.toBe( '0px' );
+		await expect( getComputedStyle( rounded.primary ).rx ).toBe( radius );
+		await expect( getComputedStyle( rounded.comparison ).rx ).toBe( radius );
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role anywhere inside the provider tree to round their corners.',
 			},
 		},
 	},

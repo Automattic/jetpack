@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { postSurface, toPostId, useRaisePeriodChange } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import { toPostId, useReportScope } from '@jetpack-premium-analytics/data';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	HeatmapSkeleton,
 	MonthlyHeatmap,
@@ -22,7 +21,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -41,10 +40,10 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
 		usePostAllTimeTraffic( postId, metric );
 
-	// Bound to the route hosting the widget: a month picked here becomes the
-	// page's period, read over by the other cards while this one stays all-time.
-	const { onChange, onApply, timeZone } = useReportDateFilters();
-	const raisePeriodChange = useRaisePeriodChange();
+	// A month picked here becomes the page's period, read over by the other
+	// cards while this one stays all-time.
+	const { openPeriod } = useReportScope();
+	const timeZone = reportingTimeZone();
 
 	// The months outside the post's life ('before' / 'after') become filler.
 	const heatmapRows = useMemo< MonthlyHeatmapRow[] >(
@@ -57,21 +56,22 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 		[ rows ]
 	);
 
-	const openPeriod = useCallback(
-		( { year, month }: MonthlyHeatmapTarget ) => {
+	const openMonth = useMemo( () => {
+		if ( ! openPeriod ) {
+			return undefined;
+		}
+
+		return ( { year, month }: MonthlyHeatmapTarget ) => {
 			const bounds = { lifeStartsAt, timeZone };
 			// The year's roll-up opens the whole year.
 			const range =
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
 			if ( range ) {
-				raisePeriodChange( postSurface( postId ), range );
-				onChange( range, PRESET_CUSTOM, { exactRange: true } );
-				onApply();
+				openPeriod( range );
 			}
-		},
-		[ lifeStartsAt, timeZone, onChange, onApply, postId, raisePeriodChange ]
-	);
+		};
+	}, [ lifeStartsAt, timeZone, openPeriod ] );
 
 	// Keep stale rows visible when a background refetch fails.
 	const showError = isError && rows.length === 0;
@@ -109,7 +109,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 			<MonthlyHeatmap
 				rows={ heatmapRows }
 				{ ...monthlyHeatmapLabels( metric ) }
-				onSelect={ openPeriod }
+				onSelect={ openMonth }
 			/>
 		</WidgetState>
 	);

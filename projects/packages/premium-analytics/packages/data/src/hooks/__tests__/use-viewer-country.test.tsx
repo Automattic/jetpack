@@ -16,6 +16,7 @@ describe( 'useViewerCountry', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		delete ( globalThis as { fetch?: unknown } ).fetch;
 	} );
 
 	it( 'does not repeat the geo lookup when a second map mounts later', async () => {

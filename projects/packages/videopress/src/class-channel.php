@@ -62,7 +62,7 @@ class Channel {
 		/**
 		 * Filters whether the VideoPress Channel feature ( video pages ) is enabled.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.55.0
 		 *
 		 * @param bool $enabled True when the active theme supports `videopress-channel`.
 		 */

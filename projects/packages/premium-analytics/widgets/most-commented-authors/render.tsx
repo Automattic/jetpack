@@ -8,6 +8,8 @@ import {
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	describeError,
+	ExporterCsvDownloadButton,
+	commentsAuthorsCsvExporter,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -69,11 +71,18 @@ function MostCommentedAuthorsInner() {
 				),
 			} }
 			footer={
-				<ReportLink
-					report="comments"
-					section="authors"
-					ariaLabel={ __( 'See the comment authors report', 'jetpack-premium-analytics-pkg' ) }
-				/>
+				<>
+					<ReportLink
+						report="comments"
+						section="authors"
+						ariaLabel={ __( 'See the comment authors report', 'jetpack-premium-analytics-pkg' ) }
+					/>
+					<ExporterCsvDownloadButton
+						exporter={ commentsAuthorsCsvExporter }
+						status={ { isLoading, isFetching, isError } }
+						rowCount={ rows.length }
+					/>
+				</>
 			}
 		/>
 	);

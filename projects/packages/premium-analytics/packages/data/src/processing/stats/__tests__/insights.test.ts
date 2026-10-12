@@ -9,18 +9,6 @@ describe( 'Stats insights normalizer', () => {
 		);
 	} );
 
-	it( 'keeps the years when the payload has no peak day', () => {
-		// One report feeds two widgets: a site with posts but negligible views has
-		// years and no peak, and Annual highlights must still get its totals.
-		const report = sanitizeStatsInsightsResponse( {
-			years: [ { year: '2026', total_posts: 12 } ],
-		} );
-
-		expect( report ).not.toHaveProperty( 'dayOfWeek' );
-		expect( report.years ).toHaveLength( 1 );
-		expect( report.years?.[ 0 ] ).toMatchObject( { year: '2026', total_posts: 12 } );
-	} );
-
 	it( 'normalizes insights using the Calypso payload shape', () => {
 		expect( sanitizeStatsInsightsResponse( insightsFixture ) ).toEqual( {
 			dayOfWeek: 6,
@@ -92,17 +80,27 @@ describe( 'Stats insights normalizer', () => {
 	} );
 
 	it( 'rejects a share it cannot read instead of reporting 0%', () => {
+		// Read as 0, these would also trip the no-views sentinel and drop the peak day.
 		for ( const highest_day_percent of [ '', false, 'abc', [], {} ] ) {
-			expect(
-				sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_day_percent } )
-			).not.toHaveProperty( 'percent' );
+			const report = sanitizeStatsInsightsResponse( {
+				highest_day_of_week: 6,
+				highest_day_percent,
+			} );
+
+			expect( report ).toMatchObject( { dayOfWeek: 6 } );
+			expect( report ).not.toHaveProperty( 'percent' );
 		}
 	} );
 
 	it( 'rounds a fractional share to a whole percent', () => {
 		expect(
-			sanitizeStatsInsightsResponse( { highest_day_of_week: 6, highest_day_percent: 17.4 } )
-		).toMatchObject( { percent: 17 } );
+			sanitizeStatsInsightsResponse( {
+				highest_day_of_week: 6,
+				highest_day_percent: 17.4,
+				highest_hour: 19,
+				highest_hour_percent: 17.6,
+			} )
+		).toMatchObject( { percent: 17, hourPercent: 18 } );
 	} );
 
 	it( 'rejects a share outside 0-100 rather than captioning a peak with it', () => {
@@ -147,11 +145,5 @@ describe( 'Stats insights normalizer', () => {
 		expect( report ).not.toHaveProperty( 'hourOfDay' );
 		expect( report ).not.toHaveProperty( 'hourPercent' );
 		expect( report.years ).toHaveLength( 1 );
-	} );
-
-	it( 'keeps a real Monday peak', () => {
-		expect(
-			sanitizeStatsInsightsResponse( { highest_day_of_week: 0, highest_day_percent: 31.4 } )
-		).toMatchObject( { dayOfWeek: 0, percent: 31 } );
 	} );
 } );

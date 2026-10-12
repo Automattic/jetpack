@@ -148,10 +148,9 @@ describe( 'PayPalButtonPreview', () => {
 		render(
 			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
 		);
-		// Same markup as the PHP test. The word PayPal stays as text for screen
-		// readers, and style.scss draws it as the wordmark.
+		// Same markup as the PHP test, except Jest stubs the image src to its file name.
 		expect( document.querySelector( '.jetpack-paypal-button__attribution' ).outerHTML ).toBe(
-			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>'
+			'<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="paypal-wordmark-color.svg" alt="PayPal" width="42" height="15"></p>'
 		);
 	} );
 

@@ -14,14 +14,6 @@ const label = __( 'All pages' );
 	actions={ downloadButton }
 >
 	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
-		<ReportPerformanceChart
-			primary={ visits.primary.data }
-			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
-			isLoading={ visits.isLoading }
-			timezone={ visits.timezone }
-			interval={ interval }
-			onIntervalChange={ setInterval }
-		/>
 		<ReportRecordsTable
 			data={ rows }
 			fields={ fields }
@@ -46,11 +38,6 @@ const label = __( 'All pages' );
   state lasts as long as the section stays mounted: hiding a chart is a per-visit
   preference, not a stored one. The chart stays mounted while collapsed so the
   card animates shut, and the stylesheet takes it out of the tab order.
-- **`ReportPerformanceChart`** — the multi-metric visits chart
-  (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu and the time-bucket selector (owned by the page — it
-  changes the query). With exactly one visible metric and comparison data, the
-  previous period draws as a dashed overlay.
 - **`ReportLocationsMap`** — the Locations report's map of views by location,
   over the rows the records table already fetched. It renders the shared
   `LocationsGeoChart`, which the Locations dashboard widget also uses.
@@ -118,7 +105,7 @@ These components do not fetch: the page owns the data hooks and the
 results in as props.
 
 They also mount no providers. The `/reports/$report` stage provides the
-surface's context once — React Query, global errors, and the chart theme
+surface's context once — React Query and the chart theme
 (`GlobalChartsProvider`). That is why a page can compose a chart the same way a
 widget does: `useSeriesStyles` plus `ComparativeLineChart`, nothing else.
 Outside the stage (Storybook), mount `GlobalChartsProvider` with

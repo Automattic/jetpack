@@ -10,7 +10,7 @@
 		box-shadow: none;
 
 		&:hover {
-			background: var(--color-surface-backdrop, #f0f0f1);
+			background: var(--wpds-color-background-surface-neutral-weak);
 		}
 
 		// Remove default Button border
@@ -18,9 +18,9 @@
 			box-shadow: none;
 		}
 
-		// Row decoration icons (Read / Write) — neutral gray to match Calypso
+		// Row decoration icons (Read / Write).
 		svg.jetpack-ai-mcp__row-icon {
-			fill: var(--color-neutral-70, #3c434a);
+			fill: var(--wpds-color-foreground-content-neutral);
 		}
 	}
 
@@ -51,7 +51,7 @@
 		}
 
 		&:hover {
-			background: var(--color-surface-backdrop, #f0f0f1);
+			background: var(--wpds-color-background-surface-neutral-weak);
 		}
 	}
 
@@ -76,7 +76,7 @@
 	&__connect-row-chevron {
 		flex-shrink: 0;
 		margin-top: 2px;
-		color: var(--color-neutral-60, #50575e);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	&__badge-content {
@@ -154,7 +154,7 @@
 	// Divider between sub-groups within an expanded group card.
 	// Containers on both sides provide equal padding so spacing is symmetric.
 	&__sub-divider {
-		border-top: 1px solid var(--color-border-subtle, #dcdcde);
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
 		margin: 0;
 	}
 
@@ -308,7 +308,7 @@ ol.jetpack-ai-mcp-setup__steps {
 
 	&__code {
 		font-size: 12px;
-		background: var(--color-neutral-5, #f0f0f1);
+		background: var(--wpds-color-background-surface-neutral-weak);
 		padding: 1px 4px;
 		border-radius: 2px;
 	}

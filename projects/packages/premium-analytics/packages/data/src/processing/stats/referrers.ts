@@ -54,6 +54,11 @@ function getStatsReferrersItemKey( item: StatsReferrersItem ): string {
 	return item.link ?? getStatsReferrersItemLabel( item );
 }
 
+// WPCOM's spam endpoint keeps only the host of the domain it receives, so name that host up front.
+function getStatsReferrerSpamHost( name: string ): string {
+	return name.replace( /^https?:\/\//i, '' ).split( /[/?#:]/ )[ 0 ];
+}
+
 function sortStatsReferrersComparisonItems(
 	items: StatsReferrersComparisonItem[]
 ): StatsReferrersComparisonItem[] {
@@ -126,7 +131,8 @@ export function sanitizeStatsReferrersResponse(
 			const results = coerceStatsArray< StatsRecord >( item.results );
 			// Single-result groups display as the result itself, matching the legacy Stats UI.
 			const normalized = parse( results.length === 1 ? results[ 0 ] : item );
-			const domain = typeof item.name === 'string' ? item.name : item.group;
+			const domain =
+				typeof item.name === 'string' ? getStatsReferrerSpamHost( item.name ) : item.group;
 			const url = typeof item.url === 'string' ? item.url : undefined;
 			const canSpam =
 				typeof item.name === 'string' &&

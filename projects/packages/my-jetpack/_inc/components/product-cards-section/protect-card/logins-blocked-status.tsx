@@ -1,6 +1,5 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import {
 	protectCardShieldOff as ShieldOff,
 	protectCardShieldPartial as ShieldPartial,
@@ -8,8 +7,7 @@ import {
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
-import { InfoTooltip } from '../../info-tooltip';
-import baseStyles from '../style.module.scss';
+import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -56,7 +54,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 	if ( status === 'active' ) {
 		return blockedLoginsCount > 0 ? (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
+				<div className="value-section__heading">
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
@@ -65,20 +63,18 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 			</>
 		) : (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
+					<ProtectInfoPopover
+						label={ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+						title={ blockedLoginsTooltip.title }
+						text={ blockedLoginsTooltip.text }
 						tracksEventProps={ {
 							location: 'blocked-logins',
 							status: status,
-							feature: 'jetpack-protect',
 							message: 'no data yet',
 						} }
-					>
-						<h3>{ blockedLoginsTooltip.title }</h3>
-						<p>{ blockedLoginsTooltip.text }</p>
-					</InfoTooltip>
+					/>
 				</div>
 				<div className="value-section__data">
 					<div>
@@ -91,6 +87,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 							) }
 						/>
 					</div>
+					<div className="logins_blocked__count">{ formatNumberCompact( 0 ) }</div>
 				</div>
 			</>
 		);
@@ -98,19 +95,17 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 	if ( status === 'inactive' ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
+					<ProtectInfoPopover
+						label={ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
+						title={ blockedLoginsTooltip.title }
+						text={ blockedLoginsTooltip.text }
 						tracksEventProps={ {
 							location: 'blocked-logins',
-							feature: 'jetpack-protect',
 							status: status,
 						} }
-					>
-						<h3>{ blockedLoginsTooltip.title }</h3>
-						<p>{ blockedLoginsTooltip.text }</p>
-					</InfoTooltip>
+					/>
 				</div>
 				<div className="value-section__data">
 					{ blockedLoginsCount > 0 ? (
@@ -147,9 +142,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 	}
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>
-				{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
-			</div>
+			<div className="value-section__heading">{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
 				<div>
 					<img

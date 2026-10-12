@@ -8,14 +8,13 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
-require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -95,19 +94,9 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
-	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
-	if (
-		current_user_can( 'manage_options' )
-		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
-		&& wpcom_ai_launchpad_is_eligible()
-	) {
-		return;
-	}
-
-	// The no_guidance launchpad-personalization variation gets no My Home at all: these
-	// users work from the wp-admin dashboard. Removing the menu item here also removes it
-	// from the Calypso sidebar, which is built from this menu via the admin-menu endpoint.
-	if ( 'no_guidance' === Launchpad_Personalization_Experiment::get_variation() ) {
+	// My Home only goes with the legacy launchpad: AI Launchpad and no-guidance sites drop it for every user.
+	// Removing it here also drops it from the Calypso sidebar.
+	if ( get_option( 'wpcom_ai_launchpad_enabled' ) || wpcom_launchpad_is_no_guidance() ) {
 		return;
 	}
 
@@ -353,7 +342,8 @@ function wpcom_add_jetpack_submenu() {
 			function () {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
 				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+					wp_safe_redirect( apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ) );
 					exit;
 				}
 			}

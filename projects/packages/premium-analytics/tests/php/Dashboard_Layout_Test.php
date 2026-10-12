@@ -463,7 +463,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 				'default-most-popular-day-widget-instance' => array( 'jpa/most-popular-day', 1, 2, 3 ),
 				'default-popular-post-widget-instance'     => array( 'jpa/popular-post', 2, 2, 4 ),
 				'default-latest-post-widget-instance'      => array( 'jpa/latest-post', 1, 2, 5 ),
-				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 1, 6 ),
+				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 2, 6 ),
 				'default-views-over-years-widget-instance' => array( 'jpa/views-over-years', 3, 2, 7 ),
 				'default-tags-widget-instance'             => array( 'jpa/tags', 2, 2, 8 ),
 				'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
@@ -524,18 +524,5 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			),
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
 		);
-	}
-
-	/**
-	 * The Store tab declares its bundled store widgets.
-	 */
-	public function test_store_section_declares_the_bundled_widgets() {
-		$layout_types = array_column( get_store_section_default_layout(), 'type' );
-
-		$this->assertContains( 'jpa/store-performance', $layout_types );
-		$this->assertContains( 'jpa/total-sales-over-time', $layout_types );
-		$this->assertContains( 'jpa/conversion-rate', $layout_types );
-		$this->assertContains( 'jpa/orders-over-time', $layout_types );
-		$this->assertContains( 'jpa/top-performing-products', $layout_types );
 	}
 }

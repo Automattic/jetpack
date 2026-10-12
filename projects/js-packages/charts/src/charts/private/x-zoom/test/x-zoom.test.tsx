@@ -212,11 +212,12 @@ describe( 'ZoomResetButton', () => {
 
 	test( 'keyboard activation survives the chart wrapper keydown handler', async () => {
 		const onClick = jest.fn();
-		// Mirrors the chart's grid wrapper, whose keyboard-navigation handler
+		// Mirrors the chart's focusable container, whose keyboard-navigation handler
 		// calls preventDefault() on bubbled keydowns — which would cancel the
 		// native Enter/Space button activation.
 		render(
-			<div role="grid" tabIndex={ 0 } onKeyDown={ preventDefaultKeydown }>
+			// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- mirrors the charts' container.
+			<div role="application" tabIndex={ 0 } onKeyDown={ preventDefaultKeydown }>
 				<ZoomResetButton onClick={ onClick } />
 			</div>
 		);

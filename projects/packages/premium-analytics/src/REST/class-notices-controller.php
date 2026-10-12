@@ -95,12 +95,12 @@ class Notices_Controller {
 	}
 
 	/**
-	 * Whether the current user may read or change the dashboard notices.
+	 * Whether the current user may read or change the dashboard notices: they are Stats notices.
 	 *
 	 * @return bool
 	 */
 	public function check_permission(): bool {
-		return Capabilities::current_user_can_view_analytics();
+		return Capabilities::current_user_can_view_stats();
 	}
 
 	/**

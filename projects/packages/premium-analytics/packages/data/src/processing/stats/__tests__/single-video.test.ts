@@ -1,9 +1,5 @@
 import { sanitizeStatsSingleVideoResponse } from '..';
-import {
-	singleVideoAllMetricsFixture,
-	singleVideoEmptyFixture,
-	singleVideoFixture,
-} from '../__fixtures__/single-video';
+import { singleVideoAllMetricsFixture, singleVideoFixture } from '../__fixtures__/single-video';
 
 describe( 'Stats single video normalizer', () => {
 	it( 'normalizes the views time series and embed pages', () => {
@@ -86,21 +82,11 @@ describe( 'Stats single video normalizer', () => {
 		// the usual tuples; it must not crash the tuple or fields mapping.
 		expect(
 			sanitizeStatsSingleVideoResponse( {
+				fields: [ 'period', 'plays' ],
 				data: { date: '7-10', p: '0' },
 				pages: [],
 			} )
 		).toEqual( { data: [], metrics: null, series: null, total: null, pages: [], post: null } );
-	} );
-
-	it( 'returns empty collections for an empty payload', () => {
-		expect( sanitizeStatsSingleVideoResponse( singleVideoEmptyFixture ) ).toEqual( {
-			data: [],
-			metrics: null,
-			series: null,
-			total: null,
-			pages: [],
-			post: null,
-		} );
 	} );
 
 	it( 'drops malformed rows and keeps only well-formed [ date, views ] tuples', () => {

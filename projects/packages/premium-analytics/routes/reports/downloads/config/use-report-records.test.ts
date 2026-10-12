@@ -8,7 +8,19 @@ import type {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
 	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsFileDownloads = useStatsFileDownloads as jest.MockedFunction<
@@ -20,6 +32,7 @@ const row: StatsFileDownloadsComparisonItem = {
 	shortLabel: 'report.pdf',
 	link: 'https://example.com/files/report.pdf',
 	downloads: 13,
+	previousDownloads: 9,
 	linkTitle: '/files/report.pdf',
 	labelIcon: 'external',
 	children: null,
@@ -37,8 +50,8 @@ describe( 'useDownloadsReportRecords', () => {
 		mockUseStatsFileDownloads.mockReturnValue( {
 			primary: { data: undefined },
 			comparison: { data: undefined },
-			comparisonRows: { rows: [ row ], hasComparison: false },
-			hasComparison: false,
+			comparisonRows: { rows: [ row ], hasComparison: true },
+			hasComparison: true,
 			isLoading: false,
 			isFetching: false,
 			isError: false,
@@ -57,32 +70,6 @@ describe( 'useDownloadsReportRecords', () => {
 			period: 'day',
 		} );
 		expect( result.current.rows ).toEqual( [ row ] );
-		expect( result.current.hasComparison ).toBe( false );
-	} );
-
-	it( 'preserves matched comparison downloads for the records table', () => {
-		const comparisonRow = { ...row, previousDownloads: 9 };
-		mockUseStatsFileDownloads.mockReturnValue( {
-			primary: { data: undefined },
-			comparison: { data: undefined },
-			comparisonRows: { rows: [ comparisonRow ], hasComparison: true },
-			hasComparison: true,
-			isLoading: false,
-			isFetching: false,
-			isError: false,
-			refetch: jest.fn(),
-		} as unknown as ReturnType< typeof useStatsFileDownloads > );
-
-		const { result } = renderHook( () =>
-			useDownloadsReportRecords( {
-				...params,
-				comp: '1',
-				compare_from: '2026-07-07',
-				compare_to: '2026-07-08',
-			} )
-		);
-
-		expect( result.current.rows ).toEqual( [ comparisonRow ] );
 		expect( result.current.hasComparison ).toBe( true );
 	} );
 

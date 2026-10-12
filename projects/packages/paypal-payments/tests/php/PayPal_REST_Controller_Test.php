@@ -32,6 +32,18 @@ class PayPal_REST_Controller_Test extends TestCase {
 	use PayPal_Tracks_Events;
 
 	/**
+	 * Every OAuth scope a seller grants when they accept the referral.
+	 */
+	private const SCOPES = array(
+		'https://uri.paypal.com/services/payments/realtimepayment',
+		'https://uri.paypal.com/services/payments/partnerfee',
+		'https://uri.paypal.com/services/payments/refund',
+		'https://uri.paypal.com/services/customer/merchant-integrations/read',
+		'https://uri.paypal.com/services/payments/payment/authcapture',
+		'https://uri.paypal.com/services/checkout/payment-resources/readwrite',
+	);
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
@@ -113,6 +125,22 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'message' => 'OK',
 			),
 			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+		);
+	}
+
+	/**
+	 * The OAuth integrations on a merchant integration record.
+	 *
+	 * @param array $scopes Scope URIs the seller granted.
+	 * @return array
+	 */
+	private function oauth_integrations( array $scopes = self::SCOPES ) {
+		return array(
+			array(
+				'oauth_third_party' => array(
+					array( 'scopes' => $scopes ),
+				),
+			),
 		);
 	}
 
@@ -703,9 +731,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'merchant_id'   => 'MERCHANT1',
-						'tracking_id'   => 'woo-ncps-1234-1',
-						'primary_email' => 'junior@sports.com',
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'primary_email'      => 'junior@sports.com',
+						'oauth_integrations' => $this->oauth_integrations(),
 					)
 				),
 				'/paypal/platform/request'              => $this->http_response(
@@ -727,6 +756,61 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
 		$this->assertSame( 'junior@sports.com', $result->get_data()['account_email'] );
 		$this->assertSame( 'partner_referrals', $result->get_data()['method'] );
+	}
+
+	/**
+	 * Test that empty scopes return the permissions error and record a failed connection.
+	 */
+	public function test_onboarding_complete_returns_the_permissions_error_for_empty_scopes() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'oauth_integrations' => $this->oauth_integrations( array() ),
+					)
+				),
+				'/paypal/platform/request'              => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_onboarding_missing_scopes', $result->get_error_code() );
+		$this->assertSame(
+			"PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.",
+			$result->get_error_message()
+		);
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+						'error_code'  => 'paypal_onboarding_missing_scopes',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
 	}
 
 	/**
@@ -774,6 +858,49 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that merchant status returns PayPal's notice for an unconfirmed email.
+	 */
+	public function test_merchant_status_returns_the_email_notice() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'             => 'MERCHANT1',
+						'primary_email'           => 'junior@sports.com',
+						'payments_receivable'     => true,
+						'primary_email_confirmed' => false,
+						'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+						'oauth_integrations'      => $this->oauth_integrations(),
+					)
+				),
+			)
+		);
+		$this->register_paypal_routes();
+
+		$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/onboarding/status' ) );
+
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame(
+			array(
+				'merchant_id'             => 'MERCHANT1',
+				'payments_receivable'     => true,
+				'primary_email_confirmed' => false,
+				'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+				'notices'                 => array(
+					'Attention: Please confirm your email address on https://www.sandbox.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.',
+				),
+			),
+			$response->get_data()
+		);
 	}
 
 	// --- Button read routes ---
@@ -2230,8 +2357,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'merchant_id' => 'MERCHANT1',
-						'tracking_id' => 'woo-ncps-1234-1',
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'oauth_integrations' => $this->oauth_integrations(),
 					)
 				),
 				'/paypal/platform/request'              => $this->http_response(

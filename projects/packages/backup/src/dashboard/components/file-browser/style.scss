@@ -16,7 +16,6 @@
 		// `FileBrowser` adds this only when it renders the card in-column;
 		// too narrow for that and the preview goes to `<FileInfoDialog>`.
 		&--with-card {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
 
 			// `align-self` is load-bearing: grid stretches the card to its row's
 			// height — the tree's — and a stretched card has nowhere to travel.
@@ -32,11 +31,20 @@
 		}
 	}
 
+	&__main {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
 	&__tree {
 		// `max-content` must be the track's base size, not its growth limit —
 		// a definite min like `minmax(100%, max-content)` caps at the scrollport.
 		display: grid;
 		grid-template-columns: minmax(max-content, 1fr);
+		// Shares the card's row; without this it stretches to the card's height.
+		align-self: start;
 		overflow-x: auto;
 	}
 
@@ -45,20 +53,16 @@
 		align-items: center;
 		gap: 8px;
 		padding: 6px 8px;
+	}
 
-		// Alt-row tint. Applied via a class set by `<NodeRow>` so the
-		// stripe respects the legacy backup-contents component's parity
-		// rule — a white parent's first child renders gray, a gray
-		// parent's first child renders white. Using a literal hex
-		// rather than `--wp-components-color-gray-100` because the
-		// token is locally re-mapped to white inside `Card.Content`.
-		// The row is a block-level flex container that fills its
-		// wrapper's full width, so the tint spans the panel edge to
-		// edge — no inner border-radius (which would have looked like
-		// a "pill" cropped from the surrounding bg).
-		&--alt {
-			background-color: #f6f7f7;
-		}
+	// Tints the file button, not the row: the design leaves the checkbox clear.
+	&__row--open &__file {
+		flex: 1;
+		margin-block: -6px;
+		margin-inline: -8px;
+		padding-block: 6px;
+		padding-inline: 8px;
+		background-color: var(--wpds-color-background-surface-brand);
 	}
 
 	&__toggle,
@@ -70,7 +74,6 @@
 		border: 0;
 		cursor: pointer;
 		font-family: inherit;
-		font-size: inherit;
 		padding: 0;
 		color: inherit;
 		white-space: nowrap;

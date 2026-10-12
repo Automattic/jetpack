@@ -5,12 +5,11 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ExporterCsvAction,
 	clicksCsvExporter,
-	useReportRetry,
 	type ClickRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -69,7 +68,6 @@ function ClicksReport(): JSX.Element {
 	const reportParams = useReportParams();
 
 	const records = useClicksReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() => getClicksFields( records.hasComparison ),
 		[ records.hasComparison ]
@@ -78,17 +76,6 @@ function ClicksReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS.clicks;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -104,7 +91,13 @@ function ClicksReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load clicks. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< ClickRow >
 						data={ records.rows }
 						fields={ fields }
@@ -118,7 +111,7 @@ function ClicksReport(): JSX.Element {
 						collapsible
 						defaultExpanded="none"
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

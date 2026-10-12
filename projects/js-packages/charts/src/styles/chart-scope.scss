@@ -10,7 +10,9 @@
 // the same element wins. Chart roots deliberately do NOT re-declare these: an
 // element's own declaration beats an inherited one, so re-declaring lower down
 // would shadow a consumer override set inside the provider tree.
-:where(.a8c-charts-scope) {
+// The tooltip box re-declares the catalog under its own class, so a rule on
+// .a8c-charts-scope does not land on the dark box.
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
 	// The series palette. GlobalChartsProvider resolves these five slots at its
 	// wrapper and seeds ColorCache with whatever resolves; a slot that resolves
 	// to nothing is skipped, so setting only slots 1 and 3 gives a two-color
@@ -49,14 +51,15 @@
 	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak);
 	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak);
 	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong);
-	// Surfaces floating over the chart — tooltips, the annotation label, the
-	// zoom-reset control. Same WPDS token as --a8c-charts-color-background but
+	// Surfaces floating over the chart — the annotation label, the zoom-reset
+	// control. Same WPDS token as --a8c-charts-color-background but
 	// deliberately not derived from it, so either can move without the other.
 	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong);
 	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak);
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak);
-	// Translucent dark surface; no WPDS token carries this.
-	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
+	// The background @wordpress/ui's Tooltip themes its popup with; WPDS has
+	// no inverted surface token yet.
+	--a8c-charts-color-tooltip-surface: #1e1e1e;
 	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong);
 	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand);
 
@@ -77,6 +80,7 @@
 	--a8c-charts-motion-duration-entrance: var(--wpds-motion-duration-xl);
 	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive);
 	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md);
+	--a8c-charts-border-radius-bar-chart: 0;
 	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm);
 	// Pill shape; no WPDS radius reaches it.
 	--a8c-charts-border-radius-leaderboard-bar: 9999px;
@@ -87,7 +91,7 @@
 
 @media (forced-colors: active) {
 
-	:where(.a8c-charts-scope) {
+	:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
 		--a8c-charts-color-label-axis: CanvasText;
 		--a8c-charts-color-grid: GrayText;
 		--a8c-charts-color-axis-x: GrayText;

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Comments API: Return the real total in `found` when a post's comments are filtered by type or date, instead of -1.
