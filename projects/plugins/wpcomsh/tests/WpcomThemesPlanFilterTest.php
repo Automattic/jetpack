@@ -47,6 +47,16 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The entitlement half of the tier rule, against the platform's own answer.
+	 */
+	public function test_site_can_use_the_tiers_its_plan_includes() {
+		$this->assertTrue( WPCom_Themes_Tiers::site_can_use( 'free' ) );
+		// The test site has no plan, so nothing above free is included.
+		$this->assertFalse( WPCom_Themes_Tiers::site_can_use( 'premium' ) );
+		$this->assertFalse( WPCom_Themes_Tiers::site_can_use( 'partner' ) );
+	}
+
+	/**
 	 * A theme_information result is one theme rather than a list, so there is nothing to filter.
 	 */
 	public function test_leaves_a_single_theme_result_alone() {

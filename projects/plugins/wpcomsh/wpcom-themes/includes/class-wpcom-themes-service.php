@@ -96,17 +96,19 @@ class WPCom_Themes_Service {
 	}
 
 	/**
-	 * Checks if a WPCom theme has a valid tier from Atomic sites.
+	 * Whether core's Add Themes tabs should offer a WPCom theme on this site.
+	 *
+	 * Partner themes need their own subscription rather than a plan, so these tabs leave them to
+	 * the Marketplace tab, which lists them in order to sell them.
 	 *
 	 * @param stdClass $theme The theme to check.
 	 *
 	 * @return bool True if the theme has a valid tier, false otherwise.
 	 */
 	protected function has_valid_theme_tier( stdClass $theme ): bool {
-		$tier               = $theme->theme_tier->slug ?? 'premium';
-		$theme_tier_feature = $tier . '-themes';
+		$tier = WPCom_Themes_Tiers::tier_of( $theme );
 
-		return $tier !== 'partner' && ( $tier === 'free' || wpcom_site_has_feature( $theme_tier_feature ) );
+		return 'partner' !== $tier && WPCom_Themes_Tiers::site_can_use( $tier );
 	}
 
 	/**

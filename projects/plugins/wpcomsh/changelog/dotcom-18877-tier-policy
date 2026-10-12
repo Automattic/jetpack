@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Themes: read which theme tiers a plan includes from jetpack-mu-wpcom, keeping the choice to hide partner themes from core's tabs at the call site.
