@@ -170,11 +170,6 @@ export interface MetricTabsChartProps {
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
-	/**
-	 * Draw the selected metric in the admin accent and its counterpart in a dark
-	 * shade of it, rather than palette colors assigned in render order.
-	 */
-	accentColors?: boolean;
 }
 
 /**
@@ -184,13 +179,13 @@ export interface MetricTabsChartProps {
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
- * @param stroke    - A color for both periods in place of the group's palette color.
+ * @param stroke    - The color of both periods.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
 	chartType: MetricTabsChartType,
-	stroke?: string
+	stroke: string
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
 		{
@@ -198,7 +193,7 @@ function buildSeries(
 			group: metric.key,
 			data: metric.current,
 			countLabel: metric.countLabel,
-			...( stroke && { options: { stroke } } ),
+			options: { stroke },
 		},
 	];
 
@@ -209,10 +204,10 @@ function buildSeries(
 			data: metric.previous,
 			options:
 				chartType === 'bar'
-					? { type: 'comparison', ...( stroke && { stroke } ) }
+					? { type: 'comparison', stroke }
 					: {
 							type: 'comparison',
-							...( stroke && { stroke } ),
+							stroke,
 							gradient: {
 								from: 'transparent',
 								to: 'transparent',
@@ -245,7 +240,6 @@ function MetricChart( {
 	onDatumClick,
 	baseline,
 	empty,
-	accentColors,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -258,7 +252,6 @@ function MetricChart( {
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 	empty?: ReactNode;
-	accentColors?: boolean;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
@@ -287,22 +280,18 @@ function MetricChart( {
 	// The first palette color is the admin accent.
 	const { getElementStyles } = useGlobalChartsContext();
 	const shades = useMemo( () => {
-		if ( ! accentColors ) {
-			return undefined;
-		}
-
 		const accent = getElementStyles( { index: 0 } ).color;
 		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
-	}, [ accentColors, getElementStyles ] );
+	}, [ getElementStyles ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const active = buildSeries( metric, chartType, shades?.accent );
+		const active = buildSeries( metric, chartType, shades.accent );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType, shades?.dark );
+		const paired = buildSeries( counterpart, chartType, shades.dark );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
@@ -499,7 +488,6 @@ export function MetricTabsChart( {
 	tooltipMetrics = 'active',
 	baseline,
 	empty,
-	accentColors,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -597,7 +585,6 @@ export function MetricTabsChart( {
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						empty={ empty }
-						accentColors={ accentColors }
 					/>
 				</div>
 			</div>
@@ -671,7 +658,6 @@ export function MetricTabsChart( {
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
 							empty={ empty }
-							accentColors={ accentColors }
 						/>
 					) }
 				</div>
@@ -721,7 +707,6 @@ export function MetricTabsChart( {
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						empty={ empty }
-						accentColors={ accentColors }
 					/>
 				</Tabs.Panel>
 			) ) }

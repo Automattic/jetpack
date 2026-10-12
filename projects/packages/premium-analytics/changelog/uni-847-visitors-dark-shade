@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Traffic summary: Draw the selected metric in the admin color, and the metric paired with it in a darker shade instead of a contrasting color.
+Charts: Draw tabbed metric charts in the admin color, with the metric paired in the Traffic summary in a darker shade, instead of a different color per metric.

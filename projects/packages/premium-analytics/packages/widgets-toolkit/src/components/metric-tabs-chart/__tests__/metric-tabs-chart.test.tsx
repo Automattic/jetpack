@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -485,26 +486,24 @@ describe( 'MetricTabsChart', () => {
 		[ 'bar', mockBarSpy ],
 	] as const )(
 		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
-		( chartType, spy ) => {
-			// Only the first palette slot is the accent.
-			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
+		async ( chartType, spy ) => {
+			const accent = '#3858E9';
+			const darkShade = '#1c2c75';
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? accent : '#5AA61B' } ) );
+			const user = userEvent.setup();
 			render(
 				<MetricTabsChart
 					metrics={ [ VIEWS, VISITORS ] }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					accentColors
 				/>
 			);
 			const strokes = ( label: string ) =>
 				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
-			// The mocked accent `#3858E9`, and that halfway to black.
-			const expected = [ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ];
+			const expected = [ accent, accent, darkShade, darkShade ];
 
 			expect( strokes( 'Views' ) ).toEqual( expected );
-			// This package does not depend on @testing-library/user-event.
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
 			expect( strokes( 'Visitors' ) ).toEqual( expected );
 		}
 	);
