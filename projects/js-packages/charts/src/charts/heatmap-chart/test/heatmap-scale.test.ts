@@ -48,21 +48,26 @@ describe( 'getHeatmapScale', () => {
 	} );
 
 	it.each( [
-		[ '#ffffff', '#808080' ],
-		[ '#ffd000', '#767676' ],
-		[ '#3858e9', '#808080' ],
-		[ '#1e1e1e', '#999999' ],
-		[ '#ffd000', '#8a8a8a' ],
-	] )( 'keeps every step of %s at 2:1 on a mid-gray %s, ends apart', ( primary, background ) => {
-		const { low, high } = getHeatmapScale( primary, background );
+		[ '#ffffff', '#808080', null ],
+		[ '#ffd000', '#767676', null ],
+		[ '#3858e9', '#808080', null ],
+		[ '#1e1e1e', '#999999', null ],
+		[ '#ffd000', '#8a8a8a', null ],
+		[ '#ffd000', '#8a8a8a', '#cccccc' ],
+		[ '#1d2327', '#555555', '#272727' ],
+	] )(
+		'keeps every step of %s at 2:1 on a mid-gray %s with a %s empty cell, ends apart',
+		( primary, background, emptyCell ) => {
+			const { low, high } = getHeatmapScale( primary, background, emptyCell );
 
-		expect( low ).not.toBe( high );
-		for ( let step = 0; step <= 20; step++ ) {
-			expect(
-				contrastRatio( mixHexColors( low, high, step / 20 ), background )
-			).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			for ( let step = 0; step <= 20; step++ ) {
+				expect(
+					contrastRatio( mixHexColors( low, high, step / 20 ), background )
+				).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			}
 		}
-	} );
+	);
 
 	it.each( [
 		[ 'no step clears it', '#ffffff', '#555555' ],

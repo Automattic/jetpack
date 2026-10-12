@@ -5,8 +5,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 
 $heatmap-empty-fill: var(--a8c-charts-color-track);
 
-// JS sets the ends (getHeatmapScale): the low end at 2:1 against background,
-// high end and, where it can, empty cell. Unresolved, the floor is 15% of the
+// JS sets the ends (getHeatmapScale). Unresolved, the floor is 15% of the
 // primary.
 $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c-charts-color-heatmap-primary)) calc(var(--a8c-charts-heatmap-cell-intensity) * 100%), var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff))));
 
