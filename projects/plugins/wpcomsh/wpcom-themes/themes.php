@@ -48,12 +48,7 @@ function wpcomsh_remove_dot_org_themes_based_on_plan( $res ) {
 		return $res;
 	}
 
-	/*
-	 * Remove the WordPress.org themes and keep ours, which WPCom_Themes_Mapper marks. Emptying the
-	 * list instead would also discard results that never came from WordPress.org, such as the
-	 * Marketplace tab's.
-	 */
-	$res->themes = array_values(
+	$ours = array_values(
 		array_filter(
 			$res->themes,
 			function ( $theme ) {
@@ -62,8 +57,20 @@ function wpcomsh_remove_dot_org_themes_based_on_plan( $res ) {
 		)
 	);
 
+	// Our own themes are already the ones this site may install, and the total counts every page
+	// rather than this one, so a result made of them is left as it is.
+	if ( count( $ours ) === count( $res->themes ) ) {
+		return $res;
+	}
+
+	/*
+	 * The rest came from WordPress.org, which this plan excludes. Clearing the total as well lets
+	 * the filters that run next set it from their own list, which is what they expect.
+	 */
+	$res->themes = $ours;
+
 	if ( isset( $res->info['results'] ) ) {
-		$res->info['results'] = count( $res->themes );
+		$res->info['results'] = count( $ours );
 	}
 
 	return $res;

@@ -47,6 +47,29 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A result made only of our themes keeps its total, which counts every page rather than this one.
+	 *
+	 * Replacing the total with this page's count made the Marketplace tab report 100 themes
+	 * instead of the whole catalog.
+	 */
+	public function test_leaves_a_result_of_our_own_themes_alone() {
+		$result = wpcomsh_remove_dot_org_themes_based_on_plan(
+			(object) array(
+				'info'   => array( 'results' => 335 ),
+				'themes' => array(
+					(object) array(
+						'slug'           => 'repose',
+						'is_wpcom_theme' => true,
+					),
+				),
+			)
+		);
+
+		$this->assertCount( 1, $result->themes );
+		$this->assertSame( 335, $result->info['results'] );
+	}
+
+	/**
 	 * The entitlement half of the tier rule, against the platform's own answer.
 	 */
 	public function test_site_can_use_the_tiers_its_plan_includes() {
