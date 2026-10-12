@@ -257,11 +257,12 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A preview link loaded directly is answered with the theme, so core can open its preview.
+	 * A preview link is answered with our copy of the theme, WordPress.org tiers included.
 	 */
-	public function test_answers_preview_link_for_a_theme_only_wpcom_has() {
+	public function test_answers_preview_link_for_any_wpcom_theme() {
 		$this->enable_tab();
-		$this->answer_with_theme( array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'partner' ) ) ) );
+		// The free tier is on WordPress.org too, so this is the case that proves we answer regardless.
+		$this->answer_with_theme( array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'free' ) ) ) );
 
 		$result = $this->query( array( 'theme' => 'organic-stax' ) );
 
@@ -271,16 +272,6 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		// One request by slug, rather than paging through the whole catalog to find it.
 		$this->assertCount( 1, $this->requests );
 		$this->assertStringContainsString( '/rest/v1.2/themes/organic-stax', $this->requests[0] );
-	}
-
-	/**
-	 * A theme WordPress.org also carries keeps its WordPress.org preview, rather than ours shadowing it.
-	 */
-	public function test_leaves_preview_links_for_dot_org_themes_to_core() {
-		$this->enable_tab();
-		$this->answer_with_theme( array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'free' ) ) ) );
-
-		$this->assertFalse( $this->query( array( 'theme' => 'organic-stax' ) ) );
 	}
 
 	/**

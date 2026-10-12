@@ -20,14 +20,6 @@ const WPCOM_THEMES_TAB = 'wpcom';
 const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-marketplace-tab';
 
 /**
- * Tiers whose themes WordPress.org does not carry, so a `?theme=<slug>` preview is ours to answer.
- *
- * The tab lists every tier, but most WordPress.com themes are on WordPress.org too, and answering
- * their preview links here would shadow WordPress.org's own copy of a theme it already serves.
- */
-const WPCOM_THEMES_TAB_PREVIEW_TIERS = array( 'partner' );
-
-/**
  * Themes per request, which is also the grid's page size.
  */
 const WPCOM_THEMES_TAB_PER_PAGE = 100;
@@ -199,8 +191,11 @@ function wpcom_themes_tab_get_catalog( $page = 1 ) {
 /**
  * A theme whose `?theme=<slug>` preview this tab answers, read from WordPress.com by slug.
  *
+ * Every theme WordPress.com has is answered here, including ones WordPress.org also carries, so a
+ * preview shows our screenshot and demo rather than WordPress.org's copy of the same theme.
+ *
  * @param string $slug Theme slug.
- * @return array|null Null unless the theme is in a tier from WPCOM_THEMES_TAB_PREVIEW_TIERS.
+ * @return array|null Null when WordPress.com does not have the theme.
  */
 function wpcom_themes_tab_find_theme( $slug ) {
 	if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
@@ -212,12 +207,7 @@ function wpcom_themes_tab_find_theme( $slug ) {
 		return null;
 	}
 
-	$theme = json_decode( wp_remote_retrieve_body( $response ), true );
-	if ( ! is_array( $theme ) || ! in_array( $theme['theme_tier']['slug'] ?? '', WPCOM_THEMES_TAB_PREVIEW_TIERS, true ) ) {
-		return null;
-	}
-
-	return wpcom_themes_tab_to_catalog_theme( $theme );
+	return wpcom_themes_tab_to_catalog_theme( json_decode( wp_remote_retrieve_body( $response ), true ) );
 }
 
 /**
