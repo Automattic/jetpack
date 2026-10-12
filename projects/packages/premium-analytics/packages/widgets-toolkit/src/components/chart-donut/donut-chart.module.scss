@@ -7,7 +7,6 @@
 
 .chart {
 	position: relative;
-	isolation: isolate;
 	min-width: 0;
 	max-width: 100%;
 	flex: 0 0 auto;
@@ -22,10 +21,8 @@
 	height: 100%;
 }
 
-/* Below the chart, so the segment tooltip paints over the total. */
 .metricContainer {
 	position: absolute;
-	z-index: -1;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);

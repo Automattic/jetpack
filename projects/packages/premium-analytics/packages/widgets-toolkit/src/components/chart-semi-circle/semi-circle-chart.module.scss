@@ -14,13 +14,10 @@
 
 .chart {
 	position: relative;
-	isolation: isolate;
 }
 
-/* Below the chart, so the segment tooltip paints over the total. */
 .metricContainer {
 	position: absolute;
-	z-index: -1;
 	left: 0;
 	bottom: 0;
 	right: 0;
