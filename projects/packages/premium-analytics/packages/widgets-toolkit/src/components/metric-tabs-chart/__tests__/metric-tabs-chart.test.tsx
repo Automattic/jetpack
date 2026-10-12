@@ -6,7 +6,7 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
+import { resetMockCharts, setMockElementStyles } from '../../../../../../tests/js/chart-test-utils';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
 import { MetricTabsChart } from '../metric-tabs-chart';
@@ -486,6 +486,8 @@ describe( 'MetricTabsChart', () => {
 	] as const )(
 		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
 		( chartType, spy ) => {
+			// Only the first palette slot is the accent.
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
 			render(
 				<MetricTabsChart
 					metrics={ [ VIEWS, VISITORS ] }
