@@ -43,10 +43,19 @@ class WPCom_Themes_Mapper {
 		$wp_theme      = wp_get_theme( $wpcom_theme->id );
 		$current_theme = wp_get_theme();
 
-		$theme                 = new stdClass();
-		$theme->name           = $wpcom_theme->name;
-		$theme->slug           = $wpcom_theme->id;
-		$theme->preview_url    = $wpcom_theme->demo_uri . '?demo=true&iframe=true&theme_preview=true';
+		$theme       = new stdClass();
+		$theme->name = $wpcom_theme->name;
+		$theme->slug = $wpcom_theme->id;
+		// add_query_arg rather than concatenation: a demo_uri that already carries a query string
+		// would otherwise end up with two question marks.
+		$theme->preview_url    = add_query_arg(
+			array(
+				'demo'          => 'true',
+				'iframe'        => 'true',
+				'theme_preview' => 'true',
+			),
+			$wpcom_theme->demo_uri
+		);
 		$theme->author         = array( 'display_name' => $wpcom_theme->author );
 		$theme->screenshot_url = $wpcom_theme->screenshot;
 		$theme->homepage       = "https://wordpress.com/theme/$wpcom_theme->id";

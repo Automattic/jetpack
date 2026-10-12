@@ -51,8 +51,13 @@ class WPCom_Themes_Api {
 
 		return $this->cache->run_cached(
 			$cache_key,
-			fn() => $this->handle_request( $url )->themes ?? array()
-		);
+			function () use ( $url ) {
+				$body = $this->handle_request( $url );
+
+				// Null rather than an empty array, so a failed read is not cached as "no themes".
+				return isset( $body->themes ) && is_array( $body->themes ) ? $body->themes : null;
+			}
+		) ?? array();
 	}
 
 	/**

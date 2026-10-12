@@ -272,9 +272,9 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A failed read shows an empty tab, and is cached so an outage is not retried on every view.
+	 * A failed read is not cached, so a moment's trouble does not empty the tab for a day.
 	 */
-	public function test_failure_is_empty_and_cached() {
+	public function test_failure_is_empty_and_not_cached() {
 		$this->enable_tab();
 		$this->answer_wpcom_with( 500, '{}' );
 
@@ -284,7 +284,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array(), $first->themes );
 		$this->assertSame( 0, $first->info['results'] );
 		$this->assertSame( array(), $second->themes );
-		$this->assertCount( 1, $this->requests );
+		$this->assertCount( 2, $this->requests );
 	}
 
 	/**
