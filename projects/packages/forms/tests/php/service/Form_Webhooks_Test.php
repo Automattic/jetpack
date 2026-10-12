@@ -1494,7 +1494,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		 */
 		$this->assertTrue( $http_request_made, 'Filter should let the request past Forms validation' );
 		$this->assertCount( 1, $filter_args, 'Filter should run once for the resolved address' );
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset
 		$this->assertSame( array( true, '127.0.0.1', 'https://127.0.0.1/webhook' ), $filter_args[0] );
 	}
 
