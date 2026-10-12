@@ -42,6 +42,18 @@ const I18N_MANIFEST = 'i18n-manifest.json';
 // minus `styles` (no gettext calls in CSS).
 const TARGET_SUBDIRS = [ 'routes', 'scripts', 'modules', 'widgets' ];
 
+// Bump when the cache entry shape changes, to orphan every existing entry.
+const CACHE_FORMAT = 1;
+
+// Their versions feed the cache key: a generator update alone changes the stamped bytes.
+const BABEL_PACKAGES = [
+	'@babel/core',
+	'@babel/parser',
+	'@babel/traverse',
+	'@babel/generator',
+	'@babel/types',
+];
+
 /**
  * Shared Babel options for a single stamp pass.
  *
@@ -149,27 +161,199 @@ function stampFile( file, domain ) {
 }
 
 /**
+ * Hash everything other than the input bundle that can change the stamped bytes.
+ *
+ * @param {string} domain - Text domain being stamped.
+ * @return {string} Hex digest mixed into every cache key.
+ */
+function toolFingerprint( domain ) {
+	const hash = crypto.createHash( 'sha256' ).update( `${ CACHE_FORMAT }\0${ domain }\0` );
+	const pluginDir = path.dirname( PLUGIN );
+	const sources = [
+		require.resolve( './stamp-textdomains-lib.js' ),
+		require.resolve( './i18n-stub-lib.js' ),
+		...fs
+			.readdirSync( pluginDir )
+			.filter( name => name.endsWith( '.js' ) )
+			.sort()
+			.map( name => path.join( pluginDir, name ) ),
+	];
+	for ( const file of sources ) {
+		hash.update( fs.readFileSync( file ) ).update( '\0' );
+	}
+	const babelDir = path.dirname( require.resolve( '@babel/core' ) );
+	for ( const name of BABEL_PACKAGES ) {
+		const manifest = require.resolve( `${ name }/package.json`, { paths: [ babelDir ] } );
+		hash.update( `${ name }@${ require( manifest ).version }\0` );
+	}
+	return hash.digest( 'hex' );
+}
+
+/**
+ * Read a cache entry, treating a missing or unreadable one as a miss.
+ *
+ * @param {string} entryFile - Absolute path to the entry.
+ * @return {{code: string, map: string|null, hasGettext: boolean|null}|null} The entry, or null.
+ */
+function readCacheEntry( entryFile ) {
+	try {
+		const entry = JSON.parse( fs.readFileSync( entryFile, 'utf8' ) );
+		return typeof entry.code === 'string' ? entry : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Write a cache entry. Best effort: a failed write only costs a future miss.
+ *
+ * @param {string} entryFile - Absolute path to the entry.
+ * @param {object} entry     - Entry to store.
+ */
+function writeCacheEntry( entryFile, entry ) {
+	// Rename into place so a killed or concurrent run never leaves a partial entry.
+	const tmp = `${ entryFile }.${ crypto.randomUUID() }.tmp`;
+	try {
+		fs.writeFileSync( tmp, JSON.stringify( entry ) );
+		fs.renameSync( tmp, entryFile );
+	} catch {
+		fs.rmSync( tmp, { force: true } );
+	}
+}
+
+/**
+ * Stamp one bundle, reusing a cached result when the same bytes were stamped before.
+ *
+ * @param {string}      file   - Absolute path to the `.js` / `.min.js` file.
+ * @param {string}      domain - Text domain to stamp onto every gettext call.
+ * @param {object|null} cache  - `{ dir, fingerprint, used }`, or null to always stamp.
+ * @return {{hasGettext: boolean, reused: boolean}} `hasGettext` is always false for `.min.js`.
+ */
+function stampBundle( file, domain, cache ) {
+	const isMin = file.endsWith( '.min.js' );
+	const mapFile = `${ file }.map`;
+	const hasMap = fs.existsSync( mapFile );
+
+	let entryFile = null;
+	if ( cache ) {
+		const key = crypto
+			.createHash( 'sha256' )
+			.update( `${ cache.fingerprint }\0${ isMin }\0${ hasMap }\0` )
+			.update( fs.readFileSync( file ) )
+			.update( '\0' )
+			.update( hasMap ? fs.readFileSync( mapFile ) : '' )
+			.digest( 'hex' );
+		entryFile = path.join( cache.dir, `${ key }.json` );
+		cache.used.add( path.basename( entryFile ) );
+
+		const entry = readCacheEntry( entryFile );
+		if ( entry ) {
+			fs.writeFileSync( file, entry.code );
+			if ( hasMap && entry.map !== null ) {
+				fs.writeFileSync( mapFile, entry.map );
+			}
+			refreshAssetVersion( file );
+			return { hasGettext: entry.hasGettext === true, reused: true };
+		}
+	}
+
+	stampFile( file, domain );
+	const code = fs.readFileSync( file, 'utf8' );
+	const hasGettext = ! isMin && extractGettextCalls( code ).length > 0;
+	if ( entryFile ) {
+		writeCacheEntry( entryFile, {
+			code,
+			map: hasMap ? fs.readFileSync( mapFile, 'utf8' ) : null,
+			hasGettext,
+		} );
+	}
+	return { hasGettext, reused: false };
+}
+
+/**
+ * Delete cache entries this run did not use, keeping the cache at one build's worth.
+ *
+ * @param {object} cache - `{ dir, used }` from the run that just finished.
+ */
+function pruneCache( cache ) {
+	for ( const name of fs.readdirSync( cache.dir ) ) {
+		if ( ! cache.used.has( name ) ) {
+			fs.rmSync( path.join( cache.dir, name ), { force: true } );
+		}
+	}
+}
+
+/**
  * Stamp a text domain onto every JS bundle in a wp-build output tree.
  *
- * @param {string} buildDir - Absolute path to the package's build/ directory.
- * @param {string} domain   - Text domain to stamp onto every gettext call.
- * @return {number} Count of JS files stamped.
+ * With `cacheDir`, a bundle whose bytes (and source map) match one stamped by an
+ * earlier run is restored from the cache instead of re-parsed. Output is identical.
+ *
+ * @param {string} buildDir           - Absolute path to the package's build/ directory.
+ * @param {string} domain             - Text domain to stamp onto every gettext call.
+ * @param {object} [options]          - Options.
+ * @param {string} [options.cacheDir] - Directory for the stamp cache; omit to disable it.
+ * @return {{count: number, reused: number, stringBearing: string[]}} `stringBearing` lists the non-min bundles carrying gettext calls.
  */
-function stampDir( buildDir, domain ) {
+function stampDir( buildDir, domain, { cacheDir } = {} ) {
+	let cache = null;
+	if ( cacheDir ) {
+		fs.mkdirSync( cacheDir, { recursive: true } );
+		cache = { dir: cacheDir, fingerprint: toolFingerprint( domain ), used: new Set() };
+	}
+
 	let count = 0;
+	let reused = 0;
+	const stringBearing = [];
 	for ( const sub of TARGET_SUBDIRS ) {
 		const dir = path.join( buildDir, sub );
 		if ( ! fs.existsSync( dir ) ) {
 			continue;
 		}
 		walk( dir, file => {
-			if ( file.endsWith( '.js' ) ) {
-				stampFile( file, domain );
-				count++;
+			if ( ! file.endsWith( '.js' ) ) {
+				return;
+			}
+			const result = stampBundle( file, domain, cache );
+			count++;
+			if ( result.reused ) {
+				reused++;
+			}
+			if ( result.hasGettext ) {
+				stringBearing.push( file );
 			}
 		} );
 	}
-	return count;
+
+	if ( cache ) {
+		pruneCache( cache );
+	}
+	return { count, reused, stringBearing };
+}
+
+/**
+ * Find the non-minified bundles in a build tree that carry gettext calls.
+ *
+ * @param {string} buildDir - Absolute path to the package's build/ directory.
+ * @return {string[]} Absolute paths.
+ */
+function findStringBearingBundles( buildDir ) {
+	const found = [];
+	for ( const sub of TARGET_SUBDIRS ) {
+		const dir = path.join( buildDir, sub );
+		if ( ! fs.existsSync( dir ) ) {
+			continue;
+		}
+		walk( dir, file => {
+			if ( ! file.endsWith( '.js' ) || file.endsWith( '.min.js' ) ) {
+				return;
+			}
+			if ( extractGettextCalls( fs.readFileSync( file, 'utf8' ) ).length > 0 ) {
+				found.push( file );
+			}
+		} );
+	}
+	return found;
 }
 
 /**
@@ -186,28 +370,15 @@ function stampDir( buildDir, domain ) {
  * replaces each listed `.js` with an i18n reference stub at the same path, so
  * the manifest stays valid.
  *
- * @param {string} buildDir - Absolute path to the package's build/ directory.
+ * @param {string}   buildDir        - Absolute path to the package's build/ directory.
+ * @param {string[]} [stringBearing] - `stampDir()`'s list of absolute paths; omit to rescan the tree.
  * @return {string[]} The package-relative bundle paths written to the manifest.
  */
-function writeI18nManifest( buildDir ) {
+function writeI18nManifest( buildDir, stringBearing = findStringBearingBundles( buildDir ) ) {
 	const prefix = path.basename( buildDir );
-	const bundles = [];
-	for ( const sub of TARGET_SUBDIRS ) {
-		const dir = path.join( buildDir, sub );
-		if ( ! fs.existsSync( dir ) ) {
-			continue;
-		}
-		walk( dir, file => {
-			if ( ! file.endsWith( '.js' ) || file.endsWith( '.min.js' ) ) {
-				return;
-			}
-			if ( extractGettextCalls( fs.readFileSync( file, 'utf8' ) ).length > 0 ) {
-				bundles.push(
-					prefix + '/' + path.relative( buildDir, file ).split( path.sep ).join( '/' )
-				);
-			}
-		} );
-	}
+	const bundles = stringBearing.map(
+		file => prefix + '/' + path.relative( buildDir, file ).split( path.sep ).join( '/' )
+	);
 	bundles.sort();
 	fs.writeFileSync(
 		path.join( buildDir, I18N_MANIFEST ),

@@ -11,7 +11,14 @@
  */
 
 const crypto = require( 'crypto' );
-const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
+const {
+	mkdtempSync,
+	mkdirSync,
+	readdirSync,
+	writeFileSync,
+	readFileSync,
+	rmSync,
+} = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const os = require( 'node:os' );
 const { describe, it } = require( 'node:test' );
@@ -21,6 +28,7 @@ const {
 	stampDir,
 	refreshAssetVersion,
 	writeI18nManifest,
+	walk,
 	I18N_MANIFEST,
 } = require( '../../bin/stamp-textdomains-lib.js' );
 
@@ -119,7 +127,7 @@ describe( 'stamp-textdomains', () => {
 				"<?php return array('dependencies' => array('wp-i18n'), 'version' => 'abc');\n"
 			);
 
-			const count = stampDir( path.join( tmp, 'build' ), DOMAIN );
+			const { count } = stampDir( path.join( tmp, 'build' ), DOMAIN );
 			assert.equal( count, 2, 'both .js and .min.js stamped' );
 
 			assert.ok(
@@ -234,5 +242,142 @@ describe( 'stamp-textdomains', () => {
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
 		}
+	} );
+} );
+
+describe( 'stamp-textdomains cache', () => {
+	const MAP = JSON.stringify( {
+		version: 3,
+		sources: [ 'src/index.js' ],
+		names: [],
+		mappings: 'AAAA',
+	} );
+
+	/**
+	 * Write an unstamped wp-build-shaped tree: a sourcemapped module, a route pair
+	 * with an asset file, and a string-less widget.
+	 *
+	 * @param {string} buildDir - Directory to create.
+	 */
+	function writeBuild( buildDir ) {
+		const moduleDir = path.join( buildDir, 'modules', 'data' );
+		const routeDir = path.join( buildDir, 'routes', 'dashboard' );
+		const widgetDir = path.join( buildDir, 'widgets', 'plain' );
+		for ( const dir of [ moduleDir, routeDir, widgetDir ] ) {
+			mkdirSync( dir, { recursive: true } );
+		}
+		writeFileSync( path.join( moduleDir, 'index.js' ), 'x = (0, import_i18n.__)("Data");\n' );
+		writeFileSync( path.join( moduleDir, 'index.js.map' ), MAP );
+		writeFileSync( path.join( routeDir, 'content.js' ), 'x = (0, import_i18n.__)("Hello");\n' );
+		writeFileSync( path.join( routeDir, 'content.min.js' ), 'var a=(0,e.__)("Hello");' );
+		writeFileSync(
+			path.join( routeDir, 'content.min.asset.php' ),
+			"<?php return array('version' => 'abc');\n"
+		);
+		writeFileSync( path.join( widgetDir, 'render.js' ), 'export const answer = 42;\n' );
+	}
+
+	/**
+	 * Read every file under a directory into a relative-path → contents map.
+	 *
+	 * @param {string} dir - Directory to snapshot.
+	 * @return {object} The snapshot.
+	 */
+	function snapshot( dir ) {
+		const files = {};
+		walk( dir, file => {
+			files[ path.relative( dir, file ) ] = readFileSync( file, 'utf8' );
+		} );
+		return files;
+	}
+
+	/**
+	 * Run a callback with a fresh temp dir, removing it afterwards.
+	 *
+	 * @param {(tmp: string) => void} fn - Test body.
+	 */
+	function withTmp( fn ) {
+		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-cache-' ) );
+		try {
+			fn( tmp );
+		} finally {
+			rmSync( tmp, { recursive: true, force: true } );
+		}
+	}
+
+	it( 'reproduces the uncached output byte for byte, cold and warm', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const [ uncached, cold, warm ] = [ 'uncached', 'cold', 'warm' ].map( name => {
+				const buildDir = path.join( tmp, name, 'build' );
+				writeBuild( buildDir );
+				const result = stampDir( buildDir, DOMAIN, name === 'uncached' ? {} : { cacheDir } );
+				writeI18nManifest( buildDir, result.stringBearing );
+				return { result, files: snapshot( buildDir ) };
+			} );
+
+			assert.deepEqual( cold.files, uncached.files );
+			assert.deepEqual( warm.files, uncached.files );
+			assert.equal( cold.result.reused, 0 );
+			assert.equal( warm.result.reused, warm.result.count, 'every bundle reused' );
+		} );
+	} );
+
+	it( 'restamps a changed bundle and prunes the entry it replaced', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			const first = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			rmSync( buildDir, { recursive: true } );
+			writeBuild( buildDir );
+			const changed = path.join( buildDir, 'routes', 'dashboard', 'content.js' );
+			writeFileSync( changed, 'x = (0, import_i18n.__)("Changed");\n' );
+			const second = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			assert.equal( second.reused, first.count - 1 );
+			assert.ok(
+				readFileSync( changed, 'utf8' ).includes( '"Changed", "jetpack-videopress-pkg"' )
+			);
+			assert.equal( readdirSync( cacheDir ).length, second.count, 'one entry per bundle' );
+		} );
+	} );
+
+	it( 'does not reuse entries stamped for another domain', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			stampDir( buildDir, 'jetpack-other', { cacheDir } );
+
+			rmSync( buildDir, { recursive: true } );
+			writeBuild( buildDir );
+			const { reused } = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			assert.equal( reused, 0 );
+			const route = path.join( buildDir, 'routes', 'dashboard', 'content.js' );
+			assert.ok( ! readFileSync( route, 'utf8' ).includes( 'jetpack-other' ) );
+		} );
+	} );
+
+	it( 'treats an unreadable entry as a miss', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			stampDir( buildDir, DOMAIN, { cacheDir } );
+			const expected = snapshot( buildDir );
+			for ( const name of readdirSync( cacheDir ) ) {
+				writeFileSync( path.join( cacheDir, name ), '{"code":' );
+			}
+
+			rmSync( buildDir, { recursive: true } );
+			writeBuild( buildDir );
+			const { reused } = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			assert.equal( reused, 0 );
+			assert.deepEqual( snapshot( buildDir ), expected );
+		} );
 	} );
 } );
