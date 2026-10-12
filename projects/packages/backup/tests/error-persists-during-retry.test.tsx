@@ -254,7 +254,7 @@ describe( 'activity list', () => {
 } );
 
 describe( 'file browser', () => {
-	it( 'keeps the reason on screen while its retry runs', async () => {
+	it( 'keeps the reason on screen while its retry runs, then hands focus on', async () => {
 		mockApiFetch.mockRejectedValue( {
 			code: 'file_browser_fetch_failed',
 			message: 'Backup host unreachable',
@@ -288,6 +288,7 @@ describe( 'file browser', () => {
 		await waitFor( () =>
 			expect( screen.queryByText( 'Backup host unreachable' ) ).not.toBeInTheDocument()
 		);
+		expect( screen.getByRole( 'group', { name: 'Files in this backup' } ) ).toHaveFocus();
 	} );
 } );
 
