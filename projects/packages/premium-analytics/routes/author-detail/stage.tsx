@@ -157,17 +157,20 @@ function AuthorDetail(): JSX.Element {
 		surface: 'author_detail',
 	} );
 
-	// The trail is fixed to Stats / All authors / Author regardless of which report
-	// the reader arrived from: the author list is this page's only parent.
+	// The trail is Stats / All authors / <name> regardless of which report the reader
+	// arrived from. Only a resolved author is named: a failed refetch keeps the stale name.
+	const authorName = canRenderWidgets
+		? summary.name?.trim() || __( 'Unnamed author', 'jetpack-premium-analytics-pkg' )
+		: undefined;
 	const breadcrumbs = useMemo(
 		() => [
 			{
 				label: __( 'All authors', 'jetpack-premium-analytics-pkg' ),
 				to: buildReportLink( 'authors', search ),
 			},
-			{ label: __( 'Author', 'jetpack-premium-analytics-pkg' ) },
+			{ label: authorName || __( 'Author', 'jetpack-premium-analytics-pkg' ) },
 		],
-		[ search ]
+		[ search, authorName ]
 	);
 
 	let notice: PageNoticeProps | null = null;
