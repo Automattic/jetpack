@@ -8,6 +8,7 @@ export {
 	Donut,
 	EarningsHistoryList,
 	ExporterCsvDownloadButton,
+	Funnel,
 	Leaderboard,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,

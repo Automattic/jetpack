@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -174,6 +175,55 @@ class REST_Controller_Test extends Search_TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $response->get_data()['supports_search'] );
+	}
+
+	/**
+	 * @dataProvider provide_search_plan_offline_states
+	 *
+	 * @param bool $offline Whether the site is offline.
+	 * @param bool $stored Whether a plan is stored.
+	 * @param int  $status Expected response status.
+	 * @param int  $attempts Expected HTTP attempts.
+	 */
+	#[DataProvider( 'provide_search_plan_offline_states' )]
+	public function test_search_plan_offline_states( $offline, $stored, $status, $attempts ) {
+		wp_set_current_user( $this->admin_id );
+		Cache::set( 'is_offline_mode', $offline );
+		$cached_plan = array( 'supports_search' => true );
+		if ( $stored ) {
+			update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $cached_plan );
+		}
+		$requests = 0;
+		$spy      = function ( $preempt ) use ( &$requests ) {
+			++$requests;
+			return $preempt;
+		};
+		add_filter( 'pre_http_request', $spy, 5 );
+
+		try {
+			$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/search/plan' ) );
+			$this->assertSame( $status, $response->get_status() );
+			$this->assertSame( $attempts, $requests );
+			if ( 503 === $status ) {
+				$this->assertSame( 'site_offline', $response->get_data()['code'] );
+				$this->assertFalse( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+			} else {
+				$expected = $offline ? $cached_plan : json_decode( self::PLAN_INFO_FIXTURE, true );
+				$this->assertSame( $expected, $response->get_data() );
+				$this->assertSame( $expected, get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+			}
+		} finally {
+			remove_filter( 'pre_http_request', $spy, 5 );
+			Cache::set( 'is_offline_mode', null );
+		}
+	}
+
+	public static function provide_search_plan_offline_states() {
+		return array(
+			'offline with stored plan'     => array( true, true, 200, 0 ),
+			'offline without stored plan'  => array( true, false, 503, 0 ),
+			'online refreshes stored plan' => array( false, true, 200, 1 ),
+		);
 	}
 
 	/**

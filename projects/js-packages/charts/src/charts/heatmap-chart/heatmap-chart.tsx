@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
 import { useIsomorphicLayoutEffect } from '../../hooks';
 import {
@@ -23,6 +24,7 @@ import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { createCssVariableResolver } from '../../utils/resolve-css-var';
+import { warnOnce } from '../../utils/warn-once';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
@@ -31,6 +33,7 @@ import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-t
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
+	fitCompactCells,
 	getHeatmapScale,
 	getValueExtent,
 	getNormalizedValue,
@@ -39,6 +42,7 @@ import {
 	isEmptyValue,
 	isPresent,
 	resolveColumnGroups,
+	wrapColumnGroups,
 } from './private';
 import {
 	firstCalendarCell,
@@ -47,7 +51,7 @@ import {
 	stepCalendarCell,
 	stepGridCell,
 } from './private/keyboard-navigation';
-import type { HeatmapContextValue } from './private';
+import type { CompactCellFit, HeatmapContextValue } from './private';
 import type { CellBlock, CellPosition } from './private/keyboard-navigation';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
 import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
@@ -68,6 +72,27 @@ const NO_ROW_LABELS: string[] = [];
 
 const TOOLTIP_BOX_STYLE: CSSProperties = { zIndex: TOOLTIP_Z_INDEX };
 
+const largest = ( root: Element, selector: string, size: 'offsetWidth' | 'offsetHeight' ) =>
+	Math.max(
+		0,
+		...Array.from( root.querySelectorAll< HTMLElement >( selector ), el => el[ size ] )
+	);
+
+// The box the grid may fill: the chart's own box less its other in-flow children
+// (the legend, say) and the gaps between them.
+const gridBox = ( chart: HTMLElement, grid: HTMLElement ) => {
+	let height = chart.clientHeight;
+	const rowGap = parseFloat( getComputedStyle( chart ).rowGap ) || 0;
+	Array.from( chart.children ).forEach( child => {
+		const { display, position } = getComputedStyle( child );
+		if ( child === grid || display === 'none' || position === 'absolute' || position === 'fixed' ) {
+			return;
+		}
+		height -= ( child as HTMLElement ).offsetHeight + rowGap;
+	} );
+	return { width: chart.clientWidth, height };
+};
+
 // The cell's own label wins; otherwise the group, column and row labels name it.
 const cellName = ( info: HeatmapTooltipData ) =>
 	info.cellLabel ||
@@ -80,6 +105,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	height = 0,
 	className,
 	compact = false,
+	fitCells = false,
 	showValues,
 	maxCellWidth,
 	maxCellHeight,
@@ -110,16 +136,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		useTooltip< HeatmapTooltipData >();
 	const standaloneScopeClass = useStandaloneScopeClass();
 	const containerRef = useRef< HTMLDivElement >( null );
+	const chartRef = useRef< HTMLDivElement >( null );
 	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
-	// The chart root positions the tooltip, so pointer and cell coordinates are
-	// measured against it — found by its id rather than by walking up, so
-	// whatever ChartLayout wraps the grid in cannot shift the origin.
 	const getTooltipOrigin = useCallback(
-		() =>
-			containerRef.current
-				?.closest( `[data-chart-id="heatmap-chart-${ chartId }"]` )
-				?.getBoundingClientRect() ?? null,
-		[ chartId ]
+		() => chartRef.current?.getBoundingClientRect() ?? null,
+		[]
 	);
 
 	const { color: primaryColorHex } = getElementStyles( {
@@ -189,6 +210,67 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const { compactCellGap, compactCellSize, groupGap } = heatmapChartSettings;
 	const drawValues = showValues ?? ! compact;
+	const hasColumnLabels = data.some( column => Boolean( column.label ) );
+	const hasGroups = groupLayout.groups.length > 0;
+
+	const [ fit, setFit ] = useState< CompactCellFit | null >( null );
+	// A summary track is as wide as its figure, which the fit cannot size as a cell.
+	const hasSummary = data.some( column => column.summary );
+	const fitting = compact && fitCells && ! hasSummary;
+	if ( fitCells && ! fitting ) {
+		warnOnce(
+			'heatmap:fitCells',
+			'fitCells applies only in compact mode without summary columns, so the cells keep their size.'
+		);
+	}
+	useIsomorphicLayoutEffect( () => {
+		const chart = chartRef.current;
+		const grid = containerRef.current;
+		if ( ! fitting || ! chart || ! grid ) {
+			setFit( null );
+			return;
+		}
+		const measure = () => {
+			const next = fitCompactCells( {
+				...gridBox( chart, grid ),
+				layout: groupLayout,
+				rows,
+				cellGap: compactCellGap,
+				groupGap,
+				rowLabelWidth: largest( grid, `.${ styles[ 'heatmap-chart__row-label' ] }`, 'offsetWidth' ),
+				columnLabelHeight: hasColumnLabels
+					? largest( grid, `.${ styles[ 'heatmap-chart__col-label' ] }`, 'offsetHeight' )
+					: null,
+				groupLabelHeight: hasGroups
+					? largest( grid, `.${ styles[ 'heatmap-chart__group-label' ] }`, 'offsetHeight' )
+					: null,
+				minCellSize: compactCellSize,
+			} );
+			setFit( previous => ( isEqual( previous, next ) ? previous : next ) );
+		};
+		measure();
+		if ( typeof ResizeObserver === 'undefined' ) {
+			return;
+		}
+		// Commit before later observers in this delivery read the grid, or they see the
+		// old cells at the new width, and before paint, so that frame is never drawn.
+		const observer = new ResizeObserver( () => flushSync( measure ) );
+		observer.observe( chart );
+		return () => observer.disconnect();
+	}, [
+		fitting,
+		groupLayout,
+		rows,
+		hasColumnLabels,
+		hasGroups,
+		compactCellGap,
+		compactCellSize,
+		groupGap,
+	] );
+	const wrapped = useMemo(
+		() => ( fit ? wrapColumnGroups( groupLayout, fit.bands ) : null ),
+		[ fit, groupLayout ]
+	);
 
 	const buildTooltipData = useCallback(
 		( columnIndex: number, rowIndex: number ): HeatmapTooltipData => {
@@ -376,12 +458,18 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rowTrack = compact
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
-	const hasColumnLabels = data.some( column => Boolean( column.label ) );
-	const hasGroups = groupLayout.groups.length > 0;
 	// Every item is placed by hand rather than auto-flowed, so the template can
 	// carry gap tracks that hold no cell.
-	const columnLine = ( columnIndex: number ) => groupLayout.columns[ columnIndex ].line;
-	const firstDataRow = hasColumnLabels ? 2 : 1;
+	const placed = wrapped ?? groupLayout;
+	const columnLine = ( columnIndex: number ) => placed.columns[ columnIndex ].line;
+	const bandOf = ( columnIndex: number ) => placed.columns[ columnIndex ].band;
+	const { bands } = placed;
+	// Each band repeats the label row, the data rows and the group-label row, and
+	// the next starts one group gap below.
+	const bandRowCount = ( hasColumnLabels ? 1 : 0 ) + rows + ( hasGroups ? 1 : 0 ) + 1;
+	const labelRowOf = ( band: number ) => 1 + band * bandRowCount;
+	const dataRowOf = ( band: number, rowIndex: number ) =>
+		labelRowOf( band ) + ( hasColumnLabels ? 1 : 0 ) + rowIndex;
 	// A summary column takes a content-sized track: a roll-up is wider than a
 	// cell, and a shared track would stretch every cell to fit it. `max-content`
 	// as the max keeps the leftover width out of it once the data tracks hit
@@ -392,23 +480,33 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	// minmax track the way it widens the summary's auto track. Compact cells
 	// are fixed, so there the gaps share the leftover width instead.
 	const gapTrack = compact ? `minmax(${ groupGap }px, 1fr)` : `${ groupGap }px`;
-	const columnTracks = data
-		.map( ( column, columnIndex ) =>
-			groupLayout.columns[ columnIndex ].gapBefore
-				? `${ gapTrack } ${ dataTrack( column ) }`
-				: dataTrack( column )
-		)
-		.join( ' ' );
+	// Wrapped bands share one set of slots, each as wide as its widest group.
+	const columnTracks = wrapped
+		? wrapped.slotSpans
+				.map( ( span, slot ) =>
+					[ ...( slot > 0 ? [ gapTrack ] : [] ), ...Array( span ).fill( columnTrack ) ].join( ' ' )
+				)
+				.join( ' ' )
+		: data
+				.map( ( column, columnIndex ) =>
+					groupLayout.columns[ columnIndex ].gapBefore
+						? `${ gapTrack } ${ dataTrack( column ) }`
+						: dataTrack( column )
+				)
+				.join( ' ' );
+	const bandTracks = `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
+		hasGroups ? ' auto' : ''
+	}`;
 	const gridStyle: Record< string, string | number > = {
 		...fillVars,
 		gridTemplateColumns: `auto ${ columnTracks }`,
-		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
-			hasGroups ? ' auto' : ''
-		}`,
+		gridTemplateRows: Array( bands ).fill( bandTracks ).join( ` ${ groupGap }px ` ),
 	};
 	if ( compact ) {
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
-		gridStyle[ '--a8c-charts-dimension-heatmap-cell-size' ] = `${ compactCellSize }px`;
+		gridStyle[ '--a8c-charts-dimension-heatmap-cell-size' ] = `${
+			fit?.cellSize ?? compactCellSize
+		}px`;
 	}
 
 	// A summary column sits one gap apart from the data on either side; two
@@ -445,6 +543,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					legendChildren={ [] }
 					trailingContent={ nonLegendChildren }
 					gap={ gap }
+					rootRef={ chartRef }
 					className={ clsx( 'heatmap-chart', styles[ 'heatmap-chart' ], className, {
 						[ styles[ 'heatmap-chart--height-capped' ] ]: heightCapped,
 					} ) }
@@ -475,11 +574,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						{ /* Decorative: cell aria-labels already carry the column name. */ }
 						{ hasColumnLabels && (
 							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
-								<span style={ { gridColumn: 1, gridRow: 1 } } />
+								<span style={ { gridColumn: 1, gridRow: labelRowOf( 0 ) } } />
 								{ data.map( ( column, columnIndex ) => (
 									<span
 										key={ `col-${ columnIndex }` }
-										style={ { gridColumn: columnLine( columnIndex ), gridRow: 1 } }
+										style={ {
+											gridColumn: columnLine( columnIndex ),
+											gridRow: labelRowOf( bandOf( columnIndex ) ),
+										} }
 										className={ clsx( styles[ 'heatmap-chart__col-label' ], {
 											[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
 											...summaryGaps( columnIndex ),
@@ -493,7 +595,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 						{ Array.from( { length: rows } ).map( ( _row, rowIndex ) => {
 							const labelVisible = ! compact || rowIndex % 2 === 0;
-							const gridRow = firstDataRow + rowIndex;
 							return (
 								<div
 									key={ `row-${ rowIndex }` }
@@ -501,16 +602,22 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									aria-rowindex={ rowIndex + 1 }
 									className={ styles[ 'heatmap-chart__row' ] }
 								>
-									<span
-										aria-hidden="true"
-										className={ styles[ 'heatmap-chart__row-label' ] }
-										style={ { gridColumn: 1, gridRow } }
-									>
-										{ labelVisible ? ( rowLabels[ rowIndex ] ?? '' ) : '' }
-									</span>
+									{ Array.from( { length: bands } ).map( ( _band, band ) => (
+										<span
+											key={ `row-label-${ band }` }
+											aria-hidden="true"
+											className={ styles[ 'heatmap-chart__row-label' ] }
+											style={ { gridColumn: 1, gridRow: dataRowOf( band, rowIndex ) } }
+										>
+											{ labelVisible ? ( rowLabels[ rowIndex ] ?? '' ) : '' }
+										</span>
+									) ) }
 									{ data.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];
-										const placement = { gridColumn: columnLine( columnIndex ), gridRow };
+										const placement = {
+											gridColumn: columnLine( columnIndex ),
+											gridRow: dataRowOf( bandOf( columnIndex ), rowIndex ),
+										};
 
 										// A hidden cell keeps its grid slot (so the rest of the
 										// column doesn't shift) but paints nothing and takes no
@@ -611,14 +718,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 						{ hasGroups && (
 							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
-								{ groupLayout.groups.map( ( group, groupIndex ) => (
+								{ placed.groups.map( ( group, groupIndex ) => (
 									<span
 										key={ `group-${ groupIndex }` }
 										data-testid="heatmap-group-label"
 										className={ styles[ 'heatmap-chart__group-label' ] }
 										style={ {
 											gridColumn: `${ group.line } / span ${ group.span }`,
-											gridRow: firstDataRow + rows,
+											gridRow: dataRowOf( group.band, rows ),
 										} }
 									>
 										{ group.label }
