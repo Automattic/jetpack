@@ -817,6 +817,7 @@ class Initializer {
 		if (
 			self::is_my_jetpack_admin_request()
 			&& self::is_offline_features_enabled()
+			// Honor an explicit host veto without enabling offline entry.
 			&& self::should_initialize()
 			&& REST_Main_Features::permissions_callback()
 		) {
