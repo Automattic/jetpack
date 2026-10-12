@@ -12,6 +12,7 @@
 
 const crypto = require( 'crypto' );
 const {
+	chmodSync,
 	mkdtempSync,
 	mkdirSync,
 	readdirSync,
@@ -413,6 +414,40 @@ describe( 'stamp-textdomains cache', () => {
 
 			assert.equal( reused, 0 );
 			assert.deepEqual( snapshot( buildDir ), expected );
+		} );
+	} );
+
+	it( 'still stamps when the cache directory cannot be created or written', () => {
+		withTmp( tmp => {
+			const expectedDir = path.join( tmp, 'expected', 'build' );
+			writeBuild( expectedDir );
+			stampDir( expectedDir, DOMAIN );
+			const expected = snapshot( expectedDir );
+
+			// A stale entry to prune, in a cache that turns read-only.
+			const writableCache = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			writeFileSync(
+				path.join( buildDir, 'routes', 'dashboard', 'content.js' ),
+				'x = (0, import_i18n.__)("Stale");\n'
+			);
+			stampDir( buildDir, DOMAIN, { cacheDir: writableCache } );
+			const lockedParent = path.join( tmp, 'locked' );
+			mkdirSync( lockedParent );
+			chmodSync( writableCache, 0o555 );
+			chmodSync( lockedParent, 0o555 );
+			try {
+				for ( const cacheDir of [ writableCache, path.join( lockedParent, 'cache' ) ] ) {
+					rmSync( buildDir, { recursive: true } );
+					writeBuild( buildDir );
+					stampDir( buildDir, DOMAIN, { cacheDir } );
+					assert.deepEqual( snapshot( buildDir ), expected, cacheDir );
+				}
+			} finally {
+				chmodSync( writableCache, 0o755 );
+				chmodSync( lockedParent, 0o755 );
+			}
 		} );
 	} );
 } );

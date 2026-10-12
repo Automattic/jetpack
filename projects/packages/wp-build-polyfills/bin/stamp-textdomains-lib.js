@@ -29,6 +29,7 @@
 
 const crypto = require( 'crypto' );
 const fs = require( 'fs' );
+const { createRequire } = require( 'module' );
 const path = require( 'path' );
 const { transformSync } = require( '@babel/core' );
 const { extractGettextCalls } = require( './i18n-stub-lib.js' );
@@ -43,9 +44,6 @@ const I18N_MANIFEST = 'i18n-manifest.json';
 // The wp-build subdirs that hold JS. Same set strip-unminified-prod walks,
 // minus `styles` (no gettext calls in CSS).
 const TARGET_SUBDIRS = [ 'routes', 'scripts', 'modules', 'widgets' ];
-
-// Bump when the cache entry shape changes, to orphan every existing entry.
-const CACHE_FORMAT = 1;
 
 /**
  * Shared Babel options for a single stamp pass.
@@ -132,29 +130,33 @@ function refreshAssetVersion( file ) {
  *
  * @param {string} file   - Absolute path to the `.js` / `.min.js` file.
  * @param {string} domain - Text domain to stamp onto every gettext call.
+ * @return {{code: string, map: string|null}} What was written to the file and its map (null without one).
  */
 function stampFile( file, domain ) {
 	const code = fs.readFileSync( file, 'utf8' );
 	const isMin = file.endsWith( '.min.js' );
 	const mapFile = `${ file }.map`;
-	const hasMap = fs.existsSync( mapFile );
+	const inputMap = fs.existsSync( mapFile ) ? fs.readFileSync( mapFile, 'utf8' ) : null;
 
 	const result = transformSync( code, {
 		...babelOptions( domain, isMin ),
 		filename: file,
-		inputSourceMap: hasMap ? JSON.parse( fs.readFileSync( mapFile, 'utf8' ) ) : undefined,
-		sourceMaps: hasMap,
+		inputSourceMap: inputMap !== null ? JSON.parse( inputMap ) : undefined,
+		sourceMaps: inputMap !== null,
 	} );
 
+	let map = inputMap;
 	fs.writeFileSync( file, result.code );
-	if ( hasMap && result.map ) {
-		fs.writeFileSync( mapFile, JSON.stringify( result.map ) );
+	if ( inputMap !== null && result.map ) {
+		map = JSON.stringify( result.map );
+		fs.writeFileSync( mapFile, map );
 	}
 	refreshAssetVersion( file );
+	return { code: result.code, map };
 }
 
 /**
- * Find an installed package's package.json the way Node looks up `node_modules`.
+ * Find an installed package's package.json along Node's `node_modules` lookup paths.
  *
  * `require.resolve( 'x/package.json' )` is not enough: `exports` can hide it.
  *
@@ -163,9 +165,11 @@ function stampFile( file, domain ) {
  * @return {string|null} Real path, or null when the package is not installed.
  */
 function findPackageJson( name, fromDir ) {
-	let dir = fs.realpathSync( fromDir );
-	for ( ; dir !== path.dirname( dir ); dir = path.dirname( dir ) ) {
-		const candidate = path.join( dir, 'node_modules', name, 'package.json' );
+	// Start from the real path, as Node does: pnpm installs a package's dependencies
+	// next to its real location, not next to the symlink.
+	const fromFile = path.join( fs.realpathSync( fromDir ), 'noop.js' );
+	for ( const dir of createRequire( fromFile ).resolve.paths( name ) || [] ) {
+		const candidate = path.join( dir, name, 'package.json' );
 		if ( fs.existsSync( candidate ) ) {
 			return fs.realpathSync( candidate );
 		}
@@ -231,7 +235,8 @@ function stampToolSources() {
  * @return {string} Hex digest mixed into every cache key.
  */
 function toolFingerprint( domain, { sources = stampToolSources(), resolveFrom = __dirname } = {} ) {
-	const hash = crypto.createHash( 'sha256' ).update( `${ CACHE_FORMAT }\0${ domain }\0` );
+	// Hashing this file's own source also orphans every entry when the entry format changes.
+	const hash = crypto.createHash( 'sha256' ).update( `${ domain }\0` );
 	for ( const file of sources ) {
 		hash.update( fs.readFileSync( file ) ).update( '\0' );
 	}
@@ -258,6 +263,19 @@ function readCacheEntry( entryFile ) {
 }
 
 /**
+ * Delete a cache file. Best effort, like every cache write: the build never depends on it.
+ *
+ * @param {string} file - Absolute path to delete.
+ */
+function removeCacheFile( file ) {
+	try {
+		fs.rmSync( file, { force: true } );
+	} catch {
+		// A file left behind only costs disk space.
+	}
+}
+
+/**
  * Write a cache entry. Best effort: a failed write only costs a future miss.
  *
  * @param {string} entryFile - Absolute path to the entry.
@@ -270,7 +288,7 @@ function writeCacheEntry( entryFile, entry ) {
 		fs.writeFileSync( tmp, JSON.stringify( entry ) );
 		fs.renameSync( tmp, entryFile );
 	} catch {
-		fs.rmSync( tmp, { force: true } );
+		removeCacheFile( tmp );
 	}
 }
 
@@ -310,17 +328,28 @@ function stampBundle( file, domain, cache ) {
 		}
 	}
 
-	stampFile( file, domain );
-	const code = fs.readFileSync( file, 'utf8' );
+	const { code, map } = stampFile( file, domain );
 	const hasGettext = ! isMin && extractGettextCalls( code ).length > 0;
 	if ( entryFile ) {
-		writeCacheEntry( entryFile, {
-			code,
-			map: hasMap ? fs.readFileSync( mapFile, 'utf8' ) : null,
-			hasGettext,
-		} );
+		writeCacheEntry( entryFile, { code, map, hasGettext } );
 	}
 	return { hasGettext, reused: false };
+}
+
+/**
+ * Prepare the cache directory, or return null to stamp without one when it is unusable.
+ *
+ * @param {string} cacheDir - Directory for the stamp cache.
+ * @param {string} domain   - Text domain being stamped.
+ * @return {object|null} `{ dir, fingerprint, used }`, or null.
+ */
+function openCache( cacheDir, domain ) {
+	try {
+		fs.mkdirSync( cacheDir, { recursive: true } );
+	} catch {
+		return null;
+	}
+	return { dir: cacheDir, fingerprint: toolFingerprint( domain ), used: new Set() };
 }
 
 /**
@@ -329,9 +358,15 @@ function stampBundle( file, domain, cache ) {
  * @param {object} cache - `{ dir, used }` from the run that just finished.
  */
 function pruneCache( cache ) {
-	for ( const name of fs.readdirSync( cache.dir ) ) {
+	let names;
+	try {
+		names = fs.readdirSync( cache.dir );
+	} catch {
+		return;
+	}
+	for ( const name of names ) {
 		if ( ! cache.used.has( name ) ) {
-			fs.rmSync( path.join( cache.dir, name ), { force: true } );
+			removeCacheFile( path.join( cache.dir, name ) );
 		}
 	}
 }
@@ -349,11 +384,7 @@ function pruneCache( cache ) {
  * @return {{count: number, reused: number, stringBearing: string[]}} `stringBearing` lists the non-min bundles carrying gettext calls.
  */
 function stampDir( buildDir, domain, { cacheDir } = {} ) {
-	let cache = null;
-	if ( cacheDir ) {
-		fs.mkdirSync( cacheDir, { recursive: true } );
-		cache = { dir: cacheDir, fingerprint: toolFingerprint( domain ), used: new Set() };
-	}
+	const cache = cacheDir ? openCache( cacheDir, domain ) : null;
 
 	let count = 0;
 	let reused = 0;
