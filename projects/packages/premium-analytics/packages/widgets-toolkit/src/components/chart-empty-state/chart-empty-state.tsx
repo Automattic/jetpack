@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
+import { search } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { cautionFilled } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -11,12 +11,12 @@ import styles from './chart-empty-state.module.scss';
 
 export type ChartEmptyStateProps = {
 	/**
-	 * Defaults to `cautionFilled` when omitted; pass `null` to render no icon.
+	 * Defaults to the `search` magnifier when omitted; pass `null` to render no icon.
 	 */
 	icon?: React.ComponentProps< typeof Icon >[ 'icon' ] | null;
 
 	/**
-	 * @default "No data in this period."
+	 * @default "We couldn’t find results for this time period."
 	 */
 	text?: string;
 };
@@ -25,8 +25,8 @@ export type ChartEmptyStateProps = {
  * The empty state chart wrappers render when their data has nothing to show.
  */
 export function ChartEmptyState( {
-	icon = cautionFilled,
-	text = __( 'No data in this period.', 'jetpack-premium-analytics-pkg' ),
+	icon = search,
+	text = __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' ),
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>

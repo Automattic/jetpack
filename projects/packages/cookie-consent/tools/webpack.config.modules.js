@@ -21,7 +21,6 @@ export default {
 		environment: { module: true },
 		library: { type: 'module' },
 	},
-	experiments: { outputModule: true },
 	optimization: { ...jetpackWebpackConfig.optimization },
 	resolve: {
 		...jetpackWebpackConfig.resolve,

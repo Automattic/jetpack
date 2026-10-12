@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { markFirstPublish } from '../../../hooks/use-first-run-state';
 import { useOnboardingCounts } from '../../../hooks/use-onboarding-counts';
@@ -6,6 +6,26 @@ import OnboardingModal from '../index';
 
 jest.mock( '../../../hooks/use-onboarding-counts', () => ( {
 	useOnboardingCounts: jest.fn(),
+} ) );
+
+// The intake pipeline is the Library's own and tested with its hook; the
+// modal only feeds it files. The real hook would stand up a resumable
+// uploader and free-tier queries nothing here needs.
+const mockIntakeFiles = jest.fn( (): number => 1 );
+jest.mock( '../../../hooks/use-upload-intake', () => ( {
+	useUploadIntake: () => mockIntakeFiles,
+} ) );
+
+// Free-tier facts only size the picker's `multiple` here — the intake hook
+// above owns the actual plan enforcement.
+jest.mock( '../../../hooks/use-free-tier', () => ( {
+	useFreeTier: () => ( {
+		isFree: true,
+		isUnlimited: false,
+		isAtLimit: false,
+		videoCount: 0,
+		limit: 1,
+	} ),
 } ) );
 
 // The modal only OBSERVES the shared queue (the `useFreeTier` pattern); the
@@ -58,6 +78,21 @@ const mockCounts = ( counts: {
 	( useOnboardingCounts as jest.Mock ).mockReturnValue( counts );
 };
 
+/**
+ * The hidden file input behind the primary CTA. It is presentation-free
+ * plumbing with no role or accessible name, rendered through the dialog's
+ * portal, so it is looked up in the document.
+ *
+ * @return The file input element.
+ */
+function getFilePicker(): HTMLInputElement {
+	// eslint-disable-next-line testing-library/no-node-access -- the picker is a hidden input with no role or accessible name; no query reaches it.
+	const input = document.querySelector< HTMLInputElement >( 'input[type="file"]' );
+	expect( input ).not.toBeNull();
+
+	return input as HTMLInputElement;
+}
+
 const WELCOME_FLAG = '__jetpackVideoPressWelcomeConsumed';
 const WELCOME_ACTIVE_FLAG = '__jetpackVideoPressWelcomeActive';
 const UPLOAD_STARTED_FLAG = '__jetpackVideoPressUploadStarted';
@@ -72,6 +107,7 @@ describe( 'OnboardingModal', () => {
 	beforeEach( () => {
 		window.localStorage.clear();
 		mockNavigate.mockClear();
+		mockIntakeFiles.mockClear();
 		mockUploadQueue = [];
 		mockSearch = {};
 		// Every latch here is window-scoped (they have to outlive the per-route
@@ -120,17 +156,66 @@ describe( 'OnboardingModal', () => {
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'sends the primary CTA to the Library, whose empty state is the upload flow', async () => {
-		// With the widened gate the modal can open over Library or Home, so
-		// the primary must navigate rather than merely reveal what's beneath.
+	it( 'opens the file picker from the primary CTA without closing the modal', async () => {
+		// The CTA is the Library header button's gesture, not a navigation:
+		// nothing moves or closes until the picker actually yields files, so
+		// cancelling the OS dialog costs the user nothing.
 		mockCounts( { videoPressCount: 0, localCount: 3, isSettled: true } );
 		const user = userEvent.setup();
 
 		render( <OnboardingModal /> );
+		const pickerClick = jest.spyOn( getFilePicker(), 'click' );
 		await user.click( screen.getByRole( 'button', { name: 'Upload a video' } ) );
+
+		expect( pickerClick ).toHaveBeenCalled();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	it( 'queues a picked file through the shared intake and lands on the Library', async () => {
+		mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+		const user = userEvent.setup();
+
+		render( <OnboardingModal /> );
+		const file = new File( [ 'x' ], 'clip.mp4', { type: 'video/mp4' } );
+		await user.upload( getFilePicker(), file );
+
+		expect( mockIntakeFiles ).toHaveBeenCalledWith( [ file ] );
+		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'still dismisses and navigates when the intake refuses the selection', async () => {
+		// The refusal notice renders over the Library, and reading it there
+		// beats leaving it hidden underneath this modal.
+		mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+		mockIntakeFiles.mockReturnValueOnce( 0 );
+		// `applyAccept: false`: the picker's `accept` intentionally excludes
+		// this file — reaching the intake anyway is what a misbehaving OS
+		// dialog does, and what this case is about.
+		const user = userEvent.setup( { applyAccept: false } );
+
+		render( <OnboardingModal /> );
+		const file = new File( [ 'x' ], 'not-a-video.pdf', { type: 'application/pdf' } );
+		await user.upload( getFilePicker(), file );
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { href: '/' } );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays open when the picker yields no files', () => {
+		// A cancelled OS dialog fires no change at all in most browsers, but
+		// an empty `change` is cheap to survive — `userEvent.upload` cannot
+		// deliver one, so the raw event is dispatched here.
+		mockCounts( { videoPressCount: 0, localCount: 0, isSettled: true } );
+
+		render( <OnboardingModal /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- userEvent.upload cannot simulate an empty selection.
+		fireEvent.change( getFilePicker(), { target: { files: [] } } );
+
+		expect( mockIntakeFiles ).not.toHaveBeenCalled();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
 	it( 'stays closed once any VideoPress video exists', () => {
@@ -196,6 +281,41 @@ describe( 'OnboardingModal', () => {
 		render( <OnboardingModal /> );
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	it( 'clears the stored dismissal even when the consuming mount is discarded', () => {
+		// consumeWelcomeParam's replaceState wakes the router during the very
+		// render that consumes the param, and the resulting transition can
+		// discard that mount before its effects run. A throwing sibling AFTER
+		// the modal reproduces the discard: the modal's initializers run
+		// (consuming the param), the commit never happens, no effect fires.
+		// The remount must still find the dismissal cleared — an effect-based
+		// clear was skipped here, and welcome=1 opened nothing for exactly the
+		// reviewer who had dismissed the modal before.
+		mockCounts( { videoPressCount: 4, localCount: 0, isSettled: true } );
+		window.localStorage.setItem( 'jetpack-videopress-onboarding-seen-123-7', '1' );
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=jetpack-videopress&welcome=1' );
+
+		const Discarded = () => {
+			throw new Error( 'discard the consuming render' );
+		};
+		// React reports the deliberate render error via console.error; keep
+		// the test output clean.
+		const errorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+		expect( () =>
+			render(
+				<>
+					<OnboardingModal />
+					<Discarded />
+				</>
+			)
+		).toThrow( 'discard the consuming render' );
+		errorSpy.mockRestore();
+
+		render( <OnboardingModal /> );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		expect( window.localStorage.getItem( 'jetpack-videopress-onboarding-seen-123-7' ) ).toBeNull();
 	} );
 
 	it( 'strips welcome=1 from the URL so a manual reload behaves normally', () => {

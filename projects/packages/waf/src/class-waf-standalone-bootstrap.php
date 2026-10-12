@@ -67,50 +67,52 @@ class Waf_Standalone_Bootstrap {
 	}
 
 	/**
-	 * Finds the path to the autoloader, which can then be used to require the autoloader in the generated boostrap file.
+	 * Finds the path to Composer's generated classmap, which the generated bootstrap file uses to autoload WAF classes.
 	 *
-	 * @throws Waf_Exception In case the autoloader file cannot be found.
+	 * @throws Waf_Exception In case the classmap file cannot be found.
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	private function locate_autoloader_file() {
+	private function locate_classmap_file() {
 		global $jetpack_autoloader_loader;
 
-		$autoload_file = null;
+		$vendor_dirs = array();
 
 		// Try the Jetpack autoloader.
 		if ( isset( $jetpack_autoloader_loader ) ) {
 			$class_file = $jetpack_autoloader_loader->find_class_file( Waf_Runner::class );
 			if ( $class_file ) {
-				$autoload_file = dirname( $class_file, 5 ) . '/vendor/autoload.php';
+				$vendor_dirs[] = dirname( $class_file, 5 ) . '/vendor';
 			}
 		}
 
 		// Try Composer's autoloader.
-		if ( null === $autoload_file
-			&& is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
+		if ( is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
 			&& InstalledVersions::isInstalled( 'automattic/jetpack-waf' )
 		) {
 			$package_file = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
 			if ( substr( $package_file, -23 ) === '/automattic/jetpack-waf' ) {
-				$autoload_file = dirname( $package_file, 3 ) . '/vendor/autoload.php';
+				$vendor_dirs[] = dirname( $package_file, 3 ) . '/vendor';
 			}
 		}
 
 		// Guess. First look for being in a `vendor/automattic/jetpack-waf/src/', then see if we're standalone with our own vendor dir.
-		if ( null === $autoload_file ) {
-			$autoload_file = dirname( __DIR__, 4 ) . '/vendor/autoload.php';
-			if ( ! file_exists( $autoload_file ) ) {
-				$autoload_file = dirname( __DIR__ ) . '/vendor/autoload.php';
+		$vendor_dirs[] = dirname( __DIR__, 4 ) . '/vendor';
+		$vendor_dirs[] = dirname( __DIR__ ) . '/vendor';
+
+		// A candidate can exist without containing this package, e.g. a monorepo's root vendor dir.
+		foreach ( $vendor_dirs as $vendor_dir ) {
+			$classmap_file = $vendor_dir . '/composer/autoload_classmap.php';
+			if ( ! file_exists( $classmap_file ) ) {
+				continue;
+			}
+			$classmap = require $classmap_file;
+			if ( isset( $classmap[ Waf_Runner::class ] ) ) {
+				return $classmap_file;
 			}
 		}
 
-		// Check that the determined file actually exists.
-		if ( ! file_exists( $autoload_file ) ) {
-			throw new Waf_Exception( 'Cannot find autoloader, and the WAF standalone boostrap will not work without it.' );
-		}
-
-		return $autoload_file;
+		throw new Waf_Exception( 'Cannot find the Composer classmap, and the WAF standalone bootstrap will not work without it.' );
 	}
 
 	/**
@@ -149,7 +151,7 @@ class Waf_Standalone_Bootstrap {
 			throw new File_System_Exception( 'Cannot work without the file system being initialized.' );
 		}
 
-		$autoloader_file = $this->locate_autoloader_file();
+		$classmap_file = $this->locate_classmap_file();
 
 		$bootstrap_file          = $this->get_bootstrap_file_path();
 		$entrypoint              = $this->get_entrypoint();
@@ -157,17 +159,67 @@ class Waf_Standalone_Bootstrap {
 		$share_data_option       = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 		$share_debug_data_option = get_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
 
-		$code = "<?php\n"
-			. sprintf( "define( 'DISABLE_JETPACK_WAF', %s );\n", var_export( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF, true ) )
-			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
-			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
-			. sprintf( "define( 'JETPACK_WAF_SHARE_DATA', %s );\n", var_export( $share_data_option, true ) )
-			. sprintf( "define( 'JETPACK_WAF_SHARE_DEBUG_DATA', %s );\n", var_export( $share_debug_data_option, true ) )
-			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
-			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
-			. sprintf( "define( 'JETPACK_WAF_ENTRYPOINT', %s );\n", var_export( $entrypoint, true ) )
-			. 'require_once ' . var_export( $autoloader_file, true ) . ";\n"
-			. "Automattic\Jetpack\Waf\Waf_Runner::initialize();\n";
+		// Autoload from the classmap alone rather than `vendor/autoload.php`: Composer's loader would also run every
+		// package's `files` entries and mark them loaded, so the Jetpack autoloader later skips its own, possibly newer, copies.
+		// The closure keeps every variable, including the classmap's own `$vendorDir`/`$baseDir`, out of the global scope.
+		$template = <<<'PHP'
+		<?php
+		define( 'DISABLE_JETPACK_WAF', {{disable}} );
+		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;
+		define( 'JETPACK_WAF_MODE', {{mode}} );
+		define( 'JETPACK_WAF_SHARE_DATA', {{share_data}} );
+		define( 'JETPACK_WAF_SHARE_DEBUG_DATA', {{share_debug_data}} );
+		define( 'JETPACK_WAF_DIR', {{dir}} );
+		define( 'JETPACK_WAF_WPCONFIG', {{wpconfig}} );
+		define( 'JETPACK_WAF_ENTRYPOINT', {{entrypoint}} );
+		( static function () {
+			$classmap_file = {{classmap_file}};
+			if ( ! is_file( $classmap_file ) ) {
+				return;
+			}
+			$classmap   = require $classmap_file;
+			$autoloader = static function ( $class_name ) use ( $classmap ) {
+				if ( isset( $classmap[ $class_name ] ) ) {
+					require $classmap[ $class_name ];
+				}
+			};
+			spl_autoload_register( $autoloader );
+			Automattic\Jetpack\Waf\Waf_Runner::initialize();
+			spl_autoload_unregister( $autoloader );
+
+			// The preloaded WAF classes keep running once WordPress starts, and the active plugin's older copy may lack a class
+			// they reference. Keep resolving WAF classes from here, behind the Jetpack autoloader, which prepends itself.
+			$waf_classmap = array_filter(
+				$classmap,
+				static function ( $class_name ) {
+					return 0 === strpos( $class_name, 'Automattic\Jetpack\Waf\\' );
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+			spl_autoload_register(
+				static function ( $class_name ) use ( $waf_classmap ) {
+					if ( isset( $waf_classmap[ $class_name ] ) ) {
+						require $waf_classmap[ $class_name ];
+					}
+				}
+			);
+		} )();
+
+		PHP;
+
+		$code = strtr(
+			$template,
+			array(
+				'{{disable}}'          => var_export( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF, true ),
+				'{{mode}}'             => var_export( $mode_option ? $mode_option : 'silent', true ),
+				'{{share_data}}'       => var_export( $share_data_option, true ),
+				'{{share_debug_data}}' => var_export( $share_debug_data_option, true ),
+				'{{dir}}'              => var_export( JETPACK_WAF_DIR, true ),
+				'{{wpconfig}}'         => var_export( JETPACK_WAF_WPCONFIG, true ),
+				'{{entrypoint}}'       => var_export( $entrypoint, true ),
+				'{{classmap_file}}'    => var_export( $classmap_file, true ),
+			)
+		);
 
 		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
 			if ( ! $wp_filesystem->mkdir( JETPACK_WAF_DIR ) ) {

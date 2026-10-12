@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,26 +20,27 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
+		empty,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
@@ -45,7 +48,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -58,6 +63,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 type ChartedMetric = {
 	key: string;
 	label: string;
+	countLabels: ( string | null )[];
 	value: number;
 	format?: string;
 	values: number[];
@@ -171,13 +177,15 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			'Hours watched',
 			'Retention rate',
 		] );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two returned days; the headline is the response's canonical total.
 		const [ views, impressions, watchTime, retention ] = metrics;
 		expect( views.values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( views.value ).toBe( 12 );
+		expect( views.countLabels ).toEqual( [ '%s View', '%s Views' ] );
+		expect( impressions.countLabels ).toEqual( [ '%s Impression', '%s Impressions' ] );
 		expect( impressions.values ).toEqual( [ 0, 10, 0, 14, 0, 0, 0 ] );
 		expect( impressions.value ).toBe( 24 );
 		expect( watchTime.values ).toEqual( [ 0, 1.25, 0, 1.75, 0, 0, 0 ] );
@@ -204,34 +212,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( requestedParams.get( 'date' ) ).toBe( WINDOW_PARAMS.to );
 	} );
 
-	// Pinned west of UTC: under a UTC runner the wall-clock and instant readings
-	// coincide, so this would pass either way. `TZ` isn't on the typed env shape.
-	it( 'builds bucket points as the wall clocks the buckets name, declared to the chart', async () => {
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		env.TZ = 'America/Los_Angeles';
+	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
+	it( 'builds bucket points on the bucket days the site names', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
-		try {
-			mockApiFetch.mockImplementation(
-				respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } )
-			);
+		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
-			render(
-				<VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } />
-			);
-
-			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// A site-midnight instant for this UTC+8 window would read back as the
-			// previous day in Los Angeles; the wall-clock reading avoids that.
-			expect( chartedMetrics( chart )[ 0 ].days ).toEqual( [ 1, 2, 3, 4, 5, 6, 7 ] );
-			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
-		} finally {
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		}
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		// Reading this UTC+8 window's midnights in Los Angeles would report the
+		// previous day.
+		expect( chartedMetrics( chart )[ 0 ].days ).toEqual( [ 1, 2, 3, 4, 5, 6, 7 ] );
 	} );
 
 	it( 'buckets each metric into ISO weeks when the page interval is weekly, play-weighting the retention rate', async () => {
@@ -252,17 +242,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( retention.values[ 2 ] ).toBe( 0 );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
 		render(
 			<VideoDetailViewsPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } }
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } }
 			/>
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single-period series', async () => {
@@ -320,6 +310,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( metrics[ 0 ].value ).toBe( 12 );
 	} );
 
+	it( 'hands the chart the no-results message as its empty state', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
+
+		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect(
+			within( chart ).getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+	} );
+
 	it( 'renders the scopeless empty state and makes no request without a video scope', async () => {
 		render( <VideoDetailViewsPerformanceWidget attributes={ {} } /> );
 
@@ -333,7 +334,7 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		).toHaveLength( 0 );
 	} );
 
-	it( 'shows the error state with a Retry action when the fetch fails', async () => {
+	it( 'shows the error state and refetches from the Retry action when the fetch fails', async () => {
 		// A 403 skips React Query's retry backoff so the error surfaces immediately;
 		// `no_connection` keeps `describeError` on the retryable branch.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection', message: 'Forbidden' } );
@@ -343,7 +344,11 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		await expect(
 			screen.findByText( /couldn't load this video's performance/ )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'shows the permission error without a Retry action on a plain 403', async () => {

@@ -14,13 +14,13 @@
 }
 
 // Keeps an element in the accessibility tree while taking it out of the
-// visual layout. Used for a live region that has to stay mounted before
-// it has anything to say: assistive tech needs the region present in the
-// tree *before* its content changes, so a region that appears together
-// with its first message is unreliable — VoiceOver in particular often
-// misses it.
+// visual layout. Two uses: a live region that has to stay mounted before
+// it has anything to say — assistive tech needs the region present in the
+// tree *before* its content changes, so one that appears together with its
+// first message is unreliable, VoiceOver especially — and text that belongs
+// in a control's accessible name but not on screen.
 
-// `position: absolute` is doing more work than hiding here. These regions
+// `position: absolute` is doing more work than hiding here. The live regions
 // sit inside flex columns with a `gap`, and a gap applies between all
 // in-flow children no matter how small — so a zero-height placeholder
 // would still cost a full 16px of dead space on every render where the
@@ -38,4 +38,26 @@
 	overflow: hidden;
 	clip-path: inset(50%);
 	white-space: nowrap;
+}
+
+// `Dialog` centres on the viewport and knows nothing about wp-admin's sidebar.
+// Pair with `--jpb-admin-menu-width` from `useAdminMenuWidth()`. Unlayered,
+// which is what beats `@layer wp-ui` — specificity would not.
+.jpb-menu-aware-dialog {
+	// Physical, because it overrides `Dialog`'s own `left` + `translate(-50%)`.
+	left: calc(50% + var(--jpb-admin-menu-width, 0px) / 2);
+
+	&:dir(rtl) {
+		left: calc(50% - var(--jpb-admin-menu-width, 0px) / 2);
+	}
+}
+
+// `Link` styles an anchor; rendered as a `<button>`, the native box shows.
+.jpb-link-button {
+	appearance: none;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
 }

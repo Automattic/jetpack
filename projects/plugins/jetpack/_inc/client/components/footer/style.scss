@@ -57,10 +57,10 @@
 	}
 
 	.jp-footer__logo {
-		margin-right: 32px;
+		margin-inline-end: 32px;
 
 		@include breakpoints.breakpoint( "<960px" ) {
-			margin-right: 0;
+			margin-inline-end: 0;
 			margin-bottom: 24px;
 		}
 
@@ -76,7 +76,7 @@
 	}
 
 	.jp-footer__module-name {
-		margin-left: 5px;
+		margin-inline-start: 5px;
 		font-weight: 600;
 	}
 
@@ -93,7 +93,7 @@
 			margin-bottom: 48px;
 
 			.jp-footer__menu-item {
-				margin-right: 0;
+				margin-inline-end: 0;
 				margin-bottom: 16px;
 
 				&:last-child {
@@ -105,11 +105,11 @@
 		.jp-footer__menu-item {
 			position: relative;
 			color: var(--jp-black);
-			margin-right: 16px;
+			margin-inline-end: 16px;
 			text-decoration: none;
 
 			&.is-external {
-				padding-right: 20px;
+				padding-inline-end: 20px;
 			}
 
 			&:focus {
@@ -137,17 +137,17 @@
 		.jp-footer__menu-item__icon {
 			width: 16px;
 			height: 16px;
-			margin-left: 4px;
+			margin-inline-start: 4px;
 			position: absolute;
-			right: 0;
+			inset-inline-end: 0;
 		}
 	}
 
 	.jp-footer__a8c-logo {
-		margin-left: auto;
+		margin-inline-start: auto;
 
 		@include breakpoints.breakpoint( "<960px" ) {
-			margin-left: 0;
+			margin-inline-start: 0;
 		}
 	}
 }

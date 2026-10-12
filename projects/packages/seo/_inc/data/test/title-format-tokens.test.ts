@@ -10,6 +10,7 @@ import {
 	buildPreview,
 	buildPreviewParts,
 	fromDisplay,
+	normalizeTitleFormats,
 	stringToTokens,
 	toDisplay,
 	tokensToString,
@@ -331,5 +332,27 @@ describe( 'preview parts', () => {
 			{ kind: 'literal', text: ' - ' },
 			{ kind: 'value', text: 'We make things' },
 		] );
+	} );
+} );
+
+describe( 'normalizeTitleFormats', () => {
+	it( 'turns a cleared page type stored as an empty string into an empty list', () => {
+		expect( normalizeTitleFormats( { front_page: '', posts: [] } ) ).toEqual( {
+			front_page: [],
+			posts: [],
+		} );
+	} );
+
+	it( 'keeps well-formed tokens and drops anything else in a list', () => {
+		const token: TitleFormatToken = { type: 'token', value: 'site_name' };
+		expect(
+			normalizeTitleFormats( { pages: [ token, 'junk', { type: 'nope', value: 'x' }, null ] } )
+		).toEqual( { pages: [ token ] } );
+	} );
+
+	it( 'returns an empty map for a non-object payload', () => {
+		expect( normalizeTitleFormats( undefined ) ).toEqual( {} );
+		expect( normalizeTitleFormats( '' ) ).toEqual( {} );
+		expect( normalizeTitleFormats( [] ) ).toEqual( {} );
 	} );
 } );

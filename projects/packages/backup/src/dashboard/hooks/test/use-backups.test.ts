@@ -2,7 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
-import { isUsableBackup, isWillRetryStatus, summarizeBackups, useBackups } from '../use-backups';
+import {
+	failedAttemptReference,
+	isUsableBackup,
+	isWillRetryStatus,
+	summarizeBackups,
+	useBackups,
+} from '../use-backups';
 import type { RawBackupEntry } from '../../data/api/backups';
 import type { Backup } from '../../types/backup';
 
@@ -23,6 +29,7 @@ function backup( overrides: Partial< Backup > = {} ): Backup {
 		isBackup: true,
 		isDiscarded: false,
 		hasStats: true,
+		hasWarnings: false,
 		...overrides,
 	};
 }
@@ -54,6 +61,7 @@ describe( 'summarizeBackups', () => {
 			state: 'no-backups',
 			progress: 0,
 			isInitialBackup: true,
+			hasWarnings: false,
 		} );
 	} );
 
@@ -118,6 +126,21 @@ describe( 'summarizeBackups', () => {
 	it( 'reports a usable restore point as complete', () => {
 		expect( summarizeBackups( [ backup() ] ).state ).toBe( 'complete' );
 	} );
+
+	it( 'carries the completed backup’s warnings through', () => {
+		expect( summarizeBackups( [ backup( { hasWarnings: true } ) ] ).hasWarnings ).toBe( true );
+		expect( summarizeBackups( [ backup() ] ).hasWarnings ).toBe( false );
+	} );
+
+	it( 'reads warnings off the usable backup, not a failed attempt ahead of it', () => {
+		const summary = summarizeBackups( [
+			backup( { id: 'failed', status: 'error-will-retry', hasStats: false } ),
+			backup( { id: 'good', hasWarnings: true } ),
+		] );
+
+		expect( summary.state ).toBe( 'complete' );
+		expect( summary.hasWarnings ).toBe( true );
+	} );
 } );
 
 /**
@@ -143,6 +166,22 @@ beforeEach( () => {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+describe( 'failedAttemptReference', () => {
+	it.each( [
+		[ 'a failed status', 'credential-error', 'credential-error' ],
+		[ 'no code for an attempt that finished unusable', 'finished', null ],
+	] )( 'quotes the newest attempt, with %s', ( _label, status, code ) => {
+		expect( failedAttemptReference( [ backup( { id: '901', status } ), backup() ] ) ).toEqual( {
+			code,
+			id: { kind: 'attempt', value: '901' },
+		} );
+	} );
+
+	it( 'has nothing to quote for an empty list', () => {
+		expect( failedAttemptReference( [] ) ).toBeNull();
+	} );
 } );
 
 describe( 'useBackups', () => {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Capabilities REST bridge — proxies WPCOM's site rewind state.
+ * Capabilities REST bridge — WPCOM's site rewind state.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -16,8 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Returns the site's backup capabilities (plan slug, hasBackupPlan,
- * hasScan). Backs the `<Gates>` decision tree.
+ * Returns what the modernized dashboard is allowed to show.
  */
 class Capabilities_Bridge {
 

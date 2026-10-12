@@ -12,6 +12,7 @@ import {
 	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
+	isEmailRateKnown,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
@@ -48,30 +49,85 @@ const RATE_FORMAT: DataFormat = {
 	options: { decimals: 1, signDisplay: 'never' },
 };
 
+type EmailSummaryKey =
+	| 'total_sends'
+	| 'unique_opens'
+	| 'total_opens'
+	| 'opens_rate'
+	| 'total_clicks'
+	| 'unique_clicks'
+	| 'clicks_rate';
+
 /**
  * The tiles and the "does this summary carry email metrics" check both derive
  * from this shape, so they cannot drift.
  */
 type EmailMetricSpec = {
 	/** Scalar key on the rate summary, also the tile's stable key. */
-	key: string;
+	key: EmailSummaryKey;
 	icon: TileIcon;
 	/** Deferred so the translation runs at render time. */
 	label: () => string;
-	/**
-	 * Counts are read with a zero default; rates pass through 0–1 fractions and
-	 * collapse missing/zero to `null` for the placeholder.
-	 */
-	kind: 'count' | 'rate';
 	views: readonly EmailMetric[];
-	/** Upstream hides Unique opens when its count is zero. */
-	hideWhenZero?: boolean;
-};
+} & (
+	| {
+			kind: 'count';
+			/** Zero reads as unknown: an email shown here went out, and legacy sends went unrecorded. */
+			zeroIsUnknown?: boolean;
+			/** The total this unique count attributes; the tile hides when none of it is attributable. */
+			uniqueOf?: EmailSummaryKey;
+	  }
+	| { kind: 'rate'; signals: { total: EmailSummaryKey; unique: EmailSummaryKey } }
+);
+
+function readCount( summary: EmailRateSummary, key: EmailSummaryKey ): number | null {
+	const value = summary[ key ];
+
+	return typeof value === 'number' && Number.isFinite( value ) ? value : null;
+}
 
 /**
- * The top-row tiles, in display order. Total opens comes from the opens rate
- * summary, so the Clicks composition merges the opens and clicks rate summaries
- * before they reach this table.
+ * A 0–1 rate, including a real 0%, or `null` when its sends or unique count is unknown.
+ */
+function readRate(
+	summary: EmailRateSummary,
+	key: EmailSummaryKey,
+	signals: { total: EmailSummaryKey; unique: EmailSummaryKey }
+): number | null {
+	const known = isEmailRateKnown( {
+		total: readCount( summary, signals.total ) ?? 0,
+		unique: readCount( summary, signals.unique ) ?? 0,
+		sends: readCount( summary, 'total_sends' ) ?? 0,
+	} );
+
+	return known ? readCount( summary, key ) : null;
+}
+
+/**
+ * Matches the Jetpack Stats top row: a unique count shows when positive or when there
+ * were no events at all, and hides when events exist but none were attributable.
+ */
+function isUniqueCountUnknown(
+	summary: EmailRateSummary,
+	key: EmailSummaryKey,
+	totalKey: EmailSummaryKey
+) {
+	return ! ( ( readCount( summary, key ) ?? 0 ) > 0 || readCount( summary, totalKey ) === 0 );
+}
+
+function readTile( spec: EmailMetricSpec, summary: EmailRateSummary ): number | null {
+	if ( spec.kind === 'rate' ) {
+		return readRate( summary, spec.key, spec.signals );
+	}
+
+	const count = readCount( summary, spec.key );
+
+	return spec.zeroIsUnknown ? count || null : count;
+}
+
+/**
+ * The top-row tiles, in display order, read from the opens rate summary, with the
+ * clicks one merged in.
  */
 const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	{
@@ -80,6 +136,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 		label: () => __( 'Emails sent', 'jetpack-premium-analytics-pkg' ),
 		kind: 'count',
 		views: [ 'opens' ],
+		zeroIsUnknown: true,
 	},
 	{
 		key: 'unique_opens',
@@ -87,7 +144,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 		label: () => __( 'Unique opens', 'jetpack-premium-analytics-pkg' ),
 		kind: 'count',
 		views: [ 'opens' ],
-		hideWhenZero: true,
+		uniqueOf: 'total_opens',
 	},
 	{
 		key: 'total_opens',
@@ -102,6 +159,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 		label: () => __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 		kind: 'rate',
 		views: [ 'opens' ],
+		signals: { total: 'total_opens', unique: 'unique_opens' },
 	},
 	{
 		key: 'total_clicks',
@@ -116,6 +174,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 		label: () => __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 		kind: 'rate',
 		views: [ 'clicks' ],
+		signals: { total: 'total_clicks', unique: 'unique_clicks' },
 	},
 ];
 
@@ -123,30 +182,10 @@ export type EmailTopRowMetric = {
 	key: string;
 	icon: TileIcon;
 	label: string;
-	/**
-	 * Counts are integers; rates are fractions (0–1). `null` marks a rate the
-	 * email doesn't have yet, rendered as a placeholder.
-	 */
+	/** Counts are integers; rates are 0–1 fractions; `null` is unknown. */
 	value: number | null;
 	dataFormat: DataFormat;
 };
-
-function readCount( summary: EmailRateSummary, key: string ): number {
-	const value = Number( summary[ key ] );
-
-	return Number.isFinite( value ) ? value : 0;
-}
-
-/**
- * The endpoint returns rates as 0–1 fractions, which the percentage formatter
- * takes as-is. A missing or zero rate returns `null` so the tile renders the
- * grid's placeholder instead of "0%", mirroring the Jetpack Stats top row.
- */
-function readRate( summary: EmailRateSummary, key: string ): number | null {
-	const value = Number( summary[ key ] );
-
-	return Number.isFinite( value ) && value !== 0 ? value : null;
-}
 
 /**
  * Distinguishes a real (possibly all-zero) email from an empty response, so the
@@ -167,35 +206,26 @@ export function toEmailTopRowMetrics(
 	summary: EmailRateSummary,
 	metric: EmailMetric
 ): EmailTopRowMetric[] {
-	const tiles: EmailTopRowMetric[] = [];
-
-	for ( const spec of EMAIL_METRICS ) {
-		if ( ! spec.views.includes( metric ) ) {
-			continue;
-		}
-
-		const value =
-			spec.kind === 'rate' ? readRate( summary, spec.key ) : readCount( summary, spec.key );
-
-		if ( spec.hideWhenZero && ! value ) {
-			continue;
-		}
-
-		tiles.push( {
-			key: spec.key,
-			icon: spec.icon,
-			label: spec.label(),
-			value,
-			dataFormat: spec.kind === 'rate' ? RATE_FORMAT : COUNT_FORMAT,
-		} );
-	}
-
-	return tiles;
+	return EMAIL_METRICS.filter(
+		spec =>
+			spec.views.includes( metric ) &&
+			! (
+				spec.kind === 'count' &&
+				spec.uniqueOf &&
+				isUniqueCountUnknown( summary, spec.key, spec.uniqueOf )
+			)
+	).map( spec => ( {
+		key: spec.key,
+		icon: spec.icon,
+		label: spec.label(),
+		value: readTile( spec, summary ),
+		dataFormat: spec.kind === 'rate' ? RATE_FORMAT : COUNT_FORMAT,
+	} ) );
 }
 
 /**
  * The view is known before the summaries are, so this is the count the loading
- * shape can draw; `hideWhenZero` may still drop one once the data lands.
+ * shape can draw; `uniqueOf` may still drop one once the data lands.
  */
 function countEmailTopRowTiles( metric: EmailMetric ): number {
 	return EMAIL_METRICS.filter( spec => spec.views.includes( metric ) ).length;
@@ -264,45 +294,48 @@ type EmailTopRowReportProps = {
 
 /**
  * The email is scoped by the host through `reportParams.post_id` — the shared
- * single-resource "detail page" param. Both views read the opens rate endpoint,
- * and React Query shares that result, so visiting both tabs fetches it once.
+ * single-resource "detail page" param. The Opens view falls back to the clicks rate
+ * endpoint only when the opens one records no sends: a legacy send nulls every opens
+ * field, and its opens surface on the clicks endpoint.
  */
 function EmailTopRowReport( { metric }: EmailTopRowReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 	const hasSelection = postId > 0;
 
-	// Both hooks are called every render (hooks rule). Opens supplies the
-	// total-opens context in both views; Clicks only runs for the Clicks view.
 	const opens = useStatsEmailOpensBreakdown( postId, 'rate', {
 		enabled: hasSelection,
 	} );
-	const clicks = useStatsEmailClicksBreakdown( postId, 'rate', {
-		enabled: hasSelection && metric === 'clicks',
-	} );
-	const activeQueries = metric === 'clicks' ? [ opens, clicks ] : [ opens ];
 	const opensSummary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
+	const needsClicks =
+		metric === 'clicks' ||
+		( opens.isSuccess && ! ( ( readCount( opensSummary ?? {}, 'total_sends' ) ?? 0 ) > 0 ) );
+	const clicks = useStatsEmailClicksBreakdown( postId, 'rate', {
+		enabled: hasSelection && needsClicks,
+	} );
 	const clicksSummary = ( clicks.data as StatsEmailBreakdown | undefined )?.summary;
+	const activeQueries = needsClicks ? [ opens, clicks ] : [ opens ];
 	const hasResolvedRequiredData = activeQueries.every( query => query.data !== undefined );
 	const metrics = useMemo( () => {
 		if ( ! hasResolvedRequiredData ) {
 			return undefined;
 		}
 
+		// The active view's endpoint wins where both report a key.
 		const summary =
-			metric === 'clicks' && opensSummary && clicksSummary
+			metric === 'clicks'
 				? { ...opensSummary, ...clicksSummary }
-				: opensSummary;
+				: { ...clicksSummary, ...opensSummary };
 
-		return hasEmailMetrics( summary ) ? toEmailTopRowMetrics( summary!, metric ) : undefined;
+		return hasEmailMetrics( summary ) ? toEmailTopRowMetrics( summary, metric ) : undefined;
 	}, [ hasResolvedRequiredData, opensSummary, clicksSummary, metric ] );
 
 	const retryActiveQueries = useCallback( () => {
 		opens.refetch();
-		if ( metric === 'clicks' ) {
+		if ( needsClicks ) {
 			clicks.refetch();
 		}
-	}, [ clicks, metric, opens ] );
+	}, [ clicks, needsClicks, opens ] );
 
 	return (
 		<EmailTopRowTiles

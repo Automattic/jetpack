@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Expiry notices: Treat a plan as expired, or a renewal attempt as missed, only once its whole day has passed, as billing does.

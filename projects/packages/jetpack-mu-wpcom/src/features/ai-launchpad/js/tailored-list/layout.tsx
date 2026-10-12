@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { SitePreview } from './site-preview.tsx';
 import type { GoalSlug } from '../lib/types.ts';
@@ -68,10 +69,19 @@ export function Layout( {
 
 	return (
 		<div className="ai-launchpad-tailored-list__layout">
-			<header className="ai-launchpad-tailored-list__heading">
-				<h1 className="ai-launchpad-tailored-list__title-heading">{ headingForGoal( goal ) }</h1>
-				<p className="ai-launchpad-tailored-list__progress">{ progressLabel }</p>
-			</header>
+			<Stack
+				direction="column"
+				gap="sm"
+				render={ <header /> }
+				className="ai-launchpad-tailored-list__heading"
+			>
+				<Text variant="heading-2xl" render={ <h1 /> }>
+					{ headingForGoal( goal ) }
+				</Text>
+				<Text render={ <p /> } className="ai-launchpad-tailored-list__progress">
+					{ progressLabel }
+				</Text>
+			</Stack>
 			<div
 				className={ clsx( 'ai-launchpad-tailored-list__columns', {
 					'has-preview': hasPreview,

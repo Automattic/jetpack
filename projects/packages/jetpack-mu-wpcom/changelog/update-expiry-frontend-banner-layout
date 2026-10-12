@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Expiry notices: left-align the front-end banner text, keep the button on one line beside it, and center the dismiss button vertically.

@@ -9,6 +9,8 @@
 	"description": "VideoPress powered list of videos in a single customizable player. Build the playlist from your VideoPress library or video links.",
 	"keywords": [ "playlist", "video", "videopress", "series" ],
 	"textdomain": "jetpack-videopress-pkg",
+	"usesContext": [ "videopress/latestVideosPlaylist" ],
+	"allowedBlocks": [ "core/heading" ],
 	"supports": {
 		"html": false,
 		"align": [ "wide", "full" ],
@@ -19,6 +21,22 @@
 		}
 	},
 	"attributes": {
+		"playlistId": {
+			"type": "string",
+			"default": ""
+		},
+		"playlistTitle": {
+			"type": "string",
+			"default": ""
+		},
+		"playlistDescription": {
+			"type": "string",
+			"default": ""
+		},
+		"showPlaylistTitle": {
+			"type": "boolean",
+			"default": true
+		},
 		"videos": {
 			"type": "array",
 			"items": {
@@ -34,6 +52,15 @@
 		"darkPlayer": {
 			"type": "boolean",
 			"default": false
+		},
+		"showPlayer": {
+			"type": "boolean",
+			"default": true
+		},
+		"entryClickAction": {
+			"type": "string",
+			"enum": [ "new-tab", "show-player" ],
+			"default": "new-tab"
 		},
 		"autoplayNext": {
 			"type": "boolean",

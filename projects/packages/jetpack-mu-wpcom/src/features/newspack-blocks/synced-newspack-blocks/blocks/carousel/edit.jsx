@@ -465,7 +465,7 @@ class Edit extends Component {
 }
 
 const EditWithBlockProps = props => {
-	const carouselRef = useRef();
+	const carouselRef = useRef( undefined );
 	const blockProps = useBlockProps( { ref: carouselRef } );
 	return <Edit { ...props } blockProps={ blockProps } carouselRef={ carouselRef } />;
 };

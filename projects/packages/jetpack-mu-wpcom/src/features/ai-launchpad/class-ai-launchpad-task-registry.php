@@ -363,7 +363,7 @@ class AI_Launchpad_Task_Registry {
 	 * Whether a registry task is already complete. False for an unknown id.
 	 *
 	 * Separate from build() so a caller that only needs the flag — available_task_ids(), which runs on every
-	 * wizard prewarm — pays for the completion check alone. build() additionally resolves the in-progress draft,
+	 * wizard tailoring — pays for the completion check alone. build() additionally resolves the in-progress draft,
 	 * a WP_Query whose result that caller would throw away.
 	 *
 	 * @param string $task_id The task id.
@@ -406,7 +406,7 @@ class AI_Launchpad_Task_Registry {
 	 *
 	 * `is_visible` is optional, so a definition without one is visible everywhere — the shape the gallery
 	 * relies on. Same rationale as is_complete() for living outside build(): available_task_ids() needs the
-	 * flag alone, on every wizard prewarm.
+	 * flag alone, on every wizard tailoring.
 	 *
 	 * @param string $task_id The task id.
 	 * @return bool

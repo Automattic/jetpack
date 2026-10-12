@@ -3,7 +3,7 @@ import { store as blockEditorStore, useBlockProps } from '@wordpress/block-edito
 import { Icon, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -16,9 +16,7 @@ import buildCustomStyles from './build-custom-styles';
 import Controls from './controls';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
-import FirstTimeModal from './first-time-modal';
 import { TRIGGER_ICONS } from './icons';
-import './first-time-modal.scss';
 import LoadingError from './loading-error';
 import StyleControls from './style-controls';
 import Tabs from './tabs';
@@ -71,23 +69,20 @@ const Edit = props => {
 	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
-	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
 	const isUserConnected = useIsUserConnected();
 
 	// When the inserter renders this block as an example/preview (it declares
 	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
 	// a BlockPreview with `isPreviewMode` set. We use this flag to skip all editor
-	// side effects (Stripe status fetch, post-saving lock, first-time modal,
-	// analytics) so hovering the block in the inserter doesn't flicker the screen,
-	// lock post saving, or fire tracking events. Mirrors the `map` block.
+	// side effects (Stripe status fetch, post-saving lock, analytics) so hovering
+	// the block in the inserter doesn't lock post saving or fire tracking events.
+	// Mirrors the `map` block.
 	const isPreviewMode = useSelect(
 		select => select( blockEditorStore ).getSettings().isPreviewMode,
 		[]
 	);
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
-	const { getEntityRecord, getCurrentUser } = useSelect( 'core' );
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( 'core' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
 	const isPostSavingLocked = useSelect(
 		select => select( 'core/editor' ).isPostSavingLocked(),
@@ -162,32 +157,6 @@ const Edit = props => {
 			intervals.includes( '1 year' )
 		);
 	};
-
-	//
-	// Check if this is the first time using the donations block
-	//
-
-	// Add this to preload the user entity
-	const currentUser = getCurrentUser();
-	useEffect( () => {
-		if ( currentUser?.id ) {
-			// Ensure the user entity is loaded
-			getEntityRecord( 'root', 'user', currentUser.id );
-		}
-	}, [ currentUser?.id, getEntityRecord ] );
-
-	const hasDismissedDonationWarning =
-		currentUser?.meta?.jetpack_donation_warning_dismissed || false;
-
-	// Show the modal if the user has not dismissed the warning
-	useEffect( () => {
-		if ( isPreviewMode ) {
-			return;
-		}
-		if ( currentUser?.id && hasDismissedDonationWarning === false ) {
-			setShowFirstTimeModal( true );
-		}
-	}, [ currentUser, hasDismissedDonationWarning, isPreviewMode ] );
 
 	useEffect( () => {
 		if ( isPreviewMode ) {
@@ -306,35 +275,11 @@ const Edit = props => {
 		content = <Tabs { ...effectiveProps } products={ effectiveProducts } />;
 	}
 
-	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed
-	const handleModalClose = useCallback( async () => {
-		setShowFirstTimeModal( false );
-
-		if ( ! currentUser?.id ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Cannot update user meta: User not loaded' );
-			return;
-		}
-
-		try {
-			await editEntityRecord( 'root', 'user', currentUser.id, {
-				meta: {
-					jetpack_donation_warning_dismissed: true,
-				},
-			} );
-			await saveEditedEntityRecord( 'root', 'user', currentUser.id );
-		} catch ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Failed to update user meta:', error );
-		}
-	}, [ currentUser, editEntityRecord, saveEditedEntityRecord ] );
-
 	return (
 		<div { ...blockProps }>
 			<StyleControls attributes={ attributes } setAttributes={ setAttributes } />
 			{ customStyles && <style>{ customStyles }</style> }
 			{ content }
-			{ showFirstTimeModal && <FirstTimeModal onClose={ handleModalClose } /> }
 		</div>
 	);
 };

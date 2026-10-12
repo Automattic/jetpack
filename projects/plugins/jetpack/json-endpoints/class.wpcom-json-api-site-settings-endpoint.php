@@ -5,11 +5,14 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Options;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+require_once dirname( __DIR__ ) . '/modules/verification-tools/verification-tools-utils.php';
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
@@ -467,6 +470,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'site_icon'                        => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 						Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 						Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+						'verification_services_codes'      => get_option( 'verification_services_codes', null ),
 						'api_cache'                        => $api_cache,
 						'posts_per_page'                   => (int) get_option( 'posts_per_page' ),
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
@@ -645,7 +649,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
 			// Compare the locales before/after switch to decide if we should switch back
 			$locale_before = determine_locale();
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			wpcom_switch_to_user_locale();
 			$switched_locale = determine_locale() !== $locale_before;
 		}
@@ -952,7 +955,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
 					break;
 				case 'sharing_label':
-					$sharing_options[ $key ] = $value;
+					$sharing_options[ $key ] = $raw_value;
 					break;
 
 				// Keyring token option.
@@ -1233,7 +1236,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'verification_services_codes':
-					$verification_codes = jetpack_verification_validate( $value );
+					foreach ( $value as $raw_code ) {
+						if ( '' === $raw_code || null === $raw_code || false === $raw_code ) {
+							continue;
+						}
+
+						if ( false === jetpack_verification_validate_code( $raw_code ) ) {
+							return new WP_Error(
+								'invalid_input',
+								__( 'Invalid site verification code. Enter a verification code or verification tag.', 'jetpack' ),
+								400
+							);
+						}
+					}
+
+					$verification_codes = jetpack_verification_validate_codes( $value );
 
 					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
 						$updated[ $key ] = $verification_codes;
@@ -1507,20 +1524,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
-			$ss = new Sharing_Service();
-
-			/*
-			 * Merge current values with updated, since Sharing_Service expects
-			 * all values to be included when updating
-			 */
-			$current_sharing_options = $ss->get_global_options();
-			foreach ( $current_sharing_options as $key => $val ) {
-				if ( ! isset( $sharing_options[ $key ] ) ) {
-					$sharing_options[ $key ] = $val;
+			if ( method_exists( Sharing_Options::class, 'update' ) ) {
+				$changes = $sharing_options;
+				if ( isset( $changes['sharing_label'] ) ) {
+					$changes['sharing_label'] = wp_slash( $changes['sharing_label'] );
 				}
-			}
 
-			$updated_social_options = $ss->set_global_options( $sharing_options );
+				$updated_social_options = Sharing_Options::update( $changes );
+			} else {
+				$ss = new Sharing_Service();
+
+				/*
+				 * Merge current values with updated, since Sharing_Service expects
+				 * all values to be included when updating
+				 */
+				$current_sharing_options = $ss->get_global_options();
+				foreach ( $current_sharing_options as $key => $val ) {
+					if ( ! isset( $sharing_options[ $key ] ) ) {
+						$sharing_options[ $key ] = $val;
+					}
+				}
+
+				$updated_social_options = $ss->set_global_options( $sharing_options );
+			}
 
 			if ( isset( $input['sharing_button_style'] ) ) {
 				$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
@@ -1530,7 +1556,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$updated['sharing_label'] = (string) $sharing_options['sharing_label'];
 			}
 			if ( isset( $input['sharing_show'] ) ) {
-				$updated['sharing_show'] = (array) $updated_social_options['show'];
+				$updated['sharing_show'] = (array) ( $updated_social_options['show'] ?? array() );
 			}
 			if ( isset( $input['sharing_open_links'] ) ) {
 				$updated['sharing_open_links'] = (string) $updated_social_options['open_links'];

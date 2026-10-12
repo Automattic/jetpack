@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect } from '@wordpress/element';
 import { createContext, useContext } from 'react';
-import type { FC } from 'react';
+import type { JSX, FC } from 'react';
 
 type HasSeenVCModalResult = {
 	has_seen_video_celebration_modal: boolean;

@@ -21,6 +21,7 @@ jest.mock( '../../../utils/get-purchase-plan-url', () => ( {
 	default: () => 'https://example.org/purchase',
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: () => ( { myJetpack: {} } ),
 	getMyJetpackUrl: ( path = '' ) =>
 		`https://example.org/wp-admin/admin.php?page=my-jetpack${ path }`,
 } ) );
@@ -106,5 +107,32 @@ describe( 'PlansSection', () => {
 				screen.getByRole( 'link', { name: 'Activate a license (requires a user connection)' } )
 			).toBeInTheDocument();
 		} );
+	} );
+
+	describe( 'the "View included features" link', () => {
+		it( 'opens the included Features filter when the catalog includes a feature', () => {
+			window.myJetpackInitialState.mainFeatures = {
+				features: [ { included: true } ],
+			} as MainFeaturesState;
+			render( <PlansSection /> );
+
+			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
+				'href',
+				'https://example.org/wp-admin/admin.php?page=my-jetpack#/features?filter=included'
+			);
+		} );
+
+		it.each( [ undefined, { features: [ { included: false } ] } ] )(
+			'does not offer an empty included list even when there is a purchase (%s)',
+			catalog => {
+				setPurchases( [ buildPurchase( 'Domain registration' ) ] );
+				window.myJetpackInitialState.mainFeatures = catalog as MainFeaturesState;
+				render( <PlansSection /> );
+
+				expect(
+					screen.queryByRole( 'link', { name: 'View included features' } )
+				).not.toBeInTheDocument();
+			}
+		);
 	} );
 } );

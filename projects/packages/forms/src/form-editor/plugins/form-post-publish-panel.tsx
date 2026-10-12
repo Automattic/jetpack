@@ -10,6 +10,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 import { EmbedFormModal } from './embed-form-modal';
+import type { JSX } from 'react';
 
 export const FORM_POST_PUBLISH_PANEL_PLUGIN = 'jetpack-form-post-publish';
 

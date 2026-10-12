@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 export type SectionTab< TabId extends string = string > = {
 	id: TabId;
 	label: string;
+	disabled?: boolean;
 };
 
 export interface SectionTabsProps< TabId extends string = string > {
@@ -22,9 +23,8 @@ export interface SectionTabsProps< TabId extends string = string > {
 	children?: ReactNode;
 
 	/**
-	 * Optional class applied to the tab list wrapper. This component does not
-	 * own any horizontal page-gutter padding itself, so callers that render the
-	 * tab bar full-bleed (e.g. outside a padded content container) supply it here.
+	 * Optional class applied to the tab list wrapper, which already carries the
+	 * page gutter and the page header's fill.
 	 */
 	className?: string;
 
@@ -56,7 +56,7 @@ export function SectionTabs< TabId extends string = string >( {
 			<div className={ clsx( styles.tabList, className ) }>
 				<Tabs.List variant="minimal">
 					{ tabs.map( tab => (
-						<Tabs.Tab key={ tab.id } value={ tab.id }>
+						<Tabs.Tab key={ tab.id } value={ tab.id } disabled={ tab.disabled }>
 							{ tab.label }
 						</Tabs.Tab>
 					) ) }

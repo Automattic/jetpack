@@ -18,6 +18,7 @@ import { extractEmailsFromCsv } from '../../lib/csv-parse';
 import { recordTracksEvent } from '../../lib/tracks';
 import './add-subscribers-modal.scss';
 import type { ImportJob } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	isOpen: boolean;
@@ -371,7 +372,7 @@ function SubmitButton( { count, isPending, disabled, onClick }: SubmitButtonProp
 					// translators: %d: number of subscribers to add.
 					_n( 'Add %d subscriber', 'Add %d subscribers', count, 'jetpack-newsletter' ),
 					count
-			  )
+				)
 			: __( 'Add subscribers', 'jetpack-newsletter' );
 	return (
 		<Button

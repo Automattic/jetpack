@@ -1421,6 +1421,30 @@ That was a cool video.';
 		$this->assertEquals( $post_id, $publish_event->args[0] );
 	}
 
+	public function test_sync_jetpack_published_post_is_sent_once_for_successful_rest_publish() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$this->server_event_storage->reset();
+
+		$request = new WP_REST_Request( 'POST', "/wp/v2/posts/$post_id" );
+		$request->set_body_params( array( 'status' => 'publish' ) );
+		rest_do_request( $request );
+		$this->sender->do_sync();
+
+		$this->assertCount( 1, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+	}
+
+	public function test_sync_jetpack_published_post_is_not_sent_when_after_insert_hooks_are_skipped_outside_rest() {
+		$this->server_event_storage->reset();
+		$post                = get_post( self::factory()->post->create( array( 'post_status' => 'draft' ) ), ARRAY_A );
+		$post['post_status'] = 'publish';
+
+		wp_update_post( $post, false, false );
+		$this->sender->do_sync();
+
+		$this->assertCount( 0, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+	}
+
 	/**
 	 * Data Provider for test_sync_jetpack_published_post_no_action test.
 	 *

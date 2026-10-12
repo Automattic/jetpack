@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Request messages from the package's own REST route when the Jetpack plugin is not active, instead of first trying a route that does not exist.

@@ -2,6 +2,7 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
+import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
 import { isValidHexColor, lightenHexColor } from '../../utils';
@@ -14,8 +15,10 @@ import type { AxisRendererProps, AxisScale } from '@visx/axis';
 import type { AnyD3Scale } from '@visx/scale';
 import type { ComponentType, FC } from 'react';
 
-export interface BarListChartProps
-	extends Exclude< BarChartProps, 'orientation' | 'size' | 'gridVisibility' > {
+export interface BarListChartProps extends Exclude<
+	BarChartProps,
+	'orientation' | 'size' | 'gridVisibility'
+> {
 	options?: {
 		/**
 		 * Scale for the y axis. Exclude the type property.
@@ -88,7 +91,7 @@ export interface RenderValueProps {
 const getScaleBandwidth = < Scale extends AxisScale >( scale?: Scale ) => {
 	// Broaden type before using 'xxx' in s as typeguard.
 	const s = scale as AxisScale;
-	return s && 'bandwidth' in s ? s?.bandwidth() ?? 0 : 0;
+	return s && 'bandwidth' in s ? ( s?.bandwidth() ?? 0 ) : 0;
 };
 
 const DefaultLabelComponent = ( { textProps, x, y, label, formatter } ) => {
@@ -231,6 +234,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		bottom: 0,
 		top: 0,
 	},
+	className,
 	...rest
 } ) => {
 	const { getElementStyles } = useGlobalChartsContext();
@@ -298,6 +302,9 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		<BarChartUnresponsive
 			orientation="horizontal"
 			gridVisibility={ 'none' }
+			// The root carries `bar-chart` too, since a bar list renders through one. This class is
+			// how a consumer reaches a bar list without reaching every bar chart.
+			className={ clsx( 'bar-list-chart', className ) }
 			data={ tintedData }
 			width={ width }
 			height={ height }

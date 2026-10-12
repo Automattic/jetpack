@@ -315,6 +315,40 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The block's `maxfiles` attribute has to survive the trip into the shortcode the field
+	 * renders as, or the editor setting silently does nothing.
+	 *
+	 * The name is lowercase to match the PHP side, where shortcode_atts() reads an all-lowercase
+	 * list of defaults. Camel case would survive this particular path anyway, because WordPress
+	 * lowercases attribute names as it parses the shortcode text back — so this pins the name as
+	 * much as the plumbing.
+	 */
+	public function test_gutenblock_render_field_file_carries_max_files() {
+		$block = array(
+			'blockName'   => 'jetpack/field-file',
+			'attrs'       => array( 'maxfiles' => 3 ),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/label',
+					'attrs'     => array( 'label' => 'Attachments' ),
+				),
+				array(
+					'blockName' => 'jetpack/dropzone',
+					'attrs'     => array(),
+				),
+			),
+		);
+
+		$output = Contact_Form_Plugin::gutenblock_render_field_file(
+			array( 'maxfiles' => 3 ),
+			'',
+			new WP_Block( $block )
+		);
+
+		$this->assertStringContainsString( 'maxfiles="3"', $output );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_radio.
 	 */
 	public function test_gutenblock_gutenblock_render_field_radio() {
@@ -1389,7 +1423,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$post  = $this->post_global_backup;
 		$_POST = $this->post_superglobal_backup;
 		Notification_Counts::reset();
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 		delete_option( 'jetpack_feedback_unread_count' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
@@ -1414,8 +1447,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 	/**
 	 * Unread_count() should register the unread count with the central
-	 * menu-badges registry, under the Forms wp-build dashboard slug (the
-	 * default, since jetpack_forms_alpha defaults to true).
+	 * menu-badges registry, under the Forms dashboard slug.
 	 */
 	public function test_unread_count_registers_with_menu_badges() {
 		$this->create_admin_user();
@@ -1424,21 +1456,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Contact_Form_Plugin::init()->unread_count();
 
 		$this->assertSame( 3, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
-	}
-
-	/**
-	 * Unread_count() should register against the legacy ADMIN_SLUG instead when
-	 * the jetpack_forms_alpha filter is disabled.
-	 */
-	public function test_unread_count_registers_legacy_slug_when_alpha_disabled() {
-		$this->create_admin_user();
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		update_option( 'jetpack_feedback_unread_count', 4 );
-
-		Contact_Form_Plugin::init()->unread_count();
-
-		$this->assertSame( 4, Notification_Counts::get_for_menu( Dashboard::ADMIN_SLUG ) );
-		$this->assertSame( 0, Notification_Counts::get_for_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG ) );
 	}
 
 	/**

@@ -24,6 +24,15 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: jest.fn(),
 } ) );
 
+jest.mock( '../../../src/dashboard/components/editor/editor-screen', () => ( {
+	__esModule: true,
+	default: ( { onSelectTool }: { onSelectTool: ( tool: 'chapters' ) => void } ) => (
+		<div data-testid="trim-cut-editor">
+			<button onClick={ () => onSelectTool( 'chapters' ) }>Chapters</button>
+		</div>
+	),
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: jest.fn(),
@@ -59,13 +68,29 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => <a href="/">VideoPress</a>,
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => ( { hasConnectionError: false } ),
+	ConnectionError: () => null,
+} ) );
+
 // Variables referenced inside jest.mock() factories must be prefixed with
 // "mock" (case-insensitive) to satisfy Jest's babel-jest hoisting rules.
 const mockSuccessNotice = jest.fn();
 const mockWarningNotice = jest.fn();
 const mockErrorNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: mockSuccessNotice,
 		createWarningNotice: mockWarningNotice,
 		createErrorNotice: mockErrorNotice,
@@ -223,10 +248,14 @@ function installApi( api: ApiState ) {
  * Render the stage and wait until the video loaded and the manual-VTT probe
  * settled (the tool mounts locked-busy until then).
  *
+ * @param selectChapters - Switch from the default trim tool to chapters.
  * @return The render result.
  */
-async function renderReadyChapters() {
+async function renderReadyChapters( selectChapters = false ) {
 	const view = render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+	if ( selectChapters ) {
+		await userEvent.setup().click( await screen.findByRole( 'button', { name: 'Chapters' } ) );
+	}
 	await expect( screen.findByTestId( 'chapters-preview-video' ) ).resolves.toBeInTheDocument();
 	// A 'manual' probe result clears aria-busy too (read-only, not locked),
 	// so this cannot deadlock that path.
@@ -308,6 +337,40 @@ describe( 'video-editor stage', () => {
 		expect( getApiFetchMock() ).not.toHaveBeenCalled();
 	} );
 
+	it( 'opens trim by default and allows switching to chapters', async () => {
+		setFeatures( { trimCut: true } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+		await expect( screen.findByTestId( 'trim-cut-editor' ) ).resolves.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Chapters' } ) );
+		await expect( screen.findByTestId( 'chapters-preview-video' ) ).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByTestId( 'chapters-timeline-lock' ) ).not.toHaveAttribute( 'aria-busy' )
+		);
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Trim & cut' } ) );
+		expect( screen.getByTestId( 'trim-cut-editor' ) ).toBeInTheDocument();
+	} );
+
+	it( 'opens trim when chapters are disabled', async () => {
+		setFeatures( { chaptersEditor: false, trimCut: true } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+		await expect( screen.findByTestId( 'trim-cut-editor' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'preserves unsaved chapters when switching tools is cancelled', async () => {
+		setFeatures( { trimCut: true } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		await renderReadyChapters( true );
+		await renameFirstChapter( userEvent.setup() );
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Trim & cut' } ) );
+		expect( confirm ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
+		expect( screen.queryByTestId( 'trim-cut-editor' ) ).not.toBeInTheDocument();
+		confirm.mockRestore();
+	} );
+
 	it( 'shows a loading placeholder while the video is fetched', () => {
 		mockApiFetch( () => new Promise( () => {} ) );
 
@@ -328,6 +391,7 @@ describe( 'video-editor stage', () => {
 	} );
 
 	it( 'shows the processing state instead of the editor while the video transcodes', async () => {
+		setFeatures( { chaptersEditor: true, trimCut: false } );
 		installApi( {
 			media: makeRawMedia( {
 				media_details: { videopress: { duration: 60000, finished: false } },
@@ -339,13 +403,14 @@ describe( 'video-editor stage', () => {
 
 		await expect(
 			screen.findByText(
-				'This video is still processing. Chapters will be available once it finishes.'
+				'This video is still processing. The editor will be available once it finishes.'
 			)
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'chapters' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the processing state for a video without a known duration', async () => {
+		setFeatures( { trimCut: false } );
 		installApi( {
 			media: makeRawMedia( {
 				media_details: {
@@ -359,7 +424,7 @@ describe( 'video-editor stage', () => {
 
 		await expect(
 			screen.findByText(
-				'This video is still processing. Chapters will be available once it finishes.'
+				'This video is still processing. The editor will be available once it finishes.'
 			)
 		).resolves.toBeInTheDocument();
 	} );
@@ -502,7 +567,9 @@ describe( 'video-editor stage', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-		await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+		await waitFor( () =>
+			expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.', { type: 'snackbar' } )
+		);
 		// A valid set announces success and nothing else.
 		expect( mockWarningNotice ).not.toHaveBeenCalled();
 		// The POSTed description is exactly the serializer's rewrite of the
@@ -548,7 +615,8 @@ describe( 'video-editor stage', () => {
 
 		// …but the outcome notice must not read as an unqualified success.
 		expect( mockWarningNotice ).toHaveBeenCalledWith(
-			'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.'
+			'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.',
+			{ type: 'snackbar' }
 		);
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
 	} );
@@ -567,7 +635,9 @@ describe( 'video-editor stage', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await waitFor( () =>
-			expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save chapters.' )
+			expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save chapters.', {
+				type: 'snackbar',
+			} )
 		);
 		// The sync must never run over a description that failed to save,
 		// and the session stays dirty for another attempt.
@@ -720,5 +790,11 @@ describe( 'video-editor stage', () => {
 		expect( navigate ).not.toHaveBeenCalled();
 
 		confirmSpy.mockRestore();
+	} );
+	it( 'mounts trim and its status query even when a copy has no attachment duration yet', async () => {
+		setFeatures( { trimCut: true } );
+		installApi( { media: makeRawMedia( { media_details: {} } ), metaPosts: [] } );
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+		await expect( screen.findByTestId( 'trim-cut-editor' ) ).resolves.toBeInTheDocument();
 	} );
 } );

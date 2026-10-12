@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 3.4.1
+Stable tag: 3.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,24 +83,52 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.4.1 - 2026-08-26
+### 3.7 - 2026-10-07
+#### Security
+- Playback: Strengthen authorization for private videos.
+
 #### Added
-- Add a first-run welcome modal to the dashboard.
+- Add an All Playlists block that lists every Video Playlist published on the site as a grid or a list.
+- Add an optional trim and cut editor with preview, undo, and original video restoration. Keep the editor available during processing, reduce background status checks, refresh delayed timeline thumbnails, and allow retrying failed edits.
+- Add a setting to turn off sharing for every video on the site.
+- Add title and description settings to the Video Playlist block, recorded in a site-wide playlist index.
+- Give every video its own page for themes that support it, and add a "Show the video being viewed" option to the video block.
+- Library: Edit video details while uploads are in progress.
+- Onboarding: Add an introductory video to the first-run welcome modal.
+- Video Playlist and Latest Videos Playlist blocks: Add a setting to hide the player. Clicking a video then opens it on VideoPress in a new tab, or reveals the player and plays it.
+- Video Playlist block: Show the playlist title as an editable heading above the playlist, with a setting to turn it off.
 
 #### Changed
-- General: Update minimum WordPress version to 7.0.
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
-- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action.
-- Tested up to WordPress 7.1.
+- Activity Log: Show the connection error notice only when a connection error has been recorded.
+- My Jetpack: Show a Features tab in place of the Products tab.
+- My Jetpack: Show product cards flat, without a drop shadow.
+- Overview: Show the views chart tooltip on the WordPress design system tooltip surface.
+- Pricing: Keep focus on information icons when their tooltips open, announce the content to screen readers, and show a focus ring after clicking them.
+- Show the ad-free, customizable player as included in the free plan on the VideoPress plan comparison.
+- Update package dependencies.
+- Use core snackbar notice placement.
 
 #### Removed
-- Updated PHP version requirements to PHP 7.4 or newer.
+- Remove the legacy dashboard. Sites that turned off the modern dashboard no longer get a Jetpack > VideoPress menu.
 
 #### Fixed
-- Charts: draw labels at the design system's font weight and size.
-- Connection: Update wording for some connection error notices.
-- Fix a timeout error when updating a video poster from the media library.
-- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
-- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
-- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
+- Admin: Keep the Learn more support link up to date through the redirect service.
+- Ask before deleting videos, and warn before leaving the page while an upload is running.
+- Caption manager: Warn when a private video's preview may not play.
+- Connection: Fix reconnecting your WordPress.com account so it no longer disconnects other users and clears the broken-connection notice on the first attempt.
+- Connection: Let users without admin access reconnect their own broken account from the connection error notice.
+- Connection: Stop Site Health from showing spurious connection failures — remove the redundant outbound HTTP/HTTPS checks, and no longer prompt a reconnect when the WordPress.com connection test is inconclusive.
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
+- Dashboard: Fix a just-uploaded video briefly showing up a second time as a local video in the Library.
+- Dashboard: Keep the views trend chart's comparison lines distinguishable, including for color-blind viewers.
+- Keep the editing preview on retained footage when playback reaches a trim or trailing cut.
+- Library: Show a loading state until the video library is loaded.
+- My Jetpack: Fix the layout of the connection screen for right-to-left languages.
+- My Jetpack: stretch the tab content background to the full height of the page.
+- Scroll the timeline while dragging cuts beyond the visible area.
+- Show an error and stop the Get VideoPress button from staying busy when checkout cannot start.
+- Show Jetpack in-dashboard messages on the dashboard again.
+- Start new cuts at the playhead, or end there when it is at the end of the video, and keep a gap from existing cuts.
+- Upgrade: Send WordPress.com sites to the Business plan instead of an incompatible VideoPress product.
+- Video block: Offer an upgrade action when uploads require a paid plan.
 

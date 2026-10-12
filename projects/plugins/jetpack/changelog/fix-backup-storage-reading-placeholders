@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Backup: show storage usage and the plan limit the right way round when the interface is translated.

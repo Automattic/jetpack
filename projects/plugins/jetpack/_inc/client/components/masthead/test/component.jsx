@@ -1,10 +1,6 @@
 import { render, screen } from 'test/test-utils';
 import { Masthead } from '../index';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	isWoASite: jest.fn().mockReturnValue( false ),
-} ) );
-
 describe( 'Masthead', () => {
 	it( 'finds selector .jp-masthead in main nav', () => {
 		const { container } = render( <Masthead /> );

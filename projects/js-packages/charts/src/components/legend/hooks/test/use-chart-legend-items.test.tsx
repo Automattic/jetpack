@@ -247,6 +247,130 @@ describe( 'useChartLegendItems', () => {
 		} );
 	} );
 
+	describe( 'Comparison item (SeriesData)', () => {
+		const comparisonData: SeriesData[] = [
+			{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const, seriesLineStyle: { strokeDasharray: '4 4' } },
+				data: [ { label: 'Mon', value: 90 } ],
+			},
+		];
+
+		test( 'is off by default', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { collapseGroups: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views' ] );
+		} );
+
+		test( 'appends a static item styled like the comparison series', () => {
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems(
+						comparisonData,
+						{ collapseGroups: true, comparisonItem: true },
+						'line'
+					),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Comparison period',
+			] );
+			expect( result.current[ 1 ].interactive ).toBe( false );
+			expect( result.current[ 1 ].shapeStyle ).toMatchObject( { strokeDasharray: '4 4' } );
+			expect( result.current[ 1 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test( 'uses a string option as the label', () => {
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems( comparisonData, {
+						collapseGroups: true,
+						comparisonItem: 'Previous period',
+					} ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Previous period' ] );
+		} );
+
+		test( 'adds nothing when the comparison series already has its own item', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Views — previous' ] );
+		} );
+
+		test( 'styles a current-period series by its own line styles, not the theme index', () => {
+			const theme = {
+				seriesLineStyles: [ { strokeWidth: 2 } ],
+				legend: { shapeStyles: [ {}, { strokeDasharray: '2 2' } ] },
+			};
+			const themedWrapper = ( { children }: { children: ReactNode } ) => (
+				<GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>
+			);
+			const pairedData: SeriesData[] = [
+				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+				{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+			];
+
+			const { result } = renderHook( () => useChartLegendItems( pairedData, {}, 'line' ), {
+				wrapper: themedWrapper,
+			} );
+
+			expect( result.current[ 1 ].shapeStyle ).toEqual( { strokeWidth: 2 } );
+		} );
+
+		test( "takes the first metric's color when several metrics carry a comparison", () => {
+			const pairedData: SeriesData[] = [
+				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+				{
+					label: 'Views — previous',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 90 } ],
+				},
+				{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+				{
+					label: 'Visitors — previous',
+					group: 'visitors',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 40 } ],
+				},
+			];
+
+			const { result } = renderHook(
+				() => useChartLegendItems( pairedData, { collapseGroups: true, comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Visitors',
+				'Comparison period',
+			] );
+			expect( result.current[ 0 ].color ).not.toBe( result.current[ 1 ].color );
+			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test( 'adds nothing when no series is a comparison', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( [ comparisonData[ 0 ] ], { comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views' ] );
+		} );
+	} );
+
 	describe( 'Label and Color', () => {
 		test( 'preserves label and color from data', () => {
 			const data: DataPointPercentageCalculated[] = [

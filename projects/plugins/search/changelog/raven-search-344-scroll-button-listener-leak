@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: Fix a leaked scroll handler that could trigger stray page loads after several searches.

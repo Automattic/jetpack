@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace the admin bar tracking allowlist lookup to avoid an unnecessary polyfill dependency.
+
+

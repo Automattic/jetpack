@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove the Sharing_Likes class. Read PACKAGE_VERSION from Initializer instead.

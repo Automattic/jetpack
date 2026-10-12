@@ -31,7 +31,7 @@ export function useSocialImageFontOptions() {
 							label: __( 'Loading…', 'jetpack-publicize-pkg' ),
 							value: '',
 						},
-				  ]
+					]
 				: [
 						{
 							label: __( 'Default', 'jetpack-publicize-pkg' ),
@@ -41,7 +41,7 @@ export function useSocialImageFontOptions() {
 							label: option.label,
 							value: option.id,
 						} ) ),
-				  ],
+					],
 			isLoading,
 		};
 	}, [ fontOptions, isLoading ] );

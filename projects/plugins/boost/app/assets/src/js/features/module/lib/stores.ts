@@ -1,6 +1,7 @@
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { useCallback } from 'react';
 import { z } from 'zod';
+import { MODULES_SAVE_META } from '../../../../../../../_inc/overview/lib/modules-state-bridge';
 
 const modulesStateSchema = z.record(
 	z.string().min( 1 ),
@@ -11,7 +12,9 @@ const modulesStateSchema = z.record(
 );
 
 export const useModulesState = () => {
-	return useDataSync( 'jetpack_boost_ds', 'modules_state', modulesStateSchema );
+	return useDataSync( 'jetpack_boost_ds', 'modules_state', modulesStateSchema, {
+		mutation: { meta: MODULES_SAVE_META },
+	} );
 };
 
 export type ModulesState = z.infer< typeof modulesStateSchema >;

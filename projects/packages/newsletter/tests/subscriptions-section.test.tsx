@@ -66,7 +66,34 @@ jest.mock( '@wordpress/components', () => ( {
 			onChange={ e => onChange?.( e.target.checked ) }
 		/>
 	),
-	ToggleControl: ( { label }: { label: React.ReactNode } ) => <div>{ label }</div>,
+	ToggleControl: ( {
+		label,
+		help,
+		checked,
+		onChange,
+	}: {
+		label: React.ReactNode;
+		help?: React.ReactNode;
+		checked?: boolean;
+		onChange?: ( next: boolean ) => void;
+	} ) => (
+		<div>
+			{ /* Wrapping mirrors ToggleControl's own label association, so element
+			     labels (text plus an inline link) still name the control. */ }
+			{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+			<label>
+				<input
+					type="checkbox"
+					checked={ checked }
+					// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
+					// eslint-disable-next-line react/jsx-no-bind
+					onChange={ e => onChange?.( e.target.checked ) }
+				/>
+				{ label }
+			</label>
+			{ help }
+		</div>
+	),
 } ) );
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
@@ -79,6 +106,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: jest.fn( () => 'jetpack' ),
 	getAdminUrl: jest.fn( ( p: string ) => `https://example.com/wp-admin/${ p }` ),
+	isSimpleSite: jest.fn( () => false ),
 } ) );
 
 jest.mock( '../src/settings/script-data', () => ( {
@@ -89,7 +117,8 @@ jest.mock( '../src/settings/script-data', () => ( {
 	} ) ),
 } ) );
 
-import { render, screen } from '@testing-library/react';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { getNewsletterScriptData } from '../src/settings/script-data';
 import { SubscriptionsSection } from '../src/settings/sections/subscriptions-section';
 import type { NewsletterSettings } from '../src/settings/types';
@@ -228,5 +257,56 @@ describe( 'SubscriptionsSection — Preview and edit gating', () => {
 			} ),
 		} );
 		expect( previewLinks() ).toHaveLength( 2 );
+	} );
+} );
+
+describe( 'SubscriptionsSection — Action Bar toggle', () => {
+	const LABEL = /Show the Action Bar on the front end of the site/;
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it( 'is hidden off WordPress.com Simple', () => {
+		( isSimpleSite as jest.Mock ).mockReturnValue( false );
+		renderSection();
+		expect( screen.queryByRole( 'checkbox', { name: LABEL } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Action Bar' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders on WordPress.com Simple, checked when the Action Bar is not hidden', () => {
+		( isSimpleSite as jest.Mock ).mockReturnValue( true );
+		renderSection( { data: buildData( { wpcom_hide_action_bar: false } ) } );
+		expect( screen.getByRole( 'checkbox', { name: LABEL } ) ).toBeChecked();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/support/action-bar/'
+		);
+	} );
+
+	it( 'renders unchecked when the Action Bar is hidden', () => {
+		( isSimpleSite as jest.Mock ).mockReturnValue( true );
+		renderSection( { data: buildData( { wpcom_hide_action_bar: true } ) } );
+		expect( screen.getByRole( 'checkbox', { name: LABEL } ) ).not.toBeChecked();
+	} );
+
+	it( 'stages the negated value when toggled off', () => {
+		( isSimpleSite as jest.Mock ).mockReturnValue( true );
+		const onChange = jest.fn();
+		renderSection( { data: buildData( { wpcom_hide_action_bar: false } ), onChange } );
+		// user-event is not a dependency of this package.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'checkbox', { name: LABEL } ) );
+		expect( onChange ).toHaveBeenCalledWith( { wpcom_hide_action_bar: true } );
+	} );
+
+	it( 'stages the negated value when toggled on', () => {
+		( isSimpleSite as jest.Mock ).mockReturnValue( true );
+		const onChange = jest.fn();
+		renderSection( { data: buildData( { wpcom_hide_action_bar: true } ), onChange } );
+		// user-event is not a dependency of this package.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'checkbox', { name: LABEL } ) );
+		expect( onChange ).toHaveBeenCalledWith( { wpcom_hide_action_bar: false } );
 	} );
 } );

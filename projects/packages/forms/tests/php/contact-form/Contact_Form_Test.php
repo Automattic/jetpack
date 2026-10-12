@@ -71,7 +71,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Check that a new feedback post was created
 		$final_posts = Posts::init()->posts;
@@ -116,7 +116,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should still be successful (email should still be sent)
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful even when not saving responses' );
+		$this->assertIsString( $result, 'Form submission should be successful even when not saving responses' );
 
 		// Check that a new feedback post was created
 		$final_posts = Posts::init()->posts;
@@ -168,7 +168,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$initial_count = count( Posts::init()->posts );
 		$result        = $form->process_submission();
 
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful for preview submissions.' );
+		$this->assertIsString( $result, 'Form submission should be successful for preview submissions.' );
 
 		$final_posts = Posts::init()->posts;
 		$this->assertCount( $initial_count + 1, $final_posts, 'A feedback post should be created for preview submissions.' );
@@ -215,7 +215,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Check that a new feedback post was created (default behavior)
 		$final_posts = Posts::init()->posts;
@@ -385,7 +385,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -444,7 +444,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Process the submission to create a feedback post
 		$result = $form->process_submission();
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Get the feedback ID from the most recent post
 		$feedback_id = end( Posts::init()->posts )->ID;
@@ -505,7 +505,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Test value with brackets (should be escaped)
 		$bracket_value = 'This is a [test] with brackets';
 		$result        = Contact_Form::escape_and_sanitize_field_value( $bracket_value );
-		$this->assertEquals( 'This is a &#091;test&#093; with brackets', $result );
+		$this->assertEquals( 'This is a &#91;test&#93; with brackets', $result );
 
 		// Test value with HTML (should be stripped)
 		$html_value = 'This has <strong>HTML</strong> tags';
@@ -538,7 +538,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -558,7 +558,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result                     = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -592,7 +592,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -628,7 +628,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -656,7 +656,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -682,7 +682,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -708,7 +708,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -738,7 +738,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 
@@ -772,7 +772,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -2551,7 +2551,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Submit first form
 		$result1 = $form1->process_submission();
 
-		$this->assertTrue( is_string( $result1 ), 'First form submission should be successful' );
+		$this->assertIsString( $result1, 'First form submission should be successful' );
 
 		$this->add_field_values(
 			array(
@@ -2564,7 +2564,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
 		$result2 = $form2->process_submission();
 
-		$this->assertTrue( is_string( $result2 ), 'First form submission should be successful' );
+		$this->assertIsString( $result2, 'First form submission should be successful' );
 
 		// Verify that the forms have different IDs
 		$this->assertNotEquals( $form1->get_attribute( 'id' ), $form2->get_attribute( 'id' ), 'Forms should have unique IDs' );
@@ -5172,6 +5172,41 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'text' ) ) );
 		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'consent' ) ) );
 		$this->assertSame( 'Ada', $this->invoke_private_static( 'get_submission_display_value', array( 'Ada', 'text' ) ) );
+	}
+
+	/**
+	 * The summary shows a stored less-than sign as typed.
+	 */
+	public function test_get_submission_display_value_shows_stored_text_as_typed() {
+		$this->assertSame( "<\f!-- note --> one", $this->invoke_private_static( 'get_submission_display_value', array( "&lt;\f!-- note --> one", 'textarea' ) ) );
+		$this->assertSame( array( 'x < 5', 'y' ), $this->invoke_private_static( 'get_submission_display_value', array( array( 'x &lt; 5', 'y' ), 'checkbox-multiple' ) ) );
+	}
+
+	/**
+	 * The notification subject reads as the text that was typed.
+	 */
+	public function test_process_submission_mail_subject_reads_as_typed() {
+		$subject = null;
+		add_filter(
+			'pre_wp_mail',
+			function ( $short_circuit, $atts ) use ( &$subject ) {
+				$subject = $atts['subject'];
+				return true;
+			},
+			1,
+			2
+		);
+
+		$this->add_field_values(
+			array(
+				'email'   => 'john@example.com',
+				'subject' => wp_slash( 'Order <b>42</b> & x < 5' ),
+			)
+		);
+		$form = new Contact_Form( array(), "[contact-field label='Email' type='email' required='1'/][contact-field label='Subject' type='subject'/]" );
+
+		$this->assertIsString( $form->process_submission() );
+		$this->assertSame( 'Order <b>42</b> & x < 5', $subject );
 	}
 
 	/**

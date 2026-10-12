@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -139,6 +140,26 @@ class Crm extends Product {
 			// CRM is only sold in USD
 			'currency_code'         => 'USD',
 		);
+	}
+
+	/**
+	 * Perform the CRM specific activation routines.
+	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result ) {
+		if ( is_wp_error( $current_result ) ) {
+			return $current_result;
+		}
+
+		/*
+		 * CRM sets this on activation to send the next admin page load to its own full-screen
+		 * setup wizard — which, activated from here, is the My Jetpack screen the owner is still on.
+		 */
+		delete_option( 'jpcrm_do_redirect' );
+
+		return $current_result;
 	}
 
 	/**

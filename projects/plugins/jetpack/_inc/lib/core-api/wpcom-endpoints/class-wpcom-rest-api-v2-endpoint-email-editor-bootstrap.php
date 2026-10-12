@@ -149,7 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * Internal, and not settled: the editor this serves is still being built, so the shape of
 			 * what comes back is expected to change. Do not depend on it from outside the plugin.
 			 *
-			 * @since $$next-version$$
+			 * @since 16.2
 			 * @access private
 			 *
 			 * @param array|WP_Error|null $data    The editor's bootstrap data. Null until something provides one.
@@ -184,7 +184,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * Internal, and not settled, for the same reason as the read above: expect the shape of the
 			 * design document and of what is returned to change while the editor is being built.
 			 *
-			 * @since $$next-version$$
+			 * @since 16.2
 			 * @access private
 			 *
 			 * @param array|WP_Error|null $result  The stored design. Null until something provides one.
@@ -246,7 +246,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 		 * This plugin does not record the exception itself — the message can carry internals, so where
 		 * it is safe to write it is the host's call rather than ours. Hook this to log it.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param Throwable $e The exception raised while filtering.
 		 */

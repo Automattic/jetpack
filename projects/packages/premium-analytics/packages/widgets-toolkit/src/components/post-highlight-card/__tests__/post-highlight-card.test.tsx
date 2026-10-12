@@ -2,47 +2,20 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { EN_US_SETTINGS, ES_ES_SETTINGS } from '../../../__fixtures__/wp-date-settings';
 import { PostHighlightCard } from '../post-highlight-card';
 import type { PostHighlightCardProps } from '../post-highlight-card';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
-// `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import('react');
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-	return {
-		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, search, children, ...props }, ref ) => {
-				const path = Object.entries( params ?? {} ).reduce(
-					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-					to
-				);
-				const query = new URLSearchParams();
-				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-					if ( value !== undefined && value !== null ) {
-						query.set( key, String( value ) );
-					}
-				} );
-				const queryString = query.toString();
-
-				return (
-					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-						{ children }
-					</a>
-				);
-			}
-		),
-	};
+	return mockWordPressRoute;
 } );
 
 const props: PostHighlightCardProps = {
@@ -57,7 +30,14 @@ const props: PostHighlightCardProps = {
 	],
 };
 
+// Captured before any suite installs its own, since `setSettings` is global and
+// this suite shares a module registry with the rest of its group.
+const BASE_SETTINGS = getSettings();
+
 describe( 'PostHighlightCard', () => {
+	beforeEach( () => setSettings( EN_US_SETTINGS ) );
+	afterEach( () => setSettings( BASE_SETTINGS ) );
+
 	it( 'links the title to the detail route and carries the report window', () => {
 		render(
 			<PostHighlightCard
@@ -83,25 +63,8 @@ describe( 'PostHighlightCard', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'keeps the title as plain text when the post URL is unsafe', () => {
-		render( <PostHighlightCard { ...props } url="javascript:alert(1)" /> );
-
-		expect( screen.getByText( 'Quarterly update' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'links the title to the post', () => {
-		render( <PostHighlightCard { ...props } /> );
-
-		// `openInNewTab` appends a screen-reader hint to the accessible name.
-		expect( screen.getByRole( 'link', { name: /^Quarterly update/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/quarterly-update/'
-		);
-	} );
-
 	// The title used to be wrapped in `<Link>` unconditionally, so a revert here is plausible.
-	it( 'keeps the title readable as plain text when the post URL is unsafe', () => {
+	it( 'keeps the title as plain text when the post URL is unsafe', () => {
 		render( <PostHighlightCard { ...props } url="javascript:alert(1)" /> );
 
 		expect( screen.getByText( 'Quarterly update' ) ).toBeInTheDocument();
@@ -114,6 +77,25 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( 'Post published on Jun 5, 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shortens a large count by default', () => {
+		render(
+			<PostHighlightCard
+				{ ...props }
+				metrics={ [ { key: 'views', label: 'Views', value: 1234 } ] }
+			/>
+		);
+
+		expect( screen.getByText( '1.2K' ) ).toBeInTheDocument();
+	} );
+
+	it( "writes the publish date in the site's locale and date format", () => {
+		setSettings( ES_ES_SETTINGS );
+
+		render( <PostHighlightCard { ...props } /> );
+
+		expect( screen.getByText( 'Post published on 5 de jun de 2026' ) ).toBeInTheDocument();
 	} );
 
 	it( 'omits the publish line when the post has no date', () => {

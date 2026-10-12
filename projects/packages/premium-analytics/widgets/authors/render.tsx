@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	authorDetailLinkProps,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
@@ -16,6 +17,8 @@ import {
 	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	authorsCsvExporter,
 	type LeaderboardChartData,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
@@ -70,7 +73,7 @@ export function AuthorsLeaderboard( {
 	} = useWidgetDrillDown< string >();
 
 	const selectedAuthor = useMemo(
-		() => ( selectedAuthorId ? rows.find( row => row.id === selectedAuthorId ) ?? null : null ),
+		() => ( selectedAuthorId ? ( rows.find( row => row.id === selectedAuthorId ) ?? null ) : null ),
 		[ rows, selectedAuthorId ]
 	);
 
@@ -84,12 +87,18 @@ export function AuthorsLeaderboard( {
 	}, [ selectedAuthorId, selectedAuthor, isLoading, isFetching, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
-		// The data layer already aligned current/comparison values, including posts
-		// that only existed in the comparison period.
+		// The data layer already aligned current/comparison values.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => ( {
 				id: post.id,
-				label: <LeaderboardPostLabel id={ post.postId } label={ post.title } link={ post.link } />,
+				label: (
+					<LeaderboardPostLabel
+						id={ post.postId }
+						label={ post.title }
+						link={ post.link }
+						origin={ { report: 'authors' } }
+					/>
+				),
 				currentValue: post.currentValue,
 				previousValue: post.previousValue,
 				currentShare: post.currentShare,
@@ -98,30 +107,36 @@ export function AuthorsLeaderboard( {
 			} ) );
 		}
 
-		return rows.map( row => ( {
-			id: row.id,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
-				action:
-					row.posts.length > 0
-						? {
-								kind: 'drillDown',
-								onClick: () => selectAuthor( row.id ),
-								ariaLabel: sprintf(
-									/* translators: %s is the author name */
-									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
-									row.label
-								),
-						  }
-						: { kind: 'static' },
-			} ),
-			currentValue: row.currentValue,
-			previousValue: row.previousValue,
-			currentShare: row.currentShare,
-			previousShare: row.previousShare,
-			delta: row.delta,
-		} ) );
+		return rows.map( row => {
+			const authorLink = row.authorId ? authorDetailLinkProps( row.authorId ) : undefined;
+
+			return {
+				id: row.id,
+				...buildLeaderboardRow( {
+					label: row.label,
+					media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
+					action:
+						row.posts.length > 0
+							? {
+									kind: 'drillDown',
+									onClick: () => selectAuthor( row.id ),
+									// The name opens the author's page; the rest of the row lists their posts.
+									link: authorLink,
+									ariaLabel: sprintf(
+										/* translators: %s is the author name */
+										__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
+										row.label
+									),
+								}
+							: { kind: 'static', link: authorLink },
+				} ),
+				currentValue: row.currentValue,
+				previousValue: row.previousValue,
+				currentShare: row.currentShare,
+				previousShare: row.previousShare,
+				delta: row.delta,
+			};
+		} );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
 	const isDrilled = Boolean( selectedAuthor );
@@ -148,15 +163,18 @@ export function AuthorsLeaderboard( {
 						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ]
 						: undefined,
 				} }
-				empty={ {
-					icon: postAuthor,
-					description: isDrilled
-						? __(
-								'This author has no posts with views for the selected period.',
-								'jetpack-premium-analytics-pkg'
-						  )
-						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				// The author row the reader drilled from had views, so "no results" would contradict it; say where the views are missing instead.
+				empty={
+					isDrilled
+						? {
+								icon: postAuthor,
+								description: __(
+									'This author has no posts with views for the selected period.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
@@ -211,6 +229,11 @@ function AuthorsReport() {
 			/>
 			<WidgetFooter>
 				<ReportLink report="authors" />
+				<ExporterCsvDownloadButton
+					exporter={ authorsCsvExporter }
+					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

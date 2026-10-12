@@ -23,10 +23,7 @@ export const ROLE_ASSISTANT = 'assistant' as const;
 export const ROLE_JETPACK_AI = 'jetpack-ai' as const;
 
 export type RoleType =
-	| typeof ROLE_SYSTEM
-	| typeof ROLE_USER
-	| typeof ROLE_ASSISTANT
-	| typeof ROLE_JETPACK_AI;
+	typeof ROLE_SYSTEM | typeof ROLE_USER | typeof ROLE_ASSISTANT | typeof ROLE_JETPACK_AI;
 
 /*
  * Prompt types
@@ -95,9 +92,7 @@ export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
 export const AI_MODEL_GPT_4 = 'gpt-4' as const;
 export const AI_MODEL_DEFAULT = 'default' as const;
 export type AiModelTypeProp =
-	| typeof AI_MODEL_GPT_3_5_Turbo_16K
-	| typeof AI_MODEL_GPT_4
-	| typeof AI_MODEL_DEFAULT;
+	typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4 | typeof AI_MODEL_DEFAULT;
 
 /*
  * Media recording types

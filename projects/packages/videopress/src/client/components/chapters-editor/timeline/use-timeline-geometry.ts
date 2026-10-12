@@ -1,28 +1,5 @@
-/**
- * Timeline geometry for the chapters editor: zoom state, viewport
- * measurement, and the single horizontal scale every strip element derives
- * from.
- *
- * The strip renders the full master duration across `viewportWidth * zoom`
- * pixels of content inside an `overflow-x` scroller (zoom 1 = fit). That one
- * product — `contentWidth`, and the `pxPerMs` derived with it — is the only
- * horizontal scale: the content strip, the track rows, the playhead
- * transform, and the overlay all take their width or positions from it, so
- * no track can render on a different scale than the times above it.
- *
- * Zoom is capped by the caller-provided ladder's ceiling; the ladder is
- * re-derived — and the effective zoom re-clamped — every render, so it
- * self-heals when the strip resolves asynchronously or the viewport
- * resizes. Zoom state stays a continuous number: the toolbar slider is a
- * discrete view of the ladder's stops, while modifier+wheel moves it
- * continuously. Both paths keep the time under the playhead stationary on
- * screen by compensating `scrollLeft`; a plain vertical wheel scrolls the
- * strip. The wheel listener is attached manually because React wheel
- * listeners are passive and preventDefault (needed to suppress browser
- * page-zoom/page-scroll) requires a non-passive subscription.
- */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { getPxPerMs, msToPx } from '../state/time-utils';
+import { getPxPerMs } from '../state/time-utils';
 import { useElementWidth } from './use-element-width';
 import { ladderMaxZoom } from './zoom-ladder';
 import type { ZoomLadder } from './zoom-ladder';
@@ -43,9 +20,7 @@ export interface TimelineGeometryOptions {
 	/** Live playhead position in ms — the anchor for zoom compensation. */
 	currentMs: number;
 	/**
-	 * The zoom ladder for the current viewport width (e.g. the
-	 * duration-scaled ladder via getFilmstripZoomLadder). Called during
-	 * render; the ceiling is its ladderMaxZoom.
+	 * Derive the zoom stops and ceiling for the measured viewport width.
 	 */
 	getZoomLadder: ( viewportWidth: number ) => ZoomLadder;
 }
@@ -67,10 +42,8 @@ export interface TimelineGeometry {
 	/** Scaled content width in px (`viewportWidth * zoom`); 0 unmeasured. */
 	contentWidth: number;
 	/**
-	 * Explicit width style pinning a box to `contentWidth`. The content
-	 * element AND every track row must carry it, so no row can size itself
-	 * from its parent box onto a different horizontal scale. `undefined`
-	 * while unmeasured keeps the initial placeholder render fluid.
+	 * Pin the content and every track to the same measured width.
+	 * Undefined until measured, allowing a fluid initial placeholder.
 	 */
 	scaledWidthStyle?: CSSProperties;
 	/** Request a zoom change (clamped; playhead-anchored scroll follows). */
@@ -79,6 +52,26 @@ export interface TimelineGeometry {
 	scrollerRef: ( element: HTMLDivElement | null ) => void;
 	/** The attached scroller element, or null before mount. */
 	scrollerEl: HTMLDivElement | null;
+}
+
+/**
+ * Anchor zoom at the visible playhead, or the viewport center when it is offscreen.
+ *
+ * @param currentMs     - Playhead time.
+ * @param pxPerMs       - Current timeline scale.
+ * @param viewportWidth - Scroller width.
+ * @param scrollLeft    - Current scroll position.
+ * @return The time and screen position to preserve.
+ */
+function zoomAnchor(
+	currentMs: number,
+	pxPerMs: number,
+	viewportWidth: number,
+	scrollLeft: number
+) {
+	const playheadX = currentMs * pxPerMs - scrollLeft;
+	const screenX = playheadX >= 0 && playheadX <= viewportWidth ? playheadX : viewportWidth / 2;
+	return { timeMs: ( scrollLeft + screenX ) / pxPerMs, screenX };
 }
 
 /**
@@ -93,22 +86,15 @@ export function useTimelineGeometry( options: TimelineGeometryOptions ): Timelin
 	const { ref: widthRef, width: viewportWidth } = useElementWidth();
 	const [ scrollerEl, setScrollerEl ] = useState< HTMLDivElement | null >( null );
 
-	// The caller's ladder ceiling is the zoom cap. Derived (not stored) and
-	// clamped at derivation, so a `zoom` state that overshoots — the ladder
-	// resolving mid-session, the viewport growing — heals on the next render
-	// with no state-sync effect.
 	const zoomLadder = getZoomLadder( viewportWidth );
 	const zoomMax = ladderMaxZoom( zoomLadder );
 	const effectiveZoom = Math.min( zoom, zoomMax );
-
-	// Refs mirroring live values, so the zoom math and the non-passive wheel
-	// listener never work from stale closures.
 	const currentMsRef = useRef( currentMs );
 	currentMsRef.current = currentMs;
 	const zoomRef = useRef( effectiveZoom );
 	zoomRef.current = effectiveZoom;
-	// scrollLeft to apply after the content re-renders at the new width.
-	const pendingScrollRef = useRef< number | null >( null );
+	const pendingAnchorRef = useRef< { timeMs: number; screenX: number } | null >( null );
+	const previousGeometry = useRef( { pxPerMs: 0, viewportWidth: 0 } );
 
 	const pxPerMs = getPxPerMs( viewportWidth, effectiveZoom, durationMs );
 	const contentWidth = viewportWidth > 0 ? viewportWidth * effectiveZoom : 0;
@@ -122,41 +108,53 @@ export function useTimelineGeometry( options: TimelineGeometryOptions ): Timelin
 		[ widthRef ]
 	);
 
-	// Change zoom while keeping the time under the playhead at the same
-	// on-screen x: record the playhead's screen offset at the old scale and
-	// solve for the scrollLeft that reproduces it at the new one.
 	const applyZoom = useCallback(
 		( requested: number ) => {
 			const next = Math.min( zoomMax, Math.max( 1, requested ) );
-			setZoom( previous => {
-				if ( next === previous ) {
-					return previous;
-				}
-				if ( scrollerEl && viewportWidth > 0 && durationMs > 0 ) {
-					// The playhead anchor must be measured at the zoom actually
-					// on screen, which is the cap whenever `previous` overshoots
-					// it (the render clamps the same way).
-					const oldPx = getPxPerMs( viewportWidth, Math.min( previous, zoomMax ), durationMs );
-					const newPx = getPxPerMs( viewportWidth, next, durationMs );
-					const screenX = msToPx( currentMsRef.current, oldPx ) - scrollerEl.scrollLeft;
-					pendingScrollRef.current = msToPx( currentMsRef.current, newPx ) - screenX;
-				}
-				return next;
-			} );
+			if ( ! Number.isFinite( next ) || next === zoomRef.current ) {
+				return;
+			}
+			if ( scrollerEl && pxPerMs > 0 && ! pendingAnchorRef.current ) {
+				pendingAnchorRef.current = zoomAnchor(
+					currentMsRef.current,
+					pxPerMs,
+					viewportWidth,
+					scrollerEl.scrollLeft
+				);
+			}
+			// Wheel events can arrive together before React commits their new scale.
+			zoomRef.current = next;
+			setZoom( next );
 		},
-		[ scrollerEl, viewportWidth, durationMs, zoomMax ]
+		[ scrollerEl, pxPerMs, viewportWidth, zoomMax ]
 	);
 	const applyZoomRef = useRef( applyZoom );
 	applyZoomRef.current = applyZoom;
 
 	useLayoutEffect( () => {
-		if ( pendingScrollRef.current === null || ! scrollerEl ) {
-			return;
+		const previous = previousGeometry.current;
+		if ( scrollerEl && pxPerMs > 0 && previous.pxPerMs > 0 ) {
+			const anchor =
+				pendingAnchorRef.current ??
+				zoomAnchor(
+					currentMsRef.current,
+					previous.pxPerMs,
+					previous.viewportWidth,
+					scrollerEl.scrollLeft
+				);
+			const max = Math.max( 0, contentWidth - viewportWidth );
+			scrollerEl.scrollLeft = Math.min(
+				max,
+				Math.max( 0, anchor.timeMs * pxPerMs - anchor.screenX )
+			);
 		}
-		const max = Math.max( 0, scrollerEl.scrollWidth - scrollerEl.clientWidth );
-		scrollerEl.scrollLeft = Math.min( max, Math.max( 0, pendingScrollRef.current ) );
-		pendingScrollRef.current = null;
-	}, [ zoom, scrollerEl ] );
+		pendingAnchorRef.current = null;
+		previousGeometry.current = { pxPerMs, viewportWidth };
+		// Persist a reduced ceiling so narrowing the viewport cannot resurrect an old zoom.
+		if ( zoom > zoomMax ) {
+			setZoom( zoomMax );
+		}
+	}, [ contentWidth, pxPerMs, viewportWidth, scrollerEl, zoom, zoomMax ] );
 
 	// Modifier+wheel zooms, plain vertical wheel scrolls the strip.
 	useEffect( () => {

@@ -65,7 +65,8 @@ export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultE
 			toolId,
 			{
 				...tool,
-				enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : defaultEnabled ?? tool.enabled,
+				enabled:
+					toolId in siteAbilities ? siteAbilities[ toolId ] : ( defaultEnabled ?? tool.enabled ),
 			},
 		] )
 	);

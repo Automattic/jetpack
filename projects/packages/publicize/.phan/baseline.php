@@ -11,8 +11,8 @@ return [
     // # Issue statistics:
     // PhanPluginMixedKeyNoKey : 7 occurrences
     // PhanPluginUnreachableCode : 4 occurrences
-    // PhanTypeMismatchArgument : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
+    // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
@@ -31,7 +31,7 @@ return [
         'src/class-keyring-helper.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/class-publicize-base.php' => ['PhanDeprecatedFunction', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch'],
         'src/class-publicize-ui.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
+        'src/class-publicize.php' => ['PhanParamSignatureMismatch', 'PhanTypeMissingReturn'],
         'src/rest-api/class-connections-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-scheduled-actions-controller.php' => ['PhanPluginMixedKeyNoKey'],
         'src/rest-api/class-services-controller.php' => ['PhanPluginMixedKeyNoKey'],

@@ -7,6 +7,7 @@
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { getSettings, type DateSettings } from '@wordpress/date';
 
 /**
@@ -99,5 +100,5 @@ export const ES_ES_SETTINGS = settingsFor(
  *               starts.
  * @return The date.
  */
-export const utcDate = ( year: number, month: number, day: number, hour: number = 0 ): Date =>
-	new Date( Date.UTC( year, month - 1, day, hour ) );
+export const utcDate = ( year: number, month: number, day: number, hour: number = 0 ): TZDate =>
+	new TZDate( Date.UTC( year, month - 1, day, hour ), 'UTC' );

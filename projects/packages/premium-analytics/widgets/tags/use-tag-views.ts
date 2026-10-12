@@ -71,11 +71,11 @@ export interface TagView {
 
 interface UseTagViewsArgs {
 	/**
-	 * PA ReportParams from WidgetRoot context.
+	 * The dashboard window the rows are ranked over.
 	 */
 	reportParams: ReportParams;
 	/**
-	 * Maximum rows to display; `0` means all.
+	 * Rows to request and display.
 	 */
 	max: number;
 }
@@ -92,10 +92,8 @@ interface TagViewsState {
  * Fetch the most visited tags and categories for the Tags & categories widget
  * via the shared Stats data layer.
  *
- * Delegates fetching, caching, and normalization to `useStatsTags` from
- * `@jetpack-premium-analytics/data`, then maps the normalized rows onto the
- * leaderboard shape and trims to `max`. The `stats/tags` endpoint is a single
- * period query with no comparison, so rows carry current-period views only.
+ * Delegates to `useStatsTags`, then maps the normalized rows onto the leaderboard
+ * shape and trims to `max`. Single period: `stats/tags` reports no comparison.
  */
 export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): TagViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( {
@@ -118,14 +116,12 @@ export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): T
 				// keys on its archive URL, a grouped row on its combined label (which
 				// the drill-down already treats as the row's unique id).
 				const parentId = item.link ?? item.labelText;
-				const children = ( item.children ?? [] ).map(
-					( child ): TagChildView => ( {
-						id: child.link ?? `${ parentId }-${ child.label }`,
-						label: child.label,
-						labelIcon: child.labelIcon,
-						link: child.link,
-					} )
-				);
+				const children = ( item.children ?? [] ).map( ( child ): TagChildView => ( {
+					id: child.link ?? `${ parentId }-${ child.label }`,
+					label: child.label,
+					labelIcon: child.labelIcon,
+					link: child.link,
+				} ) );
 
 				return {
 					id: parentId,

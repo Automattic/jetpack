@@ -173,6 +173,30 @@ The chart gracefully handles single data points, rendering a complete semi-circl
 	/>` }
 />
 
+## Accessibility
+
+### Keyboard Navigation
+
+The chart container is focusable and has `role="application"`, so screen readers pass arrow keys through to the chart.
+
+- **Tab**: Focus the chart; Tab again leaves it
+- **Right and Left Arrow**: Move through the segments in the order they appear, left to right. Selection stops at the first and last segment
+- **Tooltips**: A focus ring marks the selected segment. With `withTooltips`, its tooltip opens at the segment and takes focus. Without `withTooltips`, screen readers announce the segment's label and value
+- **Escape**: Clear the selection
+- **Pointer**: Hovering a segment ends a keyboard selection, and the next arrow key continues from the hovered segment
+
+### Accessible Name
+
+Set `ariaLabel` to name the chart after what it shows. The default is "Semi-circle chart". Give each chart on a page a different name so screen reader users can tell them apart.
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+		data={ data }
+		ariaLabel="Visitors by operating system"
+	/>` }
+/>
+
 ## Legends
 
 Use the composition API to add a legend by placing `<PieSemiCircleChart.Legend />` as a child:
@@ -192,7 +216,7 @@ For full legend configuration options — positioning, orientation, shapes, inte
 
 ### Custom Colors
 
-Segments automatically use theme colors, but you can override individual segment colors using the `color` property in your data:
+Segments automatically use the palette, but you can override individual segment colors using the `color` property in your data:
 
 <Source
 	language="jsx"
@@ -239,7 +263,7 @@ Each resolves to the design system's value for that token.
 
 ## Theming Integration
 
-Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Segment colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
@@ -252,19 +276,13 @@ Pie Semi Circle Charts integrate seamlessly with the chart theming system. The d
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, PieSemiCircleChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		backgroundColor: '#f5f5f5',
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<PieSemiCircleChart data={data} />
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-background: #f5f5f5;
+	}` }
 />
 
 ## Responsive Behavior

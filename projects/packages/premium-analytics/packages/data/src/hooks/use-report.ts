@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { resolveReportTimeZone, type ReportTimeZoneParams } from '../utils/report-timezone';
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
 import { isAwaitingData } from './awaiting-data';
 import { REFRESH_NOTICE_META } from './refresh-failure-scope';
@@ -25,11 +26,10 @@ type QueryFactory< TData > = (
  * query is driven by the comparison dates in `params`; when it is disabled the
  * query still mounts, parked on `options.disabledComparisonKey`.
  */
-export function useReport< TData, TParams extends ReportParams = ReportParams >(
-	queryFactory: QueryFactory< TData >,
-	params: TParams,
-	options?: UseReportOptions
-) {
+export function useReport<
+	TData,
+	TParams extends ReportParams & ReportTimeZoneParams = ReportParams,
+>( queryFactory: QueryFactory< TData >, params: TParams, options?: UseReportOptions ) {
 	const queryEnabled = options?.enabled ?? true;
 	const comparisonEnabled = hasComparisonEnabled( params );
 	const primaryParams = { ...params };
@@ -48,10 +48,10 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 					to: params.compare_to,
 				},
 				'comparison'
-		  )
+			)
 		: {
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
-		  };
+			};
 
 	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
 	const comparisonQueryEnabled =
@@ -74,15 +74,12 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
 	const isFetching = primary.isFetching || comparison.isFetching;
 
-	// Only the conversion funnel adds `steps`, so all three shapes are checked.
 	// `as any` escapes `TData`, unconstrainable without breaking callers.
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||
 		Boolean( ( primary.data as any )?.data?.length ) ||
-		Boolean( ( primary.data as any )?.steps?.length ) ||
 		Boolean( ( comparison.data as any )?.summary ) ||
-		Boolean( ( comparison.data as any )?.data?.length ) ||
-		Boolean( ( comparison.data as any )?.steps?.length );
+		Boolean( ( comparison.data as any )?.data?.length );
 
 	// React Query's `refetch()` deliberately ignores `enabled`, so the gate is
 	// re-applied here to leave a switched-off query alone.
@@ -99,6 +96,9 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		primary,
 		comparison,
 		hasComparison: comparisonEnabled,
+		// Store reports ignore `params.timezone`: Woo buckets server-side in the
+		// site zone, so only the Stats queries can be built under a named zone.
+		timezone: resolveReportTimeZone( params.timezone ),
 		isLoading,
 		isFetching,
 		hasData,

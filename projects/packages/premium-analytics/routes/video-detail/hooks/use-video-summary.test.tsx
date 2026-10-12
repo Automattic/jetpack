@@ -18,6 +18,8 @@ function mockVideoQuery( overrides: Record< string, unknown > = {} ) {
 	mockUseStatsSingleVideo.mockReturnValue( {
 		data: { post: { id: 42, title: 'Demo', mimeType: 'video/mp4' } },
 		isLoading: false,
+		isPending: false,
+		isPaused: false,
 		isError: false,
 		isSuccess: true,
 		refetch,
@@ -94,6 +96,24 @@ describe( 'useVideoSummary', () => {
 			expect( result.current.posterUrl ).toBeUndefined();
 		}
 	);
+
+	it( 'reports a first load paused offline or in a hidden tab as loading', () => {
+		mockVideoQuery( { data: undefined, isPending: true, isPaused: true, isSuccess: false } );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'passes the failed request error through', () => {
+		const error = { code: 'rest_forbidden', status: 403 };
+		mockVideoQuery( { data: undefined, isError: true, isSuccess: false, error } );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.error ).toBe( error );
+	} );
 
 	it.each( [
 		{ isLoading: true, isSuccess: false },

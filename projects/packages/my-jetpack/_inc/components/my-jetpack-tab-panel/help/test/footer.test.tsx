@@ -34,6 +34,15 @@ describe( 'HelpFooter', () => {
 		expect( screen.getByRole( 'link', { name: 'Debug information' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'sends All Jetpack modules to the Modules page', () => {
+		render( <HelpFooter /> );
+
+		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=jetpack_modules'
+		);
+	} );
+
 	it( 'hides the Useful links section on WordPress.com Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 

@@ -3,6 +3,7 @@
  */
 import { fetchReportBookings } from '../../api/report-bookings-fetch';
 import { safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsBookingsByDateResponse = Awaited< ReturnType< typeof fetchReportBookings > >;
@@ -39,9 +40,12 @@ type SanitizedBookingsSummaryItem = Override<
 	}
 >;
 
-function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookingsByDateItem {
+function sanitizeBookingItem(
+	item: RawBookingsReportDataItem,
+	zone: string
+): SanitizedBookingsByDateItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		status_unpaid: safeParseInt( item.status_unpaid ),
 		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
 		status_confirmed: safeParseInt( item.status_confirmed ),
@@ -55,10 +59,11 @@ function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookin
 }
 
 function sanitizeBookingSummaryItem(
-	item: RawBookingsReportSummaryItem
+	item: RawBookingsReportSummaryItem,
+	zone: string
 ): SanitizedBookingsSummaryItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		status_unpaid: safeParseInt( item.status_unpaid ),
 		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
 		status_confirmed: safeParseInt( item.status_confirmed ),
@@ -81,10 +86,11 @@ type SanitizedBookingsByDateResponse = {
  * so we use different sanitizer functions for each.
  */
 export const sanitizeReportBookingsResponse = (
-	response: ReportsBookingsByDateResponse
+	response: ReportsBookingsByDateResponse,
+	zone: string
 ): SanitizedBookingsByDateResponse => {
 	return {
-		summary: sanitizeBookingSummaryItem( response.summary ),
-		data: response.data.map( sanitizeBookingItem ),
+		summary: sanitizeBookingSummaryItem( response.summary, zone ),
+		data: response.data.map( item => sanitizeBookingItem( item, zone ) ),
 	};
 };

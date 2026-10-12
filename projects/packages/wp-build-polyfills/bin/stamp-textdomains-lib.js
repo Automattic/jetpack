@@ -20,10 +20,9 @@
  * each stamped file's sibling `*.asset.php` version is recomputed too; see
  * `refreshAssetVersion()`.
  *
- * Note: WordPress core merged script-module i18n
- * (`wp_set_script_module_translations()`, WP 7.0). Once Jetpack's WP floor
- * reaches 7.0, this post-build stamp — and the runtime catalog loader that
- * pairs with it — can likely be retired.
+ * Note: every supported WordPress ships script-module i18n
+ * (`wp_set_script_module_translations()`, since 7.0), so this post-build stamp —
+ * and the runtime catalog loader that pairs with it — can likely be retired.
  */
 
 const crypto = require( 'crypto' );

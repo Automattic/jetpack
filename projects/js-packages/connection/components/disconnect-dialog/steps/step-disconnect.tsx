@@ -76,7 +76,7 @@ const StepDisconnect = ( {
 					'jetpack-connection-js',
 					// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
 					/* dummy arg to avoid bad minification */ 0
-			  );
+				);
 
 	/**
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.

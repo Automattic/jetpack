@@ -115,20 +115,31 @@ export const FormWelcomeGuide = () => {
 	 */
 	const origin: GuideOrigin = isForced ? 'forced' : ( isReopened && 'menu' ) || 'auto';
 
-	// The slide the user is on, so a dismissal says how far they got. Held in a
-	// ref because only the dismissal reads it, and re-rendering on every slide
-	// change would rebuild the whole guide.
+	/*
+	 * The last slide recorded for this opening. It says how far the user got
+	 * when they leave, and it is what separates a navigation from the tracker
+	 * re-reporting a slide it is already on. Held in a ref because only the
+	 * recorders read it, and re-rendering on every slide change would rebuild
+	 * the whole guide.
+	 */
 	const currentSlide = useRef( 1 );
 
 	const recordSlideView = useCallback(
-		( event: string, props: Record< string, string | number | boolean > = {} ) => {
-			if ( typeof props.slide === 'number' ) {
-				currentSlide.current = props.slide;
+		( slide: number ) => {
+			/*
+			 * The tracker reports its slide whenever it mounts, and the effect
+			 * below records the opening's own first slide — so an opening's
+			 * first report always duplicates one already made. Comparing
+			 * against the last slide recorded drops it.
+			 */
+			if ( slide === currentSlide.current ) {
+				return;
 			}
 
-			record( event, props );
+			currentSlide.current = slide;
+			record( SLIDE_VIEW_EVENT, { slide, slide_count: SLIDE_COUNT, origin } );
 		},
-		[ record ]
+		[ origin, record ]
 	);
 
 	const recordDismiss = useCallback( () => {
@@ -170,9 +181,18 @@ export const FormWelcomeGuide = () => {
 			return;
 		}
 
-		currentSlide.current = 1;
 		record( VIEW_EVENT, { origin, slide_count: SLIDE_COUNT } );
 		record( SLIDE_VIEW_EVENT, { slide: 1, slide_count: SLIDE_COUNT, origin } );
+
+		/*
+		 * Rewind on the way out rather than on the way in. The tracker sits
+		 * inside the guide, so its effects run before this one: resetting when
+		 * the next opening starts would land after that opening's first report
+		 * had already been compared against the slide the user left on.
+		 */
+		return () => {
+			currentSlide.current = 1;
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only a change in `isOpen` is a new viewing; `origin` is fixed for one.
 	}, [ isOpen ] );
 
@@ -253,12 +273,7 @@ export const FormWelcomeGuide = () => {
 		...page,
 		content: (
 			<>
-				<SlideTracker
-					index={ index }
-					origin={ origin }
-					record={ recordSlideView }
-					slideCount={ SLIDE_COUNT }
-				/>
+				<SlideTracker index={ index } report={ recordSlideView } />
 				{ page.content }
 			</>
 		),

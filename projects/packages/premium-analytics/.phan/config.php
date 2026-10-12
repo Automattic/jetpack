@@ -13,12 +13,14 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		// WC stubs resolve WooCommerce symbols for this TEMPORARY interim sync port (WOOA7S-1550);
-		// 'wpcom' also pulls in wpcom_site_has_feature(), defined in wpcomsh's wpcom-features files.
+		// WooCommerce is a runtime dependency for report exports and Sync integration.
+		// 'wpcom' also pulls in wpcomsh's wpcom-features files (.phan/config.base.php),
+		// which is where wpcom_site_has_feature() is defined; it is not in the
+		// generated wpcom stubs.
 		'+stubs'             => array( 'woocommerce', 'woocommerce-internal', 'wpcom' ),
 		'exclude_file_regex' => array(
 			'build/',
-			// Test WooCommerce stubs would redefine the WC symbols the +stubs above provide.
+			// Test WooCommerce stubs would redefine the WC symbols above.
 			'tests/php/mocks/',
 		),
 	)

@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
-import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	AbbreviatedValue,
 	describeError,
 	MetricSparklineSkeleton,
 	Sparkline,
@@ -14,7 +14,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -39,10 +38,7 @@ type TotalViewsWidgetProps = WidgetRenderProps< TotalViewsRenderAttributes > & {
 // but both cards share one unit and one request.
 const PERIOD = 'day';
 
-// `decimals: 0` would round 291,900 to "292K"; the prototype's headline keeps
-// the digit ("291.9k" / "1.2M").
-const ABBREVIATED_HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
-const PLAIN_HEADLINE_OPTIONS = { decimals: 0 };
+const HEADLINE_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
  * The period's view total over an area sparkline of the trend.
@@ -63,12 +59,6 @@ function TotalViewsMetric() {
 
 	// The sanitizer builds the report summary by summing the returned buckets.
 	const total = Number( report?.summary?.views ?? 0 );
-	const fullTotal = formatMetricValue( total, 'number', PLAIN_HEADLINE_OPTIONS );
-	const headline = formatMetricValue(
-		total,
-		'number',
-		total >= 1000 ? ABBREVIATED_HEADLINE_OPTIONS : PLAIN_HEADLINE_OPTIONS
-	);
 	const points = useMemo(
 		() =>
 			( report?.data ?? [] ).map( row =>
@@ -85,7 +75,8 @@ function TotalViewsMetric() {
 				// `placeholderData` keeps the prior rows on a transient refetch failure,
 				// so only surface the error when there is nothing left to show.
 				isError={ isError && points.length === 0 }
-				isEmpty={ points.length === 0 }
+				// `stats/visits` zero-fills every bucket of an idle window.
+				isEmpty={ ! points.some( value => value > 0 ) }
 				error={ describeError( error, {
 					retryDescription: __(
 						"We couldn't load your views. Please try again in a moment.",
@@ -93,24 +84,13 @@ function TotalViewsMetric() {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: seen,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
 					    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
-					<Text variant="heading-2xl" title={ fullTotal }>
-						{ headline === fullTotal ? (
-							headline
-						) : (
-							<>
-								<span aria-hidden="true">{ headline }</span>
-								<VisuallyHidden>{ fullTotal }</VisuallyHidden>
-							</>
-						) }
+					<Text variant="heading-2xl">
+						<AbbreviatedValue value={ total } dataFormat={ HEADLINE_FORMAT } />
 					</Text>
 					<div className={ styles.chart }>
 						{ /* `withResponsive` caps width at 1200px by default, stranding space on a

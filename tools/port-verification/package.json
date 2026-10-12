@@ -1,0 +1,24 @@
+{
+	"name": "@automattic/jetpack-port-verification",
+	"version": "1.0.0",
+	"private": true,
+	"description": "JETPACK-2685: script the geometry and network-panel checks from the wp-build port verification rule (JETPACK-2573)",
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"bin": {
+		"verify-port": "./bin/verify-port.js"
+	},
+	"scripts": {
+		"setup:browsers": "playwright install chromium",
+		"test": "node --test src/*.test.js",
+		"test:smoke": "node --test test/*.test.js",
+		"verify-port": "node bin/verify-port.js"
+	},
+	"dependencies": {
+		"playwright": "^1.48.0"
+	},
+	"engines": {
+		"node": ">=20.11.0"
+	}
+}

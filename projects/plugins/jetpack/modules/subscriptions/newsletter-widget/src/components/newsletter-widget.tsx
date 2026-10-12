@@ -88,7 +88,7 @@ export const NewsletterWidget = ( {
 												subscriberStatsUrl,
 												'all_subscribers_click',
 												subscribersText
-										  )
+											)
 										: subscribersText }
 								</span>
 							</span>
@@ -105,7 +105,7 @@ export const NewsletterWidget = ( {
 												subscriberStatsUrl,
 												'paid_subscribers_click',
 												paidSubscribersText
-										  )
+											)
 										: paidSubscribersText }
 								</span>
 							</span>

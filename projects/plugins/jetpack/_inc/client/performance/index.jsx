@@ -41,7 +41,7 @@ class Performance extends Component {
 						: __(
 								'Load pages faster, optimize images, and speed up your visitors’ experience.',
 								'jetpack'
-						  ) }
+							) }
 				</h2>
 				<Search { ...commonProps } />
 				<SpeedUpSite { ...commonProps } />

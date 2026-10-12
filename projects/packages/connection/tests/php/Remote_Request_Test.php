@@ -34,6 +34,9 @@ class Remote_Request_Test extends BaseTestCase {
 	public function set_up() {
 		$this->error_handler = Error_Handler::get_instance();
 
+		// Signing failures are only reported on registered sites.
+		\Jetpack_Options::update_option( 'id', 12345 );
+
 		// The reporting gate is per error code and lives for an hour; tests assert on the
 		// stored result, not on the gate.
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -49,6 +52,7 @@ class Remote_Request_Test extends BaseTestCase {
 		// removes it; left in place it changes how constants resolve for later tests.
 		remove_all_filters( 'jetpack_constant_default_value' );
 		Constants::clear_constants();
+		\Jetpack_Options::delete_option( 'id' );
 
 		$this->error_handler->delete_all_errors();
 

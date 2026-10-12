@@ -1,8 +1,9 @@
 <?php
 /**
  * Widget type support shared by the registry and default layouts — hard availability only
- * (a feature the site has or doesn't); soft/request-dependent state belongs in the runtime
- * types filter. Persisted layouts keep missing types as removable ghost widgets.
+ * (a feature the site has or doesn't, or a type held back from release); soft/request-dependent
+ * state belongs in the runtime types filter. Persisted layouts keep missing types as removable
+ * ghost widgets.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -18,12 +19,22 @@ if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
 }
 
 /**
- * Widget types that only have data on a site running VideoPress.
+ * Widget types that only have data on a site running VideoPress. The Top videos widget is not
+ * listed: the VideoPress package registers it, and decides where.
  */
 const VIDEOPRESS_WIDGET_TYPES = array(
-	'jpa/videopress',
 	'jpa/video-detail-views-performance',
 	'jpa/video-detail-embeds',
+);
+
+/**
+ * Period widgets whose chart reads the section's date range.
+ */
+const PERIOD_WIDGET_TYPES = array(
+	'jpa/total-views',
+	'jpa/total-visitors',
+	'jpa/popular-days',
+	'jpa/popular-hours',
 );
 
 /**
@@ -45,7 +56,9 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	$unsupported = array();
+	// Temporary: the period widgets are held back on every site until product decides
+	// whether they return or go (WOOA7S-2020). Their code stays.
+	$unsupported = PERIOD_WIDGET_TYPES;
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.

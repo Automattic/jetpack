@@ -10,6 +10,7 @@ import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
  * Internal dependencies
  */
 import { getNewsletterScriptData } from '../script-data';
+import type { JSX } from 'react';
 
 interface PaidNewsletterSectionProps {
 	isNewsletterEnabled: boolean;

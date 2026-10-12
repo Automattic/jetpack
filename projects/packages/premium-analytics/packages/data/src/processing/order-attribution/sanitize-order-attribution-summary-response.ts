@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { fetchReportOrderAttributionSummary } from '../../api/report-order-attribution-summary-fetch';
-import { sanitizeStringNumber } from '../utils';
+import { sanitizeStringNumber, withBucketStamps } from '../utils';
 
 type OrderAttributionSummaryResponse = Awaited<
 	ReturnType< typeof fetchReportOrderAttributionSummary >
@@ -53,41 +53,49 @@ export type SanitizedOrderAttributionSummaryResponse = {
 };
 
 function sanitizeOrderAttributionInterval(
-	interval: OrderAttributionInterval
+	interval: OrderAttributionInterval,
+	zone: string
 ): SanitizedOrderAttributionInterval {
+	const { date_start, date_end } = withBucketStamps( interval, zone );
+
 	return {
 		time_interval: interval.time_interval,
-		date_start: interval.date_start,
-		date_end: interval.date_end,
+		date_start,
+		date_end,
 		net_sales: sanitizeStringNumber( interval.net_sales ),
 	};
 }
 
 function sanitizeOrderAttributionPeriod(
-	period: OrderAttributionPeriod
+	period: OrderAttributionPeriod,
+	zone: string
 ): SanitizedOrderAttributionPeriod {
 	return {
 		value: sanitizeStringNumber( period.value ),
-		intervals: period.intervals.map( sanitizeOrderAttributionInterval ),
+		intervals: period.intervals.map( interval =>
+			sanitizeOrderAttributionInterval( interval, zone )
+		),
 	};
 }
 
 function sanitizeOrderAttributionSummaryItem(
-	item: OrderAttributionSummaryItem
+	item: OrderAttributionSummaryItem,
+	zone: string
 ): SanitizedOrderAttributionSummaryItem {
 	return {
 		item: item.item,
-		current_period: sanitizeOrderAttributionPeriod( item.current_period ),
-		previous_period: sanitizeOrderAttributionPeriod( item.previous_period ),
+		current_period: sanitizeOrderAttributionPeriod( item.current_period, zone ),
+		previous_period: sanitizeOrderAttributionPeriod( item.previous_period, zone ),
 	};
 }
 
 export function sanitizeReportOrderAttributionSummaryResponse(
-	response: OrderAttributionSummaryResponse
+	response: OrderAttributionSummaryResponse,
+	zone: string
 ): SanitizedOrderAttributionSummaryResponse {
 	return {
 		view: response.view,
 		order_by: response.order_by,
-		data: response.data.map( sanitizeOrderAttributionSummaryItem ),
+		data: response.data.map( item => sanitizeOrderAttributionSummaryItem( item, zone ) ),
 	};
 }

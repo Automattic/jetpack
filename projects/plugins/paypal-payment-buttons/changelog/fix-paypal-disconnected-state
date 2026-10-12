@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show that PayPal is disconnected instead of reporting a connected account, and offer a Reconnect button. Disconnecting now says it applies to the whole site.

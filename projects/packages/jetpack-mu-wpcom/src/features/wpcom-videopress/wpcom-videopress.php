@@ -19,21 +19,18 @@
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Whether the VideoPress chapters editor is available to this Simple user.
+ * Enable trim and cut for the Simple-site testing cohort.
  *
- * Gates the chapters editor UI in both places it lives: the dashboard's Editor
- * tab (and the `/video/$id/editor` route behind it, stripped from the wp-build
- * registry when this is false) and the block editor's "Manage chapters"
- * toolbar button. Automatticians only while the feature is in development —
- * there is deliberately no blog-sticker branch yet.
- *
- * UI-only by design: the chapters REST surface (the VideoPress endpoints that
- * read and write the chapters track) stays registered regardless, so the API
- * contract doesn't flap with the flag.
- *
- * @return bool Whether the chapters editor UI should be enabled.
+ * @return bool Whether the current site or user is included in the rollout.
  */
-function wpcom_videopress_chapters_editor_enabled() {
+function wpcom_videopress_trim_cut_enabled() {
+	if (
+		function_exists( 'wpcom_has_blog_sticker' ) && function_exists( 'get_wpcom_blog_id' )
+		&& wpcom_has_blog_sticker( 'videopress-studio-edits', get_wpcom_blog_id() )
+	) {
+		return true;
+	}
+
 	return function_exists( 'is_automattician' ) && is_automattician( get_current_user_id() );
 }
 
@@ -53,27 +50,16 @@ function wpcom_videopress_init_admin_ui() {
 		return;
 	}
 
-	/*
-	 * Registered on Simple only, so self-hosted and Atomic keep the filter's
-	 * default (disabled). Registered before the class_exists() guard below and
-	 * from a plugins_loaded-time call site, so it also covers block editor
-	 * requests — where the flag is read at enqueue_block_editor_assets — not
-	 * just the VideoPress admin page. The callbacks that consult the filter all
-	 * run at admin_menu/enqueue time, well after this registration, so
-	 * is_automattician() sees the resolved current user.
-	 */
-	add_filter( 'jetpack_videopress_chapters_editor', 'wpcom_videopress_chapters_editor_enabled' );
+	add_filter( 'jetpack_videopress_trim_cut', 'wpcom_videopress_trim_cut_enabled' );
 
 	if ( ! class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 		return;
 	}
 
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple).
 	\Automattic\Jetpack\VideoPress\Admin_UI::init();
 
 	// Emit the JPVIDEOPRESS_INITIAL_STATE boot payload the wp-build dashboard hydrates from.
 	if ( class_exists( '\Automattic\Jetpack\VideoPress\Initial_State' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple).
 		\Automattic\Jetpack\VideoPress\Initial_State::init();
 	}
 }

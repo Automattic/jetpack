@@ -8,10 +8,7 @@ module.exports = {
 	devtool: false,
 	output: {
 		...jetpackWebpackConfig.output,
-		library: {
-			name: 'Test',
-			type: 'var',
-		},
+		library: 'Test',
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,

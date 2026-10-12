@@ -3,6 +3,7 @@
  */
 import { fetchReportCustomersByDate } from '../../api/report-customers-by-date-fetch';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsCustomersByDateResponse = Awaited< ReturnType< typeof fetchReportCustomersByDate > >;
@@ -63,10 +64,13 @@ export type SanitizedCustomersByDateResponse = {
 	data: SanitizedCustomersByDateItem[];
 };
 
-function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCustomersByDateItem {
+function sanitizeCustomerByDateItem(
+	item: RawCustomersByDateItem,
+	zone: string
+): SanitizedCustomersByDateItem {
 	const totalCustomers = safeParseInt( item.total_customers );
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		total_customers: totalCustomers,
 		new_customers: safeParseInt( item.new_customers ),
 		returning_customers: safeParseInt( item.returning_customers ),
@@ -82,14 +86,15 @@ function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCu
 }
 
 function sanitizeCustomerByDateSummary(
-	summary: RawCustomersByDateSummary
+	summary: RawCustomersByDateSummary,
+	zone: string
 ): SanitizedCustomersByDateSummary {
 	// safeParseFloat/safeParseInt fall back to 0 for missing fields (e.g. an
 	// empty-range response with an empty `summary`), so the widget reaches its
 	// empty state instead of charting NaN values.
 	const totalCustomers = safeParseInt( summary.total_customers );
 	return {
-		...summary,
+		...withBucketStamps( summary, zone ),
 		total_net_sales: safeParseFloat( summary.total_net_sales ),
 		total_gross_sales: safeParseFloat( summary.total_gross_sales ),
 		total_discounts: safeParseFloat( summary.total_discounts ),
@@ -124,10 +129,11 @@ function sanitizeCustomerByDateSummary(
 }
 
 export const sanitizeReportCustomersByDateResponse = (
-	response: ReportsCustomersByDateResponse
+	response: ReportsCustomersByDateResponse,
+	zone: string
 ): SanitizedCustomersByDateResponse => {
 	return {
-		summary: sanitizeCustomerByDateSummary( response.summary ),
-		data: response.data.map( sanitizeCustomerByDateItem ),
+		summary: sanitizeCustomerByDateSummary( response.summary, zone ),
+		data: response.data.map( item => sanitizeCustomerByDateItem( item, zone ) ),
 	};
 };

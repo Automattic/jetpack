@@ -12,6 +12,9 @@ const WEEKDAY_TOKENS = new Set( [ 'l', 'D', 'N', 'w' ] );
 /** Full weekday name, the form a date-scale label leads with. */
 const WEEKDAY_FORMAT = 'l';
 
+/** Tokens that render a day of the month: unpadded, padded, and its ordinal suffix. */
+const DAY_TOKENS = new Set( [ 'j', 'd', 'S' ] );
+
 /** Textual month, spelled out and abbreviated. */
 const MONTH_FULL_TOKEN = 'F';
 const MONTH_SHORT_TOKEN = 'M';
@@ -165,4 +168,82 @@ export function withWeekday( phpFormat: string ): string {
 	}
 
 	return `${ WEEKDAY_FORMAT }${ WEEKDAY_SEPARATOR }${ phpFormat }`;
+}
+
+/**
+ * The first token at or after `from`, or the segment count where there is none.
+ *
+ * @param segments - The segments to scan.
+ * @param from     - Index to start at.
+ * @return The token's index.
+ */
+function nextTokenAt( segments: Segment[], from: number ): number {
+	let at = from;
+	while ( at < segments.length && ! segments[ at ].isToken ) {
+		at++;
+	}
+
+	return at;
+}
+
+/**
+ * The start of the run of literals that introduces the token at `index`.
+ *
+ * @param segments - The segments to scan.
+ * @param index    - The token's index.
+ * @return The run's first index, or `index` where no literal precedes it.
+ */
+function literalRunStart( segments: Segment[], index: number ): number {
+	let at = index - 1;
+	while ( at >= 0 && ! segments[ at ].isToken ) {
+		at--;
+	}
+
+	return at + 1;
+}
+
+/**
+ * Remove the day from a PHP format string, with its adjoining punctuation.
+ *
+ * The weekday goes too: neither has anything to name in a month-and-year label.
+ * The run to remove is the one after the day (`F j, Y` → `F Y`), or the one
+ * before it where nothing follows (`Y-m-d` → `Y-m`).
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @return The format without its day, or unchanged when it has none.
+ */
+export function withoutDay( phpFormat: string ): string {
+	const segments = toSegments( phpFormat );
+	const isDay = ( segment: Segment ): boolean =>
+		segment.isToken && ( DAY_TOKENS.has( segment.char ) || WEEKDAY_TOKENS.has( segment.char ) );
+	const dropped = new Set< number >();
+
+	for ( let index = 0; index < segments.length; index++ ) {
+		if ( ! isDay( segments[ index ] ) ) {
+			continue;
+		}
+
+		// `jS` spells the day and its suffix as two adjacent tokens.
+		let last = index;
+		while ( last + 1 < segments.length && isDay( segments[ last + 1 ] ) ) {
+			last++;
+		}
+
+		const following = nextTokenAt( segments, last + 1 );
+		const [ start, end ] =
+			following < segments.length
+				? [ index, following ]
+				: [ literalRunStart( segments, index ), last + 1 ];
+
+		for ( let at = start; at < end; at++ ) {
+			dropped.add( at );
+		}
+
+		index = last;
+	}
+
+	return segments
+		.filter( ( _, at ) => ! dropped.has( at ) )
+		.map( segment => segment.source )
+		.join( '' );
 }

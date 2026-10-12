@@ -354,7 +354,7 @@ const FirewallPage = () => {
 										'Your site is not receiving the latest updates to automatic rules',
 										'jetpack-protect',
 										/* dummy arg to avoid bad minification */ 0
-								  )
+									)
 						}
 						cta={
 							! canToggleAutomaticRules
@@ -363,7 +363,7 @@ const FirewallPage = () => {
 										'Upgrade to keep your site secure with up-to-date firewall rules',
 										'jetpack-protect',
 										/* dummy arg to avoid bad minification */ 0
-								  )
+									)
 						}
 						onClick={ getScan }
 					/>

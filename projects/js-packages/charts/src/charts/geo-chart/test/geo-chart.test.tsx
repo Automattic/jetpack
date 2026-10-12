@@ -142,7 +142,7 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Chart Options', () => {
-		test( 'configures color axis with theme colors', () => {
+		test( 'configures a two-stop color axis from the palette', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
@@ -152,7 +152,7 @@ describe( 'GeoChart', () => {
 			expect( options.colorAxis.colors ).toHaveLength( 2 );
 		} );
 
-		test( 'sets datalessRegionColor from theme', () => {
+		test( 'sets datalessRegionColor from the surface-secondary role', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
@@ -214,6 +214,22 @@ describe( 'GeoChart', () => {
 			const options = JSON.parse( chartOptions.textContent || '{}' );
 
 			expect( options.region ).toBeUndefined();
+		} );
+
+		test( 'passes the domain so disputed borders follow that country', () => {
+			renderWithTheme( { domain: 'IN' } );
+
+			const options = JSON.parse( screen.getByTestId( 'chart-options' ).textContent || '{}' );
+
+			expect( options.domain ).toBe( 'IN' );
+		} );
+
+		test( 'passes the markers display mode so rows draw as points, not shaded areas', () => {
+			renderWithTheme( { displayMode: 'markers' } );
+
+			const options = JSON.parse( screen.getByTestId( 'chart-options' ).textContent || '{}' );
+
+			expect( options.displayMode ).toBe( 'markers' );
 		} );
 
 		test( 'does not include resolution in options when set to countries (default)', () => {

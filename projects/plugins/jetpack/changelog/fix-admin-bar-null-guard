@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Admin bar: fix a fatal error in the admin bar endpoint global $wp_admin_bar is null.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Make `isEmpty` optional on WidgetState so widgets with no empty state can omit it. No user-facing change.
+

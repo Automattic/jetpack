@@ -12,6 +12,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Search\Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -58,8 +59,102 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		remove_filter( 'jetpack_ai_enabled', '__return_true' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ) );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Simulate a connected free Search site, where an existing AI Chat block
+	 * can still call the proxy and receive the upstream plan error.
+	 */
+	private function simulate_connection() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asd.qwe' );
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_search'         => true,
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Body/status returned by mock_wpcom_ai_search_response(); set per test.
+	 *
+	 * @var array
+	 */
+	private $mocked_wpcom_response_body = array();
+
+	/**
+	 * @var int
+	 */
+	private $mocked_wpcom_response_status = 200;
+
+	/**
+	 * Stand-in for the wpcom `/jetpack-search/ai/search` response, hooked on
+	 * `pre_http_request` so the underlying signed request never leaves the
+	 * process.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
+	 * @return array|false
+	 */
+	public function mock_wpcom_ai_search_response( $preempt, $args, $url ) {
+		if ( strpos( $url, 'jetpack-search/ai/search' ) === false ) {
+			return $preempt;
+		}
+		return array(
+			'body'     => wp_json_encode( $this->mocked_wpcom_response_body, JSON_UNESCAPED_SLASHES ),
+			'response' => array( 'code' => $this->mocked_wpcom_response_status ),
+		);
+	}
+
+	/**
+	 * The proxy forwards an upstream error's code and HTTP status instead
+	 * of replacing them with invalid_ask_response / 500.
+	 */
+	public function test_request_chat_with_site_forwards_upstream_code_and_status() {
+		$this->simulate_connection();
+		$this->mocked_wpcom_response_body   = array(
+			'code' => 'upstream_plan_rejected',
+		);
+		$this->mocked_wpcom_response_status = 403;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
+
+		$this->register_routes_on_fresh_server();
+		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
+		$request->set_param( 'query', 'What is this website?' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'upstream_plan_rejected', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A response that is neither an upstream error nor a valid answer (no
+	 * `cache_key`, no `code`) still falls back to the generic error.
+	 */
+	public function test_request_chat_with_site_falls_back_to_generic_error() {
+		$this->simulate_connection();
+		$this->mocked_wpcom_response_body   = array( 'unexpected' => 'shape' );
+		$this->mocked_wpcom_response_status = 200;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
+
+		$this->register_routes_on_fresh_server();
+		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
+		$request->set_param( 'query', 'What is this website?' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'invalid_ask_response', $response->get_data()['code'] );
 	}
 
 	/**

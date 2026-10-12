@@ -31,8 +31,7 @@ interface DevicesStoryControls {
 }
 
 interface DevicesDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		DevicesStoryControls {}
+	extends WidgetDashboardWithWidgetControls, DevicesStoryControls {}
 
 function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
 	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
@@ -141,8 +140,7 @@ export const ErrorRetryable: StoryObj< DevicesStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral device
- * glyph and "No device data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< DevicesStoryControls > = {
 	render: () => renderDevicesOnPreset( 'last-year' ),

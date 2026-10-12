@@ -394,7 +394,7 @@ export const TextOverflow: Story = {
 		const titleText = maxWidth
 			? `Legend with ${
 					textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
-			  } (maxWidth: ${ maxWidth })`
+				} (maxWidth: ${ maxWidth })`
 			: 'Legend without maxWidth constraint';
 
 		return (
@@ -451,5 +451,35 @@ export const CustomShape: Story = {
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
 		shape: 'circle',
+	},
+};
+
+export const ComparisonItem: Story = {
+	render: () => (
+		<LineChart
+			withGradientFill={ false }
+			width={ 600 }
+			height={ 300 }
+			data={ [
+				{ ...lineChartData[ 0 ], group: 'desktop' },
+				{
+					...lineChartData[ 1 ],
+					label: 'Previous desktop',
+					group: 'desktop',
+					options: { type: 'comparison' },
+				},
+			] }
+			legend={ { collapseGroups: true, comparisonItem: 'Desktop', interactive: true } }
+		>
+			<LineChart.Legend interactive />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The comparison item deliberately shares the metric label. Only the solid metric item toggles the two series; the dashed comparison item stays visible.',
+			},
+		},
 	},
 };

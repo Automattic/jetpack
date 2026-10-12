@@ -73,6 +73,7 @@ export class Composing extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-copy-post' ),
+						wpcomLink: 'https://wordpress.com/support/copy-a-post-or-page/',
 					} }
 				>
 					<FormFieldset>
@@ -96,6 +97,7 @@ export class Composing extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-markdown' ),
+						wpcomLink: 'https://wordpress.com/support/wordpress-editor/blocks/markdown-block/',
 					} }
 				>
 					<FormFieldset>
@@ -124,6 +126,7 @@ export class Composing extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-beautiful-math-with-latex' ),
+						wpcomLink: 'https://wordpress.com/support/latex/',
 					} }
 				>
 					<FormFieldset>
@@ -144,6 +147,7 @@ export class Composing extends Component {
 					support={ {
 						text: shortcodes.description,
 						link: getRedirectUrl( 'jetpack-support-shortcode-embeds' ),
+						wpcomLink: 'https://wordpress.com/support/wordpress-editor/blocks/shortcode-block/',
 					} }
 				>
 					<FormFieldset>

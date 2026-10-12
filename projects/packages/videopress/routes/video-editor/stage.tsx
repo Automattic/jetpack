@@ -1,29 +1,8 @@
-/**
- * The Editor tab for a single video: the studio-style tools rail beside the
- * shared chapters editor (preview player over the chapters timeline) —
- * Chapters is the only extracted tool today — saving through the
- * description meta POST + fire-and-notice VTT sync.
- *
- * State model: one history-wrapped chapters store (use-chapters-store) backs
- * the editing surface — the video description is the single source of truth
- * for chapters, and the VTT track is derived downstream by `syncChapters`.
- * A manually uploaded chapters VTT must never be edited here, so a probe
- * runs once per mount: while it is unresolved the tool is LOCKED (busy),
- * not read-only — edits made in the probe window could dirty a session that
- * a late 'manual' result freezes un-editable, with Save still armed to
- * rewrite a manually-managed description (the write-time guard protects the
- * VTT file, not the description lines). 'manual' turns the tool read-only.
- * The probe fails open ('editable') — the save-time sync re-checks the
- * guard authoritatively.
- *
- * Save/Discard enablement, the beforeunload guard, and the in-app
- * navigation guards (sub-nav, links, browser back/forward) all key off the
- * session being effectively dirty (dirty AND probed 'editable').
- */
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Button as IconButton } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -47,14 +26,17 @@ import {
 } from '../../src/client/utils/video-chapters/description';
 import { pickPlaybackUrl } from '../../src/client/utils/video-chapters/pick-playback-url';
 import { probeManualTrack } from '../../src/client/utils/video-chapters/probe-manual-track';
+import TrimCutEditor from '../../src/dashboard/components/editor/editor-screen';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
-import EditorOperationsPanel from './operations-panel';
+import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
+import EditorOperationsPanel, { type EditorTool } from './operations-panel';
 import './style.scss';
 import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { MouseEvent as ReactMouseEvent, ReactElement, ReactNode } from 'react';
@@ -276,6 +258,7 @@ function EditorNotFound( { videoId }: { videoId: string } ): ReactElement {
 
 type ReadyProps = {
 	video: LibraryItem;
+	onSelectTool: ( tool: EditorTool ) => void;
 };
 
 /**
@@ -283,13 +266,15 @@ type ReadyProps = {
  * beside the chapters tool; owns the chapters store, the manual-VTT probe,
  * and the save/discard flows.
  *
- * @param props       - Component props.
- * @param props.video - The video whose chapters are edited.
+ * @param props              - Component props.
+ * @param props.video        - The video whose chapters are edited.
+ * @param props.onSelectTool - Switch editing tools after guarding unsaved changes.
  * @return The screen element.
  */
-function EditorReady( { video }: ReadyProps ): ReactElement {
+function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 	const navigate = useNavigate();
-	const { createSuccessNotice, createWarningNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createWarningNotice, createErrorNotice } =
+		useDispatch( noticesStore );
 	// The two halves of Save: the description meta POST, then the
 	// fire-and-notice VTT sync (same pair the Details tab saves through).
 	const { mutateAsync: saveVideoMeta, isPending: metaSavePending } = useUpdateVideoMeta();
@@ -473,7 +458,9 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		try {
 			await saveVideoMeta( { id: item.id, patch: { description: nextDescription } } );
 		} catch {
-			createErrorNotice( __( 'Failed to save chapters.', 'jetpack-videopress-pkg' ) );
+			createErrorNotice( __( 'Failed to save chapters.', 'jetpack-videopress-pkg' ), {
+				type: 'snackbar',
+			} );
 			return;
 		}
 		void syncChapters( item, nextDescription );
@@ -484,14 +471,17 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		// catalog entry for this sentence — there the callee has to differ,
 		// because both branches go through the same `notify`.
 		if ( chaptersValid ) {
-			createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+			createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ), {
+				type: 'snackbar',
+			} );
 		} else {
 			createWarningNotice(
 				_x(
 					'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.',
 					'chapters save outcome',
 					'jetpack-videopress-pkg'
-				)
+				),
+				{ type: 'snackbar' }
 			);
 		}
 	}, [
@@ -536,7 +526,13 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 			>
 				<div className="vp-video-editor vp-chapters-tokens">
 					<div className="vp-video-editor__body">
-						<EditorOperationsPanel />
+						<EditorOperationsPanel
+							onSelect={ tool => {
+								if ( tool !== 'chapters' && confirmNavigation() ) {
+									onSelectTool( tool );
+								}
+							} }
+						/>
 						<div className="vp-video-editor__workspace">
 							<div className="vp-video-editor__main">
 								<div className="vp-video-editor__canvas">
@@ -615,7 +611,12 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
  * @return The screen element.
  */
 function EditorRoute( { id }: { id: string } ): ReactElement {
-	const { video, isLoading } = useVideo( id );
+	const [ activeTool, setActiveTool ] = useState< EditorTool >( () =>
+		isTrimCutEnabled() ? 'trim' : 'chapters'
+	);
+	const { video, isLoading } = useVideo( id, {
+		poll: activeTool !== 'trim' || ! isTrimCutEnabled(),
+	} );
 
 	if ( isLoading ) {
 		return (
@@ -633,6 +634,10 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 		return <EditorNotFound videoId={ id } />;
 	}
 
+	if ( activeTool === 'trim' && isTrimCutEnabled() ) {
+		return <TrimCutEditor key={ video.guid } video={ video } onSelectTool={ setActiveTool } />;
+	}
+
 	if ( video.isProcessing || video.durationSeconds <= 0 ) {
 		// A video without a known duration can't host a timeline. useVideo
 		// keeps polling while processing, so the editor appears on its own
@@ -642,7 +647,7 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 				<div className="vp-video-editor vp-video-editor__processing">
 					<Text>
 						{ __(
-							'This video is still processing. Chapters will be available once it finishes.',
+							'This video is still processing. The editor will be available once it finishes.',
 							'jetpack-videopress-pkg'
 						) }
 					</Text>
@@ -651,10 +656,11 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 		);
 	}
 
-	return <EditorReady video={ video } />;
+	return <EditorReady key={ video.guid } video={ video } onSelectTool={ setActiveTool } />;
 }
 
 const StageInner = () => {
+	useUploadUnloadGuard();
 	const { id } = useParams( { from: '/video/$id/editor' } );
 
 	// Belt-and-braces gate. The server strips this route from the registry when
@@ -662,7 +668,7 @@ const StageInner = () => {
 	// this normally can't render at all — but a stale bookmark surviving a
 	// build/PHP skew should dead-end here rather than mount a half-working
 	// editor. Checked before `EditorRoute` so the media fetch never fires.
-	if ( ! isChaptersEditorEnabled() ) {
+	if ( ! isChaptersEditorEnabled() && ! isTrimCutEnabled() ) {
 		return <EditorNotFound videoId={ id } />;
 	}
 

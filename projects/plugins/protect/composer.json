@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-protect",
+	"name": "automattic/jetpack-protect-plugin",
 	"description": "Social plugin",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",

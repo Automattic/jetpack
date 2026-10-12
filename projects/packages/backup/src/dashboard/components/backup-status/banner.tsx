@@ -1,55 +1,66 @@
-import { ProgressBar } from '@wordpress/components';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { cloudUpload } from '@wordpress/icons';
+import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { useSiteSuffix } from '../../hooks/use-connection';
+import ErrorReference from '../error-reference';
+import {
+	completedWithWarningsText,
+	failedRunText,
+	noGoodBackupsText,
+	willRetryText,
+} from './messages';
 import { ContactSupportLine } from './index';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
+import type { FailureReference } from '../../types/failure-reference';
 
 type Props = {
-	/** Completion of the running backup, 0–100. */
-	progress: number;
+	/** Completion of the running backup, 0–100. Omit while the backup is requested but not yet reported. */
+	progress?: number;
 };
 
 /**
- * Strip shown above the activity list while a backup runs on a site that
+ * Notice shown above the activity list while a backup runs on a site that
  * already has restore points.
  *
- * Deliberately non-destructive: the legacy dashboard replaces its whole
- * body whenever a backup is in flight, which hides a perfectly usable
- * list of restore points for the several minutes a routine backup takes.
- * Here the list stays, and the running backup is reported alongside it.
+ * Non-destructive: the list stays usable while the backup runs. Without
+ * `progress` it shows a spinner, and the same element then updates in place.
  *
  * @param props          - Component props.
- * @param props.progress - Completion of the running backup, 0–100.
+ * @param props.progress - Completion of the running backup, 0–100. Omit before WPCOM reports it.
  * @return The rendered banner.
  */
 export default function BackupStatusBanner( { progress }: Props ) {
+	const isStarting = progress === undefined;
+	const readySoon = __( 'Your backup will be ready soon', 'jetpack-backup-pkg' );
+
 	return (
-		<Stack className="jpb-backup-status-banner" direction="row" align="center" gap="md">
-			{ /*
-			 * The live region is deliberately just this line, not the row.
-			 * What is worth announcing is that a backup started; the
-			 * percentage is already exposed by the native `<progress>` the
-			 * bar renders, and wrapping the row would re-announce it on
-			 * every poll — dozens of interruptions over the minutes a
-			 * backup runs, which is exactly what the ARIA practices warn
-			 * against for frequently-updating values. This text does not
-			 * change while the banner is mounted, so it speaks once.
-			 */ }
-			<Text variant="body-sm" aria-live="polite">
-				{ __( 'Your backup will be ready soon', 'jetpack-backup-pkg' ) }
-			</Text>
-			<ProgressBar className="jpb-backup-status-banner__bar" value={ progress } />
-			<Text variant="body-sm" className="jpb-text-muted">
-				{ sprintf(
-					/* translators: %d: how much of the running backup is complete, as a percentage. */
-					__( '%d%%', 'jetpack-backup-pkg' ),
-					progress
-				) }
-			</Text>
-		</Stack>
+		<Notice.Root
+			className="jpb-backup-status-banner"
+			intent="info"
+			icon={ cloudUpload }
+			// Constant, so a progress poll never re-announces the notice.
+			spokenMessage={ readySoon }
+		>
+			<Notice.Title className="jpb-backup-status-banner__title">
+				{ isStarting
+					? __( 'Generating backup…', 'jetpack-backup-pkg' )
+					: sprintf(
+							/* translators: %d: how much of the running backup is complete, as a percentage. */
+							__( 'Generating backup… (%d%% progress)', 'jetpack-backup-pkg' ),
+							progress
+						) }
+				{ isStarting && <Spinner className="jpb-backup-status-banner__spinner" /> }
+			</Notice.Title>
+			<Notice.Description>{ readySoon }</Notice.Description>
+		</Notice.Root>
 	);
 }
+
+// The strips below carry no live region: `useRefreshActivityOnBackupComplete` announces the end
+// of a run this screen watched, and a page load stays quiet.
 
 /**
  * Strip shown when the site's backups are failing but the takeover panel
@@ -68,28 +79,25 @@ export default function BackupStatusBanner( { progress }: Props ) {
  * `/backups` window really can be wrong about `no-good-backups` — without
  * paying for that caution in silence.
  *
- * @param props       - Component props.
- * @param props.state - Derived backup state.
+ * @param props           - Component props.
+ * @param props.state     - Derived backup state.
+ * @param props.reference - What to quote to support when backups are failing.
  * @return The rendered banner, or null when the state needs no report.
  */
-export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
-	// Written as two whole returns rather than one banner with ternaries
-	// inside it. Partly because they say different things — `will-retry`
-	// is not yet a problem the reader has to solve, since WPCOM retries on
-	// its own, while `no-good-backups` is the state where nothing arrives
-	// unless someone intervenes — and partly because a `__()` call chosen
-	// by a ternary is a msgid-extraction hazard: the minifier factors the
-	// shared call out of the conditional and leaves `__( cond ? a : b )`,
-	// which is no longer a string literal.
+export function BackupTroubleBanner( {
+	state,
+	reference,
+}: {
+	state: BackupsState;
+	reference?: FailureReference | null;
+} ) {
+	// Two whole returns, because they say different things: `will-retry` is not yet a problem
+	// the reader has to solve, since WPCOM retries on its own, while `no-good-backups` is the
+	// state where nothing arrives unless someone intervenes.
 	if ( state === 'will-retry' ) {
 		return (
-			<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs" role="status">
-				<Text variant="body-sm">
-					{ __(
-						"Your latest backup didn't complete. We'll try again shortly.",
-						'jetpack-backup-pkg'
-					) }
-				</Text>
+			<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs">
+				<Text variant="body-sm">{ willRetryText() }</Text>
 			</Stack>
 		);
 	}
@@ -99,16 +107,55 @@ export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
 	}
 
 	return (
-		<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs" role="status">
-			<Text variant="body-sm">
-				{
-					/* translators: sentence form of the takeover panel's heading, which is the same words without the full stop. The two render in mutually exclusive situations — this one is a line of body copy, that one a title — so both spellings are wanted. */
-					__( "We're having trouble backing up your site.", 'jetpack-backup-pkg' )
-				}
-			</Text>
+		<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs">
+			<Text variant="body-sm">{ noGoodBackupsText() }</Text>
 			<Text variant="body-sm">
 				<ContactSupportLine />
 			</Text>
+			{ reference && <ErrorReference { ...reference } /> }
+		</Stack>
+	);
+}
+
+/**
+ * Strip shown when the backup that made the site `complete` finished with
+ * some files missing.
+ *
+ * @return The rendered banner.
+ */
+export function BackupWarningsBanner() {
+	const siteSuffix = useSiteSuffix();
+
+	return (
+		<Stack className="jpb-backup-warnings-banner" direction="column" gap="xs">
+			<Text variant="body-sm">
+				{ createInterpolateElement( completedWithWarningsText(), {
+					a: (
+						<Link
+							openInNewTab
+							// Omitted rather than passed as undefined — see `useSiteSuffix`.
+							href={ getRedirectUrl( 'jetpack-backup', siteSuffix ? { site: siteSuffix } : {} ) }
+						/>
+					),
+				} ) }
+			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Strip shown when a run this screen watched failed on a site that still has older restore points.
+ *
+ * Only after a watched run: on a page load those restore points mean the site is still backed up.
+ *
+ * @param props           - Component props.
+ * @param props.willRetry - Whether WordPress.com will retry the failed attempt.
+ * @return The rendered banner.
+ */
+export function BackupFailedRunBanner( { willRetry }: { willRetry: boolean } ) {
+	return (
+		<Stack className="jpb-backup-failed-run-banner" direction="column" gap="xs">
+			<Text variant="body-sm">{ willRetry ? willRetryText() : failedRunText() }</Text>
 		</Stack>
 	);
 }

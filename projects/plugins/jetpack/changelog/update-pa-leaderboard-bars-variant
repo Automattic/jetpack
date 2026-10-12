@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Keep the REST parity sweep off the live plugin update check.

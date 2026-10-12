@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop recording a malformed visitor IP address.

@@ -13,6 +13,7 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
+import type { JSX } from 'react';
 
 const savingAndOpeningMessage = __( 'Saving & opening', 'jetpack-forms' );
 const previewFormMessage = __( 'Preview form', 'jetpack-forms' );

@@ -35,8 +35,7 @@ interface SalesByDeviceStoryControls {
 type SalesByDeviceStoryProps = SalesByDeviceWidgetProps & SalesByDeviceStoryControls;
 
 interface SalesByDeviceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByDeviceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByDeviceStoryControls {}
 
 function getSalesByDeviceAttributes(
 	withComparison = false,

@@ -3,9 +3,8 @@ import type { StatsNormalizedDataPoint, StatsNormalizedItem, StatsNormalizedRepo
 import type { StatsPeriod } from '../../utils/stats-params';
 
 /**
- * The buckets a client-side bucketed chart can draw, ordered finest first —
- * the order `defaultPeriodForInterval()` clamps against. `satisfies` ties the
- * set to what the Stats endpoints accept, so it cannot drift from `StatsPeriod`.
+ * The buckets a client-side bucketed chart can draw. `satisfies` ties the set to
+ * what the Stats endpoints accept, so it cannot drift from `StatsPeriod`.
  */
 export const STATS_CHART_BUCKET_PERIODS = [
 	'day',

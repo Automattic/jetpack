@@ -10,7 +10,7 @@ const wpcomThemesRemoveWpcomActions = () => {
 			for ( const node of mutation.addedNodes ) {
 				const themeActions = node.querySelector( '.theme-actions .active-theme' );
 				for ( const action of themeActions?.children ?? [] ) {
-					if ( action.getAttribute( 'href' )?.includes( 'https://wordpress.com' ) ) {
+					if ( action.getAttribute( 'href' )?.startsWith( 'https://wordpress.com/' ) ) {
 						themeActions.removeChild( action );
 					}
 				}

@@ -1,7 +1,15 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildMetricTab } from '../build-metric-tab';
+
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'buildMetricTab', () => {
 	it( 'reads the headline from summary, not by re-summing the data points', () => {
@@ -13,6 +21,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.value ).toBe( 999 );
@@ -27,9 +36,40 @@ describe( 'buildMetricTab', () => {
 			field: 'cpm',
 			label: 'CPM',
 			dataFormat,
+			zone: 'UTC',
 		} );
 
 		expect( tab.dataFormat ).toBe( dataFormat );
+	} );
+
+	it( 'passes countLabel through unchanged', () => {
+		const tab = buildMetricTab( {
+			primary: { summary: { views: 1 }, data: [] },
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			countLabel: views,
+			zone: 'UTC',
+		} );
+
+		expect( tab.countLabel ).toBe( views );
+	} );
+
+	it( "carries a row's date_end as the point's endDate", () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 10 },
+				data: [ { date_start: '2026-09-21T00:00:00', date_end: '2026-09-27T23:59:59', views: 10 } ],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current[ 0 ].endDate?.toISOString() ).toBe( '2026-09-27T23:59:59.000Z' );
 	} );
 
 	it( 'maps one point per row, oldest first, with a real Date', () => {
@@ -45,6 +85,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.current ).toHaveLength( 2 );
@@ -54,6 +95,49 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current[ 0 ].date.getTime() ).toBeLessThan( tab.current[ 1 ].date.getTime() );
 	} );
 
+	it( 'keeps a null reading as a gap and still reads a missing field as zero', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { cpm: 4 },
+				data: [
+					{ date_start: '2026-05-01', cpm: null },
+					{ date_start: '2026-05-02', cpm: 0 },
+					{ date_start: '2026-05-03' },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'cpm',
+			label: 'CPM',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
+	} );
+
+	it( 'carries the pending label as the note of a row the report flags pending', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { revenue: 3 },
+				data: [
+					{ date_start: '2026-06-01', revenue: 3 },
+					{ date_start: '2026-06-02', revenue: null, pending: true },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'revenue',
+			label: 'Revenue',
+			zone: 'UTC',
+			pendingLabel: 'Not counted yet.',
+		} );
+
+		expect( tab.current.map( point => [ point.value, point.note ] ) ).toEqual( [
+			[ 3, undefined ],
+			[ null, 'Not counted yet.' ],
+		] );
+	} );
+
 	it( 'includes real previous-period values when comparison is on and has rows', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },
@@ -61,6 +145,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBe( 12 );
@@ -75,6 +160,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
@@ -90,31 +176,15 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
 		expect( tab.previous ).toBeUndefined();
 	} );
-	// Bucket stamps carry a nominal offset that must be dropped (rationale on
-	// `toChartDate`); these cases are the only guard against the old buggy reading.
-	describe( 'bucket stamps are read as the wall clock they name', () => {
-		// Pinned west of UTC — under a UTC runner the correct and buggy readings
-		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		beforeAll( () => {
-			env.TZ = 'America/Los_Angeles';
-		} );
-		afterAll( () => {
-			// Assigning `undefined` to an env var sets the literal string "undefined";
-			// an unset variable has to be deleted back off.
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		} );
-
+	// Bucket stamps carry a nominal offset that must be dropped; these cases are
+	// the only guard against reading a bucket in the wrong zone.
+	describe( 'bucket stamps are anchored in the site zone', () => {
 		const dateOf = ( dateStart: string ) =>
 			buildMetricTab( {
 				primary: { summary: { views: 1 }, data: [ { date_start: dateStart, views: 1 } ] },
@@ -122,6 +192,7 @@ describe( 'buildMetricTab', () => {
 				hasComparison: false,
 				field: 'views',
 				label: 'Views',
+				zone: 'Asia/Tokyo',
 			} ).current[ 0 ].date;
 
 		it.each( [
@@ -132,11 +203,19 @@ describe( 'buildMetricTab', () => {
 			// `row.date_start` passes through whatever the API sent, which may carry no
 			// time; a bare date parses as UTC unless anchored — same bug, different door.
 			[ '2026-06-15', 15, 0 ],
-		] )( 'reads %s as day %i hour %i in the local frame', ( stamp, day, hour ) => {
+		] )( 'reads %s as day %i hour %i of the site day', ( stamp, day, hour ) => {
 			const date = dateOf( stamp );
 
 			expect( date.getDate() ).toBe( day );
 			expect( date.getHours() ).toBe( hour );
+		} );
+
+		// The parts round-trip through any zone, so only the instant tells the
+		// site's zone apart from the runner's.
+		it( 'names the instant the site zone puts that wall time at', () => {
+			expect( dateOf( '2026-06-15T00:00:00+00:00' ).toISOString() ).toBe(
+				'2026-06-14T15:00:00.000Z'
+			);
 		} );
 	} );
 } );

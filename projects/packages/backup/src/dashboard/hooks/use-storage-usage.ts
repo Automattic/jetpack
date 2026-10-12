@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { fetchSitePolicies } from '../data/api/policies';
 import { keys } from '../data/query-client';
 import { getUsageLevel, type StorageUsageLevelName } from '../data/storage-usage-levels';
@@ -11,7 +12,7 @@ import { useSiteSizeQuery } from './use-site-size';
 const SITE_POLICIES_STALE_MS = 5 * 60_000;
 
 type Figures = {
-	/** Derived level driving the meter's colour and the section heading. */
+	/** Derived level driving the meter's colour. */
 	usageLevel: StorageUsageLevelName | null;
 	/**
 	 * True only while a request is genuinely in flight. React Query v5
@@ -30,11 +31,30 @@ type Figures = {
 	 * response can describe storage perfectly well and omit this.
 	 */
 	daysOfBackupsSaved: number | null;
+	/**
+	 * Fewest days of backups the plan will ever keep. Never null where it is rendered:
+	 * only the `BackupsDiscarded` warning reads it, and that level is reached only from
+	 * a branch guarded on this being truthy.
+	 */
+	minDaysOfBackupsAllowed: number | null;
+	/**
+	 * Days of full backups the storage limit would hold at the size of
+	 * the last one, or null when the last backup's size is unknown.
+	 *
+	 * Legacy collapses "cannot compute" and "not even one fits" into the same `0`.
+	 * Separating them lets the help popover say nothing in the first case.
+	 */
+	forecastInDays: number | null;
+	/**
+	 * The retention the *plan* promises, which is not the retention in force. The help
+	 * popover's gate compares against the promise, as legacy's does.
+	 */
+	planRetentionDays: number | null;
+	/** The retention in force: the site's own setting, else the plan's. */
+	retentionDays: number | null;
+	/** Bytes the last full backup took, or null when unreported. */
+	lastBackupSize: number | null;
 };
-
-// `last_backup_size` and the plan's own retention are read off these same
-// responses but deliberately not returned: nothing consumes them yet.
-// Adding each back is one line when there is a caller.
 
 /**
  * `hasUsableFigures` is a discriminant, not a convenience flag: it is the
@@ -94,14 +114,25 @@ export function useStorageUsage(): Result {
 	// planRetentionDays` at `backup-storage-space/index.jsx:33`, and the
 	// `||` is load-bearing: `retention_days` is `0` on a site with no
 	// retention policy, not absent.
-	const retentionDays = size?.retention_days || ( policies?.activity_log_limit_days ?? null );
+	const planRetentionDays = policies?.activity_log_limit_days ?? null;
+	const retentionDays = size?.retention_days || planRetentionDays;
 
 	const daysOfBackupsSaved = size?.days_of_backups_saved ?? null;
+	const minDaysOfBackupsAllowed = size?.min_days_of_backups_allowed ?? null;
+
+	// Both above zero or no forecast: `last_backup_size` may be omitted or reported as
+	// zero, and `Math.floor( limit / 0 )` is `Infinity`, which would render as a day
+	// count.
+	const lastBackupSize = size?.last_backup_size ?? null;
+	const forecastInDays =
+		storageLimit !== null && storageLimit > 0 && lastBackupSize !== null && lastBackupSize > 0
+			? Math.floor( storageLimit / lastBackupSize )
+			: null;
 
 	const usageLevel = getUsageLevel(
 		storageUsed,
 		storageLimit,
-		size?.min_days_of_backups_allowed ?? null,
+		minDaysOfBackupsAllowed,
 		size?.days_of_backups_allowed ?? null,
 		retentionDays,
 		daysOfBackupsSaved
@@ -111,6 +142,11 @@ export function useStorageUsage(): Result {
 		usageLevel,
 		isLoading: sizeQuery.isLoading || policiesQuery.isLoading,
 		daysOfBackupsSaved,
+		minDaysOfBackupsAllowed,
+		forecastInDays,
+		planRetentionDays,
+		retentionDays,
+		lastBackupSize,
 	};
 
 	// A limit of zero is not a limit anyone can be measured against, and a
@@ -121,4 +157,76 @@ export function useStorageUsage(): Result {
 	}
 
 	return { ...figures, hasUsableFigures: false, storageUsed, storageLimit };
+}
+
+const DISMISSED_KEY = 'jetpack-backup-storage-notice-dismissed';
+const DISMISSIBLE_LEVELS: StorageUsageLevelName[] = [ 'Warning', 'Critical' ];
+
+/**
+ * Reads the stored dismissal.
+ *
+ * @return The stored level, or null when none or storage is blocked.
+ */
+function readDismissedLevel(): StorageUsageLevelName | null {
+	try {
+		const stored = window.localStorage.getItem( DISMISSED_KEY );
+		return DISMISSIBLE_LEVELS.find( level => level === stored ) ?? null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Stores or clears the dismissal.
+ *
+ * @param level - The level to store, or null to clear.
+ */
+function writeDismissedLevel( level: StorageUsageLevelName | null ) {
+	try {
+		if ( level === null ) {
+			window.localStorage.removeItem( DISMISSED_KEY );
+		} else {
+			window.localStorage.setItem( DISMISSED_KEY, level );
+		}
+	} catch {
+		// Blocked storage only means the notice comes back on the next load.
+	}
+}
+
+/**
+ * Remembers, in this browser, the highest warning level the reader dismissed.
+ *
+ * A worse level shows its notice again. `Full` and `BackupsDiscarded` are never
+ * dismissible, so they are never read or stored.
+ *
+ * @param usageLevel - The current level, or null while unknown.
+ * @return Whether the current level is dismissed, and a function to dismiss it.
+ */
+export function useStorageNoticeDismissal( usageLevel: StorageUsageLevelName | null ) {
+	const [ dismissedLevel, setDismissedLevel ] = useState( readDismissedLevel );
+
+	// Back to Normal means a later climb is a new event, so forget the old dismissal.
+	useEffect( () => {
+		if ( usageLevel === 'Normal' && dismissedLevel !== null ) {
+			writeDismissedLevel( null );
+			setDismissedLevel( null );
+		}
+	}, [ usageLevel, dismissedLevel ] );
+
+	const rank = usageLevel === null ? -1 : DISMISSIBLE_LEVELS.indexOf( usageLevel );
+	const isDismissible = rank !== -1;
+	const isDismissed =
+		isDismissible &&
+		dismissedLevel !== null &&
+		DISMISSIBLE_LEVELS.indexOf( dismissedLevel ) >= rank;
+
+	const dismiss = useCallback( () => {
+		if ( usageLevel === null || ! DISMISSIBLE_LEVELS.includes( usageLevel ) ) {
+			return;
+		}
+		writeDismissedLevel( usageLevel );
+		setDismissedLevel( usageLevel );
+	}, [ usageLevel ] );
+
+	return { isDismissible, isDismissed, dismiss };
 }

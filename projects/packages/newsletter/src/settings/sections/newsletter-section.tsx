@@ -15,6 +15,7 @@ import { Card, Link } from '@wordpress/ui';
 import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface NewsletterSectionProps {
 	data: NewsletterSettings;
@@ -77,7 +78,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 						type: 'boolean' as const,
 						Edit: Toggle,
 					},
-			  ]
+				]
 			: [] ),
 		{
 			id: 'wpcom_newsletter_send_default',

@@ -15,7 +15,22 @@ The main provider component that enables chart context functionality.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `theme` | `Partial<ChartTheme>` | `defaultTheme` | Custom theme object that gets merged with the default theme |
+| `locale` | `string` | Browser locale | BCP-47 language tag every date label is rendered in, e.g. `de-DE` |
+| `timeZone` | `string` | Browser time zone | IANA time zone every date label is dated in, e.g. `Asia/Tokyo` |
 | `children` | `ReactNode` | - | **Required.** Chart components and other React elements |
+
+`locale` and `timeZone` are plain strings the host resolves for itself, so a
+non-WordPress consumer needs no WordPress package to supply them. Leave either
+out and that half falls back to the JavaScript runtime's own — the viewer's
+browser locale and browser time zone, which is also where an unusable value
+lands. They reach the time axis and the built-in tooltips; `HeatmapChart`'s
+calendar labels are built outside the provider and take neither.
+
+```tsx
+<GlobalChartsProvider locale="de-DE" timeZone="Asia/Tokyo">
+	<LineChart data={ data } />
+</GlobalChartsProvider>
+```
 
 ## GlobalChartsContextValue
 
@@ -32,6 +47,9 @@ interface GlobalChartsContextValue {
 	// Theme and styling
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+
+	// Locale and time zone every date the charts print is rendered in
+	formatting: ChartFormatting;
 
 	// Series visibility management shared by charts and legends
 	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
@@ -57,6 +75,7 @@ interface GlobalChartsContextValue {
 | ------ | ---- |
 | `seedChartHiddenSeries` | Backs the `defaultHiddenSeries` prop. The provider records which chart IDs it has seeded, so a chart that unmounts and comes back keeps whatever the reader had shown or hidden. |
 | `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
+| `formatting` | `{ locale?: string; timeZone?: string }`, from the provider's props. Read it with `useChartFormatting()`, which returns the runtime's own defaults outside a provider rather than throwing. |
 
 For theming and CSS custom-property overrides, see the [Global Charts Context guide](?path=/docs/js-packages-charts-library-global-context--docs) and `TOKENS.md`.
 

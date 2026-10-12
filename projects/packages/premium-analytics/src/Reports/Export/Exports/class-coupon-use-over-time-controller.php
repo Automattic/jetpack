@@ -130,15 +130,4 @@ class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 			'coupon_use_pct_of_sales'    => number_format( (float) ( $item['coupon_usage_percentage'] ?? $defaults['coupon_usage_percentage'] ), 2, '.', '' ) . '%',
 		);
 	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-		);
-	}
 }

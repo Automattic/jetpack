@@ -35,8 +35,7 @@ interface SalesByCouponUsageStoryControls {
 type SalesByCouponUsageStoryProps = SalesByCouponUsageWidgetProps & SalesByCouponUsageStoryControls;
 
 interface SalesByCouponUsageDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByCouponUsageStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByCouponUsageStoryControls {}
 
 function getSalesByCouponUsageAttributes(
 	withComparison = false,

@@ -1,15 +1,9 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import AtAGlance from 'at-a-glance/index.jsx';
 import SearchableSettings from 'settings/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
-import {
-	userCanManageModules,
-	userCanViewStats as _userCanViewStats,
-	userIsSubscriber as _userIsSubscriber,
-} from 'state/initial-state';
-import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import { userCanManageModules, userIsSubscriber as _userIsSubscriber } from 'state/initial-state';
 
 class NonAdminView extends Component {
 	shouldComponentUpdate( nextProps ) {
@@ -23,11 +17,6 @@ class NonAdminView extends Component {
 		let pageComponent;
 
 		switch ( route ) {
-			case '/dashboard':
-			default:
-				this.props.navigate( '/dashboard', { replace: true } );
-				pageComponent = <AtAGlance { ...this.props } />;
-				break;
 			case '/settings':
 			case '/writing':
 			case '/sharing':
@@ -43,6 +32,9 @@ class NonAdminView extends Component {
 					);
 				}
 				break;
+			default:
+				this.props.navigate( '/settings', { replace: true } );
+				break;
 		}
 
 		window.wpNavMenuClassChange();
@@ -56,17 +48,14 @@ class NonAdminView extends Component {
 }
 
 NonAdminView.propTypes = {
-	userCanViewStats: PropTypes.bool.isRequired,
 	isSubscriber: PropTypes.bool.isRequired,
 	siteConnectionStatus: PropTypes.any.isRequired,
 };
 
 export default connect( state => {
 	return {
-		userCanViewStats: _userCanViewStats( state ),
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isSubscriber: _userIsSubscriber( state ),
-		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		userCanManageModules: userCanManageModules( state ),
 	};
 } )( NonAdminView );

@@ -101,7 +101,7 @@ export default function RankingCard( {
 											<span className="vp-overview__skeleton-block vp-overview__skeleton-block--narrow" />
 										</span>
 									</div>
-							  ) )
+								) )
 							: items.map( item => (
 									<div
 										key={ item.key }
@@ -114,7 +114,7 @@ export default function RankingCard( {
 											{ formatValue( item.value ) }
 										</span>
 									</div>
-							  ) ) }
+								) ) }
 					</div>
 				) }
 				{ footer }

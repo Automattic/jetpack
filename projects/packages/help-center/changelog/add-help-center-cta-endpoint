@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `/help-center/cta` endpoint so the Help Center can fetch the contextual CTA for the current user from wp-admin.

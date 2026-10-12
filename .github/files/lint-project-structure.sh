@@ -32,8 +32,14 @@ JSPACKAGES='{}'
 for PROJECT in "$BASE"/projects/js-packages/*/.; do
 	JSPACKAGES=$(jq -c --slurpfile c "$PROJECT/composer.json" --slurpfile p "$PROJECT/package.json" '.[ $p[0].name ] |= ( $c[0].extra["mirror-repo"] | type == "string" ) and $c[0].extra["npmjs-autopublish"]' <<<"$JSPACKAGES")
 done
+NONJSPACKAGES='{}'
+for PROJECT in projects/*/*; do
+	if [[ "$PROJECT" != projects/js-packages/* && -f "$PROJECT/package.json" ]]; then
+		NONJSPACKAGES=$(jq -c --arg P "${PROJECT#projects/}" --slurpfile p "$PROJECT/package.json" '.[ $p[0].name // empty ] |= $P' <<<"$NONJSPACKAGES")
+	fi
+done
 
-# Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropraitely.
+# Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropriately.
 #
 # - $1: What is being checked.
 # - $2: Path to the composer.json to check.
@@ -194,6 +200,44 @@ for PROJECT in projects/*/*; do
 			fi
 		fi
 	fi
+
+	# - package.json workspace deps should point to js-packages, not other projects.
+	if [[ -e "$PROJECT/package.json" ]]; then
+		while IFS=$'\t' read -r DEPTYPE PKG; do
+			LINE=$(jq --stream -r --arg DEPTYPE "$DEPTYPE" --arg PKG "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$DEPTYPE,$PKG] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			if [[ "$PKG" == 'jetpack-js-tools' ]]; then
+				EXIT=1
+				# Special case that seems to be commonly added.
+				echo "::error file=$PROJECT/package.json${LINE}::Workspace dependency \`jetpack-js-tools\` should be inherited from the monorepo root (where needed in things like eslint, jest, or tsconfig configs), not declared directly at the package level."
+			elif [[ "$PKG" == '@automattic/jetpack-wp-build-polyfills' ]] ||
+				[[ "$SLUG" == "plugins/boost" && "$PKG" == '@automattic/jetpack-my-jetpack' ]] ||
+				[[ "$SLUG" == "plugins/jetpack" && "$PKG" == '@automattic/jetpack-my-jetpack' ]] ||
+				[[ "$SLUG" == "plugins/jetpack" && "$PKG" == '@automattic/jetpack-publicize' ]]
+			then
+				: # Existing issue. Should be fixed, but needs additional work and planning. Please don't add new exceptions here.
+			else
+				EXIT=1
+				XSLUG=$( jq -r --arg PKG "$PKG" '.[ $PKG ] // empty' <<<"$NONJSPACKAGES" );
+				if [[ -n "$XSLUG" ]]; then
+					echo "::error file=$PROJECT/package.json${LINE}::Workspace dependency \`$PKG\` is not a js-package. If $XSLUG needs a JS API, that API should be in a js-package that could be published to npm, as otherwise it's only usable inside the monorepo."
+				else
+					echo "::error file=$PROJECT/package.json${LINE}::Workspace dependency \`$PKG\` is not a js-package."
+				fi
+			fi
+		done < <( jq -r --argjson P "$JSPACKAGES" 'to_entries[] | .key as $deptype | select( [ "dependencies", "devDependencies", "optionalDependencies", "peerDependencies" ] | index( $deptype ) ) | .value | to_entries[] | select( .value | contains( "workspace:" ) ) | select( .key | in( $P ) | not ) | [ $deptype, .key ] | @tsv' "$PROJECT/package.json" )
+	fi
+
+	# - package.json link deps should not point outside the project.
+	for f in $( git ls-files "$PROJECT/package.json" "$PROJECT/*/package.json" ); do
+		while IFS=$'\t' read -r DEPTYPE DEP LINK; do
+			RP=$( realpath -m --relative-to="$PROJECT/" "${f%/*}/$LINK" )
+			if [[ "$RP" == ../* ]]; then
+				EXIT=1
+				LINE=$(jq --stream -r --arg DEPTYPE "$DEPTYPE" --arg DEP "$DEP" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$DEPTYPE,$DEP] then ",line=\( input_line_number )" else empty end' "$f")
+				echo "::error file=$f${LINE}::Dependency \`$DEP\` should not try to link outside of the project. Cross-project interactions should be done via public APIs."
+			fi
+		done < <( jq -r 'to_entries[] | .key as $deptype | select( [ "dependencies", "devDependencies", "optionalDependencies", "peerDependencies" ] | index( $deptype ) ) | .value | to_entries[] | select( .value | startswith( "link:" ) or startswith( "file:" ) ) | [ $deptype, .key, ( .value | sub( "^[^:]*:"; "" ) ) ] | @tsv' "$f" )
+	done
 
 	# - should have only one of jsconfig.json or tsconfig.json.
 	# @todo Having neither is ok in some cases. Can we determine when one is needed to flag that it should be added?

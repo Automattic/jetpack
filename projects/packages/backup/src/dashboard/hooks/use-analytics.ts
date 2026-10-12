@@ -83,8 +83,7 @@ export function resetAnalyticsForTesting(): void {
 export function useAnalytics() {
 	const state = typeof window !== 'undefined' ? window.JP_CONNECTION_INITIAL_STATE : undefined;
 	const wpcomUser = state?.userConnectionData?.currentUser?.wpcomUser as
-		| WpcomUserIdentity
-		| undefined;
+		WpcomUserIdentity | undefined;
 
 	const userId = wpcomUser?.ID;
 	const login = wpcomUser?.login;

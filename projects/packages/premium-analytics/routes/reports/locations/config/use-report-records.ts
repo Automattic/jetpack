@@ -2,19 +2,16 @@
  * External dependencies
  */
 import { useStatsLocations, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	buildLocationRows,
+	getLocationsReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { buildLocationRows } from './aggregate';
 import type { LocationsCountryOption } from './fields';
 import type { ReportLocationsTabId } from './tabs';
-
-const GEO_MODES = {
-	countries: 'country',
-	regions: 'region',
-	cities: 'city',
-} as const;
 
 /**
  * Fetch and derive the table records for the active Locations tab.
@@ -29,43 +26,23 @@ export function useLocationsReportRecords(
 	reportParams: ReportParams,
 	countryFilter?: string
 ) {
-	/*
-	 * Without `summarize`, the API returns the whole list once per day, which
-	 * the shared comparison merge cannot align. `max: 0` keeps every row so the
-	 * table can search, sort, and page client-side.
-	 */
-	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 1,
-			period: 'day',
-		} ),
-		[ reportParams ]
-	);
+	const queryParams = useMemo( () => {
+		const scope = countryFilter ? { country: countryFilter } : undefined;
+
+		return {
+			countries: getLocationsReportQueryParams( reportParams, 'countries' ),
+			regions: getLocationsReportQueryParams( reportParams, 'regions', scope ),
+			cities: getLocationsReportQueryParams( reportParams, 'cities', scope ),
+		};
+	}, [ reportParams, countryFilter ] );
 
 	// Country rows serve two jobs: the Countries tab's own data, and the country
 	// filter's options on the other two tabs. One always-enabled, never-filtered
 	// query covers both, so picking a country does not shrink the list you pick
 	// from.
-	const countries = useStatsLocations( { ...recordsParams, geoMode: GEO_MODES.countries } );
-
-	const scopedParams = useMemo(
-		() => ( {
-			...recordsParams,
-			...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-		} ),
-		[ recordsParams, countryFilter ]
-	);
-
-	const regions = useStatsLocations(
-		{ ...scopedParams, geoMode: GEO_MODES.regions },
-		{ enabled: activeTab === 'regions' }
-	);
-	const cities = useStatsLocations(
-		{ ...scopedParams, geoMode: GEO_MODES.cities },
-		{ enabled: activeTab === 'cities' }
-	);
+	const countries = useStatsLocations( queryParams.countries );
+	const regions = useStatsLocations( queryParams.regions, { enabled: activeTab === 'regions' } );
+	const cities = useStatsLocations( queryParams.cities, { enabled: activeTab === 'cities' } );
 
 	const reportsByTab = { countries, regions, cities };
 	const activeReport = reportsByTab[ activeTab ];
@@ -100,6 +77,7 @@ export function useLocationsReportRecords(
 			options: countryOptions,
 		},
 		isError: activeReport.primary.isError,
+		error: activeReport.primary.error,
 		refetch: activeReport.refetch,
 	};
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launch: Do not show the pre-launch confirmation modal on trial sites, which still need to choose a plan and domain.

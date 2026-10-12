@@ -14,6 +14,8 @@ type PublishTrackingProps = {
 	clientId: string;
 	layout: string;
 	videoCount: number;
+	blockName?: string;
+	eventName?: string;
 };
 
 type EditorSelectors = {
@@ -32,22 +34,29 @@ type EditorSelectors = {
  * @param props.clientId   - This block instance's client id.
  * @param props.layout     - The block's current layout.
  * @param props.videoCount - Number of videos in this playlist.
+ * @param props.blockName  - Block type the reporter is elected among.
+ * @param props.eventName  - Tracks event to record.
  */
 export default function usePublishTracking( {
 	clientId,
 	layout,
 	videoCount,
+	blockName = 'videopress/playlist',
+	eventName = 'jetpack_videopress_playlist_block_published',
 }: PublishTrackingProps ) {
-	const { isPublishing, postType, playlistClientIds } = useSelect( select => {
-		const editorSelectors = select( editorStore ) as EditorSelectors;
-		const blockEditorSelectors = select( blockEditorStore ) as EditorSelectors;
+	const { isPublishing, postType, playlistClientIds } = useSelect(
+		select => {
+			const editorSelectors = select( editorStore ) as EditorSelectors;
+			const blockEditorSelectors = select( blockEditorStore ) as EditorSelectors;
 
-		return {
-			isPublishing: editorSelectors?.isPublishingPost?.() ?? false,
-			postType: editorSelectors?.getCurrentPostType?.() ?? '',
-			playlistClientIds: blockEditorSelectors?.getBlocksByName?.( 'videopress/playlist' ) ?? [],
-		};
-	}, [] );
+			return {
+				isPublishing: editorSelectors?.isPublishingPost?.() ?? false,
+				postType: editorSelectors?.getCurrentPostType?.() ?? '',
+				playlistClientIds: blockEditorSelectors?.getBlocksByName?.( blockName ) ?? [],
+			};
+		},
+		[ blockName ]
+	);
 
 	const publishTracked = useRef( false );
 
@@ -64,11 +73,11 @@ export default function usePublishTracking( {
 		}
 		publishTracked.current = true;
 
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_videopress_playlist_block_published', {
+		jetpackAnalytics.tracks.recordEvent( eventName, {
 			post_type: postType,
 			layout,
 			video_count: videoCount,
 			playlist_count: Math.max( 1, playlistClientIds.length ),
 		} );
-	}, [ isPublishing, playlistClientIds, clientId, postType, layout, videoCount ] );
+	}, [ isPublishing, playlistClientIds, clientId, postType, layout, videoCount, eventName ] );
 }

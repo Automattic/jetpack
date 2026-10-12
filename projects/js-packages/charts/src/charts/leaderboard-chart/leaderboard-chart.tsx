@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useMemo, type FC } from 'react';
+import { useContext, useMemo, type FC, type MouseEvent } from 'react';
 import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
@@ -25,6 +25,15 @@ import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
+
+// Handed to `Grid` as a chain rather than set in this component's stylesheet: `Grid` writes
+// its own gaps through an Emotion class, which a module class of equal specificity would not
+// reliably outrank. The chain lands on the element and resolves there.
+const ROW_GAP = 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)';
+const COLUMN_GAP = 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)';
+
+/** Indexed by `Math.sign( delta ) + 1`, so [negative, neutral, positive]. */
+const DELTA_TREND_CLASS = [ 'deltaValue--down', 'deltaValue--neutral', 'deltaValue--up' ] as const;
 
 /**
  * Default value formatter using formatMetricValue
@@ -79,6 +88,20 @@ const hasDeltaValue = (
 	previousShare: number;
 	delta: number;
 } => hasPreviousValue( entry ) && entry.delta != null;
+
+/**
+ * A layered row's cell that takes pointer events of its own (a value tooltip)
+ * sits above the row button; pass its clicks on so they still drill down.
+ *
+ * @param event - The click on the row.
+ */
+function forwardCellClickToRowButton( event: MouseEvent< HTMLDivElement > ) {
+	if ( ( event.target as Element ).closest( 'a, button' ) ) {
+		return;
+	}
+
+	event.currentTarget.querySelector< HTMLButtonElement >( ':scope > button' )?.click();
+}
 
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
@@ -198,22 +221,15 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	// Process children to extract compound components
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
-	const {
-		labelSpacing,
-		rowGap,
-		columnGap,
-		primaryColor: settingsPrimaryColor,
-		secondaryColor: settingsSecondaryColor,
-		deltaColors,
-	} = leaderboardChartSettings;
+	const { labelSpacing } = leaderboardChartSettings;
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 	const { color: resolvedPrimaryColor } = getElementStyles( {
 		index: 0,
-		overrideColor: primaryColor || settingsPrimaryColor,
+		overrideColor: primaryColor,
 	} );
 	const { color: resolvedSecondaryColor } = getElementStyles( {
 		index: 1,
-		overrideColor: secondaryColor || settingsSecondaryColor,
+		overrideColor: secondaryColor,
 	} );
 
 	// Create legend items using the custom hook
@@ -292,6 +308,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					legendElement={ false }
 					legendChildren={ legendChildren }
 					className={ clsx(
+						'leaderboard-chart',
 						styles.leaderboardChart,
 						{
 							[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
@@ -336,6 +353,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
 				className={ clsx(
+					'leaderboard-chart',
 					styles.leaderboardChart,
 					{
 						[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
@@ -372,8 +390,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) : (
 						<Grid
 							templateColumns="minmax(0, 1fr) auto"
-							rowGap={ rowGap }
-							columnGap={ columnGap }
+							rowGap={ ROW_GAP }
+							columnGap={ COLUMN_GAP }
 							data-leaderboard-grid
 						>
 							{ data.map( ( entry, rowIndex ) => {
@@ -389,8 +407,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 								const hasDelta = hasDeltaValue( entry );
 								const showComparisonValue = showComparisonColumn && hasDelta;
 								const showComparisonPlaceholder = showComparisonColumn && ! hasDelta;
-								const colorIndex = showComparisonValue ? Math.sign( entry.delta ) + 1 : 1;
-								const deltaColor = deltaColors[ colorIndex ];
+								// Math.sign gives -1/0/1; the placeholder has no delta to read, so it takes neutral.
+								const deltaTrendClass =
+									styles[
+										DELTA_TREND_CLASS[ showComparisonValue ? Math.sign( entry.delta ) + 1 : 1 ]
+									];
 
 								const rowCells = (
 									<>
@@ -417,15 +438,18 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
 											{ showComparisonValue && (
-												<Text className={ styles.deltaValue } style={ { color: deltaColor } }>
+												<Text className={ clsx( styles.deltaValue, deltaTrendClass ) }>
 													{ deltaFormatter( entry.delta ) }
 												</Text>
 											) }
 
 											{ showComparisonPlaceholder && (
 												<Text
-													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
-													style={ { color: deltaColor } }
+													className={ clsx(
+														styles.deltaValue,
+														styles.deltaPlaceholder,
+														deltaTrendClass
+													) }
 												>
 													<span aria-hidden="true">—</span>
 													<VisuallyHidden as="span">
@@ -438,6 +462,28 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										</Stack>
 									</>
 								);
+
+								if ( entry.onClick && entry.hasInteractiveLabel ) {
+									return (
+										// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Mouse-only fallback; the row button carries keyboard access.
+										<div
+											key={ entry.id }
+											data-row-index={ rowIndex }
+											style={ rowStyle }
+											className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
+											onClick={ forwardCellClickToRowButton }
+										>
+											{ rowCells }
+											<button
+												type="button"
+												className={ styles.rowButton }
+												onClick={ entry.onClick }
+												aria-label={ entry.ariaLabel }
+											/>
+											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+										</div>
+									);
+								}
 
 								if ( entry.onClick ) {
 									return (

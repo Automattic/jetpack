@@ -1,0 +1,578 @@
+// Tests for the "add more storage" offer, shown in a dismissible notice at the top of
+// the page (JETPACK-2331 / H3c), and for the query that prices it.
+//
+// It can fail silently in three ways: asking the route for a price before it can
+// answer, building half a checkout URL, and recording the Tracks event somewhere
+// other than the click.
+
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: jest.fn(),
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
+const mockApiFetch = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
+} ) );
+
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
+// Imports must come after the jest.mock factories above.
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
+import { useRef, useState } from 'react';
+import RealStorageSpace, { StorageNotice } from '../src/dashboard/components/storage-space';
+import { useStorageAddonOffer } from '../src/dashboard/hooks/use-storage-addon-offer';
+import type { ReactNode } from 'react';
+
+const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+const GB = 1024 * 1024 * 1024;
+const SITE = 'example.wordpress.com';
+
+/** `@wordpress/a11y` echoes every notice into a live region, which would match twice. */
+const SPEECH = '.a11y-speak-region';
+
+/**
+ * The notice and the row, as the Overview places and wires them.
+ *
+ * @return The pair.
+ */
+function StorageSpace() {
+	const storageRef = useRef< HTMLElement >( null );
+	return (
+		<>
+			<StorageNotice returnFocusTo={ storageRef } />
+			<RealStorageSpace ref={ storageRef } />
+		</>
+	);
+}
+
+/** Figures that put the site above `Normal` without reaching `Full`. */
+const CRITICAL = { size: 90 * GB, limit: 100 * GB };
+
+/**
+ * A provider wrapping each render in its own QueryClient.
+ *
+ * @param props          - Props.
+ * @param props.children - The tree to wrap.
+ * @return The wrapped tree.
+ */
+function Wrapper( { children }: { children: ReactNode } ) {
+	// Held in state: a fresh client each render throws away the cache mid-test, which
+	// would make every "how many requests went out" assertion meaningless.
+	const [ client ] = useState(
+		() =>
+			new QueryClient( {
+				defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+			} )
+	);
+	return <QueryClientProvider client={ client }>{ children }</QueryClientProvider>;
+}
+
+/**
+ * Render inside an isolated QueryClient.
+ *
+ * @param ui - The tree to render.
+ * @return The testing-library render result.
+ */
+function renderWithClient( ui: ReactNode ) {
+	return render( <Wrapper>{ ui }</Wrapper> );
+}
+
+/**
+ * Answer the three routes the section reads.
+ *
+ * @param options          - Overrides.
+ * @param options.size     - What `/site/backup/size` returns.
+ * @param options.policies - What `/site/backup/policies` returns.
+ * @param options.offer    - What `/site/backup/addon-offer` returns.
+ */
+function mockEndpoints( {
+	size = {} as Record< string, unknown >,
+	policies = {} as Record< string, unknown >,
+	offer = {} as Record< string, unknown >,
+} = {} ) {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/site/backup/addon-offer' ) ) {
+			return Promise.resolve( {
+				slug: 'jetpack_backup_addon_storage_100gb_monthly',
+				size_text: '100GB',
+				pricing: { currency_code: 'USD', full_price: 9.95, discount_price: 9.95 },
+				...offer,
+			} );
+		}
+		if ( path.includes( '/site/backup/policies' ) ) {
+			return Promise.resolve( {
+				policies: { storage_limit_bytes: CRITICAL.limit, activity_log_limit_days: 30, ...policies },
+			} );
+		}
+		if ( path.includes( '/site/backup/size' ) ) {
+			return Promise.resolve( {
+				ok: true,
+				size: CRITICAL.size,
+				days_of_backups_saved: 14,
+				...size,
+			} );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
+/**
+ * Every `/site/backup/addon-offer` path that was asked for.
+ *
+ * @return The paths, in call order.
+ */
+function offerRequests(): string[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => String( options?.path ?? '' ) )
+		.filter( path => path.includes( '/site/backup/addon-offer' ) );
+}
+
+/**
+ * The offer's checkout link, once it has arrived.
+ *
+ * @return The anchor.
+ */
+function offerLink(): Promise< HTMLElement > {
+	return screen.findByRole( 'link', { name: /Upgrade now/ } );
+}
+
+/**
+ * The warning line, once it has arrived.
+ *
+ * @param pattern - What the line should say.
+ * @return The element carrying it.
+ */
+function warning( pattern: RegExp ): Promise< HTMLElement > {
+	return screen.findByText( pattern, { ignore: SPEECH } );
+}
+
+/**
+ * Let whatever the section started finish before asserting an absence.
+ *
+ * Every "there is no offer link" assertion is otherwise racing the offer request: the
+ * warning and the reading render from figures already in hand, so awaiting either
+ * returns while `/addon-offer` is still in flight.
+ *
+ * Two macrotask turns inside `act`: the first lets the mocked response commit, the
+ * second lets the render it schedules flush.
+ */
+async function settle(): Promise< void > {
+	await act( async () => {
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+	} );
+}
+
+beforeEach( () => {
+	mockApiFetch.mockReset();
+	mockRecordEvent.mockReset();
+	( speak as jest.Mock ).mockClear();
+	mockEndpoints();
+	window.JP_CONNECTION_INITIAL_STATE = {
+		...window.JP_CONNECTION_INITIAL_STATE,
+		connectionStatus: CONNECTED,
+		siteSuffix: SITE,
+	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+describe( 'the offer query', () => {
+	// Asserted on the hook, because the section renders nothing until both figures are
+	// known — so the partial case cannot be staged from up there.
+
+	it( 'asks for nothing until both figures are known', async () => {
+		// The three ways a caller can be partly informed. A gate that fired on either
+		// figure would send a request with one arg empty, and the route's
+		// `'type' => 'numeric'` validates nothing — so it answers with the smallest
+		// add-on rather than refusing.
+		renderHook( () => useStorageAddonOffer( null, null ), { wrapper: Wrapper } );
+		renderHook( () => useStorageAddonOffer( CRITICAL.size, null ), { wrapper: Wrapper } );
+		renderHook( () => useStorageAddonOffer( null, CRITICAL.limit ), { wrapper: Wrapper } );
+
+		// Not `waitFor`: React Query starts its fetch in an effect, and a `waitFor` on
+		// an assertion that already holds returns on its first pass.
+		await settle();
+		expect( offerRequests() ).toHaveLength( 0 );
+	} );
+
+	it( 'asks once both are known, and sends both', async () => {
+		// The other half of the test above. Without this, disabling the
+		// query permanently would satisfy it just as well.
+		renderHook( () => useStorageAddonOffer( CRITICAL.size, CRITICAL.limit ), {
+			wrapper: Wrapper,
+		} );
+
+		await waitFor( () => expect( offerRequests() ).toHaveLength( 1 ) );
+		expect( offerRequests()[ 0 ] ).toContain( `storage_size=${ CRITICAL.size }` );
+		expect( offerRequests()[ 0 ] ).toContain( `storage_limit=${ CRITICAL.limit }` );
+	} );
+
+	it( 'sends a zero usage figure rather than dropping it', async () => {
+		// `apiPath` filters out `undefined` and `''`, and zero is neither. A freshly
+		// connected site reports `size: 0`, where a dropped arg would be a 400.
+		renderHook( () => useStorageAddonOffer( 0, CRITICAL.limit ), { wrapper: Wrapper } );
+
+		await waitFor( () => expect( offerRequests() ).toHaveLength( 1 ) );
+		expect( offerRequests()[ 0 ] ).toContain( 'storage_size=0' );
+	} );
+} );
+
+describe( 'when the upsell appears', () => {
+	it( 'says nothing at all while usage is Normal', async () => {
+		mockEndpoints( { size: { size: 10 * GB } } );
+		renderWithClient( <StorageSpace /> );
+
+		// Awaited on the reading first, so this is a real absence.
+		await expect( screen.findByText( /^Using/ ) ).resolves.toBeInTheDocument();
+		await settle();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /storage limit/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not even ask for a price while usage is Normal', async () => {
+		// The gate is in the section, so a site with room to spare never pays for the
+		// round trip to WordPress.com's product catalogue.
+		mockEndpoints( { size: { size: 10 * GB } } );
+		renderWithClient( <StorageSpace /> );
+
+		await expect( screen.findByText( /^Using/ ) ).resolves.toBeInTheDocument();
+		await settle();
+		expect( offerRequests() ).toHaveLength( 0 );
+	} );
+
+	it( 'warns and offers once usage leaves Normal', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /You are close to reaching your storage limit/ )
+		).resolves.toBeInTheDocument();
+		await expect( offerLink() ).resolves.toHaveTextContent( /^Upgrade now$/ );
+		expect(
+			screen.getByText( /Upgrade to add additional 100GB of storage\./, { ignore: SPEECH } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'announces the warning once, though the add-on size arrives after it', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		await expect( offerLink() ).resolves.toBeInTheDocument();
+		await settle();
+		const spoken = ( speak as jest.Mock ).mock.calls.filter( ( [ text ] ) =>
+			text.startsWith( 'You are close to reaching your storage limit' )
+		);
+		expect( spoken ).toHaveLength( 1 );
+	} );
+
+	it( 'still warns when the offer never arrives', async () => {
+		// Legacy nests the warning inside the checkout button, so a failed
+		// `/addon-offer` says nothing at all. The two fail separately here.
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/backup/addon-offer' ) ) {
+				return Promise.reject( new Error( 'catalogue unavailable' ) );
+			}
+			if ( path.includes( '/site/backup/policies' ) ) {
+				return Promise.resolve( { policies: { storage_limit_bytes: CRITICAL.limit } } );
+			}
+			if ( path.includes( '/site/backup/size' ) ) {
+				return Promise.resolve( { ok: true, size: CRITICAL.size, days_of_backups_saved: 14 } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /You are close to reaching your storage limit/ )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers no link when the pricing block came back empty', async () => {
+		// A slug missing from the catalogue arrives as a JSON `[]`, which legacy's
+		// `res.pricing &&` guard passes — it then formats `undefined` as `$0.00`.
+		mockEndpoints( { offer: { pricing: [] } } );
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /You are close to reaching your storage limit/ )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'what the offer says', () => {
+	it( 'names the level in the warning it leads with', async () => {
+		// The wording is the whole of what tells "getting close" apart from "backups
+		// have stopped".
+		mockEndpoints( { size: { size: 70 * GB } } );
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /^You are close to reaching your storage limit$/ )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'reports the days saved when storage is full', async () => {
+		mockEndpoints( {
+			size: {
+				size: 100 * GB,
+				days_of_backups_saved: 3,
+				days_of_backups_allowed: 3,
+				min_days_of_backups_allowed: 5,
+			},
+		} );
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /^You have reached your storage limit with 3 days of backups saved$/ )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'reports the floor the plan keeps once backups start being discarded', async () => {
+		// The one level whose sentence is built from `min_days_of_backups_allowed`
+		// rather than the days actually saved.
+		mockEndpoints( {
+			size: {
+				size: 70 * GB,
+				days_of_backups_saved: 10,
+				days_of_backups_allowed: 10,
+				min_days_of_backups_allowed: 5,
+			},
+		} );
+		renderWithClient( <StorageSpace /> );
+
+		await expect( warning( /up to the last 5 days\.$/ ) ).resolves.toBeInTheDocument();
+	} );
+} );
+
+describe( 'the checkout link', () => {
+	it( 'names the product and the site, and comes back here afterwards', async () => {
+		renderWithClient( <StorageSpace /> );
+		const link = await offerLink();
+		const href = new URL( link.getAttribute( 'href' ) as string );
+
+		expect( href.origin + href.pathname ).toBe(
+			`https://wordpress.com/checkout/${ SITE }/jetpack_backup_addon_storage_100gb_monthly`
+		);
+		expect( href.searchParams.get( 'site' ) ).toBe( SITE );
+		// The page the reader is standing on: the modernized dashboard emits no admin
+		// URL, and legacy's rebuilt one resolves to the same place.
+		expect( href.searchParams.get( 'redirect_to' ) ).toBe( window.location.href );
+	} );
+
+	it( 'shows no link at all when the connection global carries no site slug', async () => {
+		// Legacy interpolates whatever it has, producing `…/checkout/undefined/…`.
+		// Half a checkout URL is worse than none: it still looks like a button.
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: undefined,
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /You are close to reaching your storage limit/ )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'the Tracks event', () => {
+	it( 'records nothing until the reader actually clicks', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		await expect( offerLink() ).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records the click itself, not the arrival at checkout', async () => {
+		renderWithClient( <StorageSpace /> );
+		const link = await offerLink();
+
+		// A plain anchor, so there is no follow-up request to order the event against.
+		// What distinguishes it is the window the count is read in: still inside the
+		// click's own propagation, which an event moved to a `then`, a `useEffect` or
+		// the query's success path all land outside of.
+		//
+		// The probe goes on `document`, not the link: React 18 dispatches synthetic
+		// events from the root container, so a listener on the link would run before
+		// the component's `onClick` and read zero however it was written.
+		const countAtClick = new Promise< number >( resolve => {
+			document.addEventListener(
+				'click',
+				event => {
+					event.preventDefault();
+					resolve( mockRecordEvent.mock.calls.length );
+				},
+				{ once: true }
+			);
+		} );
+
+		await userEvent.click( link );
+
+		await expect( countAtClick ).resolves.toBe( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_upgrade_storage_prompt_cta', {
+			site: SITE,
+		} );
+	} );
+} );
+
+describe( 'a full site that reported no day count', () => {
+	// `getUsageLevel` reaches `Full` two ways, and only the countless one — `100:` in
+	// the threshold table — is exercised here. It is not exotic: every field of
+	// `/site/backup/size` is optional, so a response carrying `size` alone lands on it.
+
+	beforeEach( () => {
+		mockEndpoints( {
+			size: { size: 100 * GB, days_of_backups_saved: undefined },
+			policies: { storage_limit_bytes: 100 * GB },
+		} );
+	} );
+
+	it( 'still says backups have stopped, without inventing a day count', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		// Deliberately anchored: the counted sentence starts the same way, so a loose
+		// match would pass on legacy's "…with null day(s) of backups saved".
+		await expect( warning( /^You have reached your storage limit$/ ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText(
+				/^Backups have been stopped\. Please upgrade to add additional 100GB of storage and resume backups\.$/,
+				{ ignore: SPEECH }
+			)
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'never renders the counted sentence with a missing count in it', async () => {
+		renderWithClient( <StorageSpace /> );
+
+		await expect( offerLink() ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /days? of backups saved/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says it even when the offer never arrives', async () => {
+		// What legacy gets wrong twice over: its warning lives inside the checkout
+		// button, and on this path it has no count to put in it either — so a site
+		// whose backups have stopped is shown an empty section.
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/backup/addon-offer' ) ) {
+				return Promise.reject( new Error( 'catalogue unavailable' ) );
+			}
+			if ( path.includes( '/site/backup/policies' ) ) {
+				return Promise.resolve( { policies: { storage_limit_bytes: 100 * GB } } );
+			}
+			if ( path.includes( '/site/backup/size' ) ) {
+				return Promise.resolve( { ok: true, size: 100 * GB } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		renderWithClient( <StorageSpace /> );
+
+		await expect(
+			warning( /^Backups have been stopped\. Please upgrade your storage to resume backups\.$/ )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'dismissal', () => {
+	beforeEach( () => {
+		window.localStorage.clear();
+	} );
+
+	const closeButton = () => screen.queryByRole( 'button', { name: /close|dismiss/i } );
+
+	it( 'remembers a dismissal across a reload, but shows a worse level again', async () => {
+		mockEndpoints( { size: { size: 70 * GB } } );
+		const view = renderWithClient( <StorageSpace /> );
+		await warning( /^You are close to reaching your storage limit$/ );
+		await userEvent.click( closeButton() as HTMLElement );
+		expect(
+			screen.queryByText( /^You are close to reaching/, { ignore: SPEECH } )
+		).not.toBeInTheDocument();
+		view.unmount();
+
+		const { unmount } = renderWithClient( <StorageSpace /> );
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
+		await settle();
+		expect(
+			screen.queryByText( /^You are close to reaching/, { ignore: SPEECH } )
+		).not.toBeInTheDocument();
+		unmount();
+
+		mockEndpoints( { size: { size: 85 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await expect( warning( /^You are close to reaching/ ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'hands focus to the storage row when closed', async () => {
+		mockEndpoints( { size: { size: 70 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await warning( /^You are close to reaching/ );
+		await userEvent.click( closeButton() as HTMLElement );
+
+		expect( screen.getByRole( 'region', { name: 'Backup storage' } ) ).toHaveFocus();
+	} );
+
+	it( 'forgets a dismissal once usage is back to Normal', async () => {
+		mockEndpoints( { size: { size: 70 * GB } } );
+		const view = renderWithClient( <StorageSpace /> );
+		await warning( /^You are close to reaching/ );
+		await userEvent.click( closeButton() as HTMLElement );
+		view.unmount();
+
+		mockEndpoints( { size: { size: 10 * GB } } );
+		const utils = renderWithClient( <StorageSpace /> );
+		await expect(
+			screen.findByRole( 'region', { name: 'Backup storage' } )
+		).resolves.toBeInTheDocument();
+		await settle();
+		utils.unmount();
+
+		mockEndpoints( { size: { size: 70 * GB } } );
+		renderWithClient( <StorageSpace /> );
+		await expect( warning( /^You are close to reaching/ ) ).resolves.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'Full', { size: 100 * GB }, /^You have reached your storage limit/ ],
+		[
+			'BackupsDiscarded',
+			{
+				size: 50 * GB,
+				min_days_of_backups_allowed: 7,
+				days_of_backups_allowed: 7,
+				days_of_backups_saved: 7,
+				retention_days: 30,
+			},
+			/^We removed your oldest backup/,
+		],
+	] )( 'offers no way to close a %s notice', async ( _level, size, text ) => {
+		mockEndpoints( { size } );
+		renderWithClient( <StorageSpace /> );
+		await warning( text );
+		expect( closeButton() ).not.toBeInTheDocument();
+	} );
+} );

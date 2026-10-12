@@ -33,12 +33,12 @@ export function Description() {
 						? __(
 								'When the post is published, it will be shared automatically on:',
 								'jetpack-publicize-pkg'
-						  )
+							)
 						: _x(
 								'After the post is published, you can preview, and manually share or schedule it.',
 								'',
 								'jetpack-publicize-pkg'
-						  );
+							);
 				} )() }
 			</Text>
 		</PanelRow>

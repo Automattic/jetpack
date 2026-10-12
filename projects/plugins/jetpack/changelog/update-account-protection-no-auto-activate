@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Account Protection: Stop turning the feature on automatically for new connections and upgrades from versions before 14.5. Sites where it is already on keep it on.

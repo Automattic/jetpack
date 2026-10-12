@@ -42,6 +42,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	protected $buffered_script_tags = array();
 
 	/**
+	 * `id` attributes of the tags printed for kept-in-place handles that other scripts depend on.
+	 *
+	 * @var string[]
+	 */
+	private $kept_script_ids = array();
+
+	/**
 	 * HTML attribute name to be added to <script> tag to make it
 	 * ignored by this class.
 	 *
@@ -215,6 +222,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		// Handle exclusions.
 		add_filter( 'script_loader_tag', array( $this, 'handle_exclusions' ), 10, 2 );
+		add_filter( 'js_do_concat', array( $this, 'should_concatenate' ), 10, 2 );
 
 		$this->output_filter->add_callback( array( $this, 'handle_output_stream' ) );
 	}
@@ -232,13 +240,21 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 */
 	public function handle_output_stream( $buffer_start, $buffer_end ) {
 		$joint_buffer = $this->ignore_exclusion_scripts( $buffer_start . $buffer_end );
-		$script_tags  = $this->get_script_tags( $joint_buffer );
+
+		list( $kept_in_place, $joint_buffer ) = $this->split_at_kept_scripts( $joint_buffer );
+
+		$script_tags = $this->get_script_tags( $joint_buffer );
 
 		if ( ! $script_tags ) {
-			if ( $this->is_opened_script ) {
-				// We have an opened script tag, move everything to the second buffer to avoid printing it to the page.
-				// We will do this until the </script> closing tag is encountered.
-				return array( '', $joint_buffer );
+			if ( '' !== $kept_in_place ) {
+				// A script left open by an earlier chunk may have closed in the part printed in place.
+				$this->is_opened_script = $this->is_opened_script( $joint_buffer );
+			}
+
+			// We have an opened script tag, move everything to the second buffer to avoid printing it to the page.
+			// We will do this until the </script> closing tag is encountered.
+			if ( $this->is_opened_script || '' !== $kept_in_place ) {
+				return array( $kept_in_place, $joint_buffer );
 			}
 
 			// No script tags detected, return both chunks unaltered.
@@ -256,7 +272,53 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// Detect a lingering opened script.
 		$this->is_opened_script = $this->is_opened_script( $buffer_start . $buffer_end );
 
-		return array( $buffer_start, $buffer_end );
+		return array( $kept_in_place . $buffer_start, $buffer_end );
+	}
+
+	/**
+	 * Keep every script up to the last kept-in-place library in document order.
+	 *
+	 * Scripts printed before a library may set up state around it, like Divi's inline jQuery
+	 * stand-in before `jquery-core` (BOOST-763), so moving them after it breaks the page.
+	 *
+	 * @param string $buffer Captured piece of output buffer.
+	 *
+	 * @return string[] The part to print unchanged, and the rest of the buffer.
+	 */
+	private function split_at_kept_scripts( $buffer ) {
+		if ( ! $this->kept_script_ids ) {
+			return array( '', $buffer );
+		}
+
+		$ids   = array_map(
+			function ( $id ) {
+				return preg_quote( $id, '~' );
+			},
+			array_unique( $this->kept_script_ids )
+		);
+		$regex = '~<script\b[^>]*\sid=(["\'])(?:' . implode( '|', $ids ) . ')\1[^>]*>[\s\S]*?</script>~i';
+
+		if ( ! preg_match_all( $regex, $buffer, $kept_tags, PREG_OFFSET_CAPTURE ) ) {
+			return array( '', $buffer );
+		}
+
+		$last_kept = end( $kept_tags[0] );
+		$split_at  = $last_kept[1] + strlen( $last_kept[0] );
+		$kept      = substr( $buffer, 0, $split_at );
+
+		// Scripts taken from earlier chunks go back in front of the first script here, where they were printed.
+		if ( $this->buffered_script_tags ) {
+			$first_script = $kept_tags[0][0][1];
+			$moved_here   = $this->get_script_tags( $kept );
+			if ( $moved_here ) {
+				$first_script = min( $first_script, $moved_here[0][1] );
+			}
+
+			$kept                       = substr_replace( $kept, implode( '', $this->buffered_script_tags ), $first_script, 0 );
+			$this->buffered_script_tags = array();
+		}
+
+		return array( $kept, substr( $buffer, $split_at ) );
 	}
 
 	/**
@@ -462,6 +524,23 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	}
 
 	/**
+	 * Handles that must keep their place in the document, as provided by
+	 * `jetpack_boost_render_blocking_js_exclude_handles`.
+	 *
+	 * @return array
+	 */
+	private function get_exclude_handles() {
+		/**
+		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
+		 *
+		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
+		return (array) apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
+	}
+
+	/**
 	 * Exclude certain scripts from being processed by this class.
 	 *
 	 * @param string $tag    <script> opening tag.
@@ -470,20 +549,54 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * @return string
 	 */
 	public function handle_exclusions( $tag, $handle ) {
-		/**
-		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
-		 *
-		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
-		 *
-		 * @since   1.0.0
-		 */
-		$exclude_handles = apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
-
-		if ( ! in_array( $handle, $exclude_handles, true ) ) {
+		if ( ! in_array( $handle, $this->get_exclude_handles(), true ) ) {
 			return $tag;
 		}
 
+		// A kept script nothing depends on, like the Likes queue handler in the footer, needs no
+		// scripts before it kept in place, and making it a barrier would stop deferral on the whole page.
+		if ( $this->has_dependents( $handle ) ) {
+			$this->kept_script_ids[] = $handle . '-js';
+		}
+
 		return $this->add_ignore_attribute( $tag );
+	}
+
+	/**
+	 * Whether any registered script depends on the handle.
+	 *
+	 * @param string $handle Script handle.
+	 *
+	 * @return bool
+	 */
+	private function has_dependents( $handle ) {
+		foreach ( wp_scripts()->registered as $script ) {
+			if ( in_array( $handle, (array) $script->deps, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether Minify JS may concatenate a script, given the handles excluded from deferral.
+	 *
+	 * Concatenated scripts share one <script> tag, but handle_exclusions() marks a script's own
+	 * tag - a concatenated script has none to mark, so this module would move it.
+	 *
+	 * @param mixed  $do_concat Whether the script may be concatenated, as left by earlier filters.
+	 * @param string $handle    Script handle from register_ or enqueue_ methods.
+	 *
+	 * @return mixed False when this module vetoes, otherwise $do_concat unchanged.
+	 */
+	public function should_concatenate( $do_concat, $handle ) {
+		if ( $do_concat && in_array( $handle, $this->get_exclude_handles(), true ) ) {
+			return false;
+		}
+
+		// Not a fresh boolean: Concatenate_JS concatenates only on `true === $do_concat`.
+		return $do_concat;
 	}
 
 	/**

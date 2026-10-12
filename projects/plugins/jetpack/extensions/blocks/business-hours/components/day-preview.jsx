@@ -10,7 +10,7 @@ const timeFormat = Intl?.DateTimeFormat
 			minute: 'numeric',
 			// Force AM/PM display at the moment since only that format is used in the site
 			hour12: true,
-	  } )
+		} )
 	: null;
 class DayPreview extends Component {
 	formatTime( time ) {

@@ -9,9 +9,9 @@
 // "Try again" button that resets the screen to an armed "Confirm
 // restore". So the only control beneath *"It may still be running —
 // you'll get an email when it finishes"* was one that starts a second
-// concurrent restore of the same site. Nothing upstream is known to
-// refuse that: `queue_restore()` calls `site_queue_rewind()` directly and
-// no in-flight check is visible from either repo.
+// concurrent restore of the same site. Upstream does refuse that —
+// `endpoint-site-queue-rewind.php` calls `is_any_restore_running()` —
+// but only as a bare failure, which is a worse screen than no button.
 //
 // The rule these tests pin: a retry is offered only when we know nothing
 // is running.
@@ -37,14 +37,12 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-
-const SETTLE = { timeout: 10000 };
 
 const RESTORE_ID = 912682;
 
@@ -94,7 +92,7 @@ beforeEach( () => {
  */
 async function findMessage() {
 	await expect(
-		screen.findAllByText( /We've lost track of this restore/, undefined, SETTLE )
+		screen.findAllByText( /We've lost track of this restore/ )
 	).resolves.not.toHaveLength( 0 );
 }
 
@@ -102,7 +100,7 @@ async function findMessage() {
  * Start a restore with the default six-of-six checklist.
  */
 async function startRestore() {
-	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
 }
 
 describe( 'a restore that has gone out of sight', () => {
@@ -121,7 +119,7 @@ describe( 'a restore that has gone out of sight', () => {
 		// Not merely the button: the whole form is gone, so there is
 		// nothing left on screen that could submit.
 		expect(
-			screen.queryByRole( 'checkbox', { name: 'WordPress themes' } )
+			screen.queryByRole( 'checkbox', { name: /^WordPress themes/ } )
 		).not.toBeInTheDocument();
 
 		// Two: the back link that sits above the card on every phase, and
@@ -140,12 +138,8 @@ describe( 'a restore that has gone out of sight', () => {
 		expect( screen.getByText( 'Could not reach WordPress.com.' ) ).toBeInTheDocument();
 	} );
 
-	// Not an error notice: we have no evidence the restore failed, only
-	// that we cannot see it, and red would assert a failure we cannot
-	// observe. Asserted through the status label `Notice` renders
-	// visually-hidden — what a screen reader is actually told — rather
-	// than through its `is-warning` class, which is that package's
-	// implementation detail rather than a contract.
+	// Not an error: we cannot see the restore, not know it failed. `Notice.Root`
+	// speaks `error` assertively and `warning` politely, so check the live regions.
 	it( 'warns rather than reporting a failure', async () => {
 		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
 		render( <RestoreStage /> );
@@ -153,8 +147,13 @@ describe( 'a restore that has gone out of sight', () => {
 		await startRestore();
 		await findMessage();
 
-		expect( screen.getByText( 'Warning notice' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Error notice' ) ).not.toBeInTheDocument();
+		// The notice plus its @wordpress/a11y live-region copy; tell them apart by `aria-live`.
+		const lives = () =>
+			screen
+				.getAllByText( /We've lost track of this restore/ )
+				.map( el => el.getAttribute( 'aria-live' ) );
+		await waitFor( () => expect( lives() ).toContain( 'polite' ) );
+		expect( lives() ).not.toContain( 'assertive' );
 	} );
 } );
 
@@ -178,10 +177,8 @@ describe( 'a restore that definitely is not running', () => {
 
 		// `findAllBy` for the same reason as `findMessage`: `Notice` mirrors
 		// its text into the live region.
-		await expect(
-			screen.findAllByText( 'Restore aborted.', undefined, SETTLE )
-		).resolves.not.toHaveLength( 0 );
+		await expect( screen.findAllByText( 'Restore aborted.' ) ).resolves.not.toHaveLength( 0 );
 		expect( screen.getByRole( 'button', { name: /Try again/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Error notice' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Restore failed.*Restore aborted\./ );
 	} );
 } );
