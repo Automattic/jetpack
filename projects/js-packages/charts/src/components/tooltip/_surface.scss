@@ -1,5 +1,4 @@
-// The chart tooltip look. Its color roles resolve for the dark tooltip theme
-// only where the element sits under TooltipTheme and re-declares the catalog.
+// The chart tooltip box: the look every chart tooltip shares.
 @mixin surface {
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	background-color: var(--a8c-charts-color-surface);
