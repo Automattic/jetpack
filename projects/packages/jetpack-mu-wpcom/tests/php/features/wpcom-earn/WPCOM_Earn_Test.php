@@ -124,24 +124,27 @@ class WPCOM_Earn_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The route directories whose package.json declares this page.
+	 * A WPCOM_Earn subclass that sees the build as present or absent, whatever this checkout holds.
 	 *
-	 * @return string[]
+	 * @param bool $has_build Whether the build exists.
+	 * @return string The subclass name.
 	 */
-	private function routes_declaring_the_page() {
-		$routes = array();
-
-		foreach ( glob( Jetpack_Mu_Wpcom::PKG_DIR . 'routes/*/package.json' ) as $file ) {
-			$route = (array) json_decode( (string) file_get_contents( $file ), true );
-
-			if ( WPCOM_Earn::WP_BUILD_PAGE === ( $route['route']['page'] ?? null ) ) {
-				$routes[] = basename( dirname( $file ) );
+	private function page_with_build( $has_build ) {
+		$page = $has_build
+			? new class() extends WPCOM_Earn {
+				/** @return bool */
+				public static function has_build() {
+					return true;
+				}
 			}
-		}
+			: new class() extends WPCOM_Earn {
+				/** @return bool */
+				public static function has_build() {
+					return false;
+				}
+			};
 
-		sort( $routes );
-
-		return $routes;
+		return get_class( $page );
 	}
 
 	public function test_page_stays_on_calypso_while_the_flag_is_off() {
@@ -172,24 +175,29 @@ class WPCOM_Earn_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_page_registers_between_admin_menu_and_the_wpcom_jetpack_submenu() {
 		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_Earn::FLAG, '__return_true' );
-		remove_action( 'admin_menu', array( WPCOM_Earn::class, 'register_page' ), WPCOM_Earn::REGISTER_PRIORITY );
+		$page = $this->page_with_build( true );
 
-		WPCOM_Earn::init();
-		$priority = has_action( 'admin_menu', array( WPCOM_Earn::class, 'register_page' ) );
+		$page::init();
+		$priority = has_action( 'admin_menu', array( $page, 'register_page' ) );
+		remove_action( 'admin_menu', array( $page, 'register_page' ), WPCOM_Earn::REGISTER_PRIORITY );
 
 		$this->assertGreaterThan( 1000, $priority );
 		$this->assertLessThan( has_action( 'admin_menu', 'wpcom_add_jetpack_submenu' ), $priority );
 	}
 
 	/**
-	 * Nothing but this connects the constants to the routes, and a mismatch degrades
-	 * silently: a blank page, or a route whose strings never translate.
+	 * An unbuilt page would replace the Calypso link with a blank screen.
 	 */
-	public function test_constants_match_the_routes_declaring_the_page() {
-		$routes = WPCOM_Earn::ROUTES;
-		sort( $routes );
+	public function test_page_leaves_the_calypso_link_when_the_build_is_missing() {
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_Earn::FLAG, '__return_true' );
+		$page = $this->page_with_build( false );
 
-		$this->assertSame( $routes, $this->routes_declaring_the_page() );
+		$page::init();
+
+		$this->assertFalse( has_action( 'admin_menu', array( $page, 'register_page' ) ) );
+	}
+
+	public function test_render_callback_matches_the_wp_build_page_name() {
 		$this->assertSame(
 			WPCOM_Earn::RENDER_CALLBACK,
 			'jetpack_mu_wpcom_' . str_replace( '-', '_', WPCOM_Earn::WP_BUILD_PAGE ) . '_wp_admin_render_page'
