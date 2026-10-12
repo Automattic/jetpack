@@ -14,6 +14,7 @@ import {
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
 import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatusResponse } from '../data/api/restore';
 import type { ReferenceId } from '../types/failure-reference';
@@ -73,6 +74,8 @@ type DeriveInput = {
 	/** Our restore, found already over in the collection; null when no row matches. */
 	settledOutcome: { succeeded: boolean; restoreId: number } | null;
 	statusError: Error | null;
+	/** Consecutive failed status polls since the last good one. */
+	pollFailures: number;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
 };
@@ -101,6 +104,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 		restoreId,
 		settledOutcome,
 		statusError,
+		pollFailures,
 		data,
 		lostTrack,
 	} = input;
@@ -162,7 +166,10 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// likely still running — we just cannot watch it any more. Reporting
 	// that as an error offers a retry, which upstream refuses as a bare
 	// failure rather than as anything the reader can act on.
-	if ( restoreId !== null && statusError ) {
+	//
+	// Unless the last reading showed the restore alive: then a failed poll
+	// is temporary, and the silence deadline decides when to give up.
+	if ( restoreId !== null && statusError && ( lostTrack || ! isSignOfLife( data?.status ) ) ) {
 		return {
 			phase: 'lost-track',
 			detail: statusError.message || null,
@@ -193,6 +200,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 				phase: 'progress',
 				percent: Math.round( data.progress ?? 0 ),
 				message: data.message,
+				...( pollFailures >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
 			};
 		default:
 			// `queued`, `not-found`, `unknown`, or nothing yet. All the
@@ -461,6 +469,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// Clearing `lostTrack` is what makes it mean "nothing heard lately"
 	// rather than "there was once a five-minute gap". Without it the flag
 	// latches on the first gap and no later evidence can undo it.
+	const pollFailures = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 	const observedStatus = statusQuery.data?.status;
 	const statusUpdatedAt = statusQuery.dataUpdatedAt;
 	useEffect( () => {
@@ -514,6 +523,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		restoreId,
 		settledOutcome,
 		statusError: statusQuery.error,
+		pollFailures,
 		data: statusQuery.data,
 		lostTrack,
 	} );

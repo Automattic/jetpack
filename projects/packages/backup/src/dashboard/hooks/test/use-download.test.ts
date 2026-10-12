@@ -164,3 +164,93 @@ describe( 'useDownload', () => {
 		);
 	} );
 } );
+
+describe( 'useDownload — a status poll that fails', () => {
+	let pollFails = false;
+	let failedCalls = 0;
+	const running = {
+		id: 4321,
+		status: 'running',
+		progress: 40,
+		url: '',
+		valid_until: '',
+		error: '',
+	};
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		pollFails = false;
+		failedCalls = 0;
+		mockedApiFetch.mockImplementation( ( options: { method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 4321 } );
+			}
+			if ( pollFails ) {
+				failedCalls++;
+				return Promise.reject( new Error( 'Offline.' ) );
+			}
+			return Promise.resolve( running );
+		} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	/**
+	 * Advance fake timers inside `act`, letting queued promises settle.
+	 *
+	 * @param ms - How far to advance.
+	 */
+	async function advance( ms: number ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( ms );
+		} );
+	}
+
+	/**
+	 * Submit and wait for the first good reading.
+	 *
+	 * @return The rendered hook result.
+	 */
+	async function startAndReadOnce() {
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+		await advance( 10 );
+		await advance( 10 );
+		await advance( 10 );
+		expect( result.current.state ).toEqual( { phase: 'progress', percent: 40 } );
+		return result;
+	}
+
+	it( 'keeps showing progress through one failed poll', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		await advance( 1500 );
+
+		expect( failedCalls ).toBe( 1 );
+		expect( result.current.state ).toEqual( { phase: 'progress', percent: 40 } );
+	} );
+
+	it( 'says it is reconnecting after repeated failures, and clears on success', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		for ( let i = 0; i < 10 && ! ( 'reconnecting' in result.current.state ); i++ ) {
+			await advance( 1500 );
+		}
+		// The note arrives on the third consecutive failure, not before.
+		expect( failedCalls ).toBe( 3 );
+		expect( result.current.state ).toEqual( {
+			phase: 'progress',
+			percent: 40,
+			reconnecting: true,
+		} );
+
+		pollFails = false;
+		await advance( 3000 );
+		expect( result.current.state ).toEqual( { phase: 'progress', percent: 40 } );
+	} );
+} );

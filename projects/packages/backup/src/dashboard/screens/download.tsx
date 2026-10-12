@@ -244,6 +244,11 @@ export default function DownloadScreen() {
 										{ titles.preparing }
 									</Text>
 								</EmptyState.Title>
+								{ state.phase === 'progress' && state.reconnecting && (
+									<EmptyState.Description>
+										{ __( 'Reconnecting…', 'jetpack-backup-pkg' ) }
+									</EmptyState.Description>
+								) }
 							</EmptyState.Root>
 						) }
 						{ state.phase === 'success' && (

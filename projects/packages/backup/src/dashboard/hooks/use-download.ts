@@ -4,13 +4,14 @@ import { __, sprintf } from '@wordpress/i18n';
 import { errorCode } from '../data/api/_helpers';
 import { fetchDownloadStatus, initiateDownload, initiateFileDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
 import type { FailureReference, ReferenceId } from '../types/failure-reference';
 import type { RestoreItems } from '../types/restore';
 
 type DownloadState =
 	| { phase: 'idle' }
 	| { phase: 'submitting' }
-	| { phase: 'progress'; percent: number }
+	| { phase: 'progress'; percent: number; reconnecting?: boolean }
 	| { phase: 'success'; downloadUrl: string; validUntil: string }
 	| { phase: 'error'; message: string; reference: FailureReference };
 
@@ -75,6 +76,7 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		enabled: downloadId !== null && enabled,
 		refetchInterval: query => ( query.state.data?.status === 'running' ? POLL_INTERVAL_MS : false ),
 	} );
+	const failedPolls = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 
 	const submit = useCallback(
 		( items: RestoreItems ) => mutateInitiate( { items } ),
@@ -130,9 +132,8 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 			// Upstream reports this one in prose only, so there is no code to quote.
 			reference: { code: null, id: referenceId },
 		};
-	} else if ( downloadId !== null && statusQuery.error ) {
-		// Network/HTTP failure mid-poll: surface so the UI doesn't sit
-		// in `progress` at the last known percent with no way out.
+	} else if ( downloadId !== null && statusQuery.error && statusQuery.data?.status !== 'running' ) {
+		// Nothing in progress to keep showing, so surface the failure.
 		state = {
 			phase: 'error',
 			message:
@@ -148,6 +149,8 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 			// first poll answers, which is the bar's 0% opening frame.
 			phase: 'progress',
 			percent: statusQuery.data?.progress ?? 0,
+			// A failed poll mid-download is temporary; say so only once it keeps failing.
+			...( failedPolls >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
 		};
 	} else if ( isInitiating ) {
 		state = { phase: 'submitting' };

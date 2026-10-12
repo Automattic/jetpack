@@ -1291,3 +1291,83 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 		expect( initiateCall() ).toBeDefined();
 	} );
 } );
+
+describe( 'useRestore — a status poll that fails mid-restore', () => {
+	let pollFails = false;
+	let failedCalls = 0;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		pollFails = false;
+		failedCalls = 0;
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [] );
+			}
+			if ( pollFails ) {
+				failedCalls++;
+				return Promise.reject( new Error( 'Could not reach WordPress.com.' ) );
+			}
+			return Promise.resolve( statusPayload( { progress: 40 } ) );
+		} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		focusManager.setFocused( true );
+	} );
+
+	/**
+	 * Submit and wait for the first good reading.
+	 *
+	 * @return The rendered hook result.
+	 */
+	async function startAndReadOnce() {
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'progress' );
+		return result;
+	}
+
+	it( 'keeps showing progress through one failed poll', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		while ( failedCalls < 1 ) {
+			await advance( POLL_INTERVAL_MS );
+		}
+
+		expect( result.current.state ).toMatchObject( { phase: 'progress', percent: 40 } );
+		expect( result.current.state ).not.toHaveProperty( 'reconnecting' );
+	} );
+
+	it( 'says it is reconnecting after repeated failures, and clears on success', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		while ( ! ( 'reconnecting' in result.current.state ) ) {
+			await advance( POLL_INTERVAL_MS );
+		}
+		// The note arrives on the third consecutive failure, not before.
+		expect( failedCalls ).toBe( 3 );
+		expect( result.current.state ).toMatchObject( { phase: 'progress', reconnecting: true } );
+
+		pollFails = false;
+		await advance( 2 * POLL_INTERVAL_MS );
+		expect( result.current.state ).toMatchObject( { phase: 'progress', percent: 40 } );
+		expect( result.current.state ).not.toHaveProperty( 'reconnecting' );
+	} );
+
+	it( 'gives up as lost-track once the silence deadline passes', async () => {
+		const result = await startAndReadOnce();
+
+		pollFails = true;
+		await advance( 6 * 60_000 );
+
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+	} );
+} );
