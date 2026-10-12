@@ -20,9 +20,12 @@ const WPCOM_THEMES_TAB = 'wpcom';
 const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-marketplace-tab';
 
 /**
- * The theme tier the tab lists, as `/wpcom/v2/themes` names it. Empty lists every tier.
+ * Tiers whose themes WordPress.org does not carry, so a `?theme=<slug>` preview is ours to answer.
+ *
+ * The tab lists every tier, but most WordPress.com themes are on WordPress.org too, and answering
+ * their preview links here would shadow WordPress.org's own copy of a theme it already serves.
  */
-const WPCOM_THEMES_TAB_TIER = 'partner';
+const WPCOM_THEMES_TAB_PREVIEW_TIERS = array( 'partner' );
 
 /**
  * Themes per request, which is also the grid's page size.
@@ -160,7 +163,7 @@ function wpcom_themes_tab_to_api_theme( array $theme ) {
  * @return string
  */
 function wpcom_themes_tab_cache_key( $page ) {
-	return 'wpcom_themes_tab_v1_' . WPCOM_THEMES_TAB_TIER . '_' . $page;
+	return 'wpcom_themes_tab_v2_' . $page;
 }
 
 /**
@@ -194,26 +197,27 @@ function wpcom_themes_tab_get_catalog( $page = 1 ) {
 }
 
 /**
- * A theme the tab lists, found by slug across the catalog's pages.
- *
- * Only the tab's tier is searched, so a preview link for a WordPress.org theme that WordPress.com
- * also offers in another tier (Twenty Twenty-Five, say) still goes to WordPress.org.
+ * A theme whose `?theme=<slug>` preview this tab answers, read from WordPress.com by slug.
  *
  * @param string $slug Theme slug.
- * @return array|null
+ * @return array|null Null unless the theme is in a tier from WPCOM_THEMES_TAB_PREVIEW_TIERS.
  */
 function wpcom_themes_tab_find_theme( $slug ) {
-	$page = 1;
-	do {
-		$catalog = wpcom_themes_tab_get_catalog( $page );
-		foreach ( $catalog['themes'] as $theme ) {
-			if ( $theme['slug'] === $slug ) {
-				return $theme;
-			}
-		}
-	} while ( ++$page <= ceil( $catalog['found'] / WPCOM_THEMES_TAB_PER_PAGE ) );
+	if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
+		return null;
+	}
 
-	return null;
+	$response = Client::wpcom_json_api_request_as_blog( '/themes/' . rawurlencode( $slug ), '1.2' );
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return null;
+	}
+
+	$theme = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( ! is_array( $theme ) || ! in_array( $theme['theme_tier']['slug'] ?? '', WPCOM_THEMES_TAB_PREVIEW_TIERS, true ) ) {
+		return null;
+	}
+
+	return wpcom_themes_tab_to_catalog_theme( $theme );
 }
 
 /**
@@ -228,12 +232,9 @@ function wpcom_themes_tab_fetch_catalog( $page ) {
 	}
 
 	$path = add_query_arg(
-		array_filter(
-			array(
-				'tier'   => WPCOM_THEMES_TAB_TIER,
-				'number' => WPCOM_THEMES_TAB_PER_PAGE,
-				'page'   => $page,
-			)
+		array(
+			'number' => WPCOM_THEMES_TAB_PER_PAGE,
+			'page'   => $page,
 		),
 		'/themes'
 	);
@@ -250,24 +251,37 @@ function wpcom_themes_tab_fetch_catalog( $page ) {
 
 	$themes = array();
 	foreach ( $body['themes'] as $theme ) {
-		// `id` is the bare directory name; `stylesheet` can carry a `pub/` prefix for WordPress.com's own themes.
-		if ( ! is_array( $theme ) || empty( $theme['id'] ) || ! is_string( $theme['id'] ) ) {
-			continue;
+		$mapped = wpcom_themes_tab_to_catalog_theme( $theme );
+		if ( null !== $mapped ) {
+			$themes[] = $mapped;
 		}
-
-		$themes[] = array(
-			'slug'           => $theme['id'],
-			'name'           => (string) ( $theme['name'] ?? $theme['id'] ),
-			'author'         => (string) ( $theme['author'] ?? '' ),
-			'description'    => (string) ( $theme['description'] ?? '' ),
-			'version'        => (string) ( $theme['version'] ?? '' ),
-			'screenshot_url' => (string) ( $theme['screenshot'] ?? '' ),
-			'preview_url'    => (string) ( $theme['demo_uri'] ?? '' ),
-		);
 	}
 
 	return array(
 		'themes' => $themes,
 		'found'  => (int) ( $body['found'] ?? count( $themes ) ),
+	);
+}
+
+/**
+ * Shapes one theme from `/themes` or `/themes/<slug>` into the array the tab works with.
+ *
+ * @param mixed $theme A theme from either endpoint.
+ * @return array|null Null when the theme has no usable slug.
+ */
+function wpcom_themes_tab_to_catalog_theme( $theme ) {
+	// `id` is the bare directory name; `stylesheet` can carry a `pub/` prefix for WordPress.com's own themes.
+	if ( ! is_array( $theme ) || empty( $theme['id'] ) || ! is_string( $theme['id'] ) ) {
+		return null;
+	}
+
+	return array(
+		'slug'           => $theme['id'],
+		'name'           => (string) ( $theme['name'] ?? $theme['id'] ),
+		'author'         => (string) ( $theme['author'] ?? '' ),
+		'description'    => (string) ( $theme['description'] ?? '' ),
+		'version'        => (string) ( $theme['version'] ?? '' ),
+		'screenshot_url' => (string) ( $theme['screenshot'] ?? '' ),
+		'preview_url'    => (string) ( $theme['demo_uri'] ?? '' ),
 	);
 }

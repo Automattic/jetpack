@@ -139,6 +139,16 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Answers with a single theme, as `/themes/<slug>` returns it.
+	 *
+	 * @param array $theme The theme.
+	 * @return void
+	 */
+	private function answer_with_theme( array $theme ) {
+		$this->answer_wpcom_with( 200, wp_json_encode( $theme, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
 	 * Query the themes API as core's theme.js does for a tab.
 	 *
 	 * @param array $args Request arguments.
@@ -159,7 +169,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertCount( 1, $this->requests );
 		$this->assertStringContainsString( '/wpcom/v2/themes', $this->requests[0] );
-		$this->assertStringContainsString( 'tier=' . WPCOM_THEMES_TAB_TIER, $this->requests[0] );
+		// The tab lists every tier, so the request must not scope itself to one.
+		$this->assertStringNotContainsString( 'tier=', $this->requests[0] );
 
 		$theme = $result->themes[0];
 		$this->assertSame( 'organic-stax', $theme->slug );
@@ -248,61 +259,38 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * A preview link loaded directly is answered with the theme, so core can open its preview.
 	 */
-	public function test_answers_preview_link_for_a_listed_theme() {
+	public function test_answers_preview_link_for_a_theme_only_wpcom_has() {
 		$this->enable_tab();
-		$this->answer_with_themes( array( self::THEME ), 1 );
+		$this->answer_with_theme( array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'partner' ) ) ) );
 
 		$result = $this->query( array( 'theme' => 'organic-stax' ) );
 
 		$this->assertCount( 1, $result->themes );
 		$this->assertSame( 'organic-stax', $result->themes[0]->slug );
 		$this->assertSame( self::THEME['demo_uri'], $result->themes[0]->preview_url );
+		// One request by slug, rather than paging through the whole catalog to find it.
+		$this->assertCount( 1, $this->requests );
+		$this->assertStringContainsString( '/rest/v1.2/themes/organic-stax', $this->requests[0] );
 	}
 
 	/**
-	 * A preview link for a theme the tab does not list is left to WordPress.org.
+	 * A theme WordPress.org also carries keeps its WordPress.org preview, rather than ours shadowing it.
+	 */
+	public function test_leaves_preview_links_for_dot_org_themes_to_core() {
+		$this->enable_tab();
+		$this->answer_with_theme( array_merge( self::THEME, array( 'theme_tier' => array( 'slug' => 'free' ) ) ) );
+
+		$this->assertFalse( $this->query( array( 'theme' => 'organic-stax' ) ) );
+	}
+
+	/**
+	 * A preview link for a theme WordPress.com does not have is left to WordPress.org.
 	 */
 	public function test_leaves_other_preview_links_to_core() {
 		$this->enable_tab();
-		$this->answer_with_themes( array( self::THEME ), 1 );
+		$this->answer_wpcom_with( 404, wp_json_encode( array( 'error' => 'unknown_theme' ), JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( $this->query( array( 'theme' => 'twentytwentyfive' ) ) );
-	}
-
-	/**
-	 * The lookup follows the catalog past its first page.
-	 */
-	public function test_finds_preview_theme_on_a_later_page() {
-		$this->enable_tab();
-		$later = array_merge( self::THEME, array( 'id' => 'later-theme' ) );
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $later ) {
-				$this->requests[] = $url;
-				$themes           = str_contains( $url, 'page=2' ) ? array( $later ) : array( self::THEME );
-
-				return array(
-					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
-					),
-					'body'     => wp_json_encode(
-						array(
-							'themes' => $themes,
-							'found'  => WPCOM_THEMES_TAB_PER_PAGE + 1,
-						),
-						JSON_UNESCAPED_SLASHES
-					),
-				);
-			},
-			10,
-			3
-		);
-
-		$result = $this->query( array( 'theme' => 'later-theme' ) );
-
-		$this->assertSame( 'later-theme', $result->themes[0]->slug );
-		$this->assertCount( 2, $this->requests );
 	}
 
 	/**
