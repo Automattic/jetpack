@@ -71,8 +71,8 @@ export const Complex: Story = {
 				1000,
 				`<div style="padding: 12px; font-family: sans-serif;">
 					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇺🇸 United States</div>
-					<div style="color: #666;">Orders: <strong>1,000</strong></div>
-					<div style="color: #666;">Share: <strong>40%</strong></div>
+					<div>Orders: <strong>1,000</strong></div>
+					<div>Share: <strong>40%</strong></div>
 				</div>`,
 			],
 			[
@@ -80,8 +80,8 @@ export const Complex: Story = {
 				500,
 				`<div style="padding: 12px; font-family: sans-serif;">
 					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇨🇦 Canada</div>
-					<div style="color: #666;">Orders: <strong>500</strong></div>
-					<div style="color: #666;">Share: <strong>20%</strong></div>
+					<div>Orders: <strong>500</strong></div>
+					<div>Share: <strong>20%</strong></div>
 				</div>`,
 			],
 			[
@@ -89,8 +89,8 @@ export const Complex: Story = {
 				450,
 				`<div style="padding: 12px; font-family: sans-serif;">
 					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇬🇧 United Kingdom</div>
-					<div style="color: #666;">Orders: <strong>450</strong></div>
-					<div style="color: #666;">Share: <strong>18%</strong></div>
+					<div>Orders: <strong>450</strong></div>
+					<div>Share: <strong>18%</strong></div>
 				</div>`,
 			],
 		],
