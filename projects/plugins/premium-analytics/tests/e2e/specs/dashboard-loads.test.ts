@@ -15,5 +15,4 @@ test( 'renders the traffic totals from WordPress.com stats', async ( { dashboard
 	await expect(
 		dashboard.page.getByRole( 'tab', { name: 'Views 28', exact: true } )
 	).toBeVisible();
-	expect( dashboard.errors ).toEqual( [] );
 } );

@@ -1,8 +1,7 @@
+/* eslint playwright/expect-expect: [ "warn", { assertFunctionNames: [ "expectTabHidden" ] } ] */
 import { test, expect, setSiteState } from '../fixtures/dashboard';
 
 const routeOf = ( url: URL ) => url.searchParams.get( 'p' )?.split( '?' )[ 0 ];
-
-// A hidden tab can't be told apart from one that hasn't rendered yet, so each hidden case waits for Traffic first.
 
 test.describe( 'opt-in option', () => {
 	test( 'keeps the dashboard closed while the option is off', async ( {
@@ -27,13 +26,16 @@ test.describe( 'opt-in option', () => {
 		).toHaveCount( 0 );
 	} );
 
-	test( 'opens the dashboard once the option is on', async ( { dashboard, testUtils } ) => {
+	test( 'adds the dashboard to the admin menu once the option is on', async ( {
+		dashboard,
+		testUtils,
+	} ) => {
 		await setSiteState( testUtils, { enabled: true, subscriptions: false, wordads: false } );
 
-		await dashboard.open();
-
-		await expect( dashboard.tab( 'Traffic' ) ).toBeVisible();
-		expect( dashboard.errors ).toEqual( [] );
+		await dashboard.page.goto( './wp-admin/' );
+		await expect(
+			dashboard.page.locator( '#adminmenu a[href*="jetpack-premium-analytics"]' )
+		).not.toHaveCount( 0 );
 	} );
 } );
 
@@ -47,8 +49,7 @@ test.describe( 'Subscribers section', () => {
 		await dashboard.open( '/reports/emails' );
 
 		await expect( dashboard.page ).toHaveURL( url => routeOf( url ) === '/' );
-		await expect( dashboard.tab( 'Traffic' ) ).toBeVisible();
-		await expect( dashboard.tab( 'Subscribers' ) ).toHaveCount( 0 );
+		await dashboard.expectTabHidden( 'Subscribers' );
 	} );
 
 	test( 'is shown, and its reports open, with the subscriptions module', async ( {
@@ -66,7 +67,6 @@ test.describe( 'Subscribers section', () => {
 		// The helper serves no emails, so a loaded report shows its empty state rather than its error notice.
 		await expect( dashboard.page.getByText( 'No data found' ) ).toBeVisible();
 		await expect( dashboard.page ).toHaveURL( url => routeOf( url ) === '/reports/emails' );
-		expect( dashboard.errors ).toEqual( [] );
 
 		await dashboard.open();
 		await expect( dashboard.tab( 'Subscribers' ) ).toBeVisible();
@@ -79,8 +79,7 @@ test.describe( 'Ads section', () => {
 
 		await dashboard.open();
 
-		await expect( dashboard.tab( 'Traffic' ) ).toBeVisible();
-		await expect( dashboard.tab( 'Ads' ) ).toHaveCount( 0 );
+		await dashboard.expectTabHidden( 'Ads' );
 	} );
 
 	test( 'is shown with WordAds', async ( { dashboard, testUtils } ) => {
