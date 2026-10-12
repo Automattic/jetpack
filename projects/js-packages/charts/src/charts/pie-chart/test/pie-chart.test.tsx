@@ -791,6 +791,10 @@ describe( 'PieChart', () => {
 			render( <PieChart data={ data } withTooltips /> );
 			const [ macos, linux ] = screen.getAllByTestId( 'pie-segment' );
 			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: 'Pie chart' } ) ).toHaveAttribute(
+				'tabindex',
+				'0'
+			);
 
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
