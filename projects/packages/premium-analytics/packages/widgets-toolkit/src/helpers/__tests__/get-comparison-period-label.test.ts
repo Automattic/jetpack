@@ -31,6 +31,25 @@ describe( 'getComparisonPeriodLabel', () => {
 		expect( getComparisonPeriodLabel( params ) ).toBe( expected );
 	} );
 
+	// September is a whole month, so only the preset tells a 30-day window from a month.
+	it.each( [
+		[ 'last-30-days', '2026-08-02', 'Prev. 30 days' ],
+		[ 'last-month', '2026-08-01', 'Prev. month' ],
+	] )( 'measures the previous period the way the %s preset does', ( preset, from, expected ) => {
+		const params = {
+			from: '2026-09-01T00:00:00Z',
+			to: '2026-09-30T23:59:59.999Z',
+			interval: 'day',
+			preset,
+			comp: '1',
+			compare_from: `${ from }T00:00:00Z`,
+			compare_to: '2026-08-31T23:59:59.999Z',
+			compare_preset: 'previous-period',
+		} as ReportParams;
+
+		expect( getComparisonPeriodLabel( params ) ).toBe( expected );
+	} );
+
 	it( 'falls back to the comparison range without a preset', () => {
 		const params = {
 			...WEEK,

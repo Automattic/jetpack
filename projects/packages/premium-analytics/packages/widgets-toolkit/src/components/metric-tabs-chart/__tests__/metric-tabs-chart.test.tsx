@@ -6,7 +6,7 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
+import { resetMockCharts, setMockChartWidth } from '../../../../../../tests/js/chart-test-utils';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
 import { WidgetRootContext } from '../../widget-root/context';
@@ -516,21 +516,30 @@ describe( 'MetricTabsChart', () => {
 		expect( after.defaultHiddenSeries ).toEqual( [ 'Visitors', 'Visitors · previous period' ] );
 	} );
 
-	it( 'prefers an explicit comparison label over the widget', () => {
-		render(
-			<WidgetRootContext.Provider
-				value={ { reportParams: comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) } }
-			>
-				<MetricTabsChart
-					metrics={ [ METRIC ] }
-					dataFormat={ DATA_FORMAT }
-					comparisonLabel="Custom"
-				/>
-			</WidgetRootContext.Provider>
-		);
+	it.each( [
+		[ 'line chart', mockLineSpy, undefined, undefined ],
+		[ 'bar chart', mockBarSpy, 'bar', undefined ],
+		[ 'narrow dropdown layout', mockLineSpy, undefined, 100 ],
+	] as const )(
+		'hands an explicit comparison label, over the widget, to the %s',
+		( _layout, spy, chartType, width ) => {
+			setMockChartWidth( width );
+			render(
+				<WidgetRootContext.Provider
+					value={ { reportParams: comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) } }
+				>
+					<MetricTabsChart
+						metrics={ [ VIEWS, VISITORS ] }
+						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
+						comparisonLabel="Custom"
+					/>
+				</WidgetRootContext.Provider>
+			);
 
-		expect( recordedPropsFor( mockLineSpy, 'Views' ).comparisonLabel ).toBe( 'Custom' );
-	} );
+			expect( recordedPropsFor( spy, 'Views' ).comparisonLabel ).toBe( 'Custom' );
+		}
+	);
 
 	it( 'swaps the pair around when the reader picks the counterpart', () => {
 		render( <MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } /> );
