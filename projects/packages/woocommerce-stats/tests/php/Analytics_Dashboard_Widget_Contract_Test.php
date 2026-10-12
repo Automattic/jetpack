@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
- * The widgets draw the half-ring variant of `Donut` the dashboard ships from 1.8.0, so they register on that major from there on.
+ * The widgets draw `Columns`, which the dashboard ships from 1.10.0, so they register on that major from there on.
  *
  * Each case runs in its own process: the contract version is a constant.
  *
@@ -58,6 +58,8 @@ class Analytics_Dashboard_Widget_Contract_Test extends BaseTestCase {
 			'the contract before the icon resolver'     => array( '1.5.0' ),
 			'the contract before the bars variant'      => array( '1.6.0' ),
 			'the contract before the half-ring variant' => array( '1.7.0' ),
+			'the contract before Funnel'                => array( '1.8.0' ),
+			'the contract before Columns'               => array( '1.9.0' ),
 			'the next major'                            => array( '2.0.0' ),
 		);
 	}
