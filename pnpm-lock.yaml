@@ -5309,6 +5309,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-premium-analytics-icons':
+        specifier: link:../premium-analytics/packages/icons
+        version: link:../premium-analytics/packages/icons
       '@automattic/jetpack-premium-analytics-sdk':
         specifier: workspace:*
         version: link:../../js-packages/premium-analytics-sdk

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { search } from '@automattic/jetpack-premium-analytics-icons';
 import {
 	ExporterCsvDownloadButton,
 	Leaderboard,
@@ -12,6 +13,9 @@ import {
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
 import { useMemo } from 'react';
@@ -84,12 +88,34 @@ function TopVideosReport() {
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = isLoading || primary.isPending;
+	const hasNoPlays = ! isInitialLoading && ! isError && rows.length === 0;
+	const canUpload = useSelect(
+		select => hasNoPlays && select( coreStore ).canUser( 'create', 'media' ),
+		[ hasNoPlays ]
+	);
+	const checkMedia = hasNoPlays && canUpload === true;
+	const { records: videos, status: mediaStatus } = useEntityRecords< { id: number } >(
+		'postType',
+		'attachment',
+		{
+			per_page: 1,
+			_fields: 'id',
+			videopress_has_guid: 1,
+			...( isSimpleSite() ? { videopress_only_videos: 1 } : {} ),
+		},
+		{ enabled: checkMedia }
+	);
+	const isCheckingMedia =
+		( hasNoPlays && canUpload === undefined ) ||
+		( checkMedia && ! videos && mediaStatus !== 'ERROR' );
+	const hasNoVideos = checkMedia && mediaStatus === 'SUCCESS' && videos?.length === 0;
+	const adminUrl = getScriptData()?.site?.admin_url;
 
 	return (
 		<Leaderboard
 			rows={ rows }
 			status={ {
-				isLoading: isInitialLoading,
+				isLoading: isInitialLoading || isCheckingMedia,
 				isFetching,
 				// `placeholderData` keeps prior rows visible after a failed range change; only
 				// surface the error when nothing is on screen.
@@ -104,15 +130,31 @@ function TopVideosReport() {
 				),
 				onRetry: refetch,
 			} ) }
+			empty={
+				hasNoVideos
+					? {
+							icon: search,
+							description: __( 'You don’t have videos uploaded yet.', 'jetpack-videopress-pkg' ),
+							action: adminUrl
+								? {
+										label: __( 'Upload video', 'jetpack-videopress-pkg' ),
+										href: `${ adminUrl }media-new.php`,
+									}
+								: undefined,
+						}
+					: undefined
+			}
 			footer={
-				<>
-					<ReportLink report="videos" />
-					<ExporterCsvDownloadButton
-						report="videos"
-						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-						rowCount={ rows.length }
-					/>
-				</>
+				hasNoVideos ? null : (
+					<>
+						<ReportLink report="videos" />
+						<ExporterCsvDownloadButton
+							report="videos"
+							status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+							rowCount={ rows.length }
+						/>
+					</>
+				)
 			}
 		/>
 	);
