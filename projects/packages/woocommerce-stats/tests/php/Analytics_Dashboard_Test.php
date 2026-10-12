@@ -12,8 +12,6 @@ use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -131,19 +129,16 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	/**
 	 * A store that has taken orders moves its tab ahead of Traffic, which makes it the default tab.
 	 *
-	 * @dataProvider provide_order_ids_and_section_order
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * @dataProvider provide_orders_milestone_and_section_order
 	 *
-	 * @param int[] $order_ids      Ids the stubbed order query returns.
-	 * @param int   $expected_order Expected section order.
+	 * @param int|null $milestone      WooCommerce's last order milestone, or null when it never set one.
+	 * @param int      $expected_order Expected section order.
 	 */
-	#[DataProvider( 'provide_order_ids_and_section_order' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_orders_the_section_by_whether_the_store_has_orders( $order_ids, $expected_order ) {
-		require_once __DIR__ . '/mocks/woocommerce-orders-mock.php';
-		$GLOBALS['jetpack_woocommerce_stats_order_ids'] = $order_ids;
+	#[DataProvider( 'provide_orders_milestone_and_section_order' )]
+	public function test_orders_the_section_by_whether_the_store_has_orders( $milestone, $expected_order ) {
+		if ( null !== $milestone ) {
+			update_option( Analytics_Dashboard::ORDERS_MILESTONE_OPTION, $milestone );
+		}
 		$this->enable_store();
 		Analytics_Dashboard::init();
 
@@ -157,10 +152,12 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 *
 	 * @return array[]
 	 */
-	public static function provide_order_ids_and_section_order() {
+	public static function provide_orders_milestone_and_section_order() {
 		return array(
-			'no orders'  => array( array(), Analytics_Dashboard::SECTION_ORDER ),
-			'has orders' => array( array( 12, 34 ), Analytics_Dashboard::SELLING_SECTION_ORDER ),
+			'milestone never set' => array( null, Analytics_Dashboard::SECTION_ORDER ),
+			'no orders yet'       => array( 0, Analytics_Dashboard::SECTION_ORDER ),
+			'first order'         => array( 1, Analytics_Dashboard::SELLING_SECTION_ORDER ),
+			'stored as a string'  => array( '100', Analytics_Dashboard::SELLING_SECTION_ORDER ),
 		);
 	}
 

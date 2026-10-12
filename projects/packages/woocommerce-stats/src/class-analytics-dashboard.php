@@ -82,10 +82,10 @@ class Analytics_Dashboard {
 	const SELLING_SECTION_ORDER = 5;
 
 	/**
-	 * Transient caching whether the store has orders, as `yes` or `no`: the section registers on
-	 * every page that prints the dashboard's script data.
+	 * WooCommerce's last order milestone (1, 10, 100…), which it updates hourly for its own
+	 * milestone notes: at least 1 once the store has a processing or completed order.
 	 */
-	const HAS_ORDERS_TRANSIENT = 'jetpack_woocommerce_stats_has_orders';
+	const ORDERS_MILESTONE_OPTION = 'woocommerce_admin_last_orders_milestone';
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
@@ -136,33 +136,12 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * Whether the store has taken at least one order, cached for a week once it has and an hour
-	 * until then.
+	 * Whether the store has taken at least one processing or completed order.
 	 *
 	 * @return bool
 	 */
 	private static function store_has_orders() {
-		if ( ! function_exists( 'wc_get_orders' ) ) {
-			return false;
-		}
-
-		$cached = get_transient( self::HAS_ORDERS_TRANSIENT );
-		if ( false !== $cached ) {
-			return 'yes' === $cached;
-		}
-
-		$has_orders = ! empty(
-			wc_get_orders(
-				array(
-					'limit'  => 1,
-					'return' => 'ids',
-				)
-			)
-		);
-
-		set_transient( self::HAS_ORDERS_TRANSIENT, $has_orders ? 'yes' : 'no', $has_orders ? WEEK_IN_SECONDS : HOUR_IN_SECONDS );
-
-		return $has_orders;
+		return (int) get_option( self::ORDERS_MILESTONE_OPTION, 0 ) >= 1;
 	}
 
 	/**
