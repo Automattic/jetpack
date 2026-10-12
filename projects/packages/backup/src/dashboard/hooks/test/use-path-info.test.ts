@@ -127,6 +127,18 @@ describe( 'formatFileSize', () => {
 	] )( 'formats %i bytes as %s', ( bytes, expected ) => {
 		expect( formatFileSize( bytes ) ).toBe( expected );
 	} );
+
+	test( 'uses the locale decimal separator', () => {
+		( window as { wp?: unknown } ).wp = {
+			date: { getSettings: () => ( { l10n: { locale: 'de_DE' } } ) },
+		};
+
+		try {
+			expect( formatFileSize( 3247 ) ).toBe( '3,2 KB' );
+		} finally {
+			delete ( window as { wp?: unknown } ).wp;
+		}
+	} );
 } );
 
 describe( 'usePathInfo', () => {

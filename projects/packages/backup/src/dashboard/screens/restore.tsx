@@ -1,5 +1,4 @@
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -17,6 +16,7 @@ import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { formatDate, formatDateTime } from '../data/date-format';
 import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
 import { useStepFocus } from '../hooks/use-step-focus';
@@ -120,8 +120,11 @@ export default function RestoreScreen() {
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
-									{ __( 'Restore point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', restorePoint, undefined ) }
+									{ sprintf(
+										/* translators: %s: date and time of the backup. */
+										__( 'Restore point: %s', 'jetpack-backup-pkg' ),
+										formatDateTime( restorePoint )
+									) }
 								</Text>
 							</Stack>
 						</Stack>
@@ -284,7 +287,7 @@ export default function RestoreScreen() {
 													"A restore of your %s backup is already running. You can't start another from here until it finishes.",
 													'jetpack-backup-pkg'
 												),
-												dateI18n( 'M j, Y', restorePoint, undefined )
+												formatDate( restorePoint )
 											)
 										: __(
 												"A restore is already running for this site. You can't start another from here until it finishes.",

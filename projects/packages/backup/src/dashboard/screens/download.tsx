@@ -1,5 +1,4 @@
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
@@ -16,6 +15,7 @@ import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { splitFileSelection } from '../data/api/download';
+import { formatDateTime } from '../data/date-format';
 import { useDownload } from '../hooks/use-download';
 import { useGateState } from '../hooks/use-gate-state';
 import { useStepFocus } from '../hooks/use-step-focus';
@@ -156,8 +156,11 @@ export default function DownloadScreen() {
 									{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
-									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
+									{ sprintf(
+										/* translators: %s: date and time of the backup. */
+										__( 'Download point: %s', 'jetpack-backup-pkg' ),
+										formatDateTime( downloadPoint )
+									) }
 								</Text>
 							</Stack>
 						</Stack>
@@ -273,7 +276,7 @@ export default function DownloadScreen() {
 										{ sprintf(
 											/* translators: %s: date and time the download link stops working. */
 											__( 'This expires %s.', 'jetpack-backup-pkg' ),
-											dateI18n( 'M j, Y, g:i A', state.validUntil, undefined )
+											formatDateTime( state.validUntil )
 										) }
 									</EmptyState.Description>
 								) }
