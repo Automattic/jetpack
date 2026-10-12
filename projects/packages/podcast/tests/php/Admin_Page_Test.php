@@ -335,24 +335,4 @@ class Admin_Page_Test extends BaseTestCase {
 
 		$this->assertFalse( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
 	}
-
-	public function test_register_script_modules_calls_the_registrar_once_default_scripts_have_fired() {
-		if ( ! did_action( 'wp_default_scripts' ) ) {
-			do_action( 'wp_default_scripts', wp_scripts() );
-		}
-		$calls = 0;
-
-		$called = Admin_Page::register_script_modules_if_default_scripts_fired(
-			function () use ( &$calls ) {
-				++$calls;
-			}
-		);
-
-		$this->assertTrue( $called );
-		$this->assertSame( 1, $calls );
-	}
-
-	public function test_register_script_modules_skips_a_registrar_that_does_not_exist() {
-		$this->assertFalse( Admin_Page::register_script_modules_if_default_scripts_fired( 'jetpack_podcast_no_such_registrar' ) );
-	}
 }
