@@ -6,6 +6,8 @@ const environmentCheck = setupProjects.filter( project => project.name === 'envi
 
 export default {
 	...baseConfig,
+	// Every spec sets site-wide options and modules, so they cannot run concurrently.
+	workers: 1,
 	projects: [
 		...environmentCheck,
 		{
