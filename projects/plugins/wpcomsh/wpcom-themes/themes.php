@@ -39,9 +39,31 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
  * @return mixed|stdClass
  */
 function wpcomsh_remove_dot_org_themes_based_on_plan( $res ) {
-	if ( ! wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
-		$res->info['results'] = 0;
-		$res->themes          = array();
+	if ( wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
+		return $res;
+	}
+
+	// A single theme's details, rather than a list to filter.
+	if ( ! isset( $res->themes ) || ! is_array( $res->themes ) ) {
+		return $res;
+	}
+
+	/*
+	 * Remove the WordPress.org themes and keep ours, which WPCom_Themes_Mapper marks. Emptying the
+	 * list instead would also discard results that never came from WordPress.org, such as the
+	 * Marketplace tab's.
+	 */
+	$res->themes = array_values(
+		array_filter(
+			$res->themes,
+			function ( $theme ) {
+				return ! empty( $theme->is_wpcom_theme );
+			}
+		)
+	);
+
+	if ( isset( $res->info['results'] ) ) {
+		$res->info['results'] = count( $res->themes );
 	}
 
 	return $res;
