@@ -712,13 +712,23 @@ describe( 'LeaderboardChart', () => {
 					data={ [
 						mockData[ 0 ],
 						{ ...mockData[ 1 ], ariaLabel: 'Open Home', onClick: jest.fn() },
+						{
+							...mockData[ 1 ],
+							id: 'about',
+							ariaLabel: 'Open About',
+							onClick: jest.fn(),
+							hasInteractiveLabel: true,
+						},
 					] }
 				/>
 			);
 			const items = screen.getAllByRole( 'listitem' );
-			expect( items ).toHaveLength( 2 );
+			expect( items ).toHaveLength( 3 );
 			expect(
 				within( items[ 1 ] ).getByRole( 'button', { name: 'Open Home' } )
+			).toBeInTheDocument();
+			expect(
+				within( items[ 2 ] ).getByRole( 'button', { name: 'Open About' } )
 			).toBeInTheDocument();
 		} );
 

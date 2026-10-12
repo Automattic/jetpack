@@ -469,22 +469,27 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 								if ( entry.onClick && entry.hasInteractiveLabel ) {
 									return (
-										// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Mouse-only fallback; the row button carries keyboard access.
 										<div
 											key={ entry.id }
+											role="listitem"
 											data-row-index={ rowIndex }
 											style={ rowStyle }
-											className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
-											onClick={ forwardCellClickToRowButton }
+											className={ styles.rowItem }
 										>
-											{ rowCells }
-											<button
-												type="button"
-												className={ styles.rowButton }
-												onClick={ entry.onClick }
-												aria-label={ entry.ariaLabel }
-											/>
-											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+											{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Mouse-only fallback; the row button carries keyboard access. */ }
+											<div
+												className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
+												onClick={ forwardCellClickToRowButton }
+											>
+												{ rowCells }
+												<button
+													type="button"
+													className={ styles.rowButton }
+													onClick={ entry.onClick }
+													aria-label={ entry.ariaLabel }
+												/>
+												<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+											</div>
 										</div>
 									);
 								}
