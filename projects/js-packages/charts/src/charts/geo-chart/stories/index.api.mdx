@@ -30,7 +30,7 @@ Main component for rendering geographical data on an interactive world map using
 
 ```typescript
 interface GeoChartProps
-  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
+  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height' | 'ariaLabel'> {
   data: GeoData;
   region?: GeoRegion;
   resolution?: GeoResolution;
