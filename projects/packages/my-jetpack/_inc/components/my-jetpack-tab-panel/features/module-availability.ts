@@ -55,10 +55,10 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 }
 
 /**
- * Why a feature has no available route on this site.
+ * Why a feature cannot run in the site's current state.
  *
  * @param state - The feature's live state.
- * @return The unavailable reason, or undefined when a plugin or host provides a route.
+ * @return The unavailable reason, including a required account connection, or undefined.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
 	if ( state.control.kind === 'connect-account' ) {
