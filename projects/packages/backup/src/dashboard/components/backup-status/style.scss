@@ -69,6 +69,8 @@
 		background-color: var(--wpds-color-background-track-neutral);
 
 		> div {
+			// The indicator has no inset, so the card's `text-align: center` places it.
+			inset-inline-start: 0;
 			background-color: var(--wpds-color-background-interactive-brand-strong);
 		}
 	}
