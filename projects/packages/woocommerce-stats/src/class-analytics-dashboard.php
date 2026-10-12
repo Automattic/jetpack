@@ -64,6 +64,12 @@ class Analytics_Dashboard {
 	const SALES_BY_UTM_CAMPAIGN_TYPE             = 'woocommerce-analytics/sales-by-utm-campaign';
 
 	/**
+	 * The conversion funnel, for every product and for bookings.
+	 */
+	const CONVERSION_RATE_TYPE                = 'woocommerce-analytics/conversion-rate';
+	const STORE_CONVERSION_RATE_BOOKINGS_TYPE = 'woocommerce-analytics/store-conversion-rate-bookings';
+
+	/**
 	 * Registry actions of the dashboard package.
 	 */
 	const REGISTER_SECTIONS_ACTION     = 'jetpack_premium_analytics_register_dashboard_sections';
@@ -156,19 +162,20 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 5, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 6, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 7, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 8, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 9, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 10, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 11, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sessions-by-device-widget-instance', self::SESSIONS_BY_DEVICE_TYPE, 12, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 13, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 14, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 15, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 16, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-revenue-by-customer-type-widget-instance', self::REVENUE_BY_CUSTOMER_TYPE_TYPE, 17, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-device-widget-instance', self::SALES_BY_DEVICE_TYPE, 18, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-total-returns-widget-instance', self::TOTAL_RETURNS_TYPE, 19, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-coupon-widget-instance', self::SALES_BY_COUPON_TYPE, 20, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-conversion-rate-widget-instance', self::CONVERSION_RATE_TYPE, 8, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 9, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 10, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 11, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 12, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sessions-by-device-widget-instance', self::SESSIONS_BY_DEVICE_TYPE, 13, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 14, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 15, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 16, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 17, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-revenue-by-customer-type-widget-instance', self::REVENUE_BY_CUSTOMER_TYPE_TYPE, 18, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-device-widget-instance', self::SALES_BY_DEVICE_TYPE, 19, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-total-returns-widget-instance', self::TOTAL_RETURNS_TYPE, 20, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-coupon-widget-instance', self::SALES_BY_COUPON_TYPE, 21, 1, 2 ),
 		);
 	}
 

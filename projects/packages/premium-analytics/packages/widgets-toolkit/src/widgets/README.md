@@ -6,7 +6,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 
 | Widget                         | Chart Component                                 | Description                                       |
 | ------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
-| `ConversionRateWidget`         | `Funnel`                                        | Funnel conversion rate metric                     |
 
 ## Chart Components
 

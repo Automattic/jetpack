@@ -354,11 +354,7 @@ export {
 /**
  * Widget components
  */
-export {
-	BookingConversionRateWidget,
-	ConversionRateWidget,
-	VisitorsByLocationWidget,
-} from './widgets';
+export { VisitorsByLocationWidget } from './widgets';
 
 /**
  * Types

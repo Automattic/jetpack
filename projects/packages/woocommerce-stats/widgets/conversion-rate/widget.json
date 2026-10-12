@@ -1,5 +1,5 @@
 {
-	"name": "jpa/conversion-rate",
+	"name": "woocommerce-analytics/conversion-rate",
 	"icon": "jpa/chart-bar",
 	"title": "Store conversion rate",
 	"description": "Store conversion rate over the selected time period.",
@@ -7,5 +7,6 @@
 		"content": "The percentage of store sessions that completed a purchase over the selected time period."
 	},
 	"category": "store",
-	"presentation": "framed"
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
 }
