@@ -25,7 +25,7 @@ export const resolveFontSize = ( val?: number | string ): number | undefined => 
 		// Only accept plain numeric strings or pixel values.
 		// Reject rem, em, %, vh, vw, etc. — they cannot be resolved to
 		// absolute pixels without a computed style context.
-		const match = val.trim().match( /^(-?\d+\.?\d*|-?\.\d+)(px)?$/ );
+		const match = val.trim().match( /^(-?(?:\d*\.)?\d+)(px)?$/ );
 		if ( ! match ) {
 			return undefined;
 		}

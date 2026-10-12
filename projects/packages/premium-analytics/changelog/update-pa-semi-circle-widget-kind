@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: add the half-ring variant of the Donut widget kind, which Devices and Sessions by device draw with; the widget contract is 1.8.0.
