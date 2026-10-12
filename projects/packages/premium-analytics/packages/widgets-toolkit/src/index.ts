@@ -362,7 +362,6 @@ export {
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	SessionsByDeviceWidget,
 } from './widgets';
 
 /**

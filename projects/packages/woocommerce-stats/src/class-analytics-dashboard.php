@@ -46,6 +46,7 @@ class Analytics_Dashboard {
 	const ORDERS_FULFILLMENT_TYPE        = 'woocommerce-analytics/orders-fulfillment';
 	const COUPON_USAGE_OVER_TIME_TYPE    = 'woocommerce-analytics/coupon-usage-over-time';
 	const BOOKINGS_BY_STATUS_TYPE        = 'woocommerce-analytics/bookings-by-status';
+	const SESSIONS_BY_DEVICE_TYPE        = 'woocommerce-analytics/sessions-by-device';
 	const TOP_PERFORMING_PRODUCTS_TYPE   = 'woocommerce-analytics/top-performing-products';
 	const TOP_PERFORMING_BOOKINGS_TYPE   = 'woocommerce-analytics/top-performing-bookings';
 	const SALES_BY_UTM_SOURCE_TYPE       = 'woocommerce-analytics/sales-by-utm-source';
@@ -64,10 +65,10 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: the UTM leaderboards draw the bars variant,
-	 * which the dashboard ships from 1.7.0.
+	 * Lowest widget contract the build works against: Sessions by device draws the half-ring variant
+	 * of `Donut`, which the dashboard ships from 1.8.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.7.0';
+	const MIN_WIDGET_API_VERSION = '1.8.0';
 
 	/**
 	 * Widget categories the package builds but holds back from the tab for now: the bookings
@@ -149,10 +150,11 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 9, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 10, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 11, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 12, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 13, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 14, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 15, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sessions-by-device-widget-instance', self::SESSIONS_BY_DEVICE_TYPE, 12, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 13, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 14, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 15, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 16, 1, 2 ),
 		);
 	}
 
