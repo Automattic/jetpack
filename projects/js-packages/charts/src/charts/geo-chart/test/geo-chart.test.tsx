@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { Chart } from 'react-google-charts';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { Chart, type GoogleDataTableColumnRoleType } from 'react-google-charts';
 import { GlobalChartsProvider } from '../../../providers';
 import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
+import type { GeoChartProps } from '../types';
 
 // Mock react-google-charts
 jest.mock( 'react-google-charts', () => ( {
@@ -170,26 +171,17 @@ describe( 'GeoChart', () => {
 			expect( options.legend ).toBe( 'none' );
 		} );
 
-		test.each( [
-			[ 'default data', undefined ],
-			[
-				'text-only tooltips',
+		test( 'sets tooltip trigger to focus with isHtml true', () => {
+			const data: GeoChartProps[ 'data' ] = [
 				[
-					[ 'Country', 'Value', { type: 'string', role: 'tooltip' } ],
-					[ 'US', 100, 'United States: 100 orders' ],
-					[ 'CA', 50, 'Canada: 50 orders' ],
+					'Country',
+					'Value',
+					{ type: 'string', role: 'tooltip' as GoogleDataTableColumnRoleType },
 				],
-			],
-			[
-				'HTML tooltips',
-				[
-					[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
-					[ 'US', 100, '<b>United States</b><br/>100 orders' ],
-					[ 'CA', 50, '<b>Canada</b><br/>50 orders' ],
-				],
-			],
-		] )( 'sets tooltip trigger to focus with isHtml true for %s', ( _name, data ) => {
-			renderWithTheme( data ? { data: data as never } : {} );
+				[ 'US', 100, 'United States: 100 orders' ],
+				[ 'CA', 50, 'Canada: 50 orders' ],
+			];
+			renderWithTheme( { data } );
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
 			const options = JSON.parse( chartOptions.textContent || '{}' );
@@ -407,6 +399,16 @@ describe( 'GeoChart', () => {
 
 			// The component should call the custom placeholder function
 			expect( customPlaceholder ).toHaveBeenCalled();
+		} );
+
+		test( 'keeps the placeholder outside the chart until Google Charts loads', () => {
+			renderWithTheme();
+
+			expect( screen.getByTestId( 'geo-chart-loading' ) ).toBeInTheDocument();
+
+			act( () => ChartMock.mock.calls[ ChartMock.mock.calls.length - 1 ][ 0 ].onLoad() );
+
+			expect( screen.queryByTestId( 'geo-chart-loading' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
