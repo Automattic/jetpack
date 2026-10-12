@@ -1,0 +1,11 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-conversion-rate",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
+		"@wordpress/widget-primitives": "0.7.0",
+		"react": "18.3.1"
+	}
+}
