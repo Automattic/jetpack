@@ -63,8 +63,7 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	// Usage and upgrade UX stays out of Stats v2 on every site until the paid plan is
-	// settled (STATS-459); it returns through the configurations drawer (WOOA7S-2037).
+	// Plan usage lives on the dashboard's Settings tab, not in a widget.
 	$unsupported = PLAN_USAGE_WIDGET_TYPES;
 
 	// Temporary: the period widgets are held back on every site until product decides
