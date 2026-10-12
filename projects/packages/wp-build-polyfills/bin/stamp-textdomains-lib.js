@@ -1,3 +1,5 @@
+/* global __dirname */
+
 /**
  * Library for the `stamp-textdomains` bin.
  *
@@ -44,15 +46,6 @@ const TARGET_SUBDIRS = [ 'routes', 'scripts', 'modules', 'widgets' ];
 
 // Bump when the cache entry shape changes, to orphan every existing entry.
 const CACHE_FORMAT = 1;
-
-// Their versions feed the cache key: a generator update alone changes the stamped bytes.
-const BABEL_PACKAGES = [
-	'@babel/core',
-	'@babel/parser',
-	'@babel/traverse',
-	'@babel/generator',
-	'@babel/types',
-];
 
 /**
  * Shared Babel options for a single stamp pass.
@@ -161,6 +154,67 @@ function stampFile( file, domain ) {
 }
 
 /**
+ * Find an installed package's package.json, including packages whose `exports` hide it.
+ *
+ * @param {string} name    - Package name.
+ * @param {string} fromDir - Directory to resolve from.
+ * @return {string|null} Absolute path, or null when the package does not resolve.
+ */
+function findPackageJson( name, fromDir ) {
+	try {
+		return require.resolve( `${ name }/package.json`, { paths: [ fromDir ] } );
+	} catch {
+		// Fall through to walking up from the entry point.
+	}
+	let dir;
+	try {
+		dir = path.dirname( require.resolve( name, { paths: [ fromDir ] } ) );
+	} catch {
+		return null;
+	}
+	for ( ; dir !== path.dirname( dir ); dir = path.dirname( dir ) ) {
+		const candidate = path.join( dir, 'package.json' );
+		if (
+			fs.existsSync( candidate ) &&
+			JSON.parse( fs.readFileSync( candidate, 'utf8' ) ).name === name
+		) {
+			return candidate;
+		}
+	}
+	return null;
+}
+
+/**
+ * List `name@version` for a package and every runtime dependency installed under it.
+ *
+ * @param {string} name    - Package to start from.
+ * @param {string} fromDir - Directory to resolve it from.
+ * @return {string[]} Sorted, deduplicated entries; unresolvable packages appear as `name@?`.
+ */
+function installedDependencyTree( name, fromDir ) {
+	const entries = new Set();
+	const visited = new Set();
+	const visit = ( pkg, dir ) => {
+		const manifestFile = findPackageJson( pkg, dir );
+		if ( ! manifestFile ) {
+			entries.add( `${ pkg }@?` );
+			return;
+		}
+		if ( visited.has( manifestFile ) ) {
+			return;
+		}
+		visited.add( manifestFile );
+		const manifest = JSON.parse( fs.readFileSync( manifestFile, 'utf8' ) );
+		entries.add( `${ pkg }@${ manifest.version }` );
+		for ( const dep of Object.keys( manifest.dependencies || {} ) ) {
+			visit( dep, path.dirname( manifestFile ) );
+		}
+	};
+	visit( name, fromDir );
+	return [ ...entries ].sort();
+}
+
+/**
  * Hash everything other than the input bundle that can change the stamped bytes.
  *
  * @param {string} domain - Text domain being stamped.
@@ -181,10 +235,9 @@ function toolFingerprint( domain ) {
 	for ( const file of sources ) {
 		hash.update( fs.readFileSync( file ) ).update( '\0' );
 	}
-	const babelDir = path.dirname( require.resolve( '@babel/core' ) );
-	for ( const name of BABEL_PACKAGES ) {
-		const manifest = require.resolve( `${ name }/package.json`, { paths: [ babelDir ] } );
-		hash.update( `${ name }@${ require( manifest ).version }\0` );
+	// The whole tree, not just @babel/*: e.g. a jsesc or source-map library bump alone changes output.
+	for ( const entry of installedDependencyTree( '@babel/core', __dirname ) ) {
+		hash.update( `${ entry }\0` );
 	}
 	return hash.digest( 'hex' );
 }
@@ -332,49 +385,23 @@ function stampDir( buildDir, domain, { cacheDir } = {} ) {
 }
 
 /**
- * Find the non-minified bundles in a build tree that carry gettext calls.
- *
- * @param {string} buildDir - Absolute path to the package's build/ directory.
- * @return {string[]} Absolute paths.
- */
-function findStringBearingBundles( buildDir ) {
-	const found = [];
-	for ( const sub of TARGET_SUBDIRS ) {
-		const dir = path.join( buildDir, sub );
-		if ( ! fs.existsSync( dir ) ) {
-			continue;
-		}
-		walk( dir, file => {
-			if ( ! file.endsWith( '.js' ) || file.endsWith( '.min.js' ) ) {
-				return;
-			}
-			if ( extractGettextCalls( fs.readFileSync( file, 'utf8' ) ).length > 0 ) {
-				found.push( file );
-			}
-		} );
-	}
-	return found;
-}
-
-/**
  * Write the i18n catalog manifest for a wp-build output tree.
  *
- * Lists every non-minified `.js` bundle that carries gettext calls, as
+ * Lists the non-minified `.js` bundles `stampDir()` found carrying gettext calls, as
  * package-relative paths (e.g. `build/routes/inbox/content.js`) — the exact
  * path shape `wp.jpI18nLoader.downloadI18n()` hashes to name a catalog. The
  * shared `loadI18nCatalogs` helper fetches this manifest at runtime instead of
  * each dashboard hand-maintaining a bundle list that drifts as routes,
  * scripts, and widgets are added.
  *
- * Call after `stampDir()`: in production builds `strip-unminified-prod` later
- * replaces each listed `.js` with an i18n reference stub at the same path, so
- * the manifest stays valid.
+ * In production builds `strip-unminified-prod` later replaces each listed `.js`
+ * with an i18n reference stub at the same path, so the manifest stays valid.
  *
- * @param {string}   buildDir        - Absolute path to the package's build/ directory.
- * @param {string[]} [stringBearing] - `stampDir()`'s list of absolute paths; omit to rescan the tree.
+ * @param {string}   buildDir      - Absolute path to the package's build/ directory.
+ * @param {string[]} stringBearing - `stampDir()`'s `stringBearing` list of absolute paths.
  * @return {string[]} The package-relative bundle paths written to the manifest.
  */
-function writeI18nManifest( buildDir, stringBearing = findStringBearingBundles( buildDir ) ) {
+function writeI18nManifest( buildDir, stringBearing ) {
 	const prefix = path.basename( buildDir );
 	const bundles = stringBearing.map(
 		file => prefix + '/' + path.relative( buildDir, file ).split( path.sep ).join( '/' )
@@ -409,6 +436,7 @@ module.exports = {
 	stampFile,
 	stampDir,
 	refreshAssetVersion,
+	installedDependencyTree,
 	writeI18nManifest,
 	walk,
 	TARGET_SUBDIRS,

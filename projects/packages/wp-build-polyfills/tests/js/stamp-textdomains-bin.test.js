@@ -7,7 +7,7 @@
  */
 
 const { spawnSync } = require( 'child_process' );
-const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
+const { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const os = require( 'node:os' );
 const { describe, it } = require( 'node:test' );
@@ -103,6 +103,25 @@ describe( 'stamp-textdomains bin', () => {
 			);
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
+		}
+	} );
+
+	it( 'caches under node_modules/.cache unless --no-cache is passed', () => {
+		const cached = makePackage( { domain: 'jetpack-c' } );
+		const uncached = makePackage( { domain: 'jetpack-c' } );
+		try {
+			const bundle = path.join( cached, 'build', 'routes', 'dashboard', 'content.js' );
+			const source = readFileSync( bundle, 'utf8' );
+			assert.match( runBin( cached ).stdout, /\(0 reused from cache\)/ );
+			writeFileSync( bundle, source );
+			assert.match( runBin( cached ).stdout, /\(1 reused from cache\)/ );
+			assert.ok( existsSync( path.join( cached, 'node_modules', '.cache', 'stamp-textdomains' ) ) );
+
+			assert.match( runBin( uncached, [ '--no-cache' ] ).stdout, /\(0 reused from cache\)/ );
+			assert.ok( ! existsSync( path.join( uncached, 'node_modules' ) ), 'nothing cached' );
+		} finally {
+			rmSync( cached, { recursive: true, force: true } );
+			rmSync( uncached, { recursive: true, force: true } );
 		}
 	} );
 

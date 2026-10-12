@@ -27,6 +27,7 @@ const {
 	stampCode,
 	stampDir,
 	refreshAssetVersion,
+	installedDependencyTree,
 	writeI18nManifest,
 	walk,
 	I18N_MANIFEST,
@@ -191,7 +192,7 @@ describe( 'stamp-textdomains', () => {
 		}
 	} );
 
-	it( 'writeI18nManifest lists only string-bearing non-min bundles, sorted, across subdirs', () => {
+	it( 'the manifest lists only string-bearing non-min bundles, sorted, across subdirs', () => {
 		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
 		try {
 			const buildDir = path.join( tmp, 'build' );
@@ -213,7 +214,7 @@ describe( 'stamp-textdomains', () => {
 			writeFileSync( path.join( moduleDir, 'index.js' ), 'export const answer = 42;\n' );
 			writeFileSync( path.join( routeDir, 'content.asset.php' ), '<?php return array();\n' );
 
-			const bundles = writeI18nManifest( buildDir );
+			const bundles = writeI18nManifest( buildDir, stampDir( buildDir, DOMAIN ).stringBearing );
 
 			const expected = [
 				'build/routes/dashboard/content.js',
@@ -238,7 +239,9 @@ describe( 'stamp-textdomains', () => {
 			mkdirSync( routeDir, { recursive: true } );
 			writeFileSync( path.join( routeDir, 'content.js' ), 'x = (0, i.__)("Hi");\n' );
 
-			assert.deepEqual( writeI18nManifest( buildDir ), [ 'output/routes/a/content.js' ] );
+			assert.deepEqual( writeI18nManifest( buildDir, stampDir( buildDir, DOMAIN ).stringBearing ), [
+				'output/routes/a/content.js',
+			] );
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
 		}
@@ -323,7 +326,7 @@ describe( 'stamp-textdomains cache', () => {
 		} );
 	} );
 
-	it( 'restamps a changed bundle and prunes the entry it replaced', () => {
+	it( 'restamps a changed bundle or source map and prunes the entries they replaced', () => {
 		withTmp( tmp => {
 			const cacheDir = path.join( tmp, 'cache' );
 			const buildDir = path.join( tmp, 'build' );
@@ -334,13 +337,39 @@ describe( 'stamp-textdomains cache', () => {
 			writeBuild( buildDir );
 			const changed = path.join( buildDir, 'routes', 'dashboard', 'content.js' );
 			writeFileSync( changed, 'x = (0, import_i18n.__)("Changed");\n' );
+			// A comment-only source edit: same bundle bytes, new map.
+			const mapFile = path.join( buildDir, 'modules', 'data', 'index.js.map' );
+			writeFileSync( mapFile, MAP.replace( 'src/index.js', 'src/renamed.js' ) );
 			const second = stampDir( buildDir, DOMAIN, { cacheDir } );
 
-			assert.equal( second.reused, first.count - 1 );
+			assert.equal( second.reused, first.count - 2 );
 			assert.ok(
 				readFileSync( changed, 'utf8' ).includes( '"Changed", "jetpack-videopress-pkg"' )
 			);
+			assert.ok( readFileSync( mapFile, 'utf8' ).includes( 'src/renamed.js' ) );
 			assert.equal( readdirSync( cacheDir ).length, second.count, 'one entry per bundle' );
+		} );
+	} );
+
+	it( 'installedDependencyTree follows transitive dependencies', () => {
+		withTmp( tmp => {
+			const writePackage = ( name, version, dependencies = {} ) => {
+				const dir = path.join( tmp, 'node_modules', name );
+				mkdirSync( dir, { recursive: true } );
+				writeFileSync(
+					path.join( dir, 'package.json' ),
+					JSON.stringify( { name, version, main: 'index.js', dependencies } )
+				);
+				writeFileSync( path.join( dir, 'index.js' ), '' );
+			};
+			writePackage( 'top', '1.0.0', { mid: '^1.0.0' } );
+			writePackage( 'mid', '1.0.0', { leaf: '^1.0.0' } );
+			writePackage( 'leaf', '1.0.0' );
+			const before = installedDependencyTree( 'top', tmp );
+			writePackage( 'leaf', '1.0.1' );
+
+			assert.deepEqual( before, [ 'leaf@1.0.0', 'mid@1.0.0', 'top@1.0.0' ] );
+			assert.notDeepEqual( installedDependencyTree( 'top', tmp ), before );
 		} );
 	} );
 
