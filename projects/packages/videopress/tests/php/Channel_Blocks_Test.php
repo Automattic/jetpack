@@ -185,6 +185,33 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Inline and list layouts, skipping items whose value is unknown.
+	 */
+	public function test_channel_details() {
+		add_filter( 'videopress_channel_handle', fn() => '@jtf' );
+		add_filter( 'videopress_channel_subscriber_count', fn() => 48210 );
+
+		$inline = Channel_Blocks::render_channel_details( array() );
+		$this->assertStringContainsString( 'videopress-channel-details is-layout-inline"', $inline );
+		$this->assertStringContainsString(
+			'<span class="videopress-channel-details__item is-handle">@jtf</span><span class="videopress-channel-details__item is-subscribers">48K subscribers</span><span class="videopress-channel-details__item is-videos">3 videos</span><span class="videopress-channel-details__item is-playlists">1 playlist</span>',
+			$inline
+		);
+
+		add_filter( 'videopress_channel_subscriber_count', '__return_null', 20 );
+		$list = Channel_Blocks::render_channel_details(
+			array(
+				'items'  => array( 'subscribers', 'views', 'bogus' ),
+				'layout' => 'list',
+			)
+		);
+		$this->assertStringStartsWith( '<dl ', $list );
+		$this->assertStringContainsString( '<div class="videopress-channel-details__item is-views"><dt>Total views</dt><dd>1.5K</dd></div>', $list );
+		$this->assertStringNotContainsString( 'is-subscribers', $list );
+		$this->assertStringNotContainsString( 'bogus', $list );
+	}
+
+	/**
 	 * The editor gets the playlists ( key, title and videos ) for the pickers and the canvas
 	 * previews, before the playlist block's script.
 	 */
