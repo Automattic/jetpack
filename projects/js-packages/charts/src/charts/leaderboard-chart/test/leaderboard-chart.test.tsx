@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
@@ -704,6 +704,22 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
 				'United States: 12.5K visitors'
 			);
+		} );
+
+		it( 'renders each entry as a list item, keeping clickable rows as named buttons', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						mockData[ 0 ],
+						{ ...mockData[ 1 ], ariaLabel: 'Open Home', onClick: jest.fn() },
+					] }
+				/>
+			);
+			const items = screen.getAllByRole( 'listitem' );
+			expect( items ).toHaveLength( 2 );
+			expect(
+				within( items[ 1 ] ).getByRole( 'button', { name: 'Open Home' } )
+			).toBeInTheDocument();
 		} );
 
 		it( 'does not render a button for entries without onClick', () => {
