@@ -1,9 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { speak } from '@wordpress/a11y';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import {
+	backupReadyText,
+	completedWithWarningsText,
+	failedRunText,
+	noGoodBackupsText,
+	willRetryText,
+} from '../components/backup-status/messages';
+import { announce } from '../data/announce';
 import { keys } from '../data/query-client';
-import type { BackupsState } from '../types/backup';
+import { isWillRetryStatus } from './use-backups';
+import type { Backup, BackupsState } from '../types/backup';
 
 /**
  * States that mean "the run that was going is over".
@@ -22,9 +29,11 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
 	'no-good-backups',
 ] as const;
 
+/** How a watched run failed on a site that kept older restore points, for the Overview's banner. */
+export type FailedRun = 'will-retry' | 'failed' | null;
+
 /**
- * Refresh the activity list once a running backup has ended, and announce one that produced
- * a new restore point.
+ * Refresh the activity list once a running backup has ended, and announce how it ended.
  *
  * The activity-log family has no poll of its own — see the key split in
  * `data/query-client.ts` — so nothing else notices that a new restore
@@ -42,13 +51,15 @@ const RUN_ENDED_STATES: readonly BackupsState[] = [
  * @param state          - The derived backups state, from `useBackups`.
  * @param isRequested    - Whether a "Back up now" request is still pending.
  * @param latestBackupId - The newest usable backup's id, or null when there is none.
- * @return How many runs this screen has watched end, for the list's "new" marker.
+ * @param newest         - The newest attempt, usable or not, or null when there is none.
+ * @return How many runs this screen has watched end, for the list's "new" marker, and how the last one failed.
  */
 export function useRefreshActivityOnBackupComplete(
 	state: BackupsState,
 	isRequested: boolean,
-	latestBackupId: string | null
-): number {
+	latestBackupId: string | null,
+	newest: Backup | null = null
+): { finishedRuns: number; failedRun: FailedRun } {
 	const queryClient = useQueryClient();
 	// Latched rather than compared against the previous render's state:
 	// a single failed poll mid-backup moves the state to `error` and
@@ -59,26 +70,64 @@ export function useRefreshActivityOnBackupComplete(
 	const sawInProgress = useRef( false );
 	// A request that fails or times out also ends a "run", so the announcement needs a new backup.
 	const lastSeenBackupId = useRef< string | null >( null );
+	// The newest attempt before the run, so a failure is announced only for an attempt the run made.
+	const newestBeforeRun = useRef< string | null >( null );
 	const [ finishedRuns, setFinishedRuns ] = useState( 0 );
+	const [ failedRun, setFailedRun ] = useState< FailedRun >( null );
+	const newestId = newest?.id ?? null;
+	const newestStatus = newest?.status ?? null;
+	const newestHasWarnings = newest?.hasWarnings ?? false;
 
 	useEffect( () => {
 		// A pending request counts as a run: a short backup can go from one
 		// `complete` to the next without showing `in-progress`.
 		if ( state === 'in-progress' || isRequested ) {
 			sawInProgress.current = true;
+			setFailedRun( null );
 		} else if ( sawInProgress.current && RUN_ENDED_STATES.includes( state ) ) {
 			sawInProgress.current = false;
 			setFinishedRuns( count => count + 1 );
 			queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 			if ( state === 'complete' && latestBackupId !== lastSeenBackupId.current ) {
-				speak( __( 'Your backup is ready.', 'jetpack-backup-pkg' ) );
+				// The run's attempt is the new restore point, so its warnings are this backup's.
+				announce(
+					newestHasWarnings
+						? completedWithWarningsText().replace( /<\/?a>/g, '' )
+						: backupReadyText()
+				);
+			} else if (
+				newestStatus &&
+				newestStatus !== 'finished' &&
+				newestId !== newestBeforeRun.current
+			) {
+				const willRetry = isWillRetryStatus( newestStatus );
+				if ( state === 'no-good-backups' ) {
+					announce( noGoodBackupsText() );
+				} else {
+					announce( willRetry ? willRetryText() : failedRunText() );
+				}
+				// Only `complete` has no banner of its own for this: the others are site states.
+				if ( state === 'complete' ) {
+					setFailedRun( willRetry ? 'will-retry' : 'failed' );
+				}
 			}
 		}
 		// An unreadable list names no backup, and would make the old one look new.
 		if ( state !== 'error' && state !== 'loading' ) {
 			lastSeenBackupId.current = latestBackupId;
+			if ( ! sawInProgress.current ) {
+				newestBeforeRun.current = newestId;
+			}
 		}
-	}, [ state, isRequested, latestBackupId, queryClient ] );
+	}, [
+		state,
+		isRequested,
+		latestBackupId,
+		newestId,
+		newestStatus,
+		newestHasWarnings,
+		queryClient,
+	] );
 
-	return finishedRuns;
+	return { finishedRuns, failedRun };
 }
