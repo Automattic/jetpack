@@ -1132,6 +1132,34 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 		expect( result.current.state.phase ).toBe( 'lost-track' );
 	} );
 
+	it( 'forgets an earlier good read after a reset', async () => {
+		let restoresReadable = true;
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.reject( TIMEOUT );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( restoresReadable ? [] : null );
+			}
+			return Promise.resolve( statusPayload() );
+		} );
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'unconfirmed' );
+		await advance( POLL_INTERVAL_MS );
+
+		act( () => result.current.reset() );
+		restoresReadable = false;
+		// Move the clock on, so the cached read predates the next submission.
+		await advance( 1000 );
+		submitAll( result );
+		await settleAt( result, 'unconfirmed' );
+		await advance( 5 * 60_000 + 1000 );
+
+		expect( result.current.state.phase ).toBe( 'lost-track' );
+	} );
+
 	/**
 	 * Force `navigator.onLine`, restoring it afterwards.
 	 *
