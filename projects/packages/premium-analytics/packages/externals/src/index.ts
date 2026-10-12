@@ -93,6 +93,7 @@ export {
 	Text,
 	TextareaControl,
 	Tooltip,
+	ValidatedInputControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

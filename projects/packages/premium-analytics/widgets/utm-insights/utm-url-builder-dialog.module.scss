@@ -9,19 +9,11 @@
 	align-content: start;
 	gap: var(--wpds-dimension-gap-md);
 	min-width: 0;
-
-	p {
-		margin-block: 0;
-	}
 }
 
 .result {
 	display: grid;
 	gap: var(--wpds-dimension-gap-xs);
-
-	h3 {
-		margin-block: 0;
-	}
 
 	.resultValue {
 		box-sizing: border-box;
@@ -35,20 +27,15 @@
 }
 
 .help {
+	display: grid;
+	align-content: start;
+	gap: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-gap-lg);
 	border-radius: var(--wpds-border-radius-md);
 	background: var(--wpds-color-background-surface-neutral-weak);
 
-	h3 {
-		margin-block: 0 var(--wpds-dimension-gap-md);
-	}
-
-	p {
-		margin-block: 0;
-	}
-
 	dl {
-		margin-block: var(--wpds-dimension-gap-lg);
+		margin-block: 0;
 	}
 
 	dt {

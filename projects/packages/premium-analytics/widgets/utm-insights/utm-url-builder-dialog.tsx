@@ -1,10 +1,17 @@
 /**
  * External dependencies
  */
-import { Button, Dialog, InputControl, Notice } from '@jetpack-premium-analytics/externals';
+import {
+	Button,
+	Dialog,
+	InputControl,
+	Text,
+	ValidatedInputControl,
+} from '@jetpack-premium-analytics/externals';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -67,14 +74,22 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		medium: '',
 	} );
 	const { createSuccessNotice } = useDispatch( 'core/notices' );
-	const [ hasCopyFailed, setHasCopyFailed ] = useState( false );
 	const destinationUrl = parseDestination( values.destination );
 	const isDestinationInvalid = values.destination.trim() !== '' && ! destinationUrl;
-	const trackedUrl = buildTrackedUrl( destinationUrl, values );
-	const copyFailedMessage = __(
-		'Could not copy the URL. Select it and copy it manually.',
-		'jetpack-premium-analytics-pkg'
+	const destinationValidity = useMemo(
+		() =>
+			isDestinationInvalid
+				? {
+						type: 'invalid' as const,
+						message: __(
+							'Enter a full URL that starts with https:// or http://.',
+							'jetpack-premium-analytics-pkg'
+						),
+					}
+				: undefined,
+		[ isDestinationInvalid ]
 	);
+	const trackedUrl = buildTrackedUrl( destinationUrl, values );
 
 	const setField = useCallback( ( field: keyof UtmValues, value: string ) => {
 		setValues( current => ( { ...current, [ field ]: value } ) );
@@ -98,24 +113,14 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		[ onClose ]
 	);
 
-	const copyUrl = useCallback( async () => {
-		if ( ! trackedUrl ) {
-			return;
-		}
-
-		try {
-			await navigator.clipboard.writeText( trackedUrl );
-		} catch {
-			setHasCopyFailed( true );
-			return;
-		}
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( trackedUrl ?? '', () => {
 		// A snackbar renders under an open dialog, so the dialog closes first.
 		onClose();
 		createSuccessNotice( __( 'Copied URL to clipboard.', 'jetpack-premium-analytics-pkg' ), {
 			id: COPY_NOTICE_ID,
 			type: 'snackbar',
 		} );
-	}, [ createSuccessNotice, onClose, trackedUrl ] );
+	} );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -127,25 +132,18 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 				<Dialog.Content>
 					<div className={ styles.layout }>
 						<div className={ styles.form }>
-							<p>
+							<Text render={ <p /> }>
 								{ __(
 									'Generate URLs to share and track UTM parameters.',
 									'jetpack-premium-analytics-pkg'
 								) }
-							</p>
-							<InputControl
+							</Text>
+							<ValidatedInputControl
 								label={ __( 'Destination URL', 'jetpack-premium-analytics-pkg' ) }
 								type="url"
 								value={ values.destination }
 								onValueChange={ setDestination }
-								description={
-									isDestinationInvalid
-										? __(
-												'Enter a full URL that starts with https:// or http://.',
-												'jetpack-premium-analytics-pkg'
-											)
-										: undefined
-								}
+								customValidity={ destinationValidity }
 							/>
 							<InputControl
 								label={ __( 'UTM campaign', 'jetpack-premium-analytics-pkg' ) }
@@ -166,7 +164,9 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 								placeholder={ __( 'e.g. email, social', 'jetpack-premium-analytics-pkg' ) }
 							/>
 							<div className={ styles.result }>
-								<h3>{ __( 'Your URL to share', 'jetpack-premium-analytics-pkg' ) }</h3>
+								<Text variant="heading-md" render={ <h3 /> }>
+									{ __( 'Your URL to share', 'jetpack-premium-analytics-pkg' ) }
+								</Text>
 								<div className={ styles.resultValue }>
 									{ trackedUrl ??
 										__(
@@ -175,20 +175,17 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 										) }
 								</div>
 							</div>
-							{ hasCopyFailed && (
-								<Notice.Root intent="error" spokenMessage={ copyFailedMessage }>
-									<Notice.Description>{ copyFailedMessage }</Notice.Description>
-								</Notice.Root>
-							) }
 						</div>
 						<aside className={ styles.help }>
-							<h3>{ __( 'Why should I use this?', 'jetpack-premium-analytics-pkg' ) }</h3>
-							<p>
+							<Text variant="heading-md" render={ <h3 /> }>
+								{ __( 'Why should I use this?', 'jetpack-premium-analytics-pkg' ) }
+							</Text>
+							<Text render={ <p /> }>
 								{ __(
 									'UTM codes help track where your traffic comes from. Adding them to your URLs gives you insights into what works and where to optimize.',
 									'jetpack-premium-analytics-pkg'
 								) }
-							</p>
+							</Text>
 							<dl>
 								<dt>
 									<code>utm_campaign</code>
@@ -219,17 +216,23 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 									<em>{ __( 'Example: email, social, cpc', 'jetpack-premium-analytics-pkg' ) }</em>
 								</dd>
 							</dl>
-							<p>
+							<Text render={ <p /> }>
 								{ __(
 									'Use your generated URLs in social posts, emails, or ads. Jetpack Stats will track UTM codes, giving you accurate insights into your traffic.',
 									'jetpack-premium-analytics-pkg'
 								) }
-							</p>
+							</Text>
 						</aside>
 					</div>
 				</Dialog.Content>
 				<Dialog.Footer>
-					<Button variant="solid" size="compact" disabled={ ! trackedUrl } onClick={ copyUrl }>
+					{ /* A disabled Button stays clickable (aria-disabled), so the copy listener is attached only with a URL. */ }
+					<Button
+						ref={ trackedUrl ? copyRef : undefined }
+						variant="solid"
+						size="compact"
+						disabled={ ! trackedUrl }
+					>
 						{ __( 'Copy to clipboard', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
 				</Dialog.Footer>
