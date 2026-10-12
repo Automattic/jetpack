@@ -28,10 +28,15 @@ class Jetpack_Email_Design_Editor {
 	const PAGE_SLUG = 'jetpack-email-design';
 
 	/**
-	 * The feature flag gating the screen. Registered off, forced on for testing with
-	 * `wp companion feature-flag enable jetpack-email-design`.
+	 * The feature flag gating the screen. Registered off, and on Atomic answered by the
+	 * sticker below rather than by `wp companion feature-flag enable jetpack-email-design`.
 	 */
 	const FEATURE_FLAG = 'jetpack-email-design';
+
+	/**
+	 * The WordPress.com blog sticker that turns the screen on. See NL-1040.
+	 */
+	const STICKER = 'email-design-editor';
 
 	/**
 	 * The script handle, and the id of the element the editor mounts into.
@@ -57,6 +62,10 @@ class Jetpack_Email_Design_Editor {
 		// Registered here rather than on `admin_menu` so the flag exists under WP-CLI, REST
 		// and cron too — `wp companion feature-flag list` reads it from one of those.
 		self::register_feature_flags();
+
+		// Last, so that on Atomic the sticker cannot be overridden by a filter added later --
+		// a flag that outlives the sticker is not a kill switch.
+		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_from_sticker' ), PHP_INT_MAX );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
 
@@ -112,11 +121,29 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
+	 * Answer the flag from the Atomic sticker, where there is one to read.
+	 *
+	 * The incoming value is dropped rather than widened: on Atomic the sticker is the whole
+	 * switch, so removing it has to close the screen even where the flag was forced on.
+	 * `function_exists()` is checked per call because wpcomsh may load after this file.
+	 *
+	 * @param bool $enabled Whether the flag is enabled so far.
+	 * @return bool
+	 */
+	public static function filter_flag_from_sticker( $enabled ) {
+		if ( ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			return (bool) $enabled;
+		}
+
+		return (bool) wpcomsh_is_site_sticker_active( self::STICKER );
+	}
+
+	/**
 	 * Whether the screen should exist on this site.
 	 *
-	 * The WordPress.com `email-design-editor` sticker gates the bootstrap endpoint, not this
-	 * page: a Jetpack site cannot read stickers without an API call, so the screen carries
-	 * its own gate.
+	 * On Atomic the `email-design-editor` sticker decides, through the filter above; on Simple
+	 * wpcom's mu-plugin turns the flag on alongside the same sticker. Self-hosted has no
+	 * sticker to read, so there the flag itself is the gate.
 	 *
 	 * @return bool
 	 */
