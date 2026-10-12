@@ -355,8 +355,6 @@ export {
  */
 export {
 	BookingsRevenueByCustomerTypeWidget,
-	BookingConversionRateWidget,
-	ConversionRateWidget,
 	RevenueByCustomerTypeWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
