@@ -317,12 +317,12 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Previous period' ] );
 		} );
 
-		test( 'names one static item per compared metric with a label function', () => {
+		test( 'names one static item per compared metric with comparisonSeriesItems', () => {
 			const { result } = renderHook(
 				() =>
 					useChartLegendItems(
 						twoMetricData,
-						{ collapseGroups: true, comparisonItem: perMetricLabel },
+						{ collapseGroups: true, comparisonSeriesItems: perMetricLabel },
 						'line'
 					),
 				{ wrapper }
@@ -348,19 +348,22 @@ describe( 'useChartLegendItems', () => {
 		} );
 
 		test.each( [
-			[ 'true', true, [ 'Views', 'Views — previous' ] ],
 			[
-				'a label function',
-				perMetricLabel,
+				'comparisonItem',
+				comparisonData,
+				{ comparisonItem: true },
+				[ 'Views', 'Views — previous' ],
+			],
+			[
+				'comparisonSeriesItems',
+				twoMetricData,
+				{ comparisonSeriesItems: perMetricLabel },
 				[ 'Views', 'Views — previous', 'Visitors', 'Visitors — previous' ],
 			],
 		] )(
 			'adds nothing for %s when the comparison series already has its own item',
-			( _name, comparisonItem, expected ) => {
-				const data = comparisonItem === true ? comparisonData : twoMetricData;
-				const { result } = renderHook( () => useChartLegendItems( data, { comparisonItem } ), {
-					wrapper,
-				} );
+			( _name, data, options, expected ) => {
+				const { result } = renderHook( () => useChartLegendItems( data, options ), { wrapper } );
 
 				expect( result.current.map( item => item.label ) ).toEqual( expected );
 			}

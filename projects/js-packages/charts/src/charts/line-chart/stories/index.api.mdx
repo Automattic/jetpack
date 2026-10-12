@@ -201,9 +201,11 @@ type SeriesChartLegendConfig = {
 	// Collapse series sharing a `group` into one item (line, bar, area charts only).
 	collapseGroups?: boolean;
 	// Append a static "Comparison period" item styled like the `type: 'comparison'` series
-	// (a string replaces the label), or, given a function, one item per comparison series named
-	// from its primary's label and left out while hidden. Only added for series with no item of their own.
-	comparisonItem?: boolean | string | ( ( seriesLabel: string ) => string );
+	// (a string replaces the label). Only added when those series have no item of their own.
+	comparisonItem?: boolean | string;
+	// Append one static item per comparison series instead, named from the label of the item it
+	// was folded into and left out while that series is hidden.
+	comparisonSeriesItems?: ( seriesLabel: string ) => string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

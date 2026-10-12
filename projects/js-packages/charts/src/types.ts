@@ -680,10 +680,14 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 	/**
 	 * Append a static, non-interactive item explaining the comparison overlay whenever a series
 	 * has `options.type === 'comparison'`. Skipped when that series already has its own item.
-	 * Pass a string to replace the default label, or a function to add one item per comparison
-	 * series, named after the series it is compared with and hidden along with it.
+	 * Pass a string to replace the default label.
 	 */
-	comparisonItem?: boolean | string | ComparisonItemLabel;
+	comparisonItem?: boolean | string;
+	/**
+	 * Append one static item per comparison series instead, named by calling this with the label
+	 * of the series it is compared with, and left out while that series is hidden.
+	 */
+	comparisonSeriesItems?: ComparisonItemLabel;
 };
 
 /**

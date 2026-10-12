@@ -172,7 +172,10 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const items = useMemo(
 			() =>
 				allItems.filter(
-					item => ! item.describesSeries || isSeriesVisible( item.describesSeries )
+					item =>
+						item.interactive !== false ||
+						! item.describesSeries ||
+						isSeriesVisible( item.describesSeries )
 				),
 			[ allItems, isSeriesVisible ]
 		);
