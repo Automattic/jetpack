@@ -505,21 +505,24 @@ class Main_Features {
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.
-	 * @return array List of slug/name/owned triples.
+	 * @param bool  $local      Skip ownership lookups.
+	 * @return array List of slug/name/owned triples, without ownership in local mode.
 	 */
-	private static function get_plan_badges( $definition ) {
+	private static function get_plan_badges( $definition, $local = false ) {
 		$badges = array();
 
 		foreach ( $definition['plans'] ?? array() as $slug ) {
 			$bundle_class = Products::get_product_class( $slug );
 
 			if ( $bundle_class ) {
-				$badges[] = array(
-					'slug'  => $slug,
-					'name'  => $bundle_class::get_title(),
-					// Per plan, not per feature: a site on Growth still has Complete to buy.
-					'owned' => $bundle_class::has_paid_plan_for_product(),
+				$badge = array(
+					'slug' => $slug,
+					'name' => $bundle_class::get_title(),
 				);
+				if ( ! $local ) {
+					$badge['owned'] = $bundle_class::has_paid_plan_for_product();
+				}
+				$badges[] = $badge;
 			}
 		}
 
@@ -901,12 +904,13 @@ class Main_Features {
 	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
+	 * @param bool $local Use the local feature contract documented in get_features().
 	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string} The state.
 	 */
-	public static function get_state() {
+	public static function get_state( $local = false ) {
 		return array(
 			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
-			'features'        => self::get_features(),
+			'features'        => self::get_features( $local ),
 			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
 		);
@@ -935,10 +939,12 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
+	 * @param bool $local Keep only local management URLs, set upgrade to null, and omit
+	 *                    included, setup_note, and plan owned fields without resolving ownership.
 	 * @return array List of features, each with slug, name, description, icon, manage_url,
 	 *               the plugin it ships as and the product/module join keys.
 	 */
-	public static function get_features() {
+	public static function get_features( $local = false ) {
 		$features = array();
 		$hidden   = Feature_Visibility::get_hidden();
 
@@ -952,15 +958,15 @@ class Main_Features {
 			$delivery      = $definition['delivery'] ?? array();
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
-			$included      = self::is_included_in_plan( $definition, $product_class );
+			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 
-			$features[] = array(
+			$feature = array(
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
 				'long_description' => $definition['long_description'] ?? '',
 				'icon'             => $definition['icon'],
-				'manage_url'       => self::get_feature_manage_url( $definition, $product_class ),
+				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
 				'in_jetpack'       => $delivery['jetpack'] ?? false,
 				'plugin'           => $plugin,
@@ -971,12 +977,12 @@ class Main_Features {
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
-				'upgrade'          => self::get_upgrade( $definition, $product_class, $included ),
+				'upgrade'          => $local ? null : self::get_upgrade( $definition, $product_class, $included ),
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
 				'screenshot'       => self::get_screenshot_url( $slug ),
-				'plans'            => self::get_plan_badges( $definition ),
+				'plans'            => self::get_plan_badges( $definition, $local ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,
@@ -984,6 +990,10 @@ class Main_Features {
 				'product'          => $definition['product'] ?? '',
 				'module'           => $definition['module'] ?? '',
 			);
+			if ( $local ) {
+				unset( $feature['included'], $feature['setup_note'] );
+			}
+			$features[] = $feature;
 		}
 
 		usort(
@@ -1011,15 +1021,27 @@ class Main_Features {
 	 *
 	 * @param array       $definition    A single entry from the feature catalog.
 	 * @param string|null $product_class The product behind the feature, when it has one.
+	 * @param bool        $local         Keep local destinations without resolving ownership.
 	 * @return string Admin URL, or an empty string when the feature has nowhere to go.
 	 */
-	private static function get_feature_manage_url( array $definition, $product_class = null ) {
+	private static function get_feature_manage_url( array $definition, $product_class = null, $local = false ) {
 		if ( isset( $definition['admin_page'] ) ) {
 			return admin_url( 'admin.php?page=' . $definition['admin_page'] );
 		}
 
 		if ( $product_class ) {
-			return (string) $product_class::get_manage_url();
+			// Protect's normal destination depends on ownership, which is unknown offline.
+			if ( $local && 'protect' === ( $definition['product'] ?? '' ) ) {
+				return $product_class::is_standalone_plugin_active() ? admin_url( 'admin.php?page=jetpack-protect' ) : '';
+			}
+
+			$url = (string) $product_class::get_manage_url();
+			if ( ! $local ) {
+				return $url;
+			}
+
+			wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+			return 0 === strpos( $url, admin_url() ) && 'my-jetpack' !== ( $query['page'] ?? '' ) ? $url : '';
 		}
 
 		return '';

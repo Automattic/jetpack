@@ -269,7 +269,13 @@ Use `useMonthCalendarHeatmapData` to draw a day-keyed map as one calendar per mo
 
 The two layouts take different inputs on purpose. The contribution layout buckets a series of instants into days, so it takes `timeZone` and an optional `gridSpan` that only widens the grid. This layout is for data that already arrives per day, such as posts per day, so it takes the day map directly and a `range` that decides what is drawn. There is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
 
-In a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
+Without `fitCells`, in a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
+
+### Fitting the cells to the box
+
+Add `fitCells` to a compact chart to grow its cells with its box instead of keeping `compactCellSize`. The months wrap onto as many rows as give the largest cells, for example, two rows of six months or four rows of three, depending on the box dimensions. All rows share one scale, and keyboard navigation and the accessibility tree still follow the data, not the rows. When no row count reaches `compactCellSize`, the chart draws one row at that size and overflows as before, so put it in an `overflow-x: auto` container.
+
+<Canvas of={ HeatmapStories.MonthCalendarFitCells } />
 
 ## Fixed Dimensions
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `Funnel`, the funnel kind: steps as counts in, the rate of the whole, the shares and the states out.
