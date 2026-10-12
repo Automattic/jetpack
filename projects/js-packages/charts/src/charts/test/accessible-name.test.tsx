@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../providers';
+import { salesByProduct } from '../../stories/sample-data';
 import { AreaChartUnresponsive } from '../area-chart';
 import { BarChartUnresponsive } from '../bar-chart';
+import { BarListChartUnresponsive } from '../bar-list-chart';
 import { HeatmapChart } from '../heatmap-chart';
 import { LineChartUnresponsive } from '../line-chart';
 import { PieChartUnresponsive } from '../pie-chart';
@@ -57,6 +59,19 @@ const CHARTS: [ string, string, string, ( ariaLabel?: string ) => ReactElement ]
 		'Bar chart',
 		ariaLabel => (
 			<BarChartUnresponsive data={ series } width={ 400 } height={ 300 } ariaLabel={ ariaLabel } />
+		),
+	],
+	[
+		'bar list',
+		'application',
+		'Bar list chart',
+		ariaLabel => (
+			<BarListChartUnresponsive
+				data={ salesByProduct }
+				width={ 400 }
+				height={ 300 }
+				ariaLabel={ ariaLabel }
+			/>
 		),
 	],
 	[
