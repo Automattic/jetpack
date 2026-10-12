@@ -110,7 +110,11 @@ function recordedProps(): {
 	margin?: Record< string, number >;
 	chartId: string;
 	defaultHiddenSeries?: readonly string[];
-	legend: { collapseGroups: boolean; interactive: boolean };
+	legend: {
+		collapseGroups: boolean;
+		comparisonItem: ( metric: string ) => string;
+		interactive: boolean;
+	};
 	gridVisibility?: string;
 	showZeroValues?: boolean;
 	withTooltips: boolean;
@@ -399,15 +403,17 @@ describe( 'ComparativeBarChart', () => {
 		);
 	} );
 
-	it( 'collapses a single metric two periods into one legend item', () => {
-		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+	it( "names each metric's comparison item after the comparison", () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES_WITH_COMPARISON }
+				dataFormat={ DATA_FORMAT }
+				comparisonLabel="2025"
+			/>
+		);
 
-		// A legend item names the metric; solid vs previous-period mark is what
-		// tells the two apart, so there is nothing for a second item to say.
-		expect( recordedProps().legend ).toEqual( {
-			collapseGroups: true,
-			interactive: false,
-		} );
+		expect( recordedProps().legend ).toMatchObject( { collapseGroups: true, interactive: false } );
+		expect( recordedProps().legend.comparisonItem( 'Views' ) ).toBe( 'Views (2025)' );
 	} );
 
 	it( 'abbreviates the y axis ticks', () => {
