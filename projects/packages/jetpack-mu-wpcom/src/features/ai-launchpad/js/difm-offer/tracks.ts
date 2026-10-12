@@ -14,10 +14,10 @@ export interface DifmOfferTracksProps {
 	upsell_id: string;
 	upsell_feature_id: string;
 	variation: string;
-	// Calypso's Banner adds these to its impression and click events. It passes no
-	// `feature` for this offer, so there is no `cta_feature`.
+	// Calypso's Banner adds `cta_name` to impression, click and dismiss, and `cta_size` to impression
+	// and click only. It passes no `feature` for this offer, so there is no `cta_feature`.
 	cta_name: string;
-	cta_size: 'regular';
+	cta_size?: 'regular';
 }
 
 /**
@@ -34,6 +34,18 @@ export function difmOfferTracksProps( variation: string ): DifmOfferTracksProps 
 		cta_name: UPSELL_ID,
 		cta_size: 'regular',
 	};
+}
+
+/**
+ * The props for the dismiss event, which has no `cta_size`.
+ *
+ * @param props - The base props.
+ * @return The dismiss props.
+ */
+export function difmOfferDismissProps( props: DifmOfferTracksProps ): DifmOfferTracksProps {
+	const dismissProps = { ...props };
+	delete dismissProps.cta_size;
+	return dismissProps;
 }
 
 /**

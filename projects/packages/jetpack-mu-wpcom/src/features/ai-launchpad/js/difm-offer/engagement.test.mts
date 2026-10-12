@@ -8,6 +8,7 @@ import {
 } from './engagement.ts';
 import {
 	DISMISSED_PREFERENCE,
+	difmOfferDismissProps,
 	difmOfferTracksProps,
 	dismissalRequest,
 	recordDifmOfferEvent,
@@ -185,6 +186,17 @@ describe( 'recordDifmOfferEvent', () => {
 
 		const [ , , props ] = win.window._tkq?.[ 0 ] as [ string, string, Record< string, unknown > ];
 		assert.equal( props.use_beacon, true );
+	} );
+} );
+
+describe( 'difmOfferDismissProps', () => {
+	it( 'drops cta_size, as the Calypso dismiss events do', () => {
+		assert.deepEqual( difmOfferDismissProps( difmOfferTracksProps( 'treatment' ) ), {
+			upsell_id: 'site-setup-difm-offer',
+			upsell_feature_id: 'difm-offer',
+			variation: 'treatment',
+			cta_name: 'site-setup-difm-offer',
+		} );
 	} );
 } );
 

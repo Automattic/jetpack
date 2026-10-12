@@ -8,6 +8,7 @@ import {
 	CLICK_EVENT,
 	DISMISS_EVENT,
 	IMPRESSION_EVENT,
+	difmOfferDismissProps,
 	difmOfferTracksProps,
 	dismissalRequest,
 	recordDifmOfferEvent,
@@ -121,7 +122,7 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 	useEngagementTracking( ref, tracksProps );
 
 	const handleDismiss = () => {
-		recordDifmOfferEvent( DISMISS_EVENT, tracksProps );
+		recordDifmOfferEvent( DISMISS_EVENT, difmOfferDismissProps( tracksProps ) );
 		onDismiss();
 		// A failed write only means the offer can show again.
 		apiFetch( dismissalRequest( new Date() ) ).catch( () => {} );
