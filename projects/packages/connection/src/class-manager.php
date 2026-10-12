@@ -1342,13 +1342,7 @@ class Manager {
 		 *
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */
-		return (bool) apply_filters_deprecated(
-			'jetpack_connection_ownership_transferable',
-			array( true ),
-			'package-$$next-version$$',
-			'',
-			__( 'The protected owner anchor is the only ownership lock.', 'jetpack-connection' )
-		);
+		return (bool) apply_filters_deprecated( 'jetpack_connection_ownership_transferable', array( true ), 'package-$$next-version$$', '', __( 'The protected owner anchor is the only ownership lock.', 'jetpack-connection' ) );
 	}
 
 	/**
