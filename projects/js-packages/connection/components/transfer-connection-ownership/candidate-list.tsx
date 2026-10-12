@@ -124,7 +124,11 @@ const OwnerCandidateList = ( {
 				label={ __( 'New connection owner', 'jetpack-connection-js' ) }
 				placeholder={ placeholder }
 				items={ items }
-				value={ items.find( item => item.value === String( selectedId ) ) ?? null }
+				value={
+					null === selectedId
+						? null
+						: ( items.find( item => item.value === String( selectedId ) ) ?? null )
+				}
 				onValueChange={ handleChange }
 				disabled={ isLoading }
 				popupWidth="anchor"

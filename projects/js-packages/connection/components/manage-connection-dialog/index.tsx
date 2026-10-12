@@ -39,13 +39,8 @@ interface ManageConnectionUser {
 	};
 }
 
-/**
- * Which view the dialog is showing, and — once there is one — who took ownership.
- *
- * One value rather than two: a separate "did it complete" flag could outlive the view
- * that set it, and a stale one would re-fire the transfer callback on the next open.
- */
-type TransferView = { status: 'choosing' } | { status: 'transferred'; newOwnerId: number };
+/** Which view the dialog is showing. */
+type TransferView = 'choosing' | 'transferred';
 
 interface ManageConnectionDialogProps {
 	/** The modal title. */
@@ -212,18 +207,18 @@ const ManageConnectionDialog = ( {
 
 	const openTransferDialog = useCallback( ( e?: MouseEvent< HTMLElement > ) => {
 		e && e.preventDefault();
-		setTransferView( { status: 'choosing' } );
+		setTransferView( 'choosing' );
 	}, [] );
 
 	// Transferring is the way out of the owner-disconnect warning, so hand the user to
 	// that flow rather than running a second copy of it inside the warning.
 	const openTransferFromOwnerDialog = useCallback( () => {
 		setIsOwnerDisconnectDialogOpen( false );
-		setTransferView( { status: 'choosing' } );
+		setTransferView( 'choosing' );
 	}, [] );
 
-	const recordNewOwner = useCallback( ( newOwnerId: number ) => {
-		setTransferView( { status: 'transferred', newOwnerId } );
+	const recordNewOwner = useCallback( () => {
+		setTransferView( 'transferred' );
 	}, [] );
 
 	// Closing from anywhere starts the next open on the action list, so a finished
@@ -238,7 +233,7 @@ const ManageConnectionDialog = ( {
 	// has its own Back, and this does something else. Statements rather than a ternary
 	// — the minifier folds two `__()` calls into one with a non-literal argument.
 	let footerDismissLabel: string = __( 'Cancel', 'jetpack-connection-js' );
-	if ( 'transferred' === transferView?.status ) {
+	if ( 'transferred' === transferView ) {
 		footerDismissLabel = __( 'Close', 'jetpack-connection-js' );
 	}
 
@@ -257,8 +252,8 @@ const ManageConnectionDialog = ( {
 							labelledby: 'jp-connection__manage-dialog__heading',
 						} }
 						onRequestClose={ onClose }
-						shouldCloseOnClickOutside={ false }
-						shouldCloseOnEsc={ false }
+						shouldCloseOnClickOutside={ 'transferred' === transferView }
+						shouldCloseOnEsc={ 'transferred' === transferView }
 						isDismissible={ false }
 						className={ 'jp-connection__manage-dialog' }
 					>
@@ -315,8 +310,6 @@ const ManageConnectionDialog = ( {
 								/>
 							) }
 						</div>
-						{ /* Leaving the step is the dialog's business, not the step's: from the
-						     transfer view this returns to the actions, not out of the dialog. */ }
 						<HelpFooter
 							onClose={ onClose }
 							disabled={ isControlsDisabled }

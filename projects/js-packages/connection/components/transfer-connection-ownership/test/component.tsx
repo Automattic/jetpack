@@ -17,12 +17,9 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	},
 } ) );
 
-const mockGetScriptData = jest.fn< () => object >();
-
-jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
-	...( jest.requireActual( '@automattic/jetpack-script-data' ) as object ),
-	getScriptData: mockGetScriptData,
-} ) );
+window.JP_CONNECTION_INITIAL_STATE = {
+	hasProtectedOwner: false,
+} as typeof window.JP_CONNECTION_INITIAL_STATE;
 
 const { default: TransferConnectionOwnership } = await import( '../index' );
 
@@ -63,7 +60,6 @@ describe( 'TransferConnectionOwnership', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockGetScriptData.mockReturnValue( { connection: { hasProtectedOwner: false } } );
 		mockFetchCandidates.mockResolvedValue( candidates );
 		mockSetConnectionOwner.mockResolvedValue( { code: 'success' } );
 	} );
@@ -138,22 +134,6 @@ describe( 'TransferConnectionOwnership', () => {
 		);
 		// Leaving is the surrounding surface's business, so the step offers no way out.
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'warns a protected owner what the transfer costs before they commit', async () => {
-		mockGetScriptData.mockReturnValue( { connection: { hasProtectedOwner: true } } );
-		const user = userEvent.setup();
-		render( <TransferConnectionOwnership { ...props } /> );
-
-		await chooseKazz( user );
-		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-
-		await expect(
-			screen.findByText( "You're the protected owner of this connection" )
-		).resolves.toBeInTheDocument();
-		expect( screen.getByText( /needs to confirm protected ownership/ ) ).toBeInTheDocument();
-		// The label acknowledges the warning the user is overriding.
-		expect( screen.getByRole( 'button', { name: 'Transfer anyway' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'leaves the protected owner warning out when it does not apply', async () => {

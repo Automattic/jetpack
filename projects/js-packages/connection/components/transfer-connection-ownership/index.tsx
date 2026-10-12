@@ -1,18 +1,21 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../state/store';
 import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
 import useOwnershipTransfer from './use-ownership-transfer';
 
 export type { ConnectionOwnerCandidate } from './use-ownership-transfer';
+
+type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
 export interface TransferConnectionOwnershipProps {
 	/** API root URL. */
@@ -51,7 +54,10 @@ const TransferConnectionOwnership = ( {
 
 	const hasCandidates = !! candidates?.length;
 	// True only of the connection owner, who is the person transferring: hence "you're".
-	const isProtectedOwner = !! getScriptData()?.connection?.hasProtectedOwner;
+	const isProtectedOwner = useSelect(
+		( select: StoreSelector ) => !! select( STORE_ID ).getHasProtectedOwner(),
+		[]
+	);
 
 	if ( 'done' === step && selectedCandidate ) {
 		return (

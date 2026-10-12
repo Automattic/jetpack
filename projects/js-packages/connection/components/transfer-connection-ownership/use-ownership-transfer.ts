@@ -4,7 +4,7 @@
 import restApi from '@automattic/jetpack-api';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 import { STORE_ID } from '../../state/store';
 import type { ConnectionOwnerCandidate } from './types';
@@ -91,17 +91,26 @@ export default function useOwnershipTransfer( {
 	const [ step, setStep ] = useState< TransferStep >( 'choose' );
 	const [ error, setError ] = useState( '' );
 	const { setConnectionOwner } = useDispatch( STORE_ID );
+	const isMounted = useRef( true );
 
 	useRestApiInit( apiRoot, apiNonce );
+
+	useEffect( () => {
+		isMounted.current = true;
+
+		return () => {
+			isMounted.current = false;
+		};
+	}, [] );
 
 	useEffect( () => {
 		let ignore = false;
 
 		restApi
 			.fetchConnectionOwnerCandidates()
-			.then( ( result: ConnectionOwnerCandidate[] ) => {
+			.then( ( result: unknown ) => {
 				if ( ! ignore ) {
-					setCandidates( Array.isArray( result ) ? result : [] );
+					setCandidates( Array.isArray( result ) ? ( result as ConnectionOwnerCandidate[] ) : [] );
 				}
 			} )
 			.catch( () => {
@@ -147,15 +156,24 @@ export default function useOwnershipTransfer( {
 		restApi
 			.setConnectionOwner( id )
 			.then( () => {
-				setIsTransferring( false );
-				setStep( 'done' );
 				// Tell the store who owns the connection now, so every surface reading it
 				// stops describing an owner the user no longer is.
 				setConnectionOwner( { id, displayName } );
+
+				if ( ! isMounted.current ) {
+					return;
+				}
+
+				setIsTransferring( false );
+				setStep( 'done' );
 				onTransferred?.( id );
 			} )
-			.catch( ( err: ApiError ) => {
-				setError( transferErrorMessage( err ) );
+			.catch( ( err: unknown ) => {
+				if ( ! isMounted.current ) {
+					return;
+				}
+
+				setError( transferErrorMessage( err as ApiError ) );
 				setIsTransferring( false );
 			} );
 	}, [ selectedCandidate, onTransferred, setConnectionOwner ] );

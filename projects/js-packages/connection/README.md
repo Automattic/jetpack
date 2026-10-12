@@ -179,7 +179,7 @@ The `TransferConnectionOwnership` component hands this site's WordPress.com conn
 
 It is not a modal and renders no chrome of its own: the surface that hosts it supplies the container, the heading and the way out. That is what lets the same component serve a dialog, a card or a settings panel.
 
-On success it updates the package store with the new owner, so any surface reading connection state — including `isMaster` — reflects the change without a page reload.
+On success it updates the package store with the new owner, so surfaces reading connection state from the store — including `isMaster` — reflect the change without a page reload. A host that passes its own copy of that data down as props, as `ManageConnectionDialog` does with `connectedUser`, only reflects it if that copy comes from the store.
 
 ### Properties
 - *apiRoot* - string (required), API root URL.
