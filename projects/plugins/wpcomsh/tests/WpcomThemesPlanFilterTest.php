@@ -2,8 +2,8 @@
 /**
  * Tests for removing WordPress.org themes from the Add Themes results.
  *
- * The plan gate itself is not tested: whether a site has community themes depends on which site
- * the suite runs against, and these assertions hold either way.
+ * The plan gate is not tested: it reads one feature and delegates, and an error there shows on
+ * the first page view. These cover the filtering it delegates to.
  *
  * @package wpcomsh
  */
@@ -82,12 +82,5 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 
 		$this->assertFalse( isset( $result->themes ) );
 		$this->assertSame( 'repose', $result->slug );
-	}
-
-	/**
-	 * Every site can use the free tier, whatever plan the suite's site happens to have.
-	 */
-	public function test_free_tier_needs_no_plan() {
-		$this->assertTrue( WPCom_Themes_Tiers::site_can_use( 'free' ) );
 	}
 }

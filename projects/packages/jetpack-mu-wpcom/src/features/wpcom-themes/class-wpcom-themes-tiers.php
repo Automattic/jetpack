@@ -50,6 +50,7 @@ class WPCom_Themes_Tiers {
 	 * @return bool False when the platform cannot answer, so an unknown host offers nothing.
 	 */
 	public static function site_can_use( string $tier ): bool {
+		// There is no free-themes capability, so asking the platform would deny every free theme.
 		if ( self::FREE === $tier ) {
 			return true;
 		}
