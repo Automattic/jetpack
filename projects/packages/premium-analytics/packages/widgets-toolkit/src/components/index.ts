@@ -115,6 +115,7 @@ export { InfoTip, type InfoTipProps } from './info-tip';
 export { InternalLink } from './internal-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
+export { AuthorDetailLink, authorDetailLinkProps } from './author-detail-link';
 export {
 	HighlightField,
 	HighlightGroup,

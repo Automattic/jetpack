@@ -1,8 +1,6 @@
 /**
  * Mock data for sessions/by-device endpoint
  *
- * Used by: SessionsByDeviceWidget
- *
  * API Response format:
  * - { summary: { active_sessions, ... }, items: [...] }
  * - Values are strings (converted to numbers by sanitizer)

@@ -4,7 +4,6 @@
 import { buildSessionsByDeviceSegments } from '../build-sessions-by-device-segments';
 
 const report = ( rows: Array< [ string, number ] > ) => ( {
-	summary: { total_sessions: rows.reduce( ( sum, [ , sessions ] ) => sum + sessions, 0 ) },
 	data: rows.map( ( [ device_type, active_sessions ] ) => ( { device_type, active_sessions } ) ),
 } );
 
