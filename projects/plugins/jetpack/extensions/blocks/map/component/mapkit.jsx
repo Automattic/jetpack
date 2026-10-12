@@ -90,7 +90,7 @@ const MapkitComponent = forwardRef(
 					setPoints: onSetPoints,
 				} }
 			>
-				<MapkitAddressLookup address={ address } onSetPoints={ onSetPoints } />
+				<MapkitAddressLookup address={ address } onSetPoints={ onSetPoints } onError={ onError } />
 				{ loaded && mapkit && map ? (
 					<MapkitHelpers
 						mapCenter={ mapCenter }
@@ -132,10 +132,10 @@ const MapkitComponent = forwardRef(
 );
 
 // Stay mounted while the SDK loads so address edits made during loading are observed.
-const MapkitAddressLookup = ( { address, onSetPoints } ) => {
+const MapkitAddressLookup = ( { address, onSetPoints, onError } ) => {
 	const onSetPointsRef = useRef( onSetPoints );
 	onSetPointsRef.current = onSetPoints;
-	useMapkitAddressLookup( address, onSetPointsRef );
+	useMapkitAddressLookup( address, onSetPointsRef, onError );
 	return null;
 };
 

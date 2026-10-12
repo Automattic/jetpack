@@ -254,7 +254,7 @@ const useMapkitOnMapTap = onMapTap => {
 	}, [ loaded, map, previousCenter, onMapTapRef ] );
 };
 
-const useMapkitAddressLookup = ( address, onSetPointsRef ) => {
+const useMapkitAddressLookup = ( address, onSetPointsRef, onError ) => {
 	const { mapkit, map, points } = useMapkit();
 	const lookup = useMemo( () => {
 		if ( ! mapkit || ! map ) {
@@ -270,7 +270,7 @@ const useMapkitAddressLookup = ( address, onSetPointsRef ) => {
 					}
 					const place = data?.results?.[ 0 ];
 					if ( ! place ) {
-						resolve( [] );
+						reject();
 						return;
 					}
 					const title = place.formattedAddress;
@@ -292,7 +292,21 @@ const useMapkitAddressLookup = ( address, onSetPointsRef ) => {
 			} );
 	}, [ mapkit, map ] );
 
-	useAddressLookup( address, points, lookup, result => onSetPointsRef.current( result ) );
+	useAddressLookup(
+		address,
+		points,
+		lookup,
+		result => onSetPointsRef.current( result ),
+		error =>
+			onError?.(
+				'mapkit_error',
+				error?.message ||
+					__(
+						'Could not find the coordinates of the provided address. Displaying default location. Feel free to add the location manually.',
+						'jetpack'
+					)
+			)
+	);
 };
 
 export {

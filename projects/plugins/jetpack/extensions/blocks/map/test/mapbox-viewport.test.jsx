@@ -63,7 +63,7 @@ function createMap( points ) {
 	};
 	component.debouncedSizeMap = Object.assign( () => {}, { cancel: () => {} } );
 	component.initMap( center );
-	return { component, map, props };
+	return { component, map, props, listeners };
 }
 
 it.each( [ 1, 2 ] )( 'fits %s saved markers without persisting derived center or zoom', count => {
@@ -86,3 +86,16 @@ it( 'preserves user zoom and unpinned map movement', () => {
 	expect( props.onSetZoom ).toHaveBeenCalledWith( 15 );
 	component.componentWillUnmount();
 } );
+
+it.each( [ 'resize', 'orientationchange' ] )(
+	'ignores Mapbox viewport events from its own %s handler',
+	type => {
+		const { component, props, listeners } = createMap( [] );
+		const event = { originalEvent: new Event( type ) };
+		listeners.moveend( event );
+		listeners.zoomend( event );
+		expect( props.onSetMapCenter ).not.toHaveBeenCalled();
+		expect( props.onSetZoom ).not.toHaveBeenCalled();
+		component.componentWillUnmount();
+	}
+);

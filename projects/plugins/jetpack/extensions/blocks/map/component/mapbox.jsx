@@ -16,6 +16,9 @@ import MapMarker from './map-marker';
 
 // Tag derived viewport changes so their events cannot create persistent edits.
 const VIEWPORT_SYNC = { jetpackViewportSync: true };
+const isViewportSync = event =>
+	event.jetpackViewportSync ||
+	[ 'resize', 'orientationchange' ].includes( event.originalEvent?.type );
 
 export class MapBoxComponent extends Component {
 	// Lifecycle
@@ -348,14 +351,14 @@ export class MapBoxComponent extends Component {
 			showZoom: true,
 		} );
 		map.on( 'zoomend', event => {
-			if ( ! event.jetpackViewportSync ) {
+			if ( ! isViewportSync( event ) ) {
 				this.props.onSetZoom( map.getZoom() );
 			}
 		} );
 		map.on( 'moveend', event => {
 			const { onSetMapCenter, points } = this.props;
 			// If there are no markers, user repositioning controls map center. If there are markers, set programmatically.
-			if ( points.length < 1 && ! event.jetpackViewportSync ) {
+			if ( points.length < 1 && ! isViewportSync( event ) ) {
 				onSetMapCenter( map.getCenter() );
 			}
 		} );

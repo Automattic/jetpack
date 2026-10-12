@@ -18,6 +18,7 @@ import metadata from './block.json';
 import Map from './component';
 import Controls from './controls';
 import { getCoordinates } from './get-coordinates.js';
+import getPointsAttributes from './get-points-attributes';
 import previewPlaceholder from './map-preview.jpg';
 import styles from './styles';
 import useAddressLookup from './use-address-lookup';
@@ -86,6 +87,7 @@ const MapEdit = ( {
 
 	const mapStyle = getActiveStyleName( styles, className );
 	const mapProvider = getMapProvider( { mapStyle } );
+	const onSetPoints = value => setAttributes( getPointsAttributes( value, points ) );
 
 	const lookupAddress = useMemo( () => {
 		if ( ! apiKey || mapProvider === 'mapkit' ) {
@@ -117,12 +119,8 @@ const MapEdit = ( {
 		};
 	}, [ apiKey, mapProvider ] );
 
-	useAddressLookup(
-		address,
-		points,
-		lookupAddress,
-		value => setAttributes( { points: value } ),
-		error => onError( null, error.message )
+	useAddressLookup( address, points, lookupAddress, onSetPoints, error =>
+		onError( null, error.message )
 	);
 
 	const apiCall = ( serviceApiKey = null, method = 'GET' ) => {
@@ -164,7 +162,7 @@ const MapEdit = ( {
 		}
 		const newPoints = points.slice( 0 );
 		newPoints.push( point );
-		setAttributes( { points: newPoints } );
+		onSetPoints( newPoints );
 		setAddPointVisibility( false );
 	};
 
@@ -307,6 +305,7 @@ const MapEdit = ( {
 					<Controls
 						attributes={ attributes }
 						setAttributes={ setAttributes }
+						onSetPoints={ onSetPoints }
 						apiKey={ apiKey }
 						apiKeySource={ apiKeySource }
 						apiKeyControl={ apiKeyControl }
@@ -321,6 +320,7 @@ const MapEdit = ( {
 					<Controls
 						attributes={ attributes }
 						setAttributes={ setAttributes }
+						onSetPoints={ onSetPoints }
 						apiKey={ apiKey }
 						apiKeySource={ apiKeySource }
 						apiKeyControl={ apiKeyControl }
@@ -363,7 +363,7 @@ const MapEdit = ( {
 							} }
 							admin={ true }
 							apiKey={ apiKey }
-							onSetPoints={ value => setAttributes( { points: value } ) }
+							onSetPoints={ onSetPoints }
 							onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
 							onMapLoaded={ () => setAddPointVisibility( ! points.length ) }
 							onMarkerClick={ () => setAddPointVisibility( false ) }

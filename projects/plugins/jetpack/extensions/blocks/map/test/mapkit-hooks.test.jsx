@@ -33,6 +33,31 @@ it( 'does not geocode a saved map with an address', () => {
 	expect( onSetPointsRef.current ).not.toHaveBeenCalled();
 } );
 
+it.each( [ 'empty results', 'request failure' ] )( 'reports MapKit lookup %s', async failure => {
+	const lookup = jest.fn();
+	context = {
+		mapkit: { Geocoder: jest.fn( () => ( { lookup } ) ) },
+		map: {},
+		points: [],
+	};
+	const onSetPointsRef = { current: jest.fn() };
+	const onError = jest.fn();
+	renderHook( () => useMapkitAddressLookup( 'Missing', onSetPointsRef, onError ), { wrapper } );
+	await act( async () => {
+		lookup.mock.calls[ 0 ][ 1 ](
+			failure === 'request failure' ? new Error( 'Lookup failed' ) : null,
+			{ results: [] }
+		);
+	} );
+	expect( onError ).toHaveBeenCalledWith(
+		'mapkit_error',
+		failure === 'request failure'
+			? 'Lookup failed'
+			: 'Could not find the coordinates of the provided address. Displaying default location. Feel free to add the location manually.'
+	);
+	expect( onSetPointsRef.current ).not.toHaveBeenCalled();
+} );
+
 it( 'ignores programmatic region changes and persists user pan and zoom', () => {
 	jest.useFakeTimers();
 	const listeners = {};
