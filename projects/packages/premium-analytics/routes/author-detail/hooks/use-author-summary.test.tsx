@@ -11,7 +11,10 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useStatsQuery: jest.fn(),
 } ) );
 
-jest.mock( './use-author-stats', () => ( { useAuthorStats: jest.fn() } ) );
+jest.mock( './use-author-stats', () => ( {
+	...jest.requireActual( './use-author-stats' ),
+	useAuthorStats: jest.fn(),
+} ) );
 
 const mockUseStatsQuery = useStatsQuery as jest.Mock;
 const mockUseAuthorStats = useAuthorStats as jest.Mock;
@@ -36,6 +39,7 @@ function mockQueries(
 					name: 'Priya Patel',
 					avatarUrl: 'https://secure.gravatar.com/avatar/abc?s=64&d=mm',
 				},
+				firstContentDate: '2023-07-04 10:00:00',
 			},
 			isPlaceholderData: false,
 			isLoading: false,
@@ -46,7 +50,7 @@ function mockQueries(
 		},
 	} );
 	mockUseStatsQuery.mockReturnValue( {
-		data: { postCount: 4, firstPublishedDate: '2023-07-04T10:00:00' },
+		data: { postCount: 4 },
 		isLoading: false,
 		isError: false,
 		...posts,
@@ -67,7 +71,7 @@ describe( 'useAuthorSummary', () => {
 			name: 'Priya Patel',
 			avatarUrl: 'https://secure.gravatar.com/avatar/abc?s=144&d=mm',
 			postCount: 4,
-			firstPublishedDate: '2023-07-04T10:00:00',
+			firstPublishedDate: '2023-07-04T10:00:00Z',
 			isLoading: false,
 			isError: false,
 			isNotFound: false,
@@ -123,7 +127,7 @@ describe( 'useAuthorSummary', () => {
 		expect( result.current ).toMatchObject( {
 			name: 'Priya Patel',
 			postCount: undefined,
-			firstPublishedDate: undefined,
+			firstPublishedDate: '2023-07-04T10:00:00Z',
 			isError: false,
 			isPostsError: true,
 		} );
@@ -135,8 +139,8 @@ describe( 'useAuthorSummary', () => {
 		[ null, undefined ],
 	] )( 'passes only an http(s) avatar through (%p)', ( avatarUrl, expected ) => {
 		mockQueries(
-			{ data: { author: { id: 7, name: 'P', avatarUrl } } },
-			{ data: { postCount: 0, firstPublishedDate: null } }
+			{ data: { author: { id: 7, name: 'P', avatarUrl }, firstContentDate: null } },
+			{ data: { postCount: 0 } }
 		);
 
 		const { result } = renderHook( () => useAuthorSummary( 7 ) );

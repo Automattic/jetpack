@@ -46,7 +46,7 @@ function AuthorAvatar( { avatarUrl }: { avatarUrl?: string } ) {
  * matches the post list. Either half stands alone when the other is unknown.
  *
  * @param postCount          - Published posts by the author.
- * @param firstPublishedDate - Publish date of the oldest one.
+ * @param firstPublishedDate - When the author first published content.
  * @return The subtitle, or undefined when neither half is known.
  */
 export function authorSubtitle(

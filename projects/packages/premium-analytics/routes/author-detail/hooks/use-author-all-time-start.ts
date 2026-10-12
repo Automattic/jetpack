@@ -5,7 +5,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { useAuthorStats } from './use-author-stats';
+import { toGmtInstant, useAuthorStats } from './use-author-stats';
 
 export type AuthorAllTimeStart = {
 	/** Where the author's all time starts, as a site-local day or a GMT instant; undefined until known. */
@@ -36,10 +36,8 @@ export function useAuthorAllTimeStart( authorId: number ): AuthorAllTimeStart {
 	let allTimeStart: string | undefined;
 	// Another author's dates must not anchor this page while it loads.
 	if ( ! source.isPlaceholderData ) {
-		const firstContentDate = source.data?.firstContentDate;
 		allTimeStart = isOverPostLimit
-			? // GMT; the date controls read an offset-less stamp as site time.
-				firstContentDate && `${ firstContentDate.replace( ' ', 'T' ) }Z`
+			? toGmtInstant( source.data?.firstContentDate )
 			: ( source.data?.startDate ?? undefined );
 	}
 

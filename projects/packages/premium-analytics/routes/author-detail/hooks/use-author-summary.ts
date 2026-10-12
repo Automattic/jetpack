@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useAuthorStats } from './use-author-stats';
+import { toGmtInstant, useAuthorStats } from './use-author-stats';
 import type { AuthorPostsRecord } from '@jetpack-premium-analytics/data';
 
 export type AuthorSummary = {
@@ -16,7 +16,7 @@ export type AuthorSummary = {
 	/** The author's avatar, when the stats endpoint returns a safe http(s) one. */
 	avatarUrl?: string;
 	postCount?: number;
-	/** Publish date of the author's oldest post, for "writing since". */
+	/** When the author first published content of any type, for "writing since". */
 	firstPublishedDate?: string;
 	isLoading: boolean;
 	/** Whether the identity request failed; the page must not present a fallback name as real data. */
@@ -27,7 +27,7 @@ export type AuthorSummary = {
 	isNotFound: boolean;
 	/** Re-runs the failed identity request, for the error state's Retry action. */
 	refetch: () => void;
-	/** Whether the post count and first publish date are still on their way. */
+	/** Whether the post count is still on its way. */
 	isPostsLoading: boolean;
 	/** Whether the posts request failed; the identity above still stands. */
 	isPostsError: boolean;
@@ -53,11 +53,10 @@ function sizeAvatarUrl( url: string ): string {
 }
 
 /**
- * Resolve the header identity for one author: name and avatar from the
- * `stats/author` request the page already makes for its All time start, plus
- * the post count and the date they started publishing from the posts endpoint.
- * The two fail independently, so a posts failure leaves the name and the cards
- * in place.
+ * Resolve the header for one author: name, avatar and first published content
+ * from the `stats/author` request the page already makes for its All time
+ * start, plus the published post count from the posts endpoint. The two fail
+ * independently, so a posts failure leaves the name and the cards in place.
  *
  * @param authorId - The user ID from the route.
  * @return The resolved author summary.
@@ -67,7 +66,8 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 	const { isLoading, error, refetch } = source;
 	const posts = useStatsQuery< AuthorPostsRecord >( authorPostsQuery( authorId ) );
 	// Another author's identity, held as placeholder data, must not name this page.
-	const author = source.isPlaceholderData ? null : source.data?.author;
+	const stats = source.isPlaceholderData ? undefined : source.data;
+	const author = stats?.author;
 	const isNotFound = getApiErrorCode( error ) === 'unknown_author';
 	// The avatar is remote data used verbatim as an image source, so it goes
 	// through the shared http(s) guard like every other report URL.
@@ -83,7 +83,7 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 		name: author?.name,
 		avatarUrl: avatarUrl ? sizeAvatarUrl( avatarUrl ) : undefined,
 		postCount: posts.data?.postCount,
-		firstPublishedDate: posts.data?.firstPublishedDate ?? undefined,
+		firstPublishedDate: toGmtInstant( stats?.firstContentDate ),
 		isLoading,
 		// A background refetch that fails keeps the identity it already has.
 		isError: source.isError && ! isNotFound && ! author,
