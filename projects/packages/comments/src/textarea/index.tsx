@@ -20,8 +20,9 @@ export const Textarea = () => {
 	// Set by a click, so the editor's caret lands where it did; a keyboard arrival goes to the end.
 	const clicked = useRef( false );
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
-	const prompt = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
-	const placeholder = `${ prompt }...`;
+	const placeholder = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
+	// The loading copy animates its own dots, so it drops the translation's.
+	const prompt = placeholder.replace( /\s*(?:\.{3}|…+)$/u, '' );
 	const label = commentParent.value ? strings.replyLabel : strings.commentLabel;
 
 	const openEditor = useCallback(
