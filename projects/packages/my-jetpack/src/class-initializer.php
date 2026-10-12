@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.8.0';
+	const PACKAGE_VERSION = '6.9.0';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -709,6 +709,26 @@ class Initializer {
 		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
+
+		if (
+			( new Status() )->is_offline_mode()
+			/**
+			 * Temporarily expose the local Features seed without enabling offline entry.
+			 *
+			 * @since $$next-version$$
+			 * @param bool $enabled Whether to expose the seed. Default false.
+			 */
+			&& apply_filters( 'jetpack_my_jetpack_offline_features', false )
+			// Honor an explicit host veto without enabling offline entry.
+			/** This filter is documented in self::should_initialize(). */
+			&& apply_filters( 'jetpack_my_jetpack_should_initialize', true )
+			&& REST_Main_Features::permissions_callback()
+		) {
+			$data['myJetpack']['offlineFeatures'] = array(
+				'mainFeatures' => Main_Features::get_state( true ),
+				'plugins'      => Plugins_Installer::get_plugins(),
+			);
+		}
 
 		return $data;
 	}

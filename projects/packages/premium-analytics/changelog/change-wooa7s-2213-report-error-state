@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Render the report error notice through one shared ReportErrorState component. No user-facing change.
+

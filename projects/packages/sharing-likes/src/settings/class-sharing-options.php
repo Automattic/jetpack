@@ -50,11 +50,14 @@ final class Sharing_Options {
 	 * `Sharing_Service::set_global_options()` rebuilds the global array from defaults,
 	 * so anything the payload leaves out, placement included, would be reset.
 	 *
-	 * @param array<string, mixed> $changes Options to change, slashed and keyed as `set_global_options()` reads them.
+	 * @param array<string, mixed> $changes Options to change, slashed as in `$_POST` and keyed as `set_global_options()` reads them.
+	 * @return array<string, mixed> The global options as saved.
 	 */
-	public static function update( array $changes ): void {
-		$current                  = self::get();
-		$current['show']          = Placement_Section::selected_post_types();
+	public static function update( array $changes ): array {
+		$current = self::get();
+		if ( Placement_Section::is_saved() ) {
+			$current['show'] = Placement_Section::selected_post_types();
+		}
 		$current['sharing_label'] = wp_slash( $current['sharing_label'] );
 		$sharer                   = new \Sharing_Service();
 		$options                  = array_merge( $current, $changes );
@@ -64,6 +67,6 @@ final class Sharing_Options {
 			$options['sharing_label'] = $sharer->default_sharing_label;
 		}
 
-		$sharer->set_global_options( $options );
+		return $sharer->set_global_options( $options );
 	}
 }

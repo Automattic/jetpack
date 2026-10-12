@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Declare the Donut component with its props, and WidgetStatus, the request status every widget kind takes.

@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/total-sales-over-time",
+	"icon": "jpa/chart-bar",
 	"title": "Total sales over time",
 	"description": "Track total sales including all orders and transactions.",
 	"help": {

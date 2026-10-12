@@ -43,7 +43,8 @@ import {
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
-	buildTopAuthorsDaysData,
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -54,7 +55,6 @@ import {
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
 	buildStatsSubscribersCountsData,
-	mockPlanUsageData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
 	mockEmailCountryBreakdown,
@@ -82,9 +82,6 @@ const STATS_VIEWS_BY_HOUR_PATH =
 	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
-// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
-// own path branch rather than a `routeStatsReport()` case.
-const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
 const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
 // Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
@@ -1168,6 +1165,23 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 		};
 	}
 
+	// Single-author detail — `stats/author/{id}`, over a window or, with `num=-1`, all time.
+	const statsAuthor = subPath.match( /^\/author\/(\d+)$/ );
+	if ( statsAuthor ) {
+		const today = new Date().toISOString().slice( 0, 10 );
+		const allTime = getQueryParam( requestPath, 'num' ) === '-1';
+		const period = getQueryParam( requestPath, 'period' );
+
+		return buildAuthorStatsData(
+			Number( statsAuthor[ 1 ] ),
+			allTime
+				? MOCK_AUTHOR_FIRST_CONTENT_DAY
+				: ( getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 ) ?? today ),
+			getQueryParam( requestPath, 'date' )?.slice( 0, 10 ) ?? today,
+			period === 'week' || period === 'month' || period === 'year' ? period : 'day'
+		);
+	}
+
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
 		return buildSingleVideoResponse( requestPath );
@@ -1208,19 +1222,6 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
 		case '/top-authors': {
-			// The author detail chart asks for period buckets; everything else summarizes.
-			const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
-			const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
-			if ( getQueryParam( requestPath, 'summarize' ) === '0' && startDate && endDate ) {
-				const period = getQueryParam( requestPath, 'period' );
-
-				return buildTopAuthorsDaysData(
-					startDate,
-					endDate,
-					period === 'week' || period === 'month' ? period : 'day'
-				);
-			}
-
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
@@ -1635,10 +1636,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
-	}
-
-	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
-		return mockPlanUsageData;
 	}
 
 	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {

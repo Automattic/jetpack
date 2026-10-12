@@ -1,14 +1,10 @@
 /**
- * External dependencies
- */
-
-/**
  * Internal dependencies
  */
 import { fetchReportVisitors } from '../api/report-visitors-fetch';
 import { sanitizeReportVisitorsResponse } from '../processing/visitors';
 import { resolveReportTimeZone } from '../utils/report-timezone';
-import type { ReportQuery } from '../utils/types';
+import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
 type RequestReportVisitorsParams = Parameters< typeof fetchReportVisitors >[ 0 ];
 

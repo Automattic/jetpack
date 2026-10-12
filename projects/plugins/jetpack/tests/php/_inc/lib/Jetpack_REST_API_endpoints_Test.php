@@ -792,6 +792,21 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 	}
 
+	public function test_saving_the_button_style_keeps_the_sharing_label_backslashes() {
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		Jetpack::update_active_modules( array( 'sharedaddy' ) );
+
+		$response = $this->create_and_get_request( 'settings', array( 'sharing_label' => 'Share \o/' ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+		$response = $this->create_and_get_request( 'settings', array( 'button_style' => 'icon' ), 'POST' );
+		$this->assertResponseStatus( 200, $response );
+
+		$this->assertSame( 'Share \o/', get_option( 'sharing-options' )['global']['sharing_label'] );
+	}
+
 	/**
 	 * The Stats role settings reject values that are not a list of role slugs.
 	 *

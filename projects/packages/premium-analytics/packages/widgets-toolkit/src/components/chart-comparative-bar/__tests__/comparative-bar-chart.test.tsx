@@ -9,6 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockBarChartLegendSpy,
 	mockBarChartSpy,
+	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
 } from '../../../../../../tests/js/chart-test-utils';
@@ -106,7 +107,7 @@ function recordedProps(): {
 		axis: { x: Record< string, unknown >; y: Record< string, unknown > };
 		yScale?: { domain: [ number, number ] };
 	};
-	margin: { left?: number; right: number };
+	margin?: Record< string, number >;
 	chartId: string;
 	defaultHiddenSeries?: readonly string[];
 	legend: { collapseGroups: boolean; interactive: boolean };
@@ -467,11 +468,10 @@ describe( 'ComparativeBarChart', () => {
 				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
 			);
 
+			expect( recordedOptions().axis.x.display ).toBe( false );
 			expect( recordedOptions().axis.y.display ).toBe( false );
 			expect( recordedProps().gridVisibility ).toBe( 'none' );
-			// The hidden axis frees its gutter inside `useChartMargin`, so the bars
-			// gain the room without this component clipping the date labels away.
-			expect( recordedProps().margin ).toBeUndefined();
+			expect( recordedProps().margin ).toBe( mockSparklineMargin );
 			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
 		} );
 
@@ -481,8 +481,10 @@ describe( 'ComparativeBarChart', () => {
 				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
 			);
 
+			expect( recordedOptions().axis.x ).not.toHaveProperty( 'display' );
 			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
 			expect( recordedProps().gridVisibility ).toBeUndefined();
+			expect( recordedProps().margin ).toBeUndefined();
 			expect( screen.getByTestId( 'bar-chart-legend' ) ).toBeInTheDocument();
 		} );
 

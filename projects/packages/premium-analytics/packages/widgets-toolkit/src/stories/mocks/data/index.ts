@@ -69,7 +69,8 @@ export { buildPostContentResponse } from './post-content';
 export { mockSingleVideoData } from './single-video';
 export { mockTagsData } from './tags';
 export {
-	buildTopAuthorsDaysData,
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 } from './top-authors';
@@ -86,8 +87,6 @@ export { mockPostCommentsData } from './post-comments';
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
 export { MOCK_PAID_SUBSCRIBERS, buildStatsSubscribersCountsData } from './subscriber-counts';
-
-export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
 
 export { buildEmailRateResponse } from './email-rate';
 

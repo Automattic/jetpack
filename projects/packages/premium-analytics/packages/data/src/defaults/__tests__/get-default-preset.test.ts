@@ -1,11 +1,18 @@
 /**
  * External dependencies
  */
+import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { DASHBOARD_PREFERENCES_SCOPE } from '../remembered-preset';
 import { getDefaultPreset, getDefaultQueryParams } from '../reports';
+
+type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
+
+const V1_KEY = 'jetpack_stats_stored_date_range_shortcut_id_123';
 
 describe( 'default report params', () => {
 	const originalSettings = getSettings();
@@ -33,10 +40,6 @@ describe( 'default report params', () => {
 			jest.useRealTimers();
 		} );
 
-		it( 'defaults to last-30-days when no preset is given', () => {
-			expect( getDefaultQueryParams().preset ).toBe( 'last-30-days' );
-		} );
-
 		it( 'uses last-7-days preset when passed', () => {
 			expect( getDefaultQueryParams( false, 'last-7-days' ) ).toEqual( {
 				from: '2025-03-09T00:00:00.000+00:00',
@@ -48,33 +51,72 @@ describe( 'default report params', () => {
 	} );
 
 	describe( 'getDefaultPreset', () => {
+		const setRemembered = ( value: unknown ) =>
+			( dispatch( preferencesStore ) as unknown as PreferencesActions ).set(
+				DASHBOARD_PREFERENCES_SCOPE,
+				'datePreset',
+				value
+			);
+
 		beforeEach( () => {
-			jest.useFakeTimers();
-			jest.setSystemTime( new Date( '2025-03-15T12:00:00.000Z' ) );
+			Object.defineProperty( window, 'JetpackScriptData', {
+				configurable: true,
+				value: { site: { wpcom: { blog_id: 123 } } },
+			} );
 		} );
 
 		afterEach( () => {
-			jest.useRealTimers();
+			delete window.JetpackScriptData;
+			setRemembered( undefined );
+			window.localStorage.clear();
 		} );
 
-		it( 'returns last-30-days when no launched date', () => {
+		it( 'opens on the last 7 days with nothing to inherit', () => {
+			expect( getDefaultPreset() ).toBe( 'last-7-days' );
+		} );
+
+		it.each( [
+			[ 'last_30_days', 'last-30-days' ],
+			[ 'year_to_date', 'year-to-date' ],
+			[ 'last_3_years', 'last-12-months' ],
+			[ 'not_a_shortcut', 'last-7-days' ],
+		] )( 'maps the v1 shortcut %s to %s', ( shortcutId, preset ) => {
+			window.localStorage.setItem( V1_KEY, shortcutId );
+
+			expect( getDefaultPreset() ).toBe( preset );
+		} );
+
+		it( 'opens on the last 7 days when the browser blocks storage', () => {
+			const getItem = jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+				throw new DOMException( 'denied', 'SecurityError' );
+			} );
+
+			try {
+				expect( getDefaultPreset() ).toBe( 'last-7-days' );
+			} finally {
+				getItem.mockRestore();
+			}
+		} );
+
+		it( 'reads the v1 key from before it was per site only when this site has none', () => {
+			window.localStorage.setItem( 'jetpack_stats_stored_date_range_shortcut_id', 'today' );
+			expect( getDefaultPreset() ).toBe( 'today' );
+
+			window.localStorage.setItem( V1_KEY, 'last_30_days' );
 			expect( getDefaultPreset() ).toBe( 'last-30-days' );
 		} );
 
-		it( 'returns today when store launched today', () => {
-			expect( getDefaultPreset( '2025-03-15T00:00:00Z' ) ).toBe( 'today' );
+		it( 'prefers the preset applied in v2 over the v1 one', () => {
+			window.localStorage.setItem( V1_KEY, 'last_30_days' );
+			setRemembered( 'month-to-date' );
+
+			expect( getDefaultPreset() ).toBe( 'month-to-date' );
 		} );
 
-		it( 'returns last-7-days when launched exactly 7 days ago', () => {
-			expect( getDefaultPreset( '2025-03-08T00:00:00Z' ) ).toBe( 'last-7-days' );
-		} );
+		it( 'ignores a stored value that is not a preset', () => {
+			setRemembered( 'year-2024' );
 
-		it( 'returns last-30-days when launched 8 days ago', () => {
-			expect( getDefaultPreset( '2025-03-07T00:00:00Z' ) ).toBe( 'last-30-days' );
-		} );
-
-		it( 'returns today when launched in the future', () => {
-			expect( getDefaultPreset( '2025-04-01T00:00:00Z' ) ).toBe( 'today' );
+			expect( getDefaultPreset() ).toBe( 'last-7-days' );
 		} );
 	} );
 

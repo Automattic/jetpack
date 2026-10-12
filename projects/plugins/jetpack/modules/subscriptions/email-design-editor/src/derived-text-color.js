@@ -3,22 +3,17 @@
  *
  * Core's color panel offers no hook for a background change, so this watches the design record the
  * panel writes — `root`/`globalStyles` in core-data — and derives the text color, and the
- * inherited link and heading colors, from `styles.color.background` there. Writing them into the
- * record rather than at render is what puts real values in the Styles controls, so the creator
- * can see them and override them. See NL-959.
+ * inherited link and heading colors, from `styles.color.background` there. Button text is derived
+ * the same way from the button's own background. Writing them into the record rather than at
+ * render is what puts real values in the Styles controls, so the creator can see them and override
+ * them. See NL-959 and NL-942.
  */
 
 import { storeName as EMAIL_EDITOR_STORE } from '@woocommerce/email-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select, subscribe } from '@wordpress/data';
 import { nextElements, MANAGED } from './readable-elements';
-import {
-	colorToStore,
-	contrastRatio,
-	deriveTextColor,
-	isSameColor,
-	MINIMUM_CONTRAST,
-} from './text-color';
+import { colorToStore, isSameColor, textFor } from './text-color';
 
 // What the editor stores for a palette pick, in both the shorthand the package rewrites values to
 // and the CSS custom property it rewrites them from.
@@ -29,11 +24,11 @@ const PRESET_VARIABLE = /^var\(\s*--wp--preset--color--([\w-]+)\s*\)$/;
 const PALETTE_ORIGINS = [ 'default', 'theme', 'custom' ];
 
 /**
- * Derive the text color whenever the creator changes the background.
+ * Derive the text color whenever the creator changes a background.
  *
  * @param {number|null} id        - The global-styles id the bundle named.
- * @param {object}      inherited - The colors the site gives text, links and headings, keyed by
- *                                `text` and by element.
+ * @param {object}      inherited - The colors the site gives text, links, headings and buttons,
+ *                                keyed by `text` and by element.
  * @return {Function} Stops watching, for a caller that unmounts the editor.
  */
 export function watchDerivedTextColor( id, inherited = {} ) {
@@ -43,12 +38,12 @@ export function watchDerivedTextColor( id, inherited = {} ) {
 
 	const read = () => select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
 
-	// The background to measure changes against is whatever is stored, which is not a change the
+	// The backgrounds to measure changes against are whatever is stored, which is not a change the
 	// creator made. Taken here when the record is already loaded, so that a pick arriving before any
 	// other store activity is seen as a change rather than swallowed as the baseline.
 	const opened = read();
 
-	let previous = opened?.styles?.color?.background;
+	let previous = backgrounds( opened );
 	let previousColors = managedColors( opened );
 	let seeded = !! opened;
 
@@ -59,11 +54,11 @@ export function watchDerivedTextColor( id, inherited = {} ) {
 			return;
 		}
 
-		const background = record.styles?.color?.background;
+		const current = backgrounds( record );
 		const colors = managedColors( record );
 
 		if ( ! seeded ) {
-			previous = background;
+			previous = current;
 			previousColors = colors;
 			seeded = true;
 			return;
@@ -71,14 +66,14 @@ export function watchDerivedTextColor( id, inherited = {} ) {
 
 		// Clearing a color asks for the default back, which is a derivation the same way a new
 		// background is -- and the panel writes it without touching the background.
-		if ( background === previous && ! wasCleared( previousColors, colors ) ) {
+		if ( isSameBackgrounds( previous, current ) && ! wasCleared( previousColors, colors ) ) {
 			previousColors = colors;
 			return;
 		}
 
 		// Moved on before the write below, which runs this listener again.
 		const before = previous;
-		previous = background;
+		previous = current;
 		previousColors = colors;
 
 		// A background arriving with nothing pending is the record resolving, not a pick. Without
@@ -87,7 +82,7 @@ export function watchDerivedTextColor( id, inherited = {} ) {
 			return;
 		}
 
-		const styles = nextStyles( record, before, background, inherited );
+		const styles = nextStyles( record, before, current, inherited );
 
 		if ( ! styles ) {
 			return;
@@ -106,23 +101,27 @@ export function watchDerivedTextColor( id, inherited = {} ) {
 }
 
 /**
- * The design's `styles` with everything the new background calls for.
+ * The design's `styles` with everything the new backgrounds call for.
  *
- * @param {object} record     - The edited design record.
- * @param {*}      before     - The background before the change.
- * @param {*}      background - The background after it.
- * @param {object} inherited  - The colors the site gives text, links and headings, keyed by `text`
- *                            and by element.
+ * @param {object} record    - The edited design record.
+ * @param {object} before    - The backgrounds before the change, keyed by `background` and
+ *                           `button`.
+ * @param {object} after     - The backgrounds after it, keyed the same way.
+ * @param {object} inherited - The colors the site gives text, links, headings and buttons, keyed
+ *                           by `text` and by element.
  * @return {object|null} The new `styles`, or null when nothing changes.
  */
-function nextStyles( record, before, background, inherited ) {
+function nextStyles( record, before, after, inherited ) {
 	// Resolved once, here, so the text color and the element colors are derived from the same
 	// literal: `parseColor` refuses a `var:preset|color|slug`, and every element would be skipped.
-	const from = resolvePresetColor( before, record );
-	const to = resolvePresetColor( background, record );
+	const from = resolvePresetColor( before.background, record );
+	const to = resolvePresetColor( after.background, record );
 	const withText = withDerivedTextColor( record, from, to, inherited?.text );
 	const styles = withText ?? record.styles ?? {};
-	const elements = nextElements( styles, from, to, inherited );
+	const elements = nextElements( styles, from, to, inherited, {
+		before: resolvePresetColor( before.button, record ),
+		after: resolvePresetColor( after.button, record ),
+	} );
 
 	if ( null === elements ) {
 		return withText;
@@ -147,13 +146,42 @@ function nextStyles( record, before, background, inherited ) {
  */
 function managedColors( record ) {
 	const styles = record?.styles;
-	const colors = { text: styles?.color?.text };
+	const colors = {
+		text: styles?.color?.text,
+		button: styles?.elements?.button?.color?.text,
+	};
 
 	MANAGED.forEach( element => {
 		colors[ element ] = styles?.elements?.[ element ]?.color?.text;
 	} );
 
 	return colors;
+}
+
+/**
+ * The backgrounds the derivations are measured against, as the record stores them now.
+ *
+ * @param {object} record - The edited design record.
+ * @return {object} The email background and the button's own, unresolved.
+ */
+function backgrounds( record ) {
+	const styles = record?.styles;
+
+	return {
+		background: styles?.color?.background,
+		button: styles?.elements?.button?.color?.background,
+	};
+}
+
+/**
+ * Whether two sets of backgrounds are the same, as the record spells them.
+ *
+ * @param {object} before - The backgrounds before a change.
+ * @param {object} after  - The backgrounds after it.
+ * @return {boolean} True when neither moved.
+ */
+function isSameBackgrounds( before, after ) {
+	return before.background === after.background && before.button === after.button;
 }
 
 /**
@@ -167,28 +195,6 @@ function wasCleared( before, after ) {
 	return Object.keys( after ).some(
 		key => null !== ( before[ key ] ?? null ) && null === ( after[ key ] ?? null )
 	);
-}
-
-/**
- * The text color a background calls for, given the one the site would otherwise supply.
- *
- * The rule the renderer applies: a site's own text color is kept when it already reads on the
- * background, so clearing the control restores it rather than stamping a tint over it. Absent and
- * unreadable both derive; a color that cannot be judged is kept, as contrast against an unknown is
- * not a number.
- *
- * @param {*} inherited  - The text color the site supplies, or undefined when it supplies none.
- * @param {*} background - The background.
- * @return {string|null} The color to store, or null to store none and inherit.
- */
-export function textFor( inherited, background ) {
-	if ( null === ( inherited ?? null ) ) {
-		return deriveTextColor( background );
-	}
-
-	const ratio = contrastRatio( inherited, background );
-
-	return null === ratio || ratio >= MINIMUM_CONTRAST ? null : deriveTextColor( background );
 }
 
 /**

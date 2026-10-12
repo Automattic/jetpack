@@ -1190,7 +1190,7 @@ test( 'shows the free history upgrade without requesting history', async () => {
 		'aria-expanded',
 		'false'
 	);
-	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'application' ) ).not.toBeInTheDocument();
 } );
 
 test( 'omits the history notice when My Jetpack is unavailable on a free site', async () => {
@@ -1350,7 +1350,7 @@ test.each( [
 					},
 				} )
 			);
-			const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
+			const charts = await screen.findAllByRole( 'application', { name: 'Bar chart' } );
 			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
 			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( copy );
 			expect(
@@ -1418,7 +1418,7 @@ test( 'labels empty days as locked only after older history absence is confirmed
 	try {
 		renderOverview();
 		await waitFor( () => expect( completeOlderHistory ).toBeDefined() );
-		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
+		const charts = await screen.findAllByRole( 'application', { name: 'Bar chart' } );
 		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
 			'No scores recorded for this day.'

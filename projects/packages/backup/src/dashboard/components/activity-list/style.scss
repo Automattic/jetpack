@@ -6,10 +6,59 @@
 	flex-direction: column;
 	min-height: 0;
 
-	// Give the search + view-actions row some breathing room from the
-	// card edge; rows below stay flush so dividers run edge-to-edge.
-	.dataviews__view-actions {
-		padding: 16px 16px 8px;
+	&__toolbar {
+		min-block-size: 64px;
+		padding-block: 12px;
+		padding-inline: 24px 20px;
+		box-sizing: border-box;
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	// A failure has no rows to fill the height the grid gives it.
+	&--failed {
+		align-self: start;
+
+		.dataviews-no-results {
+			padding: 16px;
+		}
+	}
+
+	&__heading {
+		min-inline-size: 0;
+		align-items: flex-start;
+
+		// Quiet, not underlined: the design has neither this line nor the link.
+		a {
+			text-decoration: none;
+		}
+
+		// Focused only by script, when a retry clears the error; see `.jpb-overview`.
+		h2:focus {
+			outline: none;
+		}
+	}
+
+	&__new {
+		margin-inline-start: 8px;
+	}
+
+	// 72px rows.
+	.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper {
+		padding-block: 12px;
+	}
+
+	// Selected row: flat tint, no tile or outline, theme-colour icon.
+	.dataviews-view-list div[role="row"].is-selected.is-selected {
+		background: var(--wpds-color-background-surface-brand);
+		border-block-start-color: transparent;
+	}
+
+	.dataviews-view-list div[role="row"].is-selected .dataviews-view-list__media-wrapper {
+		background: transparent;
+	}
+
+	.dataviews-view-list div[role="row"].is-selected .jpb-activity-list__icon {
+		color: var(--wpds-color-foreground-interactive-brand);
 	}
 
 	// DataViews renders a `role="checkbox"` selection indicator in the
@@ -20,13 +69,19 @@
 		display: none;
 	}
 
-	// Center the gridicon inside DataViews' 52x52 media placeholder.
-	// Without this the Icon element sits in the top-left of the box.
-	.dataviews-view-list__media-wrapper {
+	// A 32px filled tile with the icon centred in it and no outline.
+	.dataviews-view-list .dataviews-view-list__media-wrapper {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #757575;
+		inline-size: 32px;
+		block-size: 32px;
+		background: var(--wpds-color-background-surface-neutral-weak);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+
+		&::after {
+			box-shadow: none;
+		}
 	}
 
 	// Keep the date + summary metadata on a single line with overflow
@@ -50,15 +105,10 @@
 		align-items: center;
 	}
 
-	// Center the gridicon inside DataViews' media tile. The tile's own
-	// background + border come from DataViews's media-wrapper styles, so
-	// we don't add a second border here (that produced two concentric
-	// outlines around the icon).
 	&__icon {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--wp-components-color-foreground, #1e1e1e);
 		flex-shrink: 0;
 
 		svg {
@@ -82,6 +132,10 @@
 	// "May 15, 2026, 9:26 AM" lets the row wrap mid-date, pushing the
 	// summary onto a second visual line at the column's typical width.
 	&__date {
+		white-space: nowrap;
+	}
+
+	&__run {
 		white-space: nowrap;
 	}
 }

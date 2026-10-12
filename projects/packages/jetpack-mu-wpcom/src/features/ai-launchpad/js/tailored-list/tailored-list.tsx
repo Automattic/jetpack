@@ -33,7 +33,7 @@ import {
 	type SiteData,
 } from './model.ts';
 import { TailoredListSkeleton } from './skeleton.tsx';
-import { TaskCard } from './task-card.tsx';
+import { TaskCard, type BusyAction } from './task-card.tsx';
 import type { GoalSlug, SiteCopy, TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
@@ -91,7 +91,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		() => initialData?.ai_output?.payload ?? null
 	);
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
-	const [ busyId, setBusyId ] = useState< string | null >( null );
+	// Carries both which task and which of its actions is in flight, so each button
+	// shows its own spinner instead of the task's primary CTA spinning for every action.
+	const [ busy, setBusy ] = useState< { id: string; action: BusyAction } | null >( null );
 	// The single expanded card (accordion: only one open at a time). `null` means
 	// every card is collapsed — a state the user can reach by toggling the open card
 	// shut, which must not auto-reopen.
@@ -324,7 +326,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	);
 
 	const handleGetStarted = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			const url = await resolveCtaUrl(
 				task,
@@ -360,14 +362,14 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		} catch {
 			// Fall through to clear busy so a thrown CTA can't leave the card disabled.
 		}
-		setBusyId( null );
+		setBusy( null );
 	};
 
 	// Complete-on-click tasks with no CTA destination offer "Mark as complete":
 	// persist the completion and flip the card to done in place. Only flips on a
 	// successful write so a failed POST doesn't show a completion that reverts on reload.
 	const handleMarkComplete = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			trackTaskCtaClicked( { task_id: task.id } );
 			await apiFetch( {
@@ -387,7 +389,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		} catch {
 			// Leave the task incomplete on failure.
 		} finally {
-			setBusyId( null );
+			setBusy( null );
 		}
 	};
 
@@ -395,14 +397,14 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	// completion), then marks the task complete and expands the next incomplete
 	// task. Compute the next id from the post-skip list so it's never re-opened.
 	const handleSkip = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'skip' } );
 		trackTaskSkipped( { task_id: task.id } );
 		await apiFetch( {
 			path: '/wpcom/v2/ai-launchpad/skip-task',
 			method: 'POST',
 			data: { task_id: task.id },
 		} ).catch( () => {} );
-		setBusyId( null );
+		setBusy( null );
 		const nextSkipped = new Set( skippedIds ).add( task.id );
 		setSkippedIds( nextSkipped );
 		const afterSkip = ( tasks ?? [] ).map( t =>
@@ -424,8 +426,8 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 					<TaskCard
 						key={ task.id }
 						task={ task }
-						isBusy={ busyId === task.id }
-						isLocked={ busyId !== null }
+						busyAction={ busy?.id === task.id ? busy.action : null }
+						isLocked={ busy !== null }
 						canStart={ isTaskActionable( task, output, siteUrl ) }
 						canMarkComplete={
 							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )

@@ -5,11 +5,9 @@ import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { ReportCsvAction, ReportPageTabs } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, renderHook, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useEarningsReportRecords } from './config';
 import { useEarningsReportRecords as useRealEarningsReportRecords } from './config/use-report-records';
 import EarningsReportPage from './page';
@@ -172,24 +170,6 @@ describe( 'EarningsReportPage', () => {
 		expect( screen.queryByRole( 'columnheader', { name: /Ads Served/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'June 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-$50.00' ) ).toBeInTheDocument();
-	} );
-
-	it( 'replaces stale rows with an error that refetches on Retry', async () => {
-		const refetch = jest.fn();
-		useRecordsMock.mockReturnValue(
-			buildRecords( { rows: [ earningsRow ], isError: true, refetch } )
-		);
-
-		render( <EarningsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load earnings. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( screen.queryByText( 'September 2026' ) ).not.toBeInTheDocument();
-
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	// Rows arrive oldest-first, as the endpoint's period-keyed payload does, so a

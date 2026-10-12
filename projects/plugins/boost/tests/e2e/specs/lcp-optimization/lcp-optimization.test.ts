@@ -41,7 +41,7 @@ test.describe( 'LCP Image Optimization module', () => {
 
 		// Should show pending state initially.
 		await expect(
-			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
+			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP" ),
 			'LCP optimization should show pending status during analysis'
 		).toBeVisible( { timeout: 20000 } );
 
@@ -61,7 +61,7 @@ test.describe( 'LCP Image Optimization module', () => {
 
 		// Should show pending state after clicking optimize
 		await expect(
-			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
+			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP" ),
 			'LCP optimization should show pending status after clicking Optimize button'
 		).toBeVisible( { timeout: 20000 } );
 

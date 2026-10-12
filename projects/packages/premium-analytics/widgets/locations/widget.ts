@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { mapMarker } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type LocationsAttributes = {
@@ -15,7 +14,6 @@ export type LocationsAttributes = {
  * unavailable for some countries, so those fall back to the country-level world map.
  */
 export default {
-	icon: mapMarker,
 	attributes: [
 		{
 			id: 'geoGranularity',

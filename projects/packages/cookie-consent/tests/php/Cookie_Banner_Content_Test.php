@@ -82,7 +82,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringContainsString( 'Cookie Policy', $html );
 		$this->assertStringContainsString( 'href="https://example.com/cookies/"', $html );
 		$links_pattern = '/Privacy Policy\\s*<\\/a>\\s+and\\s+'
-			. '<a href="https:\\/\\/example\\.com\\/cookies\\/"[^>]*>\\s*'
+			. '<a [^>]*href="https:\\/\\/example\\.com\\/cookies\\/"[^>]*>\\s*'
 			. 'Cookie Policy\\s*<\\/a>\\./';
 		$this->assertMatchesRegularExpression(
 			$links_pattern,

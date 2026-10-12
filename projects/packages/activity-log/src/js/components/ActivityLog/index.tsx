@@ -26,11 +26,13 @@ import {
 } from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
+import { usePresetFilters } from '../../hooks/use-preset-filters';
 import { DateRangePicker } from '../DateRangePicker';
 import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
 import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
+import { ALL_AI_AGENTS_ACTOR_ID } from './actor-elements';
 import { useActivityFields } from './fields';
 import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
@@ -170,7 +172,11 @@ const buildErrorNotice = (
 export default function ActivityLog() {
 	const { gmtOffset, timezoneString, locale } = readSiteTimeContext();
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
-	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
+	const presetFilters = usePresetFilters( hasActivityLogsAccess );
+	const { view, setView, resetView, isViewModified } = usePersistentView(
+		DEFAULT_VIEW,
+		presetFilters
+	);
 	const { tracks } = useAnalytics();
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
@@ -376,6 +382,7 @@ export default function ActivityLog() {
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
 		actors: actorsData?.actors,
+		isAllAiAgentsActive: actorIdValues.includes( ALL_AI_AGENTS_ACTOR_ID ),
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );

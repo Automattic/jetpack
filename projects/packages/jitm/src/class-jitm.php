@@ -334,6 +334,8 @@ class JITM {
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
 				'settings_module_text'   => esc_html__( 'Settings', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
+				// Only WordPress.com and the Jetpack plugin serve wpcom/v3/jitm; elsewhere the script uses this package's own route.
+				'has_wpcom_endpoint'     => ( new Host() )->is_wpcom_simple() || class_exists( 'Jetpack' ),
 			)
 		);
 	}

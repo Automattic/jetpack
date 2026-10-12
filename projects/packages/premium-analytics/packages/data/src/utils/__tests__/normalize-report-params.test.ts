@@ -1,10 +1,13 @@
 /**
  * External dependencies
  */
+import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { DASHBOARD_PREFERENCES_SCOPE } from '../../defaults/remembered-preset';
 import * as presetDateRange from '../preset-date-range';
 import { normalizeReportParams } from '../search';
 
@@ -14,6 +17,7 @@ const FRESH_FROM = '2026-01-20T00:00:00.000-05:00';
 const FRESH_TO = '2026-02-18T23:59:59.999-05:00';
 const STALE_FROM = '2026-01-19T00:00:00.000-05:00';
 const STALE_TO = '2026-02-17T23:59:59.999-05:00';
+const DEFAULT_FROM = '2026-02-12T00:00:00.000-05:00';
 
 describe( 'normalizeReportParams', () => {
 	const originalSettings = getSettings();
@@ -40,14 +44,29 @@ describe( 'normalizeReportParams', () => {
 	it( 'applies default preset without comparison on fresh load', () => {
 		const result = normalizeReportParams();
 
-		expect( result.preset ).toBe( 'last-30-days' );
-		expect( result.from ).toBe( FRESH_FROM );
+		expect( result.preset ).toBe( 'last-7-days' );
+		expect( result.from ).toBe( DEFAULT_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
 		expect( result.comp ).toBeUndefined();
 		expect( result.compare_from ).toBeUndefined();
 		expect( result.compare_to ).toBeUndefined();
 		expect( result.compare_preset ).toBeUndefined();
+	} );
+
+	it( 'applies the preset the reader last applied on fresh load', () => {
+		const preferences = dispatch( preferencesStore );
+		preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', 'last-30-days' );
+
+		try {
+			expect( normalizeReportParams() ).toMatchObject( {
+				preset: 'last-30-days',
+				from: FRESH_FROM,
+				to: FRESH_TO,
+			} );
+		} finally {
+			preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+		}
 	} );
 
 	it( 'passes the candidate interval through resolveIntervalForRange', () => {
@@ -160,14 +179,14 @@ describe( 'normalizeReportParams', () => {
 		const computeRange = jest
 			.spyOn( presetDateRange, 'computeDateRangeFromPreset' )
 			.mockImplementation( preset =>
-				preset === 'last-7-days' ? undefined : computeDateRangeFromPreset( preset )
+				preset === 'last-30-days' ? undefined : computeDateRangeFromPreset( preset )
 			);
 
 		try {
 			const result = normalizeReportParams( {
 				from: STALE_FROM,
 				to: STALE_TO,
-				preset: 'last-7-days',
+				preset: 'last-30-days',
 			} );
 
 			expect( result.preset ).toBeUndefined();
@@ -176,19 +195,6 @@ describe( 'normalizeReportParams', () => {
 		} finally {
 			computeRange.mockRestore();
 		}
-	} );
-
-	/*
-	 * Edge case – date_type is preserved from search.
-	 */
-	it( 'preserves date_type from search', () => {
-		const result = normalizeReportParams( {
-			from: FRESH_FROM,
-			to: FRESH_TO,
-			date_type: 'paid',
-		} );
-
-		expect( result.date_type ).toBe( 'paid' );
 	} );
 
 	/*
@@ -204,16 +210,14 @@ describe( 'normalizeReportParams', () => {
 		expect( result.period ).toBe( 'week' );
 	} );
 
-	/*
-	 * Edge case – date_type defaults to "created".
-	 */
-	it( 'defaults date_type to created', () => {
+	it( 'drops date_type, even when search has one', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
+			date_type: 'created',
 		} );
 
-		expect( result.date_type ).toBe( 'created' );
+		expect( result ).not.toHaveProperty( 'date_type' );
 	} );
 
 	/*
@@ -271,8 +275,8 @@ describe( 'normalizeReportParams', () => {
 	it( 'drops an all-time preset that arrives without its site-specific range', () => {
 		const result = normalizeReportParams( { preset: 'all-time' } );
 
-		expect( result.preset ).toBe( 'last-30-days' );
-		expect( result.from ).toBe( FRESH_FROM );
+		expect( result.preset ).toBe( 'last-7-days' );
+		expect( result.from ).toBe( DEFAULT_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 	} );
 
