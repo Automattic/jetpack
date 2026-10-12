@@ -223,6 +223,42 @@ describe( 'Coming back from Download with a row chosen', () => {
 	} );
 } );
 
+describe( 'Choosing a row', () => {
+	let layout: HTMLStyleElement;
+	let scrollIntoView: jest.SpyInstance;
+
+	beforeEach( () => {
+		layout = document.createElement( 'style' );
+		document.head.append( layout );
+		scrollIntoView = jest.spyOn( window.HTMLElement.prototype, 'scrollIntoView' );
+	} );
+
+	afterEach( () => {
+		layout.remove();
+		scrollIntoView.mockRestore();
+	} );
+
+	// jsdom has no layout, so the grid's column count comes from this rule alone.
+	it.each( [
+		[ 'brings a stacked detail pane to its heading', '1fr', 2, true ],
+		[ 'brings a stacked pane to its heading for the row it already shows', '1fr', 0, true ],
+		[ 'leaves focus on the row when the panes sit side by side', '1fr 1.5fr', 2, false ],
+	] )( '%s', async ( _name, columns, index, reveals ) => {
+		layout.textContent = `.jpb-overview { grid-template-columns: ${ columns }; }`;
+		renderApp();
+		const id = rewindId( index );
+
+		const row = await screen.findByRole( 'button', { name: named( id ) } );
+		await userEvent.click( row );
+
+		const heading = await screen.findByRole( 'heading', { name: title( id ) } );
+		await waitFor( () => expect( reveals ? heading : row ).toHaveFocus() );
+		expect( scrollIntoView.mock.calls.some( ( [ options ] ) => options?.block === 'start' ) ).toBe(
+			reveals
+		);
+	} );
+} );
+
 describe( 'A selection nobody chose', () => {
 	// The default row is the newest backup, which moves as backups land. Writing it to the
 	// address would pin the row it happened to name past its own reason for being shown.
