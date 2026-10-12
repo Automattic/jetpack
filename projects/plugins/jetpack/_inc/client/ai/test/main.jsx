@@ -371,7 +371,9 @@ describe( 'AI admin page (main.jsx)', () => {
 			);
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
-			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+			await expect(
+				screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+			).resolves.toBeDisabled();
 		} );
 
 		test( 'a host without My Jetpack is sent to the modules page instead', async () => {

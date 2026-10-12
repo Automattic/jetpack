@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/top-performing-products",
+	"icon": "jpa/chart-bar",
 	"title": "Top performing products",
 	"description": "Shows the top products by net revenue over the selected time period.",
 	"help": {

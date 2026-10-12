@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/gross-sales-over-time",
+	"icon": "jpa/chart-bar",
 	"title": "Gross sales over time",
 	"description": "Gross sales over the selected time period.",
 	"help": {

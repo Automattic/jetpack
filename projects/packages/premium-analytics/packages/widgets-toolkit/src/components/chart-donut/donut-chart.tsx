@@ -72,6 +72,12 @@ export type DonutChartProps = {
 	showLegend?: boolean;
 
 	/**
+	 * Show the center metric value.
+	 * @default true
+	 */
+	showMetric?: boolean;
+
+	/**
 	 * Thickness of the arc (0-1).
 	 * @default 0.3
 	 */
@@ -121,6 +127,7 @@ export function DonutChart( {
 	},
 	legendData,
 	showLegend = true,
+	showMetric = true,
 	thickness = DEFAULT_THICKNESS,
 	maxSize = MAX_SIZE,
 	emptyStateIcon,
@@ -218,14 +225,16 @@ export function DonutChart( {
 					) }
 					showLabels={ false }
 				/>
-				<MetricWithComparison
-					className={ styles.metricContainer }
-					value={ value }
-					dataFormat={ dataFormat }
-					previousValue={ hasComparison ? comparisonValue : null }
-					direction="column"
-					align="center"
-				/>
+				{ showMetric && (
+					<MetricWithComparison
+						className={ styles.metricContainer }
+						value={ value }
+						dataFormat={ dataFormat }
+						previousValue={ hasComparison ? comparisonValue : null }
+						direction="column"
+						align="center"
+					/>
+				) }
 			</Stack>
 
 			{ hasLegend && styledLegendData && (

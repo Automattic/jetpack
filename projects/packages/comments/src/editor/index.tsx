@@ -66,8 +66,8 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 		return { failed: true };
 	}
 
-	componentDidCatch() {
-		this.props.onError();
+	componentDidCatch( error: unknown ) {
+		this.props.onError( error );
 	}
 
 	render() {
