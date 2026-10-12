@@ -76,6 +76,11 @@ class Analytics_Dashboard {
 	const HELD_BACK_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
+	 * Ahead of Traffic (10), so a store's dashboard opens on this tab.
+	 */
+	const SECTION_ORDER = 5;
+
+	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
 	 * requests, and the store currency on the script data.
 	 *
@@ -114,7 +119,7 @@ class Analytics_Dashboard {
 			self::SECTION_ID,
 			array(
 				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'          => 40,
+				'order'          => self::SECTION_ORDER,
 				'is_available'   => $is_available,
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'  => true,

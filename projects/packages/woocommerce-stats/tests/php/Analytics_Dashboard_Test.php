@@ -100,7 +100,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertNotNull( $section );
 		$this->assertSame( 'woocommerce', $section->slug );
 		$this->assertSame( 'WooCommerce', $section->label );
-		$this->assertSame( 40, $section->order );
+		$this->assertSame( 5, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
