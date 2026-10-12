@@ -351,9 +351,16 @@ export default function FileBrowser( {
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
 	const [ narrowRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
-	// One element in both branches, so it outlives the error notice and can take its focus.
 	const panelRef = useRef< HTMLDivElement >( null );
-	const rootRef = useMergeRefs( [ narrowRef, panelRef ] );
+	// Spread on the root in both branches, so it is one element that outlives the error notice and can take its focus.
+	const rootProps = {
+		className: 'jpb-file-browser',
+		ref: useMergeRefs( [ narrowRef, panelRef ] ),
+		'data-rewind-id': rewindId,
+		tabIndex: -1,
+		role: 'group',
+		'aria-label': __( 'Files in this backup', 'jetpack-backup-pkg' ),
+	};
 	const {
 		children: rootsData,
 		isLoading: rootsLoading,
@@ -497,14 +504,7 @@ export default function FileBrowser( {
 	// replace the whole browser. A failed background refresh still has its rows and keeps the tree.
 	if ( rootsError && ! rootsData ) {
 		return (
-			<div
-				className="jpb-file-browser"
-				ref={ rootRef }
-				data-rewind-id={ rewindId }
-				tabIndex={ -1 }
-				role="group"
-				aria-label={ __( 'Files in this backup', 'jetpack-backup-pkg' ) }
-			>
+			<div { ...rootProps }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
@@ -518,14 +518,7 @@ export default function FileBrowser( {
 	}
 
 	return (
-		<div
-			className="jpb-file-browser"
-			ref={ rootRef }
-			data-rewind-id={ rewindId }
-			tabIndex={ -1 }
-			role="group"
-			aria-label={ __( 'Files in this backup', 'jetpack-backup-pkg' ) }
-		>
+		<div { ...rootProps }>
 			<div className={ layoutClassName } style={ layoutStyle }>
 				<div className="jpb-file-browser__main">
 					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
