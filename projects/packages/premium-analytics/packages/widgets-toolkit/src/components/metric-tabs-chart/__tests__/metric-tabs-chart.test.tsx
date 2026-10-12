@@ -9,9 +9,11 @@ import { _n } from '@wordpress/i18n';
 import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
+import { WidgetRootContext } from '../../widget-root/context';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
@@ -61,6 +63,7 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	comparisonLabel?: string;
 	baseline?: 'zero' | 'padded';
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
@@ -106,6 +109,25 @@ const VISITORS: MetricTab = {
 	],
 	counterpartKey: 'views',
 };
+
+/**
+ * Normalized params for a week compared with the given window, the shape a widget root hands down.
+ *
+ * @param preset - The comparison preset.
+ * @param from   - First day of the comparison.
+ * @param to     - Last day of the comparison.
+ * @return The params.
+ */
+const comparedWith = ( preset: string, from: string, to: string ) =>
+	( {
+		from: '2026-10-05T00:00:00Z',
+		to: '2026-10-11T23:59:59.999Z',
+		interval: 'day',
+		comp: '1',
+		compare_from: `${ from }T00:00:00Z`,
+		compare_to: `${ to }T23:59:59.999Z`,
+		compare_preset: preset,
+	} ) as ReportParams;
 
 /** The props the most recent chart render received. */
 function recordedProps( spy: jest.Mock ): ChartProps {
@@ -462,6 +484,52 @@ describe( 'MetricTabsChart', () => {
 		// back the previous-period overlay with it.
 		expect( defaultHiddenSeries ).toEqual( [ series[ 2 ].label, series[ 3 ].label ] );
 		expect( legendInteractive ).toBe( true );
+	} );
+
+	it( 'renames the comparison without touching what keeps the counterpart hidden', () => {
+		const chart = ( reportParams: ReportParams ) => (
+			<WidgetRootContext.Provider value={ { reportParams } }>
+				<MetricTabsChart
+					metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetRootContext.Provider>
+		);
+
+		const { rerender } = render(
+			chart( comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) )
+		);
+		const before = recordedPropsFor( mockLineSpy, 'Views' );
+
+		rerender( chart( comparedWith( 'previous-period', '2026-09-28', '2026-10-04' ) ) );
+		const after = recordedPropsFor( mockLineSpy, 'Views' );
+
+		expect( [ before.comparisonLabel, after.comparisonLabel ] ).toEqual( [
+			'2025',
+			'Prev. 7 days',
+		] );
+		// The chart seeds hidden series once per chart ID, keyed by series label.
+		expect( after.chartId ).toBe( before.chartId );
+		expect( after.series.map( item => item.label ) ).toEqual(
+			before.series.map( item => item.label )
+		);
+		expect( after.defaultHiddenSeries ).toEqual( [ 'Visitors', 'Visitors · previous period' ] );
+	} );
+
+	it( 'prefers an explicit comparison label over the widget', () => {
+		render(
+			<WidgetRootContext.Provider
+				value={ { reportParams: comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) } }
+			>
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					comparisonLabel="Custom"
+				/>
+			</WidgetRootContext.Provider>
+		);
+
+		expect( recordedPropsFor( mockLineSpy, 'Views' ).comparisonLabel ).toBe( 'Custom' );
 	} );
 
 	it( 'swaps the pair around when the reader picks the counterpart', () => {
