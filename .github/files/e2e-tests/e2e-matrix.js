@@ -142,6 +142,13 @@ const projects = [
 		targets: [ 'plugins/backup' ],
 		buildGroup: 'jetpack-backup',
 	},
+	{
+		project: 'Premium Analytics',
+		path: 'projects/plugins/premium-analytics/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/premium-analytics', 'packages/ads' ],
+		buildGroup: 'jetpack-premium-analytics',
+	},
 ];
 
 /**
