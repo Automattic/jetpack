@@ -48,6 +48,7 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 	const usageValue = usage ?? 0;
 	const isOverLimit = usageValue >= limit;
 	const upgradeHref = getPlanUpgradeUrl();
+	const overLimitMessage = getOverLimitMessage( overLimitMonths );
 
 	return (
 		<Stack
@@ -88,13 +89,13 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 					</Text>
 				) }
 			</div>
-			{ ( !! overLimitMonths || upgradeHref ) && (
+			{ ( overLimitMessage || upgradeHref ) && (
 				<Text className={ styles.note } variant="body-sm">
-					{ overLimitMonths ? (
+					{ overLimitMessage && (
 						<>
-							<strong>{ getOverLimitMessage( overLimitMonths ) }</strong>{ ' ' }
+							<strong>{ overLimitMessage }</strong>{ ' ' }
 						</>
-					) : null }
+					) }
 					{ /* Without script data there is no purchase URL, and a Link with no
 					     href renders styled but non-actionable — omit the sentence. */ }
 					{ upgradeHref &&

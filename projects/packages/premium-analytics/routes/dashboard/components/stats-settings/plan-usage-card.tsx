@@ -85,6 +85,7 @@ function UsageMeter( {
  */
 export function PlanUsageCard(): JSX.Element {
 	const { data, isLoading, isError, refetch, limit, overLimitMonths } = usePlanUsage();
+	const overLimitMessage = getOverLimitMessage( overLimitMonths );
 	const trackEvent = useTrackEvent();
 	const upgradeUrl = getPlanUpgradeUrl();
 	const retry = useCallback( () => refetch(), [ refetch ] );
@@ -136,9 +137,7 @@ export function PlanUsageCard(): JSX.Element {
 						daysToReset={ data?.current_usage?.days_to_reset }
 					/>
 				</div>
-				{ overLimitMonths ? (
-					<Text className={ styles.usageWarning }>{ getOverLimitMessage( overLimitMonths ) }</Text>
-				) : null }
+				{ overLimitMessage && <Text className={ styles.usageWarning }>{ overLimitMessage }</Text> }
 				<Text className={ styles.usageNote }>
 					{ __(
 						'Billable views are the page views counted against your plan each cycle. Excluded logged-in role views are not counted.',

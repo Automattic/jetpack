@@ -105,6 +105,13 @@ describe( 'PlanUsageCard', () => {
 		await expect( screen.findByText( warning ) ).resolves.toBeInTheDocument();
 	} );
 
+	it( 'does not warn a site with no period over the limit', async () => {
+		renderCard();
+
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'does not warn a VIP site that reports periods over the limit', async () => {
 		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 2 } );
 		window.JetpackScriptData = {

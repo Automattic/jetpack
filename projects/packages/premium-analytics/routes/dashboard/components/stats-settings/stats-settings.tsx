@@ -24,7 +24,7 @@ import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
 import type { JSX } from 'react';
 
-type CardGroup = { id: string; label: string; children: string[] };
+type CardGroup = { id: string; label: string; children: Array< keyof StatsSettings > };
 
 /**
  * The form's cards and the fields each one holds.
@@ -131,7 +131,7 @@ export function StatsSettingsPanel(): JSX.Element {
 								reason
 							)
 						: __( 'Your Stats settings could not be saved.', 'jetpack-premium-analytics-pkg' ),
-					{ type: 'snackbar' }
+					{ id: 'stats-settings-save-failed', type: 'snackbar' }
 				);
 				return;
 			}
@@ -140,6 +140,7 @@ export function StatsSettingsPanel(): JSX.Element {
 				trackEvent( 'jetpack_premium_analytics_settings_changed', change )
 			);
 			createSuccessNotice( __( 'Settings saved.', 'jetpack-premium-analytics-pkg' ), {
+				id: 'stats-settings-saved',
 				type: 'snackbar',
 			} );
 		},

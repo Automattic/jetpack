@@ -80,7 +80,10 @@ describe( 'StatsSettingsPanel', () => {
 			screen.getByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
 
-		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( notice, { type: 'snackbar' } );
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( notice, {
+			id: 'stats-settings-save-failed',
+			type: 'snackbar',
+		} );
 	} );
 
 	it.each( [

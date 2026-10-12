@@ -159,25 +159,14 @@ final class Stats_Settings {
 	 */
 	public static function update_stats_options( $updated, $name, $value ) {
 		if ( self::READER_VIEWS_OPTION === $name ) {
-			$enabled = self::sanitize_reader_views( $value );
-			update_option( self::READER_VIEWS_OPTION, $enabled );
-			if ( (int) get_option( self::READER_VIEWS_OPTION ) !== $enabled ) {
-				self::$update_error = new \WP_Error(
-					'jetpack_premium_analytics_reader_views_save_failed',
-					__( 'The WordPress.com Reader setting could not be saved.', 'jetpack-premium-analytics-pkg' ),
-					array( 'status' => 500 )
-				);
-			}
-			return true;
-		}
-
-		if ( Stats_Options::OPTION_NAME !== $name ) {
+			$result = Stats_Package_Settings::update_reader_views( rest_sanitize_boolean( $value ) );
+		} elseif ( Stats_Options::OPTION_NAME === $name ) {
+			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::FIELDS );
+		} else {
 			return $updated;
 		}
 
-		$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::FIELDS );
 		if ( is_wp_error( $result ) ) {
-			$result->add_data( array( 'status' => false !== strpos( $result->get_error_code(), 'save_failed' ) ? 500 : 400 ) );
 			self::$update_error = $result;
 		}
 
