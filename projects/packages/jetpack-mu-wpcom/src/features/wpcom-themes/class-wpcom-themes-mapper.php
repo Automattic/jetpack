@@ -3,7 +3,7 @@
  * Class WPCom_Themes_Mapper.
  * Responsible for mapping theme objects between WPCom and WPOrg formats.
  *
- * @package wpcom-themes
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**

@@ -3,7 +3,7 @@
  * Class WPCom_Themes_Api.
  * Retrieves themes from the WordPress.com themes API.
  *
- * @package wpcom-themes
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**

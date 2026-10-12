@@ -3,7 +3,7 @@
  * Class WPCom_Themes_Cache.
  * Caches WPCom themes.
  *
- * @package wpcom-themes
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**

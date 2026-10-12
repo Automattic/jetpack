@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Themes: share the WordPress.com themes api, cache and mapper with wpcomsh rather than each keeping a copy.

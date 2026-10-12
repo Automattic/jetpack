@@ -13,12 +13,10 @@
 function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
 	static $instance;
 	if ( ! $instance ) {
-		// Load dependencies.
-		require_once __DIR__ . '/includes/class-wpcom-themes-mapper.php';
+		// Atomic-only dependencies. The api, cache and mapper come from jetpack-mu-wpcom,
+		// which both this plugin and WordPress.com Simple load, and are autoloaded.
 		require_once __DIR__ . '/includes/class-wpcom-themes-merger.php';
-		require_once __DIR__ . '/includes/class-wpcom-themes-cache.php';
 		require_once __DIR__ . '/includes/class-wpcom-themes-service.php';
-		require_once __DIR__ . '/includes/class-wpcom-themes-api.php';
 
 		// Resolve and Inject dependencies.
 		$mapper               = new WPCom_Themes_Mapper();
