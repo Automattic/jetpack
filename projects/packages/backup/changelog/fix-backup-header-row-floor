@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Keep the modernized dashboard's header the same height on every screen and center the logo. The dashboard is behind a feature flag.
+
