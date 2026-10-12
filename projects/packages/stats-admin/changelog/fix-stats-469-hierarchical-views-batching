@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post list column: Show view counts on lists with more than 100 posts, such as Pages, instead of leaving them blank.
