@@ -96,6 +96,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
+		remove_all_filters( 'agents_manager_site_uses_ai_credits' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
@@ -769,9 +770,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that sites other than Simple leave the AI credits check to the endpoint.
+	 * Test that the AI credits check is left to the endpoint when no host answers.
 	 */
-	public function test_inline_script_leaves_ai_credits_to_the_endpoint_off_simple() {
+	public function test_inline_script_leaves_ai_credits_to_the_endpoint_when_no_host_answers() {
 		$this->enable_and_enqueue_block_editor();
 
 		$data = $this->get_image_studio_inline_data();
@@ -779,6 +780,41 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertIsArray( $data );
 		$this->assertArrayHasKey( 'usesAiCredits', $data );
 		$this->assertNull( $data['usesAiCredits'] );
+	}
+
+	/**
+	 * Test that the inline script passes on the host's answer about AI credits.
+	 *
+	 * @dataProvider provide_ai_credits_answers
+	 *
+	 * @param bool $uses_ai_credits The host's answer.
+	 */
+	#[DataProvider( 'provide_ai_credits_answers' )]
+	public function test_inline_script_passes_on_the_host_answer_about_ai_credits( $uses_ai_credits ) {
+		add_filter(
+			'agents_manager_site_uses_ai_credits',
+			static function () use ( $uses_ai_credits ) {
+				return $uses_ai_credits;
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
+
+		$data = $this->get_image_studio_inline_data();
+
+		$this->assertIsArray( $data );
+		$this->assertSame( $uses_ai_credits, $data['usesAiCredits'] );
+	}
+
+	/**
+	 * Data provider for test_inline_script_passes_on_the_host_answer_about_ai_credits.
+	 *
+	 * @return array[] [ The host's answer ].
+	 */
+	public static function provide_ai_credits_answers() {
+		return array(
+			'uses AI credits'         => array( true ),
+			'does not use AI credits' => array( false ),
+		);
 	}
 
 	/**

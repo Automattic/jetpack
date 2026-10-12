@@ -177,6 +177,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		Cache::clear();
 		Constants::clear_constants();
 		remove_all_filters( 'agents_manager_variant' );
+		remove_all_filters( 'agents_manager_site_uses_ai_credits' );
 
 		parent::tear_down();
 	}
@@ -1200,17 +1201,16 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that get_current_site tells chats whether the site uses AI credits.
 	 *
-	 * @param bool      $is_simple   Whether to simulate a Simple site.
-	 * @param bool      $has_sticker Whether the site has the AI credits sticker.
-	 * @param bool|null $expected    Expected usesAiCredits value.
+	 * @param mixed     $filtered Value the host's filter returns.
+	 * @param bool|null $expected Expected usesAiCredits value.
 	 * @dataProvider provide_uses_ai_credits
 	 */
 	#[DataProvider( 'provide_uses_ai_credits' )]
-	public function test_get_current_site_says_whether_the_site_uses_ai_credits( $is_simple, $has_sticker, $expected ) {
-		Constants::set_constant( 'IS_WPCOM', $is_simple );
-		Functions\when( 'has_blog_sticker' )->alias(
-			static function ( $sticker, $blog_id ) use ( $has_sticker ) {
-				return $has_sticker && 'ai-credit-metering' === $sticker && get_current_blog_id() === $blog_id;
+	public function test_get_current_site_says_whether_the_site_uses_ai_credits( $filtered, $expected ) {
+		add_filter(
+			'agents_manager_site_uses_ai_credits',
+			static function () use ( $filtered ) {
+				return $filtered;
 			}
 		);
 
@@ -1220,14 +1220,22 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Data provider for test_get_current_site_says_whether_the_site_uses_ai_credits.
 	 *
-	 * @return array<string, array{0: bool, 1: bool, 2: bool|null}>
+	 * @return array<string, array{0: mixed, 1: bool|null}>
 	 */
 	public static function provide_uses_ai_credits() {
 		return array(
-			'Simple site with the sticker'    => array( true, true, true ),
-			'Simple site without the sticker' => array( true, false, false ),
-			'other site, which cannot tell'   => array( false, true, null ),
+			'host says yes'           => array( true, true ),
+			'host says no'            => array( false, false ),
+			'host cannot tell'        => array( null, null ),
+			'host returns a non-bool' => array( 'yes', null ),
 		);
+	}
+
+	/**
+	 * Tests that get_current_site leaves the AI credits check to chats when no host answers.
+	 */
+	public function test_get_current_site_cannot_tell_without_a_host_answer() {
+		$this->assertNull( $this->call_get_current_site()['usesAiCredits'] );
 	}
 
 	/**

@@ -25,6 +25,7 @@ These filters control behavior and are used by other plugins (like Big Sky) to i
 | `agents_manager_enabled_in_block_editor` | Enable in the block editor | `false` |
 | `agents_manager_should_load` | Request the Agents Manager shell for another integration | `false` |
 | `jetpack_ai_sidebar_agents_manager_data` | Add host-specific data to `agentsManagerData` | `current inline data` |
+| `agents_manager_site_uses_ai_credits` | Tell chats whether the site uses AI credits, so they can skip the balance request. WordPress.com answers it | `null` |
 
 ## Pitfalls
 
