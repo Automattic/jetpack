@@ -1,6 +1,11 @@
-import { BoundedTooltip } from '../../../components/tooltip/private/bounded-tooltip';
+import {
+	BoundedTooltip,
+	TOOLTIP_Z_INDEX,
+} from '../../../components/tooltip/private/bounded-tooltip';
 import { useStandaloneScopeClass } from '../../../providers/chart-scope';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+
+const TOOLTIP_BOX_STYLE: CSSProperties = { zIndex: TOOLTIP_Z_INDEX };
 
 interface PieTooltipProps {
 	top: number;
@@ -21,7 +26,7 @@ export const PieTooltip = ( {
 	const standaloneScopeClass = useStandaloneScopeClass();
 
 	return (
-		<BoundedTooltip top={ top } left={ left }>
+		<BoundedTooltip top={ top } left={ left } style={ TOOLTIP_BOX_STYLE }>
 			{ selectedIndex === undefined ? (
 				<div className={ standaloneScopeClass } role="tooltip">
 					{ children }
