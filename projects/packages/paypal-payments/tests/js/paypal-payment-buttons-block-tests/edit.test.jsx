@@ -34,6 +34,7 @@ import {
 } from '../../../src/paypal-payment-buttons/utils/sync-on-save';
 import {
 	getValidationErrors,
+	ADDRESS_REQUIRED_ERROR,
 	REQUIRED_FIELD_ERROR,
 } from '../../../src/paypal-payment-buttons/utils/validation';
 // apiFetch mock — controls what the component receives from the REST API.
@@ -90,7 +91,9 @@ jest.mock( '@wordpress/i18n', () => ( {
 	isRTL: () => false,
 	sprintf: ( format, ...args ) => {
 		let i = 0;
-		return format.replace( /%[ds]/g, () => args[ i++ ] );
+		return format.replace( /%(?:(\d+)\$)?[ds]/g, ( _match, position ) =>
+			position ? args[ position - 1 ] : args[ i++ ]
+		);
 	},
 } ) );
 
@@ -442,32 +445,49 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	// Takes and returns whole options and falls back to the first for an unknown value,
 	// like the real one. The hint rides on `data-hint` - an <option> cannot hold the span
-	// core draws it in.
-	CustomSelectControl: ( { label, value, options, onChange, disabled, className } ) => (
-		<div
-			data-testid={ `control-${ label }` }
-			className={ className }
-			// What the caller passed, ahead of the fallback below, so a test can tell the
-			// block's fallback from this mock's.
-			data-value={ value?.key ?? '' }
-		>
-			<select
-				aria-label={ label }
-				value={ ( options?.find( o => o.key === value?.key ) ?? options?.[ 0 ] )?.key ?? '' }
-				disabled={ disabled }
-				onChange={ e =>
-					onChange( { selectedItem: options.find( o => o.key === e.target.value ) } )
-				}
+	// core draws it in. Like the real one, `describedBy` replaces the "Currently selected"
+	// text the trigger is described by.
+	CustomSelectControl: ( {
+		label,
+		value,
+		options,
+		onChange,
+		disabled,
+		className,
+		describedBy,
+	} ) => {
+		const descriptionId = `description-${ mockReact.useId() }`;
+		const selected = options?.find( o => o.key === value?.key ) ?? options?.[ 0 ];
+		return (
+			<div
+				data-testid={ `control-${ label }` }
+				className={ className }
+				// What the caller passed, ahead of the fallback below, so a test can tell the
+				// block's fallback from this mock's.
+				data-value={ value?.key ?? '' }
 			>
-				{ options &&
-					options.map( opt => (
-						<option key={ opt.key } value={ opt.key } data-hint={ opt.hint }>
-							{ opt.name }
-						</option>
-					) ) }
-			</select>
-		</div>
-	),
+				<select
+					aria-label={ label }
+					aria-describedby={ descriptionId }
+					value={ selected?.key ?? '' }
+					disabled={ disabled }
+					onChange={ e =>
+						onChange( { selectedItem: options.find( o => o.key === e.target.value ) } )
+					}
+				>
+					{ options &&
+						options.map( opt => (
+							<option key={ opt.key } value={ opt.key } data-hint={ opt.hint }>
+								{ opt.name }
+							</option>
+						) ) }
+				</select>
+				<span id={ descriptionId }>
+					{ describedBy || `Currently selected: ${ selected?.name }` }
+				</span>
+			</div>
+		);
+	},
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
 	SearchControl: ( { label, value, onChange, placeholder } ) => (
 		<input
@@ -688,6 +708,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		screen.getByText( ( _text, element ) =>
 			element?.classList?.contains( 'jetpack-paypal-payment-buttons__field-hint' )
 		);
+
+	/**
+	 * The address error, checked to be the element right after a select and above its hint.
+	 *
+	 * @param {string} testId - The select's test id.
+	 * @return {Element} The error element.
+	 */
+	const addressErrorUnder = testId => {
+		const error = screen.getByText( ( _text, element ) =>
+			element?.matches( `[data-testid="${ testId }"] + *` )
+		);
+
+		expect( error ).toHaveTextContent( ADDRESS_REQUIRED_ERROR );
+		expect( error ).toAppearBefore( fieldHint() );
+
+		return error;
+	};
 
 	/**
 	 * The control a message has to appear inside for the fix to mean anything.
@@ -4785,11 +4822,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// specific rate picks PERCENTAGE, and going to profile clears the rate so the next
 		// read-back agrees with the payment.
 		it.each( [
-			[
-				'profile',
-				'PERCENTAGE',
-				{ taxType: 'PREFERENCE', taxValue: '', collectShippingAddress: true },
-			],
+			[ 'profile', 'PERCENTAGE', { taxType: 'PREFERENCE', taxValue: '' } ],
 			[ 'specific', 'PREFERENCE', { taxType: 'PERCENTAGE' } ],
 		] )( 'writes the PayPal tax type for the %s mode', async ( mode, from, written ) => {
 			const user = userEvent.setup();
@@ -4797,7 +4830,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: from } }
+					attributes={ { ...attributes, taxType: from, collectShippingAddress: true } }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -4974,7 +5007,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					attributes={ {
+						...attributes,
+						taxType: 'PREFERENCE',
+						taxValue: '',
+						collectShippingAddress: true,
+					} }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -5002,7 +5040,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					attributes={ {
+						...attributes,
+						taxType: 'PREFERENCE',
+						taxValue: '',
+						collectShippingAddress: true,
+					} }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -5103,7 +5146,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					attributes={ {
+						...attributes,
+						taxType: 'PREFERENCE',
+						taxValue: '',
+						collectShippingAddress: true,
+					} }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -5335,7 +5383,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
 			'offers the address checkbox in %s mode',
 			async shippingMode => {
-				await renderShipping( { shippingMode } );
+				await renderShipping( { shippingMode, collectShippingAddress: true } );
 
 				expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeInTheDocument();
 			}
@@ -5345,7 +5393,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'PROFILE', 'Use shipping from my PayPal settings' ],
 			[ 'FREE', 'Free shipping' ],
 		] )( 'asks for no amount in %s mode', async ( shippingMode, label ) => {
-			await renderShipping( { shippingMode, shippingValue: '' } );
+			await renderShipping( { shippingMode, shippingValue: '', collectShippingAddress: true } );
 
 			// PROFILE is the first option, so the mock's fallback reaches it too -
 			// data-value is what tells a real value from that fallback.
@@ -5360,7 +5408,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		it( 'links to PayPal in profile mode', async () => {
-			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: true,
+			} );
 
 			expect(
 				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
@@ -5383,7 +5435,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// An unreported environment points at production, keeping a live merchant off the sandbox.
 		it( 'falls back to the production settings page', async () => {
-			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' }, null );
+			await renderShipping(
+				{ shippingMode: 'PROFILE', shippingValue: '', collectShippingAddress: true },
+				null
+			);
 
 			expect(
 				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
@@ -5446,7 +5501,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		it( 'renders the shipping profile hint beside the select', async () => {
-			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: true,
+			} );
 			const hint = fieldHint();
 
 			expect( hint ).toContainElement( screen.getByTestId( 'link' ) );
@@ -5609,13 +5668,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		// PayPal answers 422 with "Shipping address collection is needed when tax type is
-		// PREFERENCE", so the form keeps that combination out of reach.
+		// PayPal rejects a profile tax without the address. Like PayPal's builder, the form
+		// says so under the tax select.
 		it.each( [
 			[ 'on', true ],
 			[ 'off', false ],
 		] )(
-			'locks the address on while the tax comes from the PayPal profile, with shipping %s',
+			'asks for the address while the tax comes from the PayPal profile, with shipping %s',
 			async ( _label, shippingEnabled ) => {
 				await renderShipping( {
 					shippingEnabled,
@@ -5626,23 +5685,126 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				const box = screen.getByLabelText( 'Collect shipping address' );
 
-				expect( box ).toBeChecked();
-				expect( box ).toBeDisabled();
+				expect( box ).not.toBeChecked();
+				expect( box ).toBeEnabled();
 				expect(
-					screen.getByText( 'Required while the tax comes from your PayPal settings.' )
+					screen.getByText( 'Requires customer to add shipping address during checkout' )
 				).toBeInTheDocument();
+				expect( addressErrorUnder( 'control-Tax type' ) ).toHaveClass(
+					'jetpack-paypal-payment-buttons__field-error'
+				);
 			}
 		);
 
-		it( 'turns the address on with the profile tax', async () => {
+		it( 'writes only the tax type when the profile tax is picked', async () => {
 			const user = userEvent.setup();
 			await renderShipping( { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '7.5' } );
 
 			await user.selectOptions( screen.getByLabelText( 'Tax type' ), 'profile' );
 
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( { taxType: 'PREFERENCE', collectShippingAddress: true } )
+			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'PREFERENCE', taxValue: '' } );
+			expect( setAttributes ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { collectShippingAddress: expect.anything() } )
 			);
+		} );
+
+		it( 'asks for the address under the shipping select in PROFILE mode', async () => {
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: false,
+			} );
+
+			expect( addressErrorUnder( 'control-Shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field-error'
+			);
+			expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeEnabled();
+		} );
+
+		// A screen reader hears the error with the selected option.
+		it.each( [
+			[
+				'Tax type',
+				'Use tax from my PayPal settings',
+				{ taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' },
+			],
+			[
+				'Shipping fee',
+				'Use shipping from my PayPal settings',
+				{ shippingMode: 'PROFILE', shippingValue: '' },
+			],
+		] )( 'reads the address error out with the %s select', async ( label, selected, overrides ) => {
+			await renderShipping( { ...overrides, collectShippingAddress: false } );
+
+			expect( screen.getByLabelText( label ) ).toHaveAccessibleDescription(
+				`Currently selected: ${ selected }. ${ ADDRESS_REQUIRED_ERROR }`
+			);
+		} );
+
+		it( 'keeps the default select description with the address on', async () => {
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: true,
+			} );
+
+			expect( screen.getByLabelText( 'Shipping fee' ) ).toHaveAccessibleDescription(
+				'Currently selected: Use shipping from my PayPal settings'
+			);
+		} );
+
+		it.each( [
+			[ 'tax', { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } ],
+			[ 'shipping', { shippingMode: 'PROFILE', shippingValue: '' } ],
+		] )( 'accepts a %s from PayPal settings with the address on', async ( _label, overrides ) => {
+			await renderShipping( { ...overrides, collectShippingAddress: true } );
+
+			expect( screen.queryByText( ADDRESS_REQUIRED_ERROR ) ).not.toBeInTheDocument();
+		} );
+
+		it.each( [ 'FREE', 'FLAT', 'QUANTITY' ] )(
+			'accepts %s shipping with the address off',
+			async shippingMode => {
+				await renderShipping( { shippingMode, collectShippingAddress: false } );
+
+				expect( screen.queryByText( ADDRESS_REQUIRED_ERROR ) ).not.toBeInTheDocument();
+			}
+		);
+
+		// A saved post can hold the address off while PayPal holds it on. The mount read
+		// brings PayPal's value back.
+		it( 'drops the error once the read-back turns the address on', async () => {
+			const saved = {
+				...attributes,
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: false,
+			};
+			apiFetch.mockImplementation( ( { path } ) =>
+				path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.resolve( { attributes: { ...saved, collectShippingAddress: true } } )
+			);
+
+			const { rerender } = render(
+				<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
+			);
+			await openSavedForm();
+
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } )
+			);
+			expect( screen.getByText( ADDRESS_REQUIRED_ERROR ) ).toBeInTheDocument();
+
+			rerender(
+				<Edit
+					attributes={ { ...saved, collectShippingAddress: true } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			expect( screen.queryByText( ADDRESS_REQUIRED_ERROR ) ).not.toBeInTheDocument();
 		} );
 
 		// PayPal keeps the address separate from the shipping fees.
@@ -5661,7 +5823,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			}
 		);
 
-		// Dropping a profile tax leaves the address ticked.
 		it( 'lets the address be unticked with shipping and tax off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
@@ -6587,8 +6748,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// Per key: the block state that triggers it, the control its message has to be
 		// inside, the field to leave first where the form waits for a visit, and the class
-		// editor.scss reddens it through - an amount field uses its own span, the rest the
-		// help slot.
+		// editor.scss reddens it through - an amount field or a select uses its own error
+		// element, the rest the help slot. A select draws its error after the control, so
+		// `locate` finds it there.
 		const cases = {
 			productName: {
 				attributes: { productName: '' },
@@ -6652,6 +6814,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
+			taxType: {
+				attributes: {
+					taxEnabled: true,
+					taxType: 'PREFERENCE',
+					taxValue: '',
+					collectShippingAddress: false,
+				},
+				testId: 'control-Tax type',
+				message: ADDRESS_REQUIRED_ERROR,
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+				locate: addressErrorUnder,
+			},
+			shippingMode: {
+				attributes: {
+					shippingEnabled: true,
+					shippingMode: 'PROFILE',
+					collectShippingAddress: false,
+				},
+				testId: 'control-Shipping fee',
+				message: ADDRESS_REQUIRED_ERROR,
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+				locate: addressErrorUnder,
+			},
 			returnUrl: {
 				attributes: { returnUrl: 'example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
@@ -6663,14 +6848,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		/**
 		 * Render the form in the state one error describes, and hand back the control
-		 * that error's message has to appear inside.
+		 * that error's message has to appear inside - or, with `locate`, the error itself.
 		 *
 		 * @param {string} key - The validationErrors key under test.
-		 * @return {Element} The control that has to be carrying the message.
+		 * @return {Element} The control or error that has to be carrying the message.
 		 */
 		const showError = async key => {
 			const user = userEvent.setup();
-			const { attributes, testId, visit: visitLabel } = cases[ key ];
+			const { attributes, testId, visit: visitLabel, locate } = cases[ key ];
 
 			renderForm( attributes );
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
@@ -6679,7 +6864,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await visit( user, within( screen.getByTestId( testId ) ).getByLabelText( visitLabel ) );
 			}
 
-			return screen.getByTestId( testId );
+			return locate ? locate( testId ) : screen.getByTestId( testId );
 		};
 
 		// A new validation key fails here until it gets a case.

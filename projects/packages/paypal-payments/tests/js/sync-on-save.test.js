@@ -22,7 +22,10 @@ import {
 	recordPaymentRead,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
-import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
+import {
+	ADDRESS_REQUIRED_ERROR,
+	REQUIRED_FIELD_ERROR,
+} from '../../src/paypal-payment-buttons/utils/validation';
 const apiFetch = require( '@wordpress/api-fetch' );
 
 const product = {
@@ -163,10 +166,31 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
-	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
+	// PROFILE needs the address on.
+	it.each( [
+		[ 'PROFILE', true ],
+		[ 'FREE', false ],
+	] )( 'sends %s shipping with no fee', ( shippingMode, collectShippingAddress ) => {
 		expect(
-			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode,
+				shippingValue: '',
+				collectShippingAddress,
+			} )
 		).toBe( true );
+	} );
+
+	it( 'holds back PROFILE shipping with the address off', () => {
+		expect(
+			heldBackReason( {
+				...product,
+				shippingEnabled: true,
+				shippingMode: 'PROFILE',
+				collectShippingAddress: false,
+			} )
+		).toBe( ADDRESS_REQUIRED_ERROR );
 	} );
 
 	it( 'sends a shipping fee of zero', () => {
@@ -206,8 +230,26 @@ describe( 'isReadyForPayPal', () => {
 	// PREFERENCE takes its rate from the merchant's PayPal profile.
 	it( 'lets a profile tax through with no value', () => {
 		expect(
-			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} )
 		).toBe( true );
+	} );
+
+	it( 'holds back a profile tax with the address off', () => {
+		expect(
+			heldBackReason( {
+				...product,
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: false,
+			} )
+		).toBe( ADDRESS_REQUIRED_ERROR );
 	} );
 
 	it( 'lets a flat tax with an amount through', () => {

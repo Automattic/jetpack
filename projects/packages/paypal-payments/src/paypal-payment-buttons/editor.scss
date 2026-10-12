@@ -395,13 +395,13 @@
 	@extend %field-error-row;
 }
 
-// An amount field can show a hint too, so its error gets a span of its own
-// below the hint.
-.jetpack-paypal-payment-buttons__has-error .jetpack-paypal-payment-buttons__field-error {
+// An amount field's error gets its own span below the hint, and a select's
+// error its own row under the select.
+.jetpack-paypal-payment-buttons__field-error {
 
 	@extend %field-error-row;
 
-	// Only when a hint sits above it.
+	// Only when a hint or a select sits above it.
 	&:not(:first-child) {
 		margin-top: 8px;
 	}

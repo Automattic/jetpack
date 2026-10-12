@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Payment Buttons: Allow collecting a shipping address without a shipping fee.
+Payment Buttons: Allow collecting a shipping address without a shipping fee, and require it for tax or shipping from PayPal settings.
