@@ -38,6 +38,10 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		'version'     => '1.0',
 		'screenshot'  => 'https://theme.files.wordpress.com/2023/02/stax-featured.jpg',
 		'demo_uri'    => 'https://stax.organicthemes.com/',
+		'block_theme' => true,
+		'date_added'  => '2023-02-01',
+		'taxonomies'  => array(),
+		'theme_tier'  => array( 'slug' => 'partner' ),
 	);
 
 	/**
@@ -77,8 +81,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		Cache::clear();
 		wp_deregister_script( 'wpcom-themes-tab' );
 
-		delete_transient( wpcom_themes_tab_cache_key( 1 ) );
-		delete_transient( wpcom_themes_tab_cache_key( 2 ) );
+		// The shared reader caches in the object cache.
+		wp_cache_flush();
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -142,14 +146,13 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @param int   $found  Total across all pages.
 	 * @return void
 	 */
-	private function answer_with_themes( array $themes, $found ) {
+	private function answer_with_themes( array $themes, $found = null ) {
+		unset( $found );
+
 		$this->answer_wpcom_with(
 			200,
 			wp_json_encode(
-				array(
-					'themes' => $themes,
-					'found'  => $found,
-				),
+				array( 'body' => array( 'themes' => $themes ) ),
 				JSON_UNESCAPED_SLASHES
 			)
 		);
@@ -162,7 +165,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @return void
 	 */
 	private function answer_with_theme( array $theme ) {
-		$this->answer_wpcom_with( 200, wp_json_encode( $theme, JSON_UNESCAPED_SLASHES ) );
+		$this->answer_wpcom_with( 200, wp_json_encode( array( 'body' => $theme ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -203,7 +206,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_themes_have_the_fields_core_reads() {
 		$this->enable_tab();
-		$this->answer_with_themes( array( array( 'id' => 'sparse' ) ), 1 );
+		$this->answer_with_themes( array( self::THEME ) );
 
 		$theme = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) )->themes[0];
 
@@ -211,6 +214,9 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			$this->assertObjectHasProperty( $field, $theme );
 		}
 		$this->assertArrayHasKey( 'display_name', $theme->author );
+		// The shared mapper also reports install state and tier, which the tab's own mapping did not.
+		$this->assertObjectHasProperty( 'installed', $theme );
+		$this->assertSame( 'partner', $theme->theme_tier );
 	}
 
 	/**
@@ -226,11 +232,15 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Scrolling the grid asks WordPress.com for the matching page.
+	 * Scrolling the grid slices a catalog that was fetched once, rather than asking per page.
 	 */
-	public function test_passes_the_page_through() {
+	public function test_pages_through_the_catalog_from_one_fetch() {
 		$this->enable_tab();
-		$this->answer_with_themes( array( self::THEME ), WPCOM_THEMES_TAB_PER_PAGE + 1 );
+		$themes = array();
+		for ( $i = 1; $i <= WPCOM_THEMES_TAB_PER_PAGE + 50; $i++ ) {
+			$themes[] = array_merge( self::THEME, array( 'id' => 'theme-' . $i ) );
+		}
+		$this->answer_with_themes( $themes );
 
 		$result = $this->query(
 			array(
@@ -239,9 +249,12 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertStringContainsString( 'page=2', $this->requests[0] );
+		$this->assertCount( 50, $result->themes );
+		$this->assertSame( 'theme-' . ( WPCOM_THEMES_TAB_PER_PAGE + 1 ), $result->themes[0]->slug );
+		$this->assertSame( 2, $result->info['page'] );
 		$this->assertSame( 2, $result->info['pages'] );
-		$this->assertSame( WPCOM_THEMES_TAB_PER_PAGE + 1, $result->info['results'] );
+		$this->assertSame( WPCOM_THEMES_TAB_PER_PAGE + 50, $result->info['results'] );
+		$this->assertCount( 1, $this->requests );
 	}
 
 	/**
