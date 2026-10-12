@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reject negative theme font sizes and accept a leading `+` sign, as CSS does.
