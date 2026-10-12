@@ -1,8 +1,12 @@
 /**
  * External dependencies
  */
+import { sharePercentage } from '../../helpers/share-percentage';
 import type { ConversionFunnelChart } from '@jetpack-premium-analytics/externals';
 import type { ComponentProps } from 'react';
+/**
+ * Internal dependencies
+ */
 
 type FunnelChartStep = ComponentProps< typeof ConversionFunnelChart >[ 'steps' ][ number ];
 
@@ -74,7 +78,7 @@ export function buildFunnelChartData(
 			id: step.id,
 			label: step.label,
 			count: step.value,
-			rate: ( ratioOf( step.value, first?.value ) ?? 0 ) * 100,
+			rate: sharePercentage( step.value, first?.value ?? 0 ),
 		} ) ),
 		rate: ratioOf( last?.value, first?.value ) ?? 0,
 		previousRate: options.hasComparison
