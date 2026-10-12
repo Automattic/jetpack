@@ -101,10 +101,10 @@ function nextWindowStart( scheduledHourUtc: number, now: Date ): Date {
 function windowLabel( start: Date, timezone?: string ): string {
 	const lastMinute = new Date( start.getTime() + WINDOW_LAST_MINUTE_MS );
 	const timeFormat = getTimeFormat();
-	// The start drops its AM/PM only when the end's covers both halves.
+	// The start drops a trailing AM/PM only when the end's covers both halves.
 	const startFormat =
 		dateI18n( 'A', start, timezone ) === dateI18n( 'A', lastMinute, timezone )
-			? timeFormat.replace( /\s*[aA]/, '' )
+			? timeFormat.replace( /\s*[aA]\s*$/, '' )
 			: timeFormat;
 
 	// Assembled here rather than as a msgid: neither half is translatable prose.

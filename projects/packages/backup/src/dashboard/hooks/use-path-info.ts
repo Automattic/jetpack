@@ -96,7 +96,9 @@ export function formatFileSize( bytes: number ): string {
 		unit++;
 	}
 
-	const rounded = formatNumber( value, { numberFormatOptions: { maximumFractionDigits: 1 } } );
+	const rounded = formatNumber( value, {
+		numberFormatOptions: { maximumFractionDigits: 1, useGrouping: false },
+	} );
 
 	switch ( unit ) {
 		case 1:
