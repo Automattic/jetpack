@@ -4,7 +4,7 @@ import type { Locator, Page } from '@playwright/test';
 
 export type SiteState = { enabled: boolean; subscriptions: boolean; wordads: boolean };
 
-// Lets the WordAds module activate; no request ever refreshes the plan under a fake connection.
+// Lets the WordAds module activate; the helper blocks plan refreshes, so the option stays as written.
 const WORDADS_PLAN =
 	'{"product_slug":"jetpack_complete","features":{"active":["wordads","wordads-jetpack"]}}';
 

@@ -30,25 +30,27 @@ function e2e_pa_fake_connection() {
 // wp-cli in the container is always offline mode, which never loads connection-only modules like WordAds.
 add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 
-add_filter( 'pre_http_request', 'e2e_pa_intercept_stats', 10, 3 );
+add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
 
 /**
- * Answers the Stats requests the Premium Analytics proxy makes, leaving every other request alone.
+ * Answers the Stats requests the Premium Analytics proxy makes and blocks every other WordPress.com request.
  *
  * @param false|array|WP_Error $preempt Earlier short-circuit, if any.
  * @param array                $args    Request arguments.
  * @param string               $url     Request URL.
  * @return false|array|WP_Error
  */
-function e2e_pa_intercept_stats( $preempt, $args, $url ) {
-	if ( false !== $preempt || 'public-api.wordpress.com' !== wp_parse_url( $url, PHP_URL_HOST ) ) {
+function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
+	$host = (string) wp_parse_url( $url, PHP_URL_HOST );
+	if ( false !== $preempt || ! preg_match( '/(^|\.)(wordpress|wp)\.com$/', $host ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Hostnames are lowercase.
 		return $preempt;
 	}
 
+	// The tokens are fake and the site ID may be a real blog's, so nothing reaches WordPress.com.
 	$prefix = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats/';
 	$path   = (string) wp_parse_url( $url, PHP_URL_PATH );
-	if ( 0 !== strpos( $path, $prefix ) ) {
-		return $preempt;
+	if ( 'public-api.wordpress.com' !== $host || 0 !== strpos( $path, $prefix ) ) {
+		return new WP_Error( 'e2e_blocked', 'The E2E helper blocks WordPress.com requests it has no fixture for.' );
 	}
 
 	$query = array();
