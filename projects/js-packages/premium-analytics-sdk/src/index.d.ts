@@ -94,6 +94,30 @@ export type DonutProps = {
 	withTotal?: boolean;
 };
 
+// Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
+export declare const Funnel: ComponentType< FunnelProps >;
+export type FunnelStepInput = {
+	// Stable key of the step; the chart anchors its selection on it.
+	id: string;
+	label: string;
+	// Count for the selected period.
+	value: number;
+	// Count for the comparison period; undefined when the step has no match there.
+	previousValue?: number;
+};
+export type FunnelProps = {
+	// The steps in order: the first is the whole the others are shares of, and the rate of the whole is
+	// the last step over the first.
+	steps: readonly FunnelStepInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Format of the step counts, in the tooltip. Defaults to compact integers.
+	format?: DataFormat;
+};
+
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;

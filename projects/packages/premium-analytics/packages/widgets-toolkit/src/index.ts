@@ -51,6 +51,7 @@ export {
 	Donut,
 	type DonutProps,
 	type DonutSegmentInput,
+	Funnel,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -354,8 +355,6 @@ export {
  */
 export {
 	BookingsRevenueByCustomerTypeWidget,
-	BookingConversionRateWidget,
-	ConversionRateWidget,
 	RevenueByCustomerTypeWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
