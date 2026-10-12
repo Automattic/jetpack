@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Give map, leaderboard and conversion funnel charts an accessible name, so screen readers can tell the charts on a page apart.
+Premium Analytics: Give map, leaderboard and conversion funnel charts an accessible name and role for screen readers.

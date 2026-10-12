@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Give map, leaderboard and conversion funnel charts an accessible name, so screen readers can tell the charts on a page apart.
+Give map, leaderboard and conversion funnel charts an accessible name and role for screen readers.
