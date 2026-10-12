@@ -76,7 +76,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`maxCellWidth`** / **`maxCellHeight`**: cap how large cells may grow in non-compact mode
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
-- **`ariaLabel`**: accessible name of the grid. Defaults to "Heatmap chart".
+- **`ariaLabel`**: accessible name of the grid. Defaults to "Heatmap chart". See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
@@ -396,7 +396,7 @@ For more details on responsive behavior, see the [Responsive Design section](./?
 
 The heatmap chart is designed for full keyboard and screen reader access:
 
-- The grid container is a `<div role="grid">` named by `ariaLabel`, or a localised "Heatmap chart" by default; name it after what it shows ("Monthly posting activity"), not the chart type. Each visual row is a `role="row"` and each cell a `role="gridcell"`.
+- The grid container is a `<div role="grid">` named by `ariaLabel` (see [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names)). Each visual row is a `role="row"` and each cell a `role="gridcell"`.
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
 - **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection. With `keyboardNavigation="calendar"` each column group is a page: Left/Right step one cell in reading order, Up/Down one row into the neighboring group past the edge, and Page Up/Down one group, so every measured day is reachable however the range meets a month boundary.
 - The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible. A consumer that pins labels with `position: sticky` should give the scroll container a matching `scroll-padding`, or the cell lands under them.
