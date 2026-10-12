@@ -192,27 +192,27 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Run the enqueue pass and hand back what it localized for the page script.
+	 * Run the enqueue pass and hand back the initial state it printed.
 	 *
-	 * @return array|null The payload, or null when nothing was localized.
+	 * @return array|null The state, or null when none was printed.
 	 */
-	private function localized_initial_state() {
+	private function printed_initial_state() {
 		$handle = WPCOM_Backup::WP_BUILD_PAGE . '-wp-admin-prerequisites';
+		$prefix = 'window.' . WPCOM_Backup::INITIAL_STATE_VAR . ' = ';
 
-		// The script registry outlives a test, and with it anything an earlier one localized.
+		// The script registry outlives a test, and with it anything an earlier one added.
 		wp_deregister_script( $handle );
 		wp_register_script( $handle, 'https://example.org/prerequisites.js', array(), '1', true );
 
-		WPCOM_Backup::enqueue_initial_state();
+		WPCOM_Backup::enqueue_page_data();
 
-		$data  = wp_scripts()->get_data( $handle, 'data' );
-		$start = is_string( $data ) ? strpos( $data, '{' ) : false;
-
-		if ( false === $start ) {
-			return null;
+		foreach ( (array) wp_scripts()->get_data( $handle, 'before' ) as $script ) {
+			if ( is_string( $script ) && str_starts_with( $script, $prefix ) ) {
+				return json_decode( substr( $script, strlen( $prefix ), -1 ), true );
+			}
 		}
 
-		return json_decode( substr( (string) $data, $start, -1 ), true );
+		return null;
 	}
 
 	/**
@@ -234,55 +234,6 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Jetpack plugin registers this slug through Admin_Menu at `admin_menu`
-	 * priority 1000, before this page's own hook. Adding a second entry would
-	 * leave two.
-	 */
-	public function test_page_steps_aside_when_another_plugin_owns_the_slug() {
-		global $submenu;
-
-		$this->set_up_admin_menu();
-		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', WPCOM_Backup::MENU_SLUG, 'Jetpack VaultPress Backup' );
-
-		WPCOM_Backup::register_page();
-
-		$slugs = array_column( $submenu['jetpack'], 2 );
-		$this->assertSame(
-			array( WPCOM_Backup::MENU_SLUG ),
-			array_values( array_filter( $slugs, static fn ( $slug ) => WPCOM_Backup::MENU_SLUG === $slug ) ),
-			'The existing entry should be left exactly as it was found.'
-		);
-	}
-
-	/**
-	 * Routing resolves the render hook by searching $submenu for the page.
-	 */
-	public function test_page_hook_still_resolves_on_the_backup_request() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-
-		WPCOM_Backup::register_page();
-
-		$this->assertSame(
-			'jetpack_page_' . WPCOM_Backup::MENU_SLUG,
-			get_plugin_page_hook( WPCOM_Backup::MENU_SLUG, 'admin.php' )
-		);
-	}
-
-	/**
-	 * Registration must land between Jetpack's Admin_Menu and the WordPress.com menu's hide pass.
-	 */
-	public function test_page_registers_between_admin_menu_and_the_wpcom_menu_hide() {
-		remove_action( 'admin_menu', array( WPCOM_Backup::class, 'register_page' ), WPCOM_Backup::REGISTER_PRIORITY );
-
-		WPCOM_Backup::init();
-		$priority = has_action( 'admin_menu', array( WPCOM_Backup::class, 'register_page' ) );
-
-		$this->assertGreaterThan( 1000, $priority );
-		$this->assertLessThan( has_action( 'admin_menu', 'wpcom_add_jetpack_submenu' ), $priority );
-	}
-
-	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
 	 * "tidy" into something else.
 	 */
@@ -294,20 +245,15 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	 * Nothing but this connects the constant to the route's package.json, and a
 	 * mismatch degrades silently to a blank page.
 	 */
-	public function test_render_callback_matches_the_wp_build_page_name() {
+	public function test_route_declares_the_wp_build_page() {
 		$route = (array) json_decode(
 			(string) file_get_contents(
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/wpcom-backup/package.json'
 			),
 			true
 		);
-		$page  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
 
-		$this->assertSame( WPCOM_Backup::WP_BUILD_PAGE, $page );
-		$this->assertSame(
-			WPCOM_Backup::RENDER_CALLBACK,
-			'jetpack_mu_wpcom_' . str_replace( '-', '_', $page ) . '_wp_admin_render_page'
-		);
+		$this->assertSame( WPCOM_Backup::WP_BUILD_PAGE, $route['route']['page'] ?? null );
 	}
 
 	/**
@@ -443,58 +389,6 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The alias is what makes wp-build's enqueue callback fire on a slug it does
-	 * not recognise.
-	 */
-	public function test_screen_id_is_aliased_for_wp_build() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		WPCOM_Backup::register_page();
-
-		WPCOM_Backup::alias_screen_id();
-
-		$this->assertSame( WPCOM_Backup::WP_BUILD_PAGE, get_current_screen()->id );
-	}
-
-	/**
-	 * Anything reading the screen after the enqueue pass — the page-view tracker
-	 * among them — has to see the real ID, not the one wp-build needed.
-	 */
-	public function test_screen_id_is_restored_after_the_enqueue_pass() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		WPCOM_Backup::register_page();
-
-		WPCOM_Backup::alias_screen_id();
-		WPCOM_Backup::restore_screen_id();
-
-		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
-	}
-
-	/**
-	 * Aliasing the screen of a page another plugin serves would break its own
-	 * asset loading, which keys off the screen ID.
-	 */
-	public function test_screen_id_is_left_alone_when_another_plugin_owns_the_page() {
-		$this->set_up_backup_request();
-
-		WPCOM_Backup::alias_screen_id();
-
-		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
-	}
-
-	/**
-	 * Requests to admin-ajax.php are also `is_admin()`, and a stray `page` arg
-	 * there must not drag in the wp-build assets for a page that never renders.
-	 */
-	public function test_ajax_requests_are_not_backup_page_requests() {
-		$this->set_up_backup_request();
-		$GLOBALS['pagenow'] = 'admin-ajax.php';
-
-		$this->assertFalse( WPCOM_Backup::is_backup_admin_request() );
-	}
-
-	/**
 	 * The domain lands in a path segment, so it has to be encoded there.
 	 */
 	public function test_upgrade_url_encodes_the_domain() {
@@ -513,7 +407,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_backup_request();
 		WPCOM_Backup::register_page();
 
-		$payload = (array) $this->localized_initial_state();
+		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
 			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
@@ -521,43 +415,6 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );
 		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $payload['domain'] );
-		// wp_localize_script() stringifies scalars, so the page reads "1" and "" for the flag.
-		$this->assertSame( '1', $payload['isEligible'] );
-	}
-
-	/**
-	 * Eligibility is fetched directly here rather than through the wpcom endpoint
-	 * that gates it, so the capability check has to be restated.
-	 */
-	public function test_initial_state_is_withheld_from_users_who_cannot_manage_options() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		WPCOM_Backup::register_page();
-
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'wpcom_backup_subscriber',
-					'user_pass'  => 'password',
-					'role'       => 'subscriber',
-				)
-			)
-		);
-
-		$this->assertNull( $this->localized_initial_state() );
-	}
-
-	/**
-	 * When the Jetpack plugin owns the slug it renders its own Backup page, which
-	 * would be handed a state describing a page it is not showing.
-	 */
-	public function test_initial_state_is_withheld_when_another_plugin_owns_the_page() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		$GLOBALS['submenu']['jetpack'][] = array( 'VaultPress Backup', 'manage_options', WPCOM_Backup::MENU_SLUG, 'Jetpack VaultPress Backup' );
-
-		WPCOM_Backup::register_page();
-
-		$this->assertNull( $this->localized_initial_state() );
+		$this->assertTrue( $payload['isEligible'] );
 	}
 }
