@@ -2,22 +2,19 @@
  * External dependencies
  */
 import { useReportSessionsByDevice } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
 import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { SemiCircleChart, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
+import { Donut } from '../../components/donut';
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSessionsByDeviceData, isEmptyPieChartData } from '../../helpers';
-import { useSegmentStyles } from '../common';
-import styles from './sessions-by-device-widget.module.scss';
+import { buildSessionsByDeviceSegments } from './build-sessions-by-device-segments';
 
 /**
  * Semi-circle chart of sessions by device category (Mobile, Desktop, Tablet),
- * with the period total in the center and per-device counts in the legend.
+ * with the period total under the arc and per-device counts in the legend.
  *
  * Must render within a WidgetRoot, which provides reportParams via context.
  */
@@ -27,21 +24,22 @@ export function SessionsByDeviceWidget() {
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportSessionsByDevice( reportParams );
 
-	const { chartData, total, comparisonTotal, legendData } = useMemo(
-		() => buildSessionsByDeviceData( primary.data, comparison.data ),
+	const segments = useMemo(
+		() => buildSessionsByDeviceSegments( primary.data, comparison.data ),
 		[ primary.data, comparison.data ]
 	);
 
-	const segmentStyles = useSegmentStyles( chartData );
-
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			// The report queries keep placeholders from the previous period across
-			// range changes, so only surface the error when nothing is left to show.
-			isError={ isError && ! hasData }
-			isEmpty={ isEmptyPieChartData( chartData ) }
+		<Donut
+			segments={ segments }
+			status={ {
+				isLoading,
+				isFetching,
+				// The report queries keep the previous range's data on screen, so an error only shows without it.
+				isError: isError && ! hasData,
+				hasComparison,
+				refetch,
+			} }
 			error={ {
 				description: __(
 					"We couldn't load sessions data. Please try again in a moment.",
@@ -53,28 +51,7 @@ export function SessionsByDeviceWidget() {
 				icon: device,
 				description: __( 'No session data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
-		>
-			{ /*
-			 * `safe center` centers the chart in tall cells but falls back to
-			 * top-start when the chart + legend are taller than the tile, so the
-			 * top stays reachable within the dashboard's scroll area instead of
-			 * being clipped above the scroll origin.
-			 */ }
-			<Stack className={ styles.container } direction="column" align="center" justify="safe center">
-				<SemiCircleChart
-					chartData={ chartData }
-					value={ total }
-					styles={ segmentStyles }
-					comparisonValue={ hasComparison ? comparisonTotal : null }
-					legendData={ legendData }
-					showLegend={ true }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
-					} }
-					withTooltips
-				/>
-			</Stack>
-		</WidgetState>
+			variant="half-ring"
+		/>
 	);
 }

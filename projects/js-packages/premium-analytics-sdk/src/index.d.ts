@@ -64,7 +64,8 @@ export type LeaderboardRowInput = any;
 export type LeaderboardStatus = WidgetStatus;
 export type LeaderboardDrillDown = any;
 
-// Breakdowns: segments in, with their states, total, legend and deltas handled.
+// Breakdowns: segments in, with their states, total, legend and deltas handled. Drawn as a ring, or as
+// a half ring with `variant: 'half-ring'`; there is no separate semi-circle kind.
 export declare const Donut: ComponentType< DonutProps >;
 export type DonutSegmentInput = {
 	// Unique within the breakdown: the chart identifies a segment by its label.
@@ -86,6 +87,11 @@ export type DonutProps = {
 	empty?: WidgetStateEmpty;
 	// Defaults to compact integers.
 	format?: DataFormat;
+	// `ring` is the full donut with the total in its center, `half-ring` the semi-circle with the total
+	// under the arc. Defaults to `ring`.
+	variant?: 'ring' | 'half-ring';
+	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
+	withTotal?: boolean;
 };
 
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
