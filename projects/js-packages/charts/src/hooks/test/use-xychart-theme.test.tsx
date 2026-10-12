@@ -75,6 +75,7 @@ describe( 'useXYChartTheme', () => {
 		[ 14, 14 ],
 		[ '-12px', 11 ],
 		[ '12.px', 11 ],
+		[ '9'.repeat( 400 ) + 'px', 11 ],
 		[ '0.875rem', '0.875rem' ],
 		[ 'var(--size)', 'var(--size)' ],
 	] )( 'renders a theme fontSize of %p as %p', ( fontSize, expected ) => {

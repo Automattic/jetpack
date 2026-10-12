@@ -17,7 +17,10 @@ const isRenderableFontSize = ( fontSize: number | string ): boolean => {
 	}
 	// A pattern, not `CSS.supports`, so SSR and the browser agree; `resolveFontSize` would drop renderable `rem`. Keywords, `var()` and `calc()` pass through.
 	const value = fontSize.trim();
-	return ! STARTS_LIKE_A_NUMBER.test( value ) || NON_NEGATIVE_CSS_NUMBER.test( value );
+	if ( ! STARTS_LIKE_A_NUMBER.test( value ) ) {
+		return true;
+	}
+	return NON_NEGATIVE_CSS_NUMBER.test( value ) && Number.isFinite( parseFloat( value ) );
 };
 
 // visx writes `fontSize` straight onto `<text>`, where an invalid one renders at the browser's 16px default; dropping it lets visx use its own default.
