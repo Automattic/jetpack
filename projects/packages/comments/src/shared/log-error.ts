@@ -25,7 +25,10 @@ export const logError = (
 			body: new URLSearchParams( {
 				error: JSON.stringify( {
 					feature: 'jetpack_comments',
-					message: message || String( error ),
+					// The endpoint drops a row without a message, and an object would read `[object Object]`.
+					message:
+						message ||
+						( error && typeof error === 'object' ? 'Non-error thrown' : String( error ) ),
 					trace: stack,
 					url: location.origin + location.pathname,
 					blog_id: identity.blogId,
