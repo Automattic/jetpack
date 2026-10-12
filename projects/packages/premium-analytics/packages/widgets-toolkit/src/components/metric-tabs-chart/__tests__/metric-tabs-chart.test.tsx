@@ -480,6 +480,31 @@ describe( 'MetricTabsChart', () => {
 		expect( after.chartId ).not.toBe( before.chartId );
 	} );
 
+	it.each( [
+		[ 'line', mockLineSpy ],
+		[ 'bar', mockBarSpy ],
+	] as const )(
+		'draws a dark metric and its previous period in a dark shade of the accent on either tab (%s)',
+		( chartType, spy ) => {
+			render(
+				<MetricTabsChart
+					metrics={ [ VIEWS, { ...VISITORS, shade: 'dark' } ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			);
+			const strokes = ( label: string ) =>
+				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
+
+			// The mocked accent `#3858E9`, halfway to black.
+			expect( strokes( 'Views' ) ).toEqual( [ undefined, undefined, '#1c2c75', '#1c2c75' ] );
+			// This package does not depend on @testing-library/user-event.
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+			expect( strokes( 'Visitors' ) ).toEqual( [ '#1c2c75', '#1c2c75', undefined, undefined ] );
+		}
+	);
+
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.
 	it.each( [
