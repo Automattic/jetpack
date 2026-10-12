@@ -71,6 +71,8 @@
 		background-color: var(--wpds-color-background-track-neutral);
 
 		> div {
+			// No inset on the indicator, so EmptyState's `text-align: center` places it.
+			inset-inline-start: 0;
 			background-color: var(--wpds-color-background-interactive-brand-strong);
 		}
 	}
