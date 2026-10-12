@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Give every chart an accessible name, and accept `ariaLabel` on the geo, leaderboard and conversion funnel charts.
