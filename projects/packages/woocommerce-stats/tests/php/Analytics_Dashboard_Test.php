@@ -11,7 +11,6 @@ use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -101,7 +100,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertNotNull( $section );
 		$this->assertSame( 'woocommerce', $section->slug );
 		$this->assertSame( 'WooCommerce', $section->label );
-		$this->assertSame( 40, $section->order );
+		$this->assertSame( 5, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
@@ -123,41 +122,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
-		);
-	}
-
-	/**
-	 * A store that has taken orders moves its tab ahead of Traffic, which makes it the default tab.
-	 *
-	 * @dataProvider provide_orders_milestone_and_section_order
-	 *
-	 * @param int|null $milestone      WooCommerce's last order milestone, or null when it never set one.
-	 * @param int      $expected_order Expected section order.
-	 */
-	#[DataProvider( 'provide_orders_milestone_and_section_order' )]
-	public function test_orders_the_section_by_whether_the_store_has_orders( $milestone, $expected_order ) {
-		if ( null !== $milestone ) {
-			update_option( Analytics_Dashboard::ORDERS_MILESTONE_OPTION, $milestone );
-		}
-		$this->enable_store();
-		Analytics_Dashboard::init();
-
-		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
-
-		$this->assertSame( $expected_order, $section->order );
-	}
-
-	/**
-	 * Data provider for test_orders_the_section_by_whether_the_store_has_orders.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_orders_milestone_and_section_order() {
-		return array(
-			'milestone never set' => array( null, Analytics_Dashboard::SECTION_ORDER ),
-			'no orders yet'       => array( 0, Analytics_Dashboard::SECTION_ORDER ),
-			'first order'         => array( 1, Analytics_Dashboard::SELLING_SECTION_ORDER ),
-			'stored as a string'  => array( '100', Analytics_Dashboard::SELLING_SECTION_ORDER ),
 		);
 	}
 

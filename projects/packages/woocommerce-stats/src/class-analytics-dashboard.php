@@ -75,17 +75,9 @@ class Analytics_Dashboard {
 	const HELD_BACK_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
-	 * Tab order: after the built-in tabs, or ahead of Traffic (10) once the store has orders, which
-	 * makes it the dashboard's default tab.
+	 * Ahead of Traffic (10), so a store's dashboard opens on this tab.
 	 */
-	const SECTION_ORDER         = 40;
-	const SELLING_SECTION_ORDER = 5;
-
-	/**
-	 * WooCommerce's last order milestone (1, 10, 100…), which it updates hourly for its own
-	 * milestone notes: at least 1 once the store has a processing or completed order.
-	 */
-	const ORDERS_MILESTONE_OPTION = 'woocommerce_admin_last_orders_milestone';
+	const SECTION_ORDER = 5;
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
@@ -126,22 +118,13 @@ class Analytics_Dashboard {
 			self::SECTION_ID,
 			array(
 				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'          => self::store_has_orders() ? self::SELLING_SECTION_ORDER : self::SECTION_ORDER,
+				'order'          => self::SECTION_ORDER,
 				'is_available'   => $is_available,
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'  => true,
 				'default_layout' => array( __CLASS__, 'get_default_layout' ),
 			)
 		);
-	}
-
-	/**
-	 * Whether the store has taken at least one processing or completed order.
-	 *
-	 * @return bool
-	 */
-	private static function store_has_orders() {
-		return (int) get_option( self::ORDERS_MILESTONE_OPTION, 0 ) >= 1;
 	}
 
 	/**
