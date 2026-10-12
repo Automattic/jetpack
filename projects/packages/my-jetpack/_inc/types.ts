@@ -15,6 +15,7 @@ export type JetpackModuleSlug = ( typeof JETPACK_MODULES )[ number ];
 
 export type MyJetpackModule = {
 	available: boolean;
+	requires_user_connection?: boolean;
 	unavailable_reason?: string | false;
 	module: string;
 	name: string;

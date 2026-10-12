@@ -1,12 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
+import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
 const mockRun = jest.fn();
+
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	...jest.requireActual( '@automattic/jetpack-connection' ),
+	getUserConnectionUrl: () => '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true',
+} ) );
 
 // What a click has asked of the module, when a test wants it to differ from the store.
 let mockAskedFor: boolean | null = null;
@@ -458,5 +464,46 @@ describe( 'FeatureItem install notice', () => {
 
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /install plugins/ ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'account connection controls', () => {
+	const state = buildState(
+		{ kind: 'connect-account' },
+		{
+			unavailableReason: 'Requires a connected WordPress.com account',
+			feature: buildFeature( {
+				upgrade: { path: '/add-backup', name: 'Backup' },
+				manage_url: '/backup',
+			} ),
+		}
+	);
+
+	it( 'shows the status, reason and direct connection link on the card', () => {
+		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+		expect( screen.getByText( 'Account needed' ) ).toBeInTheDocument();
+		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
+		);
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'replaces modal activation, Open and Upgrade with connection and its reason', () => {
+		render(
+			<>
+				<FeatureModalActions state={ state } />
+				<FeatureDelivery state={ state } />
+			</>
+		);
+		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
+		);
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

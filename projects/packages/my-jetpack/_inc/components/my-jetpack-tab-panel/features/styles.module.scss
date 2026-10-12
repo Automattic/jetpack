@@ -143,6 +143,19 @@ $band-ground: #f8f8f8;
 	}
 }
 
+@media (max-width: 600px) {
+
+	.feature-item--account-needed {
+		flex-wrap: wrap;
+
+		.feature-action-slot {
+			flex-basis: 100%;
+			justify-content: flex-start;
+			order: 1;
+		}
+	}
+}
+
 // The interactive card's title is a button, which resets the font; WPDS would
 // give a heading element a font its own defense rule protects instead.
 .feature-item__static-title {

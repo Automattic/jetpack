@@ -3,7 +3,7 @@ import { Badge, Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
-import { InstallButton, JetpackButton } from './feature-action';
+import { ConnectAccountButton, InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
@@ -141,6 +141,10 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 		() => tracking?.trackManageClick( state ),
 		[ state, tracking ]
 	);
+
+	if ( control.kind === 'connect-account' ) {
+		return <ConnectAccountButton />;
+	}
 
 	return (
 		<>

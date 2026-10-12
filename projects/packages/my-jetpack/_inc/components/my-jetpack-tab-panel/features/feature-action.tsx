@@ -1,4 +1,5 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, LinkButton } from '@wordpress/ui';
@@ -151,6 +152,8 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 	}
 
 	switch ( control.kind ) {
+		case 'connect-account':
+			return <ConnectAccountButton />;
 		case 'module': {
 			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( getForcedReason( state ) ) {
@@ -219,6 +222,19 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		default:
 			return null;
 	}
+}
+
+/**
+ * Open the existing account connection flow from a feature.
+ *
+ * @return The connection link.
+ */
+export function ConnectAccountButton() {
+	return (
+		<LinkButton href={ getUserConnectionUrl() } variant="outline" size="compact">
+			{ __( 'Connect your account', 'jetpack-my-jetpack' ) }
+		</LinkButton>
+	);
 }
 
 type JetpackButtonProps = {

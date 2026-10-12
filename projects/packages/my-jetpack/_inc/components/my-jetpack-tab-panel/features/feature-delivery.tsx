@@ -77,6 +77,9 @@ function getNote( state: FeatureState, pluginName: string ): string {
  */
 export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature } = state;
+	if ( state.control.kind === 'connect-account' ) {
+		return <Text variant="body-sm">{ state.unavailableReason }</Text>;
+	}
 
 	const moduleNote = getModuleUnavailableNote( state );
 	// An active plugin does not remove its module's limitation.

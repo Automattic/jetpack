@@ -5,12 +5,11 @@ import { Badge, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
-import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
 import { getForcedReason, getModuleUnavailableNote } from './feature-state';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -95,6 +94,7 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
+				[ styles[ 'feature-item--account-needed' ] ]: state.control.kind === 'connect-account',
 			} ) }
 			data-feature={ feature.slug }
 		>
@@ -147,9 +147,7 @@ export function FeatureItem( {
 
 					{ ! isSettling && ! migration && (
 						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
-							{ unavailable
-								? __( 'Unavailable', 'jetpack-my-jetpack' )
-								: getActivationStatusLabel( isActive ) }
+							{ getFeatureStatusLabel( state ) }
 						</Badge>
 					) }
 

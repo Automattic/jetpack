@@ -7,6 +7,24 @@ import {
 import { useFeatureStates } from '../feature-state';
 
 const mockModules = jest.fn();
+const mockConnection = jest.fn();
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: ( callback: ( select: unknown ) => unknown ) =>
+		callback( () => ( {
+			getConnectionStatus: () => mockConnection(),
+			getIsOfflineMode: () => mockConnection().offlineMode?.isActive,
+		} ) ),
+} ) );
+
+beforeEach( () => {
+	mockConnection.mockReturnValue( {
+		isRegistered: true,
+		hasConnectedOwner: true,
+		isOfflineMode: false,
+	} );
+	window.myJetpackInitialState.isOfflineFeatures = false;
+} );
 
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => mockModules(),
@@ -121,4 +139,46 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 	} );
+} );
+
+describe( 'Features account connection gate', () => {
+	it.each( [
+		[ 'registered without an owner', true, false, false, false, false, 'connect-account' ],
+		[ 'owner connected, viewer unlinked', true, true, false, false, false, 'module' ],
+		[ 'fully connected', true, true, true, false, false, 'module' ],
+		[ 'unregistered', false, false, false, false, false, 'module' ],
+		[ 'offline mode', true, false, false, true, false, 'module' ],
+		[ 'offline Features', true, false, false, false, true, 'module' ],
+	] )(
+		'%s preserves its expected action',
+		(
+			name,
+			isRegistered,
+			hasConnectedOwner,
+			isUserConnected,
+			isOfflineMode,
+			isOfflineFeatures,
+			kind
+		) => {
+			mockConnection.mockReturnValue( {
+				isRegistered,
+				hasConnectedOwner,
+				isUserConnected,
+				offlineMode: { isActive: isOfflineMode },
+			} );
+			window.myJetpackInitialState.isOfflineFeatures = isOfflineFeatures as boolean;
+			mockModules.mockReturnValue( {
+				modules: {
+					publicize: {
+						module: 'publicize',
+						available: true,
+						activated: true,
+						requires_user_connection: true,
+					},
+				},
+			} );
+			const { result } = renderHook( () => useFeatureStates( state( 'active' ) ) );
+			expect( result.current.states[ 0 ].control.kind ).toBe( kind );
+		}
+	);
 } );

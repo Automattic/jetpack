@@ -1,4 +1,4 @@
-import { filterMoreFeatures, groupMoreFeatures } from '../use-more-features';
+import { filterMoreFeatures, getModuleFeatureState, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
 const mod = ( slug: string, overrides: Partial< MyJetpackModule > = {} ): MyJetpackModule =>
@@ -202,4 +202,22 @@ describe( 'getHiddenModules', () => {
 		// Hidden, not moved: they must not resurface under Other.
 		expect( slugsOf( grouped ).flatMap( ( [ , slugs ] ) => slugs ) ).toEqual( [ 'widgets' ] );
 	} );
+} );
+
+it( 'keeps an account-required extra module visible and excludes it from Available', () => {
+	const module = {
+		module: 'notes',
+		name: 'Notifications',
+		available: false,
+		activated: true,
+		requires_user_connection: true,
+		description: 'Notifications',
+		search_terms: 'alerts',
+	} as MyJetpackModule;
+	const state = getModuleFeatureState( module, {}, true );
+	const accountGroups = [ { label: 'Other', states: [ state ] } ];
+	expect( state.control.kind ).toBe( 'connect-account' );
+	expect( filterMoreFeatures( accountGroups, 'all', '' )[ 0 ].states ).toEqual( [ state ] );
+	expect( filterMoreFeatures( accountGroups, 'available', '' ) ).toEqual( [] );
+	expect( filterMoreFeatures( accountGroups, 'all', 'alerts' )[ 0 ].states ).toEqual( [ state ] );
 } );

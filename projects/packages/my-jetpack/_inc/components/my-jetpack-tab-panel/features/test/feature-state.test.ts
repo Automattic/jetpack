@@ -1,6 +1,7 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
 import { getFeatureManageUrl, getForcedReason, resolveFeatureState } from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
+import { isFeatureAvailable } from '../module-availability';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -408,4 +409,57 @@ it( 'keeps offline management links only for pages registered on this site', () 
 		window.myJetpackInitialState = previousInitial;
 		window.JetpackScriptData = previousData;
 	}
+} );
+
+describe( 'account-dependent features', () => {
+	it.each( [
+		[ 'activity-log', 'activity-log', '' ],
+		[ 'jetpack-ai', 'ai', 'jetpack-ai' ],
+		[ 'newsletter', 'subscriptions', 'newsletter' ],
+		[ 'monitor', 'monitor', '' ],
+		[ 'notes', 'notes', '' ],
+		[ 'post-by-email', 'post-by-email', '' ],
+		[ 'sso', 'sso', '' ],
+	] )( 'offers connection for %s, including gated AI', ( slug, module, product ) => {
+		const state = resolveFeatureState(
+			buildFeature( {
+				slug,
+				product,
+				in_jetpack: true,
+				module: product === 'jetpack-ai' ? '' : module,
+			} ),
+			'active',
+			undefined,
+			{ [ module ]: buildModule( { module, requires_user_connection: true, available: false } ) },
+			{},
+			false,
+			true
+		);
+		expect( state.control.kind ).toBe( 'connect-account' );
+		expect( state.status ).toBe( 'inactive' );
+		expect( isFeatureAvailable( state ) ).toBe( false );
+		expect( getFeatureManageUrl( state ) ).toBe( '' );
+	} );
+
+	it.each( [
+		[ 'social', 'not-installed' ],
+		[ 'social', 'inactive' ],
+		[ 'social', 'active' ],
+		[ 'backup', 'not-installed' ],
+		[ 'backup', 'inactive' ],
+		[ 'backup', 'active' ],
+	] as const )( 'requires an account for %s with its plugin %s', ( product, plugin_status ) => {
+		const state = resolveFeatureState(
+			buildFeature( { product, plugin: `jetpack-${ product }`, plugin_status } ),
+			'not-installed',
+			{ status: PRODUCT_STATUSES.ACTIVE, hasPaidPlanForProduct: true } as ProductCamelCase,
+			{},
+			{},
+			false,
+			true
+		);
+		expect( state.control.kind ).toBe( 'connect-account' );
+		expect( state.status ).toBe( 'inactive' );
+		expect( isFeatureAvailable( state ) ).toBe( false );
+	} );
 } );

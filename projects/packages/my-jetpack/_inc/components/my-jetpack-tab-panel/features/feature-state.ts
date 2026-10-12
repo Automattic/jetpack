@@ -1,3 +1,5 @@
+import CONNECTION_STORE from '@automattic/jetpack-connection/state/store-id';
+import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';
 import { useMemo } from 'react';
@@ -35,6 +37,7 @@ const RUNNING_ON_PLAN_STATUSES: string[] = [
  * standalone plugin, so an installed plugin is only the switch when no module applies.
  */
 export type FeatureControl =
+	| { kind: 'connect-account'; module?: MyJetpackModule }
 	| { kind: 'module'; module: MyJetpackModule }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
@@ -198,6 +201,7 @@ export function getFeatureModuleSlug(
  * @param modules        - Every Jetpack module on the site.
  * @param productModules - Product slug to module slug, where the two differ.
  * @param modulesLoading - Whether the module list is still being fetched.
+ * @param needsAccount   - Whether the registered site has no connected owner.
  * @return The feature's state.
  */
 export function resolveFeatureState(
@@ -206,7 +210,8 @@ export function resolveFeatureState(
 	product: ProductCamelCase | undefined,
 	modules: Record< string, MyJetpackModule > | undefined,
 	productModules: Record< string, string >,
-	modulesLoading = false
+	modulesLoading = false,
+	needsAccount = false
 ): FeatureState {
 	const moduleSlug = getFeatureModuleSlug( feature, productModules );
 	const $module =
@@ -217,6 +222,15 @@ export function resolveFeatureState(
 		jetpack === 'active' && ungatedSlug && ! productModules[ feature.product ]
 			? modules?.[ ungatedSlug ]
 			: undefined;
+	if (
+		needsAccount &&
+		( $module?.requires_user_connection ||
+			gatedModule?.requires_user_connection ||
+			feature.product === 'social' ||
+			feature.product === 'backup' )
+	) {
+		return getAccountNeededState( feature, product, $module || gatedModule );
+	}
 	if ( gatedModule?.available === false ) {
 		return {
 			feature,
@@ -327,6 +341,7 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	const { data: products } = useAllProducts();
 	const { modules } = useAllJetpackModules();
 	const productModules = getProductModules();
+	const needsAccount = useFeaturesNeedsAccount();
 
 	// Until the modules land, every module lookup misses and a feature Jetpack runs would
 	// read as "install its plugin instead". Only Jetpack-active sites consult them.
@@ -350,7 +365,8 @@ export function useFeatureStates( state: MainFeaturesState ): {
 						feature.product ? products?.[ feature.product ] : undefined,
 						modules,
 						productModules,
-						isLoadingModules
+						isLoadingModules,
+						needsAccount
 					)
 				)
 				.map( resolved => applyRequestedModule( resolved, requested ) )
@@ -361,10 +377,59 @@ export function useFeatureStates( state: MainFeaturesState ): {
 						: { ...resolved, isSwitching: true }
 				),
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
-		[ state, products, modules, isLoadingModules, requested ]
+		[ state, products, modules, isLoadingModules, requested, needsAccount ]
 	);
 
 	return { states, isLoading: isLoadingModules };
+}
+
+/**
+ * Whether the registered site is waiting for its owner's account.
+ *
+ * @return Whether account-dependent features need a connection action.
+ */
+export function useFeaturesNeedsAccount(): boolean {
+	const offline = isOfflineFeatures();
+	return useSelect(
+		select => {
+			if ( offline ) {
+				return false;
+			}
+			const store = select( CONNECTION_STORE ) as unknown as {
+				getConnectionStatus?: () => { isRegistered: boolean; hasConnectedOwner: boolean };
+				getIsOfflineMode?: () => boolean;
+			};
+			const connection = store?.getConnectionStatus?.();
+			return Boolean(
+				connection?.isRegistered &&
+				connection.hasConnectedOwner === false &&
+				! store.getIsOfflineMode?.()
+			);
+		},
+		[ offline ]
+	);
+}
+
+/**
+ * Resolve a feature waiting for a connected account.
+ *
+ * @param feature - The feature.
+ * @param product - The product behind it.
+ * @param module  - The module behind it, if Jetpack is active.
+ * @return The feature's account connection state.
+ */
+export function getAccountNeededState(
+	feature: MainFeature,
+	product?: ProductCamelCase,
+	module?: MyJetpackModule
+): FeatureState {
+	return {
+		feature,
+		product,
+		status: 'inactive',
+		control: { kind: 'connect-account', module },
+		unavailableReason: __( 'Requires a connected WordPress.com account', 'jetpack-my-jetpack' ),
+	};
 }
 
 /**

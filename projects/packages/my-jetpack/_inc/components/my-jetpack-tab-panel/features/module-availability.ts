@@ -1,6 +1,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../../../types';
+import { getActivationStatusLabel } from '../utils';
 import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
@@ -60,6 +61,9 @@ export function getModuleStatus( $module: MyJetpackModule ) {
  * @return The unavailable reason, or undefined when a plugin or host provides a route.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
+	if ( state.control.kind === 'connect-account' ) {
+		return state.unavailableReason;
+	}
 	if ( state.control.kind === 'module' ) {
 		return state.control.module.override
 			? undefined
@@ -69,6 +73,21 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 		return undefined;
 	}
 	return state.unavailableReason;
+}
+
+/**
+ * The status shared by the feature row and its details.
+ *
+ * @param state - The feature's live state.
+ * @return The status label.
+ */
+export function getFeatureStatusLabel( state: FeatureState ): string {
+	if ( state.control.kind === 'connect-account' ) {
+		return __( 'Account needed', 'jetpack-my-jetpack' );
+	}
+	return getFeatureUnavailableReason( state )
+		? __( 'Unavailable', 'jetpack-my-jetpack' )
+		: getActivationStatusLabel( state.status === 'active' );
 }
 
 /**
