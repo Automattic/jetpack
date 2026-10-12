@@ -4,6 +4,7 @@ import { salesByProduct } from '../../stories/sample-data';
 import { AreaChartUnresponsive } from '../area-chart';
 import { BarChartUnresponsive } from '../bar-chart';
 import { BarListChartUnresponsive } from '../bar-list-chart';
+import { ConversionFunnelChart } from '../conversion-funnel-chart';
 import { GeoChartUnresponsive } from '../geo-chart';
 import { HeatmapChart } from '../heatmap-chart';
 import { LineChartUnresponsive } from '../line-chart';
@@ -34,6 +35,13 @@ const geoData: GeoData = [
 	[ 'US', 100 ],
 	[ 'CA', 50 ],
 	[ 'GB', 25 ],
+];
+
+const funnelSteps = [
+	{ id: 'sessions', label: 'Sessions', rate: 100, count: 10000 },
+	{ id: 'cart', label: 'Cart', rate: 71.1, count: 7110 },
+	{ id: 'checkout', label: 'Checkout', rate: 52.5, count: 5250 },
+	{ id: 'purchase', label: 'Purchase', rate: 10.3, count: 1030 },
 ];
 
 const heatmapData = [
@@ -105,6 +113,14 @@ const CHARTS: [ string, string, string, ( ariaLabel?: string ) => ReactElement ]
 		'Geo chart',
 		ariaLabel => (
 			<GeoChartUnresponsive data={ geoData } width={ 800 } height={ 400 } ariaLabel={ ariaLabel } />
+		),
+	],
+	[
+		'conversion funnel',
+		'group',
+		'Conversion funnel chart',
+		ariaLabel => (
+			<ConversionFunnelChart mainRate={ 25 } steps={ funnelSteps } ariaLabel={ ariaLabel } />
 		),
 	],
 	[
