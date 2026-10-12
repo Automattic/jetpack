@@ -4,18 +4,18 @@
 
 ## How it resolves
 
-`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .a8c-charts-scope .google-visualization-tooltip)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
+`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-The tooltip box, `TooltipBox`, is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class. `GeoChart`'s Google tooltip (`.google-visualization-tooltip`) follows the same pattern: the chart renders under the same dark theme and the selector above re-declares the catalog on it. It does not carry `a8c-charts-tooltip-scope`, so override a role there with `.a8c-charts-scope .google-visualization-tooltip`: any rule beats the zero-specificity `:where()`.
+The tooltip box, `TooltipBox`, is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class. `GeoChart`'s Google tooltip (`.google-visualization-tooltip`) follows the same pattern: the chart renders under the same dark theme and the selector above re-declares the catalog on it. It does not carry `a8c-charts-tooltip-scope`, so override a role there with `.geo-chart .google-visualization-tooltip`: any rule beats the zero-specificity `:where()`.
 
 `TrendIndicator` and `BaseLegend` carry the class only when no provider is above them (`useStandaloneScopeClass()`), so inside a provider they inherit its overrides like the chart they belong to.
 
 Catalog entries normally map to WPDS tokens. Source writes these mappings bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
 ```scss
-:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .a8c-charts-scope .google-visualization-tooltip) {
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip) {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
 }
 ```

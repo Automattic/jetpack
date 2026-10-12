@@ -128,7 +128,7 @@ describe( 'chart scope catalog', () => {
 
 			const rule = mediaRules[ 0 ].cssRules[ 0 ] as CSSStyleRule;
 			expect( rule.selectorText ).toBe(
-				':where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .a8c-charts-scope .google-visualization-tooltip)'
+				':where(.a8c-charts-scope, .a8c-charts-tooltip-scope, .geo-chart .google-visualization-tooltip)'
 			);
 			expect(
 				Object.fromEntries(
@@ -175,7 +175,7 @@ describe( 'chart scope catalog', () => {
 
 	it( 'scopes the catalog to the chart and tooltip scope classes rather than :root', () => {
 		expect( stylesheet ).toMatch(
-			/:where\(\.a8c-charts-scope, \.a8c-charts-tooltip-scope, \.a8c-charts-scope \.google-visualization-tooltip\)\s*{/
+			/:where\(\.a8c-charts-scope, \.a8c-charts-tooltip-scope, \.geo-chart \.google-visualization-tooltip\)\s*{/
 		);
 		expect( stylesheet ).not.toMatch( /(^|\s):root\s*{/ );
 	} );

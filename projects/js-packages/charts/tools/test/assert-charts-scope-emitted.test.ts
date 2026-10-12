@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { assertChartsScopeEmitted } from '../assert-charts-scope-emitted';
 
 const CATALOG =
-	':where(.a8c-charts-scope,.a8c-charts-tooltip-scope,.a8c-charts-scope .google-visualization-tooltip){--a8c-charts-color-grid:var(--wpds-color-stroke-surface-neutral,#dbdbdb)}';
+	':where(.a8c-charts-scope,.a8c-charts-tooltip-scope,.geo-chart .google-visualization-tooltip){--a8c-charts-color-grid:var(--wpds-color-stroke-surface-neutral,#dbdbdb)}';
 
 const distWith = ( css: string ): string => {
 	const dir = mkdtempSync( join( tmpdir(), 'charts-scope-guard-' ) );
@@ -32,7 +32,7 @@ describe( 'assertChartsScopeEmitted', () => {
 				)
 			)
 		).toThrow(
-			/:where\(\.a8c-charts-scope, \.a8c-charts-tooltip-scope, \.a8c-charts-scope \.google-visualization-tooltip\)/
+			/:where\(\.a8c-charts-scope, \.a8c-charts-tooltip-scope, \.geo-chart \.google-visualization-tooltip\)/
 		);
 	} );
 
