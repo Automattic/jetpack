@@ -295,13 +295,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const {
 		chartRef,
 		svgRef,
-		selectedIndex,
+		selectedArc,
 		getSegmentHandlers,
 		getKeyboardTooltipAnchor,
 		outputProps,
 		chartProps,
 	} = usePieKeyboardNavigation( {
-		segmentLabels: navigationArcs.map( arcDatum => arcDatum.data.label ),
+		navigationArcs,
 		withTooltips,
 		tooltipOffsetX,
 		tooltipOffsetY,
@@ -382,8 +382,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					const path = arc< PieArcDatum >( { innerRadius, outerRadius: radius, cornerRadius: 3 } );
-					const selectedArc =
-						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
 					return (
 						<Center
@@ -468,7 +466,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 							</svg>
 							<PieSelectionOutput
 								{ ...outputProps }
-								selectedData={ selectedArc?.data }
 								keyboardTooltipAnchor={
 									selectedArc &&
 									getKeyboardTooltipAnchor( width / 2, height, path.centroid( selectedArc ) )

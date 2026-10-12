@@ -321,13 +321,13 @@ const PieChartInternal = ( {
 	const {
 		chartRef,
 		svgRef,
-		selectedIndex,
+		selectedArc,
 		getSegmentHandlers,
 		getKeyboardTooltipAnchor,
 		outputProps,
 		chartProps,
 	} = usePieKeyboardNavigation( {
-		segmentLabels: navigationArcs.map( arcDatum => arcDatum.data.label ),
+		navigationArcs,
 		withTooltips,
 		tooltipOffsetX,
 		tooltipOffsetY,
@@ -404,8 +404,6 @@ const PieChartInternal = ( {
 						: 0;
 
 					const path = arc< PieArcDatum >( { innerRadius, outerRadius, cornerRadius } );
-					const selectedArc =
-						selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
 					const svgLabelSmall = providerTheme.svgLabelSmall;
 					const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
@@ -524,7 +522,6 @@ const PieChartInternal = ( {
 							</svg>
 							<PieSelectionOutput
 								{ ...outputProps }
-								selectedData={ selectedArc?.data }
 								keyboardTooltipAnchor={
 									selectedArc &&
 									getKeyboardTooltipAnchor( centerX, centerY, path.centroid( selectedArc ) )

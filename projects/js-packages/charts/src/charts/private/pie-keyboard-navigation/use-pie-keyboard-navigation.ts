@@ -4,20 +4,20 @@ import { useKeyboardNavigation } from '../../../components/tooltip';
 import type { DataPointPercentageCalculated } from '../../../types';
 import type { MouseEvent } from 'react';
 
-interface UsePieKeyboardNavigationProps {
-	/** Labels of the visible segments in `orderArcsForNavigation` order, which indexes run over. */
-	segmentLabels: string[];
+interface UsePieKeyboardNavigationProps< Arc > {
+	/** The visible arcs in `orderArcsForNavigation` order, which indexes run over. */
+	navigationArcs: Arc[];
 	withTooltips: boolean;
 	tooltipOffsetX: number;
 	tooltipOffsetY: number;
 }
 
-export const usePieKeyboardNavigation = ( {
-	segmentLabels,
+export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentageCalculated } >( {
+	navigationArcs,
 	withTooltips,
 	tooltipOffsetX,
 	tooltipOffsetY,
-}: UsePieKeyboardNavigationProps ) => {
+}: UsePieKeyboardNavigationProps< Arc > ) => {
 	const chartRef = useRef< HTMLDivElement >( null );
 	const svgRef = useRef< SVGSVGElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
@@ -37,9 +37,11 @@ export const usePieKeyboardNavigation = ( {
 		isNavigating,
 		setIsNavigating,
 		chartRef,
-		totalPoints: segmentLabels.length,
-		visibleSeriesKey: JSON.stringify( segmentLabels ),
+		totalPoints: navigationArcs.length,
+		visibleSeriesKey: JSON.stringify( navigationArcs.map( arcDatum => arcDatum.data.label ) ),
 	} );
+
+	const selectedArc = selectedIndex === undefined ? undefined : navigationArcs[ selectedIndex ];
 
 	const keyboardTooltip = useRef< HTMLDivElement | null >( null );
 	const tooltipLostFocus = useRef( false );
@@ -112,12 +114,13 @@ export const usePieKeyboardNavigation = ( {
 	return {
 		chartRef,
 		svgRef,
-		selectedIndex,
+		selectedArc,
 		getSegmentHandlers,
 		getKeyboardTooltipAnchor,
 		outputProps: {
 			withTooltips,
 			selectedIndex,
+			selectedData: selectedArc?.data,
 			chartRef,
 			svgRef,
 			tooltipRef,
