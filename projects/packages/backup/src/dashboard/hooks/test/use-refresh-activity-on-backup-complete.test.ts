@@ -5,7 +5,10 @@ import { announce } from '../../data/announce';
 import { useRefreshActivityOnBackupComplete } from '../use-refresh-activity-on-backup-complete';
 import type { Backup, BackupsState } from '../../types/backup';
 
-jest.mock( '../../data/announce', () => ( { announce: jest.fn() } ) );
+jest.mock( '../../data/announce', () => ( {
+	...jest.requireActual( '../../data/announce' ),
+	announce: jest.fn(),
+} ) );
 
 /**
  * Fresh client per test so the module singleton's cache can't leak.
@@ -226,6 +229,12 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 			"Your latest backup didn't complete. Your earlier backups can still be restored.",
 			'failed',
 		],
+		[
+			'a first backup that finished without a restore point',
+			[ 'no-good-backups', null, { ...attempt( '2', 'finished' ), hasStats: false } ],
+			'We are having trouble backing up your site.',
+			null,
+		],
 	] as Array< [ string, [ BackupsState, string | null, Backup ], string, string | null ] > )(
 		'announces %s',
 		( _name, [ state, latestBackupId, newest ], message, failedRun ) => {
@@ -241,13 +250,38 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 		}
 	);
 
-	it( 'drops a failed run once the next one starts', () => {
-		const { result } = walk( [
-			[ 'in-progress', false, 'a', attempt( '2', 'started' ) ],
-			[ 'complete', false, 'a', attempt( '2', 'error' ) ],
-			[ 'in-progress', false, 'a', attempt( '3', 'started' ) ],
-		] );
+	it.each( [
+		[
+			'drops it once the next run starts',
+			[ [ 'in-progress', false, 'a', attempt( '3', 'started' ) ] ],
+			null,
+		],
+		[
+			'keeps it when a request fails before making an attempt',
+			[
+				[ 'complete', true, 'a', attempt( '2', 'error' ) ],
+				[ 'complete', false, 'a', attempt( '2', 'error' ) ],
+			],
+			'failed',
+		],
+		[
+			'drops it when a request makes a backup without showing in-progress',
+			[
+				[ 'complete', true, 'a', attempt( '2', 'error' ) ],
+				[ 'complete', false, 'b', attempt( '3', 'finished' ) ],
+			],
+			null,
+		],
+	] as Array< [ string, Pair[], string | null ] > )(
+		'after a failed run, %s',
+		( _name, steps, failedRun ) => {
+			const { result } = walk( [
+				[ 'in-progress', false, 'a', attempt( '2', 'started' ) ],
+				[ 'complete', false, 'a', attempt( '2', 'error' ) ],
+				...steps,
+			] );
 
-		expect( result.current.failedRun ).toBeNull();
-	} );
+			expect( result.current.failedRun ).toBe( failedRun );
+		}
+	);
 } );

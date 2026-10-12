@@ -9,7 +9,7 @@ import {
 } from '../components/backup-status/messages';
 import { announce } from '../data/announce';
 import { keys } from '../data/query-client';
-import { isWillRetryStatus } from './use-backups';
+import { isUsableBackup, isWillRetryStatus } from './use-backups';
 import type { Backup, BackupsState } from '../types/backup';
 
 /**
@@ -75,15 +75,19 @@ export function useRefreshActivityOnBackupComplete(
 	const [ finishedRuns, setFinishedRuns ] = useState( 0 );
 	const [ failedRun, setFailedRun ] = useState< FailedRun >( null );
 	const newestId = newest?.id ?? null;
-	const newestStatus = newest?.status ?? null;
 	const newestHasWarnings = newest?.hasWarnings ?? false;
+	const newestFailed = newest !== null && ! isUsableBackup( newest );
+	const newestWillRetry = newest !== null && isWillRetryStatus( newest.status );
 
 	useEffect( () => {
 		// A pending request counts as a run: a short backup can go from one
 		// `complete` to the next without showing `in-progress`.
 		if ( state === 'in-progress' || isRequested ) {
 			sawInProgress.current = true;
-			setFailedRun( null );
+			// Not on the request alone: one that fails before any attempt leaves the last failure standing.
+			if ( state === 'in-progress' ) {
+				setFailedRun( null );
+			}
 		} else if ( sawInProgress.current && RUN_ENDED_STATES.includes( state ) ) {
 			sawInProgress.current = false;
 			setFinishedRuns( count => count + 1 );
@@ -95,20 +99,16 @@ export function useRefreshActivityOnBackupComplete(
 						? completedWithWarningsText().replace( /<\/?a>/g, '' )
 						: backupReadyText()
 				);
-			} else if (
-				newestStatus &&
-				newestStatus !== 'finished' &&
-				newestId !== newestBeforeRun.current
-			) {
-				const willRetry = isWillRetryStatus( newestStatus );
+				setFailedRun( null );
+			} else if ( newestFailed && newestId !== newestBeforeRun.current ) {
 				if ( state === 'no-good-backups' ) {
 					announce( noGoodBackupsText() );
 				} else {
-					announce( willRetry ? willRetryText() : failedRunText() );
+					announce( newestWillRetry ? willRetryText() : failedRunText() );
 				}
 				// Only `complete` has no banner of its own for this: the others are site states.
 				if ( state === 'complete' ) {
-					setFailedRun( willRetry ? 'will-retry' : 'failed' );
+					setFailedRun( newestWillRetry ? 'will-retry' : 'failed' );
 				}
 			}
 		}
@@ -124,8 +124,9 @@ export function useRefreshActivityOnBackupComplete(
 		isRequested,
 		latestBackupId,
 		newestId,
-		newestStatus,
 		newestHasWarnings,
+		newestFailed,
+		newestWillRetry,
 		queryClient,
 	] );
 
