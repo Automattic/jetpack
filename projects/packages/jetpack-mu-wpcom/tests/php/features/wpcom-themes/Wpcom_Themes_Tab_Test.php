@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status\Cache;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
 
@@ -72,6 +73,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_constant_default_value' );
 		Constants::clear_constants();
+		// Host memoizes is_woa_site past clear_constants().
+		Cache::clear();
 		wp_deregister_script( 'wpcom-themes-tab' );
 
 		delete_transient( wpcom_themes_tab_cache_key( 1 ) );
@@ -89,7 +92,21 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @return void
 	 */
 	private function enable_tab() {
+		$this->pretend_atomic();
 		add_filter( self::FLAG_FILTER, '__return_true' );
+	}
+
+	/**
+	 * Make is_woa_site() true, which the tab requires.
+	 *
+	 * @return void
+	 */
+	private function pretend_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
+		// Host memoizes the answer, so a cached one from another test would stick.
+		Cache::clear();
 	}
 
 	/**
@@ -330,5 +347,43 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		wpcom_themes_tab_enqueue_script();
 
 		$this->assertTrue( wp_script_is( 'wpcom-themes-tab', 'enqueued' ) );
+	}
+
+	/**
+	 * A bare Add Themes request lands on this tab, which core would otherwise route to Popular.
+	 */
+	public function test_bare_request_defaults_to_the_tab() {
+		$this->enable_tab();
+
+		$this->assertTrue( wpcom_themes_tab_is_default_view( array() ) );
+	}
+
+	/**
+	 * A request that asks for a view, a search, an upload or a preview is left alone.
+	 */
+	public function test_requested_views_are_left_alone() {
+		$this->enable_tab();
+
+		$this->assertFalse( wpcom_themes_tab_is_default_view( array( 'browse' => 'popular' ) ) );
+		$this->assertFalse( wpcom_themes_tab_is_default_view( array( 'browse' => WPCOM_THEMES_TAB ) ) );
+		$this->assertFalse( wpcom_themes_tab_is_default_view( array( 'search' => 'dark' ) ) );
+		$this->assertFalse( wpcom_themes_tab_is_default_view( array( 'upload' => '' ) ) );
+		$this->assertFalse( wpcom_themes_tab_is_default_view( array( 'theme' => 'organic-stax' ) ) );
+	}
+
+	/**
+	 * With the flag off the screen keeps core's own default view.
+	 */
+	public function test_no_default_view_when_flag_is_off() {
+		$this->assertFalse( wpcom_themes_tab_is_default_view( array() ) );
+	}
+
+	/**
+	 * The tab is Atomic only, so the flag alone does not turn it on elsewhere.
+	 */
+	public function test_flag_alone_does_not_enable_the_tab_off_atomic() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		$this->assertFalse( wpcom_themes_tab_enabled() );
 	}
 }

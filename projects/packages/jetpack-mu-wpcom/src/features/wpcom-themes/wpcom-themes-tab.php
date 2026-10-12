@@ -56,10 +56,13 @@ wpcom_themes_tab_register_flag();
 /**
  * Whether to show the tab on this site.
  *
+ * Atomic only for now: Simple has no Add Themes screen to add a tab to, and this package ships
+ * there too, so the host is checked rather than left to the screen's absence.
+ *
  * @return bool
  */
 function wpcom_themes_tab_enabled() {
-	return Feature_Flags::is_enabled( WPCOM_THEMES_TAB_FLAG );
+	return is_woa_site() && Feature_Flags::is_enabled( WPCOM_THEMES_TAB_FLAG );
 }
 
 /**
@@ -92,6 +95,40 @@ function wpcom_themes_tab_enqueue_script() {
 	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
+
+/**
+ * Whether a request to the Add Themes screen should land on this tab.
+ *
+ * @param array $query The request's query args.
+ * @return bool
+ */
+function wpcom_themes_tab_is_default_view( array $query ) {
+	if ( ! wpcom_themes_tab_enabled() ) {
+		return false;
+	}
+
+	// An explicit view, a search, an upload or a preview is left as asked for.
+	return ! array_intersect( array( 'browse', 'theme', 'search', 'upload' ), array_keys( $query ) );
+}
+
+/**
+ * Sends a bare Add Themes request to this tab.
+ *
+ * Core's theme.js routes a bare `theme-install.php` to `popular` and rewrites the URL to match, so
+ * the view has to be chosen before that runs rather than by ordering the tabs.
+ *
+ * @return void
+ */
+function wpcom_themes_tab_redirect_to_default_view() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads which view was asked for, nothing more.
+	if ( ! wpcom_themes_tab_is_default_view( $_GET ) ) {
+		return;
+	}
+
+	wp_safe_redirect( admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB ) );
+	exit;
+}
+add_action( 'load-theme-install.php', 'wpcom_themes_tab_redirect_to_default_view' );
 
 /**
  * Answers the tab's query in place of the WordPress.org themes API.
