@@ -154,31 +154,20 @@ function stampFile( file, domain ) {
 }
 
 /**
- * Find an installed package's package.json, including packages whose `exports` hide it.
+ * Find an installed package's package.json the way Node looks up `node_modules`.
+ *
+ * `require.resolve( 'x/package.json' )` is not enough: `exports` can hide it.
  *
  * @param {string} name    - Package name.
  * @param {string} fromDir - Directory to resolve from.
- * @return {string|null} Absolute path, or null when the package does not resolve.
+ * @return {string|null} Real path, or null when the package is not installed.
  */
 function findPackageJson( name, fromDir ) {
-	try {
-		return require.resolve( `${ name }/package.json`, { paths: [ fromDir ] } );
-	} catch {
-		// Fall through to walking up from the entry point.
-	}
-	let dir;
-	try {
-		dir = path.dirname( require.resolve( name, { paths: [ fromDir ] } ) );
-	} catch {
-		return null;
-	}
+	let dir = fs.realpathSync( fromDir );
 	for ( ; dir !== path.dirname( dir ); dir = path.dirname( dir ) ) {
-		const candidate = path.join( dir, 'package.json' );
-		if (
-			fs.existsSync( candidate ) &&
-			JSON.parse( fs.readFileSync( candidate, 'utf8' ) ).name === name
-		) {
-			return candidate;
+		const candidate = path.join( dir, 'node_modules', name, 'package.json' );
+		if ( fs.existsSync( candidate ) ) {
+			return fs.realpathSync( candidate );
 		}
 	}
 	return null;
@@ -215,15 +204,13 @@ function installedDependencyTree( name, fromDir ) {
 }
 
 /**
- * Hash everything other than the input bundle that can change the stamped bytes.
+ * The source files of the stamping code and its Babel plugin.
  *
- * @param {string} domain - Text domain being stamped.
- * @return {string} Hex digest mixed into every cache key.
+ * @return {string[]} Absolute paths.
  */
-function toolFingerprint( domain ) {
-	const hash = crypto.createHash( 'sha256' ).update( `${ CACHE_FORMAT }\0${ domain }\0` );
+function stampToolSources() {
 	const pluginDir = path.dirname( PLUGIN );
-	const sources = [
+	return [
 		require.resolve( './stamp-textdomains-lib.js' ),
 		require.resolve( './i18n-stub-lib.js' ),
 		...fs
@@ -232,11 +219,24 @@ function toolFingerprint( domain ) {
 			.sort()
 			.map( name => path.join( pluginDir, name ) ),
 	];
+}
+
+/**
+ * Hash everything other than the input bundle that can change the stamped bytes.
+ *
+ * @param {string}   domain                - Text domain being stamped.
+ * @param {object}   [options]             - Overrides for tests.
+ * @param {string[]} [options.sources]     - Tool source files to hash.
+ * @param {string}   [options.resolveFrom] - Directory `@babel/core` is resolved from.
+ * @return {string} Hex digest mixed into every cache key.
+ */
+function toolFingerprint( domain, { sources = stampToolSources(), resolveFrom = __dirname } = {} ) {
+	const hash = crypto.createHash( 'sha256' ).update( `${ CACHE_FORMAT }\0${ domain }\0` );
 	for ( const file of sources ) {
 		hash.update( fs.readFileSync( file ) ).update( '\0' );
 	}
 	// The whole tree, not just @babel/*: e.g. a jsesc or source-map library bump alone changes output.
-	for ( const entry of installedDependencyTree( '@babel/core', __dirname ) ) {
+	for ( const entry of installedDependencyTree( '@babel/core', resolveFrom ) ) {
 		hash.update( `${ entry }\0` );
 	}
 	return hash.digest( 'hex' );
@@ -436,7 +436,7 @@ module.exports = {
 	stampFile,
 	stampDir,
 	refreshAssetVersion,
-	installedDependencyTree,
+	toolFingerprint,
 	writeI18nManifest,
 	walk,
 	TARGET_SUBDIRS,

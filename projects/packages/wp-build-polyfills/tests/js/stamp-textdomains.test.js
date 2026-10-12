@@ -27,7 +27,7 @@ const {
 	stampCode,
 	stampDir,
 	refreshAssetVersion,
-	installedDependencyTree,
+	toolFingerprint,
 	writeI18nManifest,
 	walk,
 	I18N_MANIFEST,
@@ -351,25 +351,31 @@ describe( 'stamp-textdomains cache', () => {
 		} );
 	} );
 
-	it( 'installedDependencyTree follows transitive dependencies', () => {
+	it( 'toolFingerprint changes with a tool source or a transitive Babel dependency', () => {
 		withTmp( tmp => {
 			const writePackage = ( name, version, dependencies = {} ) => {
 				const dir = path.join( tmp, 'node_modules', name );
 				mkdirSync( dir, { recursive: true } );
 				writeFileSync(
 					path.join( dir, 'package.json' ),
-					JSON.stringify( { name, version, main: 'index.js', dependencies } )
+					JSON.stringify( { name, version, dependencies } )
 				);
-				writeFileSync( path.join( dir, 'index.js' ), '' );
 			};
-			writePackage( 'top', '1.0.0', { mid: '^1.0.0' } );
-			writePackage( 'mid', '1.0.0', { leaf: '^1.0.0' } );
-			writePackage( 'leaf', '1.0.0' );
-			const before = installedDependencyTree( 'top', tmp );
-			writePackage( 'leaf', '1.0.1' );
+			writePackage( '@babel/core', '7.0.0', { '@babel/generator': '^7.0.0' } );
+			writePackage( '@babel/generator', '7.0.0', { jsesc: '^3.0.0' } );
+			writePackage( 'jsesc', '3.0.0' );
+			const source = path.join( tmp, 'plugin.js' );
+			writeFileSync( source, 'v1' );
+			const fingerprint = () =>
+				toolFingerprint( DOMAIN, { sources: [ source ], resolveFrom: tmp } );
 
-			assert.deepEqual( before, [ 'leaf@1.0.0', 'mid@1.0.0', 'top@1.0.0' ] );
-			assert.notDeepEqual( installedDependencyTree( 'top', tmp ), before );
+			const original = fingerprint();
+			writePackage( 'jsesc', '3.0.1' );
+			const afterBump = fingerprint();
+			writeFileSync( source, 'v2' );
+
+			assert.notEqual( afterBump, original, 'a transitive dependency bump' );
+			assert.notEqual( fingerprint(), afterBump, 'a tool source edit' );
 		} );
 	} );
 
