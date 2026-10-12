@@ -64,7 +64,8 @@ export type LeaderboardRowInput = any;
 export type LeaderboardStatus = WidgetStatus;
 export type LeaderboardDrillDown = any;
 
-// Breakdowns: segments in, with their states, total, legend and deltas handled.
+// Breakdowns: segments in, with their states, total, legend and deltas handled. Drawn as a ring, or as
+// a half ring with `variant: 'half-ring'`; there is no separate semi-circle kind.
 export declare const Donut: ComponentType< DonutProps >;
 export type DonutSegmentInput = {
 	// Unique within the breakdown: the chart identifies a segment by its label.
@@ -85,6 +86,35 @@ export type DonutProps = {
 	// Omit for the generic "no results for this time period" state.
 	empty?: WidgetStateEmpty;
 	// Defaults to compact integers.
+	format?: DataFormat;
+	// `ring` is the full donut with the total in its center, `half-ring` the semi-circle with the total
+	// under the arc. Defaults to `ring`.
+	variant?: 'ring' | 'half-ring';
+	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
+	withTotal?: boolean;
+};
+
+// Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
+export declare const Funnel: ComponentType< FunnelProps >;
+export type FunnelStepInput = {
+	// Stable key of the step; the chart anchors its selection on it.
+	id: string;
+	label: string;
+	// Count for the selected period.
+	value: number;
+	// Count for the comparison period; undefined when the step has no match there.
+	previousValue?: number;
+};
+export type FunnelProps = {
+	// The steps in order: the first is the whole the others are shares of, and the rate of the whole is
+	// the last step over the first.
+	steps: readonly FunnelStepInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Format of the step counts, in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
 };
 
