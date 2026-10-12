@@ -81,10 +81,10 @@ describe( 'EmailDesignSection', () => {
 			screen.getByRole( 'link', { name: 'Edit email design' } ).getAttribute( 'href' )
 		);
 
-		expect( href.origin + href.pathname + '?page=' + href.searchParams.get( 'page' ) ).toBe(
-			DESIGN_URL
-		);
+		expect( href.href.startsWith( DESIGN_URL ) ).toBe( true );
 		expect( href.searchParams.get( 'return' ) ).toBe( window.location.href );
+		// Nothing else may ride along: the design screen reads `page`, and `return` is ours.
+		expect( [ ...href.searchParams.keys() ] ).toEqual( [ 'page', 'return' ] );
 	} );
 
 	it( 'offers a disabled button rather than a live link while the newsletter is off', () => {

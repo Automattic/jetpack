@@ -38,7 +38,6 @@ import {
 	cautionFilled as warning,
 } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
-import { addQueryArgs } from '@wordpress/url';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -46,8 +45,8 @@ import { SendIcon } from './icons';
 import type { JSX } from 'react';
 
 /*
- * Declared here rather than in the script-data package: the key is published by the email design
- * screen and read only by this file. Null on a site with no such screen.
+ * The newsletter package declares the same key for its own bundle (`settings/declarations.d.ts`);
+ * this is the plugin-side copy, because that type is internal to the package. Keep them in step.
  */
 declare module '@automattic/jetpack-script-data' {
 	interface JetpackScriptData {
@@ -422,38 +421,45 @@ const PreviewAccessSelector = ( {
  * Link out to the email design screen, for the creator who looks at the preview and wants the
  * email to look different. A new tab, because this one holds an unsaved post.
  *
+ * No `return` arg, unlike the settings card: it would send the design editor's Back button to
+ * `post.php` in the new tab, leaving the same post open in two editors with no lock warning
+ * between them -- `wp_check_post_lock()` reports nothing when both are the same user.
+ *
+ * @param props        - Component props.
+ * @param props.postId - The post being previewed, for the Tracks event.
  * @return The link, or null on a site with no design screen.
  */
-const EmailDesignLink = () => {
+const EmailDesignLink = ( { postId }: { postId: number } ) => {
 	const { tracks } = useAnalytics();
 	const emailDesignUrl = getScriptData()?.newsletter?.emailDesignUrl;
 
 	const handleClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_newsletter_preview_modal_email_design_click' );
-	}, [ tracks ] );
+		tracks.recordEvent( 'jetpack_newsletter_preview_modal_email_design_click', {
+			post_id: postId,
+		} );
+	}, [ tracks, postId ] );
 
 	if ( ! emailDesignUrl ) {
 		return null;
 	}
 
 	return (
-		<Link
-			openInNewTab
-			href={ addQueryArgs( emailDesignUrl, { return: window.location.href } ) }
-			onClick={ handleClick }
-		>
+		<Link openInNewTab href={ emailDesignUrl } onClick={ handleClick }>
 			{ __( 'Edit email design', 'jetpack' ) }
 		</Link>
 	);
 };
 
-interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {}
+interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {
+	postId: number;
+}
 
 const PreviewControls = ( {
 	selectedAccess,
 	setSelectedAccess,
 	selectedDevice,
 	setSelectedDevice,
+	postId,
 }: PreviewControlsProps ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
 
@@ -467,7 +473,7 @@ const PreviewControls = ( {
 				selectedAccess={ selectedAccess }
 				setSelectedAccess={ setSelectedAccess }
 			/>
-			<EmailDesignLink />
+			<EmailDesignLink postId={ postId } />
 		</HStack>
 	);
 };
@@ -596,6 +602,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 						setSelectedAccess={ setSelectedAccess }
 						selectedDevice={ selectedDevice }
 						setSelectedDevice={ setSelectedDevice }
+						postId={ postId }
 					/>
 				}
 				className="jetpack-newsletter-preview-modal"

@@ -35,7 +35,16 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
-	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
+	Link: ( { children, href, openInNewTab, onClick } ) => (
+		<a
+			href={ href }
+			target={ openInNewTab ? '_blank' : undefined }
+			rel={ openInNewTab ? 'noreferrer' : undefined }
+			onClick={ onClick }
+		>
+			{ children }
+		</a>
+	),
 } ) );
 
 // `@wordpress/editor` registers rich-text formats at import time against the real data registry.
@@ -464,17 +473,19 @@ describe( 'Newsletter preview: email design link', () => {
 		expect( screen.queryByRole( 'link', { name: 'Edit email design' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'returns the design editor to the post being previewed', async () => {
+	/**
+	 * A `return` here would point the design editor's Back button at `post.php` in the new tab,
+	 * opening a second editor on a post already open in this one, with no lock warning between
+	 * them. The link carries the bare URL so Back goes to the dashboard instead.
+	 */
+	it( 'links to the design screen in a new tab, sending no return URL', async () => {
 		mockEmailDesignUrl = DESIGN_URL;
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
-		const href = new URL( link.getAttribute( 'href' ) );
-		expect( href.origin + href.pathname + '?page=' + href.searchParams.get( 'page' ) ).toBe(
-			DESIGN_URL
-		);
-		expect( href.searchParams.get( 'return' ) ).toBe( window.location.href );
+		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );

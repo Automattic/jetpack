@@ -317,12 +317,13 @@ class Jetpack_Email_Design_Editor {
 	/**
 	 * Where the editor's header buttons leave to.
 	 *
-	 * The `return` arg the Newsletter settings link carries, so the editor goes back to whichever
-	 * of its two entry points was used. Validated like core's Customizer validates its own
+	 * The `return` arg, where the surface that linked here sent one, so the editor goes back the
+	 * way the reader came. Validated like core's Customizer validates its own
 	 * (`wp-admin/customize.php`), and narrowed to wp-admin so the button cannot be aimed off it.
 	 *
-	 * Without a usable one -- entered from Appearance, a bookmark, a reload -- the dashboard, as
-	 * the site editor does from the same menu (`__experimentalDashboardLink`).
+	 * Without a usable one -- Appearance, a bookmark, a reload, or the previewer's new tab, which
+	 * sends none on purpose -- the dashboard, as the site editor does from the same menu
+	 * (`__experimentalDashboardLink`).
 	 *
 	 * @return string
 	 */
