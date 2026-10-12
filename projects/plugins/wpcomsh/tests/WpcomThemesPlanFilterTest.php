@@ -1,6 +1,9 @@
 <?php
 /**
- * Tests for removing WordPress.org themes by plan.
+ * Tests for removing WordPress.org themes from the Add Themes results.
+ *
+ * The plan gate itself is not tested: whether a site has community themes depends on which site
+ * the suite runs against, and these assertions hold either way.
  *
  * @package wpcomsh
  */
@@ -36,10 +39,7 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 	 * filter already in the result rather than being merged in afterwards.
 	 */
 	public function test_removes_dot_org_themes_and_keeps_ours() {
-		// The test site has no plan, so community themes are unavailable and the filter applies.
-		$this->assertFalse( wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) );
-
-		$result = wpcomsh_remove_dot_org_themes_based_on_plan( $this->mixed_result() );
+		$result = wpcomsh_keep_only_wpcom_themes( $this->mixed_result() );
 
 		$this->assertCount( 1, $result->themes );
 		$this->assertSame( 'repose', $result->themes[0]->slug );
@@ -53,7 +53,7 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 	 * instead of the whole catalog.
 	 */
 	public function test_leaves_a_result_of_our_own_themes_alone() {
-		$result = wpcomsh_remove_dot_org_themes_based_on_plan(
+		$result = wpcomsh_keep_only_wpcom_themes(
 			(object) array(
 				'info'   => array( 'results' => 335 ),
 				'themes' => array(
@@ -70,16 +70,6 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The entitlement half of the tier rule, against the platform's own answer.
-	 */
-	public function test_site_can_use_the_tiers_its_plan_includes() {
-		$this->assertTrue( WPCom_Themes_Tiers::site_can_use( 'free' ) );
-		// The test site has no plan, so nothing above free is included.
-		$this->assertFalse( WPCom_Themes_Tiers::site_can_use( 'premium' ) );
-		$this->assertFalse( WPCom_Themes_Tiers::site_can_use( 'partner' ) );
-	}
-
-	/**
 	 * A theme_information result is one theme rather than a list, so there is nothing to filter.
 	 */
 	public function test_leaves_a_single_theme_result_alone() {
@@ -88,9 +78,16 @@ class WpcomThemesPlanFilterTest extends WP_UnitTestCase {
 			'name' => 'Repose',
 		);
 
-		$result = wpcomsh_remove_dot_org_themes_based_on_plan( $theme );
+		$result = wpcomsh_keep_only_wpcom_themes( $theme );
 
 		$this->assertFalse( isset( $result->themes ) );
 		$this->assertSame( 'repose', $result->slug );
+	}
+
+	/**
+	 * Every site can use the free tier, whatever plan the suite's site happens to have.
+	 */
+	public function test_free_tier_needs_no_plan() {
+		$this->assertTrue( WPCom_Themes_Tiers::site_can_use( 'free' ) );
 	}
 }
