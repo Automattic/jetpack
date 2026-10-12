@@ -130,7 +130,7 @@ class Widget_Metadata_Test extends BaseTestCase {
 				'render_module' => 'test/hydration/render',
 				'widget_module' => 'test/hydration/widget',
 				'presentation'  => 'framed',
-				'category'      => 'stats',
+				'category'      => 'demo',
 				'title'         => 'Hydration sentinel',
 				'description'   => 'Carries metadata through hydration.',
 				'help'          => array(
@@ -167,7 +167,7 @@ class Widget_Metadata_Test extends BaseTestCase {
 			$widget_type = $registered['test/hydration-sentinel'];
 			$this->assertSame( 'test/hydration/render', $widget_type->render_module, 'The render module is mapped.' );
 			$this->assertSame( 'framed', $widget_type->presentation, 'The presentation is mapped.' );
-			$this->assertSame( 'stats', $widget_type->category, 'The category is mapped.' );
+			$this->assertSame( 'demo', $widget_type->category, 'The category is mapped.' );
 			$this->assertSame( 'Hydration sentinel', $widget_type->title, 'The title is mapped.' );
 			$this->assertSame( 'Carries metadata through hydration.', $widget_type->description, 'The description is mapped.' );
 			$this->assertSame( array( 'sentinel' ), $widget_type->keywords, 'The keywords are mapped.' );

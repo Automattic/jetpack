@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Protect dashboard: Add a Scan history tab for sites with Jetpack Scan, show threat actions on row hover, and offer to delete unused plugins and themes that have threats.

@@ -37,6 +37,19 @@ describe( 'buildLeaderboardChartData', () => {
 		expect( data[ 0 ].previousValue ).toBe( 100 );
 	} );
 
+	it( 'draws a negative value as an empty bar', () => {
+		const data = buildLeaderboardChartData(
+			[
+				{ id: 'a', label: 'Alpha', value: 80, previousValue: -20 },
+				{ id: 'b', label: 'Beta', value: -40 },
+			],
+			{ hasComparison: true }
+		);
+
+		expect( data.map( row => row.currentShare ) ).toEqual( [ 100, 0 ] );
+		expect( data[ 0 ].previousShare ).toBe( 0 );
+	} );
+
 	it( 'keeps the first maxRows rows and sizes the shares to them', () => {
 		const data = buildLeaderboardChartData( ROWS, { maxRows: 2 } );
 

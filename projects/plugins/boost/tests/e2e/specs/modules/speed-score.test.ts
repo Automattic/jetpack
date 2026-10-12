@@ -21,35 +21,29 @@ test.describe( 'Speed Score feature', () => {
 	test( 'The Speed Scores should be able to refresh', async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 		await jetpackBoostPage.expectScoreToBeVisible();
-		// The optional pop-out stays mounted off-screen when scores have not changed.
-		await jetpackBoostPage.page
-			.getByRole( 'button', { name: 'Do not show me again' } )
-			.dispatchEvent( 'click' );
-		// Set up network listener before clicking Refresh; the test depends on the refresh
+		// Set up network listener before running the speed test; the test depends on the refresh
 		// having completed before we re-assert score visibility, so wait on the response.
 		const refreshResponsePromise = jetpackBoostPage.waitForScoreRefreshResponse();
 		// Suppress unhandled rejection if the click throws before we await.
 		refreshResponsePromise.catch( () => {} );
-		await jetpackBoostPage.page.getByRole( 'button', { name: 'Refresh' } ).click();
+		await jetpackBoostPage.page
+			.getByRole( 'button', { name: 'Run speed test', exact: true } )
+			.click();
 		await refreshResponsePromise;
 		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 
-	test( 'Should be able to click info icon next to overall score and see the detailed overall score description popin', async ( {
+	test( 'Should be able to hover the info icon next to the overall grade and see its description', async ( {
 		jetpackBoostPage,
 	} ) => {
 		await jetpackBoostPage.visit();
 		await jetpackBoostPage.expectScoreToBeVisible();
-		await jetpackBoostPage.page
-			.getByTestId( 'speed-scores-top' )
-			.getByTestId( 'icon-tooltip_wrapper' )
-			.getByRole( 'button' )
-			.click();
+		await jetpackBoostPage
+			.scoresCard()
+			.getByRole( 'button', { name: 'How the overall grade is calculated' } )
+			.hover();
 		await expect(
-			jetpackBoostPage.page
-				.getByTestId( 'speed-scores-top' )
-				.getByTestId( 'icon-tooltip_wrapper' )
-				.getByText( 'Your Overall Score is' ),
+			jetpackBoostPage.page.getByText( 'Your overall score is a summary' ),
 			'Score description should be visible'
 		).toBeVisible();
 	} );

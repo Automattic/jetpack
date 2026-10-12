@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview: Stop asking to connect a WordPress.com account when nothing in use needs one.

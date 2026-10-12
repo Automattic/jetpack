@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-types.php';
@@ -156,6 +157,31 @@ class Widget_Availability_Test extends BaseTestCase {
 				array(
 					'name'     => 'jpa/visitors-over-time',
 					'category' => 'visitors',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Candidate set spanning every store-report and Stats category, plus an ungated one.
+	 *
+	 * @return array[] List of widget candidates.
+	 */
+	private function capability_widget_candidates() {
+		return array_merge(
+			$this->store_report_widget_candidates(),
+			array(
+				array(
+					'name'     => 'jpa/top-posts',
+					'category' => 'stats',
+				),
+				array(
+					'name'     => 'jpa/subscribers-chart',
+					'category' => 'subscribers',
+				),
+				array(
+					'name'     => 'jpa/hello-world',
+					'category' => 'demo',
 				),
 			)
 		);
@@ -542,29 +568,39 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every store-report category — the commerce ones and `visitors` — is dropped
-	 * for a reader without that access, since all they could collect from those
-	 * widgets is 403s.
+	 * Each reader keeps the categories whose reports they can fetch, and nothing else.
+	 *
+	 * @dataProvider provide_capability_gated_readers
+	 *
+	 * @param bool     $can_view_store_reports Whether the reader may see the store reports.
+	 * @param bool     $can_view_stats         Whether the reader may see the Stats reports.
+	 * @param string[] $expected               Names that survive.
 	 */
-	public function test_store_report_widgets_removed_from_a_reader_without_access() {
+	#[DataProvider( 'provide_capability_gated_readers' )]
+	public function test_capability_gated_widgets_follow_the_reader( $can_view_store_reports, $can_view_stats, $expected ) {
 		$this->assertSame(
-			array( 'jpa/traffic-chart' ),
+			$expected,
 			array_column(
-				remove_capability_gated_widget_types( $this->store_report_widget_candidates(), false ),
+				remove_capability_gated_widget_types( $this->capability_widget_candidates(), $can_view_store_reports, $can_view_stats ),
 				'name'
-			),
-			'Only the category served by another prefix survives.'
+			)
 		);
 	}
 
 	/**
-	 * Administrators keep every category.
+	 * Readers by the reports they may see.
+	 *
+	 * @return array<string, array{bool, bool, string[]}>
 	 */
-	public function test_store_report_widgets_kept_for_a_user_with_access() {
-		$this->assertSame(
-			$this->store_report_widget_candidates(),
-			remove_capability_gated_widget_types( $this->store_report_widget_candidates(), true ),
-			'With prefix access no candidate is dropped.'
+	public static function provide_capability_gated_readers() {
+		$stats = array( 'jpa/traffic-chart', 'jpa/top-posts', 'jpa/subscribers-chart' );
+		$store = array( 'jpa/store-performance', 'jpa/orders-over-time', 'jpa/sales-by-coupon-usage', 'jpa/bookings-over-time', 'jpa/visitors-over-time' );
+
+		return array(
+			'administrator'  => array( true, true, array( 'jpa/traffic-chart', 'jpa/store-performance', 'jpa/orders-over-time', 'jpa/sales-by-coupon-usage', 'jpa/bookings-over-time', 'jpa/visitors-over-time', 'jpa/top-posts', 'jpa/subscribers-chart', 'jpa/hello-world' ) ),
+			'stats reader'   => array( false, true, array_merge( $stats, array( 'jpa/hello-world' ) ) ),
+			'shop manager'   => array( true, false, array_merge( $store, array( 'jpa/hello-world' ) ) ),
+			'neither report' => array( false, false, array( 'jpa/hello-world' ) ),
 		);
 	}
 
@@ -573,22 +609,24 @@ class Widget_Availability_Test extends BaseTestCase {
 	 * yields different types depending on who is asking.
 	 */
 	public function test_registry_callback_follows_the_current_user() {
-		$reader = wp_insert_user(
+		$shop_manager = wp_insert_user(
 			array(
-				'user_login' => 'jpa_widget_reader',
+				'user_login' => 'jpa_widget_shop_manager',
 				'user_pass'  => 'password',
-				'role'       => 'editor',
+				'role'       => 'subscriber',
 			)
 		);
-		wp_set_current_user( $reader );
+		// WorDBless has no shop_manager role, so grant the capability the role would carry.
+		( new \WP_User( $shop_manager ) )->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $shop_manager );
 
 		$this->assertSame(
-			array( 'jpa/traffic-chart' ),
+			array( 'jpa/store-performance', 'jpa/orders-over-time', 'jpa/sales-by-coupon-usage', 'jpa/bookings-over-time', 'jpa/visitors-over-time', 'jpa/hello-world' ),
 			array_column(
-				filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+				filter_registrable_widget_types_by_capability( $this->capability_widget_candidates() ),
 				'name'
 			),
-			'An editor cannot read the store reports, so their categories are dropped.'
+			'A shop manager cannot read Stats, so its categories are dropped.'
 		);
 
 		$admin = wp_insert_user(
@@ -601,8 +639,8 @@ class Widget_Availability_Test extends BaseTestCase {
 		wp_set_current_user( $admin );
 
 		$this->assertSame(
-			$this->store_report_widget_candidates(),
-			filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+			$this->capability_widget_candidates(),
+			filter_registrable_widget_types_by_capability( $this->capability_widget_candidates() ),
 			'An administrator keeps every category.'
 		);
 

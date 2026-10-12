@@ -1,4 +1,4 @@
-import { CheckboxControl, Spinner } from '@wordpress/components';
+import { CheckboxControl } from '@wordpress/components';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
@@ -11,7 +11,7 @@ import {
 	file as folderIcon,
 	page as fileIcon,
 } from '@wordpress/icons';
-import { Stack } from '@wordpress/ui';
+import { Spinner, Stack, Text } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
 import useNarrowElement from '../../hooks/use-narrow-element';
 import { isFolder } from '../../types/file-tree';
@@ -42,7 +42,10 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
+// The card track runs from `CARD_TRACK` up to `CARD_MAX`; the tree track never drops below `MIN_TREE`.
+// Below `CARD_TRACK + COLUMN_GAP + MIN_TREE` there is no room for two columns, so the dialog takes over.
 const CARD_TRACK = 280;
+const CARD_MAX = 450;
 const COLUMN_GAP = 16;
 // Floor for the tree: a nested row spends ~120px on indent, checkbox, chevron
 // and glyph before a single character of filename.
@@ -441,14 +444,15 @@ export default function FileBrowser( {
 		onSelectionIdsChange?.( selectedIds );
 	}, [ selectedIds, onSelectionIdsChange ] );
 
-	// The selection summary's checkbox doubles as a "select all / clear"
-	// toggle: clicking it with anything selected clears both sets,
-	// clicking with nothing selected seeds every top-level root path as
-	// a positive selection. Mirrors the legacy backup-contents header
-	// — selecting a folder includes its whole subtree on the server side,
-	// so we don't need to recurse the lazy-loaded child paths here.
+	// A selected folder covers its unloaded subtree, so "everything" is every root with no exceptions.
+	const allSelected =
+		roots.length > 0 && deselected.size === 0 && roots.every( node => selected.has( node.path ) );
+	const someSelected = selected.size > 0 && ! allSelected;
+	const selectionCountId = useId();
+
+	// Clears only from a full selection, so a click on a partial one never discards it.
 	const toggleSelectAll = useCallback( () => {
-		if ( selected.size > 0 ) {
+		if ( allSelected ) {
 			onSelectionChange( EMPTY_FILE_SELECTION );
 			return;
 		}
@@ -456,7 +460,7 @@ export default function FileBrowser( {
 			selected: new Set( roots.map( node => node.path ) ),
 			deselected: new Set(),
 		} );
-	}, [ selected.size, roots, onSelectionChange ] );
+	}, [ allSelected, roots, onSelectionChange ] );
 
 	// Closing the card unmounts the element that currently holds focus, which
 	// drops focus to `<body>` and sends the next Tab back to the top of the
@@ -473,23 +477,27 @@ export default function FileBrowser( {
 	}, [] );
 
 	// The card only takes a column when it is actually rendered there; a bare
-	// tree keeps the full panel width so zebra rows run edge to edge.
+	// tree keeps the full panel width.
+	const layoutStyle =
+		openFile && ! isNarrow
+			? {
+					gridTemplateColumns: `minmax(${ MIN_TREE }px, 1fr) minmax(${ CARD_TRACK }px, ${ CARD_MAX }px)`,
+				}
+			: undefined;
 	const layoutClassName =
 		openFile && ! isNarrow
 			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
 			: 'jpb-file-browser__layout';
 
-	// A failed root tree is indistinguishable from a backup that contains
-	// nothing: `children` is null either way, so the tree renders empty
-	// under a "0 items selected" header that invites the reader to select
-	// from it. Replace the whole browser rather than just the tree — the
-	// selection header is meaningless without a tree to select from.
-	if ( rootsError ) {
+	// A failed root read would render as an empty backup under a header inviting selection, so
+	// replace the whole browser. A failed background refresh still has its rows and keeps the tree.
+	if ( rootsError && ! rootsData ) {
 		return (
 			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
+					referenceId={ { kind: 'backup', value: rewindId } }
 					onRetry={ refetchRoots }
 					isRetrying={ rootsFetching }
 				/>
@@ -499,44 +507,59 @@ export default function FileBrowser( {
 
 	return (
 		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
-			<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
-				<CheckboxControl
-					checked={ selected.size > 0 }
-					label={ sprintf(
-						/* translators: %d count of selected items (files + opaque folders) */
-						_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
-						selectedCount
-					) }
-					onChange={ toggleSelectAll }
-					__nextHasNoMarginBottom
-				/>
-			</Stack>
-			<div className={ layoutClassName }>
-				<div className="jpb-file-browser__tree">
-					{ rootsLoading && (
-						<div className="jpb-file-browser__loading">
-							<Spinner />
-						</div>
-					) }
-					{ ! rootsLoading &&
-						roots.map( ( node, index ) => (
-							<NodeRow
-								key={ node.path }
-								node={ node }
-								depth={ 0 }
-								isAlternate={ index % 2 === 1 }
-								ancestorSelected={ false }
-								rewindId={ rewindId }
-								selection={ selection }
-								onToggle={ toggleAt }
-								onOpenFile={ openInfoCard }
-								onRegisterChildren={ registerChildren }
-							/>
-						) ) }
+			<div className={ layoutClassName } style={ layoutStyle }>
+				<div className="jpb-file-browser__main">
+					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
+						<CheckboxControl
+							checked={ allSelected }
+							indeterminate={ someSelected }
+							label={
+								allSelected
+									? __( 'Clear selection', 'jetpack-backup-pkg' )
+									: __( 'Select all', 'jetpack-backup-pkg' )
+							}
+							aria-describedby={ selectionCountId }
+							onChange={ toggleSelectAll }
+							__nextHasNoMarginBottom
+						/>
+						<Text variant="body-sm" className="jpb-text-muted" id={ selectionCountId }>
+							{ sprintf(
+								/* translators: %d count of selected items (files + opaque folders) */
+								_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
+								selectedCount
+							) }
+						</Text>
+					</Stack>
+					<div className="jpb-file-browser__tree">
+						{ rootsLoading && (
+							<div className="jpb-file-browser__loading">
+								<Spinner />
+							</div>
+						) }
+						{ ! rootsLoading &&
+							roots.map( node => (
+								<NodeRow
+									key={ node.path }
+									node={ node }
+									depth={ 0 }
+									openPath={ openFile?.manifestPath }
+									ancestorSelected={ false }
+									rewindId={ rewindId }
+									selection={ selection }
+									onToggle={ toggleAt }
+									onOpenFile={ openInfoCard }
+									onRegisterChildren={ registerChildren }
+								/>
+							) ) }
+					</div>
 				</div>
-				{ openFile && ! isNarrow && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
+				{ openFile && ! isNarrow && (
+					<FileInfoCard key={ openFile.manifestPath } file={ openFile } onClose={ closeInfoCard } />
+				) }
 			</div>
-			{ openFile && isNarrow && <FileInfoDialog file={ openFile } onClose={ closeInfoCard } /> }
+			{ openFile && isNarrow && (
+				<FileInfoDialog key={ openFile.manifestPath } file={ openFile } onClose={ closeInfoCard } />
+			) }
 		</div>
 	);
 }
@@ -544,7 +567,7 @@ export default function FileBrowser( {
 type NodeRowProps = {
 	node: FileNode;
 	depth: number;
-	isAlternate: boolean;
+	openPath: string | undefined;
 	ancestorSelected: boolean;
 	rewindId: string;
 	selection: FileSelection;
@@ -556,14 +579,14 @@ type NodeRowProps = {
 /**
  * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
  *
- * Two pieces of state propagate top-down: `ancestorSelected` carries the *effective* checked state of the nearest ancestor (own selected beats own deselected beats ancestor), and zebra parity (`isAlternate`) is toggled before each child so the stripe runs continuously through nested branches.
+ * `ancestorSelected` propagates top-down and carries the *effective* checked state of the nearest ancestor (own selected beats own deselected beats ancestor).
  *
  * A folder renders the indeterminate "—" dash when (a) it's effectively checked and any descendant path lives in `selection.deselected`, or (b) it's effectively unchecked and any descendant lives in `selection.selected`.
  *
  * @param props                    - Component props.
  * @param props.node               - The node to render.
  * @param props.depth              - Indent depth (root = 0).
- * @param props.isAlternate        - Whether this row gets the alt (gray) background.
+ * @param props.openPath           - Manifest path of the file open in the info card, if any.
  * @param props.ancestorSelected   - True when this row inherits a checked state from a selected ancestor (modulo its own deselection).
  * @param props.rewindId           - The selected backup's rewind id, threaded down so each folder row can fetch its own children via `useFileTree`.
  * @param props.selection          - Current selection state (selected + deselected sets).
@@ -575,7 +598,7 @@ type NodeRowProps = {
 function NodeRow( {
 	node,
 	depth,
-	isAlternate,
+	openPath,
 	ancestorSelected,
 	rewindId,
 	selection,
@@ -585,10 +608,12 @@ function NodeRow( {
 }: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading, error } = useFileTree(
-		rewindId,
-		open && nodeIsFolder ? node.path : null
-	);
+	// Not `null` for a closed row: that means the root, and every row would refetch it once stale.
+	const { children, isLoading, error } = useFileTree( rewindId, node.path, {
+		enabled: open && nodeIsFolder,
+	} );
+	// A failed refresh of a folder whose children are still cached is not a failed folder.
+	const failed = Boolean( error ) && ! children;
 	const { selected, deselected } = selection;
 
 	// Effective check: own positive > own negative > inherited positive.
@@ -643,8 +668,10 @@ function NodeRow( {
 		onRegisterChildren( node.path, children );
 	}, [ open, nodeIsFolder, isLoading, children, node.path, onRegisterChildren ] );
 
-	const rowClassName = isAlternate
-		? 'jpb-file-browser__row jpb-file-browser__row--alt'
+	const isOpenFile =
+		! nodeIsFolder && openPath !== undefined && openPath === ( node as FileNodeFile ).manifestPath;
+	const rowClassName = isOpenFile
+		? 'jpb-file-browser__row jpb-file-browser__row--open'
 		: 'jpb-file-browser__row';
 
 	return (
@@ -700,6 +727,7 @@ function NodeRow( {
 					<button
 						type="button"
 						className="jpb-file-browser__file"
+						aria-current={ isOpenFile ? 'true' : undefined }
 						aria-label={ sprintf(
 							/* translators: %s: file name. */
 							__( 'File: %s', 'jetpack-backup-pkg' ),
@@ -728,7 +756,7 @@ function NodeRow( {
 					 * reader is told the folder contains nothing rather than
 					 * that we couldn't look inside it.
 					 */ }
-					{ ! isLoading && error && (
+					{ ! isLoading && failed && (
 						// `alert` rather than `status`: the reader asked for this
 						// folder and got nothing back, so it is worth interrupting.
 						// Both states are announced because each replaces content the
@@ -759,20 +787,18 @@ function NodeRow( {
 						className="jpb-file-browser__empty"
 						style={ { paddingInlineStart: 44 + depth * 16 } }
 					>
-						{ ! isLoading && ! error && ( children ?? [] ).length === 0
+						{ ! isLoading && ! failed && ( children ?? [] ).length === 0
 							? /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
 								__( 'Empty', 'jetpack-backup-pkg' )
 							: '' }
 					</div>
 					{ ! isLoading &&
-						( children ?? [] ).map( ( child, index ) => (
+						( children ?? [] ).map( child => (
 							<NodeRow
 								key={ child.path }
 								node={ child }
 								depth={ depth + 1 }
-								// Toggle before each child so the first one inverts the
-								// parent's parity, then alternates from there.
-								isAlternate={ index % 2 === 0 ? ! isAlternate : isAlternate }
+								openPath={ openPath }
 								ancestorSelected={ isEffectivelySelected }
 								rewindId={ rewindId }
 								selection={ selection }

@@ -11,6 +11,7 @@ import {
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
 	sanitizeStatsArchivesResponse,
+	sanitizeStatsAuthorResponse,
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
@@ -73,6 +74,7 @@ type StatsReportQuerySettings = {
 
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
+	author: sanitizeStatsAuthorResponse,
 	post: sanitizeStatsPostResponse,
 	postComments: sanitizeStatsPostCommentsResponse,
 	postLikes: sanitizeStatsPostLikesResponse,

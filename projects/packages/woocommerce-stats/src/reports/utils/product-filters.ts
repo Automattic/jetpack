@@ -13,6 +13,13 @@ export function hasProductFilters( filters?: FilterCondition[] ): boolean {
 	return filters.some( filter => PRODUCT_FILTER_KEYS.includes( filter.key ) );
 }
 
+/** The physical product types: simple and variable products and their variations. */
+export const PHYSICAL_PRODUCTS_FILTER: FilterCondition = {
+	key: 'product_type',
+	value: [ 'simple', 'variable', 'variation' ],
+	compare: 'IN',
+};
+
 /** The booking product types, as WooCommerce Bookings sells them. */
 export const BOOKINGS_FILTER: FilterCondition = {
 	key: 'product_type',

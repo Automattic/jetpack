@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { seen } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -23,13 +23,18 @@ export type AuthorPerformanceAttributes = {
 };
 
 /**
- * The series is this author's row read out of every `stats/top-authors` bucket
- * over the page's chart interval.
+ * Views per chart bucket, plus window totals for likes and comments, from
+ * `stats/author/<id>`.
  */
 export default {
-	icon: seen,
 	attributes: [
-		chartTypeAttributeField(),
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< AuthorPerformanceAttributes >[],
 	example: {
 		attributes: {

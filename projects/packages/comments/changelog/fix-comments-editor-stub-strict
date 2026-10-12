@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the block editor in older Chromium browsers, such as Chrome 109 and Samsung Internet.

@@ -17,8 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists
  *
  * Proxies `GET /sites/{blog_id}/newsletter/task-lists/{list_id}` and
- * `POST /sites/{blog_id}/newsletter/task-lists/{list_id}/tasks/{task_id}/complete` so the Newsletter
- * dashboard can show and complete its checklist. WP.com owns the implementation, including which
+ * `POST /sites/{blog_id}/newsletter/task-lists/{list_id}/tasks/{task_id}/skip` so the Newsletter
+ * dashboard can show its checklist and skip its tasks. WP.com owns the implementation, including which
  * lists and tasks exist and how each task's completion is checked and stored, but flags it as a
  * site-specific, WP.com-only endpoint — meaning it only exists under `/wpcom/v2/sites/{blog_id}/…`
  * on public-api and is unreachable from a Jetpack site's own REST API without this proxy.
@@ -67,18 +67,18 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists extends WP_REST_Controlle
 
 		register_rest_route(
 			$this->namespace,
-			$list_route . '/tasks/(?P<task_id>[a-z_]+)/complete',
+			$list_route . '/tasks/(?P<task_id>[a-z_]+)/skip',
 			array(
 				'show_in_index'       => true,
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'complete_task' ),
+				'callback'            => array( $this, 'skip_task' ),
 				'permission_callback' => array( $this, 'permission_check' ),
 			)
 		);
 	}
 
 	/**
-	 * Only site administrators can read or complete the Newsletter task lists.
+	 * Only site administrators can read the Newsletter task lists and skip their tasks.
 	 *
 	 * @return bool
 	 */
@@ -97,15 +97,15 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists extends WP_REST_Controlle
 	}
 
 	/**
-	 * Proxy a task completion to WP.com, forwarding the list and task ids as path segments.
+	 * Proxy a task skip to WP.com, forwarding the list and task ids as path segments.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return mixed|WP_Error Response from WP.com, or an error.
 	 */
-	public function complete_task( $request ) {
+	public function skip_task( $request ) {
 		return $this->proxy_request_to_wpcom_as_user(
 			$request,
-			$request->get_param( 'list_id' ) . '/tasks/' . $request->get_param( 'task_id' ) . '/complete'
+			$request->get_param( 'list_id' ) . '/tasks/' . $request->get_param( 'task_id' ) . '/skip'
 		);
 	}
 }
