@@ -100,7 +100,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertNotNull( $section );
 		$this->assertSame( 'woocommerce', $section->slug );
 		$this->assertSame( 'WooCommerce', $section->label );
-		$this->assertSame( 40, $section->order );
+		$this->assertSame( 5, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
@@ -113,10 +113,12 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				Analytics_Dashboard::CONVERSION_RATE_TYPE,
 				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
 				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
 				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
 				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
+				Analytics_Dashboard::SESSIONS_BY_DEVICE_TYPE,
 				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,

@@ -326,6 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
+### 16.3.1 - 2026-10-12
+#### Bug fixes
+- Forms: Restore scrolling on the standalone single response page so long responses are no longer cut off.
+
 ### 16.3 - 2026-10-06
 #### Major Enhancements
 - Dashboard: Remove the legacy At a Glance dashboard and Recommendations assistant.

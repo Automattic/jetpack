@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Settings: Add a method that saves the WordPress.com Reader setting, and give each settings error its HTTP status.
