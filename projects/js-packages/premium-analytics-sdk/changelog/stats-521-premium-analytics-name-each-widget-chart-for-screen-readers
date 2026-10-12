@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Declare the optional chart title of a Donut, which names its chart for screen readers.

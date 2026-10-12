@@ -94,6 +94,8 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
+	// What the chart shows, such as the widget title; the chart is named "<title> chart".
+	chartTitle?: string;
 };
 
 // Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
