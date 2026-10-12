@@ -90,13 +90,12 @@ class Security extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		$product_slug = static::get_wpcom_product_slug();
 		return array_merge(
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() ),
 			array(
-				'available'          => true,
-				'wpcom_product_slug' => $product_slug,
-			),
-			Wpcom_Products::get_product_pricing( $product_slug )
+				'available'          => false,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+			)
 		);
 	}
 

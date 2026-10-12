@@ -63,7 +63,13 @@ export default function ProductInterstitial( {
 	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
-	const { detail: bundleDetail } = useProduct( bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const preferredBundle =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const offeredBundle = bundle ? preferredBundle : null;
+	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
@@ -81,7 +87,7 @@ export default function ProductInterstitial( {
 		skipUserConnection: true,
 		redirectUri,
 	} );
-	const showBundledTOS = ! hideTOS && !! bundle;
+	const showBundledTOS = ! hideTOS && !! bundle && bundleDetail?.pricingForUi?.available === true;
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -261,7 +267,7 @@ export default function ProductInterstitial( {
 							>
 								{ bundle ? (
 									<ProductDetailCard
-										slug={ bundle }
+										slug={ offeredBundle }
 										trackButtonClick={ trackProductOrBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }

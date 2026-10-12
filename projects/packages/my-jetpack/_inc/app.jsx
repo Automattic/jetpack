@@ -26,6 +26,7 @@ import {
 	SecurityInterstitial,
 	GrowthInterstitial,
 	CompleteInterstitial,
+	ProInterstitial,
 } from './components/product-interstitial';
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import ProtectProductPage from './components/product-interstitial/protect/product-page';
@@ -90,6 +91,7 @@ export default function App() {
 						<Route path={ MyJetpackRoutes.AddSecurity } element={ <SecurityInterstitial /> } />
 						<Route path={ MyJetpackRoutes.AddGrowth } element={ <GrowthInterstitial /> } />
 						<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
+						<Route path={ MyJetpackRoutes.AddPro } element={ <ProInterstitial /> } />
 						<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 						{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
 						<Route path="*" element={ <MyJetpackScreen /> } />

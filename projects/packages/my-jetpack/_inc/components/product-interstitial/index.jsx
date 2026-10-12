@@ -163,3 +163,12 @@ export function CompleteInterstitial() {
 		</ProductInterstitial>
 	);
 }
+
+/**
+ * Render the Pro bundle purchase page.
+ *
+ * @return {object} Pro purchase page.
+ */
+export function ProInterstitial() {
+	return <ProductInterstitial slug="pro" installsPlugin={ true } />;
+}

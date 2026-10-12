@@ -98,14 +98,13 @@ class Complete extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		$product_slug = static::get_wpcom_product_slug();
-		return array_merge(
-			array(
-				'available'          => true,
-				'wpcom_product_slug' => $product_slug,
-			),
-			Wpcom_Products::get_product_pricing( $product_slug )
-		);
+		if ( ! method_exists( static::class, 'get_bundle_pricing' ) ) {
+			return array(
+				'available'          => false,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+			);
+		}
+		return static::get_bundle_pricing( static::get_paid_plan_product_slugs() );
 	}
 
 	/**
@@ -231,8 +230,8 @@ class Complete extends Module_Product {
 	public static function get_paid_plan_product_slugs() {
 		return array(
 			'jetpack_complete',
-			'jetpack_complete_monthly',
 			'jetpack_complete_bi_yearly',
+			'jetpack_complete_monthly',
 		);
 	}
 
