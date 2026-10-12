@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
-import {
-	authorPostsQuery,
-	authorSummaryQuery,
-	useStatsQuery,
-} from '@jetpack-premium-analytics/data';
+import { authorPostsQuery, getApiErrorCode, useStatsQuery } from '@jetpack-premium-analytics/data';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import type { AuthorPostsRecord, AuthorSummaryResponse } from '@jetpack-premium-analytics/data';
+/**
+ * Internal dependencies
+ */
+import { useAuthorStats } from './use-author-stats';
+import type { AuthorPostsRecord } from '@jetpack-premium-analytics/data';
 
 export type AuthorSummary = {
 	name?: string;
-	/** The author's avatar, when the users endpoint returns a safe http(s) one. */
+	/** The author's avatar, when the stats endpoint returns a safe http(s) one. */
 	avatarUrl?: string;
 	postCount?: number;
 	/** Publish date of the author's oldest post, for "writing since". */
@@ -33,19 +33,45 @@ export type AuthorSummary = {
 	isPostsError: boolean;
 };
 
+// Covers the header's avatar box (72px when written) on 2x screens.
+const AVATAR_SIZE = 144;
+
 /**
- * Resolve the header identity for one author: name and avatar from the users
- * endpoint, plus the post count and the date they started publishing from the
- * posts endpoint. The two requests fail independently, so a posts failure
- * leaves the name and the cards in place.
+ * Ask a Gravatar-style URL for an avatar sized to the header; one without an
+ * `s` parameter is left as it is.
+ *
+ * @param url - A safe http(s) avatar URL.
+ * @return The URL at the header's size.
+ */
+function sizeAvatarUrl( url: string ): string {
+	const parsed = new URL( url );
+	if ( ! parsed.searchParams.has( 's' ) ) {
+		return url;
+	}
+	parsed.searchParams.set( 's', String( AVATAR_SIZE ) );
+	return parsed.toString();
+}
+
+/**
+ * Resolve the header identity for one author: name and avatar from the
+ * `stats/author` request the page already makes for its All time start, plus
+ * the post count and the date they started publishing from the posts endpoint.
+ * The two fail independently, so a posts failure leaves the name and the cards
+ * in place.
  *
  * @param authorId - The user ID from the route.
  * @return The resolved author summary.
  */
 export function useAuthorSummary( authorId: number ): AuthorSummary {
-	const { data, isLoading, isError, error, isSuccess, refetch } =
-		useStatsQuery< AuthorSummaryResponse >( authorSummaryQuery( authorId ) );
+	const { source } = useAuthorStats( authorId );
+	const { isLoading, error, refetch } = source;
 	const posts = useStatsQuery< AuthorPostsRecord >( authorPostsQuery( authorId ) );
+	// Another author's identity, held as placeholder data, must not name this page.
+	const author = source.isPlaceholderData ? null : source.data?.author;
+	const isNotFound = getApiErrorCode( error ) === 'unknown_author';
+	// The avatar is remote data used verbatim as an image source, so it goes
+	// through the shared http(s) guard like every other report URL.
+	const avatarUrl = safeHttpUrl( author?.avatarUrl );
 
 	// The query's own refetch takes a react-query options object; expose a
 	// no-arg wrapper so callers can pass it straight to event handlers.
@@ -54,16 +80,15 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 	}, [ refetch ] );
 
 	return {
-		name: data?.name,
-		// The avatar is remote data used verbatim as an image source, so it goes
-		// through the shared http(s) guard like every other report URL.
-		avatarUrl: safeHttpUrl( data?.avatarUrl ) ?? undefined,
+		name: author?.name,
+		avatarUrl: avatarUrl ? sizeAvatarUrl( avatarUrl ) : undefined,
 		postCount: posts.data?.postCount,
 		firstPublishedDate: posts.data?.firstPublishedDate ?? undefined,
 		isLoading,
-		isError,
+		// A background refetch that fails keeps the identity it already has.
+		isError: source.isError && ! isNotFound && ! author,
 		error,
-		isNotFound: isSuccess && data === null,
+		isNotFound,
 		refetch: retry,
 		isPostsLoading: posts.isLoading,
 		isPostsError: posts.isError,
