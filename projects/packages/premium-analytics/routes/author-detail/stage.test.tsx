@@ -317,7 +317,7 @@ describe( 'author detail stage', () => {
 		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers Retry when the summary fails, keeping the trail and date controls', async () => {
+	it( 'offers Retry when the summary fails, keeping the trail, date controls and cards', async () => {
 		const user = userEvent.setup();
 		// A failed refetch keeps the cached name, which must not reach the trail.
 		mockSummary( { isError: true } );
@@ -329,7 +329,7 @@ describe( 'author detail stage', () => {
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
 		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
 
-		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Author widgets' ) ).toBeInTheDocument();
 		expect(
 			getNoticeAnnouncement(
 				"We couldn't load this author. Please try again in a moment.",

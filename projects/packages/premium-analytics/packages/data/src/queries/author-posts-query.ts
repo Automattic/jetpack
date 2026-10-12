@@ -53,8 +53,7 @@ async function fetchAuthorPosts( authorId: number ): Promise< { posts: unknown; 
 
 /**
  * React Query options for one author's published post count and first publish
- * date, the header subtitle's inputs. Kept apart from `authorSummaryQuery` so
- * a failure here only costs the subtitle.
+ * date, the header subtitle's inputs. A failure here only costs the subtitle.
  *
  * @param authorId - The author's user ID.
  * @return The query options.
