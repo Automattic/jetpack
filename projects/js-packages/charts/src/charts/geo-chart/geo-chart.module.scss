@@ -15,10 +15,19 @@
 		@include tooltip.surface;
 	}
 
-	:global(.google-visualization-tooltip-item-list),
-	:global(.google-visualization-tooltip-item) {
+	:global(.google-visualization-tooltip-item-list) {
 		margin: 0;
 		padding: 0;
+	}
+
+	// The long chain outranks Google's `:first-child` item rule.
+	:global(.google-visualization-tooltip .google-visualization-tooltip-item-list .google-visualization-tooltip-item) {
+		margin: 0;
+		padding: 0;
+
+		&:first-child {
+			padding-block-end: var(--wpds-dimension-padding-md);
+		}
 	}
 
 	// Google writes these inline on every span.
