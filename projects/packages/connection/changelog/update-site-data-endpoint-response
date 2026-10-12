@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Limit the data returned by the site data endpoint.
