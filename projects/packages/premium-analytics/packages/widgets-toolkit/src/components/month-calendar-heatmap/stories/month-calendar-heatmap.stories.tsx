@@ -114,7 +114,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'One mini calendar per month on a shared scale, months across with their names beneath, as the Posting activity widget draws its last 12 months. Days of the first and last month outside the range are faded filler with no tooltip. In a wide tile the blocks spread out; in a narrow one the gaps shrink to the chart minimum and then only the grid scrolls, keeping the legend in place. A tile too short for a legend (a one-row dashboard tile) drops it. Drag `tileWidth` and `tileHeight` to watch both.',
+					'One mini calendar per month on a shared scale, named beneath, as the Posting activity widget draws its last 12 months. Days of the first and last month outside the range are faded filler with no tooltip. The days grow with the tile, wrapping the months onto more rows when that makes them larger; when even the smallest days do not fit, one row of months scrolls, opening on the current month and keeping the legend in place. A tile too short for a legend (a one-row dashboard tile) drops it. Drag `tileWidth` and `tileHeight` to watch both.',
 			},
 		},
 	},
@@ -139,8 +139,8 @@ const DEFAULT_ARGS: MonthCalendarHeatmapStoryControls = {
 };
 
 /**
- * Twelve months in a tile wide enough for the blocks to spread out. The last
- * block closes with filler after the 14th.
+ * Twelve months in a two-row tile: two rows of six, the days grown to fill it. The
+ * last block closes with filler after the 14th.
  */
 export const Default: Story = {
 	render: renderMonthCalendarHeatmap,
@@ -148,12 +148,12 @@ export const Default: Story = {
 };
 
 /**
- * Narrower than the twelve blocks at the minimum gap: the grid scrolls sideways
- * on its own while the legend stays put.
+ * Too narrow for even two rows of the smallest days: one row scrolls sideways on its
+ * own, opening on the current month, while the legend stays put.
  */
 export const Scrolling: Story = {
 	render: renderMonthCalendarHeatmap,
-	args: { ...DEFAULT_ARGS, tileWidth: 720 },
+	args: { ...DEFAULT_ARGS, tileWidth: 480 },
 };
 
 /**

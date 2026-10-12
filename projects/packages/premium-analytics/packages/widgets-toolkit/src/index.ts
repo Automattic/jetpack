@@ -51,6 +51,7 @@ export {
 	Donut,
 	type DonutProps,
 	type DonutSegmentInput,
+	Funnel,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -103,6 +104,8 @@ export {
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	AuthorDetailLink,
+	authorDetailLinkProps,
 	HighlightField,
 	HighlightGroup,
 	type HighlightFieldProps,
@@ -278,9 +281,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	getFormatByMetricKey,
-	buildTimeSeriesChartData,
-	type TimeSeriesData,
 	calculateDelta,
 	flagUrl,
 	BOOKINGS_FILTER,
@@ -355,28 +355,17 @@ export {
  */
 export {
 	BookingsRevenueByCustomerTypeWidget,
-	BookingConversionRateWidget,
-	ConversionRateWidget,
 	RevenueByCustomerTypeWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	SessionsByDeviceWidget,
 } from './widgets';
 
 /**
  * Types
  */
-export type {
-	CountLabel,
-	MetricKey,
-	OrderMetricKey,
-	OrderMetrics,
-	OrdersSummary,
-	DataFormat,
-	WidgetStatus,
-} from './types';
+export type { CountLabel, DataFormat, WidgetStatus } from './types';
 
 /**
  * Charts passthrough. Widgets must import chart components from here, never
