@@ -8,6 +8,7 @@ import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, {
+	BackupFailedRunBanner,
 	BackupTroubleBanner,
 	BackupWarningsBanner,
 } from '../components/backup-status/banner';
@@ -220,10 +221,11 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	const finishedRuns = useRefreshActivityOnBackupComplete(
+	const { finishedRuns, failedRun } = useRefreshActivityOnBackupComplete(
 		backupsState,
 		isBackupRequested,
-		backups.find( isUsableBackup )?.id ?? null
+		backups.find( isUsableBackup )?.id ?? null,
+		backups[ 0 ] ?? null
 	);
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
@@ -354,6 +356,9 @@ function OverviewBody() {
 				/>
 			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
+			{ backupsState === 'complete' && failedRun && (
+				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
+			) }
 			{ /*
 			 * The storage row, with the next scheduled backup at its end. The gate stops an
 			 * errored or loading backups read promising a next run under "We couldn't check

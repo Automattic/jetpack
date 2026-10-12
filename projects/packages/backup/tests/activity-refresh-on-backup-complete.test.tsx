@@ -197,4 +197,28 @@ describe( 'A backup finishing while the Overview is open', () => {
 			( speak as jest.Mock ).mock.calls.filter( ( [ text ] ) => text === 'Your backup is ready.' )
 		).toHaveLength( 1 );
 	} );
+
+	it( 'reports a run that failed behind an older backup, on screen and aloud', async () => {
+		const olderBackup = { ...FINISHED_BACKUP, id: '0', period: '1786644531' };
+		backupRows = [ RUNNING_BACKUP, olderBackup ];
+		render( <OverviewStage /> );
+		await expect(
+			screen.findByRole( 'heading', { name: 'Older backup complete' } )
+		).resolves.toBeInTheDocument();
+		await pollAndSettle();
+
+		backupRows = [ { ...RUNNING_BACKUP, status: 'error' }, olderBackup ];
+		await pollAndSettle();
+
+		const failed =
+			"Your latest backup didn't complete. Your earlier backups can still be restored.";
+		await expect(
+			screen.findByText( failed, { ignore: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect(
+				( speak as jest.Mock ).mock.calls.filter( ( [ text ] ) => text === failed )
+			).toHaveLength( 1 )
+		);
+	} );
 } );
