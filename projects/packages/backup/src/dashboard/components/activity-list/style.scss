@@ -31,6 +31,11 @@
 		a {
 			text-decoration: none;
 		}
+
+		// Focused only by script, when a retry clears the error; see `.jpb-overview`.
+		h2:focus {
+			outline: none;
+		}
 	}
 
 	&__new {

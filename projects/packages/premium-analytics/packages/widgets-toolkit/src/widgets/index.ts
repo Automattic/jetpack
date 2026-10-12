@@ -5,6 +5,5 @@ export {
 	BookingsRevenueByCustomerTypeWidget,
 } from './revenue-by-customer-type';
 export { SalesByDeviceWidget } from './sales-by-device';
-export { SessionsByDeviceWidget } from './sessions-by-device';
 export { TotalReturnsWidget } from './total-returns';
 export { VisitorsByLocationWidget } from './visitors-by-location';

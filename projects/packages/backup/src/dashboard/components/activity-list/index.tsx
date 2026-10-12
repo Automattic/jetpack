@@ -1,5 +1,12 @@
 import { DataViews } from '@wordpress/dataviews';
-import { createContext, useCallback, useContext, useEffect, useMemo } from '@wordpress/element';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -269,6 +276,9 @@ export default function ActivityList( {
 		}
 	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
 
+	// Where focus goes once a successful retry takes the error, and its button, away.
+	const headingRef = useRef< HTMLHeadingElement >( null );
+
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
 	// reader their site has no activity. The `empty` slot is the same node
@@ -280,6 +290,7 @@ export default function ActivityList( {
 			error={ error }
 			onRetry={ refetch }
 			isRetrying={ isFetching }
+			returnFocusTo={ headingRef }
 		/>
 	) : undefined;
 
@@ -396,7 +407,7 @@ export default function ActivityList( {
 						className="jpb-activity-list__toolbar"
 					>
 						<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
-							<Text variant="heading-lg" render={ <h2 /> }>
+							<Text variant="heading-lg" render={ <h2 /> } ref={ headingRef } tabIndex={ -1 }>
 								{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
 							</Text>
 							<Text variant="body-sm" className="jpb-text-muted">

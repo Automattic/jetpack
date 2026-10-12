@@ -519,6 +519,97 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * `/subscribers/send-bounce-confirmation` forwards the address to the site-scoped wpcom route.
+	 */
+	public function test_send_bounce_confirmation_forwards_email_address() {
+		$captured = array(
+			'url'  => '',
+			'body' => '',
+		);
+		$filter   = function ( $preempt, $parsed_args, $url ) use ( &$captured ) {
+			$captured['url']  = $url;
+			$captured['body'] = $parsed_args['body'] ?? null;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'success'      => true,
+						'bounce_retry' => array(
+							'can_retry' => false,
+							'sent_on'   => '2026-10-01T12:00:00+00:00',
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/send-bounce-confirmation' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'email_address' => 'reader@example.com' ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['success'] );
+		$this->assertStringContainsString(
+			'/wpcom/v2/sites/' . static::$blog_id . '/subscribers/send-bounce-confirmation',
+			$captured['url']
+		);
+		$this->assertSame(
+			array( 'email_address' => 'reader@example.com' ),
+			json_decode( (string) $captured['body'], true )
+		);
+	}
+
+	/**
+	 * WP.com's error code and status pass through, so the dashboard can tell a cooldown (429) apart.
+	 */
+	public function test_send_bounce_confirmation_passes_through_wpcom_error() {
+		$filter = function () {
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'code'    => 'subscribers_bounce_retry_unavailable',
+						'message' => 'A confirmation email cannot be sent to this subscriber yet.',
+						'data'    => array( 'status' => 429 ),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				'response' => array(
+					'code'    => 429,
+					'message' => 'Too Many Requests',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/send-bounce-confirmation' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'email_address' => 'reader@example.com' ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter );
+
+		$this->assertSame( 429, $response->get_status() );
+		$this->assertSame( 'subscribers_bounce_retry_unavailable', $response->get_data()['code'] );
+	}
+
+	/**
 	 * `/subscribers/comp` needs exactly one subscriber identifier.
 	 *
 	 * @param array $payload Request body.
