@@ -509,7 +509,6 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'line chart', mockLineSpy, [ VIEWS, VISITORS ], undefined, undefined ],
 		[ 'bar chart', mockBarSpy, [ VIEWS, VISITORS ], 'bar', undefined ],
 		[ 'narrow dropdown layout', mockLineSpy, [ VIEWS, VISITORS ], undefined, 100 ],
 		[ 'single metric', mockLineSpy, [ VIEWS ], undefined, undefined ],

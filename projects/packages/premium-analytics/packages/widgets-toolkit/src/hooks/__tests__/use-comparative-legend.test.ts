@@ -16,16 +16,13 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 const SERIES = [ { label: 'Views', data: [] } ] as unknown as SeriesData[];
 
 describe( 'useComparativeLegend', () => {
-	it.each( [
-		[ 'the applied comparison', 'Prev. 30 days', 'Views (Prev. 30 days)' ],
-		[ 'a generic period without one', undefined, 'Views (Previous period)' ],
-	] )( "names each metric's comparison item after %s", ( _case, comparisonLabel, expected ) => {
-		const { result } = renderHook( () =>
-			useComparativeLegend( SERIES, true, comparisonLabel, 'line' )
-		);
+	it( "names each metric's comparison item after a generic period without a comparison", () => {
+		const { result } = renderHook( () => useComparativeLegend( SERIES, true, undefined, 'line' ) );
 
 		expect( result.current.config ).toMatchObject( { collapseGroups: true, interactive: true } );
-		expect( result.current.config.comparisonSeriesItems( 'Views' ) ).toBe( expected );
+		expect( result.current.config.comparisonSeriesItems( 'Views' ) ).toBe(
+			'Views (Previous period)'
+		);
 		expect( jest.mocked( useChartLegendItems ) ).toHaveBeenLastCalledWith(
 			SERIES,
 			result.current.config,

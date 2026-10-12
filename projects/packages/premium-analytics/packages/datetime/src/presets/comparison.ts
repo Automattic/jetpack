@@ -367,10 +367,10 @@ function getLegendLabel(
  * @param id      - The comparison preset.
  * @return The option, or undefined when the range does not offer it.
  */
-export function findComparisonOption< T extends Pick< ComparisonOption, 'id' | 'aliases' > >(
-	options: readonly T[],
+export function findComparisonOption(
+	options: readonly ComparisonOption[],
 	id: string
-): T | undefined {
+): ComparisonOption | undefined {
 	return options.find(
 		option => option.id === id || ( option.aliases as readonly string[] ).includes( id )
 	);
