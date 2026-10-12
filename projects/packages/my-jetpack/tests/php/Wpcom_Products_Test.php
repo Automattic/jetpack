@@ -228,6 +228,7 @@ class Wpcom_Products_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$expected = array(
+			'available'             => true,
 			'currency_code'         => 'BRL',
 			'full_price'            => 4.9,
 			'discount_price'        => 2.45,
@@ -253,6 +254,116 @@ class Wpcom_Products_Test extends TestCase {
 		$this->assertSame( array(), $product_price );
 	}
 	/**
+	 * Catalog availability must never enable unsupported Pro billing terms.
+	 *
+	 * @dataProvider bundle_availability
+	 * @param mixed $availability Store availability field.
+	 * @param bool  $expected Whether new sales are allowed.
+	 */
+	#[DataProvider( 'bundle_availability' )]
+	public function test_bundle_availability( $availability, $expected ) {
+		$this->create_user_and_login();
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		$products = (object) array();
+		foreach ( array(
+			'jetpack_pro_yearly'         => 'year',
+			'jetpack_pro_bi_yearly'      => 'two years',
+			'jetpack_pro_monthly'        => 'month',
+			'jetpack_complete'           => 'year',
+			'jetpack_complete_bi_yearly' => 'two years',
+			'jetpack_complete_monthly'   => 'month',
+			'jetpack_security_t1_yearly' => 'year',
+			'jetpack_growth_yearly'      => 'year',
+		) as $slug => $term ) {
+			$products->$slug = (object) array(
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => $term,
+			);
+			if ( null !== $availability ) {
+				$products->$slug->available = $availability;
+			}
+		}
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $products, JSON_UNESCAPED_SLASHES ),
+		);
+		add_filter( 'pre_http_request', $filter );
+		try {
+			$pro = Pro::get_pricing_for_ui();
+			$this->assertSame( $expected, $pro['available'] );
+			$this->assertSame( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ), array_column( $pro['terms'], 'wpcom_product_slug' ) );
+			$this->assertSame( array( $expected, $expected ), array_column( $pro['terms'], 'available' ) );
+		} finally {
+			remove_filter( 'pre_http_request', $filter );
+		}
+	}
+
+	/**
+	 * Availability fixtures from the Store consumer contract.
+	 *
+	 * @return array
+	 */
+	public static function bundle_availability() {
+		return array(
+			'on'      => array( true, true ),
+			'off'     => array( false, false ),
+			'missing' => array( null, false ),
+			'string'  => array( 'yes', false ),
+			'integer' => array( 1, false ),
+		);
+	}
+
+	/**
+	 * Cached offers follow a remote launch and rollback; failures preserve prices without selling.
+	 */
+	public function test_launch_rollback_and_failed_refresh() {
+		$this->create_user_and_login();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		$available = false;
+		$filter    = static function () use ( &$available ) {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					(object) array(
+						'jetpack_pro_yearly' => array(
+							'available'     => $available,
+							'cost'          => 348,
+							'currency_code' => 'USD',
+							'product_term'  => 'year',
+						),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
+		try {
+			$this->assertFalse( Pro::get_pricing_for_ui()['available'] );
+			$available = true;
+			update_user_meta( self::$user_id, Wpcom_Products::CACHE_DATE_META_NAME, time() - 6 * MINUTE_IN_SECONDS );
+			$this->assertTrue( Pro::get_pricing_for_ui()['available'] );
+			$available = false;
+			Wpcom_Products::get_products( true );
+			$this->assertFalse( Pro::get_pricing_for_ui()['available'] );
+			$available = true;
+			Wpcom_Products::get_products( true );
+		} finally {
+			remove_filter( 'pre_http_request', $filter );
+		}
+		add_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
+		try {
+			update_user_meta( self::$user_id, Wpcom_Products::CACHE_DATE_META_NAME, time() - 6 * MINUTE_IN_SECONDS );
+			$pricing = Pro::get_pricing_for_ui();
+			$this->assertFalse( $pricing['available'] );
+			$this->assertSame( 348, $pricing['full_price'] );
+		} finally {
+			remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
+		}
+	}
+
+	/**
 	 * Recognize Pro purchases while sales are off without classifying them as Complete.
 	 *
 	 * @dataProvider pro_subscriptions
@@ -274,5 +385,56 @@ class Wpcom_Products_Test extends TestCase {
 	 */
 	public static function pro_subscriptions() {
 		return array_map( static fn( $slug ) => array( $slug ), Pro::get_paid_plan_product_slugs() );
+	}
+
+	/**
+	 * A protected subscription must not produce an incompatible Pro offer.
+	 *
+	 * @dataProvider support_assisted_changes
+	 * @param string $slug Subscription slug.
+	 */
+	#[DataProvider( 'support_assisted_changes' )]
+	public function test_existing_subscriptions_requiring_support_are_not_replaced( $slug ) {
+		$this->create_user_and_login();
+		Wpcom_Products::reset_purchases_cache();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array( (object) array( 'product_slug' => $slug ) ), HOUR_IN_SECONDS );
+
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode(
+				(object) array(
+					'jetpack_pro_yearly'    => array(
+						'available'     => true,
+						'cost'          => 348,
+						'currency_code' => 'USD',
+						'product_term'  => 'year',
+					),
+					'jetpack_pro_bi_yearly' => array(
+						'available'     => true,
+						'cost'          => 552,
+						'currency_code' => 'USD',
+						'product_term'  => 'two years',
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+		);
+		add_filter( 'pre_http_request', $filter );
+		try {
+			$pricing = Pro::get_pricing_for_ui();
+			$this->assertFalse( $pricing['available'] );
+			$this->assertSame( array( false, false ), array_column( $pricing['terms'], 'available' ) );
+		} finally {
+			remove_filter( 'pre_http_request', $filter );
+		}
+	}
+
+	/**
+	 * Downgrades and subscriptions the standard Pro cart cannot replace.
+	 *
+	 * @return array
+	 */
+	public static function support_assisted_changes() {
+		return array_map( static fn( $slug ) => array( $slug ), array( 'jetpack_complete', 'jetpack_complete_bi_yearly', 'jetpack_complete_monthly', 'jetpack_search', 'jetpack_stats_yearly', 'jetpack_backup_t2_yearly', 'jetpack_backup_realtime', 'jetpack_security_t2_yearly', 'jetpack_security_realtime', 'jetpack_monitor_yearly' ) );
 	}
 }
