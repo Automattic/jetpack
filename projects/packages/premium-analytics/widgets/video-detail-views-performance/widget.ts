@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -33,7 +32,6 @@ export type VideoDetailViewsPerformanceAttributes = {
  * bucketed client-side at the page's chart interval.
  */
 export default {
-	icon: seen,
 	attributes: [
 		{
 			id: 'chartType',

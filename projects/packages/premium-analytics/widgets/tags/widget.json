@@ -1,5 +1,6 @@
 {
 	"name": "jpa/tags",
+	"icon": "jpa/category",
 	"title": "Top tags & categories",
 	"description": "The tags and categories of your most viewed posts in the selected period, ranked by views.",
 	"help": {

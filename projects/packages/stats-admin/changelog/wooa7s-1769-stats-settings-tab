@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: Save the WordPress.com Reader setting through the Stats package, and answer a save the site did not store with a 500 status.

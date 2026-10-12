@@ -111,9 +111,7 @@ function is_subscribers_dashboard_section_available() {
  */
 function get_traffic_section_default_layout() {
 	return array(
-		// Rows fill the three-column grid in the prototype's order. Plan usage
-		// is intentionally not a default; it stays available from the widget
-		// picker.
+		// Rows fill the three-column grid in the prototype's order.
 		// Row 1: traffic chart.
 		get_dashboard_default_widget_instance(
 			'default-traffic-chart-widget-instance',
@@ -263,13 +261,13 @@ function get_insights_section_default_layout() {
 			1,
 			2
 		),
-		// Row 4: posting-activity heatmap.
+		// Row 4: posting-activity heatmap. Two rows tall so the months wrap into larger days.
 		get_dashboard_default_widget_instance(
 			'default-posting-activity-widget-instance',
 			'jpa/posting-activity',
 			6,
 			3,
-			1
+			2
 		),
 		// Row 5: the all-time views table, one row per year. Two rows tall so a
 		// few years fit before the grid scrolls.

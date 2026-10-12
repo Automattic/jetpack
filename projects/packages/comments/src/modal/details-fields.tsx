@@ -8,7 +8,7 @@ import type { DetailsFieldsProps } from './types';
  * @param props            - Component props.
  * @param props.emailTaken - Whether the email belongs to a WordPress.com account.
  * @param props.introId    - The intro describing the fields, read with the first one.
- * @param props.logIn      - The sign-in the taken-email notice points to, since a guest's Change opens straight on the fields.
+ * @param props.logIn      - The sign-in the taken-email notice points to.
  * @return The fields and the save switch.
  */
 export const DetailsFields = ( { emailTaken, introId, logIn }: DetailsFieldsProps ) => {

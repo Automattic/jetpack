@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -28,7 +27,6 @@ export type AuthorPerformanceAttributes = {
  * `stats/author/<id>`.
  */
 export default {
-	icon: seen,
 	attributes: [
 		{
 			id: 'chartType',

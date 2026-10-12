@@ -11,6 +11,7 @@ import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent } from '../tracks';
@@ -332,18 +333,19 @@ function UsageCard( { upgradeUrl, planName } ) {
 /**
  * Overview view.
  *
- * @param {object}  props                   - Component props.
- * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
- * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
- * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
- * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
- *                                          copy promises AI-agent actions, which need MCP.
- * @param {boolean} [props.canLoadUsage]    - Whether the usage endpoint can answer for this
- *                                          site; when it cannot, usage is neither shown nor asked for.
+ * @param {object}  props                       - Component props.
+ * @param {string}  [props.activityLogUrl]      - URL for the site's activity log; row hidden without it.
+ * @param {boolean} [props.activityLogFiltered] - Whether the activity-log link opens filtered to AI agent actions.
+ * @param {string}  [props.upgradeUrl]          - Upgrade destination for the usage card.
+ * @param {string}  [props.planName]            - Purchase name granting AI, from the page data.
+ * @param {boolean} [props.showActivityLog]     - Whether the activity-log row applies; it needs MCP.
+ * @param {boolean} [props.canLoadUsage]        - Whether the usage endpoint can answer for this
+ *                                              site; when it cannot, usage is neither shown nor asked for.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
 	activityLogUrl,
+	activityLogFiltered = false,
 	upgradeUrl,
 	planName,
 	showActivityLog,
@@ -441,11 +443,9 @@ export default function AiOverview( {
 					<NavRow
 						icon={ list }
 						title={ __( 'Activity log', 'jetpack' ) }
-						description={ __(
-							'Review recent actions taken by AI agents on your site.',
-							'jetpack'
-						) }
+						description={ getActivityLogDescription( activityLogFiltered ) }
 						href={ activityLogUrl }
+						onClick={ onActivityLogClick( activityLogFiltered ) }
 						tone="neutral"
 					/>
 				</Card.Root>

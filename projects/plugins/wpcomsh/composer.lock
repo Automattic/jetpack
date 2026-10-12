@@ -667,13 +667,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "d2ad265d35300ce1f21341705931ac7477f55735"
+                "reference": "6d0a06d152cdc0ee1da61b72e2fad73ae08a1ddb"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "automattic/jetpack-ip": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
             },
             "suggest": {

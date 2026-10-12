@@ -2,6 +2,7 @@ import { render } from 'preact';
 import { DialogHost, mountDialog } from '../modal/host';
 import { resolveSubmitted } from '../shared/draft';
 import { CommentSignals, createSignals } from '../shared/state';
+import { recordEvent } from '../shared/tracks';
 import { CommentForm } from './comment-form';
 import type { FormSettings } from '../shared/types';
 
@@ -19,6 +20,9 @@ if (
 	document
 		.querySelectorAll( '.jetpack-comments' )
 		.forEach( element => element.classList.add( 'is-plain' ) );
+	recordEvent( 'jetpack_comments_plain_form', {
+		reason: JetpackComments.version !== JETPACK_COMMENTS_VERSION ? 'version' : 'browser',
+	} );
 } else {
 	if ( ! customElements.get( 'jetpack-comments-dialog' ) ) {
 		customElements.define( 'jetpack-comments-dialog', DialogHost );

@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { emailHasAccount, signIn } from '../shared/checkpoint';
 import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
+import { recordEvent } from '../shared/tracks';
 import { DetailsFields } from './details-fields';
 import { Header } from './header';
 import { guestValue } from './host';
@@ -48,8 +49,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const [ checkingEmail, setCheckingEmail ] = useState( false );
 	// One request per address, shared by the debounced check and a submit that beats it.
 	const emailCheck = useRef< { email: string; taken: Promise< boolean | null > } | null >( null );
-	// Straight to the fields when they are the only way through, or a saved guest is changing them.
-	const firstStep = identity.canSignIn && commenter.value.kind !== 'guest' ? 'choose' : 'guest';
+	// Straight to the fields when they are the only way through.
+	const firstStep = identity.canSignIn ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< Step >( firstStep );
 	const defaultSubscribed = () =>
 		Object.fromEntries(
@@ -96,6 +97,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			if ( ! element?.open ) {
 				opener.current = element!.ownerDocument.activeElement;
 				element!.showModal();
+				recordEvent( 'jetpack_comments_dialog_open', { step, posting } );
 			}
 			return;
 		}
@@ -146,6 +148,13 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		};
 	}, [ enteredEmail, showFields ] );
 
+	// Simple turns a guest away for an email with a WordPress.com account.
+	useEffect( () => {
+		if ( emailTaken ) {
+			recordEvent( 'jetpack_comments_email_has_account' );
+		}
+	}, [ emailTaken ] );
+
 	const logIn = async () => {
 		setSignInStatus( 'pending' );
 
@@ -155,6 +164,18 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		} );
 
 		popup.current = null;
+
+		let outcome = 'cancelled';
+		if ( 'error' in result ) {
+			outcome = 'error';
+		} else if ( 'code' in result ) {
+			outcome = 'success';
+		}
+		recordEvent( 'jetpack_comments_sign_in', {
+			result: outcome,
+			error: 'error' in result ? result.error : '',
+			posting,
+		} );
 
 		if ( 'error' in result ) {
 			setSignInStatus( result.error === 'rate_limited' ? 'rate_limited' : 'failed' );
@@ -295,7 +316,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 						<button
 							type="button"
 							className="jetpack-comments__button is-secondary"
-							onClick={ () => setStep( 'guest' ) }
+							onClick={ () => {
+								setStep( 'guest' );
+								recordEvent( 'jetpack_comments_guest_choose', { posting } );
+							} }
 						>
 							{ strings.continueAsGuest }
 						</button>

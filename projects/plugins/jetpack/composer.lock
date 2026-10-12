@@ -1097,13 +1097,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "c9eeaf06c08c1100f7842c4e32ccad3a380977dc"
+                "reference": "fa388619a8a9e0d7d48231847678c98cac5aab42"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "automattic/jetpack-ip": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
             },
             "suggest": {

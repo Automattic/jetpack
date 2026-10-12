@@ -37,24 +37,17 @@ Each button also generates a shareable payment link URL you can use in emails, s
 #### Step 2: Connect in the Block Editor
 
 1. Add a **Pay with PayPal** block to any post or page. The block itself only says it needs a PayPal business account; the connection happens in the block settings sidebar
-2. The sidebar shows **Connect your PayPal account**, with a sandbox toggle and a **Connect PayPal** button that opens PayPal's own sign-up or log-in. Sites that cannot use it get the credentials wizard instead:
+2. The sidebar shows **Connect your PayPal account**, with a **Connect PayPal** button that opens PayPal's own sign-up or log-in. Sites that cannot use it get the credentials wizard instead:
    - **Dashboard** — Follow the link to the PayPal Developer Dashboard to get your credentials
    - **Credentials** — Paste your Client ID and Client Secret
 3. The plugin validates your credentials with PayPal
 4. Once connected, you'll see the product creation form
 
-The plugin defaults to **Production** mode — you can accept real payments right away.
+The plugin connects to **Production** — you can accept real payments right away.
 
 #### Testing with Sandbox
 
-To test without processing real payments:
-
-1. In the PayPal Developer Dashboard, select the **Sandbox** tab under Apps & Credentials
-2. Create a Sandbox app and copy its Client ID and Client Secret
-3. In the block editor credentials step, click **"Use Sandbox for testing"** at the bottom
-4. Enter your Sandbox credentials
-
-When you're ready for real payments, disconnect and reconnect with your Live (Production) credentials.
+The connection wizard does not offer PayPal's sandbox. Developers can turn it on with the `paypal-payments-sandbox` feature flag (see `DEVELOPMENT.md`); a site connected to the sandbox that way stays connected until it disconnects, after which the wizard connects to Production again.
 
 ### Creating a Button
 
@@ -126,7 +119,7 @@ Disconnect PayPal from the block sidebar at any time. Your stored credentials an
 
 | Issue | Solution |
 |-------|----------|
-| "Client ID or Client Secret is incorrect" | Verify you're using credentials from the correct environment tab (Live vs. Sandbox) in the PayPal Developer Dashboard |
+| "Client ID or Client Secret is incorrect" | Verify you're using credentials from the **Live** tab in the PayPal Developer Dashboard |
 | "Not authorized for Payment Links & Buttons" | Your PayPal app needs the Payment Links & Buttons feature enabled. Check your app settings or create a new app |
 | "Could not connect to PayPal" | Your hosting may block outgoing HTTPS requests. Ask your host to whitelist `api.paypal.com` |
 | "PayPal is temporarily unavailable" | PayPal may be experiencing an outage. The plugin retries automatically — try again in a few minutes |

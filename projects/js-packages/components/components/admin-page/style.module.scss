@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 .admin-page {
 	margin-inline-start: -20px; // to neutralize the padding of #wpcontent.
 
@@ -35,28 +37,9 @@
 		clear: both;
 	}
 
-	// admin-ui's header `visual` slot is a 24px grid box but does not center
-	// its contents. Our JetpackLogo is 20px tall, so without this it pins to
-	// the top-left of the cell and looks misaligned vs. the title. admin-ui
-	// ships the slot as `<div aria-hidden="true">` in the header.
-	// TODO: remove once upstream centers contents in `.header-visual`.
-	:global(.jp-admin-page__page > :first-child [aria-hidden="true"]) {
-		place-items: center;
-	}
+	:global(.jp-admin-page__page) {
 
-	// Keep the header a constant height across tabs. The content row's height
-	// is driven by its tallest child (the `actions` slot), so tabs with
-	// differently-sized action controls — or none at all — render headers of
-	// different heights, which shifts the tab strip below them vertically.
-	// Reserve the standard 40px WP control height as a floor and center the
-	// row's items so a shorter control neither stretches nor collapses it.
-	// The content row is identified by the visual logo slot it contains
-	// (`aria-hidden="true"`), so a breadcrumbs-only header isn't affected.
-	// `> :first-child` targets the page header positionally (a `<div>` in
-	// admin-ui ≥ 2.1, a `<header>` in 2.0) — matching the sibling rules above.
-	:global(.jp-admin-page__page > :first-child > div:has([aria-hidden="true"])) {
-		min-height: 40px;
-		align-items: center;
+		@include jetpack-admin-page-header;
 	}
 
 	.admin-page-header {
