@@ -8,12 +8,16 @@ import type { SeriesData } from '../types';
 
 type LabelStyle = { fontSize?: number | string };
 
+const STARTS_LIKE_A_NUMBER = /^[+-]?[\d.]/;
+const NON_NEGATIVE_CSS_NUMBER = /^\+?(?:\d*\.)?\d+(?:e[+-]?\d+)?(?:[a-z]+|%)?$/i;
+
 const isRenderableFontSize = ( fontSize: number | string ): boolean => {
 	if ( typeof fontSize === 'number' ) {
 		return resolveFontSize( fontSize ) !== undefined;
 	}
-	// `resolveFontSize` rejects `rem` and other units that render fine but cannot be measured, so strings are checked by the browser instead.
-	return typeof CSS === 'undefined' || CSS.supports( 'font-size', fontSize );
+	// A pattern, not `CSS.supports`, so SSR and the browser agree; `resolveFontSize` would drop renderable `rem`. Keywords, `var()` and `calc()` pass through.
+	const value = fontSize.trim();
+	return ! STARTS_LIKE_A_NUMBER.test( value ) || NON_NEGATIVE_CSS_NUMBER.test( value );
 };
 
 // visx writes `fontSize` straight onto `<text>`, where an invalid one renders at the browser's 16px default; dropping it lets visx use its own default.

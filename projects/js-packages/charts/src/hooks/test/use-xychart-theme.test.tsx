@@ -73,7 +73,10 @@ describe( 'useXYChartTheme', () => {
 		[ -12, 11 ],
 		[ Infinity, 11 ],
 		[ 14, 14 ],
+		[ '-12px', 11 ],
+		[ '12.px', 11 ],
 		[ '0.875rem', '0.875rem' ],
+		[ 'var(--size)', 'var(--size)' ],
 	] )( 'renders a theme fontSize of %p as %p', ( fontSize, expected ) => {
 		const wrapper = ( { children }: { children: ReactNode } ) => (
 			<GlobalChartsProvider theme={ { svgLabelSmall: { fontSize } } }>
