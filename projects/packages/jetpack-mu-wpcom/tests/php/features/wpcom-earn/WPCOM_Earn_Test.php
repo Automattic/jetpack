@@ -253,7 +253,7 @@ class WPCOM_Earn_Test extends \WorDBless\BaseTestCase {
 		$state = (array) $this->printed_initial_state();
 
 		$this->assertSame(
-			array( 'domain', 'blogId', 'siteUrl', 'isAtomic', 'features', 'wordadsEnabled' ),
+			array( 'domain', 'blogId', 'siteUrl', 'isAtomic', 'features', 'wordadsEnabled', 'siteIntent' ),
 			array_keys( $state )
 		);
 		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $state['domain'] );

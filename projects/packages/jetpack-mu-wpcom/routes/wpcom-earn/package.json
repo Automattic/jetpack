@@ -3,10 +3,14 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-query": "^5.15.5",
 		"@types/react": "^18.3.28",
+		"@wordpress/api-fetch": "7.55.0",
+		"@wordpress/compose": "8.8.0",
 		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "6.28.0",
+		"@wordpress/icons": "16.0.0",
 		"@wordpress/route": "0.21.0",
 		"@wordpress/ui": "0.22.0"
 	},

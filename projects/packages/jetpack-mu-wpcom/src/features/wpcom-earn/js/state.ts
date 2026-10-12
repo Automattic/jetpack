@@ -16,6 +16,8 @@ export interface InitialState {
 	};
 	/** Whether the site is running WordAds, not just eligible for it. */
 	wordadsEnabled: boolean;
+	/** What the site was set up for, e.g. `newsletter`. */
+	siteIntent: string;
 }
 
 declare global {
@@ -44,6 +46,7 @@ export function getInitialState(): InitialState {
 				recurringPayments: false,
 			},
 			wordadsEnabled: false,
+			siteIntent: '',
 		}
 	);
 }
