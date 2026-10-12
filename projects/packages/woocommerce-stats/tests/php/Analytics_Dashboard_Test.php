@@ -117,6 +117,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
 				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
 				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
+				Analytics_Dashboard::SESSIONS_BY_DEVICE_TYPE,
 				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
