@@ -1433,10 +1433,10 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 
-				{ /* Shipping */ }
+				{ /* Shipping fees */ }
 				<ToggleControl
-					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
-					help={ __( 'Set shipping fees', 'jetpack-paypal-payments' ) }
+					label={ __( 'Shipping fees', 'jetpack-paypal-payments' ) }
+					help={ __( 'Set the shipping fee, including free shipping', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
 					onChange={ value =>
 						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )

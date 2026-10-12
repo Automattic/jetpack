@@ -5366,10 +5366,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openSavedForm();
 		}
 
-		it( 'shows the address checkbox without the fees while shipping is off', async () => {
+		it( 'hides the fee select and shows the fees help and address checkbox with shipping fees off', async () => {
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
-			expect( screen.getByLabelText( 'Add shipping' ) ).not.toBeChecked();
+			expect( screen.getByLabelText( 'Shipping fees' ) ).not.toBeChecked();
+			expect(
+				screen.getByText( 'Set the shipping fee, including free shipping' )
+			).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
 
 			const box = screen.getByLabelText( 'Collect shipping address' );
@@ -5566,11 +5569,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'turns shipping on and leaves the rest alone', async () => {
+		it( 'turns shipping fees on and leaves the rest alone', async () => {
 			const user = userEvent.setup();
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
-			await user.click( screen.getByLabelText( 'Add shipping' ) );
+			await user.click( screen.getByLabelText( 'Shipping fees' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { shippingEnabled: true } );
 		} );
@@ -5650,7 +5653,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		it( 'resets the mode and both fees when shipping goes off, keeping the address', async () => {
+		it( 'resets the mode and both fees when shipping fees go off, keeping the address', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -5658,7 +5661,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				collectShippingAddress: true,
 			} );
 
-			await user.click( screen.getByLabelText( 'Add shipping' ) );
+			await user.click( screen.getByLabelText( 'Shipping fees' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				shippingEnabled: false,
@@ -5674,7 +5677,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'on', true ],
 			[ 'off', false ],
 		] )(
-			'asks for the address while the tax comes from the PayPal profile, with shipping %s',
+			'asks for the address while the tax comes from the PayPal profile, with shipping fees %s',
 			async ( _label, shippingEnabled ) => {
 				await renderShipping( {
 					shippingEnabled,
@@ -5812,7 +5815,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'on', true ],
 			[ 'off', false ],
 		] )(
-			'writes the address preference when the box is ticked, with shipping %s',
+			'writes the address preference when the box is ticked, with shipping fees %s',
 			async ( _label, shippingEnabled ) => {
 				const user = userEvent.setup();
 				await renderShipping( { shippingEnabled } );
@@ -5823,7 +5826,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			}
 		);
 
-		it( 'lets the address be unticked with shipping and tax off', async () => {
+		it( 'lets the address be unticked with shipping fees and tax off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingEnabled: false,
