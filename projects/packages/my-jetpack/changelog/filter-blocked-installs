@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Features: Exclude features with blocked plugin installs from the Available filter.
+Features: Leave features you can't install out of the Available filter.

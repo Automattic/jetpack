@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Features: Offer account connection for features that need a connected account.
+Features: Show a "Connect your account" button on features that need a connected WordPress.com account.

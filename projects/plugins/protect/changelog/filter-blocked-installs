@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: Exclude features with blocked plugin installs from the Available filter.
+My Jetpack: Leave features you can't install out of the Available filter.
