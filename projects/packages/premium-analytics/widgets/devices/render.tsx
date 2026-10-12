@@ -3,19 +3,18 @@
  */
 import { __ } from '@wordpress/i18n';
 import {
-	SemiCircle,
+	Donut,
 	WIDGET_ROW_LIMIT,
 	describeError,
 	WidgetRoot,
 	useWidgetRootContext,
+	type DonutSegmentInput,
 	type ReportParamsFieldAttributes,
-	type SemiCircleSegmentInput,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
 import useDeviceViews from './use-device-views';
 import { type DevicesAttributes } from './widget';
 /**
@@ -43,7 +42,7 @@ function DevicesInner() {
 		deviceProperty: 'screensize',
 	} );
 
-	const segments = useMemo< SemiCircleSegmentInput[] >(
+	const segments = useMemo< DonutSegmentInput[] >(
 		() =>
 			data.map( item => ( {
 				label: item.displayLabel,
@@ -55,7 +54,7 @@ function DevicesInner() {
 	);
 
 	return (
-		<SemiCircle
+		<Donut
 			segments={ segments }
 			status={ { isLoading, isFetching, isError, hasComparison, refetch } }
 			error={ describeError( error, {
@@ -66,6 +65,7 @@ function DevicesInner() {
 				onRetry: refetch,
 			} ) }
 			format={ PERCENTAGE_DATA_FORMAT }
+			variant="half-ring"
 			withTotal={ false }
 		/>
 	);
@@ -77,9 +77,7 @@ function DevicesInner() {
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<div className={ styles.root }>
-				<DevicesInner />
-			</div>
+			<DevicesInner />
 		</WidgetRoot>
 	);
 }

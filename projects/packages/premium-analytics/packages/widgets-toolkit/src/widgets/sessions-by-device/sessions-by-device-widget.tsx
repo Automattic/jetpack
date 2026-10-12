@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { SemiCircle, type SemiCircleSegmentInput } from '../../components/semi-circle';
+import { Donut, type DonutSegmentInput } from '../../components/donut';
 import { useWidgetRootContext } from '../../components/widget-root';
 
 const DEVICE_LABELS: Record< string, string > = {
@@ -33,7 +33,7 @@ export function SessionsByDeviceWidget() {
 	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportSessionsByDevice( reportParams );
 
-	const segments = useMemo< SemiCircleSegmentInput[] >( () => {
+	const segments = useMemo< DonutSegmentInput[] >( () => {
 		const previous = new Map(
 			( comparison.data?.data ?? [] ).map( item => [
 				item.device_type.toLowerCase(),
@@ -52,7 +52,7 @@ export function SessionsByDeviceWidget() {
 	}, [ primary.data, comparison.data ] );
 
 	return (
-		<SemiCircle
+		<Donut
 			segments={ segments }
 			status={ {
 				isLoading,
@@ -73,6 +73,7 @@ export function SessionsByDeviceWidget() {
 				icon: device,
 				description: __( 'No session data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			variant="half-ring"
 		/>
 	);
 }
