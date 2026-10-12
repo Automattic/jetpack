@@ -3,8 +3,28 @@ import { useMemo } from 'react';
 import { useGlobalChartsTheme } from '../providers';
 import { CATALOG_POINTERS } from '../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement } from '../providers/chart-scope';
-import { createCssVariableResolver } from '../utils';
+import { createCssVariableResolver, resolveFontSize } from '../utils';
 import type { SeriesData } from '../types';
+
+type LabelStyle = { fontSize?: number | string };
+
+const isRenderableFontSize = ( fontSize: number | string ): boolean => {
+	if ( typeof fontSize === 'number' ) {
+		return resolveFontSize( fontSize ) !== undefined;
+	}
+	// `resolveFontSize` rejects `rem` and other units that render fine but cannot be measured, so strings are checked by the browser instead.
+	return typeof CSS === 'undefined' || CSS.supports( 'font-size', fontSize );
+};
+
+// visx writes `fontSize` straight onto `<text>`, where an invalid one renders at the browser's 16px default; dropping it lets visx use its own default.
+const withRenderableFontSize = < T extends LabelStyle >( style?: T ): T | undefined => {
+	if ( style?.fontSize === undefined || isRenderableFontSize( style.fontSize ) ) {
+		return style;
+	}
+	const rest = { ...style };
+	delete rest.fontSize;
+	return rest;
+};
 
 export const useXYChartTheme = ( data: SeriesData[] ) => {
 	const theme = useGlobalChartsTheme();
@@ -47,7 +67,11 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			xTickLineStyles: { ...theme.xTickLineStyles, stroke: CATALOG_POINTERS.tickX },
 			yAxisLineStyles: { stroke: CATALOG_POINTERS.axisY },
 			yTickLineStyles: { stroke: CATALOG_POINTERS.tickY },
-			svgLabelSmall: { ...theme.svgLabelSmall, fill: CATALOG_POINTERS.labelAxis },
+			svgLabelSmall: {
+				...withRenderableFontSize( theme.svgLabelSmall ),
+				fill: CATALOG_POINTERS.labelAxis,
+			},
+			svgLabelBig: withRenderableFontSize( theme.svgLabelBig ),
 		} );
 	}, [ theme, seriesColorKey, scopeElement ] );
 };
