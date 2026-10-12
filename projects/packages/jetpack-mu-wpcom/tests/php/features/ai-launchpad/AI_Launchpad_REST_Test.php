@@ -329,6 +329,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( wpcom_ai_launchpad_site_locale(), $data['site']['language'] );
 		$this->assertSame( determine_locale(), $data['user_language'] );
 		$this->assertSame( wpcom_ai_launchpad_site_copy(), $data['site']['copy'] );
+		// Not a Simple site, so no DIFM offer. AI_Launchpad_Difm_Offer_Test covers the rules.
+		$this->assertArrayHasKey( 'difm_offer', $data );
+		$this->assertNull( $data['difm_offer'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 

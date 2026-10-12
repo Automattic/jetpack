@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, Stack } from '@wordpress/ui';
+import { DifmOfferBanner, type DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
@@ -122,6 +123,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	const [ savedOnRetry, setSavedOnRetry ] = useState( false );
 	const [ retrying, setRetrying ] = useState( false );
 	const [ retryFailed, setRetryFailed ] = useState( false );
+	// The free DIFM offer under the task list; null when the server withholds it or the user dismisses it.
+	const [ difmOffer, setDifmOffer ] = useState< DifmOffer | null >(
+		() => initialData?.difm_offer ?? null
+	);
 
 	// One viewed event per screen shown; the launchpad screen includes its
 	// loading skeleton. The host seeds the context before mounting this view.
@@ -134,6 +139,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		if ( initialData ) {
 			setTasks( initialData.tasks );
 			setOutput( initialData.ai_output?.payload ?? null );
+			setDifmOffer( initialData.difm_offer ?? null );
 			if ( initialData.site ) {
 				setSiteUrl( initialData.site.url ?? null );
 				setSiteTitle( initialData.site.title ?? null );
@@ -172,6 +178,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				setSiteTitle( data.site.title != null ? decodeEntities( data.site.title ) : null );
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
+			setDifmOffer( data?.difm_offer ?? null );
 
 			let nextOutput: TailoredOutput | null = null;
 			let nextTasks: EnrichedTask[] = [];
@@ -421,34 +428,39 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			siteTitle={ siteTitle }
 			siteEditUrl={ siteEditUrl }
 		>
-			<Stack direction="column" gap="sm" className="ai-launchpad-tailored-list">
-				{ visibleTasks.map( task => (
-					<TaskCard
-						key={ task.id }
-						task={ task }
-						busyAction={ busy?.id === task.id ? busy.action : null }
-						isLocked={ busy !== null }
-						canStart={ isTaskActionable( task, output, siteUrl ) }
-						canMarkComplete={
-							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
-						}
-						isOpen={ openId === task.id }
-						onOpenChange={ open => {
-							// Only a collapsed task records a click (auto-expansion goes
-							// through setOpenId directly and records nothing).
-							if ( open ) {
-								trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } );
+			<Stack direction="column" gap="lg">
+				<Stack direction="column" gap="sm" className="ai-launchpad-tailored-list">
+					{ visibleTasks.map( task => (
+						<TaskCard
+							key={ task.id }
+							task={ task }
+							busyAction={ busy?.id === task.id ? busy.action : null }
+							isLocked={ busy !== null }
+							canStart={ isTaskActionable( task, output, siteUrl ) }
+							canMarkComplete={
+								isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
 							}
-							setOpenId( open ? task.id : null );
-						} }
-						onCollapsedClick={ () =>
-							trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } )
-						}
-						onGetStarted={ () => handleGetStarted( task ) }
-						onMarkComplete={ () => handleMarkComplete( task ) }
-						onSkip={ () => handleSkip( task ) }
-					/>
-				) ) }
+							isOpen={ openId === task.id }
+							onOpenChange={ open => {
+								// Only a collapsed task records a click (auto-expansion goes
+								// through setOpenId directly and records nothing).
+								if ( open ) {
+									trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } );
+								}
+								setOpenId( open ? task.id : null );
+							} }
+							onCollapsedClick={ () =>
+								trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } )
+							}
+							onGetStarted={ () => handleGetStarted( task ) }
+							onMarkComplete={ () => handleMarkComplete( task ) }
+							onSkip={ () => handleSkip( task ) }
+						/>
+					) ) }
+				</Stack>
+				{ difmOffer && (
+					<DifmOfferBanner offer={ difmOffer } onDismiss={ () => setDifmOffer( null ) } />
+				) }
 			</Stack>
 		</Layout>
 	);

@@ -1,3 +1,4 @@
+import type { DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import type { AboutPageDraft, TailoredOutput, FirstPostDraft, SiteCopy } from '../lib/types.ts';
 
 /**
@@ -53,6 +54,8 @@ export interface LaunchpadData {
 	wizard?: { goal?: string } | null;
 	// The account language of the admin reading the page, which the AI writes task subtitles in.
 	user_language?: string;
+	// The free DIFM offer banner under the task list, or null when it must not show.
+	difm_offer?: DifmOffer | null;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
