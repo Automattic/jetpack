@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Monetize: Add the data layer for the flagged wp-admin page, including a WordPress.com proxy for Atomic sites.

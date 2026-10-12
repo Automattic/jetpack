@@ -8,10 +8,13 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 require_once __DIR__ . '/../../common/wp-build-script-translations.php';
+require_once __DIR__ . '/class-wpcom-earn-proxy.php';
+require_once __DIR__ . '/../premium-analytics/wordads-section.php';
 
 /**
  * Registers the Monetize admin page and its wp-build assets.
@@ -50,6 +53,17 @@ class WPCOM_Earn {
 	 * Global the page's boot script reads its initial state from.
 	 */
 	const INITIAL_STATE_VAR = 'wpcomEarnInitialState';
+
+	/**
+	 * The plan features the page branches on, keyed as the initial state names them.
+	 */
+	const FEATURES = array(
+		'wordads'           => 'wordads',
+		'simplePayments'    => 'simple-payments',
+		'donations'         => 'donations',
+		'premiumContent'    => 'premium-content/container',
+		'recurringPayments' => 'recurring-payments',
+	);
 
 	/**
 	 * Whether this page registered its slug on this request.
@@ -97,6 +111,10 @@ class WPCOM_Earn {
 		// Without a build the page would render blank, so leave the Calypso link in place.
 		if ( ! static::should_register() || ! static::has_build() ) {
 			return;
+		}
+
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_action( 'rest_api_init', array( WPCOM_Earn_Proxy::class, 'register_routes' ) );
 		}
 
 		// After Admin_Menu (1000) so a claimed slug is visible, and before wpcom_add_jetpack_submenu()
@@ -308,7 +326,30 @@ class WPCOM_Earn {
 	}
 
 	/**
-	 * Hand the site's identity to the page's boot script.
+	 * The site facts every section reads, so none of them has to fetch the site, its plan or its features.
+	 *
+	 * @return array
+	 */
+	public static function get_initial_state() {
+		$features = array();
+		foreach ( self::FEATURES as $key => $feature ) {
+			$features[ $key ] = function_exists( 'wpcom_site_has_feature' ) && (bool) wpcom_site_has_feature( $feature );
+		}
+
+		return array(
+			'domain'         => (string) wp_parse_url( home_url(), PHP_URL_HOST ),
+			'blogId'         => (int) get_wpcom_blog_id(),
+			'siteUrl'        => home_url(),
+			'isAtomic'       => Constants::is_true( 'IS_ATOMIC' ),
+			'features'       => $features,
+			'wordadsEnabled' => wpcom_premium_analytics_wordads_is_enabled(),
+		);
+	}
+
+	/**
+	 * Hand the initial state to the page's boot script.
+	 *
+	 * Printed as JSON rather than through wp_localize_script(), which turns booleans into strings.
 	 *
 	 * @return void
 	 */
@@ -319,12 +360,10 @@ class WPCOM_Earn {
 			return;
 		}
 
-		wp_localize_script(
+		wp_add_inline_script(
 			$handle,
-			self::INITIAL_STATE_VAR,
-			array(
-				'domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
-			)
+			'window.' . self::INITIAL_STATE_VAR . ' = ' . wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';',
+			'before'
 		);
 	}
 

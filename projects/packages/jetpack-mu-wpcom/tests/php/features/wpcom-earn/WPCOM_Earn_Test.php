@@ -100,27 +100,27 @@ class WPCOM_Earn_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Run the enqueue pass and hand back what it localized for the page script.
+	 * Run the enqueue pass and hand back the initial state it printed for the page script.
 	 *
-	 * @return array|null The payload, or null when nothing was localized.
+	 * @return array|null The payload, or null when nothing was printed.
 	 */
-	private function localized_initial_state() {
+	private function printed_initial_state() {
 		$handle = WPCOM_Earn::WP_BUILD_PAGE . '-wp-admin-prerequisites';
 
-		// The script registry outlives a test, and with it anything an earlier one localized.
+		// The script registry outlives a test, and with it anything an earlier one printed.
 		wp_deregister_script( $handle );
 		wp_register_script( $handle, 'https://example.org/prerequisites.js', array(), '1', true );
 
 		WPCOM_Earn::enqueue_initial_state();
 
-		$data  = wp_scripts()->get_data( $handle, 'data' );
-		$start = is_string( $data ) ? strpos( $data, '{' ) : false;
-
-		if ( false === $start ) {
-			return null;
+		$prefix = 'window.' . WPCOM_Earn::INITIAL_STATE_VAR . ' = ';
+		foreach ( (array) wp_scripts()->get_data( $handle, 'before' ) as $script ) {
+			if ( is_string( $script ) && str_starts_with( $script, $prefix ) ) {
+				return json_decode( substr( $script, strlen( $prefix ), -1 ), true );
+			}
 		}
 
-		return json_decode( substr( (string) $data, $start, -1 ), true );
+		return null;
 	}
 
 	/**
@@ -241,15 +241,24 @@ class WPCOM_Earn_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( WPCOM_Earn::is_page_request() );
 	}
 
-	public function test_initial_state_reaches_the_page_script() {
+	/**
+	 * Every section branches on these, so a key that stops arriving, or a boolean that
+	 * arrives as a string, changes what the page offers.
+	 */
+	public function test_initial_state_reaches_the_page_script_with_its_types_intact() {
 		$this->set_up_admin_menu();
 		$this->set_up_page_request();
 		WPCOM_Earn::register_page();
 
+		$state = (array) $this->printed_initial_state();
+
 		$this->assertSame(
-			array( 'domain' => wp_parse_url( home_url(), PHP_URL_HOST ) ),
-			$this->localized_initial_state()
+			array( 'domain', 'blogId', 'siteUrl', 'isAtomic', 'features', 'wordadsEnabled' ),
+			array_keys( $state )
 		);
+		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $state['domain'] );
+		$this->assertSame( array_keys( WPCOM_Earn::FEATURES ), array_keys( $state['features'] ) );
+		$this->assertContainsOnlyBool( array_merge( $state['features'], array( $state['isAtomic'], $state['wordadsEnabled'] ) ) );
 	}
 
 	public function test_initial_state_is_withheld_from_users_who_cannot_manage_options() {
@@ -267,7 +276,7 @@ class WPCOM_Earn_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertNull( $this->localized_initial_state() );
+		$this->assertNull( $this->printed_initial_state() );
 	}
 
 	/**
