@@ -142,8 +142,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows the generic empty state (the magnifier
- * glyph and "We couldn’t find results for this time period.").
+ * Resolved with no rows: the widget offers Build URL and keeps View all available.
  */
 export const Empty: Story = {
 	render: () => renderUtmInsightsOnPreset( 'last-year' ),
