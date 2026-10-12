@@ -128,14 +128,14 @@ Every chart has an accessible name. Set `ariaLabel` to name the chart after what
 
 <Source
 	language="jsx"
-	code={`<LineChart
-		data={data}
+	code={ `<LineChart
+		data={ data }
 		ariaLabel="Views, last 30 days"
-	/>`}
+	/>` }
 />
 
 | Chart | Role | Default name |
-|-------|------|--------------|
+| ---- | ---- | ---- |
 | Line | `application` | Line chart |
 | Area | `application` | Area chart |
 | Bar | `application` | Bar chart |
@@ -149,9 +149,7 @@ Every chart has an accessible name. Set `ariaLabel` to name the chart after what
 
 Sparkline does not have an `ariaLabel` prop yet (CHARTS-297).
 
-The name is set on the element that holds focus or represents the chart. Empty, loading, and error states are not named.
-
-On the leaderboard, `ariaLabel` names the whole list. A clickable row is a button named by the `ariaLabel` on its `LeaderboardEntry`, which is a separate prop.
+The name is set on the element that holds focus or represents the chart.
 
 ### Responsive Design
 
