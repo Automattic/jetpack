@@ -173,30 +173,34 @@ function OverviewBody() {
 	// placeholder renders. Page 1 dedupes with the list's first
 	// fetch when the list is on page 1 with the default per-page.
 	const defaultSelectedId = useDefaultBackupRewindId();
-	// The URL still wins; the remembered row only answers for the return trip, where
-	// the reader made a choice this page load and the address no longer carries it.
 	const urlSelectedId = typeof search.selected === 'string' ? search.selected : null;
-	const selectedId = urlSelectedId ?? lastSelectedId ?? defaultSelectedId;
+	// The remembered row stands in for a missing one only on mount, which is the return trip
+	// from Download or Restore. Back to the entry that had none means the newest backup again.
+	const [ returnTripId, setReturnTripId ] = useState( () =>
+		urlSelectedId ? null : lastSelectedId
+	);
+	const selectedId = urlSelectedId ?? returnTripId ?? defaultSelectedId;
 	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
 	// land, and pinning the row it happened to name would outlive its own reason.
 	useEffect( () => {
-		if ( urlSelectedId ) {
-			lastSelectedId = urlSelectedId;
-		}
-	}, [ urlSelectedId ] );
-	// Puts the remembered row in the address whenever the address lacks one, so
-	// `clearSelected` below always has a real change to make: without one, TanStack
-	// treats its navigate as a no-op and pushes no history entry, leaving Back with
-	// nowhere on the Overview to land. `replace`: this is not its own stop.
+		lastSelectedId = urlSelectedId ?? returnTripId;
+	}, [ urlSelectedId, returnTripId ] );
+	// Puts the remembered row in the address, so `clearSelected` below always has a real
+	// change to make: without one, TanStack treats its navigate as a no-op and pushes no
+	// history entry, leaving Back with nowhere on the Overview to land. `replace`: this is
+	// not its own stop.
 	useEffect( () => {
-		if ( urlSelectedId || ! lastSelectedId ) {
+		if ( urlSelectedId ) {
+			setReturnTripId( null );
 			return;
 		}
-		navigate( {
-			search: ( previous: OverviewSearch ) => ( { ...previous, selected: lastSelectedId } ),
-			replace: true,
-		} as Parameters< typeof navigate >[ 0 ] );
-	}, [ urlSelectedId, navigate ] );
+		if ( returnTripId ) {
+			navigate( {
+				search: ( previous: OverviewSearch ) => ( { ...previous, selected: returnTripId } ),
+				replace: true,
+			} as Parameters< typeof navigate >[ 0 ] );
+		}
+	}, [ urlSelectedId, returnTripId, navigate ] );
 	// `/site/rewindable-activity` only lists completed restore points, so
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
@@ -256,9 +260,6 @@ function OverviewBody() {
 	// The stale id lives in the URL, so the dead end survives a reload without this.
 	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
 	const clearSelected = useCallback( () => {
-		// The memory too, not just the URL: `selectedId` falls back to it, so
-		// clearing one and not the other puts the reader straight back.
-		lastSelectedId = null;
 		overviewRef.current?.focus();
 		navigate( {
 			search: ( previous: OverviewSearch ) => {
