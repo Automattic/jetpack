@@ -8,6 +8,7 @@ import { Chart, type GoogleChartPackages, type ReactGoogleChartEvent } from 'rea
 /**
  * Internal dependencies
  */
+import { TooltipTheme } from '../../components/tooltip/private/tooltip-theme';
 import {
 	GlobalChartsContext,
 	GlobalChartsProvider,
@@ -222,7 +223,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	// Identify HTML tooltip column indices and sanitize their content to prevent XSS.
 	const sanitizedData = useMemo( () => {
 		if ( data.length === 0 ) {
-			return { data, hasHtmlTooltips: false };
+			return data;
 		}
 
 		const htmlTooltipIndices: number[] = [];
@@ -244,7 +245,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		}
 
 		if ( htmlTooltipIndices.length === 0 ) {
-			return { data, hasHtmlTooltips: false };
+			return data;
 		}
 
 		// Sanitize HTML content in tooltip columns for data rows (skip header row)
@@ -258,10 +259,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			return newRow;
 		} );
 
-		return {
-			data: [ data[ 0 ], ...sanitizedRows ] as typeof data,
-			hasHtmlTooltips: true,
-		};
+		return [ data[ 0 ], ...sanitizedRows ] as typeof data;
 	}, [ data ] );
 
 	const options: GoogleChartOptions = useMemo(
@@ -274,7 +272,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			backgroundColor: backgroundColorHex,
 			datalessRegionColor: defaultFillColorHex,
 			defaultColor: defaultFillColorHex,
-			tooltip: { trigger: 'focus', isHtml: sanitizedData.hasHtmlTooltips },
+			tooltip: { trigger: 'focus', isHtml: true },
 			legend: 'none',
 			keepAspectRatio: true,
 		} ),
@@ -287,7 +285,6 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			fullColorHex,
 			backgroundColorHex,
 			defaultFillColorHex,
-			sanitizedData.hasHtmlTooltips,
 		]
 	);
 
@@ -326,16 +323,18 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			data-testid="geo-chart"
 			style={ { width, height } }
 		>
-			<Chart
-				chartType="GeoChart"
-				chartPackages={ GEO_CHART_PACKAGES }
-				width={ width }
-				height={ height }
-				data={ sanitizedData.data }
-				options={ options }
-				chartEvents={ chartEvents }
-				loader={ loadingPlaceholder }
-			/>
+			<TooltipTheme>
+				<Chart
+					chartType="GeoChart"
+					chartPackages={ GEO_CHART_PACKAGES }
+					width={ width }
+					height={ height }
+					data={ sanitizedData }
+					options={ options }
+					chartEvents={ chartEvents }
+					loader={ loadingPlaceholder }
+				/>
+			</TooltipTheme>
 		</Center>
 	);
 };

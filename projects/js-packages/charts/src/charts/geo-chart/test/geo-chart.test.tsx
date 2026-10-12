@@ -170,41 +170,31 @@ describe( 'GeoChart', () => {
 			expect( options.legend ).toBe( 'none' );
 		} );
 
-		test( 'sets tooltip trigger to focus with isHtml false by default', () => {
-			renderWithTheme();
-
-			const chartOptions = screen.getByTestId( 'chart-options' );
-			const options = JSON.parse( chartOptions.textContent || '{}' );
-
-			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
-		} );
-
-		test( 'enables HTML tooltips when data has HTML tooltip column', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
-				[ 'US', 100, '<b>United States</b><br/>100 orders' ],
-				[ 'CA', 50, '<b>Canada</b><br/>50 orders' ],
-			];
-			renderWithTheme( { data: testData } );
+		test.each( [
+			[ 'default data', undefined ],
+			[
+				'text-only tooltips',
+				[
+					[ 'Country', 'Value', { type: 'string', role: 'tooltip' } ],
+					[ 'US', 100, 'United States: 100 orders' ],
+					[ 'CA', 50, 'Canada: 50 orders' ],
+				],
+			],
+			[
+				'HTML tooltips',
+				[
+					[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+					[ 'US', 100, '<b>United States</b><br/>100 orders' ],
+					[ 'CA', 50, '<b>Canada</b><br/>50 orders' ],
+				],
+			],
+		] )( 'sets tooltip trigger to focus with isHtml true for %s', ( _name, data ) => {
+			renderWithTheme( data ? { data: data as never } : {} );
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
 			const options = JSON.parse( chartOptions.textContent || '{}' );
 
 			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: true } );
-		} );
-
-		test( 'keeps isHtml false for text-only tooltips', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip' } ],
-				[ 'US', 100, 'United States: 100 orders' ],
-				[ 'CA', 50, 'Canada: 50 orders' ],
-			];
-			renderWithTheme( { data: testData } );
-
-			const chartOptions = screen.getByTestId( 'chart-options' );
-			const options = JSON.parse( chartOptions.textContent || '{}' );
-
-			expect( options.tooltip ).toEqual( { trigger: 'focus', isHtml: false } );
 		} );
 
 		test( 'does not include region in options when set to world (default)', () => {
