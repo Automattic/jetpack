@@ -355,14 +355,9 @@ export {
  * Widget components
  */
 export {
-	BookingsRevenueByCustomerTypeWidget,
 	BookingConversionRateWidget,
 	ConversionRateWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
 	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
 } from './widgets';
 
 /**
