@@ -6,7 +6,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 
 | Widget                         | Chart Component                                 | Description                                       |
 | ------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
-| `ConversionRateWidget`         | `Funnel`                                        | Funnel conversion rate metric                     |
 | `RevenueByCustomerTypeWidget`  | `Columns`                                       | Revenue breakdown by customer type                |
 | `SalesByCouponWidget`          | `Columns`                                       | Coupon sales for all product types                |
 | `SalesByDeviceWidget`          | `Columns`                                       | Sales breakdown by device type                    |

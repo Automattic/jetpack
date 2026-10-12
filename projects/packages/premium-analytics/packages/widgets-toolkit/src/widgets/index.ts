@@ -1,5 +1,4 @@
 export { SalesByCouponWidget } from './sales-by-coupon';
-export { ConversionRateWidget, BookingConversionRateWidget } from './conversion-rate';
 export {
 	RevenueByCustomerTypeWidget,
 	BookingsRevenueByCustomerTypeWidget,
