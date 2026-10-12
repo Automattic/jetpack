@@ -8,6 +8,7 @@ import {
 } from '../../../providers';
 import { formatPercentage } from '../../../utils';
 import type {
+	ComparisonItemLabel,
 	SeriesData,
 	DataPointDate,
 	DataPointPercentageCalculated,
@@ -34,9 +35,10 @@ export interface ChartLegendOptions {
 	/**
 	 * Append a static item explaining the comparison overlay whenever a series has
 	 * `options.type === 'comparison'`. Skipped when that series already has its own
-	 * item. Pass a string to replace the default label.
+	 * item. Pass a string to replace the default label, or a function to add one item per
+	 * comparison series, named after the series it is compared with and hidden along with it.
 	 */
-	comparisonItem?: boolean | string;
+	comparisonItem?: boolean | string | ComparisonItemLabel;
 }
 
 /**
@@ -277,6 +279,50 @@ function buildComparisonLegendItem(
 }
 
 /**
+ * Builds one static item per comparison series that has no item of its own, named after the
+ * series it is compared with and styled like the comparison series itself.
+ * @param seriesData       - The series data to search for comparison series
+ * @param items            - The legend items already built from the series
+ * @param formatLabel      - Names an item after the label of the series it is compared with
+ * @param getElementStyles - Function to get element styles
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The legend items, in series order
+ */
+function buildPerSeriesComparisonItems(
+	seriesData: SeriesData[],
+	items: BaseLegendItem[],
+	formatLabel: ComparisonItemLabel,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem[] {
+	const itemLabels = new Set( items.map( item => item.label ) );
+
+	return seriesData.flatMap( ( series, index ) => {
+		if ( series.options?.type !== 'comparison' || itemLabels.has( series.label ) ) {
+			return [];
+		}
+
+		const primary = seriesData.find(
+			candidate =>
+				candidate.group !== undefined &&
+				candidate.group === series.group &&
+				candidate.options?.type !== 'comparison'
+		);
+		const { color, shapeStyles } = getElementStyles( { data: series, index, legendShape } );
+
+		return [
+			{
+				label: formatLabel( primary?.label ?? series.label ),
+				color,
+				shapeStyle: shapeStyles,
+				interactive: false,
+				describesSeries: series.label,
+			},
+		];
+	} );
+}
+
+/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -361,6 +407,20 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
+
+			if ( typeof comparisonItem === 'function' ) {
+				return [
+					...items,
+					...buildPerSeriesComparisonItems(
+						seriesData,
+						items,
+						comparisonItem,
+						getElementStyles,
+						legendShape
+					),
+				];
+			}
+
 			const comparison = comparisonItem
 				? buildComparisonLegendItem(
 						seriesData,
