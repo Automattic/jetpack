@@ -52,6 +52,7 @@ export {
 	type DonutProps,
 	type DonutSegmentInput,
 	Funnel,
+	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
