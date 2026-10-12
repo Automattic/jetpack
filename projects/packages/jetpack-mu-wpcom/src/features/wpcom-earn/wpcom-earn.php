@@ -343,6 +343,7 @@ class WPCOM_Earn {
 			'isAtomic'       => Constants::is_true( 'IS_ATOMIC' ),
 			'features'       => $features,
 			'wordadsEnabled' => wpcom_premium_analytics_wordads_is_enabled(),
+			'siteIntent'     => (string) get_option( 'site_intent', '' ),
 		);
 	}
 
@@ -359,6 +360,8 @@ class WPCOM_Earn {
 		if ( ! static::owns_page() || ! wp_script_is( $handle, 'registered' ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		Common\wpcom_enqueue_tracking_scripts( $handle );
 
 		wp_add_inline_script(
 			$handle,
