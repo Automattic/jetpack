@@ -4,10 +4,6 @@ import type { Locator, Page } from '@playwright/test';
 
 export type SiteState = { enabled: boolean; subscriptions: boolean; wordads: boolean };
 
-// Lets the WordAds module activate; the helper blocks plan refreshes, so the option stays as written.
-const WORDADS_PLAN =
-	'{"product_slug":"jetpack_complete","features":{"active":["wordads","wordads-jetpack"]}}';
-
 // The welcome dialog marks everything behind it inert, so specs start with onboarding done.
 const ONBOARDED_PREFERENCES =
 	'{"jetpack-premium-analytics/dashboard":{"onboardingCompletedAt":"2026-01-01T00:00:00.000Z"},"_modified":"2026-01-01T00:00:00.000Z"}';
@@ -38,12 +34,11 @@ export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
 		await testUtils.deactivateModule( 'subscriptions' );
 	}
 	if ( state.wordads ) {
+		// WordAds only activates on a plan that includes it, and the mocked plan lands on the next refresh.
+		await testUtils.setMockPlanData( 'jetpack_complete' );
 		await testUtils.executeWpCommand( [
-			'option',
-			'update',
-			'jetpack_active_plan',
-			WORDADS_PLAN,
-			'--format=json',
+			'eval',
+			'Automattic\\Jetpack\\Current_Plan::refresh_from_wpcom();',
 		] );
 		await testUtils.activateModule( 'wordads' );
 	} else {
