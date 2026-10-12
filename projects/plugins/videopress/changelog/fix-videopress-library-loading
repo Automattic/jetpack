@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Library: Show a loading state until the video library is loaded.
