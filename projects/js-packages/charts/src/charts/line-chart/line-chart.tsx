@@ -15,7 +15,7 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -232,6 +232,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -271,6 +272,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const legendInteractive = legend.interactive ?? false;
 		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendComparisonItem = legend.comparisonItem ?? false;
+		const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -522,6 +524,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				collapseGroups: legendCollapseGroups,
 				comparisonItem: legendComparisonItem,
+				comparisonSeriesItems: legendComparisonSeriesItems,
 				renderGlyph,
 			} ),
 			[
@@ -529,6 +532,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphStyle?.radius,
 				legendCollapseGroups,
 				legendComparisonItem,
+				legendComparisonSeriesItems,
 				renderGlyph,
 			]
 		);
@@ -624,10 +628,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 						return (
+							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 							<div
 								ref={ chartRef }
-								role="grid"
-								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
+								role="application"
+								aria-label={ ariaLabel ?? __( 'Line chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
@@ -637,6 +642,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }
@@ -784,7 +790,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											</ZoomClip>
 
 											{ withTooltips && (
-												<AccessibleTooltip
+												<XYChartTooltip
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }

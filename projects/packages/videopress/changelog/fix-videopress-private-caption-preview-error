@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Caption manager: Warn when a private video's preview may not play because its access token failed to load.

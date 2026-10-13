@@ -116,4 +116,43 @@ describe( 'DateIntervalDropdown', () => {
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
 	} );
+
+	describe( 'with a label', () => {
+		it( 'names the active bucket on the trigger and reports the pick', async () => {
+			const onChange = jest.fn();
+			const user = userEvent.setup();
+
+			render(
+				<DateIntervalDropdown
+					options={ [ 'day', 'week' ] }
+					value="day"
+					withLabel
+					onChange={ onChange }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) );
+
+			expect( onChange ).toHaveBeenCalledWith( 'week' );
+		} );
+
+		it( 'shows a lone bucket without a menu, still in the tab order', async () => {
+			const user = userEvent.setup();
+			render(
+				<DateIntervalDropdown
+					options={ [ 'hour' ] }
+					value="hour"
+					withLabel
+					onChange={ jest.fn() }
+				/>
+			);
+
+			await user.tab();
+
+			const trigger = screen.getByRole( 'button', { name: 'Chart interval: By hours' } );
+			expect( trigger ).toHaveFocus();
+			expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+	} );
 } );

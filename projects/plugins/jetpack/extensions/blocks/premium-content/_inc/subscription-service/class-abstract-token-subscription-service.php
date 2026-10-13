@@ -43,6 +43,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	protected $user_id = null;
 
 	/**
+	 * Whether editorial permissions satisfy subscription requirements.
+	 *
+	 * @var bool
+	 */
+	private $allow_editor_access = true;
+
+	/**
 	 * Constructor
 	 *
 	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
@@ -286,12 +293,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @inheritDoc
 	 *
-	 * @param array $valid_plan_ids List of valid plan IDs.
-	 * @param array $access_level Access level for content.
+	 * @param array    $valid_plan_ids List of valid plan IDs.
+	 * @param string   $access_level Access level for content.
+	 * @param int|null $post_id Post to gate against. Defaults to the loop post, which is only right while rendering it.
 	 *
 	 * @return bool Whether the user can view the content
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $post_id = null ) {
 		global $current_user;
 		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
@@ -344,10 +352,30 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 		}
 
-		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
+		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, null === $post_id ? get_the_ID() : $post_id, $subscriptions );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$current_user = $old_user;
 		return $has_access;
+	}
+
+	/**
+	 * Check subscription entitlement without granting access for editing the post.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array    $valid_plan_ids Required subscription plan IDs.
+	 * @param string   $access_level   Required access level.
+	 * @param int|null $post_id        Post to check, or the loop post when omitted.
+	 * @return bool Whether the visitor meets the subscription requirement.
+	 */
+	public function visitor_has_subscription_access( $valid_plan_ids, $access_level, $post_id = null ) {
+		$allow_editor_access       = $this->allow_editor_access;
+		$this->allow_editor_access = false;
+		try {
+			return $this->visitor_can_view_content( $valid_plan_ids, $access_level, $post_id );
+		} finally {
+			$this->allow_editor_access = $allow_editor_access;
+		}
 	}
 
 	/**
@@ -392,7 +420,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $user_abbreviated_subscriptions ) {
 
-		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
+		if ( $this->allow_editor_access && is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
 			$has_access = true;
 		} else {

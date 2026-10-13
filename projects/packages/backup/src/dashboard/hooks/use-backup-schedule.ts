@@ -23,9 +23,22 @@ type Result = { isLoading: boolean } & (
 			nextBackupDate: string;
 			/** The window it runs in, e.g. `10:00-10:59 AM`. */
 			timeRange: string;
+			/** The hour WordPress.com starts the run, 0–23, in UTC. */
+			scheduledHour: number;
+			/** Who chose that hour, or null while it is WordPress.com's default. */
+			scheduledBy: string | null;
 	  }
-	| { hasSchedule: false; nextBackupDate: null; timeRange: null }
+	| {
+			hasSchedule: false;
+			nextBackupDate: null;
+			timeRange: null;
+			scheduledHour: null;
+			scheduledBy: null;
+	  }
 );
+
+/** One choice in the schedule picker: a window in the site's timezone, keyed by its UTC hour. */
+export type ScheduleOption = { label: string; value: string };
 
 /**
  * The scheduled hour, if the payload carried a usable one.
@@ -78,6 +91,52 @@ function nextWindowStart( scheduledHourUtc: number, now: Date ): Date {
 }
 
 /**
+ * A backup window as the site reads it, e.g. `10:00-10:59 AM` or `11:30 PM-12:29 AM`.
+ *
+ * @param start    - The instant the window opens.
+ * @param timezone - A UTC offset such as `-0300`; omitted, the site's own timezone.
+ * @return The window in that timezone.
+ */
+function windowLabel( start: Date, timezone?: string ): string {
+	const lastMinute = new Date( start.getTime() + WINDOW_LAST_MINUTE_MS );
+	// The start drops its AM/PM only when the end's covers both halves.
+	const startFormat =
+		dateI18n( 'A', start, timezone ) === dateI18n( 'A', lastMinute, timezone ) ? 'g:i' : 'g:i A';
+
+	// Assembled here rather than as a msgid: neither half is translatable prose.
+	return `${ dateI18n( startFormat, start, timezone ) }-${ dateI18n(
+		'g:i A',
+		lastMinute,
+		timezone
+	) }`;
+}
+
+/**
+ * Every hour WordPress.com can start the backup, labelled and ordered by the site's clock.
+ *
+ * All 24 are read at one offset, today's, so a daylight-saving switch today cannot label
+ * two hours alike and leave a window out.
+ *
+ * @param now - The instant whose site offset labels the windows.
+ * @return 24 options, earliest local window first.
+ */
+export function scheduleOptions( now: Date = new Date() ): ScheduleOption[] {
+	const offset = dateI18n( 'O', now, undefined );
+
+	return Array.from( { length: 24 }, ( _, hour ) => {
+		const start = new Date(
+			Date.UTC( now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour )
+		);
+		const minuteOfDay =
+			Number( dateI18n( 'G', start, offset ) ) * 60 + Number( dateI18n( 'i', start, offset ) );
+
+		return { label: windowLabel( start, offset ), value: String( hour ), minuteOfDay };
+	} )
+		.sort( ( a, b ) => a.minuteOfDay - b.minuteOfDay )
+		.map( ( { label, value } ) => ( { label, value } ) );
+}
+
+/**
  * When the site's next full backup runs, ready to render.
  *
  * A port of legacy's `useNextBackupSchedule` that formats here rather than handing back
@@ -105,23 +164,19 @@ export function useNextBackupSchedule(): Result {
 			hasSchedule: false,
 			nextBackupDate: null,
 			timeRange: null,
+			scheduledHour: null,
+			scheduledBy: null,
 		};
 	}
 
 	const start = nextWindowStart( scheduledHour, new Date() );
-	const lastMinute = new Date( start.getTime() + WINDOW_LAST_MINUTE_MS );
 
-	// The explicit `undefined` third argument means the site's timezone rather than the
-	// browser's. The range is assembled here rather than as a third msgid: neither half
-	// is translatable prose.
 	return {
 		isLoading: query.isLoading,
 		hasSchedule: true,
 		nextBackupDate: dateI18n( 'M j', start, undefined ),
-		timeRange: `${ dateI18n( 'g:i', start, undefined ) }-${ dateI18n(
-			'g:i A',
-			lastMinute,
-			undefined
-		) }`,
+		timeRange: windowLabel( start ),
+		scheduledHour,
+		scheduledBy: query.data?.scheduled_by || null,
 	};
 }

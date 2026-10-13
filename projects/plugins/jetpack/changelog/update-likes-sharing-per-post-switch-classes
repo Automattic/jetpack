@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Likes, Sharing: Deprecate the jetpack_post_likes_* and jetpack_post_sharing_* REST field functions in favor of the Post_Likes_Switch and Post_Sharing_Switch classes from the Sharing & Likes package.

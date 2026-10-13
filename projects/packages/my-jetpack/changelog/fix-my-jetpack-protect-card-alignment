@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Protect card: Show scan, firewall, and blocked-login stats as aligned rows that no longer overlap on narrow cards, with design-system info popovers.

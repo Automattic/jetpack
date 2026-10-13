@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+SSO: When a site requires two-step authentication and your WordPress.com account doesn't have it, the login screen now names your account and links straight to two-step setup.

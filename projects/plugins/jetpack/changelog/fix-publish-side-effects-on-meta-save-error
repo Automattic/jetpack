@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Social: Fix publishing failing with a share message database error, which also prevented newsletters and social shares from being sent.

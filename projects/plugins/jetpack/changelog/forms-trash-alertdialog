@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Start the Empty trash and Delete spam confirmations on Cancel and show Delete in red, so pressing Enter no longer permanently deletes every response in that folder.

@@ -1,9 +1,3 @@
-let mockSearch: Record< string, unknown > = {};
-
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => mockSearch,
-} ) );
-
 /**
  * External dependencies
  */
@@ -11,8 +5,15 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../../../tests/js/route-test-utils';
 import { DashboardSectionProvider, useDashboardOriginSearch } from '../use-dashboard-origin-search';
 import type { ReactNode } from 'react';
+
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
 
 const onDashboardTab =
 	( section: string ) =>
@@ -22,11 +23,11 @@ const onDashboardTab =
 
 describe( 'useDashboardOriginSearch', () => {
 	beforeEach( () => {
-		mockSearch = {};
+		setMockRouteSearch();
 	} );
 
 	it( 'names the active tab on the dashboard, not the URL section', () => {
-		mockSearch = { section: 'traffic', ds: 'stale' };
+		setMockRouteSearch( { section: 'traffic', ds: 'stale' } );
 
 		const { result } = renderHook( () => useDashboardOriginSearch(), {
 			wrapper: onDashboardTab( 'ads' ),
@@ -36,7 +37,7 @@ describe( 'useDashboardOriginSearch', () => {
 	} );
 
 	it( 'forwards the carried origin off the dashboard', () => {
-		mockSearch = { section: 'posts-pages', ds: 'insights' };
+		setMockRouteSearch( { section: 'posts-pages', ds: 'insights' } );
 
 		const { result } = renderHook( () => useDashboardOriginSearch() );
 
@@ -44,7 +45,7 @@ describe( 'useDashboardOriginSearch', () => {
 	} );
 
 	it( 'ignores the page section when no origin is carried', () => {
-		mockSearch = { section: 'posts-pages' };
+		setMockRouteSearch( { section: 'posts-pages' } );
 
 		const { result } = renderHook( () => useDashboardOriginSearch() );
 

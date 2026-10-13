@@ -3,9 +3,13 @@ import { border, drafts, lock, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Icon, Stack, Text } from '@wordpress/ui';
 import { ctaKind, type CtaKind, type EnrichedTask } from './model.ts';
 
+// Which of a card's actions is in flight. The CTA and "Mark as complete" are
+// mutually exclusive, so they share the `primary` slot; "Skip" is its own.
+export type BusyAction = 'primary' | 'skip';
+
 interface Props {
 	task: EnrichedTask;
-	isBusy: boolean;
+	busyAction: BusyAction | null;
 	isLocked: boolean;
 	canStart: boolean;
 	canMarkComplete: boolean;
@@ -102,7 +106,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  *
  * @param props                  - The component props.
  * @param props.task             - The enriched task to render.
- * @param props.isBusy           - Whether this card's action is in flight (spinner).
+ * @param props.busyAction       - Which of this card's actions is in flight, or null; the
+ *                               matching button shows the spinner.
  * @param props.isLocked         - Whether any card's action is in flight; disables all
  *                               actions so concurrent writes can't interleave.
  * @param props.canStart         - Whether the task has an actionable CTA destination.
@@ -120,7 +125,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  */
 export function TaskCard( {
 	task,
-	isBusy,
+	busyAction,
 	isLocked,
 	canStart,
 	canMarkComplete,
@@ -212,7 +217,7 @@ export function TaskCard( {
 						<Button
 							variant="solid"
 							onClick={ onGetStarted }
-							loading={ isBusy }
+							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
 							{ getCtaLabel( task.id, task.in_progress ) }
@@ -222,14 +227,20 @@ export function TaskCard( {
 						<Button
 							variant="solid"
 							onClick={ onMarkComplete }
-							loading={ isBusy }
+							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
 							{ __( 'Mark as complete', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					{ /* Skip persists a server write too, so it shares the lock with the primary action. */ }
-					<Button variant="minimal" tone="neutral" onClick={ onSkip } disabled={ isLocked }>
+					<Button
+						variant="minimal"
+						tone="neutral"
+						onClick={ onSkip }
+						loading={ busyAction === 'skip' }
+						disabled={ isLocked }
+					>
 						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</Stack>

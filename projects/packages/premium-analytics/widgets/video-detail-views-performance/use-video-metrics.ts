@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
+	HOURS_DATA_FORMAT,
 	toDay,
 	type CountLabel,
 	type DataFormat,
@@ -58,11 +59,6 @@ export interface VideoMetricsState {
 export const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
-};
-
-const HOURS_FORMAT: DataFormat = {
-	type: 'number',
-	options: { decimals: 1 },
 };
 
 const RATE_FORMAT: DataFormat = {
@@ -289,7 +285,7 @@ export default function useVideoMetrics(
 					__( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 					data.series.watch_time,
 					total?.watch_time,
-					HOURS_FORMAT
+					HOURS_DATA_FORMAT
 				)
 			);
 		}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WordAds chart: Start on the reader's current default range rather than the one in effect when the page loaded.

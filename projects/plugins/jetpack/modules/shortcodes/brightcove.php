@@ -177,62 +177,13 @@ class Jetpack_Brightcove_Shortcode {
 			$attr['bg'] = preg_replace( '![^-a-zA-Z0-9#]!', '', $attr['bg'] );
 		}
 
-		$fv = array(
-			'viewerSecureGatewayURL' => 'https://services.brightcove.com/services/amfgateway',
-			'servicesURL'            => 'http://services.brightcove.com/services',
-			'cdnURL'                 => 'http://admin.brightcove.com',
-			'autoStart'              => 'false',
-		);
-
 		$js_tld = 'com';
-		$src    = '';
-		$name   = 'flashObj';
-		$html5  = false;
-
-		if ( isset( $attr['exp3'] ) ) {
-			if ( isset( $attr['surl'] ) && strpos( $attr['surl'], 'brightcove.co.jp' ) ) {
-				$js_tld = 'co.jp';
-			}
-			if ( ! isset( $attr['surl'] ) || ! preg_match( '#^https?://(?:[a-z\d-]+\.)*brightcove\.(?:com|co\.jp)/#', $attr['surl'] ) ) {
-				$attr['surl'] = 'http://c.brightcove.com/services';
-			}
-
-			$attr['exp3']  = (int) $attr['exp3'];
-			$attr['pubid'] = (int) $attr['pubid'];
-			$attr['vid']   = (int) $attr['vid'];
-
-			$fv['servicesURL'] = $attr['surl'];
-			$fv['playerID']    = $attr['exp3'];
-			$fv['domain']      = 'embed';
-			$fv['videoID']     = (int) $attr['vid'];
-
-			$src   = sprintf(
-				'%s/viewer/federated_f9/%s?isVid=1&amp;isUI=1&amp;publisherID=%s',
-				$attr['surl'],
-				$attr['exp3'],
-				$attr['pubid']
-			);
-			$html5 = true;
-		} elseif ( isset( $attr['exp'] ) ) {
-			$attr['exp'] = (int) $attr['exp'];
-			$src         = 'http://services.brightcove.com/services/viewer/federated_f8/' . $attr['exp'];
-			if ( $attr['vid'] ) {
-				$fv['videoId'] = $attr['vid'];
-			} elseif ( $attr['vref'] ) {
-				$fv['videoRef'] = $attr['vref'];
-			}
-
-			$fv['playerId'] = $attr['exp'];
-			$fv['domain']   = 'embed';
-		} else {
-			return '<small>brightcove error: missing required parameter exp or exp3</small>';
+		if ( isset( $attr['surl'] ) && strpos( $attr['surl'], 'brightcove.co.jp' ) ) {
+			$js_tld = 'co.jp';
 		}
 
-		if ( ! empty( $attr['lbu'] ) ) {
-			$fv['linkBaseURL'] = $attr['lbu'];
-		}
-
-		$flashvars = trim( add_query_arg( array_map( 'urlencode', $fv ), '' ), '?' );
+		$attr['exp3'] = (int) $attr['exp3'];
+		$attr['vid']  = (int) $attr['vid'];
 
 		$width  = null;
 		$height = null;
@@ -254,47 +205,36 @@ class Jetpack_Brightcove_Shortcode {
 			$height = '210';
 		}
 
-		if ( $html5 ) {
-			wp_enqueue_script(
-				'brightcove-loader',
-				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/brightcove.min.js', 'modules/shortcodes/js/brightcove.js' ),
-				array( 'jquery' ),
-				20121127,
-				false
-			);
-			wp_localize_script(
-				'brightcove-loader',
-				'brightcoveData',
-				array(
-					'tld' => $js_tld,
-				)
-			);
-
-			return '
-				<object id="myExperience" class="BrightcoveExperience">
-					<param name="bgcolor" value="' . esc_attr( $attr['bg'] ) . '" />
-					<param name="width" value="' . esc_attr( $width ) . '" />
-					<param name="height" value="' . esc_attr( $height ) . '" />
-					<param name="playerID" value="' . esc_attr( $attr['exp3'] ) . '" />
-					<param name="@videoPlayer" value="' . esc_attr( $attr['vid'] ) . '" />
-					<param name="playerKey" value="' . esc_attr( $attr['pk'] ) . '" />
-					<param name="isVid" value="1" />
-					<param name="isUI" value="1" />
-					<param name="dynamicStreaming" value="true" />
-					<param name="autoStart" value="false" />
-					<param name="secureConnections" value="true" />
-					<param name="secureHTMLConnections" value="true" />
-				</object>';
-		}
-
-		return sprintf(
-			'<embed src="%s" bgcolor="#FFFFFF" flashvars="%s" base="http://admin.brightcove.com" name="%s" width="%s" height="%s" allowFullScreen="true" seamlesstabbing="false" type="application/x-shockwave-flash" swLiveConnect="true" pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" />',
-			esc_url( $src ),
-			$flashvars,
-			esc_attr( $name ),
-			esc_attr( $width ),
-			esc_attr( $height )
+		wp_enqueue_script(
+			'brightcove-loader',
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/brightcove.min.js', 'modules/shortcodes/js/brightcove.js' ),
+			array( 'jquery' ),
+			20121127,
+			false
 		);
+		wp_localize_script(
+			'brightcove-loader',
+			'brightcoveData',
+			array(
+				'tld' => $js_tld,
+			)
+		);
+
+		return '
+			<object id="myExperience" class="BrightcoveExperience">
+				<param name="bgcolor" value="' . esc_attr( $attr['bg'] ) . '" />
+				<param name="width" value="' . esc_attr( $width ) . '" />
+				<param name="height" value="' . esc_attr( $height ) . '" />
+				<param name="playerID" value="' . esc_attr( $attr['exp3'] ) . '" />
+				<param name="@videoPlayer" value="' . esc_attr( $attr['vid'] ) . '" />
+				<param name="playerKey" value="' . esc_attr( $attr['pk'] ) . '" />
+				<param name="isVid" value="1" />
+				<param name="isUI" value="1" />
+				<param name="dynamicStreaming" value="true" />
+				<param name="autoStart" value="false" />
+				<param name="secureConnections" value="true" />
+				<param name="secureHTMLConnections" value="true" />
+			</object>';
 	}
 }
 

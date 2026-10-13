@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
-import { reloadPage } from '../../products/reload-page';
+import { reloadPage } from '../../../../utils/reload-page';
 import { FeaturesContent } from '../content';
 import { FeaturesEmptyState } from '../empty-state';
 import { FeatureAction } from '../feature-action';
@@ -20,7 +20,7 @@ const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics' );
-jest.mock( '../../products/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 jest.mock( '../use-main-features', () => ( {
 	useMainFeatures: () => ( {

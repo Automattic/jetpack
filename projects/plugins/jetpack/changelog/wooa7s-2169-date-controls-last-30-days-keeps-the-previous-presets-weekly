@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Use the default chart interval when switching to a different date preset, instead of keeping the previous preset's.

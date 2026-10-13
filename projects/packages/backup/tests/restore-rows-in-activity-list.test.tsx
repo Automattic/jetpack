@@ -65,24 +65,17 @@ function activityRows() {
 /**
  * Point every route the Overview reads at a fixed set of answers.
  *
- * @param options            - Fixture options.
- * @param options.restores   - What `/jetpack/v4/restores` resolves with.
- * @param options.standalone - Whether the standalone plugin is active, which is what
- *                           opens the review prompt's own read of the collection.
- * @param options.activity   - 'ok' to answer the rewindable feed, 'error' to 5xx it.
+ * @param options          - Fixture options.
+ * @param options.restores - What `/jetpack/v4/restores` resolves with.
+ * @param options.activity - 'ok' to answer the rewindable feed, 'error' to 5xx it.
  */
-function mockEndpoints( {
-	restores = [] as unknown,
-	standalone = false,
-	activity = 'ok' as 'ok' | 'error',
-} = {} ) {
+function mockEndpoints( { restores = [] as unknown, activity = 'ok' as 'ok' | 'error' } = {} ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/site/capabilities' ) ) {
 			return Promise.resolve( {
 				hasBackupPlan: true,
 				hasScan: false,
-				local: { isStandalonePluginActive: standalone },
 			} );
 		}
 		if ( path.includes( '/site/rewindable-activity' ) ) {
@@ -197,14 +190,6 @@ describe( 'a restore that has already ended', () => {
 		render( <OverviewStage /> );
 		// Witness: the row is on screen, so the single request below is one
 		// that answered rather than one nobody made.
-		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
-
-		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );
-	} );
-
-	it( 'still reads it once when the review prompt reads it too', async () => {
-		mockEndpoints( { restores: [ failedRestore() ], standalone: true } );
-		render( <OverviewStage /> );
 		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
 		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );

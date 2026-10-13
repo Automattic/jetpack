@@ -16,7 +16,7 @@ export default {
 		docs: {
 			description: {
 				component:
-					'A standalone tooltip box, placed at `top` and `left` in its positioned container. It shows `label: value` by default, or your own `component` or children. Use it for a tooltip outside a visx `XYChart`; inside one, use `AccessibleTooltip`.',
+					'A tooltip box with `label: value` content or children. Prefer `TooltipBox`; `data`, `component`, `top` and `left` are deprecated.',
 			},
 		},
 	},
@@ -26,11 +26,11 @@ export default {
 			control: 'object',
 		},
 		top: {
-			description: 'Distance from top of container',
+			description: 'Deprecated: position the box with `style`, or use `TooltipBox`.',
 			control: { type: 'range', min: 0, max: 200 },
 		},
 		left: {
-			description: 'Distance from left of container',
+			description: 'Deprecated: position the box with `style`, or use `TooltipBox`.',
 			control: { type: 'range', min: 0, max: 200 },
 		},
 		style: {

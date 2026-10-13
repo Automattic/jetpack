@@ -47,6 +47,54 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Restore cached video objects from before Flash support was removed.
+	 */
+	public function test_restore_cached_video_with_legacy_players_property() {
+		$deprecations = array();
+		set_error_handler(
+			static function ( $severity, $message ) use ( &$deprecations ) {
+				$deprecations[] = $message;
+				return true;
+			},
+			E_DEPRECATED
+		);
+
+		try {
+			$video = unserialize( 'O:16:"VideoPress_Video":1:{s:7:"players";N;}' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Exercise the pre-upgrade cache format.
+			$this->assertNull( $video->players );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertSame( array(), $deprecations );
+	}
+
+	/**
+	 * Existing callers retain parameter validation while receiving a deprecation notice.
+	 */
+	public function test_deprecated_flash_parameter_validation() {
+		$this->setExpectedDeprecated( 'VideoPress_Player::esc_flash_params' );
+
+		$this->assertSame(
+			array(
+				'play'              => 'true',
+				'quality'           => 'high',
+				'allowscriptaccess' => 'sameDomain',
+			),
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Verify the deprecated compatibility API.
+			VideoPress_Player::esc_flash_params(
+				array(
+					'PLAY'              => 'TRUE',
+					'quality'           => 'HIGH',
+					'allowscriptaccess' => 'SAMEDOMAIN',
+					'wmode'             => 'invalid',
+					'unknown'           => 'value',
+				)
+			)
+		);
+	}
+
+	/**
 	 * Gets the test data for test_output_html5_dynamic_next().
 	 *
 	 * @return array The test data.

@@ -15,7 +15,6 @@ import '@automattic/charts/style.css';
  */
 export {
 	BarChart,
-	BaseTooltip,
 	ConversionFunnelChart,
 	GeoChart,
 	GlobalChartsProvider,
@@ -28,9 +27,11 @@ export {
 	PieChartUnresponsive,
 	PieSemiCircleChart,
 	Sparkline,
+	TooltipBox,
 	buildCalendarHeatmapData,
 	getBucketInfo,
 	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
 	useCalendarHeatmapData,
 	useChartLegendItems,
@@ -69,6 +70,7 @@ export {
 	AlertDialog,
 	Badge,
 	Button,
+	Card,
 	Dialog,
 	EmptyState,
 	LinkButton,
@@ -82,8 +84,10 @@ export {
 	Notice,
 	Popover,
 	RangeCalendar,
+	SearchableChipSelectControl,
 	SelectControl,
 	Skeleton,
+	Spinner,
 	Stack,
 	Tabs,
 	Text,
@@ -96,12 +100,14 @@ export {
  * DataViews
  */
 export {
+	DataForm,
 	DataViews,
 	filterSortAndPaginate,
 	type Action,
 	type DataFormControlProps,
 	type DataViewRenderFieldProps,
 	type Field,
+	type Form,
 	type Option,
 	type SupportedLayouts,
 	type View,

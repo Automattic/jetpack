@@ -1,7 +1,7 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
-import { getOverrideReason } from '../../components/modules-list/utils';
-import { getProductModules } from '../../components/my-jetpack-tab-panel/products/mappings';
+import { getProductModules } from '../../components/my-jetpack-tab-panel/features/mappings';
+import { getOverrideReason } from '../../components/my-jetpack-tab-panel/features/module-availability';
 import { PRODUCT_STATUSES } from '../../constants';
 import { isJetpackPluginActive } from '../../utils/is-jetpack-plugin-active';
 import type { MyJetpackModule } from '../../types';

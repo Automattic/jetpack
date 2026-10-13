@@ -33,6 +33,7 @@ class Connection {
 
 	public function init() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'jetpack_site_registered', array( Premium_Features::class, 'record_cloud_css_baseline' ), 20, 0 );
 
 		$this->initialize_deactivate_disconnect();
 	}
@@ -195,6 +196,7 @@ class Connection {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+		Premium_Features::record_cloud_css_baseline();
 
 		do_action( 'jetpack_boost_connection_established' );
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search: Start the experience switch and Restore default confirmations on Cancel, so pressing Enter no longer switches the search experience or deletes a customized template.

@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.11.0] - 2026-10-06
+### Fixed
+- Checkout workflow: Stop the busy state and return a checkoutError when site registration or the product lookup fails, and show an error on the Required Plan connect screen. [#53069]
+
+## [2.10.0] - 2026-10-05
+### Added
+- Add a confirmation dialog an administrator uses to become the protected owner. [#52980]
+- Add a dialog for the confirmed owner to release protected ownership of a site. [#53028]
+
+### Deprecated
+- Deprecate `runConnectionHealthCheck`, which is now a no-op. [#52977]
+
+### Removed
+- Remove the `includeHealthErrors` option from `useConnectionErrorNotice` and `ConnectionError`, along with the connection health-check store state and selector. [#52977]
+
 ## [2.9.0] - 2026-09-29
 ### Added
 - Add protected owner selectors and types to the connection store. [#52861]
@@ -1526,6 +1541,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.11.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.10.0...v2.11.0
+[2.10.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.6.0...v2.7.0

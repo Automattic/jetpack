@@ -23,6 +23,18 @@ describe( 'onboardingTourSteps', () => {
 		] );
 	} );
 
+	it( 'leaves out the feedback step for a reader who cannot send feedback', () => {
+		const optionsMenu = document.createElement( 'button' );
+
+		const steps = onboardingTourSteps(
+			{ firstWidget: null, dateControls: null, optionsMenu },
+			{ withFeedback: false }
+		);
+
+		expect( steps.map( step => step.title ) ).not.toContain( 'One last thing' );
+		expect( steps ).toHaveLength( 3 );
+	} );
+
 	it( 'keeps the steps whose anchors are not mounted yet', () => {
 		const steps = onboardingTourSteps( {
 			firstWidget: null,

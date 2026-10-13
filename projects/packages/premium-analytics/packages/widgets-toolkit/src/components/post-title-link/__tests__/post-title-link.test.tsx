@@ -5,95 +5,87 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { VideoTitleLink } from '../../video-title-link';
 import { PostTitleLink } from '../post-title-link';
-import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
-type MockRouteLinkProps = {
-	to: string;
-	params?: Record< string, unknown >;
-	search?: Record< string, unknown >;
-	children: ReactNode;
-} & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
-
-// `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
 
-	return {
-		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
-			( { to, params, search, children, ...props }, ref ) => {
-				const path = Object.entries( params ?? {} ).reduce(
-					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-					to
-				);
-				const query = new URLSearchParams();
-				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-					if ( value !== undefined && value !== null ) {
-						query.set( key, String( value ) );
-					}
-				} );
-				const queryString = query.toString();
-
-				return (
-					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-						{ children }
-					</a>
-				);
-			}
-		),
-	};
+	return mockWordPressRoute;
 } );
 
-describe( 'PostTitleLink', () => {
-	it( 'routes a row with a post ID to the detail page, carrying the report window', () => {
+describe.each( [
+	{ name: 'PostTitleLink', TitleLink: PostTitleLink, route: '/post' },
+	{ name: 'VideoTitleLink', TitleLink: VideoTitleLink, route: '/video' },
+] )( '$name', ( { TitleLink, route } ) => {
+	it( 'routes a row with an ID to the detail page, carrying the report window', () => {
 		render(
-			<PostTitleLink
+			<TitleLink
 				id={ 41 }
 				label="Hello world"
-				link="https://example.com/hello-world/"
 				search={ { from: '2026-03-01', to: '2026-03-10' } }
 			/>
 		);
 
-		const link = screen.getByRole( 'link', { name: 'Hello world' } );
-		const href = link.getAttribute( 'href' ) ?? '';
-		const search = new URL( href, 'https://example.com' ).searchParams;
-
-		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/post/41' ) );
-		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
-		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
-		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
+			'href',
+			`${ route }/41?from=2026-03-01&to=2026-03-10`
+		);
 	} );
 
-	it( 'gives an internal link no outbound target and no external marker', () => {
-		render( <PostTitleLink id={ 41 } label="Hello world" /> );
+	it( 'falls back to the public URL with an external marker when there is no ID', () => {
+		render( <TitleLink label="Pricing" link="https://example.com/?s=pricing" /> );
 
-		const link = screen.getByRole( 'link', { name: 'Hello world' } );
-		expect( link ).not.toHaveAttribute( 'target' );
-		expect( link ).not.toHaveAttribute( 'rel' );
-		expect( screen.queryByRole( 'img', { name: '(opens in a new tab)' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Pricing(opens in a new tab)' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/?s=pricing'
+		);
 	} );
 
-	it( 'falls back to the public URL with an external marker when there is no post ID', () => {
-		render( <PostTitleLink label="Pricing" link="https://example.com/?s=pricing" /> );
-
-		const link = screen.getByRole( 'link', { name: 'Pricing(opens in a new tab)' } );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'treats the homepage entry (id 0) as having no detail page', () => {
-		render( <PostTitleLink id={ 0 } label="Homepage (Latest posts)" /> );
+	it( 'treats an ID of 0, such as the homepage entry, as having no detail page', () => {
+		render( <TitleLink id={ 0 } label="Homepage (Latest posts)" /> );
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders plain text when the fallback URL has an unsupported scheme', () => {
-		render( <PostTitleLink label="Sketchy" link="javascript:alert(1)" /> );
+	it( 'renders plain text when there is no ID and the fallback URL has an unsupported scheme', () => {
+		render( <TitleLink label="Sketchy" link="javascript:alert(1)" /> );
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Sketchy' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'PostTitleLink', () => {
+	it( 'carries the public URL to the detail page', () => {
+		render(
+			<PostTitleLink id={ 41 } label="Hello world" link="https://example.com/hello-world/" />
+		);
+
+		const href = screen.getByRole( 'link', { name: 'Hello world' } ).getAttribute( 'href' ) ?? '';
+
+		expect( new URL( href, 'https://example.com' ).searchParams.get( 'post_url' ) ).toBe(
+			'https://example.com/hello-world/'
+		);
+	} );
+} );
+
+describe( 'VideoTitleLink', () => {
+	it.each( [
+		[ 'detail link', { id: 12 } ],
+		[ 'external link', { link: 'https://example.com/launch/' } ],
+		[ 'plain wrapper', {} ],
+	] )( 'renders custom content in place of the label inside the %s', ( _branch, props ) => {
+		render(
+			<VideoTitleLink label="Launch" title="Launch" { ...props }>
+				<span>custom</span>
+			</VideoTitleLink>
+		);
+
+		expect( screen.getByTitle( 'Launch' ) ).toContainElement( screen.getByText( 'custom' ) );
+		expect( screen.queryByText( 'Launch' ) ).not.toBeInTheDocument();
 	} );
 } );

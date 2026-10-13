@@ -71,7 +71,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Filter hook for overriding the BN code while connected to the sandbox.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 * @var string
 	 */
 	public const SANDBOX_PARTNER_ATTRIBUTION_FILTER = 'jetpack_paypal_sandbox_partner_attribution_id';
@@ -84,6 +84,15 @@ class PayPal_Payment_Buttons {
 	 * @var string
 	 */
 	public const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
+
+	/**
+	 * Feature flag that lets a merchant connect the PayPal sandbox from the
+	 * connection wizard. Off, the wizard connects to production only.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const SANDBOX_FLAG = 'paypal-payments-sandbox';
 
 	/**
 	 * Front-end style handle, registered by `register_block_style()`.
@@ -144,6 +153,14 @@ class PayPal_Payment_Buttons {
 				'owner'       => 'paypal-payments',
 			)
 		);
+		Feature_Flags::register(
+			self::SANDBOX_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Offer the PayPal sandbox in the connection wizard, for testing without real payments.',
+				'owner'       => 'paypal-payments',
+			)
+		);
 	}
 
 	/**
@@ -160,7 +177,19 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Expose the flag to the block editor under the same name.
+	 * Whether the connection wizard offers the PayPal sandbox.
+	 *
+	 * A site already connected to the sandbox stays connected either way.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_sandbox_enabled() {
+		return Feature_Flags::is_enabled( self::SANDBOX_FLAG );
+	}
+
+	/**
+	 * Expose the flags to the block editor under the same names.
 	 *
 	 * Jetpack hooks this on `jetpack_block_editor_feature_flags`; the standalone
 	 * plugin calls it while building its own editor state.
@@ -176,6 +205,7 @@ class PayPal_Payment_Buttons {
 		}
 
 		$flags[ self::API_MANAGED_BUTTONS_FLAG ] = self::is_api_managed_enabled();
+		$flags[ self::SANDBOX_FLAG ]             = self::is_sandbox_enabled();
 
 		return $flags;
 	}
@@ -739,7 +769,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Get the partner attribution ID (BN code) for the current environment.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return string The BN code, safe to place in a URL query or an HTML attribute.
 	 */
@@ -755,7 +785,7 @@ class PayPal_Payment_Buttons {
 		 *
 		 * The production BN code is not filterable.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.12.0
 		 *
 		 * @param string $partner_attribution_id The BN code. Defaults to the production code.
 		 */
@@ -1263,7 +1293,7 @@ class PayPal_Payment_Buttons {
 	 * Elsewhere the Tracks call blocks the page.
 	 * Skips the pages wpcom stats skip, plus framed previews and embeds.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param string $format           The block's format, as allowlisted before the draw.
 	 * @param mixed  $integration_mode The block's integrationMode attribute.

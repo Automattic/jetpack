@@ -42,7 +42,15 @@ function commentsCsvExporter(
 		getColumns: () => [
 			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
 			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+			// No URL for authors: their links only work on the site and can embed a guest's email.
+			...( group === 'posts'
+				? [
+						{
+							label: __( 'URL', 'jetpack-premium-analytics-pkg' ),
+							getValue: ( row: StatsCommentsRow ) => row.link ?? '',
+						},
+					]
+				: [] ),
 		],
 	};
 }

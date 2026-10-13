@@ -50,6 +50,11 @@ member's variable alone, and the other members' copies are never read. Group onl
 suites whose mocks are self-contained; the guard test compares the mock text and
 cannot see this difference.
 
+To give a mock state that tests control, keep the mock and its setters in a module
+under `tests/js/` and return it from the factory with `jest.requireActual`, as
+`route-test-utils.tsx` does. Every member then reads the same instance, and the
+guard resolves the relative path, so their mock text still matches.
+
 Do not list a suite in multiple groups. Leave suites with relative module mocks
 ungrouped because those mocks resolve from the suite's directory.
 

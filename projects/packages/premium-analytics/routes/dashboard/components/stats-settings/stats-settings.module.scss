@@ -1,0 +1,30 @@
+.root {
+	inline-size: 100%;
+	// Widget sections open with a section header; this tab has none.
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	max-inline-size: 720px;
+	margin-inline: auto;
+}
+
+.usageMeter {
+	align-self: stretch;
+}
+
+.usageCount {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.usageReset,
+.usageNote {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.usageWarning {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+// ProgressBar's own stylesheet loads later and wins a tie with a single
+// class, so its documented `className` sizing needs the extra one.
+.usageMeter .usageBar {
+	inline-size: 100%;
+}

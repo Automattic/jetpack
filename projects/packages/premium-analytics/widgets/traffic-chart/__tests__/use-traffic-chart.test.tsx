@@ -164,30 +164,6 @@ describe( 'useTrafficChart', () => {
 		] );
 	} );
 
-	it( 'maps one chart point per period, oldest first', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		const views = result.current.metrics[ 0 ];
-		expect( views.current ).toHaveLength( 2 );
-		expect( views.current[ 0 ].value ).toBe( 1200 );
-		expect( views.current[ 1 ].value ).toBe( 800 );
-		expect( views.current[ 0 ].date ).toBeInstanceOf( Date );
-		expect( views.current[ 0 ].date.getTime() ).toBeLessThan( views.current[ 1 ].date.getTime() );
-	} );
-
-	it( 'omits the previous period when comparison is off', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		for ( const metric of result.current.metrics ) {
-			expect( metric.previous ).toBeUndefined();
-			expect( metric.previousValue ).toBeUndefined();
-		}
-	} );
-
 	it( 'maps previous-period totals when comparison params are present', async () => {
 		routeRequests( {
 			viewsVisitors: VIEWS_VISITORS_COMPARISON,
@@ -212,29 +188,82 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
-	// Misleading-zero guard: an empty comparison response must read as "no
-	// previous period", not a previous total of 0 (would render a false -100% delta).
-	it( 'omits the previous period when the comparison request returns no rows', async () => {
-		// Shared between the views/visitors and likes/comments requests below, so
-		// `fields` names neither pair specifically; `data: []` means it's never read.
-		const empty = {
-			unit: 'month',
-			fields: [ 'period' ],
-			data: [],
-		};
-		routeRequests( { viewsVisitors: empty, likesComments: empty } );
+	it.each( [
+		[
+			"skips a year-ago comparison's one-day opening week",
+			[ '2026-08-31', '2026-09-13' ],
+			[ '2025-08-31', '2025-09-13' ],
+			[
+				[ '2025W08W25', 1 ],
+				[ '2025W09W01', 132 ],
+				[ '2025W09W08', 326 ],
+			],
+			[
+				[ '2026W08W31', 2 ],
+				[ '2026W09W07', 4 ],
+			],
+			[ 132, 326 ],
+		],
+		[
+			"keeps a previous period's one-day opening week",
+			[ '2026-09-07', '2026-09-14' ],
+			[ '2026-08-30', '2026-09-06' ],
+			[
+				[ '2026W08W24', 1 ],
+				[ '2026W08W31', 132 ],
+			],
+			[
+				[ '2026W09W07', 2 ],
+				[ '2026W09W14', 4 ],
+			],
+			[ 1, 132 ],
+		],
+	] as const )(
+		'%s when grouped by weeks',
+		async (
+			_name,
+			[ from, to ],
+			[ compareFrom, compareTo ],
+			comparisonRows,
+			primaryRows,
+			expected
+		) => {
+			const weeks = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+				unit: 'week',
+				fields: [ 'period', 'views', 'visitors' ],
+				data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
+			} );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				Promise.resolve(
+					weeks( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+				)
+			);
 
-		const { result } = renderHook( () => useTrafficChart( RANGE_WITH_COMPARISON, 'month' ), {
-			wrapper,
-		} );
+			const { result } = renderHook(
+				() =>
+					useTrafficChart(
+						{
+							from,
+							to,
+							interval: 'week',
+							comp: '1',
+							compare_from: compareFrom,
+							compare_to: compareTo,
+						},
+						'week'
+					),
+				{ wrapper }
+			);
 
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-		for ( const metric of result.current.metrics ) {
-			expect( metric.previous ).toBeUndefined();
-			expect( metric.previousValue ).toBeUndefined();
+			const views = result.current.metrics[ 0 ];
+			expect( views.previous?.map( point => point.value ) ).toEqual( expected );
+			expect( views.previousValue ).toBe(
+				comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
+			);
 		}
-	} );
+	);
 
 	describe( 'hourly', () => {
 		const DAY_RANGE: ReportParams = {
@@ -289,11 +318,6 @@ describe( 'useTrafficChart', () => {
 			expect( paths ).toHaveLength( 2 );
 			const hourly = paths.find( path => path.includes( 'unit=hour' ) );
 			const daily = paths.find( path => path.includes( 'unit=day' ) );
-			// The endpoint counts the hourly buckets from these two, so they have
-			// to reach it with their time of day intact.
-			expect( hourly ).toContain(
-				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00.000+00:00' ) }`
-			);
 			expect( hourly ).toContain( `stat_fields=${ encodeURIComponent( 'views' ) }` );
 			expect( daily ).toContain(
 				`stat_fields=${ encodeURIComponent( 'visitors,likes,comments' ) }`

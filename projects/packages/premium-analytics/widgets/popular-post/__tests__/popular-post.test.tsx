@@ -7,7 +7,7 @@ import {
 	queryClient,
 } from '@jetpack-premium-analytics/data';
 import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -23,6 +23,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const originalScriptData = window.JetpackScriptData;
 
 // The window is resolved from "now" in the site timezone, so pin both rather
 // than letting the machine's clock and zone decide what to expect.
@@ -92,6 +93,13 @@ describe( 'PopularPostWidget', () => {
 	let defaultSettings: ReturnType< typeof getSettings >;
 
 	beforeEach( () => {
+		window.JetpackScriptData = {
+			...originalScriptData,
+			site: {
+				...originalScriptData?.site,
+				admin_url: 'https://example.com/blog/wp-admin/',
+			},
+		} as typeof window.JetpackScriptData;
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockImplementation( ( options: unknown ) => {
@@ -120,6 +128,7 @@ describe( 'PopularPostWidget', () => {
 	} );
 
 	afterEach( () => {
+		window.JetpackScriptData = originalScriptData;
 		jest.useRealTimers();
 		setSettings( defaultSettings );
 	} );
@@ -154,16 +163,122 @@ describe( 'PopularPostWidget', () => {
 	} );
 
 	it( 'names its own window, not the selected period, when the site has no views', async () => {
-		mockApiFetch.mockResolvedValue( {
-			...topPostsResponse,
-			summary: { postviews: [], total_views: 0 },
-		} );
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve(
+				requestPath( options ).startsWith( '/wp/v2/posts' )
+					? postContentResponse
+					: { ...topPostsResponse, summary: { postviews: [], total_views: 0 } }
+			)
+		);
 
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 
 		await expect(
 			screen.findByText( 'No post views in the last 12 months.' )
 		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Create post when the ranking and published-post responses are empty', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve(
+				requestPath( options ).startsWith( '/wp/v2/posts' )
+					? []
+					: { ...topPostsResponse, summary: { postviews: [], total_views: 0 } }
+			)
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( "Your most-read post will show here once you've published one." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/blog/wp-admin/post-new.php'
+		);
+	} );
+
+	it( 'holds the no-views message back while the published-post check is pending', async () => {
+		let resolvePosts!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).startsWith( '/wp/v2/posts' )
+				? new Promise( resolve => {
+						resolvePosts = resolve;
+					} )
+				: Promise.resolve( { ...topPostsResponse, summary: { postviews: [], total_views: 0 } } )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
+		);
+
+		expect( screen.queryByText( 'No post views in the last 12 months.' ) ).not.toBeInTheDocument();
+
+		await act( async () => resolvePosts( [] ) );
+		await expect(
+			screen.findByRole( 'link', { name: 'Create post' } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'keeps Create post while the empty ranking refetches', async () => {
+		const emptyRanking = { ...topPostsResponse, summary: { postviews: [], total_views: 0 } };
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve( requestPath( options ).startsWith( '/wp/v2/posts' ) ? [] : emptyRanking )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+		await expect(
+			screen.findByRole( 'link', { name: 'Create post' } )
+		).resolves.toBeInTheDocument();
+
+		let resolveRanking!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).includes( 'stats/top-posts' )
+				? new Promise( resolve => {
+						resolveRanking = resolve;
+					} )
+				: Promise.resolve( [] )
+		);
+		let refetch!: Promise< unknown >;
+		act( () => {
+			refetch = queryClient.refetchQueries( { queryKey: [ 'stats', 'top-posts' ] } );
+		} );
+		await waitFor( () =>
+			expect( queryClient.isFetching( { queryKey: [ 'stats', 'top-posts' ] } ) ).toBe( 1 )
+		);
+
+		expect(
+			screen.getByText( "Your most-read post will show here once you've published one." )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toBeInTheDocument();
+
+		await act( async () => {
+			resolveRanking( emptyRanking );
+			await refetch;
+		} );
+	} );
+
+	it( 'keeps the no-views message when the published-post check fails', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).startsWith( '/wp/v2/posts' )
+				? Promise.reject( { code: 'rest_forbidden', data: { status: 403 } } )
+				: Promise.resolve( {
+						...topPostsResponse,
+						summary: { postviews: [], total_views: 0 },
+					} )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'error' )
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
@@ -201,8 +316,12 @@ describe( 'PopularPostWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'links the post to its detail page on the window it ranked over', async () => {
-		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+	it( 'links the post to its detail page on the window it ranked over, naming the tab to return to', async () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+			</DashboardSectionProvider>
+		);
 
 		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
 		const { searchParams: search } = getMockRouteLinkUrl( link );
@@ -212,6 +331,7 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its
@@ -225,18 +345,6 @@ describe( 'PopularPostWidget', () => {
 				preset: search.get( 'preset' ) as 'last-12-months',
 			} )
 		).toBe( false );
-	} );
-
-	it( 'names the dashboard tab the detail page should return to', async () => {
-		render(
-			<DashboardSectionProvider section="insights">
-				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
-			</DashboardSectionProvider>
-		);
-
-		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
-
-		expect( getMockRouteLinkUrl( link ).searchParams.get( 'ds' ) ).toBe( 'insights' );
 	} );
 
 	it( 'renders on a saved instance that carries no report params', async () => {

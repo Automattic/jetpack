@@ -385,7 +385,7 @@ class REST_Products {
 	 *
 	 * POST `my-jetpack/v1/site/products/search/activate-free`
 	 *
-	 * @since $$next-version$$
+	 * @since 6.8.0
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`; see {@see Products\Search::activate_free_product()}.

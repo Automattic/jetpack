@@ -1585,6 +1585,14 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
+		// Only http and https URLs are valid.
+		if (
+			isset( $url_components['scheme'] )
+			&& ! in_array( strtolower( $url_components['scheme'] ), array( 'http', 'https' ), true )
+		) {
+			return false;
+		}
+
 		// Normalize URL.
 		$url = sprintf(
 			'%s://%s%s%s',

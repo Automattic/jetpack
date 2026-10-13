@@ -430,6 +430,15 @@ describe( 'ConversionFunnelChart', () => {
 			} );
 		} );
 
+		it( 'exposes the tooltip content with role="tooltip"', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart' );
+		} );
+
 		it( 'merges tooltipStyle onto the tooltip box', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme(

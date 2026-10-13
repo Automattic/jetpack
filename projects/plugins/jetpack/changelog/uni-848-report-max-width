@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Cap the cards on report pages at a centered 1440px column on wide screens, so each row's label and numbers stay close enough to read together.

@@ -105,8 +105,8 @@ function FeaturesTabContent() {
 		[ searchParams, setSearchParams ]
 	);
 
-	// Searching replaces the grid outright, the way it does on the Products tab, so a
-	// term in play takes the filter's place rather than narrowing alongside it.
+	// Searching replaces the grid outright, so a term in play takes the filter's place
+	// rather than narrowing alongside it.
 	const results = useFeatureSearch( states, search );
 	const visible = useMemo(
 		() =>

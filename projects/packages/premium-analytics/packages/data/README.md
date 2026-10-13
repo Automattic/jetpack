@@ -230,7 +230,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Returns:** `{ primary, comparison? }` with normalized parameters
 
-**Defaults:** Last 30 days, daily interval when not specified
+**Defaults:** The reader's last applied preset, else their Jetpack Stats v1 range, else Last 7 days; daily interval when not specified
 
 **Validation:** Ensures required fields are present for API calls
 

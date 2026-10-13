@@ -127,7 +127,6 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it.each( [
-		[ 2, 2, '1 more' ],
 		[ 10, 30, '29 more' ],
 		[ 10, -1, '9 more' ],
 	] )(

@@ -54,24 +54,8 @@ describe( 'MostPopularDayWidget', () => {
 		expect( screen.getByText( '103K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
-	it( 'requests the site summary without date params', async () => {
-		render( <MostPopularDayWidget attributes={ {} } /> );
-
-		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
-
-		// The best day is all-time, so sending a date range would imply a filter
-		// the endpoint does not apply.
-		const [ [ request ] ] = mockApiFetch.mock.calls;
-		const path = String( request.path );
-
-		expect( path ).toContain( 'proxy/v1.1/stats' );
-		// Params are serialized into the query string, so no query string at all
-		// pins this more tightly than naming the params one at a time.
-		expect( path ).not.toContain( '?' );
-	} );
-
-	it( 'ignores the report params the host injects', async () => {
-		// The card is all-time, so host report params must reach WidgetRoot (the
+	it( 'requests the site summary without the date params the host injects', async () => {
+		// The best day is all-time, so host report params must reach WidgetRoot (the
 		// contract) and still leave both the request and the figures untouched.
 		render(
 			<MostPopularDayWidget attributes={ { reportParams: getDefaultQueryParams( true ) } } />
@@ -80,8 +64,12 @@ describe( 'MostPopularDayWidget', () => {
 		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
 
 		const [ [ request ] ] = mockApiFetch.mock.calls;
+		const path = String( request.path );
 
-		expect( String( request.path ) ).not.toContain( '?' );
+		expect( path ).toContain( 'proxy/v1.1/stats' );
+		// Params are serialized into the query string, so no query string at all
+		// pins this more tightly than naming the params one at a time.
+		expect( path ).not.toContain( '?' );
 	} );
 
 	it( 'drops the share caption rather than captioning the best day with 0%', async () => {
@@ -115,22 +103,16 @@ describe( 'MostPopularDayWidget', () => {
 		expect( container ).toHaveTextContent( 'Views11015.03% of views' );
 	} );
 
-	it( 'shows the empty state when the site has no best day yet', async () => {
-		mockApiFetch.mockResolvedValue( { stats: { views: 0 } } );
-
-		render( <MostPopularDayWidget attributes={ {} } /> );
-
-		await expect(
-			screen.findByText( 'Not enough views yet to pick a most popular day.' )
-		).resolves.toBeInTheDocument();
-	} );
-
-	it( 'shows the empty state for a best day that drew no views', async () => {
-		// A day named with a zero total is the same "not enough views yet" case;
-		// rendering "Views 0" would present it as a measurement.
-		mockApiFetch.mockResolvedValue( {
-			stats: { views: 0, views_best_day: '2011-10-17', views_best_day_total: 0 },
-		} );
+	// A day named with a zero total is the same "not enough views yet" case;
+	// rendering "Views 0" would present it as a measurement.
+	it.each( [
+		[ 'has no best day yet', { views: 0 } ],
+		[
+			'names a best day that drew no views',
+			{ views: 0, views_best_day: '2011-10-17', views_best_day_total: 0 },
+		],
+	] )( 'shows the empty state when the site %s', async ( _, stats ) => {
+		mockApiFetch.mockResolvedValue( { stats } );
 
 		render( <MostPopularDayWidget attributes={ {} } /> );
 

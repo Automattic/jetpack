@@ -112,10 +112,14 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependency.
-	// https://github.com/egoist/rollup-plugin-postcss/issues/469
-	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
+	// Update to avoid periodic CVEs. Upstream pins deps for "security" but doesn't respond all that quickly to new issues.
+	// https://github.com/open-cli-tools/concurrently/issues/598#issuecomment-4842564626
+	if ( pkg.name === 'concurrently' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
 	}
 
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.

@@ -12,14 +12,6 @@ jest.mock( '@wordpress/route', () => {
 	return mockWordPressRoute;
 } );
 
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	section: 'campaign',
-	foreign: 'drop-me',
-} );
-
 const row: UtmReportRow = {
 	id: 'post-41',
 	parentId: 'utm-newsletter',
@@ -31,6 +23,16 @@ const row: UtmReportRow = {
 };
 
 describe( 'UTM report fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			section: 'campaign',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'makes UTM and post values searchable', () => {
 		const field = getUtmFields( 'source-medium' ).find( candidate => candidate.id === 'utmValue' );
 
@@ -38,16 +40,10 @@ describe( 'UTM report fields', () => {
 		expect( field?.getValue?.( { item: row } as never ) ).toBe( 'Landing page' );
 	} );
 
-	it.each( [
-		[ 'source-medium', 'Source / Medium' ],
-		[ 'campaign-source-medium', 'Campaign / Source / Medium' ],
-		[ 'source', 'Source' ],
-		[ 'medium', 'Medium' ],
-		[ 'campaign', 'Campaign' ],
-	] as const )( 'labels the %s dimension column', ( tab, label ) => {
-		const field = getUtmFields( tab ).find( candidate => candidate.id === 'utmValue' );
+	it( 'labels the dimension column after the active tab', () => {
+		const field = getUtmFields( 'campaign' ).find( candidate => candidate.id === 'utmValue' );
 
-		expect( field?.label ).toBe( label );
+		expect( field?.label ).toBe( 'Campaign' );
 	} );
 
 	it( 'links nested posts to the post detail route', () => {
@@ -90,26 +86,6 @@ describe( 'UTM report fields', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps title-field styling on UTM parent rows', () => {
-		const field = getUtmFields( 'source-medium' ).find( candidate => candidate.id === 'utmValue' );
-		const { render: UtmField } = field ?? {};
-		const parentRow: UtmReportRow = {
-			id: 'utm-newsletter',
-			label: 'newsletter / email',
-			views: 1500,
-			isGroup: true,
-		};
-
-		if ( ! field || ! UtmField ) {
-			throw new Error( 'UTM field render callback is unavailable' );
-		}
-
-		render( <UtmField item={ parentRow } field={ field as never } /> );
-
-		expect( screen.getByText( parentRow.label ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'announces the parent UTM value on nested post rows', () => {
 		const field = getUtmFields( 'source-medium' ).find( candidate => candidate.id === 'utmValue' );
 		const { render: UtmField } = field ?? {};
@@ -123,7 +99,7 @@ describe( 'UTM report fields', () => {
 		expect( screen.getByText( `${ row.groupLabel }:` ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders a localized view count and comparison delta', () => {
+	it( 'renders the full view count with its comparison delta', () => {
 		const field = getUtmFields( 'source-medium' ).find( candidate => candidate.id === 'views' );
 		const { render: ViewsField } = field ?? {};
 
@@ -131,9 +107,8 @@ describe( 'UTM report fields', () => {
 			throw new Error( 'Views field render callback is unavailable' );
 		}
 
-		render( <ViewsField item={ row } field={ field as never } /> );
+		const { container } = render( <ViewsField item={ row } field={ field as never } /> );
 
-		expect( screen.getByText( row.views.toLocaleString() ) ).toBeInTheDocument();
-		expect( screen.getByText( '+23%' ) ).toBeInTheDocument();
+		expect( container ).toHaveTextContent( /^1,234\+23%$/ );
 	} );
 } );

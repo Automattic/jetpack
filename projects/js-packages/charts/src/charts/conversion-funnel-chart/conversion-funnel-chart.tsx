@@ -427,7 +427,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 							className={ standaloneScopeClass }
 							style={ tooltipStyle }
 						>
-							{ tooltipContent }
+							<div role="tooltip">{ tooltipContent }</div>
 						</BoundedTooltip>
 					);
 				} )() }

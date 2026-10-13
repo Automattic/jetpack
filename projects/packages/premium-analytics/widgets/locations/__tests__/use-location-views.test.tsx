@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { queryClientWrapper } from '../../test-utils';
 import useLocationViews from '../use-location-views';
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = jest.mocked( apiFetch );
 
@@ -19,7 +19,7 @@ describe( 'useLocationViews', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'keeps rows Stats cannot place as one unknown country', async () => {
+	it( 'maps each row onto its key, country code, country name and view count', async () => {
 		const views = [
 			{ location: 'United States', country_code: 'US', views: 10 },
 			{ location: false, country_code: 'AP', views: 4 },

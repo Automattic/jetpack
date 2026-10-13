@@ -9,6 +9,7 @@ import type { EditSession, EditSessionAction } from '../state/edit-session';
 import type { ReactElement, RefObject } from 'react';
 
 type Props = {
+	scrollerEl?: HTMLElement | null;
 	onGestureStart?: () => void;
 	onGestureEnd?: () => void;
 	/** The edit session. */
@@ -34,6 +35,7 @@ type Props = {
  * @param props.session        - The edit session.
  * @param props.currentMs      - Live playhead position in ms.
  * @param props.pxPerMs        - Scale from `getPxPerMs`.
+ * @param props.scrollerEl     - Timeline viewport for drag scrolling.
  * @param props.contentRef     - The timeline's scaled content element.
  * @param props.dispatch       - Dispatch into the history-wrapped reducer.
  * @param props.onSeek         - Seek the preview player.
@@ -46,6 +48,7 @@ export default function StudioEditorEditOverlay( {
 	currentMs,
 	pxPerMs,
 	contentRef,
+	scrollerEl,
 	dispatch,
 	onSeek,
 }: Props ): ReactElement {
@@ -72,6 +75,7 @@ export default function StudioEditorEditOverlay( {
 				<StudioEditorCutSegment
 					key={ cut.id }
 					cut={ cut }
+					scrollerEl={ scrollerEl }
 					session={ session }
 					currentMs={ currentMs }
 					pxPerMs={ pxPerMs }

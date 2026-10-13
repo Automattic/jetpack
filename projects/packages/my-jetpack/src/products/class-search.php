@@ -371,7 +371,7 @@ class Search extends Hybrid_Product {
 	 * Safe to call on every activate click: WordPress.com re-pushes its configuration to this
 	 * site before answering `already_entitled`, which is how a half-finished activation repairs.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.8.0
 	 *
 	 * @param string|null $source Where the activation was requested from, for reporting.
 	 * @return array|WP_Error Decoded response body on success; on failure a WP_Error whose data

@@ -492,21 +492,21 @@ class Jetpack_Likes {
 /**
  * Callback to get the value for the jetpack_likes_enabled field.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value() instead.
+ * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value() instead.
  *
  * @param array $post - post data we're checking.
  *
  * @return bool|null
  */
 function jetpack_post_likes_get_value( array $post ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value' );
 	return Post_Likes_Switch::get_value( $post );
 }
 
 /**
  * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value() instead.
+ * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value() instead.
  *
  * @param bool   $enable_post_likes - checks if post likes are enabled.
  * @param object $post_object - object containing post data.
@@ -514,17 +514,17 @@ function jetpack_post_likes_get_value( array $post ) {
  * @return int|bool
  */
 function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value' );
 	return Post_Likes_Switch::update_value( $enable_post_likes, $post_object );
 }
 
 /**
  * Add Likes post_meta to the REST API Post response.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field() instead.
+ * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field() instead.
  */
 function jetpack_post_likes_register_rest_field() {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field' );
 	Post_Likes_Switch::register_rest_field();
 }
 

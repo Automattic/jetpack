@@ -6,8 +6,7 @@
 # - GITHUB_SHA: Commit SHA.
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
-# - PHP_COVERAGE_STATUS: Status of the PHP coverage run.
-# - JS_COVERAGE_STATUS: Status of the JS coverage run.
+# - COVERAGE_FAILED: Status of a failed coverage run, if any.
 # - For non-trunk runs, anything needed by post-message.sh
 
 set -eo pipefail
@@ -17,9 +16,9 @@ if [[ ! -f coverage/summary.tsv ]]; then
 	exit 0
 fi
 
-# Don't update the trunk baseline with partial data if either coverage run failed.
-if [[ "$PR_ID" == "trunk" && ( "$PHP_COVERAGE_STATUS" != "success" || "$JS_COVERAGE_STATUS" != "success" ) ]]; then
-	echo "Not uploading trunk coverage data: PHP status is '$PHP_COVERAGE_STATUS', JS status is '$JS_COVERAGE_STATUS'."
+# Don't update the trunk baseline with partial data if any coverage run failed.
+if [[ "$PR_ID" == "trunk" && -n "$COVERAGE_FAILED" ]]; then
+	echo "Not uploading trunk coverage data: a coverage run's status is '$COVERAGE_FAILED'."
 	exit 0
 fi
 
@@ -27,13 +26,7 @@ mkdir coverage-data
 cp coverage/summary.tsv coverage-data/summary.tsv
 gzip -9 coverage-data/summary.tsv
 
-# We only need the combined coverage data serialized object for trunk.
-if [[ "$PR_ID" == "trunk" ]]; then
-	cp coverage/php-combined.cov coverage-data/php-combined.cov
-	gzip -9 coverage-data/php-combined.cov
-fi
-
-if [[ -f coverage/js-combined.json ]]; then
+if compgen -G 'coverage/js-combined-*.json' &>/dev/null; then
 	echo '::group::Pnpm install'
 	pnpm install
 	echo '::endgroup::'
@@ -43,13 +36,20 @@ if [[ -f coverage/js-combined.json ]]; then
 	echo '::endgroup::'
 fi
 
-if [[ -f coverage/php-combined.cov ]]; then
+if compgen -G 'coverage/php-combined-*.cov' &>/dev/null; then
 	echo '::group::Composer install'
 	composer --working-dir=.github/files/coverage-munger/ update
 	echo '::endgroup::'
 
 	echo '::group::Generating PHP coverage report'
-	.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage/
+
+	# We have to merge and re-relativize the paths, because `phpcov merge` keeps the raw (relative) paths from the first .cov file processed but then `realpath`s the paths in all the rest,
+	# and then gets confused when trying to find a common base directory. Sigh.
+	mkdir coverage-tmp
+	.github/files/coverage-munger/vendor/bin/phpcov merge --php coverage-tmp/merged.cov coverage/
+	perl -i -pwe 'BEGIN { $prefix = shift; $prefix=~s!/*$!/!; $re = qr/\Q$prefix\E/; $l = length( $prefix ); } s!s:(\d+):"$re! sprintf( qq(s:%d:"), $1 - $l ) !ge' "$GITHUB_WORKSPACE" coverage-tmp/merged.cov
+
+	.github/files/coverage-munger/vendor/bin/phpcov merge --html coverage-data/php coverage-tmp/
 	echo '::endgroup::'
 fi
 
@@ -103,7 +103,7 @@ function onexit {
 trap onexit exit
 
 for (( O=0; O < SZ; O+=CSZ )); do
-	dd if=coverage-data.zip of=chunk bs=32K skip=${O}B count=${CSZ}B
+	dd if=coverage-data.zip of=chunk bs=32K skip="${O}B" count="${CSZ}B"
 	do_req "op=chunk&token=$TOKEN" chunk
 done
 
@@ -112,5 +112,6 @@ TOKEN=
 echo '::endgroup::'
 
 if [[ "$PR_ID" != "trunk" ]]; then
-	PHP_COVERAGE_STATUS=$PHP_COVERAGE_STATUS JS_COVERAGE_STATUS=$JS_COVERAGE_STATUS COVINFO=$JSON .github/files/coverage-munger/post-message.sh
+	# If we pass an empty string, post-message.sh will treat it as "unknown" and grab it via the API, so let's save a call.
+	COVERAGE_STATUS=${COVERAGE_FAILED:-success} COVINFO=$JSON .github/files/coverage-munger/post-message.sh
 fi

@@ -2,8 +2,8 @@
 /**
  * The package's own dashboard sections: the built-in tabs, their availability gates and default
  * layouts, and the filters over those gates. They register through the section API in
- * dashboard-sections.php, the same way a plugin extending the dashboard does; the Ads tab is
- * one such plugin section, registered by the WordAds module and by WordPress.com.
+ * dashboard-sections.php, the same way a plugin extending the dashboard does; the Ads tab and the
+ * WooCommerce tab are such sections, registered by their own packages.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -84,9 +84,14 @@ function is_store_dashboard_section_available() {
  *
  * @since 0.3.0
  *
- * @return bool True when the subscriptions module is active.
+ * @return bool True when the subscriptions module is active and the reader may see Stats.
  */
 function is_subscribers_dashboard_section_available() {
+	// Outside the filter, which answers only whether the module is there.
+	if ( ! Capabilities::current_user_can_view_stats() ) {
+		return false;
+	}
+
 	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
 
 	/**
@@ -106,9 +111,7 @@ function is_subscribers_dashboard_section_available() {
  */
 function get_traffic_section_default_layout() {
 	return array(
-		// Rows fill the three-column grid in the prototype's order. Plan usage
-		// is intentionally not a default; it stays available from the widget
-		// picker.
+		// Rows fill the three-column grid in the prototype's order.
 		// Row 1: traffic chart.
 		get_dashboard_default_widget_instance(
 			'default-traffic-chart-widget-instance',
@@ -194,6 +197,14 @@ function get_traffic_section_default_layout() {
 			1,
 			2
 		),
+		// Row 6: tags & categories, ranked over the tab's period.
+		get_dashboard_default_widget_instance(
+			'default-tags-widget-instance',
+			'jpa/tags',
+			12,
+			2,
+			2
+		),
 	);
 }
 
@@ -250,13 +261,13 @@ function get_insights_section_default_layout() {
 			1,
 			2
 		),
-		// Row 4: posting-activity heatmap.
+		// Row 4: posting-activity heatmap. Two rows tall so the months wrap into larger days.
 		get_dashboard_default_widget_instance(
 			'default-posting-activity-widget-instance',
 			'jpa/posting-activity',
 			6,
 			3,
-			1
+			2
 		),
 		// Row 5: the all-time views table, one row per year. Two rows tall so a
 		// few years fit before the grid scrolls.
@@ -267,34 +278,27 @@ function get_insights_section_default_layout() {
 			3,
 			2
 		),
-		// Row 6: tags + most commented posts.
-		get_dashboard_default_widget_instance(
-			'default-tags-widget-instance',
-			'jpa/tags',
-			8,
-			2,
-			2
-		),
+		// Row 6: most commented posts + most commented authors fill the row, so shares
+		// (Simple only) opens row 7 instead of pushing authors down with a gap on both rows.
 		get_dashboard_default_widget_instance(
 			'default-most-commented-posts-widget-instance',
 			'jpa/most-commented-posts',
-			9,
-			1,
-			2
-		),
-		// Row 7: shares + most commented authors.
-		get_dashboard_default_widget_instance(
-			'default-shares-widget-instance',
-			'jpa/shares',
-			10,
+			8,
 			1,
 			2
 		),
 		get_dashboard_default_widget_instance(
 			'default-most-commented-authors-widget-instance',
 			'jpa/most-commented-authors',
-			11,
+			9,
 			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-shares-widget-instance',
+			'jpa/shares',
+			10,
+			1,
 			2
 		),
 	);
@@ -345,79 +349,6 @@ function get_subscribers_section_default_layout() {
 }
 
 /**
- * The Store tab's default widget layout.
- *
- * @return array Widget instances.
- */
-function get_store_section_default_layout() {
-	return array(
-		get_dashboard_default_widget_instance(
-			'default-store-performance-widget-instance',
-			'jpa/store-performance',
-			0,
-			2,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-total-sales-over-time-widget-instance',
-			'jpa/total-sales-over-time',
-			1,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-conversion-rate-widget-instance',
-			'jpa/conversion-rate',
-			2,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-orders-over-time-widget-instance',
-			'jpa/orders-over-time',
-			3,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-average-order-value-widget-instance',
-			'jpa/average-order-value',
-			4,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-top-performing-products-widget-instance',
-			'jpa/top-performing-products',
-			5,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-new-vs-returning-customer-widget-instance',
-			'jpa/new-vs-returning-customer',
-			6,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-payment-status-widget-instance',
-			'jpa/payment-status',
-			7,
-			1,
-			1
-		),
-		get_dashboard_default_widget_instance(
-			'default-orders-fulfillment-widget-instance',
-			'jpa/orders-fulfillment',
-			8,
-			1,
-			1
-		),
-	);
-}
-
-/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * Hooked on the registration action and safe to call directly: a section already registered
@@ -433,10 +364,14 @@ function register_default_dashboard_sections( $registry = null ) {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 10,
-			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
+			'label'               => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 10,
+			// Only the Traffic summary groups by interval, and it saves its own.
+			'date_filter_options' => array(
+				'with_header_interval_control' => false,
+			),
+			'default_layout'      => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
@@ -464,16 +399,6 @@ function register_default_dashboard_sections( $registry = null ) {
 				'with_header_date_control' => false,
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
-		),
-		// Store registers no heading of its own, so it falls back to the label.
-		'woocommerce/store'     => array(
-			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_store_dashboard_section_available',
-			// Nothing backfills historical orders to WordPress.com but the analytics
-			// full sync. The site sections above read data it already holds.
-			'requires_sync'  => true,
-			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
 		),
 	);
 

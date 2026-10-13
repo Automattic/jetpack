@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Remove the Notice component; use Notice from @wordpress/ui instead.

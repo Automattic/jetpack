@@ -102,7 +102,18 @@ describe( 'EmailBreakdownWidget', () => {
 		mockResizeObserverWidth = 1200;
 	} );
 
-	it( 'renders the opens-by-country breakdown for the selected email', async () => {
+	it.each( [
+		[
+			'renders the opens-by-country breakdown for the selected email',
+			{},
+			'stats/opens/emails/1234/country',
+		],
+		[
+			'reads the clicks endpoint for dimension views when metric is clicks',
+			{ metric: 'clicks' as const },
+			'stats/clicks/emails/1234/country',
+		],
+	] )( '%s', async ( _title, metricAttributes, endpoint ) => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
 		render(
@@ -110,6 +121,7 @@ describe( 'EmailBreakdownWidget', () => {
 				attributes={ {
 					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
 					view: 'countries',
+					...metricAttributes,
 				} }
 			/>
 		);
@@ -118,26 +130,7 @@ describe( 'EmailBreakdownWidget', () => {
 		expect( screen.getByText( 'United Kingdom' ) ).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/opens/emails/1234/country' );
-	} );
-
-	it( 'reads the clicks endpoint for dimension views when metric is clicks', async () => {
-		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
-
-		render(
-			<EmailBreakdownWidget
-				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
-					view: 'countries',
-					metric: 'clicks',
-				} }
-			/>
-		);
-
-		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/country' );
+		expect( requestedPath ).toContain( endpoint );
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {

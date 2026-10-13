@@ -76,6 +76,27 @@ describe( 'normalizeEntry', () => {
 		} );
 	} );
 
+	test.each( [
+		[ false, false ],
+		[ true, true ],
+		[ undefined, true ],
+	] )( 'reads is_rewindable %s as isRewindable %s', ( isRewindable, expected ) => {
+		const item = normalizeEntry( { ...backupEntry, is_rewindable: isRewindable } );
+		expect( item ).toMatchObject( { isRewindable: expected } );
+	} );
+
+	test.each( [
+		[ 1777033903, 1777033903 ],
+		[ false, null ],
+		[ undefined, null ],
+	] )( 'reads backup_period %s as backupPeriod %s', ( backupPeriod, expected ) => {
+		const item = normalizeEntry( {
+			...backupEntry,
+			object: { ...backupEntry.object, backup_period: backupPeriod },
+		} );
+		expect( item ).toMatchObject( { backupPeriod: expected } );
+	} );
+
 	test( 'maps a post entry to a post ActivityItem', () => {
 		const item = normalizeEntry( postEntry );
 		expect( item ).toMatchObject( { id: 'a-2', kind: 'post', actor: { type: 'Person' } } );

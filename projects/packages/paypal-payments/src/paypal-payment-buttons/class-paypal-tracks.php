@@ -3,7 +3,7 @@
  * Tracks events for PayPal Payment Buttons.
  *
  * @package automattic/jetpack-paypal-payments
- * @since $$next-version$$
+ * @since 0.12.0
  */
 
 namespace Automattic\Jetpack\PaypalPayments;
@@ -30,7 +30,7 @@ class PayPal_Tracks {
 	 * Outside Simple this sends a blocking pixel request, so a front-end
 	 * caller should check for Simple first.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @param string $event_name Full event name, e.g. `jetpack_paypal_button_created`.
 	 * @param array  $properties Event properties. Keep personal data out.
@@ -63,7 +63,7 @@ class PayPal_Tracks {
 	/**
 	 * The host the event came from.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.12.0
 	 *
 	 * @return string `simple`, `atomic` or `self_hosted`.
 	 */

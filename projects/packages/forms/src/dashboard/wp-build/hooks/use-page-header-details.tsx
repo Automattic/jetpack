@@ -7,7 +7,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { store as coreDataStore } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
@@ -37,6 +37,7 @@ import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
+import useFormRecord from '../../hooks/use-form-record';
 import useInboxData from '../../hooks/use-inbox-data';
 import { store as dashboardStore } from '../../store/index.js';
 import { getFormEditUrl } from '../../utils.ts';
@@ -157,20 +158,7 @@ export default function usePageHeaderDetails(
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 
-	const formRecord = useSelect(
-		select => {
-			if ( ! sourceIdNumber ) {
-				return undefined;
-			}
-			const record = select( coreDataStore ).getEntityRecord(
-				'postType',
-				'jetpack_form',
-				sourceIdNumber
-			) as { title?: { rendered?: string }; status?: string } | undefined;
-			return record;
-		},
-		[ sourceIdNumber ]
-	);
+	const formRecord = useFormRecord( sourceIdNumber );
 
 	const formTitle = useMemo( () => {
 		const rendered = formRecord?.title?.rendered || '';

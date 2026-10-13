@@ -3,18 +3,18 @@
  */
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../../../tests/js/route-test-utils';
 import { useAttributesWithSearchFallback } from '../use-attributes-with-search-fallback';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: jest.fn(),
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../../tests/js/route-test-utils' );
 
-const useSearchMock = jest.mocked( useSearch );
+	return mockWordPressRoute;
+} );
 
 const COMPARED_WINDOW = {
 	from: '2026-01-01T00:00:00.000Z',
@@ -31,7 +31,7 @@ function noComparison( { children }: { children: ReactNode } ) {
 
 describe( 'useAttributesWithSearchFallback', () => {
 	beforeEach( () => {
-		useSearchMock.mockReturnValue( COMPARED_WINDOW );
+		setMockRouteSearch( COMPARED_WINDOW );
 	} );
 
 	it( 'keeps the comparison when the surface offers one', () => {

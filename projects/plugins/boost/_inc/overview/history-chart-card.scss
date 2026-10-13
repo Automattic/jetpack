@@ -110,7 +110,7 @@
 			stroke: var(--wpds-color-stroke-surface-neutral-weak);
 		}
 
-		[role="grid"]:focus-visible {
+		[role="application"]:focus-visible {
 			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 			outline-offset: var(--wpds-border-width-focus);
 		}
