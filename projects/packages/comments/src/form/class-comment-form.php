@@ -203,6 +203,8 @@ class Comment_Form {
 
 		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
 		if ( ! is_array( $args ) || ! $this->defaults ) {
+			self::log_theme_form( $args );
+
 			// The marker keeps Tracks from counting what this form never drew.
 			return $submit_field
 				. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
@@ -349,6 +351,49 @@ class Comment_Form {
 			. '</div>'
 			. get_comment_id_fields( $post_id )
 			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
+	}
+
+	/**
+	 * Report a theme-built form to logstash once a day, where the site allows usage events.
+	 *
+	 * @param mixed $args What the theme passed where core passes the form arguments.
+	 * @return void
+	 */
+	private static function log_theme_form( $args ) {
+		if ( ! Tracks::is_enabled() || get_transient( self::THEME_FORM ) ) {
+			return;
+		}
+
+		set_transient( self::THEME_FORM, 1, DAY_IN_SECONDS );
+
+		// The shape src/shared/log-error.ts sends, so these rows sit beside the app's own.
+		$error = array(
+			'feature'    => 'jetpack_comments',
+			'message'    => 'Theme-built comment form',
+			'url'        => (string) get_permalink( self::post_id() ),
+			'blog_id'    => Checkpoint::blog_id(),
+			'properties' => array(
+				'platform' => Tracks::platform(),
+				'version'  => Comments::PACKAGE_VERSION,
+				'stage'    => 'theme_form',
+				'theme'    => get_stylesheet(),
+				'args'     => gettype( $args ),
+			),
+		);
+
+		// After the page's output, as Jetpack_Mu_Wpcom::log2logstash() does on Atomic.
+		add_action(
+			'shutdown',
+			static function () use ( $error ) {
+				wp_remote_post(
+					'https://public-api.wordpress.com/rest/v1.1/js-error',
+					array(
+						'body'    => array( 'error' => (string) wp_json_encode( $error, JSON_UNESCAPED_SLASHES ) ),
+						'timeout' => 3,
+					)
+				);
+			}
+		);
 	}
 
 	/**
