@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
-Plugins: Let the Marketplace tab and cards work on the Add Plugins screen of Simple sites.
+Plugins: Show a Marketplace tab of WordPress.com partner and premium plugins first on the Add Plugins screen, on Atomic and Simple sites.
