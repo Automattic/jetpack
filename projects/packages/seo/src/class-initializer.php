@@ -198,14 +198,14 @@ class Initializer {
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
 			Schema_Builder::init();
 			Author_Schema_Node::init();
-			Canonical_Urls::init();
 
-			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
-			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
-			// keep emitting their front-end output either — otherwise it would still
-			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
-			// for. Self-hosted is never gated, so it always registers both.
+			// Paid front-end output. A plan-gated WordPress.com site has these controls
+			// hidden from its dashboard, so it must not keep emitting their output either —
+			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
+			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
 			if ( ! self::is_gated() ) {
+				// Simple's archive canonical tags; module-backed hosts print their own.
+				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
 				Llms_Txt::init();

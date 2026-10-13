@@ -208,7 +208,7 @@ class InitializerTest extends TestCase {
 	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
 	 * `$initialized` guard is reset so the body runs.
 	 *
-	 * @return array{llms_txt: bool, ai_crawlers: bool}
+	 * @return array{llms_txt: bool, ai_crawlers: bool, canonical: bool}
 	 */
 	private function init_and_check_geo_services() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
@@ -224,10 +224,11 @@ class InitializerTest extends TestCase {
 		add_filter( 'jetpack_active_modules', $enable_module );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
 
-		// Both services self-hook on init(), so a stale registration from an earlier
+		// The services self-hook on init(), so a stale registration from an earlier
 		// test would mask a missing one here.
 		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+		remove_action( 'wp_head', array( Canonical_Urls::class, 'print_tag' ) );
 
 		try {
 			Initializer::init();
@@ -235,6 +236,7 @@ class InitializerTest extends TestCase {
 			return array(
 				'llms_txt'    => false !== has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ),
 				'ai_crawlers' => false !== has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ),
+				'canonical'   => false !== has_action( 'wp_head', array( Canonical_Urls::class, 'print_tag' ) ),
 			);
 		} finally {
 			remove_filter( 'rsm_jetpack_seo', '__return_true' );
@@ -268,6 +270,7 @@ class InitializerTest extends TestCase {
 
 			$this->assertTrue( $hooked['llms_txt'] );
 			$this->assertTrue( $hooked['ai_crawlers'] );
+			$this->assertTrue( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
@@ -286,6 +289,7 @@ class InitializerTest extends TestCase {
 
 			$this->assertFalse( $hooked['llms_txt'] );
 			$this->assertFalse( $hooked['ai_crawlers'] );
+			$this->assertFalse( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
