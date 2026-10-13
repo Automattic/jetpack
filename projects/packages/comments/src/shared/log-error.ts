@@ -32,7 +32,16 @@ export const logError = (
 					trace: stack,
 					url: location.origin + location.pathname,
 					blog_id: identity.blogId,
-					properties: { platform: tracks.platform, version, name, type, request, ...properties },
+					properties: {
+						platform: tracks.platform,
+						version,
+						name,
+						type,
+						request,
+						// `false` proves a dropped connection, `true` only means some network was up.
+						online: navigator.onLine,
+						...properties,
+					},
 				} ),
 			} ),
 			keepalive: true,

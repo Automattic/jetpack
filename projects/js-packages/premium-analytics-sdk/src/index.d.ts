@@ -120,6 +120,29 @@ export type FunnelProps = {
 	format?: DataFormat;
 };
 
+// Columns: a few categories compared across the periods as vertical bars, with the series per
+// period, the legend and the states handled.
+export declare const Columns: ComponentType< ColumnsProps >;
+export type ColumnInput = {
+	// Unique within the chart: the x-axis category.
+	label: string;
+	// Figure for the selected period.
+	value: number;
+	// Figure for the comparison period; undefined draws as 0 there.
+	previousValue?: number;
+};
+export type ColumnsProps = {
+	// The columns in order; each one draws once per period.
+	columns: readonly ColumnInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
+	format?: DataFormat;
+};
+
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;

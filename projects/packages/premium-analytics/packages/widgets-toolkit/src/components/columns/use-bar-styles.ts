@@ -3,7 +3,7 @@
  */
 import { useGlobalChartsContext, type SeriesData } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
-import type { BarChartStyle } from '../../components';
+import type { BarChartStyle } from '../chart-bar/bar-chart';
 
 /**
  * Internal dependencies

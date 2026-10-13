@@ -5,6 +5,7 @@
  */
 export {
 	ChartEmptyState,
+	Columns,
 	Donut,
 	EarningsHistoryList,
 	ExporterCsvDownloadButton,
