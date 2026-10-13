@@ -215,4 +215,24 @@ class Utils {
 			clean_user_cache( $user_id );
 		}
 	}
+
+	/**
+	 * Build the user-facing description of a registration error.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code The WP_Error code.
+	 * @param string $message    The WP_Error message.
+	 * @return string The description, empty when the message is not user-facing copy.
+	 */
+	public static function get_registration_error_description( $error_code, $message ) {
+		// Manager::validate_remote_register_response() does not always put user-facing copy in the
+		// message slot: wpcom_5??, wpcom_408 and wpcom_bad_response store the HTTP status there,
+		// and jetpack_id stores the raw response body.
+		if ( 'jetpack_id' === $error_code || is_numeric( $message ) ) {
+			return '';
+		}
+
+		return mb_substr( (string) $message, 0, 250 );
+	}
 }

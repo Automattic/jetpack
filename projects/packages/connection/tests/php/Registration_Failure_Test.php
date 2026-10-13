@@ -69,6 +69,7 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		$this->manager->reset_connection_status();
 		remove_all_filters( 'jetpack_offline_mode' );
+		unset( $_SERVER['HTTPS'] );
 		StatusCache::clear();
 		Constants::clear_constants();
 		wp_set_current_user( 0 );
@@ -282,7 +283,7 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->register_response = self::success_response();
 		$this->assertTrue( $this->manager->try_registration( true, true ) );
 
-		$this->assertNull( $this->manager->get_registration_failure() );
+		$this->assertFalse( get_option( Registration_Failure::OPTION ) );
 	}
 
 	/**
@@ -358,6 +359,9 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_malformed' ) );
 
 		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible' ) );
+		// Returned by the XML-RPC fallback after any failed REST verify.
+		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible_403' ) );
+		$this->assertFalse( Registration_Failure::is_terminal( 'site_requires_authorization' ) );
 		// The verify step's codes are passed through by the server but describe expired or overwritten secrets.
 		$this->assertFalse( Registration_Failure::is_terminal( 'verify_secrets_missing' ) );
 		$this->assertFalse( Registration_Failure::is_terminal( 'verify_secret_1_missing' ) );
@@ -400,11 +404,127 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'siteurl_private_ip', $state['error_code'] );
 		$this->assertSame( 'The site URL is a private IP address.', $state['error_message'] );
 		$this->assertTrue( $state['terminal'] );
-		$this->assertSame( 2, $state['attempts'] );
+		$this->assertSame( 1, $state['attempts'] );
 		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $state['next_retry_after'], 'The next attempt must still be pushed out.' );
 
 		$this->manager->try_registration();
 		$this->assertSame( 2, $this->register_request_count, 'An expired window must not stay open after a rate-limited attempt.' );
+	}
+
+	/**
+	 * Test that repeated rate limiting keeps a flat hourly window instead of climbing the schedule.
+	 */
+	public function test_rate_limit_does_not_climb_the_schedule() {
+		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
+
+		$this->manager->try_registration();
+		for ( $i = 0; $i < 5; $i++ ) {
+			self::expire_backoff();
+			$this->manager->try_registration();
+		}
+
+		$state = $this->recorded_failure();
+		$this->assertSame( 6, $this->register_request_count );
+		$this->assertSame( 1, $state['attempts'] );
+		$this->assertLessThanOrEqual( time() + HOUR_IN_SECONDS + 360, $state['next_retry_after'] );
+	}
+
+	/**
+	 * Test that a temporary error after a terminal one starts the schedule over.
+	 */
+	public function test_temporary_error_after_a_terminal_one_starts_the_schedule_over() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+		self::expire_backoff();
+
+		$this->register_response = self::error_response( 'connection_refused', 'Connection refused.', 400 );
+		$this->manager->try_registration();
+
+		$state = $this->recorded_failure();
+		$this->assertFalse( $state['terminal'] );
+		$this->assertSame( 1, $state['attempts'] );
+	}
+
+	/**
+	 * Test that a failure recorded from an HTTP request still applies to an HTTPS one.
+	 */
+	public function test_failure_applies_whatever_the_request_scheme() {
+		Constants::set_constant( 'WP_SITEURL', 'http://example.org' );
+		Constants::set_constant( 'WP_HOME', 'http://example.org' );
+
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+
+		$_SERVER['HTTPS'] = 'on';
+		$this->manager->try_registration();
+
+		$this->assertSame( 1, $this->register_request_count );
+	}
+
+	/**
+	 * Test that disconnecting forgets a failure recorded before the site got connected some other way.
+	 */
+	public function test_disconnect_clears_a_stale_failure() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+
+		\Jetpack_Options::update_options(
+			array(
+				'id'         => 12345,
+				'blog_token' => 'restored.token',
+			)
+		);
+		$this->manager->reset_connection_status();
+
+		$this->manager->disconnect_site( false );
+
+		$this->assertFalse( get_option( Registration_Failure::OPTION ) );
+	}
+
+	/**
+	 * Test that a message that is not user-facing copy is not stored.
+	 *
+	 * @dataProvider responses_without_user_facing_messages
+	 *
+	 * @param array $response The registration response.
+	 */
+	#[DataProvider( 'responses_without_user_facing_messages' )]
+	public function test_message_that_is_not_user_facing_is_not_stored( $response ) {
+		$this->register_response = $response;
+
+		$this->manager->try_registration();
+
+		$this->assertSame( '', $this->recorded_failure()['error_message'] );
+	}
+
+	/**
+	 * Registration responses whose error message is not user-facing copy.
+	 *
+	 * @return array[]
+	 */
+	public static function responses_without_user_facing_messages() {
+		return array(
+			'WordPress.com 5xx, message is the status' => array(
+				array(
+					'headers'  => self::headers( array() ),
+					'body'     => '',
+					'response' => array(
+						'code'    => 503,
+						'message' => 'Service Unavailable',
+					),
+				),
+			),
+			'jetpack_id, message is the raw body'      => array(
+				array(
+					'headers'  => self::headers( array( 'content-type' => 'application/json' ) ),
+					'body'     => '{"jetpack_secret":"sample_secret"}',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				),
+			),
+		);
 	}
 
 	/**

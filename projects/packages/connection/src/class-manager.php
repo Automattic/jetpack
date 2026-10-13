@@ -2587,15 +2587,15 @@ class Manager {
 				);
 			}
 
-			$blocking_error = Registration_Failure::get_blocking_error();
+			$suppressed_error = Registration_Failure::get_suppressed_error();
 
-			if ( $blocking_error ) {
+			if ( $suppressed_error ) {
 				Registration_Failure::record_suppressed_attempt(
-					$blocking_error,
+					$suppressed_error,
 					$this->get_plugin_slug()
 				);
 
-				return $blocking_error;
+				return $suppressed_error;
 			}
 		}
 
@@ -3539,6 +3539,9 @@ class Manager {
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
+		// A failure recorded before the site got connected some other way (a migration, a restore) no longer applies.
+		Registration_Failure::clear();
 
 		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {
