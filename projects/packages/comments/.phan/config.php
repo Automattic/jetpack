@@ -16,6 +16,7 @@ return make_phan_config(
 		'+stubs'          => array( 'wpcom' ),
 		'parse_file_list' => array(
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin
+			__DIR__ . '/../../../plugins/jetpack/src/class-jetpack-modules-overrides.php', // class Jetpack_Modules_Overrides
 		),
 	)
 );

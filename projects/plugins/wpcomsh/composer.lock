@@ -667,14 +667,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "6d0a06d152cdc0ee1da61b72e2fad73ae08a1ddb"
+                "reference": "cbb4d938fbb95a3d77977173ec5ec7af261328a8"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
             "suggest": {
