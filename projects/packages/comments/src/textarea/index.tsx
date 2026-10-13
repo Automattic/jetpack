@@ -1,5 +1,6 @@
 import { type TargetedEvent } from 'preact';
 import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { logError } from '../shared/log-error';
 import { CommentSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
 import { loadEditor, matchTheme } from './load-editor';
@@ -31,27 +32,36 @@ export const Textarea = () => {
 			}
 
 			const textarea = textareaRef.current!;
-			const fail = ( stage: string ) => {
+			const fail = ( stage: string, error: unknown ) => {
 				setEditor( 'failed' );
+				// Focus from script is never user activation; a restored draft means a reader.
+				if ( focus && navigator.userActivation?.hasBeenActive === false ) {
+					return;
+				}
 				recordEvent( 'jetpack_comments_editor_error', { stage } );
+				logError( error, { stage } );
 			};
 			matchTheme( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
 			setEditor( 'loading' );
 			loadEditor()
-				.then( ( { mountEditor } ) => {
-					// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
-					setEditor( 'ready' );
-					mountEditor( editorRef.current!, {
-						initialContent: commentValue.peek(),
-						labels,
-						// Read once the editor renders, after the click has placed the textarea's caret.
-						focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
-						placeholder,
-						onChange: content => ( commentValue.value = content ),
-						onError: () => fail( 'render' ),
-					} );
-				} )
-				.catch( () => fail( 'load' ) );
+				.then(
+					( { mountEditor } ) => {
+						// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
+						setEditor( 'ready' );
+						mountEditor( editorRef.current!, {
+							initialContent: commentValue.peek(),
+							labels,
+							// Read once the editor renders, after the click has placed the textarea's caret.
+							focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
+							placeholder,
+							onChange: content => ( commentValue.value = content ),
+							onError: error => fail( 'render', error ),
+						} );
+					},
+					error => fail( 'load', error )
+				)
+				// A throw while mounting, which the load handler above does not see.
+				.catch( error => fail( 'render', error ) );
 		},
 		[ blocks, editor, placeholder, labels, commentValue ]
 	);

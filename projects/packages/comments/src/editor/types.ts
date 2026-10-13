@@ -14,10 +14,10 @@ export type EditorProps = {
 	previewEmbeds?: boolean;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
-	onError: () => void;
+	onError: ( error: unknown ) => void;
 };
 
-export type BoundaryProps = { onError: () => void; children: ReactNode };
+export type BoundaryProps = { onError: ( error: unknown ) => void; children: ReactNode };
 
 export type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNode };
 

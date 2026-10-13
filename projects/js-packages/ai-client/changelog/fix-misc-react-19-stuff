@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix typing for React 19: onInput is an `InputEvent`, not a `ChangeEvent`.
+
+

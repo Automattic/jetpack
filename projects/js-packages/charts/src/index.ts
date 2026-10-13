@@ -68,6 +68,7 @@ export type {
 	LegendPosition,
 	ChartLegendConfig,
 	SeriesChartLegendConfig,
+	ComparisonItemLabel,
 	SeriesVisibilityProps,
 	BaseChartProps,
 	GoogleDataTableColumn,
