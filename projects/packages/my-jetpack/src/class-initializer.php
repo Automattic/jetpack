@@ -1093,7 +1093,7 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 
-		// Do not resolve the current user before REST authentication is available.
+		// Wait for the current user so user 0 cannot prevent Features REST routes for clients without cookies.
 		if ( self::is_offline_features_enabled() && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
 			return false;
 		}
