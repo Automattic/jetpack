@@ -214,13 +214,19 @@ class Reprint_Exporter {
 	 * Stores a newly created shared secret together with its salt-keyed hash.
 	 *
 	 * @param string $secret The new secret.
-	 * @return bool Whether the secret and its hash were written.
+	 * @return bool Whether the secret and a matching hash are now stored.
 	 */
 	public static function store_secret( $secret ) {
-		$secret_stored = self::write_option( self::SECRET_OPTION, $secret );
-		$hash_stored   = self::write_option( self::SECRET_HASH_OPTION, self::compute_credential_hash( self::SECRET_HASH_OPTION, $secret ) );
+		if ( ! is_string( $secret ) || '' === $secret ) {
+			return false;
+		}
 
-		return $secret_stored && $hash_stored;
+		self::write_option( self::SECRET_OPTION, $secret );
+		self::write_option( self::SECRET_HASH_OPTION, self::compute_credential_hash( self::SECRET_HASH_OPTION, $secret ) );
+
+		// Read back: update_option() reports false for an unchanged value.
+		return get_option( self::SECRET_OPTION ) === $secret
+			&& self::credential_hash_matches( self::SECRET_HASH_OPTION, $secret );
 	}
 
 	/**

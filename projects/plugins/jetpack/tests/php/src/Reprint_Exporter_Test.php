@@ -811,6 +811,14 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	// -- Secret rotation ------------------------------------------------------
 
 	/**
+	 * Re-saving an unchanged secret still reports success.
+	 */
+	public function test_store_secret_reports_success_for_an_unchanged_secret() {
+		$this->assertTrue( Reprint_Exporter::store_secret( 'a-secret' ) );
+		$this->assertTrue( Reprint_Exporter::store_secret( 'a-secret' ) );
+	}
+
+	/**
 	 * An unsigned request fails the permission check.
 	 */
 	public function test_permission_check_denies_unsigned_request() {
