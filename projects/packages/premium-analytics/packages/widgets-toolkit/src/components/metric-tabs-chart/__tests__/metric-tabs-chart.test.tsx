@@ -222,6 +222,7 @@ describe( 'MetricTabsChart', () => {
 		);
 
 		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
+		expect( screen.queryByRole( 'combobox' ) !== null ).toBe( layout === 'dropdown' );
 		expect( spy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { chartTitle: 'Traffic summary' } )
 		);
