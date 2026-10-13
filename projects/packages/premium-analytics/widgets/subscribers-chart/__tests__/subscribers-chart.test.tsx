@@ -178,16 +178,37 @@ describe( 'SubscribersChartWidget', () => {
 			expect( screen.queryByText( NO_RESULTS ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'leaves the subscriber total unread while the chart has subscribers', async () => {
-			mockUseStatsSubscribersReport.mockReturnValue(
-				reportWith( [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ] )
-			);
+		it( 'describes an empty chart once an attempt to read the subscriber total has failed', async () => {
+			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
+			mockUseStatsSubscribersCounts.mockReturnValue( {
+				data: undefined,
+				isLoading: true,
+				failureCount: 1,
+			} );
 
 			render(
 				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
 			);
 
-			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( NO_RESULTS ) ).resolves.toBeInTheDocument();
+		} );
+
+		it.each( [
+			[
+				'has subscribers',
+				reportWith( [
+					{ date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 },
+				] ),
+			],
+			[ 'is still loading', { ...reportWith( [] ), isLoading: true } ],
+			[ 'failed to load', { ...reportWith( [] ), isError: true } ],
+		] )( 'leaves the subscriber total unread while the chart %s', ( _case, report ) => {
+			mockUseStatsSubscribersReport.mockReturnValue( report );
+
+			render(
+				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+			);
+
 			expect( mockUseStatsSubscribersCounts ).toHaveBeenLastCalledWith( undefined, {
 				enabled: false,
 			} );
