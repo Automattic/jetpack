@@ -1,22 +1,12 @@
-export { buildSalesByCouponData, type SalesByCouponData } from './build-sales-by-coupon-data';
 export { BOOKINGS_FILTER } from './product-type-filters';
-export {
-	buildRevenueByCustomerTypeData,
-	type RevenueByCustomerTypeData,
-} from './build-revenue-by-customer-type-data';
 export {
 	resolveSegmentStyles,
 	applyStylesToItems,
 	type SegmentStyle,
 	type ColorableItem,
 } from './segment-styles';
-export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
-export {
-	buildSessionsByDeviceData,
-	type SessionsByDeviceData,
-} from './build-sessions-by-device-data';
-export { buildTotalReturnsData, type TotalReturnsData } from './build-total-returns-data';
 export { formatLegendLabels } from './format-legend-labels';
+export { getComparisonPeriodLabel } from './get-comparison-period-label';
 export { calculateDelta } from './calculate-delta';
 export {
 	buildVisitorsByLocationData,
@@ -82,4 +72,3 @@ export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
-export { getOverLimitMessage, getPlanUpgradeUrl } from './plan-usage';

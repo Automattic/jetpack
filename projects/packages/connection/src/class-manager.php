@@ -1315,14 +1315,13 @@ class Manager {
 	/**
 	 * Determines whether the connection ownership can be transferred to another user.
 	 *
-	 * The default Jetpack connection uses a transferable ownership model. A set protected owner
-	 * anchor locks it outright; otherwise a consumer can declare ownership locked by returning
-	 * `false` from the `jetpack_connection_ownership_transferable` filter. This is the single
-	 * chokepoint used both when deciding which connection-error CTA to surface and (eventually)
-	 * when performing an ownership change.
+	 * The default Jetpack connection uses a transferable ownership model; a set protected owner
+	 * anchor locks it. This is the single chokepoint used both when deciding which
+	 * connection-error CTA to surface and when performing an ownership change.
 	 *
 	 * @since 8.8.0
 	 * @since 9.3.0 A locked protected owner anchor makes ownership non-transferable.
+	 * @since $$next-version$$ The `jetpack_connection_ownership_transferable` filter is deprecated.
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
@@ -1336,13 +1335,15 @@ class Manager {
 		/**
 		 * Filters whether the Jetpack connection ownership can be transferred.
 		 *
-		 * Return `false` to lock ownership so it can never be taken over.
+		 * Return `false` to lock ownership on a site without a protected owner anchor. The
+		 * anchored owner may still transfer ownership despite this deprecated filter.
 		 *
 		 * @since 8.8.0
+		 * @deprecated $$next-version$$ The protected owner anchor is the only supported ownership lock.
 		 *
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+		return (bool) apply_filters_deprecated( 'jetpack_connection_ownership_transferable', array( true ), 'package-$$next-version$$', '', __( 'The protected owner anchor is the only ownership lock.', 'jetpack-connection' ) );
 	}
 
 	/**
@@ -2183,10 +2184,8 @@ class Manager {
 	 * the point — so there is no stronger identity to check. WordPress.com decides, marking a
 	 * switch `po_signed` only when the signing token belongs to the owner of record.
 	 *
-	 * A consumer locking ownership through the filter is a separate refusal that still applies to
-	 * everybody, so it is re-read here with the anchor out of the way.
-	 *
 	 * @since 9.9.0
+	 * @since $$next-version$$ No longer refused by the deprecated `jetpack_connection_ownership_transferable` filter.
 	 *
 	 * @return bool
 	 */
@@ -2206,12 +2205,7 @@ class Manager {
 
 		// This user's own binding, never a search for whoever holds the anchored ID, which would
 		// hand the site to the first match.
-		if ( Utils::get_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
-			return false;
-		}
-
-		/** This filter is documented in projects/packages/connection/src/class-manager.php */
-		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+		return Utils::get_wpcom_user_id( $user_id ) === (int) $anchor['wpcom_user_id'];
 	}
 
 	/**

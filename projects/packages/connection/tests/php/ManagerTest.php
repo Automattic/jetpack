@@ -141,12 +141,25 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * A consumer can lock ownership via the jetpack_connection_ownership_transferable filter.
+	 * The deprecated filter still locks ownership until it is removed, and says it is deprecated.
 	 */
-	public function test_is_ownership_transferable_can_be_locked_via_filter() {
+	public function test_is_ownership_transferable_deprecated_filter_still_locks() {
+		$deprecated = array();
+		$record     = function ( $hook ) use ( &$deprecated ) {
+			$deprecated[] = $hook;
+		};
+		add_action( 'deprecated_hook_run', $record );
+		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
 		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
-		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+
+		$transferable = ( new Manager() )->is_ownership_transferable();
+
 		remove_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		remove_filter( 'deprecated_hook_trigger_error', '__return_false' );
+		remove_action( 'deprecated_hook_run', $record );
+
+		$this->assertFalse( $transferable );
+		$this->assertSame( array( 'jetpack_connection_ownership_transferable' ), $deprecated );
 	}
 
 	/**

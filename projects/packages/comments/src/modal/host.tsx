@@ -1,5 +1,6 @@
 import { effect } from '@preact/signals';
 import { render } from 'preact';
+import { logError } from '../shared/log-error';
 import { CommentSignals, type CommentSignalsValue } from '../shared/state';
 
 /**
@@ -71,8 +72,12 @@ export const mountDialog = ( form: HTMLFormElement, signals: CommentSignalsValue
 					root
 				);
 			} )
-			.catch( () => {
+			.catch( error => {
 				loading = false;
+				// Skips scripted focus and a hover preload, neither of which is user activation.
+				if ( navigator.userActivation?.hasBeenActive !== false ) {
+					logError( error, { stage: 'dialog' } );
+				}
 				// So the next submit or click asks again.
 				isDialogOpen.value = false;
 			} );

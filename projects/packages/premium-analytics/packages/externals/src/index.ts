@@ -31,6 +31,7 @@ export {
 	buildCalendarHeatmapData,
 	getBucketInfo,
 	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
 	useCalendarHeatmapData,
 	useChartLegendItems,

@@ -405,10 +405,10 @@ class Comment_Form {
 				'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
 				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
-				/* translators: The empty comment box's placeholder. The form adds "..." after it. */
-				'placeholder'         => __( 'Write a comment', 'jetpack-comments' ),
-				/* translators: The empty reply box's placeholder. The form adds "..." after it. */
-				'replyPlaceholder'    => __( 'Write a reply', 'jetpack-comments' ),
+				/* translators: The empty comment box's placeholder. */
+				'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
+				/* translators: The empty reply box's placeholder. */
+				'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
 				'name'                => __( 'Name', 'jetpack-comments' ),
 				'email'               => __( 'Email', 'jetpack-comments' ),
 				'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
@@ -463,6 +463,8 @@ class Comment_Form {
 			$settings = array_merge(
 				array(
 					'version'                => Comments::PACKAGE_VERSION,
+					// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
+					'assetsUrl'              => trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) ),
 					// The dialog's shadow root links it again; page styles stop at that boundary.
 					// Decoded: WordPress.com's static-file filter joins its query with &amp;.
 					'styleUrl'               => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',

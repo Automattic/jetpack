@@ -481,7 +481,9 @@ describe( 'BackupNowButton', () => {
 		await waitFor( () =>
 			expect( button ).toHaveAccessibleDescription( 'Backups are not enabled.' )
 		);
-		expect( screen.getByText( announced, { selector: '.a11y-speak-region' } ) ).toBeInTheDocument();
+		await expect(
+			screen.findByText( announced, { selector: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
 		expect( button ).toHaveFocus();
 		expect( announcements() ).toBe( 1 );
 
