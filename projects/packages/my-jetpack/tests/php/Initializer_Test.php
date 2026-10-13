@@ -290,6 +290,22 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
+	public function test_offline_initialization_registers_features_during_rest_with_user_zero() {
+		wp_set_current_user( 0 );
+		$this->assertGreaterThan( 0, did_action( 'set_current_user' ) );
+		Constants::set_constant( 'REST_REQUEST', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		add_action( 'rest_api_init', array( Initializer::class, 'init' ), 0 );
+		$this->assertArrayHasKey( '/wpcom/v2/my-jetpack/site/features', rest_get_server()->get_routes() );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_offline_initialization_disables_the_add_license_screen() {
 		wp_set_current_user(
 			wp_insert_user(

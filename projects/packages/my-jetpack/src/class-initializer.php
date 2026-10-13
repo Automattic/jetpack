@@ -1094,7 +1094,7 @@ class Initializer {
 
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
-		 * Once the current user is set, this cannot enable offline Features for a user without access.
+		 * Outside REST requests, once the user is set, this cannot enable offline Features for a user without access.
 		 *
 		 * @since 0.5.0-alpha
 		 *
@@ -1102,8 +1102,8 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 
-		// Wait for the current user so user 0 cannot prevent Features REST routes for clients without cookies.
-		if ( self::is_offline_features_enabled() && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
+		// REST authenticates after route registration; its permission callbacks check access.
+		if ( self::is_offline_features_enabled() && ! Jetpack_Constants::is_true( 'REST_REQUEST' ) && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
 			return false;
 		}
 
