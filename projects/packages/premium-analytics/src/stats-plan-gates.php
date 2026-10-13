@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -128,4 +129,170 @@ function has_jetpack_stats_commercial_purchase() {
 	$active = $plan['features']['active'] ?? array();
 
 	return is_array( $active ) && in_array( 'stats-commercial', $active, true );
+}
+
+/**
+ * The features classic Stats gates on WordPress.com Personal: the newer, commercial modules.
+ */
+const STATS_COMMERCIAL_FEATURES = array( 'authors', 'search-terms', 'videos', 'utm', 'devices', 'regions-cities' );
+
+/**
+ * The features gated on legacy-free sites and on self-hosted sites without a commercial purchase (STATS-348).
+ */
+const STATS_ADVANCED_FEATURES = array( 'utm', 'devices', 'regions-cities' );
+
+/**
+ * Widget types that show nothing but a locked feature. Locations is absent: countries and regions lock separately.
+ */
+const STATS_FEATURE_WIDGET_TYPES = array(
+	'top-posts'      => array( 'jpa/stats-top-posts' ),
+	'referrers'      => array( 'jpa/referrers' ),
+	'clicks'         => array( 'jpa/clicks' ),
+	'file-downloads' => array( 'jpa/file-downloads' ),
+	'authors'        => array( 'jpa/authors', 'jpa/author-top-posts', 'jpa/author-performance' ),
+	'search-terms'   => array( 'jpa/search-terms' ),
+	'videos'         => array( 'videopress/top-videos', 'jpa/video-detail-views-performance', 'jpa/video-detail-embeds' ),
+	'utm'            => array( 'jpa/utm-insights' ),
+	'devices'        => array( 'jpa/devices', 'jpa/top-platforms' ),
+	'insights'       => array(
+		'jpa/annual-highlights',
+		'jpa/all-time-stats',
+		'jpa/most-popular-time',
+		'jpa/most-popular-day',
+		'jpa/popular-post',
+		'jpa/latest-post',
+		'jpa/posting-activity',
+		'jpa/views-over-years',
+		'jpa/most-commented-posts',
+		'jpa/most-commented-authors',
+		'jpa/shares',
+		'jpa/tags',
+	),
+);
+
+/**
+ * The features a tier locks.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $tier One of the STATS_TIER_* values.
+ * @return string[] Feature keys.
+ */
+function get_locked_stats_features( $tier ) {
+	switch ( $tier ) {
+		case STATS_TIER_LEGACY_FREE:
+		case STATS_TIER_JETPACK_FREE:
+			return STATS_ADVANCED_FEATURES;
+		case STATS_TIER_PAID:
+			return STATS_COMMERCIAL_FEATURES;
+		case STATS_TIER_LEGACY_BASIC:
+			return array_merge( STATS_COMMERCIAL_FEATURES, array( 'referrers', 'clicks', 'csv', 'intervals', 'long-date-presets' ) );
+		case STATS_TIER_FREE:
+			return array_merge(
+				STATS_COMMERCIAL_FEATURES,
+				array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'recent-7-days' )
+			);
+		default:
+			return array();
+	}
+}
+
+/**
+ * Where to buy a locked feature. Classic Stats' destinations until STATS-522 ships a new one.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $feature Feature key.
+ * @param string $tier    One of the STATS_TIER_* values.
+ * @return string
+ */
+function get_stats_upgrade_url( $feature, $tier ) {
+	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG . '&jpa_purchased=1';
+
+	if ( STATS_TIER_JETPACK_FREE === $tier ) {
+		$query = http_build_query(
+			array(
+				'from'         => 'jetpack-premium-analytics',
+				'productType'  => 'commercial',
+				'redirect_uri' => $return_path,
+			),
+			'',
+			'&',
+			PHP_QUERY_RFC3986
+		);
+
+		return admin_url( 'admin.php?page=stats#!/stats/purchase/' . (int) \Jetpack_Options::get_option( 'id' ) . '?' . $query );
+	}
+
+	$plan      = in_array( $feature, STATS_COMMERCIAL_FEATURES, true ) ? 'premium' : 'personal';
+	$site_slug = ( new Status() )->get_site_suffix();
+
+	return 'https://wordpress.com/checkout/' . rawurlencode( $site_slug ) . '/' . $plan . '?redirect_to=' . rawurlencode( admin_url( $return_path ) );
+}
+
+/**
+ * The gates the client applies: each locked feature's upgrade URL, and each fully locked widget type's feature.
+ *
+ * @since $$next-version$$
+ *
+ * @return array{tier:string, locked_features:array<string,string>, locked_widget_types:array<string,string>}
+ */
+function get_stats_plan_gates() {
+	$tier     = get_stats_plan_tier();
+	$features = get_locked_stats_features( $tier );
+
+	$locked_features     = array();
+	$locked_widget_types = array();
+	foreach ( $features as $feature ) {
+		$locked_features[ $feature ] = get_stats_upgrade_url( $feature, $tier );
+		foreach ( STATS_FEATURE_WIDGET_TYPES[ $feature ] ?? array() as $type ) {
+			$locked_widget_types[ $type ] = $feature;
+		}
+	}
+
+	if ( isset( $locked_features['countries'], $locked_features['regions-cities'] ) ) {
+		$locked_widget_types['jpa/locations'] = 'countries';
+	}
+
+	return array(
+		'tier'                => $tier,
+		'locked_features'     => $locked_features,
+		'locked_widget_types' => $locked_widget_types,
+	);
+}
+
+/**
+ * Configures the plan gates script data.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function configure_stats_plan_gates() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
+}
+
+/**
+ * Injects the plan gates into JetpackScriptData.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_stats_plan_gates_script_data( array $data ): array {
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$gates = get_stats_plan_gates();
+
+	// Objects, so an empty map reaches JS as `{}` rather than `[]`.
+	$data['premium_analytics']['plan_gates'] = array(
+		'tier'                => $gates['tier'],
+		'locked_features'     => (object) $gates['locked_features'],
+		'locked_widget_types' => (object) $gates['locked_widget_types'],
+	);
+
+	return $data;
 }
