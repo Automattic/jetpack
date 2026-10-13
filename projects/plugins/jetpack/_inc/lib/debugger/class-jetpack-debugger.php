@@ -122,7 +122,7 @@ class Jetpack_Debugger {
 							</li>
 							<li>
 								<strong><?php esc_html_e( 'A plugin conflict.', 'jetpack' ); ?></strong>
-								<?php esc_html_e( "Test by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, enable your plugins on one by one until the problem pops up again. Contact the plugin developer to see if they can fix the issue.", 'jetpack' ); ?>
+								<?php esc_html_e( "Test by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, enable your plugins one by one until the problem pops up again. Contact the plugin developer to see if they can fix the issue.", 'jetpack' ); ?>
 								<?php
 								printf(
 									wp_kses(
