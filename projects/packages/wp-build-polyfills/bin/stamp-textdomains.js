@@ -51,9 +51,11 @@ const getFlag = name => {
 
 const domain = getDomain( getFlag( 'domain' ) );
 const buildDir = path.resolve( getFlag( 'dir' ) || 'build' );
-const cacheDir = args.includes( '--no-cache' )
-	? undefined
-	: path.resolve( 'node_modules', '.cache', 'stamp-textdomains' );
+// CI starts cold, and the e2e build artifact would otherwise ship the cache files.
+const cacheDir =
+	args.includes( '--no-cache' ) || process.env.CI
+		? undefined
+		: path.resolve( 'node_modules', '.cache', 'stamp-textdomains' );
 const { count, reused, stringBearing } = stampDir( buildDir, domain, { cacheDir } );
 const bundles = writeI18nManifest( buildDir, stringBearing );
 // eslint-disable-next-line no-console
