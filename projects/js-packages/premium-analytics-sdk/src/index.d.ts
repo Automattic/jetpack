@@ -166,6 +166,8 @@ export type LocationsProps = {
 	empty?: WidgetStateEmpty;
 	// Defaults to compact integers.
 	format?: DataFormat;
+	// What the figure is, as the map tooltip names it.
+	valueLabel: string;
 	// The country the rows are regions of; omit for countries on the world map.
 	country?: { code: string; name: string };
 	// Rows the list shows. Defaults to the widget row limit.
