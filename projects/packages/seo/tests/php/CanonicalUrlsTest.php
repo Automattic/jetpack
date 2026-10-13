@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Simple's archive canonical tag.
+ * Tests for loading the canonical URLs module on Simple.
  *
  * @package automattic/jetpack-seo
  */
@@ -19,89 +19,68 @@ use PHPUnit\Framework\TestCase;
 class CanonicalUrlsTest extends TestCase {
 
 	/**
-	 * Start every test with the switch off and the printer unhooked.
+	 * Start every test with the switch off and the loader unhooked.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 		delete_option( Canonical_Urls::OPTION );
-		remove_action( 'wp_head', array( Canonical_Urls::class, 'print_tag' ) );
+		remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 	}
 
 	/**
-	 * Undo the host, query and resolver state a test set.
+	 * Undo the option, hook and constants a test set.
 	 */
 	protected function tearDown(): void {
 		delete_option( Canonical_Urls::OPTION );
-		remove_action( 'wp_head', array( Canonical_Urls::class, 'print_tag' ) );
+		remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 		Constants::clear_single_constant( 'IS_WPCOM' );
-		\Jetpack_Canonical_Urls_Resolver::$url = '';
-		$GLOBALS['wp_query']                   = new \WP_Query();
+		Constants::clear_single_constant( 'JETPACK__PLUGIN_DIR' );
 		parent::tearDown();
 	}
 
 	/**
-	 * Only Simple gets the package's printer; other hosts keep the module's.
+	 * The module loads only on Simple with the switch on; other hosts load it as a module.
 	 *
-	 * @dataProvider provide_hosts
-	 * @param bool $simple Whether the site is WordPress.com Simple.
+	 * @dataProvider provide_init_cases
+	 * @param bool     $simple   Whether the site is WordPress.com Simple.
+	 * @param int|null $enabled  Stored option value, or null when never saved.
+	 * @param bool     $expected Whether the module loader is hooked.
 	 */
-	#[DataProvider( 'provide_hosts' )]
-	public function test_init_hooks_the_printer_only_on_simple( $simple ) {
+	#[DataProvider( 'provide_init_cases' )]
+	public function test_init_hooks_the_module_loader( $simple, $enabled, $expected ) {
 		if ( $simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		if ( null !== $enabled ) {
+			update_option( Canonical_Urls::OPTION, $enabled );
 		}
 
 		Canonical_Urls::init();
 
-		$this->assertSame( $simple, false !== has_action( 'wp_head', array( Canonical_Urls::class, 'print_tag' ) ) );
+		$this->assertSame( $expected, false !== has_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) ) );
 	}
 
 	/**
-	 * @return array<string, array{bool}>
+	 * @return array<string, array{bool, int|null, bool}>
 	 */
-	public static function provide_hosts() {
+	public static function provide_init_cases() {
 		return array(
-			'Simple'                => array( true ),
-			'Atomic or self-hosted' => array( false ),
+			'Simple, switched on'               => array( true, 1, true ),
+			'Simple, switched off'              => array( true, 0, false ),
+			'Simple, never saved'               => array( true, null, false ),
+			'Atomic or self-hosted, option set' => array( false, 1, false ),
 		);
 	}
 
 	/**
-	 * The printer emits one tag on an archive with the switch on, and nothing otherwise.
-	 *
-	 * @dataProvider provide_print_cases
-	 * @param int|null $enabled  Stored option value, or null when never saved.
-	 * @param bool     $singular Whether the request is a single post or page.
-	 * @param string   $url      URL the resolver returns.
-	 * @param string   $expected Expected output.
+	 * The loader requires the module file from the Jetpack plugin directory.
 	 */
-	#[DataProvider( 'provide_print_cases' )]
-	public function test_print_tag( $enabled, $singular, $url, $expected ) {
-		if ( null !== $enabled ) {
-			update_option( Canonical_Urls::OPTION, $enabled );
-		}
-		$GLOBALS['wp_query']                   = new \WP_Query();
-		$GLOBALS['wp_query']->is_singular      = $singular;
-		\Jetpack_Canonical_Urls_Resolver::$url = $url;
+	public function test_load_module_requires_the_jetpack_module_file() {
+		$plugin_dir = __DIR__ . '/files/jetpack-plugin/';
+		Constants::set_constant( 'JETPACK__PLUGIN_DIR', $plugin_dir );
 
-		ob_start();
-		Canonical_Urls::print_tag();
+		Canonical_Urls::load_module();
 
-		$this->assertSame( $expected, ob_get_clean() );
-	}
-
-	/**
-	 * @return array<string, array{int|null, bool, string, string}>
-	 */
-	public static function provide_print_cases() {
-		$url = 'https://example.org/category/news/page/2/';
-
-		return array(
-			'archive, switched on'   => array( 1, false, $url, '<link rel="canonical" href="' . $url . '" />' . "\n" ),
-			'archive, switched off'  => array( 0, false, $url, '' ),
-			'archive, never saved'   => array( null, false, $url, '' ),
-			'singular, switched on'  => array( 1, true, $url, '' ),
-			'no URL for the request' => array( 1, false, '', '' ),
-		);
+		$this->assertContains( realpath( $plugin_dir . 'modules/canonical-urls.php' ), get_included_files() );
 	}
 }

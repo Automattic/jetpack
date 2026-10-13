@@ -204,7 +204,6 @@ class Initializer {
 			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
 			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
 			if ( ! self::is_gated() ) {
-				// Simple's archive canonical tags; module-backed hosts print their own.
 				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
@@ -283,7 +282,7 @@ class Initializer {
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * GEO-tab front-end services register at all.
+	 * paid front-end output registers at all.
 	 *
 	 * @return bool
 	 */
