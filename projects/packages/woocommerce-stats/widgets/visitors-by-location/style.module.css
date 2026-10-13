@@ -1,7 +1,4 @@
 .root {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md);
 	block-size: 100%;
 	min-block-size: 0;
 }

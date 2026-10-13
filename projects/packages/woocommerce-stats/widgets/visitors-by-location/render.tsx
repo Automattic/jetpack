@@ -6,6 +6,7 @@ import {
 	describeError,
 	useWidgetRootContext,
 	WidgetRoot,
+	Stack,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
@@ -42,7 +43,7 @@ function VisitorsByLocation( { region }: VisitorsByLocationProps ): JSX.Element 
 		useVisitorsByLocation( reportParams, region );
 
 	return (
-		<div className={ styles.root }>
+		<Stack className={ styles.root } direction="column" gap="md">
 			<div className={ styles.locations }>
 				<Locations
 					valueLabel={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
@@ -65,7 +66,7 @@ function VisitorsByLocation( { region }: VisitorsByLocationProps ): JSX.Element 
 					country={ region === DEFAULT_REGION ? DEFAULT_REGION_COUNTRY : undefined }
 				/>
 			</div>
-		</div>
+		</Stack>
 	);
 }
 
