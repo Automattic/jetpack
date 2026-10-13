@@ -147,7 +147,9 @@ class Boost extends Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @return array[] Protect features comparison
+	 * The Jetpack Boost plugin calls this for its own pricing table.
+	 *
+	 * @return array[] Boost features comparison
 	 */
 	public static function get_features_by_tier() {
 		return array(

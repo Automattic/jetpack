@@ -466,6 +466,19 @@ abstract class Product {
 	abstract public static function get_features();
 
 	/**
+	 * Get the internationalized comparison of features grouped by each tier
+	 *
+	 * @deprecated $$next-version$$
+	 *
+	 * @return array
+	 */
+	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-$$next-version$$' );
+
+		return array();
+	}
+
+	/**
 	 * Get the product pricing
 	 *
 	 * @return array

@@ -126,8 +126,8 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
-		( checkout, product, tier ) => {
-			ctaCallback?.( { slug, product, tier } );
+		( checkout, product ) => {
+			ctaCallback?.( { slug, product } );
 
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
@@ -148,12 +148,8 @@ export default function ProductInterstitial( {
 
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
-						const isFree = tier
-							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-							: product?.pricingForUi?.isFree;
-						const isUpgradeToHigherTier =
-							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
-						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
+						const isFree = product?.pricingForUi?.isFree;
+						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
