@@ -28,6 +28,7 @@ const {
 	stampCode,
 	stampDir,
 	refreshAssetVersion,
+	stampToolSources,
 	toolFingerprint,
 	writeI18nManifest,
 	walk,
@@ -377,6 +378,19 @@ describe( 'stamp-textdomains cache', () => {
 
 			assert.notEqual( afterBump, original, 'a transitive dependency bump' );
 			assert.notEqual( fingerprint(), afterBump, 'a tool source edit' );
+		} );
+	} );
+
+	it( 'stampToolSources includes plugin files in subdirectories', () => {
+		withTmp( tmp => {
+			const helper = path.join( tmp, 'utils', 'helper.cjs' );
+			mkdirSync( path.dirname( helper ) );
+			writeFileSync( helper, '' );
+			writeFileSync( path.join( tmp, 'README.md' ), '' );
+
+			const sources = stampToolSources( tmp );
+			assert.ok( sources.includes( helper ) );
+			assert.ok( ! sources.includes( path.join( tmp, 'README.md' ) ) );
 		} );
 	} );
 

@@ -210,18 +210,20 @@ function installedDependencyTree( name, fromDir ) {
 /**
  * The source files of the stamping code and its Babel plugin.
  *
+ * @param {string} [pluginDir] - The plugin's source directory.
  * @return {string[]} Absolute paths.
  */
-function stampToolSources() {
-	const pluginDir = path.dirname( PLUGIN );
+function stampToolSources( pluginDir = path.dirname( PLUGIN ) ) {
+	const pluginFiles = [];
+	walk( pluginDir, file => {
+		if ( /\.[cm]?js$/.test( file ) ) {
+			pluginFiles.push( file );
+		}
+	} );
 	return [
 		require.resolve( './stamp-textdomains-lib.js' ),
 		require.resolve( './i18n-stub-lib.js' ),
-		...fs
-			.readdirSync( pluginDir )
-			.filter( name => name.endsWith( '.js' ) )
-			.sort()
-			.map( name => path.join( pluginDir, name ) ),
+		...pluginFiles.sort(),
 	];
 }
 
@@ -467,6 +469,7 @@ module.exports = {
 	stampFile,
 	stampDir,
 	refreshAssetVersion,
+	stampToolSources,
 	toolFingerprint,
 	writeI18nManifest,
 	walk,
