@@ -1,7 +1,7 @@
-import { speak } from '@wordpress/a11y';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useId, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
+import { announce, cancelAnnouncement } from '../../data/announce';
 import { errorCode } from '../../data/api/_helpers';
 import { useFocusHandoff } from '../../hooks/use-focus-handoff';
 import ErrorReference from '../error-reference';
@@ -82,28 +82,36 @@ export default function QueryError( {
 	const message = [ title, error?.message ].filter( Boolean ).join( ' ' );
 	const code = errorCode( error );
 	const id = referenceId ?? null;
-	const previous = useRef( { isRetrying, message } );
+	const previous = useRef( { isRetrying, message: '' } );
+	const source = useId();
 	const rootRef = useFocusHandoff< HTMLDivElement >( returnFocusTo );
 
-	// Notice.Root only speaks when the message changes, so a retry that fails the same way is silent.
+	// Spoken here, not by `Notice.Root`, so failures that land together are heard together.
+	// A retry that fails the same way is spoken again: the message did not change, but the attempt did.
 	useEffect( () => {
-		if (
-			! silent &&
-			previous.current.isRetrying &&
-			! isRetrying &&
-			previous.current.message === message
-		) {
-			speak( message, 'assertive' );
+		const failedAgain =
+			previous.current.isRetrying && ! isRetrying && previous.current.message === message;
+		if ( ! silent && ( message !== previous.current.message || failedAgain ) ) {
+			announce( message, 'assertive', source );
 		}
 		previous.current = { isRetrying, message };
-	}, [ isRetrying, message, silent ] );
+	}, [ isRetrying, message, silent, source ] );
+
+	useEffect(
+		() => () => {
+			cancelAnnouncement( source );
+			// Forgotten too, so StrictMode's remount speaks again what this cleanup withdrew.
+			previous.current = { isRetrying: false, message: '' };
+		},
+		[ source ]
+	);
 
 	return (
 		<Notice.Root
 			ref={ rootRef }
 			intent="error"
 			// `null`, not `undefined`: an omitted message falls back to speaking the children.
-			spokenMessage={ silent ? null : message }
+			spokenMessage={ null }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
 			<Notice.Title>{ title }</Notice.Title>

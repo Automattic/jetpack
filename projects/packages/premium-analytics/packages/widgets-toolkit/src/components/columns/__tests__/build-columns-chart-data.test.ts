@@ -35,4 +35,13 @@ describe( 'buildColumnsChartData', () => {
 
 		expect( series.map( item => item.label ) ).toEqual( [ 'Oct 1 – 7, 2026' ] );
 	} );
+
+	it( 'leaves the comparison series out while no column carries a previous figure', () => {
+		const series = buildColumnsChartData(
+			COLUMNS.map( ( { label, value } ) => ( { label, value } ) ),
+			{ hasComparison: true, labels: LABELS }
+		);
+
+		expect( series.map( item => item.label ) ).toEqual( [ 'Oct 1 – 7, 2026' ] );
+	} );
 } );

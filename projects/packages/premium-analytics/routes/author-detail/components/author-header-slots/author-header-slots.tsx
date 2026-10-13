@@ -15,8 +15,8 @@ import { postAuthor } from '@wordpress/icons';
  * Internal dependencies
  */
 import placeholders from '../../../detail-header.module.scss';
+import { authorDisplayName, type AuthorSummary } from '../../hooks';
 import styles from './author-header-slots.module.scss';
-import type { AuthorSummary } from '../../hooks';
 
 type AuthorHeaderSlotsArgs = {
 	summary: AuthorSummary;
@@ -128,7 +128,7 @@ export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailP
 
 	return {
 		visual: <AuthorAvatar avatarUrl={ summary.avatarUrl } />,
-		title: summary.name?.trim() || __( 'Unnamed author', 'jetpack-premium-analytics-pkg' ),
+		title: authorDisplayName( summary ),
 		subTitle,
 	};
 }

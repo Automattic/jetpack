@@ -49,22 +49,20 @@ export function RevenueByCustomerType( { filters }: RevenueByCustomerTypeProps )
 	const summary = primary.data?.summary;
 	const previous = comparison.data?.summary;
 
+	// The categories are fixed, so the skeleton knows its two columns before the data arrives.
 	const columns = useMemo< ColumnInput[] >(
-		() =>
-			summary
-				? [
-						{
-							label: __( 'Returning', 'jetpack-woocommerce-stats-pkg' ),
-							value: summary.returning_customer_sales,
-							previousValue: previous?.returning_customer_sales,
-						},
-						{
-							label: __( 'New', 'jetpack-woocommerce-stats-pkg' ),
-							value: summary.new_customer_sales,
-							previousValue: previous?.new_customer_sales,
-						},
-					]
-				: [],
+		() => [
+			{
+				label: __( 'Returning', 'jetpack-woocommerce-stats-pkg' ),
+				value: summary?.returning_customer_sales ?? 0,
+				previousValue: previous?.returning_customer_sales,
+			},
+			{
+				label: __( 'New', 'jetpack-woocommerce-stats-pkg' ),
+				value: summary?.new_customer_sales ?? 0,
+				previousValue: previous?.new_customer_sales,
+			},
+		],
 		[ summary, previous ]
 	);
 

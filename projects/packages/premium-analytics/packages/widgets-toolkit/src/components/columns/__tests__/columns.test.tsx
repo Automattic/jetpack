@@ -91,6 +91,18 @@ describe( 'Columns', () => {
 		expect( screen.getByText( 'No customer revenue in this period.' ) ).toBeInTheDocument();
 	} );
 
+	it( 'draws one skeleton column per input while loading, four without any', () => {
+		const { rerender } = renderColumns(
+			<Columns columns={ COLUMNS } status={ { isLoading: true } } />
+		);
+
+		expect( screen.getAllByTestId( 'skeleton-bar-column' ) ).toHaveLength( 2 );
+
+		rerender( <Columns columns={ [] } status={ { isLoading: true } } /> );
+
+		expect( screen.getAllByTestId( 'skeleton-bar-column' ) ).toHaveLength( 4 );
+	} );
+
 	it( 'offers a Retry bound to refetch when the widget passes no error of its own', async () => {
 		const refetch = jest.fn();
 		renderColumns(

@@ -52,19 +52,20 @@ function TotalReturns() {
 	const previous = comparison.data?.summary;
 
 	const columns = useMemo< ColumnInput[] >( () => {
-		if ( ! summary || ( ! summary.refunds && ! previous?.refunds ) ) {
+		if ( summary && ! summary.refunds && ! previous?.refunds ) {
 			return [];
 		}
 
+		// The categories are fixed, so the skeleton knows its two columns before the data arrives.
 		return [
 			{
 				label: __( 'Total sales', 'jetpack-woocommerce-stats-pkg' ),
-				value: salesNetOfRefunds( summary ),
+				value: summary ? salesNetOfRefunds( summary ) : 0,
 				previousValue: previous ? salesNetOfRefunds( previous ) : undefined,
 			},
 			{
 				label: __( 'Refunds', 'jetpack-woocommerce-stats-pkg' ),
-				value: summary.refunds ?? 0,
+				value: summary?.refunds ?? 0,
 				previousValue: previous?.refunds,
 			},
 		];

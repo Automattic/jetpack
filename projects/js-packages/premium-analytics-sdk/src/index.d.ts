@@ -26,6 +26,8 @@ type WidgetStateEmpty = {
 	// The host's icon prop, loose until the contract types icons.
 	icon?: any;
 	description?: string;
+	action?:
+		{ label: string; href: string; onClick?: never } | { label: string; onClick: () => void };
 };
 
 // What a widget kind knows about its request, in the data layer's terms. Every kind takes it.

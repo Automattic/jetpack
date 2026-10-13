@@ -17,14 +17,16 @@ export type ColumnInput = {
 	 */
 	value: number;
 	/**
-	 * Figure for the comparison period; `undefined` draws as 0 there.
+	 * Figure for the comparison period; `undefined` draws as 0 there while another column carries
+	 * one.
 	 */
 	previousValue?: number;
 };
 
 export type ColumnsChartDataOptions = {
 	/**
-	 * Whether the comparison period is on: its series exists only then.
+	 * Whether the comparison period is on. Its series draws only when it is on and at least one
+	 * column carries a previous figure: a period that failed to load draws nothing, not zeros.
 	 */
 	hasComparison: boolean;
 	/**
@@ -53,7 +55,8 @@ export function buildColumnsChartData(
 		},
 	];
 
-	if ( hasComparison ) {
+	const comparing = hasComparison && columns.some( column => column.previousValue !== undefined );
+	if ( comparing ) {
 		series.push( {
 			label: labels.comparison,
 			data: columns.map( column => ( {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ignore invalid theme label font sizes, such as negative values, so axis labels no longer clip. Accept a leading `+` sign, as CSS does.

@@ -48,4 +48,4 @@ export {
 	type QuickSurfaceOptions,
 } from './primary';
 
-export { getComparisonOptions, type ComparisonOption } from './comparison';
+export { findComparisonOption, getComparisonOptions, type ComparisonOption } from './comparison';

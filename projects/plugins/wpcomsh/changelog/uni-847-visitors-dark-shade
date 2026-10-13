@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Premium Analytics: Draw tabbed metric charts in the admin color, with the metric paired in the Traffic summary in a darker shade, instead of a different color per metric.
