@@ -112,6 +112,8 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
 		enabled: downloadId !== null && enabled,
+		// Backed-off polls skip hidden tabs, so refetch on refocus instead of waiting up to 15s.
+		refetchOnWindowFocus: 'always',
 		// No reading yet is not a reason to stop: the first poll may simply have failed.
 		refetchInterval: query => {
 			const status = query.state.data?.status;

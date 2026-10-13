@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
@@ -204,6 +204,7 @@ describe( 'useDownload — a status poll that fails', () => {
 	} );
 
 	afterEach( () => {
+		focusManager.setFocused( true );
 		jest.useRealTimers();
 	} );
 
@@ -347,6 +348,25 @@ describe( 'useDownload — a status poll that fails', () => {
 		const late = await pollsDuring( 30_000 );
 
 		expect( [ early, middle, late ] ).toEqual( [ 20, 6, 2 ] );
+	} );
+
+	it( 'reads the status at once when a hidden tab regains focus', async () => {
+		// Like the shared client, which turns focus refetching off.
+		const client = new QueryClient( {
+			defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
+		} );
+		const wrapper = ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client }, children );
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+		await advance( 30 );
+
+		act( () => focusManager.setFocused( false ) );
+		await advance( 20_000 );
+		const before = mockedApiFetch.mock.calls.length;
+		await act( async () => focusManager.setFocused( true ) );
+
+		expect( mockedApiFetch.mock.calls.length ).toBeGreaterThan( before );
 	} );
 
 	it( 'does not slow down for failed polls', async () => {
