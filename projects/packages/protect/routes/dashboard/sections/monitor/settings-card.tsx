@@ -1,4 +1,4 @@
-import { useMemo } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
@@ -18,14 +18,22 @@ export default function MonitorSettingsCard( { state, settings }: MonitorContext
 	const available = Boolean( state?.available );
 	const userConnected = Boolean( state?.userConnected );
 	const { save, refresh } = settings;
+	// Locks the email toggle until the re-read lands, which would otherwise overwrite a change made meanwhile.
+	const [ isEnabling, setIsEnabling ] = useState( false );
 	// Turning Monitor on subscribes the user to its emails on the server.
 	const monitorData = useMemo(
 		() => ( {
 			...settings,
 			save: async ( patch, path ) => {
-				await save( patch, path );
-				if ( patch.monitor === true ) {
+				if ( patch.monitor !== true ) {
+					return save( patch, path );
+				}
+				setIsEnabling( true );
+				try {
+					await save( patch, path );
 					await refresh( [ 'monitor_receive_notifications' ] );
+				} finally {
+					setIsEnabling( false );
 				}
 			},
 		} ),
@@ -65,7 +73,8 @@ export default function MonitorSettingsCard( { state, settings }: MonitorContext
 							! available ||
 							! userConnected ||
 							! settings.settings?.monitor ||
-							settings.isSaving( 'monitor' )
+							settings.isSaving( 'monitor' ) ||
+							isEnabling
 						}
 					/>
 				</Stack>
