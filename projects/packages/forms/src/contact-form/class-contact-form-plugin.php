@@ -204,14 +204,6 @@ class Contact_Form_Plugin {
 		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
 		add_action( 'dynamic_sidebar_after', array( $this, 'track_current_widget_after' ) );
 
-		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if (
-			version_compare( get_bloginfo( 'version' ), '4.9-z', '<=' )
-			&& ! has_filter( 'widget_text', 'do_shortcode' )
-		) {
-			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
-		}
-
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blocklist' ), 10, 2 );
 		add_filter( 'jetpack_contact_form_in_comment_disallowed_list', array( $this, 'is_in_disallowed_list' ), 10, 2 );
 		// Akismet to the rescue
