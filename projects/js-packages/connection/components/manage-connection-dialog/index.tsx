@@ -91,6 +91,7 @@ const ManageConnectionDialog = ( {
 	const [ unlinkError, setUnlinkError ] = useState( '' );
 	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
 	const [ transferView, setTransferView ] = useState< TransferView | null >( null );
+	const [ isTransferring, setIsTransferring ] = useState( false );
 
 	/**
 	 * Initialize the REST API.
@@ -195,8 +196,8 @@ const ManageConnectionDialog = ( {
 	);
 
 	const isControlsDisabled = useMemo( () => {
-		return isDisconnectingUser;
-	}, [ isDisconnectingUser ] );
+		return isDisconnectingUser || isTransferring;
+	}, [ isDisconnectingUser, isTransferring ] );
 
 	// This is silly, but it's an optimizer workaround
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
@@ -226,6 +227,7 @@ const ManageConnectionDialog = ( {
 	useEffect( () => {
 		if ( ! isOpen ) {
 			setTransferView( null );
+			setIsTransferring( false );
 		}
 	}, [ isOpen ] );
 
@@ -270,6 +272,7 @@ const ManageConnectionDialog = ( {
 									apiRoot={ apiRoot }
 									apiNonce={ apiNonce }
 									onTransferred={ recordNewOwner }
+									onBusyChange={ setIsTransferring }
 								/>
 							) }
 							{ ! transferView &&

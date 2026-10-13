@@ -4,6 +4,7 @@
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,6 +25,8 @@ export interface TransferConnectionOwnershipProps {
 	apiNonce: string;
 	/** Called as soon as WordPress.com accepts the new owner. */
 	onTransferred?: ( newOwnerId: number ) => void;
+	/** Called while a transfer is in flight, so a host can hold its own exits shut. */
+	onBusyChange?: ( isBusy: boolean ) => void;
 }
 
 /**
@@ -38,6 +41,7 @@ const TransferConnectionOwnership = ( {
 	apiRoot,
 	apiNonce,
 	onTransferred,
+	onBusyChange,
 }: TransferConnectionOwnershipProps ) => {
 	const {
 		candidates,
@@ -53,6 +57,10 @@ const TransferConnectionOwnership = ( {
 	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred } );
 
 	const hasCandidates = !! candidates?.length;
+
+	useEffect( () => {
+		onBusyChange?.( isTransferring );
+	}, [ isTransferring, onBusyChange ] );
 	// True only of the connection owner, who is the person transferring: hence "you're".
 	const isProtectedOwner = useSelect(
 		( select: StoreSelector ) => !! select( STORE_ID ).getHasProtectedOwner(),

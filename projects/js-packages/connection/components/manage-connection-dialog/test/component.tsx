@@ -127,6 +127,39 @@ describe( 'ManageConnectionDialog', () => {
 			).not.toBeInTheDocument();
 		} );
 
+		// Leaving mid-request would not cancel it: the transfer still lands, and its
+		// refusal would never be seen.
+		it( 'holds the exit shut while the transfer is in flight', async () => {
+			let settle: ( value: unknown ) => void = () => {};
+			mockSetConnectionOwner.mockReturnValue(
+				new Promise( resolve => {
+					settle = resolve;
+				} )
+			);
+
+			const user = userEvent.setup();
+			render( <ManageConnectionDialog { ...testProps } /> );
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'true'
+				)
+			);
+
+			settle( { code: 'success' } );
+
+			await expect( screen.findByRole( 'button', { name: 'Close' } ) ).resolves.toBeInTheDocument();
+		} );
+
 		it( 'tells the store who owns the connection now', async () => {
 			const onTransferred = jest.fn();
 			const user = userEvent.setup();
