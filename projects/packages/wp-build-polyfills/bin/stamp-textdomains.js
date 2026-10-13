@@ -8,7 +8,9 @@
  *
  * The domain is read from `composer.json` `extra.textdomain` in the current
  * working directory, or overridden with `--domain`. The build directory
- * defaults to `build`, overridable with `--dir`.
+ * defaults to `build`, overridable with `--dir`. Stamped results are cached in
+ * `node_modules/.cache/stamp-textdomains` so rebuilds only re-stamp changed
+ * bundles; `--no-cache` turns that off.
  *
  * See `stamp-textdomains-lib.js` for context and behaviour details.
  */
@@ -49,9 +51,14 @@ const getFlag = name => {
 
 const domain = getDomain( getFlag( 'domain' ) );
 const buildDir = path.resolve( getFlag( 'dir' ) || 'build' );
-const count = stampDir( buildDir, domain );
-const bundles = writeI18nManifest( buildDir );
+// CI starts cold, and the e2e build artifact would otherwise ship the cache files.
+const cacheDir =
+	args.includes( '--no-cache' ) || process.env.CI
+		? undefined
+		: path.resolve( 'node_modules', '.cache', 'stamp-textdomains' );
+const { count, reused, stringBearing } = stampDir( buildDir, domain, { cacheDir } );
+const bundles = writeI18nManifest( buildDir, stringBearing );
 // eslint-disable-next-line no-console
 console.log(
-	`stamp-textdomains: stamped "${ domain }" onto ${ count } file(s) in ${ buildDir }; ${ bundles.length } string-bearing bundle(s) listed in the i18n manifest`
+	`stamp-textdomains: stamped "${ domain }" onto ${ count } file(s) in ${ buildDir } (${ reused } reused from cache); ${ bundles.length } string-bearing bundle(s) listed in the i18n manifest`
 );

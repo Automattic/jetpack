@@ -394,9 +394,15 @@ export type ChartTheme = {
 	 *
 	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack
 	 * `buildChartTheme` injects inline on SVG `<text>`.
+	 *
+	 * Give `fontSize` in pixels (`12` or `'12px'`). Margins and pie labels cannot measure `rem`, `em`, `%` or `var()`, so they use the default size and labels can clip (CHARTS-303). An invalid size is dropped.
 	 */
 	svgLabelSmall?: Omit< TextProps, 'fill' >;
-	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	/**
+	 * Styles for large SVG text (eg. axis titles), passed through to the XYChart theme.
+	 *
+	 * Give `fontSize` in pixels, as for `svgLabelSmall`.
+	 */
 	svgLabelBig?: TextProps;
 	annotationStyles?: ThemeAnnotationStyles;
 	/** LeaderboardChart specific settings */

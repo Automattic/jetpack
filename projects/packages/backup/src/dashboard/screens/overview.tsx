@@ -8,6 +8,7 @@ import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, {
+	BackupFailedRunBanner,
 	BackupTroubleBanner,
 	BackupWarningsBanner,
 } from '../components/backup-status/banner';
@@ -27,6 +28,7 @@ import { useAnalytics } from '../hooks/use-analytics';
 import { failedAttemptReference, isUsableBackup, useBackups } from '../hooks/use-backups';
 import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
+import { useRevealDetail } from '../hooks/use-reveal-detail';
 import { isBackupItem } from '../types/activity';
 import type { ActivitySortOrder } from '../data/api/activity-log';
 import type { View } from '@wordpress/dataviews';
@@ -173,30 +175,34 @@ function OverviewBody() {
 	// placeholder renders. Page 1 dedupes with the list's first
 	// fetch when the list is on page 1 with the default per-page.
 	const defaultSelectedId = useDefaultBackupRewindId();
-	// The URL still wins; the remembered row only answers for the return trip, where
-	// the reader made a choice this page load and the address no longer carries it.
 	const urlSelectedId = typeof search.selected === 'string' ? search.selected : null;
-	const selectedId = urlSelectedId ?? lastSelectedId ?? defaultSelectedId;
+	// The remembered row stands in for a missing one only on mount, which is the return trip
+	// from Download or Restore. Back to the entry that had none means the newest backup again.
+	const [ returnTripId, setReturnTripId ] = useState( () =>
+		urlSelectedId ? null : lastSelectedId
+	);
+	const selectedId = urlSelectedId ?? returnTripId ?? defaultSelectedId;
 	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
 	// land, and pinning the row it happened to name would outlive its own reason.
 	useEffect( () => {
-		if ( urlSelectedId ) {
-			lastSelectedId = urlSelectedId;
-		}
-	}, [ urlSelectedId ] );
-	// Puts the remembered row in the address whenever the address lacks one, so
-	// `clearSelected` below always has a real change to make: without one, TanStack
-	// treats its navigate as a no-op and pushes no history entry, leaving Back with
-	// nowhere on the Overview to land. `replace`: this is not its own stop.
+		lastSelectedId = urlSelectedId ?? returnTripId;
+	}, [ urlSelectedId, returnTripId ] );
+	// Puts the remembered row in the address, so `clearSelected` below always has a real
+	// change to make: without one, TanStack treats its navigate as a no-op and pushes no
+	// history entry, leaving Back with nowhere on the Overview to land. `replace`: this is
+	// not its own stop.
 	useEffect( () => {
-		if ( urlSelectedId || ! lastSelectedId ) {
+		if ( urlSelectedId ) {
+			setReturnTripId( null );
 			return;
 		}
-		navigate( {
-			search: ( previous: OverviewSearch ) => ( { ...previous, selected: lastSelectedId } ),
-			replace: true,
-		} as Parameters< typeof navigate >[ 0 ] );
-	}, [ urlSelectedId, navigate ] );
+		if ( returnTripId ) {
+			navigate( {
+				search: ( previous: OverviewSearch ) => ( { ...previous, selected: returnTripId } ),
+				replace: true,
+			} as Parameters< typeof navigate >[ 0 ] );
+		}
+	}, [ urlSelectedId, returnTripId, navigate ] );
 	// `/site/rewindable-activity` only lists completed restore points, so
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
@@ -215,10 +221,11 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	const finishedRuns = useRefreshActivityOnBackupComplete(
+	const { finishedRuns, failedRun } = useRefreshActivityOnBackupComplete(
 		backupsState,
 		isBackupRequested,
-		backups.find( isUsableBackup )?.id ?? null
+		backups.find( isUsableBackup )?.id ?? null,
+		backups[ 0 ] ?? null
 	);
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
@@ -240,25 +247,24 @@ function OverviewBody() {
 	} = useHasRestorePoints();
 
 	const overviewRef = useRef< HTMLDivElement >( null );
+	const revealDetail = useRevealDetail( overviewRef, selectedId );
 	const storageRef = useRef< HTMLElement >( null );
 
 	// The updater form, like `clearSelected` below: an object literal replaces the
 	// search wholesale, so every future param would depend on this closure being fresh.
 	const setSelected = useCallback(
 		( id: string ) => {
+			revealDetail( id );
 			navigate( {
 				search: ( previous: OverviewSearch ) => ( { ...previous, selected: id } ),
 			} as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ navigate, revealDetail ]
 	);
 
 	// The stale id lives in the URL, so the dead end survives a reload without this.
 	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
 	const clearSelected = useCallback( () => {
-		// The memory too, not just the URL: `selectedId` falls back to it, so
-		// clearing one and not the other puts the reader straight back.
-		lastSelectedId = null;
 		overviewRef.current?.focus();
 		navigate( {
 			search: ( previous: OverviewSearch ) => {
@@ -350,6 +356,9 @@ function OverviewBody() {
 				/>
 			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
+			{ backupsState === 'complete' && failedRun && (
+				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
+			) }
 			{ /*
 			 * The storage row, with the next scheduled backup at its end. The gate stops an
 			 * errored or loading backups read promising a next run under "We couldn't check
@@ -461,7 +470,7 @@ function RightPane( {
 				 * Neither the upstream reason nor a retry: the list beside this pane
 				 * reports the activity feed's failure with both, and a second copy of
 				 * each is two error notices and two buttons for one thing to fix.
-				 * Silent too: it mounts with the list's notice, and the later `speak()` would win.
+				 * Silent too: spoken beside the list's notice, it would only repeat the failure.
 				 */ }
 				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } silent />
 			</div>
