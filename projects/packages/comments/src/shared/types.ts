@@ -134,6 +134,8 @@ export type Settings = {
 	/** Empty `editProfileUrl` for a user who may not edit their own profile. */
 	user: { name: string; editProfileUrl: string } | null;
 	identity: IdentitySettings;
+	/** Missing from settings an older release rendered, whose HTML holds the field instead. */
+	nonce?: { name: string; value: string };
 };
 
 declare global {

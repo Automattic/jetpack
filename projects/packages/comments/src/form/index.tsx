@@ -12,6 +12,19 @@ import './style.scss';
 // Here, not with the dialog: its shadow root links this page's stylesheet.
 import '../modal/style.scss';
 
+// The plain form posts it too, since it is not in the HTML.
+document.querySelectorAll( '.jetpack-comments' ).forEach( element => {
+	const form = element.closest( 'form' );
+	const { nonce } = JetpackComments;
+
+	if ( form && nonce && ! form.querySelector( `[name="${ nonce.name }"]` ) ) {
+		const input = form.appendChild( document.createElement( 'input' ) );
+		input.type = 'hidden';
+		input.name = nonce.name;
+		input.value = nonce.value;
+	}
+} );
+
 // A page cache can pair settings from an older release with this bundle. The
 // mount holds a plain form for that case, for a browser without form-associated
 // custom elements, and for a script that never runs.
