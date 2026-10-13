@@ -134,7 +134,8 @@ abstract class Registrar {
 	 * WordPress accepts an ability. Each ability slug is passed through the
 	 * `jetpack_wp_abilities_should_register` filter individually, so
 	 * consumers can enable a subset of abilities on a subset of sites or
-	 * users.
+	 * users. An ability whose category isn't registered
+	 * is skipped, since WordPress would reject it.
 	 *
 	 * @return void
 	 */
@@ -151,6 +152,10 @@ abstract class Registrar {
 			}
 			if ( ! array_key_exists( 'category', $spec ) ) {
 				$spec['category'] = $category_slug;
+			}
+			// For example a category the should-register filter blocked, or `site` in core's own tests, which unhook it.
+			if ( function_exists( 'wp_has_ability_category' ) && ! wp_has_ability_category( $spec['category'] ) ) {
+				continue;
 			}
 			wp_register_ability( $slug, $spec );
 		}
