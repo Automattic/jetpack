@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 # sed -i behaves differently between macos and linux platforms.
 # See https://stackoverflow.com/a/51060063
 # To use this, do `sed "${sedi[@]}" -e $sed_expression`
 sedi=(-i)
 # macOS version of sed doesn't support `--version` param and exits with code 1
-sed --version > /dev/null 2>&1
-if [ $? -eq 1 ]
+if ! sed --version > /dev/null 2>&1
 then
 	# For macOS, use two parameters
 	sedi=(-i "")
@@ -72,7 +73,7 @@ then
 
 	# download zip file
 	echo "Downloading $MODE $NAME into $TEMP_DIR"
-	(cd "$TEMP_DIR" && curl -L --fail -s -O "$URL")
+	(cd "$TEMP_DIR" && curl -L --fail -s -O "$URL") || true
 
 	# handle download error
 	ZIPS=( "$TEMP_DIR"/*.zip )
@@ -195,7 +196,8 @@ cat > "$PHPCSSTANDARDFILE" <<EOF
 </ruleset>
 EOF
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
-"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET"
+# phpcbf exits 1 when it fixed everything.
+"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET" || [ $? -eq 1 ]
 rm "$PHPCSSTANDARDFILE"
 
 # Add textdomain to block.json
