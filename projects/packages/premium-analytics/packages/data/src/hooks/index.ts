@@ -187,7 +187,11 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './use-stats-email-summary';
-export { useStatsAuthor, useStatsAuthorAllTime } from './use-stats-author';
+export {
+	useStatsAuthor,
+	useStatsAuthorAllTime,
+	useStatsAuthorAllTimeOrApproximate,
+} from './use-stats-author';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,

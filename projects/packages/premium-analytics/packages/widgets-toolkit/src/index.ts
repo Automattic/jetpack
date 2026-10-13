@@ -52,6 +52,8 @@ export {
 	type DonutProps,
 	type DonutSegmentInput,
 	Funnel,
+	Locations,
+	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -353,14 +355,7 @@ export {
 /**
  * Widget components
  */
-export {
-	BookingsRevenueByCustomerTypeWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-} from './widgets';
+export { VisitorsByLocationWidget } from './widgets';
 
 /**
  * Types

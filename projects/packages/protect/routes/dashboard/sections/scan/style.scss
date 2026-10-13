@@ -121,6 +121,10 @@
 }
 
 .jp-protect-threat-details {
+	// Fill the sidebar, so the footer sits at its bottom on short details.
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 
 	&__section {
 		padding: 24px;
@@ -171,6 +175,7 @@
 	&__footer {
 		position: sticky;
 		inset-block-end: 0;
+		margin-block-start: auto;
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
@@ -219,6 +224,17 @@
 		strong {
 			font-weight: 600;
 		}
+	}
+
+	&__label {
+		display: flex;
+		flex-direction: column;
+		white-space: normal;
+	}
+
+	// DataViews gives every cell a 15ch minimum; ours only need their content.
+	.dataviews-view-table .dataviews-view-table__cell-content-wrapper {
+		min-inline-size: 0;
 	}
 
 	&__nowrap {

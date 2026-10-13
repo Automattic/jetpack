@@ -254,7 +254,7 @@ class Quiz_Shortcode {
 
 		// Add internal parameter so it's only rendered when it has it.
 		$content = preg_replace( '/\[(question|answer|wrong|explanation)\]/i', '[$1 quiz_item="true"]', $content );
-		$content = do_shortcode( $content );
+		$content = apply_shortcodes( $content );
 		$content = wp_kses(
 			$content,
 			array(

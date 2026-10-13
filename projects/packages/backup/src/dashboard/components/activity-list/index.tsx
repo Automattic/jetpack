@@ -147,6 +147,28 @@ function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
 }
 
 /**
+ * A backup's size and duration as one line, in whichever of the two is known.
+ *
+ * @param run - The backup's run.
+ * @return The line, or an empty string when neither is known.
+ */
+function runMeta( run: NonNullable< ReturnType< BackupRunLookup > > ): string {
+	const parts = [
+		run.siteSize !== null && formatStorageSize( run.siteSize ),
+		run.duration !== null && formatDuration( run.duration, 'short' ),
+	].filter( ( part ): part is string => Boolean( part ) );
+
+	return parts.length === 2
+		? sprintf(
+				/* translators: %1$s and %2$s: two facts about one backup, such as its size and how long it took. */
+				__( '%1$s · %2$s', 'jetpack-backup-pkg' ),
+				parts[ 0 ],
+				parts[ 1 ]
+			)
+		: ( parts[ 0 ] ?? '' );
+}
+
+/**
  * Descriptions cell — single muted line with the timestamp, a backup's
  * size and duration once known, and the optional summary.
  *
@@ -165,12 +187,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 			{ /* Before the summary, which is the part that truncates. */ }
 			{ run && (
 				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__run">
-					{ [
-						run.siteSize !== null && formatStorageSize( run.siteSize ),
-						run.duration !== null && formatDuration( run.duration, 'short' ),
-					]
-						.filter( Boolean )
-						.join( ' · ' ) }
+					{ runMeta( run ) }
 				</Text>
 			) }
 			{ /*

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the author page on sites that block the WordPress users endpoint.

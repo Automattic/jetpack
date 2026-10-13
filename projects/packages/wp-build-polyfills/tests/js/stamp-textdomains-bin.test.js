@@ -7,7 +7,7 @@
  */
 
 const { spawnSync } = require( 'child_process' );
-const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
+const { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const os = require( 'node:os' );
 const { describe, it } = require( 'node:test' );
@@ -42,10 +42,15 @@ function makePackage( { domain, buildDir = 'build' } = {} ) {
  *
  * @param {string}   cwd  - Working directory.
  * @param {string[]} args - CLI arguments.
+ * @param {object}   env  - Extra environment variables.
  * @return {object} spawnSync result.
  */
-function runBin( cwd, args = [] ) {
-	return spawnSync( process.execPath, [ BIN, ...args ], { cwd, encoding: 'utf8' } );
+function runBin( cwd, args = [], env = {} ) {
+	return spawnSync( process.execPath, [ BIN, ...args ], {
+		cwd,
+		encoding: 'utf8',
+		env: { ...process.env, CI: '', ...env },
+	} );
 }
 
 describe( 'stamp-textdomains bin', () => {
@@ -103,6 +108,30 @@ describe( 'stamp-textdomains bin', () => {
 			);
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
+		}
+	} );
+
+	it( 'caches under node_modules/.cache unless --no-cache is passed or CI is set', () => {
+		const cached = makePackage( { domain: 'jetpack-c' } );
+		const uncached = makePackage( { domain: 'jetpack-c' } );
+		const onCi = makePackage( { domain: 'jetpack-c' } );
+		try {
+			const bundle = path.join( cached, 'build', 'routes', 'dashboard', 'content.js' );
+			const source = readFileSync( bundle, 'utf8' );
+			assert.match( runBin( cached ).stdout, /\(0 reused from cache\)/ );
+			writeFileSync( bundle, source );
+			assert.match( runBin( cached ).stdout, /\(1 reused from cache\)/ );
+			assert.ok( existsSync( path.join( cached, 'node_modules', '.cache', 'stamp-textdomains' ) ) );
+
+			assert.match( runBin( uncached, [ '--no-cache' ] ).stdout, /\(0 reused from cache\)/ );
+			assert.ok( ! existsSync( path.join( uncached, 'node_modules' ) ), 'nothing cached' );
+
+			assert.equal( runBin( onCi, [], { CI: 'true' } ).status, 0 );
+			assert.ok( ! existsSync( path.join( onCi, 'node_modules' ) ), 'nothing cached on CI' );
+		} finally {
+			rmSync( cached, { recursive: true, force: true } );
+			rmSync( uncached, { recursive: true, force: true } );
+			rmSync( onCi, { recursive: true, force: true } );
 		}
 	} );
 

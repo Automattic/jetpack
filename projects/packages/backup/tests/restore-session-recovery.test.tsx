@@ -159,11 +159,11 @@ describe( 'Restore screen — a restore already running', () => {
 		// heading that silently changes date leaves the reader to work out
 		// why their checklist vanished.
 		const notice = await view.findByText( ALREADY_RUNNING );
-		expect( notice ).toHaveTextContent( /Aug 12, 2026/ );
+		expect( notice ).toHaveTextContent( /August 12, 2026/ );
 
 		const point = await view.findByText( /Restore point:/ );
-		expect( point ).toHaveTextContent( /Aug 12, 2026/ );
-		expect( point ).not.toHaveTextContent( /Aug 13, 2026/ );
+		expect( point ).toHaveTextContent( /August 12, 2026/ );
+		expect( point ).not.toHaveTextContent( /August 13, 2026/ );
 	} );
 
 	it( 'never arms the form while it is still finding out', async () => {

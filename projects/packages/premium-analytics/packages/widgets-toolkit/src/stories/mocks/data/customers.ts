@@ -1,8 +1,6 @@
 /**
  * Mock data for Customers New vs Returning endpoint
  *
- * Used by: RevenueByCustomerTypeWidget, BookingsRevenueByCustomerTypeWidget
- *
  * Response structure matches:
  * - summary: CustomersNewReturningSummary
  * - data: CustomersNewReturningItem[]
