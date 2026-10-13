@@ -47,7 +47,8 @@ class WPCom_Themes_Tiers {
 	 * partner theme still needs its own subscription that no plan feature reports.
 	 *
 	 * @param string $tier Tier slug.
-	 * @return bool False when the platform cannot answer, so an unknown host offers nothing.
+	 * @return bool True for the free tier, which needs no plan. For the rest, false when the
+	 *              platform cannot answer, so an unknown host offers nothing.
 	 */
 	public static function site_can_use( string $tier ): bool {
 		// There is no free-themes capability, so asking the platform would deny every free theme.

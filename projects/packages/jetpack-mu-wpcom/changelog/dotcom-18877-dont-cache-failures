@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Themes: keep showing WordPress.com themes after a failed read, rather than caching the failure for a day.
+Themes: retry after a failed read of the WordPress.com theme list, rather than caching the failure for a day.
