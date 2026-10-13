@@ -297,21 +297,9 @@ describe( 'WordPress.com Simple settings', () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 	} );
 
-	it.each( [ true, false ] )(
-		'hides the canonical card on Simple even when module availability is %s',
-		switchable => {
-			setSimpleSite();
-			const form = buildForm( { canonical_active: true, canonical_switchable: switchable } );
-
-			render( <SettingsScreen form={ form } /> );
-
-			expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( /Add canonical URLs to archive pages/ ) ).not.toBeInTheDocument();
-			expect( form.commit ).not.toHaveBeenCalled();
-		}
-	);
-
 	it.each( [
+		[ 'wpcom', true ],
+		[ 'wpcom', false ],
 		[ 'woa', true ],
 		[ 'woa', false ],
 		[ 'unknown', true ],
