@@ -526,6 +526,8 @@ class Comment_Form {
 			$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
 			$host   = wp_parse_url( $url, PHP_URL_HOST );
 			$port   = wp_parse_url( $url, PHP_URL_PORT );
+			// Browsers leave a default port out of Origin.
+			$port = in_array( "$scheme:$port", array( 'http:80', 'https:443' ), true ) ? null : $port;
 
 			if ( $scheme && $host && strtolower( $scheme . '://' . $host . ( $port ? ':' . $port : '' ) ) === $origin ) {
 				return;
