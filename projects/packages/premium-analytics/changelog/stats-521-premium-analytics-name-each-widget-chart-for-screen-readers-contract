@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: accept a chart title on the Donut widget kind through the SDK; the widget contract is 1.10.0.
