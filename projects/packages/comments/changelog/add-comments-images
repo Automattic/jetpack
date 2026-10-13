@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the image block to the comment editor. Images load through the image CDN, up to four per comment.

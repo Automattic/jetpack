@@ -10,7 +10,7 @@ export type EditorProps = {
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
 	placeholder: string;
-	/** Fetch and draw provider previews. Off on the edit-comment screen, where the URL is enough. */
+	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
@@ -34,6 +34,10 @@ export type EmbedLookup = EmbedPreview | 'unsupported' | null;
 export type EmbedEditProps = BlockEditProps< EmbedAttributes > & {
 	onReplace: ( blocks: Block | Block[] ) => void;
 };
+
+export type ImageAttributes = { url?: string; alt?: string };
+
+export type ImageEditProps = BlockEditProps< ImageAttributes >;
 
 type HistoryStep = { blocks: Block[]; markup: string };
 

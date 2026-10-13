@@ -428,6 +428,17 @@
 		position: absolute;
 		inset: 0;
 	}
+
+	.wp-block-image {
+		margin-inline: 0;
+		overflow-wrap: anywhere;
+
+		img {
+			display: block;
+			max-inline-size: 100%;
+			block-size: auto;
+		}
+	}
 }
 
 // Past a theme that fills every button with !important, seasonal variants and
