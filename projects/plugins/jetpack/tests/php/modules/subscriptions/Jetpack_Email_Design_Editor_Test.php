@@ -204,7 +204,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 */
 	private function stub_site_stickers( array $stickers, $atomic = true ) {
 		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
-			$this->markTestSkipped( 'The real wpcomsh reader is loaded here, and it answers from Atomic data this environment has none of.' );
+			$this->markTestSkipped( 'The real wpcomsh reader is loaded here, and its blank persistent data answers false for every sticker.' );
 		}
 
 		$GLOBALS['jetpack_test_site_stickers'] = $stickers;
@@ -315,8 +315,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The screen can initialize before wpcomsh has loaded, and calling a reader that is not
-	 * there yet is a fatal -- so the platform alone is not enough to go on.
+	 * A host can define `IS_ATOMIC` without loading wpcomsh -- the loader only forces it on for
+	 * certain WP Cloud clients -- and calling a reader that is not there is a fatal.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
