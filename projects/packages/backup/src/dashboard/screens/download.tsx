@@ -1,12 +1,13 @@
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	check,
 	download as downloadIcon,
 	arrowLeft,
+	arrowRight,
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
@@ -139,7 +140,7 @@ export default function DownloadScreen() {
 		<DashboardLayout>
 			<div className="jpb-download">
 				<Link to="/" className="jpb-download__back">
-					<Icon icon={ arrowLeft } size={ 18 } />
+					<Icon icon={ isRTL() ? arrowRight : arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className="jpb-download__card">
