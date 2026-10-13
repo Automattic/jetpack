@@ -3,7 +3,6 @@
  */
 import {
 	AnalyticsQueryClientProvider,
-	getApiErrorStatus,
 	PeriodChangeSignalProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
@@ -131,6 +130,8 @@ function AuthorDetail(): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportNavigationParams( search );
 
+	// The All-time traffic card shares the summary's request, so mounting cards
+	// over a failed one would refetch it and loop between loading and error.
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 
 	// The All-time traffic card opens a month as this page's period.
@@ -174,24 +175,13 @@ function AuthorDetail(): JSX.Element {
 	let notice: PageNoticeProps | null = null;
 
 	if ( summary.isError ) {
-		// Same split as the widgets, plus a 404: sites that hide the users
-		// endpoint answer with one, and no Retry brings it back.
-		notice =
-			getApiErrorStatus( summary.error ) === 404
-				? {
-						intent: 'info',
-						description: __(
-							"This site doesn't share author profiles.",
-							'jetpack-premium-analytics-pkg'
-						),
-					}
-				: describeError( summary.error, {
-						retryDescription: __(
-							"We couldn't load this author. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: summary.refetch,
-					} );
+		notice = describeError( summary.error, {
+			retryDescription: __(
+				"We couldn't load this author. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: summary.refetch,
+		} );
 	} else if ( summary.isNotFound ) {
 		notice = {
 			intent: 'info',

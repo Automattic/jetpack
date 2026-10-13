@@ -46,7 +46,7 @@ function AuthorAvatar( { avatarUrl }: { avatarUrl?: string } ) {
  * matches the post list. Either half stands alone when the other is unknown.
  *
  * @param postCount          - Published posts by the author.
- * @param firstPublishedDate - Publish date of the oldest one.
+ * @param firstPublishedDate - When the author first published content.
  * @return The subtitle, or undefined when neither half is known.
  */
 export function authorSubtitle(
@@ -115,15 +115,16 @@ export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailP
 		};
 	}
 
-	// The posts request resolves on its own, so the subtitle carries its state
-	// while the name above stays put.
-	let subTitle: DetailPageHeaderSlots[ 'subTitle' ];
-	if ( summary.isPostsLoading ) {
+	// The post count resolves on its own; the writing-since month stands without it.
+	const postCount = summary.isPostsLoading || summary.isPostsError ? undefined : summary.postCount;
+	let subTitle: DetailPageHeaderSlots[ 'subTitle' ] = authorSubtitle(
+		postCount,
+		summary.firstPublishedDate
+	);
+	if ( ! subTitle && summary.isPostsLoading ) {
 		subTitle = <Skeleton className={ placeholders.subTitlePlaceholder } />;
-	} else if ( summary.isPostsError ) {
+	} else if ( ! subTitle && summary.isPostsError ) {
 		subTitle = __( "We couldn't load this author's posts.", 'jetpack-premium-analytics-pkg' );
-	} else {
-		subTitle = authorSubtitle( summary.postCount, summary.firstPublishedDate );
 	}
 
 	return {
