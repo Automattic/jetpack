@@ -63,6 +63,39 @@ beforeEach( () => {
 const countControls = () =>
 	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
 
+it.each( [
+	[ 'details window', FeatureModalActions ],
+	[ 'card', FeatureAction ],
+] as const )( 'only opens registered admin pages offline from the %s', ( _, Component ) => {
+	const previousInitial = window.myJetpackInitialState;
+	const previousData = window.JetpackScriptData;
+	const registeredPages: string[] = [];
+	window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+	window.JetpackScriptData = {
+		myJetpack: { offlineFeatures: { mainFeatures: { available_admin_pages: registeredPages } } },
+	} as unknown as typeof previousData;
+	try {
+		const state = buildState(
+			{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+			{
+				status: 'active',
+				feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+			}
+		);
+		const { rerender } = render( <Component state={ state } /> );
+		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
+		registeredPages.push( 'stats' );
+		rerender( <Component state={ state } /> );
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			state.feature.manage_url
+		);
+	} finally {
+		window.myJetpackInitialState = previousInitial;
+		window.JetpackScriptData = previousData;
+	}
+} );
+
 describe( 'FeatureAction', () => {
 	it( 'offers Install, and no switch, for a feature whose plugin is missing', () => {
 		render(
@@ -374,6 +407,24 @@ describe( 'FeatureModalActions', () => {
 } );
 
 describe( 'FeatureItem', () => {
+	it.each( [ 'Requires a connected WordPress.com account', 'Unavailable in Offline mode' ] )(
+		'shows the module limitation on a forced unavailable card and the host reason in details: %s',
+		unavailable_reason => {
+			const state = buildState(
+				{ kind: 'module', module: { ...forcedModule, available: false, unavailable_reason } },
+				{ status: 'active' }
+			);
+			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
+			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			rerender( <FeatureModalActions state={ state } /> );
+			expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeVisible();
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
 		const state = buildState(
 			{ kind: 'module', module: forcedModule },

@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class Main_Features_Test extends TestCase {
 
-	public function test_local_state_names_only_registered_admin_pages() {
+	public function test_rest_state_omits_page_load_admin_pages() {
 		global $_registered_pages;
 		$original          = $_registered_pages;
 		$_registered_pages = array(
@@ -22,10 +22,7 @@ class Main_Features_Test extends TestCase {
 			'toplevel_page_jetpack-boost' => true,
 		);
 		try {
-			$state = Main_Features::get_state( true );
-			$pages = $state['available_admin_pages'] ?? array();
-			$this->assertSame( array( 'jetpack-forms', 'jetpack-boost' ), $pages );
-			$this->assertNotContains( 'stats', $pages );
+			$this->assertArrayNotHasKey( 'available_admin_pages', Main_Features::get_state( true ) );
 		} finally {
 			$_registered_pages = $original;
 		}

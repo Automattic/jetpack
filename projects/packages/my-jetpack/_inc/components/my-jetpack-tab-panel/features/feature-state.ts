@@ -171,10 +171,6 @@ export function getInstallBlockReason( state: FeatureState ): string | null {
 /**
  * The Jetpack module behind a feature, if any.
  *
- * A product's module is rarely named after it (Social runs 'publicize'). Resolved through
- * `getProductModules()`, which also keeps the pre-release gate on Jetpack AI: with the
- * flag off that map drops AI, so no module resolves.
- *
  * @param feature        - The feature, from the map-backed catalog.
  * @param productModules - Product slug to module slug, where the two differ.
  * @return The module slug, or an empty string.

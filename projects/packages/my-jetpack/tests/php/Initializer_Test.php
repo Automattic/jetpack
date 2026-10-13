@@ -24,7 +24,10 @@ use WorDBless\BaseTestCase;
  */
 class Initializer_Test extends BaseTestCase {
 	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
-		$user = wp_insert_user(
+		global $_registered_pages;
+		$original_pages    = $_registered_pages;
+		$_registered_pages = array_fill_keys( array( 'jetpack_page_jetpack-forms', 'toplevel_page_jetpack-boost', 'admin_page_theme-editor', 'appearance_page_theme-editor', 'admin_page_plugin-editor', 'plugins_page_plugin-editor', 'admin_page_edit?post_type=feedback' ), true );
+		$user              = wp_insert_user(
 			array(
 				'user_login' => 'unavailable-admin',
 				'user_pass'  => 'password',
@@ -50,6 +53,7 @@ class Initializer_Test extends BaseTestCase {
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			$state = Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures']['mainFeatures'];
 			$slugs = array_column( $state['features'], 'slug' );
+			$this->assertSame( array( 'jetpack-forms', 'jetpack-boost', 'theme-editor', 'plugin-editor' ), $state['available_admin_pages'] );
 			$this->assertContains( 'activity-log', $slugs );
 			$this->assertNotContains( 'stats', $slugs );
 			$this->assertNotContains( 'social', $slugs );
@@ -57,6 +61,7 @@ class Initializer_Test extends BaseTestCase {
 			$this->assertContains( 'publicize', $state['hidden_modules'] );
 			$this->assertContains( 'monitor', $state['hidden_modules'] );
 		} finally {
+			$_registered_pages = $original_pages;
 			remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
 		}
 	}

@@ -825,6 +825,15 @@ class Initializer {
 				'mainFeatures' => Main_Features::get_state( true ),
 				'plugins'      => Plugins_Installer::get_plugins(),
 			);
+			global $_registered_pages;
+			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = array_values(
+				array_unique(
+					array_map(
+						static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ),
+						array_filter( array_keys( $_registered_pages ?? array() ), static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' ) )
+					)
+				)
+			);
 		}
 
 		return $data;

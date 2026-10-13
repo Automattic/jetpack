@@ -48,7 +48,10 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertSame( $site, $data['site'] );
 			$this->assertTrue( Initializer::should_initialize() );
 			$this->assertNotEmpty( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] );
-			$this->assertSame( Main_Features::get_state( true ), $data['myJetpack']['offlineFeatures']['mainFeatures'] );
+			$state = $data['myJetpack']['offlineFeatures']['mainFeatures'];
+			$this->assertArrayHasKey( 'available_admin_pages', $state );
+			unset( $state['available_admin_pages'] );
+			$this->assertSame( Main_Features::get_state( true ), $state );
 			foreach ( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] as $feature ) {
 				$this->assertNull( $feature['upgrade'] );
 			}

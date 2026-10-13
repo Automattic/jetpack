@@ -28,7 +28,7 @@ Where Features opens (connected sites, and offline sites with the offline entry 
 
 When a standalone plugin provides an alternative, its card retains the install or activation action and explains the Jetpack module's limitation. Plan and connection restrictions retain applicable upgrade routes. Backup, Firewall, and Ads remain unavailable on multisite. Features hidden by the host stay hidden; forced and network-activated features retain their existing controls, with host reasons only in the details window of main cards.
 
-#### Offline mode
+#### Offline Mode
 
 The offline Features entry is off by default. Register `add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );` before My Jetpack initializes, for example in a must-use plugin, and visit `/wp-admin/admin.php?page=my-jetpack#/features` on a site in offline mode. My Jetpack opens Features without connection onboarding; other hash routes redirect there while preserving the query string.
 

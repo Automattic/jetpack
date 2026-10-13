@@ -918,7 +918,7 @@ class Main_Features {
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
 	 * @param bool $local Use the local feature contract documented in get_features().
-	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[], available_admin_pages?: string[]} The state.
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[]} The state.
 	 */
 	public static function get_state( $local = false ) {
 		$hidden = Feature_Visibility::get_hidden();
@@ -937,18 +937,6 @@ class Main_Features {
 			'plugin_installs' => self::get_install_access(),
 			'hidden_modules'  => array_values( array_unique( array_filter( $hidden ) ) ),
 		);
-
-		if ( $local ) {
-			global $_registered_pages;
-			$state['available_admin_pages'] = array_values(
-				array_map(
-					static function ( $hook ) {
-						return substr( $hook, strpos( $hook, '_page_' ) + 6 );
-					},
-					array_filter( array_keys( $_registered_pages ?? array() ), static fn( $hook ) => false !== strpos( $hook, '_page_' ) )
-				)
-			);
-		}
 
 		return $state;
 	}
