@@ -7,6 +7,9 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-tab.php';
 
@@ -843,6 +846,32 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'wpcom_marketplace_checkout_url', $calypso );
 
 		$this->assertStringContainsString( 'href="https://wordpress.com/plugins/gravityforms/example.org"', $button );
+	}
+
+	/**
+	 * A site whose plan lacks purchased plugins buys a plan with the plugin, so the button says so.
+	 *
+	 * Separate: the stubbed function would otherwise outlive the test and relabel every later button.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_button_says_when_the_purchase_needs_a_plan_too() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		$purchase = wpcom_marketplace_card_button( $this->priced_card() );
+
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+		$upgrade = wpcom_marketplace_card_button( $this->priced_card() );
+
+		$this->assertStringContainsString( '>Purchase</a>', $purchase );
+		$this->assertStringNotContainsString( 'wpcom-marketplace-card__upgrade', $purchase );
+		$this->assertStringContainsString( '>Upgrade and purchase</a>', $upgrade );
+		$this->assertStringContainsString( 'wpcom-marketplace-card__upgrade', $upgrade );
 	}
 
 	/**
