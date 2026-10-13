@@ -160,7 +160,7 @@ class Jetpack_AI_Settings {
 		add_filter( 'jetpack_ai_sidebar_enabled', array( __CLASS__, 'apply_master_gates' ) );
 		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_master_gates' ) );
 
-		// Once per request, just before Jetpack::load_modules() at priority -2, so the module never loads either.
+		// Once per request, before the first reader of the active list: Jetpack::load_modules() at priority -2.
 		add_action( 'after_setup_theme', array( __CLASS__, 'hold_module_off_for_host' ), -3 );
 	}
 
@@ -176,6 +176,7 @@ class Jetpack_AI_Settings {
 	public static function hold_module_off_for_host() {
 		$callback = array( __CLASS__, 'drop_ai_module' );
 
+		// Read once per request: a `wp_supports_ai` callback must be registered before `after_setup_theme`.
 		if ( ! ( new Host() )->is_wpcom_simple() && ! self::host_allows_ai() ) {
 			add_filter( 'jetpack_active_modules', $callback, 100 );
 			return;

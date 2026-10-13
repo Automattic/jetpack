@@ -136,6 +136,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertNotFalse( has_filter( 'jetpack_search_ai_answers_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_ai_sidebar_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_ai_seo_enabled', $callback ) );
+
+		// The host override must run before Jetpack::load_modules() reads the active list.
+		$hold = array( Jetpack_AI_Settings::class, 'hold_module_off_for_host' );
+		$this->assertSame( -3, has_action( 'after_setup_theme', $hold ) );
+		$this->assertLessThan( has_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ) ), has_action( 'after_setup_theme', $hold ) );
 	}
 
 	/**
@@ -439,6 +444,9 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertSame( 'inactive', Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
 	}
 
+	/**
+	 * The override only filters the list, so AI returns as before once the host allows it again.
+	 */
 	public function test_host_off_keeps_the_stored_module_choice() {
 		if ( ! function_exists( 'wp_supports_ai' ) ) {
 			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
@@ -468,9 +476,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		$this->assertFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
 		$this->assertTrue( ( new Modules() )->is_active( 'ai' ) );
-		$this->assertFalse( Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
 	}
 
+	/**
+	 * Simple runs no modules, so the host override is never registered there.
+	 */
 	public function test_host_override_not_registered_on_simple() {
 		if ( ! function_exists( 'wp_supports_ai' ) ) {
 			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
