@@ -205,6 +205,24 @@ describe( 'ManageConnectionDialog', () => {
 			expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toBeInTheDocument();
 		} );
 
+		// Swapping views unmounts whatever had focus, which would otherwise leave a
+		// keyboard user on the body, outside the dialog.
+		it( 'keeps focus inside the dialog when the view changes', async () => {
+			const user = userEvent.setup();
+			render( <ManageConnectionDialog { ...testProps } /> );
+
+			await user.click(
+				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
+			);
+			await expect(
+				screen.findByRole( 'combobox', { name: /New connection owner/ } )
+			).resolves.toBeInTheDocument();
+
+			expect(
+				screen.getByRole( 'heading', { name: 'Transfer connection ownership' } )
+			).toHaveFocus();
+		} );
+
 		it( 'leaves the dialog when the chooser is dismissed', async () => {
 			const user = userEvent.setup();
 			render( <ManageConnectionDialog { ...testProps } /> );

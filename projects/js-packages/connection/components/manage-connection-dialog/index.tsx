@@ -7,7 +7,7 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Text } from '@wordpress/ui';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 /**
  * Internal dependencies
@@ -92,6 +92,7 @@ const ManageConnectionDialog = ( {
 	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
 	const [ transferView, setTransferView ] = useState< TransferView | null >( null );
 	const [ isTransferring, setIsTransferring ] = useState( false );
+	const headingRef = useRef< HTMLHeadingElement >( null );
 
 	/**
 	 * Initialize the REST API.
@@ -231,6 +232,14 @@ const ManageConnectionDialog = ( {
 		}
 	}, [ isOpen ] );
 
+	// Swapping the view removes whatever was focused, which otherwise drops focus to the
+	// body and leaves a keyboard or screen reader user outside the dialog they are in.
+	useEffect( () => {
+		if ( isOpen ) {
+			headingRef.current?.focus();
+		}
+	}, [ isOpen, transferView ] );
+
 	// The dialog's own exit, which always closes it. It cannot read "Back": the step
 	// has its own Back, and this does something else. Statements rather than a ternary
 	// — the minifier folds two `__()` calls into one with a non-literal argument.
@@ -260,7 +269,9 @@ const ManageConnectionDialog = ( {
 						className={ 'jp-connection__manage-dialog' }
 					>
 						<div className="jp-connection__manage-dialog__content">
-							<h1 id="jp-connection__manage-dialog__heading">{ heading }</h1>
+							<h1 id="jp-connection__manage-dialog__heading" ref={ headingRef } tabIndex={ -1 }>
+								{ heading }
+							</h1>
 							<Text className="jp-connection__manage-dialog__large-text">
 								{ __(
 									'At least one user must be connected for your Jetpack products to work properly.',
