@@ -157,12 +157,13 @@ class Tracks {
 			return;
 		}
 
-		// A theme drew its own form, so the app never showed on this site.
-		if ( ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
+		// A theme drew its own form, so the app never showed on this site. Guarded for a deploy that lands this file first.
+		if ( defined( Comment_Form::class . '::THEME_FORM' ) && ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
 			self::record(
 				'jetpack_comments_theme_form_posted',
 				array(
 					'theme'     => get_stylesheet(),
+					'status'    => (string) $approved,
 					'post_type' => (string) get_post_type( (int) ( $commentdata['comment_post_ID'] ?? 0 ) ),
 				)
 			);

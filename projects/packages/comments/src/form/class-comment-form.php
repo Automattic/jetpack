@@ -202,7 +202,7 @@ class Comment_Form {
 
 		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
 		if ( ! is_array( $args ) || ! $this->defaults ) {
-			// The marker keeps Tracks from counting the comment, and is where the script finds the form to
+			// The marker gives the comment its own Tracks event, and is where the script finds the form to
 			// add the nonce to, as enqueue_assets() does for the app. Again on DOMContentLoaded, for an optimizer.
 			return $submit_field
 				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />'
