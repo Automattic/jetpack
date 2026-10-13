@@ -16,7 +16,6 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -55,7 +54,6 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: trendingUp,
 					description: __(
 						'Open an author to see their most viewed post here.',
 						'jetpack-premium-analytics-pkg'

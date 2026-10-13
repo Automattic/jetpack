@@ -25,7 +25,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo } from 'react';
-import { postAuthor } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -139,8 +138,6 @@ export function AuthorsLeaderboard( {
 		} );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
-	const isDrilled = Boolean( selectedAuthor );
-
 	return (
 		<div className={ styles.content }>
 			{ selectedAuthor && (
@@ -163,18 +160,6 @@ export function AuthorsLeaderboard( {
 						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ]
 						: undefined,
 				} }
-				// The author row the reader drilled from had views, so "no results" would contradict it; say where the views are missing instead.
-				empty={
-					isDrilled
-						? {
-								icon: postAuthor,
-								description: __(
-									'This author has no posts with views for the selected period.',
-									'jetpack-premium-analytics-pkg'
-								),
-							}
-						: undefined
-				}
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart

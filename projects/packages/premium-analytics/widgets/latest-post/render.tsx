@@ -13,7 +13,6 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -45,7 +44,6 @@ function LatestPostReport( { authorScoped }: { authorScoped: boolean } ) {
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: postList,
 					description: __(
 						'Open an author to see their latest post here.',
 						'jetpack-premium-analytics-pkg'

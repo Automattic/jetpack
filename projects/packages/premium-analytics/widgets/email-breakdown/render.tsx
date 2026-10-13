@@ -21,7 +21,6 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -179,7 +178,6 @@ export const EmailBreakdownLeaderboard = ( {
 						: undefined,
 				} }
 				empty={ {
-					icon: envelope,
 					description: hasEmail
 						? emptyStateText( view )
 						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics-pkg' ),

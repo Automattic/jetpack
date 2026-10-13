@@ -119,7 +119,6 @@ function VideoDetailEmbedsReport() {
 					],
 				} }
 				empty={ {
-					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
 						'jetpack-premium-analytics-pkg'
