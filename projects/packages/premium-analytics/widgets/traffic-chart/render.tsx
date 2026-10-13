@@ -102,12 +102,12 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 		views?.value === 0 &&
 		views.current.every( point => point.value === 0 || point.value === null ) &&
 		( views.previous?.every( point => point.value === 0 || point.value === null ) ?? true );
-	const noPublishedPosts = useNoPublishedPosts( viewsAreEmpty );
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts( viewsAreEmpty );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ isLoading || isChecking }
 				isFetching={ isFetching }
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.

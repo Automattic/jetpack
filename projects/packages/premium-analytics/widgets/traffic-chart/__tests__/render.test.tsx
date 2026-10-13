@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient, ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -304,26 +304,6 @@ describe( 'TrafficChart with an idle window', () => {
 		],
 	} );
 
-	it( 'passes the no-results message to the chart', () => {
-		mockUseTrafficChart.mockReturnValue( {
-			metrics: [ zeroFilled( 'views', 'Views' ), zeroFilled( 'visitors', 'Visitors' ) ],
-			isLoading: false,
-			isFetching: false,
-			isError: false,
-			refetch: jest.fn(),
-		} );
-
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
-
-		const calls = mockMetricTabsChart.mock.calls;
-		const { empty } = calls[ calls.length - 1 ][ 0 ];
-		render( empty );
-
-		expect(
-			screen.getByText( 'We couldn’t find results for this time period.' )
-		).toBeInTheDocument();
-	} );
-
 	async function renderEmptyViews( posts: unknown ) {
 		mockUseTrafficChart.mockReturnValue( {
 			metrics: [ zeroFilled( 'views', 'Views' ) ],
@@ -356,6 +336,33 @@ describe( 'TrafficChart with an idle window', () => {
 			'https://example.com/blog/wp-admin/post-new.php'
 		);
 		expect( screen.getByText( /You haven't published any posts yet/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'holds the chart and its empty message back while the published-post check is pending', async () => {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+		let resolvePosts!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation(
+			() =>
+				new Promise( resolve => {
+					resolvePosts = resolve;
+				} )
+		);
+
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
+		);
+
+		expect( mockMetricTabsChart ).not.toHaveBeenCalled();
+
+		await act( async () => resolvePosts( [] ) );
+		await waitFor( () => expect( mockMetricTabsChart ).toHaveBeenCalled() );
 	} );
 
 	it( 'keeps Create post while the empty Views result refetches', async () => {

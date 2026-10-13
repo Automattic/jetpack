@@ -77,7 +77,9 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);
-	const noPublishedPosts = useNoPublishedPosts( ! authorId && ! isLoading && ! isError && ! post );
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts(
+		! authorId && ! isLoading && ! isError && ! post
+	);
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -111,7 +113,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading }
+			isLoading={ isLoading || isChecking }
 			isFetching={ isFetching }
 			isError={ isError }
 			isEmpty={ ! post }

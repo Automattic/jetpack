@@ -34,8 +34,8 @@ it( 'shares one published-post request between empty widgets', async () => {
 		wrapper: queryClientWrapper,
 	} );
 
-	await waitFor( () => expect( firstResult.current ).toBe( true ) );
-	await waitFor( () => expect( secondResult.current ).toBe( true ) );
+	await waitFor( () => expect( firstResult.current.noPublishedPosts ).toBe( true ) );
+	await waitFor( () => expect( secondResult.current.noPublishedPosts ).toBe( true ) );
 	expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 } );
 
@@ -52,7 +52,7 @@ it( 'keeps the no-posts result while the published-post request refetches', asyn
 	const { result } = renderHook( () => useNoPublishedPosts( true ), {
 		wrapper: queryClientWrapper,
 	} );
-	await waitFor( () => expect( result.current ).toBe( true ) );
+	await waitFor( () => expect( result.current.noPublishedPosts ).toBe( true ) );
 
 	let refetch!: Promise< unknown >;
 	act( () => {
@@ -61,7 +61,7 @@ it( 'keeps the no-posts result while the published-post request refetches', asyn
 	await waitFor( () =>
 		expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
 	);
-	expect( result.current ).toBe( true );
+	expect( result.current.noPublishedPosts ).toBe( true );
 
 	await act( async () => {
 		resolveRefresh( [] );
@@ -74,7 +74,7 @@ it( 'stops claiming no posts when a refresh fails after a cached empty result', 
 	const { result } = renderHook( () => useNoPublishedPosts( true ), {
 		wrapper: queryClientWrapper,
 	} );
-	await waitFor( () => expect( result.current ).toBe( true ) );
+	await waitFor( () => expect( result.current.noPublishedPosts ).toBe( true ) );
 
 	mockApiFetch.mockRejectedValueOnce( { code: 'rest_forbidden', data: { status: 403 } } );
 	await act( () => queryClient.refetchQueries( { queryKey: [ 'latest-post' ] } ) );
@@ -82,5 +82,5 @@ it( 'stops claiming no posts when a refresh fails after a cached empty result', 
 	await waitFor( () =>
 		expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'error' )
 	);
-	expect( result.current ).toBe( false );
+	expect( result.current.noPublishedPosts ).toBe( false );
 } );

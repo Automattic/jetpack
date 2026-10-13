@@ -199,6 +199,29 @@ describe( 'PopularPostWidget', () => {
 		);
 	} );
 
+	it( 'holds the no-views message back while the published-post check is pending', async () => {
+		let resolvePosts!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).startsWith( '/wp/v2/posts' )
+				? new Promise( resolve => {
+						resolvePosts = resolve;
+					} )
+				: Promise.resolve( { ...topPostsResponse, summary: { postviews: [], total_views: 0 } } )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
+		);
+
+		expect( screen.queryByText( 'No post views in the last 12 months.' ) ).not.toBeInTheDocument();
+
+		await act( async () => resolvePosts( [] ) );
+		await expect(
+			screen.findByRole( 'link', { name: 'Create post' } )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'keeps Create post while the empty ranking refetches', async () => {
 		const emptyRanking = { ...topPostsResponse, summary: { postviews: [], total_views: 0 } };
 		mockApiFetch.mockImplementation( ( options: unknown ) =>
