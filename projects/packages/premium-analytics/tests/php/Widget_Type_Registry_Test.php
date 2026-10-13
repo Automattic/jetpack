@@ -522,4 +522,36 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		$this->assertSame( 'plugin/second', $registry->resolve_name( 'jpa/second' ) );
 		$this->assertSame( 'jpa/ignored', $registry->resolve_name( 'jpa/ignored' ) );
 	}
+
+	/**
+	 * The manifest helper takes the plan feature from the candidate, or from the registrant's map.
+	 */
+	public function test_manifest_helper_stamps_the_plan_feature_onto_the_type() {
+		register_widget_types_from_manifest(
+			array(
+				array( 'name' => 'plugin/mapped' ),
+				array(
+					'name'         => 'plugin/declared',
+					'plan_feature' => 'videos',
+				),
+				array(
+					'name'         => 'plugin/malformed',
+					'plan_feature' => array( 'videos' ),
+				),
+				array( 'name' => 'plugin/open' ),
+			),
+			array(
+				'plan_features' => array(
+					'plugin/mapped'   => 'devices',
+					'plugin/declared' => 'ignored',
+				),
+			)
+		);
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertSame( 'devices', $registry->get_registered( 'plugin/mapped' )->plan_feature );
+		$this->assertSame( 'videos', $registry->get_registered( 'plugin/declared' )->plan_feature );
+		$this->assertNull( $registry->get_registered( 'plugin/malformed' )->plan_feature );
+		$this->assertNull( $registry->get_registered( 'plugin/open' )->plan_feature );
+	}
 }

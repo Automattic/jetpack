@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
-Detect which paid Stats features the site's plan lacks, ahead of showing them as locked.
+Detect which paid Stats features the site's plan lacks, and let a widget type declare the plan feature it shows; the widget contract is 1.10.0.

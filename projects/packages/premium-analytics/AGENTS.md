@@ -96,6 +96,7 @@ that plugin's wp-build generates (`register_widget_type()` registers a single ty
 registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
 action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
 that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
+A widget that shows only a paid Stats feature declares `plan_feature`, so a plan without it locks it.
 `docs/dashboard-widgets.md` walks through the path.
 
 ### Timing-dependent JS tests use fake timers

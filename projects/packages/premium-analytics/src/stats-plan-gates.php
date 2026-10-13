@@ -11,6 +11,11 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+// Guarded on a symbol the file declares; see the include block in Analytics::load_dashboard_components().
+if ( ! function_exists( __NAMESPACE__ . '\\ensure_widget_registry_ready' ) ) {
+	require_once __DIR__ . '/widget-modules.php';
+}
+
 /**
  * Filter overriding the Stats plan tier.
  *
@@ -171,35 +176,6 @@ const STATS_COMMERCIAL_FEATURES = array( 'authors', 'search-terms', 'videos', 'u
 const STATS_ADVANCED_FEATURES = array( 'utm', 'devices', 'regions-cities' );
 
 /**
- * Widget types that show nothing but a locked feature. Locations is absent: countries and regions lock separately.
- */
-const STATS_FEATURE_WIDGET_TYPES = array(
-	'top-posts'      => array( 'jpa/stats-top-posts' ),
-	'referrers'      => array( 'jpa/referrers' ),
-	'clicks'         => array( 'jpa/clicks' ),
-	'file-downloads' => array( 'jpa/file-downloads' ),
-	'authors'        => array( 'jpa/authors', 'jpa/author-top-posts', 'jpa/author-performance' ),
-	'search-terms'   => array( 'jpa/search-terms' ),
-	'videos'         => array( 'videopress/top-videos', 'jpa/video-detail-views-performance', 'jpa/video-detail-embeds' ),
-	'utm'            => array( 'jpa/utm-insights' ),
-	'devices'        => array( 'jpa/devices', 'jpa/top-platforms' ),
-	'insights'       => array(
-		'jpa/annual-highlights',
-		'jpa/all-time-stats',
-		'jpa/most-popular-time',
-		'jpa/most-popular-day',
-		'jpa/popular-post',
-		'jpa/latest-post',
-		'jpa/posting-activity',
-		'jpa/views-over-years',
-		'jpa/most-commented-posts',
-		'jpa/most-commented-authors',
-		'jpa/shares',
-		'jpa/tags',
-	),
-);
-
-/**
  * The features a tier locks.
  *
  * @since $$next-version$$
@@ -266,7 +242,7 @@ function get_stats_upgrade_url( $feature, $tier ) {
 }
 
 /**
- * The gates the client applies: each locked feature's upgrade URL, and each fully locked widget type's feature.
+ * The gates the client applies: each locked feature's upgrade URL, and the feature of each widget type it locks.
  *
  * @since $$next-version$$
  *
@@ -276,17 +252,20 @@ function get_stats_plan_gates() {
 	$tier     = get_stats_plan_tier();
 	$features = get_locked_stats_features( $tier );
 
-	$locked_features     = array();
-	$locked_widget_types = array();
+	$locked_features = array();
 	foreach ( $features as $feature ) {
 		$locked_features[ $feature ] = get_stats_upgrade_url( $feature, $tier );
-		foreach ( STATS_FEATURE_WIDGET_TYPES[ $feature ] ?? array() as $type ) {
-			$locked_widget_types[ $type ] = $feature;
-		}
 	}
 
-	if ( isset( $locked_features['countries'] ) && isset( $locked_features['regions-cities'] ) ) {
-		$locked_widget_types['jpa/locations'] = 'countries';
+	$locked_widget_types = array();
+	if ( $locked_features ) {
+		ensure_widget_registry_ready();
+
+		foreach ( get_available_widget_types() as $name => $widget_type ) {
+			if ( isset( $widget_type->plan_feature ) && isset( $locked_features[ $widget_type->plan_feature ] ) ) {
+				$locked_widget_types[ $name ] = $widget_type->plan_feature;
+			}
+		}
 	}
 
 	return array(
@@ -317,6 +296,11 @@ function configure_stats_plan_gates() {
  * @return array
  */
 function inject_stats_plan_gates_script_data( array $data ): array {
+	// Script data prints on every Jetpack admin page; only the dashboard reads the gates.
+	if ( ! Analytics::is_dashboard_request() ) {
+		return $data;
+	}
+
 	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 		$data['premium_analytics'] = array();
 	}

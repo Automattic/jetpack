@@ -15,6 +15,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
+require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 /**
@@ -42,6 +44,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan' )]
 class Stats_Plan_Gates_Test extends BaseTestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	/**
 	 * A cached plan for a site without a Stats purchase.
@@ -66,6 +69,34 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		Cache::clear();
 		$GLOBALS['jpa_test_wpcom_features']  = array();
 		$GLOBALS['jpa_test_wpcom_purchases'] = array( array( 'product_slug' => 'business-bundle' ) );
+
+		$this->reset_widget_registry();
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+		$GLOBALS['jpa_test_widget_manifest'] = array(
+			array( 'name' => 'jpa/devices' ),
+			array( 'name' => 'jpa/locations' ),
+			array( 'name' => 'jpa/referrers' ),
+			array( 'name' => 'jpa/open-to-all' ),
+		);
+		add_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
+	}
+
+	/**
+	 * Another plugin's widget type, declaring its plan feature at registration.
+	 */
+	public function register_plugin_widget_type() {
+		register_widget_type( 'plugin/top-videos', array( 'plan_feature' => 'videos' ) );
+	}
+
+	/**
+	 * Drop the main registry so the next read hydrates from this test's manifest.
+	 */
+	private function reset_widget_registry() {
+		$instance = new \ReflectionProperty( Widget_Type_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
 	}
 
 	/**
@@ -86,6 +117,10 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+		remove_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
+		unset( $GLOBALS['jpa_test_widget_manifest'] );
+		$this->reset_widget_registry();
 		parent::tear_down();
 	}
 
@@ -263,29 +298,63 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Locations loses the whole widget only when countries go too; regions alone are handled in the widget.
+	 * A widget type locks when its registered plan feature does, whichever plugin registered it.
+	 *
+	 * @dataProvider provide_locked_widget_types
+	 *
+	 * @param string   $tier     Tier.
+	 * @param string[] $expected Locked widget types and their features.
 	 */
-	public function test_locations_widget_locks_only_without_countries() {
-		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_PAID );
-		$this->assertArrayNotHasKey( 'jpa/locations', get_stats_plan_gates()['locked_widget_types'] );
+	#[DataProvider( 'provide_locked_widget_types' )]
+	public function test_locked_widget_types_follow_the_registered_plan_features( $tier, $expected ) {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => $tier );
 
-		remove_all_filters( STATS_PLAN_TIER_FILTER );
-		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
-		$this->assertSame( 'countries', get_stats_plan_gates()['locked_widget_types']['jpa/locations'] );
+		$locked = get_stats_plan_gates()['locked_widget_types'];
+		ksort( $locked );
+
+		$this->assertSame( $expected, $locked );
 	}
 
 	/**
-	 * No tier ever locks a store widget.
+	 * Tiers and the staged widget types they lock.
+	 *
+	 * @return array
 	 */
-	public function test_store_widgets_are_never_locked() {
-		foreach ( self::provide_locked_features() as $name => list( $tier ) ) {
-			remove_all_filters( STATS_PLAN_TIER_FILTER );
-			add_filter( STATS_PLAN_TIER_FILTER, static fn() => $tier );
-			$types = array_keys( get_stats_plan_gates()['locked_widget_types'] );
+	public static function provide_locked_widget_types() {
+		return array(
+			'commercial'                  => array( STATS_TIER_COMMERCIAL, array() ),
+			'paid keeps countries'        => array(
+				STATS_TIER_PAID,
+				array(
+					'jpa/devices'       => 'devices',
+					'plugin/top-videos' => 'videos',
+				),
+			),
+			'free locks the whole widget' => array(
+				STATS_TIER_FREE,
+				array(
+					'jpa/devices'       => 'devices',
+					'jpa/locations'     => 'countries',
+					'jpa/referrers'     => 'referrers',
+					'plugin/top-videos' => 'videos',
+				),
+			),
+		);
+	}
 
-			foreach ( array( 'jpa/visitors-by-location', 'jpa/sales-by-device', 'jpa/bookings-by-device', 'jpa/total-returns' ) as $store_type ) {
-				$this->assertNotContains( $store_type, $types, $name );
-			}
+	/**
+	 * A renamed widget or a misspelled feature would silently unlock a paid widget.
+	 */
+	public function test_package_plan_features_name_real_widgets_and_lockable_features() {
+		$names = array();
+		foreach ( glob( dirname( __DIR__, 2 ) . '/widgets/*/widget.json' ) as $file ) {
+			$names[] = wp_json_file_decode( $file )->name;
+		}
+		$lockable = get_locked_stats_features( STATS_TIER_FREE );
+
+		foreach ( WIDGET_TYPE_PLAN_FEATURES as $name => $feature ) {
+			$this->assertContains( $name, $names );
+			$this->assertContains( $feature, $lockable, $name );
 		}
 	}
 
@@ -325,12 +394,24 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 */
 	public function test_script_data_carries_the_gates_without_clobbering_siblings() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_COMMERCIAL );
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$data = inject_stats_plan_gates_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
 
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
 		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Other admin pages print script data too, and must not pay for the registry.
+	 */
+	public function test_script_data_is_left_alone_off_the_dashboard() {
+		$_GET['page'] = 'jetpack';
+		set_current_screen( 'toplevel_page_jetpack' );
+
+		$this->assertSame( array( 'premium_analytics' => array() ), inject_stats_plan_gates_script_data( array( 'premium_analytics' => array() ) ) );
 	}
 
 	/**
