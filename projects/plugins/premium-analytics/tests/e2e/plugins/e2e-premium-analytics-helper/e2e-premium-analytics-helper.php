@@ -68,21 +68,20 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 }
 
 /**
- * Finds the fixture for one WordPress.com API path. A new endpoint is one row here and one builder below.
+ * Finds the fixture for one WordPress.com API path. A new endpoint is one case here and one builder below.
  *
  * @param string $path  Request path.
  * @param array  $query Query args of the request.
  * @return array|object|null The reply body, or null when the path has no fixture.
  */
 function e2e_pa_fixture( $path, $query ) {
-	$stats    = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats/';
-	$fixtures = array(
-		$stats . 'visits' => 'e2e_pa_visits',
-		'/wpcom/v2/sites/' . E2E_PA_SITE_ID . '/jetpack-stats/usage' => 'e2e_pa_plan_usage',
-	);
+	$stats = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats/';
 
-	if ( isset( $fixtures[ $path ] ) ) {
-		return call_user_func( $fixtures[ $path ], $query );
+	switch ( $path ) {
+		case $stats . 'visits':
+			return e2e_pa_visits( $query );
+		case '/wpcom/v2/sites/' . E2E_PA_SITE_ID . '/jetpack-stats/usage':
+			return e2e_pa_plan_usage();
 	}
 
 	// Every other Stats report answers empty.
