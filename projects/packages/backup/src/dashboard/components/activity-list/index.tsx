@@ -158,7 +158,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 	const runFor = useContext( BackupRunsContext );
 	const run = isBackupItem( item ) ? runFor( item ) : null;
 	return (
-		<Stack direction="row" align="center" gap="md">
+		<Stack direction="row" align="center" gap="md" className="jpb-activity-list__description">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ rowDate( item ) }
 			</Text>

@@ -121,8 +121,18 @@
 		padding: 16px 16px 0;
 	}
 
+	// One line: a summary with no room for a few characters wraps onto
+	// the clipped second line instead of showing a sliver.
+	&__description {
+		flex-wrap: wrap;
+		max-block-size: 1lh;
+		overflow: hidden;
+	}
+
 	&__summary {
 		// Trim long summary strings so the description cell stays on one line.
+		flex: 1 1 0;
+		min-inline-size: 4em;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;

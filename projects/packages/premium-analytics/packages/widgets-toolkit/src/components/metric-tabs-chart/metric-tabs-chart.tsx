@@ -6,6 +6,8 @@ import {
 	Tabs,
 	Text,
 	VisuallyHidden,
+	mixHexColors,
+	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import { useResizeObserver } from '@wordpress/compose';
@@ -39,6 +41,9 @@ const MIN_TAB_WIDTH = 120;
  * click. Above it the gesture is a drag and must not drill the dashboard.
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
+
+/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
+const DARK_SHADE_BLEND = 0.5;
 
 /** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
@@ -174,14 +179,22 @@ export interface MetricTabsChartProps {
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
+ * @param stroke    - The color of both periods.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType
+	chartType: MetricTabsChartType,
+	stroke: string
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
+		{
+			label: metric.label,
+			group: metric.key,
+			data: metric.current,
+			countLabel: metric.countLabel,
+			options: { stroke },
+		},
 	];
 
 	if ( metric.previous?.length ) {
@@ -191,9 +204,10 @@ function buildSeries(
 			data: metric.previous,
 			options:
 				chartType === 'bar'
-					? { type: 'comparison' }
+					? { type: 'comparison', stroke }
 					: {
 							type: 'comparison',
+							stroke,
 							gradient: {
 								from: 'transparent',
 								to: 'transparent',
@@ -263,19 +277,26 @@ function MetricChart( {
 		return tooltipMetrics === 'all' || all.length ? all : undefined;
 	}, [ otherMetricExtras, metric.tooltipExtras, tooltipMetrics ] );
 
+	// The first palette color is the admin accent.
+	const { getElementStyles } = useGlobalChartsContext();
+	const shades = useMemo( () => {
+		const accent = getElementStyles( { index: 0 } ).color;
+		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
+	}, [ getElementStyles ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const active = buildSeries( metric, chartType );
+		const active = buildSeries( metric, chartType, shades.accent );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType );
+		const paired = buildSeries( counterpart, chartType, shades.dark );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType ] );
+	}, [ metric, counterpart, chartType, shades ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Cache stamped bundles so repeat builds only re-stamp the bundles that changed.
