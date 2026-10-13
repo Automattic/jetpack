@@ -184,20 +184,23 @@ describe( 'resolveFeatureState, for a product the module map has dropped', () =>
 		[ false, 'Unavailable in Offline mode' ],
 		[ 'active', 'Enabled by your host or site administrator' ],
 		[ 'inactive', 'Disabled by your host or site administrator' ],
-	] as const )( 'explains an unavailable gated AI module with override %s', ( override, reason ) => {
-		const modules = {
-			ai: buildModule( {
-				module: 'ai',
-				available: false,
-				unavailable_reason: 'Unavailable in Offline mode',
-				override,
-			} ),
-		};
-		const state = resolveFeatureState( ai, 'active', undefined, modules, gated );
-		expect( state.control.kind ).toBe( 'none' );
-		expect( getFeatureUnavailableReason( state ) ).toBe( 'Unavailable in Offline mode' );
-		expect( getForcedReason( state ) ).toBe( reason );
-	} );
+	] as const )(
+		'explains an unavailable gated AI module with override %s',
+		( override, reason ) => {
+			const modules = {
+				ai: buildModule( {
+					module: 'ai',
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+					override,
+				} ),
+			};
+			const state = resolveFeatureState( ai, 'active', undefined, modules, gated );
+			expect( state.control.kind ).toBe( 'none' );
+			expect( getFeatureUnavailableReason( state ) ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBe( reason );
+		}
+	);
 
 	it( 'still reports the product as running, so the card does not call it Inactive', () => {
 		const product = { status: PRODUCT_STATUSES.ACTIVE } as ProductCamelCase;

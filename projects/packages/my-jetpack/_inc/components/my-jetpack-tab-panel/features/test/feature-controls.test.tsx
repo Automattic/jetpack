@@ -432,8 +432,8 @@ describe( 'FeatureItem', () => {
 					{ ai: { ...forcedModule, module: 'ai', override, available: false, unavailable_reason } },
 					{}
 				);
-				expect( state.control.kind ).toBe( 'none' );
 			}
+			expect( state.control.kind ).toBe( gated ? 'none' : 'module' );
 			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
 			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
