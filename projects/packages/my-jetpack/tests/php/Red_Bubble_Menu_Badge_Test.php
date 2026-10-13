@@ -189,6 +189,23 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 		$this->assertSame( 1, Notification_Counts::get_total() );
 	}
 
+	public function test_skips_protect_has_threats_when_the_protect_dashboard_is_loaded() {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+		$this->seed_cached_alerts(
+			array(
+				'protect_has_threats' => array( 'count' => 3 ),
+			)
+		);
+
+		try {
+			Initializer::maybe_show_red_bubble();
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+
+		$this->assertArrayNotHasKey( 'my-jetpack-protect_has_threats', Notification_Counts::all() );
+	}
+
 	/**
 	 * The registered total for the my-jetpack submenu should equal the number of
 	 * non-silent alerts (each attention entry contributes 1 to the total), excluding
