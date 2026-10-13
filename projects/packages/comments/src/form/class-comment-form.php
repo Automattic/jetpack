@@ -498,7 +498,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Require a logged-in reader's comment to arrive with a nonce this site issued.
+	 * Require a logged-in reader's comment to arrive with a nonce this site issued, or from this site's own page.
 	 *
 	 * A logged-out reader's would be the same string for everybody, which a page cache
 	 * serves past its expiry, so their comments go through core's checks alone, as core's form does.
@@ -540,9 +540,10 @@ class Comment_Form {
 			}
 		}
 
-		// A stale nonce is what a page cache costs real readers.
-		if ( '' !== $nonce ) {
-			Tracks::record_refusal( 'nonce' );
+		// A forged post carries the other site's Origin, so this page's own is proof enough when
+		// the nonce outlived its day or the login it was made for. Nothing to go on without one.
+		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+			return;
 		}
 
 		wp_die(
