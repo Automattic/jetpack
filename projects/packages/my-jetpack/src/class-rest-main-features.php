@@ -277,7 +277,7 @@ class REST_Main_Features {
 		if ( $active && Initializer::is_offline_features_enabled()
 			&& ! Main_Features::module_works_locally( $slug )
 		) {
-			return new WP_Error( 'switch_failed', __( 'Could not be switched on: unavailable in Offline mode.', 'jetpack-my-jetpack' ) );
+			return new WP_Error( 'switch_failed', __( 'Could not be switched on: unavailable in Offline Mode.', 'jetpack-my-jetpack' ) );
 		}
 
 		// Gotcha: activate() still redirects and exits when a legacy plugin it replaces (such as
