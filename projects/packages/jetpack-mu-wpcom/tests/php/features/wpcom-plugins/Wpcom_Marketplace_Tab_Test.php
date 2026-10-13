@@ -82,6 +82,16 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Registers the flag again: the feature flags tests reset the registry it joined on load.
+	 *
+	 * @return void
+	 */
+	public function set_up() {
+		parent::set_up();
+		wpcom_marketplace_register_flag();
+	}
+
+	/**
 	 * Turn the tab on for the duration of a test.
 	 *
 	 * @return void
@@ -267,11 +277,11 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * With the flag off nothing about the screen changes.
+	 * Every site gets the tab unless the flag is turned off.
 	 */
-	public function test_tab_is_absent_by_default() {
+	public function test_tab_is_shown_by_default() {
 		$this->assertSame(
-			array( 'featured' ),
+			array( WPCOM_MARKETPLACE_TAB, 'featured' ),
 			array_keys( wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) ) )
 		);
 	}
@@ -328,7 +338,10 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * Core has no query for a tab it does not know, so the tab asks for the whole catalog.
 	 */
 	public function test_table_args_ask_for_the_whole_catalog_on_one_page() {
-		$this->assertFalse( wpcom_marketplace_table_args( false ), 'Flag off.' );
+		add_filter( self::FLAG_FILTER, '__return_false' );
+		$off = wpcom_marketplace_table_args( false );
+		remove_filter( self::FLAG_FILTER, '__return_false' );
+		$this->assertFalse( $off, 'Flag off.' );
 
 		$this->enable_tab();
 		$this->seed_catalog( array( 'gravityforms' => $this->priced_card() ) );

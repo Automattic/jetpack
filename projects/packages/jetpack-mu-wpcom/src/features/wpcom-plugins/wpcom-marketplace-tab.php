@@ -30,7 +30,8 @@ function wpcom_marketplace_register_flag() {
 	Feature_Flags::register(
 		WPCOM_MARKETPLACE_TAB_FLAG,
 		array(
-			'default'     => false,
+			// On for every site. Kept as an off switch, per site or for all, until the tab has settled.
+			'default'     => true,
 			'description' => 'Show WordPress.com partner and premium plugins as a Marketplace tab on the Add Plugins screen.',
 			'owner'       => 'jetpack-mu-wpcom',
 		)

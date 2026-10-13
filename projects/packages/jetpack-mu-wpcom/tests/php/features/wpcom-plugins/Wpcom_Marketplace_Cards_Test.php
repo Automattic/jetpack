@@ -115,7 +115,9 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 
 		$screen = WP_Screen::get( 'plugin-install' );
 
+		add_filter( self::FLAG_FILTER, '__return_false' );
 		wpcom_marketplace_cards_start( $screen );
+		remove_filter( self::FLAG_FILTER, '__return_false' );
 		$this->assertFalse( has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ), 'Flag off.' );
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
