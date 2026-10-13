@@ -519,19 +519,9 @@ class Comment_Form {
 		}
 
 		// A forged post carries the other site's Origin, so this site's own covers a nonce that outlived
-		// its day or its login. Scheme and port count too: http:// is another origin.
-		$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) ) : '';
-
-		foreach ( array( home_url(), site_url() ) as $url ) {
-			$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
-			$host   = wp_parse_url( $url, PHP_URL_HOST );
-			$port   = wp_parse_url( $url, PHP_URL_PORT );
-			// Browsers leave a default port out of Origin.
-			$port = in_array( "$scheme:$port", array( 'http:80', 'https:443' ), true ) ? null : $port;
-
-			if ( $scheme && $host && strtolower( $scheme . '://' . $host . ( $port ? ':' . $port : '' ) ) === $origin ) {
-				return;
-			}
+		// its day or its login.
+		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+			return;
 		}
 
 		wp_die(
