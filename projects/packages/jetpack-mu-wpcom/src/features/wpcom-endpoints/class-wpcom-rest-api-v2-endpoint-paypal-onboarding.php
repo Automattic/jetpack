@@ -116,11 +116,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	/**
 	 * Feature flag that opens the production environment; the sandbox is always open.
 	 *
+	 * Hard-coded: mu-wpcom cannot reach PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG.
 	 * Unregistered on WordPress.com, so only a `jetpack_feature_flag_enabled_*` filter flips it.
 	 *
 	 * @var string
 	 */
-	const PRODUCTION_FLAG = 'paypal-payments-platform-production';
+	const PRODUCTION_FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
 	 * Names of the constants holding Automattic's PayPal platform credentials, by environment.
