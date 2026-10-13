@@ -660,6 +660,9 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	shapeStyles?: LegendShapeStyles;
 };
 
+/** Names a comparison series' legend item after the label of the series it is compared with. */
+export type ComparisonItemLabel = ( seriesLabel: string ) => string;
+
 /**
  * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
  * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
@@ -680,6 +683,11 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 	 * Pass a string to replace the default label.
 	 */
 	comparisonItem?: boolean | string;
+	/**
+	 * Append one static item per comparison series instead, named by calling this with the label
+	 * of the series it is compared with, and left out while that series is hidden.
+	 */
+	comparisonSeriesItems?: ComparisonItemLabel;
 };
 
 /**
