@@ -208,9 +208,9 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->register_response = self::error_response( 'connection_refused', 'Connection refused.', 400 );
 
 		$this->manager->try_registration();
-		// Attempts already in flight when the first failure was stored.
+		// An attempt already in flight when the first failure was stored, then a forced one.
 		$this->manager->register();
-		$this->manager->register();
+		$this->manager->try_registration( true, true );
 
 		$this->assertSame( 3, $this->register_request_count );
 		$this->assertSame( 1, $this->recorded_failure()['attempts'] );
