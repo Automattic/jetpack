@@ -2,3 +2,5 @@ vendor/
 node_modules/
 build/
 .cache/
+build-module
+/routes/**/.content-entry.js

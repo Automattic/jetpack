@@ -4,5 +4,6 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "preact"
 	},
-	"include": [ "src" ]
+	"include": [ "src" ],
+	"exclude": [ "src/settings" ]
 }

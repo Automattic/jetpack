@@ -1,6 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
@@ -48,15 +50,35 @@ export class Discussion extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Discussion Settings', 'jetpack' ) }</h1>
-				{ this.props.searchTerm && (
-					<h2 className="jp-settings__section-title">{ __( 'Discussion', 'jetpack' ) }</h2>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Discussion', 'jetpack' )
+						: __( 'Manage advanced comment settings.', 'jetpack' ) }
+				</h2>
+				{ /* Jetpack Comments has its own screen, Jetpack > Comments, which needs a connection. */ }
+				{ this.props.hasBlockEditor && ! this.props.isOfflineMode ? (
+					<Card>
+						<p>
+							{ __(
+								'Comments settings have moved to a new location. Access them via Jetpack → Comments.',
+								'jetpack'
+							) }
+						</p>
+						<Button
+							href={ `${ this.props.siteAdminUrl }admin.php?page=jetpack-comments` }
+							primary
+							rna
+						>
+							{ __( 'Go to Comments settings', 'jetpack' ) }
+						</Button>
+					</Card>
+				) : (
+					<Comments
+						{ ...commonProps }
+						isModuleFound={ this.props.isModuleFound }
+						getModuleOverride={ this.props.getModuleOverride }
+					/>
 				) }
-				<Comments
-					{ ...commonProps }
-					isModuleFound={ this.props.isModuleFound }
-					getModuleOverride={ this.props.getModuleOverride }
-					hasBlockEditor={ this.props.hasBlockEditor }
-				/>
 			</div>
 		);
 	}

@@ -38,10 +38,6 @@ class CommentsComponent extends Component {
 		this.props.updateFormStateModuleOption( 'markdown', 'wpcom_publish_comments_with_markdown' );
 	};
 
-	handleBlocksToggle = () => {
-		this.props.updateFormStateModuleOption( 'comments', 'enable_blocks_comments' );
-	};
-
 	render() {
 		const foundComments = this.props.isModuleFound( 'comments' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
@@ -67,10 +63,7 @@ class CommentsComponent extends Component {
 				{ ...this.props }
 				header={ __( 'Comments', 'jetpack' ) }
 				module="comments"
-				saveDisabled={ this.props.isSavingAnyOption( [
-					'highlander_comment_form_prompt',
-					'enable_blocks_comments',
-				] ) }
+				saveDisabled={ this.props.isSavingAnyOption( [ 'highlander_comment_form_prompt' ] ) }
 			>
 				{ foundComments && (
 					<SettingsGroup
@@ -97,25 +90,6 @@ class CommentsComponent extends Component {
 						>
 							<span className="jp-form-toggle-explanation">{ comments.description }</span>
 						</ModuleToggle>
-						{ this.props.hasBlockEditor && (
-							<FormFieldset>
-								<ToggleControl
-									checked={ !! this.props.getOptionValue( 'enable_blocks_comments', 'comments' ) }
-									disabled={
-										! isCommentsActive ||
-										commentsUnavailableInOfflineMode ||
-										this.props.isSavingAnyOption( [ 'comments', 'enable_blocks_comments' ] )
-									}
-									onChange={ this.handleBlocksToggle }
-									label={
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable blocks in comments.', 'jetpack' ) }
-										</span>
-									}
-									__nextHasNoMarginBottom={ true }
-								/>
-							</FormFieldset>
-						) }
 						<FormFieldset>
 							<FormLabel>
 								<span className="jp-form-label-wide">
