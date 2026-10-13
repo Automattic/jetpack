@@ -27,6 +27,28 @@ type Result = {
 };
 
 const POLL_INTERVAL_MS = 1500;
+const POLL_MAX_INTERVAL_MS = 15_000;
+// Slower interval once this many polls have succeeded: ~1 minute at the base, ~5 minutes in all.
+const POLL_BACKOFF_STEPS = [
+	{ afterPolls: 40, intervalMs: 5000 },
+	{ afterPolls: 88, intervalMs: POLL_MAX_INTERVAL_MS },
+];
+
+/**
+ * The poll interval after `successfulPolls` good readings.
+ *
+ * @param successfulPolls - Successful polls so far; failed ones do not count.
+ * @return Milliseconds until the next poll.
+ */
+function pollInterval( successfulPolls: number ): number {
+	let interval = POLL_INTERVAL_MS;
+	for ( const step of POLL_BACKOFF_STEPS ) {
+		if ( successfulPolls >= step.afterPolls ) {
+			interval = step.intervalMs;
+		}
+	}
+	return interval;
+}
 
 /**
  * Whether a failed poll is a refusal that retrying cannot fix.
@@ -96,7 +118,9 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 			if ( isPermanentPollError( query.state.error ) ) {
 				return false;
 			}
-			return status === undefined || status === 'running' ? POLL_INTERVAL_MS : false;
+			return status === undefined || status === 'running'
+				? pollInterval( query.state.dataUpdateCount )
+				: false;
 		},
 	} );
 	const failedPolls = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );

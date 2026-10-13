@@ -323,6 +323,44 @@ describe( 'useDownload — a status poll that fails', () => {
 		expect( mockedApiFetch.mock.calls ).toHaveLength( calls );
 	} );
 
+	/**
+	 * Count the status requests made while `ms` of fake time passes.
+	 *
+	 * @param ms - How far to advance.
+	 * @return The number of status requests in that window.
+	 */
+	async function pollsDuring( ms: number ) {
+		const before = mockedApiFetch.mock.calls.length;
+		await advance( ms );
+		return mockedApiFetch.mock.calls.length - before;
+	}
+
+	it( 'polls less often as a download runs long, up to a cap', async () => {
+		await startAndReadOnce();
+
+		// Each window is 30s long, sampled at about 0s, 2min and 10min in.
+		// Expect the 1.5s, 5s and 15s intervals.
+		const early = await pollsDuring( 30_000 );
+		await advance( 90_000 );
+		const middle = await pollsDuring( 30_000 );
+		await advance( 450_000 );
+		const late = await pollsDuring( 30_000 );
+
+		expect( [ early, middle, late ] ).toEqual( [ 20, 6, 2 ] );
+	} );
+
+	it( 'does not slow down for failed polls', async () => {
+		await startAndReadOnce();
+
+		pollFails = true;
+		await advance( 150_000 );
+		pollFails = false;
+
+		const polls = await pollsDuring( 15_000 );
+
+		expect( polls ).toBe( 10 );
+	} );
+
 	it( 'treats a 502 as temporary', async () => {
 		const result = await startAndReadOnce();
 
