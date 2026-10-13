@@ -111,7 +111,8 @@ class Comment_Form {
 
 		$link = sprintf(
 			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
-			esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) ),
+			// Followed when moveForm() never runs or finds no form, as on a theme that builds its own.
+			esc_url( wp_login_url( get_permalink( $post ) ) ),
 			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
 			esc_attr( $args['add_below'] ),
 			$comment->comment_ID,
@@ -190,13 +191,18 @@ class Comment_Form {
 	/**
 	 * Replace the submit field with the app.
 	 *
-	 * @param string $submit_field The submit field markup this replaces.
-	 * @param array  $args         Comment form arguments, after the theme's own.
+	 * @param string      $submit_field The submit field markup this replaces.
+	 * @param array|mixed $args         Comment form arguments, after the theme's own. Anything from a theme-built form.
 	 * @return string
 	 */
 	public function render( $submit_field, $args = array() ) {
 		if ( ! self::enabled_for_post_type() ) {
 			return $submit_field;
+		}
+
+		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
+		if ( ! is_array( $args ) || ! $this->defaults ) {
+			return $submit_field . wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
 		}
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own
@@ -244,7 +250,7 @@ class Comment_Form {
 	 * @return void
 	 */
 	public function render_must_log_in() {
-		if ( ! self::enabled_for_post_type() ) {
+		if ( ! self::enabled_for_post_type() || ! $this->defaults ) {
 			return;
 		}
 
