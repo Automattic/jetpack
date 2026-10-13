@@ -179,7 +179,7 @@ describe( 'Stats query factories', () => {
 	] as const )( 'builds author stats query keys over %s', ( _name, params, apiParams ) => {
 		const query = statsAuthorQuery( 7, params );
 
-		expect( query.enabled ).toBe( true );
+		expect( query.enabled ).toEqual( expect.any( Function ) );
 		expect( query.queryKey ).toEqual( [
 			'stats',
 			'author',
@@ -194,19 +194,21 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it.each( [
-		[ 'too_many_posts', 400, 1 ],
-		[ 'internal_server_error', 503, 2 ],
+		[ 'too_many_posts', 400, false ],
+		[ 'internal_server_error', 503, true ],
 	] )(
-		'refetches a failed author query when a card mounts only if it can heal (%s)',
-		async ( code, status, expectedCalls ) => {
+		'asks again on its own after a failure only if it can heal (%s)',
+		async ( code, status, refetches ) => {
 			const client = new QueryClient();
 			const options = { ...statsAuthorQuery( 7, { period: 'month', num: -1 } ), retry: false };
 			mockApiFetch.mockRejectedValue( { error: code, status } );
 			await client.fetchQuery( options ).catch( () => undefined );
 
+			// A mounting card, then a page-wide refresh.
 			const unsubscribe = new QueryObserver( client, options ).subscribe( () => undefined );
+			await client.refetchQueries().catch( () => undefined );
 
-			expect( mockApiFetch ).toHaveBeenCalledTimes( expectedCalls );
+			expect( mockApiFetch.mock.calls.length > 1 ).toBe( refetches );
 			unsubscribe();
 			client.clear();
 		}

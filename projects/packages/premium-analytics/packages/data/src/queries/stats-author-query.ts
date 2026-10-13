@@ -18,6 +18,8 @@ export type StatsAuthorParams = {
 	approximate?: boolean;
 };
 
+const isOverPostLimit = ( error: unknown ) => getApiErrorCode( error ) === 'too_many_posts';
+
 export const statsAuthorQuery = (
 	authorId: number,
 	{ period, from, to, num, approximate }: StatsAuthorParams
@@ -26,6 +28,7 @@ export const statsAuthorQuery = (
 		from,
 		to,
 	} );
+	const isAuthor = Number.isInteger( authorId ) && authorId > 0;
 
 	return {
 		...statsProxyQuery( {
@@ -40,13 +43,13 @@ export const statsAuthorQuery = (
 				...( num === undefined && endDate ? { end_date: endDate } : {} ),
 			},
 			sanitizer: 'author',
-			enabled: Number.isInteger( authorId ) && authorId > 0,
+			enabled: isAuthor,
 		} ),
-		// An author past the endpoint's post limit stays past it. Not retrying on
-		// mount also keeps a new observer from clearing the error the author page
-		// reads to fall back to the approximate request.
+		// An author past the endpoint's post limit stays past it, so nothing but an
+		// explicit refetch asks again: a focus, poll or mounting card clearing the
+		// error would also drop the author page off its approximate fallback.
+		enabled: query => isAuthor && ! isOverPostLimit( query.state.error ),
 		retry: ( failureCount, error ) =>
-			getApiErrorCode( error ) !== 'too_many_posts' && shouldRetryApiError( failureCount, error ),
-		retryOnMount: query => getApiErrorCode( query.state.error ) !== 'too_many_posts',
+			! isOverPostLimit( error ) && shouldRetryApiError( failureCount, error ),
 	};
 };

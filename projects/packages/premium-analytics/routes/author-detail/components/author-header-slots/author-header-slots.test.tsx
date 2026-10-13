@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
+import { isValidElement } from '@wordpress/element';
 import { authorHeaderSlots, authorSubtitle } from './author-header-slots';
 import type { AuthorSummary } from '../../hooks';
 
@@ -98,7 +99,7 @@ describe( 'authorHeaderSlots', () => {
 			summary: { ...resolved, isPostsLoading: true, firstPublishedDate: undefined },
 		} );
 
-		expect( typeof slots.subTitle ).not.toBe( 'string' );
+		expect( isValidElement( slots.subTitle ) ).toBe( true );
 	} );
 
 	it.each( [
