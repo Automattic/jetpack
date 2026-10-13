@@ -138,6 +138,9 @@ cp -R "$CODE"/src/blocks/carousel "$TARGET/blocks/"
 cp -R "$CODE"/src/shared "$TARGET/"
 cp -R "$CODE"/src/components "$TARGET/"
 
+# Upstream tests aren't run here, so don't sync them.
+find "$TARGET" -type f -name '*.test.js' -delete
+
 # Get Typescript working by copying the main type defs over.
 cp "$CODE"/src/types/index.d.ts "$TARGET"/types/
 # Function types need to be capitalized in our system. We only match " function"
