@@ -3813,6 +3813,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.55.0
         version: 5.55.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/private-apis':
+        specifier: 1.55.0
+        version: 1.55.0
       '@wordpress/ui':
         specifier: 0.22.0
         version: 0.22.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

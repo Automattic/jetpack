@@ -145,6 +145,12 @@ jest.mock( '@wordpress/data', () => ( {
 		} ) ),
 } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
+// The tab bar lives outside the block, so the request is all we can check.
+const mockRequestInspectorTab = jest.fn();
+let mockPrivateApis;
+jest.mock( '../../../src/paypal-payment-buttons/utils/lock-unlock', () => ( {
+	unlock: () => mockPrivateApis,
+} ) );
 
 // The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
 // there is to assert on.
@@ -790,6 +796,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		forgetPostSaves();
 		mockIsSavingPost = false;
 		mockIsPreviewMode = false;
+		mockPrivateApis = { requestInspectorTab: mockRequestInspectorTab };
 		// One test runs on fake timers; leaving them on hangs every test after it.
 		jest.useRealTimers();
 		mockCopiedText.last = null;
@@ -7865,7 +7872,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					format: 'LINK',
 				};
 				const link = 'https://www.paypal.com/paymentpage/PLB-TEST123';
-				const { rerender } = render( <Edit attributes={ form } setAttributes={ setAttributes } /> );
+				const { rerender } = render(
+					<Edit attributes={ form } setAttributes={ setAttributes } isSelected />
+				);
 
 				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
@@ -7883,6 +7892,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 							paymentLink: link,
 						} }
 						setAttributes={ setAttributes }
+						isSelected
 					/>
 				);
 
@@ -7892,6 +7902,117 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					'data-disabled',
 					'false'
 				);
+				// Core opens a new tab bar on Settings, so the block asks for Styles.
+				expect( mockRequestInspectorTab ).toHaveBeenCalledWith( 'styles' );
+			} );
+
+			describe( 'inspector tab', () => {
+				// A reload, copy or duplicate mounts with the link already set, so it stays on Settings.
+				it( 'switches to Styles each time the link changes', async () => {
+					const linked = id => (
+						<Edit
+							attributes={ { ...qrAttributes, resourceId: id } }
+							setAttributes={ setAttributes }
+							isSelected
+						/>
+					);
+					const { rerender } = render( linked( 'PLB-A1' ) );
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+
+					rerender( linked( 'PLB-B2' ) );
+					rerender( linked( 'PLB-A1' ) );
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+
+					expect( mockRequestInspectorTab.mock.calls ).toEqual( [ [ 'styles' ], [ 'styles' ] ] );
+				} );
+
+				// Core may drop the action or refuse the opt-in. The block then stays on Settings.
+				it( 'keeps the block working when requestInspectorTab is missing', async () => {
+					mockPrivateApis = {};
+					const linked = id => (
+						<Edit
+							attributes={ { ...qrAttributes, resourceId: id } }
+							setAttributes={ setAttributes }
+							isSelected
+						/>
+					);
+					const { rerender } = render( linked( 'PLB-A1' ) );
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+
+					rerender( linked( 'PLB-B2' ) );
+
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+				} );
+
+				// One save can give other blocks a link too. Asking for Styles from those would open it
+				// on whatever block gets selected next.
+				it( 'stays on Settings for a block that gets its link before it is selected', async () => {
+					const form = {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+					};
+					const { rerender } = render(
+						<Edit attributes={ form } setAttributes={ setAttributes } />
+					);
+					await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+					rerender(
+						<Edit attributes={ { ...form, ...qrAttributes } } setAttributes={ setAttributes } />
+					);
+
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+					rerender(
+						<Edit
+							attributes={ { ...form, ...qrAttributes } }
+							setAttributes={ setAttributes }
+							isSelected
+						/>
+					);
+
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+					expect( mockRequestInspectorTab ).not.toHaveBeenCalled();
+				} );
+
+				// Styles needs a link. Asking anyway would open Styles on the next block.
+				it( 'stays on Settings when the link is removed', async () => {
+					const { rerender } = render(
+						<Edit attributes={ qrAttributes } setAttributes={ setAttributes } isSelected />
+					);
+					await expect(
+						screen.findByTestId( 'inspector-controls-styles' )
+					).resolves.toBeInTheDocument();
+
+					rerender(
+						<Edit
+							attributes={ {
+								...qrAttributes,
+								isApiManaged: false,
+								resourceId: undefined,
+								paymentLink: undefined,
+							} }
+							setAttributes={ setAttributes }
+							isSelected
+						/>
+					);
+
+					await waitFor( () =>
+						expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument()
+					);
+					expect( mockRequestInspectorTab ).not.toHaveBeenCalled();
+				} );
 			} );
 
 			// A saved button still works while disconnected, so it stays stylable.

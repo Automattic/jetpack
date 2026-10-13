@@ -11,7 +11,13 @@
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { BlockControls, InspectorControls, URLInput, useBlockProps } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	URLInput,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import {
 	Button,
 	CheckboxControl,
@@ -65,6 +71,7 @@ import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { markExistingLinksDirty, removeExistingLink } from './utils/existing-links';
+import { unlock } from './utils/lock-unlock';
 import { withPartnerAttribution } from './utils/partner-attribution';
 import { getPostSaveCount, subscribeToPostSaves } from './utils/register-save-sync';
 import {
@@ -597,6 +604,16 @@ export default function ApiManagedEdit( {
 		setIsSwitching( false );
 		setShowUnsavedConfirm( false );
 	}, [ resourceId ] );
+	// A new link on the selected block opens Styles. Other blocks skip it - core
+	// saves the request and opens Styles on whatever block gets selected next.
+	const { requestInspectorTab } = unlock( useDispatch( blockEditorStore ) );
+	const previousResourceId = useRef( resourceId );
+	useEffect( () => {
+		if ( isSelected && hasButton && resourceId !== previousResourceId.current ) {
+			requestInspectorTab?.( 'styles' );
+		}
+		previousResourceId.current = resourceId;
+	}, [ resourceId, isSelected, hasButton, requestInspectorTab ] );
 	// An undo, or a read writing back a value that fails validation, can break the
 	// link later on, and the details have nowhere to show it. Opening only, so the
 	// form stays put while the merchant works through the error.
