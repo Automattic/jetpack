@@ -91,7 +91,12 @@ describe( 'useAuthorSummary', () => {
 
 		const { result } = renderHook( () => useAuthorSummary( 7 ) );
 
-		expect( result.current ).toMatchObject( { isNotFound: true, isError: false, name: undefined } );
+		expect( result.current ).toMatchObject( {
+			isNotFound: true,
+			isError: false,
+			error: null,
+			name: undefined,
+		} );
 	} );
 
 	it( 'reports a failure with no author to show as an error', () => {
@@ -108,7 +113,7 @@ describe( 'useAuthorSummary', () => {
 
 		const { result } = renderHook( () => useAuthorSummary( 7 ) );
 
-		expect( result.current ).toMatchObject( { name: 'Priya Patel', isError: false } );
+		expect( result.current ).toMatchObject( { name: 'Priya Patel', isError: false, error: null } );
 	} );
 
 	it( 'ignores another author held as placeholder data', () => {

@@ -115,15 +115,16 @@ export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailP
 		};
 	}
 
-	// The posts request resolves on its own, so the subtitle carries its state
-	// while the name above stays put.
-	let subTitle: DetailPageHeaderSlots[ 'subTitle' ];
-	if ( summary.isPostsLoading ) {
+	// The post count resolves on its own; the writing-since month stands without it.
+	const postCount = summary.isPostsLoading || summary.isPostsError ? undefined : summary.postCount;
+	let subTitle: DetailPageHeaderSlots[ 'subTitle' ] = authorSubtitle(
+		postCount,
+		summary.firstPublishedDate
+	);
+	if ( ! subTitle && summary.isPostsLoading ) {
 		subTitle = <Skeleton className={ placeholders.subTitlePlaceholder } />;
-	} else if ( summary.isPostsError ) {
+	} else if ( ! subTitle && summary.isPostsError ) {
 		subTitle = __( "We couldn't load this author's posts.", 'jetpack-premium-analytics-pkg' );
-	} else {
-		subTitle = authorSubtitle( summary.postCount, summary.firstPublishedDate );
 	}
 
 	return {

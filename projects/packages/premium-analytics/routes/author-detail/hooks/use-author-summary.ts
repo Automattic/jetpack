@@ -69,6 +69,8 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 	const stats = source.isPlaceholderData ? undefined : source.data;
 	const author = stats?.author;
 	const isNotFound = getApiErrorCode( error ) === 'unknown_author';
+	// A background refetch that fails keeps the identity it already has.
+	const isError = source.isError && ! isNotFound && ! author;
 	// The avatar is remote data used verbatim as an image source, so it goes
 	// through the shared http(s) guard like every other report URL.
 	const avatarUrl = safeHttpUrl( author?.avatarUrl );
@@ -85,9 +87,8 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 		postCount: posts.data?.postCount,
 		firstPublishedDate: toGmtInstant( stats?.firstContentDate ),
 		isLoading,
-		// A background refetch that fails keeps the identity it already has.
-		isError: source.isError && ! isNotFound && ! author,
-		error,
+		isError,
+		error: isError ? error : null,
 		isNotFound,
 		refetch: retry,
 		isPostsLoading: posts.isLoading,

@@ -42,8 +42,11 @@ export const statsAuthorQuery = (
 			sanitizer: 'author',
 			enabled: Number.isInteger( authorId ) && authorId > 0,
 		} ),
-		// An author past the endpoint's post limit stays past it.
+		// An author past the endpoint's post limit stays past it. Not retrying on
+		// mount also keeps a new observer from clearing the error the author page
+		// reads to fall back to the approximate request.
 		retry: ( failureCount, error ) =>
 			getApiErrorCode( error ) !== 'too_many_posts' && shouldRetryApiError( failureCount, error ),
+		retryOnMount: query => getApiErrorCode( query.state.error ) !== 'too_many_posts',
 	};
 };

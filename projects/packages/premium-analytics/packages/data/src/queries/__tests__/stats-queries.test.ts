@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { QueryClient, QueryObserver } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -191,6 +192,25 @@ describe( 'Stats query factories', () => {
 			'UTC',
 		] );
 	} );
+
+	it.each( [
+		[ 'too_many_posts', 400, 1 ],
+		[ 'internal_server_error', 503, 2 ],
+	] )(
+		'refetches a failed author query when a card mounts only if it can heal (%s)',
+		async ( code, status, expectedCalls ) => {
+			const client = new QueryClient();
+			const options = { ...statsAuthorQuery( 7, { period: 'month', num: -1 } ), retry: false };
+			mockApiFetch.mockRejectedValue( { error: code, status } );
+			await client.fetchQuery( options ).catch( () => undefined );
+
+			const unsubscribe = new QueryObserver( client, options ).subscribe( () => undefined );
+
+			expect( mockApiFetch ).toHaveBeenCalledTimes( expectedCalls );
+			unsubscribe();
+			client.clear();
+		}
+	);
 
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );

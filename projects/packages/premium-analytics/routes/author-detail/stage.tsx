@@ -130,8 +130,9 @@ function AuthorDetail(): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportNavigationParams( search );
 
-	// Cards fetch their own data, so only a missing author keeps them off the page.
-	const canRenderWidgets = ! summary.isLoading && ! summary.isNotFound;
+	// The All-time traffic card shares the summary's request, so mounting cards
+	// over a failed one would refetch it and loop between loading and error.
+	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 
 	// The All-time traffic card opens a month as this page's period.
 	const { openPeriod, attentionId } = usePeriodHost(
