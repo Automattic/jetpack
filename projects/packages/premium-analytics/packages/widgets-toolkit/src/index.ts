@@ -353,11 +353,6 @@ export {
 } from './hooks';
 
 /**
- * Widget components
- */
-export { VisitorsByLocationWidget } from './widgets';
-
-/**
  * Types
  */
 export type { CountLabel, DataFormat, WidgetStatus } from './types';
