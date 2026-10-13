@@ -197,26 +197,31 @@ describe.each( [
 	} );
 
 	it.each( [
-		[ 'a valid rewind id', VALID_ID ],
-		[ 'an invalid rewind id', 'not-a-real-id' ],
-	] )( 'points the back arrow toward the inline end in RTL for %s', async ( _label, rewindId ) => {
-		const arrow = ( icon: typeof arrowLeft ) => {
-			const { container, unmount } = render( <Icon icon={ icon } /> );
-			const shape = shapeOf( container );
-			unmount();
-			return shape;
-		};
-		mockIsRtl = true;
-		mockParams.mockReturnValue( { rewindId } );
+		[ 'LTR', false, arrowLeft, arrowRight, 'a valid rewind id', VALID_ID ],
+		[ 'LTR', false, arrowLeft, arrowRight, 'an invalid rewind id', 'not-a-real-id' ],
+		[ 'RTL', true, arrowRight, arrowLeft, 'a valid rewind id', VALID_ID ],
+		[ 'RTL', true, arrowRight, arrowLeft, 'an invalid rewind id', 'not-a-real-id' ],
+	] )(
+		'points the back arrow toward the inline start in %s for %s',
+		async ( _dir, rtl, expected, other, _label, rewindId ) => {
+			const arrow = ( icon: typeof arrowLeft ) => {
+				const { container, unmount } = render( <Icon icon={ icon } /> );
+				const shape = shapeOf( container );
+				unmount();
+				return shape;
+			};
+			mockIsRtl = rtl;
+			mockParams.mockReturnValue( { rewindId } );
 
-		render(
-			<QueryClientProvider>
-				<Screen />
-			</QueryClientProvider>
-		);
+			render(
+				<QueryClientProvider>
+					<Screen />
+				</QueryClientProvider>
+			);
 
-		const back = await screen.findByText( 'Back to overview' );
-		expect( shapeOf( back ) ).toBe( arrow( arrowRight ) );
-		expect( shapeOf( back ) ).not.toBe( arrow( arrowLeft ) );
-	} );
+			const back = await screen.findByText( 'Back to overview' );
+			expect( shapeOf( back ) ).toBe( arrow( expected ) );
+			expect( shapeOf( back ) ).not.toBe( arrow( other ) );
+		}
+	);
 } );
