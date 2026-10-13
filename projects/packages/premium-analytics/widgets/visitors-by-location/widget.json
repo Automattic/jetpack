@@ -1,5 +1,6 @@
 {
 	"name": "jpa/visitors-by-location",
+	"icon": "jpa/map-marker",
 	"title": "Store visitors by location",
 	"description": "See where your store visitors are located geographically.",
 	"help": {

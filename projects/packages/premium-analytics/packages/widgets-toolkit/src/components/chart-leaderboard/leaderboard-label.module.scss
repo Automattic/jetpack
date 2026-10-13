@@ -83,6 +83,13 @@
 	white-space: nowrap;
 }
 
+/* The `bars` look lays the label above its bar: nothing to inset from or to
+ * give a height to. */
+.bars {
+	min-block-size: 0;
+	padding-inline: 0;
+}
+
 .rowLink {
 	gap: var(--wpds-dimension-gap-xs);
 }
@@ -96,6 +103,26 @@
 
 .rowLink:hover .label,
 .rowLink:focus .label {
+	text-decoration: underline;
+}
+
+/* Only the name opens the link; the rest of the row is the drill-down
+ * button behind it. */
+.labelLink {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	color: inherit;
+}
+
+.labelLink:hover,
+.labelLink:focus {
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+.labelLink:hover .label,
+.labelLink:focus .label {
 	text-decoration: underline;
 }
 

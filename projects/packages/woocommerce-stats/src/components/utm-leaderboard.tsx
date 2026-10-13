@@ -75,6 +75,7 @@ export function UtmLeaderboard( { view, emptyIcon }: UtmLeaderboardProps ) {
 				description: __( 'No attribution data in this period.', 'jetpack-woocommerce-stats-pkg' ),
 			} }
 			maxRows={ UTM_ROW_LIMIT }
+			variant="bars"
 			format={ CURRENCY_FORMAT }
 		/>
 	);

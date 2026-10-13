@@ -272,6 +272,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const legendInteractive = legend.interactive ?? false;
 		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendComparisonItem = legend.comparisonItem ?? false;
+		const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -523,6 +524,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				collapseGroups: legendCollapseGroups,
 				comparisonItem: legendComparisonItem,
+				comparisonSeriesItems: legendComparisonSeriesItems,
 				renderGlyph,
 			} ),
 			[
@@ -530,6 +532,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphStyle?.radius,
 				legendCollapseGroups,
 				legendComparisonItem,
+				legendComparisonSeriesItems,
 				renderGlyph,
 			]
 		);

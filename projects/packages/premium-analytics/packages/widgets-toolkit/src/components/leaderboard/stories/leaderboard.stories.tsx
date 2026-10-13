@@ -78,6 +78,15 @@ export const WithComparison: Story = {
 	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
+export const Bars: Story = {
+	args: { variant: 'bars' },
+};
+
+export const BarsWithComparison: Story = {
+	args: { variant: 'bars', status: { ...READY, hasComparison: true } },
+	parameters: { reportParams: getDefaultQueryParams( true ) },
+};
+
 export const WithMediaAndLinks: Story = {
 	args: {
 		rows: [

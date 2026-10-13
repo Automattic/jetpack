@@ -24,6 +24,7 @@ import { fetchSettings, updateSettings } from './api';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
+	EmailDesignSection,
 	EmailBylineSection,
 	EmailDefaultsSection,
 	EmailSenderSettingsSection,
@@ -647,6 +648,8 @@ export function NewsletterSettingsBody( {
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
+								<EmailDesignSection isNewsletterEnabled={ data.subscriptions } />
+
 								<EmailBylineSection
 									data={ data }
 									onChange={ autoSaveEmailByline }
@@ -735,6 +738,8 @@ export function NewsletterSettingsBody( {
 										onChange={ autoSaveEmailContent }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
+
+									<EmailDesignSection isNewsletterEnabled={ data.subscriptions } />
 
 									<EmailBylineSection
 										data={ data }

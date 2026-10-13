@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	authorDetailLinkProps,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
@@ -106,30 +107,36 @@ export function AuthorsLeaderboard( {
 			} ) );
 		}
 
-		return rows.map( row => ( {
-			id: row.id,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
-				action:
-					row.posts.length > 0
-						? {
-								kind: 'drillDown',
-								onClick: () => selectAuthor( row.id ),
-								ariaLabel: sprintf(
-									/* translators: %s is the author name */
-									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
-									row.label
-								),
-							}
-						: { kind: 'static' },
-			} ),
-			currentValue: row.currentValue,
-			previousValue: row.previousValue,
-			currentShare: row.currentShare,
-			previousShare: row.previousShare,
-			delta: row.delta,
-		} ) );
+		return rows.map( row => {
+			const authorLink = row.authorId ? authorDetailLinkProps( row.authorId ) : undefined;
+
+			return {
+				id: row.id,
+				...buildLeaderboardRow( {
+					label: row.label,
+					media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
+					action:
+						row.posts.length > 0
+							? {
+									kind: 'drillDown',
+									onClick: () => selectAuthor( row.id ),
+									// The name opens the author's page; the rest of the row lists their posts.
+									link: authorLink,
+									ariaLabel: sprintf(
+										/* translators: %s is the author name */
+										__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
+										row.label
+									),
+								}
+							: { kind: 'static', link: authorLink },
+				} ),
+				currentValue: row.currentValue,
+				previousValue: row.previousValue,
+				currentShare: row.currentShare,
+				previousShare: row.previousShare,
+				delta: row.delta,
+			};
+		} );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
 	const isDrilled = Boolean( selectedAuthor );
