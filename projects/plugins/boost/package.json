@@ -62,7 +62,6 @@
 		"@wordpress/ui": "0.22.0",
 		"@wordpress/url": "4.55.0",
 		"clsx": "2.1.1",
-		"copy-webpack-plugin": "14.0.0",
 		"react-router": "7.18.2",
 		"react-use-measure": "2.1.1",
 		"use-debounce": "10.0.0",

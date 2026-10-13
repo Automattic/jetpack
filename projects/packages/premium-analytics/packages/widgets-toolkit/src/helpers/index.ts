@@ -13,6 +13,7 @@ export {
 export { buildSalesByDeviceData, type SalesByDeviceData } from './build-sales-by-device-data';
 export { buildTotalReturnsData, type TotalReturnsData } from './build-total-returns-data';
 export { formatLegendLabels } from './format-legend-labels';
+export { getComparisonPeriodLabel } from './get-comparison-period-label';
 export { calculateDelta } from './calculate-delta';
 export {
 	buildVisitorsByLocationData,

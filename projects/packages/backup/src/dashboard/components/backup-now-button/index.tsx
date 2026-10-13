@@ -1,7 +1,7 @@
-import { speak } from '@wordpress/a11y';
 import { useCallback, useEffect, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { announce } from '../../data/announce';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useBackups } from '../../hooks/use-backups';
 import { useBackupRequested, useEnqueueBackup } from '../../hooks/use-enqueue-backup';
@@ -34,7 +34,7 @@ export default function BackupNowButton() {
 function announceFailure( reason: string ) {
 	const title = __( 'Could not start a backup. Please try again.', 'jetpack-backup-pkg' );
 	// The hook falls back to this same sentence when WPCOM gives no reason.
-	speak( reason && reason !== title ? `${ title } ${ reason }` : title, 'assertive' );
+	announce( reason && reason !== title ? `${ title } ${ reason }` : title, 'assertive' );
 }
 
 /**

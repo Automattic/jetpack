@@ -5,6 +5,7 @@ import {
 	aggregateStatsDrilldownRows,
 	fetchStatsTopAuthorsRows,
 	findAuthorRow,
+	toAuthorId,
 	type ReportParams,
 	type StatsReportParams,
 	type StatsDrilldownItemContext,
@@ -33,6 +34,8 @@ type AuthorDrilldownItem =
 	| StatsTopAuthorsPostComparisonItem;
 
 type AuthorDrilldownMetadata = {
+	/** The author's user ID, on author rows that have one. */
+	authorId?: string;
 	parentName?: string;
 	avatarUrl: string | null;
 	postId?: string;
@@ -116,9 +119,11 @@ function getAuthorDrilldownMetadata(
 
 	if ( context.depth === 0 ) {
 		const author = item as StatsTopAuthorsItem;
+		const authorId = toAuthorId( author.id ?? undefined );
 
 		return {
 			avatarUrl: author.icon,
+			...( authorId > 0 ? { authorId: String( authorId ) } : {} ),
 			...previousViews,
 		};
 	}
