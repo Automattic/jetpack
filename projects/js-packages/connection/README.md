@@ -97,6 +97,40 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 />
 ```
 
+## Component `ConnectionErrorDetails`
+What a connection error says, without the chrome that carries it: each error's headline, the scopes it applies to, any link it asks for (e.g. Site Health) and the support link.
+
+Render it wherever a connection error has to be described outside a notice — a status card, a settings panel — so that surface uses the same words `ConnectionErrorNotice` does. It renders nothing when given neither a message nor a group.
+
+### Properties
+- *message* - string | element, fallback copy for callers with no derived groups.
+- *errorGroups* - array, the groups from `useConnectionErrorNotice`'s `errorGroups`.
+- *showSupportLink* - boolean, whether to append the "Contact Jetpack Support" link. Pass the hook's `showSupportLink`.
+- *variant* - string, a `@wordpress/ui` `Text` variant for the headlines and support link, for surfaces whose body copy is smaller than a notice's. The scope lines under a headline stay `body-sm` regardless.
+- *onNoticeLinkClick* - function, called with the link when a notice-body link (e.g. "Visit Site Health") is clicked, e.g. for tracking.
+- *onSupportLinkClick* - function, called when the "Contact Jetpack Support" link is clicked.
+
+### Basic Usage
+```jsx
+import { ConnectionErrorDetails, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+
+const StatusPanel = () => {
+	const { hasConnectionError, errorTitle, errorGroups, showSupportLink } =
+		useConnectionErrorNotice();
+
+	if ( ! hasConnectionError ) {
+		return null;
+	}
+
+	return (
+		<>
+			<h4>{ errorTitle }</h4>
+			<ConnectionErrorDetails errorGroups={ errorGroups } showSupportLink={ showSupportLink } />
+		</>
+	);
+};
+```
+
 ## Component `DisconnectDialog`
 The `DisconnectDialog` component displays a 'Disconnect' button that, upon clicking, will open a Dialog that presents the user the option to Disconnect their site.
 Upon confirming, both site and user are disconnected and the user is presented with a success message along with a "Return to WordPress" button that closes the dialog.
@@ -140,41 +174,31 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
-## Component `ConnectionStatusCard`
-The `ConnectionStatusCard` component displays the current site and user connection status as well as the corresponding actions.
-This component is meant to be used when at least the site level connection has been established, aka there's a status to display.
-In cases where the site level connection has not been established yet, please use the `ConnectScreen` component instead.
+## Component `TransferConnectionOwnership`
+The `TransferConnectionOwnership` component hands this site's WordPress.com connection to another connected administrator. It walks the user through choosing one, confirming what moves with ownership, and a success message.
 
-It consists of 2 main states: 
-1. *User account connected*: In this state the user will be presented with information regarding their connected WordPress.com account, aka the `username` and `avatar`.
-2. *User account not connected*: In this state the user will be presented with an alert message informing them their account is not connected and a corresponding button that upon clicking will trigger the User Connection flow.
+It is not a modal and renders no chrome of its own: the surface that hosts it supplies the container, the heading and the way out. That is what lets the same component serve a dialog, a card or a settings panel.
 
-In all cases, users are presented with a link to `Disconnect` (see `DisconnectDialog` component).
-
+On success it updates the package store with the new owner, so surfaces reading connection state from the store — including `isMaster` — reflect the change without a page reload. A host that passes its own copy of that data down as props, as `ManageConnectionDialog` does with `connectedUser`, only reflects it if that copy comes from the store.
 
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *redirectUri* - string (required), The redirect admin URI after the user has connected their WordPress.com account.
-- *title* - string, The Card title. Defaults to "Connection".
-- *connectionInfoText* - string, The text that will be displayed under the title, containing info how to leverage the connection. Defaults to "Leverages the Jetpack Cloud for more features on your side."
-- *onDisconnected* - callback, The callback to be called upon disconnection success.
+- *onTransferred* - callback, to be called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
 
 ### Important Notes
-The `Disconnect` functionality is **temporary**. In the future, it will be replaced with a link to a central connection management page from where users will be able to disconnect.
+The component renders only the controls its own steps need: `Continue`, `Back` between steps, and the transfer itself. Leaving the flow is the host surface's business, so there is no Cancel, Close or Done button — add one in your own chrome if the surface needs it.
 
+If the site has no other connected administrator, the component explains why rather than offering an action that cannot succeed, so a host should not assume a transfer is always possible.
 
 ### Basic Usage
 ```jsx
-import { useCallback } from 'react';
-import { ConnectionStatusCard } from '@automattic/jetpack-connection';
+import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 
-const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );
-
-<ConnectionStatusCard
+<TransferConnectionOwnership
 	apiRoot={ APIRoot }
 	apiNonce={ APINonce }
-	redirectUri="tools.php?page=wpcom-connection-manager"
+	onTransferred={ () => setIsPanelOpen( false ) }
 />
 ```
 

@@ -96,7 +96,7 @@ describe( 'PieSemiCircleChart', () => {
 
 		await user.hover( firstSegment );
 
-		// Wait for tooltip to be visible - it should show in the BaseTooltip component
+		// Wait for tooltip to be visible - it should show the default label: value content
 		const tooltip = await screen.findByRole( 'tooltip' );
 		expect( tooltip ).toHaveTextContent( 'MacOS' );
 
@@ -359,6 +359,110 @@ describe( 'PieSemiCircleChart', () => {
 			// All segments should be visible
 			const segments = screen.getAllByTestId( 'pie-segment' );
 			expect( segments ).toHaveLength( 2 );
+		} );
+	} );
+} );
+
+describe( 'PieSemiCircleChart keyboard navigation', () => {
+	it( 'names the focusable chart', () => {
+		renderPieChart( { data: mockData } );
+		expect( screen.getByRole( 'application', { name: 'Semi-circle chart' } ) ).toHaveAttribute(
+			'tabindex',
+			'0'
+		);
+	} );
+
+	it( 'starts at the leftmost segment, which is the largest value', async () => {
+		const user = userEvent.setup();
+		renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+		expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+			'd',
+			screen.getAllByTestId( 'pie-segment' )[ 1 ].getAttribute( 'd' )
+		);
+	} );
+
+	it( 'clears the selection when new values reorder the segments', async () => {
+		const user = userEvent.setup();
+		const { rerender } = renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+
+		rerender(
+			<GlobalChartsProvider>
+				<PieSemiCircleChart
+					data={ [
+						{ ...mockData[ 0 ], value: 70 },
+						{ ...mockData[ 1 ], value: 30 },
+					] }
+					withTooltips
+				/>
+			</GlobalChartsProvider>
+		);
+
+		await waitFor( () =>
+			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument()
+		);
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'PieSemiCircleChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	it( 'places the box relative to the chart container, at the pointer plus the offsets', async () => {
+		mockRects();
+		const user = userEvent.setup();
+		renderPieChart( {
+			data: [
+				{ label: 'A', value: 60, valueDisplay: '60' },
+				{ label: 'B', value: 40, valueDisplay: '40' },
+			],
+			withTooltips: true,
+			width: 400,
+		} );
+
+		await user.pointer( {
+			target: screen.getAllByTestId( 'pie-segment' )[ 0 ],
+			coords: { clientX: 150, clientY: 120 },
+		} );
+
+		// (150, 120) is (50, 70) inside the container; the default -15px vertical
+		// offset makes that (50, 55), and the box adds 10px each way.
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(60px, 65px)',
 		} );
 	} );
 } );

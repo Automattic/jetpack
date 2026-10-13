@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-CSV exports: Preserve the external API error contract when proxy responses cannot be normalized.

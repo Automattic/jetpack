@@ -1,25 +1,19 @@
 /**
  * External dependencies
  */
-import {
-	AdminPage,
-	Col,
-	Container,
-	AiIcon,
-	getRedirectUrl,
-	Notice,
-} from '@automattic/jetpack-components';
+import { AdminPage, Col, Container, AiIcon, getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, Card } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useCallback, useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { MyJetpackRoutes } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
@@ -37,7 +31,7 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
  * @return {object} React component for the product page
  */
 export default function () {
-	const { onClickGoBack } = useGoBack( { slug: 'jetpack-ai', fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug: 'jetpack-ai', fallback: MyJetpackRoutes.Features } );
 	const { detail, isLoading } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
@@ -205,7 +199,7 @@ export default function () {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to="/products"
+					to={ MyJetpackRoutes.Features }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -311,22 +305,22 @@ export default function () {
 					<div className={ styles[ 'product-interstitial__section-wrapper' ] }>
 						{ showNotice && (
 							<div className={ styles[ 'product-interstitial__ai-notice' ] }>
-								<Notice
-									actions={
-										tierPlansEnabled
-											? [
-													<Button key="upgrade" isPrimary onClick={ upgradeClickHandler }>
-														{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
-													</Button>,
-											  ]
-											: {}
-									}
-									onClose={ onNoticeClose }
-									level={ showRenewalNotice ? 'warning' : 'error' }
-									title={ showRenewalNotice ? renewalNoticeTitle : upgradeNoticeTitle }
-								>
-									{ showRenewalNotice ? renewalNoticeBody : upgradeNoticeBody }
-								</Notice>
+								<Notice.Root intent={ showRenewalNotice ? 'warning' : 'error' }>
+									<Notice.Title>
+										{ showRenewalNotice ? renewalNoticeTitle : upgradeNoticeTitle }
+									</Notice.Title>
+									<Notice.Description>
+										{ showRenewalNotice ? renewalNoticeBody : upgradeNoticeBody }
+									</Notice.Description>
+									{ tierPlansEnabled && (
+										<Notice.Actions>
+											<Button key="upgrade" isPrimary onClick={ upgradeClickHandler }>
+												{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
+											</Button>
+										</Notice.Actions>
+									) }
+									<Notice.CloseIcon onClick={ onNoticeClose } />
+								</Notice.Root>
 							</div>
 						) }
 						<h2 className={ styles[ 'product-interstitial__section-heading' ] }>

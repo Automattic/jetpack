@@ -25,10 +25,6 @@ export type RowsCsvDownloadButtonProps< Row > = Omit< CsvDownloadButtonProps, 'o
 /**
  * Serialize rows already loaded in the browser and download them as CSV.
  *
- * @param props          - Component props.
- * @param props.columns  - CSV column definitions.
- * @param props.rows     - Rows to serialize.
- * @param props.filename - Download filename without an extension.
  * @return The rendered action, or null when there is nothing to export.
  */
 export function RowsCsvDownloadButton< Row >( {

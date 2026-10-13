@@ -30,3 +30,6 @@ index 96c4627..48fcf28 100644
  			};
  			if ( document.readyState === "loading" ) {
  				document.addEventListener( "DOMContentLoaded", run );
+@@ -182 +201 @@
+-		JS;
++JS;

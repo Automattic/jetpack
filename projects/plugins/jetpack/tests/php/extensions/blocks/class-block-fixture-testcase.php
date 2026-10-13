@@ -83,14 +83,16 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 	/**
 	 * Normalize block HTML output for version-agnostic comparison.
 	 *
-	 * Strips classes that vary between WordPress versions so fixtures work
-	 * on both WP latest and WP trunk:
-	 * - `is-layout-*` classes (removed in WP trunk, Gutenberg PR #71207)
-	 * - `wp-block-*-is-layout-*` classes (same change)
-	 * - `wp-block-paragraph` class (added in WP trunk, core r61605)
-	 * - Leftover empty `class=""` attributes after stripping
+	 * Both the live render and the stored fixture go through this, so one fixture
+	 * stays valid across every WordPress version CI runs against — currently the
+	 * minimum, the latest release, and trunk. Layout classes are the volatile part:
+	 * core generates them per block and has moved them around between releases.
 	 *
-	 * @todo Remove this method once WP 7.0 is the minimum supported version.
+	 * Stripped here:
+	 * - `is-layout-*` classes
+	 * - `wp-block-*-is-layout-*` classes
+	 * - `wp-block-paragraph`, which core adds as of WordPress 7.0 (Gutenberg 22.4)
+	 * - Leftover empty `class=""` attributes after stripping
 	 *
 	 * @param string $html The HTML content to normalize.
 	 * @return string The normalized HTML.

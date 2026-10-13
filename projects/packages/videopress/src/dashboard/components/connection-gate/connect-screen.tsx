@@ -1,6 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
+import PageSubTitle from '../page-subtitle';
 import './style.scss';
 
 type Props = {
@@ -26,7 +27,7 @@ export default function ConnectScreen( { onConnect, isConnecting }: Props ) {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ <PageSubTitle /> }
 		>
 			<Stack direction="column" gap="md" className="vp-connection-gate">
 				<Text variant="heading-2xl">

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show each number on the traffic chart's value axis once when visit counts are small.

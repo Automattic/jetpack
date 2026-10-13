@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -27,6 +28,13 @@ class Jetpack_Connector_Test extends TestCase {
 	 * @var int
 	 */
 	private $admin_id;
+
+	/**
+	 * Manager whose capability mapping is registered for protected-owner tests.
+	 *
+	 * @var Manager|null
+	 */
+	private $caps_manager = null;
 
 	/**
 	 * Set up before each test.
@@ -75,7 +83,7 @@ class Jetpack_Connector_Test extends TestCase {
 			$reflection_class->setStaticPropertyValue( 'configured', false );
 			$reflection_class->setStaticPropertyValue( 'plugins', array() );
 			$reflection_class->setStaticPropertyValue( 'current_blog_id', null );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat
 			foreach ( array(
 				'configured'      => false,
 				'plugins'         => array(),
@@ -99,6 +107,18 @@ class Jetpack_Connector_Test extends TestCase {
 
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
+		remove_all_filters( 'script_module_data_' . Jetpack_Connector::MODULE_ID );
+
+		unset( $GLOBALS['current_screen'] );
+		wp_deregister_script_module( Jetpack_Connector::MODULE_ID );
+		$GLOBALS['wp_scripts'] = null;
+		$GLOBALS['wp_styles']  = null;
+		if ( null !== $this->caps_manager ) {
+			remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
+			$this->caps_manager = null;
+		}
 		StatusCache::clear();
 	}
 
@@ -180,7 +200,179 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
+		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
+		$this->assertArrayNotHasKey( 'protectedOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/* ── get_connector_data() — connected ──────────────────────── */
+
+	/**
+	 * A connected site carries the account sections and a link to the connected users list.
+	 */
+	public function test_get_connector_data_when_connected() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+		wp_set_current_user( $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['isConnected'] );
+		$this->assertTrue( $data['isRegistered'] );
+		$this->assertArrayHasKey( 'currentUser', $data );
+		$this->assertArrayHasKey( 'connectionOwner', $data );
+		$this->assertStringContainsString( 'users.php', $data['connectedUsersUrl'] );
+		$this->assertStringContainsString(
+			Users_Connection_Admin::VIEW_QUERY_ARG . '=' . Users_Connection_Admin::VIEW_CONNECTED,
+			$data['connectedUsersUrl']
+		);
+	}
+
+	/**
+	 * A consumer request exposes protected-owner card state before anyone has claimed it.
+	 */
+	public function test_protected_owner_card_state_when_a_consumer_requests_one() {
+		$this->map_connection_caps();
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $data['protectedOwner']['status'] );
+		$this->assertFalse( $data['protectedOwner']['viewerIsConfirmedOwner'] );
+	}
+
+	/**
+	 * The card uses the package dialog whatever a consumer does with its own.
+	 */
+	public function test_protected_owner_card_state_ignores_the_default_ui_filter() {
+		$this->map_connection_caps();
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		add_filter( 'jetpack_connection_protected_owner_default_ui', '__return_false' );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $data['protectedOwner']['status'] );
+		$this->assertArrayNotHasKey( 'useDefaultUi', $data['protectedOwner'] );
+	}
+
+	/**
+	 * A stored anchor changes the card even when no consumer is requesting a protected owner.
+	 */
+	public function test_protected_owner_card_state_when_an_anchor_is_stored() {
+		Protected_Owner::set( 4242, $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $data['protectedOwner']['status'] );
+		$this->assertFalse( $data['protectedOwner']['viewerIsConfirmedOwner'] );
+	}
+
+	/**
+	 * The owner whose own token cannot be read is told they are the one to reconnect.
+	 *
+	 * `resolve_wpcom_user_id()` answers 0 without a live token while the binding survives, so
+	 * this is the ordinary way into the reconnect state rather than an edge case.
+	 */
+	public function test_protected_owner_card_state_marks_the_viewer_as_the_confirmed_owner() {
+		Protected_Owner::set( 4242, $this->admin_id );
+		Utils::set_wpcom_user_id( $this->admin_id, 4242 );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $data['protectedOwner']['status'] );
+		$this->assertTrue( $data['protectedOwner']['viewerIsConfirmedOwner'] );
+	}
+
+	/**
+	 * The dialog script loads only when this viewer can open one of the dialogs.
+	 */
+	public function test_protected_owner_dialog_script_follows_who_can_act() {
+		$this->map_connection_caps();
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$manager = new Manager();
+
+		$this->assertFalse( $method->invoke( null, $manager ) );
+
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$this->assertFalse( $method->invoke( null, $manager ) );
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+		$this->assertTrue( $method->invoke( null, new Manager() ) );
+
+		Protected_Owner::set( 4242, $this->admin_id );
+		$this->assertFalse( $method->invoke( null, new Manager() ) );
+
+		// The confirmed owner can release, and that does not depend on a consumer still asking.
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		Utils::set_wpcom_user_id( $this->admin_id, 4242 );
+		$this->assertTrue( $method->invoke( null, new Manager() ) );
+	}
+
+	/**
+	 * A second admin carrying the anchored ID — which Premium Content can write directly — is
+	 * offered no dialog, matching the endpoint that would refuse them.
+	 */
+	public function test_protected_owner_dialog_script_skips_an_admin_sharing_the_anchored_id() {
+		$this->map_connection_caps();
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$bystander = wp_insert_user(
+			array(
+				'user_login' => 'sharing_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'sharing_admin@example.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->admin_id => 'ownerkey.private.' . $this->admin_id,
+				$bystander      => 'ownerkey.private.' . $bystander,
+			)
+		);
+		update_user_meta( $this->admin_id, 'wpcom_user_id', 4242 );
+		update_user_meta( $bystander, 'wpcom_user_id', 4242 );
+		Protected_Owner::set( 4242, $this->admin_id );
+
+		wp_set_current_user( $bystander );
+		$manager = new Manager();
+
+		$state = $manager->resolve_protected_owner_state();
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'], 'Test setup: the site is settled.' );
+		$this->assertTrue( $state['is_current_user_the_po'], 'Test setup: the binding alone would admit them.' );
+
+		$this->assertFalse( $method->invoke( null, $manager ) );
+	}
+
+	/**
+	 * Register the connection capability mapping configure() would have registered.
+	 */
+	private function map_connection_caps() {
+		$this->caps_manager = new Manager();
+		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
 	/* ── get_connector_data() — offline mode ───────────────────── */
@@ -336,6 +528,116 @@ class Jetpack_Connector_Test extends TestCase {
 	public function test_is_connectors_screen_rejects_other() {
 		$this->assertFalse( $this->call_is_connectors_screen( 'dashboard' ) );
 		$this->assertFalse( $this->call_is_connectors_screen( 'options-general' ) );
+	}
+
+	/* ── enqueue_script_module() ────────────────────────────────── */
+
+	/**
+	 * Test that the card is registered from the build, with the dependencies and version from its asset file.
+	 */
+	public function test_enqueue_registers_the_built_module_from_its_asset_file() {
+		wp_register_script( 'test-card-global', 'https://example.com/global.js', array(), '1', true );
+		$restore = $this->stub_module_build(
+			array(
+				'dependencies'        => array( 'test-card-global' ),
+				'module_dependencies' => array(
+					array(
+						'id'     => '@wordpress/connectors',
+						'import' => 'static',
+					),
+				),
+				'version'             => 'test-card-version',
+				'type'                => 'module',
+			)
+		);
+
+		try {
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
+
+		$module = wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID );
+		$this->assertNotNull( $module );
+		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $module['src'] );
+		$this->assertSame( 'test-card-version', $module['version'] );
+		$this->assertSame( array( '@wordpress/connectors' ), array_column( $module['dependencies'], 'id' ) );
+		$this->assertTrue( wp_script_is( 'test-card-global', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that core looks up the card's translations under the package domain and the file's real path.
+	 */
+	public function test_card_translations_are_looked_up_under_the_package_domain_and_real_path() {
+		$restore       = $this->stub_module_build( array( 'version' => 'test-card-version' ) );
+		$lookup_file   = '';
+		$lookup_domain = '';
+		$path          = '';
+
+		$record_lookup = static function ( $file, $handle, $domain ) use ( &$lookup_file, &$lookup_domain ) {
+			if ( Jetpack_Connector::MODULE_ID === $handle && '' === $lookup_file ) {
+				$lookup_file   = basename( (string) $file );
+				$lookup_domain = (string) $domain;
+			}
+			return $file;
+		};
+		$record_path   = static function ( $relative, $src ) use ( &$path ) {
+			if ( str_contains( $src, 'connectors-card.js' ) && '' === $path ) {
+				$path = (string) $relative;
+			}
+			return $relative;
+		};
+		add_filter( 'load_script_translation_file', $record_lookup, 10, 3 );
+		add_filter( 'load_script_textdomain_relative_path', $record_path, 10, 2 );
+
+		try {
+			$this->enqueue_on_connectors_screen();
+			ob_start();
+			wp_script_modules()->print_script_module_translations();
+			ob_end_clean();
+		} finally {
+			$restore();
+			remove_filter( 'load_script_translation_file', $record_lookup );
+			remove_filter( 'load_script_textdomain_relative_path', $record_path );
+		}
+
+		$this->assertSame( 'jetpack-connection', $lookup_domain );
+		$this->assertStringStartsWith( 'jetpack-connection-', $lookup_file );
+		$this->assertStringEndsWith( 'dist/connectors/connectors-card.js', $path );
+		$this->assertStringNotContainsString( '..', $path );
+	}
+
+	/**
+	 * Test that a missing build skips the card, instead of fataling on the asset file.
+	 *
+	 * @param array|null $asset   Asset data, or null for no asset file.
+	 * @param bool       $with_js Whether the module's JS file exists.
+	 * @dataProvider provide_incomplete_builds
+	 */
+	#[DataProvider( 'provide_incomplete_builds' )]
+	public function test_enqueue_skips_the_card_when_the_build_is_missing( $asset, $with_js ) {
+		$restore = $this->stub_module_build( $asset, $with_js );
+
+		try {
+			$this->enqueue_on_connectors_screen();
+		} finally {
+			$restore();
+		}
+
+		$this->assertNull( wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID ) );
+		$this->assertFalse( wp_style_is( 'jetpack-connector-card', 'enqueued' ) );
+	}
+
+	/**
+	 * Builds missing a file, as in a checkout that hasn't run the build or mid-deploy.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_incomplete_builds() {
+		return array(
+			'no asset file' => array( null, true ),
+			'no JS file'    => array( array( 'version' => 'test-card-version' ), false ),
+		);
 	}
 
 	/* ── get_plugin_logo_url() ─────────────────────────────────── */
@@ -728,13 +1030,15 @@ class Jetpack_Connector_Test extends TestCase {
 	 *
 	 * WordPress auto-prefixes submenu screen IDs (e.g. settings_page_<slug>), so using
 	 * $screen->id directly as the page= parameter would produce an invalid URL.
+	 *
+	 * The screen has to be a real WP_Screen: WP 7.0 made get_current_screen() return null
+	 * for anything else, so a stdClass stub silently takes the core-screen branch instead.
 	 */
 	public function test_connectors_page_path_gutenberg() {
 		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-general.php';
 
-		$screen                    = new \stdClass();
-		$screen->id                = Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID;
-		$GLOBALS['current_screen'] = $screen;
+		set_current_screen( Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID );
+		$this->assertSame( Jetpack_Connector::GUTENBERG_CONNECTORS_SCREEN_ID, get_current_screen()->id );
 
 		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connectors_page_path' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -869,6 +1173,68 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/* ── Helpers ───────────────────────────────────────────────── */
+
+	/**
+	 * Enqueue the card as WordPress does on the core Connectors screen.
+	 */
+	private function enqueue_on_connectors_screen() {
+		set_current_screen( 'options-connectors' );
+		Jetpack_Connector::enqueue_script_module();
+	}
+
+	/**
+	 * Put fixture build files where the card's build goes, or remove them, restoring any real build afterwards.
+	 *
+	 * @param array|null $asset   Asset data to write, or null for no asset file.
+	 * @param bool       $with_js Whether to write a module JS file, or remove it.
+	 * @return callable Restores the previous state.
+	 */
+	private function stub_module_build( $asset, $with_js = true ) {
+		$class_dir = dirname( ( new \ReflectionClass( Jetpack_Connector::class ) )->getFileName() );
+		$base      = $class_dir . '/' . Jetpack_Connector::MODULE_FILE;
+		$dir       = dirname( $base );
+		$files     = array(
+			$base . '.asset.php' => null === $asset ? null : '<?php return ' . var_export( $asset, true ) . ';', // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			$base . '.js'        => $with_js ? '' : null,
+		);
+
+		$originals = array();
+		foreach ( array_keys( $files ) as $file ) {
+			$originals[ $file ] = file_exists( $file ) ? file_get_contents( $file ) : null; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		}
+
+		$created_dirs = array();
+		foreach ( array( dirname( $dir ), $dir ) as $d ) {
+			if ( ! is_dir( $d ) ) {
+				mkdir( $d );
+				$created_dirs[] = $d;
+			}
+		}
+
+		foreach ( $files as $file => $contents ) {
+			if ( null !== $contents ) {
+				file_put_contents( $file, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			} elseif ( file_exists( $file ) ) {
+				unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
+		}
+
+		return static function () use ( $originals, $created_dirs ) {
+			foreach ( $originals as $file => $original ) {
+				if ( null !== $original ) {
+					file_put_contents( $file, $original ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				} elseif ( file_exists( $file ) ) {
+					unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+				}
+			}
+			// Only directories this fixture created, and only while empty.
+			foreach ( array_reverse( $created_dirs ) as $d ) {
+				if ( 2 === count( scandir( $d ) ) ) {
+					rmdir( $d ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+				}
+			}
+		};
+	}
 
 	/**
 	 * Call the private is_connectors_screen() method via reflection.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Customizer: Send blog_id with the Tracks event recorded when the Customizer is opened from the front end.

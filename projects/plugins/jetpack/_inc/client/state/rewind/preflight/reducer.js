@@ -40,7 +40,7 @@ const preflightReducer = ( state = initialState, action ) => {
 					? {
 							// tests: action.tests, <- This is not needed for now, but might be useful in the future
 							overallStatus: calculateOverallStatus( action.tests ),
-					  }
+						}
 					: {} ),
 			};
 		default:

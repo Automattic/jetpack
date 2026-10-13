@@ -1,75 +1,26 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider, Text, type Field } from '@jetpack-premium-analytics/externals';
+import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import { Text, type Field } from '@jetpack-premium-analytics/externals';
 import '@wordpress/dataviews/build-style/style.css';
 import { Button } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
-import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useChartTheme } from '../../../hooks';
+import { FIXTURE_SITE_TIME_ZONE } from '../../../__fixtures__/wp-date-settings';
+import { applyFixtureSiteSettings } from '../../../stories/fixture-site';
+import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
-import { ReportPerformanceChart } from '../report-performance-chart';
+import { ReportPageShell } from '../report-page-shell';
 import { ReportRecordsTable } from '../report-records-table';
 import styles from './report-page.stories.module.scss';
-import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
+import type { Meta, StoryObj } from '@storybook/react';
+import type { ComponentProps } from 'react';
 
-/**
- * Build a deterministic 30-day visits report fixture. `offsetDays` shifts the
- * window back (for the comparison period) and `scale` shrinks the values so
- * the two periods read as distinct series.
- *
- * @param offsetDays - Days to shift the window into the past.
- * @param scale      - Multiplier applied to every metric.
- * @return The time-series report.
- */
-function buildVisitsReport( offsetDays = 0, scale = 1 ): StatsTimeSeriesReport {
-	const start = new Date( '2026-06-03T00:00:00Z' );
-	start.setUTCDate( start.getUTCDate() - offsetDays );
-
-	const data = Array.from( { length: 30 }, ( _, index ) => {
-		const day = new Date( start );
-		day.setUTCDate( day.getUTCDate() + index );
-		const date = day.toISOString().slice( 0, 10 );
-		// A weekly wave so the lines look like the product, not noise.
-		const wave = Math.sin( ( index / 7 ) * Math.PI * 2 );
-
-		return {
-			time_interval: date,
-			date_start: date,
-			date_end: date,
-			label: date,
-			items: [],
-			value: Math.round( ( 1600 + 200 * wave ) * scale ),
-			views: Math.round( ( 1600 + 200 * wave ) * scale ),
-			visitors: Math.round( ( 650 + 130 * wave ) * scale ),
-			comments: Math.round( ( 4 + 3 * wave ) * scale ),
-			likes: Math.round( ( 7 + 4 * wave ) * scale ),
-		};
-	} );
-
-	const sum = ( key: 'views' | 'visitors' | 'comments' | 'likes' ) =>
-		data.reduce( ( total, point ) => total + point[ key ], 0 );
-
-	return {
-		summary: {
-			date_start: data[ 0 ].date_start,
-			date_end: data[ data.length - 1 ].date_end,
-			views: sum( 'views' ),
-			visitors: sum( 'visitors' ),
-			comments: sum( 'comments' ),
-			likes: sum( 'likes' ),
-		},
-		data,
-	};
-}
-
-const PRIMARY_REPORT = buildVisitsReport();
-const COMPARISON_REPORT = buildVisitsReport( 30, 0.8 );
+applyFixtureSiteSettings();
 
 type PostRow = {
 	id: string;
@@ -116,35 +67,13 @@ const POST_FIELDS: Field< PostRow >[] = [
 ];
 
 interface ReportPageStoryControls {
-	withComparison: boolean;
 	isLoading: boolean;
+	isEmpty?: boolean;
 }
 
 /**
- * In product the `/reports/$report` stage mounts the chart theme provider once
- * for every report page; stories stand in for the stage here.
- *
- * @param {object}    props          - The component props.
- * @param {ReactNode} props.children - The story content.
- * @return The themed story content.
- */
-function StoryChartProviders( { children }: { children: ReactNode } ) {
-	const chartTheme = useChartTheme();
-
-	return <GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>;
-}
-
-const withChartProviders: Decorator = Story => (
-	<StoryChartProviders>
-		<Story />
-	</StoryChartProviders>
-);
-
-/**
- * Stand-in for the `Breadcrumbs` the real page passes into the `breadcrumbs`
- * slot. Core's component renders router links, and no router is mounted in
- * Storybook, so this mirrors its output instead: a leading crumb, a separator,
- * and the trailing crumb as the page's `h1`.
+ * Stand-in for `Breadcrumbs`, which renders router links Storybook has no
+ * router for. The trailing crumb is the page's `h1`.
  *
  * @return The breadcrumb stand-in.
  */
@@ -156,67 +85,78 @@ function StoryBreadcrumbs() {
 	);
 }
 
+const STORY_TIMEZONE = FIXTURE_SITE_TIME_ZONE;
+const STORY_RANGE = computePrimaryRange( 'last-30-days', STORY_TIMEZONE );
+
+// Stand-in for `useReportDateFilters`, which needs a mounted router. Inert:
+// the picker's own behaviour is covered by its story.
+
+const STORY_DATE_FILTERS: ReportDateFilters = {
+	presetId: 'last-30-days',
+	range: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
+	appliedPresetId: 'last-30-days',
+	appliedRange: { from: STORY_RANGE?.from, to: STORY_RANGE?.to },
+	interval: 'day',
+	intervalOptions: [ 'day' ],
+	onChange: () => {},
+	onComparisonChange: () => {},
+	onIntervalChange: () => {},
+	onApply: () => {},
+	onCancel: () => {},
+	canApply: false,
+	timeZone: STORY_TIMEZONE,
+	replaceRange: () => {},
+};
+
 /**
- * The full second-level report page as PR 2 will compose it: breadcrumb header
- * with a Download action slot, the filters row (placeholder here — the real
- * page passes `DateFiltersPanel`), the multi-metric performance chart, and the
- * Core DataViews records table.
+ * The full second-level report page: shell header, section header and records
+ * table.
  *
  * @param {ReportPageStoryControls} props - The story controls.
  * @return The composed report page.
  */
-function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryControls ) {
-	const [ interval, setInterval ] = useState< IntervalType >( 'day' );
-
+function ComposedReportPage( { isLoading, isEmpty }: ReportPageStoryControls ) {
 	return (
-		<ReportPageLayout
+		<ReportPageShell
 			breadcrumbs={ <StoryBreadcrumbs /> }
-			description="All your posts and archive pages."
 			actions={ <Button variant="secondary">Download</Button> }
-			filters={
-				<>
-					<Button variant="secondary">Last 30 days: Jun 3 – Jul 2, 2026</Button>
-					<Button variant="secondary">Compare to: May 4 – Jun 2, 2026</Button>
-				</>
-			}
 		>
-			<ReportPerformanceChart
-				primary={ PRIMARY_REPORT }
-				comparison={ withComparison ? COMPARISON_REPORT : undefined }
-				isLoading={ isLoading }
-				interval={ interval }
-				onIntervalChange={ setInterval }
-			/>
-			<ReportRecordsTable
-				data={ POSTS }
-				fields={ POST_FIELDS }
-				getItemId={ ( item: PostRow ) => item.id }
-				isLoading={ isLoading }
-				initialView={ {
-					sort: { field: 'views', direction: 'desc' },
-					titleField: 'title',
-					fields: [ 'views' ],
-				} }
-				searchLabel="Search posts"
-				isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
-				renderItemLink={ ( { item, className, children, ...linkProps } ) => (
-					<a
-						{ ...linkProps }
-						className={ [ className, item.isExternal ? styles.externalLink : '' ]
-							.filter( Boolean )
-							.join( ' ' ) }
-						href={ item.link }
-						target={ item.isExternal ? '_blank' : undefined }
-						rel={ item.isExternal ? 'noopener noreferrer' : undefined }
-					>
-						{ children }
-						{ item.isExternal ? (
-							<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-						) : null }
-					</a>
+			<ReportPageLayout title="Posts & Pages" dateFilters={ STORY_DATE_FILTERS }>
+				{ isEmpty ? (
+					<ReportEmptyState />
+				) : (
+					<ReportRecordsTable
+						data={ POSTS }
+						fields={ POST_FIELDS }
+						getItemId={ ( item: PostRow ) => item.id }
+						isLoading={ isLoading }
+						initialView={ {
+							sort: { field: 'views', direction: 'desc' },
+							titleField: 'title',
+							fields: [ 'views' ],
+						} }
+						searchLabel="Search posts"
+						isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
+						renderItemLink={ ( { item, className, children, ...linkProps } ) => (
+							<a
+								{ ...linkProps }
+								className={ [ className, item.isExternal ? styles.externalLink : '' ]
+									.filter( Boolean )
+									.join( ' ' ) }
+								href={ item.link }
+								target={ item.isExternal ? '_blank' : undefined }
+								rel={ item.isExternal ? 'noopener noreferrer' : undefined }
+							>
+								{ children }
+								{ item.isExternal ? (
+									<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
+								) : null }
+							</a>
+						) }
+					/>
 				) }
-			/>
-		</ReportPageLayout>
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 
@@ -225,16 +165,15 @@ const meta = {
 	component: ReportPageLayout,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		isLoading: { control: 'boolean' },
+		isEmpty: { control: 'boolean' },
 	},
-	decorators: [ withChartProviders ],
 	parameters: {
 		layout: 'padded',
 		docs: {
 			description: {
 				component:
-					'The shared report-page framework: `ReportPageLayout` (breadcrumb header, actions, tabs, filters slots), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
+					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs and actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportChartSection` (a chart card with the control below it that collapses it, and the optional heading, icon and info tip a chart names itself with — shared by every chart above a records table), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
 			},
 		},
 	},
@@ -245,19 +184,26 @@ export default meta;
 type Story = StoryObj< ReportPageStoryControls >;
 
 /**
- * The composed page. Note the comparison overlay only draws when a single
- * metric is visible (hide the others via the chart's ⋮ menu) — with several
- * metrics shown, dashed twins per metric would make the chart unreadable.
+ * The composed page.
  */
 export const Default: Story = {
 	render: args => <ComposedReportPage { ...args } />,
-	args: { withComparison: true, isLoading: false },
+	args: { isLoading: false },
 };
 
 /**
- * The loading overlays on both sections while data resolves.
+ * The records table's loading state while data resolves.
  */
 export const Loading: Story = {
 	render: args => <ComposedReportPage { ...args } />,
-	args: { withComparison: false, isLoading: true },
+	args: { isLoading: true },
+};
+
+/**
+ * The selected period returned no rows, so the empty state replaces the
+ * records table.
+ */
+export const EmptyPeriod: Story = {
+	render: args => <ComposedReportPage { ...args } />,
+	args: { isLoading: false, isEmpty: true },
 };

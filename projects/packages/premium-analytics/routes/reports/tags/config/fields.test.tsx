@@ -7,33 +7,6 @@ import { render, screen } from '@testing-library/react';
  */
 import { getTagsFields } from './fields';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
-
-jest.mock( '@wordpress/ui', () => ( {
-	Icon: () => null,
-	Link: ( {
-		href,
-		children,
-		openInNewTab,
-		variant,
-		...props
-	}: {
-		href: string;
-		children: ReactNode;
-		openInNewTab?: boolean;
-		variant?: string;
-	} ) => (
-		<a
-			href={ href }
-			data-variant={ variant }
-			target={ openInNewTab ? '_blank' : undefined }
-			rel={ openInNewTab ? 'noopener noreferrer' : undefined }
-			{ ...props }
-		>
-			{ children }
-		</a>
-	),
-} ) );
 
 const tag = {
 	label: [ { label: 'Recipes', labelIcon: 'tag' } ],
@@ -64,7 +37,7 @@ describe( 'tags fields', () => {
 	it( 'links a tag to its archive', () => {
 		renderLabelField( tag );
 
-		const link = screen.getByRole( 'link', { name: 'Recipes' } );
+		const link = screen.getByRole( 'link', { name: /^Recipes/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/tag/recipes/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

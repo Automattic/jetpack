@@ -1,0 +1,318 @@
+import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api';
+import { useQueryClient } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
+import { Button, Notice } from '@wordpress/ui';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import ScoreAlert from './score-alert';
+import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
+import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
+import HistoryChartCard from './history-chart-card';
+import HistoryUpsell from './history-upsell';
+import { getScoreDisplayState } from './lib/score-utils';
+import { bucketHistoryDays } from './lib/history-days';
+import {
+	OVERVIEW_MODULES_CHANGE_EVENT,
+	relayedQueryKeys,
+	type ModulesStateChange,
+} from './lib/modules-state-bridge';
+import { useHistoryRange } from './lib/use-history-range';
+import {
+	canOfferUpgrade,
+	isSiteOnline,
+	useModulesState,
+	useScoreRefreshState,
+} from './lib/use-modules-state';
+import {
+	performanceHistoryQueryKey,
+	useHasOlderHistory,
+	usePerformanceHistory,
+} from './lib/use-performance-history';
+import { useSpeedScores } from './lib/use-speed-scores';
+import { useScoreCardVisibility } from './lib/use-score-card-visibility';
+import ScoreBar from './score-bar';
+import ScoreCards from './score-cards';
+import './overview.scss';
+import type { ReactNode } from 'react';
+
+type Props = {
+	scoresEnabled?: boolean;
+	isVisible?: boolean;
+	onHeaderActionChange: ( action: ReactNode ) => void;
+};
+
+export default function Overview( props: Props ) {
+	const fallbackRef = useRef< HTMLDivElement >( null );
+	const focusFallback = useCallback( () => fallbackRef.current?.focus(), [] );
+	return (
+		<ErrorBoundary
+			fallback={ error => (
+				<Notice.Root
+					ref={ fallbackRef }
+					className="jetpack-boost-overview__fallback"
+					tabIndex={ -1 }
+					intent="error"
+					spokenMessage={
+						props.isVisible !== false
+							? __( 'Unable to display performance scores', 'jetpack-boost' )
+							: ''
+					}
+				>
+					<Notice.Title>
+						{ __( 'Unable to display performance scores', 'jetpack-boost' ) }
+					</Notice.Title>
+					<Notice.Description>{ error.message }</Notice.Description>
+				</Notice.Root>
+			) }
+		>
+			<OverviewContent { ...props } focusFallback={ focusFallback } />
+		</ErrorBoundary>
+	);
+}
+
+function OverviewContent( {
+	scoresEnabled = true,
+	isVisible = true,
+	onHeaderActionChange,
+	focusFallback,
+}: Props & { focusFallback: () => void } ) {
+	const scoreHeadingRef = useRef< HTMLHeadingElement >( null );
+	const modules = useModulesState();
+	const refreshState = useScoreRefreshState( modules.data );
+	const onUserRunComplete = useCallback( () => {
+		window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) );
+	}, [] );
+	const [ scoreState, refreshScores ] = useSpeedScores(
+		refreshState,
+		scoresEnabled,
+		onUserRunComplete
+	);
+	const historyAvailable = modules.data?.performance_history?.available === true;
+	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
+	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
+	const history = usePerformanceHistory( historyAvailable && isVisible, range );
+	const days = bucketHistoryDays( history.data?.periods ?? [], range );
+	const recordedDayCount = days.filter( day => day.period ).length;
+	const assumesOlderHistory = Boolean( days[ 0 ]?.period ) && recordedDayCount >= 2;
+	const olderHistory = useHasOlderHistory(
+		historyAvailable && isVisible && history.isSuccess && ! assumesOlderHistory,
+		olderRanges
+	);
+	const hasOlderHistory = olderHistory.isSuccess ? olderHistory.data : undefined;
+	const canGoPrevious =
+		history.isSuccess &&
+		( assumesOlderHistory || hasOlderHistory === true || olderHistory.isError );
+	const showSingleDate = recordedDayCount === 1 && hasOlderHistory === false;
+	const queryClient = useQueryClient();
+	const online = isSiteOnline();
+	const isLoading = scoreState.status === 'loading';
+	const scoreCardRef = useRef< HTMLDivElement >( null );
+	const { slot, isAboveViewport } = useScoreCardVisibility( scoreCardRef, isVisible && online );
+	const displayState = getScoreDisplayState( scoreState );
+	const [ isScoreReady, setScoreReady ] = useState( false );
+	const previousDisplay = useRef( {
+		displayState,
+		isRunning: scoreState.isRunning,
+		isVisible,
+		isAboveViewport,
+	} );
+
+	useLayoutEffect( () => {
+		const previous = previousDisplay.current;
+		if (
+			scoreState.status !== 'loaded' ||
+			displayState !== 'scores' ||
+			previous.isVisible !== isVisible ||
+			previous.isAboveViewport !== isAboveViewport
+		) {
+			setScoreReady( false );
+		} else if ( previous.displayState === 'generating' && previous.isRunning && isVisible ) {
+			setScoreReady( ! window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches );
+		}
+		previousDisplay.current = {
+			displayState,
+			isRunning: scoreState.isRunning,
+			isVisible,
+			isAboveViewport,
+		};
+	}, [ displayState, scoreState.status, scoreState.isRunning, isVisible, isAboveViewport ] );
+
+	useEffect( () => {
+		const card = scoreCardRef.current;
+		const finishEntry = ( event: AnimationEvent ) => {
+			if ( event.animationName === 'jetpack-boost-score-entry' ) {
+				setScoreReady( false );
+			}
+		};
+		for ( const surface of [ card, slot ] ) {
+			surface?.addEventListener( 'animationend', finishEntry );
+			surface?.addEventListener( 'animationcancel', finishEntry );
+		}
+		return () => {
+			for ( const surface of [ card, slot ] ) {
+				surface?.removeEventListener( 'animationend', finishEntry );
+				surface?.removeEventListener( 'animationcancel', finishEntry );
+			}
+		};
+	}, [ slot ] );
+
+	useEffect( () => {
+		const onModulesChange = ( event: Event ) => {
+			const { key, data } = ( event as CustomEvent< ModulesStateChange > ).detail;
+			if ( relayedQueryKeys.includes( key ) ) {
+				void queryClient.cancelQueries( { queryKey: [ key ], exact: true } );
+				queryClient.setQueryData( [ key ], data );
+			}
+		};
+		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );
+		return () => window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );
+	}, [ queryClient ] );
+
+	useEffect( () => {
+		if ( online && scoreState.status === 'loaded' ) {
+			// New scores only land in windows that end today, so older windows and their check stay cached.
+			queryClient.invalidateQueries( {
+				queryKey: performanceHistoryQueryKey,
+				predicate: ( { queryKey } ) =>
+					typeof queryKey[ 2 ] === 'number' && queryKey[ 2 ] >= Date.now(),
+			} );
+		}
+	}, [ online, scoreState.status, queryClient ] );
+
+	const onRefresh = useCallback(
+		( source: 'header' | 'score_card' ) => {
+			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
+			void refreshScores( true, { userStarted: true } );
+		},
+		[ refreshScores ]
+	);
+
+	useEffect( () => {
+		if ( ! isVisible || ! online ) {
+			return;
+		}
+		let action: HTMLButtonElement | null = null;
+		onHeaderActionChange(
+			<Button
+				ref={ node => {
+					action = node;
+				} }
+				variant="solid"
+				size="compact"
+				disabled={ isLoading }
+				loading={ scoreState.isRunning }
+				loadingAnnouncement=""
+				onClick={ () => onRefresh( 'header' ) }
+			>
+				{ __( 'Run speed test', 'jetpack-boost' ) }
+			</Button>
+		);
+		return () => {
+			// Runs on every dependency change; focusFallback is a no-op unless the fallback is mounted,
+			// and React attaches the fallback ref before this removed subtree's passive cleanup runs.
+			if ( action && action === action.ownerDocument.activeElement ) {
+				focusFallback();
+			}
+			onHeaderActionChange( null );
+		};
+	}, [
+		isVisible,
+		online,
+		isLoading,
+		scoreState.isRunning,
+		onRefresh,
+		onHeaderActionChange,
+		focusFallback,
+	] );
+
+	if ( ! online ) {
+		return (
+			<div className="jetpack-boost-overview">
+				<Notice.Root
+					intent="info"
+					spokenMessage={
+						isVisible ? __( 'Website is not publicly available', 'jetpack-boost' ) : ''
+					}
+				>
+					<Notice.Title>
+						{ __( 'Website is not publicly available', 'jetpack-boost' ) }
+					</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'Performance score and some other Boost features cannot work because the Boost Cloud cannot reach your website. To fix this, you need to make your website publicly available.',
+							'jetpack-boost'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			</div>
+		);
+	}
+
+	return (
+		<div className="jetpack-boost-overview">
+			{ isVisible &&
+				isAboveViewport &&
+				slot &&
+				createPortal( <ScoreBar state={ scoreState } isScoreReady={ isScoreReady } />, slot ) }
+			<div ref={ scoreCardRef }>
+				<ScoreCards
+					isScoreReady={ isScoreReady && isVisible }
+					headingRef={ scoreHeadingRef }
+					scores={ scoreState.scores }
+					isLoading={ isLoading }
+					isRunning={ scoreState.isRunning }
+					hasScores={ scoreState.hasScores }
+					error={ scoreState.error }
+					onRetry={ () => onRefresh( 'score_card' ) }
+					isVisible={ isVisible }
+				/>
+			</div>
+			<ScoreAlert
+				onBeforeHide={ () => scoreHeadingRef.current?.focus() }
+				scoreChange={
+					scoreState.status === 'loaded' &&
+					! scoreState.scores.isStale &&
+					getScoreMovementPercentage( scoreState.scores )
+				}
+				isVisible={ isVisible }
+			/>
+			{ modules.isError && (
+				<Notice.Root
+					intent="error"
+					spokenMessage={ isVisible ? __( 'Failed to load module settings', 'jetpack-boost' ) : '' }
+				>
+					<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>{ modules.error.message }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton onClick={ () => modules.refetch() }>
+							{ __( 'Try again', 'jetpack-boost' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
+			{ needsUpgrade ? (
+				canOfferUpgrade() && (
+					<HistoryUpsell range={ range } dayCount={ dayCount } isVisible={ isVisible } />
+				)
+			) : (
+				<HistoryChartCard
+					range={ range }
+					dayCount={ dayCount }
+					onPrevious={ onPrevious }
+					onNext={ onNext }
+					canGoNext={ canGoNext }
+					canGoPrevious={ canGoPrevious }
+					hasOlderHistory={ hasOlderHistory }
+					showSingleDate={ showSingleDate }
+					isVisible={ isVisible }
+					data={ modules.isPending ? undefined : history.data }
+					isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
+					isError={ history.isError && ! history.isFetching }
+					error={ history.error }
+					onRetry={ () => history.refetch() }
+				/>
+			) }
+		</div>
+	);
+}

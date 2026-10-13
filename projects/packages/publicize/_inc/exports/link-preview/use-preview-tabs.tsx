@@ -4,7 +4,6 @@ import {
 	GoogleSearchPreview,
 	LinkedInLinkPreview,
 	MastodonLinkPreview,
-	NextdoorLinkPreview,
 	ThreadsLinkPreview,
 	TumblrLinkPreview,
 	TwitterLinkPreview,
@@ -66,12 +65,6 @@ export function usePreviewTabs() {
 						{ ...props }
 					/>
 				),
-			},
-			{
-				title: __( 'Nextdoor', 'jetpack-publicize-pkg' ),
-				icon: <SocialLogo icon="nextdoor" />,
-				name: 'nextdoor',
-				preview: NextdoorLinkPreview,
 			},
 			{
 				title: __( 'Tumblr', 'jetpack-publicize-pkg' ),

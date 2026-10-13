@@ -1,0 +1,361 @@
+/**
+ * External dependencies
+ */
+import {
+	getDefaultQueryParams,
+	needsReportDateParamsSeed,
+	queryClient,
+} from '@jetpack-premium-analytics/data';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
+/**
+ * Internal dependencies
+ */
+import { getMockRouteLinkUrl } from '../../../tests/js/route-test-utils';
+import PopularPostWidget from '../render';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+
+// WidgetRoot reads URL search params as a fallback for report params; outside
+// a matched route the real hook warns and throws.
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
+const originalScriptData = window.JetpackScriptData;
+
+// The window is resolved from "now" in the site timezone, so pin both rather
+// than letting the machine's clock and zone decide what to expect.
+const NOW = new Date( '2026-08-27T12:00:00.000Z' );
+
+const topPostsResponse = {
+	date: '2026-08-26',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: [
+			{
+				id: 7,
+				title: 'Winning post',
+				type: 'post',
+				href: 'https://example.com/winning-post/',
+				date: '2026-06-02',
+				views: 420,
+			},
+		],
+		total_views: 420,
+	},
+};
+
+const postContentResponse = [
+	{
+		id: 7,
+		title: { rendered: 'Winning post' },
+		link: 'https://example.com/winning-post/',
+		date: '2026-06-02T08:00:00',
+	},
+];
+
+const postStatsResponse = { views: 9999, like_count: 12, post: { ID: 7, comment_count: 4 } };
+
+type MockedFetchArgs = { path?: string; url?: string };
+
+function requestPath( options: unknown ): string {
+	const { path, url } = options as MockedFetchArgs;
+
+	return path || url || '';
+}
+
+function topPostsRequests(): string[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => requestPath( options ) )
+		.filter( target => target.includes( 'stats/top-posts' ) );
+}
+
+/**
+ * Report params for a single calendar year, the shape the Insights section's
+ * year filter hands its widgets.
+ *
+ * @param year - Four-digit year.
+ * @return Report params scoped to that year.
+ */
+function yearReportParams( year: number ) {
+	return {
+		...getDefaultQueryParams( false ),
+		preset: undefined,
+		from: `${ year }-01-01T00:00:00.000+00:00`,
+		to: `${ year }-12-31T23:59:59.999+00:00`,
+	};
+}
+
+describe( 'PopularPostWidget', () => {
+	let defaultSettings: ReturnType< typeof getSettings >;
+
+	beforeEach( () => {
+		window.JetpackScriptData = {
+			...originalScriptData,
+			site: {
+				...originalScriptData?.site,
+				admin_url: 'https://example.com/blog/wp-admin/',
+			},
+		} as typeof window.JetpackScriptData;
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockImplementation( ( options: unknown ) => {
+			const target = requestPath( options );
+
+			if ( target.includes( 'stats/top-posts' ) ) {
+				return Promise.resolve( topPostsResponse );
+			}
+			if ( target.includes( 'stats/post/' ) ) {
+				return Promise.resolve( postStatsResponse );
+			}
+			if ( target.startsWith( '/wp/v2/posts' ) ) {
+				return Promise.resolve( postContentResponse );
+			}
+
+			return Promise.resolve( {} );
+		} );
+
+		defaultSettings = getSettings();
+		setSettings( {
+			...defaultSettings,
+			timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+		} );
+		jest.useFakeTimers();
+		jest.setSystemTime( NOW );
+	} );
+
+	afterEach( () => {
+		window.JetpackScriptData = originalScriptData;
+		jest.useRealTimers();
+		setSettings( defaultSettings );
+	} );
+
+	it( 'ranks over its own window whatever range the host injects', async () => {
+		const { rerender } = render(
+			<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+		);
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+
+		// The window's own bounds are asserted in the hook's suite; what only shows
+		// here is that the injected year never displaces them.
+		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
+		expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
+		expect( ranking ).not.toContain( '2022' );
+
+		// A different section year is the change this card must ignore: it reads
+		// the range from nowhere, so no second ranking request is issued. Settle
+		// first — asserting a count that is already right would pass on the first
+		// tick, before a request the rerender triggered could be seen.
+		rerender( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2023 ) } } /> );
+
+		// Let anything the rerender queued actually run, so the count below is a
+		// settled one rather than a first-tick reading.
+		await act( async () => {
+			await Promise.resolve();
+		} );
+
+		expect( topPostsRequests() ).toHaveLength( 1 );
+		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
+	} );
+
+	it( 'names its own window, not the selected period, when the site has no views', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve(
+				requestPath( options ).startsWith( '/wp/v2/posts' )
+					? postContentResponse
+					: { ...topPostsResponse, summary: { postviews: [], total_views: 0 } }
+			)
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Create post when the ranking and published-post responses are empty', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve(
+				requestPath( options ).startsWith( '/wp/v2/posts' )
+					? []
+					: { ...topPostsResponse, summary: { postviews: [], total_views: 0 } }
+			)
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( "Your most-read post will show here once you've published one." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/blog/wp-admin/post-new.php'
+		);
+	} );
+
+	it( 'holds the no-views message back while the published-post check is pending', async () => {
+		let resolvePosts!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).startsWith( '/wp/v2/posts' )
+				? new Promise( resolve => {
+						resolvePosts = resolve;
+					} )
+				: Promise.resolve( { ...topPostsResponse, summary: { postviews: [], total_views: 0 } } )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.fetchStatus ).toBe( 'fetching' )
+		);
+
+		expect( screen.queryByText( 'No post views in the last 12 months.' ) ).not.toBeInTheDocument();
+
+		await act( async () => resolvePosts( [] ) );
+		await expect(
+			screen.findByRole( 'link', { name: 'Create post' } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'keeps Create post while the empty ranking refetches', async () => {
+		const emptyRanking = { ...topPostsResponse, summary: { postviews: [], total_views: 0 } };
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			Promise.resolve( requestPath( options ).startsWith( '/wp/v2/posts' ) ? [] : emptyRanking )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+		await expect(
+			screen.findByRole( 'link', { name: 'Create post' } )
+		).resolves.toBeInTheDocument();
+
+		let resolveRanking!: ( value: unknown ) => void;
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).includes( 'stats/top-posts' )
+				? new Promise( resolve => {
+						resolveRanking = resolve;
+					} )
+				: Promise.resolve( [] )
+		);
+		let refetch!: Promise< unknown >;
+		act( () => {
+			refetch = queryClient.refetchQueries( { queryKey: [ 'stats', 'top-posts' ] } );
+		} );
+		await waitFor( () =>
+			expect( queryClient.isFetching( { queryKey: [ 'stats', 'top-posts' ] } ) ).toBe( 1 )
+		);
+
+		expect(
+			screen.getByText( "Your most-read post will show here once you've published one." )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toBeInTheDocument();
+
+		await act( async () => {
+			resolveRanking( emptyRanking );
+			await refetch;
+		} );
+	} );
+
+	it( 'keeps the no-views message when the published-post check fails', async () => {
+		mockApiFetch.mockImplementation( ( options: unknown ) =>
+			requestPath( options ).startsWith( '/wp/v2/posts' )
+				? Promise.reject( { code: 'rest_forbidden', data: { status: 403 } } )
+				: Promise.resolve( {
+						...topPostsResponse,
+						summary: { postviews: [], total_views: 0 },
+					} )
+		);
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'latest-post' ] )?.status ).toBe( 'error' )
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
+		const reportParams = { ...yearReportParams( 2022 ), author_id: 7 };
+		const { unmount } = render( <PopularPostWidget attributes={ { reportParams } } /> );
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+		expect( topPostsRequests() ).toHaveLength( 1 );
+		unmount();
+
+		mockApiFetch.mockClear();
+		render( <PopularPostWidget attributes={ { reportParams, authorScoped: true } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+		expect( topPostsRequests() ).toHaveLength( 0 );
+		expect(
+			mockApiFetch.mock.calls.some( ( [ options ] ) =>
+				requestPath( options ).includes( 'stats/top-authors' )
+			)
+		).toBe( true );
+	} );
+
+	it( 'shows the scopeless empty state, and makes no request, when author-scoped without an author', async () => {
+		render(
+			<PopularPostWidget
+				attributes={ { reportParams: yearReportParams( 2022 ), authorScoped: true } }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'Open an author to see their most viewed post here.' )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'links the post to its detail page on the window it ranked over, naming the tab to return to', async () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+			</DashboardSectionProvider>
+		);
+
+		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
+		const { searchParams: search } = getMockRouteLinkUrl( link );
+
+		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
+		expect( search.get( 'from' ) ).toContain( '2025-09-01T00:00:00' );
+		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
+
+		// A complete window, so the detail route reseeds the URL from these params
+		// rather than from its own defaults. (It does reseed either way — its
+		// redirect also fires on the `post_id` a link cannot carry — so what this
+		// pins is the window that survives, not whether the redirect happens.)
+		expect(
+			needsReportDateParamsSeed( {
+				from: search.get( 'from' ) ?? undefined,
+				to: search.get( 'to' ) ?? undefined,
+				interval: search.get( 'interval' ) ?? undefined,
+				preset: search.get( 'preset' ) as 'last-12-months',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'renders on a saved instance that carries no report params', async () => {
+		// The widget rules allow `attributes` to arrive empty, and nothing here
+		// reads the host's range, so an instance saved before this card pinned its
+		// window still has everything it needs.
+		render( <PopularPostWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+
+		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
+		expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
+	} );
+} );

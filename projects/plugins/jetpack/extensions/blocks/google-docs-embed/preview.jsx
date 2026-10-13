@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
+import isAllowedEmbedUrl from '../../shared/is-allowed-embed-url';
 
 const Preview = props => {
 	const {
@@ -10,6 +11,19 @@ const Preview = props => {
 		title = __( 'Embed URL', 'jetpack' ),
 		url,
 	} = props;
+
+	// Only allowed Google HTTPS addresses are embedded.
+	if ( ! isAllowedEmbedUrl( url, [ 'google.com' ] ) ) {
+		return (
+			<figure>
+				<div className="wp-block-jetpack-google-docs-embed__wrapper wp-block-jetpack-google-docs-embed__wrapper--error">
+					<p className="wp-block-jetpack-google-docs-embed__error-msg">
+						{ __( 'This embed URL is not supported.', 'jetpack' ) }
+					</p>
+				</div>
+			</figure>
+		);
+	}
 
 	return (
 		/* this extra wrapper div gets max-width set */

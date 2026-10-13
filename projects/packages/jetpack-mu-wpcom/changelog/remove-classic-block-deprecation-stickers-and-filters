@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the Classic block deprecation experiment and the Classic block inserter support sticker, since the deprecation was removed from Gutenberg.

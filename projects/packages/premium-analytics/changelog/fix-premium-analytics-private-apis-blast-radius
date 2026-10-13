@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scope wp-build polyfill registration to the dashboard pages so it no longer force-replaces core script handles (wp-private-apis) on every admin page

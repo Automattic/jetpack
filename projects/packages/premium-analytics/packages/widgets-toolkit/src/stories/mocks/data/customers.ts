@@ -1,12 +1,15 @@
 /**
  * Mock data for Customers New vs Returning endpoint
  *
- * Used by: RevenueByCustomerTypeWidget, BookingsRevenueByCustomerTypeWidget
- *
  * Response structure matches:
  * - summary: CustomersNewReturningSummary
  * - data: CustomersNewReturningItem[]
  */
+
+/**
+ * Internal dependencies
+ */
+import { wooBucketStamp } from '../../../__fixtures__/woo-bucket-stamp';
 
 export type MockCustomersItem = {
 	customer_type: 'new' | 'returning';
@@ -37,8 +40,8 @@ export const mockCustomersData: MockCustomersResponse = {
 		total_orders: '456',
 		new_customer_sales: '34567.89',
 		returning_customer_sales: '53086.43',
-		date_start: '2024-01-01',
-		date_end: '2024-01-31',
+		date_start: wooBucketStamp( '2024-01-01' ),
+		date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 	},
 	data: [
 		{
@@ -63,8 +66,8 @@ export const mockCustomersComparisonData: MockCustomersResponse = {
 		total_orders: '389',
 		new_customer_sales: '28901.23',
 		returning_customer_sales: '43444.44',
-		date_start: '2023-12-01',
-		date_end: '2023-12-31',
+		date_start: wooBucketStamp( '2023-12-01' ),
+		date_end: wooBucketStamp( '2023-12-31T23:59:59' ),
 	},
 	data: [
 		{
@@ -89,16 +92,14 @@ export const mockCustomersEmptyData: MockCustomersResponse = {
 		total_orders: '0',
 		new_customer_sales: '0',
 		returning_customer_sales: '0',
-		date_start: '2024-01-01',
-		date_end: '2024-01-31',
+		date_start: wooBucketStamp( '2024-01-01' ),
+		date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 	},
 	data: [],
 };
 
 /**
  * Mock data for Customers By Date endpoint
- *
- * Used by: NewVsReturningCustomerWidget
  *
  * Response structure matches:
  * - summary: CustomersByDateSummary (includes customer counts)
@@ -183,8 +184,8 @@ export const mockCustomersByDateData: MockCustomersByDateResponse = {
 		returning_customer_orders: '267',
 		returning_customer_avg_order_value: '198.83',
 		returning_customer_avg_items_per_order: '2.5',
-		date_start: '2024-01-01',
-		date_end: '2024-01-31',
+		date_start: wooBucketStamp( '2024-01-01' ),
+		date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 	},
 	data: [],
 };
@@ -218,8 +219,8 @@ export const mockCustomersByDateComparisonData: MockCustomersByDateResponse = {
 		returning_customer_orders: '221',
 		returning_customer_avg_order_value: '196.58',
 		returning_customer_avg_items_per_order: '2.4',
-		date_start: '2023-12-01',
-		date_end: '2023-12-31',
+		date_start: wooBucketStamp( '2023-12-01' ),
+		date_end: wooBucketStamp( '2023-12-31T23:59:59' ),
 	},
 	data: [],
 };

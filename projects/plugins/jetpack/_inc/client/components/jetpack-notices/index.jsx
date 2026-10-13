@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -190,7 +191,7 @@ class JetpackNotices extends Component {
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
 
 		return (
-			<div aria-live="polite">
+			<Stack direction="column" gap="xl" aria-live="polite">
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
 					this.props.userCanConnectSite &&
@@ -255,7 +256,7 @@ class JetpackNotices extends Component {
 							linkText={ link.label }
 						/>
 					) ) }
-			</div>
+			</Stack>
 		);
 	}
 }

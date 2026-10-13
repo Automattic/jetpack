@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Note: This is a ranked list report, not a time-series report.
  * Comparison mode is supported using ID-based merging (matching by device_type).
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Sessions_By_Device_Controller extends Abstract_Csv_Report_Controller {
 

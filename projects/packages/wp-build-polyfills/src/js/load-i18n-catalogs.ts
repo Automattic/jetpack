@@ -3,11 +3,9 @@
  *
  * The wp-build (esbuild) pipeline externalizes `@wordpress/i18n` to the shared
  * `window.wp.i18n` singleton but never wires up loading of the translation
- * catalog, and WordPress core (before 7.0's script-module i18n) has no
- * `wp_set_script_translations()` equivalent for script modules. Each dashboard
- * registers a boot init module that calls this helper; boot awaits init
- * modules before rendering routes, so catalogs install before any translated
- * string evaluates.
+ * catalog. Each dashboard registers a boot init module that calls this helper;
+ * boot awaits init modules before rendering routes, so catalogs install before
+ * any translated string evaluates.
  *
  * The set of bundles to load catalogs for comes from the `i18n-manifest.json`
  * that the `stamp-textdomains` build step emits into the build/ directory —
@@ -32,8 +30,8 @@
  * WordPress names JS translation files, fetches the catalog, and installs it
  * via `setLocaleData()`.
  *
- * Once Jetpack's WP floor reaches 7.0, `wp_set_script_module_translations()`
- * can likely replace this helper along with the build-time text-domain stamp.
+ * Every supported WordPress ships `wp_set_script_module_translations()` (since 7.0),
+ * which can likely replace this helper along with the build-time text-domain stamp.
  */
 
 interface JpI18nLoader {
@@ -62,6 +60,19 @@ const CATALOG_TIMEOUT_MS = 5000;
  * catalogs — until the burst drains.
  */
 const MAX_CONCURRENT_DOWNLOADS = 6;
+
+/**
+ * How long a download may hold its concurrency slot before the slot is
+ * returned to the pool. `downloadI18n()` awaits a bare `fetch` with no timeout
+ * and takes no `AbortSignal`, so a stalled origin never settles it and the
+ * callers' own bounds unblock only themselves — without this, six stalled
+ * downloads wedge the queue for the rest of the page. Set well above both
+ * caller bounds (5s, and 15s for the metadata preload) so a merely slow origin
+ * never trips it: this bound exists for deadlock-immunity, not responsiveness.
+ * The orphaned request keeps running, so in-flight downloads can transiently
+ * exceed the cap — which only happens once the origin has stopped answering.
+ */
+const SLOT_TIMEOUT_MS = 30000;
 
 /**
  * Bundles whose catalogs are left to on-demand loading: the widget tree, one
@@ -166,19 +177,48 @@ function sharedState(): SharedCatalogState {
 }
 
 /**
- * Run a download task once a concurrency slot is free.
+ * Run a download task once a concurrency slot is free, releasing the slot when
+ * the task settles or when it has held the slot past `SLOT_TIMEOUT_MS`.
  *
  * @param state - The shared catalog state.
+ * @param path  - Package-relative bundle path, for the watchdog's diagnostic.
  * @param task  - The task to run.
  * @return Resolves/rejects with the task once it has run.
  */
-function throttled( state: SharedCatalogState, task: () => Promise< void > ): Promise< void > {
+function throttled(
+	state: SharedCatalogState,
+	path: string,
+	task: () => Promise< void >
+): Promise< void > {
 	return new Promise( resolve => {
 		const run = () => {
 			state.active++;
-			// `finally` frees the slot on both outcomes; `resolve()` adopts the
-			// task's promise, so a rejection still reaches the caller.
-			resolve( task().finally( () => releaseSlot( state ) ) );
+			let released = false;
+			// Whichever of the two paths fires first frees the slot; the guard
+			// keeps the other from decrementing `active` a second time, which
+			// would let later bursts run over the concurrency cap.
+			const release = () => {
+				if ( released ) {
+					return;
+				}
+				released = true;
+				clearTimeout( watchdog );
+				releaseSlot( state );
+			};
+			const watchdog = setTimeout( () => {
+				warn(
+					`Catalog download for ${ path } has held a slot for ${ SLOT_TIMEOUT_MS }ms; releasing it so queued downloads can proceed.`
+				);
+				release();
+			}, SLOT_TIMEOUT_MS );
+			// Browsers return an opaque handle and stop timers at teardown, but
+			// this module is imported directly under `node --test`, where a
+			// pending timer keeps the process alive — a stalled download would
+			// hold a test run open for the whole timeout. Harmless where absent.
+			( watchdog as unknown as { unref?: () => void } ).unref?.();
+			// `resolve()` adopts the task's promise, so a rejection still
+			// reaches the caller.
+			resolve( task().finally( release ) );
 		};
 		if ( state.active < MAX_CONCURRENT_DOWNLOADS ) {
 			run();
@@ -223,7 +263,7 @@ function downloadOnce(
 	const key = `${ domain }|${ path }`;
 	let download = state.downloads.get( key );
 	if ( ! download ) {
-		download = throttled( state, () => loader.downloadI18n( path, domain, 'plugin' ) ).catch(
+		download = throttled( state, path, () => loader.downloadI18n( path, domain, 'plugin' ) ).catch(
 			( error: unknown ) => {
 				const message = errorMessage( error );
 				if ( ! isMissingCatalog( message ) ) {
@@ -276,22 +316,14 @@ function isMissingCatalog( message: string ): boolean {
 }
 
 /**
- * Fetch the bundle list from the build's i18n manifest.
+ * Fetch the bundle list from a build's i18n manifest.
  *
- * @param moduleUrl - `import.meta.url` of the calling init module. wp-build
- *                  emits init bundles at `build/modules/<pkg>/index(.min).js`,
- *                  so the manifest is two levels up at
- *                  `build/i18n-manifest.json`.
+ * @param manifestUrl - Absolute URL of the manifest.
  * @return Package-relative paths of the string-bearing bundles.
  */
-async function fetchManifest( moduleUrl: string ): Promise< string[] > {
-	const manifestUrl = new URL( '../../i18n-manifest.json', moduleUrl );
-	// The module's query is its own content hash, which doesn't change when
-	// only the manifest does — so it can't act as a cache-buster on its own.
-	// Carry it over for CDN-side variance, and use `no-cache` so the browser
-	// revalidates against the server instead of trusting a long-lived cache.
-	manifestUrl.search = new URL( moduleUrl ).search;
-
+async function fetchManifest( manifestUrl: URL ): Promise< string[] > {
+	// `no-cache` so the browser revalidates against the server instead of
+	// trusting a long-lived cache: the manifest changes with every build.
 	const res = await fetch( manifestUrl, { cache: 'no-cache' } );
 	if ( ! res.ok ) {
 		throw new Error( `HTTP request failed: ${ res.status } ${ res.statusText }` );
@@ -300,6 +332,103 @@ async function fetchManifest( moduleUrl: string ): Promise< string[] > {
 	return Array.isArray( data?.bundles )
 		? data.bundles.filter( ( b ): b is string => typeof b === 'string' )
 		: [];
+}
+
+/**
+ * The manifest of the build an init module belongs to.
+ *
+ * @param moduleUrl - `import.meta.url` of the calling init module. wp-build
+ *                  emits init bundles at `build/modules/<pkg>/index(.min).js`,
+ *                  so the manifest is two levels up at
+ *                  `build/i18n-manifest.json`.
+ * @return Absolute URL of the manifest.
+ */
+function ownManifestUrl( moduleUrl: string ): URL {
+	const manifestUrl = new URL( '../../i18n-manifest.json', moduleUrl );
+	// The module's query is its own content hash, which doesn't change when
+	// only the manifest does — so it can't act as a cache-buster on its own.
+	// Carry it over for CDN-side variance.
+	manifestUrl.search = new URL( moduleUrl ).search;
+	return manifestUrl;
+}
+
+/**
+ * The cached bundle set of a domain, fetching the manifest on the first call.
+ *
+ * Fetched at most once per domain per page: the manifest is a static build
+ * artifact, and a repeat call must not be able to replace a good bundle set
+ * with the empty one a failed refetch yields — every widget loading after that
+ * would quietly skip its catalog. Published before it resolves, so an
+ * on-demand request never races the fetch.
+ *
+ * @param state       - The shared catalog state.
+ * @param domain      - The text domain the manifest belongs to.
+ * @param manifestUrl - Absolute URL of the manifest, used on the first call only.
+ * @return The bundle set; empty when the manifest is missing or malformed.
+ */
+function cachedManifest(
+	state: SharedCatalogState,
+	domain: string,
+	manifestUrl: URL
+): Promise< Set< string > > {
+	let manifest = state.manifests.get( domain );
+	if ( ! manifest ) {
+		// A missing manifest (dev watch build) 404s — expected, kept silent.
+		// Anything else is surfaced.
+		manifest = fetchManifest( manifestUrl )
+			.catch( ( error: unknown ) => {
+				const message = errorMessage( error );
+				if ( ! isMissingCatalog( message ) ) {
+					warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
+				}
+				return [] as string[];
+			} )
+			.then( bundles => new Set( bundles ) );
+		state.manifests.set( domain, manifest );
+	}
+	return manifest;
+}
+
+/**
+ * Register the i18n manifest of a build whose init module never runs on this
+ * page, from the manifest's URL.
+ *
+ * For bundles another plugin serves — its widget modules, registered on the
+ * dashboard from that plugin's own build. Caches the bundle set under the
+ * domain, as `loadI18nCatalogs()` does for the page's own build, so
+ * `loadBundleI18nCatalog()` can then load those bundles' catalogs on demand.
+ * Downloads nothing itself. A domain already registered keeps its bundle set,
+ * whatever URL a later call names.
+ *
+ * Resolves once the manifest is cached, or immediately when nothing can be
+ * loaded (default locale, loader missing); never rejects.
+ *
+ * @param domain      - The text domain the build's catalogs are registered under.
+ * @param manifestUrl - URL of the build's `i18n-manifest.json`, absolute or page-relative.
+ * @return Resolves once the manifest is cached, or at once when nothing can be loaded.
+ */
+export function loadI18nManifest( domain: string, manifestUrl: string ): Promise< void > {
+	const loader = ( window as typeof window & { wp?: { jpI18nLoader?: JpI18nLoader } } ).wp
+		?.jpI18nLoader;
+
+	// Boot already warned about a missing loader; stay quiet here.
+	if ( ! loader || typeof loader.downloadI18n !== 'function' ) {
+		return Promise.resolve();
+	}
+
+	if ( loader.state?.locale === 'en_US' ) {
+		return Promise.resolve();
+	}
+
+	let url: URL;
+	try {
+		url = new URL( manifestUrl, window.location?.href );
+	} catch {
+		warn( `Invalid i18n manifest URL for "${ domain }": ${ manifestUrl }` );
+		return Promise.resolve();
+	}
+
+	return cachedManifest( sharedState(), domain, url ).then( () => undefined );
 }
 
 /**
@@ -339,27 +468,7 @@ export async function loadI18nCatalogs(
 	const state = sharedState();
 
 	const load = async () => {
-		// Fetched at most once per domain per page: the manifest is a static
-		// build artifact, and a repeat call must not be able to replace a good
-		// bundle set with the empty one a failed refetch yields — every widget
-		// loading after that would quietly skip its catalog.
-		let manifest = state.manifests.get( domain );
-		if ( ! manifest ) {
-			// A missing manifest (dev watch build) 404s — expected, kept silent.
-			// Anything else is surfaced.
-			manifest = fetchManifest( moduleUrl )
-				.catch( ( error: unknown ) => {
-					const message = errorMessage( error );
-					if ( ! isMissingCatalog( message ) ) {
-						warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
-					}
-					return [] as string[];
-				} )
-				.then( bundles => new Set( bundles ) );
-			// Published for `loadBundleI18nCatalog()` before it resolves, so an
-			// on-demand request never races the manifest fetch.
-			state.manifests.set( domain, manifest );
-		}
+		const manifest = cachedManifest( state, domain, ownManifestUrl( moduleUrl ) );
 
 		const blocking: Promise< void >[] = [];
 		for ( const path of await manifest ) {
@@ -407,10 +516,10 @@ export async function loadI18nCatalogs(
  * The complement of `loadI18nCatalogs()` for lazy-loaded bundles: call it as
  * part of dynamically importing the bundle (e.g. a dashboard widget's render
  * module), so a catalog is only ever requested for a bundle actually being
- * loaded. Requires `loadI18nCatalogs()` to have run for the domain — that call
- * caches the build's manifest; without it (dev watch build, default locale,
- * loader missing) this resolves immediately and the bundle falls back to
- * English. Bundles the manifest doesn't list carry no strings and are skipped
+ * loaded. Requires the domain's manifest to be cached, by `loadI18nCatalogs()`
+ * for the page's own build or by `loadI18nManifest()` for another plugin's;
+ * without it (dev watch build, default locale, loader missing) this resolves
+ * immediately and the bundle falls back to English. Bundles the manifest doesn't list carry no strings and are skipped
  * without a request. Repeat calls for the same bundle reuse the first
  * download.
  *
@@ -442,8 +551,8 @@ export async function loadBundleI18nCatalog(
 	const state = sharedState();
 	const manifest = state.manifests.get( domain );
 	if ( ! manifest ) {
-		// `loadI18nCatalogs()` never ran for this domain (dev watch build, or
-		// called out of order) — the expected English fallback.
+		// Nothing cached a manifest for this domain (dev watch build, or called
+		// out of order) — the expected English fallback.
 		return;
 	}
 

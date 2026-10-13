@@ -92,6 +92,16 @@ $myjetpack-connection-avatar-overlap: 8px;
 	h4 {
 		margin-top: 0;
 		margin-bottom: 0.25rem;
+		// Lays the fault icon beside the label. Not `Stack render={ <h4 /> }`: that
+		// puts `display: flex` in `@layer wp-ui`, which wp-admin's unlayered rules
+		// beat, leaving the icon inline and sitting on the text baseline.
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 1.25rem;
+		line-height: 24px;
+		font-weight: 500;
+		color: var(--jp-black);
 
 		:global(button.components-button) {
 			height: auto;
@@ -116,6 +126,32 @@ $myjetpack-connection-avatar-overlap: 8px;
 				outline: none;
 				box-shadow: none;
 			}
+		}
+	}
+
+	// The icon paints itself with `currentColor`, so the severity is set as a text
+	// colour rather than a fill.
+	.state-icon {
+
+		&.error {
+			color: var(--jp-red);
+		}
+
+		&.warning {
+			color: var(--jp-yellow-50);
+		}
+	}
+
+	// Size and spacing are the description's own, from `@wordpress/ui`; only the
+	// colour is the card's, since `Text` sets none.
+	.details {
+		color: var(--jp-gray-70);
+
+		// The Site Health and support links come from the connection package, whose
+		// `Link` never declares `text-decoration` — it leans on the browser default,
+		// which wp-admin unsets. Unlayered, so this beats `@layer wp-ui`.
+		a {
+			text-decoration: underline;
 		}
 	}
 

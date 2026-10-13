@@ -15,7 +15,7 @@ require_once __DIR__ . '/ExitException.php';
 class BinTest extends TestCase {
 
 	public function setUp(): void {
-		// @phan-suppress-previous-line PhanCompatibleAnyReturnTypePHP56, PhanCompatibleVoidTypePHP70 -- While the package claims earlier versions, we only run tests with 7.2+.
+		// @phan-suppress-previous-line PhanCompatibleAnyReturnTypePHP56, PhanCompatibleVoidTypePHP70 -- While the package claims earlier versions, we only run tests with 7.4+.
 		parent::setUp();
 		unset( $_SERVER['argv'] );
 		foreach ( array( 'exit', 'die', 'pcntl_exec', 'ini_get_all', 'fprintf' ) as $func ) {
@@ -31,7 +31,7 @@ class BinTest extends TestCase {
 	}
 
 	public function tearDown(): void {
-		// @phan-suppress-previous-line PhanCompatibleAnyReturnTypePHP56, PhanCompatibleVoidTypePHP70 -- While the package claims earlier versions, we only run tests with 7.2+.
+		// @phan-suppress-previous-line PhanCompatibleAnyReturnTypePHP56, PhanCompatibleVoidTypePHP70 -- While the package claims earlier versions, we only run tests with 7.4+.
 		parent::tearDown();
 		\Patchwork\restoreAll();
 	}

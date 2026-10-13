@@ -45,25 +45,15 @@ export type RequestReportOrderAttributionSummaryParams = BaseReportParams & {
 };
 
 /**
- * Fetches order attribution summary data from the WC Analytics REST API
- *
- * Note: Order attribution summary endpoint returns both primary and comparison
- * data in a single response, unlike orders endpoint which requires
- * separate requests. The endpoint requires compare_from and compare_to parameters;
- * when no comparison is needed, it uses the same values as the primary range.
- *
- * @param params - Query parameters
- * @return Promise resolving to order attribution summary response
+ * Unlike the orders endpoint, this one returns both primary and comparison data in a
+ * single response. It requires `compare_from`/`compare_to`; when no comparison is
+ * needed, callers pass the primary range values for both.
  */
 export async function fetchReportOrderAttributionSummary(
 	params: RequestReportOrderAttributionSummaryParams
 ): Promise< OrderAttributionSummaryResponse > {
 	const { from, to, interval, view, compare_from, compare_to, date_type } = params;
 
-	/*
-	 * Order attribution endpoint requires compare_from and compare_to.
-	 * When no comparison is needed, use the same values as primary range.
-	 */
 	const queryParams: Record< string, string | undefined > = {
 		from,
 		to,

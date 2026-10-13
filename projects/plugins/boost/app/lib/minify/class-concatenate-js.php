@@ -153,6 +153,10 @@ class Concatenate_JS extends WP_Scripts {
 				}
 			}
 
+			if ( $do_concat && in_array( $this->get_data( $handle, 'strategy' ), array( 'defer', 'async' ), true ) ) {
+				$do_concat = false;
+			}
+
 			if ( $do_concat && $this->has_inline_content( $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					printf( "\n<!-- No Concat JS %s => Has Inline Content -->\n", esc_html( $handle ) );
@@ -278,7 +282,7 @@ class Concatenate_JS extends WP_Scripts {
 				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1 ) {
 					$file_name = jetpack_boost_page_optimize_generate_concat_path( $js_array['paths'], $this->dependency_path_mapping );
 
-					if ( get_site_option( 'jetpack_boost_static_minification' ) ) {
+					if ( jetpack_boost_minify_use_static_cache_urls() ) {
 						$href = jetpack_boost_get_minify_url( $file_name . '.min.js' );
 					} else {
 						$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $file_name;

@@ -1,0 +1,182 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useCallback, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { ApiError, errorCode } from '../data/api/_helpers';
+import { fetchDownloadStatus, initiateDownload, initiateFileDownload } from '../data/api/download';
+import { keys } from '../data/query-client';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
+import type { FailureReference, ReferenceId } from '../types/failure-reference';
+import type { RestoreItems } from '../types/restore';
+
+type DownloadState =
+	| { phase: 'idle' }
+	| { phase: 'submitting' }
+	| { phase: 'progress'; percent: number; reconnecting?: boolean }
+	| { phase: 'success'; downloadUrl: string; validUntil: string }
+	| { phase: 'error'; message: string; reference: FailureReference };
+
+// A download is scoped by categories *or* by named files, never both:
+// upstream models `paths` as one of the six categories.
+type DownloadRequest = { items: RestoreItems } | { files: string };
+
+type Result = {
+	state: DownloadState;
+	submit: ( items: RestoreItems ) => void;
+	submitFiles: ( files: string ) => void;
+	reset: () => void;
+};
+
+const POLL_INTERVAL_MS = 1500;
+
+/**
+ * Whether a failed poll is a refusal that retrying cannot fix.
+ *
+ * The bridge forwards an upstream 4xx as-is in `data.status`. Network
+ * errors and 5xx stay temporary, as do 408 and 429.
+ *
+ * @param error - The rejection from the status poll.
+ * @return True for a 4xx other than 408 and 429.
+ */
+function isPermanentPollError( error: unknown ): boolean {
+	const status = error instanceof ApiError ? ( error.data as { status?: unknown } )?.status : null;
+	return (
+		typeof status === 'number' && status >= 400 && status < 500 && status !== 408 && status !== 429
+	);
+}
+
+/**
+ * Real `useDownload` driving the modernized Download screen via the
+ * `/jetpack/v4/backups/download/$rewindId` bridge.
+ *
+ * Submit asks WPCOM to build the archive and stores the download id; a
+ * polled status query then advances the state machine
+ * idle → submitting → progress → success | error.
+ *
+ * The bridge derives `status` for us, because WPCOM's own payload has no
+ * status field — it signals lifecycle by which keys are present.
+ *
+ * Every read is gated on `enabled`, which the screen supplies from the gate
+ * verdict — see `useRestore` for why the gating lives here rather than below
+ * `<Gates>`.
+ *
+ * @param rewindId - The backup's rewind id.
+ * @param enabled  - Whether this site may query WordPress.com at all.
+ * @return state + submit + submitFiles + reset.
+ */
+export function useDownload( rewindId: string, enabled = true ): Result {
+	const [ downloadId, setDownloadId ] = useState< number | null >( null );
+	const [ submitError, setSubmitError ] = useState< Error | null >( null );
+
+	const {
+		mutate: mutateInitiate,
+		reset: resetMutation,
+		isPending: isInitiating,
+	} = useMutation( {
+		mutationFn: ( request: DownloadRequest ) =>
+			'files' in request
+				? initiateFileDownload( rewindId, request.files )
+				: initiateDownload( rewindId, request.items ),
+		onSuccess: result => {
+			setDownloadId( result.id );
+			setSubmitError( null );
+		},
+		onError: ( err: Error ) => {
+			setSubmitError( err );
+		},
+	} );
+
+	const effectiveDownloadId = downloadId ?? -1;
+	const statusQuery = useQuery( {
+		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
+		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
+		enabled: downloadId !== null && enabled,
+		// No reading yet is not a reason to stop: the first poll may simply have failed.
+		refetchInterval: query => {
+			const status = query.state.data?.status;
+			if ( isPermanentPollError( query.state.error ) ) {
+				return false;
+			}
+			return status === undefined || status === 'running' ? POLL_INTERVAL_MS : false;
+		},
+	} );
+	const failedPolls = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
+
+	const submit = useCallback(
+		( items: RestoreItems ) => mutateInitiate( { items } ),
+		[ mutateInitiate ]
+	);
+	const submitFiles = useCallback(
+		( files: string ) => mutateInitiate( { files } ),
+		[ mutateInitiate ]
+	);
+	const reset = useCallback( () => {
+		setDownloadId( null );
+		setSubmitError( null );
+		resetMutation();
+	}, [ resetMutation ] );
+
+	// The download once it exists; before that, the backup it was asked of.
+	const referenceId: ReferenceId =
+		downloadId !== null
+			? { kind: 'download', value: downloadId }
+			: { kind: 'backup', value: rewindId };
+
+	// `downloadId` is read before `isInitiating`: StrictMode's remount detaches
+	// the observer from the in-flight mutation and never reattaches it, so
+	// `isPending` latches true while `onSuccess` still lands the id.
+	let state: DownloadState = { phase: 'idle' };
+	if ( submitError?.message ) {
+		state = {
+			phase: 'error',
+			message: submitError.message,
+			reference: { code: errorCode( submitError ), id: referenceId },
+		};
+	} else if ( statusQuery.data?.status === 'finished' && statusQuery.data.url ) {
+		state = {
+			phase: 'success',
+			downloadUrl: statusQuery.data.url,
+			validUntil: statusQuery.data.valid_until,
+		};
+	} else if ( statusQuery.data?.status === 'failed' ) {
+		state = {
+			phase: 'error',
+			// WPCOM's reason when it gave one, since "Download failed."
+			// tells nobody anything — but carried inside a translated frame
+			// rather than shown as the whole message, so an upstream string
+			// in one language can't be the only text on an otherwise
+			// translated screen.
+			message: statusQuery.data.error
+				? sprintf(
+						/* translators: %s: the reason WordPress.com gave for the failure. */
+						__( 'Download failed: %s', 'jetpack-backup-pkg' ),
+						statusQuery.data.error
+					)
+				: __( 'Download failed.', 'jetpack-backup-pkg' ),
+			// Upstream reports this one in prose only, so there is no code to quote.
+			reference: { code: null, id: referenceId },
+		};
+	} else if ( downloadId !== null && isPermanentPollError( statusQuery.error ) ) {
+		state = {
+			phase: 'error',
+			message:
+				statusQuery.error?.message ||
+				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
+			reference: { code: errorCode( statusQuery.error ), id: referenceId },
+		};
+	} else if ( downloadId !== null ) {
+		state = {
+			// `progress` is already 0–100 — WPCOM coerces it to an
+			// integer, which a 0–1 float could not survive. Multiplying by
+			// 100 fed the ProgressBar values up to 10000. Absent until the
+			// first poll answers, which is the bar's 0% opening frame.
+			phase: 'progress',
+			percent: statusQuery.data?.progress ?? 0,
+			// A failed poll mid-download is temporary; say so only once it keeps failing.
+			...( failedPolls >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
+		};
+	} else if ( isInitiating ) {
+		state = { phase: 'submitting' };
+	}
+
+	return { state, submit, submitFiles, reset };
+}

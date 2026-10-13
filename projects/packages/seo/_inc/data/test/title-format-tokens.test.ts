@@ -6,8 +6,11 @@ import {
 	PAGE_TYPE_SUGGESTIONS,
 	PAGE_TYPE_TOKENS,
 	buildDefaultPreview,
+	buildDefaultPreviewParts,
 	buildPreview,
+	buildPreviewParts,
 	fromDisplay,
+	normalizeTitleFormats,
 	stringToTokens,
 	toDisplay,
 	tokensToString,
@@ -271,5 +274,85 @@ describe( 'stringToTokens', () => {
 			{ type: 'token', value: 'site_name' },
 		];
 		expect( stringToTokens( tokensToString( tokens ), PAGE_TYPE_TOKENS.posts ) ).toEqual( tokens );
+	} );
+} );
+
+describe( 'preview parts', () => {
+	it( 'labels resolved values and typed separators differently', () => {
+		expect(
+			buildPreviewParts(
+				[
+					{ type: 'token', value: 'site_name' },
+					{ type: 'string', value: ' | ' },
+					{ type: 'token', value: 'tagline' },
+				],
+				{ site_name: 'Acme Co', tagline: 'We make things' }
+			)
+		).toEqual( [
+			{ kind: 'value', text: 'Acme Co' },
+			{ kind: 'literal', text: ' | ' },
+			{ kind: 'value', text: 'We make things' },
+		] );
+	} );
+
+	it( 'keeps an empty value as a part, so its separators still show', () => {
+		// The real title concatenates straight through, leaving the separator
+		// dangling. Dropping the part here would make the preview tidier than the
+		// output — the exact dishonesty this preview exists to avoid.
+		expect(
+			buildPreviewParts(
+				[
+					{ type: 'token', value: 'site_name' },
+					{ type: 'string', value: ' - ' },
+					{ type: 'token', value: 'tagline' },
+				],
+				{ site_name: 'Acme Co', tagline: '' }
+			)
+		).toEqual( [
+			{ kind: 'value', text: 'Acme Co' },
+			{ kind: 'literal', text: ' - ' },
+			{ kind: 'value', text: '' },
+		] );
+	} );
+
+	it( 'puts default-title separators between values only', () => {
+		// A site with no tagline keeps just its name, and must not trail a separator
+		// core would never emit.
+		expect(
+			buildDefaultPreviewParts( 'front_page', '-', { site_name: 'Acme Co', tagline: '' } )
+		).toEqual( [ { kind: 'value', text: 'Acme Co' } ] );
+
+		expect(
+			buildDefaultPreviewParts( 'front_page', '-', {
+				site_name: 'Acme Co',
+				tagline: 'We make things',
+			} )
+		).toEqual( [
+			{ kind: 'value', text: 'Acme Co' },
+			{ kind: 'literal', text: ' - ' },
+			{ kind: 'value', text: 'We make things' },
+		] );
+	} );
+} );
+
+describe( 'normalizeTitleFormats', () => {
+	it( 'turns a cleared page type stored as an empty string into an empty list', () => {
+		expect( normalizeTitleFormats( { front_page: '', posts: [] } ) ).toEqual( {
+			front_page: [],
+			posts: [],
+		} );
+	} );
+
+	it( 'keeps well-formed tokens and drops anything else in a list', () => {
+		const token: TitleFormatToken = { type: 'token', value: 'site_name' };
+		expect(
+			normalizeTitleFormats( { pages: [ token, 'junk', { type: 'nope', value: 'x' }, null ] } )
+		).toEqual( { pages: [ token ] } );
+	} );
+
+	it( 'returns an empty map for a non-object payload', () => {
+		expect( normalizeTitleFormats( undefined ) ).toEqual( {} );
+		expect( normalizeTitleFormats( '' ) ).toEqual( {} );
+		expect( normalizeTitleFormats( [] ) ).toEqual( {} );
 	} );
 } );

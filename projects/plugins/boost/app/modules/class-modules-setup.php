@@ -13,6 +13,7 @@ use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -32,6 +33,30 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	public function __construct() {
 		$this->available_modules    = $this->get_available_modules();
 		$this->available_submodules = $this->get_available_submodules();
+		$this->prime_status_option_caches();
+	}
+
+	/**
+	 * Warm the object cache for every module status option in a single query.
+	 *
+	 * Each module's status is read individually via get_option() when its enabled
+	 * state is checked. On a site with no persistent object cache, a module whose
+	 * status option has never been stored is re-queried on every request. Priming
+	 * the caches here collapses those into one query without creating any rows.
+	 */
+	private function prime_status_option_caches() {
+		if ( ! function_exists( 'wp_prime_option_caches' ) ) {
+			return;
+		}
+
+		$option_names = array();
+		foreach ( $this->get_available_modules_and_submodules() as $module ) {
+			$option_names[] = $module->get_status_option_name();
+		}
+
+		if ( ! empty( $option_names ) ) {
+			wp_prime_option_caches( $option_names );
+		}
 	}
 
 	public function get_available_modules() {
@@ -232,6 +257,11 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
 		$modules = $this->get_available_modules_and_submodules();
+		if ( Cloud_CSS::get_slug() === $module_slug && ! isset( $modules[ $module_slug ] ) ) {
+			// A plan refresh can make Cloud CSS available after this list was built.
+			$this->available_modules = $this->get_available_modules();
+			$modules                 = $this->get_available_modules_and_submodules();
+		}
 
 		if ( ! isset( $modules[ $module_slug ] ) ) {
 			return;

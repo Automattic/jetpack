@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Feedback_Source;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
@@ -15,7 +16,12 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '7.23.3';
+	const PACKAGE_VERSION = '8.3.2';
+
+	/**
+	 * Plan feature slug gating field conditional logic.
+	 */
+	const CONDITIONAL_LOGIC_FEATURE = 'form-conditional-logic';
 
 	/**
 	 * Load the contact form module.
@@ -68,12 +74,15 @@ class Jetpack_Forms {
 	 */
 	public static function is_feedback_dashboard_enabled() {
 		/**
-		 * Enable the new Jetpack Forms dashboard.
+		 * Enable the Jetpack Forms dashboard.
+		 *
+		 * Returning false hides the Forms admin menu entry and skips the dashboard
+		 * entirely. Unrelated to which dashboard renders — there is only one.
 		 *
 		 * @module contact-form
 		 * @since 0.3.0
 		 *
-		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
+		 * @param bool $enabled Should the Jetpack Forms dashboard be enabled? Default true.
 		 */
 		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
@@ -127,6 +136,34 @@ class Jetpack_Forms {
 		 * @param bool true Whether to enable the Integrations UI. Default true.
 		 */
 		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
+	}
+
+	/**
+	 * Returns true if the site's plan includes field conditional logic.
+	 *
+	 * One switch for the whole feature: the editor panel, the front-end show/hide, and the
+	 * submission-time enforcement in validation and storage. Gating them together means a
+	 * form can never hide a field from the visitor while still requiring it on submit.
+	 *
+	 * Losing the plan on a form that already has conditions is safe: the conditions are
+	 * simply ignored, so every field renders, validates and stores as an ordinary field.
+	 *
+	 * @return boolean
+	 */
+	public static function is_conditional_logic_enabled() {
+		// Fail closed on WordPress.com until its WPCOM_Features copy knows the slug, or supports()
+		// falls back to the Jetpack free plan, which includes it. Drop once that copy ships.
+		$supported = ( ! function_exists( 'wpcom_feature_exists' ) || wpcom_feature_exists( self::CONDITIONAL_LOGIC_FEATURE ) )
+			&& Current_Plan::supports( self::CONDITIONAL_LOGIC_FEATURE );
+
+		/**
+		 * Whether field conditional logic is available on this site.
+		 *
+		 * @since 8.3.0
+		 *
+		 * @param bool $supported Whether the site's plan includes conditional logic.
+		 */
+		return (bool) apply_filters( 'jetpack_forms_conditional_logic_enabled', $supported );
 	}
 
 	/**

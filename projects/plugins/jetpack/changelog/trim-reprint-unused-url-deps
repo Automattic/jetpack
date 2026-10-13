@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Reprint exporter: exclude the unused URL-parsing dependencies (rowbot, brick/math, psr/log) from the production build, trimming ~1.2 MB the export path never loads.

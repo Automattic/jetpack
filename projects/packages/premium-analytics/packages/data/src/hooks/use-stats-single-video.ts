@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { statsSingleVideoQuery } from '../queries/stats-single-video-query';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
 import type { StatsSingleVideoReport } from '../processing/stats';
@@ -11,6 +12,7 @@ export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
+	StatsSingleVideoTotals,
 } from '../processing/stats';
 export type { StatsSingleVideoParams } from '../queries/stats-single-video-query';
 
@@ -21,5 +23,8 @@ export function useStatsSingleVideo(
 	params?: StatsSingleVideoParams,
 	options?: UseStatsOptions
 ) {
-	return useStatsQuery( statsSingleVideoQuery( videoId, params ), options );
+	return {
+		...useStatsQuery( statsSingleVideoQuery( videoId, params ), options ),
+		timezone: resolveReportTimeZone( params?.timezone ),
+	};
 }

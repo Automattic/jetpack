@@ -1,0 +1,20 @@
+// Design tokens for the chapters editor surface, ported from the VideoPress
+// Studio editor redesign. Values are the standard Gutenberg palette. Only
+// --wp-admin-theme-color is a real custom property in wp-admin; everything
+// else gets a literal fallback here — do NOT reference --wp-gray-* at
+// runtime. Hosts opt in by wrapping the editor UI in `.vp-chapters-tokens`.
+.vp-chapters-tokens {
+	--vp-accent: var(--wp-admin-theme-color, #3858e9);
+	--vp-gray-900: #1e1e1e;
+	--vp-gray-700: #757575;
+	--vp-gray-600: #949494;
+	--vp-gray-300: #ddd;
+	--vp-gray-200: #e0e0e0;
+	--vp-gray-100: #f0f0f0;
+	// Gutenberg's $alert-yellow (#f0b849) darkened to clear 4.5:1 on white,
+	// so it can carry warning TEXT and not just a border.
+	--vp-warning: #b26200;
+	--vp-radius-small: 2px;
+	--vp-radius-medium: 4px;
+	--vp-font-mono: Menlo, Consolas, monaco, monospace;
+}

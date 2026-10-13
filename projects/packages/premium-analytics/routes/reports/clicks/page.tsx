@@ -1,28 +1,27 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
-	ReportCsvAction,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	ExporterCsvAction,
+	clicksCsvExporter,
+	type ClickRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getClickCsvGroup, getClicksFields, useClicksReportRecords, type ClickRow } from './config';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
+import { getClicksFields, useClicksReportRecords } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -60,104 +59,59 @@ const RECORDS_VIEW = {
 	},
 };
 
-type ClickCsvRow = ClickRow & { group: string };
-
 /**
  * Premium Analytics Clicks report page component.
  *
  * @return The Clicks report page.
  */
 function ClicksReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
 	const records = useClicksReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() => getClicksFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const csvRows = useMemo< ClickCsvRow[] >(
-		() =>
-			records.rows.map( row => ( {
-				...row,
-				group: row.isGroup ? '' : getClickCsvGroup( row ),
-			} ) ),
-		[ records.rows ]
-	);
-	const csvColumns = useMemo< CsvColumn< ClickCsvRow >[] >(
-		() => [
-			{
-				label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.clickedUrl,
-			},
-			{ label: __( 'Group', 'jetpack-premium-analytics-pkg' ), getValue: row => row.group },
-			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: exportRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: csvRows,
-		filenamePrefix: 'clicks',
-		range: reportParams,
-		status: records,
-	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-	const isTableLoading = records.isLoading || records.isFetching;
+
+	const { getLabel } = REPORTS.clicks;
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) },
-					] }
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ clicksCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
-			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ exportRows } filename={ csvFilename } />
-				) : undefined
-			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load clicks. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< ClickRow >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getClickRowId }
 						getItemParentId={ getClickRowParentId }
-						isLoading={ isTableLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

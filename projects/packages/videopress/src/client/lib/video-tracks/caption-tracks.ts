@@ -101,6 +101,6 @@ export function getSourceTrackMeta(
 				[ CAPTION_TRACK_META.sourceTrackKind ]: track.kind,
 				[ CAPTION_TRACK_META.sourceTrackSrcLang ]: track.srcLang,
 				[ CAPTION_TRACK_META.sourceTrackSrc ]: track.src,
-		  }
+			}
 		: {};
 }

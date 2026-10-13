@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a REST endpoint listing the connected administrators who could take over the connection.

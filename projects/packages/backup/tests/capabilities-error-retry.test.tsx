@@ -1,0 +1,197 @@
+// JETPACK-2243 D6 — the fourth surface of the retry-rewind class, and
+// the widest.
+//
+// #51401 fixed the activity list, the file browser and the backup-status
+// card by holding the last error at the hook layer. `useCapabilities` was
+// not among them, and it is the one that matters most: `<Gates>` wraps
+// the entire dashboard body on all three routes, so clicking its "Try
+// again" replaced the whole page with an unlabelled spinner — the reason,
+// the explanation and the only control that can ask again, all gone —
+// then brought them back if the retry failed too.
+
+const mockApiFetch = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => ( {} ),
+	useNavigate: () => () => {},
+	useParams: () => ( {} ),
+	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+} ) );
+
+// Imports must come after the jest.mock factories above.
+import { render, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Gates from '../src/dashboard/components/gates';
+import { queryClient } from '../src/dashboard/data/query-client';
+import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+
+const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+
+// The screen's title marks "the error screen is up".
+const ERROR_SCREEN = /We couldn't load your backup details/;
+const PAGE = 'VaultPress Backup';
+
+/**
+ * A promise whose settlement the test controls, so a retry can be held
+ * in flight while assertions run against the rendered output.
+ *
+ * @return The promise and its resolver.
+ */
+function deferred< T >() {
+	let resolve!: ( value: T ) => void;
+	const promise = new Promise< T >( res => {
+		resolve = res;
+	} );
+	return { promise, resolve };
+}
+
+/**
+ * Answer the capabilities route from a queue of outcomes.
+ *
+ * A counter rather than `mockRejectedValueOnce`: React Query may invoke
+ * a query function more than once per logical fetch, and a `…Once` mock
+ * silently resolves `undefined` on the extra call — which reads as a
+ * successful capabilities read and renders the dashboard body.
+ *
+ * @param outcomes - One entry per logical fetch; later fetches reuse the last.
+ */
+function answerWith( outcomes: Array< () => Promise< unknown > > ) {
+	let call = 0;
+	mockApiFetch.mockImplementation( () => {
+		const outcome = outcomes[ Math.min( call, outcomes.length - 1 ) ];
+		call += 1;
+		return outcome();
+	} );
+}
+
+/**
+ * The bridge's own refusal of a 200 it could not read.
+ *
+ * @return A rejected promise in the shape `apiCall` re-throws.
+ */
+const unreadable = () =>
+	Promise.reject( {
+		code: 'capabilities_unreadable',
+		message: "Could not read this site's plan details.",
+		data: { status: 500 },
+	} );
+
+/**
+ * Render the gate with a body that must never appear in these tests, inside a stand-in
+ * for the `<Page>` region `DashboardLayout` puts around it.
+ *
+ * Scoped queries rather than `screen`: the error card is a `Notice`,
+ * which announces itself through `@wordpress/a11y`'s speak region — a
+ * node appended to `document.body` once per process that keeps its text
+ * between tests.
+ *
+ * Callers wrap the result in `within()` themselves so that
+ * `testing-library/prefer-screen-queries` can see the scoping it allows.
+ *
+ * @return The rendered container.
+ */
+function renderGate(): HTMLElement {
+	const { container } = render(
+		<QueryClientProvider>
+			<div role="region" aria-label={ PAGE } tabIndex={ -1 }>
+				<Gates>
+					<div>dashboard body</div>
+				</Gates>
+			</div>
+		</QueryClientProvider>
+	);
+	return container;
+}
+
+beforeEach( () => {
+	queryClient.clear();
+	queryClient.setDefaultOptions( { queries: { retry: false } } );
+
+	mockApiFetch.mockReset();
+
+	window.JP_CONNECTION_INITIAL_STATE = {
+		...window.JP_CONNECTION_INITIAL_STATE,
+		connectionStatus: CONNECTED,
+	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+describe( 'Gates — retrying a failed capabilities read', () => {
+	it( 'keeps the reason on screen while the retry is in flight', async () => {
+		const user = userEvent.setup();
+		// Hold the retry in flight so the mid-retry render is observable.
+		const pending = deferred< unknown >();
+		answerWith( [ unreadable, () => pending.promise ] );
+
+		const view = within( renderGate() );
+		await expect( view.findByText( ERROR_SCREEN ) ).resolves.toBeInTheDocument();
+
+		await user.click( view.getByRole( 'button', { name: /Try again/ } ) );
+
+		// The whole point: the page did not blank.
+		expect( view.getByText( ERROR_SCREEN ) ).toBeInTheDocument();
+		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
+
+		pending.resolve( { hasBackupPlan: true, hasScan: false } );
+		await expect( view.findByText( 'dashboard body' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'reports the retry as busy rather than leaving the button idle', async () => {
+		// Without this the DOM is byte-identical before and after the
+		// click, so a retry that fails again looks like a dead button.
+		const user = userEvent.setup();
+		const pending = deferred< unknown >();
+		answerWith( [ unreadable, () => pending.promise ] );
+
+		const view = within( renderGate() );
+		await expect( view.findByText( ERROR_SCREEN ) ).resolves.toBeInTheDocument();
+
+		const button = view.getByRole( 'button', { name: /Try again/ } );
+		await user.click( button );
+
+		// `aria-disabled`, not `toBeDisabled()`: the button stays natively
+		// enabled on purpose so it keeps keyboard focus. Losing focus to
+		// `<body>` would reproduce "the page went away" for AT users, in
+		// the one place there is nothing adjacent to land on.
+		await waitFor( () =>
+			expect( view.getByRole( 'button', { name: /Try again/ } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
+		expect( view.getByRole( 'button', { name: /Try again/ } ) ).toBeEnabled();
+
+		pending.resolve( { hasBackupPlan: true, hasScan: false } );
+	} );
+
+	it( 'hands focus to the page once a retry succeeds', async () => {
+		const user = userEvent.setup();
+		answerWith( [ unreadable, () => Promise.resolve( { hasBackupPlan: true, hasScan: false } ) ] );
+
+		const view = within( renderGate() );
+		await user.click( await view.findByRole( 'button', { name: /Try again/ } ) );
+		await expect( view.findByText( 'dashboard body' ) ).resolves.toBeInTheDocument();
+
+		expect( view.getByRole( 'region', { name: PAGE } ) ).toHaveFocus();
+	} );
+
+	it( 'still shows the loading state on the very first load', async () => {
+		// The loading branch is first-load-only now, so it must still fire
+		// when there is genuinely nothing to show yet.
+		const pending = deferred< unknown >();
+		answerWith( [ () => pending.promise ] );
+
+		const view = within( renderGate() );
+
+		expect( view.getByText( 'Loading your backup details…' ) ).toBeInTheDocument();
+		expect( view.queryByText( ERROR_SCREEN ) ).not.toBeInTheDocument();
+		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
+
+		pending.resolve( { hasBackupPlan: true, hasScan: false } );
+		await expect( view.findByText( 'dashboard body' ) ).resolves.toBeInTheDocument();
+	} );
+} );

@@ -15,19 +15,12 @@ type ChartSegment = {
 };
 
 /**
- * Hook to build segment styles from theme.
- * Maps each chart segment to its color from the theme provider.
+ * Maps each chart segment to the color the theme provider resolves for it.
  *
  * @param chartData - Array of chart segments with label and value
  * @return Array of segment styles with color for each segment
- *
- * @example
- * ```tsx
- * const segmentStyles = useSegmentStyles( chartData );
- * return <DonutChart styles={ segmentStyles } ... />;
- * ```
  */
-export function useSegmentStyles( chartData: ChartSegment[] ): SegmentStyle[] {
+export function useSegmentStyles( chartData: readonly ChartSegment[] ): SegmentStyle[] {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	return useMemo(

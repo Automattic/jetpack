@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Show the "No data found" state on every report with no rows, and stop the table search and settings from showing while an empty report loads.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Backup page to wp-admin on WordPress.com sites, rendering the upgrade or activate prompt for sites whose backups are not available yet. Registered but not linked from the menu.

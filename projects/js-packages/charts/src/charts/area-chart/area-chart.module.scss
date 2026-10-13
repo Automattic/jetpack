@@ -1,14 +1,15 @@
 .area-chart {
 	position: relative;
 
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
 	&--animated {
 
 		path {
 			transform-origin: 0 95%;
-			transform: scaleY(0);
 			animation:
-				rise var(--wpds-motion-duration-xl, 400ms)
-				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+				rise var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) both;
 		}
 	}
 
@@ -18,6 +19,10 @@
 }
 
 @keyframes rise {
+
+	from {
+		transform: scaleY(0);
+	}
 
 	to {
 		transform: scaleY(1);

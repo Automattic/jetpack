@@ -21,7 +21,7 @@ const buildVerification = ( overrides: Partial< SiteVerification > = {} ): SiteV
 
 describe( 'SiteVerificationCard', () => {
 	it( 'lists only the globally-relevant services when nothing else is verified', () => {
-		render( <SiteVerificationCard data={ buildVerification() } onManage={ jest.fn() } /> );
+		render( <SiteVerificationCard data={ buildVerification() } active onManage={ jest.fn() } /> );
 
 		for ( const label of [ 'Google', 'Bing', 'Facebook' ] ) {
 			expect( screen.getByText( label ) ).toBeInTheDocument();
@@ -39,6 +39,7 @@ describe( 'SiteVerificationCard', () => {
 			render(
 				<SiteVerificationCard
 					data={ buildVerification( { [ key ]: true } ) }
+					active
 					onManage={ jest.fn() }
 				/>
 			);
@@ -50,7 +51,11 @@ describe( 'SiteVerificationCard', () => {
 
 	it( 'keeps the hidden services hidden when only a primary one is verified', () => {
 		render(
-			<SiteVerificationCard data={ buildVerification( { google: true } ) } onManage={ jest.fn() } />
+			<SiteVerificationCard
+				data={ buildVerification( { google: true } ) }
+				active
+				onManage={ jest.fn() }
+			/>
 		);
 
 		expect( screen.getByText( 'Set' ) ).toBeInTheDocument();
@@ -60,7 +65,11 @@ describe( 'SiteVerificationCard', () => {
 
 	it( 'keeps the shared display order when an extra service is shown', () => {
 		render(
-			<SiteVerificationCard data={ buildVerification( { yandex: true } ) } onManage={ jest.fn() } />
+			<SiteVerificationCard
+				data={ buildVerification( { yandex: true } ) }
+				active
+				onManage={ jest.fn() }
+			/>
 		);
 
 		// VERIFICATION_SERVICES order is google, bing, pinterest, yandex, facebook —
@@ -69,5 +78,31 @@ describe( 'SiteVerificationCard', () => {
 			.getAllByText( /^(Google|Bing|Pinterest|Yandex|Facebook)$/ )
 			.map( node => node.textContent );
 		expect( labels ).toEqual( [ 'Google', 'Bing', 'Yandex', 'Facebook' ] );
+	} );
+
+	it( 'does not describe saved codes as emitted while the module is inactive', () => {
+		render(
+			<SiteVerificationCard
+				data={ buildVerification( { google: true } ) }
+				active={ false }
+				onManage={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getAllByText( 'Disabled' ) ).toHaveLength( 3 );
+		expect( screen.queryByText( 'Set' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows configured status while the module is active', () => {
+		render(
+			<SiteVerificationCard
+				data={ buildVerification( { google: true } ) }
+				active
+				onManage={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( 'Set' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( 'Not set' ) ).toHaveLength( 2 );
 	} );
 } );

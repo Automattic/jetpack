@@ -29,9 +29,14 @@ const reportParams = ( params: Record< string, string > ) => params as unknown a
 
 describe( 'usePostTrafficActivity', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'pads short ranges to the grid span, blanking filler and no-traffic days', async () => {
@@ -52,26 +57,24 @@ describe( 'usePostTrafficActivity', () => {
 
 		const { days } = result.current;
 
-		// The 4-day range pads backward to the grid span (168 days), with the
-		// page snapped to week boundaries (Monday 2026-01-19 → Sunday
-		// 2026-07-05) so it lays out exactly 24 columns.
-		expect( days ).toHaveLength( 168 );
+		// The 4-day range pads backward to a week boundary (Monday 2026-01-19) but
+		// stops at the range end: the week-completion days past it emit no points,
+		// so the chart's ragged-edge option hides their cells.
+		expect( days ).toHaveLength( 167 );
 		expect( days[ 0 ].dateString ).toBe( '2026-01-19' );
 
-		// Values render only inside the selected range; the in-range gap and
-		// the trailing week-completion day are blank.
-		expect( days.slice( -5 ) ).toEqual( [
+		// Values render only inside the selected range; the in-range gap is
+		// blank, and the series ends on the range's last day.
+		expect( days.slice( -4 ) ).toEqual( [
 			{ dateString: '2026-07-01', value: 2 },
 			{ dateString: '2026-07-02', value: null },
 			{ dateString: '2026-07-03', value: 5 },
 			{ dateString: '2026-07-04', value: null },
-			{ dateString: '2026-07-05', value: null },
 		] );
 
 		// Filler days stay blank even where the history has views (2026-06-30).
-		expect( days.slice( 0, -5 ).every( day => day.value === null ) ).toBe( true );
+		expect( days.slice( 0, -4 ).every( day => day.value === null ) ).toBe( true );
 
-		// One page covers the range, so no pager.
 		expect( result.current.isPaged ).toBe( false );
 	} );
 
@@ -92,13 +95,14 @@ describe( 'usePostTrafficActivity', () => {
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
-		// Newest page first: ends at the end of the range's last week
-		// (Sunday 2026-07-05), no newer page.
+		// Newest page first: the page window ends at the end of the range's
+		// last week (Sunday 2026-07-05) but the series stops at the range end,
+		// so the trailing cells hide. No newer page.
 		expect( result.current.isPaged ).toBe( true );
 		expect( result.current.canShowNewer ).toBe( false );
 		expect( result.current.canShowOlder ).toBe( true );
-		expect( result.current.days ).toHaveLength( 168 );
-		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-05' );
+		expect( result.current.days ).toHaveLength( 167 );
+		expect( result.current.days.at( -1 )?.dateString ).toBe( '2026-07-04' );
 
 		act( () => result.current.showOlder() );
 
@@ -113,29 +117,21 @@ describe( 'usePostTrafficActivity', () => {
 		expect( result.current.days[ 0 ].value ).toBeNull();
 	} );
 
-	it( 'returns no days when a window bound is missing or malformed', async () => {
+	it.each( [
+		[ 'malformed', { from: 'not-a-date', to: '2026-07-04T23:59:59.999+08:00' } ],
+		[ 'missing', { to: '2026-07-04T23:59:59.999+08:00' } ],
+		[
+			'after the end',
+			{ from: '2026-07-10T00:00:00.000+08:00', to: '2026-07-04T23:59:59.999+08:00' },
+		],
+	] )( 'returns no days when the window start is %s', async ( _label, params ) => {
 		const { result } = renderHook(
-			() =>
-				usePostTrafficActivity(
-					779,
-					reportParams( { from: 'not-a-date', to: '2026-07-04T23:59:59.999+08:00' } ),
-					168
-				),
+			() => usePostTrafficActivity( 779, reportParams( params ), 168 ),
 			{ wrapper }
 		);
 
 		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
 
 		expect( result.current.days ).toEqual( [] );
-	} );
-
-	it( 'never fires a request without a post scope', () => {
-		const { result } = renderHook( () => usePostTrafficActivity( 0, reportParams( {} ), 168 ), {
-			wrapper,
-		} );
-
-		expect( result.current.hasData ).toBe( false );
-		expect( result.current.days ).toEqual( [] );
-		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );

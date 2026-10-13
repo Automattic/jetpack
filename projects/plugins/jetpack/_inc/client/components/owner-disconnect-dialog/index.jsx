@@ -95,17 +95,17 @@ const OwnerDisconnectDialog = ( { isOpen, onClose, apiRoot, apiNonce, onDisconne
 		<Modal
 			title=""
 			contentLabel={ __( 'Disconnect Owner Account', 'jetpack' ) }
-			aria={ { labelledby: 'jp-connection__disconnect-dialog__heading' } }
+			aria={ { labelledby: 'jp-owner-disconnect-dialog__heading' } }
 			onRequestClose={ handleStayConnected }
-			className="jp-connection__disconnect-dialog"
+			className="jp-owner-disconnect-dialog"
 			isOpen={ isOpen }
 		>
 			{ /* Modal content */ }
-			<div className="jp-connection__disconnect-dialog__content">
-				<h1 id="jp-connection__disconnect-dialog__heading">
+			<div className="jp-owner-disconnect-dialog__content">
+				<h1 id="jp-owner-disconnect-dialog__heading">
 					{ __( 'Disconnect Owner Account', 'jetpack' ) }
 				</h1>
-				<p className="jp-connection__disconnect-dialog__large-text">
+				<p className="jp-owner-disconnect-dialog__large-text">
 					{ __(
 						'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
 						'jetpack'
@@ -123,7 +123,7 @@ const OwnerDisconnectDialog = ( { isOpen, onClose, apiRoot, apiNonce, onDisconne
 					action="check-users"
 				/>
 			</div>
-			<div className="jp-connection__disconnect-dialog__actions">
+			<div className="jp-owner-disconnect-dialog__actions">
 				{ /* Footer content */ }
 				<div className="jp-row">
 					<div className="lg-col-span-8 md-col-span-9 sm-col-span-4">
@@ -141,32 +141,32 @@ const OwnerDisconnectDialog = ( { isOpen, onClose, apiRoot, apiNonce, onDisconne
 											href={ getRedirectUrl(
 												'why-the-wordpress-com-connection-is-important-for-jetpack'
 											) }
-											className="jp-connection__disconnect-dialog__link"
+											className="jp-owner-disconnect-dialog__link"
 										/>
 									),
 									supportLink: (
 										<Link
 											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support' ) }
-											className="jp-connection__disconnect-dialog__link"
+											className="jp-owner-disconnect-dialog__link"
 										/>
 									),
 								}
 							) }
 						</p>
 					</div>
-					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
+					<div className="jp-owner-disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
 						<Button
 							variant="primary"
 							onClick={ handleStayConnected }
-							className="jp-connection__disconnect-dialog__btn-dismiss"
+							className="jp-owner-disconnect-dialog__btn-dismiss"
 						>
 							{ __( 'Stay Connected', 'jetpack' ) }
 						</Button>
 						<Button
 							variant="primary"
 							onClick={ handleDisconnectAnyway }
-							className="jp-connection__disconnect-dialog__btn-disconnect"
+							className="jp-owner-disconnect-dialog__btn-disconnect"
 							isDestructive
 							disabled={ isDisconnecting }
 						>
@@ -175,7 +175,7 @@ const OwnerDisconnectDialog = ( { isOpen, onClose, apiRoot, apiNonce, onDisconne
 					</div>
 				</div>
 				{ disconnectError && (
-					<p className="jp-connection__disconnect-dialog__error">{ disconnectError }</p>
+					<p className="jp-owner-disconnect-dialog__error">{ disconnectError }</p>
 				) }
 			</div>
 		</Modal>

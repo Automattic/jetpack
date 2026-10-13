@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Average Items Per Order report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller {
 
@@ -100,17 +100,6 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 		// API for time-series endpoints and do not need to be requested.
 		return array(
 			'avg_items',
-		);
-	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 }

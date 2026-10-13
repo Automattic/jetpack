@@ -1,11 +1,13 @@
 /**
+ * Marks a successful response whose shape cannot be sanitized.
+ */
+export class StatsResponseShapeError extends Error {}
+
+/**
  * Extract HTTP status code from common API error shapes.
  *
  * WordPress REST API errors and fetch errors can expose the status in
  * different places depending on which layer produced the failure.
- *
- * @param error - Unknown thrown error.
- * @return HTTP status code, or null when unavailable.
  */
 export function getApiErrorStatus( error: unknown ): number | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -40,9 +42,6 @@ export function getApiErrorStatus( error: unknown ): number | null {
  *
  * WPCOM pass-through errors (every real Stats failure) put the code in `error`,
  * while our own `WP_Error` responses use `code`.
- *
- * @param error - Unknown thrown error.
- * @return Error code, or null when unavailable.
  */
 export function getApiErrorCode( error: unknown ): string | null {
 	if ( ! error || typeof error !== 'object' ) {
@@ -70,16 +69,35 @@ export function getApiErrorCode( error: unknown ): string | null {
 }
 
 /**
+ * Whether the failure means this user or session may not read the data.
+ *
+ * The proxy's `no_connection` 403 is not one: it flags a broken Jetpack
+ * connection, which says nothing about permissions and can heal.
+ */
+export function isAccessDenied( error: unknown ): boolean {
+	return getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection';
+}
+
+/**
+ * Whether offering the reader a Retry can plausibly help — distinct from
+ * `shouldRetryApiError`'s automatic policy: a 401/404 is worth a manual retry
+ * even though auto-retrying it three times unprompted is not.
+ */
+export function isUserRetryableError( error: unknown ): boolean {
+	return ! ( error instanceof StatsResponseShapeError ) && ! isAccessDenied( error );
+}
+
+/**
  * Determine whether a failed API query should be retried.
  *
  * Authentication, authorization and not-found failures are deterministic for the
  * current user/session, so retrying only delays the widget-specific error UI.
- *
- * @param failureCount - Number of failed attempts so far.
- * @param error        - Unknown thrown error.
- * @return Whether React Query should retry.
  */
 export function shouldRetryApiError( failureCount: number, error: unknown ): boolean {
+	if ( error instanceof StatsResponseShapeError ) {
+		return false;
+	}
+
 	const status = getApiErrorStatus( error );
 
 	if ( status === 401 || status === 403 || status === 404 ) {

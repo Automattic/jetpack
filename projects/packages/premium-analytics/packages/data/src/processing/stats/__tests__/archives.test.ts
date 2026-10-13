@@ -84,13 +84,13 @@ describe( 'Stats archives normalizer', () => {
 		).toEqual( [
 			{
 				time_interval: '2026-06-01',
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-07T23:59:59+00:00',
+				date_start: '2026-06-01T00:00:00',
+				date_end: '2026-06-07T23:59:59',
 			},
 			{
 				time_interval: '2026-06-08',
-				date_start: '2026-06-08T00:00:00+00:00',
-				date_end: '2026-06-14T23:59:59+00:00',
+				date_start: '2026-06-08T00:00:00',
+				date_end: '2026-06-14T23:59:59',
 			},
 		] );
 	} );
@@ -141,8 +141,8 @@ describe( 'Stats archives normalizer', () => {
 		expect( result.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2025-06-02',
-				date_start: '2025-06-01T00:00:00+00:00',
-				date_end: '2025-06-02T23:59:59+00:00',
+				date_start: '2025-06-01T00:00:00',
+				date_end: '2025-06-02T23:59:59',
 				items: [
 					{
 						label: 'home',

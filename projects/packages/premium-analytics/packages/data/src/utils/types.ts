@@ -17,10 +17,6 @@ export type Override< T, U > = Omit< T, keyof U > & U;
  */
 export type DateType = 'created' | 'paid' | 'completed';
 
-/**
- * Base parameters required by all report endpoints.
- * These three parameters are common across all analytics reports.
- */
 export type BaseReportParams = {
 	from: string;
 	to: string;

@@ -1,15 +1,14 @@
 import {
 	Button,
-	Notice,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useAllProducts } from '../../data/products/use-all-products';
@@ -17,6 +16,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
+import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 
 /**
@@ -95,6 +95,7 @@ const ProductDetailTableColumn = ( {
 	 * Function to handle the redirect URL selection.
 	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
 	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - the feature's details, when the pricing page was opened from one
 	 * - myJetpackCheckoutUri is the default URL
 	 */
 	const getCheckoutRedirectUrl = useCallback( () => {
@@ -110,7 +111,7 @@ const ProductDetailTableColumn = ( {
 			return referrerURL;
 		}
 
-		return myJetpackCheckoutUri;
+		return getFeatureCheckoutReturnUrl() || myJetpackCheckoutUri;
 	}, [ feature, postCheckoutUrlsByFeature, postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
@@ -141,12 +142,12 @@ const ProductDetailTableColumn = ( {
 				// translators: %s is the monthly price for a product
 				__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
 				price
-		  )
+			)
 		: __(
 				'/month, paid yearly',
 				'jetpack-my-jetpack',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	const productMoniker = name && preferProductName ? name : title;
 	const defaultCtaLabel =
@@ -155,12 +156,12 @@ const ProductDetailTableColumn = ( {
 					/* translators: %s: the product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  )
+				)
 			: sprintf(
 					/* translators: %s: the product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  );
+				);
 	const callToAction =
 		customCallToAction ||
 		( isFree ? __( 'Start for Free', 'jetpack-my-jetpack' ) : defaultCtaLabel );
@@ -309,32 +310,23 @@ const ProductDetailTable = ( {
 	// If the plugin cannot be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
 	const cantInstallPluginNotice = cantInstallPlugin && (
-		<Notice
-			level="error"
-			hideCloseButton
-			title={
-				<Text>
-					{ sprintf(
-						// translators: %s is the plugin name.
-						__(
-							"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
-							'jetpack-my-jetpack'
-						),
-						title
-					) }
-				</Text>
-			}
-			actions={ [
-				<Button
-					key="get"
-					variant="secondary"
-					href={ `https://wordpress.org/plugins/${ pluginSlug }` }
-					isExternalLink
-				>
+		<Notice.Root intent="error">
+			<Notice.Description>
+				{ sprintf(
+					// translators: %s is the plugin name.
+					__(
+						"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+						'jetpack-my-jetpack'
+					),
+					title
+				) }
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionLink href={ `https://wordpress.org/plugins/${ pluginSlug }` } openInNewTab>
 					{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
-				</Button>,
-			] }
-		/>
+				</Notice.ActionLink>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 
 	// The feature list/descriptions for the pricing table.

@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import getMediaToken from '../../../client/lib/get-media-token';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
@@ -47,6 +47,23 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 	// null = token fetch pending, '' = failed or not needed, string = minted token.
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hook must run unconditionally (Rules of Hooks); its value is only read after the early return below.
 	const [ playbackToken, setPlaybackToken ] = useState< string | null >( null );
+	const previousVideo = useRef( video );
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- The hook must run even before a player is available.
+	const [ embedRevision, setEmbedRevision ] = useState( 0 );
+
+	useEffect( () => {
+		const previous = previousVideo.current;
+		// Refresh saved title/poster edits without reloading when processing supplies the first poster.
+		if (
+			previous.guid === video.guid &&
+			! previous.isProcessing &&
+			! video.isProcessing &&
+			( previous.title !== video.title || previous.thumbnailUrl !== video.thumbnailUrl )
+		) {
+			setEmbedRevision( revision => revision + 1 );
+		}
+		previousVideo.current = video;
+	}, [ video.guid, video.title, video.thumbnailUrl, video.isProcessing ] );
 
 	/*
 	 * Private videos require a playback token on the embed URL. Mint one when
@@ -99,6 +116,7 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 	return (
 		<div className="vp-video-details__player">
 			<iframe
+				key={ embedRevision }
 				title={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
 				src={ getVideoPressEmbedUrl( guid, isPrivate, playbackToken || undefined ) }
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

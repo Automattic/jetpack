@@ -52,21 +52,10 @@
 		border-top: 1px solid var(--jp-gray);
 	}
 
-	.dops-notice {
-		margin-bottom: 0;
-
-		&,
-		.dops-notice__icon-wrapper {
-			border-radius: 0;
-		}
-
-		.dops-notice__text {
-
-			&,
-			a {
-				color: var(--jp-white);
-			}
-		}
+	// Notices sit outside `.jp-form-settings-group`, so they need its padding —
+	// and stay clear of the offline-mode scrim the group paints over its children.
+	.jp-settings-card__notice {
+		padding: rem.convert(16px) rem.convert(24px);
 	}
 
 	.dops-card.is-card-link + .jp-form-settings-group {
@@ -100,7 +89,7 @@
 		}
 
 		.form-toggle__switch {
-			float: left;
+			float: inline-start;
 			margin-top: rem.convert(2px);
 		}
 
@@ -125,11 +114,11 @@
 		}
 
 		.jp-support-info {
-			right: rem.convert(-21px);
+			inset-inline-end: rem.convert(-21px);
 			top: rem.convert(7px);
 
 			@include breakpoints.breakpoint( "<480px" ) {
-				right: rem.convert(-30px);
+				inset-inline-end: rem.convert(-30px);
 			}
 		}
 
@@ -163,7 +152,7 @@
 		color: #1e1e1e;
 		width: rem.convert(18px);
 		flex-shrink: 0;
-		margin-left: auto;
+		margin-inline-start: auto;
 
 		&:hover {
 			color: var(--jp-black);
@@ -181,11 +170,11 @@
 	@include breakpoints.breakpoint( ">480px" ) {
 
 		.dops-foldable-card__action {
-			right: rem.convert(10px);
+			inset-inline-end: rem.convert(10px);
 		}
 
 		.jp-form-settings-group .jp-support-info {
-			right: rem.convert(2px);
+			inset-inline-end: rem.convert(2px);
 			top: 0;
 		}
 	}
@@ -193,14 +182,14 @@
 	@include breakpoints.breakpoint( "<480px" ) {
 
 		.jp-form-settings-group .jp-support-info {
-			right: rem.convert(-31px);
+			inset-inline-end: rem.convert(-31px);
 			top: rem.convert(6px);
 		}
 	}
 }
 
 .jp-banner__no-border {
-	border-left: none !important;
+	border-inline-start: none !important;
 
 	.dops-banner__icon-circle {
 		background: none !important;

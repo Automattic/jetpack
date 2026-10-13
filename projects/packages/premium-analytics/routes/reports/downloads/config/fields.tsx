@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ExternalLink, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type { StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const DOWNLOADS_DATA_FORMAT = {
 	type: 'number',
@@ -47,11 +47,7 @@ export function getDownloadsFields(
 					return <>{ label }</>;
 				}
 
-				return (
-					<a href={ href } target="_blank" rel="noopener noreferrer">
-						{ label }
-					</a>
-				);
+				return <ExternalLink href={ href }>{ label }</ExternalLink>;
 			},
 		},
 		{

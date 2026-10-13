@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[CoversClass( \Automattic\Jetpack\Changelogger\VersionCommand::class )]
 class VersionCommandTest extends CommandTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Set up.

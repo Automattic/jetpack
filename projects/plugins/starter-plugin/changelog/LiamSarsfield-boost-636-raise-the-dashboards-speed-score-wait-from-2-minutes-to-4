@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Boost: Wait up to four minutes for slow speed tests in My Jetpack instead of timing out after two.

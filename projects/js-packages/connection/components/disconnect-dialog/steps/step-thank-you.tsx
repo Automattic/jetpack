@@ -1,8 +1,8 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
-import disconnectImage from '../images/disconnect-thanks.jpg';
+import { Button, Stack, Text } from '@wordpress/ui';
 import type { MouseEvent } from 'react';
 
 interface StepThankYouProps {
@@ -17,18 +17,23 @@ interface StepThankYouProps {
  * @return {import('react').ReactNode} - The StepThankYou Component
  */
 const StepThankYou = ( { onExit }: StepThankYouProps ) => {
+	const assetsUrl = getScriptData()?.connection?.assetsUrl;
+
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<DecorativeCard format="vertical" imageUrl={ disconnectImage } />
+			<DecorativeCard
+				format="vertical"
+				imageUrl={ assetsUrl ? `${ assetsUrl }disconnect-thanks.jpg` : undefined }
+			/>
 
 			<Stack
 				className="jp-connection__disconnect-dialog__copy"
 				direction="column"
 				align="center"
-				gap="md"
+				gap="xl"
 			>
 				<h1>{ __( 'Thank you!', 'jetpack-connection-js' ) }</h1>
-				<p className="jp-connection__disconnect-dialog__large-text">
+				<Text className="jp-connection__disconnect-dialog__large-text">
 					{ createInterpolateElement(
 						__(
 							'Your answer has been submitted. <br/>Thanks for your input on how we can improve Jetpack.',
@@ -38,7 +43,7 @@ const StepThankYou = ( { onExit }: StepThankYouProps ) => {
 							br: <br />,
 						}
 					) }
-				</p>
+				</Text>
 				<Button onClick={ onExit } className="jp-connection__disconnect-dialog__btn-back-to-wp">
 					{ __( 'Back to my website', 'jetpack-connection-js' ) }
 				</Button>

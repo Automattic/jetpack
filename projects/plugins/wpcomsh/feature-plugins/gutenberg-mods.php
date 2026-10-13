@@ -182,8 +182,7 @@ add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
  */
 function wpcomsh_filter_gutenberg_experiments() {
 	return array(
-		'gutenberg-content-guidelines' => true,
-		'gutenberg-guidelines'         => true,
+		'gutenberg-guidelines' => true,
 	);
 }
 
@@ -191,13 +190,12 @@ function wpcomsh_filter_gutenberg_experiments() {
  * Remove Gutenberg's Experiments submenu item.
  */
 function wpcomsh_remove_gutenberg_experimental_menu() {
-	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
+	remove_submenu_page( 'options-general.php', 'experiments-wp-admin' );
 }
 
 /**
  * Enable wp-admin JS error reporting on sites participating in the `gutenberg-react-19`
- * experiment, and on 1% of all sites, so that errors caused by the React 19 upgrade
- * are captured.
+ * experiment, so that errors caused by the React 19 upgrade are captured.
  *
  * Reporting is enabled only for WP.com-connected users, who have accepted the WP.com
  * terms of service and privacy policy. Local users have made no such agreement.
@@ -223,7 +221,7 @@ function wpcomsh_enable_error_reporting_for_react_19( $is_enabled ) {
 		return false;
 	}
 
-	$current_segment = 1; // Segment of sites that get error reporting, in %.
+	$current_segment = 70; // Segment of sites that get error reporting, in %.
 	$site_segment    = $site_id % 100;
 
 	// Sites whose id ends in digits < $current_segment are in the segment.

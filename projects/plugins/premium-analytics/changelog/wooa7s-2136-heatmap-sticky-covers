@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Insights and Post detail: Keep the year column and month labels of the Views over years and All-time traffic heatmaps fully opaque while the grid scrolls, so scrolled-under cells no longer show through around them.

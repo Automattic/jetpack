@@ -8,11 +8,22 @@ import { useMemo } from 'react';
 import { buildCsvDateRangeFilename, type CsvDateRange } from '../../helpers/build-csv';
 import { isCsvExportEnabled } from './is-csv-export-enabled';
 
-type ReportCsvExportStatus = {
+export type ReportCsvExportStatus = {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
 };
+
+/** Whether exports are enabled and the rows belong to a settled, successful request. */
+export function isReportCsvReady( status: ReportCsvExportStatus, rowCount: number ): boolean {
+	return (
+		isCsvExportEnabled() &&
+		rowCount > 0 &&
+		! status.isLoading &&
+		! status.isFetching &&
+		! status.isError
+	);
+}
 
 export type UseReportCsvExportOptions< Row > = {
 	/** Rows already loaded in the browser to serialize. */
@@ -48,12 +59,6 @@ export type UseReportCsvExportResult< Row > = {
 /**
  * Build a report CSV action from loaded rows and the active request state.
  *
- * @param options                - Report CSV export configuration.
- * @param options.rows           - Loaded report rows.
- * @param options.filenamePrefix - Report-specific filename prefix.
- * @param options.range          - Active report date range.
- * @param options.status         - Active report request state.
- * @param options.sort           - Optional export ordering with a stable function reference.
  * @return Export visibility, rows, and filename.
  */
 export function useReportCsvExport< Row >( {
@@ -65,12 +70,7 @@ export function useReportCsvExport< Row >( {
 }: UseReportCsvExportOptions< Row > ): UseReportCsvExportResult< Row > {
 	const exportRows = useMemo( () => ( sort ? [ ...rows ].sort( sort ) : rows ), [ rows, sort ] );
 	const filename = range ? buildCsvDateRangeFilename( filenamePrefix, range ) : filenamePrefix;
-	const canExport =
-		isCsvExportEnabled() &&
-		exportRows.length > 0 &&
-		! status.isLoading &&
-		! status.isFetching &&
-		! status.isError;
+	const canExport = isReportCsvReady( status, exportRows.length );
 
 	return {
 		canExport,

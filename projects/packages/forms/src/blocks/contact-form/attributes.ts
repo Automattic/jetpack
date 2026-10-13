@@ -9,11 +9,11 @@ export default {
 	},
 	subject: {
 		type: 'string',
-		default: window.jpFormsBlocks?.defaults?.subject || '',
+		default: '',
 	},
 	to: {
 		type: 'string',
-		default: window.jpFormsBlocks?.defaults?.to || '',
+		default: '',
 	},
 	customThankyou: {
 		type: 'string',

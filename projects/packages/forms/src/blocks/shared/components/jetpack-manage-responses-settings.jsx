@@ -1,5 +1,6 @@
-import { Button, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { LinkButton } from '@wordpress/ui';
 import { getResponsesUrl } from '../../../form-editor/plugins/utils.ts';
 import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 
@@ -17,9 +18,13 @@ const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ saveResponses && (
-				<Button variant="secondary" href={ responsesHref } __next40pxDefaultSize={ true }>
+				<LinkButton
+					className="jetpack-contact-form__view-responses-button"
+					variant="outline"
+					href={ responsesHref }
+				>
 					{ __( 'View form responses', 'jetpack-forms' ) }
-				</Button>
+				</LinkButton>
 			) }
 		</>
 	);

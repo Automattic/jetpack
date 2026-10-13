@@ -58,6 +58,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Option holding a counter per `invalidates` scope; each value is part of that scope's cache keys.
+	 *
+	 * @var string
+	 */
+	private const CACHE_GENERATIONS_OPTION = 'jetpack_premium_analytics_proxy_cache_generations';
+
+	/**
 	 * Timeout for the outbound WPCOM request, in seconds.
 	 *
 	 * @var int
@@ -92,6 +99,10 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  trailing `/` = that exact endpoint only. Omit for a read-only group.
 	 *  - `cache_bust` (bool, optional) If true, a successful POST clears the matching read cache.
 	 *                  Only meaningful alongside `writes`.
+	 *  - `invalidates` (string[], optional) Sub-paths whose cached reads, at any params or version,
+	 *                  a successful POST in this group makes stale. Each covers that sub-path and
+	 *                  everything under it, and must lie inside this group, since a read only
+	 *                  consults its own group's entries. Only meaningful alongside `writes`.
 	 *  - `path`       (string, optional) printf template (`%d` = blog id) for groups NOT under
 	 *                  `/sites/<id>/` (e.g. `upgrades` → `/upgrades?site=%d`). A group with a
 	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
@@ -100,6 +111,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  → only `<id>/likes` and `<id>/replies`, never post content). Anchored on both ends and
 	 *                  enforced in the route regex AND in `validate_data_endpoint()` (the route
 	 *                  capture can be shadowed with `?endpoint=`). Omit to allow the whole group.
+	 *  - `inject_user_email` (bool, optional) Add the local user's email to the forwarded write body
+	 *                  as `user_email`. The blog token carries no user, so a WPCOM endpoint that
+	 *                  attributes a submission to a person cannot resolve one on its own (it falls
+	 *                  back to the site's first administrator). The only body rewrite this proxy
+	 *                  does; see `inject_user_email()`.
 	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
 	 *                  that reject blog-token auth but serve public data without credentials.
@@ -113,8 +129,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *  - REMOVE a group: delete its key — the route stops matching it and it 404s.
 	 *  - Cover it with a row in `data_endpoint_matrix()` (capability / writable / WPCOM path).
 	 *  - NOTE: this is for transparent WPCOM forwards only. Endpoints needing local processing
-	 *    (DB reads, body rewrites, the Notices class, …) are NOT proxied — they get their own
-	 *    routes outside `proxy/`; do not add them here.
+	 *    (DB reads, the Notices class, …) are NOT proxied — they get their own routes outside
+	 *    `proxy/`; do not add them here. `inject_user_email` is the one exception, and stays one:
+	 *    a rewrite that cannot be expressed as a flag on this table belongs in its own route.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
@@ -123,13 +140,19 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		// woocommerce-analytics made the same move away from manage_options (WOOA7S-551).
 		'analytics'                     => array( 'capability' => 'view_woocommerce_reports' ),
 		'stats'                         => array(
-			'capability' => 'view_stats',
-			'writes'     => array( 'stats/referrers/spam/' ),
+			'capability'  => 'view_stats',
+			'writes'      => array( 'stats/referrers/spam/' ),
+			// Marking a referrer as spam removes it from every referrers read.
+			'invalidates' => array( 'stats/referrers' ),
 		),
 		'wordads'                       => array( 'capability' => 'activate_wordads' ),
 		'subscribers'                   => array( 'capability' => 'view_stats' ),
 		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
-		'jetpack-stats'                 => array( 'capability' => 'view_stats' ),
+		'jetpack-stats'                 => array(
+			'capability'        => 'view_stats',
+			'writes'            => array( 'jetpack-stats/user-feedback' ),
+			'inject_user_email' => true,
+		),
 		'jetpack-stats-dashboard'       => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'jetpack-stats-dashboard/' ),
@@ -374,10 +397,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'         => $version,
-				'base'            => $this->base_for_version( $version ),
-				'bust_on_write'   => $this->busts_cache( $endpoint ),
-				'unauthenticated' => ! empty( $config['unauthenticated'] ),
+				'version'           => $version,
+				'base'              => $this->base_for_version( $version ),
+				'bust_on_write'     => $this->busts_cache( $endpoint ),
+				'invalidates'       => $config['invalidates'] ?? array(),
+				'cache_scope'       => $this->cache_scope_for( $endpoint ),
+				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
+				'inject_user_email' => ! empty( $config['inject_user_email'] ),
 			)
 		);
 	}
@@ -439,6 +465,45 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Add the local user's email to a forwarded write body, for a group declaring
+	 * `inject_user_email`.
+	 *
+	 * Mirrors what stats-admin's own `post_user_feedback()` does: the request is signed with the
+	 * blog token, so WPCOM sees no user and would attribute the submission to whichever
+	 * administrator it finds first. A body that is neither empty nor a JSON object is returned
+	 * untouched rather than replaced, so a malformed request still fails at WPCOM's own validation.
+	 *
+	 * @param string               $body The request body to forward.
+	 * @param array<string, mixed> $opts The matched prefix config.
+	 *
+	 * @return string
+	 */
+	private function inject_user_email( string $body, array $opts ): string {
+		if ( empty( $opts['inject_user_email'] ) ) {
+			return $body;
+		}
+
+		$email = wp_get_current_user()->user_email;
+		if ( ! $email ) {
+			return $body;
+		}
+
+		$decoded = '' === $body ? array() : json_decode( $body, true );
+		if ( ! is_array( $decoded ) ) {
+			return $body;
+		}
+
+		// A JSON list is not a param bag, and adding a string key would reshape it into an object.
+		if ( array() !== $decoded && array_keys( $decoded ) === range( 0, count( $decoded ) - 1 ) ) {
+			return $body;
+		}
+
+		$decoded['user_email'] = $email;
+
+		return (string) wp_json_encode( $decoded, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
 	 * Whether a successful write to this endpoint should invalidate the matching read cache.
 	 *
 	 * @param string $endpoint The validated sub-path.
@@ -452,11 +517,65 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * The `invalidates` entry of the endpoint's group that covers this endpoint, if any.
+	 *
+	 * @param string $endpoint The validated sub-path.
+	 *
+	 * @return string|null
+	 */
+	private function cache_scope_for( string $endpoint ): ?string {
+		$endpoint = strtolower( $endpoint );
+		$config   = $this->config_for( $endpoint );
+
+		foreach ( $config['invalidates'] ?? array() as $scope ) {
+			$scope = strtolower( $scope );
+			if ( $endpoint === $scope || str_starts_with( $endpoint, $scope . '/' ) ) {
+				return $scope;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * The current generation of a cache scope, or '' for an unscoped read.
+	 *
+	 * @param string|null $scope The `invalidates` entry covering the read.
+	 *
+	 * @return string
+	 */
+	private function cache_generation( ?string $scope ): string {
+		if ( null === $scope ) {
+			return '';
+		}
+
+		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
+
+		return $scope . ':' . (int) ( is_array( $generations ) ? ( $generations[ $scope ] ?? 0 ) : 0 );
+	}
+
+	/**
+	 * Move a cache scope to a new generation, so every read cached under the old one is skipped.
+	 *
+	 * @param string $scope The `invalidates` entry to advance.
+	 *
+	 * @return void
+	 */
+	private function bump_cache_generation( string $scope ): void {
+		$scope       = strtolower( $scope );
+		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
+		$generations = is_array( $generations ) ? $generations : array();
+
+		$generations[ $scope ] = (int) ( $generations[ $scope ] ?? 0 ) + 1;
+		update_option( self::CACHE_GENERATIONS_OPTION, $generations, false );
+	}
+
+	/**
 	 * Serve a cached payload when available, otherwise forward to WPCOM and cache the result.
 	 *
 	 * @param WP_REST_Request      $request    Request object.
 	 * @param string               $wpcom_path WPCOM path without the forwarded query string.
-	 * @param array<string, mixed> $opts       version | base | bust_on_write | cache overrides.
+	 * @param array<string, mixed> $opts       version | base | bust_on_write | invalidates | cache_scope | cache overrides.
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -469,7 +588,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			&& ( $opts['cache'] ?? true )
 			&& null === $request->get_param( 'force_refresh' );
 
-		$cache_key = $cacheable ? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request ) ) : null;
+		$cache_key = $cacheable
+			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request ), $this->cache_generation( $opts['cache_scope'] ?? null ) )
+			: null;
 		if ( null !== $cache_key ) {
 			$cached = get_transient( $cache_key );
 			if ( false !== $cached ) {
@@ -502,8 +623,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		);
 		$body = null;
 		if ( ! $is_read ) {
-			$body            = $request->get_body();
+			$body            = $this->inject_user_email( (string) $request->get_body(), $opts );
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
+		}
+
+		// The signer hashes '' like any body, then refuses to sign a hash on an empty one.
+		if ( '' === $body ) {
+			$body = null;
 		}
 
 		try {
@@ -583,6 +709,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * Mirror stats-admin: a successful write invalidates the matching (param-less) read cache, so
 	 * the next GET reflects the change instead of serving the cached pre-write value. It busts only
 	 * when the request was a write, the prefix opted in (`bust_on_write`), and WPCOM returned 200.
+	 * The same successful write also advances every `invalidates` scope of the prefix.
 	 *
 	 * This is a pure function of the response and route context — it takes the raw client response
 	 * rather than reaching out to WPCOM itself, so the full bust decision is unit-testable without
@@ -590,7 +717,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *
 	 * @param array                $http_response Raw response from the Jetpack client.
 	 * @param bool                 $is_write      Whether the request used a write (non-GET) method.
-	 * @param array<string, mixed> $opts          Forwarding opts (reads `bust_on_write`).
+	 * @param array<string, mixed> $opts          Forwarding opts (reads `bust_on_write`, `invalidates`).
 	 * @param string               $wpcom_path    WPCOM path without the forwarded query string.
 	 * @param string               $version       WPCOM API version.
 	 * @param string               $base          WPCOM API base.
@@ -598,15 +725,17 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @return void
 	 */
 	private function maybe_bust_read_cache( array $http_response, bool $is_write, array $opts, string $wpcom_path, string $version, string $base ): void {
-		if ( ! $is_write || empty( $opts['bust_on_write'] ) ) {
+		if ( ! $is_write || 200 !== (int) wp_remote_retrieve_response_code( $http_response ) ) {
 			return;
 		}
 
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $http_response ) ) {
-			return;
+		if ( ! empty( $opts['bust_on_write'] ) ) {
+			delete_transient( $this->cache_key_for( $wpcom_path, $version, $base, array() ) );
 		}
 
-		delete_transient( $this->cache_key_for( $wpcom_path, $version, $base, array() ) );
+		foreach ( $opts['invalidates'] ?? array() as $scope ) {
+			$this->bump_cache_generation( $scope );
+		}
 	}
 
 	/**
@@ -726,12 +855,17 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @param string $version    WPCOM API version.
 	 * @param string $base       WPCOM API base.
 	 * @param array  $params     Forwarded query params.
+	 * @param string $generation The read's cache-scope generation; '' for an unscoped read.
 	 *
 	 * @return string
 	 */
-	private function cache_key_for( string $wpcom_path, string $version, string $base, array $params ): string {
+	private function cache_key_for( string $wpcom_path, string $version, string $base, array $params, string $generation = '' ): string {
 		ksort( $params );
-		$signature = implode( '|', array( $wpcom_path, $version, $base, (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) ) );
+		$parts = array( $wpcom_path, $version, $base, (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		if ( '' !== $generation ) {
+			$parts[] = $generation;
+		}
+		$signature = implode( '|', $parts );
 
 		return self::CACHE_PREFIX . md5( $signature );
 	}

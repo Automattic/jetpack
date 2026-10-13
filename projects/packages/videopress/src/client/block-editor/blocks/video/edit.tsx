@@ -12,7 +12,15 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Spinner, Placeholder, Button, withNotices, ToolbarButton } from '@wordpress/components';
+import {
+	Spinner,
+	Placeholder,
+	Button,
+	withNotices,
+	ToolbarButton,
+	PanelBody,
+	ToggleControl,
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -30,10 +38,12 @@ import {
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
+import { getInlinePlayerConfig } from '../../hooks/use-inline-player';
 import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
 import { isVideoFile } from '../../utils/video';
 import ConnectBanner from './components/banner/connect-banner';
+import ChaptersControl from './components/chapters-control';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
@@ -44,6 +54,7 @@ import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
+import TrimCutControl from './components/trim-cut-control';
 import VideoPressUploaderRaw from './components/videopress-uploader';
 import { description, title } from '.';
 /**
@@ -57,7 +68,7 @@ type PlaceholderWrapperProps = {
 	className?: string;
 	disableInstructions?: boolean;
 	errorMessage?: string;
-	instructions?: ReactNode;
+	instructions?: string;
 	onNoticeRemove?: ( ...args: unknown[] ) => unknown;
 };
 
@@ -156,6 +167,7 @@ export default function VideoPressEdit( {
 		src,
 		caption,
 		isExample,
+		useQueriedVideo,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -189,6 +201,8 @@ export default function VideoPressEdit( {
 		error: syncError,
 		isOverwriteChapterAllowed,
 		isGeneratingPoster,
+		posterError,
+		retryPosterGeneration,
 		videoBelongToSite,
 	} = useSyncMedia( attributes, setAttributes );
 
@@ -237,11 +251,19 @@ export default function VideoPressEdit( {
 		setAttributes( { videoRatio: ratio } );
 	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
 
+	const [ playerRevision, setPlayerRevision ] = useState( 0 );
+
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	const invalidateCachedEmbedPreview = useCallback( () => {
 		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [ videoPressUrl, invalidateResolution ] );
+
+	const reloadProcessedVideo = useCallback( () => {
+		invalidateCachedEmbedPreview();
+		// The GUID and embed markup can stay unchanged after edits, so remount either player.
+		setPlayerRevision( revision => revision + 1 );
+	}, [ invalidateCachedEmbedPreview ] );
 
 	/*
 	 * Getting VideoPress preview.
@@ -252,7 +274,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >();
+	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >( undefined );
 
 	/**
 	 * Clean the generating process timer.
@@ -386,6 +408,40 @@ export default function VideoPressEdit( {
 	};
 
 	// Render Example block view
+	// Channel video pages: the block renders whichever video the page is for.
+	const queriedVideoControls = (
+		<InspectorControls>
+			<PanelBody title={ __( 'Channel', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Show the video being viewed', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'For channel video pages: renders the video of the page or of the list entry instead of a fixed one.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! useQueriedVideo }
+					onChange={ ( value: boolean ) => setAttributes( { useQueriedVideo: value } ) }
+				/>
+			</PanelBody>
+		</InspectorControls>
+	);
+
+	if ( useQueriedVideo ) {
+		return (
+			<div { ...blockProps } className={ blockMainClassName }>
+				{ queriedVideoControls }
+				<Placeholder
+					icon={ VideoPressIcon }
+					label={ __( 'Video being viewed', 'jetpack-videopress-pkg' ) }
+					instructions={ __(
+						'On the site, this shows the VideoPress video of the page or list entry.',
+						'jetpack-videopress-pkg'
+					) }
+				/>
+			</div>
+		);
+	}
+
 	if ( isExample ) {
 		return (
 			<img
@@ -467,9 +523,10 @@ export default function VideoPressEdit( {
 		);
 	}
 
-	// Generating video preview.
+	// Generating video preview. The in-page player does not need it to render.
 	if (
 		( isRequestingEmbedPreview || ! preview.html ) &&
+		! getInlinePlayerConfig() &&
 		generatingPreviewCounter > 0 &&
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
@@ -487,7 +544,11 @@ export default function VideoPressEdit( {
 	}
 
 	// 5 - Generating video preview failed.
-	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview.html ) {
+	if (
+		generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT &&
+		! preview.html &&
+		! getInlinePlayerConfig()
+	) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<PlaceholderWrapper
@@ -547,6 +608,13 @@ export default function VideoPressEdit( {
 				/>
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
+
+				<TrimCutControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					onProcessed={ reloadProcessedVideo }
+				/>
+				<ChaptersControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
 			<BlockControls group="other">
@@ -598,6 +666,8 @@ export default function VideoPressEdit( {
 				/>
 			</BlockControls>
 
+			{ queriedVideoControls }
+
 			<InspectorControls>
 				<DetailsPanel
 					filename={ filename }
@@ -616,6 +686,8 @@ export default function VideoPressEdit( {
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 					isGeneratingPoster={ isGeneratingPoster }
+					posterError={ posterError }
+					onRetryPoster={ retryPosterGeneration }
 					videoBelongToSite={ videoBelongToSite }
 				/>
 
@@ -657,6 +729,7 @@ export default function VideoPressEdit( {
 			/>
 
 			<Player
+				key={ playerRevision }
 				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }

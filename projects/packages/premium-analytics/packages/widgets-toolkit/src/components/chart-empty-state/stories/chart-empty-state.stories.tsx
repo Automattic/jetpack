@@ -11,7 +11,7 @@ const meta: Meta< typeof ChartEmptyState > = {
 		docs: {
 			description: {
 				component:
-					'A reusable empty state component for charts. Uses cautionFilled from @wordpress/icons as the default icon, with support for custom illustrated icons from @jetpack-premium-analytics/icons.',
+					'A reusable empty state component for charts. With no props it renders the generic "no results for this time period" state (the search magnifier from @jetpack-premium-analytics/icons), with support for other illustrated icons from the same package.',
 			},
 		},
 	},
@@ -19,7 +19,7 @@ const meta: Meta< typeof ChartEmptyState > = {
 		icon: {
 			control: false,
 			description:
-				'Icon to display in the empty state. Defaults to cautionFilled from @wordpress/icons. Can be overridden with custom icons.',
+				'Icon to display in the empty state. Defaults to the search magnifier from @jetpack-premium-analytics/icons. Can be overridden with custom icons, or `null` for none.',
 		},
 		text: {
 			control: 'text',
@@ -76,7 +76,7 @@ const WidgetCard = ( {
 );
 
 /**
- * Default empty state with cautionFilled icon from @wordpress/icons
+ * Default: the generic "no results for this time period" state
  */
 export const Default: Story = {
 	args: {},

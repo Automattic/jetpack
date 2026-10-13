@@ -6,10 +6,12 @@ import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Tabs } from '@wordpress/ui';
+import { LinkButton, Tabs } from '@wordpress/ui';
+import { initializeAnalytics, recordDashboardView } from './analytics';
 import { isSiteConnected } from './connection';
 import ErrorBoundary from './error-boundary';
 import { usePodcastSettings } from './hooks/use-podcast-settings';
+import { getValidationIssues } from './hooks/use-validation-issues';
 import './style.scss';
 import type { TabName } from './types';
 import type { ReactNode } from 'react';
@@ -82,6 +84,12 @@ const App = () => {
 	const hasConfirmedAccess = hasConfirmedProductAccess();
 	const connected = isSiteConnected();
 
+	// Once for the whole page, so every tab's events carry identity regardless
+	// of which one the visitor lands on.
+	useEffect( () => {
+		initializeAnalytics();
+	}, [] );
+
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
 	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
 
@@ -99,6 +107,19 @@ const App = () => {
 	const requestedTab: TabName | null = isValidTab( search.tab ) ? search.tab : null;
 	const activeTab: TabName =
 		requestedTab && ( isSetUp || requestedTab === 'settings' ) ? requestedTab : defaultTab;
+
+	useEffect( () => {
+		if ( isLoading || ! settings ) {
+			return;
+		}
+		recordDashboardView( {
+			view: showWelcome ? 'welcome' : activeTab,
+			is_set_up: isSetUp,
+			settings_missing: getValidationIssues( settings ).length,
+			has_product_access: hasAccess,
+			is_connected: connected,
+		} );
+	}, [ isLoading, settings, showWelcome, activeTab, isSetUp, hasAccess, connected ] );
 
 	const navigate = useNavigate();
 
@@ -209,18 +230,13 @@ const App = () => {
 
 	// Same destination + label for every plan; `New_Episode_Prefill` keys off `?podcast_episode=1`.
 	const headerActions = isSetUp ? (
-		<Button
+		<LinkButton
 			size="compact"
 			variant="solid"
-			render={
-				<a
-					className="podcast__header-cta"
-					href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
-				/>
-			}
+			href={ getAdminUrl( 'post-new.php?podcast_episode=1' ) }
 		>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
-		</Button>
+		</LinkButton>
 	) : undefined;
 
 	return (

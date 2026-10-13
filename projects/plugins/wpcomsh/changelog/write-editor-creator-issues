@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Allow adding text above a quote, such as a writing prompt, and fix quotes that split in two or could not be turned off.

@@ -1,15 +1,7 @@
 /**
- * The close-up stories render the data-connected widget against a mocked per-post
- * `stats/<opens|clicks>/emails/<postId>/rate` response so the tiles populate without a
- * backend. `WidgetDashboardWithWidget` mounts the real dashboard with the same
- * widget.
- *
- * The widget is scoped to a single email by the host through
- * `reportParams.post_id` and to one view by the `metric` attribute (Opens or Clicks).
- *
- * The Loading / Error / Empty stories force the mock into that state with
- * `setReportMockState`; each uses a distinct `post_id` so its request has its own
- * query key and hits the override fresh rather than reading a sibling's cache.
+ * The Loading / Error / Empty stories force the mock state with
+ * `setReportMockState`; each uses a distinct `post_id` so its request has its
+ * own query key and hits the override fresh rather than a sibling's cache.
  */
 /**
  * Internal dependencies
@@ -42,8 +34,8 @@ const EMAIL_TOP_ROW_RENDER_MODULE = 'storybook/email-top-row';
 // A representative email; the mock returns populated totals for any post ID.
 const MOCK_POST_ID = 2000;
 
-// Overrides are keyed by this fragment of the opens rate-breakdown path.
-const OPENS_MOCK_FRAGMENT = 'stats/opens/emails';
+// Overrides match both rate endpoints (`stats/<opens|clicks>/emails/<postId>/rate`) for one post.
+const rateMockFragment = ( postId: number ) => `emails/${ postId }/rate`;
 
 interface EmailTopRowStoryControls {
 	metric: EmailMetric;
@@ -74,7 +66,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total sends, unique opens, total clicks, click rate) via the `metric` attribute. The email is selected by the host through `reportParams.post_id`. Clicks combines the per-post opens and clicks rate summaries; both endpoints are all-time and return no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
+					'The "Email top row" widget. Shows a single email\'s all-time headline totals as a row of metric tiles, switching between the Opens view (total sends, unique opens, total opens, open rate) and the Clicks view (total opens, total clicks, click rate) via the `metric` attribute. The email is selected by the host through `reportParams.post_id`. The Clicks view combines the per-post opens and clicks rate summaries, and the Opens view reads the clicks one only for a legacy send with no recorded sends; both endpoints are all-time and return no comparison rows, so the widget ignores the dashboard date range and never shows period-over-period deltas.',
 			},
 		},
 	},
@@ -94,8 +86,7 @@ export const Default: Story = {
 };
 
 /**
- * The Clicks view — total sends, unique opens, total clicks, and click rate for
- * the same email.
+ * The Clicks view — total opens, total clicks, and click rate for the same email.
  */
 export const ClicksView: Story = {
 	render: args => renderEmailTopRow( args ),
@@ -103,9 +94,6 @@ export const ClicksView: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load with no data yet: the widget shows its loading overlay.
- */
 export const Loading: Story = {
 	render: args => renderEmailTopRow( args, 2001 ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
@@ -113,8 +101,8 @@ export const Loading: Story = {
 	args: { metric: 'opens' },
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		setReportMockState( OPENS_MOCK_FRAGMENT, 'loading' );
-		return () => setReportMockState( OPENS_MOCK_FRAGMENT, null );
+		setReportMockState( rateMockFragment( 2001 ), 'loading' );
+		return () => setReportMockState( rateMockFragment( 2001 ), null );
 	},
 };
 
@@ -128,8 +116,8 @@ export const Error: Story = {
 	args: { metric: 'opens' },
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		setReportMockState( OPENS_MOCK_FRAGMENT, 'error' );
-		return () => setReportMockState( OPENS_MOCK_FRAGMENT, null );
+		setReportMockState( rateMockFragment( 2002 ), 'error' );
+		return () => setReportMockState( rateMockFragment( 2002 ), null );
 	},
 };
 
@@ -143,8 +131,8 @@ export const Empty: Story = {
 	args: { metric: 'opens' },
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		setReportMockState( OPENS_MOCK_FRAGMENT, 'empty' );
-		return () => setReportMockState( OPENS_MOCK_FRAGMENT, null );
+		setReportMockState( rateMockFragment( 2003 ), 'empty' );
+		return () => setReportMockState( rateMockFragment( 2003 ), null );
 	},
 };
 
@@ -161,8 +149,7 @@ export const NoEmailSelected: Story = {
 };
 
 interface EmailTopRowDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		EmailTopRowStoryControls {}
+	extends WidgetDashboardWithWidgetControls, EmailTopRowStoryControls {}
 
 function EmailTopRowDashboardStory( { metric, ...dashboardArgs }: EmailTopRowDashboardStoryProps ) {
 	return (

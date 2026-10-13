@@ -4,6 +4,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
@@ -31,11 +32,14 @@ export default function DateFieldEdit( props ) {
 		];
 	}, [ required ] );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_INNER_BLOCKS,
-		template,
-		templateLock: 'all',
-	} );
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			template,
+			templateLock: 'all',
+		}
+	);
 	const onChange = useCallback(
 		value => {
 			setAttributes( { dateFormat: value } );
@@ -45,7 +49,15 @@ export default function DateFieldEdit( props ) {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } />
+			<div { ...blockProps }>
+				<div { ...innerBlocksProps } />
+				<JetpackFieldHints
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					isActive={ isSelected || isInnerBlockSelected }
+					isDateField
+				/>
+			</div>
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
@@ -53,6 +65,7 @@ export default function DateFieldEdit( props ) {
 				setAttributes={ setAttributes }
 				attributes={ attributes }
 				type="date"
+				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 1,

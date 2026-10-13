@@ -12,7 +12,7 @@ definition and lazily renders that report's page component. Adding a report does
    The component owns all of the page chrome (header, tabs, widget grid) — the
    stage renders it as-is.
 
-2. **Register one entry** in `REPORTS` in `registry.ts`. Labels are getters so
+2. **Register one entry** in `REPORTS` in `registry.ts`. Names are getters so
    translations resolve after the i18n locale data has loaded; `load` is a
    dynamic import of the page component:
 
@@ -22,7 +22,7 @@ definition and lazily renders that report's page component. Adding a report does
    export const REPORTS: Record< string, ReportDefinition > = {
    	posts: {
    		id: 'posts',
-   		getTitle: () => __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ),
+   		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
    		load: () => import( './posts/page' ),
@@ -33,11 +33,19 @@ definition and lazily renders that report's page component. Adding a report does
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
 
+## Naming a report
+
+`getLabel` is the report's one name: its own trailing breadcrumb, the crumb
+back to it from a detail page, and the heading over its records (`All pages`).
+Pages read it from `REPORTS` and declare no strings of their own.
+
+A tabbed report heads each section with its open tab's label instead, through
+the tab set's `getTabLabel( activeTab )`.
+
 ## Providers the stage mounts for every report
 
 The stage wraps every report page in `AnalyticsQueryClientProvider` (React
-Query), `GlobalErrorProvider`, and `GlobalChartsProvider` with the shared chart
-theme. Report pages therefore call data hooks and compose chart components
+Query) and `GlobalChartsProvider` with the shared chart theme. Report pages therefore call data hooks and compose chart components
 directly (`useSeriesStyles` + `ComparativeLineChart`, exactly like widgets do)
 without mounting any providers of their own.
 

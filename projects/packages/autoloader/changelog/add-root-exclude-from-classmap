@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Honor the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map, matching Composer's own behavior. It was previously parsed but never applied.

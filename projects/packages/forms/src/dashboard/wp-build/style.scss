@@ -4,6 +4,7 @@
 
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "@wordpress/base-styles/breakpoints";
+@use "../forms-vars";
 
 body.jetpack_page_jetpack-forms-responses-wp-admin,
 body.jetpack-forms-responses {
@@ -16,21 +17,6 @@ body.jetpack-forms-responses {
 	// margin-bottom }` — that otherwise inflate the breadcrumb list and push the
 	// header logo below the title baseline.
 	@include jetpack-admin-page-layout-wp-build;
-
-	// admin-ui's header `visual` slot is a 24px grid cell that does not center
-	// its contents, and its header content row doesn't center its items — so the
-	// JetpackLogo pins to the top and looks misaligned vs. the title. The shared
-	// <AdminPage> wrapper fixes this in its stylesheet, but the Forms wp-build
-	// dashboard uses a thin FormsPage shell that doesn't load it. Mirror the two
-	// AdminPage overrides here. (See js-packages/components admin-page style.)
-	.jp-admin-page__page > :first-child [aria-hidden="true"] {
-		place-items: center;
-	}
-
-	.jp-admin-page__page > :first-child > div:has([aria-hidden="true"]) {
-		min-block-size: 40px;
-		align-items: center;
-	}
 
 	// Match the breadcrumb link color/weight to the Jetpack Forms design. The
 	// mixin already handles the margin reset and the underline behavior; this
@@ -66,8 +52,10 @@ body.jetpack-forms-responses {
 			flex: 1 1 auto;
 			min-block-size: 0;
 
+			// The JITM slot is chrome like the toolbar and footer: natural height.
 			.jp-forms-dataviews__view-actions,
 			.jp-forms-dataviews-filters__container,
+			.jp-jitm-slot,
 			.dataviews-footer {
 				flex: 0 0 auto;
 				min-block-size: 0;
@@ -98,5 +86,14 @@ body.jetpack-forms-responses {
 				min-block-size: 0;
 			}
 		}
+	}
+
+	// The standalone single response page is a document-flow page, not a bounded
+	// app surface: the card must take its content height so the scrollable middle
+	// (`.jp-forms__single-response`) actually overflows and scrolls. The mixin's
+	// blanket `> *` rule would instead shrink the card to the viewport, and the
+	// card's own `overflow: hidden` then clips everything past the fold.
+	.jp-admin-page:has(.jp-forms__single-response) .jp-forms__single-response-card {
+		flex: 0 0 auto;
 	}
 }

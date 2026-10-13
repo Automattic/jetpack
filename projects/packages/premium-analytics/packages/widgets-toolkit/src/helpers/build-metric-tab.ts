@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
-import type { MetricTab } from '../components';
-import type { DataFormat } from '../types';
+import type { MetricTab, MetricTabDatum } from '../components';
+import type { CountLabel, DataFormat } from '../types';
 
 /**
  * The shape `buildMetricTab` reads: a normalized Stats report's summary plus its
@@ -14,7 +14,7 @@ import type { DataFormat } from '../types';
  */
 export type MetricReport = {
 	summary?: Record< string, unknown >;
-	data?: Array< { date_start: string } >;
+	data?: Array< { date_start: string; date_end?: string; pending?: boolean } >;
 };
 
 export type BuildMetricTabOptions< TReport extends MetricReport > = {
@@ -30,6 +30,14 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	label: string;
 	/** Per-metric format override (e.g. currency); falls back to the chart default. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
+	/** The timezone the reports were built and normalized under. */
+	zone: string;
+	/**
+	 * What the tooltip says for a bucket the report flags `pending`, in place of
+	 * a reading: the source has not counted it yet.
+	 */
+	pendingLabel?: string;
 };
 
 /**
@@ -48,23 +56,36 @@ function total( report: MetricReport | undefined, field: string ): number {
 /**
  * Map a field of a normalized report into chart points.
  *
- * @param report - The normalized report, or undefined while loading.
- * @param field  - The metric field to read from each period.
- * @return One point per period, oldest first.
+ * @param report       - The normalized report, or undefined while loading.
+ * @param field        - The metric field to read from each period.
+ * @param zone         - The report's reporting timezone.
+ * @param pendingLabel - Carried as the note of a point the report flags `pending`.
+ * @return One point per period, oldest first; a null reading stays null, drawn as a gap.
  */
-function toPoints( report: MetricReport | undefined, field: string ) {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
-		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
-	} ) );
+function toPoints(
+	report: MetricReport | undefined,
+	field: string,
+	zone: string,
+	pendingLabel?: string
+): MetricTabDatum[] {
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = resolveBucketStamp( point.date_start, zone );
+		if ( ! date ) {
+			return [];
+		}
+
+		const endDate = resolveBucketStamp( point.date_end, zone );
+		const raw = ( point as Record< string, unknown > )[ field ];
+		const value = raw === null ? null : Number( raw ?? 0 );
+		const datum: MetricTabDatum = endDate ? { date, endDate, value } : { date, value };
+		return [ point.pending && pendingLabel ? { ...datum, note: pendingLabel } : datum ];
+	} );
 }
 
 /**
- * Build one metric tab from a primary/comparison report pair. The headline is
- * the period total; the previous-period total and overlay are included only when
- * comparison is on *and* the comparison request actually returned rows — while
- * that request is still loading or came back empty, its total would be `0`,
- * which would render a misleading previous-period value.
+ * Build one metric tab from a primary/comparison report pair. The previous-period
+ * total/overlay appear only when comparison is on and the comparison request
+ * actually returned rows — an empty or loading response would otherwise total to a misleading 0.
  *
  * @param options - The report pair, field, and presentation options.
  * @return The metric tab.
@@ -72,8 +93,19 @@ function toPoints( report: MetricReport | undefined, field: string ) {
 export function buildMetricTab< TReport extends MetricReport >(
 	options: BuildMetricTabOptions< TReport >
 ): MetricTab {
-	const { primary, comparison, hasComparison, field, label, dataFormat } = options;
-	const previous = hasComparison ? toPoints( comparison, field ) : undefined;
+	const {
+		primary,
+		comparison,
+		hasComparison,
+		field,
+		label,
+		dataFormat,
+		countLabel,
+		zone,
+		pendingLabel,
+	} = options;
+	// The comparison period ends before today, so it has no uncounted day.
+	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
 
 	return {
@@ -81,8 +113,9 @@ export function buildMetricTab< TReport extends MetricReport >(
 		label,
 		value: total( primary, field ),
 		previousValue: hasPrevious ? total( comparison, field ) : undefined,
-		current: toPoints( primary, field ),
+		current: toPoints( primary, field, zone, pendingLabel ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
+		countLabel,
 	};
 }

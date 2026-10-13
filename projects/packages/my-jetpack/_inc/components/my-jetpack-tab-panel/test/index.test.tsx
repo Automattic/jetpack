@@ -3,9 +3,10 @@ import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
+	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 	MY_JETPACK_SECTION_OVERVIEW,
-	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
 import { MyJetpackTabPanel } from '../index';
 
@@ -20,7 +21,9 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 // `onTabSelect` gate and the keyed-remount effect run for real against it.
 const mockNavigate = jest.fn();
 let mockSection: string | undefined;
+let mockSearch = '';
 jest.mock( 'react-router', () => ( {
+	useLocation: () => ( { search: mockSearch } ),
 	useNavigate: () => mockNavigate,
 	useParams: () => ( { section: mockSection } ),
 } ) );
@@ -36,7 +39,7 @@ jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 	default: () => false,
 } ) );
 
-// The real `TabContent` pulls in the full products/overview/help trees; a stub
+// The real `TabContent` pulls in the full features/overview/help trees; a stub
 // that echoes its section name is enough to assert which section rendered.
 jest.mock( '../tab-content', () => ( {
 	TabContent: ( { name }: { name: string } ) => {
@@ -56,26 +59,27 @@ beforeEach( () => {
 	mockCurrentUserCan.mockReturnValue( true );
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
+	mockSearch = '';
 } );
 
 describe( 'MyJetpackTabPanel', () => {
-	it( 'renders the single Products section directly, with no tab bar, on Simple sites', () => {
+	it( 'renders the single Features section directly, with no tab bar, on Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
-		mockSection = MY_JETPACK_SECTION_PRODUCTS;
+		mockSection = MY_JETPACK_SECTION_FEATURES;
 
 		render( <MyJetpackTabPanel /> );
 
-		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_PRODUCTS );
+		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_FEATURES );
 		// The direct-render path renders no TabPanel, so there is no tab bar.
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
-		// The canonical Products hash needs no rewrite.
+		// The canonical Features hash needs no rewrite.
 		expect( mockNavigate ).not.toHaveBeenCalled();
-		// No synthetic click; the view fires exactly once, attributed to Products.
+		// No synthetic click; the view fires exactly once, attributed to Features.
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_myjetpack_tab_view',
-			expect.objectContaining( { tab_name: MY_JETPACK_SECTION_PRODUCTS } )
+			expect.objectContaining( { tab_name: MY_JETPACK_SECTION_FEATURES } )
 		);
 	} );
 
@@ -126,5 +130,21 @@ describe( 'MyJetpackTabPanel', () => {
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
+	} );
+
+	it( 'redirects the retired Products hash to Features, keeping its query', async () => {
+		mockSection = MY_JETPACK_SECTION_LEGACY_PRODUCTS;
+		mockSearch = '?filter=security';
+
+		render( <MyJetpackTabPanel /> );
+		await expect( screen.findByRole( 'tab', { selected: true } ) ).resolves.toHaveTextContent(
+			'Features'
+		);
+
+		expect( mockNavigate ).toHaveBeenCalledWith(
+			`/${ MY_JETPACK_SECTION_FEATURES }?filter=security`,
+			{ replace: true }
+		);
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 	} );
 } );

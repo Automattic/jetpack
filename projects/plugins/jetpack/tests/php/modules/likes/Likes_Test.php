@@ -1,8 +1,21 @@
 <?php
 require __DIR__ . '/../../../../modules/likes.php';
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
+
 class Likes_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Clean up after the sharing menu tests, which set the active module list.
+	 */
+	public function tear_down() {
+		Jetpack_Options::delete_option( 'active_modules' );
+		Constants::clear_constants();
+
+		parent::tear_down();
+	}
 
 	/**
 	 * Test that the actions are not added if likes are not visible.
@@ -125,5 +138,40 @@ class Likes_Test extends WP_UnitTestCase {
 		remove_filter( 'wpl_is_enabled_sitewide', '__return_true' );
 
 		$this->assertTrue( $likeable );
+	}
+
+	/**
+	 * The module registers the per-post switch through the Sharing & Likes package.
+	 */
+	public function test_registers_the_per_post_switch_on_both_rest_hooks() {
+		$callback = array( Post_Likes_Switch::class, 'register_rest_field' );
+
+		$this->assertSame( 10, has_action( 'rest_api_init', $callback ) );
+		$this->assertSame( 20, has_action( 'restapi_theme_init', $callback ) );
+	}
+
+	/**
+	 * The deprecated functions still read, write and register the switch.
+	 */
+	public function test_deprecated_rest_field_functions_delegate_to_the_switch() {
+		$this->setExpectedDeprecated( 'jetpack_post_likes_get_value' );
+		$this->setExpectedDeprecated( 'jetpack_post_likes_update_value' );
+		$this->setExpectedDeprecated( 'jetpack_post_likes_register_rest_field' );
+
+		$post_id = self::factory()->post->create();
+		update_option( 'disabled_likes', 1 );
+
+		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
+		jetpack_post_likes_update_value( true, get_post( $post_id ) );
+		$this->assertSame( '1', get_post_meta( $post_id, 'switch_like_status', true ) );
+		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
+		$this->assertTrue( jetpack_post_likes_get_value( array( 'id' => $post_id ) ) );
+
+		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
+		jetpack_post_likes_register_rest_field();
+		$this->assertSame(
+			array( Post_Likes_Switch::class, 'get_value' ),
+			$GLOBALS['wp_rest_additional_fields']['post']['jetpack_likes_enabled']['get_callback']
+		);
 	}
 }

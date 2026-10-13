@@ -1,0 +1,14 @@
+.location {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+}
+
+.flag {
+	flex: 0 0 auto;
+	inline-size: 24px;
+	block-size: 18px;
+	border-radius: var(--wpds-border-radius-sm);
+	object-fit: cover;
+}

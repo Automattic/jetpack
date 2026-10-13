@@ -1,15 +1,15 @@
 <?php
 /**
- * REST controller for the Jetpack Reprint exporter secret-rotation endpoint.
+ * REST controller for Jetpack Reprint export provisioning endpoints.
  *
- * Requires a Jetpack-signed request (WordPress.com public API proxy only).
+ * Requires a verified Jetpack user token for a site administrator.
  *
  * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Reprint_Export;
 
-use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -63,59 +63,81 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Opens the 60-minute export window without rotating the secret.
+	 * Opens the export window without rotating the secret, so a client that
+	 * already has one can reopen a window that has closed.
 	 *
-	 * Purpose-built enable endpoint: a client that already holds a valid
-	 * secret can re-open a lapsed window without minting a new one. The
-	 * route is only registered when the feature is available, so a 404
-	 * here doubles as the client's "is Reprint export available?" probe.
+	 * Registered only where the feature is available, so clients also use a 404
+	 * from here to tell whether the site supports export at all.
 	 *
 	 * @return WP_REST_Response The unix timestamp the window was opened at.
 	 */
 	public function enable_export() {
-		return new WP_REST_Response(
-			array( 'enabled_at' => Reprint_Exporter::open_export_window() ),
-			200
+		$enabled_at = Reprint_Exporter::open_export_window();
+
+		Reprint_Exporter::record_event(
+			'window_opened',
+			array( 'user_id' => get_current_user_id() )
 		);
+
+		return new WP_REST_Response( array( 'enabled_at' => $enabled_at ), 200 );
 	}
 
 	/**
-	 * Rotates the shared secret and opens the export window.
+	 * Rotates the shared secret and returns it.
 	 *
-	 * Generates a cryptographically random 64-character hex secret, stores it
-	 * in a WordPress option (autoload disabled), opens the 60-minute export
-	 * window, and returns the secret. The caller uses this secret to
-	 * authenticate export requests via HMAC.
-	 *
-	 * Rotating the secret intentionally also opens the export window so the
-	 * Pressable client flow is a single round trip: rotate, then immediately
-	 * stream from ?reprint-api-jetpack using HMAC.
+	 * Uses random_bytes() rather than wp_generate_password(). That helper is for
+	 * passwords a person reads and types, and sites can filter it through
+	 * `random_password` to enforce their own policy — an extension point we do
+	 * not want on a credential. random_bytes() also throws rather than quietly
+	 * falling back to a weaker source, which wp_rand() will do.
 	 *
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */
 	public function rotate_secret() {
 		$secret = bin2hex( random_bytes( 32 ) );
 
-		if ( ! update_option( Reprint_Exporter::SECRET_OPTION, $secret, false ) ) {
+		if ( ! Reprint_Exporter::store_secret( $secret ) ) {
 			return new WP_REST_Response(
 				array( 'error' => 'Failed to persist the new secret.' ),
 				500
 			);
 		}
 
-		// Open the sliding export window so the client can stream right away.
-		Reprint_Exporter::open_export_window();
+		Reprint_Exporter::record_event(
+			'secret_rotated',
+			array( 'user_id' => get_current_user_id() )
+		);
 
 		return new WP_REST_Response( array( 'secret' => $secret ), 200 );
 	}
 
 	/**
-	 * Permission callback: only Jetpack-signed requests (public API proxy).
+	 * Permission callback: a Jetpack-signed request from a site administrator.
+	 *
+	 * Deliberately a role check, not a capability one. This hands out a secret
+	 * that streams the whole database and file tree, and no capability says
+	 * that — `manage_options` is the closest, but plugins grant it to shop
+	 * managers and the like.
 	 *
 	 * @return bool
 	 */
 	public function permission_check() {
-		return method_exists( Manager::class, 'verify_xml_rpc_signature' )
-			&& ( new Manager() )->verify_xml_rpc_signature();
+		if ( ! Rest_Authentication::is_signed_with_user_token() ) {
+			return false;
+		}
+
+		$user = wp_get_current_user();
+		if ( ! $user || ! $user->exists() ) {
+			return false;
+		}
+
+		// Network administrator only: the export takes every table and everything
+		// under ABSPATH, so a subsite administrator would leave with every other
+		// site's users, content and uploads.
+		if ( is_multisite() ) {
+			return is_super_admin( $user->ID );
+		}
+
+		return in_array( 'administrator', $user->roles, true );
 	}
 }

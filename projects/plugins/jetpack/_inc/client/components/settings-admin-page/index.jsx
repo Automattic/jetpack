@@ -1,5 +1,4 @@
 import { AdminPage } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import DevCard from 'components/dev-card';
@@ -13,7 +12,6 @@ import {
 	getSiteAdminUrl,
 } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import { HeaderNav } from '../masthead/header-nav';
 
 /**
  * Build footer menu items matching the legacy Footer component.
@@ -48,7 +46,7 @@ function buildFooterMenuItems( props ) {
 }
 
 const SettingsAdminPage = props => {
-	const { apiRoot, apiNonce, isDevVersion, displayDevCard, location, tabs, children } = props;
+	const { apiRoot, apiNonce, isDevVersion, displayDevCard, tabs, children } = props;
 
 	const footerMenuItems = buildFooterMenuItems( props );
 
@@ -62,7 +60,6 @@ const SettingsAdminPage = props => {
 				showBackground={ true }
 				tabs={ tabs }
 				optionalMenuItems={ footerMenuItems }
-				actions={ isWoASite() && <HeaderNav location={ location } /> }
 			>
 				{ children }
 			</AdminPage>

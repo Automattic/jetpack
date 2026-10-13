@@ -1,0 +1,207 @@
+// A restore we can no longer see must not offer to start another one.
+//
+// The state machine reports two situations the reader cannot act on: the
+// silence deadline passing, and the status poll failing after the restore
+// was accepted. Both mean the same thing — WordPress.com took the
+// restore, it is very likely still running, and we have lost sight of it.
+//
+// Both used to land in the generic `error` phase, whose branch renders a
+// "Try again" button that resets the screen to an armed "Confirm
+// restore". So the only control beneath *"It may still be running —
+// you'll get an email when it finishes"* was one that starts a second
+// concurrent restore of the same site. Upstream does refuse that —
+// `endpoint-site-queue-rewind.php` calls `is_any_restore_running()` —
+// but only as a bare failure, which is a worse screen than no button.
+//
+// The rule these tests pin: a retry is offered only when we know nothing
+// is running.
+
+const mockApiFetch = jest.fn();
+const mockSearch = jest.fn< Record< string, unknown >, [] >();
+const mockNavigate = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => mockSearch(),
+	useNavigate: () => mockNavigate,
+	useParams: () => ( { rewindId: '1786663613.9425' } ),
+	Link: ( { children, to, ...rest }: { children: React.ReactNode; to: string } ) => (
+		<a href={ to } { ...rest }>
+			{ children }
+		</a>
+	),
+} ) );
+
+// Imports must come after the jest.mock factories above.
+import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { stage as RestoreStage } from '../routes/restore/stage';
+import { queryClient } from '../src/dashboard/data/query-client';
+
+const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+
+const RESTORE_ID = 912682;
+
+/**
+ * Answer capabilities and the initiate POST, then let the status poll do
+ * whatever the case under test needs.
+ *
+ * @param status - What each status poll does.
+ */
+function arrange( status: () => Promise< unknown > ) {
+	mockApiFetch.mockImplementation( ( o: { path?: string; method?: string } ) => {
+		const path = o?.path ?? '';
+		if ( path.includes( '/site/capabilities' ) ) {
+			return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+		}
+		if ( o?.method === 'POST' ) {
+			return Promise.resolve( { id: RESTORE_ID, rewind_id: '1786663613.9425' } );
+		}
+		if ( path.includes( '/status' ) ) {
+			return status();
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
+beforeEach( () => {
+	queryClient.clear();
+	queryClient.setDefaultOptions( { queries: { retry: false } } );
+
+	mockApiFetch.mockReset();
+	mockSearch.mockReset();
+	mockSearch.mockReturnValue( {} );
+	mockNavigate.mockReset();
+
+	window.JP_CONNECTION_INITIAL_STATE = {
+		...window.JP_CONNECTION_INITIAL_STATE,
+		connectionStatus: CONNECTED,
+	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+/**
+ * Wait for the lost-track message.
+ *
+ * `findAllBy` rather than `findBy`: `Notice` mirrors its content into
+ * `@wordpress/a11y`'s live region, so the text is legitimately in the
+ * document twice and a single-match query throws.
+ */
+async function findMessage() {
+	await expect(
+		screen.findAllByText( /We've lost track of this restore/ )
+	).resolves.not.toHaveLength( 0 );
+}
+
+/**
+ * Start a restore with the default six-of-six checklist.
+ */
+async function startRestore() {
+	const fake = 'clock' in setTimeout;
+	const user = userEvent.setup( fake ? { advanceTimers: jest.advanceTimersByTime } : {} );
+	await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
+}
+
+/**
+ * Let every poll fail past the silence deadline, then wait for the message.
+ * A failed first poll is temporary, so only the deadline gives up.
+ */
+async function findMessageAfterDeadline() {
+	for ( let elapsed = 0; elapsed <= 6 * 60_000; elapsed += 5000 ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+	}
+	await findMessage();
+}
+
+describe( 'a restore that has gone out of sight', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'offers a way out, not a way to start another one', async () => {
+		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		await findMessageAfterDeadline();
+
+		// The whole point. Either control would start a second restore:
+		// "Try again" resets to an armed Confirm, and Confirm submits.
+		expect( screen.queryByRole( 'button', { name: /Try again/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Confirm restore/ } ) ).not.toBeInTheDocument();
+		// Not merely the button: the whole form is gone, so there is
+		// nothing left on screen that could submit.
+		expect(
+			screen.queryByRole( 'checkbox', { name: /^WordPress themes/ } )
+		).not.toBeInTheDocument();
+
+		// Two: the back link that sits above the card on every phase, and
+		// the one this branch renders where "Try again" used to be. The
+		// count is what pins the second one.
+		expect( screen.getAllByRole( 'link', { name: /Back to overview/ } ) ).toHaveLength( 2 );
+	} );
+
+	it( 'reports why it lost sight, beneath the message rather than instead of it', async () => {
+		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		await findMessageAfterDeadline();
+		expect( screen.getByText( 'Could not reach WordPress.com.' ) ).toBeInTheDocument();
+	} );
+
+	// Not an error: we cannot see the restore, not know it failed. `Notice.Root`
+	// speaks `error` assertively and `warning` politely, so check the live regions.
+	it( 'warns rather than reporting a failure', async () => {
+		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
+		render( <RestoreStage /> );
+
+		await startRestore();
+		await findMessageAfterDeadline();
+
+		// The notice plus its @wordpress/a11y live-region copy; tell them apart by `aria-live`.
+		const lives = () =>
+			screen
+				.getAllByText( /We've lost track of this restore/ )
+				.map( el => el.getAttribute( 'aria-live' ) );
+		await waitFor( () => expect( lives() ).toContain( 'polite' ) );
+		expect( lives() ).not.toContain( 'assertive' );
+	} );
+} );
+
+describe( 'a restore that definitely is not running', () => {
+	// The other side of the rule: when the restore reached a terminal
+	// failure there is nothing in flight, so a retry is the right offer.
+	it( 'still offers Try again when the restore failed', async () => {
+		arrange( () =>
+			Promise.resolve( {
+				id: RESTORE_ID,
+				status: 'failed',
+				progress: 0,
+				rewind_id: '1786663613.9425',
+				error_code: '',
+				message: 'Restore aborted.',
+			} )
+		);
+		render( <RestoreStage /> );
+
+		await startRestore();
+
+		// `findAllBy` for the same reason as `findMessage`: `Notice` mirrors
+		// its text into the live region.
+		await expect( screen.findAllByText( 'Restore aborted.' ) ).resolves.not.toHaveLength( 0 );
+		expect( screen.getByRole( 'button', { name: /Try again/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Restore failed.*Restore aborted\./ );
+	} );
+} );

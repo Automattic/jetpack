@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Create, update and delete the PayPal payment with the post instead of from a Create New button: the payment is written when the post is saved, and removed when the post is saved without its block and no other published post uses it.

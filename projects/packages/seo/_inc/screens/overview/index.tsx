@@ -96,6 +96,7 @@ const OverviewScreen: FC = () => {
 					/>
 					<SiteVerificationCard
 						data={ data.site_verification }
+						active={ settings?.verification_tools_active ?? false }
 						onManage={ () => goToSection( 'verification' ) }
 					/>
 				</div>
@@ -135,6 +136,7 @@ const OverviewScreen: FC = () => {
 				/>
 				<SiteVerificationCard
 					data={ data.site_verification }
+					active={ settings?.verification_tools_active ?? false }
 					onManage={ () => goToSection( 'verification' ) }
 				/>
 				{ crawlers && (

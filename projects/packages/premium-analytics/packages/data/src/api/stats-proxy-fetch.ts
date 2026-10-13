@@ -129,23 +129,12 @@ function resolveStatsProxyRequest( {
 	};
 }
 
-export function getStatsProxyPath(
-	request: Pick< StatsProxyFetchParams, 'version' | 'endpoint' | 'params' | 'global' >
-) {
-	return resolveStatsProxyRequest( request ).path;
-}
-
 const localNoticesPath = '/jetpack-premium-analytics/v1/notices';
 
 // WPCOM Simple has no local notices endpoint: requests use the WPCOM Stats
 // notices endpoint directly, dispatched by WPCOM's wp-admin apiFetch bridge.
 const wpcomSimpleNoticesPath = '/wpcom/v2/jetpack-stats-dashboard/notices';
 
-/**
- * Resolve the notices endpoint path for the current environment.
- *
- * @return The notices path.
- */
 export function getNoticesPath() {
 	return isSimpleSite() ? wpcomSimpleNoticesPath : localNoticesPath;
 }
@@ -199,7 +188,7 @@ function isPlainErrorBody( body: unknown ): body is Record< string, unknown > {
  * @param response - The failed response.
  * @return The error value to throw.
  */
-async function normalizeErrorResponse( response: Response ): Promise< unknown > {
+export async function normalizeErrorResponse( response: Response ): Promise< unknown > {
 	const { status } = response;
 
 	let body: unknown;

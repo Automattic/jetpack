@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -25,24 +26,65 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The feature-flag filter name is the expected slug.
+	 * The feature gates use the expected slugs.
 	 */
-	public function test_feature_filter_constant_is_defined() {
+	public function test_feature_gate_constants_are_defined() {
+		$this->assertSame( 'seo-admin-ui', Initializer::FEATURE_SLUG );
 		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
 	}
 
 	/**
-	 * The cross-plugin contract other plugins consume stays on Initializer: the
-	 * option names are pinned as literals (the Jetpack plugin's migrations write
-	 * them), and the visibility reads are real methods (My Jetpack probes
-	 * `is_optin_available` with `method_exists` on this class) delegating to
-	 * Surface_Visibility.
+	 * Either the existing filter or the WordPress.com site feature can make SEO
+	 * available; neither path is required when the other is enabled.
+	 */
+	public function test_is_available_uses_filter_or_site_feature() {
+		$plan                       = Current_Plan::get();
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan );
+		self::reset_current_plan_cache();
+
+		// The rollout feature deliberately uses the active feature list rather than
+		// WordPress.com's separate plan-entitlement check.
+		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
+		\Wpcom_Test_Features::$entitled = array();
+
+		try {
+			$this->assertFalse( Initializer::is_available() );
+
+			add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			$this->assertTrue( Initializer::is_available() );
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+
+			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
+			update_option( Current_Plan::PLAN_OPTION, $plan );
+			self::reset_current_plan_cache();
+			$this->assertTrue( Initializer::is_available() );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Current_Plan::PLAN_OPTION );
+			self::reset_current_plan_cache();
+			\Wpcom_Test_Features::reset();
+		}
+	}
+
+	/**
+	 * Clear Current_Plan's request cache after changing its backing option.
+	 */
+	private static function reset_current_plan_cache() {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
+	}
+
+	/**
+	 * The surface visibility contract remains available on Initializer.
 	 */
 	public function test_cross_plugin_contract_is_kept_on_initializer() {
-		$this->assertSame( 'jetpack_seo_sitemap_enabled', Initializer::SITEMAP_ENABLED_OPTION );
-		$this->assertSame( 'jetpack_seo_canonical_urls_enabled', Initializer::CANONICAL_ENABLED_OPTION );
 		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
 
+		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
 
 		// The delegators track Surface_Visibility's answer, not a stale copy of it.
@@ -97,8 +139,16 @@ class InitializerTest extends TestCase {
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
 			);
-			$this->assertNotFalse(
+			// Settings register on `rest_api_init`, after every chance a conflicting SEO
+			// plugin has to filter `jetpack_disable_seo_tools` and change which option the
+			// front page description belongs in, and before core builds the settings route
+			// from the registry at priority 99.
+			$this->assertSame(
+				5,
 				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) )
 			);
 
 			// The coverage cache is invalidated from writes that happen anywhere — the block
@@ -150,17 +200,17 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Run `init()` with the surface visible and the `seo-tools` module active, and
-	 * report whether the two GEO-tab front-end services hooked themselves.
+	 * Run `init()` with the surface visible, the `seo-tools` module active and Simple's
+	 * canonical switch on, and report whether each paid front-end service hooked itself.
 	 *
 	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: module
 	 * state is driven through `jetpack_active_modules` (the package test context has
 	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
 	 * `$initialized` guard is reset so the body runs.
 	 *
-	 * @return array{llms_txt: bool, ai_crawlers: bool}
+	 * @return array{llms_txt: bool, ai_crawlers: bool, canonical: bool}
 	 */
-	private function init_and_check_geo_services() {
+	private function init_and_check_paid_services() {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -173,11 +223,13 @@ class InitializerTest extends TestCase {
 		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		add_filter( 'jetpack_active_modules', $enable_module );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		update_option( Canonical_Urls::OPTION, 1 );
 
-		// Both services self-hook on init(), so a stale registration from an earlier
+		// The services self-hook on init(), so a stale registration from an earlier
 		// test would mask a missing one here.
 		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+		remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 
 		try {
 			Initializer::init();
@@ -185,11 +237,14 @@ class InitializerTest extends TestCase {
 			return array(
 				'llms_txt'    => false !== has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ),
 				'ai_crawlers' => false !== has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ),
+				'canonical'   => false !== has_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) ),
 			);
 		} finally {
 			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'jetpack_active_modules', $enable_module );
 			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Canonical_Urls::OPTION );
+			remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 			$initialized->setValue( null, false );
 		}
 	}
@@ -198,8 +253,8 @@ class InitializerTest extends TestCase {
 	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
 	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
 	 */
-	public function test_init_registers_geo_services_when_not_gated() {
-		$hooked = $this->init_and_check_geo_services();
+	public function test_init_registers_paid_services_when_not_gated() {
+		$hooked = $this->init_and_check_paid_services();
 
 		$this->assertTrue( $hooked['llms_txt'] );
 		$this->assertTrue( $hooked['ai_crawlers'] );
@@ -207,49 +262,51 @@ class InitializerTest extends TestCase {
 
 	/**
 	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
-	 * gated, so it too registers both GEO services — gating keys off entitlement,
+	 * gated, so it registers the paid services too — gating keys off entitlement,
 	 * not merely off being on WordPress.com.
 	 */
-	public function test_init_registers_geo_services_on_entitled_wpcom_site() {
+	public function test_init_registers_paid_services_on_entitled_wpcom_site() {
 		$this->simulate_wpcom_site( true );
 
 		try {
-			$hooked = $this->init_and_check_geo_services();
+			$hooked = $this->init_and_check_paid_services();
 
 			$this->assertTrue( $hooked['llms_txt'] );
 			$this->assertTrue( $hooked['ai_crawlers'] );
+			$this->assertTrue( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
 	}
 
 	/**
-	 * A plan-gated WordPress.com site must not merely hide the GEO tab — it must stop
-	 * running the services behind it, or it would keep serving /llms.txt and emitting
-	 * AI-crawler robots.txt directives it isn't entitled to.
+	 * A plan-gated WordPress.com site must not merely hide the paid controls — it must
+	 * stop running the services behind them, or it would keep emitting output it isn't
+	 * entitled to.
 	 */
-	public function test_init_skips_geo_services_when_gated() {
+	public function test_init_skips_paid_services_when_gated() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$hooked = $this->init_and_check_geo_services();
+			$hooked = $this->init_and_check_paid_services();
 
 			$this->assertFalse( $hooked['llms_txt'] );
 			$this->assertFalse( $hooked['ai_crawlers'] );
+			$this->assertFalse( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}
 	}
 
 	/**
-	 * Gating only suppresses the GEO-tab services — the schema output and the admin
+	 * Gating only suppresses the paid services — the schema output and the admin
 	 * surface still register, so a gated site keeps the free subset of the dashboard.
 	 */
 	public function test_init_still_registers_schema_and_menu_when_gated() {
 		$this->simulate_wpcom_site( false );
 
 		try {
-			$this->init_and_check_geo_services();
+			$this->init_and_check_paid_services();
 
 			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
 			$this->assertNotFalse(

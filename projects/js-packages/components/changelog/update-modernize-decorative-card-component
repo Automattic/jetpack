@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Decorative card: build on the shared Card component, inline the unlink glyph, and hide the card from assistive technology.

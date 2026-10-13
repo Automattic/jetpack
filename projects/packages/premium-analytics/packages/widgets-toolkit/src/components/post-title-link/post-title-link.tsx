@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { Link } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import { ExternalLink } from '../external-link';
+import { InternalLink } from '../internal-link';
+import type { JSX } from 'react';
 
 /**
  * Route search param carrying a row's public URL to the post detail page.
@@ -21,9 +25,6 @@ export type PostTitleLinkProps = {
 	 */
 	id?: number | string;
 
-	/**
-	 * Visible row title.
-	 */
 	label: string;
 
 	/**
@@ -34,7 +35,7 @@ export type PostTitleLinkProps = {
 
 	/**
 	 * Search parameters for the detail route. Pass the shared report window from
-	 * `pickReportDateParams()` so the detail page opens on the same date range.
+	 * `pickReportDateParams()` so the detail page's breadcrumbs return to it.
 	 */
 	search?: Record< string, unknown >;
 
@@ -68,13 +69,6 @@ export type PostTitleLinkProps = {
  * no detail page, so the public URL becomes the link itself and takes the
  * marker.
  *
- * @param props            - Component props.
- * @param props.id         - Post or page ID.
- * @param props.label      - Visible row title.
- * @param props.link       - Public URL, used only without a post ID.
- * @param props.search     - Search parameters for the detail route.
- * @param props.classNames - Optional classes for each rendering branch.
- * @param props.title      - Optional native title attribute.
  * @return The linked or plain post title.
  */
 export function PostTitleLink( {
@@ -93,34 +87,23 @@ export function PostTitleLink( {
 
 	if ( Number.isInteger( postId ) && postId > 0 ) {
 		return (
-			<Link
+			<InternalLink
 				className={ classNames?.internal }
-				to="/post/$postId"
-				params={ { postId: String( postId ) } as unknown as never }
-				search={
-					( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
-				}
 				title={ title }
+				to="/post/$postId"
+				params={ { postId: String( postId ) } }
+				search={ href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search }
 			>
 				{ text }
-			</Link>
+			</InternalLink>
 		);
 	}
 
 	if ( href ) {
-		// `openInNewTab` appends the design system's outbound marker, so the row
-		// carries the same arrow as every other external link in the dashboard.
 		return (
-			<UiLink
-				className={ classNames?.external }
-				href={ href }
-				variant="unstyled"
-				openInNewTab
-				rel="noopener noreferrer"
-				title={ title }
-			>
+			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
 				{ text }
-			</UiLink>
+			</ExternalLink>
 		);
 	}
 

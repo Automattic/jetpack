@@ -1,28 +1,27 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
-	ReportCsvAction,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	ExporterCsvAction,
+	referrersCsvExporter,
+	type ReferrerRecord,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getReferrerFields, useReferrersReportRecords, type ReferrerRecord } from './config';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
+import { getReferrerFields, useMarkAsSpamAction, useReferrersReportRecords } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -65,85 +64,52 @@ const RECORDS_VIEW = {
  * @return {JSX.Element} The Referrers report page.
  */
 function ReferrersReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
-	const records = useReferrersReportRecords( reportParams );
-	const retry = useReportRetry( records.refetch );
+	const { action: markAsSpamAction, spammedDomains } = useMarkAsSpamAction();
+	const actions = useMemo( () => [ markAsSpamAction ], [ markAsSpamAction ] );
+	const records = useReferrersReportRecords( reportParams, spammedDomains );
 	const fields = useMemo( () => getReferrerFields(), [] );
-	const csvColumns = useMemo< CsvColumn< ReferrerRecord >[] >(
-		() => [
-			{ label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			{
-				label: __( 'Group', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.parentLabel ?? '',
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'referrers',
-		range: reportParams,
-		status: records,
-	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const { getLabel } = REPORTS.referrers;
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ) },
-					] }
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ referrersCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
-			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
-			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getReferrerRowId }
 						getItemParentId={ getReferrerParentId }
+						actions={ actions }
 						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

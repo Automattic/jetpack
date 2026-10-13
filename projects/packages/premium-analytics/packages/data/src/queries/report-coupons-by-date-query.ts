@@ -8,6 +8,7 @@
 import { fetchReportCouponsByDate } from '../api';
 import { sanitizeReportCouponsByDateResponse } from '../processing/coupons-by-date';
 import { FilterCondition } from '../types/filter-condition';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { ReportDataMap } from '../types';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -21,21 +22,17 @@ const getQueryKey = ( p: RequestReportCouponsByDateParams ) =>
 export function reportCouponsByDateQuery(
 	params: RequestReportCouponsByDateParams
 ): UseQueryOptions< ReportDataMap[ 'couponsByDate' ] > {
+	const timezone = resolveReportTimeZone();
+
 	return {
-		queryKey: getQueryKey( params ),
+		queryKey: [ ...getQueryKey( params ), timezone ],
 		queryFn: async () => {
 			const response = await fetchReportCouponsByDate( params );
-			return sanitizeReportCouponsByDateResponse( response );
+			return sanitizeReportCouponsByDateResponse( response, timezone );
 		},
 
-		/**
-		 * Enable the query only if the from, to, and interval are set.
-		 */
 		enabled: !! ( params.from && params.to && params.interval ),
 
-		/**
-		 * Keep previous data while fetching new data to prevent blank states
-		 */
 		placeholderData: previousData => previousData,
 	};
 }

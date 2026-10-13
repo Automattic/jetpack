@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Profile Settings: add a link to manage your username on WordPress.com to the username row on wp-admin/profile.php.

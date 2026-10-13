@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: Allow users with multiple roles to view Stats when any assigned role is permitted.

@@ -1,3 +1,5 @@
+@use "../../styles/widget-container" as *;
+
 .container {
 	display: flex;
 	align-items: center;
@@ -17,13 +19,12 @@
 	// Match the error state's container padding so adjacent widgets showing
 	// different states keep the same vertical rhythm.
 	padding: var(--wpds-dimension-padding-md);
-	gap: var(--wpds-dimension-gap-lg);
 }
 
 // Mirror the error state's short-tile degradation (see widget-state): below
 // the threshold every state renders text only, vertically centered, so
 // adjacent widgets in different states stay visually aligned.
-@container (max-block-size: 140px) {
+@container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.icon {
 		display: none;
@@ -58,4 +59,8 @@
 
 .icon {
 	color: var(--wpds-color-stroke-surface-neutral-weak);
+
+	// Added to the root's own gap, the text sits 16px under the icon, as in
+	// the error state.
+	margin-block-end: var(--wpds-dimension-gap-md);
 }

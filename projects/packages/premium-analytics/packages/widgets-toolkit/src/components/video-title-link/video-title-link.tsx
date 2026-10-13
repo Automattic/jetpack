@@ -2,33 +2,34 @@
  * External dependencies
  */
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { Link } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import { ExternalLink } from '../external-link';
+import { InternalLink } from '../internal-link';
+import type { JSX, ReactNode } from 'react';
 
 export type VideoTitleLinkProps = {
 	id?: number | string;
 	label: string;
 	link?: string | null;
-	search?: Record< string, unknown >;
+	search?:
+		| Record< string, unknown >
+		| ( ( current: Record< string, unknown > ) => Record< string, unknown > );
 	classNames?: {
 		internal?: string;
 		external?: string;
 		plain?: string;
+		text?: string;
 	};
 	title?: string;
+	/** Replaces the default label text inside the link or plain wrapper. */
+	children?: ReactNode;
 };
 
 /**
- * Render a video title as an internal detail link, an external fallback link,
- * or plain text.
- *
- * @param props            - Component props.
- * @param props.id         - Video attachment ID.
- * @param props.label      - Visible video title.
- * @param props.link       - External fallback URL.
- * @param props.search     - Search parameters for the detail route.
- * @param props.classNames - Optional classes for each rendering branch.
- * @param props.title      - Optional native title attribute.
- * @return The linked or plain video title.
+ * Render a video title as an internal detail link, an external fallback link, or plain
+ * text. Mirrors `PostTitleLink`'s structure so post and video rows read identically.
  */
 export function VideoTitleLink( {
 	id,
@@ -37,20 +38,22 @@ export function VideoTitleLink( {
 	search,
 	classNames,
 	title,
+	children,
 }: VideoTitleLinkProps ): JSX.Element {
 	const videoId = Number( id );
+	const content = children ?? <span className={ classNames?.text }>{ label }</span>;
 
 	if ( Number.isInteger( videoId ) && videoId > 0 ) {
 		return (
-			<Link
+			<InternalLink
 				className={ classNames?.internal }
-				to="/video/$videoId"
-				params={ { videoId: String( videoId ) } as unknown as never }
-				search={ search as unknown as never }
 				title={ title }
+				to="/video/$videoId"
+				params={ { videoId: String( videoId ) } }
+				search={ search }
 			>
-				{ label }
-			</Link>
+				{ content }
+			</InternalLink>
 		);
 	}
 
@@ -60,21 +63,15 @@ export function VideoTitleLink( {
 
 	if ( href ) {
 		return (
-			<a
-				className={ classNames?.external }
-				href={ href }
-				target="_blank"
-				rel="noopener noreferrer"
-				title={ title }
-			>
-				{ label }
-			</a>
+			<ExternalLink className={ classNames?.external } href={ href } title={ title }>
+				{ content }
+			</ExternalLink>
 		);
 	}
 
 	return (
 		<span className={ classNames?.plain } title={ title }>
-			{ label }
+			{ content }
 		</span>
 	);
 }

@@ -18,6 +18,7 @@ export {
 	ConversionFunnelChart,
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	LeaderboardChartUnresponsive,
@@ -25,36 +26,75 @@ export {
 	LineChart,
 	PieChartUnresponsive,
 	PieSemiCircleChart,
+	Sparkline,
+	TooltipBox,
 	buildCalendarHeatmapData,
+	getBucketInfo,
 	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
+	useCalendarHeatmapData,
+	useChartLegendItems,
 	useGlobalChartsContext,
+	useMonthCalendarHeatmapData,
 	type BaseLegendItem,
+	type BucketInfo,
 	type ChartTheme,
 	type DataPointDate,
 	type DataPointPercentage,
 	type GeoChartError,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapColumn,
+	type HeatmapColumnGroup,
+	type HeatmapTooltipData,
 	type LineStyles,
+	type MonthCalendarHeatmapRange,
 	type SeriesData,
+	type TickResolution,
 } from '@automattic/charts';
 
 export { LineShape, RectShape } from '@automattic/charts/visx/legend';
+export { scaleLinear } from '@visx/scale';
 
 /**
  * WordPress design system
+ *
+ * `Field` is exported as `FormField`: `@wordpress/ui`'s form-field namespace
+ * collides with DataViews' `Field` type under one barrel, and DataViews' name
+ * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	AlertDialog,
+	Badge,
 	Button,
+	Card,
+	Dialog,
 	EmptyState,
+	LinkButton,
+	Field as FormField,
+	Fieldset,
 	Icon,
+	IconButton,
+	Input,
+	InputControl,
 	Link,
+	Menu,
+	Notice,
+	Popover,
+	RangeCalendar,
+	SearchableChipSelectControl,
 	SelectControl,
+	Skeleton,
+	Spinner,
 	Stack,
 	Tabs,
 	Text,
+	TextareaControl,
+	Tooltip,
+	ValidatedInputControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 
@@ -62,11 +102,16 @@ export {
  * DataViews
  */
 export {
+	DataForm,
 	DataViews,
 	filterSortAndPaginate,
 	type Action,
 	type DataFormControlProps,
+	type DataViewRenderFieldProps,
 	type Field,
+	type Form,
+	type Option,
 	type SupportedLayouts,
 	type View,
+	type ViewBaseProps,
 } from '@wordpress/dataviews';

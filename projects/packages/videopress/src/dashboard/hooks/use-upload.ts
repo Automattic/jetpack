@@ -1,52 +1,48 @@
-// Adapter: wraps the legacy single-file resumable (tus) uploader from
-// `../../client/hooks/use-resumable-uploader` and exposes a multi-item queue
-// suitable for the modernised VideoPress dashboard.
-//
-// Legacy hook shape (as of reading use-resumable-uploader/index.ts):
-//   useResumableUploader({ onProgress, onSuccess, onError })
-//     onProgress( bytesSent: number, bytesTotal: number ) — raw bytes, no id
-//     onSuccess( data: VideoMediaProps )                  — media object, no id
-//     onError( err )                                      — error value, no id
-//   returns { uploadHandler( file ), resumeHandler: { start, abort } | undefined, … }
-//
-// The legacy hook is designed around one active upload at a time. It manages
-// its own internal state (uploadingData, media, error) and exposes a tus
-// `resumeHandler` that is set asynchronously after the first uploadHandler call.
-//
-// Adapter strategy:
-//   - We call useResumableUploader once per useUpload instance.
-//   - The upload *queue* lives in a window-attached singleton store (mirrors
-//     the QueryClientWrapper pattern) so multiple useUpload() consumers —
-//     Library Stage that produces uploads and useFreeTier() that only
-//     observes them — see the same items even when they sit in separately
-//     code-split route bundles. Subscribers re-render via useSyncExternalStore.
-//   - A per-instance `currentIdRef` ref tracks which queue item is being
-//     handled by *this* instance's legacy uploader. Only the instance that
-//     called startUpload owns the active upload; observer instances stay idle.
-//   - startUpload appends to the queue; if the local instance is idle it
-//     dispatches immediately, otherwise the item waits and is picked up
-//     when the current upload settles (in onSuccess / onError).
-
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useRef, useSyncExternalStore } from '@wordpress/element';
-import useResumableUploader from '../../client/hooks/use-resumable-uploader';
-import { LIBRARY_QUERY_KEY } from './use-library';
+import apiFetch from '@wordpress/api-fetch';
+import { dispatch } from '@wordpress/data';
+import { useCallback, useSyncExternalStore } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
+import { UploadTokenError } from '../../client/hooks/use-resumable-uploader';
+import getMediaToken from '../../client/lib/get-media-token';
+import resumableFileUploader from '../../client/lib/resumable-file-uploader';
+import { syncChapters } from '../../client/utils/video-chapters/sync-chapters';
+import { LIBRARY_QUERY_KEY, toLibraryItem } from './use-library';
+import { patchToApi } from './use-update-video-meta';
+import type { ApiMediaItem } from './use-library';
+import type { VideoMediaProps } from '../../client/lib/resumable-file-uploader/types';
+import type { VideoDetailsPatch } from '../types/library';
+import type { QueryClient } from '@tanstack/react-query';
 
 export type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
 export type UploadItem = {
 	id: string;
 	file: File;
-	progress: number; // 0..1
+	progress: number;
 	status: UploadStatus;
 	error?: string;
+	errorCode?: string;
+	mediaId?: string;
+	media?: VideoMediaProps;
+	/** The metadata accepted by Save, excluding any subsequent form edits. */
+	details?: VideoDetailsPatch;
+	isSavingDetails?: boolean;
+	detailsError?: boolean;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
 const SUCCESS_REMOVAL_DELAY_MS = 2_000;
 
-type UploadStore = {
+type UploadSnapshot = {
 	queue: UploadItem[];
+	completed: Record< string, string >;
+};
+
+type UploadStore = {
+	snapshot: UploadSnapshot;
+	activeId: string | null;
 	subscribers: Set< () => void >;
 };
 
@@ -57,209 +53,221 @@ declare global {
 }
 
 /**
- * Return the singleton upload store, creating it on first access. The store
- * lives on `window` so separately-built route bundles share one queue.
+ * Share the queue and its worker across separately built route bundles.
  *
- * @return The shared upload store.
+ * @return The upload store.
  */
 function getStore(): UploadStore {
 	if ( ! window[ STORE_KEY ] ) {
-		window[ STORE_KEY ] = { queue: [], subscribers: new Set() };
+		window[ STORE_KEY ] = {
+			snapshot: { queue: [], completed: {} },
+			activeId: null,
+			subscribers: new Set(),
+		};
 	}
 	return window[ STORE_KEY ];
 }
 
-/**
- * Subscribe to upload-store changes. Returns an unsubscribe callback.
- *
- * @param notify - Called when the queue changes.
- * @return Unsubscribe.
- */
-function subscribeStore( notify: () => void ): () => void {
+const readSnapshot = () => getStore().snapshot;
+const readItem = ( id: string ) => readSnapshot().queue.find( item => item.id === id );
+
+const subscribeStore = ( notify: () => void ) => {
 	const store = getStore();
 	store.subscribers.add( notify );
 	return () => {
 		store.subscribers.delete( notify );
 	};
-}
+};
 
-/**
- * Read the current queue snapshot. Must return a stable reference between
- * mutations so useSyncExternalStore can short-circuit unchanged renders.
- *
- * @return The current upload queue.
- */
-function readQueue(): UploadItem[] {
-	return getStore().queue;
-}
-
-/**
- * Apply a synchronous updater to the queue and notify subscribers.
- *
- * @param updater - Pure function producing the next queue.
- */
-function mutateQueue( updater: ( prev: UploadItem[] ) => UploadItem[] ): void {
+const updateSnapshot = ( patch: Partial< UploadSnapshot > ) => {
 	const store = getStore();
-	store.queue = updater( store.queue );
-	store.subscribers.forEach( cb => cb() );
+	store.snapshot = { ...store.snapshot, ...patch };
+	store.subscribers.forEach( notify => notify() );
+};
+
+const updateItem = ( id: string, patch: Partial< UploadItem > ) => {
+	updateSnapshot( {
+		queue: readSnapshot().queue.map( item => ( item.id === id ? { ...item, ...patch } : item ) ),
+	} );
+};
+
+/** Reset the upload store between tests. */
+export function __resetUploadStoreForTests(): void {
+	delete window[ STORE_KEY ];
 }
 
 /**
- * Reset the shared upload store. Intended for tests; production code should
- * not call this.
+ * Save deferred edits before handing the temporary route over to its attachment.
+ *
+ * @param id     - Temporary upload ID.
+ * @param client - Shared query client.
  */
-export function __resetUploadStoreForTests(): void {
-	if ( window[ STORE_KEY ] ) {
-		window[ STORE_KEY ].queue = [];
+async function finishUpload( id: string, client: QueryClient ): Promise< void > {
+	const initial = readItem( id );
+	if ( ! initial?.media || initial.isSavingDetails ) {
+		return;
+	}
+	updateItem( id, { isSavingDetails: true, detailsError: false } );
+	if ( initial.details ) {
+		// The free-tier count skips finished uploads, so list this one while its edits save.
+		void client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+	}
+	try {
+		let saved: VideoDetailsPatch | undefined;
+		// Save clicks during a request must be applied before the form changes routes.
+		while ( readItem( id )?.details !== saved ) {
+			const details = readItem( id )?.details;
+			await apiFetch( {
+				path: '/wpcom/v2/videopress/meta',
+				method: 'POST',
+				data: { id: initial.media.id, ...patchToApi( details ) },
+			} );
+			if ( details.description !== undefined ) {
+				const raw = await apiFetch< ApiMediaItem >( {
+					path: `/wp/v2/media/${ initial.media.id }`,
+				} );
+				await syncChapters( toLibraryItem( raw, isSimpleSite() ), details.description, {
+					onWarning: message =>
+						dispatch( noticesStore ).createWarningNotice( message, { type: 'snackbar' } ),
+				} );
+			}
+			saved = details;
+		}
+		updateItem( id, { isSavingDetails: false } );
+		updateSnapshot( { completed: { ...readSnapshot().completed, [ id ]: initial.mediaId } } );
+		await client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+		window.setTimeout( () => {
+			updateSnapshot( { queue: readSnapshot().queue.filter( item => item.id !== id ) } );
+		}, SUCCESS_REMOVAL_DELAY_MS );
+	} catch {
+		updateItem( id, { isSavingDetails: false, detailsError: true } );
 	}
 }
 
 /**
- * Generate a unique id for a new upload queue item.
+ * Run one transport at a time, independently of the route that enqueued it.
  *
- * @param file - The file being uploaded.
- * @return A unique string id prefixed with "upload-".
+ * @param client - Shared query client.
  */
-function makeId( file: File ): string {
-	return `upload-${ Date.now() }-${ Math.random().toString( 36 ).slice( 2, 7 ) }-${ file.name }`;
+async function startNextPending( client: QueryClient ): Promise< void > {
+	const store = getStore();
+	if ( store.activeId ) {
+		return;
+	}
+	const next = readSnapshot().queue.find( item => item.status === 'pending' );
+	if ( ! next ) {
+		return;
+	}
+	const { id, file } = next;
+	store.activeId = id;
+	let settled = false;
+	const settle = () => {
+		settled = true;
+		store.activeId = null;
+		void startNextPending( client );
+	};
+	const onError = ( error: unknown ) => {
+		if ( settled || store.activeId !== id ) {
+			return;
+		}
+		updateItem( id, {
+			status: 'failed',
+			error: error instanceof Error ? error.message : String( error ),
+			errorCode:
+				typeof ( error as { code?: unknown } )?.code === 'string'
+					? ( error as { code: string } ).code
+					: undefined,
+		} );
+		settle();
+	};
+	try {
+		const tokenData = await getMediaToken( 'upload-jwt' );
+		if ( ! tokenData?.token ) {
+			throw new UploadTokenError();
+		}
+		resumableFileUploader( {
+			file,
+			tokenData,
+			onProgress: ( sent, total ) => {
+				if ( ! settled && store.activeId === id ) {
+					updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
+				}
+			},
+			onSuccess: media => {
+				if ( settled || store.activeId !== id ) {
+					return;
+				}
+				updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
+				settle();
+				void finishUpload( id, client );
+			},
+			onError,
+		} );
+	} catch ( error ) {
+		onError( error );
+	}
 }
 
 /**
- * Subscribe to the shared upload queue via useSyncExternalStore so the
- * queue is a single source of truth across every useUpload() instance.
+ * Observe uploads and edit their drafts without tying the worker to a React mount.
  *
- * @return The current upload queue.
- */
-function useUploadQueue(): UploadItem[] {
-	return useSyncExternalStore( subscribeStore, readQueue, readQueue );
-}
-
-/**
- * Wrap the legacy resumable (tus) uploader in a multi-item upload queue
- * backed by a window-attached singleton store.
- *
- * @return An object with the current upload queue and handlers to start or retry uploads.
+ * @return Upload state and handlers.
  */
 export function useUpload() {
 	const client = useQueryClient();
-	const queue = useUploadQueue();
-
-	// Tracks which queue item is being handled by *this* instance's
-	// legacy uploader. Only the instance that called startUpload (and
-	// thus invoked uploadHandler) sets this; observer instances leave it
-	// null because their legacy uploader is idle.
-	const currentIdRef = useRef< string | null >( null );
-
-	// uploadHandler is captured in a ref so callbacks can dispatch the
-	// next pending upload without depending on the render-by-render
-	// identity of `useResumableUploader`'s return value.
-	const uploadHandlerRef = useRef< ( ( file: File ) => void ) | null >( null );
-
-	const startNextPending = useCallback( () => {
-		const next = readQueue().find( item => item.status === 'pending' );
-		if ( next && uploadHandlerRef.current ) {
-			currentIdRef.current = next.id;
-			uploadHandlerRef.current( next.file );
-		} else {
-			currentIdRef.current = null;
-		}
-	}, [] );
-
-	// Adapter callbacks — translate the legacy (bytesSent, bytesTotal) /
-	// (data: VideoMediaProps) / (err) signatures to queue-item updates.
-	const { uploadHandler } = useResumableUploader( {
-		onProgress: ( bytesSent: number, bytesTotal: number ) => {
-			const id = currentIdRef.current;
-			if ( ! id ) {
-				return;
-			}
-			const progress = bytesTotal > 0 ? bytesSent / bytesTotal : 0;
-			mutateQueue( prev =>
-				prev.map( item => ( item.id === id ? { ...item, progress, status: 'uploading' } : item ) )
-			);
-		},
-		onSuccess: () => {
-			const id = currentIdRef.current;
-			if ( ! id ) {
-				return;
-			}
-			mutateQueue( prev =>
-				prev.map( item => ( item.id === id ? { ...item, progress: 1, status: 'success' } : item ) )
-			);
-			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
-			// Kick off the next pending upload right away so the user
-			// doesn't have to wait out the 2s success-removal grace.
-			startNextPending();
-			window.setTimeout( () => {
-				mutateQueue( prev => prev.filter( item => item.id !== id ) );
-			}, SUCCESS_REMOVAL_DELAY_MS );
-		},
-		onError: ( err: unknown ) => {
-			const id = currentIdRef.current;
-			if ( ! id ) {
-				return;
-			}
-			let message = 'Upload failed';
-			if ( err instanceof Error ) {
-				message = err.message;
-			} else if ( typeof err === 'string' ) {
-				message = err;
-			}
-			mutateQueue( prev =>
-				prev.map( item =>
-					item.id === id ? { ...item, status: 'failed', error: message } : item
-				)
-			);
-			// Failed items stay in the queue so the user can retry. Move
-			// on to the next pending item rather than blocking the queue.
-			startNextPending();
-		},
-	} );
-
-	uploadHandlerRef.current = uploadHandler;
+	const { queue, completed } = useSyncExternalStore( subscribeStore, readSnapshot, readSnapshot );
 
 	const startUpload = useCallback(
 		( file: File ): string => {
-			const id = makeId( file );
-			mutateQueue( prev => [ ...prev, { id, file, progress: 0, status: 'pending' } ] );
-			// Only dispatch immediately when this instance's legacy
-			// uploader is idle. Otherwise the item waits in the queue
-			// and is picked up by startNextPending when the active
-			// upload settles.
-			if ( ! currentIdRef.current ) {
-				currentIdRef.current = id;
-				uploadHandler( file );
-			}
+			const id = `upload-${ Date.now() }-${ Math.random().toString( 36 ).slice( 2, 10 ) }`;
+			updateSnapshot( {
+				queue: [ ...readSnapshot().queue, { id, file, progress: 0, status: 'pending' } ],
+			} );
+			void startNextPending( client );
 			return id;
 		},
-		[ uploadHandler ]
+		[ client ]
 	);
 
 	const retryUpload = useCallback(
 		( id: string ) => {
-			const item = readQueue().find( q => q.id === id );
-			if ( ! item ) {
+			if ( readItem( id )?.detailsError ) {
+				void finishUpload( id, client );
 				return;
 			}
-			mutateQueue( prev =>
-				prev.map( q =>
-					q.id === id ? { ...q, status: 'pending', progress: 0, error: undefined } : q
-				)
-			);
-			// Dispatch immediately if idle; otherwise wait for the
-			// active upload to settle and startNextPending to pick this
-			// up.
-			if ( ! currentIdRef.current ) {
-				currentIdRef.current = id;
-				uploadHandler( item.file );
+			if ( readItem( id )?.status !== 'failed' ) {
+				return;
+			}
+			updateItem( id, { status: 'pending', progress: 0, error: undefined, errorCode: undefined } );
+			void startNextPending( client );
+		},
+		[ client ]
+	);
+
+	const saveUploadDetails = useCallback(
+		( id: string, patch: VideoDetailsPatch ) => {
+			const item = readItem( id );
+			if ( item && ! readSnapshot().completed[ id ] ) {
+				updateItem( id, { details: { ...item.details, ...patch } } );
+				void finishUpload( id, client );
 			}
 		},
-		[ uploadHandler ]
+		[ client ]
+	);
+
+	const retryUploadDetails = useCallback(
+		( id: string ) => {
+			void finishUpload( id, client );
+		},
+		[ client ]
 	);
 
 	return {
 		uploadQueue: queue,
+		completedUploads: completed,
 		startUpload,
 		retryUpload,
+		saveUploadDetails,
+		retryUploadDetails,
 	};
 }

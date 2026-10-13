@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin color schemes: Mark the WordPress.com-specific color schemes as deprecated, list them last on the profile page, and ask users who still use one to switch.

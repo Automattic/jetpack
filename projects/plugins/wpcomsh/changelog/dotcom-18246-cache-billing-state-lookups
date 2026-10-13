@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Mirrors a WordPress.com-side performance change; the cached path is inert on Atomic.
+
+

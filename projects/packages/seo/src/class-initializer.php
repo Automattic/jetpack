@@ -28,15 +28,25 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.9.9';
 
 	/**
-	 * Filter name that gates the entire Jetpack SEO surface.
+	 * WordPress.com site feature that enables the Jetpack SEO surface.
 	 *
-	 * When this filter returns true, the package registers its admin menu and
-	 * loads the wp-build dashboard. Default false before release - when the
-	 * filter is off the package registers no admin menu and no assets, and
-	 * changes nothing about the existing Jetpack UI.
+	 * Kept separate from `advanced-seo`, which gates the paid parts of the
+	 * dashboard after this product-level availability check has passed.
+	 *
+	 * @var string
+	 */
+	const FEATURE_SLUG = 'seo-admin-ui';
+
+	/**
+	 * Filter name that can enable the entire Jetpack SEO surface.
+	 *
+	 * The surface is available when this filter returns true or the current site's
+	 * active features include {@see self::FEATURE_SLUG}. When neither is enabled,
+	 * the package registers no admin menu or assets and changes nothing about the
+	 * existing Jetpack UI.
 	 *
 	 * @var string
 	 */
@@ -48,20 +58,6 @@ class Initializer {
 	 * `_inc/data/get-overview.ts`.
 	 */
 	const SCRIPT_DATA_KEY = 'seo';
-
-	/**
-	 * Option recording whether sitemap generation is enabled.
-	 *
-	 * Read in place of the standalone `sitemaps` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_sitemaps_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
 
 	/**
 	 * Option recording that the user has deliberately turned the site's sitemap OFF,
@@ -78,20 +74,6 @@ class Initializer {
 	 * @var string
 	 */
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
-
-	/**
-	 * Option recording whether canonical URLs are enabled.
-	 *
-	 * Read in place of the standalone `canonical-urls` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_canonical_urls_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const CANONICAL_ENABLED_OPTION = 'jetpack_seo_canonical_urls_enabled';
 
 	/**
 	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
@@ -127,8 +109,8 @@ class Initializer {
 		}
 		self::$initialized = true;
 
-		// Gate the entire SEO surface behind the feature flag.
-		if ( ! (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+		// Gate the entire SEO surface behind its legacy filter or per-site feature.
+		if ( ! self::is_available() ) {
 			return;
 		}
 
@@ -203,10 +185,10 @@ class Initializer {
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Expose the core `blog_public` option to the REST settings
-		// endpoint so the Settings tab can save search-engine visibility via
-		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
-		// Writes are still capability-gated by the core settings controller.
+		// endpoints until then. Everything the dashboard saves is exposed to WordPress
+		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
+		// runs on and capability-gates writes itself; module activation, the one thing
+		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			// Intentionally NOT gated: every site keeps emitting its structured data —
@@ -217,12 +199,12 @@ class Initializer {
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
-			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
-			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
-			// keep emitting their front-end output either — otherwise it would still
-			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
-			// for. Self-hosted is never gated, so it always registers both.
+			// Paid front-end output. A plan-gated WordPress.com site has these controls
+			// hidden from its dashboard, so it must not keep emitting their output either —
+			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
+			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
 			if ( ! self::is_gated() ) {
+				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
 				Llms_Txt::init();
@@ -231,7 +213,13 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
+			// On `rest_api_init` rather than here: which option the front page description
+			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
+			// of those and before core builds the settings route at 99.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+			// Package-owned route for the three settings whose write switches a Jetpack module.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
@@ -242,6 +230,27 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_seo_init' );
+	}
+
+	/**
+	 * Whether the Jetpack SEO product is available on this site.
+	 *
+	 * Keep the existing filter as an override while allowing WordPress.com to
+	 * enable the product for individual sites through its feature registry.
+	 *
+	 * @return bool
+	 */
+	public static function is_available() {
+		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+			return true;
+		}
+
+		// Only active features are needed for this check.
+		$features = ( new Host() )->is_wpcom_simple()
+			? Current_Plan::get_simple_site_specific_features( false )
+			: Current_Plan::get()['features'];
+
+		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );
 	}
 
 	/**
@@ -273,7 +282,7 @@ class Initializer {
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * GEO-tab front-end services register at all.
+	 * paid front-end output registers at all.
 	 *
 	 * @return bool
 	 */

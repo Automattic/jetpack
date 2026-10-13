@@ -1,9 +1,17 @@
 import { setKeyringResult, setReconnectingAccount } from '../actions/connection-data';
-import { goToPreviousStep, selectPlatform, startConnectionFlow } from '../actions/connection-flow';
+import {
+	goToNextStep,
+	goToPreviousStep,
+	selectPlatform,
+	setConnectionFlowInput,
+	startConnectionFlow,
+} from '../actions/connection-flow';
 import {
 	CANCEL_CONNECTION_FLOW,
+	GO_TO_NEXT_CONNECTION_FLOW_STEP,
 	GO_TO_PREVIOUS_CONNECTION_FLOW_STEP,
 	SELECT_CONNECTION_FLOW_PLATFORM,
+	SET_CONNECTION_FLOW_INPUT,
 	SET_KEYRING_RESULT,
 	SET_RECONNECTING_ACCOUNT,
 	START_CONNECTION_FLOW,
@@ -55,11 +63,31 @@ export function getPreviousStep( state: ConnectionFlowState ): ConnectionFlowSte
 	}
 }
 
+/**
+ * The step to advance to, or `undefined` when the current step has no forward
+ * transition of its own.
+ *
+ * @param state - Current connection-flow state.
+ * @return The next step, or `undefined`.
+ */
+export function getNextStep( state: ConnectionFlowState ): ConnectionFlowStep | undefined {
+	switch ( state.step ) {
+		case 'platform-input':
+			return 'authorizing';
+		default:
+			/* `select-platform` advances by picking a service; from `authorizing`
+			   on, the connect popup's result drives the flow. */
+			return undefined;
+	}
+}
+
 type Action =
 	| ReturnType<
 			| typeof startConnectionFlow
 			| typeof selectPlatform
 			| typeof goToPreviousStep
+			| typeof goToNextStep
+			| typeof setConnectionFlowInput
 			| typeof setKeyringResult
 			| typeof setReconnectingAccount
 	  >
@@ -98,8 +126,20 @@ export function connectionFlow(
 
 		case GO_TO_PREVIOUS_CONNECTION_FLOW_STEP: {
 			const previous = getPreviousStep( state );
+			// `inputs` is kept, so returning to the step does not mean retyping.
 			return previous ? { ...state, step: previous } : state;
 		}
+
+		case GO_TO_NEXT_CONNECTION_FLOW_STEP: {
+			const next = getNextStep( state );
+			return next ? { ...state, step: next } : state;
+		}
+
+		case SET_CONNECTION_FLOW_INPUT:
+			return {
+				...state,
+				inputs: { ...state.inputs, [ action.field ]: action.value },
+			};
 
 		case SET_RECONNECTING_ACCOUNT:
 			// Reconnect is an entry point: jump past platform selection to the

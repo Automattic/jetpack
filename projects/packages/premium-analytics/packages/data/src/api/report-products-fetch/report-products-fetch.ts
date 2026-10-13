@@ -32,9 +32,6 @@ type ReportProductsResponse = {
 	};
 };
 
-/**
- * Fetches products report data from the WooCommerce Analytics API
- */
 export async function fetchReportProducts(
 	params: RequestReportProductsParams
 ): Promise< ReportProductsResponse > {
@@ -56,7 +53,6 @@ export async function fetchReportProducts(
 		queryArgs.order = params.order;
 	}
 
-	// Add filters to query params if provided
 	if ( params.filters && params.filters.length > 0 ) {
 		queryArgs.filters = params.filters;
 	}

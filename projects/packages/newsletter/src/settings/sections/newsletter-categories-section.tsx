@@ -13,17 +13,19 @@ import {
 	useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Notice, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
+import { Toggle } from '../components/toggle';
 import {
 	CreatableCategoriesControl,
 	CreatableCategoryContext,
 } from './creatable-categories-control';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 import type { CreatableCategoryContextValue } from './creatable-categories-control';
+import type { JSX } from 'react';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -121,7 +123,7 @@ export function NewsletterCategoriesSection( {
 			id: 'wpcom_newsletter_categories_enabled',
 			label: __( 'Enable newsletter categories', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'wpcom_newsletter_categories',
@@ -193,7 +195,7 @@ export function NewsletterCategoriesSection( {
 		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#subscribe-to-specific-categories'
 		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&anchor=subscribe-to-specific-categories&site=${
 				getSiteData()?.wpcom?.blog_id || ''
-		  }`;
+			}`;
 
 	const SubscribeBlockLink = isWpcom ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />
@@ -207,8 +209,8 @@ export function NewsletterCategoriesSection( {
 				<Card.Title>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
 						{ createInterpolateElement(
 							__(
 								"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the <link>subscribe block</link>. When you add a new category, your existing subscribers will be automatically subscribed to it.",
@@ -219,29 +221,29 @@ export function NewsletterCategoriesSection( {
 							}
 						) }
 					</Text>
-				</p>
-				{ categoriesError && (
-					<Notice.Root intent="error">
-						<Notice.Description>{ categoriesError }</Notice.Description>
-					</Notice.Root>
-				) }
-				<Fieldset.Root disabled={ ! isNewsletterEnabled || !! categoriesError }>
-					<CreatableCategoryContext.Provider value={ creatableContext }>
-						<DataForm
-							data={ data }
-							fields={ newsletterCategoriesFields }
-							form={ newsletterCategoriesForm }
-							onChange={ onChange }
-							validity={ validity }
-						/>
-					</CreatableCategoryContext.Provider>
-
-					{ data.wpcom_newsletter_categories_enabled && createCategoryError && (
+					{ categoriesError && (
 						<Notice.Root intent="error">
-							<Notice.Description>{ createCategoryError }</Notice.Description>
+							<Notice.Description>{ categoriesError }</Notice.Description>
 						</Notice.Root>
 					) }
-				</Fieldset.Root>
+					<Fieldset.Root disabled={ ! isNewsletterEnabled || !! categoriesError }>
+						<CreatableCategoryContext.Provider value={ creatableContext }>
+							<DataForm
+								data={ data }
+								fields={ newsletterCategoriesFields }
+								form={ newsletterCategoriesForm }
+								onChange={ onChange }
+								validity={ validity }
+							/>
+						</CreatableCategoryContext.Provider>
+
+						{ data.wpcom_newsletter_categories_enabled && createCategoryError && (
+							<Notice.Root intent="error">
+								<Notice.Description>{ createCategoryError }</Notice.Description>
+							</Notice.Root>
+						) }
+					</Fieldset.Root>
+				</Stack>
 				<div className="newsletter-card-footer">
 					<Button
 						onClick={ handleSave }

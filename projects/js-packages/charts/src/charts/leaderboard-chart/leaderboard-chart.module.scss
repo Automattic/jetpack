@@ -1,7 +1,7 @@
 .leaderboardChart {
 	transition:
-		opacity var(--wpds-motion-duration-lg, 300ms)
-		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+		opacity var(--wpds-motion-duration-lg)
+		var(--wpds-motion-easing-subtle);
 
 	&--responsive {
 		height: 100%;
@@ -49,7 +49,7 @@
 		}
 
 		.label {
-			padding-left: var(--wpds-dimension-padding-sm, 8px);
+			padding-left: var(--wpds-dimension-padding-sm);
 		}
 	}
 
@@ -58,21 +58,27 @@
 		min-height: 6px;
 		// Keeps a sliver of bar visible for tiny shares, and stops the interactive
 		// row's fixed-pixel hover inset from collapsing a narrow bar to nothing.
-		min-width: var(--wpds-dimension-size-5xs, 4px);
+		min-width: var(--wpds-dimension-size-5xs);
 
-		border-radius: var(--a8c-charts-border-radius-leaderboard-bar, var(--a8c--charts--leaderboard--bar--border-radius, 9999px));
+		border-radius: var(--a8c-charts-border-radius-leaderboard-bar);
 		z-index: -1; /* places it behind the label */
 
+		// Keep the collapsed state in `from` and never on the element: a dropped
+		// animation then fails visible. `both`, not `forwards`, for the
+		// backwards fill.
 		&--animated {
 			transform-origin: left;
 			transform-box: fill-box;
-			transform: scaleX(0);
 			animation:
-				stretch var(--wpds-motion-duration-xl, 400ms)
-				var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1)) forwards;
+				stretch var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
 		@keyframes stretch {
+
+			from {
+				transform: scaleX(0);
+			}
 
 			to {
 				transform: scaleX(1);
@@ -91,6 +97,18 @@
 	font-variant-numeric: tabular-nums;
 	min-width: 3ch;
 	text-align: end;
+
+	&--down {
+		color: var(--a8c-charts-color-trend-down);
+	}
+
+	&--neutral {
+		color: var(--a8c-charts-color-trend-neutral);
+	}
+
+	&--up {
+		color: var(--a8c-charts-color-trend-up);
+	}
 }
 
 .deltaPlaceholder {
@@ -102,10 +120,10 @@
 }
 
 .emptyState {
-	padding: var(--wpds-dimension-padding-3xl, 32px) var(--wpds-dimension-padding-lg, 16px);
+	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-lg);
 	text-align: center;
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
-	font-size: var(--wpds-typography-font-size-md, 13px);
+	color: var(--a8c-charts-color-label-secondary);
+	font-size: var(--wpds-typography-font-size-md);
 	font-style: italic;
 }
 
@@ -127,7 +145,13 @@
 // interactive row's outline (and its inset offset) stay equal. A Sass var,
 // not a custom property: a compile-time constant scoped to this module, so it
 // needs no runtime cascade and never lands on the DOM as an unprefixed var.
-$focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-focus, 2px));
+$focus-ring-width: var(--wpds-border-width-focus);
+
+.rowItem {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+}
 
 .row {
 	display: grid;
@@ -163,24 +187,26 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 	// value slide is given an RTL override below. No row background.
 	.bar {
 		transition:
-			opacity var(--wpds-motion-duration-sm, 100ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1)),
-			width var(--wpds-motion-duration-sm, 100ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			opacity var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle),
+			width var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
 	}
 
 	.valueContainer {
 		transition:
-			transform var(--wpds-motion-duration-sm, 100ms)
-			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+			transform var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
 	}
 
-	&:hover,
-	&:focus-visible {
+	// A layered row's own link or button does not advertise the drill-down.
+	&:hover:not(:has(:is(a, button):not(.rowButton):hover)),
+	&:focus-visible,
+	&:has(> .rowButton:focus-visible) {
 
 		// Fixed reserve for the chevron — the value slides by it in full, and the
 		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
-		--a8c-charts-dimension-leaderboard-bar-hover-inset: var(--wpds-dimension-gap-2xl, 32px);
+		--a8c-charts-dimension-leaderboard-bar-hover-inset: var(--wpds-dimension-gap-2xl);
 
 		.bar {
 			opacity: 0.5;
@@ -196,16 +222,17 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 	}
 
 	// In RTL the value slides toward the inline start the other way (rightward).
-	[dir="rtl"] &:hover .valueContainer,
-	[dir="rtl"] &:focus-visible .valueContainer {
+	[dir="rtl"] &:hover:not(:has(:is(a, button):not(.rowButton):hover)) .valueContainer,
+	[dir="rtl"] &:focus-visible .valueContainer,
+	[dir="rtl"] &:has(> .rowButton:focus-visible) .valueContainer {
 		transform: translateX(var(--a8c-charts-dimension-leaderboard-bar-hover-inset));
 	}
 
 	&:focus-visible {
-		border-radius: var(--wpds-border-radius-sm, 2px);
+		border-radius: var(--wpds-border-radius-sm);
 		outline:
 			$focus-ring-width solid
-			var(--a8c-charts-color-focus, var(--wpds-color-stroke-focus, var(--wp-admin-theme-color, #3858e9)));
+			var(--wpds-color-stroke-focus);
 		// Inset by its own width so the outer edge hugs the row boundary: the
 		// outline then sits in the shared row padding, clear of the bar, and stays
 		// inside the overflow:auto container that would clip an outset ring.
@@ -213,17 +240,56 @@ $focus-ring-width: var(--wpds-border-width-focus, var(--wp-admin-border-width-fo
 	}
 }
 
+// A row whose label holds a link: the button follows the cells for tab order
+// but is layered beneath them, and the cells pass clicks through except on the
+// label's own links and buttons. The label's isolate traps their z-index, so
+// layering the cells is what keeps them above the button.
+.layeredRow {
+	isolation: isolate;
+
+	> :not(.rowButton, .chevron) {
+		position: relative;
+		z-index: 1;
+		pointer-events: none;
+	}
+
+	:is(a, button):not(.rowButton) {
+		position: relative;
+		z-index: 1;
+		pointer-events: auto;
+	}
+}
+
+.rowButton {
+	position: absolute;
+	inset: 0;
+	appearance: none;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	z-index: 0;
+
+	&:focus-visible {
+		border-radius: var(--wpds-border-radius-sm);
+		outline:
+			$focus-ring-width solid
+			var(--wpds-color-stroke-focus);
+		outline-offset: calc(-1 * #{$focus-ring-width});
+	}
+}
+
 .chevron {
 	position: absolute;
-	inset-inline-end: var(--wpds-dimension-padding-xs, 4px);
+	inset-inline-end: var(--wpds-dimension-padding-xs);
 	top: 0;
 	bottom: 0;
 	margin-block: auto;
 	opacity: 0;
-	color: var(--a8c-charts-color-label-secondary, var(--wpds-color-foreground-content-neutral-weak, #707070));
+	color: var(--a8c-charts-color-label-secondary);
 	transition:
-		opacity var(--wpds-motion-duration-sm, 100ms)
-		var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+		opacity var(--wpds-motion-duration-sm)
+		var(--wpds-motion-easing-subtle);
 	pointer-events: none;
 
 	// The glyph points toward the inline end, so flip it to point left in RTL.

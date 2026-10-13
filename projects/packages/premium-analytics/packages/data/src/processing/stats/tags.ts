@@ -1,11 +1,6 @@
 import { safeParseFloat } from '../../utils/parsing';
-import {
-	coerceStatsArray,
-	coerceStatsRecord,
-	createStatsListDataPoint,
-	mapStatsReportDataPoints,
-	normalizeStatsReportSummary,
-} from './utils';
+import { decodeHtmlText } from '../../utils/text';
+import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -26,8 +21,6 @@ export type StatsTagsRawResponse = {
 	date?: string;
 	period?: string;
 	tags?: StatsTagsRawItem[];
-	days?: Record< string, { tags?: StatsTagsRawItem[]; [ key: string ]: unknown } >;
-	summary?: { tags?: StatsTagsRawItem[]; [ key: string ]: unknown };
 	[ key: string ]: unknown;
 };
 
@@ -56,7 +49,7 @@ export interface StatsTagsItem extends StatsNormalizedItemBase< StatsTagsChildIt
 const tagIcon = ( type: unknown ) => ( type === 'category' ? 'folder' : String( type ?? '' ) );
 
 function getTagName( tag: StatsRecord ): string {
-	return typeof tag.name === 'string' ? tag.name : '';
+	return decodeHtmlText( tag.name, '' );
 }
 
 function getTagLink( tag: StatsRecord ): string | null {
@@ -75,7 +68,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 	return {
 		label: labels,
 		labelText: labels.map( label => label.label ).join( ', ' ),
-		link: hasChildren ? null : labels[ 0 ]?.link ?? null,
+		link: hasChildren ? null : ( labels[ 0 ]?.link ?? null ),
 		value: safeParseFloat( item.views ),
 		...( hasChildren
 			? {
@@ -86,7 +79,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 						link: getTagLink( tag ),
 						children: null,
 					} ) ),
-			  }
+				}
 			: {} ),
 	};
 }
@@ -95,18 +88,13 @@ export function sanitizeStatsTagsResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsTagsItem > {
-	const data = mapStatsReportDataPoints( response, query, [ 'tags' ], normalizeStatsTagsItem );
-	const topLevelTags = coerceStatsArray< StatsRecord >( coerceStatsRecord( response ).tags ).map(
+	// `stats/tags` returns one ranked list, never `days` or a `summary`.
+	const tags = coerceStatsArray< StatsRecord >( coerceStatsRecord( response ).tags ).map(
 		normalizeStatsTagsItem
 	);
-	const normalizedData = [ ...data ];
-
-	if ( ! normalizedData.length && topLevelTags.length ) {
-		normalizedData.push( createStatsListDataPoint( response, query, topLevelTags ) );
-	}
 
 	return {
-		summary: normalizeStatsReportSummary( response, query, [ 'tags' ] ),
-		data: normalizedData,
+		summary: {},
+		data: tags.length ? [ createStatsListDataPoint( response, query, tags ) ] : [],
 	};
 }

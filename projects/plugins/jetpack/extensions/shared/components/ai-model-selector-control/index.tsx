@@ -30,7 +30,7 @@ export default function AiModelSelectorControl( {
 			? __(
 					'The most capable model, great for tasks that require creativity and advanced reasoning',
 					'jetpack'
-			  )
+				)
 			: __( 'The fastest model, great for most everyday tasks.', 'jetpack' );
 
 	/*

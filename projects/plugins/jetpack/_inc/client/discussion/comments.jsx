@@ -38,6 +38,10 @@ class CommentsComponent extends Component {
 		this.props.updateFormStateModuleOption( 'markdown', 'wpcom_publish_comments_with_markdown' );
 	};
 
+	handleBlocksToggle = () => {
+		this.props.updateFormStateModuleOption( 'comments', 'enable_blocks_comments' );
+	};
+
 	render() {
 		const foundComments = this.props.isModuleFound( 'comments' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
@@ -66,6 +70,7 @@ class CommentsComponent extends Component {
 				saveDisabled={ this.props.isSavingAnyOption( [
 					'highlander_comment_form_prompt',
 					'jetpack_comment_form_color_scheme',
+					'enable_blocks_comments',
 				] ) }
 			>
 				{ foundComments && (
@@ -79,6 +84,7 @@ class CommentsComponent extends Component {
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-comments' ),
+							wpcomLink: 'https://wordpress.com/support/comments/',
 						} }
 					>
 						<ModuleToggle
@@ -92,6 +98,25 @@ class CommentsComponent extends Component {
 						>
 							<span className="jp-form-toggle-explanation">{ comments.description }</span>
 						</ModuleToggle>
+						{ this.props.hasBlockEditor && (
+							<FormFieldset>
+								<ToggleControl
+									checked={ !! this.props.getOptionValue( 'enable_blocks_comments', 'comments' ) }
+									disabled={
+										! isCommentsActive ||
+										commentsUnavailableInOfflineMode ||
+										this.props.isSavingAnyOption( [ 'comments', 'enable_blocks_comments' ] )
+									}
+									onChange={ this.handleBlocksToggle }
+									label={
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Enable blocks in comments.', 'jetpack' ) }
+										</span>
+									}
+									__nextHasNoMarginBottom={ true }
+								/>
+							</FormFieldset>
+						) }
 						<FormFieldset>
 							<FormLabel>
 								<span className="jp-form-label-wide">
@@ -152,6 +177,7 @@ class CommentsComponent extends Component {
 									text={ __( 'Show Gravatar hovercards alongside comments.', 'jetpack' ) }
 									link={ gravatar.learn_more_button }
 									privacyLink={ gravatar.learn_more_button + '#privacy' }
+									wpcomLink="https://wordpress.com/support/gravatars/"
 								/>
 							</div>
 						) }
@@ -182,6 +208,7 @@ class CommentsComponent extends Component {
 									text={ __( 'Allow readers to use markdown in comments.', 'jetpack' ) }
 									link={ markdown.learn_more_button }
 									privacyLink={ markdown.learn_more_button + '#privacy' }
+									wpcomLink="https://wordpress.com/support/wordpress-editor/blocks/markdown-block/"
 								/>
 							</div>
 						) }
@@ -208,6 +235,7 @@ class CommentsComponent extends Component {
 									privacyLink={ getRedirectUrl( 'jetpack-support-comment-likes', {
 										anchor: 'privacy',
 									} ) }
+									wpcomLink="https://wordpress.com/support/comment-likes/"
 								/>
 							</div>
 						) }

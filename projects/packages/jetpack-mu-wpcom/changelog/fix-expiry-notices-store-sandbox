@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Expiry notices: stand down on Simple sites while the Store Sandbox is enabled, so its test purchases are never reported as an expiring plan.

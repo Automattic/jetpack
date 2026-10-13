@@ -21,6 +21,16 @@
 			line-height: var(--wpds-typography-line-height-sm);
 		}
 
+		/*
+		 * Every other field is as wide as its answer, but a file field pins a
+		 * download button opposite each name. Left to shrink-to-fit, those
+		 * buttons land wherever the longest name in that response ends, so the
+		 * column moves between responses. Full width holds one edge.
+		 */
+		.jp-forms__field-preview.is-field-type-file .jp-forms__field-preview-content {
+			flex-grow: 1;
+		}
+
 		// Value needed for positioning with the icon in case label is missing.
 		.jp-forms__field-preview-label,
 		.jp-forms__field-preview-value {
@@ -44,6 +54,9 @@
 	font-weight: 300;
 }
 
-.jp-forms__inbox-response-data-value {
+.jp-forms__inbox-response-data-value,
+.jp-forms__field-preview-value {
+	// Answers to multi-line fields are stored with their newlines; without this
+	// they collapse into a single run-on paragraph.
 	white-space: pre-wrap;
 }

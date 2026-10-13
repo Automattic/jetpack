@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Interface Registrable_Interface.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 interface Registrable_Interface {
 

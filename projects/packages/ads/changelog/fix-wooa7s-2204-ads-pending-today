@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WordAds chart: Draw today's bucket as not yet counted for Ads Served and Revenue too, and say so in the tooltip.

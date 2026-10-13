@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 /**
@@ -64,37 +64,29 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
 			<Dialog.Popup size="medium">
 				<Dialog.Header>
-					<Dialog.Title>{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }</Dialog.Title>
+					<Dialog.Title>{ __( 'Some forms may not appear here', 'jetpack-forms' ) }</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-forms' ) } />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="md">
 						<Text>
 							{ __(
-								'The Forms list shows reusable forms, not simple form blocks.',
+								'Forms you already added to pages or posts will continue to work. To add them to this list:',
 								'jetpack-forms'
 							) }
 						</Text>
-						<div>
-							<Text variant="body-md" render={ <p /> }>
-								<strong>
-									{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
-								</strong>
-							</Text>
-							<ol>
-								<li>
-									{ __(
-										'Open the page or post where your form block is embedded.',
-										'jetpack-forms'
-									) }
-								</li>
-								<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
-								<li>
-									{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
-								</li>
-								<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
-							</ol>
-						</div>
+						<ol>
+							<li>{ __( 'Open the page or post', 'jetpack-forms' ) }</li>
+							<li>{ __( 'Select the form', 'jetpack-forms' ) }</li>
+							<li>
+								{ createInterpolateElement(
+									__( 'Click <strong>Edit form</strong> in the toolbar', 'jetpack-forms' ),
+									{ strong: <strong /> }
+								) }
+							</li>
+							<li>{ __( 'Save the page or post', 'jetpack-forms' ) }</li>
+						</ol>
+						<Text>{ __( 'You only need to do this once per form.', 'jetpack-forms' ) }</Text>
 					</Stack>
 				</Dialog.Content>
 				<Stack

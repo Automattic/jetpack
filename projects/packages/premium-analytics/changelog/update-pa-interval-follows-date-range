@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Report params: Keep a URL interval when it remains valid for the date range, otherwise coerce it to the range default.

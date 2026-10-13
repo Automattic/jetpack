@@ -29,9 +29,6 @@ type SanitizedProductsSummary = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single product item by converting strings to numbers
- */
 function sanitizeProductItem( item: RawProductsReportDataItem ): SanitizedProductsItem {
 	return {
 		...item,
@@ -52,21 +49,11 @@ function sanitizeProductSummary( summary: RawProductsReportSummary ): SanitizedP
 	};
 }
 
-/**
- * Processed response with numeric values
- */
 type SanitizedProductsResponse = {
 	summary: SanitizedProductsSummary;
 	data: SanitizedProductsItem[];
 };
 
-/**
- * Sanitize the response from the reports/products endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
- * The `summary` single item has basically the same structure
- * as the `data` array items, so we can use the same mapper function for both.
- */
 export const sanitizeReportProductsResponse = (
 	response: ReportProductsResponse
 ): SanitizedProductsResponse => {

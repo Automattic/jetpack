@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Rename the package text domain to `jetpack-premium-analytics-pkg` so it no longer collides with the plugin slug of the same name, matching the convention already used by jetpack-backup-pkg and jetpack-videopress-pkg.

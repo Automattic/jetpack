@@ -592,6 +592,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$module = Jetpack::get_module( $module_slug );
 				Jetpack::log( 'activate', $module_slug );
 				if ( Jetpack::activate_module( $module_slug, false, false ) ) {
+					if ( ! Jetpack::is_module_active( $module_slug ) ) {
+						/* translators: %s is the name of a Jetpack module */
+						WP_CLI::error( sprintf( __( '%s is disabled by your host or site administrator, so it stays off.', 'jetpack' ), $module['name'] ) );
+					}
 					/* translators: %s is the name of a Jetpack module */
 					WP_CLI::success( sprintf( __( '%s has been activated.', 'jetpack' ), $module['name'] ) );
 				} else {
@@ -608,6 +612,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$module = Jetpack::get_module( $module_slug );
 				Jetpack::log( 'deactivate', $module_slug );
 				Jetpack::deactivate_module( $module_slug );
+				if ( Jetpack::is_module_active( $module_slug ) ) {
+					/* translators: %s is the name of a Jetpack module */
+					WP_CLI::error( sprintf( __( '%s is enabled by your host or site administrator, so it stays on.', 'jetpack' ), $module['name'] ) );
+				}
 				/* translators: %s is the name of a Jetpack module */
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
 				break;
@@ -659,14 +667,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		switch ( $action ) {
 			case 'allow':
-				$allow         = array();
-				$new_ip        = $args[1];
-				$current_allow = get_site_option( 'jetpack_protect_whitelist', array() ); // @todo Update the option name.
+				$allow  = array();
+				$new_ip = $args[1];
 
-				// Build array of IPs that are already on the allowed list.
-				// Re-build manually instead of using jetpack_protect_format_allow_list() so we can easily get
-				// low & high range params for IP_Utils::ip_address_is_in_range().
-				foreach ( $current_allow as $allowed ) {
+				/*
+				 * Build array of IPs that are already on the allowed list.
+				 * Re-build manually instead of using format_allow_list() so we can easily get
+				 * low & high range params for IP_Utils::ip_address_is_in_range().
+				 */
+				foreach ( Brute_Force_Protection_Shared_Functions::get_local_allow_list() as $allowed ) {
 
 					// IP ranges.
 					if ( $allowed->range ) {
@@ -677,7 +686,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;
 						}
-						$allow[] = $allowed->range_low . ' - ' . $allowed->range_high;
+						// A CIDR range has no upper bound of its own.
+						$allow[] = null === $allowed->range_high ? $allowed->range_low : $allowed->range_low . ' - ' . $allowed->range_high;
 
 					} else { // Individual IPs.
 
@@ -691,6 +701,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					}
 				}
+
+				// A leftover legacy allow list is merged into every read, so entries already saved come back twice.
+				$allow = array_unique( $allow );
 
 				/*
 				 * List the allowed IPs.

@@ -43,6 +43,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	protected $user_id = null;
 
 	/**
+	 * Whether editorial permissions satisfy subscription requirements.
+	 *
+	 * @var bool
+	 */
+	private $allow_editor_access = true;
+
+	/**
 	 * Constructor
 	 *
 	 * @param int|null $user_id An optional user_id to query subscriptions against. Uses token from request/cookie or logged-in user information if omitted.
@@ -70,10 +77,50 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		$token = $this->token_from_request();
 		if ( null !== $token ) {
 			$this->set_token_cookie( $token );
+			$this->maybe_link_wpcom_user_id( $token );
 			return $token;
 		}
 
 		return $this->token_from_cookie();
+	}
+
+	/**
+	 * Self-heals the local user's wpcom_user_id meta from a freshly-verified magic-link
+	 * token, so future requests can resolve this visitor's subscriptions via the
+	 * authoritative filter (see get_subscriptions_for_logged_in_user() in access-check.php)
+	 * without needing another magic-link round trip once the token/cookie expires.
+	 *
+	 * Safe because the token's user_id was just verified by WordPress.com's own session
+	 * at subscribe.wordpress.com -- never read from anything stored locally. A local
+	 * account's email is not proof of identity by itself (anyone with admin access could
+	 * type in any email when creating a local user), so this additionally requires the
+	 * local account's own email to match the token's blog_subscriber email before linking,
+	 * to avoid mis-linking a local account to whichever WordPress.com session happens to
+	 * be active in the browser (e.g. a shared device) when the two aren't otherwise related.
+	 *
+	 * @param string $token The raw token string from the incoming request.
+	 * @return void
+	 */
+	private function maybe_link_wpcom_user_id( $token ) {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		$payload = $this->decode_token( $token );
+		if ( empty( $payload['user_id'] ) || empty( $payload['blog_subscriber'] ) ) {
+			return;
+		}
+
+		$local_user = wp_get_current_user();
+		if ( strcasecmp( $local_user->user_email, $payload['blog_subscriber'] ) !== 0 ) {
+			return;
+		}
+
+		if ( (int) get_user_meta( $local_user->ID, 'wpcom_user_id', true ) === (int) $payload['user_id'] ) {
+			return;
+		}
+
+		update_user_meta( $local_user->ID, 'wpcom_user_id', (int) $payload['user_id'] );
 	}
 
 	/**
@@ -246,12 +293,13 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 *
 	 * @inheritDoc
 	 *
-	 * @param array $valid_plan_ids List of valid plan IDs.
-	 * @param array $access_level Access level for content.
+	 * @param array    $valid_plan_ids List of valid plan IDs.
+	 * @param string   $access_level Access level for content.
+	 * @param int|null $post_id Post to gate against. Defaults to the loop post, which is only right while rendering it.
 	 *
 	 * @return bool Whether the user can view the content
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $post_id = null ) {
 		global $current_user;
 		$old_user = $current_user; // backup the current user so we can set the current user to the token user for paywall purposes
 
@@ -304,10 +352,30 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			}
 		}
 
-		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
+		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, null === $post_id ? get_the_ID() : $post_id, $subscriptions );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$current_user = $old_user;
 		return $has_access;
+	}
+
+	/**
+	 * Check subscription entitlement without granting access for editing the post.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array    $valid_plan_ids Required subscription plan IDs.
+	 * @param string   $access_level   Required access level.
+	 * @param int|null $post_id        Post to check, or the loop post when omitted.
+	 * @return bool Whether the visitor meets the subscription requirement.
+	 */
+	public function visitor_has_subscription_access( $valid_plan_ids, $access_level, $post_id = null ) {
+		$allow_editor_access       = $this->allow_editor_access;
+		$this->allow_editor_access = false;
+		try {
+			return $this->visitor_can_view_content( $valid_plan_ids, $access_level, $post_id );
+		} finally {
+			$this->allow_editor_access = $allow_editor_access;
+		}
 	}
 
 	/**
@@ -352,7 +420,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $user_abbreviated_subscriptions ) {
 
-		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
+		if ( $this->allow_editor_access && is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
 			$has_access = true;
 		} else {

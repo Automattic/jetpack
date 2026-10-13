@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Dashboard: drive the section tab bar from the server-side registry through a core-data entity, and carry each section's default layout in the sections response so reset reads it from the store without a request.

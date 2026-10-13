@@ -1,14 +1,15 @@
 /**
  * External dependencies
  */
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
-import { Link as RouteLink } from '@wordpress/route';
-import { useMemo } from 'react';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../widget-root';
+import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
+import { InternalLink } from '../internal-link';
+import styles from './report-link.module.scss';
+import type { ReactNode } from 'react';
 
 export type ReportLinkProps = {
 	/**
@@ -22,12 +23,12 @@ export type ReportLinkProps = {
 	section?: string;
 
 	/**
-	 * Visible link label. Defaults to "See report".
+	 * Visible link label. Defaults to "View all".
 	 */
 	label?: string;
 
 	/**
-	 * Optional accessible label to disambiguate identical "See report" links on one page.
+	 * Optional accessible label to disambiguate identical "View all" links on one page.
 	 */
 	ariaLabel?: string;
 
@@ -35,6 +36,11 @@ export type ReportLinkProps = {
 	 * Optional class for widget-specific layout tweaks.
 	 */
 	className?: string;
+
+	/**
+	 * Rendered after the label, e.g. a count badge; the hover underline stays on the label.
+	 */
+	children?: ReactNode;
 };
 
 /**
@@ -43,33 +49,37 @@ export type ReportLinkProps = {
  * Preserves the shared dashboard date and comparison parameters while leaving
  * page-owned parameters, such as the report chart period, to the destination.
  *
- * @param props           - Component props.
- * @param props.report    - Report id in the reports registry.
- * @param props.section   - Optional report section to open.
- * @param props.label     - Optional visible link label.
- * @param props.ariaLabel - Optional accessible link label.
- * @param props.className - Optional additional class name.
  * @return The rendered report link.
  */
-export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {
-	const { reportParams } = useWidgetRootContext();
-	const search = useMemo(
-		() => ( {
-			...pickReportDateParams( reportParams ),
-			...( section ? { section } : {} ),
-		} ),
-		[ reportParams, section ]
-	);
+export function ReportLink( {
+	report,
+	section,
+	label,
+	ariaLabel,
+	className,
+	children,
+}: ReportLinkProps ) {
+	const search = useWidgetNavigationSearch( { section } );
+	const text = label ?? __( 'View all', 'jetpack-premium-analytics-pkg' );
 
 	return (
-		<RouteLink
+		<InternalLink
 			to="/reports/$report"
-			params={ { report } as unknown as never }
-			search={ search as unknown as never }
-			className={ className }
-			aria-label={ ariaLabel }
+			params={ { report } }
+			search={ search }
+			variant="default"
+			className={ clsx( styles.reportLink, children && styles.hasContent, className ) }
+			ariaLabel={ ariaLabel }
 		>
-			{ label ?? __( 'See report', 'jetpack-premium-analytics-pkg' ) }
-		</RouteLink>
+			{ children ? (
+				<>
+					<span className={ styles.label }>{ text }</span>
+					{ /* Keeps the accessible name "Adjustments 2" rather than "Adjustments2". */ }{ ' ' }
+					{ children }
+				</>
+			) : (
+				text
+			) }
+		</InternalLink>
 	);
 }

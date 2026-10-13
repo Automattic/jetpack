@@ -1,6 +1,6 @@
-import { TextControl, TextareaControl } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Dialog, InputControl, Stack, TextareaControl } from '@wordpress/ui';
 import { pickPlaceholder } from './lib.ts';
 import type { GoalSlug } from '../lib/types.ts';
 
@@ -103,27 +103,22 @@ export default function DetailsStep( {
 	const intentPlaceholder = useIntentPlaceholder( goal );
 
 	return (
-		<div className="ai-launchpad-wizard__step">
-			<h2 className="ai-launchpad-wizard__step-title">
-				{ __( 'Tell us about your site', 'jetpack-mu-wpcom' ) }
-			</h2>
+		<Stack direction="column" gap="lg">
+			<Dialog.Title>{ __( 'Tell us about your site', 'jetpack-mu-wpcom' ) }</Dialog.Title>
 
-			<TextControl
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
+			<InputControl
 				label={ __( 'Site name', 'jetpack-mu-wpcom' ) }
 				value={ siteName }
-				onChange={ onSiteNameChange }
+				onValueChange={ onSiteNameChange }
 			/>
 
 			<TextareaControl
-				__nextHasNoMarginBottom
 				label={ __( 'Brief description', 'jetpack-mu-wpcom' ) }
 				placeholder={ intentPlaceholder }
 				value={ intent }
-				onChange={ onIntentChange }
+				onValueChange={ onIntentChange }
 				rows={ 4 }
 			/>
-		</div>
+		</Stack>
 	);
 }

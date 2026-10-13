@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unnecessary devDependency on `jetpack-js-tools`, which should be inherited from the monorepo root where it's used in eslint, jest, and tsconfig configurations.
+
+

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: raise the Atomic rollout to 2% of sites.

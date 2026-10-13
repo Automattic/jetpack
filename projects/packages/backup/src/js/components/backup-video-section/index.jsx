@@ -37,7 +37,7 @@ const BackupVideoSection = ( {
 						rel="noopener noreferrer"
 					/>
 				),
-		  } )
+			} )
 		: undefined;
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;

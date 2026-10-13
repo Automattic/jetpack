@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Note: This is a ranked list report, not a time-series report.
  * Comparison mode is supported using ID-based merging (matching by campaign).
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Sales_By_Campaign_Controller extends Abstract_Csv_Report_Controller {
 
@@ -125,9 +125,8 @@ class Sales_By_Campaign_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_additional_params(): array {
 		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
-			'orderby'   => 'gross_sales',
-			'view'      => 'campaign',
+			'orderby' => 'gross_sales',
+			'view'    => 'campaign',
 		);
 	}
 

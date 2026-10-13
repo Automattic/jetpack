@@ -7,7 +7,17 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Modules\Meta;
+use Automattic\Jetpack\Sync\Modules\Options;
+use Automattic\Jetpack\Sync\Modules\Posts;
+use Automattic\Jetpack\Sync\Modules\Term_Relationships;
+use Automattic\Jetpack\Sync\Modules\Terms;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -41,7 +51,47 @@ class Configuration_Test extends TestCase {
 		$configuration = new Configuration();
 		$configuration->configure_sync();
 
-		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
+	}
+
+	/**
+	 * With WooCommerce active, the Sync hooks and data settings register, and the module
+	 * filter runs last so another plugin's Analytics module is already in the list.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_with_woocommerce_registers_sync_hooks() {
+		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
+		$this->assertTrue( class_exists( 'WooCommerce' ) );
+
+		$configuration = new Configuration();
+		$configuration->configure_sync();
+
+		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
+
+		$data_settings = ( new Data_Settings() )->get_data_settings();
+		$this->assertContains( WooCommerce_Analytics::class, $data_settings['jetpack_sync_modules'] );
+		$this->assertContains( Options::class, $data_settings['jetpack_sync_modules'] );
+		foreach ( array( 'woocommerce_custom_orders_table_enabled', 'woocommerce_excluded_report_order_statuses', 'woocommerce_date_type', 'blogname' ) as $option ) {
+			$this->assertContains( $option, $data_settings['jetpack_sync_options_whitelist'] );
+		}
+		// A default-only option proves the must-sync list is in effect rather than the full defaults.
+		$this->assertNotContains( 'wordads_cmp_enabled', $data_settings['jetpack_sync_options_whitelist'] );
+
+		// Through the real filter chain (Data_Settings at 10, then this class last).
+		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
+		$this->assertCount( 1, array_keys( $modules, WooCommerce_Analytics::class, true ) );
+
+		$modules = apply_filters( 'jetpack_sync_modules', array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
+		$this->assertNotContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
+		$this->assertContains( WooCommerce_Analytics::class, $modules );
 	}
 
 	/**
@@ -53,5 +103,129 @@ class Configuration_Test extends TestCase {
 		$this->assertContains( 'JETPACK_PREMIUM_ANALYTICS__VERSION', $config['jetpack_sync_constants_whitelist'] );
 		// WC_ANALYTICS_VERSION is the standalone plugin's constant; PA must not whitelist it.
 		$this->assertNotContains( 'WC_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
+		$this->assertSame(
+			array_merge(
+				Data_Settings::MUST_SYNC_DATA_SETTINGS['jetpack_sync_modules'],
+				array(
+					WooCommerce_Analytics::class,
+					Meta::class,
+					Posts::class,
+					Terms::class,
+					Term_Relationships::class,
+				)
+			),
+			$config['jetpack_sync_modules']
+		);
+	}
+
+	/**
+	 * Every must-sync setting is retained, so Data_Settings never falls back to the full defaults.
+	 */
+	public function test_sync_config_merges_must_sync_settings_with_analytics_options() {
+		$config = $this->call_private( 'get_jetpack_sync_config' );
+
+		foreach ( Data_Settings::MUST_SYNC_DATA_SETTINGS as $filter => $required ) {
+			$this->assertArrayHasKey( $filter, $config );
+			foreach ( $required as $value ) {
+				$this->assertContains( $value, $config[ $filter ] );
+			}
+		}
+
+		$this->assertSame(
+			array(
+				'woocommerce_custom_orders_table_enabled',
+				'woocommerce_excluded_report_order_statuses',
+				'woocommerce_date_type',
+			),
+			array_values( array_diff( $config['jetpack_sync_options_whitelist'], Data_Settings::MUST_SYNC_DATA_SETTINGS['jetpack_sync_options_whitelist'] ) )
+		);
+	}
+
+	/**
+	 * A list without the standalone plugin's module is passed through untouched.
+	 */
+	public function test_remove_duplicate_woocommerce_analytics_module_leaves_the_list_alone() {
+		$modules = array( Posts::class, WooCommerce_Analytics::class );
+
+		$this->assertSame( $modules, ( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules ) );
+	}
+
+	/**
+	 * An emptied module list is a kill switch and stays empty.
+	 */
+	public function test_remove_duplicate_woocommerce_analytics_module_honors_an_emptied_list() {
+		$this->assertSame( array(), ( new Configuration() )->remove_duplicate_woocommerce_analytics_module( array() ) );
+	}
+
+	/**
+	 * The shared module wins over the standalone plugin's, which syncs no lookup data.
+	 */
+	public function test_remove_duplicate_woocommerce_analytics_module_drops_the_standalone_plugins_module() {
+		$modules = array(
+			Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
+			WooCommerce_Analytics::class,
+		);
+
+		$this->assertSame(
+			array( WooCommerce_Analytics::class ),
+			( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules )
+		);
+	}
+
+	/**
+	 * The standalone plugin's module is dropped even when ours has not been added yet.
+	 */
+	public function test_remove_duplicate_woocommerce_analytics_module_drops_the_standalone_module_alone() {
+		$this->assertSame(
+			array( Posts::class ),
+			( new Configuration() )->remove_duplicate_woocommerce_analytics_module(
+				array( Posts::class, Configuration::ANALYTICS_PLUGIN_MODULE_FQCN )
+			)
+		);
+	}
+
+	/**
+	 * Full sync includes Analytics first and keeps Posts after the taxonomy modules.
+	 */
+	public function test_expand_full_sync_config_adds_analytics_and_keeps_posts_last() {
+		$this->assertSame(
+			array(
+				'woocommerce_analytics' => 1,
+				'terms'                 => 1,
+				'posts'                 => 1,
+			),
+			( new Configuration() )->expand_full_sync_config(
+				array(
+					'posts' => 1,
+					'terms' => 1,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Expanding an already expanded config changes nothing.
+	 */
+	public function test_expand_full_sync_config_is_idempotent() {
+		$config = array(
+			'woocommerce_analytics' => 1,
+			'terms'                 => 1,
+			'term_relationships'    => 1,
+			'posts'                 => 1,
+		);
+
+		$this->assertSame( $config, ( new Configuration() )->expand_full_sync_config( $config ) );
+	}
+
+	/**
+	 * Bookings post meta is prepended to the whitelist without dropping existing keys.
+	 */
+	public function test_add_meta_to_sync_post_meta_whitelist_prepends_bookings_meta() {
+		$whitelist = ( new Configuration() )->add_meta_to_sync_post_meta_whitelist( array( '_existing' ) );
+
+		$this->assertSame( '_existing', end( $whitelist ) );
+		foreach ( array( '_booking_start', '_booking_end', '_booking_cost', '_booking_order_id' ) as $key ) {
+			$this->assertContains( $key, $whitelist );
+		}
 	}
 }

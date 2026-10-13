@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Return the Breadcrumbs toggle in Schema settings to its previous position when the save fails, instead of leaving it showing a change that was not saved.

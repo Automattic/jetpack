@@ -57,10 +57,10 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
 
-		// Intentionally gated to Simple and Atomic sites only.
-		// Self-hosted Jetpack support is deferred — we want to roll out
-		// on WordPress.com platforms first before opening to all connected sites.
-		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
+		// Intentionally gated to Simple, Atomic, and WordPress VIP sites only.
+		// Broader self-hosted Jetpack support is deferred — we want to roll out
+		// on these platforms first before opening to all connected sites.
+		if ( ! \Jetpack_AI_Helper::is_enabled_for_content_guidelines() ) {
 			return;
 		}
 

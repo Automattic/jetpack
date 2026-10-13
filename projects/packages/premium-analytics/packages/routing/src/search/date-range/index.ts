@@ -1,5 +1,5 @@
 export {
+	decodeDateSearchParam,
 	encodeDateToSearchParam,
-	writeDateRangeToSearch,
-	writeComparisonToSearch,
+	encodeRangeToSearchParams,
 } from './date-range';

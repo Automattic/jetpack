@@ -12,33 +12,15 @@ import type { DateType } from '../../utils/types';
 
 const REPORT_DOWNLOAD_PATH = '/jetpack-premium-analytics/v1/reports/csv-export';
 
-/**
- * Export request parameters
- */
-export interface ExportReportParams {
-	reportType: string | string[];
+/** Parameters for downloading one complete report as a CSV file. */
+export interface DownloadReportParams {
+	reportType: string;
 	from: string; // ISO 8601 date string
 	to: string; // ISO 8601 date string
 	interval?: string;
 	compareFrom?: string; // ISO 8601 date string
 	compareTo?: string; // ISO 8601 date string
-}
-
-/** Parameters for downloading one complete report as a CSV file. */
-export interface DownloadReportParams extends Omit< ExportReportParams, 'reportType' > {
-	reportType: string;
 	dateType?: DateType;
-}
-
-/**
- * Export response from the API
- */
-export interface ExportReportResponse {
-	success: boolean;
-	message: string;
-	job_ids?: Record< string, number >; // Multiple report exports
-	partial?: boolean; // Indicates if some exports failed
-	errors?: Record< string, string >; // Failed report types and their error messages
 }
 
 /** The sanitized filename used for a downloaded report. */
@@ -57,12 +39,6 @@ type ReportExportBody = {
 	compare_to?: string;
 };
 
-/**
- * Build the request body for a direct report download.
- *
- * @param params - Export parameters.
- * @return Request body for the existing CSV export endpoint.
- */
 export function buildReportExportBody( params: DownloadReportParams ): ReportExportBody {
 	return {
 		report_type: params.reportType,
@@ -75,47 +51,12 @@ export function buildReportExportBody( params: DownloadReportParams ): ReportExp
 			? {
 					compare_from: params.compareFrom,
 					compare_to: params.compareTo,
-			  }
+				}
 			: {} ),
 	};
 }
 
-/**
- * Export one or more reports via email
- *
- * @param params - Export parameters
- * @return Promise that resolves to the export response
- */
-export async function exportReport( params: ExportReportParams ): Promise< ExportReportResponse > {
-	const path = '/wc/v3/woocommerce-analytics/reports/csv-export';
-
-	const body = {
-		report_type: Array.isArray( params.reportType ) ? params.reportType : [ params.reportType ],
-		from: params.from,
-		to: params.to,
-		interval: params.interval || 'day',
-		delivery_method: 'email',
-		...( params.compareFrom && params.compareTo
-			? {
-					compare_from: params.compareFrom,
-					compare_to: params.compareTo,
-			  }
-			: {} ),
-	};
-
-	return apiFetch( {
-		path,
-		method: 'POST',
-		data: body,
-	} ) as Promise< ExportReportResponse >;
-}
-
-/**
- * Request a browser download from the Premium Analytics CSV export endpoint.
- *
- * @param params - Export parameters.
- * @return The filename used for the downloaded CSV.
- */
+/** Request a browser download from the Premium Analytics CSV export endpoint. */
 export async function downloadReport(
 	params: DownloadReportParams
 ): Promise< DownloadReportResponse > {
@@ -150,12 +91,6 @@ export async function downloadReport(
 	return { filename };
 }
 
-/**
- * Extract a filename from a Content-Disposition response header.
- *
- * @param header - Content-Disposition header value.
- * @return The response filename, when present.
- */
 export function getFilenameFromContentDisposition( header: string | null ): string | undefined {
 	if ( ! header ) {
 		return undefined;

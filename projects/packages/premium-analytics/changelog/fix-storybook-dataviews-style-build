@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Report table: Scope the inlined DataViews stylesheet to keep Storybook builds working.

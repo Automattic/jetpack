@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use the modern WordPress admin color scheme (blueberry) as the default admin theme color in stories.

@@ -9,9 +9,6 @@ type ReportsCustomersNewReturningResponse = Awaited< ReturnType< typeof fetchRep
 type RawCustomersNewReturningSummary = ReportsCustomersNewReturningResponse[ 'summary' ];
 type RawCustomersNewReturningItem = ReportsCustomersNewReturningResponse[ 'data' ][ number ];
 
-/**
- * Processed summary (numbers for calculations)
- */
 type SanitizedCustomersNewReturningSummary = Override<
 	RawCustomersNewReturningSummary,
 	{
@@ -22,9 +19,6 @@ type SanitizedCustomersNewReturningSummary = Override<
 	}
 >;
 
-/**
- * Processed item (numbers for calculations)
- */
 type SanitizedCustomersNewReturningItem = Override<
 	RawCustomersNewReturningItem,
 	{
@@ -33,17 +27,11 @@ type SanitizedCustomersNewReturningItem = Override<
 	}
 >;
 
-/**
- * Processed response with numeric values
- */
 type SanitizedCustomersNewReturningResponse = {
 	summary: SanitizedCustomersNewReturningSummary;
 	data: SanitizedCustomersNewReturningItem[];
 };
 
-/**
- * Sanitize/process a single customer item by converting strings to numbers
- */
 function sanitizeCustomerItem(
 	item: RawCustomersNewReturningItem
 ): SanitizedCustomersNewReturningItem {
@@ -54,9 +42,6 @@ function sanitizeCustomerItem(
 	};
 }
 
-/**
- * Sanitize/process the summary by converting strings to numbers
- */
 function sanitizeCustomerSummary(
 	summary: RawCustomersNewReturningSummary
 ): SanitizedCustomersNewReturningSummary {
@@ -72,10 +57,6 @@ function sanitizeCustomerSummary(
 	};
 }
 
-/**
- * Sanitize the response from the reports/customers/new-returning endpoint
- * Converts string values to numbers for easier calculations and charting.
- */
 export const sanitizeReportCustomersResponse = (
 	response: ReportsCustomersNewReturningResponse
 ): SanitizedCustomersNewReturningResponse => {

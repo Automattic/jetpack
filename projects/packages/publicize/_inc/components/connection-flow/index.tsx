@@ -5,8 +5,10 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Dialog, IconButton, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import { PlatformInput } from './platform-input';
 import { SelectPlatform } from './select-platform';
 import type { ConnectionFlowStep } from '../../social-store/types';
+import type { JSX } from 'react';
 
 /**
  * Placeholder body shown until a step's own component lands. Each of M2-01…04
@@ -33,6 +35,7 @@ function renderStep( step: ConnectionFlowStep ): JSX.Element {
 		case 'select-platform':
 			return <SelectPlatform />;
 		case 'platform-input':
+			return <PlatformInput />;
 		case 'authorizing':
 		case 'confirm':
 		case 'creating':
@@ -82,7 +85,7 @@ const ConnectionFlowDialog = () => {
 		return {
 			step: getConnectionFlowStep(),
 			canGoBack: canGoToPreviousConnectionFlowStep(),
-			serviceLabel: serviceId ? getService( serviceId )?.label ?? '' : '',
+			serviceLabel: serviceId ? ( getService( serviceId )?.label ?? '' ) : '',
 		};
 	}, [] );
 

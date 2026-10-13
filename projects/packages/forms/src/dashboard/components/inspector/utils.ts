@@ -16,6 +16,20 @@ export const getDisplayName = ( response: FormResponse ): string => {
 };
 
 /**
+ * Decode the `htmlspecialchars( …, ENT_NOQUOTES )` encoding stored values carry, for a value
+ * rendered as text. Mirrors `Feedback::decode_special_chars()`.
+ *
+ * @param input - The stored value.
+ * @return The decoded value.
+ */
+export const htmlspecialcharsDecode = ( input: string ): string =>
+	String( input )
+		.replace( /&lt;/g, '<' )
+		.replace( /&gt;/g, '>' )
+		// Ampersand must be last.
+		.replace( /&amp;/g, '&' );
+
+/**
  * Checks if a value represents a file upload field (object with 'files' property).
  *
  * @param value - The value to check.

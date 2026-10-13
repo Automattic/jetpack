@@ -15,11 +15,6 @@ type RequestReportSessionsByDeviceParams = Parameters< typeof fetchReportSession
 const getReportSessionsByDeviceQueryKey = ( p: RequestReportSessionsByDeviceParams ) =>
 	[ 'reports', 'sessions', 'by-device', p.from, p.to ] as const;
 
-/**
- * Creates query options for fetching sessions by device report data.
- *
- * @param params - Request parameters with from/to dates
- */
 export function reportSessionsByDeviceQuery(
 	params: RequestReportSessionsByDeviceParams
 ): UseQueryOptions< ReportDataMap[ 'sessionsByDevice' ] > {
@@ -30,15 +25,9 @@ export function reportSessionsByDeviceQuery(
 			return sanitizeReportSessionsByDeviceResponse( response );
 		},
 
-		/**
-		 * Enable the query only if from and to dates are set.
-		 * Note: This endpoint doesn't use interval (it's not a time-series).
-		 */
+		// Not a time-series endpoint, so no interval is required.
 		enabled: !! ( params.from && params.to ),
 
-		/**
-		 * Keep previous data while fetching new data to prevent blank states
-		 */
 		placeholderData: previousData => previousData,
 	};
 }

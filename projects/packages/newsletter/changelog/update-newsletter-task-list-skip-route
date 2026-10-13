@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Overview onboarding checklist: Skip calls the renamed skip route, and a list hidden by Site Setup is not remembered as done. Behind the newsletter-overview feature flag, which is off in production.
+
+

@@ -4,9 +4,6 @@
 import { fetchReportVisitorsByLocation } from '../../api/report-visitors-by-location-fetch';
 import type { Override } from '../../utils/types';
 
-/**
- * Inferred types
- */
 type ReportsVisitorsByLocationResponse = Awaited<
 	ReturnType< typeof fetchReportVisitorsByLocation >
 >;

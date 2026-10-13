@@ -142,7 +142,7 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Chart Options', () => {
-		test( 'configures color axis with theme colors', () => {
+		test( 'configures a two-stop color axis from the palette', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
@@ -152,7 +152,7 @@ describe( 'GeoChart', () => {
 			expect( options.colorAxis.colors ).toHaveLength( 2 );
 		} );
 
-		test( 'sets datalessRegionColor from theme', () => {
+		test( 'sets datalessRegionColor from the surface-secondary role', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
@@ -216,6 +216,22 @@ describe( 'GeoChart', () => {
 			expect( options.region ).toBeUndefined();
 		} );
 
+		test( 'passes the domain so disputed borders follow that country', () => {
+			renderWithTheme( { domain: 'IN' } );
+
+			const options = JSON.parse( screen.getByTestId( 'chart-options' ).textContent || '{}' );
+
+			expect( options.domain ).toBe( 'IN' );
+		} );
+
+		test( 'passes the markers display mode so rows draw as points, not shaded areas', () => {
+			renderWithTheme( { displayMode: 'markers' } );
+
+			const options = JSON.parse( screen.getByTestId( 'chart-options' ).textContent || '{}' );
+
+			expect( options.displayMode ).toBe( 'markers' );
+		} );
+
 		test( 'does not include resolution in options when set to countries (default)', () => {
 			renderWithTheme();
 
@@ -265,13 +281,18 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Chart Events', () => {
-		test( 'does not pass chart events when onError is omitted', () => {
+		test( "hides Google's own SVG label from screen readers once the map is ready", () => {
 			renderWithTheme();
 
-			const chartEvents = screen.getByTestId( 'chart-events' );
-			const events = JSON.parse( chartEvents.textContent || '[]' );
+			const svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+			screen.getByTestId( 'google-chart-mock' ).appendChild( svg );
 
-			expect( events ).toEqual( [] );
+			const chartProps = ChartMock.mock.calls[ ChartMock.mock.calls.length - 1 ]?.[ 0 ];
+			chartProps.chartEvents
+				.find( ( event: { eventName: string } ) => event.eventName === 'ready' )
+				.callback( {} );
+
+			expect( svg ).toHaveAttribute( 'aria-hidden', 'true' );
 		} );
 
 		test( 'calls onError when Google Charts emits an error', () => {

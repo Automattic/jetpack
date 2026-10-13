@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Email top row: rates from the per-post rate summary are 0-1 fractions; stop dividing by 100 so 2 sends / 2 opens reads 100 percent, not 1 percent.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move the payment button's product form into the block settings sidebar, and label its primary button Create New or Save instead of repeating the display format.

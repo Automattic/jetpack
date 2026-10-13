@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: keep keyboard focus inside the tour card and let screen reader users skip the tour.

@@ -49,12 +49,12 @@ const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 		? /* translators: %s is the link to the media upload best practices. */ __(
 				'You need a featured image to share to Instagram. Use the block editor for more advanced media features! <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
 				'jetpack-publicize-pkg'
-		  )
+			)
 		: /* translators: %s is the link to the media upload best practices. */ __(
 				'You need a featured image to share to Instagram. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
 				'jetpack-publicize-pkg',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	warningDiv
 		.addClass( 'notice-warning publicize__notice-media-warning publicize__notice-warning' )

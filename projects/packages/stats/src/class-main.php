@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Stats\Abilities\Stats_Abilities;
 use Automattic\Jetpack\Status;
@@ -69,8 +70,7 @@ class Main {
 		// Generate the tracking code after wp() has queried for posts.
 		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ), 1 );
 
-		add_action( 'wp_head', array( __CLASS__, 'hide_smile_css' ) );
-		add_action( 'embed_head', array( __CLASS__, 'hide_smile_css' ) );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'hide_smile_css' ) );
 
 		// Map stats caps.
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
@@ -145,15 +145,11 @@ class Main {
 	public static function map_meta_caps( $caps, $cap, $user_id ) {
 		// Map view_stats to exists.
 		if ( 'view_stats' === $cap ) {
-			$user = new WP_User( $user_id );
-			// WordPress 6.9 introduced lazy-loading of some WP_User properties, including `roles`.
-			// It also made said properties protected, so we can't modify keys directly.
-			$user_roles  = $user->roles;
-			$user_role   = array_shift( $user_roles ); // Work with the copy
+			$user        = new WP_User( $user_id );
 			$stats_roles = Options::get_option( 'roles' );
 
-			// Is the users role in the available stats roles?
-			if ( is_array( $stats_roles ) && in_array( $user_role, $stats_roles, true ) ) {
+			// Is any of the user's roles in the available stats roles?
+			if ( is_array( $stats_roles ) && ! empty( array_intersect( $user->roles, $stats_roles ) ) ) {
 				$caps = array( 'read' );
 			}
 		}
@@ -188,9 +184,10 @@ class Main {
 		if ( ! self::should_track() ) {
 			return;
 		}
-		?>
-	<style>img#wpstats{display:none}</style>
-		<?php
+
+		wp_register_style( 'jetpack-stats', false, array(), Package_Version::PACKAGE_VERSION );
+		wp_enqueue_style( 'jetpack-stats' );
+		wp_add_inline_style( 'jetpack-stats', 'img#wpstats{display:none}' );
 	}
 
 	/**
@@ -252,13 +249,29 @@ class Main {
 		 */
 		$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
 
-		// Should we be counting views for this IP address?
-		$current_user_ip = ( new Visitor() )->get_ip( true );
-		if (
-			! empty( $excluded_ips )
-			&& in_array( $current_user_ip, $excluded_ips, true )
-		) {
-			return false;
+		/*
+		 * Visitor::get_ip() returns a normalized address, so normalize the configured list the
+		 * same way before comparing. Without this an entry written as `::ffff:203.0.113.5` or
+		 * with uppercase IPv6 hex would never match, and the site owner's traffic would be
+		 * counted with no indication why. Non-strings are dropped: they could never match the
+		 * string get_ip() returns under the strict comparison below.
+		 */
+		$excluded_ips = array_filter(
+			array_map( array( IP_Utils::class, 'clean_ip' ), array_filter( $excluded_ips, 'is_string' ) )
+		);
+
+		/*
+		 * Resolving the visitor address reads request headers and, on a site with brute force
+		 * protection configured, a site option, so only do it when the normalized list still
+		 * holds something to compare against. The filter is unset on almost every site, which
+		 * makes this the common path.
+		 */
+		if ( ! empty( $excluded_ips ) ) {
+			// Should we be counting views for this IP address?
+			$current_user_ip = ( new Visitor() )->get_ip( true );
+			if ( in_array( $current_user_ip, $excluded_ips, true ) ) {
+				return false;
+			}
 		}
 
 		return true;

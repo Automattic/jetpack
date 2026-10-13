@@ -1,0 +1,49 @@
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
+/**
+ * Internal dependencies
+ */
+import {
+	CHART_TYPE_ELEMENTS,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+
+/**
+ * How the selected metric is drawn. The shared chart-display list keeps every
+ * chart widget's dropdown identical and ties it to the toolkit's own union.
+ */
+export type VideoDetailViewsPerformanceChartType = ChartDisplayChartType;
+
+/**
+ * `post_id` (video scope) and report params reach the widget via WidgetRoot.
+ *
+ * @property chartType - How to draw the selected metric. Defaults to `bar`.
+ */
+export type VideoDetailViewsPerformanceAttributes = {
+	chartType?: VideoDetailViewsPerformanceChartType;
+};
+
+/**
+ * Series come from the `stats/video/{id}` `statType=all` daily history,
+ * bucketed client-side at the page's chart interval.
+ */
+export default {
+	attributes: [
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< VideoDetailViewsPerformanceAttributes >[],
+	example: {
+		attributes: {
+			chartType: 'bar',
+		},
+	},
+};

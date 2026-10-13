@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+AI Launchpad: Remove redundant workaround for a page loading edge case now fixed in bundled dependencies. No functional change.

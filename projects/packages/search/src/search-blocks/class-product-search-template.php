@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Theme-agnostic customization surface for the classic-theme product-search
  * template via post.php — the WooCommerce-product counterpart of

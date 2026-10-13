@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: The `ManageConnectionsModal` test breaks in React 19. Using `await jest.runAllTimersAsync()` instead of `jest.runAllTimers()` in the already-async `act()` call fixes this.
+
+

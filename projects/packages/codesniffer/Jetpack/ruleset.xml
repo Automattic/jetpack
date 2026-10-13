@@ -3,14 +3,7 @@
 	<description>Jetpack coding standards. Based on the WordPress coding standards, with some additions.</description>
 
 	<rule ref="PHPCompatibilityWP" />
-	<rule ref="WordPress">
-		<!-- Versions of WordPressCS before 3.4.1 pass the `$ver` argument of enqueue/register calls
-		     through `eval()`, allowing arbitrary code execution when scanning untrusted code
-		     (GHSA-3pwp-g2mj-5p3v). WordPressCS 3.4.1 is currently blocked by
-		     mediawiki/mediawiki-codesniffer pinning phpcsstandards/phpcsextra to 1.5.0.
-		     Remove this exclusion once WordPressCS >= 3.4.1 is installable. -->
-		<exclude name="WordPress.WP.EnqueuedResourceParameters" />
-	</rule>
+	<rule ref="WordPress" />
 	<rule ref="VariableAnalysis" />
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
@@ -89,7 +82,7 @@
 	<!-- Only include select VIP rules -->
 	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
 
-	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.0+. -->
+	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.4+. -->
 	<rule ref="Modernize.FunctionCalls.Dirname.Nested">
 		<severity>5</severity>
 	</rule>
@@ -131,7 +124,7 @@
 		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
-	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
+	<!-- Not useful until we can use PHP 8's named parameters. We're still stuck on 7.4. -->
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>

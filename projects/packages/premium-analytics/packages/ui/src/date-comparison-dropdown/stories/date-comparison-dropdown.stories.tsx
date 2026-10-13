@@ -2,8 +2,7 @@ import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { useState } from 'react';
 import { useComparisonDatePresets } from '../../use-comparison-date-presets';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
-import type { DateRange } from '../../date-range-popover';
-import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
+import type { DateRange, ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DateComparisonDropdown > = {
@@ -13,7 +12,8 @@ const meta: Meta< typeof DateComparisonDropdown > = {
 	parameters: {
 		docs: {
 			description: {
-				component: 'Comparison period select with a dynamic trigger label and preset options.',
+				component:
+					'Additive comparison control: `Compare +` with no comparison active, a trigger naming the period once one is chosen. Both open the same menu.',
 			},
 		},
 	},
@@ -71,9 +71,9 @@ export const Default: Story = {
 };
 
 /**
- * Comparison disabled — select shows "No comparison".
+ * No comparison active: the control reads `Compare +` and opens the same menu.
  */
-export const Disabled: Story = {
+export const NoComparison: Story = {
 	render: () => <DateComparisonDropdownWithState initialEnabled={ false } />,
 };
 
@@ -85,9 +85,8 @@ export const PreviousMonthSelected: Story = {
 };
 
 /**
- * With a visible label rendered by the select itself; the trigger shows only
- * the comparison range, without the "Compare to:" prefix.
+ * With a caller-supplied name, which becomes the trigger's tooltip.
  */
-export const WithVisibleLabel: Story = {
-	render: () => <DateComparisonDropdownWithState label="Compare to" />,
+export const WithCustomLabel: Story = {
+	render: () => <DateComparisonDropdownWithState label="Compare with" />,
 };

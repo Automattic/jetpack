@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon, dlocc
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.9
-Tested up to: 7.0
-Requires PHP: 7.2
-Stable tag: 4.6.2
+Requires at least: 7.0
+Tested up to: 7.1
+Requires PHP: 7.4
+Stable tag: 4.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,7 +26,7 @@ Increase your website performance and speed up your website with one-click optim
 Improving Core Web Vitals helps you rank higher on Google. A faster website also improves your SEO, helps you reduce your bounce rate and increase your ecommerce conversion rate.
 
 - Largest Contentful Paint (LCP): Measures loading performance. Improve your LCP and improve your website loading speed.
-- First Input Delay (FID): Measures interactivity. To improve user experience pages should have a low FID.
+- Interaction to Next Paint (INP): Measures responsiveness. To improve user experience pages should have a low INP.
 - Cumulative Layout Shift (CLS): Measures visual stability. Lowering your CLS helps improve your user experience.
 
 ### Performance Modules
@@ -35,7 +35,7 @@ Optimize your website with the same techniques used on the world's most successf
 
 Each technique that is used to increase website performance is packaged up as a module that you can activate and try out.
 
-Currently, the plugin has 6 performance modules available:
+Currently, the plugin has 8 performance modules available:
 
 1. *Optimize CSS Loading* generates Critical CSS for your homepage, posts and pages. This can allow your content to show up on the screen much faster, particularly for viewers using mobile devices.
 
@@ -57,6 +57,10 @@ Currently, the plugin has 6 performance modules available:
 
    Read more about minifying files at [web.dev](https://web.dev/minify-css/)
 
+7. *Optimize LCP Images* improves the Largest Contentful Paint (LCP) of your Cornerstone Pages by optimizing their key image, so your most important content shows up sooner.
+
+8. *Prerender Cornerstone Pages* loads your Cornerstone Pages in the background before visitors click a link to them, so your most important pages appear almost instantly.
+
 Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
 
 ### With 💚 by Jetpack
@@ -75,7 +79,7 @@ Jetpack Boost makes small changes to the way that data is sent from your WordPre
 
 Jetpack Boost includes a growing number of separate features which can be turned on individually to improve your site’s performance. These include:
 
-* **Optimize CSS Loading**: This feature determines the most important CSS that your site needs to display your site’s initial content as quickly as possible, and embeds it directly into your site header.
+* **Optimize CSS Loading**: This feature identifies the styles needed to display your site’s initial content quickly. See “Can I also defer non-essential CSS with Jetpack Boost?” below for how Critical CSS is applied.
 * **Page Cache**: This feature stores your website's pages as static HTML files, bypassing the need for dynamic generation. This means visitors receive pages faster, reducing wait times and improving overall site performance.
 * **Defer Non-Essential JavaScript**: This feature forces all of the JavaScript which is not deemed essential to displaying your site to load after your site’s main content has been loaded.
 * **Image CDN**: This feature automatically resizes images to a more appropriate size for your visitors' screens, converts them to modern image formats, and serves them from Jetpack's worldwide network of servers.
@@ -94,9 +98,11 @@ We recommend that you install Jetpack Boost, and try it for yourself. It include
 
 = Can I also defer non-essential CSS with Jetpack Boost? =
 
-Jetpack Boost automatically defers non-essential CSS if its “Optimize CSS Loading” feature is enabled.
+Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and usable Critical CSS is available for the page.
 
 The “Optimize CSS Loading” feature identifies the most important CSS rules your site needs to display your pages as quickly as possible (commonly called “Critical CSS”), and defers all other CSS rules from loading until your main content has loaded.
+
+Boost embeds Critical CSS in the page header after the page title. Generated CSS larger than 512 KiB is rejected with an error message, and any previous CSS for that page group is removed. Previously saved CSS above this limit is also not embedded. Without usable Critical CSS, this feature leaves stylesheets loading normally; other page groups can still be optimized.
 
 = What are Web Vitals? =
 
@@ -185,12 +191,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.3 - 2026-06-26
-#### Changed
-- Update dependencies.
-
+### 4.8.1 - 2026-10-08
 #### Fixed
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
+- Page Cache: Improve cache key handling and URL purges for unusual request URIs and parameters. Clear old cached pages once after updating.
 
 --------
 

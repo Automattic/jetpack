@@ -1,6 +1,8 @@
+/* eslint-disable react/jsx-no-bind */
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GlobalChartsProvider } from '../../../providers';
+import { GlobalChartsProvider, useGlobalChartsContext } from '../../../providers';
 import PieChart from '../pie-chart';
 
 describe( 'PieChart', () => {
@@ -121,18 +123,9 @@ describe( 'PieChart', () => {
 		test( 'hides labels when showLabels is false', () => {
 			renderWithTheme( { showLabels: false } );
 
-			// When showLabels is false, the chart should not display the data labels
-			// We filter out measurement elements by checking that text is not inside measurement element
-			const labelElements = screen.queryAllByText( ( content, element ) => {
-				// Check if this text element is not the measurement element
-				return (
-					( content === 'A' || content === 'B' ) &&
-					element?.id !== '__react_svg_text_measurement_id'
-				);
-			} );
-
-			// Labels should not be present in the rendered output (excluding measurement text)
-			expect( labelElements ).toHaveLength( 0 );
+			// A plain query, so this also fails if the measurement node stops being
+			// ignored — see tests/setup-text-measurement.js.
+			expect( screen.queryAllByText( /^[AB]$/ ) ).toHaveLength( 0 );
 		} );
 
 		test( 'shows labels when showLabels is explicitly true', () => {
@@ -153,6 +146,168 @@ describe( 'PieChart', () => {
 			// Should find label text using Testing Library queries
 			const labels = screen.getAllByText( /^[AB]$/ );
 			expect( labels.length ).toBeGreaterThan( 0 );
+		} );
+	} );
+
+	describe( 'Label Text Contrast', () => {
+		const contrastData = [
+			{ label: 'Light', value: 60, color: '#f5d76e' },
+			{ label: 'Dark', value: 40, color: '#1e3a8a' },
+		];
+
+		let injectedStyle: HTMLStyleElement | null = null;
+
+		afterEach( () => {
+			if ( injectedStyle ) {
+				document.head.removeChild( injectedStyle );
+				injectedStyle = null;
+			}
+		} );
+
+		test( 'uses dark label text on a light slice', () => {
+			renderWithTheme( { data: contrastData } );
+
+			const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+			expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( dark ).not.toHaveClass( 'pie-chart__label-text--on-light' );
+		} );
+
+		test( "keeps the inverse label color when a label plate is set on the chart's own class", () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.plated-pie { --a8c-charts-color-label-background: rgba(0, 0, 0, 0.75); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'plated-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( "compares against a label-inverse override set on the chart's own class", () => {
+			injectedStyle = document.createElement( 'style' );
+			// Black out-contrasts the dark label role on a light slice, where the default inverse would lose.
+			injectedStyle.textContent = '.overridden-pie { --a8c-charts-color-label-inverse: #000000; }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( {
+				data: [ { label: 'Light', value: 100, color: '#f5d76e' } ],
+				className: 'overridden-pie',
+			} );
+
+			const [ label ] = screen.getAllByTestId( 'pie-label' );
+			expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' );
+		} );
+
+		test( 'keeps the inverse label color when the plate uses color syntax d3 cannot parse', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.modern-plate-pie { --a8c-charts-color-label-background: rgb(0 0 0 / 50%); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'modern-plate-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'keeps the inverse label color when the label role is see-through', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.clear-label-pie { --a8c-charts-color-label: rgba(0, 0, 0, 0); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'clear-label-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'keeps one label color on every slice when both label roles are the same', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.single-label-pie { --a8c-charts-color-label: #ffffff; --a8c-charts-color-label-inverse: #ffffff; }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'single-label-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'never picks a see-through inverse role, falling back to white where the label role fails', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.clear-inverse-pie { --a8c-charts-color-label-inverse: rgba(255, 255, 255, 0); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'clear-inverse-pie' } );
+
+			const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+			expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( dark ).toHaveClass( 'pie-chart__label-text--white' );
+		} );
+
+		test( 'falls back to black or white on a slice where neither label role reaches AA', () => {
+			renderWithTheme( {
+				data: [
+					{ label: 'Mid-light', value: 50, color: '#516dec' },
+					{ label: 'Mid-dark', value: 50, color: '#4663ea' },
+				],
+			} );
+
+			const [ midLight, midDark ] = screen.getAllByTestId( 'pie-label' );
+			expect( midLight ).toHaveClass( 'pie-chart__label-text--black' );
+			expect( midDark ).toHaveClass( 'pie-chart__label-text--white' );
+		} );
+
+		test( 'keeps the inverse label color when the fill cannot be resolved', () => {
+			renderWithTheme( {
+				data: [ { label: 'Unresolved', value: 100, color: 'var(--not-set)' } ],
+			} );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		describe( 'after an invalid-to-valid data transition', () => {
+			test( "keeps the inverse label color when a plate is set on the chart's own class", () => {
+				injectedStyle = document.createElement( 'style' );
+				injectedStyle.textContent =
+					'.plated-late-pie { --a8c-charts-color-label-background: rgba(0, 0, 0, 0.75); }';
+				document.head.appendChild( injectedStyle );
+
+				const { rerender } = renderWithTheme( { data: [], className: 'plated-late-pie' } );
+
+				rerender(
+					<GlobalChartsProvider>
+						<PieChart { ...defaultProps } data={ contrastData } className="plated-late-pie" />
+					</GlobalChartsProvider>
+				);
+
+				screen
+					.getAllByTestId( 'pie-label' )
+					.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+			} );
+
+			test( 'resolves the label pointers once the chart mounts its own root element', () => {
+				const { rerender } = renderWithTheme( { data: [] } );
+
+				rerender(
+					<GlobalChartsProvider>
+						<PieChart { ...defaultProps } data={ contrastData } />
+					</GlobalChartsProvider>
+				);
+
+				const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+				expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+				expect( dark ).not.toHaveClass( 'pie-chart__label-text--on-light' );
+			} );
 		} );
 	} );
 
@@ -547,5 +702,298 @@ describe( 'PieChart', () => {
 			// Segment C should now show ~33% (25 out of remaining 75)
 			expect( screen.getByText( /33\.3/ ) ).toBeInTheDocument();
 		} );
+	} );
+
+	describe( 'Programmatic visibility (non-interactive legend)', () => {
+		const chartId = 'test-programmatic-hide-pie-chart';
+		const testData = [
+			{ label: 'Segment A', value: 50 },
+			{ label: 'Segment B', value: 50 },
+		];
+
+		const Harness = () => {
+			const { toggleSeriesVisibility } = useGlobalChartsContext();
+			return (
+				<>
+					<button onClick={ () => toggleSeriesVisibility( chartId, 'Segment A' ) }>
+						Hide Segment A
+					</button>
+					<button onClick={ () => toggleSeriesVisibility( chartId, 'Segment B' ) }>
+						Hide Segment B
+					</button>
+					<PieChart
+						data={ testData }
+						size={ 500 }
+						showLegend
+						legend={ { interactive: false } }
+						chartId={ chartId }
+					/>
+				</>
+			);
+		};
+
+		test( 'removes a segment hidden programmatically even though the legend is not clickable', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<Harness />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 2 );
+
+			await user.click( screen.getByRole( 'button', { name: 'Hide Segment A' } ) );
+
+			await waitFor( () => {
+				expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 1 );
+			} );
+
+			// The legend itself stays non-interactive (no toggle button for the segment).
+			expect( screen.queryAllByRole( 'button', { name: /Segment A: /i } ) ).toHaveLength( 0 );
+		} );
+
+		test( 'empty-state copy omits the click instruction when the legend is not interactive', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<Harness />
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'Hide Segment A' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Hide Segment B' } ) );
+
+			await waitFor( () => {
+				expect( screen.queryAllByTestId( 'pie-segment' ) ).toHaveLength( 0 );
+			} );
+
+			expect( screen.getByText( 'All segments are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Click legend items to show data/i ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Keyboard navigation', () => {
+		const data = [
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K' },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K' },
+		];
+
+		const expectRingOn = ( segment: HTMLElement ) =>
+			expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+				'd',
+				segment.getAttribute( 'd' )
+			);
+
+		test( 'arrow keys move the focused tooltip and highlight across segments', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+			const [ macos, linux ] = screen.getAllByTestId( 'pie-segment' );
+			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: 'Pie chart' } ) ).toHaveAttribute(
+				'tabindex',
+				'0'
+			);
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+				'MacOS'
+			);
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expectRingOn( macos );
+
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveTextContent(
+				'Linux'
+			);
+			expectRingOn( linux );
+		} );
+
+		test( 'announces and highlights a segment without a tooltip when withTooltips is false', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } /> );
+			const status = screen.getByRole( 'status' );
+			expect( status ).toBeEmptyDOMElement();
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 0 ] );
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			expect( status ).toHaveTextContent( 'MacOS: 30K' );
+		} );
+
+		test( 'leaves the announcement to the focused tooltip when withTooltips is true', async () => {
+			const user = userEvent.setup();
+			render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		} );
+
+		test.each( [
+			[ true, [ 'Linux: 22K' ] ],
+			[ false, [] ],
+		] )(
+			'hovering a segment ends the keyboard selection (withTooltips %p)',
+			async ( withTooltips, tooltips ) => {
+				const user = userEvent.setup();
+				render( <PieChart data={ data } withTooltips={ withTooltips } /> );
+
+				await user.tab();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'pie-selected-ring' ) ).toBeInTheDocument();
+
+				await user.hover( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+
+				expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.queryAllByRole( 'tooltip' ).map( tooltip => tooltip.textContent ) ).toEqual(
+					tooltips
+				);
+			}
+		);
+
+		test( 'keeps focus in the chart when tooltips are turned off under a keyboard selection', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveFocus();
+
+			rerender( <PieChart data={ data } withTooltips={ false } /> );
+
+			expect( screen.getByRole( 'application' ) ).toHaveFocus();
+			expectRingOn( screen.getAllByTestId( 'pie-segment' )[ 1 ] );
+		} );
+
+		test( 'keeps focus in the chart when an update removes the selected segment', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <PieChart data={ data } withTooltips /> );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveFocus();
+
+			rerender( <PieChart data={ data.slice( 0, 1 ) } withTooltips /> );
+
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+		} );
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'PieChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'places the box relative to the chart container, at the pointer plus the offsets', async () => {
+		mockRects();
+		const user = userEvent.setup();
+		render(
+			<GlobalChartsProvider>
+				<PieChart
+					data={ [
+						{ label: 'A', value: 60, valueDisplay: '60' },
+						{ label: 'B', value: 40, valueDisplay: '40' },
+					] }
+					width={ 400 }
+					height={ 300 }
+					withTooltips
+				/>
+			</GlobalChartsProvider>
+		);
+
+		await user.pointer( {
+			target: screen.getAllByTestId( 'pie-segment' )[ 0 ],
+			coords: { clientX: 150, clientY: 120 },
+		} );
+
+		// Pointer at (150, 120) is (50, 70) inside the container; the default
+		// -15px vertical offset makes that (50, 55), and the box adds 10px each way.
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(60px, 65px)',
+		} );
+	} );
+
+	test( 'moves the keyboard tooltip with the segment when the chart resizes', async () => {
+		const rects = mockRects();
+		const rectOf = rects.getMockImplementation();
+		let svgShift = 0;
+		// The plot is centered in the 400x300 container, so its offset follows its committed size.
+		rects.mockImplementation( function ( this: Element ) {
+			const rect = rectOf.call( this );
+			if ( ! ( this instanceof SVGSVGElement && this.hasAttribute( 'viewBox' ) ) ) {
+				return rect;
+			}
+			const size = Number( this.getAttribute( 'width' ) );
+			return {
+				...rect,
+				left: 100 + ( 400 - size ) / 2 + svgShift,
+				top: 50 + ( 300 - size ) / 2 + svgShift,
+			};
+		} );
+		const user = userEvent.setup();
+		const data = [
+			{ label: 'A', value: 60, valueDisplay: '60' },
+			{ label: 'B', value: 40, valueDisplay: '40' },
+		];
+		const renderAtSize = ( size: number ) => (
+			<GlobalChartsProvider>
+				<PieChart data={ data } width={ 400 } height={ 300 } size={ size } withTooltips />
+			</GlobalChartsProvider>
+		);
+		const selectFirstSegment = async () => {
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+			return screen.getByTestId( 'bounded-tooltip' ).style.transform;
+		};
+
+		const translation = ( transform: string ) => transform.match( /-?[\d.]+/g )?.map( Number );
+
+		const view = render( renderAtSize( 100 ) );
+		const expected = await selectFirstSegment();
+		view.unmount();
+
+		svgShift = 7;
+		const { unmount } = render( renderAtSize( 100 ) );
+		expect( translation( await selectFirstSegment() ) ).toEqual(
+			translation( expected )?.map( value => value + 7 )
+		);
+		unmount();
+		svgShift = 0;
+
+		const { rerender } = render( renderAtSize( 200 ) );
+		await expect( selectFirstSegment() ).resolves.not.toBe( expected );
+		rerender( renderAtSize( 100 ) );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveFocus();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { transform: expected } );
 	} );
 } );

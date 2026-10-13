@@ -5,10 +5,12 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use WP_Error;
 
 /**
@@ -17,11 +19,197 @@ use WP_Error;
 class Jetpack_Plan_Test extends TestCase {
 
 	/**
+	 * Blog ID the connection state and the cached site record are keyed on.
+	 */
+	const TEST_BLOG_ID = 1234;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		delete_option( 'jetpack_active_plan' );
+		$this->reset_atomic_feature_cache();
+	}
+
+	/**
+	 * Drop the per-request feature cache, which outlives the constants each test sets.
+	 */
+	private function reset_atomic_feature_cache() {
+		$cache = new ReflectionProperty( Jetpack_Plan::class, 'atomic_site_specific_features' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, null );
+		$GLOBALS['wpcom_test_site_purchases'] = array( (object) array( 'product_slug' => 'personal-bundle' ) );
+	}
+
+	/**
+	 * Returning the environment to its initial state. This class does not roll the database back
+	 * between tests, so connection state a test writes would otherwise reach the next one.
+	 */
+	public function tearDown(): void {
+		Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		delete_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . self::TEST_BLOG_ID );
+		Constants::clear_constants();
+
+		parent::tearDown();
+	}
+
+	/**
+	 * Reset the Simple-site feature cache and recorded billing calls.
+	 */
+	private function reset_simple_features_cache() {
+		$property = new \ReflectionProperty( Jetpack_Plan::class, 'simple_site_specific_features' );
+		// Required to write a private static on PHP < 8.1 (a no-op from 8.1 on).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, array() );
+		$GLOBALS['jetpack_test_store_product_list_calls'] = array();
+	}
+
+	/**
+	 * Test that active-only requests skip the upgradeable list.
+	 */
+	public function test_simple_site_features_can_skip_the_upgradeable_list() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->reset_simple_features_cache();
+		$full = Jetpack_Plan::get_simple_site_specific_features();
+		$this->assertSame( array( true ), $GLOBALS['jetpack_test_store_product_list_calls'], 'Precondition: the default asks for the upgradeable list.' );
+		$this->assertArrayHasKey( 'available', $full );
+
+		$this->reset_simple_features_cache();
+		$active_only = Jetpack_Plan::get_simple_site_specific_features( false );
+
+		$this->assertSame( array( false ), $GLOBALS['jetpack_test_store_product_list_calls'], 'The upgradeable list must not be requested.' );
+		$this->assertArrayHasKey( 'active', $active_only );
+		$this->assertArrayNotHasKey( 'available', $active_only );
+	}
+
+	/**
+	 * Test that an active-only request reuses a cached full result.
+	 */
+	public function test_an_active_only_request_reuses_a_full_result() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->reset_simple_features_cache();
+
+		Jetpack_Plan::get_simple_site_specific_features();
+		Jetpack_Plan::get_simple_site_specific_features( false );
+
+		$this->assertSame( array( true ), $GLOBALS['jetpack_test_store_product_list_calls'], 'The second call should be served from the first.' );
+	}
+
+	/**
+	 * Test that a full request does not reuse a cached active-only result.
+	 */
+	public function test_a_full_request_is_not_answered_by_an_active_only_result() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->reset_simple_features_cache();
+
+		Jetpack_Plan::get_simple_site_specific_features( false );
+		$full = Jetpack_Plan::get_simple_site_specific_features();
+
+		$this->assertSame( array( false, true ), $GLOBALS['jetpack_test_store_product_list_calls'] );
+		$this->assertArrayHasKey( 'available', $full );
+	}
+
+	/**
+	 * A refresh reads WordPress.com directly, so the shared site record cache can still hold an
+	 * older record. A cached read stores the plan again, so leaving that copy in place would
+	 * revert the plan this fetch just stored — the case a plan purchase hits.
+	 */
+	public function test_a_refresh_drops_the_cached_site_record() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', self::TEST_BLOG_ID );
+		( new Manager() )->reset_connection_status();
+
+		// Signing needs an absolute URL, so the API base has to resolve.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		$transient_key = Manager::SITE_DATA_TRANSIENT_PREFIX . self::TEST_BLOG_ID;
+		set_transient( $transient_key, array( 'body' => wp_json_encode( array( 'plan' => self::get_free_plan() ), JSON_UNESCAPED_SLASHES ) ) );
+
+		$serve_personal_plan = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'plan' => self::get_personal_plan() ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+
+		add_filter( 'pre_http_request', $serve_personal_plan );
+		$updated = Jetpack_Plan::refresh_from_wpcom();
+		remove_filter( 'pre_http_request', $serve_personal_plan );
+
+		$this->assertTrue( $updated );
+		$this->assertFalse( get_transient( $transient_key ), 'A stale record would overwrite the plan this refresh stored.' );
+	}
+
+	/**
+	 * A site with no WordPress.com feature registry has nothing more current than its cached
+	 * plan, and the caller has to be told so rather than handed an empty feature list.
+	 */
+	public function test_wpcom_site_specific_features_are_absent_without_a_registry() {
+		$this->assertNull( Jetpack_Plan::get_wpcom_site_specific_features() );
+	}
+
+	/**
+	 * An Atomic site carries the registry, so its features are read from the purchases it holds
+	 * rather than from a plan that may predate the last purchase.
+	 */
+	public function test_wpcom_site_specific_features_come_from_the_registry_on_atomic() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+
+		$this->assertSame(
+			array(
+				'active'    => array( 'stats-paid', 'support' ),
+				'available' => array(),
+			),
+			Jetpack_Plan::get_wpcom_site_specific_features()
+		);
+	}
+
+	/**
+	 * Atomic persistent data that has not synced yet reads exactly like a site that bought
+	 * nothing, and answering would gate a paid site. Only WordPress.com can tell the two apart.
+	 */
+	public function test_wpcom_site_specific_features_are_absent_when_the_registry_has_no_purchases() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$GLOBALS['wpcom_test_site_purchases'] = array();
+
+		$this->assertNull( Jetpack_Plan::get_wpcom_site_specific_features() );
+	}
+
+	/**
+	 * The Jetpack plugin hooks this straight onto `jetpack_heartbeat`, and WordPress hands an
+	 * action callback an empty string when the hook fires with no arguments. Taking that as the
+	 * request arguments fatals the daily refresh on every site.
+	 */
+	public function test_a_refresh_survives_being_fired_as_an_action() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', self::TEST_BLOG_ID );
+		( new Manager() )->reset_connection_status();
+
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		$serve_personal_plan = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'plan' => self::get_personal_plan() ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+
+		add_filter( 'pre_http_request', $serve_personal_plan );
+		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
+		do_action( 'jetpack_heartbeat' );
+		remove_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
+		remove_filter( 'pre_http_request', $serve_personal_plan );
+
+		$this->assertSame( 'jetpack_personal', Jetpack_Plan::get()['product_slug'] );
 	}
 
 	public function test_update_from_sites_response_failure_to_update() {
@@ -34,6 +222,32 @@ class Jetpack_Plan_Test extends TestCase {
 		Jetpack_Options::update_raw_option( 'jetpack_active_plan', $this->get_personal_plan(), true );
 
 		$this->assertTrue( Jetpack_Plan::update_from_sites_response( $this->get_response_personal_plan() ) );
+	}
+
+	/**
+	 * A record that matches what is already stored must not touch the options. `update_option()`
+	 * reports false for an unchanged value, which previously read as a failure and triggered a
+	 * delete plus a rewrite of an autoloaded option on every fetch.
+	 */
+	public function test_an_unchanged_record_does_not_rewrite_the_options() {
+		$record = array(
+			'plan'     => array( 'product_slug' => 'jetpack_personal' ),
+			'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+		);
+
+		Jetpack_Plan::update_from_site_record( $record );
+
+		$deleted = array();
+		add_action(
+			'delete_option',
+			function ( $option ) use ( &$deleted ) {
+				$deleted[] = $option;
+			}
+		);
+
+		Jetpack_Plan::update_from_site_record( $record );
+
+		$this->assertSame( array(), $deleted );
 	}
 
 	/**

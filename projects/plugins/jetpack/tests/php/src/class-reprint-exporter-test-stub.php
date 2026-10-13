@@ -2,8 +2,8 @@
 /**
  * Test-only subclass of Reprint_Exporter that overrides the protected seams
  * (HMAC verification, export streaming, termination) so the request handler can
- * be exercised without the reprint-exporter vendor classes, a real export, or
- * actually terminating the PHPUnit process.
+ * be exercised without the reprint-server vendor classes or a real export, and
+ * so tests can observe which of them were reached.
  *
  * @package automattic/jetpack
  */
@@ -38,6 +38,13 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 	public $served = false;
 
 	/**
+	 * Exception thrown by serve_export(), if any.
+	 *
+	 * @var \InvalidArgumentException|null
+	 */
+	public $serve_error = null;
+
+	/**
 	 * Whether terminate() was reached.
 	 *
 	 * @var bool
@@ -64,9 +71,15 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 
 	/**
 	 * Records that the export would have been served, without exporting.
+	 *
+	 * @throws \InvalidArgumentException When configured to simulate invalid export parameters.
 	 */
 	protected function serve_export() {
 		$this->served = true;
+
+		if ( null !== $this->serve_error ) {
+			throw $this->serve_error;
+		}
 	}
 
 	/**
@@ -82,16 +95,16 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 	}
 
 	/**
-	 * Records termination and throws instead of exit()ing, mimicking how a
-	 * real exit() would unwind the call stack.
+	 * Records that the request terminated, then exits for real.
+	 *
+	 * The test bootstrap redefines exit() to throw instead of stopping PHP, so
+	 * this only has to note that termination happened.
 	 *
 	 * @return never
-	 * @throws ExitException Always, to halt handler execution like exit().
+	 * @throws ExitException Always, from the redefined exit().
 	 */
 	protected function terminate() {
 		$this->terminated = true;
-		// ExitException stands in for exit(); its constructor mirrors the
-		// signature the patchwork exit-redefinition uses ( $func, $arg ).
-		throw new ExitException( 'exit', null );
+		parent::terminate();
 	}
 }

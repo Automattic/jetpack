@@ -158,6 +158,17 @@ class Newspack_Blocks_API {
 	}
 
 	/**
+	 * Get tag labels for the REST API.
+	 *
+	 * @param  array $object_info The object info.
+	 * @return array|bool Tag labels, or false if none.
+	 */
+	public static function newspack_blocks_get_tag_labels( $object_info ) {
+		$tag_labels = Newspack_Blocks::get_tag_labels( $object_info['id'] );
+		return ! empty( $tag_labels ) ? array_values( $tag_labels ) : false;
+	}
+
+	/**
 	 * Pass whether there is a custom excerpt to the editor.
 	 *
 	 * @param array $object_info The object info.
@@ -269,6 +280,7 @@ class Newspack_Blocks_API {
 				'newspack_post_sponsors'            => self::newspack_blocks_sponsor_info( $data ),
 				'newspack_sponsors_show_author'     => Newspack_Blocks::newspack_display_sponsors_and_authors( $sponsors ),
 				'newspack_sponsors_show_categories' => Newspack_Blocks::newspack_display_sponsors_and_categories( $sponsors ),
+				'newspack_tag_labels'               => self::newspack_blocks_get_tag_labels( $data ),
 				'newspack_post_avatars'             => \newspack_blocks_format_avatars( $author_info ),
 				'newspack_post_byline'              => \newspack_blocks_format_byline( $author_info ),
 				'post_status'                       => $post->post_status,

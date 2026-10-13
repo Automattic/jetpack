@@ -24,7 +24,6 @@ export default class ErrorNoticeCycleConnection extends Component {
 				showDismiss={ false }
 				text={ this.props.text }
 				status={ 'is-error' }
-				icon={ 'link-break' }
 				display={ this.props.display }
 			>
 				<NoticeActionReconnect

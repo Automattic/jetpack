@@ -40,7 +40,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 			return true;
 		}
 
-		// @todo Drop is_callable check once Simple gets the SimplePie update that came with WordPress 6.9.
+		// @todo Drop is_callable check once WordPress.com Simple gets the SimplePie update that came with WordPress 6.9.
 		if ( is_callable( array( $file, 'get_body_content' ) ) ) {
 			$feed_dom = $this->safely_load_xml( $file->get_body_content() );
 		} else {

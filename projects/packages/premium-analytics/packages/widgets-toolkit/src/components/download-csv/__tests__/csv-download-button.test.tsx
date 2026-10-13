@@ -1,53 +1,65 @@
 /**
  * External dependencies
  */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render as baseRender, screen, waitFor } from '@testing-library/react';
+import { RegistryProvider } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { createNoticesRegistry } from '../../../../../../tests/js/notice-test-utils';
 import { CsvDownloadButton } from '../csv-download-button';
+import type { ReactElement } from 'react';
 
-const mockCreateErrorNotice = jest.fn();
-const mockDispatch = jest.fn( () => ( {
-	createErrorNotice: mockCreateErrorNotice,
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() =>
+		jest.requireActual( '../../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
 
-// Override `useRegistry` only, falling through to the real module for everything else:
-// the component's import graph now reaches other consumers of `@wordpress/data`
-// (rich-text's store calls `combineReducers` at import time), which a `useRegistry`-only
-// mock breaks. The fall-through has to resolve lazily — calling `requireActual` in the
-// factory body re-enters `@wordpress/data` while it is still initialising.
-jest.mock(
-	'@wordpress/data',
-	() =>
-		new Proxy(
-			{ useRegistry: () => ( { dispatch: mockDispatch } ) },
-			{
-				get: ( overrides, prop ) =>
-					prop in overrides
-						? overrides[ prop as keyof typeof overrides ]
-						: jest.requireActual( '@wordpress/data' )[ prop ],
-			}
-		)
-);
+const { registry, createErrorNotice } = createNoticesRegistry();
 
 describe( 'CsvDownloadButton', () => {
+	function render( ui: ReactElement ) {
+		return baseRender( <RegistryProvider value={ registry }>{ ui }</RegistryProvider> );
+	}
+
 	beforeEach( () => {
+		jest.useFakeTimers();
 		jest.clearAllMocks();
 	} );
 
-	it( 'supports a solid page action without an icon', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'renders the widget footer action as an icon named by its label', () => {
+		render( <CsvDownloadButton onDownload={ jest.fn() } /> );
+
+		const button = screen.getByRole( 'button', { name: 'Download CSV' } );
+		expect( button ).toHaveTextContent( '' );
+		// The decorative SVG is intentionally hidden from the accessibility tree.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( button.querySelector( 'svg' ) ).not.toBeNull();
+	} );
+
+	it( 'supports a solid page action with a visible label and no icon', () => {
 		render(
 			<CsvDownloadButton
 				onDownload={ jest.fn() }
 				label="Download"
 				variant="solid"
 				showIcon={ false }
+				showLabel
 			/>
 		);
 
 		const button = screen.getByRole( 'button', { name: 'Download' } );
 		expect( button ).toHaveClass( /is-solid/ );
+		expect( button ).toHaveTextContent( 'Download' );
 		// The decorative SVG is intentionally hidden from the accessibility tree.
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( button.querySelector( 'svg' ) ).toBeNull();
@@ -89,13 +101,33 @@ describe( 'CsvDownloadButton', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 
 		await waitFor( () =>
-			expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
+			expect( createErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
 				type: 'snackbar',
 				explicitDismiss: true,
 			} )
 		);
-		expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
 		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upstream API unavailable.' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'a plain-object API error',
+			{ code: 'forbidden', message: 'Sorry, you are not allowed.' },
+			'Sorry, you are not allowed.',
+		],
+		[ 'an error without a message', { code: 'unknown' }, 'Could not download report.' ],
+	] )( 'shows %s in the snackbar', async ( _case, error, message ) => {
+		render( <CsvDownloadButton onDownload={ () => Promise.reject( error ) } /> );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+
+		await waitFor( () =>
+			expect( createErrorNotice ).toHaveBeenCalledWith( message, {
+				type: 'snackbar',
+				explicitDismiss: true,
+			} )
+		);
 	} );
 } );

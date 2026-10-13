@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { GlobalChartsProvider } from '../../../providers/chart-context/global-charts-provider';
+import { CHART_SCOPE_CLASS } from '../../../styles/chart-scope-class';
 import { TrendIndicator } from '../trend-indicator';
 
 describe( 'TrendIndicator', () => {
@@ -74,8 +76,27 @@ describe( 'TrendIndicator', () => {
 			<TrendIndicator direction="up" value="+10%" style={ { fontSize: '2rem' } } />
 		);
 
+		// Note getComputedStyle converts lengths to px.
 		// eslint-disable-next-line testing-library/no-node-access
-		expect( container.firstChild ).toHaveStyle( { fontSize: '2rem' } );
+		expect( container.firstChild ).toHaveStyle( { fontSize: '32px' } );
+	} );
+
+	describe( 'chart scope class', () => {
+		it( 'carries the scope class when rendered with no provider above it', () => {
+			render( <TrendIndicator direction="up" value="+10%" /> );
+
+			expect( screen.getByLabelText( 'Increase: +10%' ) ).toHaveClass( CHART_SCOPE_CLASS );
+		} );
+
+		it( 'does not carry the scope class when rendered inside a GlobalChartsProvider', () => {
+			render(
+				<GlobalChartsProvider>
+					<TrendIndicator direction="up" value="+10%" />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByLabelText( 'Increase: +10%' ) ).not.toHaveClass( CHART_SCOPE_CLASS );
+		} );
 	} );
 
 	describe( 'accessibility', () => {

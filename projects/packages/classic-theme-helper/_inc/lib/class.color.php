@@ -382,7 +382,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * From a color code to a string to be used in CSS declaration.
 		 *
 		 * @param string $type  Color code type.
-		 * @param int    $alpha Transparency.
+		 * @param float  $alpha Transparency, from 0 to 1.
 		 *
 		 * @return string
 		 */

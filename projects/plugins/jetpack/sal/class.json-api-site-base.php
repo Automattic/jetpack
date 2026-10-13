@@ -1520,6 +1520,51 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the DIFM Lite site options exposed to the frontend while a build is in progress.
+	 *
+	 * Returns null unless the site has an active DIFM Lite build and the code is
+	 * running on WordPress.com, where the DIFM Lite library exists.
+	 *
+	 * @return array|null
+	 */
+	public function get_difm_lite_site_options() {
+		if ( ! $this->is_difm_lite_in_progress() ) {
+			return null;
+		}
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM || ! function_exists( 'require_lib' ) ) {
+			return null;
+		}
+		require_lib( 'difm-lite' );
+		if ( ! class_exists( '\DIFM_Lite_Options' ) ) {
+			// Fail closed if the library did not define the class; this method
+			// documents null for every path where the options are unavailable.
+			return null;
+		}
+		// The submission state is canonical on the purchase blog. This site may be
+		// the stickered staging build target, whose own options blob is empty, so
+		// resolve to the purchase blog before reading — otherwise a post-submit
+		// staging target reports itself as pre-submit.
+		//
+		// resolve_purchase_site_id() ships in the wpcom DIFM Lite site-role
+		// pointers change. This Jetpack code can deploy before that lands, so
+		// fall back to the current blog when it is unavailable — no retargeted
+		// builds can exist until that change is live, so the current blog is the
+		// purchase blog in that window.
+		$purchase_blog_id = $this->blog_id;
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- wpcom-only class, guarded above.
+		if ( method_exists( '\DIFM_Lite_Options', 'resolve_purchase_site_id' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+			$purchase_blog_id = \DIFM_Lite_Options::resolve_purchase_site_id( $this->blog_id );
+		}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+		$difm_lite_options = new \DIFM_Lite_Options( $purchase_blog_id );
+		return array(
+			// @phan-suppress-next-line PhanUndeclaredClassProperty -- wpcom-only class, guarded above.
+			'is_website_content_submitted' => (bool) $difm_lite_options->is_website_content_submitted,
+		);
+	}
+
+	/**
 	 * Check if the site has the gating-business-q1 blog sticker.
 	 *
 	 * @return bool
@@ -1532,6 +1577,19 @@ abstract class SAL_Site {
 			return wpcomsh_is_site_sticker_active( 'gating-business-q1' );
 		}
 		return false;
+	}
+
+	/**
+	 * Whether the site is still on the pre-2026 feature gating.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy_gating_site() {
+		if ( ! method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			return false;
+		}
+
+		return (bool) WPCOM_Features::is_legacy_gating_site( $this->blog_id );
 	}
 
 	/**
@@ -1586,28 +1644,16 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Whether the AI Launchpad is enabled for this site, for the requesting user.
-	 *
-	 * The launchpad-personalization assignment is user-scoped: every site of an
-	 * ai_launchpad user gets the AI Launchpad, however the site was created. Mirrors
-	 * AI_Launchpad::is_enabled_for_site() in jetpack-mu-wpcom, so wp-admin and the
-	 * Calypso-facing payload agree. Like the capabilities in this payload, the value
-	 * is relative to the current user.
+	 * Whether the AI Launchpad is enabled for this site. Mirrors AI_Launchpad::is_enabled_for_site() in jetpack-mu-wpcom.
 	 *
 	 * @return bool
 	 */
 	public function is_ai_launchpad_enabled() {
-		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
-			return true;
-		}
-
-		return class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment' )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Lives in jetpack-mu-wpcom, outside this plugin's dependency graph; the class_exists guard above covers contexts where it isn't loaded.
-			&& 'ai_launchpad' === \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && ! $this->is_ai_launchpad_no_guidance();
 	}
 
 	/**
-	 * Whether the AI Launchpad was dismissed, reverting the site to the regular launchpad.
+	 * Whether the AI Launchpad was dismissed (skipped), which leaves the site with no setup guidance.
 	 *
 	 * @return bool
 	 */
@@ -1622,6 +1668,20 @@ abstract class SAL_Site {
 	 */
 	public function is_ai_launchpad_completed() {
 		return (bool) get_option( 'wpcom_ai_launchpad_completed' );
+	}
+
+	/**
+	 * Whether the site gets no setup guidance: no My Home, Site Setup, or launchpad. Mirrors
+	 * wpcom_launchpad_is_no_guidance() in jetpack-mu-wpcom, which also counts a skipped AI Launchpad.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_no_guidance() {
+		if ( get_option( 'wpcom_ai_launchpad_no_guidance' ) ) {
+			return true;
+		}
+
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
 	}
 
 	/**
@@ -1818,6 +1878,16 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the state of any block on the site's outgoing email.
+	 *
+	 * @return array|null `status` (`blocked` or `at_risk`), `reason` and `expires_on`,
+	 *                    or null if the site has never been blocked.
+	 */
+	public function get_atomic_email_block() {
+		return null;
+	}
+
+	/**
 	 * Get Jetpack recovery mode status.
 	 *
 	 * @return array|null
@@ -1825,5 +1895,15 @@ abstract class SAL_Site {
 	public function get_jetpack_recovery_mode_status() {
 		$status = get_option( 'jetpack_recovery_mode_status' );
 		return is_array( $status ) ? $status : null;
+	}
+
+	/**
+	 * Whether WordPress.com accounts must have two-step authentication to log in through SSO.
+	 *
+	 * @return bool
+	 */
+	public function get_jetpack_sso_require_two_step() {
+		/** This filter is documented in projects/packages/connection/src/sso/class-helpers.php */
+		return (bool) apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step', false ) );
 	}
 }

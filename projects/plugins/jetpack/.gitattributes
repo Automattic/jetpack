@@ -2,6 +2,7 @@
 # Remember to end all directories with `/**` to properly tag every file.
 /_inc/blocks/**                                          production-include
 /_inc/build/**                                           production-include
+/build/**                                                production-include
 /css/**                                                  production-include
 /jetpack_vendor/**                                       production-include
 /modules/**/*-rtl.css                                    production-include
@@ -18,14 +19,7 @@
 /vendor/nojimage/**                                      production-include
 /vendor/scssphp/**                                       production-include
 /vendor/wikimedia/aho-corasick/**                        production-include
-/vendor/wp-php-toolkit/bytestream/**                     production-include
-/vendor/wp-php-toolkit/data-liberation/**                production-include
-/vendor/wp-php-toolkit/encoding/**                       production-include
-/vendor/wp-php-toolkit/filesystem/**                     production-include
-/vendor/wp-php-toolkit/html/**                           production-include
-/vendor/wp-php-toolkit/http-client/**                    production-include
-/vendor/wp-php-toolkit/reprint-exporter/**               production-include
-/vendor/wp-php-toolkit/xml/**                            production-include
+/vendor/wp-php-toolkit/reprint-server/**                 production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # (see also entries in the monorepo root .gitattributes)
@@ -38,7 +32,12 @@
 /_inc/build/*.js.map                                     production-exclude
 /_inc/build/maps/**                                      production-exclude
 /_inc/client/**                                          production-exclude
+/_inc/shared/**                                          production-exclude
+/build/**/*.map                                          production-exclude
+/routes/**                                               production-exclude
+/packages/**                                             production-exclude
 /_inc/content-guidelines-ai/**                           production-exclude
+/_inc/site-switcher.jsx                                  production-exclude
 /css/*.css.map                                           production-exclude
 /css/*.css.min.map                                       production-exclude
 /extensions/**/*.jpg                                     production-exclude
@@ -56,6 +55,7 @@
 /modules/**/readme.md                                    production-exclude
 /modules/**/test/**                                      production-exclude
 /modules/subscriptions/newsletter-widget/src/**          production-exclude
+/modules/subscriptions/email-design-editor/src/**        production-exclude
 /modules/widgets/follow-button.php                       production-exclude
 /modules/widget-visibility/editor/**                     production-exclude
 /readme.md                                               production-exclude
@@ -63,19 +63,3 @@
 /to-test.md                                              production-exclude
 /tools/**                                                production-exclude
 /wp-cli-templates/**                                     production-exclude
-
-# Cruft from poorly-cleaned wp-php-toolkit vendor packages (reprint exporter).
-/vendor/wp-php-toolkit/*/Tests/**                        production-exclude
-/vendor/wp-php-toolkit/*/*.sh                            production-exclude
-/vendor/wp-php-toolkit/*/bin/**                          production-exclude
-/vendor/wp-php-toolkit/*/**/phpstan.neon                 production-exclude
-/vendor/wp-php-toolkit/*/**/phpunit.xml                  production-exclude
-/vendor/wp-php-toolkit/*/**/tests/**                     production-exclude
-
-# rowbot (URL/IDNA parser) + brick/math + psr/log add ~1.25 MB but are only
-# reached through data-liberation's URL rewriting, which the Reprint export path
-# (raw DB dump + file tree) never invokes. Also removed from the class map via
-# composer.json's exclude-from-classmap, so the autoloader never references them.
-/vendor/wp-php-toolkit/data-liberation/vendor-patched/rowbot/**   production-exclude
-/vendor/wp-php-toolkit/data-liberation/vendor-patched/brick/**    production-exclude
-/vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/**  production-exclude

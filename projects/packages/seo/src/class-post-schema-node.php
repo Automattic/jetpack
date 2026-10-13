@@ -119,6 +119,11 @@ class Post_Schema_Node {
 			return null;
 		}
 
+		// render_block() skips the `the_content` chain, so the paywall never sees this text.
+		if ( Content_Gate::is_gated( $post ) ) {
+			return null;
+		}
+
 		$items = array();
 		foreach ( parse_blocks( $post->post_content ) as $block ) {
 			if ( 'core/details' !== ( $block['blockName'] ?? '' ) ) {

@@ -1,0 +1,28 @@
+// The plain form inside stays unseen until the script mounts the app or
+// leaves it in place, so the swap does not flash. A noscript style reveals it.
+.jetpack-comments:not(.is-mounted):not(.is-plain) {
+	visibility: hidden;
+}
+
+.jetpack-comments.is-mounted {
+	--jetpack-comments-pad: 1em;
+	// The avatar's, which the submit's height matches.
+	--jetpack-comments-avatar-size: 40px;
+}
+
+// One box around the textarea and the submit row, in the post's own colours.
+// Nested to outrank a block theme's rules.
+.jetpack-comments .jetpack-comments__box {
+	position: relative;
+	border: 2px solid currentColor;
+	overflow-anchor: none;
+}
+
+.jetpack-comments__visually-hidden {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}

@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the unused Publicize stats data layer and localize the Shares widget's generic service labels.

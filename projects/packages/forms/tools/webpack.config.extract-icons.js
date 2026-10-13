@@ -23,8 +23,12 @@ export const iconPipelineConfig = {
 	formsRoot: path.join( __dirname, '..' ),
 	blocksDir: path.join( __dirname, '..', 'src', 'blocks' ),
 	blockDirPattern: 'field-*',
-	iconFilenames: [ 'icon.jsx', 'icon.tsx', 'icon.js' ],
+	// A block ships a base `icon.*` plus, optionally, state variants named
+	// `icon-<variant>.*` (e.g. `icon-unchecked.jsx`). Each is extracted to a
+	// matching `.svg` and rasterized to `<block-dir><-variant>@2x.png`.
+	iconFilenames: [ 'icon.jsx', 'icon.tsx', 'icon.js', 'icon-*.jsx', 'icon-*.tsx', 'icon-*.js' ],
 	svgFilename: 'icon.svg',
+	svgPattern: 'icon*.svg',
 	rasterOutputDir: path.join( __dirname, '..', 'src', 'contact-form', 'images', 'field-icons' ),
 	rasterSuffix: '@2x',
 	fileIconsDir: path.join( __dirname, '..', 'src', 'contact-form', 'images', 'file-icons' ),

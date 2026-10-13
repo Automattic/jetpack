@@ -84,7 +84,7 @@ describe( 'SuggestAllButton', () => {
 		expect( screen.getByRole( 'button', { name: 'Improve guidelines' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides itself while the empty-state banner is still on screen', async () => {
+	it( 'hides itself while the welcome banner is still on screen', async () => {
 		// Banner present (not dismissed) and the site has the feature: the banner
 		// owns the CTA, so this button is hidden rather than duplicated.
 		setup( { bannerDismissed: false, hasFeature: true } );

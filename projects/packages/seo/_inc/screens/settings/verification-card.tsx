@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl } from '@wordpress/components';
+import { TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
@@ -14,6 +14,13 @@ import type { FC } from 'react';
 
 interface Props {
 	value: SettingsResponse[ 'verification' ];
+	active: boolean;
+	/**
+	 * Switch the verification-tools module. Omitted where the site can't switch
+	 * Jetpack modules (WordPress.com Simple), which hides the control rather than
+	 * offering one the server would refuse.
+	 */
+	onToggle?: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
@@ -32,11 +39,10 @@ const description = __(
 // brand labels live in `data/verification-services` (single source of truth).
 //
 // Each hint names where to fetch the tag and says both forms are accepted. This
-// page saves through `/jetpack/v4/settings`, which validates the value
-// (`validate_verification_service()`) and stores it; the code is unwrapped from a
-// pasted tag on the way in (`class.jetpack-core-api-module-endpoints.php`) and
-// again at render (`jetpack_verification_print_meta()`). Both unwrappers expect
-// the `<meta name="…" content="…" />` shape the services actually emit.
+// page saves through `/wp/v2/settings`, and the code is unwrapped from a pasted
+// tag on the way in (`Dashboard_Data::sanitize_verification_codes()`) and again
+// at render (`jetpack_verification_print_meta()`). Both unwrappers expect the
+// `<meta name="…" content="…" />` shape the services actually emit.
 // Deliberately not repeating each service's own name for the tag ("HTML tag",
 // "HTML Meta Tag", …): those are third-party UI labels that drift out of date.
 //
@@ -63,6 +69,8 @@ const HINTS: Record< Exclude< VerificationKey, 'google' >, string > = {
 
 const VerificationCard: FC< Props > = ( {
 	value,
+	active,
+	onToggle,
 	onChange,
 	onCommit,
 	disabled,
@@ -70,11 +78,13 @@ const VerificationCard: FC< Props > = ( {
 	onOpenChange,
 } ) => {
 	const verifiedCount = VERIFICATION_SERVICES.filter( ( { key } ) => !! value[ key ] ).length;
+	const controlsDisabled = disabled || ! active;
 
 	// All five services are optional and almost nobody verifies with more than
 	// one, so a single verified service counts as done rather than a fraction of
 	// five (JETPACK-2051). This module therefore never reports 'in-progress'.
-	const verificationStatus: SettingStatus = verifiedCount > 0 ? 'complete' : 'not-started';
+	const verificationStatus: SettingStatus =
+		active && verifiedCount > 0 ? 'complete' : 'not-started';
 
 	// CollapsibleCard.Root takes either controlled (`open`/`onOpenChange`) or
 	// uncontrolled (`defaultOpen`) props — one at a time.
@@ -101,12 +111,25 @@ const VerificationCard: FC< Props > = ( {
 					<Text variant="body-md" render={ <p /> }>
 						{ description }
 					</Text>
+					{ onToggle && (
+						<ToggleControl
+							label={ __( 'Enable site verification', 'jetpack-seo' ) }
+							help={ __(
+								'Adds your saved verification codes to the site so supported services can confirm ownership.',
+								'jetpack-seo'
+							) }
+							checked={ active }
+							onChange={ onToggle }
+							disabled={ disabled }
+							__nextHasNoMarginBottom
+						/>
+					) }
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
 					<GoogleVerificationField
 						value={ value.google }
 						onChange={ next => onChange( 'google', next ) }
 						onCommit={ onCommit }
-						disabled={ disabled }
+						disabled={ controlsDisabled }
 					/>
 					<Stack direction="column" gap="md">
 						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
@@ -118,7 +141,7 @@ const VerificationCard: FC< Props > = ( {
 									onChange={ next => onChange( key, next ) }
 									onBlur={ onCommit }
 									help={ HINTS[ key ] }
-									disabled={ disabled }
+									disabled={ controlsDisabled }
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 								/>

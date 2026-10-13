@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Code block: use the named ampersand entity; the KSES bug the numeric one dodged is fixed in every supported WordPress.
+
+

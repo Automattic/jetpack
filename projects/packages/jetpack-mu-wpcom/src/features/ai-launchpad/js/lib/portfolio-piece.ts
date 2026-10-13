@@ -1,4 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
+import { blockAttributes } from './paragraph-blocks.ts';
+import type { SiteCopy } from './types.ts';
 
 interface CreatedPage {
 	id: number;
@@ -76,17 +78,25 @@ const IMAGE_BLOCK =
  * The three things it asks for are the three that separate a piece from a gallery. They are also three
  * things no model has ever heard of, which is why this page ships no AI-written copy at all: unlike the
  * contact, events and video pages, it has no site-level line to open with. Its subject is one job.
+ *
+ * @param copy - The site-language placeholder.
+ * @return The serialized paragraph block.
  */
-const DESCRIPTION_BLOCK =
-	'<!-- wp:paragraph {"placeholder":"What this project was, who it was for, and what you did."} --><p></p><!-- /wp:paragraph -->';
+function descriptionBlock( copy: Pick< SiteCopy, 'portfolio_piece_placeholder' > ): string {
+	return `<!-- wp:paragraph ${ blockAttributes( {
+		placeholder: copy.portfolio_piece_placeholder,
+	} ) } --><p></p><!-- /wp:paragraph -->`;
+}
 
 /**
  * Create the portfolio piece as an untitled draft page: one empty image block, one prompted blank line.
  *
+ * @param copy    - The site-language copy for the description placeholder.
  * @param fetcher - Injectable request handler, so the node:test suite can stub the REST call.
  * @return The created page id and its editor URL.
  */
 export async function createPortfolioPiece(
+	copy: Pick< SiteCopy, 'portfolio_piece_placeholder' >,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
 	const page = ( await fetcher( {
@@ -94,13 +104,13 @@ export async function createPortfolioPiece(
 		method: 'POST',
 		data: {
 			// Deliberately empty, where the About/Gallery/Contact/Events/Videos pages all carry a fixed
-			// English placeholder title. Those five name the page's role and are right as they stand. This
+			// placeholder title. Those five name the page's role and are right as they stand. This
 			// page's title is the project's name, which only the user has — so any string here would be an
 			// invention on the most prominent line of the page, the same mistake the events page refuses to
 			// make with dates. Empty leaves core's own "Add title" prompt at the top of the editor, which is
 			// the first thing the user should be filling in anyway.
 			title: '',
-			content: [ IMAGE_BLOCK, DESCRIPTION_BLOCK ].join( '\n\n' ),
+			content: [ IMAGE_BLOCK, descriptionBlock( copy ) ].join( '\n\n' ),
 			status: 'draft',
 			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.
 			meta: { _wpcom_ai_launchpad_portfolio_piece: true },

@@ -1,6 +1,18 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { render, screen } from '@testing-library/react';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsletter-widget';
+
+// The analytics destination is resolved from script data, which wp-admin prints
+// and this test does not. Mock it: the URL grammar is covered where the helper
+// lives, so these assertions only care that the widget links to what it returns.
+const ANALYTICS_URL =
+	'https://example.com/wp-admin/admin.php?page=analytics&p=%2F%3Fsection%3Dsubscribers';
+
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
+	getAnalyticsUrl: jest.fn(),
+	hasAnalyticsDashboard: jest.fn( () => true ),
+} ) );
 
 jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
@@ -42,6 +54,11 @@ describe( 'NewsletterWidget', () => {
 		newsletterSettingsUrl: 'https://wordpress.com/settings/newsletter/example.com',
 	};
 
+	beforeEach( () => {
+		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
+		jest.mocked( getAnalyticsUrl ).mockReturnValue( ANALYTICS_URL );
+	} );
+
 	it( 'renders', () => {
 		render( <NewsletterWidget { ...defaultProps } /> );
 		expect( screen.getByText( 'Quick Links' ) ).toBeInTheDocument();
@@ -78,7 +95,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'View subscriber stats',
-				href: 'https://example.com/wp-admin/admin.php?page=stats#!/stats/subscribers/example.com',
+				href: ANALYTICS_URL,
 			},
 			{
 				text: 'Import subscribers',
@@ -130,7 +147,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'View subscriber stats',
-				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=stats#!/stats/subscribers/${ defaultProps.site }`,
+				href: ANALYTICS_URL,
 			},
 			{
 				text: 'Import subscribers',
@@ -202,6 +219,34 @@ describe( 'NewsletterWidget', () => {
 			render( <NewsletterWidget { ...defaultProps } isStatsModuleActive={ false } /> );
 
 			expect( screen.queryByText( 'View subscriber stats' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	// The helper returns null where the dashboard is the analytics UI and the
+	// current user cannot open it — they fail the Stats page's capability too, so
+	// the widget hides the links rather than falling back.
+	describe( 'without access to analytics', () => {
+		beforeEach( () => {
+			jest.mocked( getAnalyticsUrl ).mockReturnValue( null );
+		} );
+
+		it( 'drops the subscriber stats quick link', () => {
+			render( <NewsletterWidget { ...defaultProps } /> );
+
+			expect( screen.queryByText( 'View subscriber stats' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still shows the subscriber counts, as plain text', () => {
+			render( <NewsletterWidget { ...defaultProps } /> );
+
+			const subscribersText = `${ defaultProps.allSubscribers } subscribers (${ defaultProps.emailSubscribers } via email)`;
+			const paidText = `${ defaultProps.paidSubscribers } paid subscribers`;
+
+			// Present as text, but not as links.
+			expect( screen.getByText( subscribersText ) ).toBeInTheDocument();
+			expect( screen.getByText( paidText ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: subscribersText } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: paidText } ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

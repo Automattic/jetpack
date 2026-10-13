@@ -24,7 +24,7 @@ registerJetpackBlockFromMetadata( metadata, {
 						? createBlock( 'core/heading', {
 								content: instance.raw.title,
 								level: 3,
-						  } )
+							} )
 						: null;
 
 					const topPostsBlock = createBlock( 'jetpack/top-posts', {

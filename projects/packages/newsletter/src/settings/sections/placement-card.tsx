@@ -3,7 +3,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
 import './placement-card.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 interface PlacementCardProps {
 	/**
