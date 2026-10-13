@@ -34,8 +34,9 @@ const NoticeContextProvider = ( { children } ) => {
 					notice.options?.onClose || ( ! notice.options?.hideCloseButton ? onClose : undefined ),
 			};
 
-			// Replace the notice only if none is showing or the new one has a higher priority. Read the
-			// queued state, since watchers call this several times in one effect pass.
+			// Replace the notice only if none is showing or the new one has a higher priority, so on a tie
+			// the watcher that runs first keeps it. Read the queued state, since watchers call this several
+			// times in one effect pass.
 			setCurrentNotice( prev =>
 				! prev.message || notice.options.priority > prev.options.priority
 					? { ...notice, options: newOptions }
