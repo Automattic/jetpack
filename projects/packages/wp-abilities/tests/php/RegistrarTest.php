@@ -51,12 +51,12 @@ class RegistrarTest extends TestCase {
 	}
 
 	/**
-	 * The gate filter defaults to false: init() must register nothing.
+	 * The gate filter defaults to true, and init() registers nothing when it returns false.
 	 */
-	public function test_init_is_disabled_by_default(): void {
+	public function test_init_registers_nothing_when_the_gate_filter_returns_false(): void {
 		Filters\expectApplied( 'jetpack_wp_abilities_enabled' )
 			->once()
-			->with( false )
+			->with( true )
 			->andReturn( false );
 
 		Functions\expect( 'did_action' )->never();

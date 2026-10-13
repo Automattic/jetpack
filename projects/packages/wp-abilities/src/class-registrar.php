@@ -65,9 +65,8 @@ abstract class Registrar {
 	 * Wire up the Abilities API registrations.
 	 *
 	 * Gated behind the `jetpack_wp_abilities_enabled` filter, which defaults
-	 * to `false`. Consumers opt in explicitly — per site, per user, or via
-	 * feature flag — so abilities roll out gradually rather than flipping on
-	 * for every site the moment the package loads.
+	 * to `true`. Return `false` from it to turn registration off for a site
+	 * or a single request.
 	 *
 	 * When the filter returns `true`, each of the two Abilities API lifecycle
 	 * actions either gets a registration callback hooked, or — if the action
@@ -80,15 +79,15 @@ abstract class Registrar {
 		/**
 		 * Filters whether Jetpack Abilities API registration should run.
 		 *
-		 * Default `false`. Return `true` to enable registration for this
-		 * request, typically gated on a site option, user capability, or
-		 * feature flag to support staged rollout.
+		 * Default `true`. Return `false` to skip registration for this
+		 * request, for example to turn Jetpack's abilities off on a site.
 		 *
 		 * @since 0.1.0
+		 * @since $$next-version$$ Defaults to `true`.
 		 *
-		 * @param bool $enabled Whether to register abilities. Default false.
+		 * @param bool $enabled Whether to register abilities. Default true.
 		 */
-		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', true ) ) {
 			return;
 		}
 

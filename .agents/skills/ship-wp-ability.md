@@ -211,7 +211,7 @@ The test file lives at:
 Required coverage:
 
 - **Registrar wiring** (the differentiating value-add):
-  - `jetpack_wp_abilities_enabled` defaulting false → `init()` registers nothing.
+  - `jetpack_wp_abilities_enabled` returning false → `init()` registers nothing.
   - Filter enabled, neither action fired → both lifecycle hooks added.
   - Filter enabled, `wp_abilities_api_categories_init` already fired → category registered directly, abilities still hooked.
   - Per-ability `jetpack_wp_abilities_should_register` filter — returning false skips that ability.
@@ -321,7 +321,7 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 
 ## Failure modes / debugging
 
-- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `false`. Tests must filter it true (`Filters\expectApplied('jetpack_wp_abilities_enabled')->andReturn(true)`), and live sites need to opt in via a feature flag, option, or site-specific filter.
+- **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `true`, so check whether something returns `false` from it, or from `jetpack_wp_abilities_should_register` for your slug.
 - **The class loads but hooks don't fire.** You're loading the file too late — after `wp_abilities_api_init` has already fired — and you also skipped `Registrar::init()`'s late-load path by overriding `init()`. Don't override `init()`; let the base class run.
 - **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar` and implement the three abstract methods.
 - **Module-backed ability landed in `projects/plugins/jetpack/src/abilities/` and is wired from `class.jetpack.php`** (the PR #48284 pattern). Colocation lint will catch this. The ability loads on every request regardless of module state, pollutes the API surface when the module is off, and pays autoload cost for nothing. Move the file into `modules/<slug>/abilities/` and wire from `modules/<slug>.php`.
