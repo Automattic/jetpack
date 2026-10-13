@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -153,6 +154,49 @@ class Dashboard_Test extends BaseTestCase {
 
 		$item = Admin_Menu::remove_menu( Dashboard::MENU_SLUG );
 		$this->assertSame( 'protect-dashboard', $item['args']['module'] );
+	}
+
+	/**
+	 * Roles, and whether they see the threat count.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_threat_count_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'editor'        => array( 'editor', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_threat_count_roles
+	 *
+	 * @param string $role     Role of the current user.
+	 * @param bool   $expected Whether a count is registered on the Protect item.
+	 */
+	#[DataProvider( 'provide_threat_count_roles' )]
+	public function test_add_menu_counts_threats_on_the_protect_item_for_managers( $role, $expected ) {
+		Notification_Counts::reset();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => $role,
+					'user_pass'  => 'pass',
+					'role'       => $role,
+				)
+			)
+		);
+
+		Dashboard::add_menu();
+
+		$entries = Notification_Counts::all();
+		Notification_Counts::reset();
+		wp_set_current_user( 0 );
+		$this->assertSame( $expected, isset( $entries[ Dashboard::MENU_SLUG ] ) );
+		if ( $expected ) {
+			$this->assertSame( Dashboard::MENU_SLUG, $entries[ Dashboard::MENU_SLUG ]['menu_slug'] );
+			$this->assertSame( 'count', $entries[ Dashboard::MENU_SLUG ]['type'] );
+		}
 	}
 
 	/**

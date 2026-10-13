@@ -8,8 +8,11 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Menu_Badges\Menu_Badges;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -358,6 +361,30 @@ class Dashboard {
 			array( __CLASS__, 'render' ),
 			null,
 			array_merge( array( 'key' => self::MENU_SLUG ), self::$menu_options )
+		);
+
+		self::register_threat_count();
+	}
+
+	/**
+	 * Show the number of threats next to the "Protect" item, for users who can open the page.
+	 *
+	 * @return void
+	 */
+	private static function register_threat_count() {
+		if ( ! self::can_manage() ) {
+			return;
+		}
+
+		Menu_Badges::init();
+		// The same ID as the Jetpack Protect plugin's entry, so the threats are not counted twice.
+		Notification_Counts::register(
+			self::MENU_SLUG,
+			array(
+				'menu_slug' => self::MENU_SLUG,
+				'count'     => Status::get_total_threats(),
+				'type'      => 'count',
+			)
 		);
 	}
 

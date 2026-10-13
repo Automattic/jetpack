@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Scan: Point the admin bar threats notice and My Jetpack at the Protect dashboard instead of Jetpack Cloud, and drop the external Scan menu item, when the Protect dashboard is active.
+Scan: Point the admin bar threats notice and My Jetpack at the Protect dashboard instead of Jetpack Cloud, drop the external Scan menu item, and show the number of threats next to the Protect menu item, when the Protect dashboard is active.
