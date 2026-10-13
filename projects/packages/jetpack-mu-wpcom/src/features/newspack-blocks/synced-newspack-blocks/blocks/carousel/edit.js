@@ -204,8 +204,8 @@ class Edit extends Component {
 		];
 
 		return (
-			<Fragment>
-				<InspectorControls>
+            <Fragment>
+                <InspectorControls>
 					<PanelBody title={ __( 'Settings', 'jetpack-mu-wpcom' ) } className="newspack-block__panel is-content">
 						{ postsToShow && (
 							<QueryControls
@@ -298,7 +298,11 @@ class Edit extends Component {
 							help={
 								'cover' === imageFit
 									? __( 'The image will fill the entire slide and will be cropped if necessary.', 'jetpack-mu-wpcom' )
-									: __( 'The image will be resized to fit inside the slide without being cropped.', 'jetpack-mu-wpcom' )
+									: __(
+                                    'The image will be resized to fit inside the slide without being cropped.',
+                                    'jetpack-mu-wpcom',
+                                    0
+                                )
 							}
 							value={ imageFit }
 							onChange={ value => setAttributes( { imageFit: value } ) }
@@ -355,7 +359,7 @@ class Edit extends Component {
 					<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
 					<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
 				</InspectorControls>
-				<div { ...blockProps } className={ classes }>
+                <div { ...blockProps } className={ classes }>
 					{ hasNoPosts && (
 						<Placeholder className="component-placeholder__align-center">
 							<div style={ { margin: 'auto' } }>{ __( 'Sorry, no posts were found.', 'jetpack-mu-wpcom' ) }</div>
@@ -477,8 +481,8 @@ class Edit extends Component {
 						</Fragment>
 					) }
 				</div>
-			</Fragment>
-		);
+            </Fragment>
+        );
 	}
 }
 

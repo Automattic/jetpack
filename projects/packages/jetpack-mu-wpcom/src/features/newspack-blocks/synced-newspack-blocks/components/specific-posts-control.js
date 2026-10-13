@@ -45,8 +45,8 @@ const SpecificPostsControl = ( { postIds = [], onChange, fetchSuggestions, fetch
 	);
 
 	return (
-		<>
-			<VStack spacing={ 2 }>
+        <>
+            <VStack spacing={ 2 }>
 				<AutocompleteTokenField
 					tokens={ postIds }
 					onChange={ onChange }
@@ -66,13 +66,13 @@ const SpecificPostsControl = ( { postIds = [], onChange, fetchSuggestions, fetch
 					// label to the visible text leaves the accessible name unchanged.
 					label={ reorderLabel }
 					showTooltip={ ! canReorder }
-					description={ canReorder ? undefined : __( 'Pick at least two items to reorder them.', 'jetpack-mu-wpcom' ) }
+					description={ canReorder ? undefined : __('Pick at least two items to reorder them.', 'jetpack-mu-wpcom', 0) }
 					onClick={ () => setIsReordering( true ) }
 				>
 					{ reorderLabel }
 				</Button>
 			</VStack>
-			{ isReordering && (
+            { isReordering && (
 				<ReorderModal
 					title={ reorderLabel }
 					ids={ postIds }
@@ -84,8 +84,8 @@ const SpecificPostsControl = ( { postIds = [], onChange, fetchSuggestions, fetch
 					onClose={ () => setIsReordering( false ) }
 				/>
 			) }
-		</>
-	);
+        </>
+    );
 };
 
 export default SpecificPostsControl;

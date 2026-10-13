@@ -306,8 +306,8 @@ class QueryControls extends Component {
 		};
 
 		return (
-			<>
-				{ enableSpecific && (
+            <>
+                { enableSpecific && (
 					<ToggleGroupControl
 						label={ __( 'Mode', 'jetpack-mu-wpcom' ) }
 						value={ specificMode ? 'specific' : 'dynamic' }
@@ -322,7 +322,11 @@ class QueryControls extends Component {
 						help={
 							specificMode
 								? __( 'The block will display only the specifically selected content.', 'jetpack-mu-wpcom' )
-								: __( 'The block will display content based on the filtering settings below.', 'jetpack-mu-wpcom' )
+								: __(
+                                'The block will display content based on the filtering settings below.',
+                                'jetpack-mu-wpcom',
+                                0
+                            )
 						}
 						__next40pxDefaultSize
 					>
@@ -330,7 +334,7 @@ class QueryControls extends Component {
 						<ToggleGroupControlOption label={ __( 'Static', 'jetpack-mu-wpcom' ) } value="specific" />
 					</ToggleGroupControl>
 				) }
-				{ specificMode ? (
+                { specificMode ? (
 					<SpecificPostsControl
 						postIds={ specificPosts || [] }
 						onChange={ onSpecificPostsChange }
@@ -444,7 +448,7 @@ class QueryControls extends Component {
 							) ) }
 					</>
 				) }
-				{ onAllowDedupeChange && (
+                { onAllowDedupeChange && (
 					<ToggleControl
 						label={ __( 'Allow duplicate content', 'jetpack-mu-wpcom' ) }
 						help={ __( "Exclude this block from the page's deduplication logic.", 'jetpack-mu-wpcom' ) }
@@ -452,8 +456,8 @@ class QueryControls extends Component {
 						onChange={ value => onAllowDedupeChange( value ) }
 					/>
 				) }
-			</>
-		);
+            </>
+        );
 	};
 }
 
