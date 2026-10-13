@@ -48,6 +48,11 @@ class Jetpack_Mu_Wpcom {
 		'meetinghub/meetinghub.php'                      => null,
 		'mail-mint/mail-mint.php'                        => null,
 		'wp-letsencrypt-ssl-pro/wp-letsencrypt.php'      => null,
+		'astra-pro-sites/astra-pro-sites.php'            => null,
+		'echo-rewards/echo-rewards.php'                  => null,
+		'forminator/forminator.php'                      => null,
+		'iron-security/iron-security.php'                => null,
+		'stackable-ultimate-gutenberg-blocks/plugin.php' => null,
 	);
 
 	/**

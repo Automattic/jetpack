@@ -57,8 +57,6 @@ allowBuilds:
   unrs-resolver: false
   # Tries to rebuild itself if an environment variable is set.
   '@parcel/watcher': false
-  # Attempt to show "remember to install other stuff" spam.
-  svelte-preprocess: false
   # Attempt to show "support me" spam.
   core-js: false
   core-js-pure: false

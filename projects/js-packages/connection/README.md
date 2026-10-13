@@ -174,6 +174,34 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
+## Component `TransferConnectionOwnership`
+The `TransferConnectionOwnership` component hands this site's WordPress.com connection to another connected administrator. It walks the user through choosing one, confirming what moves with ownership, and a success message.
+
+It is not a modal and renders no chrome of its own: the surface that hosts it supplies the container, the heading and the way out. That is what lets the same component serve a dialog, a card or a settings panel.
+
+On success it updates the package store with the new owner, so surfaces reading connection state from the store — including `isMaster` — reflect the change without a page reload. A host that passes its own copy of that data down as props, as `ManageConnectionDialog` does with `connectedUser`, only reflects it if that copy comes from the store.
+
+### Properties
+- *apiRoot* - string (required), API root URL.
+- *apiNonce* - string (required), API Nonce.
+- *onTransferred* - callback, to be called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
+
+### Important Notes
+The component renders only the controls its own steps need: `Continue`, `Back` between steps, and the transfer itself. Leaving the flow is the host surface's business, so there is no Cancel, Close or Done button — add one in your own chrome if the surface needs it.
+
+If the site has no other connected administrator, the component explains why rather than offering an action that cannot succeed, so a host should not assume a transfer is always possible.
+
+### Basic Usage
+```jsx
+import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
+
+<TransferConnectionOwnership
+	apiRoot={ APIRoot }
+	apiNonce={ APINonce }
+	onTransferred={ () => setIsPanelOpen( false ) }
+/>
+```
+
 ## Fetching connection status and other data from the store
 The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
 and [resolvers](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#resolvers)

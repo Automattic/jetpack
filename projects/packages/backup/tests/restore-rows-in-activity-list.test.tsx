@@ -183,7 +183,7 @@ describe( 'a restore that has already ended', () => {
 		render( <OverviewStage /> );
 		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
-		expect( screen.getByText( 'Restore to Aug 13, 2026, 6:08 PM' ) ).toBeVisible();
+		expect( screen.getByText( 'Restore to August 13, 2026 6:08 pm' ) ).toBeVisible();
 	} );
 
 	it( 'reads the collection once for the whole screen', async () => {

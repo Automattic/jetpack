@@ -169,6 +169,9 @@ type SeriesChartLegendConfig = {
 	// Append a static "Comparison period" item styled like the `type: 'comparison'` series
 	// (a string replaces the label). Only added when those series have no item of their own.
 	comparisonItem?: boolean | string;
+	// Append one static item per comparison series instead, named from the label of the item it
+	// was folded into and left out while that series is hidden.
+	comparisonSeriesItems?: ( seriesLabel: string ) => string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;
