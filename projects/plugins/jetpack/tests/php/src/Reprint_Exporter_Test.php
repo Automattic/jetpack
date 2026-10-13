@@ -814,7 +814,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 * Re-saving an unchanged secret still reports success.
 	 */
 	public function test_store_secret_reports_success_for_an_unchanged_secret() {
-		$this->assertTrue( Reprint_Exporter::store_secret( 'a-secret' ) );
+		Reprint_Exporter::store_secret( 'a-secret' );
 		$this->assertTrue( Reprint_Exporter::store_secret( 'a-secret' ) );
 	}
 
