@@ -38,7 +38,9 @@ export function ChartEmptyState( {
 		<EmptyState.Root className={ styles.container }>
 			{ /* 40px matches the error state's glyph so adjacent widgets showing
 			     different states keep the same vertical rhythm. */ }
-			<Icon size={ 40 } className={ styles.icon } icon={ icon } />
+			<EmptyState.Visual className={ styles.icon }>
+				<Icon size={ 40 } icon={ icon } />
+			</EmptyState.Visual>
 			<EmptyState.Description>{ text }</EmptyState.Description>
 			{ action && (
 				<EmptyState.Actions>
