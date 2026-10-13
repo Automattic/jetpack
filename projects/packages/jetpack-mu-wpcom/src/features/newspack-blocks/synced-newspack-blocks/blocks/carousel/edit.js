@@ -148,6 +148,7 @@ class Edit extends Component {
 			postsToShow,
 			postType,
 			showCategory,
+			showTagLabels,
 			showDate,
 			showAuthor,
 			showAvatar,
@@ -203,8 +204,8 @@ class Edit extends Component {
 		];
 
 		return (
-            <Fragment>
-                <InspectorControls>
+			<Fragment>
+				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'jetpack-mu-wpcom' ) } className="newspack-block__panel is-content">
 						{ postsToShow && (
 							<QueryControls
@@ -297,11 +298,7 @@ class Edit extends Component {
 							help={
 								'cover' === imageFit
 									? __( 'The image will fill the entire slide and will be cropped if necessary.', 'jetpack-mu-wpcom' )
-									: __(
-                                    'The image will be resized to fit inside the slide without being cropped.',
-                                    'jetpack-mu-wpcom',
-                                    0
-                                )
+									: __( 'The image will be resized to fit inside the slide without being cropped.', 'jetpack-mu-wpcom' )
 							}
 							value={ imageFit }
 							onChange={ value => setAttributes( { imageFit: value } ) }
@@ -339,6 +336,11 @@ class Edit extends Component {
 							onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
 						/>
 						<ToggleControl
+							label={ __( 'Show tag labels', 'jetpack-mu-wpcom' ) }
+							checked={ showTagLabels }
+							onChange={ () => setAttributes( { showTagLabels: ! showTagLabels } ) }
+						/>
+						<ToggleControl
 							label={ __( 'Show author', 'jetpack-mu-wpcom' ) }
 							checked={ showAuthor }
 							onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
@@ -353,7 +355,7 @@ class Edit extends Component {
 					<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
 					<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
 				</InspectorControls>
-                <div { ...blockProps } className={ classes }>
+				<div { ...blockProps } className={ classes }>
 					{ hasNoPosts && (
 						<Placeholder className="component-placeholder__align-center">
 							<div style={ { margin: 'auto' } }>{ __( 'Sorry, no posts were found.', 'jetpack-mu-wpcom' ) }</div>
@@ -392,6 +394,7 @@ class Edit extends Component {
 										</figure>
 										{ ( post.newspack_post_sponsors ||
 											showCategory ||
+											( showTagLabels && post.newspack_tag_labels ) ||
 											showTitle ||
 											showAuthor ||
 											showDate ||
@@ -407,6 +410,21 @@ class Edit extends Component {
 															( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
 																<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
 															) }
+													</div>
+												) }
+												{ showTagLabels && post.newspack_tag_labels && (
+													<div className="tag-labels">
+														{ post.newspack_tag_labels.map( ( newspack_tag_label, index ) => {
+															return newspack_tag_label.link ? (
+																<a key={ index } href="#" className="tag-label flag">
+																	{ newspack_tag_label.flag }
+																</a>
+															) : (
+																<span key={ index } className="tag-label flag">
+																	{ newspack_tag_label.flag }
+																</span>
+															);
+														} ) }
 													</div>
 												) }
 												{ showTitle && (
@@ -459,8 +477,8 @@ class Edit extends Component {
 						</Fragment>
 					) }
 				</div>
-            </Fragment>
-        );
+			</Fragment>
+		);
 	}
 }
 
