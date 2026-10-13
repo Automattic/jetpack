@@ -179,7 +179,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					empty={ {
 						icon: search,
 						description: __(
-							'You don’t have UTM visits for this period.',
+							'You don’t have UTM visits for this period. Build a URL to start tracking a campaign.',
 							'jetpack-premium-analytics-pkg'
 						),
 						action: {
